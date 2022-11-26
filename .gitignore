@@ -1,0 +1,20 @@
+# general things to ignore
+build/
+dist/
+*.egg-info/
+*.egg
+*.py[cod]
+__pycache__/
+*.so
+*~
+
+/.idea/
+/.jekyll-cache/
+/.sync/
+
+/data/
+/third_party/
+/projects/train/runs/
+/projects/zeroadce/data/
+/projects/zeroadce/runs/
+/pretrained/
