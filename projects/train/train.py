@@ -94,7 +94,7 @@ hosts = {
 		"strategy"   : None,
 	},
     "vsw-ws02": {
-		"cfg"        : "finet_0_5_interleave_cityscapes_rain_256",
+		"cfg"        : "finet_0_0_linear_cityscapes_rain_256",
         "project"    : "finet_cityscapes_rain",
         "weights"    : None,
         "batch_size" : 4,
@@ -106,7 +106,7 @@ hosts = {
 		"strategy"   : None,
 	},
     "vsw-ws03": {
-		"cfg"        : "finet_1_0_interleave_cityscapes_rain_256",
+		"cfg"        : "finet_0_7_interleave_cityscapes_rain_256",
         "project"    : "finet_cityscapes_rain",
         "weights"    : None,
         "batch_size" : 4,

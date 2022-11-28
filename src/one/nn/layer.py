@@ -1660,7 +1660,7 @@ class GhostConv2d(Module):
                 out_channels = init_channels,
                 kernel_size  = kernel_size,
                 stride       = stride,
-                padding      = padding or (kernel_size // 2),
+                padding      = kernel_size // 2,
                 dilation     = dilation,
                 groups       = groups,
                 bias         = False,
@@ -1677,7 +1677,7 @@ class GhostConv2d(Module):
                 out_channels = new_channels,
                 kernel_size  = dw_kernel_size,
                 stride       = 1,
-                padding      = padding or (dw_kernel_size // 2),
+                padding      = dw_kernel_size // 2,
                 groups       = init_channels,
                 bias         = False,
                 padding_mode = padding_mode,
@@ -4715,7 +4715,6 @@ class FINetGhostConv(Module):
             out_channels   = out_channels,
             dw_kernel_size = 3,
             stride         = 1,
-            padding        = 0,
             bias           = True,
         )
         self.relu1 = GELU()
@@ -4724,7 +4723,6 @@ class FINetGhostConv(Module):
             out_channels   = out_channels,
             dw_kernel_size = 3,
             stride         = 1,
-            padding        = 0,
             bias           = True,
         )
         self.relu2    = GELU()
