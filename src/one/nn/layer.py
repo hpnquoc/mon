@@ -494,6 +494,94 @@ class ChannelAttentionModule(Module):
         return y
 
 
+class GhostSupervisedAttentionModule(Module):
+    """
+    Ghost Supervised Attention Module.
+    """
+    
+    def __init__(
+        self,
+        channels    : int,
+        kernel_size : Ints,
+        stride      : Ints = 1,
+        dilation    : Ints = 1,
+        groups      : int  = 1,
+        bias        : bool = True,
+        padding_mode: str  = "zeros",
+        device      : Any  = None,
+        dtype       : Any  = None,
+        **_
+    ):
+        super().__init__()
+        padding = kernel_size[0] // 2 \
+            if isinstance(kernel_size, Sequence) \
+            else kernel_size // 2
+
+        self.conv1 = GhostConv2d(
+            in_channels  = channels,
+            out_channels = channels,
+            kernel_size  = kernel_size,
+            stride       = stride,
+            padding      = padding,
+            dilation     = dilation,
+            groups       = groups,
+            bias         = bias,
+            padding_mode = padding_mode,
+            device       = device,
+            dtype        = dtype,
+        )
+        self.conv2  = GhostConv2d(
+            in_channels  = channels,
+            out_channels = 3,
+            kernel_size  = kernel_size,
+            stride       = stride,
+            padding      = padding,
+            dilation     = dilation,
+            groups       = groups,
+            bias         = bias,
+            padding_mode = padding_mode,
+            device       = device,
+            dtype        = dtype,
+        )
+        self.conv3  = GhostConv2d(
+            in_channels  = 3,
+            out_channels = channels,
+            kernel_size  = kernel_size,
+            stride       = stride,
+            padding      = padding,
+            dilation     = dilation,
+            groups       = groups,
+            bias         = bias,
+            padding_mode = padding_mode,
+            device       = device,
+            dtype        = dtype,
+        )
+        self.act = Sigmoid()
+        
+    def forward(self, input: Sequence[Tensor]) -> tuple[Tensor, Tensor]:
+        """
+        Run forward pass.
+
+        Args:
+            input (Sequence[Tensor]): A list of 2 tensors. The first tensor is
+                the output from previous layer. The second tensor is the
+                current step input.
+            
+        Returns:
+            Supervised attention features.
+            Output feature for the next layer.
+        """
+        assert_sequence_of_length(input, 2)
+        fy  = input[0]
+        x   = input[1]
+        y1  = self.conv1(fy)
+        img = self.conv2(fy) + x
+        y2  = self.act(self.conv3(img))
+        y   = y1 * y2
+        y   = y  + fy
+        return y, img
+
+
 class PixelAttentionModule(Module):
     """
     Pixel Attention Module.
@@ -780,7 +868,8 @@ class SupervisedAttentionModule(Module):
         return y, img
 
 
-SAM = SupervisedAttentionModule
+GhostSAM = GhostSupervisedAttentionModule
+SAM      = SupervisedAttentionModule
 
 
 # H2: - Bottleneck -------------------------------------------------------------
@@ -789,6 +878,7 @@ class GhostSEBottleneck(Module):
     """
     Squeeze-and-Excite Bottleneck layer used in GhostBottleneck module.
     """
+    
     def __init__(
         self,
         in_channels     : int,
@@ -2725,6 +2815,10 @@ class Sum(Module):
         for i in range(1, len(x)):
             y += x[i]
         return y
+
+
+# H2: - Ghost ------------------------------------------------------------------
+# GhostConv inspired layers
 
 
 # H2: - Head -------------------------------------------------------------------

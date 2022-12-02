@@ -82,8 +82,8 @@ def train(args: Munch | dict):
 
 hosts = {
 	"lp-labdesktop01-ubuntu": {
-		"cfg"        : "finet_g_0_5_linear_cityscapes_rain_256",
-        "project"    : "finet_cityscapes_rain",
+		"cfg"        : "finet_a_linear_0_0_ihaze_256",
+        "project"    : "finet.ihaze.a_linear",
         "weights"    : None,
         "batch_size" : 4,
         # "img_size"   : None,
@@ -94,8 +94,8 @@ hosts = {
 		"strategy"   : None,
 	},
     "vsw-ws02": {
-		"cfg"        : "finet_0_0_linear_cityscapes_rain_256",
-        "project"    : "finet_cityscapes_rain",
+		"cfg"        : "finet_a_linear_0_1_ihaze_256",
+        "project"    : "finet.ihaze.a_linear",
         "weights"    : None,
         "batch_size" : 4,
         # "img_size"   : None,
@@ -106,8 +106,8 @@ hosts = {
 		"strategy"   : None,
 	},
     "vsw-ws03": {
-		"cfg"        : "finet_0_7_interleave_cityscapes_rain_256",
-        "project"    : "finet_cityscapes_rain",
+		"cfg"        : "finet_a_linear_0_2_ihaze_256",
+        "project"    : "finet.ihaze.a_linear",
         "weights"    : None,
         "batch_size" : 4,
         # "img_size"   : None,
@@ -148,6 +148,7 @@ if __name__ == "__main__":
         module = importlib.import_module(f"one.cfg.{cfg}")
     
     project     = input_args.get("project",     None) or host_args.get("project",     None) or module.model["project"]
+    project     = Path(str(project).replace(".", "/"))
     weights     = input_args.get("weights",     None) or host_args.get("weights",     None) or module.model["pretrained"]
     batch_size  = input_args.get("batch_size",  None) or host_args.get("batch_size",  None) or module.data["batch_size"]
     shape       = input_args.get("img_size",    None) or host_args.get("img_size",    None) or module.data["shape"]

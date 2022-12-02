@@ -1264,6 +1264,9 @@ def parse_model(
             FFABlock,
             FFAGroup,
             PixelAttentionModule,
+            GhostSAM,
+            GhostSupervisedAttentionModule,
+            SAM,
             SupervisedAttentionModule,
         ]:
             if isinstance(f, (list, tuple)):
