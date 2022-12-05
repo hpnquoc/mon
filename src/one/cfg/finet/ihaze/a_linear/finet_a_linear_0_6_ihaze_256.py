@@ -153,7 +153,7 @@ model = {
 
 callbacks = [
     default.model_checkpoint | {
-	    "monitor": "checkpoint/psnr/train_epoch",
+	    "monitor": "checkpoint/psnr/val_epoch",
 		    # Quantity to monitor. Defaults to None which saves a checkpoint
 	        # only for the last epoch.
 		"mode": "max",

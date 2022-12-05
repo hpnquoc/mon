@@ -154,6 +154,7 @@ if __name__ == "__main__":
         module = importlib.import_module(f"one.cfg.{cfg}")
     
     project     = input_args.get("project",     None) or host_args.get("project",     None) or module.model["project"]
+    project     = Path(str(project).replace(".", "/"))
     weights     = input_args.get("weights",     None) or host_args.get("weights",     None) or module.model["pretrained"]
     batch_size  = input_args.get("batch_size",  None) or host_args.get("batch_size",  None) or module.data["batch_size"]
     shape       = input_args.get("img_size",    None) or host_args.get("img_size",    None) or module.data["shape"]

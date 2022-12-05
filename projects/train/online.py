@@ -146,6 +146,7 @@ if __name__ == "__main__":
     weights     = input_args.get("weights",     None) or host_args.get("weights",     None)
     root        = input_args.get("root",        None) or host_args.get("root",        None)
     project     = input_args.get("project",     None) or host_args.get("project",     None)
+    project     = Path(str(project).replace(".", "/"))
     name        = input_args.get("name",        None) or host_args.get("name",        None)
     num_classes = input_args.get("num_classes", None) or host_args.get("num_classes", None)
     source      = input_args.get("source",      None) or host_args.get("source",      None)

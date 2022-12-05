@@ -82,39 +82,42 @@ def train(args: Munch | dict):
 
 hosts = {
 	"lp-labdesktop01-ubuntu": {
-		"cfg"        : "finet_a_linear_0_0_ihaze_256",
-        "project"    : "finet.ihaze.a_linear",
+		"cfg"        : "finet_b_linear_0_0_ihaze_256",
+        "project"    : "finet.ihaze.b_linear",
         "weights"    : None,
         "batch_size" : 4,
         # "img_size"   : None,
         "img_size"   : (3, 256, 256),
         "accelerator": "auto",
 		"devices"    : 1,
-        "max_epochs" : 50,
+        "max_epochs" : None,
+        "max_steps"  : 400000,
 		"strategy"   : None,
 	},
     "vsw-ws02": {
-		"cfg"        : "finet_a_linear_0_1_ihaze_256",
-        "project"    : "finet.ihaze.a_linear",
+		"cfg"        : "finet_b_linear_0_4_ihaze_256",
+        "project"    : "finet.ihaze.b_linear",
         "weights"    : None,
         "batch_size" : 4,
         # "img_size"   : None,
-        "img_size": (3, 256, 256),
+        "img_size"   : (3, 256, 256),
         "accelerator": "auto",
 		"devices"    : 1,
-        "max_epochs" : 50,
+        "max_epochs" : None,
+        "max_steps"  : 400000,
 		"strategy"   : None,
 	},
     "vsw-ws03": {
-		"cfg"        : "finet_a_linear_0_2_ihaze_256",
-        "project"    : "finet.ihaze.a_linear",
+		"cfg"        : "finet_b_linear_0_6_ihaze_256",
+        "project"    : "finet.ihaze.b_linear",
         "weights"    : None,
         "batch_size" : 4,
         # "img_size"   : None,
-        "img_size": (3, 256, 256),
+        "img_size"   : (3, 256, 256),
         "accelerator": "auto",
 		"devices"    : 1,
-        "max_epochs" : 50,
+        "max_epochs" : None,
+        "max_steps"  : 400000,
 		"strategy"   : None,
 	},
 }
@@ -130,6 +133,7 @@ def parse_args():
     parser.add_argument("--accelerator", type=str,            help="Supports passing different accelerator types ('cpu', 'gpu', 'tpu', 'ipu', 'hpu', 'mps', 'auto') as well as custom accelerator instances.")
     parser.add_argument("--devices",     type=str,            help="Will be mapped to either gpus, tpu_cores, num_processes or ipus based on the accelerator type.")
     parser.add_argument("--max-epochs",  type=int,            help="Stop training once this number of epochs is reached.")
+    parser.add_argument("--max-steps",   type=int,            help="Stop training once this number of steps is reached.")
     parser.add_argument("--strategy",    type=str,            help="Supports different training strategies with aliases as well custom strategies.")
     args = parser.parse_args()
     return args
@@ -155,6 +159,7 @@ if __name__ == "__main__":
     accelerator = input_args.get("accelerator", None) or host_args.get("accelerator", None) or module.trainer["accelerator"]
     devices     = input_args.get("devices",     None) or host_args.get("devices",     None) or module.trainer["devices"]
     max_epochs  = input_args.get("max_epochs",  None) or host_args.get("max_epochs",  None) or module.trainer["max_epochs"]
+    max_steps   = input_args.get("max_steps",   None) or host_args.get("max_steps",   None) or module.trainer["max_steps"]
     strategy    = input_args.get("strategy",    None) or host_args.get("strategy",    None) or module.trainer["strategy"]
     
     args = Munch(
@@ -174,6 +179,7 @@ if __name__ == "__main__":
             "accelerator": accelerator,
             "devices"    : devices,
             "max_epochs" : max_epochs,
+            "max_steps"  : max_steps,
             "strategy"   : strategy,
         },
     )

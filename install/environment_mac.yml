@@ -77,7 +77,6 @@ dependencies:
   - torchaudio=0.12.1
   - pretrainedmodels
   - pycocotools
-  - pytorch-lightning>=1.8.2
   - pytorch-model-summary
   - timm
   - torchmetrics
@@ -101,3 +100,4 @@ dependencies:
       # - opencv-contrib-python
       # - pycuda
       - pyiqa
+      - pytorch-lightning>=1.8.3
