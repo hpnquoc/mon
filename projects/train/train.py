@@ -82,7 +82,7 @@ def train(args: Munch | dict):
 
 hosts = {
 	"lp-labdesktop01-ubuntu": {
-		"cfg"        : "finet_b_linear_0_0_ihaze_256",
+		"cfg"        : "finet_b_linear_1_0_ihaze_256",
         "project"    : "finet.ihaze.b_linear",
         "weights"    : None,
         "batch_size" : 4,
@@ -95,8 +95,8 @@ hosts = {
 		"strategy"   : None,
 	},
     "vsw-ws02": {
-		"cfg"        : "finet_b_linear_0_4_ihaze_256",
-        "project"    : "finet.ihaze.b_linear",
+		"cfg"        : "finet_a_interleave_0_7_ihaze_256",
+        "project"    : "finet.ihaze.a_interleave",
         "weights"    : None,
         "batch_size" : 4,
         # "img_size"   : None,
@@ -108,8 +108,8 @@ hosts = {
 		"strategy"   : None,
 	},
     "vsw-ws03": {
-		"cfg"        : "finet_b_linear_0_6_ihaze_256",
-        "project"    : "finet.ihaze.b_linear",
+		"cfg"        : "finet_b_interleave_0_8_ihaze_256",
+        "project"    : "finet.ihaze.b_interleave",
         "weights"    : None,
         "batch_size" : 4,
         # "img_size"   : None,
