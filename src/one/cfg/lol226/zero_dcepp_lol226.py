@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-Zero-DCE trained on LIME dataset.
+Zero-DCE++ trained on LoL226 dataset.
 """
 
 from __future__ import annotations
@@ -15,10 +15,10 @@ from one.vision.transformation import Resize
 
 # H1: - Basic ------------------------------------------------------------------
 
-model_name = "zerodcev2"
-model_cfg  = "zerodcev2-a"
+model_name = "zero-dce++"
+model_cfg  = "zero-dce++.yaml"
 data_name  = "lol226"
-fullname   = f"{model_cfg}-{data_name}"
+fullname   = f"{model_name}-{data_name}"
 root       = RUNS_DIR / "train"
 project    = "lol226"
 shape      = [3, 512, 512]

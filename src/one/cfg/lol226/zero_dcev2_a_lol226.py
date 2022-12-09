@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-Zero-DCE trained on LIME dataset.
+Zero-DCEv2 trained on LoL226 dataset.
 """
 
 from __future__ import annotations
@@ -15,10 +15,10 @@ from one.vision.transformation import Resize
 
 # H1: - Basic ------------------------------------------------------------------
 
-model_name = "zeroadce-jit"
-model_cfg  = "zeroadce-e"
+model_name = "zero-dcev2"
+model_cfg  = "zero-dcev2-a"
 data_name  = "lol226"
-fullname   = f"{model_cfg}-jit-{data_name}"
+fullname   = f"{model_cfg}-{data_name}"
 root       = RUNS_DIR / "train"
 project    = "lol226"
 shape      = [3, 512, 512]

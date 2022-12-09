@@ -79,8 +79,8 @@ class CombinedLoss(BaseLoss):
 # H1: - Model ------------------------------------------------------------------
 
 cfgs = {
-    "zerodce-tiny": {
-        "name"    : "zerodce-tiny",
+    "zero-dce-tiny": {
+        "name"    : "zero-dce-tiny",
         "channels": 3,
         "backbone": [
             # [from,  number, module,                      args(out_channels, ...)]
@@ -115,7 +115,7 @@ cfgs = {
 }
 
 
-@MODELS.register(name="zerodce-tiny")
+@MODELS.register(name="zero-dce-tiny")
 class ZeroDCETiny(ImageEnhancementModel):
     """
     
@@ -157,11 +157,11 @@ class ZeroDCETiny(ImageEnhancementModel):
     
     def __init__(
         self,
-        cfg        : dict | Path_ | None = "zerodce-tiny",
+        cfg        : dict | Path_ | None = "zero-dce-tiny",
         root       : Path_               = RUNS_DIR,
         project    : str          | None = None,
-        name       : str          | None = "zerodce-tiny",
-        fullname   : str          | None = "zerodce-tiny",
+        name       : str          | None = "zero-dce-tiny",
+        fullname   : str          | None = "zero-dce-tiny",
         channels   : int                 = 3,
         num_classes: int          | None = None,
         classlabels: ClassLabels_ | None = None,
@@ -174,7 +174,7 @@ class ZeroDCETiny(ImageEnhancementModel):
         verbose    : bool                = False,
         *args, **kwargs
     ):
-        cfg = cfg or "zerodce-tiny"
+        cfg = cfg or "zero-dce-tiny"
         if isinstance(cfg, str) and cfg in cfgs:
             cfg = cfgs[cfg]
         elif isinstance(cfg, (str, Path)) and not is_yaml_file(cfg):

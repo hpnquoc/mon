@@ -16,10 +16,10 @@ from one.core import console
 from one.core import get_gpu_memory
 from one.core import Ints
 from one.core import MemoryUnit
-from one.vision.enhancement.zeroadce import ZeroADCE
-from one.vision.enhancement.zerodce import ZeroDCEVanilla
-from one.vision.enhancement.zerodce_tiny import ZeroDCETiny
-from one.vision.enhancement.zerodcepp import ZeroDCEPPVanilla
+from one.vision.enhancement.zero_adce import ZeroADCE
+from one.vision.enhancement.zero_dce import ZeroDCEVanilla
+from one.vision.enhancement.zero_dce_tiny import ZeroDCETiny
+from one.vision.enhancement.zero_dcepp import ZeroDCEPPVanilla
 
 
 # H1: - Functions --------------------------------------------------------------

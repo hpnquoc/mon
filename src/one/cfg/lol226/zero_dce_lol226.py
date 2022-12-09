@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-Zero-DCE trained on LIME dataset.
+Zero-DCE trained on LoL226 dataset.
 """
 
 from __future__ import annotations
@@ -15,10 +15,10 @@ from one.vision.transformation import Resize
 
 # H1: - Basic ------------------------------------------------------------------
 
-model_name = "zeroadce-jit"
-model_cfg  = "zeroadce-d"
+model_name = "zero-dce"
+model_cfg  = "zero-dce.yaml"
 data_name  = "lol226"
-fullname   = f"{model_cfg}-jit-{data_name}"
+fullname   = f"{model_name}-{data_name}"
 root       = RUNS_DIR / "train"
 project    = "lol226"
 shape      = [3, 512, 512]
@@ -120,7 +120,7 @@ callbacks = [
 	    "monitor": "checkpoint/loss/train_epoch",
 		    # Quantity to monitor. Defaults to None which saves a checkpoint
 	        # only for the last epoch.
-	    "mode": "min",
+		"mode": "min",
 			# One of {min, max}. If `save_top_k != 0`, the decision to
 	        # overwrite the current save file is made based on either the
 	        # maximization or the minimization of the monitored quantity.

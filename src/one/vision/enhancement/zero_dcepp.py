@@ -8,7 +8,7 @@ Zero-DCE++
 from __future__ import annotations
 
 from one.nn import *
-from one.vision.enhancement.zerodce import CombinedLoss
+from one.vision.enhancement.zero_dce import CombinedLoss
 
 CURRENT_DIR = Path(__file__).resolve().parent
 CFG_DIR     = CURRENT_DIR / "cfg"
@@ -17,8 +17,8 @@ CFG_DIR     = CURRENT_DIR / "cfg"
 # H1: - Model ------------------------------------------------------------------
 
 cfgs = {
-    "zerodce++": {
-        "name"    : "zerodce++",
+    "zero-dce++": {
+        "name"    : "zero-dce++",
         "channels": 3,
         "backbone": [
             # [from,  number, module,                      args(out_channels, ...)]
@@ -50,7 +50,7 @@ cfgs = {
 }
 
 
-@MODELS.register(name="zerodce++")
+@MODELS.register(name="zero-dce++")
 class ZeroDCEPP(ImageEnhancementModel):
     """
     
@@ -92,27 +92,27 @@ class ZeroDCEPP(ImageEnhancementModel):
     """
     
     model_zoo = {
-        "zerodce++-lol": dict(
+        "zero-dce++-lol": dict(
             name        = "lol",
             path        = "",
-            filename    = "zerodce++-lol.pth",
+            filename    = "zero-dce++-lol.pth",
             num_classes = None,
         ),
-        "zerodce++-sice": dict(
+        "zero-dce++-sice": dict(
             name        = "sice",
             path        = "",
-            filename    = "zerodce++-sice.pth",
+            filename    = "zero-dce++-sice.pth",
             num_classes = None,
         ),
     }
     
     def __init__(
         self,
-        cfg        : dict | Path_ | None = "zerodce++.yaml",
+        cfg        : dict | Path_ | None = "zero-dce++.yaml",
         root       : Path_               = RUNS_DIR,
         project    : str          | None = None,
-        name       : str          | None = "zerodce++",
-        fullname   : str          | None = "zerodce++",
+        name       : str          | None = "zero-dce++",
+        fullname   : str          | None = "zero-dce++",
         channels   : int                 = 3,
         num_classes: int          | None = None,
         classlabels: ClassLabels_ | None = None,
@@ -259,7 +259,7 @@ class DSConv(Module):
         return output
 
 
-@MODELS.register(name="zerodce++-vanilla")
+@MODELS.register(name="zero-dce++-vanilla")
 class ZeroDCEPPVanilla(Module):
     """
     Original implementation of ZeroDCE++

@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-Zero-ADCE
+Zero-DCEv2
 """
 
 from __future__ import annotations
@@ -88,8 +88,8 @@ class CombinedLoss(BaseLoss):
 cfgs = {
     # EXPERIMENTAL #
     
-    "zerodcev2-a": {
-        "name"    : "zerodcev2-a",
+    "zero-dcev2-a": {
+        "name"    : "zero-dcev2-a",
         "channels": 3,
         "backbone": [
             # [from,  number, module,          args(out_channels, ...)]
@@ -117,8 +117,8 @@ cfgs = {
         ]
     },
     
-    "zerodcev2-a-infer": {
-        "name"    : "zerodcev2-a",
+    "zero-dcev2-a-infer": {
+        "name"    : "zero-dcev2-a",
         "channels": 3,
         "backbone": [
             # [from,  number, module,          args(out_channels, ...)]
@@ -148,7 +148,7 @@ cfgs = {
 }
 
 
-@MODELS.register(name="zerodcev2")
+@MODELS.register(name="zero-dcev2")
 class ZeroDCEV2(ImageEnhancementModel):
     """
     
@@ -193,11 +193,11 @@ class ZeroDCEV2(ImageEnhancementModel):
     
     def __init__(
         self,
-        cfg        : dict | Path_ | None = "zerodcev2-a",
+        cfg        : dict | Path_ | None = "zero-dcev2-a",
         root       : Path_               = RUNS_DIR,
         project    : str          | None = None,
-        name       : str          | None = "zerodcev2",
-        fullname   : str          | None = "zerodcev2-a",
+        name       : str          | None = "zero-dcev2",
+        fullname   : str          | None = "zero-dcev2-a",
         channels   : int                 = 3,
         num_classes: int          | None = None,
         classlabels: ClassLabels_ | None = None,

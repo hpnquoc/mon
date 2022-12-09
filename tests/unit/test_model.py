@@ -28,10 +28,10 @@ from one.vision.enhancement.finet import FINet
 from one.vision.enhancement.hinet import HINet
 from one.vision.enhancement.mbllen import MBLLEN
 from one.vision.enhancement.retinexnet import RetinexNet
-from one.vision.enhancement.zeroadce import ZeroADCE
-from one.vision.enhancement.zerodce import ZeroDCE
-from one.vision.enhancement.zerodce_tiny import ZeroDCETiny
-from one.vision.enhancement.zerodcepp import ZeroDCEPP
+from one.vision.enhancement.zero_adce import ZeroADCE
+from one.vision.enhancement.zero_dce import ZeroDCE
+from one.vision.enhancement.zero_dce_tiny import ZeroDCETiny
+from one.vision.enhancement.zero_dcepp import ZeroDCEPP
 from one.vision.segmentation.unet import UNet
 
 

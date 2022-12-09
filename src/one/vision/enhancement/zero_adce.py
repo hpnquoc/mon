@@ -86,8 +86,8 @@ class CombinedLoss(BaseLoss):
 # H1: - Model ------------------------------------------------------------------
 
 cfgs = {
-    "zeroadce-a": {
-        "name"    : "zeroadce-a",
+    "zero-adce-a": {
+        "name"    : "zero-adce-a",
         "channels": 3,
         "backbone": [
             # [from,  number, module,   args(out_channels, ...)]
@@ -98,8 +98,8 @@ cfgs = {
             [[-1, 0], 1,      PixelwiseHigherOrderLECurve, [8]],                                 # 2
         ]
     },
-    "zeroadce-b": {
-        "name"    : "zeroadce-b",
+    "zero-adce-b": {
+        "name"    : "zero-adce-b",
         "channels": 3,
         "backbone": [
             # [from,  number, module,     args(out_channels, ...)]
@@ -126,8 +126,8 @@ cfgs = {
             [[-1, 0], 1,      PixelwiseHigherOrderLECurve, [8]],                                                               # 18
         ]
     },
-    "zeroadce-c": {
-        "name"    : "zeroadce-c",
+    "zero-adce-c": {
+        "name"    : "zero-adce-c",
         "channels": 3,
         "backbone": [
             # [from,  number, module,   args(out_channels, ...)]
@@ -138,8 +138,8 @@ cfgs = {
             [[-1, 0], 1,      PixelwiseHigherOrderLECurve, [8]],                                                          # 2
         ],
     },  # old s5
-    "zeroadce-d": {
-        "name"    : "zeroadce-d",
+    "zero-adce-d": {
+        "name"    : "zero-adce-d",
         "channels": 3,
         "backbone": [
             # [from,  number, module,     args(out_channels, ...)]
@@ -166,8 +166,8 @@ cfgs = {
             [[-1, 0], 1,      PixelwiseHigherOrderLECurve, [8]],                                                                            # 18
         ]
     },
-    "zeroadce-e": {
-        "name"    : "zeroadce-e",
+    "zero-adce-e": {
+        "name"    : "zero-adce-e",
         "channels": 3,
         "backbone": [
             # [from,  number, module,     args(out_channels, ...)]
@@ -195,8 +195,8 @@ cfgs = {
         ]
     },  # old s4
     
-    "zeroadce-a-large": {
-        "name"    : "zeroadce-a-large",
+    "zero-adce-a-large": {
+        "name"    : "zero-adce-a-large",
         "channels": 3,
         "backbone": [
             # [from,  number, module,   args(out_channels, ...)]
@@ -207,8 +207,8 @@ cfgs = {
             [[-1, 0], 1,      PixelwiseHigherOrderLECurve, [8]],                                 # 2
         ]
     },
-    "zeroadce-b-large": {
-        "name"    : "zeroadce-b-large",
+    "zero-adce-b-large": {
+        "name"    : "zero-adce-b-large",
         "channels": 3,
         "backbone": [
             # [from,  number, module,     args(out_channels, ...)]
@@ -235,8 +235,8 @@ cfgs = {
             [[-1, 0], 1,      PixelwiseHigherOrderLECurve, [8]],                                                               # 18
         ]
     },
-    "zeroadce-c-large": {
-        "name"    : "zeroadce-c-large",
+    "zero-adce-c-large": {
+        "name"    : "zero-adce-c-large",
         "channels": 3,
         "backbone": [
             # [from,  number, module,   args(out_channels, ...)]
@@ -247,8 +247,8 @@ cfgs = {
             [[-1, 0], 1,      PixelwiseHigherOrderLECurve, [8]],                                                          # 2
         ],
     },
-    "zeroadce-d-large": {
-        "name"    : "zeroadce-d-large",
+    "zero-adce-d-large": {
+        "name"    : "zero-adce-d-large",
         "channels": 3,
         "backbone": [
             # [from,  number, module,     args(out_channels, ...)]
@@ -275,8 +275,8 @@ cfgs = {
             [[-1, 0], 1,      PixelwiseHigherOrderLECurve, [8]],                                                                            # 18
         ]
     },
-    "zeroadce-e-large": {
-        "name"    : "zeroadce-e-large",
+    "zero-adce-e-large": {
+        "name"    : "zero-adce-e-large",
         "channels": 3,
         "backbone": [
             # [from,  number, module,     args(out_channels, ...)]
@@ -304,8 +304,8 @@ cfgs = {
         ]
     },
     
-    "zeroadce-a-tiny": {
-        "name"    : "zeroadce-a-tiny",
+    "zero-adce-a-tiny": {
+        "name"    : "zero-adce-a-tiny",
         "channels": 3,
         "backbone": [
             # [from,  number, module,   args(out_channels, ...)]
@@ -316,8 +316,8 @@ cfgs = {
             [[-1, 0], 1,      PixelwiseHigherOrderLECurve, [8]],                                 # 2
         ]
     },
-    "zeroadce-b-tiny": {
-        "name"    : "zeroadce-b-tiny",
+    "zero-adce-b-tiny": {
+        "name"    : "zero-adce-b-tiny",
         "channels": 3,
         "backbone": [
             # [from,  number, module,     args(out_channels, ...)]
@@ -344,8 +344,8 @@ cfgs = {
             [[-1, 0], 1,      PixelwiseHigherOrderLECurve, [8]],                                                               # 18
         ]
     },
-    "zeroadce-c-tiny": {
-        "name"    : "zeroadce-c-tiny",
+    "zero-adce-c-tiny": {
+        "name"    : "zero-adce-c-tiny",
         "channels": 3,
         "backbone": [
             # [from,  number, module,   args(out_channels, ...)]
@@ -356,8 +356,8 @@ cfgs = {
             [[-1, 0], 1,      PixelwiseHigherOrderLECurve, [8]],                                                          # 2
         ],
     },
-    "zeroadce-d-tiny": {
-        "name"    : "zeroadce-d-tiny",
+    "zero-adce-d-tiny": {
+        "name"    : "zero-adce-d-tiny",
         "channels": 3,
         "backbone": [
             # [from,  number, module,     args(out_channels, ...)]
@@ -384,8 +384,8 @@ cfgs = {
             [[-1, 0], 1,      PixelwiseHigherOrderLECurve, [8]],                                                                            # 18
         ]
     },
-    "zeroadce-e-tiny": {
-        "name"    : "zeroadce-e-tiny",
+    "zero-adce-e-tiny": {
+        "name"    : "zero-adce-e-tiny",
         "channels": 3,
         "backbone": [
             # [from,  number, module,     args(out_channels, ...)]
@@ -415,8 +415,8 @@ cfgs = {
     
     # EXPERIMENTAL #
     
-    "zeroadce-abs1" : {
-        "name"    : "zeroadce-abs1",
+    "zero-adce-abs1" : {
+        "name"    : "zero-adce-abs1",
         "channels": 3,
         "backbone": [
             # [from,  number, module,   args(out_channels, ...)]
@@ -427,8 +427,8 @@ cfgs = {
             [[-1, 0], 1,      PixelwiseHigherOrderLECurve, [8]],                                 # 2
         ]
     },
-    "zeroadce-abs2" : {
-        "name"    : "zeroadce-abs2",
+    "zero-adce-abs2" : {
+        "name"    : "zero-adce-abs2",
         "channels": 3,
         "backbone": [
             # [from,  number, module,   args(out_channels, ...)]
@@ -439,8 +439,8 @@ cfgs = {
             [[-1, 0], 1,      PixelwiseHigherOrderLECurve, [8]],                                 # 2
         ]
     },
-    "zeroadce-abs3" : {
-        "name"    : "zeroadce-abs3",
+    "zero-adce-abs3" : {
+        "name"    : "zero-adce-abs3",
         "channels": 3,
         "backbone": [
             # [from,  number, module,   args(out_channels, ...)]
@@ -451,8 +451,8 @@ cfgs = {
             [[-1, 0], 1,      PixelwiseHigherOrderLECurve, [8]],                                 # 2
         ]
     },
-    "zeroadce-abs4" : {
-        "name"    : "zeroadce-abs4",
+    "zero-adce-abs4" : {
+        "name"    : "zero-adce-abs4",
         "channels": 3,
         "backbone": [
             # [from,  number, module,   args(out_channels, ...)]
@@ -463,8 +463,8 @@ cfgs = {
             [[-1, 0], 1,      PixelwiseHigherOrderLECurve, [8]],                                 # 2
         ]
     },
-    "zeroadce-abs5" : {
-        "name"    : "zeroadce-abs5",
+    "zero-adce-abs5" : {
+        "name"    : "zero-adce-abs5",
         "channels": 3,
         "backbone": [
             # [from,  number, module,   args(out_channels, ...)]
@@ -475,8 +475,8 @@ cfgs = {
             [[-1, 0], 1,      PixelwiseHigherOrderLECurve, [8]],                                 # 2
         ]
     },
-    "zeroadce-abs6" : {
-        "name"    : "zeroadce-abs6",
+    "zero-adce-abs6" : {
+        "name"    : "zero-adce-abs6",
         "channels": 3,
         "backbone": [
             # [from,  number, module,   args(out_channels, ...)]
@@ -487,8 +487,8 @@ cfgs = {
             [[-1, 0], 1,      PixelwiseHigherOrderLECurve, [8]],                                 # 2
         ]
     },
-    "zeroadce-abs7" : {
-        "name"    : "zeroadce-abs7",
+    "zero-adce-abs7" : {
+        "name"    : "zero-adce-abs7",
         "channels": 3,
         "backbone": [
             # [from,  number, module,   args(out_channels, ...)]
@@ -499,8 +499,8 @@ cfgs = {
             [[-1, 0], 1,      PixelwiseHigherOrderLECurve, [8]],                                 # 2
         ]
     },
-    "zeroadce-abs8" : {
-        "name"    : "zeroadce-abs8",
+    "zero-adce-abs8" : {
+        "name"    : "zero-adce-abs8",
         "channels": 3,
         "backbone": [
             # [from,  number, module,   args(out_channels, ...)]
@@ -511,8 +511,8 @@ cfgs = {
             [[-1, 0], 1,      PixelwiseHigherOrderLECurve, [8]],                                 # 2
         ]
     },
-    "zeroadce-abs9" : {
-        "name"    : "zeroadce-abs9",
+    "zero-adce-abs9" : {
+        "name"    : "zero-adce-abs9",
         "channels": 3,
         "backbone": [
             # [from,  number, module,   args(out_channels, ...)]
@@ -523,8 +523,8 @@ cfgs = {
             [[-1, 0], 1,      PixelwiseHigherOrderLECurve, [8]],                                # 2
         ]
     },
-    "zeroadce-abs10": {
-        "name"    : "zeroadce-abs10",
+    "zero-adce-abs10": {
+        "name"    : "zero-adce-abs10",
         "channels": 3,
         "backbone": [
             # [from,  number, module,   args(out_channels, ...)]
@@ -535,8 +535,8 @@ cfgs = {
             [[-1, 0], 1,      PixelwiseHigherOrderLECurve, [8]],                                  # 2
         ]
     },
-    "zeroadce-abs11": {
-        "name"    : "zeroadce-abs11",
+    "zero-adce-abs11": {
+        "name"    : "zero-adce-abs11",
         "channels": 3,
         "backbone": [
             # [from,  number, module,   args(out_channels, ...)]
@@ -547,8 +547,8 @@ cfgs = {
             [[-1, 0], 1,      PixelwiseHigherOrderLECurve, [8]],                                  # 2
         ]
     },
-    "zeroadce-abs12": {
-        "name"    : "zeroadce-abs12",
+    "zero-adce-abs12": {
+        "name"    : "zero-adce-abs12",
         "channels": 3,
         "backbone": [
             # [from,  number, module,   args(out_channels, ...)]
@@ -559,8 +559,8 @@ cfgs = {
             [[-1, 0], 1,      PixelwiseHigherOrderLECurve, [8]],                                  # 2
         ]
     },
-    "zeroadce-abs13": {
-        "name"    : "zeroadce-abs13",
+    "zero-adce-abs13": {
+        "name"    : "zero-adce-abs13",
         "channels": 3,
         "backbone": [
             # [from,  number, module,   args(out_channels, ...)]
@@ -574,13 +574,10 @@ cfgs = {
 }
 
 
-@MODELS.register(name="zeroadce")
+@MODELS.register(name="zero-adce")
 class ZeroADCE(ImageEnhancementModel):
     """
     
-    References:
-        https://github.com/Li-Chongyi/Zero-DCE
-        
     Args:
         cfg (dict | Path_ | None): Model's layers configuration. It can be an
             external .yaml path or a dictionary. Defaults to None means you
@@ -619,11 +616,11 @@ class ZeroADCE(ImageEnhancementModel):
     
     def __init__(
         self,
-        cfg        : dict | Path_ | None = "zeroadce-a",
+        cfg        : dict | Path_ | None = "zero-adce-a",
         root       : Path_               = RUNS_DIR,
         project    : str          | None = None,
-        name       : str          | None = "zeroadce",
-        fullname   : str          | None = "zeroadce-a",
+        name       : str          | None = "zero-adce",
+        fullname   : str          | None = "zero-adce-a",
         channels   : int                 = 3,
         num_classes: int          | None = None,
         classlabels: ClassLabels_ | None = None,
@@ -701,7 +698,7 @@ class ZeroADCE(ImageEnhancementModel):
         return alpha * loss
 
 
-@MODELS.register(name="zeroadce-jit")
+@MODELS.register(name="zero-adce-jit")
 class ZeroADCEJIT(ImageEnhancementModel):
     """
 
@@ -743,11 +740,11 @@ class ZeroADCEJIT(ImageEnhancementModel):
     
     def __init__(
         self,
-        cfg        : dict | Path_ | None = "zeroadce-a",
+        cfg        : dict | Path_ | None = "zero-adce-a",
         root       : Path_               = RUNS_DIR,
         project    : str          | None = None,
-        name       : str          | None = "zeroadce",
-        fullname   : str          | None = "zeroadce-a",
+        name       : str          | None = "zero-adce",
+        fullname   : str          | None = "zero-adce-a",
         channels   : int                 = 3,
         num_classes: int          | None = None,
         classlabels: ClassLabels_ | None = None,
@@ -778,18 +775,18 @@ class ZeroADCEJIT(ImageEnhancementModel):
             verbose     = verbose,
             *args, **kwargs
         )
-        if cfg in ["zeroadce-a", "zeroadce-b"]:
+        if cfg in ["zero-adce-a", "zero-adce-b"]:
             conv       = partial(ABSConv2dS, act2=HalfInstanceNorm2d)
             final_conv = Conv2d
-        elif cfg in ["zeroadce-c", "zeroadce-d"]:
+        elif cfg in ["zero-adce-c", "zero-adce-d"]:
             conv       = partial(ABSConv2dS, ac1=HalfInstanceNorm2d, act2=HalfInstanceNorm2d)
             final_conv = Conv2d
-        elif cfg in ["zeroadce-e"]:
+        elif cfg in ["zero-adce-e"]:
             conv       = partial(ABSConv2dS, ac1=HalfInstanceNorm2d, act2=HalfInstanceNorm2d)
             final_conv = partial(ABSConv2dS, ac1=HalfInstanceNorm2d, act2=HalfInstanceNorm2d)
         else:
             raise ValueError(
-                f"`cfg` must be one of: `zeroadce-[a, b, c, d, e]`. "
+                f"`cfg` must be one of: `zero-adce-[a, b, c, d, e]`. "
                 f"But got: {cfg}."
             )
            

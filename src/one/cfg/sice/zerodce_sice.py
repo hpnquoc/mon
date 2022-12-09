@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-Zero-DCE trained on LIME dataset.
+Zero-DCE trained on SICE dataset.
 """
 
 from __future__ import annotations
@@ -15,8 +15,8 @@ from one.vision.transformation import Resize
 
 # H1: - Basic ------------------------------------------------------------------
 
-model_name = "zerodce"
-model_cfg  = "zerodce.yaml"
+model_name = "zero-dce"
+model_cfg  = "zero-dce.yaml"
 data_name  = "sice-u"
 fullname   = f"{model_name}-sice"
 root       = RUNS_DIR / "train"
