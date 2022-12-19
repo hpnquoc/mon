@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-8
 
 """
-Zero-DCE trained on LIME dataset.
+FINet trained on I-Haze dataset.
 """
 
 from __future__ import annotations

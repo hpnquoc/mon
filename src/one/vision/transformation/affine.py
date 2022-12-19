@@ -1246,7 +1246,6 @@ def resize(
     image        : Tensor,
     size         : Ints               = None,
     interpolation: InterpolationMode_ = InterpolationMode.BILINEAR,
-    max_size     : int  | None        = None,
     antialias    : bool | None        = None,
     inplace      : bool               = False,
 ) -> Tensor:
@@ -1259,7 +1258,6 @@ def resize(
             dimensions.
         size (Ints): Desired output size of shape [C, H, W].
         interpolation (InterpolationMode_): Interpolation method.
-        max_size (int | None): Defaults to None.
         antialias (bool | None): Defaults to None.
         inplace (bool): If True, make this operation inplace. Defaults to False.
         
@@ -1280,8 +1278,7 @@ def resize(
     return F_t.resize(
         img           = image,
         size          = to_list(size),  # H, W
-        interpolation = interpolation.value,
-        max_size      = max_size,
+        interpolation = str(interpolation.value),
         antialias     = antialias
     )
 
@@ -1346,7 +1343,6 @@ class Resize(Transform):
             dimensions.
         size (Ints): Desired output size of shape [C, H, W].
         interpolation (InterpolationMode_): Interpolation method.
-        max_size (int | None): Defaults to None.
         antialias (bool, None): Defaults to None.
         inplace (bool): If True, make this operation inplace. Defaults to False.
         p (float | None): Probability of the image being adjusted. Defaults to 
@@ -1357,7 +1353,6 @@ class Resize(Transform):
         self,
         size         : Ints,
         interpolation: InterpolationMode_ = InterpolationMode.BILINEAR,
-        max_size     : int   | None       = None,
         antialias    : bool  | None       = None,
         inplace      : bool               = False,
         p            : float | None       = None,
@@ -1366,7 +1361,6 @@ class Resize(Transform):
         super().__init__(p=p, *args, **kwargs)
         self.size          = size
         self.interpolation = interpolation
-        self.max_size      = max_size
         self.antialias     = antialias
         self.inplace       = inplace
     
@@ -1381,7 +1375,6 @@ class Resize(Transform):
                 image         = input,
                 size          = self.size,
                 interpolation = self.interpolation,
-                max_size      = self.max_size,
                 antialias     = self.antialias,
                 inplace       = self.inplace,
             ), \
@@ -1389,7 +1382,6 @@ class Resize(Transform):
                 image         = target,
                 size          = self.size,
                 interpolation = self.interpolation,
-                max_size      = self.max_size,
                 antialias     = self.antialias,
                 inplace       = self.inplace,
             ) if target is not None else None

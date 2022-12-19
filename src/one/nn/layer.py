@@ -3259,9 +3259,9 @@ class FractionInstanceNorm2d(InstanceNorm2d):
             device              = device,
             dtype               = dtype,
         )
-
+        
         if self.selection not in ["linear", "random", "interleave"]:
-            raise ValueError()
+            raise ValueError(f"{self.selection}")
      
     def forward(self, input: Tensor) -> Tensor:
         x = input

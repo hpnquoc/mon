@@ -22,6 +22,7 @@ name: one
 channels:
   - pytorch
   - defaults
+  - nvidia
   - conda-forge
 
 dependencies:
@@ -54,9 +55,6 @@ dependencies:
   - xmltodict
 
   # CUDA
-  # - cudatoolkit=10.2
-  # - cudatoolkit=11.3
-  # - cudatoolkit=11.6
   - cudatoolkit=11.7
   # - cudatoolkit-dev=11.7
   - cudnn
@@ -73,11 +71,13 @@ dependencies:
   - einops
   - onnx
   - onnxruntime
-  - pytorch=1.13.1
-  - torchvision=0.14.1
-  - torchaudio=0.13.1
+  - pytorch>=1.13.1
+  - pytorch-cuda=11.7
+  - torchvision>=0.14.1
+  - torchaudio>=0.13.1
   - pretrainedmodels
   - pycocotools
+  - pytorch-lightning>=1.8.1
   - pytorch-model-summary
   - timm
   - torchmetrics
@@ -101,4 +101,3 @@ dependencies:
       # - opencv-contrib-python
       # - pycuda
       - pyiqa
-      - pytorch-lightning>=1.8.5
