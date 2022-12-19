@@ -25,24 +25,17 @@ from one.core import *
 
 METRICS.register(name="accuracy",                         module=Accuracy)
 METRICS.register(name="average_precision",                module=AveragePrecision)
-METRICS.register(name="auc",                              module=AUC)
 METRICS.register(name="auroc",                            module=AUROC)
-METRICS.register(name="binned_average_precision",         module=BinnedAveragePrecision)
-METRICS.register(name="binned_precision_recall_curve",    module=BinnedPrecisionRecallCurve)
-METRICS.register(name="binned_recall_at_fixed_precision", module=BinnedRecallAtFixedPrecision)
 METRICS.register(name="calibration_error",                module=CalibrationError)
 METRICS.register(name="cohen_kappa",                      module=CohenKappa)
 METRICS.register(name="confusion_matrix",                 module=ConfusionMatrix)
-METRICS.register(name="coverage_error",                   module=CoverageError)
 METRICS.register(name="dice",                             module=Dice)
+METRICS.register(name="exact_match",                      module=ExactMatch)
 METRICS.register(name="f1_score",                         module=F1Score)
 METRICS.register(name="fbeta_Score",                      module=FBetaScore)
 METRICS.register(name="hamming_distance",                 module=HammingDistance)
 METRICS.register(name="hinge_loss",                       module=HingeLoss)
 METRICS.register(name="jaccard_index",                    module=JaccardIndex)
-METRICS.register(name="kl_divergence",                    module=KLDivergence)
-METRICS.register(name="label_ranking_average_precision",  module=LabelRankingAveragePrecision)
-METRICS.register(name="label_ranking_loss",               module=LabelRankingLoss)
 METRICS.register(name="matthews_corr_coef",               module=MatthewsCorrCoef)
 METRICS.register(name="precision",                        module=Precision)
 METRICS.register(name="precision_recall_curve",           module=PrecisionRecallCurve)
@@ -405,8 +398,12 @@ METRICS.register(name="universal_image_quality_index",                   module=
 
 # H1: - Regression -------------------------------------------------------------
 
+METRICS.register(name="concordance_corr_coef",                    module=ConcordanceCorrCoef)
 METRICS.register(name="cosine_similarity",                        module=CosineSimilarity)
 METRICS.register(name="explained_variance",                       module=ExplainedVariance)
+METRICS.register(name="kendall_rank_corr_coef",                   module=KendallRankCorrCoef)
+METRICS.register(name="kl_divergence",                            module=KLDivergence)
+METRICS.register(name="log_cosh_error",                           module=LogCoshError)
 METRICS.register(name="mae",                                      module=MeanAbsoluteError)
 METRICS.register(name="mean_absolute_error",                      module=MeanAbsoluteError)
 METRICS.register(name="mean_absolute_percentage_error",           module=MeanAbsolutePercentageError)
@@ -433,3 +430,19 @@ METRICS.register(name="retrieval_precision_recall_curve",    module=RetrievalPre
 METRICS.register(name="retrieval_recall",                    module=RetrievalRecall)
 METRICS.register(name="retrieval_recall_at_fixed_precision", module=RetrievalRecallAtFixedPrecision)
 METRICS.register(name="retrieval_r_precision",               module=RetrievalRPrecision)
+
+# H1: - Text -------------------------------------------------------------------
+
+METRICS.register(name="blue_score",             module=BLEUScore)
+METRICS.register(name="char_error_rate",        module=CharErrorRate)
+METRICS.register(name="chrf_score",             module=CHRFScore)
+METRICS.register(name="extended_edit_distance", module=ExtendedEditDistance)
+METRICS.register(name="match_error_rate",       module=MatchErrorRate)
+METRICS.register(name="perplexity",             module=Perplexity)
+METRICS.register(name="sacre_blue_score",       module=SacreBLEUScore)
+METRICS.register(name="squad",                  module=SQuAD)
+METRICS.register(name="translation_edit_rate",  module=TranslationEditRate)
+METRICS.register(name="word_error_rate",        module=WordErrorRate)
+METRICS.register(name="word_info_lost",         module=WordInfoLost)
+METRICS.register(name="word_info_preserved",    module=WordInfoPreserved)
+

@@ -4665,7 +4665,7 @@ rich_console_theme = Theme(
 console = Console(
     color_system    = "auto",
     log_time_format = "[%m/%d/%Y %H:%M:%S.%f]",
-    soft_wrap       = True,
+    soft_wrap       = False,
     width           = 200,
     theme           = rich_console_theme,
 )
@@ -4673,7 +4673,7 @@ console = Console(
 error_console = Console(
     color_system    = "auto",
     log_time_format = "[%m/%d/%Y %H:%M:%S.%f]",
-    soft_wrap       = True,
+    soft_wrap       = False,
     width           = 200,
     stderr          = True,
     style           = "bold red",

@@ -56,8 +56,9 @@ dependencies:
   # CUDA
   # - cudatoolkit=10.2
   # - cudatoolkit=11.3
-  - cudatoolkit=11.6
-  # - cudatoolkit-dev=11.6
+  # - cudatoolkit=11.6
+  - cudatoolkit=11.7
+  # - cudatoolkit-dev=11.7
   - cudnn
   - pynvml
 
@@ -72,9 +73,9 @@ dependencies:
   - einops
   - onnx
   - onnxruntime
-  - pytorch=1.12.1
-  - torchvision=0.13.1
-  - torchaudio=0.12.1
+  - pytorch=1.13.1
+  - torchvision=0.14.1
+  - torchaudio=0.13.1
   - pretrainedmodels
   - pycocotools
   - pytorch-model-summary
@@ -94,10 +95,10 @@ dependencies:
       - flopco-pytorch
       - label-studio
       - mediapipe
-      - nvidia-pyindex
-      - nvidia-tensorrt
+      # - nvidia-pyindex
+      # - nvidia-tensorrt
       # - opencv-python
       # - opencv-contrib-python
       # - pycuda
       - pyiqa
-      - pytorch-lightning>=1.8.3
+      - pytorch-lightning>=1.8.5

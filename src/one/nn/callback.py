@@ -19,7 +19,6 @@ from pytorch_lightning.callbacks import *
 from pytorch_lightning.callbacks.progress import rich_progress
 from pytorch_lightning.utilities.cloud_io import get_filesystem
 from pytorch_lightning.utilities.imports import _RICH_AVAILABLE
-from pytorch_lightning.utilities.logger import _name
 from pytorch_lightning.utilities.logger import _version
 from pytorch_lightning.utilities.model_summary import get_human_readable_count
 from pytorch_lightning.utilities.types import STEP_OUTPUT
@@ -30,6 +29,14 @@ from one.core import *
 if _RICH_AVAILABLE:
     from rich.table import Table
 
+
+def _name(loggers: list[Any], separator: str = "_") -> str:
+    if len(loggers) == 1:
+        return loggers[0].name
+    else:
+        # Concatenate names together, removing duplicates and preserving order
+        return separator.join(dict.fromkeys(str(logger.name) for logger in loggers))
+    
 
 # noinspection PyMethodMayBeStatic,PyProtectedMember
 @CALLBACKS.register(name="model_checkpoint")

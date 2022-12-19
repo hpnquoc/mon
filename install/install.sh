@@ -37,7 +37,7 @@ case "$OSTYPE" in
     pip install --upgrade pip
     # Install `torch-tensorrt`
     echo "Install 'torch-tensorrt':"
-    pip install torch-tensorrt==1.2.0 --find-links https://github.com/pytorch/TensorRT/releases/expanded_assets/v1.2.0
+    pip install torch-tensorrt==1.3.0 --find-links https://github.com/pytorch/TensorRT/releases/expanded_assets/v1.3.0
     # Install `mish-cuda`
     # echo "Install 'mish-cuda':"
     # pip install git+https://github.com/JunnYu/mish-cuda.git

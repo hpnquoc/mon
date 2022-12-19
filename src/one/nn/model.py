@@ -18,12 +18,9 @@ from pytorch_lightning.accelerators import CUDAAccelerator
 from pytorch_lightning.accelerators import HPUAccelerator
 from pytorch_lightning.accelerators import IPUAccelerator
 from pytorch_lightning.accelerators import MPSAccelerator
-from pytorch_lightning.accelerators import TPUAccelerator
-from pytorch_lightning.plugins import DDP2Plugin
-from pytorch_lightning.plugins import DDPPlugin
+from pytorch_lightning.strategies import DDPStrategy
 from pytorch_lightning.utilities import _HPU_AVAILABLE
 from pytorch_lightning.utilities import _IPU_AVAILABLE
-from pytorch_lightning.utilities import _TPU_AVAILABLE
 from torch import distributed as dist
 from torch import Tensor
 from torch.hub import load_state_dict_from_url
@@ -371,7 +368,7 @@ def set_distributed_backend(strategy: str | Callable, cudnn: bool = True):
     else:
         console.log(f"cuDNN available: [red]False")
     
-    if strategy in ["ddp", "ddp2"] or isinstance(strategy, (DDPPlugin, DDP2Plugin)):
+    if strategy in ["ddp"] or isinstance(strategy, (DDPStrategy)):
         if platform.system() == "Windows":
             os.environ["PL_TORCH_DISTRIBUTED_BACKEND"] = "gloo"
             console.log(
@@ -574,9 +571,6 @@ class Trainer(pl.Trainer):
         gpu_used = isinstance(self.accelerator, (CUDAAccelerator, MPSAccelerator))
         console.log(f"GPU available: {gpu_available}{gpu_type}, used: {gpu_used}")
 
-        num_tpu_cores = self.num_devices if isinstance(self.accelerator, TPUAccelerator) else 0
-        console.log(f"TPU available: {_TPU_AVAILABLE}, using: {num_tpu_cores} TPU cores")
-
         num_ipus = self.num_devices if isinstance(self.accelerator, IPUAccelerator) else 0
         console.log(f"IPU available: {_IPU_AVAILABLE}, using: {num_ipus} IPUs")
 
@@ -588,12 +582,6 @@ class Trainer(pl.Trainer):
             console.log(
                 "GPU available but not used. Set `accelerator` and `devices` using"
                 f" `Trainer(accelerator='gpu', devices={CUDAAccelerator.auto_device_count()})`.",
-            )
-
-        if _TPU_AVAILABLE and not isinstance(self.accelerator, TPUAccelerator):
-            console.log(
-                "TPU available but not used. Set `accelerator` and `devices` using"
-                f" `Trainer(accelerator='tpu', devices={TPUAccelerator.auto_device_count()})`."
             )
 
         if _IPU_AVAILABLE and not isinstance(self.accelerator, IPUAccelerator):
@@ -1202,6 +1190,8 @@ def parse_model(
         # Convert string class name into class
         m = eval(m) if isinstance(m, str) else m  # eval strings
         for j, a in enumerate(args):
+            if a == "random":
+                continue
             try:
                 args[j] = eval(a) if isinstance(a, str) else a  # eval strings
             except:
@@ -2212,7 +2202,7 @@ class BaseModel(pl.LightningModule, metaclass=ABCMeta):
         
         # Gather results
         # For DDP strategy, gather outputs from multiple devices
-        if self.trainer.num_processes > 1:
+        if self.trainer.num_devices > 1:
             outputs = self.all_gather(outputs)
         
         loss   = outputs["loss"]    # losses from each device
@@ -2221,7 +2211,7 @@ class BaseModel(pl.LightningModule, metaclass=ABCMeta):
         pred   = outputs["pred"]    # predictions from each device
         
         # Tensors
-        if self.trainer.num_processes > 1:
+        if self.trainer.num_devices > 1:
             input  = input.flatten(start_dim=0,  end_dim=1)
             target = target.flatten(start_dim=0, end_dim=1)
             pred   = pred.flatten(start_dim=0,   end_dim=1)
@@ -2320,7 +2310,7 @@ class BaseModel(pl.LightningModule, metaclass=ABCMeta):
         
         # Gather results
         # For DDP strategy, gather outputs from multiple devices.
-        if self.trainer.num_processes > 1:
+        if self.trainer.num_devices > 1:
             outputs = self.all_gather(outputs)
         
         loss   = outputs["loss"]    # losses from each device
@@ -2329,7 +2319,7 @@ class BaseModel(pl.LightningModule, metaclass=ABCMeta):
         pred   = outputs["pred"]    # predictions from each device
         
         # Tensors
-        if self.trainer.num_processes > 1:
+        if self.trainer.num_devices > 1:
             input  = input.flatten(start_dim=0,  end_dim=1)
             target = target.flatten(start_dim=0, end_dim=1)
             pred   = pred.flatten(start_dim=0,   end_dim=1)
@@ -2455,7 +2445,7 @@ class BaseModel(pl.LightningModule, metaclass=ABCMeta):
         
         # Gather results
         # For DDP strategy, gather outputs from multiple devices.
-        if self.trainer.num_processes > 1:
+        if self.trainer.num_devices > 1:
             outputs = self.all_gather(outputs)
         
         loss   = outputs["loss"]    # losses from each GPU
@@ -2464,7 +2454,7 @@ class BaseModel(pl.LightningModule, metaclass=ABCMeta):
         pred   = outputs["pred"]    # predictions from each GPU
         
         # Tensors
-        if self.trainer.num_processes > 1:
+        if self.trainer.num_devices > 1:
             input  = input.flatten(start_dim=0,  end_dim=1)
             target = target.flatten(start_dim=0, end_dim=1)
             pred   = pred.flatten(start_dim=0,   end_dim=1)
