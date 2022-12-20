@@ -900,9 +900,8 @@ class ModelCheckpoint(Checkpoint):
 
 @CALLBACKS.register(name="rich_model_summary")
 class RichModelSummary(ModelSummary):
-    """Generates a summary of all layers in a
-    :class:`~pytorch_lightning.core.lightning.LightningModule` with `rich text
-    formatting <https://github.com/willmcgugan/rich>`_.
+    """Generates a summary of all layers in a `LightningModule` with rich text
+    formatting.
 
     Install it with pip:
 
@@ -992,6 +991,8 @@ class RichModelSummary(ModelSummary):
 @CALLBACKS.register(name="rich_progress_bar")
 class RichProgressBar(callbacks.RichProgressBar):
     """
+    Create a progress bar with rich text formatting.
+    
     Override `pytorch_lightning.callbacks.progress.rich_progress` to add some
     customizations.
     """
@@ -1066,17 +1067,18 @@ class RichProgressBar(callbacks.RichProgressBar):
             ]
 
 
-CALLBACKS.register(name="backbone_finetuning",             module=BackboneFinetuning)
-CALLBACKS.register(name="base_prediction_writer",          module=BasePredictionWriter)
-CALLBACKS.register(name="batch_size_finder",               module=BatchSizeFinder)
-CALLBACKS.register(name="device_stats_monitor",            module=DeviceStatsMonitor)
-CALLBACKS.register(name="early_stopping",                  module=EarlyStopping)
-CALLBACKS.register(name="gradient_accumulation_scheduler", module=GradientAccumulationScheduler)
-CALLBACKS.register(name="learning_rate_monitor",           module=LearningRateMonitor)
-CALLBACKS.register(name="model_pruning",                   module=ModelPruning)
-CALLBACKS.register(name="model_summary",                   module=ModelSummary)
-CALLBACKS.register(name="quantization_aware_training",     module=QuantizationAwareTraining)
-CALLBACKS.register(name="stochastic_weight_averaging",     module=StochasticWeightAveraging)
-CALLBACKS.register(name="timer",                           module=Timer)
-CALLBACKS.register(name="tqdm_progress_bar",               module=TQDMProgressBar)
+CALLBACKS.register(name="backbone_finetuning",             module=BackboneFinetuning,            desc="Finetune a backbone model based on a learning rate user-defined scheduling.")
+CALLBACKS.register(name="base_prediction_writer",          module=BasePredictionWriter,          desc="Base class to implement how the predictions should be stored.")
+CALLBACKS.register(name="batch_size_finder",               module=BatchSizeFinder,               desc="The `BatchSizeFinder` callback tries to find the largest batch size for a given model that does not give an out of memory (OOM) error.")
+CALLBACKS.register(name="device_stats_monitor",            module=DeviceStatsMonitor,            desc="Automatically monitors and logs device stats during training stage.")
+CALLBACKS.register(name="early_stopping",                  module=EarlyStopping,                 desc="Monitor a metric and stop training when it stops improving.")
+CALLBACKS.register(name="gradient_accumulation_scheduler", module=GradientAccumulationScheduler, desc="Change gradient accumulation factor according to scheduling.")
+CALLBACKS.register(name="learning_rate_finder",            module=LearningRateFinder,            desc="The `LearningRateFinder` callback enables the user to do a range test of good initial learning rates, to reduce the amount of guesswork in picking a good starting learning rate.")
+CALLBACKS.register(name="learning_rate_monitor",           module=LearningRateMonitor,           desc="Automatically monitor and logs learning rate for learning rate schedulers during training.")
+CALLBACKS.register(name="model_pruning",                   module=ModelPruning,                  desc="Model pruning Callback, using PyTorch's prune utilities.")
+CALLBACKS.register(name="model_summary",                   module=ModelSummary,                  desc="Generates a summary of all layers in a `LightningModule`.")
+CALLBACKS.register(name="quantization_aware_training",     module=QuantizationAwareTraining,     desc="Quantization allows speeding up inference and decreasing memory requirements by performing computations and storing tensors at lower bitwidths (such as INT8 or FLOAT16) than floating point precision.")
+CALLBACKS.register(name="stochastic_weight_averaging",     module=StochasticWeightAveraging,     desc="Implements the Stochastic Weight Averaging (SWA) Callback to average a model.")
+CALLBACKS.register(name="timer",                           module=Timer,                         desc="The Timer callback tracks the time spent in the training, validation, and test loops and interrupts the Trainer if the given time limit for the training loop is reached.")
+CALLBACKS.register(name="tqdm_progress_bar",               module=TQDMProgressBar,               desc="This is the default progress bar used by Lightning.")
 
