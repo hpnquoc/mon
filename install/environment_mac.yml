@@ -71,7 +71,7 @@ dependencies:
   - onnx
   - onnxruntime
   - pytorch>=1.13.1
-  - pytorch-cuda=11.7
+  # - pytorch-cuda=11.7
   - torchvision>=0.14.1
   - torchaudio>=0.13.1
   - pretrainedmodels
@@ -93,7 +93,7 @@ dependencies:
   - pip:
       - flopco-pytorch
       - label-studio
-      - mediapipe
+      # - mediapipe
       # - nvidia-pyindex
       # - nvidia-tensorrt
       # - opencv-python

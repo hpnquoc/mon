@@ -390,6 +390,9 @@ class Trainer(pl.Trainer):
     Override `pytorch_lightning.Trainer` with several methods and properties.
     
     Args:
+        accelerator (str | Accelerator): Supports passing different accelerator
+            types ("cpu", "gpu", "tpu", "ipu", "hpu", "mps, "auto") as well as
+            custom accelerator instances.
         accumulate_grad_batches (int | dict | None): Accumulates grads every k
             batches or as set up in the dict. Defaults to None.
         amp_backend (str): The mixed precision backend to use ("native" or
