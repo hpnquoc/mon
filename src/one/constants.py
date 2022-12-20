@@ -33,6 +33,7 @@ if not DATA_DIR.is_dir():
 # H1: - Factory ----------------------------------------------------------------
 
 # H2: - Used in `one.nn` -------------------------------------------------------
+ACCELERATORS   = Factory(name="accelerators")
 BACKBONES      = Factory(name="backbones")
 CALLBACKS      = Factory(name="callbacks")
 LOGGERS        = Factory(name="loggers")
@@ -41,6 +42,7 @@ METRICS        = Factory(name="metrics")
 MODELS         = Factory(name="models")
 OPTIMIZERS     = OptimizerFactory(name="optimizers")
 SCHEDULERS     = SchedulerFactory(name="schedulers")
+STRATEGIES     = Factory(name="strategies")
 
 # H2: - Misc -------------------------------------------------------------------
 AUGMENTS       = Factory(name="augments")
