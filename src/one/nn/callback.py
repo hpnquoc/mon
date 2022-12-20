@@ -206,7 +206,7 @@ class ModelCheckpoint(Checkpoint):
             train_time_interval = train_time_interval
         )
         self.validate_init_configuration()
-
+    
     @property
     def state_key(self) -> str:
         return self._generate_state_key(
@@ -943,7 +943,7 @@ class RichModelSummary(ModelSummary):
                 "Install it by running `pip install -U rich`."
             )
         super().__init__(max_depth)
-
+  
     @staticmethod
     def summarize(
         summary_data        : list[tuple[str, list[str]]],
@@ -1067,6 +1067,8 @@ class RichProgressBar(callbacks.RichProgressBar):
 
 
 CALLBACKS.register(name="backbone_finetuning",             module=BackboneFinetuning)
+CALLBACKS.register(name="base_prediction_writer",          module=BasePredictionWriter)
+CALLBACKS.register(name="batch_size_finder",               module=BatchSizeFinder)
 CALLBACKS.register(name="device_stats_monitor",            module=DeviceStatsMonitor)
 CALLBACKS.register(name="early_stopping",                  module=EarlyStopping)
 CALLBACKS.register(name="gradient_accumulation_scheduler", module=GradientAccumulationScheduler)
@@ -1075,3 +1077,6 @@ CALLBACKS.register(name="model_pruning",                   module=ModelPruning)
 CALLBACKS.register(name="model_summary",                   module=ModelSummary)
 CALLBACKS.register(name="quantization_aware_training",     module=QuantizationAwareTraining)
 CALLBACKS.register(name="stochastic_weight_averaging",     module=StochasticWeightAveraging)
+CALLBACKS.register(name="timer",                           module=Timer)
+CALLBACKS.register(name="tqdm_progress_bar",               module=TQDMProgressBar)
+

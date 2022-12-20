@@ -82,7 +82,7 @@ def train(args: Munch | dict):
 
 hosts = {
 	"lp-labdesktop01-ubuntu": {
-		"cfg"        : "finet_c_interleave_0_0_ihaze_256",
+		"cfg"        : "finet_c_interleave_0_6_ihaze_256",
         "project"    : "finet.ihaze.c_interleave",
         "weights"    : None,
         "batch_size" : 4,
@@ -95,7 +95,7 @@ hosts = {
 		"strategy"   : None,
 	},
     "vsw-ws02": {
-		"cfg"        : "finet_c_interleave_0_1_ihaze_256",
+		"cfg"        : "finet_c_interleave_0_5_ihaze_256",
         "project"    : "finet.ihaze.c_interleave",
         "weights"    : None,
         "batch_size" : 4,

@@ -22,7 +22,7 @@ Taxonomy:
 """
 
 from __future__ import annotations
-
+import regex
 import collections
 import functools
 import glob
@@ -3928,8 +3928,7 @@ class Registry:
     Base registry class for registering classes.
 
     Args:
-        name (str):
-            Registry name.
+        name (str): Registry name.
     """
     
     def __init__(self, name: str):
@@ -4007,6 +4006,7 @@ class Registry:
         self,
         name  : str | None = None,
         module: Callable   = None,
+        desc  : str | None = None,
         force : bool       = False
     ) -> callable:
         """
@@ -4031,6 +4031,7 @@ class Registry:
             name (str | None): The name of the module. If not specified, it
                 will be the class name.
             module (Callable): The module to register.
+            desc (str | None): Module description. Defaults to None.
             force (bool): If True, it will overwrite the existing module with
                 the same name. Defaults to False.
         
@@ -4044,12 +4045,12 @@ class Registry:
         
         # Use it as a normal method: x.register(module=SomeClass)
         if module is not None:
-            self.register_module(module, name, force)
+            self.register_module(module, name, desc, force)
             return module
         
         # Use it as a decorator: @x.register()
         def _register(cls):
-            self.register_module(cls, name, force)
+            self.register_module(cls, name, desc, force)
             return cls
         
         return _register
@@ -4058,6 +4059,7 @@ class Registry:
         self,
         module_class: Callable,
         module_name : str | None = None,
+        module_desc : str | None = None,
         force       : bool       = False
     ):
         """
@@ -4067,22 +4069,26 @@ class Registry:
         Args:
             module_class (Callable): The class of the module to be registered.
             module_name (str | None): The name of the module. If not provided,
-                it will be the class name in lowercase.
+                it will be the class name in lowercase. Defaults to None.
+            module_desc (str | None): Module description. Defaults to None.
             force (bool): If True, the module will be registered even if it's
                 already registered. Defaults to False.
         """
         assert_class(module_class)
+        if module_class.__doc__ is None and module_desc is not None:
+            module_class.__doc__ = module_desc
         
         if module_name is None:
             module_name = module_class.__name__.lower()
-        module_name = to_list(module_name)
+        # module_name = to_list(module_name)
         
-        for name in module_name:
-            if not force and name in self._registry:
-                continue
-                # logger.debug(f"{name} is already registered in {self.name}.")
-            else:
-                self._registry[name] = module_class
+        # for name in module_name:
+        if not force and module_name in self._registry:
+            # logger.debug(f"{name} is already registered in {self.name}.")
+            # continue
+            return
+        else:
+            self._registry[module_name] = module_class
     
     def print(self):
         """
@@ -4830,6 +4836,25 @@ def print_table(data: dict):
         table.add_row(*row)
     console.log(table)
 
+
+def short_description(o: Any) -> str:
+    """
+    Print the first paragraph of the class's docstring.
+    
+    Args:
+        o (Any): The object.
+
+    Returns:
+        short_descr (str): Short description of the object.
+    """
+    short_descr = ""
+    if hasattr(o, "__doc__"):
+        full_descr  = str(o.__doc__)
+        short_descr = [regex.search(r'\n((.*\n)*?\n)', full_descr).group(1).replace('\n', '')][0]
+        short_descr = short_descr.replace("    ", " ")
+        short_descr = short_descr.replace("   ", " ")
+    return short_descr
+    
 
 class GPUMemoryUsageColumn(ProgressColumn):
     """

@@ -11,15 +11,15 @@ root_dir=$(dirname "$current_dir")
 
 
 # Add `conda-forge` channel
-echo -e "\nAdd 'conda-forge':"
+echo -e "\nAdd 'conda-forge' channel:"
 conda config --append channels conda-forge
 
 # Add `nvidia` channel
-echo -e "\nAdd 'conda-forge':"
+echo -e "\nAdd 'nvidia' channel:"
 conda config --append channels nvidia
 
 # Install `mamba`
-echo -e "\nInstall 'mamba':"
+echo -e "\nInstall 'mamba' :"
 conda install -c conda-forge mamba --y
 
 # Update 'base' env
