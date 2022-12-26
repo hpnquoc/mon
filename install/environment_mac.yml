@@ -94,7 +94,8 @@ dependencies:
       - flopco-pytorch
       - label-studio
       # - mediapipe
-      # - opencv-python
-      # - opencv-contrib-python
+      - mkdocs
+      - mkdocstrings
+      - mkdocs-material
       - pyiqa
       - ray

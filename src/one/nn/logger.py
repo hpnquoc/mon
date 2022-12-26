@@ -9,7 +9,7 @@ from __future__ import annotations
 import socket
 from functools import wraps
 
-import pytorch_lightning as pl
+from pytorch_lightning import loggers
 from pytorch_lightning.loggers import CometLogger
 from pytorch_lightning.loggers import CSVLogger
 from pytorch_lightning.loggers import MLFlowLogger
@@ -160,7 +160,7 @@ rank_zero_only.rank = getattr(rank_zero_only, "rank", _get_rank())
 
 
 @LOGGERS.register(name="tensorboard")
-class TensorBoardLogger(pl.loggers.TensorBoardLogger):
+class TensorBoardLogger(loggers.TensorBoardLogger):
     
     @property
     @rank_zero_experiment
