@@ -195,7 +195,12 @@ class DenseNet(ImageClassificationModel):
         verbose    : bool                = False,
         *args, **kwargs
     ):
-        cfg, variant = parse_cfg_variant(cfg=cfg, cfgs=cfgs, cfg_dir=CFG_DIR)
+        cfg, variant = parse_cfg_variant(
+            cfg     = cfg,
+            cfgs    = cfgs,
+            cfg_dir = CFG_DIR,
+            to_dict = True
+        )
         pretrained   = parse_pretrained(pretrained=pretrained, variant=variant)
         super().__init__(
             cfg         = cfg,
@@ -206,6 +211,7 @@ class DenseNet(ImageClassificationModel):
             variant     = variant,
             channels    = channels,
             num_classes = num_classes,
+            classlabels = classlabels,
             pretrained  = DenseNet.init_pretrained(pretrained),
             phase       = phase,
             loss        = loss,

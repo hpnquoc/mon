@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-Zero-DCE trained on LIME dataset.
+HINet trained on I-Haze dataset.
 """
 
 from __future__ import annotations
@@ -15,12 +15,12 @@ from one.vision.transformation import Resize
 
 # H1: - Basic ------------------------------------------------------------------
 
-model_name = "finet"
-model_cfg  = "finet-a-interleave-0.5"
-data_name  = "cityscapes-rain"
-fullname   = f"{model_cfg}-{data_name}-256"
+model_name = "hinet"
+model_cfg  = "hinet.yaml"
+data_name  = "ihaze"
+fullname   = f"{model_name}-{data_name}"
 root       = RUNS_DIR / "train"
-project    = "finet"
+project    = "hinet"
 shape      = [3, 256, 256]
 
 
@@ -50,7 +50,7 @@ data = {
         # large datasets may exceed system RAM). Defaults to False.
     "backend": VISION_BACKEND,
         # Vision backend to process image. Defaults to VISION_BACKEND.
-    "batch_size": 4,
+    "batch_size": 8,
         # Number of samples in one forward & backward pass. Defaults to 1.
     "devices" : 0,
         # The devices to use. Defaults to 0.
@@ -94,7 +94,7 @@ model = {
         # Loss function for training model. Defaults to None.
     "metrics": {
 	    "train": [{"name": "psnr"}],
-		"val":   [{"name": "psnr"}],
+		"val":   [{"name": "psnr"}, {"name": "ssim"}],
 		"test":  [{"name": "psnr"}, {"name": "ssim"}],
     },
         # Metric(s) for validating and testing model. Defaults to None.
@@ -139,7 +139,7 @@ model = {
     ],
         # Optimizer(s) for training model. Defaults to None.
     "debug": default.debug | {
-		"every_n_epochs": 5,
+		"every_n_epochs": 10,
 			# Number of epochs between debugging. To disable, set
 	        # `every_n_epochs=0`. Defaults to 1.
     },
@@ -149,11 +149,11 @@ model = {
 }
 
 
-# H1: - Trainer ----------------------------------------------------------------
+# H1: - Training ---------------------------------------------------------------
 
 callbacks = [
     default.model_checkpoint | {
-	    "monitor": "checkpoint/psnr/train_epoch",
+	    "monitor": "checkpoint/psnr/val_epoch",
 		    # Quantity to monitor. Defaults to None which saves a checkpoint
 	        # only for the last epoch.
 		"mode": "max",

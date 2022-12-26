@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-Loop modules such as: Trainer, Tester, Inferrer
+Loop modules such as: Trainer, Tester, Inferrer.
 """
 
 from __future__ import annotations

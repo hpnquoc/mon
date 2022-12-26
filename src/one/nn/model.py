@@ -416,7 +416,8 @@ def parse_cfg_variant(
     cfg    : dict | Path_ | None,
     cfgs   : dict,
     cfg_dir: Path,
-) -> tuple[Path_, str]:
+    to_dict: bool = True,
+) -> tuple[Path_ | dict | Munch, str]:
     variant = None
     if isinstance(cfg, str) and cfg in cfgs:
         variant = str(cfg)
@@ -431,6 +432,8 @@ def parse_cfg_variant(
         error_console.log(
             f"`cfg` must be a dict or one of: {cfgs.keys()}. But got: {cfg}."
         )
+    if to_dict:
+        cfg = load_config(cfg=cfg)
     return cfg, variant
 
 
@@ -518,9 +521,9 @@ def parse_model(
             FFAPostProcess,
             FFAPreProcess,
             FINetConvBlock,
+            FINetUpBlock,
             FINetGhostConv,
             FINetGhostUpBlock,
-            FINetUpBlock,
             GhostConv2d,
             HINetConvBlock,
             HINetUpBlock,
@@ -741,6 +744,9 @@ class BaseModel(pl.LightningModule, metaclass=ABCMeta):
         cfg (dict | Path_ | None): Model's layers configuration. It can be an
             external .yaml path or a dictionary. Defaults to None means you
             should define each layer manually in `self.parse_model()` method.
+        hyperparams (dict | None): Hyperparameters' values. This is usually
+            used in hyperparameter tuning (i.e., Grid Search or Random Search).
+            Defaults to None.
         root (Path_): The root directory of the model. Defaults to RUNS_DIR.
         project (str | None): Project name. Defaults to None.
         name (str | None): Model's name. In case None is given, it will be
@@ -776,6 +782,7 @@ class BaseModel(pl.LightningModule, metaclass=ABCMeta):
     def __init__(
         self,
         cfg        : dict | Path_ | None = None,
+        hyperparams: dict         | None = None,
         root       : Path_               = RUNS_DIR,
         project    : str          | None = None,
         name       : str          | None = None,
@@ -795,6 +802,7 @@ class BaseModel(pl.LightningModule, metaclass=ABCMeta):
     ):
         super().__init__(*args, **kwargs)
         self.cfg           = cfg
+        self.hyperparams   = hyperparams
         self.name          = name
         self.fullname      = fullname
         self.variant       = variant
@@ -844,8 +852,13 @@ class BaseModel(pl.LightningModule, metaclass=ABCMeta):
             
             # Actual model, save list during forward, layer's info
             self.model, self.save, self.info = self.parse_model(
-                d=self.cfg, ch=[self.channels]
+                d  = self.cfg,
+                ch = [self.channels],
             )
+            
+            # Parse hyperparameters if given
+            if self.hyperparams is not None:
+                self.cfg = self.parse_hyperparams(hyperparams=self.hyperparams)
             
             # Load pretrained
             if self.pretrained:
@@ -1201,6 +1214,19 @@ class BaseModel(pl.LightningModule, metaclass=ABCMeta):
             A Sequential model.
             A list of layer index to save the features during forward pass.
             A list of layer's info for debugging.
+        """
+        pass
+    
+    @abstractmethod
+    def parse_hyperparams(self, hyperparams: dict | Munch) -> dict | Munch:
+        """
+        Update layers' parameters with the provided hyperparameters. Specify
+        which layer and which parameter will be updated in this function. This
+        function is called before `parse_model`. This is usually used in
+        hyperparameter tuning procedure (i.e, Grid Search or Random Search).
+        
+        Args:
+            hyperparams (dict | Munch): Hyperparameters' values.
         """
         pass
     

@@ -69,14 +69,18 @@ def infer(args: Munch | dict):
 
 # H1: - Main -------------------------------------------------------------------
 
+variant   = "d"
+selection = "interleave"
+alpha     = 0.9
+
 hosts = {
 	"lp-labdesktop01-ubuntu": {
         "model"      : "finet",
-        "cfg"        : "finet",
-        "weights"    : PROJECTS_DIR / "train" / "runs" / "train" / "finet" / "ihaze" / "a_linear" / "finet-a-linear-0.0-ihaze-256" / "weights" / "best.pt",
+        "cfg"        : f"finet-{variant}",
+        "weights"    : PROJECTS_DIR / "train" / "runs" / "train" / "finet" / "ihaze" / f"{variant}" / f"finet-{variant}-ihaze-256" / "weights" / "best.pt",
         "root"       : RUNS_DIR / "infer",
-        "project"    : "finet",
-        "name"       : "finet-a-linear-0.0-ihaze-256",
+        "project"    : f"finet/ihaze/{variant}",
+        "name"       : f"finet-{variant}-ihaze-256",
         "num_classes": None,
         # "source"     : DATA_DIR / "lol" / "train" / "low",
         # "source"     : DATA_DIR / "sice" / "part2_900x1200_low" / "low",

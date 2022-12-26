@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-Zero-DCE trained on LIME dataset.
+HINet trained on REDS-Blur dataset.
 """
 
 from __future__ import annotations
@@ -149,7 +149,7 @@ model = {
 }
 
 
-# H1: - Trainer ----------------------------------------------------------------
+# H1: - Training ---------------------------------------------------------------
 
 callbacks = [
     default.model_checkpoint | {

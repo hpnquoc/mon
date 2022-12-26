@@ -14,7 +14,5 @@ __pycache__/
 
 /data/
 /third_party/
-/projects/train/runs/
-/projects/zeroadce/data/
-/projects/zeroadce/runs/
+/projects/
 /pretrained/

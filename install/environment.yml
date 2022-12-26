@@ -95,9 +95,7 @@ dependencies:
       - flopco-pytorch
       - label-studio
       - mediapipe
-      # - nvidia-pyindex
-      # - nvidia-tensorrt
       # - opencv-python
       # - opencv-contrib-python
-      # - pycuda
       - pyiqa
+      - ray

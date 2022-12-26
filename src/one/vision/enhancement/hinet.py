@@ -55,13 +55,13 @@ cfgs = {
             [0,            1,      Conv2d,         [64, 3, 1, 1]],                    # 27 (x2)
             [[-1, 25],     1,      Concat,         []],                               # 28 (x2 + sam_features)
             [-1,           1,      Conv2d,         [64, 1, 1, 0]],                    # 29 (x2)
-            [[-1, 11, 23], 1,      HINetConvBlock, [64,   True,  0.2, True, True]],   # 30 (x2_1_down, x2_1)
+            [[-1, 11, 23], 1,      HINetConvBlock, [64,   True,  0.2, True,  True]],  # 30 (x2_1_down, x2_1)
             [-1,           1,      ExtractItem,    [0]],                              # 31 (x2_1_down)
-            [[-1, 13, 22], 1,      HINetConvBlock, [128,  True,  0.2, True, True]],   # 32 (x2_2_down, x2_2)
+            [[-1, 13, 22], 1,      HINetConvBlock, [128,  True,  0.2, True,  True]],  # 32 (x2_2_down, x2_2)
             [-1,           1,      ExtractItem,    [0]],                              # 33 (x2_2_down)
-            [[-1, 15, 21], 1,      HINetConvBlock, [256,  True,  0.2, True, True]],   # 34 (x2_3_down, x2_3)
+            [[-1, 15, 21], 1,      HINetConvBlock, [256,  True,  0.2, True,  True]],  # 34 (x2_3_down, x2_3)
             [-1,           1,      ExtractItem,    [0]],                              # 35 (x2_3_down)
-            [[-1, 17, 20], 1,      HINetConvBlock, [512,  True,  0.2, True, True]],   # 36 (x2_4_down, x2_4)
+            [[-1, 17, 20], 1,      HINetConvBlock, [512,  True,  0.2, True,  True]],  # 36 (x2_4_down, x2_4)
             [-1,           1,      ExtractItem,    [0]],                              # 37 (x2_4_down)
             [[-1],         1,      HINetConvBlock, [1024, False, 0.2, False, True]],  # 38 (None,      x2_5)
             # UNet 02 Skip
@@ -126,13 +126,13 @@ cfgs = {
             [0,            1,      Conv2d,         [32, 3, 1, 1]],                    # 27 (x2)
             [[-1, 25],     1,      Concat,         []],                               # 28 (x2 + sam_features)
             [-1,           1,      Conv2d,         [32, 1, 1, 0]],                    # 29 (x2)
-            [[-1, 11, 23], 1,      HINetConvBlock, [32,  True,  0.2, True, True]],    # 30 (x2_1_down, x2_1)
+            [[-1, 11, 23], 1,      HINetConvBlock, [32,  True,  0.2, True,  True]],   # 30 (x2_1_down, x2_1)
             [-1,           1,      ExtractItem,    [0]],                              # 31 (x2_1_down)
-            [[-1, 13, 22], 1,      HINetConvBlock, [64,  True,  0.2, True, True]],    # 32 (x2_2_down, x2_2)
+            [[-1, 13, 22], 1,      HINetConvBlock, [64,  True,  0.2, True,  True]],   # 32 (x2_2_down, x2_2)
             [-1,           1,      ExtractItem,    [0]],                              # 33 (x2_2_down)
-            [[-1, 15, 21], 1,      HINetConvBlock, [128, True,  0.2, True, True]],    # 34 (x2_3_down, x2_3)
+            [[-1, 15, 21], 1,      HINetConvBlock, [128, True,  0.2, True,  True]],   # 34 (x2_3_down, x2_3)
             [-1,           1,      ExtractItem,    [0]],                              # 35 (x2_3_down)
-            [[-1, 17, 20], 1,      HINetConvBlock, [256, True,  0.2, True, True]],    # 36 (x2_4_down, x2_4)
+            [[-1, 17, 20], 1,      HINetConvBlock, [256, True,  0.2, True,  True]],   # 36 (x2_4_down, x2_4)
             [-1,           1,      ExtractItem,    [0]],                              # 37 (x2_4_down)
             [[-1],         1,      HINetConvBlock, [512, False, 0.2, False, True]],   # 38 (None,      x2_5)
             # UNet 02 Skip
@@ -321,7 +321,12 @@ class HINet(ImageEnhancementModel):
         verbose    : bool                = False,
         *args, **kwargs
     ):
-        cfg, variant = parse_cfg_variant(cfg=cfg, cfgs=cfgs, cfg_dir=CFG_DIR)
+        cfg, variant = parse_cfg_variant(
+            cfg     = cfg,
+            cfgs    = cfgs,
+            cfg_dir = CFG_DIR,
+            to_dict = True
+        )
         pretrained   = parse_pretrained(pretrained=pretrained, variant=variant)
         super().__init__(
             cfg         = cfg,

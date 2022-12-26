@@ -7,8 +7,11 @@ Code playground.
 
 from __future__ import annotations
 
-from one.core import console
-from one.core import short_description
-from one.nn import ModelCheckpoint
+import torch
 
-console.log(short_description(ModelCheckpoint))
+a      = torch.ones(10)
+a[0:5] = 0
+c      = torch.ones([4, 10, 5, 5])
+b      = a.reshape(-1, 10, 1, 1)
+print(b)
+print(b * c)

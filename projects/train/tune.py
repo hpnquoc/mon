@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-Training script.
+Hyperparameters Tuning script.
 """
 
 from __future__ import annotations
@@ -11,6 +11,7 @@ import argparse
 import socket
 
 from pytorch_lightning.callbacks import Checkpoint
+from ray import tune
 
 from one.data import *
 from one.datasets import *
@@ -24,9 +25,10 @@ from one.nn import Trainer
 
 # H1: - Train ------------------------------------------------------------------
 
-def train(args: Munch | dict):
-    args = Munch.fromDict(args)
-    
+def train(config: Munch | dict, args: Munch | dict):
+    hyperparams = Munch.fromDict(config)
+    args        = Munch.fromDict(args)
+
     # H2: - Initialization -----------------------------------------------------
     console.rule("[bold red]1. INITIALIZATION")
     console.log(f"Machine: {args.hostname}")
@@ -36,6 +38,7 @@ def train(args: Munch | dict):
     data.setup(phase="training")
     
     args.model.classlabels = data.classlabels
+    args.model.hyperparams = hyperparams
     model: BaseModel       = MODELS.build_from_dict(cfg=args.model)
     model.phase            = "training"
     
@@ -48,7 +51,7 @@ def train(args: Munch | dict):
     
     ckpt                 = get_latest_checkpoint(dirpath=model.weights_dir)
     callbacks            = CALLBACKS.build_from_dictlist(cfgs=args.callbacks)
-    enable_checkpointing = any(isinstance(cb, Checkpoint) for cb in callbacks)
+    enable_checkpointing = False  # any(isinstance(cb, Checkpoint) for cb in callbacks)
     
     logger = []
     for k, v in args.logger.items():
@@ -78,12 +81,28 @@ def train(args: Munch | dict):
     console.log("[green]Done")
 
 
+def tune_hyperparams(args: Munch | dict):
+    search_space = args.model.search_space
+    trainable    = tune.with_parameters(train, args=args)
+    analysis     = tune.run(
+        trainable,
+        resources_per_trial={ "cpu": 1, "gpu": 1 },
+        metric="loss",
+        mode="min",
+        config=search_space,
+        num_samples=num_samples,
+        name="tune_mnist"
+    )
+    console.log(analysis.best_config)
+    pass
+
+
 # H1: - Main -------------------------------------------------------------------
 
 hosts = {
 	"lp-labdesktop01-ubuntu": {
-		"cfg"        : "finet_d_interleave_0_8_ihaze_256",
-        "project"    : "finet.ihaze.d",
+		"cfg"        : "finet_a_ihaze_256",
+        "project"    : "finet.ihaze.a",
         "weights"    : None,
         "batch_size" : 4,
         # "img_size"   : None,
@@ -183,4 +202,5 @@ if __name__ == "__main__":
             "strategy"   : strategy,
         },
     )
-    train(args)
+    tune_hyperparams(args=args)
+    

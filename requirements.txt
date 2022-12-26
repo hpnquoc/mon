@@ -26,3 +26,4 @@ xmltodict
 setuptools
 pycocotools
 scikit-learn
+ray

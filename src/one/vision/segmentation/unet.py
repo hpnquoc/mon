@@ -113,12 +113,12 @@ class UNet(ImageClassificationModel):
         verbose    : bool                = False,
         *args, **kwargs
     ):
-        cfg = cfg or "unet-32"
-        if isinstance(cfg, str) and cfg in cfgs:
-            cfg = cfgs[cfg]
-        elif isinstance(cfg, (str, Path)) and not is_yaml_file(cfg):
-            cfg = CFG_DIR / cfg
-        
+        cfg, variant = parse_cfg_variant(
+            cfg     = cfg,
+            cfgs    = cfgs,
+            cfg_dir = CFG_DIR,
+            to_dict = True
+        )
         super().__init__(
             cfg         = cfg,
             root        = root,

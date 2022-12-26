@@ -22,6 +22,7 @@ from pytorch_lightning.utilities.imports import _RICH_AVAILABLE
 from pytorch_lightning.utilities.logger import _version
 from pytorch_lightning.utilities.model_summary import get_human_readable_count
 from pytorch_lightning.utilities.types import STEP_OUTPUT
+from ray.tune.integration.pytorch_lightning import TuneReportCallback
 
 from one.constants import *
 from one.core import *
@@ -1081,4 +1082,5 @@ CALLBACKS.register(name="quantization_aware_training",     module=QuantizationAw
 CALLBACKS.register(name="stochastic_weight_averaging",     module=StochasticWeightAveraging,     desc="Implements the Stochastic Weight Averaging (SWA) Callback to average a model.")
 CALLBACKS.register(name="timer",                           module=Timer,                         desc="The Timer callback tracks the time spent in the training, validation, and test loops and interrupts the Trainer if the given time limit for the training loop is reached.")
 CALLBACKS.register(name="tqdm_progress_bar",               module=TQDMProgressBar,               desc="This is the default progress bar used by Lightning.")
+CALLBACKS.register(name="tune_report_callback",            module=TuneReportCallback,            desc="PyTorch Lightning to Ray Tune reporting callback.")
 

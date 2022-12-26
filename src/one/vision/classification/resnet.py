@@ -208,7 +208,12 @@ class ResNet(ImageClassificationModel):
         verbose    : bool                = False,
         *args, **kwargs
     ):
-        cfg, variant = parse_cfg_variant(cfg=cfg, cfgs=cfgs, cfg_dir=CFG_DIR)
+        cfg, variant = parse_cfg_variant(
+            cfg     = cfg,
+            cfgs    = cfgs,
+            cfg_dir = CFG_DIR,
+            to_dict = True
+        )
         pretrained   = parse_pretrained(pretrained=pretrained, variant=variant)
         super().__init__(
             cfg         = cfg,

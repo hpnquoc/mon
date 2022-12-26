@@ -7,16 +7,18 @@ FINet trained on I-Haze dataset.
 
 from __future__ import annotations
 
+from ray import tune
+
 from one.cfg import default
 from one.constants import RUNS_DIR
 from one.constants import VISION_BACKEND
 from one.vision.transformation import Resize
 
 
-# H1: - Basic ------------------------------------------------------------------
+# H1: - Basic -------------------------------------------------------------------
 
 model_name = "finet"
-model_cfg  = "finet-c-random-0.7"
+model_cfg  = "finet-a"
 data_name  = "ihaze"
 fullname   = f"{model_cfg}-{data_name}-256"
 root       = RUNS_DIR / "train"
@@ -68,6 +70,18 @@ model = {
         # Model's layers configuration. It can be an external .yaml path or a
         # dictionary. Defaults to None means you should define each layer
         # manually in `self.parse_model()` method.
+	"search_space": {
+		"p"     : tune.choice([
+			0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0
+		]),
+		"scheme": tune.choice([
+			"full", "half", "bipartite", "checkerboard", "random", "adaptive",
+			"attentive"
+		]),
+		"pool"  : tune.choice([True, False]),
+		"bias"  : tune.choice(["avg", "max"]),
+	},
+		# Search space for Tune's hyperparameter search.
     "root": root,
         # The root directory of the model. Defaults to RUNS_DIR.
     "project": project,
@@ -149,7 +163,7 @@ model = {
 }
 
 
-# H1: - Trainer ----------------------------------------------------------------
+# H1: - Training ---------------------------------------------------------------
 
 callbacks = [
     default.model_checkpoint | {
@@ -166,6 +180,17 @@ callbacks = [
 	default.learning_rate_monitor,
 	default.rich_model_summary,
 	default.rich_progress_bar,
+	default.tune_report_callback | {
+		"metrics": {
+			"loss": "checkpoint/loss/val_epoch",
+			"psnr": "checkpoint/psnr/val_epoch",
+		},
+			# Metrics to report to Tune. If this is a list, each item describes
+			# the metric key reported to PyTorch Lightning, and it will be
+			# reported under the same name to Tune. If this is a dict, each key
+			# will be the name reported to Tune and the respective value will
+			# be the metric key reported to PyTorch Lightning.
+	},
 ]
 
 logger = {
@@ -177,4 +202,8 @@ trainer = default.trainer | {
         # Default path for logs and weights when no logger/ckpt_callback passed.
         # Can be remote file paths such as `s3://mybucket/path` or
         # 'hdfs://path/'. Defaults to os.getcwd().
+}
+
+tuner = default.tuner | {
+
 }

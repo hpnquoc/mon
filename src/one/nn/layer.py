@@ -24,6 +24,7 @@ import math
 from functools import partial
 from typing import Type
 
+import torch
 import torch.nn.functional as F
 import torchvision
 from torch import Tensor
@@ -384,7 +385,7 @@ class CBAM(Module):
                 else:
                     channel_att_sum = channel_att_sum + channel_att_raw
     
-            y = F.sigmoid(channel_att_sum).unsqueeze(2).unsqueeze(3).expand_as(x)  # scale
+            y = torch.sigmoid(channel_att_sum).unsqueeze(2).unsqueeze(3).expand_as(x)  # scale
             y = x * y
             return y
     
@@ -2259,7 +2260,7 @@ class CropTBLR(Module):
 
 def drop_block_2d(
     input      : Tensor,
-    drop_prob  : float = 0.1,
+    p          : float = 0.1,
     block_size : int   = 7,
     gamma_scale: float = 1.0,
     with_noise : bool  = False,
@@ -2280,7 +2281,7 @@ def drop_block_2d(
     total_size         = w * h
     clipped_block_size = min(block_size, min(w, h))
     # seed_drop_rate, the gamma parameter
-    gamma = (gamma_scale * drop_prob * total_size / clipped_block_size ** 2 /
+    gamma = (gamma_scale * p * total_size / clipped_block_size ** 2 /
              ((w - block_size + 1) * (h - block_size + 1)))
 
     # Forces the block to be inside the feature map.
@@ -2331,7 +2332,7 @@ def drop_block_2d(
 
 def drop_block_fast_2d(
     input      : Tensor,
-    drop_prob  : float = 0.1,
+    p          : float = 0.1,
     block_size : int   = 7,
     gamma_scale: float = 1.0,
     with_noise : bool  = False,
@@ -2350,7 +2351,7 @@ def drop_block_fast_2d(
     b, c, h, w 		   = x.shape
     total_size		   = w * h
     clipped_block_size = min(block_size, min(w, h))
-    gamma = (gamma_scale * drop_prob * total_size / clipped_block_size ** 2 /
+    gamma = (gamma_scale * p * total_size / clipped_block_size ** 2 /
              ((w - block_size + 1) * (h - block_size + 1)))
 
     if batchwise:
@@ -2387,7 +2388,7 @@ def drop_block_fast_2d(
 
 def drop_path(
     input    : Tensor,
-    drop_prob: float = 0.0,
+    p        : float = 0.0,
     training : bool  = False,
     *args, **kwargs
 ) -> Tensor:
@@ -2399,14 +2400,14 @@ def drop_path(
 
     Args:
         input (Tensor): Input.
-        drop_prob (float): Probability of the path to be zeroed. Defaults to 0.0.
+        p (float): Probability of the path to be zeroed. Defaults to 0.0.
         training (bool): Is in training run?. Defaults to False.
     """
     x = input
-    if drop_prob == 0.0 or not training:
+    if p == 0.0 or not training:
         return x
     
-    keep_prob     = 1 - drop_prob
+    keep_prob     = 1 - p
     shape	      = (x.shape[0],) + (1,) * (x.ndim - 1)
     random_tensor = (keep_prob + torch.rand(shape, dtype=x.dtype, device=x.device))
     y 		      = x.div(keep_prob) * random_tensor.floor()
@@ -2420,7 +2421,7 @@ class DropBlock2d(Module):
 
     def __init__(
         self,
-        drop_prob  : float = 0.1,
+        p          : float = 0.1,
         block_size : int   = 7,
         gamma_scale: float = 1.0,
         with_noise : bool  = False,
@@ -2430,7 +2431,7 @@ class DropBlock2d(Module):
         *args, **kwargs
     ):
         super().__init__()
-        self.drop_prob   = drop_prob
+        self.drop_prob   = p
         self.gamma_scale = gamma_scale
         self.block_size  = block_size
         self.with_noise  = with_noise
@@ -2445,7 +2446,7 @@ class DropBlock2d(Module):
         if self.fast:
             y = drop_block_fast_2d(
                 input       = x,
-                drop_prob   = self.drop_prob,
+                p= self.drop_prob,
                 block_size  = self.block_size,
                 gamma_scale = self.gamma_scale,
                 with_noise  = self.with_noise,
@@ -2456,7 +2457,7 @@ class DropBlock2d(Module):
         else:
             y = drop_block_2d(
                 input       = x,
-                drop_prob   = self.drop_prob,
+                p= self.drop_prob,
                 block_size  = self.block_size,
                 gamma_scale = self.gamma_scale,
                 with_noise  = self.with_noise,
@@ -2471,18 +2472,18 @@ class DropPath(Module):
     Drop paths (Stochastic Depth) per sample.
     
     Args:
-        drop_prob (float): Probability of the path to be zeroed. Defaults to 0.1.
+        p (float): Probability of the path to be zeroed. Defaults to 0.1.
     """
     
-    def __init__(self, drop_prob: float = 0.1, *args, **kwargs):
+    def __init__(self, p: float = 0.1, *args, **kwargs):
         super().__init__()
-        self.drop_prob = drop_prob
+        self.drop_prob = p
         
     def forward(self, input: Tensor) -> Tensor:
         x = input
         y = drop_path(
             input     = x,
-            drop_prob = self.drop_prob,
+            p= self.drop_prob,
             training  = self.training
         )
         return y
@@ -3217,14 +3218,14 @@ class BatchNormReLU2d(BatchNormAct2d):
         )
         
 
-class FractionInstanceNorm2d(InstanceNorm2d):
+class FractionalInstanceNorm2dOld(InstanceNorm2d):
     """
     Fractional Instance Normalization is a generalization of Half Instance
     Normalization.
     
     Args:
         num_features (int): Number of input features.
-        alpha (float): Ratio of input features that will be normalized.
+        ratio (float): Ratio of input features that will be normalized.
             Defaults to 0.5.
         selection (str): Feature selection mechanism.
             One of: ["linear", "random", "interleave"]
@@ -3237,7 +3238,7 @@ class FractionInstanceNorm2d(InstanceNorm2d):
     def __init__(
         self,
         num_features       : int,
-        alpha              : float = 0.5,
+        ratio              : float = 0.5,
         selection          : str   = "linear",
         eps                : float = 1e-5,
         momentum           : float = 0.1,
@@ -3248,10 +3249,10 @@ class FractionInstanceNorm2d(InstanceNorm2d):
         *args, **kwargs
     ):
         self.in_channels = num_features
-        self.alpha       = alpha
+        self.ratio       = ratio
         self.selection   = selection
         super().__init__(
-            num_features        = math.ceil(num_features * self.alpha),
+            num_features        = math.ceil(num_features * self.ratio),
             eps                 = eps,
             momentum            = momentum,
             affine              = affine,
@@ -3268,9 +3269,9 @@ class FractionInstanceNorm2d(InstanceNorm2d):
         self._check_input_dim(x)
         _, c, _, _ = x.shape
         
-        if self.alpha == 0.0:
+        if self.ratio == 0.0:
             return x
-        elif self.alpha == 1.0:
+        elif self.ratio == 1.0:
             y = F.instance_norm(
                 input           = x,
                 running_mean    = self.running_mean,
@@ -3297,7 +3298,6 @@ class FractionInstanceNorm2d(InstanceNorm2d):
                     if len(y1_idxes) < self.num_features:
                         y1_idxes.append(i)
                 y2_idxes = list(set(range(self.in_channels)) - set(y1_idxes))
-                # print(len(y1_idxes), len(y2_idxes), self.num_features)
                 y1_idxes = Tensor(y1_idxes).to(torch.int).to(x.device)
                 y2_idxes = Tensor(y2_idxes).to(torch.int).to(x.device)
                 y1       = torch.index_select(x, 1, y1_idxes)
@@ -3318,6 +3318,167 @@ class FractionInstanceNorm2d(InstanceNorm2d):
             )
             return torch.cat([y1, y2], dim=1)
 
+
+class FractionalInstanceNorm2d(InstanceNorm2d):
+    """
+    Apply Instance Normalization on a fraction of the input tensor.
+    
+    Args:
+        num_features (int): Number of input features.
+        p (float): Ratio of input features that will be normalized. Defaults to 0.5.
+        scheme (str): Feature selection mechanism. One of:
+            - `full`        : Run Instance Normalization as normal.
+            - `half`        : Split the input tensor into two even parts.
+                              Normalized the first half.
+            - `bipartite`   : Split the input tensor into two uneven parts.
+                              Normalized the first half.
+            - `checkerboard`: Normalized the input tensor following the
+                              checkerboard pattern.
+            - `random`      : Normalized the input tensor in randomly.
+            - `adaptive`    : Define a learnable weight parameter. Then apply
+                              weighted sum between the normalized tensor and
+                              the original tensor.
+            - `attentive`   : Apply channel attention to determine the channels'
+                              weights. Then apply weighted sum between
+                              the normalized tensor and the original tensor.
+            Default to `half`.
+        pool (str | Callable): Pooling type. One of: [`avg`, `max`].
+            Defaults to `avg`.
+        bias (bool): Add bias for `adaptive` scheme. Defaults to True.
+    """
+    
+    schemes = [
+        "full", "half", "bipartite", "checkerboard", "random", "adaptive",
+        "attentive",
+    ]
+    
+    def __init__(
+        self,
+        num_features       : int,
+        p                  : float          = 0.5,
+        scheme             : str            = "half",
+        pool               : Callable | str = "avg",
+        bias               : bool           = True,
+        eps                : float          = 1e-5,
+        momentum           : float          = 0.1,
+        affine             : bool           = True,
+        track_running_stats: bool           = False,
+        device             : Any            = None,
+        dtype              : Any            = None,
+        *args, **kwargs
+    ):
+        super().__init__(
+            num_features        = num_features,
+            eps                 = eps,
+            momentum            = momentum,
+            affine              = affine,
+            track_running_stats = track_running_stats,
+            device              = device,
+            dtype               = dtype,
+        )
+        if scheme not in self.schemes:
+            raise ValueError(
+                f"`scheme` must be one of: {self.schemes}. But got: {scheme}."
+            )
+        if scheme is "half":
+            self.alpha  = torch.zeros(num_features)
+            self.alpha[0:math.ceil(num_features * 0.5)] = 1
+        elif scheme is "bipartite":
+            self.alpha  = torch.zeros(num_features)
+            self.alpha[0:math.ceil(num_features * p)]   = 1
+        elif scheme is "checkerboard":
+            in_channels = math.ceil(num_features * p)
+            step_size   = int(math.floor(in_channels / num_features))
+            self.alpha  = torch.zeros(num_features)
+            for i in range(0, in_channels, step_size):
+                self.alpha[i] = 1
+        elif scheme is "random":
+            in_channels = math.ceil(num_features * p)
+            rand        = random.sample(range(in_channels), num_features)
+            self.alpha  = torch.zeros(num_features)
+            for i in rand:
+                self.alpha[i] = 1
+        elif scheme is "adaptive":
+            self.alpha = Parameter(torch.full([num_features], p))
+        elif scheme is "attentive":
+            if pool not in ["avg", "max"]:
+                raise ValueError(
+                    f"`pool` must be one of: [`avg`, `max`]. But got: {pool}."
+                )
+            self.channel_attention = Sequential(
+                self.Flatten(),
+                Linear(
+                    in_features  = num_features,
+                    out_features = math.ceil(num_features * p),
+                ),
+                ReLU(),
+                Linear(
+                    in_features  = math.ceil(num_features * p),
+                    out_features = num_features,
+                )
+            )
+        if bias:
+            self.beta1 = Parameter(torch.zeros(num_features))
+            self.beta2 = Parameter(torch.zeros(num_features))
+        else:
+            self.beta1 = None
+            self.beta2 = None
+        
+        self.p      = p
+        self.scheme = scheme
+        self.pool   = pool
+
+    def forward(self, input: Tensor) -> Tensor:
+        self._check_input_dim(input)
+        x          = input
+        b, c, h, w = x.shape
+        x_norm     = F.instance_norm(
+            input           = x,
+            running_mean    = self.running_mean,
+            running_var     = self.running_var,
+            weight          = self.weight,
+            bias            = self.bias,
+            use_input_stats = self.training or not self.track_running_stats,
+            momentum        = self.momentum,
+            eps             = self.eps
+        )
+
+        if self.scheme in ["half", "bipartite", "checkerboard", "random"]:
+            alpha = self.alpha.reshape(-1, c, 1, 1).to(x.device)
+            y     = (x_norm * alpha) + (x * (1 - alpha))
+        elif self.scheme in ["adaptive"]:
+            alpha = self.alpha.reshape(-1, c, 1, 1).to(x.device)
+            if self.beta1 is not None and self.beta2 is not None:
+                beta1 = self.beta1.reshape(-1, c, 1, 1).to(x.device)
+                beta2 = self.beta2.reshape(-1, c, 1, 1).to(x.device)
+                y     = (x_norm * alpha + beta1) + (x * (1 - alpha) + beta2)
+            else:
+                y     = (x_norm * alpha) + (x * (1 - alpha))
+        elif self.scheme in ["attentive"]:
+            if self.pool is "avg":
+                pool = F.avg_pool2d(
+                    input       = x,
+                    kernel_size = (x.size(2), x.size(3)),
+                    stride      = (x.size(2), x.size(3)),
+                )
+            else:
+                pool = F.max_pool2d(
+                    input       = x,
+                    kernel_size = (x.size(2), x.size(3)),
+                    stride      = (x.size(2), x.size(3)),
+                )
+            alpha = self.channel_attention(pool)
+            alpha = torch.sigmoid(alpha).unsqueeze(2).unsqueeze(3).expand_as(x)
+            if self.beta1 is not None and self.beta2 is not None:
+                beta1 = self.beta1.reshape(-1, c, 1, 1).to(x.device)
+                beta2 = self.beta2.reshape(-1, c, 1, 1).to(x.device)
+                y     = (x_norm * alpha + beta1) + (x * (1 - alpha) + beta2)
+            else:
+                y     = (x_norm * alpha) + (x * (1 - alpha))
+        else:
+            y = x_norm
+        return y
+        
 
 class GroupNormAct(GroupNorm):
     """
@@ -3360,41 +3521,6 @@ class GroupNormAct(GroupNorm):
             eps        = self.eps
         )
         y = self.act(y)
-        return y
-
-
-class HalfGroupNorm(GroupNorm):
-
-    def __init__(
-        self,
-        num_groups  : int,
-        num_channels: int,
-        eps         : float = 1e-5,
-        affine      : bool  = True,
-        device      : Any   = None,
-        dtype       : Any   = None,
-        *args, **kwargs
-    ):
-        super().__init__(
-            num_groups   = num_groups,
-            num_channels = num_channels,
-            eps          = eps,
-            affine       = affine,
-            device       = device,
-            dtype        = dtype
-        )
-
-    def forward(self, input: Tensor) -> Tensor:
-        x      = input
-        y1, y2 = torch.chunk(x, 2, dim=1)
-        y1     = F.group_norm(
-            input      = y1,
-            num_groups = self.num_groups,
-            weight     = self.weight,
-            bias       = self.bias,
-            eps        = self.eps
-        )
-        y = torch.cat([y1, y2], dim=1)
         return y
 
 
@@ -3442,38 +3568,6 @@ class HalfInstanceNorm2d(InstanceNorm2d):
         return torch.cat([y1, y2], dim=1)
 
 
-class HalfLayerNorm(LayerNorm):
-
-    def __init__(
-        self,
-        normalized_shape  : Any,
-        eps               : float = 1e-5,
-        elementwise_affine: bool  = True,
-        device            : Any   = None,
-        dtype             : Any   = None,
-        *args, **kwargs
-    ):
-        super().__init__(
-            normalized_shape   = normalized_shape,
-            eps                = eps,
-            elementwise_affine = elementwise_affine,
-            device             = device,
-            dtype              = dtype
-        )
-
-    def forward(self, input: Tensor) -> Tensor:
-        x      = input
-        y1, y2 = torch.chunk(x, 2, dim=1)
-        y1     = F.layer_norm(
-            input            = y1,
-            normalized_shape = self.normalized_shape,
-            weight           = self.weight,
-            bias             = self.bias,
-            eps              = self.eps
-        )
-        return torch.cat([y1, y2], dim=1)
-
-
 class LayerNorm2d(LayerNorm):
     """
     LayerNorm for channels of 2D spatial [B, C, H, W] tensors.
@@ -3506,24 +3600,24 @@ class LayerNorm2d(LayerNorm):
             eps              = self.eps
         ).permute(0, 3, 1, 2)
         return y
-    
 
-BatchNorm1d        = nn.BatchNorm1d
-BatchNorm2d        = nn.BatchNorm2d
-BatchNorm3d        = nn.BatchNorm3d
-GroupNorm          = nn.GroupNorm
-LayerNorm          = nn.LayerNorm
-LazyBatchNorm1d    = nn.LazyBatchNorm1d
-LazyBatchNorm2d    = nn.LazyBatchNorm2d
-LazyBatchNorm3d    = nn.LazyBatchNorm3d
-LazyInstanceNorm1d = nn.LazyInstanceNorm1d
-LazyInstanceNorm2d = nn.LazyInstanceNorm2d
-LazyInstanceNorm3d = nn.LazyInstanceNorm3d
-LocalResponseNorm  = nn.LocalResponseNorm
-InstanceNorm1d     = nn.InstanceNorm1d
-InstanceNorm2d     = nn.InstanceNorm2d
-InstanceNorm3d     = nn.InstanceNorm3d
-SyncBatchNorm      = nn.SyncBatchNorm
+
+BatchNorm1d           = nn.BatchNorm1d
+BatchNorm2d           = nn.BatchNorm2d
+BatchNorm3d           = nn.BatchNorm3d
+GroupNorm             = nn.GroupNorm
+LayerNorm             = nn.LayerNorm
+LazyBatchNorm1d       = nn.LazyBatchNorm1d
+LazyBatchNorm2d       = nn.LazyBatchNorm2d
+LazyBatchNorm3d       = nn.LazyBatchNorm3d
+LazyInstanceNorm1d    = nn.LazyInstanceNorm1d
+LazyInstanceNorm2d    = nn.LazyInstanceNorm2d
+LazyInstanceNorm3d    = nn.LazyInstanceNorm3d
+LocalResponseNorm     = nn.LocalResponseNorm
+InstanceNorm1d        = nn.InstanceNorm1d
+InstanceNorm2d        = nn.InstanceNorm2d
+InstanceNorm3d        = nn.InstanceNorm3d
+SyncBatchNorm         = nn.SyncBatchNorm
 
 
 # H2: - Padding ----------------------------------------------------------------
@@ -4672,17 +4766,19 @@ class FINetConvBlock(Module):
         out_channels: int,
         downsample  : bool,
         relu_slope  : float,
-        use_csff    : bool  = False,
-        use_fin     : bool  = False,
-        alpha       : float = 0.5,
-        selection   : str   = "linear",
+        use_csff    : bool           = False,
+        use_norm    : bool           = False,
+        p           : float          = 0.5,
+        scheme      : str            = "half",
+        pool        : Callable | str = "avg",
+        bias        : bool           = True,
         *args, **kwargs
     ):
         super().__init__()
         self.downsample = downsample
         self.use_csff   = use_csff
-        self.use_fin    = use_fin
-        self.alpha      = alpha
+        self.use_norm   = use_norm
+        self.p          = p
         
         self.conv1 = Conv2d(
             in_channels  = in_channels,
@@ -4726,11 +4822,13 @@ class FINetConvBlock(Module):
                 padding      = 1,
             )
         
-        if self.use_fin:
-            self.norm = FractionInstanceNorm2d(
-                alpha        = self.alpha,
+        if self.use_norm:
+            self.norm = FractionalInstanceNorm2d(
                 num_features = out_channels,
-                selection    = selection,
+                p            = self.p,
+                scheme       = scheme,
+                pool         = pool,
+                bias         = bias,
             )
 
         if downsample:
@@ -4766,7 +4864,7 @@ class FINetConvBlock(Module):
             raise TypeError()
         
         y  = self.conv1(x)
-        if self.use_fin:
+        if self.use_norm:
             y = self.norm(y)
         y  = self.relu1(y)
         y  = self.relu2(self.conv2(y))
@@ -4784,6 +4882,52 @@ class FINetConvBlock(Module):
             return None, y
 
 
+class FINetUpBlock(Module):
+    
+    def __init__(
+        self,
+        in_channels : int,
+        out_channels: int,
+        relu_slope  : float,
+        use_norm    : bool           = False,
+        p           : float          = 0.5,
+        scheme      : str            = "half",
+        pool        : Callable | str = "avg",
+        bias        : bool           = True,
+        *args, **kwargs
+    ):
+        super().__init__()
+        self.up = ConvTranspose2d(
+            in_channels  = in_channels,
+            out_channels = out_channels,
+            kernel_size  = 2,
+            stride       = 2,
+            bias         = True,
+        )
+        self.conv = FINetConvBlock(
+            in_channels  = in_channels,
+            out_channels = out_channels,
+            downsample   = False,
+            relu_slope   = relu_slope,
+            use_norm     = use_norm,
+            p            = p,
+            scheme       = scheme,
+            pool         = pool,
+            bias         = bias,
+            *args, **kwargs
+        )
+    
+    def forward(self, input: Sequence[Tensor]) -> Tensor:
+        assert_sequence_of_length(input, 2)
+        x    = input[0]
+        skip = input[1]
+        x_up = self.up(x)
+        y    = torch.cat([x_up, skip], dim=1)
+        y    = self.conv(y)
+        y    = y[-1]
+        return y
+
+
 class FINetGhostConv(Module):
     
     def __init__(
@@ -4791,18 +4935,20 @@ class FINetGhostConv(Module):
         in_channels : int,
         out_channels: int,
         downsample  : bool,
-        relu_slope  : float,
-        use_csff    : bool  = False,
-        use_fin     : bool  = False,
-        alpha       : float = 0.5,
-        selection   : str   = "linear",
+        relu_slope: float,
+        use_csff  : bool           = False,
+        use_norm  : bool           = False,
+        p         : float          = 0.5,
+        scheme    : str            = "half",
+        pool      : Callable | str = "avg",
+        bias      : bool           = True,
         *args, **kwargs
     ):
         super().__init__()
         self.downsample = downsample
         self.use_csff   = use_csff
-        self.use_fin    = use_fin
-        self.alpha      = alpha
+        self.use_norm   = use_norm
+        self.p          = p
         
         self.conv1 = GhostConv2d(
             in_channels    = in_channels,
@@ -4844,11 +4990,13 @@ class FINetGhostConv(Module):
                 padding        = 1,
             )
         
-        if self.use_fin:
-            self.norm = FractionInstanceNorm2d(
-                alpha        = self.alpha,
+        if self.use_norm:
+            self.norm = FractionalInstanceNorm2d(
                 num_features = out_channels,
-                selection    = selection,
+                p            = self.p,
+                scheme       = scheme,
+                pool         = pool,
+                bias         = bias,
             )
 
         if downsample:
@@ -4884,7 +5032,7 @@ class FINetGhostConv(Module):
             raise TypeError()
         
         y  = self.conv1(x)
-        if self.use_fin:
+        if self.use_norm:
             y = self.norm(y)
         y  = self.relu1(y)
         y  = self.relu2(self.conv2(y))
@@ -4909,9 +5057,11 @@ class FINetGhostUpBlock(Module):
         in_channels : int,
         out_channels: int,
         relu_slope  : float,
-        use_fin     : bool  = False,
-        alpha       : float = 0.5,
-        selection   : str   = "linear",
+        use_norm    : bool           = False,
+        p           : float          = 0.5,
+        scheme      : str            = "half",
+        pool        : Callable | str = "avg",
+        bias        : bool           = True,
         *args, **kwargs
     ):
         super().__init__()
@@ -4927,6 +5077,12 @@ class FINetGhostUpBlock(Module):
             out_channels = out_channels,
             downsample   = False,
             relu_slope   = relu_slope,
+            use_norm     = use_norm,
+            p            = p,
+            scheme       = scheme,
+            pool         = pool,
+            bias         = bias,
+            *args, **kwargs
         )
     
     def forward(self, input: Sequence[Tensor]) -> Tensor:
@@ -4937,99 +5093,6 @@ class FINetGhostUpBlock(Module):
         y    = torch.cat([x_up, skip], dim=1)
         y    = self.conv(y)
         y    = y[-1]
-        return y
-
-
-class FINetUpBlock(Module):
-    
-    def __init__(
-        self,
-        in_channels : int,
-        out_channels: int,
-        relu_slope  : float,
-        use_fin     : bool  = False,
-        alpha       : float = 0.5,
-        selection   : str   = "linear",
-        *args, **kwargs
-    ):
-        super().__init__()
-        self.up = ConvTranspose2d(
-            in_channels  = in_channels,
-            out_channels = out_channels,
-            kernel_size  = 2,
-            stride       = 2,
-            bias         = True,
-        )
-        self.conv = FINetConvBlock(
-            in_channels  = in_channels,
-            out_channels = out_channels,
-            downsample   = False,
-            relu_slope   = relu_slope,
-        )
-    
-    def forward(self, input: Sequence[Tensor]) -> Tensor:
-        assert_sequence_of_length(input, 2)
-        x    = input[0]
-        skip = input[1]
-        x_up = self.up(x)
-        y    = torch.cat([x_up, skip], dim=1)
-        y    = self.conv(y)
-        y    = y[-1]
-        return y
-
-
-class FINetSkipBlock(Module):
-    
-    def __init__(
-        self,
-        in_channels : int,
-        out_channels: int,
-        mid_channels: int = 128,
-        repeat_num  : int = 1,
-        *args, **kwargs
-    ):
-        super().__init__()
-        self.repeat_num = repeat_num
-        self.shortcut   = Conv2d(
-            in_channels  = in_channels,
-            out_channels = out_channels,
-            kernel_size  = 1,
-            bias         = True
-        )
-        
-        blocks = []
-        blocks.append(
-            FINetConvBlock(
-                in_channels  = in_channels,
-                out_channels = mid_channels,
-                downsample   = False,
-                relu_slope   = 0.2
-            )
-        )
-        for i in range(self.repeat_num - 2):
-            blocks.append(
-                FINetConvBlock(
-                    in_channels  = mid_channels,
-                    out_channels = mid_channels,
-                    downsample   = False,
-                    relu_slope   = 0.2
-                )
-            )
-        blocks.append(
-            FINetConvBlock(
-                in_channels  = mid_channels,
-                out_channels = out_channels,
-                downsample   = False,
-                relu_slope   = 0.2
-            )
-        )
-        self.blocks = Sequential(*blocks)
-    
-    def forward(self, input: Tensor) -> Tensor:
-        x      = input
-        x_skip = self.shortcut(x)
-        y      = self.blocks(x)
-        y      = y + x_skip
         return y
 
 

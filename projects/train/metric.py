@@ -40,19 +40,21 @@ def measure(args: Munch | dict):
     # Metrics
     # brisque = pyiqa.create_metric(metric_name="brisque")
     # ilniqe  = pyiqa.create_metric(metric_name="ilniqe")
-    mae     = F.l1_loss
-    niqe    = pyiqa.create_metric(metric_name="niqe")
+    # mae     = F.l1_loss
+    # niqe    = pyiqa.create_metric(metric_name="niqe")
     psnr    = pyiqa.create_metric(metric_name="psnr")
     ssim    = pyiqa.create_metric(metric_name="ssim")
+    lpips   = pyiqa.create_metric(metric_name="lpips")
 
     # Values
     num_items      = 0
     # brisque_values = []
     # ilniqe_values  = []
-    mae_values     = []
-    niqe_values    = []
+    # mae_values     = []
+    # niqe_values    = []
     psnr_values    = []
     ssim_values    = []
+    lpips_values   = []
     console.log("[green]Done")
     
     # H2: - Measure ------------------------------------------------------------
@@ -86,13 +88,14 @@ def measure(args: Munch | dict):
                         antialias     = True,
                     )
 
-            niqe_values.append(niqe(pred))
+            # niqe_values.append(niqe(pred))
             if target is not None:
                 # brisque_values.append(brisque(pred))
                 # ilniqe_values.append(ilniqe(pred))
-                mae_values.append(mae(pred * 255, target * 255, reduction="mean"))
+                # mae_values.append(mae(pred * 255, target * 255, reduction="mean"))
                 psnr_values.append(psnr(pred, target))
                 ssim_values.append(ssim(pred, target))
+                lpips_values.append(lpips(pred, target))
             num_items += 1
     console.log("[green]Done")
     
@@ -100,38 +103,46 @@ def measure(args: Munch | dict):
     console.rule("[bold red]3. DISPLAY")
     # avg_brisque = sum(brisque_values) / num_items
     # avg_ilniqe  = sum(ilniqe_values)  / num_items
-    avg_mae     = sum(mae_values)     / num_items
-    avg_niqe    = sum(niqe_values)    / num_items
+    # avg_mae     = sum(mae_values)     / num_items
+    # avg_niqe    = sum(niqe_values)    / num_items
     avg_psnr    = sum(psnr_values)    / num_items
     avg_ssim    = sum(ssim_values)    / num_items
+    avg_lpips   = sum(lpips_values)   / num_items
     
     # avg_brisque = float(avg_brisque)
     # avg_ilniqe  = float(avg_ilniqe)
-    avg_mae     = float(avg_mae)
-    avg_niqe    = float(avg_niqe)
+    # avg_mae     = float(avg_mae)
+    # avg_niqe    = float(avg_niqe)
     avg_psnr    = float(avg_psnr)
     avg_ssim    = float(avg_ssim)
+    avg_lpips   = float(avg_lpips)
     
     # console.log(f"brisque: {avg_brisque:.9f}")
     # console.log(f"ilniqe : {avg_ilniqe :.9f}")
-    console.log(f"mae    : {avg_mae    :.9f}")
-    console.log(f"niqe   : {avg_niqe   :.9f}")
+    # console.log(f"mae    : {avg_mae    :.9f}")
+    # console.log(f"niqe   : {avg_niqe   :.9f}")
     console.log(f"psnr   : {avg_psnr   :.9f}")
     console.log(f"ssim   : {avg_ssim   :.9f}")
+    console.log(f"lpips  : {avg_lpips  :.9f}")
     console.log("[green]Done")
 
 
 # H1: - Main -------------------------------------------------------------------
 
+variant   = "d"
+selection = "interleave"
+alpha     = 0.9
+
 hosts = {
     "lp-labdesktop01-ubuntu": {
         # "pred"    : PROJECTS_DIR / "train" / "runs" / "infer" / "lol226" / "zerodce-tiny-lol226-0" / "dcim",
         # "pred"    : PROJECTS_DIR / "train" / "runs" / "infer" / "lol226" / "zeroadce-e-kodas-lol-0" / "low" / "afternoon",
-        "pred"    : PROJECTS_DIR / "train" / "runs" / "infer" / "hinet-kodas-lol19" / "low" / "rain",
+        "pred"    : PROJECTS_DIR / "train" / "runs" / "infer" / "hinet" / "hinet-ihaze-0",
+        # "pred"    : PROJECTS_DIR / "train" / "runs" / "infer" / "finet" / "ihaze" / f"{variant}" / f"finet-{variant}-ihaze-256-0",
         # "target"  : None,
         "target"  : True,
         # "img_size": None,
-        "img_size": (3, 300, 300),
+        "img_size": (3, 256, 256),
         "save"    : True,
         "verbose" : False,
 	},
@@ -159,7 +170,7 @@ hosts = {
 	},
     "lp-imac.local": {
         # "pred"    : PROJECTS_DIR / "train" / "runs" / "infer" / "lol226" / "zeroadce-c-tiny-lol226-0",
-        "pred"    : PROJECTS_DIR / "train" / "runs" / "infer" / "sice" / "zeroadce-e-large-lol226-0",
+        "pred"    : PROJECTS_DIR / "train" / "runs" / "infer" / "finet" / "ihaze" / f"{variant}_{selection}" / f"finet-{variant}-{selection}-{alpha}-ihaze-256-0",
         "target"  : True,
         # "target"  : None,
         # "img_size": None,
@@ -202,12 +213,15 @@ if __name__ == "__main__":
             # stem = str(f.parent.stem)
             # file = DATA_DIR / "sice" / "part2-900x1200-low" / "high" / f"{stem}.jpg"
             
-            file = Path(str(f).replace("low", "high"))
+            # file = Path(str(f).replace("low", "high"))
             
             # file = str(f).replace("predict", "gt")
             # file = Path(file[:file.find("_rain")] + ".png")
             
             # file = Path(str(f).replace("mediumSnow", "gt"))
+
+            stem = str(f.stem)
+            file = DATA_DIR / "ntire" / "ihaze" / "test" / "gt" / f"{stem}.jpg"
             
             target_files.append(file)
 
