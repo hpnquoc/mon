@@ -8,7 +8,7 @@ jobs:
     name: Deploy docs to GitHub Pages
     runs-on: ubuntu-latest
     steps:
-      - run: pip install mkdocs-material
+      - run: pip install mkdocs-material mkdocstrings
       - name: Checkout
         uses: actions/checkout@v2
       - name: Build
