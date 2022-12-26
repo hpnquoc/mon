@@ -7,8 +7,6 @@ permalink: /
 
 ![One](data/one.png) 
 
----
-
 # One Research Framework
 `One` is a comprehensive research repository for code, framework, and knowledge base of my work related to computer vision, machine learning, and deep learning.
 
@@ -16,8 +14,6 @@ permalink: /
 [Knowledge Base](#knowledge-base){: .btn .fs-3 .mb-4 .mb-md-0 } 
 [Cite](#cite){: .btn .fs-3 .mb-4 .mb-md-0 } 
 [Contact](#contact){: .btn .fs-3 .mb-4 .mb-md-0 } 
-
----
 
 ## Getting Started
 ### Prerequisite

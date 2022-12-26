@@ -1,7 +1,5 @@
 ![One](data/one.png) 
 
----
-
 # One Research Framework
 `One` is a comprehensive research repository for code, framework, and knowledge base of my work related to computer vision, machine learning, and deep learning.
 
@@ -9,8 +7,6 @@
 [Knowledge Base](#knowledge-base) &nbsp;
 [Cite](#cite) &nbsp;
 [Contact](#contact) &nbsp;
-
----
 
 ## Getting Started
 ### Prerequisite
