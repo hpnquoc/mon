@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="playground" type="PythonConfigurationType" factoryName="Python" folderName="tests" nameIsGenerated="true">
+  <configuration default="false" name="playground" type="PythonConfigurationType" factoryName="Python" folderName="scripts" nameIsGenerated="true">
     <module name="one" />
     <option name="INTERPRETER_OPTIONS" value="" />
     <option name="PARENT_ENVS" value="true" />
@@ -22,7 +22,7 @@
         <ENTRY IS_ENABLED="true" PARSER="runconfig" IS_EXECUTABLE="false" />
       </ENTRIES>
     </EXTENSION>
-    <option name="SCRIPT_NAME" value="$PROJECT_DIR$/tests/unit/playground.py" />
+    <option name="SCRIPT_NAME" value="$PROJECT_DIR$/scripts/playground.py" />
     <option name="PARAMETERS" value="" />
     <option name="SHOW_COMMAND_LINE" value="false" />
     <option name="EMULATE_TERMINAL" value="true" />

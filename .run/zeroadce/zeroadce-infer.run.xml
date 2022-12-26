@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="zeroadce-infer" type="PythonConfigurationType" factoryName="Python" folderName="zeroadce">
+  <configuration default="false" name="zeroadce-infer" type="PythonConfigurationType" factoryName="Python" folderName="projects/zeroadce">
     <module name="one" />
     <option name="INTERPRETER_OPTIONS" value="" />
     <option name="PARENT_ENVS" value="true" />

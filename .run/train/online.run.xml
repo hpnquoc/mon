@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="online" type="PythonConfigurationType" factoryName="Python" folderName="train" singleton="true">
+  <configuration default="false" name="online" type="PythonConfigurationType" factoryName="Python" folderName="projects/train" singleton="true">
     <module name="one" />
     <option name="INTERPRETER_OPTIONS" value="" />
     <option name="PARENT_ENVS" value="true" />

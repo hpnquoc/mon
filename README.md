@@ -6,6 +6,7 @@
 
 <div align = center>
 	<a align="center" href="http://phlong.net/one/">Documentation</a>
+	<br>
 	<p>
 		A comprehensive repository for research code and knowledge related to computer vision, machine learning, and deep learning.
 	</p>
