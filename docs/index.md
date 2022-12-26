@@ -26,6 +26,6 @@ The documents are organized following the [Diátaxis framework](https://diataxis
 - [How-To](how-to/index.md): Solutions to specific problems.
 - [Reference](reference/index.md): 
 
-## 
+## Traffic
 
-<script type="text/javascript" id="clustrmaps" src="//clustrmaps.com/map_v2.js?d=JUeNLvGJNmhIBDXVZ8UaNFwKXabm78dcdcwW8trsAXQ&cl=ffffff&w=a"></script>
+<script type="text/javascript" id="clustrmaps" src="//clustrmaps.com/map_v2.js?d=mDDi2z1vAnHUyVPYInDSCoHgluvZPEfpCcbRFeggx3o&cl=ffffff&w=a"></script>
