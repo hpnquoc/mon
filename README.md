@@ -1,54 +1,41 @@
-![One](data/one.png) 
+<div align="center">
+	<img align="center" src="docs/assets/one.png" alt="animated"/>
+	<h1 align="center">One Research Framework</h1>
+</div>
 
-# One Research Framework
-`One` is a comprehensive research repository for code, framework, and knowledge base of my work related to computer vision, machine learning, and deep learning.
 
-[Getting Started](#getting-started) &nbsp;
-[Knowledge Base](#knowledge-base) &nbsp;
-[Cite](#cite) &nbsp;
-[Contact](#contact) &nbsp;
+<div align = center>
+	<a align="center" href="http://phlong.net/one/">Documentation</a>
+	<p>
+		A comprehensive repository for research code and knowledge related to computer vision, machine learning, and deep learning.
+	</p>
+</div>
 
-## Getting Started
-### Prerequisite
-
-|            | Requirement                                                                                                                                                                                                                                          |
-|------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| **OS**     | [**Ubuntu 20.04 / 22.04**](https://ubuntu.com/download/desktop) (fully supports) and `MacOS` (partially supports)                                                                                                                                    |
-| **Env**    | [**Python>=3.9.0**](https://www.python.org/), [**PyTorch>=1.11.0**](https://pytorch.org/get-started/locally/), [**cudatoolkit=11.3**](https://pytorch.org/get-started/locally/), with [**anaconda**](https://www.anaconda.com/products/distribution) |
-| **Editor** | [**PyCharm**](https://www.jetbrains.com/pycharm/download)                                                                                                                                                                                            |
+## Quick Installation
+### Using `conda`
+```shell
+git clone https://phlong3105@github.com/phlong3105/one
+cd one/install
+chmod +x install.sh
+conda init bash
+bash -i install.sh
+```
 
 ### Directory
 ```text
 one                  # Root directory.
  |__ data            # Contains data.
- |__ docs
+ |__ docs            # Documentation.
  |__ install         # Helpful installation scripts.   
  |__ pretrained      # Pretrained models weights.
- |__ projects        # Store projects. Each project can be a separated repository.
+ |__ projects        # Store projects. Each project is a separated repository.
  |     |__ project1
- |     |__ project2
  |     |__ ...
- |__ script          # Useful small snippets
+ |__ scripts         # Useful snippets.
  |__ src
  |     |__ one       # Main source code.
  |__ tests           # Testing scripts.
  |__ third_party     # Third-party libraries.
-```
-
-### Installation using `conda`
-```shell
-cd <to-where-you-want-to-save-one-dir>
-mkdir -p one
-mkdir -p one/data
-cd one
-
-# Install `aic22_track4` package
-git clone https://phlong3105@github.com/phlong3105/one
-cd one/install
-chmod +x install.sh
-conda init bash
-# When prompt to input the dataset directory path, you should enter: <some-path>/one/datasets
-bash -i install.sh
 ```
 
 ## Cite
