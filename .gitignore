@@ -14,5 +14,8 @@ __pycache__/
 
 /data/
 /third_party/
-/projects/
+/projects/aic/
+/projects/chalearn/
+/projects/edge_tss/
+/projects/zero_adce/
 /pretrained/
