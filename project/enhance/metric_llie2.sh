@@ -12,23 +12,23 @@ data_dir="${mon_dir}/data"
 
 # Input
 task="llie"
-arch="gcenet"
-model="gcenet_zsn2n"
+arch="fourllie"
+model="fourllie_lol_v2_real"
 data=(
-    "dicm"
-    "lime"
-    "mef"
-    "npe"
-    "vv"
-    "fivek_e"
-    "lol_v1"
-    "lol_v2_real"
-    "lol_v2_synthetic"
+    # "dicm"
+    # "lime"
+    # "mef"
+    # "npe"
+    # "vv"
+    # "fivek_e"
+    # "lol_v1"
+    # "lol_v2_real"
+    # "lol_v2_synthetic"
     # "loli_street"
-    "sice"
-    "sice_grad"
-    "sice_mix_v2"
-    # "sid_sony"
+    # "sice"
+    # "sice_grad"
+    # "sice_mix_v2"
+    "sid_sony"
 )
 device="cuda:0"
 
@@ -55,7 +55,15 @@ for (( i=0; i<${#data[@]}; i++ )); do
           --device "${device}" \
           --imgsz 512 \
           --metric "psnr" \
+          --metric "ssimc" \
+          --metric "psnry" \
+          --metric "ssim" \
+          --metric "ms_ssim" \
+          --metric "lpips" \
+          --metric "brisque" \
           --metric "ilniqe" \
+          --metric "niqe" \
+          --metric "pi" \
           --backend "pyiqa" \
           --use-gt-mean
     else
@@ -69,7 +77,15 @@ for (( i=0; i<${#data[@]}; i++ )); do
           --device "${device}" \
           --imgsz 512 \
           --metric "psnr" \
+          --metric "ssimc" \
+          --metric "psnry" \
+          --metric "ssim" \
+          --metric "ms_ssim" \
+          --metric "lpips" \
+          --metric "brisque" \
           --metric "ilniqe" \
+          --metric "niqe" \
+          --metric "pi" \
           --backend "pyiqa"
     fi
 

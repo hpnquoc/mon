@@ -914,6 +914,14 @@ EXTRA_MODELS      = {  # architecture/model (+ variant)
             "torch_distributed_launch": True,
         },
     },
+    "fourllie"     : {
+        "fourllie": {
+            "tasks"    : [Task.LLIE],
+            "schemes"  : [Scheme.SUPERVISED],
+            "model_dir": MON_EXTRA_DIR / "vision" / "enhance" / "llie" / "fourllie",
+            "torch_distributed_launch": False,
+        },
+    },
     "hvi_cidnet"   : {
         "hvi_cidnet": {
             "tasks"    : [Task.LLIE],
