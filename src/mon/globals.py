@@ -662,6 +662,7 @@ class Task(DT.Enum):
     LLIE     = "llie"      # low-light image enhancement
     POSE     = "pose"      # pose estimation
     SEGMENT  = "segment"   # semantic segmentation
+    SR       = "sr"        # super-resolution
     TRACK    = "track"     # object tracking
     UIE      = "uie"       # underwater image enhancement
 
@@ -1120,6 +1121,16 @@ EXTRA_MODELS      = {  # architecture/model (+ variant)
             "schemes"  : [Scheme.SUPERVISED],
             "model_dir": MON_EXTRA_DIR / "vision" / "enhance" / "multitask" / "restormer",
             "torch_distributed_launch": True,
+        },
+    },
+    # endregion
+    # region enhance/sr
+    "srno"         : {
+        "srno": {
+            "tasks"    : [Task.SR],
+            "schemes"  : [Scheme.SUPERVISED],
+            "model_dir": MON_EXTRA_DIR / "vision" / "enhance" / "sr" / "srno",
+            "torch_distributed_launch": False,
         },
     },
     # endregion

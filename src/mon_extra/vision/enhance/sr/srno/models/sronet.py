@@ -83,22 +83,17 @@ class SRNO(nn.Module):
         for index, area in enumerate(areas):
             feat_s[index] = feat_s[index] * (area / tot_area).unsqueeze(1)
          
-        grid = torch.cat([*rel_coords, *feat_s, \
-            rel_cell.unsqueeze(-1).unsqueeze(-1).repeat(1,1,coord.shape[1],coord.shape[2])],dim=1)
+        grid = torch.cat([*rel_coords, *feat_s, rel_cell.unsqueeze(-1).unsqueeze(-1).repeat(1,1,coord.shape[1],coord.shape[2])],dim=1)
 
         x = self.conv00(grid)
         x = self.conv0(x, 0)
         x = self.conv1(x, 1)
 
         feat = x
-        ret = self.fc2(F.gelu(self.fc1(feat)))
-        
-
-        ret = ret + F.grid_sample(self.inp, coord.flip(-1), mode='bilinear',\
-                                padding_mode='border', align_corners=False)
+        ret  = self.fc2(F.gelu(self.fc1(feat)))
+        ret  = ret + F.grid_sample(self.inp, coord.flip(-1), mode='bilinear', padding_mode='border', align_corners=False)
         return ret
 
     def forward(self, inp, coord, cell):
         self.gen_feat(inp)
         return self.query_rgb(coord, cell)
-

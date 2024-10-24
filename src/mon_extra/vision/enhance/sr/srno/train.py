@@ -1,19 +1,18 @@
 import argparse
 import os
 
-import yaml
 import torch
 import torch.nn as nn
-from tqdm import tqdm
+import yaml
+from torch.optim.lr_scheduler import CosineAnnealingLR, MultiStepLR
 from torch.utils.data import DataLoader
-from torch.optim.lr_scheduler import MultiStepLR
-from torch.optim.lr_scheduler import CosineAnnealingLR
+from tqdm import tqdm
 
 import datasets
 import models
 import utils
-from test import eval_psnr
 from scheduler import GradualWarmupScheduler
+from test import eval_psnr
 
 
 def make_data_loader(spec, tag=''):
@@ -70,8 +69,7 @@ def prepare_training():
     return model, optimizer, epoch_start, lr_scheduler
 
 
-def train(train_loader, model, optimizer, \
-         epoch):
+def train(train_loader, model, optimizer, epoch):
     model.train()
     loss_fn = nn.L1Loss()
     train_loss = utils.Averager()
@@ -205,6 +203,7 @@ def main(config_, save_path):
         log(', '.join(log_info))
         writer.flush()
 
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--config',default='./configs/train_edsr-sronet.yaml')
@@ -227,4 +226,3 @@ if __name__ == '__main__':
     save_path = os.path.join('./save', save_name)
 
     main(config, save_path)
-
