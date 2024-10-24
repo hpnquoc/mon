@@ -12,7 +12,7 @@ current_file = mon.Path(__file__).absolute()
 # region Basic
 
 model_name = "zero_mie"
-data_name  = "lol_v2_real"
+data_name  = "nightcity"
 root       = current_file.parents[1] / "run"
 data_root  = mon.DATA_DIR / "enhance" / "llie"
 project    = None
@@ -39,14 +39,14 @@ model = {
 	"down_size"     : 256,            # Downsampling size.
 	"hidden_dim"    : 256,            # Hidden dimension.
 	"weight_decay"  : [0.1, 0.0001, 0.001],
-	"gf_radius"     : 3,              # Radius of the guided filter. Best: 1 | View: 3
-	"color_space"   : "rgb_d",        # Color space. Best: rgb_d | View: hsv_v
-	"use_denoise"   : True,           # If ``True``, use denoising. Best: True
+	"gf_radius"     : 3,              # Radius of the guided filter. Best: 3
+	"color_space"   : "hsv_v",        # Color space. Best: hsv_v
+	"use_denoise"   : False,          # If ``True``, use denoising. Best: False
 	"use_pse"       : False,          # If ``True``, use PSE. Best: False
 	"number_refs"   : 2,			  # Number of references.
 	"weight_enh"    : 5,
-	"loss_hsv"      : True,           # If ``True``, use HSV loss. Best: True
-	"exp_mean"      : 0.9,            # Best: 0.5 | View: 0.9
+	"loss_hsv"      : True,
+	"exp_mean"      : 0.5,            # Best: 0.5 | View:
 	"weight_spa"	: 1,
 	"weight_exp"    : 10,
 	"weight_color"  : 5,

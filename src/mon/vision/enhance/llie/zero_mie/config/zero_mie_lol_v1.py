@@ -39,13 +39,14 @@ model = {
 	"down_size"     : 256,            # Downsampling size.
 	"hidden_dim"    : 256,            # Hidden dimension.
 	"weight_decay"  : [0.1, 0.0001, 0.001],
-	"color_space"   : "rgb_d",        # Color space.
+	"gf_radius"     : 3,              # Radius of the guided filter. Best: 1 | View: 3
+	"color_space"   : "rgb_d",        # Color space. Best: rgb_d
 	"use_denoise"   : True,           # If ``True``, use denoising. Best: True
 	"use_pse"       : False,          # If ``True``, use PSE. Best: False
 	"number_refs"   : 2,			  # Number of references.
 	"weight_enh"    : 5,
 	"loss_hsv"      : True,           # If ``True``, use HSV loss. Best: True
-	"exp_mean"      : 0.9,            # Best: 0.9
+	"exp_mean"      : 0.9,            # Best: 0.9 | View
 	"weight_spa"	: 1,
 	"weight_exp"    : 10,
 	"weight_color"  : 5,

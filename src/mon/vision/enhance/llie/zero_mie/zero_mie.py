@@ -43,7 +43,7 @@ class Loss(nn.Loss):
     
     def __init__(
         self,
-        exp_mean    : float = 0.9,
+        exp_mean    : float = 0.6,
         weight_spa  : float = 1,
         weight_exp  : float = 10,
         weight_color: float = 5,
@@ -74,6 +74,7 @@ class Loss(nn.Loss):
         image_lr       : torch.Tensor,
         illumination_lr: torch.Tensor,
         enhanced       : torch.Tensor,
+        enhanced_lr    : torch.Tensor,
         depth_lr       : torch.Tensor = None,
     ) -> torch.Tensor:
         loss_spa   = self.loss_spa(input=enhanced, target=image)
@@ -82,7 +83,7 @@ class Loss(nn.Loss):
         loss_tv    = self.loss_tv(input=illumination_lr)
         if depth_lr is not None:
             loss_depth = self.loss_depth(image_lr, depth_lr)
-            loss_edge  = self.loss_edge(image_lr, depth_lr)
+            loss_edge  =  self.loss_edge(image_lr, depth_lr)
         else:
             loss_depth = 0
             loss_edge  = 0
@@ -133,16 +134,17 @@ class LossHSV(nn.Loss):
         image_lr       : torch.Tensor,
         illumination_lr: torch.Tensor,
         enhanced       : torch.Tensor,
-        depth_lr       : torch.Tensor = None,
+        enhanced_lr    : torch.Tensor,
+        depth          : torch.Tensor = None,
     ) -> torch.Tensor:
         loss_spa   = torch.mean(torch.abs(torch.pow(illumination_lr - image_lr, 2)))
         loss_tv    = self.loss_tv(illumination_lr)
         loss_exp   = torch.mean(self.loss_exp(illumination_lr))
         loss_spar  = torch.mean(enhanced)
         loss_color = self.loss_color(enhanced)
-        if depth_lr is not None:
-            loss_depth = self.loss_depth(image_lr, depth_lr)
-            loss_edge  = self.loss_edge(image_lr, depth_lr)
+        if depth is not None:
+            loss_depth = self.loss_depth(image_lr, depth)
+            loss_edge  =  self.loss_edge(image_lr, depth)
         else:
             loss_depth = 0
             loss_edge  = 0
@@ -216,12 +218,12 @@ class INF(nn.Module, ABC):
         x_lr  : torch.Tensor,
         y_lr  : torch.Tensor,
         x_hr  : torch.Tensor,
-        radius: int = 1
+        radius: int = 3
     ):
         """Applies the guided filter to upscale the predicted image. """
         gf   = filtering.FastGuidedFilter(radius=radius)
         y_hr = gf(x_lr, y_lr, x_hr)
-        y_hr = torch.clip(y_hr, 0, 1)
+        y_hr = torch.clip(y_hr, 0.0, 1.0)
         return y_hr
     
     @staticmethod
@@ -247,11 +249,13 @@ class INF_RGB(INF):
         down_size   : int  = 256,
         hidden_dim  : int  = 256,
         weight_decay: list[float] = [0.1, 0.0001, 0.001],
+        gf_radius   : int  = 3,
         use_denoise : bool = False,
     ):
         super().__init__()
         self.window_size = window_size
         self.down_size   = down_size
+        self.gf_radius   = gf_radius
         self.use_denoise = use_denoise
         
         self.patch_net   = nn.PatchINF(window_size, hidden_dim // 2, down_size, num_layers, 30, 6, weight_decay[1])
@@ -272,18 +276,18 @@ class INF_RGB(INF):
         image_lr, patch_rgb = self.patch_net(image)
         depth_lr,   patch_d = self.patch_d_net(depth)
         edge_lr,    patch_e = self.patch_e_net(edge)
-        patch_rgb   = self.film(patch_rgb, depth_lr)
-        spatial     = self.spatial_net(image)
-        atten       = self.cross_atten(patch_rgb, patch_d, patch_e)
-        illu_res_lr = self.output_net(torch.cat([atten, spatial], -1))
-        illu_res_lr = illu_res_lr.view(1, 3, self.down_size, self.down_size)
+        patch_rgb           = self.film(patch_rgb, depth_lr)
+        spatial             = self.spatial_net(image)
+        atten               = self.cross_atten(patch_rgb, patch_d, patch_e)
+        illu_res_lr         = self.output_net(torch.cat([atten, spatial], -1))
+        illu_res_lr         = illu_res_lr.view(1, 3, self.down_size, self.down_size)
         # Enhancement
-        illu_lr        = illu_res_lr + image_lr
-        image_fixed_lr = image_lr / (illu_lr + 1e-8)
+        illu_lr             = illu_res_lr + image_lr
+        image_fixed_lr      = image_lr / (illu_lr + 1e-8)
         if self.use_denoise:
             image_fixed_lr = kornia.filters.bilateral_blur(image_fixed_lr, bilateral_ksize, bilateral_color, bilateral_space)
-        enhanced = self.filter_up(image_lr, image_fixed_lr, image)
-        enhanced = enhanced / torch.max(enhanced)
+        enhanced            = self.filter_up(image_lr, image_fixed_lr, image, self.gf_radius)
+        enhanced            = enhanced / torch.max(enhanced)
         # Return
         return {
             "image"      : image,
@@ -309,11 +313,13 @@ class INF_RGB_D(INF):
         down_size   : int  = 256,
         hidden_dim  : int  = 256,
         weight_decay: list[float] = [0.1, 0.0001, 0.001],
+        gf_radius   : int  = 3,
         use_denoise : bool = False,
     ):
         super().__init__()
         self.window_size = window_size
         self.down_size   = down_size
+        self.gf_radius   = gf_radius
         self.use_denoise = use_denoise
         
         self.patch_net   = nn.PatchINF(window_size, hidden_dim // 4, down_size, num_layers, 30, 6, weight_decay[1])
@@ -321,7 +327,7 @@ class INF_RGB_D(INF):
         self.patch_d_net = nn.PatchINF(window_size, hidden_dim // 4, down_size, num_layers, 30, 6, weight_decay[1])
         self.patch_e_net = nn.PatchINF(window_size, hidden_dim // 4, down_size, num_layers, 30, 6, weight_decay[1])
         self.spatial_net = nn.SpatialINF(hidden_dim // 4, down_size, num_layers, 30, 6, weight_decay[0])
-        self.output_net  = nn.OutputINF(hidden_dim,   3, add_layers, 30, 6, weight_decay[2])
+        self.output_net  = nn.OutputINF(hidden_dim, 3, add_layers, 30, 6, weight_decay[2])
         self.cross_atten = CrossAttentionLayer(dim=hidden_dim // 4, num_heads=4)
         self.dba         = nn.BoundaryAwarePrior(eps=0.05, normalized=False)
         
@@ -334,18 +340,18 @@ class INF_RGB_D(INF):
         image_lr, patch_rgb = self.patch_net(image)
         depth_lr,   patch_d = self.patch_d_net(depth)
         edge_lr,    patch_e = self.patch_e_net(edge)
-        patch_rgb   = self.film(patch_rgb, depth_lr)
-        spatial     = self.spatial_net(image)
-        atten       = self.cross_atten(patch_rgb, patch_d, patch_e)
-        illu_res_lr = self.output_net(torch.cat([atten, patch_e, patch_d, spatial], -1))
-        illu_res_lr = illu_res_lr.view(1, 3, self.down_size, self.down_size)
+        patch_rgb           = self.film(patch_rgb, depth_lr)
+        spatial             = self.spatial_net(image)
+        atten               = self.cross_atten(patch_rgb, patch_d, patch_e)
+        illu_res_lr         = self.output_net(torch.cat([atten, patch_e, patch_d, spatial], -1))
+        illu_res_lr         = illu_res_lr.view(1, 3, self.down_size, self.down_size)
         # Enhancement
-        illu_lr        = illu_res_lr + image_lr
-        image_fixed_lr = image_lr / (illu_lr + 1e-8)
+        illu_lr             = illu_res_lr + image_lr
+        image_fixed_lr      = image_lr / (illu_lr + 1e-8)
         if self.use_denoise:
             image_fixed_lr = kornia.filters.bilateral_blur(image_fixed_lr, bilateral_ksize, bilateral_color, bilateral_space)
-        enhanced = self.filter_up(image_lr, image_fixed_lr, image)
-        enhanced = enhanced / torch.max(enhanced)
+        enhanced            = self.filter_up(image_lr, image_fixed_lr, image, self.gf_radius)
+        enhanced            = enhanced / torch.max(enhanced)
         # Return
         return {
             "image"      : image,
@@ -371,11 +377,13 @@ class INF_R_G_B_D(INF):
         down_size   : int  = 256,
         hidden_dim  : int  = 256,
         weight_decay: list[float] = [0.1, 0.0001, 0.001],
+        gf_radius   : int  = 3,
         use_denoise : bool = False,
     ):
         super().__init__()
         self.window_size = window_size
         self.down_size   = down_size
+        self.gf_radius   = gf_radius
         self.use_denoise = use_denoise
         
         self.patch_r_net = nn.PatchINF(window_size, hidden_dim // 4, down_size, num_layers, 30, 6, weight_decay[1])
@@ -393,37 +401,37 @@ class INF_R_G_B_D(INF):
         self.output_net  = nn.OutputINF(hidden_dim,   3, add_layers, 30, 6, weight_decay[2])
         self.dba         = nn.BoundaryAwarePrior(eps=0.05, normalized=False)
         
-    def forward(self, image: torch.Tensor,  depth: torch.Tensor = None) -> torch.Tensor:
+    def forward(self, image: torch.Tensor, depth: torch.Tensor = None) -> torch.Tensor:
         # Prepare input
         if depth is None:
             depth = core.rgb_to_grayscale(image)
         edge = self.dba(depth)
         # Mapping
-        image_r   = image[:, 0:1, :, :]
-        image_g   = image[:, 1:2, :, :]
-        image_b   = image[:, 2:3, :, :]
-        image_lr  = self.interpolate_image(image)
+        image_r             = image[:, 0:1, :, :]
+        image_g             = image[:, 1:2, :, :]
+        image_b             = image[:, 2:3, :, :]
+        image_lr            = self.interpolate_image(image)
         image_r_lr, patch_r = self.patch_r_net(image_r)
         image_g_lr, patch_g = self.patch_g_net(image_g)
         image_b_lr, patch_b = self.patch_b_net(image_b)
         depth_lr,   patch_d = self.patch_d_net(depth)
         edge_lr,    patch_e = self.patch_e_net(edge)
-        patch_r     = self.film_r(patch_r, depth_lr)
-        patch_g     = self.film_g(patch_g, depth_lr)
-        patch_b     = self.film_b(patch_b, depth_lr)
-        spatial     = self.spatial_net(image)
-        atten_r     = self.atten_r(patch_r, patch_d, patch_e)
-        atten_g     = self.atten_g(patch_g, patch_d, patch_e)
-        atten_b     = self.atten_b(patch_b, patch_d, patch_e)
-        illu_res_lr = self.output_net(torch.cat([atten_r, atten_g, atten_b, spatial], -1))
-        illu_res_lr = illu_res_lr.view(1, 3, self.down_size, self.down_size)
+        patch_r             = self.film_r(patch_r, depth_lr)
+        patch_g             = self.film_g(patch_g, depth_lr)
+        patch_b             = self.film_b(patch_b, depth_lr)
+        spatial             = self.spatial_net(image)
+        atten_r             = self.atten_r(patch_r, patch_d, patch_e)
+        atten_g             = self.atten_g(patch_g, patch_d, patch_e)
+        atten_b             = self.atten_b(patch_b, patch_d, patch_e)
+        illu_res_lr         = self.output_net(torch.cat([atten_r, atten_g, atten_b, spatial], -1))
+        illu_res_lr         = illu_res_lr.view(1, 3, self.down_size, self.down_size)
         # Enhancement
-        illu_lr        = illu_res_lr + image_lr
-        image_fixed_lr = image_lr / (illu_lr + 1e-8)
+        illu_lr             = illu_res_lr + image_lr
+        image_fixed_lr      = image_lr / (illu_lr + 1e-8)
         if self.use_denoise:
             image_fixed_lr = kornia.filters.bilateral_blur(image_fixed_lr, bilateral_ksize, bilateral_color, bilateral_space)
-        enhanced = self.filter_up(image_lr, image_fixed_lr, image)
-        enhanced = enhanced / torch.max(enhanced)
+        enhanced            = self.filter_up(image_lr, image_fixed_lr, image, self.gf_radius)
+        enhanced            = enhanced / torch.max(enhanced)
         # Return
         return {
             "image"      : image,
@@ -449,11 +457,13 @@ class INF_HSV_V(INF):
         down_size   : int  = 256,
         hidden_dim  : int  = 256,
         weight_decay: list[float] = [0.1, 0.0001, 0.001],
+        gf_radius   : int  = 3,
         use_denoise : bool = False,
     ):
         super().__init__()
         self.window_size = window_size
         self.down_size   = down_size
+        self.gf_radius   = gf_radius
         self.use_denoise = use_denoise
         
         self.patch_v_net = nn.PatchINF(window_size, hidden_dim // 2, down_size, num_layers, 30, 6, weight_decay[1])
@@ -465,31 +475,31 @@ class INF_HSV_V(INF):
         self.cross_atten = CrossAttentionLayer(dim=hidden_dim // 2, num_heads=4)
         self.dba         = nn.BoundaryAwarePrior(eps=0.05, normalized=False)
         
-    def forward(self, image: torch.Tensor,  depth: torch.Tensor = None) -> torch.Tensor:
+    def forward(self, image: torch.Tensor, depth: torch.Tensor = None) -> torch.Tensor:
         # Prepare input
         if depth is None:
             depth = core.rgb_to_grayscale(image)
         edge = self.dba(depth)
         # Mapping
-        image_hsv = core.rgb_to_hsv(image)
-        image_v   = core.rgb_to_v(image)
+        image_hsv           = core.rgb_to_hsv(image)
+        image_v             = core.rgb_to_v(image)
         image_v_lr, patch_v = self.patch_v_net(image_v)
         depth_lr,   patch_d = self.patch_d_net(depth)
         edge_lr,    patch_e = self.patch_e_net(edge)
-        patch_v       = self.film(patch_v, depth_lr)
-        spatial       = self.spatial_net(image)
-        atten_v       = self.cross_atten(patch_v, patch_d, patch_e)
-        illu_res_v_lr = self.output_net(torch.cat([atten_v, spatial], -1))
-        illu_res_v_lr = illu_res_v_lr.view(1, 1, self.down_size, self.down_size)
+        patch_v             = self.film(patch_v, depth_lr)
+        spatial             = self.spatial_net(image)
+        atten_v             = self.cross_atten(patch_v, patch_d, patch_e)
+        illu_res_v_lr       = self.output_net(torch.cat([atten_v, spatial], -1))
+        illu_res_v_lr       = illu_res_v_lr.view(1, 1, self.down_size, self.down_size)
         # Enhancement
-        illu_v_lr        = illu_res_v_lr + image_v_lr
-        image_v_fixed_lr = image_v_lr / (illu_v_lr + 1e-8)
+        illu_v_lr           = illu_res_v_lr + image_v_lr
+        image_v_fixed_lr    = image_v_lr / (illu_v_lr + 1e-8)
         if self.use_denoise:
             image_v_fixed_lr = kornia.filters.bilateral_blur(image_v_fixed_lr, bilateral_ksize, bilateral_color, bilateral_space)
-        image_v_fixed    = self.filter_up(image_v_lr, image_v_fixed_lr, image_v)
-        image_hsv_fixed  = self.replace_v_component(image_hsv, image_v_fixed)
-        enhanced         = core.hsv_to_rgb(image_hsv_fixed)
-        enhanced         = enhanced / torch.max(enhanced)
+        image_v_fixed       = self.filter_up(image_v_lr, image_v_fixed_lr, image_v, self.gf_radius)
+        image_hsv_fixed     = self.replace_v_component(image_hsv, image_v_fixed)
+        enhanced            = core.hsv_to_rgb(image_hsv_fixed)
+        enhanced            = enhanced / torch.max(enhanced)
         # Return
         return {
             "image"      : image,
@@ -500,7 +510,7 @@ class INF_HSV_V(INF):
             "edge_lr"    : edge_lr,
             "illu_res_lr": illu_res_v_lr,
             "illu_lr"    : illu_v_lr,
-            "enhance_lr" : image_v_fixed_lr,
+            "enhanced_lr": image_v_fixed_lr,
             "enhanced"   : enhanced,
         }
 
@@ -515,11 +525,13 @@ class INF_HSV_V_D(INF):
         down_size   : int  = 256,
         hidden_dim  : int  = 256,
         weight_decay: list[float] = [0.1, 0.0001, 0.001],
+        gf_radius   : int  = 3,
         use_denoise : bool = False,
     ):
         super().__init__()
         self.window_size = window_size
         self.down_size   = down_size
+        self.gf_radius   = gf_radius
         self.use_denoise = use_denoise
         
         self.patch_v_net = nn.PatchINF(window_size, hidden_dim // 4, down_size, num_layers, 30, 6, weight_decay[1])
@@ -527,35 +539,35 @@ class INF_HSV_V_D(INF):
         self.patch_d_net = nn.PatchINF(window_size, hidden_dim // 4, down_size, num_layers, 30, 6, weight_decay[1])
         self.patch_e_net = nn.PatchINF(window_size, hidden_dim // 4, down_size, num_layers, 30, 6, weight_decay[1])
         self.spatial_net = nn.SpatialINF(hidden_dim // 4, down_size, num_layers, 30, 6, weight_decay[0])
-        self.output_net  = nn.OutputINF(hidden_dim,   1, add_layers, 30, 6, weight_decay[2])
+        self.output_net  = nn.OutputINF(hidden_dim, 1, add_layers, 30, 6, weight_decay[2])
         self.cross_atten = CrossAttentionLayer(dim=hidden_dim // 4, num_heads=4)
         self.dba         = nn.BoundaryAwarePrior(eps=0.05, normalized=False)
         
-    def forward(self, image: torch.Tensor,  depth: torch.Tensor = None) -> torch.Tensor:
+    def forward(self, image: torch.Tensor, depth: torch.Tensor = None) -> torch.Tensor:
         # Prepare input
         if depth is None:
             depth = core.rgb_to_grayscale(image)
         edge = self.dba(depth)
         # Mapping
-        image_hsv = core.rgb_to_hsv(image)
-        image_v   = core.rgb_to_v(image)
+        image_hsv           = core.rgb_to_hsv(image)
+        image_v             = core.rgb_to_v(image)
         image_v_lr, patch_v = self.patch_v_net(image_v)
         depth_lr,   patch_d = self.patch_d_net(depth)
         edge_lr,    patch_e = self.patch_e_net(edge)
-        patch_v       = self.film(patch_v, depth_lr)
-        spatial       = self.spatial_net(image)
-        atten_v       = self.cross_atten(patch_v, patch_d, patch_e)
-        illu_res_v_lr = self.output_net(torch.cat([atten_v, patch_d, patch_e, spatial], -1))
-        illu_res_v_lr = illu_res_v_lr.view(1, 1, self.down_size, self.down_size)
+        patch_v             = self.film(patch_v, depth_lr)
+        spatial             = self.spatial_net(image)
+        atten_v             = self.cross_atten(patch_v, patch_d, patch_e)
+        illu_res_v_lr       = self.output_net(torch.cat([atten_v, patch_d, patch_e, spatial], -1))
+        illu_res_v_lr       = illu_res_v_lr.view(1, 1, self.down_size, self.down_size)
         # Enhancement
-        illu_v_lr        = illu_res_v_lr + image_v_lr
-        image_v_fixed_lr = image_v_lr / (illu_v_lr + 1e-8)
+        illu_v_lr           = illu_res_v_lr + image_v_lr
+        image_v_fixed_lr    = image_v_lr / (illu_v_lr + 1e-8)
         if self.use_denoise:
             image_v_fixed_lr = kornia.filters.bilateral_blur(image_v_fixed_lr, bilateral_ksize, bilateral_color, bilateral_space)
-        image_v_fixed    = self.filter_up(image_v_lr, image_v_fixed_lr, image_v)
-        image_hsv_fixed  = self.replace_v_component(image_hsv, image_v_fixed)
-        enhanced         = core.hsv_to_rgb(image_hsv_fixed)
-        enhanced         = enhanced / torch.max(enhanced)
+        image_v_fixed       = self.filter_up(image_v_lr, image_v_fixed_lr, image_v, self.gf_radius)
+        image_hsv_fixed     = self.replace_v_component(image_hsv, image_v_fixed)
+        enhanced            = core.hsv_to_rgb(image_hsv_fixed)
+        enhanced            = enhanced / torch.max(enhanced)
         # Return
         return {
             "image"      : image,
@@ -566,7 +578,151 @@ class INF_HSV_V_D(INF):
             "edge_lr"    : edge_lr,
             "illu_res_lr": illu_res_v_lr,
             "illu_lr"    : illu_v_lr,
-            "enhance_lr" : image_v_fixed_lr,
+            "enhanced_lr": image_v_fixed_lr,
+            "enhanced"   : enhanced,
+        }
+
+
+class INF_HVI_I(INF):
+    
+    def __init__(
+        self,
+        window_size : int  = 1,
+        num_layers  : int  = 2,
+        add_layers  : int  = 1,
+        down_size   : int  = 256,
+        hidden_dim  : int  = 256,
+        weight_decay: list[float] = [0.1, 0.0001, 0.001],
+        gf_radius   : int  = 3,
+        use_denoise : bool = False,
+    ):
+        super().__init__()
+        self.window_size = window_size
+        self.down_size   = down_size
+        self.gf_radius   = gf_radius
+        self.use_denoise = use_denoise
+        
+        self.patch_i_net = nn.PatchINF(window_size, hidden_dim // 2, down_size, num_layers, 30, 6, weight_decay[1])
+        self.film        = FiLM(hidden_dim // 2)
+        self.patch_d_net = nn.PatchINF(window_size, hidden_dim // 2, down_size, num_layers, 30, 6, weight_decay[1])
+        self.patch_e_net = nn.PatchINF(window_size, hidden_dim // 2, down_size, num_layers, 30, 6, weight_decay[1])
+        self.spatial_net = nn.SpatialINF(hidden_dim // 2, down_size, num_layers, 30, 6, weight_decay[0])
+        self.output_net  = nn.OutputINF(hidden_dim,   1, add_layers, 30, 6, weight_decay[2])
+        self.cross_atten = CrossAttentionLayer(dim=hidden_dim // 2, num_heads=4)
+        self.dba         = nn.BoundaryAwarePrior(eps=0.05, normalized=False)
+        self.trans       = core.RGBToHVI()
+        
+    def forward(self, image: torch.Tensor, depth: torch.Tensor = None) -> torch.Tensor:
+        # Prepare input
+        if depth is None:
+            depth = core.rgb_to_grayscale(image)
+        edge = self.dba(depth)
+        # Mapping
+        image_hvi           = self.trans.rgb_to_hvi(image)
+        image_hvi_clone     = image_hvi.clone().detach()
+        image_h             = image_hvi_clone[:, 0:1, :, :]
+        image_v             = image_hvi_clone[:, 1:2, :, :]
+        image_i             = image_hvi_clone[:, 2:3, :, :]
+        image_i_lr, patch_i = self.patch_i_net(image_i)
+        depth_lr,   patch_d = self.patch_d_net(depth)
+        edge_lr,    patch_e = self.patch_e_net(edge)
+        patch_i             = self.film(patch_i, depth_lr)
+        spatial             = self.spatial_net(image)
+        atten_i             = self.cross_atten(patch_i, patch_d, patch_e)
+        illu_res_i_lr       = self.output_net(torch.cat([atten_i, spatial], -1))
+        illu_res_i_lr       = illu_res_i_lr.view(1, 1, self.down_size, self.down_size)
+        # Enhancement
+        illu_i_lr           = illu_res_i_lr + image_i_lr
+        image_i_fixed_lr    = image_i_lr / (illu_i_lr + 1e-8)
+        if self.use_denoise:
+            image_i_fixed_lr = kornia.filters.bilateral_blur(image_i_fixed_lr, bilateral_ksize, bilateral_color, bilateral_space)
+        image_i_fixed       = self.filter_up(image_i_lr, image_i_fixed_lr, image_i, self.gf_radius)
+        image_hvi_fixed     = self.replace_i_component(image_hvi, image_i_fixed)
+        enhanced            = self.trans.hvi_to_rgb(image_hvi_fixed)
+        enhanced            = enhanced / torch.max(enhanced)
+        # Return
+        return {
+            "image"      : image,
+            "image_lr"   : image_i_lr,
+            "depth"      : depth,
+            "depth_lr"   : depth_lr,
+            "edge"       : edge,
+            "edge_lr"    : edge_lr,
+            "illu_res_lr": illu_res_i_lr,
+            "illu_lr"    : illu_i_lr,
+            "enhanced_lr": image_i_fixed_lr,
+            "enhanced"   : enhanced,
+        }
+
+
+class INF_HVI_I_D(INF):
+    
+    def __init__(
+        self,
+        window_size : int  = 1,
+        num_layers  : int  = 2,
+        add_layers  : int  = 1,
+        down_size   : int  = 256,
+        hidden_dim  : int  = 256,
+        weight_decay: list[float] = [0.1, 0.0001, 0.001],
+        gf_radius   : int  = 3,
+        use_denoise : bool = False,
+    ):
+        super().__init__()
+        self.window_size = window_size
+        self.down_size   = down_size
+        self.gf_radius   = gf_radius
+        self.use_denoise = use_denoise
+        
+        self.patch_i_net = nn.PatchINF(window_size, hidden_dim // 4, down_size, num_layers, 30, 6, weight_decay[1])
+        self.film        = FiLM(hidden_dim // 4)
+        self.patch_d_net = nn.PatchINF(window_size, hidden_dim // 4, down_size, num_layers, 30, 6, weight_decay[1])
+        self.patch_e_net = nn.PatchINF(window_size, hidden_dim // 4, down_size, num_layers, 30, 6, weight_decay[1])
+        self.spatial_net = nn.SpatialINF(hidden_dim // 4, down_size, num_layers, 30, 6, weight_decay[0])
+        self.output_net  = nn.OutputINF(hidden_dim,   1, add_layers, 30, 6, weight_decay[2])
+        self.cross_atten = CrossAttentionLayer(dim=hidden_dim // 4, num_heads=4)
+        self.dba         = nn.BoundaryAwarePrior(eps=0.05, normalized=False)
+        self.trans       = core.RGBToHVI()
+        
+    def forward(self, image: torch.Tensor, depth: torch.Tensor = None) -> torch.Tensor:
+        # Prepare input
+        if depth is None:
+            depth = core.rgb_to_grayscale(image)
+        edge = self.dba(depth)
+        # Mapping
+        image_hvi           = self.trans.rgb_to_hvi(image)
+        image_hvi_clone     = image_hvi.clone().detach()
+        image_h             = image_hvi_clone[:, 0:1, :, :]
+        image_v             = image_hvi_clone[:, 1:2, :, :]
+        image_i             = image_hvi_clone[:, 2:3, :, :]
+        image_i_lr, patch_i = self.patch_i_net(image_i)
+        depth_lr,   patch_d = self.patch_d_net(depth)
+        edge_lr,    patch_e = self.patch_e_net(edge)
+        patch_i             = self.film(patch_i, depth_lr)
+        spatial             = self.spatial_net(image)
+        atten_i             = self.cross_atten(patch_i, patch_d, patch_e)
+        illu_res_i_lr       = self.output_net(torch.cat([atten_i, patch_d, patch_e, spatial], -1))
+        illu_res_i_lr       = illu_res_i_lr.view(1, 1, self.down_size, self.down_size)
+        # Enhancement
+        illu_i_lr           = illu_res_i_lr + image_i_lr
+        image_i_fixed_lr    = image_i_lr / (illu_i_lr + 1e-8)
+        if self.use_denoise:
+            image_i_fixed_lr = kornia.filters.bilateral_blur(image_i_fixed_lr, bilateral_ksize, bilateral_color, bilateral_space)
+        image_i_fixed       = self.filter_up(image_i_lr, image_i_fixed_lr, image_i, self.gf_radius)
+        image_hvi_fixed     = self.replace_i_component(image_hvi, image_i_fixed)
+        enhanced            = self.trans.hvi_to_rgb(image_hvi_fixed)
+        enhanced            = enhanced / torch.max(enhanced)
+        # Return
+        return {
+            "image"      : image,
+            "image_lr"   : image_i_lr,
+            "depth"      : depth,
+            "depth_lr"   : depth_lr,
+            "edge"       : edge,
+            "edge_lr"    : edge_lr,
+            "illu_res_lr": illu_res_i_lr,
+            "illu_lr"    : illu_i_lr,
+            "enhanced_lr": image_i_fixed_lr,
             "enhanced"   : enhanced,
         }
 
@@ -593,7 +749,8 @@ class ZeroMIE(base.ImageEnhancementModel):
         down_size   : int   = 256,
         hidden_dim  : int   = 256,
         weight_decay: list[float] = [0.1, 0.0001, 0.001],
-        color_space : Literal["rgb", "rgb_d", "r_g_b", "r_g_b_d", "hsv_v", "hsv_v_d"] = "rgb",
+        gf_radius   : int   = 3,
+        color_space : Literal["rgb", "rgb_d", "r_g_b", "r_g_b_d", "hsv_v", "hsv_v_d", "hvi_i", "hvi_i_d"] = "rgb",
         use_denoise : bool  = False,
         use_pse     : bool  = False,
         number_refs : int   = 2,
@@ -623,6 +780,7 @@ class ZeroMIE(base.ImageEnhancementModel):
                 down_size    = down_size,
                 hidden_dim   = hidden_dim,
                 weight_decay = weight_decay,
+                gf_radius    = gf_radius,
                 use_denoise  = use_denoise,
             )
         elif color_space == "rgb_d":
@@ -633,6 +791,7 @@ class ZeroMIE(base.ImageEnhancementModel):
                 down_size    = down_size,
                 hidden_dim   = hidden_dim,
                 weight_decay = weight_decay,
+                gf_radius    = gf_radius,
                 use_denoise  = use_denoise,
             )
         elif color_space == "r_g_b_d":
@@ -643,6 +802,7 @@ class ZeroMIE(base.ImageEnhancementModel):
                 down_size    = down_size,
                 hidden_dim   = hidden_dim,
                 weight_decay = weight_decay,
+                gf_radius    = gf_radius,
                 use_denoise  = use_denoise,
             )
         elif color_space == "hsv_v":
@@ -653,6 +813,7 @@ class ZeroMIE(base.ImageEnhancementModel):
                 down_size    = down_size,
                 hidden_dim   = hidden_dim,
                 weight_decay = weight_decay,
+                gf_radius    = gf_radius,
                 use_denoise  = use_denoise,
             )
         elif color_space == "hsv_v_d":
@@ -663,6 +824,29 @@ class ZeroMIE(base.ImageEnhancementModel):
                 down_size    = down_size,
                 hidden_dim   = hidden_dim,
                 weight_decay = weight_decay,
+                gf_radius    = gf_radius,
+                use_denoise  = use_denoise,
+            )
+        elif color_space == "hvi_i":
+            self.model = INF_HVI_I(
+                window_size  = window_size,
+                num_layers   = num_layers,
+                add_layers   = add_layers,
+                down_size    = down_size,
+                hidden_dim   = hidden_dim,
+                weight_decay = weight_decay,
+                gf_radius    = gf_radius,
+                use_denoise  = use_denoise,
+            )
+        elif color_space == "hvi_i_d":
+            self.model = INF_HVI_I_D(
+                window_size  = window_size,
+                num_layers   = num_layers,
+                add_layers   = add_layers,
+                down_size    = down_size,
+                hidden_dim   = hidden_dim,
+                weight_decay = weight_decay,
+                gf_radius    = gf_radius,
                 use_denoise  = use_denoise,
             )
         
@@ -677,8 +861,13 @@ class ZeroMIE(base.ImageEnhancementModel):
         self.saved_pseudo_gt = None
         
         # Loss
-        if loss_hsv and color_space in ["hsv_v", "hsv_v_d"]:
-            self.loss = LossHSV(exp_mean=exp_mean)
+        if loss_hsv and color_space in ["hsv_v", "hsv_v_d", "hvi_i", "hvi_i_d"]:
+            self.loss = LossHSV(
+                exp_mean     = exp_mean,
+                weight_depth = weight_depth,
+                weight_edge  = weight_edge,
+                weight_color = weight_color,
+            )
         else:
             self.loss = Loss(
                 exp_mean     = exp_mean,
@@ -729,7 +918,7 @@ class ZeroMIE(base.ImageEnhancementModel):
         timer = core.Timer()
         for i in range(runs):
             timer.tick()
-            _ = self(datapoint)
+            _ = self.forward(datapoint)
             timer.tock()
         avg_time = timer.avg_time
         
@@ -758,10 +947,11 @@ class ZeroMIE(base.ImageEnhancementModel):
                 image_lr        = outputs["image_lr"]
                 illu_lr         = outputs["illu_lr"]
                 enhanced        = outputs["enhanced"]
+                enhanced_lr     = outputs["enhanced_lr"]
                 depth_lr        = outputs["depth_lr"]
                 pseudo_gt       = self.saved_pseudo_gt
                 loss_recon      = self.loss_recon(enhanced, pseudo_gt)
-                loss_enh        = self.loss(image, image_lr, illu_lr, enhanced, depth_lr)
+                loss_enh        = self.loss(image, image_lr, illu_lr, enhanced, enhanced_lr, depth_lr)
                 loss            = loss_recon + loss_enh * self.weight_enh
                 outputs["loss"] = loss
             else:  # Skip updating model's weight at the first batch
@@ -775,8 +965,9 @@ class ZeroMIE(base.ImageEnhancementModel):
             image_lr        = outputs["image_lr"]
             illu_lr         = outputs["illu_lr"]
             enhanced        = outputs["enhanced"]
+            enhanced_lr     = outputs["enhanced_lr"]
             depth_lr        = outputs["depth_lr"]
-            outputs["loss"] = self.loss(image, image_lr, illu_lr, enhanced, depth_lr)
+            outputs["loss"] = self.loss(image, image_lr, illu_lr, enhanced, enhanced_lr, depth_lr)
         return outputs
         
     def forward(self, datapoint: dict, *args, **kwargs) -> dict:
@@ -823,7 +1014,7 @@ class ZeroMIE(base.ImageEnhancementModel):
         for _ in range(epochs):
             outputs = self.forward_loss(datapoint=datapoint)
             optimizer.zero_grad()
-            loss = outputs["loss"]
+            loss    = outputs["loss"]
             if loss is not None:
                 loss.backward(retain_graph=True)
                 optimizer.step()

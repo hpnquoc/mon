@@ -39,19 +39,20 @@ model = {
 	"down_size"     : 256,            # Downsampling size.
 	"hidden_dim"    : 256,            # Hidden dimension.
 	"weight_decay"  : [0.1, 0.0001, 0.001],
-	"color_space"   : "rgb_d",        # Color space. Best: hsv_v_d | View: rgb_d
-	"use_denoise"   : True,           # If ``True``, use denoising. Best: True
-	"use_pse"       : False,          # If ``True``, use PSE.       Best: False
+	"gf_radius"     : 3,              # Radius of the guided filter. Best: 3
+	"color_space"   : "hsv_v_d",      # Color space. Best: hsv_v_d
+	"use_denoise"   : False,          # If ``True``, use denoising. Best: True (BRISQUE) | View: False (Other)
+	"use_pse"       : False,          # If ``True``, use PSE. Best: False
 	"number_refs"   : 2,			  # Number of references.
 	"weight_enh"    : 5,
 	"loss_hsv"      : True,           # If ``True``, use HSV loss. Best: True
-	"exp_mean"      : 0.7,            # Best: 0.3 | View: 0.7
-	"weight_spa"	: 1,
+	"exp_mean"      : 0.3,            # Best: 0.3 | View: 0.3
+	"weight_spa"	: 1,              # Best: 1
 	"weight_exp"    : 10,             # Best: 10
-	"weight_color"  : 5,
+	"weight_color"  : 5,              # Best: 5
 	"weight_tv"     : 1600,           # Best: 1600
-	"weight_depth"  : 1,
-	"weight_edge"   : 1,
+	"weight_depth"  : 1,              # Best: 1
+	"weight_edge"   : 1,              # Best: 1
 	"weights"       : None,           # The model's weights.
 	"metrics"       : {
 	    "train": None,

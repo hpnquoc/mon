@@ -72,6 +72,7 @@ def read_image(
             - :obj:`numpy.ndarray` in ``[H, W, C]`` format with data in the
                 range ``[0, 255]``.
     """
+    path = pathlib.Path(path)
     # Read raw image
     if path.is_raw_image_file():
         image = rawpy.imread(str(path))

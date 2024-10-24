@@ -317,9 +317,9 @@ class Path(type(pathlib.Path())):
             dst.unlink(missing_ok=True)
         shutil.copyfile(src=str(self), dst=str(dst))
     
-    def replace(self, old: str, new: str) -> Path:
+    def replace(self, old: str, new: str, count: int = 1) -> Path:
         """Return a new path with the old string replaced by the new string."""
-        return Path(str(self).replace(old, new))
+        return Path(str(self).replace(old, new, count))
     
 # endregion
 

@@ -1,7 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""This script resize images."""
+"""This script resize images.
+
+Usage:
+
+"""
 
 from __future__ import annotations
 

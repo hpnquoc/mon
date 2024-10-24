@@ -1,13 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""LoLI-Street Datasets."""
+"""VehicleHaH Datasets."""
 
 from __future__ import annotations
 
 __all__ = [
-    "LoLIStreet",
-    "LoLIStreetDataModule",
+    "VehicleHaH",
+    "DICMDataModule",
 ]
 
 from typing import Literal
@@ -24,16 +24,26 @@ ImageAnnotation     = core.ImageAnnotation
 MultimodalDataset   = core.MultimodalDataset
 
 
-@DATASETS.register(name="loli_street")
-class LoLIStreet(MultimodalDataset):
-
+@DATASETS.register(name="dicm")
+class VehicleHaH(MultimodalDataset):
+    """Data from vehicles driving on snowy nights reveal a range of challenges
+    and trials. When the vehicle is driving on the snow, it needs a longer
+    braking distance and is easy to lose control. The vehicle's powertrain may
+    be affected by the slippery road surface, which reduces traction.
+    Visibility may be reduced by snow and wind, making it difficult for drivers
+    to see the road and other vehicles. Therefore, when driving on a snowy
+    night, the driver needs to be extra careful, appropriately reduce the speed,
+    maintain a safe distance, and ensure that the vehicle is in good working
+    condition. At the same time, collecting data on the driving of these
+    vehicles on snowy nights can help improve vehicle design and driving
+    techniques to improve driving safety.
+    """
+    
     tasks : list[Task]  = [Task.LLIE]
-    splits: list[Split] = [Split.TRAIN, Split.VAL, Split.TEST]
+    splits: list[Split] = [Split.TEST]
     datapoint_attrs     = DatapointAttributes({
-        "image"    : ImageAnnotation,
-        "depth"    : DepthMapAnnotation,
-        "ref_image": ImageAnnotation,
-        "ref_depth": DepthMapAnnotation,
+        "image": ImageAnnotation,
+        "depth": DepthMapAnnotation,
     })
     has_test_annotations: bool = False
     
@@ -41,15 +51,10 @@ class LoLIStreet(MultimodalDataset):
         super().__init__(root=root, *args, **kwargs)
     
     def get_data(self):
-        if self.split == Split.TEST:
-            patterns = [
-                self.root / "loli_street" / "val" / "image"
-            ]
-        else:
-            patterns = [
-                self.root / "loli_street" / self.split_str / "image",
-            ]
-            
+        patterns = [
+            self.root / "dicm" / self.split_str / "image",
+        ]
+        
         # Images
         images: list[ImageAnnotation] = []
         with core.get_progress_bar(disable=self.disable_pbar) as pbar:
@@ -62,11 +67,11 @@ class LoLIStreet(MultimodalDataset):
                         images.append(ImageAnnotation(path=path, root=pattern))
         
         self.datapoints["image"] = images
-    
 
-@DATAMODULES.register(name="loli_street")
-class LoLIStreetDataModule(DataModule):
-    
+
+@DATAMODULES.register(name="dicm")
+class DICMDataModule(DataModule):
+
     tasks: list[Task] = [Task.LLIE]
     
     def prepare_data(self, *args, **kwargs):
@@ -77,10 +82,10 @@ class LoLIStreetDataModule(DataModule):
             console.log(f"Setup [red]{self.__class__.__name__}[/red].")
         
         if stage in [None, "train"]:
-            self.train = LoLIStreet(split=Split.TRAIN, **self.dataset_kwargs)
-            self.val   = LoLIStreet(split=Split.VAL,   **self.dataset_kwargs)
+            self.train = VehicleHaH(split=Split.TEST, **self.dataset_kwargs)
+            self.val   = VehicleHaH(split=Split.TEST, **self.dataset_kwargs)
         if stage in [None, "test"]:
-            self.test  = LoLIStreet(split=Split.VAL,   **self.dataset_kwargs)
+            self.test  = VehicleHaH(split=Split.TEST, **self.dataset_kwargs)
         
         self.get_classlabels()
         if self.can_log:

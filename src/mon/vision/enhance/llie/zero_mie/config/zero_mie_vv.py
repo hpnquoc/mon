@@ -39,6 +39,7 @@ model = {
 	"down_size"     : 256,            # Downsampling size.
 	"hidden_dim"    : 256,            # Hidden dimension.
 	"weight_decay"  : [0.1, 0.0001, 0.001],
+	"gf_radius"     : 3,              # Radius of the guided filter. Best: 3
 	"color_space"   : "hsv_v_d",      # Color space. Best: hsv_v_d
 	"use_denoise"   : False,          # If ``True``, use denoising. Best: True (brisque) | View: False (other)
 	"use_pse"       : False,          # If ``True``, use PSE.
