@@ -1116,6 +1116,14 @@ EXTRA_MODELS      = {  # architecture/model (+ variant)
             "torch_distributed_launch": True,
         },
     },
+    "neurop"       : {
+        "neurop": {
+            "tasks"    : [Task.LLIE, Task.RETOUCH],
+            "schemes"  : [Scheme.SUPERVISED],
+            "model_dir": MON_EXTRA_DIR / "vision" / "enhance" / "retouch" / "neurop",
+            "torch_distributed_launch": False,
+        },
+    },
     "restormer"    : {
         "restormer": {
             "tasks"    : [Task.DEBLUR, Task.DENOISE, Task.DERAIN, Task.DESNOW, Task.LLIE],
@@ -1126,14 +1134,7 @@ EXTRA_MODELS      = {  # architecture/model (+ variant)
     },
     # endregion
     # region enhance/retouch
-    "neurop"       : {
-        "neurop": {
-            "tasks"    : [Task.RETOUCH],
-            "schemes"  : [Scheme.SUPERVISED],
-            "model_dir": MON_EXTRA_DIR / "vision" / "enhance" / "retouch" / "neurop",
-            "torch_distributed_launch": False,
-        },
-    },
+    
     # endregion
     # region enhance/sr
     "srno"         : {

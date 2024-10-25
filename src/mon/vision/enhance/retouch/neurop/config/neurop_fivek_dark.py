@@ -35,6 +35,8 @@ model = {
 	"out_channels": 3,           # A number of classes, which is also the last layer's output channels.
 	"base_nf"     : 64,
 	"encode_nf"   : 32,
+	"pixel_weight": 10.0,
+	"init_weights": None,
 	"weights"     : None,        # The model's weights.
 	"metrics"     : {
 	    "train": None,
@@ -102,7 +104,7 @@ trainer = default.trainer | {
 	"logger"           : {
 		"tensorboard": default.tensorboard,
 	},
-	"max_steps"        : 100000,
+	"max_steps"        : 600000,
 }
 
 # endregion

@@ -157,7 +157,7 @@ class NeurOPInit(base.ImageEnhancementModel):
     
     model_dir: core.Path    = current_dir
     arch     : str          = "neurop"
-    tasks    : list[Task]   = [Task.RETOUCH]
+    tasks    : list[Task]   = [Task.LLIE, Task.RETOUCH]
     schemes  : list[Scheme] = [Scheme.SUPERVISED]
     zoo      : dict         = {}
     
@@ -253,7 +253,7 @@ class NeurOP_RE(base.ImageEnhancementModel):
     
     model_dir: core.Path    = current_dir
     arch     : str          = "neurop"
-    tasks    : list[Task]   = [Task.RETOUCH]
+    tasks    : list[Task]   = [Task.LLIE, Task.RETOUCH]
     schemes  : list[Scheme] = [Scheme.SUPERVISED]
     zoo      : dict         = {}
     
