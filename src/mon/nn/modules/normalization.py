@@ -25,6 +25,7 @@ __all__ = [
     "InstanceNorm3d",
     "LayerNorm",
     "LayerNorm2d",
+    "LayerNormCustom2d",
     "LazyBatchNorm1d",
     "LazyBatchNorm2d",
     "LazyBatchNorm3d",
@@ -352,6 +353,26 @@ class LayerNorm2d(nn.LayerNorm):
             bias             = self.bias,
             eps              = self.eps
         ).permute(0, 3, 1, 2)
+        return y
+
+
+class LayerNormCustom2d(nn.Module):
+    """My implementation for LayerNorm for channels of 2D spatial
+    ``[B, C, H, W]`` tensors.
+    """
+    
+    def __init__(self, normalized_shape: Any, eps: float = 1e-5):
+        super().__init__()
+        self.weight = nn.Parameter(torch.ones(normalized_shape))
+        self.bias   = nn.Parameter(torch.zeros(normalized_shape))
+        self.eps    = eps
+    
+    def forward(self, input: torch.Tensor) -> torch.Tensor:
+        x    = input
+        mean = x.mean(-1, keepdim=True)
+        std  = x.std(-1, keepdim=True)
+        y    = (x - mean) / (std + self.eps)
+        y    = self.weight * y + self.bias
         return y
 
 # endregion

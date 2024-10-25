@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Implicit Neural Representations with Periodic Activation Functions.
+"""Implicit Neural Representations.
 
-This package implements implicit neural representations module.
+This package implements implicit neural representations modules.
 """
 
 from __future__ import annotations

@@ -46,9 +46,9 @@ model = {
 	"number_refs"   : 2,			  # Number of references.
 	"weight_enh"    : 5,
 	"loss_hsv"      : True,           # If ``True``, use HSV loss. Best: True
-	"exp_mean"      : 0.5,            # Best: 0.5 | View: 0.9
+	"exp_mean"      : 0.5,            # Best: 0.5
 	"weight_spa"	: 1,
-	"weight_exp"    : 10,             # Best: 10
+	"weight_exp"    : 10,
 	"weight_color"  : 5,
 	"weight_tv"     : 1600,
 	"weight_depth"  : 1,

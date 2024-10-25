@@ -661,6 +661,7 @@ class Task(DT.Enum):
     LES      = "les"       # light effect suppression
     LLIE     = "llie"      # low-light image enhancement
     POSE     = "pose"      # pose estimation
+    RETOUCH  = "retouch"   # image retouching
     SEGMENT  = "segment"   # semantic segmentation
     SR       = "sr"        # super-resolution
     TRACK    = "track"     # object tracking
@@ -1121,6 +1122,16 @@ EXTRA_MODELS      = {  # architecture/model (+ variant)
             "schemes"  : [Scheme.SUPERVISED],
             "model_dir": MON_EXTRA_DIR / "vision" / "enhance" / "multitask" / "restormer",
             "torch_distributed_launch": True,
+        },
+    },
+    # endregion
+    # region enhance/retouch
+    "neurop"       : {
+        "neurop": {
+            "tasks"    : [Task.RETOUCH],
+            "schemes"  : [Scheme.SUPERVISED],
+            "model_dir": MON_EXTRA_DIR / "vision" / "enhance" / "retouch" / "neurop",
+            "torch_distributed_launch": False,
         },
     },
     # endregion

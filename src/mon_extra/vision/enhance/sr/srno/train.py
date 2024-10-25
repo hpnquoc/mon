@@ -118,7 +118,7 @@ def train(train_loader, model, optimizer, epoch):
 
 def main(config_, save_path):
     global config, log, writer
-    config = config_
+    config      = config_
     log, writer = utils.set_save_path(save_path, remove=True)
     with open(os.path.join(save_path, 'config.yaml'), 'w') as f:
         yaml.dump(config, f, sort_keys=False)
@@ -127,7 +127,7 @@ def main(config_, save_path):
     if config.get('data_norm') is None:
         config['data_norm'] = {
             'inp': {'sub': [0], 'div': [1]},
-            'gt': {'sub': [0], 'div': [1]}
+            'gt' : {'sub': [0], 'div': [1]}
         }
 
     model, optimizer, epoch_start, lr_scheduler = prepare_training()
@@ -136,10 +136,10 @@ def main(config_, save_path):
     if n_gpus > 1:
         model = nn.parallel.DataParallel(model)
 
-    epoch_max = config['epoch_max']
-    epoch_val = config.get('epoch_val')
+    epoch_max  = config['epoch_max']
+    epoch_val  = config.get('epoch_val')
     epoch_save = config.get('epoch_save')
-    max_val_v = -1e18
+    max_val_v  = -1e18
 
     timer = utils.Timer()
 

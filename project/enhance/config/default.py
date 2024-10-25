@@ -24,6 +24,7 @@ TASKS = [
     Task.INPAINT,
     Task.LES,
     Task.LLIE,
+	Task.RETOUCH,
     Task.SEGMENT,
 	Task.SR,
 ]

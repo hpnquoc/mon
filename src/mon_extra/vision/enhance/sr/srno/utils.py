@@ -18,6 +18,7 @@ from torchvision.transforms import InterpolationMode
 import random
 import math
 
+
 def show_feature_map(feature_map,layer,name='rgb',rgb=False):
     feature_map = feature_map.squeeze(0)
     #if rgb: feature_map = feature_map.permute(1,2,0)*0.5+0.5
@@ -44,10 +45,12 @@ def show_feature_map(feature_map,layer,name='rgb',rgb=False):
         #plt.show()
         plt.savefig('data/'+layer+'/'+str(name)+".png")
 
+
 def resize_fn(img, size):
     return transforms.ToTensor()(
         transforms.Resize(size, InterpolationMode.BICUBIC)(
             transforms.ToPILImage()(img)))
+
 
 def downsample(img, scale_min=1, scale_max=4, inp_size=None, augment=False, epoch=None):
     if epoch<20: s = random.randint(scale_min, scale_max)
@@ -96,7 +99,8 @@ def downsample(img, scale_min=1, scale_max=4, inp_size=None, augment=False, epoc
         'gt': crop_hr.contiguous()
     }    
 
-class Averager():
+
+class Averager:
 
     def __init__(self):
         self.n = 0.0
@@ -110,7 +114,7 @@ class Averager():
         return self.v
 
 
-class Timer():
+class Timer:
 
     def __init__(self):
         self.v = time.time()

@@ -9,7 +9,6 @@ import torch.nn as nn
 from models.base_model import BaseModel
 from models.loss import CharbonnierLoss, VGGLoss
 from thop import profile
-from torch.nn.parallel import DataParallel, DistributedDataParallel
 
 import mon
 
@@ -228,14 +227,6 @@ class enhancement_model(BaseModel):
     def forward(self):
         self.test()
         
-    '''
-    def eval(self):
-        self.netG.eval()
-    
-    def train(self):
-        self.netG.train()
-    '''
-    
     def measure_efficiency_score(self, image_size=512, channels=3, runs=1000):
         h, w  = mon.get_image_size(image_size)
         input = torch.rand(1, channels, h, w).cuda()

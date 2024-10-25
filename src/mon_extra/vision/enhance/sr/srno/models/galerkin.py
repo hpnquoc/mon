@@ -3,7 +3,9 @@ import torch.nn as nn
 
 from models import register
 
+
 class LayerNorm(nn.Module):
+    
     def __init__(self, d_model, eps=1e-5):
         super(LayerNorm, self).__init__()
         self.weight = nn.Parameter(torch.ones(d_model))
@@ -17,6 +19,7 @@ class LayerNorm(nn.Module):
         out = (x - mean) / (std + self.eps)
         out = self.weight * out + self.bias
         return out
+
 
 @register('galerkin')
 class simple_attn(nn.Module):
@@ -56,4 +59,3 @@ class simple_attn(nn.Module):
         bias = self.o_proj2(self.act(self.o_proj1(ret))) + bias
         
         return bias
-    

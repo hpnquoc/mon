@@ -201,7 +201,7 @@ class CrossAttentionLayer(nn.Module):
 
     def forward(self, query: torch.Tensor, key: torch.Tensor, value: torch.Tensor) -> torch.Tensor:
         query   = query.permute(1, 0, 2)  # [seq_len, batch_size, dim]
-        key     = key.permute(1, 0, 2)
+        key     =   key.permute(1, 0, 2)
         value   = value.permute(1, 0, 2)
         attn, _ = self.attn(query, key, value)
         return attn.permute(1, 0, 2)  # Back to [batch_size, seq_len, dim]

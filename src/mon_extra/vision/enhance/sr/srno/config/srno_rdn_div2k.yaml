@@ -27,5 +27,5 @@ exist_ok    : False
 verbose     : True
 
 # Model Specific
-scale       : 2
+scale       : 1
 scale_max   : 4

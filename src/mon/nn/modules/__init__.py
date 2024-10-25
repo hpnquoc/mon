@@ -15,6 +15,7 @@ import mon.nn.modules.activation
 import mon.nn.modules.attention
 import mon.nn.modules.conv
 import mon.nn.modules.dropout
+import mon.nn.modules.encoder
 import mon.nn.modules.flatten
 import mon.nn.modules.inr
 import mon.nn.modules.linear
@@ -31,6 +32,7 @@ from mon.nn.modules.activation import *
 from mon.nn.modules.attention import *
 from mon.nn.modules.conv import *
 from mon.nn.modules.dropout import *
+from mon.nn.modules.encoder import *
 from mon.nn.modules.flatten import *
 from mon.nn.modules.inr import *
 from mon.nn.modules.linear import *
