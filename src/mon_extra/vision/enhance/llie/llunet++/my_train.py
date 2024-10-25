@@ -105,7 +105,7 @@ def train(args: argparse.Namespace):
     # Data I/O
     data_args = {
         "name"      : args.data,
-        "root"      : mon.DATA_DIR / "enhance" / "llie",
+        "root"      : mon.DATA_DIR / "enhance",
         "transform" : A.Compose(transforms=[
             A.Resize(width=imgsz, height=imgsz),
         ]),

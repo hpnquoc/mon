@@ -40,9 +40,9 @@ for (( i=0; i<${#data[@]}; i++ )); do
     if ! [ -d "${input_dir}" ]; then
         input_dir="${current_dir}/run/predict/${arch}/${model}/${data[i]}"
     fi
-    target_dir="${data_dir}/enhance/${task}/${data[i]}/test/ref"
+    target_dir="${data_dir}/enhance/${data[i]}/test/ref"
     if ! [ -d "${target_dir}" ]; then
-        target_dir="${data_dir}/enhance/${task}/${data[i]}/val/ref"
+        target_dir="${data_dir}/enhance/${data[i]}/val/ref"
     fi
 
     if [ -d "${target_dir}" ]; then

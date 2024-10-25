@@ -14,6 +14,7 @@ from __future__ import annotations
 
 __all__ = [
     "NeurOPInit",
+    "NeurOP_RE",
 ]
 
 from typing import Any, Literal
@@ -24,8 +25,6 @@ from mon import core, nn
 from mon.globals import MODELS, Scheme, Task
 from mon.nn import functional as F
 from mon.vision.enhance import base
-from mon_extra.vision.enhance.llie.retinexformer.test.test_from_dataset import \
-    target
 
 console      = core.console
 current_file = core.Path(__file__).absolute()
@@ -158,7 +157,7 @@ class NeurOPInit(base.ImageEnhancementModel):
     
     model_dir: core.Path    = current_dir
     arch     : str          = "neurop"
-    tasks    : list[Task]   = [Task.LLIE]
+    tasks    : list[Task]   = [Task.RETOUCH]
     schemes  : list[Scheme] = [Scheme.SUPERVISED]
     zoo      : dict         = {}
     
@@ -254,7 +253,7 @@ class NeurOP_RE(base.ImageEnhancementModel):
     
     model_dir: core.Path    = current_dir
     arch     : str          = "neurop"
-    tasks    : list[Task]   = [Task.LLIE]
+    tasks    : list[Task]   = [Task.RETOUCH]
     schemes  : list[Scheme] = [Scheme.SUPERVISED]
     zoo      : dict         = {}
     
