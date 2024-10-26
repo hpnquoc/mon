@@ -5,8 +5,8 @@ import torch.nn.functional as F
 
 class Operator(nn.Module):
     
-    def __init__(self, in_nc=3, out_nc=3, base_nf=64):
-        super(Operator, self).__init__()
+    def __init__(self, in_nc: int = 3, out_nc: int = 3, base_nf: int = 64):
+        super().__init__()
         self.base_nf  = base_nf
         self.out_nc   = out_nc
         self.encoder  = nn.Conv2d(in_nc,   base_nf, 1, 1)
@@ -24,8 +24,8 @@ class Operator(nn.Module):
 
 class Renderer(nn.Module):
     
-    def __init__(self, in_nc=3, out_nc=3, base_nf=64):
-        super(Renderer, self).__init__()
+    def __init__(self, in_nc: int = 3, out_nc: int = 3, base_nf: int = 64):
+        super().__init__()
         self.in_nc    = in_nc
         self.base_nf  = base_nf
         self.out_nc   = out_nc
@@ -34,7 +34,6 @@ class Renderer(nn.Module):
         self.vb_block = Operator(in_nc, out_nc, base_nf)
         
     def forward(self, x_ex, x_bc, x_vb, v_ex, v_bc, v_vb):
-        
         rec_ex = self.ex_block(x_ex, 0)
         rec_bc = self.bc_block(x_bc, 0)
         rec_vb = self.vb_block(x_vb, 0)
@@ -48,8 +47,8 @@ class Renderer(nn.Module):
 
 class Encoder(nn.Module):
     
-    def __init__(self, in_nc=3, encode_nf=32):
-        super(Encoder, self).__init__()
+    def __init__(self, in_nc: int = 3, encode_nf: int = 32):
+        super().__init__()
         stride     = 2
         pad        = 0
         self.pad   = nn.ZeroPad2d(1)
@@ -70,20 +69,20 @@ class Encoder(nn.Module):
 
 class Predictor(nn.Module):
     
-    def __init__(self, fea_dim):
-        super(Predictor, self).__init__()
+    def __init__(self, fea_dim: int):
+        super().__init__()
         self.fc3  = nn.Linear(fea_dim, 1)
         self.tanh = nn.Tanh()
         
     def forward(self, img_fea):
         val = self.tanh(self.fc3(img_fea))
         return val    
-
+    
     
 class NeurOP(nn.Module):
     
-    def __init__(self, in_nc=3, out_nc=3, base_nf=64, encode_nf=32, load_path=None):
-        super(NeurOP, self).__init__()
+    def __init__(self, in_nc: int = 3, out_nc: int = 3, base_nf: int = 64, encode_nf: int = 32, load_path=None):
+        super().__init__()
         self.fea_dim       = encode_nf * 3
         self.image_encoder = Encoder(in_nc, encode_nf)
         renderer           = Renderer(in_nc, out_nc, base_nf)
@@ -103,7 +102,7 @@ class NeurOP(nn.Module):
         self.predict_heads = [self.bc_predictor, self.ex_predictor, self.vb_predictor]
     
     def render(self, img, vals):
-        b, _, h, w = x.shape
+        b, _, h, w = img.shape
         imgs       = []
         for nop, scalar in zip(self.renderers, vals):
             img = nop(img, scalar)

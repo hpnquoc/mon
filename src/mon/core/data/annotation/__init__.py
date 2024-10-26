@@ -35,7 +35,7 @@ def get_albumentation_target_type(annotation) -> str | None:
     """Returns the type of target that Albumentations expects.
     One of: [``'image'``, ``'mask'``, ``'bboxes'``, ``'keypoints'``, ``'values'``].
     """
-    if annotation in [ImageAnnotation]:
+    if annotation in [ImageAnnotation, FrameAnnotation, DepthMapAnnotation]:
         return "image"
     elif annotation in [BBoxAnnotation, BBoxesAnnotation]:
         return "bboxes"

@@ -13,18 +13,17 @@ from utils import *
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('-config', type=str, default='./configs/init_neurop.yaml')
-    args = parser.parse_args()
-    opt = parse(args.config)
-    opt = dict_to_nonedict(opt)
+    args   = parser.parse_args()
+    opt    = parse(args.config)
+    opt    = dict_to_nonedict(opt)
 
     for fp in opt['path']:
         path = (opt['path'][fp])
         if not os.path.exists(path):
             os.makedirs(path)
     logger_name = f"{opt['name']}{get_timestamp()}"
-    logger = logging.getLogger('base')
-    formatter = logging.Formatter('%(asctime)s.%(msecs)03d - %(levelname)s: %(message)s',
-                                  datefmt='%y-%m-%d %H:%M:%S')
+    logger      = logging.getLogger('base')
+    formatter   = logging.Formatter('%(asctime)s.%(msecs)03d - %(levelname)s: %(message)s', datefmt='%y-%m-%d %H:%M:%S')
     logger.setLevel(logging.INFO)        
     log_file = f"{opt['path']['log']}/{logger_name}.log"    
     fh = logging.FileHandler(log_file, mode='w')
@@ -34,7 +33,7 @@ if __name__ == '__main__':
     sh.setFormatter(formatter)
     logger.addHandler(sh)
     logger.info(dict2str(opt))
-
+    
     model = build_model(opt)
     dataset_opt = opt['datasets']
     train_loader = build_train_loader(dataset_opt)

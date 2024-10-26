@@ -337,7 +337,7 @@ class MultimodalDataset(Dataset, ABC):
     
     def __init__(
         self,
-        depth_source: Literal[*DEPTH_DATA_SOURCES] = "dav2_vitb_g",
+        depth_source: Literal[*DEPTH_DATA_SOURCES] = "dp_g_i",  # "dp_g, dp_g_i, dav2_vitb_g",
         *args, **kwargs
     ):
         if depth_source not in DEPTH_DATA_SOURCES:

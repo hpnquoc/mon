@@ -1,20 +1,20 @@
 #### general settings
-name    : neurop_train_fivek_dark
+name    : neurop_train_fivek_e
 is_init : false
 is_train: true
 device  : cuda
 
 #### datasets
 datasets:
-  name      : fivek_dark
+  name      : fivek_e
   mode      : finetune
-  dataroot  : dataset-dark
+  dataroot  : fivek_e
   n_cpus    : 8
   batch_size: 1
 
 #### network structures
 network_G:
-  init_model : vision/enhance/retouch/neurop/neurop/fivek_dark/neurop_fivek_dark.pth
+  init_model : vision/enhance/retouch/neurop/neurop/fivek_init/neurop_fivek_init.pth
   in_nc      : 3
   out_nc     : 3
   base_nf    : 64

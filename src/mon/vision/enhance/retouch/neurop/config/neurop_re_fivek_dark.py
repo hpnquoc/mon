@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import mon
+from mon import albumentation as A
 from mon.config import default
 
 current_file = mon.Path(__file__).absolute()
@@ -11,8 +12,8 @@ current_file = mon.Path(__file__).absolute()
 
 # region Basic
 
-model_name = "neurop_init"
-data_name  = "fivek_init"
+model_name = "neurop_re"
+data_name  = "fivek_dark"
 root       = current_file.parents[1] / "run"
 data_root  = mon.DATA_DIR / "enhance"
 project    = None
@@ -35,6 +36,8 @@ model = {
 	"out_channels": 3,           # A number of classes, which is also the last layer's output channels.
 	"base_nf"     : 64,
 	"encode_nf"   : 32,
+	"pixel_weight": 10.0,
+	"init_weights": mon.ZOO_DIR / "vision/enhance/retouch/neurop/neurop/neurop_init.pt",
 	"weights"     : None,        # The model's weights.
 	"metrics"     : {
 	    "train": None,
@@ -65,7 +68,11 @@ model = {
 data = {
     "name"      : data_name,
     "root"      : data_root,     # A root directory where the data is stored.
-	"transform" : None,          # Transformations performing on both the input and target.
+	"transform" : A.Compose(transforms=[
+		A.Resize(height=image_size[0], width=image_size[1]),
+		# A.Flip(),
+		# A.Rotate(),
+	]),  # Transformations performing on both the input and target.
     "to_tensor" : True,          # If ``True``, convert input and target to :class:`torch.Tensor`.
     "cache_data": False,         # If ``True``, cache data to disk for faster loading next time.
     "batch_size": 1,             # The number of samples in one forward pass.
@@ -102,7 +109,7 @@ trainer = default.trainer | {
 	"logger"           : {
 		"tensorboard": default.tensorboard,
 	},
-	"max_steps"        : 100000,
+	"max_steps"        : 600000,
 }
 
 # endregion

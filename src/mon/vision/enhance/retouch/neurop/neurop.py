@@ -19,6 +19,7 @@ __all__ = [
 
 from typing import Any, Literal
 
+import lightning.pytorch.utilities.types
 import torch
 
 from mon import core, nn
@@ -29,6 +30,7 @@ from mon.vision.enhance import base
 console      = core.console
 current_file = core.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
+StepOutput   = lightning.pytorch.utilities.types.STEP_OUTPUT
 
 
 # region Loss
@@ -105,7 +107,7 @@ class Renderer(nn.Module):
         map_ex = self.ex_block(x_ex, v_ex)
         map_bc = self.bc_block(x_bc, v_bc)
         map_vb = self.vb_block(x_vb, v_vb)
-
+        
         return rec_ex, rec_bc, rec_vb, map_ex, map_bc, map_vb
 
 
@@ -191,6 +193,12 @@ class NeurOPInit(base.ImageEnhancementModel):
     def init_weights(self, m: nn.Module):
         pass
     
+    def assert_datapoint(self, datapoint: dict) -> bool:
+        pass
+        
+    def assert_outputs(self, outputs: dict) -> bool:
+        pass
+        
     def forward_loss(self, datapoint: dict, *args, **kwargs) -> dict | None:
         # Forward
         self.assert_datapoint(datapoint)
@@ -205,16 +213,16 @@ class NeurOPInit(base.ImageEnhancementModel):
         rec_image_ex    = outputs["rec_image_ex"]
         rec_image_bc    = outputs["rec_image_bc"]
         rec_image_vb    = outputs["rec_image_vb"]
-        map_image_ex    = outputs["map_image_ex"]
-        map_image_bc    = outputs["map_image_bc"]
-        map_image_vb    = outputs["map_image_vb"]
+        map_ref_ex      = outputs["map_ref_ex"]
+        map_ref_bc      = outputs["map_ref_bc"]
+        map_ref_vb      = outputs["map_ref_vb"]
         #
         loss_unary_ex   = self.loss(rec_image_ex, image_ex)
         loss_unary_bc   = self.loss(rec_image_bc, image_bc)
         loss_unary_vb   = self.loss(rec_image_vb, image_vb)
-        loss_pair_ex    = self.loss(map_image_ex, ref_ex)
-        loss_pair_bc    = self.loss(map_image_bc, ref_bc)
-        loss_pair_vb    = self.loss(map_image_vb, ref_vb)
+        loss_pair_ex    = self.loss(map_ref_ex, ref_ex)
+        loss_pair_bc    = self.loss(map_ref_bc, ref_bc)
+        loss_pair_vb    = self.loss(map_ref_vb, ref_vb)
         loss_unary      = loss_unary_ex + loss_unary_bc + loss_unary_vb
         loss_pair       = loss_pair_ex  + loss_pair_bc  + loss_pair_vb
         loss            = loss_unary    + loss_pair
@@ -226,10 +234,14 @@ class NeurOPInit(base.ImageEnhancementModel):
         image_ex = datapoint["image_ex"]
         image_bc = datapoint["image_bc"]
         image_vb = datapoint["image_vb"]
-        val_ex   = datapoint["val_ex"]
-        val_bc   = datapoint["val_bc"]
-        val_vb   = datapoint["val_vb"]
-        
+        val_ex   = datapoint["val_ex"][0]
+        val_bc   = datapoint["val_bc"][0]
+        val_vb   = datapoint["val_vb"][0]
+        '''
+        print(val_ex)
+        print(val_bc)
+        print(val_vb)
+        '''
         (rec_image_ex, rec_image_bc, rec_image_vb, map_ref_ex, map_ref_bc, map_ref_vb) \
             = self.renderer(image_ex, image_bc, image_vb, val_ex, val_bc, val_vb)
         
@@ -241,6 +253,12 @@ class NeurOPInit(base.ImageEnhancementModel):
             "map_ref_bc"  : map_ref_bc,
             "map_ref_vb"  : map_ref_vb,
         }
+    
+    def validation_step(self, batch: Any, batch_idx: int, *args, **kwargs) -> StepOutput | None:
+        return None
+    
+    def test_step(self, batch: Any, batch_idx: int, *args, **kwargs) -> StepOutput | None:
+        return None
 
 
 @MODELS.register(name="neurop_re", arch="neurop")
@@ -248,7 +266,7 @@ class NeurOP_RE(base.ImageEnhancementModel):
     """Neural Color Operators for Sequential Image Retouching.
     
     References:
-    https://github.com/amberwangyili/neurop
+        https://github.com/amberwangyili/neurop
     """
     
     model_dir: core.Path    = current_dir
@@ -279,11 +297,13 @@ class NeurOP_RE(base.ImageEnhancementModel):
         self.image_encoder = Encoder(in_channels,  encode_nf)
         renderer           = Renderer(in_channels, out_channels, base_nf)
         if init_weights is not None:
-            weights_init = core.Path(init_weights)
-            if weights_init.is_weights_file():
-                init_state_dict     = torch.load(weights_init, map_location="cpu")
-                renderer_state_dict = init_state_dict["renderer"]
-                renderer.load_state_dict(renderer_state_dict)
+            init_weights = core.Path(init_weights)
+            if init_weights.is_weights_file():
+                state_dict = torch.load(init_weights, weights_only=True)
+                state_dict = state_dict["state_dict"]
+                for key in list(state_dict.keys()):
+                    state_dict[key.replace("renderer.", "")] = state_dict.pop(key)
+                renderer.load_state_dict(state_dict)
         
         self.bc_renderer   = renderer.bc_block
         self.bc_predictor  = Predictor(self.fea_dim)
@@ -293,7 +313,7 @@ class NeurOP_RE(base.ImageEnhancementModel):
         
         self.vb_renderer   = renderer.vb_block
         self.vb_predictor  = Predictor(self.fea_dim)
-
+        
         self.renderers     = [self.bc_renderer,  self.ex_renderer,  self.vb_renderer]
         self.predict_heads = [self.bc_predictor, self.ex_predictor, self.vb_predictor]
         
@@ -315,7 +335,7 @@ class NeurOP_RE(base.ImageEnhancementModel):
         outputs = self.forward(datapoint=datapoint, *args, **kwargs)
         self.assert_outputs(outputs)
         # Loss
-        target   = datapoint.get("target")
+        target   = datapoint.get("ref_image")
         enhanced = outputs.get("enhanced")
         outputs["loss"] = self.loss(enhanced, target)
         # Return
@@ -329,14 +349,14 @@ class NeurOP_RE(base.ImageEnhancementModel):
         vals = []
         for nop, predict_head in zip(self.renderers, self.predict_heads):
             img_resized = F.interpolate(input=y, size=(256, int(256 * w / h)), mode="bilinear", align_corners=False)
-            feat        = self.image_encoder(img_resized)
-            scalar      = predict_head(feat)
+            feat   = self.image_encoder(img_resized)
+            scalar = predict_head(feat)
             vals.append(scalar)
             y = nop(y, scalar)
         y = torch.clamp(y, 0.0, 1.0)
         
         return {
-            "vals"    : vals,
+            # "vals"    : vals,
             "enhanced": y
         }
         

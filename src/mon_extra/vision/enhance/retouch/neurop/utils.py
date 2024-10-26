@@ -72,13 +72,13 @@ def aug_process(img_GT, img_LQ, img_M=None):
         return img_GT, img_LQ
 
 
-def get_file_paths(folder,suffix):
+def get_file_paths(folder, suffix):
     file_paths = []
     for root, dirs, filenames in os.walk(folder):
         filenames = sorted(filenames)
         for filename in filenames:
             input_path = os.path.abspath(root)
-            file_path = os.path.join(input_path, filename)
+            file_path  = os.path.join(input_path, filename)
             if filename.split('.')[-1] == suffix:
                 file_paths.append(file_path)
         break  

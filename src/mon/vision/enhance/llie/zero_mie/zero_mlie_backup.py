@@ -149,18 +149,18 @@ class ZeroMLIE(base.ImageEnhancementModel):
         self.number_refs = number_refs
         self.tv_weight   = tv_weight
         
-        patch_layers   = [nn.SIREN(self.patch_dim, hidden_dim, self.omega_0, self.siren_C, is_first=True)]
-        spatial_layers = [nn.SIREN(2,   hidden_dim, self.omega_0, self.siren_C, is_first=True)]
+        patch_layers   = [nn.SIRENLayer(self.patch_dim, hidden_dim, self.omega_0, self.siren_C, is_first=True)]
+        spatial_layers = [nn.SIRENLayer(2, hidden_dim, self.omega_0, self.siren_C, is_first=True)]
         for _ in range(1, add_layer - 2):
-            patch_layers.append(   nn.SIREN(hidden_dim, hidden_dim, self.omega_0, self.siren_C))
-            spatial_layers.append( nn.SIREN(hidden_dim, hidden_dim, self.omega_0, self.siren_C))
-        patch_layers.append(  nn.SIREN(hidden_dim, hidden_dim // 2, self.omega_0, self.siren_C))
-        spatial_layers.append(nn.SIREN(hidden_dim, hidden_dim // 2, self.omega_0, self.siren_C))
+            patch_layers.append(nn.SIRENLayer(hidden_dim, hidden_dim, self.omega_0, self.siren_C))
+            spatial_layers.append(nn.SIRENLayer(hidden_dim, hidden_dim, self.omega_0, self.siren_C))
+        patch_layers.append(nn.SIRENLayer(hidden_dim, hidden_dim // 2, self.omega_0, self.siren_C))
+        spatial_layers.append(nn.SIRENLayer(hidden_dim, hidden_dim // 2, self.omega_0, self.siren_C))
         
         output_layers = []
         for _ in range(add_layer, num_layers - 1):
-            output_layers.append(nn.SIREN(hidden_dim, hidden_dim, self.omega_0, self.siren_C))
-        output_layers.append(nn.SIREN(hidden_dim, 1, self.omega_0, self.siren_C, is_last=True))
+            output_layers.append(nn.SIRENLayer(hidden_dim, hidden_dim, self.omega_0, self.siren_C))
+        output_layers.append(nn.SIRENLayer(hidden_dim, 1, self.omega_0, self.siren_C, is_last=True))
         
         self.patch_net   = nn.Sequential(*patch_layers)
         self.spatial_net = nn.Sequential(*spatial_layers)
@@ -478,30 +478,30 @@ class ZeroMLIE_RGB(ZeroMLIE):
         self.number_refs = number_refs
         self.tv_weight   = tv_weight
         
-        patch_r_layers = [nn.SIREN(self.patch_dim, hidden_dim, self.omega_0, self.siren_C, is_first=True)]
-        patch_g_layers = [nn.SIREN(self.patch_dim, hidden_dim, self.omega_0, self.siren_C, is_first=True)]
-        patch_b_layers = [nn.SIREN(self.patch_dim, hidden_dim, self.omega_0, self.siren_C, is_first=True)]
-        patch_d_layers = [nn.SIREN(self.patch_dim, hidden_dim, self.omega_0, self.siren_C, is_first=True)]
-        patch_e_layers = [nn.SIREN(self.patch_dim, hidden_dim, self.omega_0, self.siren_C, is_first=True)]
-        spatial_layers = [nn.SIREN(2,   hidden_dim, self.omega_0, self.siren_C, is_first=True)]
+        patch_r_layers = [nn.SIRENLayer(self.patch_dim, hidden_dim, self.omega_0, self.siren_C, is_first=True)]
+        patch_g_layers = [nn.SIRENLayer(self.patch_dim, hidden_dim, self.omega_0, self.siren_C, is_first=True)]
+        patch_b_layers = [nn.SIRENLayer(self.patch_dim, hidden_dim, self.omega_0, self.siren_C, is_first=True)]
+        patch_d_layers = [nn.SIRENLayer(self.patch_dim, hidden_dim, self.omega_0, self.siren_C, is_first=True)]
+        patch_e_layers = [nn.SIRENLayer(self.patch_dim, hidden_dim, self.omega_0, self.siren_C, is_first=True)]
+        spatial_layers = [nn.SIRENLayer(2, hidden_dim, self.omega_0, self.siren_C, is_first=True)]
         for _ in range(1, add_layer - 2):
-            patch_r_layers.append(nn.SIREN(hidden_dim, hidden_dim,  self.omega_0, self.siren_C))
-            patch_g_layers.append(nn.SIREN(hidden_dim, hidden_dim,  self.omega_0, self.siren_C))
-            patch_b_layers.append(nn.SIREN(hidden_dim, hidden_dim,  self.omega_0, self.siren_C))
-            patch_d_layers.append(nn.SIREN(hidden_dim, hidden_dim,  self.omega_0, self.siren_C))
-            patch_e_layers.append(nn.SIREN(hidden_dim, hidden_dim,  self.omega_0, self.siren_C))
-            spatial_layers.append(nn.SIREN(hidden_dim, hidden_dim,  self.omega_0, self.siren_C))
-        patch_r_layers.append(nn.SIREN(hidden_dim, hidden_dim // 4, self.omega_0, self.siren_C))
-        patch_g_layers.append(nn.SIREN(hidden_dim, hidden_dim // 4, self.omega_0, self.siren_C))
-        patch_b_layers.append(nn.SIREN(hidden_dim, hidden_dim // 4, self.omega_0, self.siren_C))
-        patch_d_layers.append(nn.SIREN(hidden_dim, hidden_dim // 4, self.omega_0, self.siren_C))
-        patch_e_layers.append(nn.SIREN(hidden_dim, hidden_dim // 4, self.omega_0, self.siren_C))
-        spatial_layers.append(nn.SIREN(hidden_dim, hidden_dim // 4, self.omega_0, self.siren_C))
+            patch_r_layers.append(nn.SIRENLayer(hidden_dim, hidden_dim, self.omega_0, self.siren_C))
+            patch_g_layers.append(nn.SIRENLayer(hidden_dim, hidden_dim, self.omega_0, self.siren_C))
+            patch_b_layers.append(nn.SIRENLayer(hidden_dim, hidden_dim, self.omega_0, self.siren_C))
+            patch_d_layers.append(nn.SIRENLayer(hidden_dim, hidden_dim, self.omega_0, self.siren_C))
+            patch_e_layers.append(nn.SIRENLayer(hidden_dim, hidden_dim, self.omega_0, self.siren_C))
+            spatial_layers.append(nn.SIRENLayer(hidden_dim, hidden_dim, self.omega_0, self.siren_C))
+        patch_r_layers.append(nn.SIRENLayer(hidden_dim, hidden_dim // 4, self.omega_0, self.siren_C))
+        patch_g_layers.append(nn.SIRENLayer(hidden_dim, hidden_dim // 4, self.omega_0, self.siren_C))
+        patch_b_layers.append(nn.SIRENLayer(hidden_dim, hidden_dim // 4, self.omega_0, self.siren_C))
+        patch_d_layers.append(nn.SIRENLayer(hidden_dim, hidden_dim // 4, self.omega_0, self.siren_C))
+        patch_e_layers.append(nn.SIRENLayer(hidden_dim, hidden_dim // 4, self.omega_0, self.siren_C))
+        spatial_layers.append(nn.SIRENLayer(hidden_dim, hidden_dim // 4, self.omega_0, self.siren_C))
         
         output_layers = []
         for _ in range(add_layer, num_layers - 1):
-            output_layers.append(nn.SIREN(hidden_dim, hidden_dim, self.omega_0, self.siren_C))
-        output_layers.append(nn.SIREN(hidden_dim, 1, self.omega_0, self.siren_C, is_last=True))
+            output_layers.append(nn.SIRENLayer(hidden_dim, hidden_dim, self.omega_0, self.siren_C))
+        output_layers.append(nn.SIRENLayer(hidden_dim, 1, self.omega_0, self.siren_C, is_last=True))
         
         self.patch_r_net = nn.Sequential(*patch_r_layers)
         self.patch_g_net = nn.Sequential(*patch_g_layers)
@@ -690,24 +690,24 @@ class ZeroMLIE_HVI(ZeroMLIE):
         self.number_refs = number_refs
         self.tv_weight   = tv_weight
         
-        patch_i_layers = [nn.SIREN(self.patch_dim, hidden_dim, self.omega_0, self.siren_C, is_first=True)]
-        patch_d_layers = [nn.SIREN(self.patch_dim, hidden_dim, self.omega_0, self.siren_C, is_first=True)]
-        patch_e_layers = [nn.SIREN(self.patch_dim, hidden_dim, self.omega_0, self.siren_C, is_first=True)]
-        spatial_layers = [nn.SIREN(2,   hidden_dim, self.omega_0, self.siren_C, is_first=True)]
+        patch_i_layers = [nn.SIRENLayer(self.patch_dim, hidden_dim, self.omega_0, self.siren_C, is_first=True)]
+        patch_d_layers = [nn.SIRENLayer(self.patch_dim, hidden_dim, self.omega_0, self.siren_C, is_first=True)]
+        patch_e_layers = [nn.SIRENLayer(self.patch_dim, hidden_dim, self.omega_0, self.siren_C, is_first=True)]
+        spatial_layers = [nn.SIRENLayer(2, hidden_dim, self.omega_0, self.siren_C, is_first=True)]
         for _ in range(1, add_layer - 2):
-            patch_i_layers.append(nn.SIREN(hidden_dim, hidden_dim,  self.omega_0, self.siren_C))
-            patch_d_layers.append(nn.SIREN(hidden_dim, hidden_dim,  self.omega_0, self.siren_C))
-            patch_e_layers.append(nn.SIREN(hidden_dim, hidden_dim,  self.omega_0, self.siren_C))
-            spatial_layers.append(nn.SIREN(hidden_dim, hidden_dim,  self.omega_0, self.siren_C))
-        patch_i_layers.append(nn.SIREN(hidden_dim, hidden_dim // 4, self.omega_0, self.siren_C))
-        patch_d_layers.append(nn.SIREN(hidden_dim, hidden_dim // 4, self.omega_0, self.siren_C))
-        patch_e_layers.append(nn.SIREN(hidden_dim, hidden_dim // 4, self.omega_0, self.siren_C))
-        spatial_layers.append(nn.SIREN(hidden_dim, hidden_dim // 4, self.omega_0, self.siren_C))
+            patch_i_layers.append(nn.SIRENLayer(hidden_dim, hidden_dim, self.omega_0, self.siren_C))
+            patch_d_layers.append(nn.SIRENLayer(hidden_dim, hidden_dim, self.omega_0, self.siren_C))
+            patch_e_layers.append(nn.SIRENLayer(hidden_dim, hidden_dim, self.omega_0, self.siren_C))
+            spatial_layers.append(nn.SIRENLayer(hidden_dim, hidden_dim, self.omega_0, self.siren_C))
+        patch_i_layers.append(nn.SIRENLayer(hidden_dim, hidden_dim // 4, self.omega_0, self.siren_C))
+        patch_d_layers.append(nn.SIRENLayer(hidden_dim, hidden_dim // 4, self.omega_0, self.siren_C))
+        patch_e_layers.append(nn.SIRENLayer(hidden_dim, hidden_dim // 4, self.omega_0, self.siren_C))
+        spatial_layers.append(nn.SIRENLayer(hidden_dim, hidden_dim // 4, self.omega_0, self.siren_C))
         
         output_layers = []
         for _ in range(add_layer, num_layers - 1):
-            output_layers.append(nn.SIREN(hidden_dim, hidden_dim, self.omega_0, self.siren_C))
-        output_layers.append(nn.SIREN(hidden_dim, 1, self.omega_0, self.siren_C, is_last=True))
+            output_layers.append(nn.SIRENLayer(hidden_dim, hidden_dim, self.omega_0, self.siren_C))
+        output_layers.append(nn.SIRENLayer(hidden_dim, 1, self.omega_0, self.siren_C, is_last=True))
         
         self.patch_i_net = nn.Sequential(*patch_i_layers)
         self.patch_d_net = nn.Sequential(*patch_d_layers)
@@ -873,24 +873,24 @@ class ZeroMLIE_01_RGB(ZeroMLIE):
         self.omega_0     = 30.0
         self.siren_C     = 6.0
         
-        patch_r_layers = [nn.SIREN(self.patch_dim, hidden_dim, self.omega_0, self.siren_C, is_first=True)]
-        patch_g_layers = [nn.SIREN(self.patch_dim, hidden_dim, self.omega_0, self.siren_C, is_first=True)]
-        patch_b_layers = [nn.SIREN(self.patch_dim, hidden_dim, self.omega_0, self.siren_C, is_first=True)]
-        spatial_layers = [nn.SIREN(2,   hidden_dim, self.omega_0, self.siren_C, is_first=True)]
+        patch_r_layers = [nn.SIRENLayer(self.patch_dim, hidden_dim, self.omega_0, self.siren_C, is_first=True)]
+        patch_g_layers = [nn.SIRENLayer(self.patch_dim, hidden_dim, self.omega_0, self.siren_C, is_first=True)]
+        patch_b_layers = [nn.SIRENLayer(self.patch_dim, hidden_dim, self.omega_0, self.siren_C, is_first=True)]
+        spatial_layers = [nn.SIRENLayer(2, hidden_dim, self.omega_0, self.siren_C, is_first=True)]
         for _ in range(1, add_layer - 2):
-            patch_r_layers.append(nn.SIREN(hidden_dim, hidden_dim,  self.omega_0, self.siren_C))
-            patch_g_layers.append(nn.SIREN(hidden_dim, hidden_dim,  self.omega_0, self.siren_C))
-            patch_b_layers.append(nn.SIREN(hidden_dim, hidden_dim,  self.omega_0, self.siren_C))
-            spatial_layers.append(nn.SIREN(hidden_dim, hidden_dim,  self.omega_0, self.siren_C))
-        patch_r_layers.append(nn.SIREN(hidden_dim, hidden_dim // 2, self.omega_0, self.siren_C))
-        patch_g_layers.append(nn.SIREN(hidden_dim, hidden_dim // 2, self.omega_0, self.siren_C))
-        patch_b_layers.append(nn.SIREN(hidden_dim, hidden_dim // 2, self.omega_0, self.siren_C))
-        spatial_layers.append(nn.SIREN(hidden_dim, hidden_dim // 2, self.omega_0, self.siren_C))
+            patch_r_layers.append(nn.SIRENLayer(hidden_dim, hidden_dim, self.omega_0, self.siren_C))
+            patch_g_layers.append(nn.SIRENLayer(hidden_dim, hidden_dim, self.omega_0, self.siren_C))
+            patch_b_layers.append(nn.SIRENLayer(hidden_dim, hidden_dim, self.omega_0, self.siren_C))
+            spatial_layers.append(nn.SIRENLayer(hidden_dim, hidden_dim, self.omega_0, self.siren_C))
+        patch_r_layers.append(nn.SIRENLayer(hidden_dim, hidden_dim // 2, self.omega_0, self.siren_C))
+        patch_g_layers.append(nn.SIRENLayer(hidden_dim, hidden_dim // 2, self.omega_0, self.siren_C))
+        patch_b_layers.append(nn.SIRENLayer(hidden_dim, hidden_dim // 2, self.omega_0, self.siren_C))
+        spatial_layers.append(nn.SIRENLayer(hidden_dim, hidden_dim // 2, self.omega_0, self.siren_C))
         
         output_layers = []
         for _ in range(add_layer, num_layers - 1):
-            output_layers.append(nn.SIREN(hidden_dim, hidden_dim, self.omega_0, self.siren_C))
-        output_layers.append(nn.SIREN(hidden_dim, 1, self.omega_0, self.siren_C, is_last=True))
+            output_layers.append(nn.SIRENLayer(hidden_dim, hidden_dim, self.omega_0, self.siren_C))
+        output_layers.append(nn.SIRENLayer(hidden_dim, 1, self.omega_0, self.siren_C, is_last=True))
         
         self.patch_r_net = nn.Sequential(*patch_r_layers)
         self.patch_g_net = nn.Sequential(*patch_g_layers)
@@ -1031,30 +1031,30 @@ class ZeroMLIE_02_RGBD(ZeroMLIE):
         self.omega_0     = 30.0
         self.siren_C     = 6.0
         
-        patch_r_layers = [nn.SIREN(self.patch_dim, hidden_dim, self.omega_0, self.siren_C, is_first=True)]
-        patch_g_layers = [nn.SIREN(self.patch_dim, hidden_dim, self.omega_0, self.siren_C, is_first=True)]
-        patch_b_layers = [nn.SIREN(self.patch_dim, hidden_dim, self.omega_0, self.siren_C, is_first=True)]
-        patch_d_layers = [nn.SIREN(self.patch_dim, hidden_dim, self.omega_0, self.siren_C, is_first=True)]
-        patch_e_layers = [nn.SIREN(self.patch_dim, hidden_dim, self.omega_0, self.siren_C, is_first=True)]
-        spatial_layers = [nn.SIREN(2,   hidden_dim, self.omega_0, self.siren_C, is_first=True)]
+        patch_r_layers = [nn.SIRENLayer(self.patch_dim, hidden_dim, self.omega_0, self.siren_C, is_first=True)]
+        patch_g_layers = [nn.SIRENLayer(self.patch_dim, hidden_dim, self.omega_0, self.siren_C, is_first=True)]
+        patch_b_layers = [nn.SIRENLayer(self.patch_dim, hidden_dim, self.omega_0, self.siren_C, is_first=True)]
+        patch_d_layers = [nn.SIRENLayer(self.patch_dim, hidden_dim, self.omega_0, self.siren_C, is_first=True)]
+        patch_e_layers = [nn.SIRENLayer(self.patch_dim, hidden_dim, self.omega_0, self.siren_C, is_first=True)]
+        spatial_layers = [nn.SIRENLayer(2, hidden_dim, self.omega_0, self.siren_C, is_first=True)]
         for _ in range(1, add_layer - 2):
-            patch_r_layers.append(nn.SIREN(hidden_dim, hidden_dim,  self.omega_0, self.siren_C))
-            patch_g_layers.append(nn.SIREN(hidden_dim, hidden_dim,  self.omega_0, self.siren_C))
-            patch_b_layers.append(nn.SIREN(hidden_dim, hidden_dim,  self.omega_0, self.siren_C))
-            patch_d_layers.append(nn.SIREN(hidden_dim, hidden_dim,  self.omega_0, self.siren_C))
-            patch_e_layers.append(nn.SIREN(hidden_dim, hidden_dim,  self.omega_0, self.siren_C))
-            spatial_layers.append(nn.SIREN(hidden_dim, hidden_dim,  self.omega_0, self.siren_C))
-        patch_r_layers.append(nn.SIREN(hidden_dim, hidden_dim // 4, self.omega_0, self.siren_C))
-        patch_g_layers.append(nn.SIREN(hidden_dim, hidden_dim // 4, self.omega_0, self.siren_C))
-        patch_b_layers.append(nn.SIREN(hidden_dim, hidden_dim // 4, self.omega_0, self.siren_C))
-        patch_d_layers.append(nn.SIREN(hidden_dim, hidden_dim // 4, self.omega_0, self.siren_C))
-        patch_e_layers.append(nn.SIREN(hidden_dim, hidden_dim // 4, self.omega_0, self.siren_C))
-        spatial_layers.append(nn.SIREN(hidden_dim, hidden_dim // 4, self.omega_0, self.siren_C))
+            patch_r_layers.append(nn.SIRENLayer(hidden_dim, hidden_dim, self.omega_0, self.siren_C))
+            patch_g_layers.append(nn.SIRENLayer(hidden_dim, hidden_dim, self.omega_0, self.siren_C))
+            patch_b_layers.append(nn.SIRENLayer(hidden_dim, hidden_dim, self.omega_0, self.siren_C))
+            patch_d_layers.append(nn.SIRENLayer(hidden_dim, hidden_dim, self.omega_0, self.siren_C))
+            patch_e_layers.append(nn.SIRENLayer(hidden_dim, hidden_dim, self.omega_0, self.siren_C))
+            spatial_layers.append(nn.SIRENLayer(hidden_dim, hidden_dim, self.omega_0, self.siren_C))
+        patch_r_layers.append(nn.SIRENLayer(hidden_dim, hidden_dim // 4, self.omega_0, self.siren_C))
+        patch_g_layers.append(nn.SIRENLayer(hidden_dim, hidden_dim // 4, self.omega_0, self.siren_C))
+        patch_b_layers.append(nn.SIRENLayer(hidden_dim, hidden_dim // 4, self.omega_0, self.siren_C))
+        patch_d_layers.append(nn.SIRENLayer(hidden_dim, hidden_dim // 4, self.omega_0, self.siren_C))
+        patch_e_layers.append(nn.SIRENLayer(hidden_dim, hidden_dim // 4, self.omega_0, self.siren_C))
+        spatial_layers.append(nn.SIRENLayer(hidden_dim, hidden_dim // 4, self.omega_0, self.siren_C))
         
         output_layers = []
         for _ in range(add_layer, num_layers - 1):
-            output_layers.append(nn.SIREN(hidden_dim, hidden_dim, self.omega_0, self.siren_C))
-        output_layers.append(nn.SIREN(hidden_dim, 1, self.omega_0, self.siren_C, is_last=True))
+            output_layers.append(nn.SIRENLayer(hidden_dim, hidden_dim, self.omega_0, self.siren_C))
+        output_layers.append(nn.SIRENLayer(hidden_dim, 1, self.omega_0, self.siren_C, is_last=True))
         
         self.patch_r_net = nn.Sequential(*patch_r_layers)
         self.patch_g_net = nn.Sequential(*patch_g_layers)
@@ -1266,18 +1266,18 @@ class ZeroMLIE_04_HSV(ZeroMLIE):
         self.omega_0     = 30.0
         self.siren_C     = 6.0
         
-        patch_v_layers = [nn.SIREN(self.patch_dim, hidden_dim, self.omega_0, self.siren_C, is_first=True)]
-        spatial_layers = [nn.SIREN(2,   hidden_dim, self.omega_0, self.siren_C, is_first=True)]
+        patch_v_layers = [nn.SIRENLayer(self.patch_dim, hidden_dim, self.omega_0, self.siren_C, is_first=True)]
+        spatial_layers = [nn.SIRENLayer(2, hidden_dim, self.omega_0, self.siren_C, is_first=True)]
         for _ in range(1, add_layer - 2):
-            patch_v_layers.append(nn.SIREN(hidden_dim, hidden_dim,  self.omega_0, self.siren_C))
-            spatial_layers.append(nn.SIREN(hidden_dim, hidden_dim,  self.omega_0, self.siren_C))
-        patch_v_layers.append(nn.SIREN(hidden_dim, hidden_dim // 2, self.omega_0, self.siren_C))
-        spatial_layers.append(nn.SIREN(hidden_dim, hidden_dim // 2, self.omega_0, self.siren_C))
+            patch_v_layers.append(nn.SIRENLayer(hidden_dim, hidden_dim, self.omega_0, self.siren_C))
+            spatial_layers.append(nn.SIRENLayer(hidden_dim, hidden_dim, self.omega_0, self.siren_C))
+        patch_v_layers.append(nn.SIRENLayer(hidden_dim, hidden_dim // 2, self.omega_0, self.siren_C))
+        spatial_layers.append(nn.SIRENLayer(hidden_dim, hidden_dim // 2, self.omega_0, self.siren_C))
         
         output_layers = []
         for _ in range(add_layer, num_layers - 1):
-            output_layers.append(nn.SIREN(hidden_dim, hidden_dim, self.omega_0, self.siren_C))
-        output_layers.append(nn.SIREN(hidden_dim, 1, self.omega_0, self.siren_C, is_last=True))
+            output_layers.append(nn.SIRENLayer(hidden_dim, hidden_dim, self.omega_0, self.siren_C))
+        output_layers.append(nn.SIRENLayer(hidden_dim, 1, self.omega_0, self.siren_C, is_last=True))
         
         self.patch_v_net = nn.Sequential(*patch_v_layers)
         self.spatial_net = nn.Sequential(*spatial_layers)
@@ -1386,24 +1386,24 @@ class ZeroMLIE_05_HSVD(ZeroMLIE):
         self.omega_0     = 30.0
         self.siren_C     = 6.0
         
-        patch_v_layers = [nn.SIREN(self.patch_dim, hidden_dim, self.omega_0, self.siren_C, is_first=True)]
-        patch_d_layers = [nn.SIREN(self.patch_dim, hidden_dim, self.omega_0, self.siren_C, is_first=True)]
-        patch_e_layers = [nn.SIREN(self.patch_dim, hidden_dim, self.omega_0, self.siren_C, is_first=True)]
-        spatial_layers = [nn.SIREN(2,   hidden_dim, self.omega_0, self.siren_C, is_first=True)]
+        patch_v_layers = [nn.SIRENLayer(self.patch_dim, hidden_dim, self.omega_0, self.siren_C, is_first=True)]
+        patch_d_layers = [nn.SIRENLayer(self.patch_dim, hidden_dim, self.omega_0, self.siren_C, is_first=True)]
+        patch_e_layers = [nn.SIRENLayer(self.patch_dim, hidden_dim, self.omega_0, self.siren_C, is_first=True)]
+        spatial_layers = [nn.SIRENLayer(2, hidden_dim, self.omega_0, self.siren_C, is_first=True)]
         for _ in range(1, add_layer - 2):
-            patch_v_layers.append(nn.SIREN(hidden_dim, hidden_dim,  self.omega_0, self.siren_C))
-            patch_d_layers.append(nn.SIREN(hidden_dim, hidden_dim,  self.omega_0, self.siren_C))
-            patch_e_layers.append(nn.SIREN(hidden_dim, hidden_dim,  self.omega_0, self.siren_C))
-            spatial_layers.append(nn.SIREN(hidden_dim, hidden_dim,  self.omega_0, self.siren_C))
-        patch_v_layers.append(nn.SIREN(hidden_dim, hidden_dim // 4, self.omega_0, self.siren_C))
-        patch_d_layers.append(nn.SIREN(hidden_dim, hidden_dim // 4, self.omega_0, self.siren_C))
-        patch_e_layers.append(nn.SIREN(hidden_dim, hidden_dim // 4, self.omega_0, self.siren_C))
-        spatial_layers.append(nn.SIREN(hidden_dim, hidden_dim // 4, self.omega_0, self.siren_C))
+            patch_v_layers.append(nn.SIRENLayer(hidden_dim, hidden_dim, self.omega_0, self.siren_C))
+            patch_d_layers.append(nn.SIRENLayer(hidden_dim, hidden_dim, self.omega_0, self.siren_C))
+            patch_e_layers.append(nn.SIRENLayer(hidden_dim, hidden_dim, self.omega_0, self.siren_C))
+            spatial_layers.append(nn.SIRENLayer(hidden_dim, hidden_dim, self.omega_0, self.siren_C))
+        patch_v_layers.append(nn.SIRENLayer(hidden_dim, hidden_dim // 4, self.omega_0, self.siren_C))
+        patch_d_layers.append(nn.SIRENLayer(hidden_dim, hidden_dim // 4, self.omega_0, self.siren_C))
+        patch_e_layers.append(nn.SIRENLayer(hidden_dim, hidden_dim // 4, self.omega_0, self.siren_C))
+        spatial_layers.append(nn.SIRENLayer(hidden_dim, hidden_dim // 4, self.omega_0, self.siren_C))
         
         output_layers = []
         for _ in range(add_layer, num_layers - 1):
-            output_layers.append(nn.SIREN(hidden_dim, hidden_dim, self.omega_0, self.siren_C))
-        output_layers.append(nn.SIREN(hidden_dim, 1, self.omega_0, self.siren_C, is_last=True))
+            output_layers.append(nn.SIRENLayer(hidden_dim, hidden_dim, self.omega_0, self.siren_C))
+        output_layers.append(nn.SIRENLayer(hidden_dim, 1, self.omega_0, self.siren_C, is_last=True))
         
         self.patch_v_net = nn.Sequential(*patch_v_layers)
         self.patch_d_net = nn.Sequential(*patch_d_layers)
@@ -1583,18 +1583,18 @@ class ZeroMLIE_07_HVI(ZeroMLIE):
         self.omega_0     = 30.0
         self.siren_C     = 6.0
         
-        patch_i_layers = [nn.SIREN(self.patch_dim, hidden_dim, self.omega_0, self.siren_C, is_first=True)]
-        spatial_layers = [nn.SIREN(2,   hidden_dim, self.omega_0, self.siren_C, is_first=True)]
+        patch_i_layers = [nn.SIRENLayer(self.patch_dim, hidden_dim, self.omega_0, self.siren_C, is_first=True)]
+        spatial_layers = [nn.SIRENLayer(2, hidden_dim, self.omega_0, self.siren_C, is_first=True)]
         for _ in range(1, add_layer - 2):
-            patch_i_layers.append(nn.SIREN(hidden_dim, hidden_dim,  self.omega_0, self.siren_C))
-            spatial_layers.append(nn.SIREN(hidden_dim, hidden_dim,  self.omega_0, self.siren_C))
-        patch_i_layers.append(nn.SIREN(hidden_dim, hidden_dim // 2, self.omega_0, self.siren_C))
-        spatial_layers.append(nn.SIREN(hidden_dim, hidden_dim // 2, self.omega_0, self.siren_C))
+            patch_i_layers.append(nn.SIRENLayer(hidden_dim, hidden_dim, self.omega_0, self.siren_C))
+            spatial_layers.append(nn.SIRENLayer(hidden_dim, hidden_dim, self.omega_0, self.siren_C))
+        patch_i_layers.append(nn.SIRENLayer(hidden_dim, hidden_dim // 2, self.omega_0, self.siren_C))
+        spatial_layers.append(nn.SIRENLayer(hidden_dim, hidden_dim // 2, self.omega_0, self.siren_C))
         
         output_layers = []
         for _ in range(add_layer, num_layers - 1):
-            output_layers.append(nn.SIREN(hidden_dim, hidden_dim, self.omega_0, self.siren_C))
-        output_layers.append(nn.SIREN(hidden_dim, 1, self.omega_0, self.siren_C, is_last=True))
+            output_layers.append(nn.SIRENLayer(hidden_dim, hidden_dim, self.omega_0, self.siren_C))
+        output_layers.append(nn.SIRENLayer(hidden_dim, 1, self.omega_0, self.siren_C, is_last=True))
         
         self.patch_i_net = nn.Sequential(*patch_i_layers)
         self.spatial_net = nn.Sequential(*spatial_layers)
@@ -1707,24 +1707,24 @@ class ZeroMLIE_08_HVID(ZeroMLIE):
         self.omega_0     = 30.0
         self.siren_C     = 6.0
         
-        patch_i_layers = [nn.SIREN(self.patch_dim, hidden_dim, self.omega_0, self.siren_C, is_first=True)]
-        patch_d_layers = [nn.SIREN(self.patch_dim, hidden_dim, self.omega_0, self.siren_C, is_first=True)]
-        patch_e_layers = [nn.SIREN(self.patch_dim, hidden_dim, self.omega_0, self.siren_C, is_first=True)]
-        spatial_layers = [nn.SIREN(2,   hidden_dim, self.omega_0, self.siren_C, is_first=True)]
+        patch_i_layers = [nn.SIRENLayer(self.patch_dim, hidden_dim, self.omega_0, self.siren_C, is_first=True)]
+        patch_d_layers = [nn.SIRENLayer(self.patch_dim, hidden_dim, self.omega_0, self.siren_C, is_first=True)]
+        patch_e_layers = [nn.SIRENLayer(self.patch_dim, hidden_dim, self.omega_0, self.siren_C, is_first=True)]
+        spatial_layers = [nn.SIRENLayer(2, hidden_dim, self.omega_0, self.siren_C, is_first=True)]
         for _ in range(1, add_layer - 2):
-            patch_i_layers.append(nn.SIREN(hidden_dim, hidden_dim,  self.omega_0, self.siren_C))
-            patch_d_layers.append(nn.SIREN(hidden_dim, hidden_dim,  self.omega_0, self.siren_C))
-            patch_e_layers.append(nn.SIREN(hidden_dim, hidden_dim,  self.omega_0, self.siren_C))
-            spatial_layers.append(nn.SIREN(hidden_dim, hidden_dim,  self.omega_0, self.siren_C))
-        patch_i_layers.append(nn.SIREN(hidden_dim, hidden_dim // 4, self.omega_0, self.siren_C))
-        patch_d_layers.append(nn.SIREN(hidden_dim, hidden_dim // 4, self.omega_0, self.siren_C))
-        patch_e_layers.append(nn.SIREN(hidden_dim, hidden_dim // 4, self.omega_0, self.siren_C))
-        spatial_layers.append(nn.SIREN(hidden_dim, hidden_dim // 4, self.omega_0, self.siren_C))
+            patch_i_layers.append(nn.SIRENLayer(hidden_dim, hidden_dim, self.omega_0, self.siren_C))
+            patch_d_layers.append(nn.SIRENLayer(hidden_dim, hidden_dim, self.omega_0, self.siren_C))
+            patch_e_layers.append(nn.SIRENLayer(hidden_dim, hidden_dim, self.omega_0, self.siren_C))
+            spatial_layers.append(nn.SIRENLayer(hidden_dim, hidden_dim, self.omega_0, self.siren_C))
+        patch_i_layers.append(nn.SIRENLayer(hidden_dim, hidden_dim // 4, self.omega_0, self.siren_C))
+        patch_d_layers.append(nn.SIRENLayer(hidden_dim, hidden_dim // 4, self.omega_0, self.siren_C))
+        patch_e_layers.append(nn.SIRENLayer(hidden_dim, hidden_dim // 4, self.omega_0, self.siren_C))
+        spatial_layers.append(nn.SIRENLayer(hidden_dim, hidden_dim // 4, self.omega_0, self.siren_C))
         
         output_layers = []
         for _ in range(add_layer, num_layers - 1):
-            output_layers.append(nn.SIREN(hidden_dim, hidden_dim, self.omega_0, self.siren_C))
-        output_layers.append(nn.SIREN(hidden_dim, 1, self.omega_0, self.siren_C, is_last=True))
+            output_layers.append(nn.SIRENLayer(hidden_dim, hidden_dim, self.omega_0, self.siren_C))
+        output_layers.append(nn.SIRENLayer(hidden_dim, 1, self.omega_0, self.siren_C, is_last=True))
         
         self.patch_i_net = nn.Sequential(*patch_i_layers)
         self.patch_d_net = nn.Sequential(*patch_d_layers)
@@ -1862,24 +1862,24 @@ class ZeroMLIE_09_HVID_NoBlur(ZeroMLIE):
         self.omega_0     = 30.0
         self.siren_C     = 6.0
         
-        patch_i_layers = [nn.SIREN(self.patch_dim, hidden_dim, self.omega_0, self.siren_C, is_first=True)]
-        patch_d_layers = [nn.SIREN(self.patch_dim, hidden_dim, self.omega_0, self.siren_C, is_first=True)]
-        patch_e_layers = [nn.SIREN(self.patch_dim, hidden_dim, self.omega_0, self.siren_C, is_first=True)]
-        spatial_layers = [nn.SIREN(2,   hidden_dim, self.omega_0, self.siren_C, is_first=True)]
+        patch_i_layers = [nn.SIRENLayer(self.patch_dim, hidden_dim, self.omega_0, self.siren_C, is_first=True)]
+        patch_d_layers = [nn.SIRENLayer(self.patch_dim, hidden_dim, self.omega_0, self.siren_C, is_first=True)]
+        patch_e_layers = [nn.SIRENLayer(self.patch_dim, hidden_dim, self.omega_0, self.siren_C, is_first=True)]
+        spatial_layers = [nn.SIRENLayer(2, hidden_dim, self.omega_0, self.siren_C, is_first=True)]
         for _ in range(1, add_layer - 2):
-            patch_i_layers.append(nn.SIREN(hidden_dim, hidden_dim,  self.omega_0, self.siren_C))
-            patch_d_layers.append(nn.SIREN(hidden_dim, hidden_dim,  self.omega_0, self.siren_C))
-            patch_e_layers.append(nn.SIREN(hidden_dim, hidden_dim,  self.omega_0, self.siren_C))
-            spatial_layers.append(nn.SIREN(hidden_dim, hidden_dim,  self.omega_0, self.siren_C))
-        patch_i_layers.append(nn.SIREN(hidden_dim, hidden_dim // 4, self.omega_0, self.siren_C))
-        patch_d_layers.append(nn.SIREN(hidden_dim, hidden_dim // 4, self.omega_0, self.siren_C))
-        patch_e_layers.append(nn.SIREN(hidden_dim, hidden_dim // 4, self.omega_0, self.siren_C))
-        spatial_layers.append(nn.SIREN(hidden_dim, hidden_dim // 4, self.omega_0, self.siren_C))
+            patch_i_layers.append(nn.SIRENLayer(hidden_dim, hidden_dim, self.omega_0, self.siren_C))
+            patch_d_layers.append(nn.SIRENLayer(hidden_dim, hidden_dim, self.omega_0, self.siren_C))
+            patch_e_layers.append(nn.SIRENLayer(hidden_dim, hidden_dim, self.omega_0, self.siren_C))
+            spatial_layers.append(nn.SIRENLayer(hidden_dim, hidden_dim, self.omega_0, self.siren_C))
+        patch_i_layers.append(nn.SIRENLayer(hidden_dim, hidden_dim // 4, self.omega_0, self.siren_C))
+        patch_d_layers.append(nn.SIRENLayer(hidden_dim, hidden_dim // 4, self.omega_0, self.siren_C))
+        patch_e_layers.append(nn.SIRENLayer(hidden_dim, hidden_dim // 4, self.omega_0, self.siren_C))
+        spatial_layers.append(nn.SIRENLayer(hidden_dim, hidden_dim // 4, self.omega_0, self.siren_C))
         
         output_layers = []
         for _ in range(add_layer, num_layers - 1):
-            output_layers.append(nn.SIREN(hidden_dim, hidden_dim, self.omega_0, self.siren_C))
-        output_layers.append(nn.SIREN(hidden_dim, 1, self.omega_0, self.siren_C, is_last=True))
+            output_layers.append(nn.SIRENLayer(hidden_dim, hidden_dim, self.omega_0, self.siren_C))
+        output_layers.append(nn.SIRENLayer(hidden_dim, 1, self.omega_0, self.siren_C, is_last=True))
         
         self.patch_i_net = nn.Sequential(*patch_i_layers)
         self.patch_d_net = nn.Sequential(*patch_d_layers)
@@ -2059,33 +2059,33 @@ class ZeroMLIE_11_RGBD_HSVD(ZeroMLIE):
         self.omega_0     = 30.0
         self.siren_C     = 6.0
         
-        patch_r_layers = [nn.SIREN(self.patch_dim, hidden_dim, self.omega_0, self.siren_C, is_first=True)]
-        patch_g_layers = [nn.SIREN(self.patch_dim, hidden_dim, self.omega_0, self.siren_C, is_first=True)]
-        patch_b_layers = [nn.SIREN(self.patch_dim, hidden_dim, self.omega_0, self.siren_C, is_first=True)]
-        patch_v_layers = [nn.SIREN(self.patch_dim, hidden_dim, self.omega_0, self.siren_C, is_first=True)]
-        patch_d_layers = [nn.SIREN(self.patch_dim, hidden_dim, self.omega_0, self.siren_C, is_first=True)]
-        patch_e_layers = [nn.SIREN(self.patch_dim, hidden_dim, self.omega_0, self.siren_C, is_first=True)]
-        spatial_layers = [nn.SIREN(2,   hidden_dim, self.omega_0, self.siren_C, is_first=True)]
+        patch_r_layers = [nn.SIRENLayer(self.patch_dim, hidden_dim, self.omega_0, self.siren_C, is_first=True)]
+        patch_g_layers = [nn.SIRENLayer(self.patch_dim, hidden_dim, self.omega_0, self.siren_C, is_first=True)]
+        patch_b_layers = [nn.SIRENLayer(self.patch_dim, hidden_dim, self.omega_0, self.siren_C, is_first=True)]
+        patch_v_layers = [nn.SIRENLayer(self.patch_dim, hidden_dim, self.omega_0, self.siren_C, is_first=True)]
+        patch_d_layers = [nn.SIRENLayer(self.patch_dim, hidden_dim, self.omega_0, self.siren_C, is_first=True)]
+        patch_e_layers = [nn.SIRENLayer(self.patch_dim, hidden_dim, self.omega_0, self.siren_C, is_first=True)]
+        spatial_layers = [nn.SIRENLayer(2, hidden_dim, self.omega_0, self.siren_C, is_first=True)]
         for _ in range(1, add_layer - 2):
-            patch_r_layers.append(nn.SIREN(hidden_dim, hidden_dim,  self.omega_0, self.siren_C))
-            patch_g_layers.append(nn.SIREN(hidden_dim, hidden_dim,  self.omega_0, self.siren_C))
-            patch_b_layers.append(nn.SIREN(hidden_dim, hidden_dim,  self.omega_0, self.siren_C))
-            patch_v_layers.append(nn.SIREN(hidden_dim, hidden_dim,  self.omega_0, self.siren_C))
-            patch_d_layers.append(nn.SIREN(hidden_dim, hidden_dim,  self.omega_0, self.siren_C))
-            patch_e_layers.append(nn.SIREN(hidden_dim, hidden_dim,  self.omega_0, self.siren_C))
-            spatial_layers.append(nn.SIREN(hidden_dim, hidden_dim,  self.omega_0, self.siren_C))
-        patch_r_layers.append(nn.SIREN(hidden_dim, hidden_dim // 4, self.omega_0, self.siren_C))
-        patch_g_layers.append(nn.SIREN(hidden_dim, hidden_dim // 4, self.omega_0, self.siren_C))
-        patch_b_layers.append(nn.SIREN(hidden_dim, hidden_dim // 4, self.omega_0, self.siren_C))
-        patch_v_layers.append(nn.SIREN(hidden_dim, hidden_dim // 4, self.omega_0, self.siren_C))
-        patch_d_layers.append(nn.SIREN(hidden_dim, hidden_dim // 4, self.omega_0, self.siren_C))
-        patch_e_layers.append(nn.SIREN(hidden_dim, hidden_dim // 4, self.omega_0, self.siren_C))
-        spatial_layers.append(nn.SIREN(hidden_dim, hidden_dim // 4, self.omega_0, self.siren_C))
+            patch_r_layers.append(nn.SIRENLayer(hidden_dim, hidden_dim, self.omega_0, self.siren_C))
+            patch_g_layers.append(nn.SIRENLayer(hidden_dim, hidden_dim, self.omega_0, self.siren_C))
+            patch_b_layers.append(nn.SIRENLayer(hidden_dim, hidden_dim, self.omega_0, self.siren_C))
+            patch_v_layers.append(nn.SIRENLayer(hidden_dim, hidden_dim, self.omega_0, self.siren_C))
+            patch_d_layers.append(nn.SIRENLayer(hidden_dim, hidden_dim, self.omega_0, self.siren_C))
+            patch_e_layers.append(nn.SIRENLayer(hidden_dim, hidden_dim, self.omega_0, self.siren_C))
+            spatial_layers.append(nn.SIRENLayer(hidden_dim, hidden_dim, self.omega_0, self.siren_C))
+        patch_r_layers.append(nn.SIRENLayer(hidden_dim, hidden_dim // 4, self.omega_0, self.siren_C))
+        patch_g_layers.append(nn.SIRENLayer(hidden_dim, hidden_dim // 4, self.omega_0, self.siren_C))
+        patch_b_layers.append(nn.SIRENLayer(hidden_dim, hidden_dim // 4, self.omega_0, self.siren_C))
+        patch_v_layers.append(nn.SIRENLayer(hidden_dim, hidden_dim // 4, self.omega_0, self.siren_C))
+        patch_d_layers.append(nn.SIRENLayer(hidden_dim, hidden_dim // 4, self.omega_0, self.siren_C))
+        patch_e_layers.append(nn.SIRENLayer(hidden_dim, hidden_dim // 4, self.omega_0, self.siren_C))
+        spatial_layers.append(nn.SIRENLayer(hidden_dim, hidden_dim // 4, self.omega_0, self.siren_C))
         
         output_layers = []
         for _ in range(add_layer, num_layers - 1):
-            output_layers.append(nn.SIREN(hidden_dim, hidden_dim, self.omega_0, self.siren_C))
-        output_layers.append(nn.SIREN(hidden_dim, 1, self.omega_0, self.siren_C, is_last=True))
+            output_layers.append(nn.SIRENLayer(hidden_dim, hidden_dim, self.omega_0, self.siren_C))
+        output_layers.append(nn.SIRENLayer(hidden_dim, 1, self.omega_0, self.siren_C, is_last=True))
         
         self.patch_r_net = nn.Sequential(*patch_r_layers)
         self.patch_g_net = nn.Sequential(*patch_g_layers)
@@ -2253,33 +2253,33 @@ class ZeroMLIE_12_RGBD_HSVD_ZSN2N(ZeroMLIE):
         self.omega_0     = 30.0
         self.siren_C     = 6.0
         
-        patch_r_layers = [nn.SIREN(self.patch_dim, hidden_dim, self.omega_0, self.siren_C, is_first=True)]
-        patch_g_layers = [nn.SIREN(self.patch_dim, hidden_dim, self.omega_0, self.siren_C, is_first=True)]
-        patch_b_layers = [nn.SIREN(self.patch_dim, hidden_dim, self.omega_0, self.siren_C, is_first=True)]
-        patch_v_layers = [nn.SIREN(self.patch_dim, hidden_dim, self.omega_0, self.siren_C, is_first=True)]
-        patch_d_layers = [nn.SIREN(self.patch_dim, hidden_dim, self.omega_0, self.siren_C, is_first=True)]
-        patch_e_layers = [nn.SIREN(self.patch_dim, hidden_dim, self.omega_0, self.siren_C, is_first=True)]
-        spatial_layers = [nn.SIREN(2,   hidden_dim, self.omega_0, self.siren_C, is_first=True)]
+        patch_r_layers = [nn.SIRENLayer(self.patch_dim, hidden_dim, self.omega_0, self.siren_C, is_first=True)]
+        patch_g_layers = [nn.SIRENLayer(self.patch_dim, hidden_dim, self.omega_0, self.siren_C, is_first=True)]
+        patch_b_layers = [nn.SIRENLayer(self.patch_dim, hidden_dim, self.omega_0, self.siren_C, is_first=True)]
+        patch_v_layers = [nn.SIRENLayer(self.patch_dim, hidden_dim, self.omega_0, self.siren_C, is_first=True)]
+        patch_d_layers = [nn.SIRENLayer(self.patch_dim, hidden_dim, self.omega_0, self.siren_C, is_first=True)]
+        patch_e_layers = [nn.SIRENLayer(self.patch_dim, hidden_dim, self.omega_0, self.siren_C, is_first=True)]
+        spatial_layers = [nn.SIRENLayer(2, hidden_dim, self.omega_0, self.siren_C, is_first=True)]
         for _ in range(1, add_layer - 2):
-            patch_r_layers.append(nn.SIREN(hidden_dim, hidden_dim,  self.omega_0, self.siren_C))
-            patch_g_layers.append(nn.SIREN(hidden_dim, hidden_dim,  self.omega_0, self.siren_C))
-            patch_b_layers.append(nn.SIREN(hidden_dim, hidden_dim,  self.omega_0, self.siren_C))
-            patch_v_layers.append(nn.SIREN(hidden_dim, hidden_dim,  self.omega_0, self.siren_C))
-            patch_d_layers.append(nn.SIREN(hidden_dim, hidden_dim,  self.omega_0, self.siren_C))
-            patch_e_layers.append(nn.SIREN(hidden_dim, hidden_dim,  self.omega_0, self.siren_C))
-            spatial_layers.append(nn.SIREN(hidden_dim, hidden_dim,  self.omega_0, self.siren_C))
-        patch_r_layers.append(nn.SIREN(hidden_dim, hidden_dim // 4, self.omega_0, self.siren_C))
-        patch_g_layers.append(nn.SIREN(hidden_dim, hidden_dim // 4, self.omega_0, self.siren_C))
-        patch_b_layers.append(nn.SIREN(hidden_dim, hidden_dim // 4, self.omega_0, self.siren_C))
-        patch_v_layers.append(nn.SIREN(hidden_dim, hidden_dim // 4, self.omega_0, self.siren_C))
-        patch_d_layers.append(nn.SIREN(hidden_dim, hidden_dim // 4, self.omega_0, self.siren_C))
-        patch_e_layers.append(nn.SIREN(hidden_dim, hidden_dim // 4, self.omega_0, self.siren_C))
-        spatial_layers.append(nn.SIREN(hidden_dim, hidden_dim // 4, self.omega_0, self.siren_C))
+            patch_r_layers.append(nn.SIRENLayer(hidden_dim, hidden_dim, self.omega_0, self.siren_C))
+            patch_g_layers.append(nn.SIRENLayer(hidden_dim, hidden_dim, self.omega_0, self.siren_C))
+            patch_b_layers.append(nn.SIRENLayer(hidden_dim, hidden_dim, self.omega_0, self.siren_C))
+            patch_v_layers.append(nn.SIRENLayer(hidden_dim, hidden_dim, self.omega_0, self.siren_C))
+            patch_d_layers.append(nn.SIRENLayer(hidden_dim, hidden_dim, self.omega_0, self.siren_C))
+            patch_e_layers.append(nn.SIRENLayer(hidden_dim, hidden_dim, self.omega_0, self.siren_C))
+            spatial_layers.append(nn.SIRENLayer(hidden_dim, hidden_dim, self.omega_0, self.siren_C))
+        patch_r_layers.append(nn.SIRENLayer(hidden_dim, hidden_dim // 4, self.omega_0, self.siren_C))
+        patch_g_layers.append(nn.SIRENLayer(hidden_dim, hidden_dim // 4, self.omega_0, self.siren_C))
+        patch_b_layers.append(nn.SIRENLayer(hidden_dim, hidden_dim // 4, self.omega_0, self.siren_C))
+        patch_v_layers.append(nn.SIRENLayer(hidden_dim, hidden_dim // 4, self.omega_0, self.siren_C))
+        patch_d_layers.append(nn.SIRENLayer(hidden_dim, hidden_dim // 4, self.omega_0, self.siren_C))
+        patch_e_layers.append(nn.SIRENLayer(hidden_dim, hidden_dim // 4, self.omega_0, self.siren_C))
+        spatial_layers.append(nn.SIRENLayer(hidden_dim, hidden_dim // 4, self.omega_0, self.siren_C))
         
         output_layers = []
         for _ in range(add_layer, num_layers - 1):
-            output_layers.append(nn.SIREN(hidden_dim, hidden_dim, self.omega_0, self.siren_C))
-        output_layers.append(nn.SIREN(hidden_dim, 1, self.omega_0, self.siren_C, is_last=True))
+            output_layers.append(nn.SIRENLayer(hidden_dim, hidden_dim, self.omega_0, self.siren_C))
+        output_layers.append(nn.SIRENLayer(hidden_dim, 1, self.omega_0, self.siren_C, is_last=True))
         
         self.patch_r_net = nn.Sequential(*patch_r_layers)
         self.patch_g_net = nn.Sequential(*patch_g_layers)
@@ -2470,24 +2470,24 @@ class ZeroMLIE_13_HSVD_Denoise(ZeroMLIE):
         self.omega_0     = 30.0
         self.siren_C     = 6.0
         
-        patch_i_layers = [nn.SIREN(self.patch_dim, hidden_dim, self.omega_0, self.siren_C, is_first=True)]
-        patch_d_layers = [nn.SIREN(self.patch_dim, hidden_dim, self.omega_0, self.siren_C, is_first=True)]
-        patch_e_layers = [nn.SIREN(self.patch_dim, hidden_dim, self.omega_0, self.siren_C, is_first=True)]
-        spatial_layers = [nn.SIREN(2, hidden_dim, self.omega_0, self.siren_C, is_first=True)]
+        patch_i_layers = [nn.SIRENLayer(self.patch_dim, hidden_dim, self.omega_0, self.siren_C, is_first=True)]
+        patch_d_layers = [nn.SIRENLayer(self.patch_dim, hidden_dim, self.omega_0, self.siren_C, is_first=True)]
+        patch_e_layers = [nn.SIRENLayer(self.patch_dim, hidden_dim, self.omega_0, self.siren_C, is_first=True)]
+        spatial_layers = [nn.SIRENLayer(2, hidden_dim, self.omega_0, self.siren_C, is_first=True)]
         for _ in range(1, add_layer - 2):
-            patch_i_layers.append(nn.SIREN(hidden_dim, hidden_dim,  self.omega_0, self.siren_C))
-            patch_d_layers.append(nn.SIREN(hidden_dim, hidden_dim,  self.omega_0, self.siren_C))
-            patch_e_layers.append(nn.SIREN(hidden_dim, hidden_dim,  self.omega_0, self.siren_C))
-            spatial_layers.append(nn.SIREN(hidden_dim, hidden_dim,  self.omega_0, self.siren_C))
-        patch_i_layers.append(nn.SIREN(hidden_dim, hidden_dim, self.omega_0, self.siren_C))
-        patch_d_layers.append(nn.SIREN(hidden_dim, hidden_dim, self.omega_0, self.siren_C))
-        patch_e_layers.append(nn.SIREN(hidden_dim, hidden_dim, self.omega_0, self.siren_C))
-        spatial_layers.append(nn.SIREN(hidden_dim, hidden_dim, self.omega_0, self.siren_C))
+            patch_i_layers.append(nn.SIRENLayer(hidden_dim, hidden_dim, self.omega_0, self.siren_C))
+            patch_d_layers.append(nn.SIRENLayer(hidden_dim, hidden_dim, self.omega_0, self.siren_C))
+            patch_e_layers.append(nn.SIRENLayer(hidden_dim, hidden_dim, self.omega_0, self.siren_C))
+            spatial_layers.append(nn.SIRENLayer(hidden_dim, hidden_dim, self.omega_0, self.siren_C))
+        patch_i_layers.append(nn.SIRENLayer(hidden_dim, hidden_dim, self.omega_0, self.siren_C))
+        patch_d_layers.append(nn.SIRENLayer(hidden_dim, hidden_dim, self.omega_0, self.siren_C))
+        patch_e_layers.append(nn.SIRENLayer(hidden_dim, hidden_dim, self.omega_0, self.siren_C))
+        spatial_layers.append(nn.SIRENLayer(hidden_dim, hidden_dim, self.omega_0, self.siren_C))
         
         output_layers = []
         for _ in range(add_layer, num_layers - 1):
-            output_layers.append(nn.SIREN(hidden_dim * 4, hidden_dim, self.omega_0, self.siren_C))
-        output_layers.append(nn.SIREN(hidden_dim, 1, self.omega_0, self.siren_C, is_last=True))
+            output_layers.append(nn.SIRENLayer(hidden_dim * 4, hidden_dim, self.omega_0, self.siren_C))
+        output_layers.append(nn.SIRENLayer(hidden_dim, 1, self.omega_0, self.siren_C, is_last=True))
         
         self.patch_i_net = nn.Sequential(*patch_i_layers)
         self.patch_d_net = nn.Sequential(*patch_d_layers)

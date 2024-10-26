@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import mon
+from mon import albumentation as A
 from mon.config import default
 
 current_file = mon.Path(__file__).absolute()
@@ -11,8 +12,8 @@ current_file = mon.Path(__file__).absolute()
 
 # region Basic
 
-model_name = "neurop_init"
-data_name  = "fivek_init"
+model_name = "neurop_re"
+data_name  = "fivek_e"
 root       = current_file.parents[1] / "run"
 data_root  = mon.DATA_DIR / "enhance"
 project    = None
@@ -36,7 +37,7 @@ model = {
 	"base_nf"     : 64,
 	"encode_nf"   : 32,
 	"pixel_weight": 10.0,
-	"init_weights": None,
+	"init_weights": mon.ZOO_DIR / "vision/enhance/retouch/neurop/neurop/neurop_init.pt",
 	"weights"     : None,        # The model's weights.
 	"metrics"     : {
 	    "train": None,
@@ -48,7 +49,7 @@ model = {
             "optimizer"          : {
 	            "name"        : "adam",
 	            "lr"          : 0.00005,
-	            "weight_decay": 0.00001,
+	            "weight_decay": 0,
 	            "betas"       : [0.9, 0.99],
 			},
 			"lr_scheduler"       : None,
@@ -67,7 +68,14 @@ model = {
 data = {
     "name"      : data_name,
     "root"      : data_root,     # A root directory where the data is stored.
-	"transform" : None,          # Transformations performing on both the input and target.
+	"transform" : A.Compose(
+		transforms = [
+			A.Resize(height=image_size[0], width=image_size[1]),
+			A.Flip(),
+			A.Rotate(),
+		],
+		is_check_shapes = False
+	),  # Transformations performing on both the input and target.
     "to_tensor" : True,          # If ``True``, convert input and target to :class:`torch.Tensor`.
     "cache_data": False,         # If ``True``, cache data to disk for faster loading next time.
     "batch_size": 1,             # The number of samples in one forward pass.

@@ -13,7 +13,7 @@ __all__ = [
 from typing import Literal
 
 from mon import core
-from mon.dataset.enhance.llie.lol_v1 import LOLv1
+from mon.dataset.enhance.lol_v1 import LOLv1
 from mon.globals import DATA_DIR, DATAMODULES, DATASETS, Split, Task
 
 console             = core.console

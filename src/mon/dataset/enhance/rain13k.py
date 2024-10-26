@@ -13,7 +13,7 @@ __all__ = [
 from typing import Literal
 
 from mon import core
-from mon.dataset.enhance.derain.rain100 import Rain100
+from mon.dataset.enhance.rain100 import Rain100
 from mon.globals import DATA_DIR, DATAMODULES, DATASETS, Split, Task
 
 console             = core.console
