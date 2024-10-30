@@ -93,12 +93,12 @@ class ImageEnhancementModel(VisionModel, ABC):
         outputs   =    data.get("outputs",  {})
         enhanced  = outputs.pop("enhanced", None)
         
-        image        = list(core.to_image_nparray(image,     keepdim=False, denormalize=True))
-        ref_image    = list(core.to_image_nparray(ref_image, keepdim=False, denormalize=True)) if ref_image is not None else None
-        enhanced     = list(core.to_image_nparray(enhanced,  keepdim=False, denormalize=True))
+        image        = list(core.to_image_nparray(image,     keepdim=True, denormalize=True))
+        ref_image    = list(core.to_image_nparray(ref_image, keepdim=True, denormalize=True)) if ref_image is not None else None
+        enhanced     = list(core.to_image_nparray(enhanced,  keepdim=True, denormalize=True))
         extra_images = {k: v for k, v in outputs.items() if core.is_image(v)}
         extra        = {
-            k: list(core.to_image_nparray(v, keepdim=False, denormalize=True))
+            k: list(core.to_image_nparray(v, keepdim=True, denormalize=True))
             for k, v in extra_images.items()
         } if extra_images else {}
         
@@ -124,5 +124,5 @@ class ImageEnhancementModel(VisionModel, ABC):
                 v_i = v[i]
                 extra_path = save_dir / f"{i}_{k}{extension}"
                 cv2.imwrite(str(extra_path), v_i)
-        
+            
 # endregion
