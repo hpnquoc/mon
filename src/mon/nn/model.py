@@ -418,7 +418,7 @@ class Model(lightning.LightningModule, ABC):
         # Second, get the state_dict
         state_dict = None
         if self.weights:
-            state_dict = load_state_dict(self, self.weights, False)
+            state_dict = load_state_dict(self, self.weights, True)
         # Third, load the state_dict to the model
         if state_dict:
             self.load_state_dict(state_dict)

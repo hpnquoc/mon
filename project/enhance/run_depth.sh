@@ -14,9 +14,13 @@ data_dir="${mon_dir}/data"
 cd "${runml_dir}" || exit
 python -W ignore main.py \
     --root "${current_dir}" \
-    --task "llie" \
+    --task "depth" \
     --mode "predict" \
-    --data "fivek_e" \
+    --arch "depth_anything_v2" \
+    --model 4 \
+    --config 0 \
+    --weights 0 \
+    --data "" \
     --verbose \
     "$@"
 
