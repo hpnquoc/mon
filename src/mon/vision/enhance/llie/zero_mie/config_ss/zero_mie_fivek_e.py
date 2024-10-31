@@ -49,12 +49,12 @@ model = {
     "denoise_color"   : 0.1,            # Best: 0.1
     "denoise_space"   : (1.5, 1.5),     # Best: (1.5, 1.5)
 	"loss_hsv"        : True,           # If ``True``, use HSV loss. Best: True
-	"exp_mean"        : 0.7,            # Best: 0.7
+	"exp_mean"        : 0.4,            # Best: 0.5
 	"exp_weight"      : 10,             # Best: 10
 	"spa_weight"	  : 1,              # Best: 1
 	"color_weight"    : 5,              # Best: 5
 	"tv_weight"       : 100,            # Best: 100
-	"depth_weight"    : 1,              # Best: 1
+	"depth_weight"    : 0,              # Best: 1
 	"edge_weight"     : 1,              # Best: 1
 	"use_pseudo_gt"   : False,          # If ``True``, use PSE. Best: False
 	"number_refs"     : 2,			    # Number of references.

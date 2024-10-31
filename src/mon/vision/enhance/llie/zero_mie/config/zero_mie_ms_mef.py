@@ -12,7 +12,7 @@ current_file = mon.Path(__file__).absolute()
 # region Basic
 
 model_name = "zero_mie_ms"
-data_name  = "dicm"
+data_name  = "mef"
 root       = current_file.parents[1] / "run"
 data_root  = mon.DATA_DIR / "enhance"
 project    = None
@@ -44,12 +44,12 @@ model = {
 	"nonlinear"       : ["sine", "sine"],   # Non-linear activation. Best: finer
 	"dba_eps"         : 0.01,               # DBA epsilon. Best: 0.05
 	"gf_radius"       : 3,                  # Radius of the guided filter. Best: 3
-	"denoise"         : False,              # If ``True``, use denoising. Best: True
+	"denoise"         : True,               # If ``True``, use denoising. Best: True
 	"denoise_ksize"   : (3, 3),             # Best: (3, 3)
     "denoise_color"   : 0.1,                # Best: 0.1
     "denoise_space"   : (1.5, 1.5),         # Best: (1.5, 1.5)
 	"loss_hsv"        : True,               # If ``True``, use HSV loss. Best: True
-	"exp_mean"        : 0.7,                # Best: 0.7
+	"exp_mean"        : 1.1,                # Best: 1.1
 	"exp_weight"      : 10,                 # Best: 10
 	"spa_weight"	  : 1,                  # Best: 1
 	"color_weight"    : 5,                  # Best: 5

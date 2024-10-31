@@ -12,7 +12,7 @@ current_file = mon.Path(__file__).absolute()
 # region Basic
 
 model_name = "zero_mie_ms"
-data_name  = "dicm"
+data_name  = "vv"
 root       = current_file.parents[1] / "run"
 data_root  = mon.DATA_DIR / "enhance"
 project    = None
@@ -77,7 +77,7 @@ model = {
         }
     ],              # Optimizer(s) for training model.
 	"debug"           : False,              # If ``True``, run the model in debug mode (when predicting).
-	"verbose"         : verbose,            # Verbosity.
+	"verbose"         : verbose,         # Verbosity.
 }
 
 # endregion

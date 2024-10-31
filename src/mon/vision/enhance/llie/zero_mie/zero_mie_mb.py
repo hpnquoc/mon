@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Zero-MIE.
+"""Zero-MIE-Multibranch.
 
 This module implement our idea: "Zero-shot Multimodal Illumination Estimation
 for Low-light Image Enhancement via Neural Implicit Representations".
@@ -10,8 +10,7 @@ for Low-light Image Enhancement via Neural Implicit Representations".
 from __future__ import annotations
 
 __all__ = [
-    "ZeroMIE",
-    "ZeroMIE_Supervised",
+    "ZeroMIE_MB",
 ]
 
 from abc import ABC
@@ -143,7 +142,6 @@ class LossHSV(nn.Loss):
         tv_loss    = self.tv_weight    * self.tv_loss(illumination_lr)
         spar_loss  = self.spar_weight  * torch.mean(enhanced)
         color_loss = self.color_weight * self.color_loss(enhanced)
-        # noise_loss = ((enhanced - image) ** 2).mean()
         if depth is not None:
             depth_loss = self.depth_weight * (self.depth_loss(enhanced_lr, depth))
             edge_loss  = self.edge_weight  * ( self.edge_loss(enhanced_lr, depth))
@@ -151,7 +149,7 @@ class LossHSV(nn.Loss):
             depth_loss = 0
             edge_loss  = 0
         
-        loss = exp_loss + spa_loss + tv_loss + spar_loss + color_loss + depth_loss + edge_loss # + noise_loss
+        loss = exp_loss + spa_loss + tv_loss + spar_loss + color_loss + depth_loss + edge_loss
         '''
         print(
             f"exp_loss: {exp_loss:.4f}, "
@@ -406,7 +404,7 @@ class MLP_RGB_D(MLP):
         self.denoise_space = denoise_space
         self.out_channels  = 3
         mid_channels       = hidden_channels // 4
-
+        
         self.value_net  = nn.ContextImplicitFeatureEncoder(window_size, mid_channels, down_size, hidden_layers, omega_0, first_bias_scale, nonlinear, weight_decay[1])
         self.depth_net  = nn.ContextImplicitFeatureEncoder(window_size, mid_channels, down_size, hidden_layers, omega_0, first_bias_scale, nonlinear, weight_decay[1])
         self.edge_net   = nn.ContextImplicitFeatureEncoder(window_size, mid_channels, down_size, hidden_layers, omega_0, first_bias_scale, nonlinear, weight_decay[1])
@@ -611,8 +609,8 @@ class MLP_HSV_V_D(MLP):
 
 # region Model
 
-@MODELS.register(name="zero_mie", arch="zero_mie")
-class ZeroMIE(base.ImageEnhancementModel):
+@MODELS.register(name="zero_mie_mb", arch="zero_mie")
+class ZeroMIE_MB(base.ImageEnhancementModel):
     
     model_dir: core.Path    = current_dir
     arch     : str          = "zero_mie"
@@ -622,16 +620,16 @@ class ZeroMIE(base.ImageEnhancementModel):
     
     def __init__(
         self,
-        name            : str         = "zero_mie",
-        color_space     : Literal["rgb", "rgb_d", "hsv_v", "hsv_v_d"] = "rgb",
-        window_size     : int         = 7,
-        hidden_channels : int         = 256,
-        down_size       : int         = 256,
-        hidden_layers   : int         = 2,
-        out_layers      : int         = 1,
-        omega_0         : float       = 30.0,
-        first_bias_scale: float       = 20.0,
-        nonlinear       : Literal["finer", "gauss", "relu", "sigmoid", "sine"] = "sine",
+        name            : str         = "zero_mie_mb",
+        color_space     : list[Literal["rgb", "rgb_d", "hsv_v", "hsv_v_d"]] = ["rgb", "hsv_v"],
+        window_size     : list[int]   = [7, 7],
+        hidden_channels : list[int]   = [256, 256],
+        down_size       : list[int]   = [256, 256],
+        hidden_layers   : list[int]   = [2, 2],
+        out_layers      : list[int]   = [1, 1],
+        omega_0         : list[float] = [30.0, 30.0],
+        first_bias_scale: list[float] = [None, None],
+        nonlinear       : list[Literal["finer", "gauss", "relu", "sigmoid", "sine"]] = ["sine", "sine"],
         dba_eps         : float       = 0.05,
         gf_radius       : int         = 3,
         denoise         : bool        = False,
@@ -652,38 +650,47 @@ class ZeroMIE(base.ImageEnhancementModel):
         *args, **kwargs
     ):
         super().__init__(name=name, *args, **kwargs)
+        self.num_scales  = len(window_size)
+        self.color_space = color_space
         self.use_pgt     = use_pseudo_gt
         self.number_refs = number_refs
         weight_decay     = [0.1, 0.0001, 0.001]
         
-        if color_space == "rgb":
-            mlp = MLP_RGB
-        elif color_space == "rgb_d":
-            mlp = MLP_RGB_D
-        elif color_space == "hsv_v":
-            mlp = MLP_HSV_V
-        elif color_space == "hsv_v_d":
-            mlp = MLP_HSV_V_D
-        else:
-            raise ValueError(f"Invalid color space: {color_space}")
+        self.mlps = nn.ModuleList()
+        for i in range(self.num_scales):
+            color_space_ = color_space[i]
+            if color_space_ == "rgb":
+                mlp = MLP_RGB
+            elif color_space_ == "rgb_d":
+                mlp = MLP_RGB_D
+            elif color_space_ == "hsv_v":
+                mlp = MLP_HSV_V
+            elif color_space_ == "hsv_v_d":
+                mlp = MLP_HSV_V_D
+            else:
+                raise ValueError(f"Invalid color space: {color_space_}")
+    
+            self.mlps.append(
+                mlp(
+                    window_size      = window_size[i],
+                    hidden_channels  = hidden_channels[i],
+                    down_size        = down_size[i],
+                    hidden_layers    = hidden_layers[i],
+                    out_layers       = out_layers[i],
+                    omega_0          = omega_0[i],
+                    first_bias_scale = first_bias_scale[i],
+                    nonlinear        = nonlinear[i],
+                    weight_decay     = weight_decay,
+                    dba_eps          = dba_eps,
+                    gf_radius        = gf_radius,
+                    denoise          = denoise,
+                    denoise_ksize    = denoise_ksize,
+                    denoise_color    = denoise_color,
+                    denoise_space    = denoise_space,
+                )
+            )
+        self.lfa = nn.LayeredFeatureAggregation([3] * self.num_scales, 3)
         
-        self.mlp = mlp(
-            window_size      = window_size,
-            hidden_channels  = hidden_channels,
-            down_size        = down_size,
-            hidden_layers    = hidden_layers,
-            out_layers       = out_layers,
-            omega_0          = omega_0,
-            first_bias_scale = first_bias_scale,
-            nonlinear        = nonlinear,
-            weight_decay     = weight_decay,
-            dba_eps          = dba_eps,
-            gf_radius        = gf_radius,
-            denoise          = denoise,
-            denoise_ksize    = denoise_ksize,
-            denoise_color    = denoise_color,
-            denoise_space    = denoise_space,
-        )
         self.pseudo_gt_generator = utils.PseudoGTGenerator(
             number_refs   = self.number_refs,
             gamma_upper   = -2,
@@ -695,26 +702,24 @@ class ZeroMIE(base.ImageEnhancementModel):
         self.saved_pseudo_gt = None
         
         # Loss
-        if loss_hsv and "hsv" in color_space:
-            self.loss = LossHSV(
-                exp_mean     = 1.0 - exp_mean,
-                # exp_weight   = exp_weight,
-                # spa_weight   = spa_weight,
-                # tv_weight    = tv_weight,
-                depth_weight = depth_weight,
-                edge_weight  = edge_weight,
-                color_weight = color_weight,
-            )
-        else:
-            self.loss = Loss(
-                exp_mean     = exp_mean,
-                exp_weight   = exp_weight,
-                spa_weight   = spa_weight,
-                color_weight = color_weight,
-                tv_weight    = tv_weight,
-                depth_weight = depth_weight,
-                edge_weight  = edge_weight,
-            )
+        self.loss_hsv = LossHSV(
+            exp_mean     = 1.0 - exp_mean,
+            # exp_weight   = exp_weight,
+            # spa_weight   = spa_weight,
+            # tv_weight    = tv_weight,
+            depth_weight = depth_weight,
+            edge_weight  = edge_weight,
+            color_weight = color_weight,
+        )
+        self.loss_rgb = Loss(
+            exp_mean     = exp_mean,
+            exp_weight   = exp_weight,
+            spa_weight   = spa_weight,
+            color_weight = color_weight,
+            tv_weight    = tv_weight,
+            depth_weight = depth_weight,
+            edge_weight  = edge_weight,
+        )
         self.loss_recon = nn.MSELoss()
         
         # Load weights
@@ -779,17 +784,24 @@ class ZeroMIE(base.ImageEnhancementModel):
             nth_pseudo_gt = self.pseudo_gt_generator(nth_image, nth_enhanced)
             if self.saved_input is not None:
                 # Getting (n - 1)th input and (n - 1)-th pseudo gt -> calculate loss -> update model weight (handled automatically by pytorch lightning)
-                outputs         = self.forward(datapoint=self.saved_input, *args, **kwargs)
-                image           = outputs["image"]
-                enhanced        = outputs["enhanced"]
-                image_lr        = outputs["image_lr"]
-                illu_lr         = outputs["illu_lr"]
-                enhanced_lr     = outputs["enhanced_lr"]
-                depth_lr        = outputs["depth_lr"]
+                outputs  = self.forward(datapoint=datapoint, *args, **kwargs)
+                image    = outputs["image"]
+                enhanced = outputs["enhanced"]
+                loss_enh = 0
+                for i in range(self.num_scales):
+                    color_space   = self.color_space[i]
+                    image_lr_i    = outputs[f"image_lr_{i}"]
+                    illu_lr_i     = outputs[f"illu_lr_{i}"]
+                    enhanced_lr_i = outputs[f"enhanced_lr_{i}"]
+                    depth_lr_i    = outputs[f"depth_lr_{i}"]
+                    if "rgb" in color_space:
+                        loss_i = self.loss_rgb(image, image_lr_i, illu_lr_i, enhanced, enhanced_lr_i, depth_lr_i)
+                    else:
+                        loss_i = self.loss_hsv(image, image_lr_i, illu_lr_i, enhanced, enhanced_lr_i, depth_lr_i)
+                    loss_enh   += loss_i
                 pseudo_gt       = self.saved_pseudo_gt
                 loss_recon      = self.loss_recon(enhanced, pseudo_gt)
-                loss_enh        = self.loss(image, image_lr, illu_lr, enhanced, enhanced_lr, depth_lr)
-                loss            = loss_recon + loss_enh  #  * 5
+                loss            = loss_recon + loss_enh  # * 5
                 outputs["loss"] = loss
             else:  # Skip updating model's weight at the first batch
                 outputs = {"loss": None}
@@ -797,25 +809,57 @@ class ZeroMIE(base.ImageEnhancementModel):
             self.saved_input     = nth_input
             self.saved_pseudo_gt = nth_pseudo_gt
         else:
-            outputs         = self.forward(datapoint=datapoint, *args, **kwargs)
-            image           = outputs["image"]
-            enhanced        = outputs["enhanced"]
-            image_lr        = outputs["image_lr"]
-            illu_lr         = outputs["illu_lr"]
-            enhanced_lr     = outputs["enhanced_lr"]
-            depth_lr        = outputs["depth_lr"]
-            loss            = self.loss(image, image_lr, illu_lr, enhanced, enhanced_lr, depth_lr)
+            outputs  = self.forward(datapoint=datapoint, *args, **kwargs)
+            image    = outputs["image"]
+            enhanced = outputs["enhanced"]
+            loss     = 0
+            for i in range(self.num_scales):
+                color_space   = self.color_space[i]
+                image_lr_i    = outputs[f"image_lr_{i}"]
+                illu_lr_i     = outputs[f"illu_lr_{i}"]
+                enhanced_lr_i = outputs[f"enhanced_lr_{i}"]
+                depth_lr_i    = outputs[f"depth_lr_{i}"]
+                if "rgb" in color_space:
+                    loss_i = self.loss_rgb(image, image_lr_i, illu_lr_i, enhanced, enhanced_lr_i, depth_lr_i)
+                else:
+                    loss_i = self.loss_hsv(image, image_lr_i, illu_lr_i, enhanced, enhanced_lr_i, depth_lr_i)
+                loss += loss_i
             outputs["loss"] = loss
         return outputs
         
-    def forward(self, datapoint: dict, n_iters: int = 1, *args, **kwargs) -> dict:
+    def forward(self, datapoint: dict, *args, **kwargs) -> dict:
         # Prepare input
         self.assert_datapoint(datapoint)
-        image = datapoint.get("image")
-        depth = datapoint.get("depth")
-        for i in range(n_iters):
-            outputs = self.mlp(image, depth)
-            image   = outputs["enhanced"]
+        image         = datapoint.get("image")
+        depth         = datapoint.get("depth")
+        outputs       = {}
+        enhanced_list = []
+        for i in range(self.num_scales):
+            outputs_ = self.mlps[i](image, depth)
+            enhanced_list.append(outputs_["enhanced"])
+            if i == 0:
+                outputs = {
+                    "image": outputs_["image"],
+                    "depth": outputs_["depth"],
+                    "edge" : outputs_["edge"],
+                }
+            outputs |= {
+                f"image_lr_{i}"   : outputs_["image_lr"],
+                f"depth_lr_{i}"   : outputs_["depth_lr"],
+                f"edge_lr_{i}"    : outputs_["edge_lr"],
+                f"illu_res_lr_{i}": outputs_["illu_res_lr"],
+                f"illu_lr_{i}"    : outputs_["illu_lr"],
+                f"enhanced_lr_{i}": outputs_["enhanced_lr"],
+                f"enhanced_{i}"   : outputs_["enhanced"],
+            }
+        # Combine Enhanced
+        if len(enhanced_list) == 1:
+            enhanced = enhanced_list[0]
+        else:
+            enhanced = self.lfa(enhanced_list)
+        outputs |= {
+            "enhanced": enhanced,
+        }
         # Return
         return outputs
        
@@ -852,7 +896,7 @@ class ZeroMIE(base.ImageEnhancementModel):
         
         # Training
         for _ in range(epochs):
-            outputs = self.forward_loss(datapoint=datapoint, n_iters=1)
+            outputs = self.forward_loss(datapoint=datapoint)
             optimizer.zero_grad()
             loss    = outputs["loss"]
             if loss is not None:
@@ -865,159 +909,12 @@ class ZeroMIE(base.ImageEnhancementModel):
         self.eval()
         timer = core.Timer()
         timer.tick()
-        outputs = self.forward(datapoint=datapoint, n_iters=1)
+        outputs = self.forward(datapoint=datapoint)
         timer.tock()
         self.assert_outputs(outputs)
         
         # Return
         outputs["time"] = timer.avg_time
-        return outputs
-
-
-@MODELS.register(name="zero_mie_supervised", arch="zero_mie")
-class ZeroMIE_Supervised(base.ImageEnhancementModel):
-    
-    model_dir: core.Path    = current_dir
-    arch     : str          = "zero_mie"
-    tasks    : list[Task]   = [Task.LLIE]
-    schemes  : list[Scheme] = [Scheme.SUPERVISED]
-    zoo      : dict         = {}
-    
-    def __init__(
-        self,
-        name            : str         = "zero_mie_supervised",
-        color_space     : Literal["rgb", "rgb_d", "hsv_v", "hsv_v_d"] = "rgb",
-        window_size     : int         = 7,
-        hidden_channels : int         = 256,
-        down_size       : int         = 256,
-        hidden_layers   : int         = 2,
-        out_layers      : int         = 1,
-        omega_0         : float       = 30.0,
-        first_bias_scale: float       = 20.0,
-        nonlinear       : Literal["finer", "gauss", "relu", "sigmoid", "sine"] = "sine",
-        dba_eps         : float       = 0.05,
-        gf_radius       : int         = 3,
-        denoise         : bool        = False,
-        denoise_ksize   : list[float] = (3, 3),
-        denoise_color   : float       = 0.5,
-        denoise_space   : list[float] = (1.5, 1.5),
-        # Loss
-        loss_hsv        : bool        = True,
-        exp_mean        : float       = 0.6,
-        exp_weight      : float       = 10,
-        spa_weight      : float       = 1,
-        color_weight    : float       = 5,
-        tv_weight       : float       = 1600,
-        depth_weight    : float       = 1,
-        edge_weight     : float       = 1,
-        use_pseudo_gt   : bool        = False,
-        number_refs     : int         = 2,
-        *args, **kwargs
-    ):
-        super().__init__(name=name, *args, **kwargs)
-        self.use_pgt     = use_pseudo_gt
-        self.number_refs = number_refs
-        weight_decay     = [0.1, 0.0001, 0.001]
-        
-        if color_space == "rgb":
-            mlp = MLP_RGB
-        elif color_space == "rgb_d":
-            mlp = MLP_RGB_D
-        elif color_space == "hsv_v":
-            mlp = MLP_HSV_V
-        elif color_space == "hsv_v_d":
-            mlp = MLP_HSV_V_D
-        else:
-            raise ValueError(f"Invalid color space: {color_space}")
-        
-        self.mlp = mlp(
-            window_size      = window_size,
-            hidden_channels  = hidden_channels,
-            down_size        = down_size,
-            hidden_layers    = hidden_layers,
-            out_layers       = out_layers,
-            omega_0          = omega_0,
-            first_bias_scale = first_bias_scale,
-            nonlinear        = nonlinear,
-            weight_decay     = weight_decay,
-            dba_eps          = dba_eps,
-            gf_radius        = gf_radius,
-            denoise          = denoise,
-            denoise_ksize    = denoise_ksize,
-            denoise_color    = denoise_color,
-            denoise_space    = denoise_space,
-        )
-        
-        # Loss
-        self.loss = LossS(reduction="mean")
-        
-        # Load weights
-        if self.weights:
-            self.load_weights()
-        else:
-            self.apply(self.init_weights)
-    
-    def init_weights(self, m: nn.Module):
-        pass
-    
-    def compute_efficiency_score(
-        self,
-        image_size: _size_2_t = 512,
-        channels  : int       = 3,
-        runs      : int       = 1000,
-        verbose   : bool      = False,
-    ) -> tuple[float, float, float]:
-        """Compute the efficiency score of the model, including FLOPs, number
-        of parameters, and runtime.
-        """
-        # Define input tensor
-        h, w      = core.get_image_size(image_size)
-        datapoint = {
-            "image": torch.rand(1, channels, h, w).to(self.device),
-            "depth": torch.rand(1,        1, h, w).to(self.device)
-        }
-        
-        # Get FLOPs and Params
-        flops, params = core.custom_profile(self, inputs=datapoint, verbose=verbose)
-        # flops         = FlopCountAnalysis(self, datapoint).total() if flops == 0 else flops
-        params        = self.params                if hasattr(self, "params") and params == 0 else params
-        params        = parameter_count(self)      if hasattr(self, "params")  else params
-        params        = sum(list(params.values())) if isinstance(params, dict) else params
-        
-        # Get time
-        timer = core.Timer()
-        for i in range(runs):
-            timer.tick()
-            _ = self.forward(datapoint)
-            timer.tock()
-        avg_time = timer.avg_time
-        
-        # Print
-        if verbose:
-            console.log(f"FLOPs (G) : {flops:.4f}")
-            console.log(f"Params (M): {params:.4f}")
-            console.log(f"Time (s)  : {avg_time:.17f}")
-        
-        return flops, params, avg_time
-    
-    def forward_loss(self, datapoint: dict, *args, **kwargs) -> dict:
-        # Forward
-        self.assert_datapoint(datapoint)
-        outputs = self.forward(datapoint=datapoint, *args, **kwargs)
-        self.assert_outputs(outputs)
-        # Loss
-        target          = datapoint["ref_image"]
-        enhanced        = outputs["enhanced"]
-        outputs["loss"] = self.loss(enhanced, target)
-        return outputs
-        
-    def forward(self, datapoint: dict, *args, **kwargs) -> dict:
-        # Prepare input
-        self.assert_datapoint(datapoint)
-        image   = datapoint.get("image")
-        depth   = datapoint.get("depth")
-        outputs = self.mlp(image, depth)
-        # Return
         return outputs
 
 # endregion

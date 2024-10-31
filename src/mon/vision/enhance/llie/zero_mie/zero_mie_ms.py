@@ -150,7 +150,7 @@ class LossHSV(nn.Loss):
             depth_loss = 0
             edge_loss  = 0
         
-        loss = exp_loss + spa_loss + tv_loss + spar_loss + color_loss + depth_loss + edge_loss # + noise_loss
+        loss = exp_loss + spa_loss + tv_loss + spar_loss + color_loss + depth_loss + edge_loss  # + noise_loss
         '''
         print(
             f"exp_loss: {exp_loss:.4f}, "
@@ -351,6 +351,7 @@ class MLP_RGB(MLP):
             self.coords_nets.append(nn.ContextImplicitCoordinatesEncoder(mid_channels_, down_size_, hidden_layers_, omega_0_, first_bias_scale_, nonlinear_, weight_decay[0]))
             self.output_nets.append(nn.ContextImplicitDecoder(hidden_channels_, self.out_channels, out_layers_, omega_0_, nonlinear_, weight_decay[2]))
         self.dba = nn.BoundaryAwarePrior(eps=dba_eps, normalized=False)
+        self.w_0 = nn.Parameter(torch.Tensor([0.5]))
         
     def forward(self, image: torch.Tensor, depth: torch.Tensor = None) -> torch.Tensor:
         # Prepare input
@@ -389,9 +390,11 @@ class MLP_RGB(MLP):
                 f"illu_res_lr_{i}": illu_res_lr_i,
                 f"illu_lr_{i}"    : illu_lr_i,
                 f"enhanced_lr_{i}": enhanced_lr_i,
+                f"enhanced_{i}"   : enhanced_i,
             }
         # Combine Enhanced
-        enhanced  = sum(enhanced_list) / self.num_scale
+        # enhanced  = sum(enhanced_list) / self.num_scales
+        enhanced  = enhanced_list[0] * self.w_0 + enhanced_list[1] * (1 - self.w_0)
         outputs  |= {"enhanced": enhanced}
         # Return
         return outputs
@@ -450,6 +453,7 @@ class MLP_RGB_D(MLP):
             self.coords_nets.append(nn.ContextImplicitCoordinatesEncoder(mid_channels_, down_size_, hidden_layers_, omega_0_, first_bias_scale_, nonlinear_, weight_decay[0]))
             self.output_nets.append(nn.ContextImplicitDecoder(hidden_channels_, self.out_channels, out_layers_, omega_0_, nonlinear_, weight_decay[2]))
         self.dba = nn.BoundaryAwarePrior(eps=dba_eps, normalized=False)
+        self.w_0 = nn.Parameter(torch.Tensor([0.5]))
         
     def forward(self, image: torch.Tensor, depth: torch.Tensor = None) -> torch.Tensor:
         # Prepare input
@@ -488,9 +492,11 @@ class MLP_RGB_D(MLP):
                 f"illu_res_lr_{i}": illu_res_lr_i,
                 f"illu_lr_{i}"    : illu_lr_i,
                 f"enhanced_lr_{i}": enhanced_lr_i,
+                f"enhanced_{i}"   : enhanced_i,
             }
         # Combine Enhanced
-        enhanced  = sum(enhanced_list) / self.num_scale
+        # enhanced  = sum(enhanced_list) / self.num_scales
+        enhanced  = enhanced_list[0] * self.w_0 + enhanced_list[1] * (1 - self.w_0)
         outputs  |= {"enhanced": enhanced}
         # Return
         return outputs
@@ -528,9 +534,9 @@ class MLP_HSV_V(MLP):
         self.out_channels  = 1
         self.num_scales    = len(window_size)
         
-        self.value_nets  = nn.ModuleList()
-        self.coords_nets = nn.ModuleList()
-        self.output_nets = nn.ModuleList()
+        self.value_nets   = nn.ModuleList()
+        self.coords_nets  = nn.ModuleList()
+        self.output_nets  = nn.ModuleList()
         for i in range(self.num_scales):
             window_size_      = window_size[i]
             hidden_channels_  = hidden_channels[i]
@@ -545,6 +551,8 @@ class MLP_HSV_V(MLP):
             self.coords_nets.append(nn.ContextImplicitCoordinatesEncoder(mid_channels_, down_size_, hidden_layers_, omega_0_, first_bias_scale_, nonlinear_, weight_decay[0]))
             self.output_nets.append(nn.ContextImplicitDecoder(hidden_channels_, self.out_channels, out_layers_, omega_0_, nonlinear_, weight_decay[2]))
         self.dba = nn.BoundaryAwarePrior(eps=dba_eps, normalized=False)
+        self.w_0 = nn.Parameter(torch.Tensor([0.5]))
+        # self.lfa = nn.LayeredFeatureAggregation([3] * self.num_scales, 3)
         
     def forward(self, image: torch.Tensor, depth: torch.Tensor = None) -> torch.Tensor:
         # Prepare input
@@ -576,7 +584,7 @@ class MLP_HSV_V(MLP):
                 enhanced_lr_i = kornia.filters.bilateral_blur(enhanced_lr_i, self.denoise_ksize, self.denoise_color, self.denoise_space)
             enhanced_v_i = self.filter_up(image_lr_i, enhanced_lr_i, image_v, self.gf_radius)
             enhanced_i   = self.replace_v_component(image_hsv, enhanced_v_i)
-            enhanced_i   = core.hsv_to_rgb(enhanced_i)
+            enhanced_i   = core.hsv_to_rgb(enhanced_i.clone())
             enhanced_i   = enhanced_i / torch.max(enhanced_i)
             # Save
             enhanced_list.append(enhanced_i)
@@ -587,9 +595,12 @@ class MLP_HSV_V(MLP):
                 f"illu_res_lr_{i}": illu_res_lr_i,
                 f"illu_lr_{i}"    : illu_lr_i,
                 f"enhanced_lr_{i}": enhanced_lr_i,
+                f"enhanced_{i}"   : enhanced_i,
             }
         # Combine Enhanced
-        enhanced  = sum(enhanced_list) / self.num_scales
+        # enhanced  = sum(enhanced_list) / self.num_scales
+        enhanced  = enhanced_list[0] * self.w_0 + enhanced_list[1] * (1 - self.w_0)
+        # enhanced  = self.lfa(enhanced_list)
         outputs  |= {"enhanced": enhanced}
         # Return
         return outputs
@@ -660,9 +671,9 @@ class ZeroMIE_MS(base.ImageEnhancementModel):
             down_size        = down_size,
             hidden_layers    = hidden_layers,
             out_layers       = out_layers,
-            nonlinear        = nonlinear,
             omega_0          = omega_0,
             first_bias_scale = first_bias_scale,
+            nonlinear        = nonlinear,
             weight_decay     = weight_decay,
             dba_eps          = dba_eps,
             gf_radius        = gf_radius,
@@ -779,7 +790,7 @@ class ZeroMIE_MS(base.ImageEnhancementModel):
                     loss_enh      += loss_i
                 pseudo_gt       = self.saved_pseudo_gt
                 loss_recon      = self.loss_recon(enhanced, pseudo_gt)
-                loss            = loss_recon + loss_enh  #  * 5
+                loss            = loss_recon + loss_enh  # * 5
                 outputs["loss"] = loss
             else:  # Skip updating model's weight at the first batch
                 outputs = {"loss": None}

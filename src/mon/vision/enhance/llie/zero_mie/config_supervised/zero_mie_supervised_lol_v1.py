@@ -12,7 +12,7 @@ current_file = mon.Path(__file__).absolute()
 
 # region Basic
 
-model_name = "zero_mie_s"
+model_name = "zero_mie_supervised"
 data_name  = "lol_v1"
 root       = current_file.parents[1] / "run"
 data_root  = mon.DATA_DIR / "enhance"

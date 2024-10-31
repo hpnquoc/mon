@@ -10,6 +10,8 @@ Low-light Image Enhancement via Neural Implicit Representations.
 from __future__ import annotations
 
 import mon.vision.enhance.llie.zero_mie.zero_mie
+import mon.vision.enhance.llie.zero_mie.zero_mie_mb
 import mon.vision.enhance.llie.zero_mie.zero_mie_ms
 from mon.vision.enhance.llie.zero_mie.zero_mie import *
+from mon.vision.enhance.llie.zero_mie.zero_mie_mb import *
 from mon.vision.enhance.llie.zero_mie.zero_mie_ms import *

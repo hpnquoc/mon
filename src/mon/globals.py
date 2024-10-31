@@ -707,7 +707,7 @@ IMAGE_FILE_FORMATS   = [".arw", ".bmp", ".dng", ".jpg", ".jpeg", ".png", ".ppm",
 VIDEO_FILE_FORMATS   = [".avi", ".m4v", ".mkv", ".mov", ".mp4", ".mpeg", ".mpg", ".wmv"]
 TORCH_FILE_FORMATS   = [".pt", ".pth", ".weights", ".ckpt", ".tar", ".onnx"]
 WEIGHTS_FILE_FORMATS = [".pt", ".pth", ".onnx"]
-DEPTH_DATA_SOURCES   = [None, "dav2_vitb_c", "dav2_vitb_g", "dp_c", "dp_c_i", "dp_g", "dp_g_i"]
+DEPTH_DATA_SOURCES   = [None, "dav2_vitb_c", "dav2_vitb_g", "dav2_vitl_c", "dav2_vitl_g", "dp_c", "dp_c_i", "dp_g", "dp_g_i"]
 
 # List 3rd party modules
 EXTRA_DATASET_STR = "[extra]"
