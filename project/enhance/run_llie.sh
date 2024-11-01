@@ -16,7 +16,7 @@ python -W ignore main.py \
     --root "${current_dir}" \
     --task "llie" \
     --mode "predict" \
-    --data "fivek_e" \
+    --data "lol_v1" \
     --verbose \
     "$@"
 

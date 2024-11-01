@@ -291,9 +291,15 @@ class MLP(nn.Module, ABC):
         return y_hr
     
     @staticmethod
+    def replace_s_component(image_hsv: torch.Tensor, s_new: torch.Tensor) -> torch.Tensor:
+        """Replaces the `V` component of an HSV image `[1, 3, H, W]`."""
+        image_hsv[:, 1, :, :] = s_new
+        return image_hsv
+    
+    @staticmethod
     def replace_v_component(image_hsv: torch.Tensor, v_new: torch.Tensor) -> torch.Tensor:
         """Replaces the `V` component of an HSV image `[1, 3, H, W]`."""
-        image_hsv[:, -1, :, :] = v_new
+        image_hsv[:, 2, :, :] = v_new
         return image_hsv
     
     @staticmethod
@@ -449,7 +455,7 @@ class MLP_RGB_D(MLP):
         }
 
 
-class MLP_HSV_V(MLP):
+class MLP_HSV(MLP):
     
     def __init__(
         self,
@@ -525,7 +531,7 @@ class MLP_HSV_V(MLP):
         }
 
 
-class MLP_HSV_V_D(MLP):
+class MLP_HSV_D(MLP):
     
     def __init__(
         self,
@@ -623,7 +629,7 @@ class ZeroMIE(base.ImageEnhancementModel):
     def __init__(
         self,
         name            : str         = "zero_mie",
-        color_space     : Literal["rgb", "rgb_d", "hsv_v", "hsv_v_d"] = "rgb",
+        color_space     : Literal["rgb", "rgb_d", "hsv", "hsv_d"] = "rgb",
         window_size     : int         = 7,
         hidden_channels : int         = 256,
         down_size       : int         = 256,
@@ -660,10 +666,10 @@ class ZeroMIE(base.ImageEnhancementModel):
             mlp = MLP_RGB
         elif color_space == "rgb_d":
             mlp = MLP_RGB_D
-        elif color_space == "hsv_v":
-            mlp = MLP_HSV_V
-        elif color_space == "hsv_v_d":
-            mlp = MLP_HSV_V_D
+        elif color_space == "hsv":
+            mlp = MLP_HSV
+        elif color_space == "hsv_d":
+            mlp = MLP_HSV_D
         else:
             raise ValueError(f"Invalid color space: {color_space}")
         
@@ -779,17 +785,17 @@ class ZeroMIE(base.ImageEnhancementModel):
             nth_pseudo_gt = self.pseudo_gt_generator(nth_image, nth_enhanced)
             if self.saved_input is not None:
                 # Getting (n - 1)th input and (n - 1)-th pseudo gt -> calculate loss -> update model weight (handled automatically by pytorch lightning)
-                outputs         = self.forward(datapoint=self.saved_input, *args, **kwargs)
-                image           = outputs["image"]
-                enhanced        = outputs["enhanced"]
-                image_lr        = outputs["image_lr"]
-                illu_lr         = outputs["illu_lr"]
-                enhanced_lr     = outputs["enhanced_lr"]
-                depth_lr        = outputs["depth_lr"]
-                pseudo_gt       = self.saved_pseudo_gt
-                loss_recon      = self.loss_recon(enhanced, pseudo_gt)
-                loss_enh        = self.loss(image, image_lr, illu_lr, enhanced, enhanced_lr, depth_lr)
-                loss            = loss_recon + loss_enh  #  * 5
+                outputs     = self.forward(datapoint=self.saved_input, *args, **kwargs)
+                image       = outputs["image"]
+                enhanced    = outputs["enhanced"]
+                image_lr    = outputs["image_lr"]
+                illu_lr     = outputs["illu_lr"]
+                enhanced_lr = outputs["enhanced_lr"]
+                depth_lr    = outputs["depth_lr"]
+                pseudo_gt   = self.saved_pseudo_gt
+                loss_recon  = self.loss_recon(enhanced, pseudo_gt)
+                loss_enh    = self.loss(image, image_lr, illu_lr, enhanced, enhanced_lr, depth_lr)
+                loss        = loss_recon + loss_enh
                 outputs["loss"] = loss
             else:  # Skip updating model's weight at the first batch
                 outputs = {"loss": None}
@@ -797,14 +803,14 @@ class ZeroMIE(base.ImageEnhancementModel):
             self.saved_input     = nth_input
             self.saved_pseudo_gt = nth_pseudo_gt
         else:
-            outputs         = self.forward(datapoint=datapoint, *args, **kwargs)
-            image           = outputs["image"]
-            enhanced        = outputs["enhanced"]
-            image_lr        = outputs["image_lr"]
-            illu_lr         = outputs["illu_lr"]
-            enhanced_lr     = outputs["enhanced_lr"]
-            depth_lr        = outputs["depth_lr"]
-            loss            = self.loss(image, image_lr, illu_lr, enhanced, enhanced_lr, depth_lr)
+            outputs     = self.forward(datapoint=datapoint, *args, **kwargs)
+            image       = outputs["image"]
+            enhanced    = outputs["enhanced"]
+            image_lr    = outputs["image_lr"]
+            illu_lr     = outputs["illu_lr"]
+            enhanced_lr = outputs["enhanced_lr"]
+            depth_lr    = outputs["depth_lr"]
+            loss        = self.loss(image, image_lr, illu_lr, enhanced, enhanced_lr, depth_lr)
             outputs["loss"] = loss
         return outputs
         
@@ -886,7 +892,7 @@ class ZeroMIE_Supervised(base.ImageEnhancementModel):
     def __init__(
         self,
         name            : str         = "zero_mie_supervised",
-        color_space     : Literal["rgb", "rgb_d", "hsv_v", "hsv_v_d"] = "rgb",
+        color_space     : Literal["rgb", "rgb_d", "hsv", "hsv_d"] = "rgb",
         window_size     : int         = 7,
         hidden_channels : int         = 256,
         down_size       : int         = 256,
@@ -923,10 +929,10 @@ class ZeroMIE_Supervised(base.ImageEnhancementModel):
             mlp = MLP_RGB
         elif color_space == "rgb_d":
             mlp = MLP_RGB_D
-        elif color_space == "hsv_v":
-            mlp = MLP_HSV_V
-        elif color_space == "hsv_v_d":
-            mlp = MLP_HSV_V_D
+        elif color_space == "hsv":
+            mlp = MLP_HSV
+        elif color_space == "hsv_d":
+            mlp = MLP_HSV_D
         else:
             raise ValueError(f"Invalid color space: {color_space}")
         
@@ -1006,10 +1012,10 @@ class ZeroMIE_Supervised(base.ImageEnhancementModel):
         outputs = self.forward(datapoint=datapoint, *args, **kwargs)
         self.assert_outputs(outputs)
         # Loss
-        target          = datapoint["ref_image"]
-        enhanced        = outputs["enhanced"]
-        outputs["loss"] = self.loss(enhanced, target)
-        return outputs
+        target   = datapoint["ref_image"]
+        enhanced = outputs["enhanced"]
+        loss     = self.loss(enhanced, target)
+        return outputs | {"loss": loss}
         
     def forward(self, datapoint: dict, *args, **kwargs) -> dict:
         # Prepare input

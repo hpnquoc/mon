@@ -759,22 +759,32 @@ class ContextImplicitFeatureEncoder(nn.Module):
     
     def __init__(
         self,
-        window_size     : int   = 1,
-        out_channels    : int   = 256,
-        down_size       : int   = 256,
-        hidden_layers   : int   = 2,
-        omega_0         : float = 30.0,
-        first_bias_scale: float = None,
-        nonlinear       : Literal["finer", "gauss", "relu", "sigmoid", "sine"] = "sine",
-        weight_decay    : float = 0.0001,
+        window_size      : int   = 1,
+        out_channels     : int   = 256,
+        down_size        : int   = 256,
+        hidden_layers    : int   = 2,
+        omega_0          : float = 30.0,
+        first_bias_scale : float = None,
+        nonlinear        : Literal["finer", "gauss", "relu", "sigmoid", "sine"] = "sine",
+        weight_decay     : float = 0.0001,
+        ff_embedded      : bool  = False,
+        ff_gaussian_scale: float = 10,
     ):
         super().__init__()
         self.window_size     = window_size
         self.down_size       = down_size
         self.hidden_channels = out_channels
         self.hidden_layers   = hidden_layers
+        in_channels          = window_size ** 2
+        net_in_channels      = in_channels
         
-        net = [INRLayer(window_size ** 2, out_channels, is_first=True, omega_0=omega_0, first_bias_scale=first_bias_scale, nonlinear=nonlinear)]
+        if ff_embedded:
+            self.register_buffer("B", torch.randn((out_channels, in_channels)) * ff_gaussian_scale)
+            net_in_channels = out_channels * 2
+        else:
+            self.B = None
+        
+        net = [INRLayer(net_in_channels, out_channels, is_first=True, omega_0=omega_0, first_bias_scale=first_bias_scale, nonlinear=nonlinear)]
         for _ in range(1, hidden_layers):
             net.append(INRLayer(out_channels, out_channels, is_first=False, omega_0=omega_0, nonlinear=nonlinear))
         net.append(INRLayer(out_channels, out_channels, is_first=False, omega_0=omega_0, nonlinear=nonlinear))
@@ -784,9 +794,10 @@ class ContextImplicitFeatureEncoder(nn.Module):
         self.params  = [{"params": self.net.parameters(), "weight_decay": weight_decay}]
         
     def forward(self, image: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
-        image_lr = self.interpolate_image(image)
-        patch    = self.get_patch(image_lr)
-        patch    = self.net(patch)
+        image_lr  = self.interpolate_image(image)
+        patch     = self.get_patch(image_lr)
+        embedding = self.ff_embedding(patch, self.B)
+        patch     = self.net(embedding)
         return image_lr, patch
     
     def interpolate_image(self, image: torch.Tensor) -> torch.Tensor:
@@ -805,7 +816,15 @@ class ContextImplicitFeatureEncoder(nn.Module):
         im_padded = pad(image)
         extracted = F.conv2d(im_padded, kernel, padding=0).squeeze(0)
         return torch.movedim(extracted, 0, -1)
- 
+    
+    def ff_embedding(self, image: torch.Tensor, B: torch.Tensor = None) -> torch.Tensor:
+        if B is None:
+            return image
+        else:
+            x_proj    = (2. * np.pi * image) @ B.T
+            embedding = torch.cat([torch.sin(x_proj), torch.cos(x_proj)], axis=-1)
+            return embedding
+        
 
 class ContextImplicitCoordinatesEncoder(nn.Module):
     """Implicit Neural Representation (INR) of coordinates (x, y) of a
@@ -817,21 +836,30 @@ class ContextImplicitCoordinatesEncoder(nn.Module):
     
     def __init__(
         self,
-        out_channels    : int   = 256,
-        down_size       : int   = 256,
-        hidden_layers   : int   = 2,
-        omega_0         : float = 30.0,
-        first_bias_scale: float = None,
-        nonlinear       : Literal["finer", "gauss", "relu", "sigmoid", "sine"] = "sine",
-        weight_decay    : float = 0.1,
+        out_channels     : int   = 256,
+        down_size        : int   = 256,
+        hidden_layers    : int   = 2,
+        omega_0          : float = 30.0,
+        first_bias_scale : float = None,
+        nonlinear        : Literal["finer", "gauss", "relu", "sigmoid", "sine"] = "sine",
+        weight_decay     : float = 0.1,
+        ff_embedded      : bool  = False,
+        ff_gaussian_scale: float = 10,
     ):
         super().__init__()
         self.down_size       = down_size
         self.hidden_channels = out_channels
         self.hidden_layers   = hidden_layers
         in_channels          = 2
+        hidden_channels      = in_channels
         
-        net = [INRLayer(in_channels, out_channels,is_first=True, omega_0=omega_0, first_bias_scale=first_bias_scale, nonlinear=nonlinear)]
+        if ff_embedded:
+            self.register_buffer("B", torch.randn((out_channels, in_channels)) * ff_gaussian_scale)
+            hidden_channels = out_channels * 2
+        else:
+            self.B = None
+            
+        net = [INRLayer(hidden_channels, out_channels, is_first=True, omega_0=omega_0, first_bias_scale=first_bias_scale, nonlinear=nonlinear)]
         for _ in range(1, hidden_layers):
             net.append(INRLayer(out_channels, out_channels, is_first=False, omega_0=omega_0, nonlinear=nonlinear))
         net.append(INRLayer(out_channels, out_channels, is_first=False, omega_0=omega_0, nonlinear=nonlinear))
@@ -841,10 +869,19 @@ class ContextImplicitCoordinatesEncoder(nn.Module):
         self.params  = [{"params": self.net.parameters(), "weight_decay": weight_decay}]
         
     def forward(self, image: torch.Tensor) -> torch.Tensor:
-        coords = get_coords((self.down_size, self.down_size)).to(image.device)
-        coords = self.net(coords)
+        coords    = get_coords((self.down_size, self.down_size)).to(image.device)
+        embedding = self.ff_embedding(coords, self.B)
+        coords    = self.net(embedding)
         return coords
-
+    
+    def ff_embedding(self, image: torch.Tensor, B: torch.Tensor = None) -> torch.Tensor:
+        if B is None:
+            return image
+        else:
+            x_proj    = (2. * np.pi * image) @ B.T
+            embedding = torch.cat([torch.sin(x_proj), torch.cos(x_proj)], axis=-1)
+            return embedding
+  
 
 class ContextImplicitDecoder(nn.Module):
     """MLP for combining values and coordinates INRs.

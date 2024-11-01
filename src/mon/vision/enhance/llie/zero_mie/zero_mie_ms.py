@@ -306,21 +306,23 @@ class MLP_RGB(MLP):
     
     def __init__(
         self,
-        window_size     : list[int]   = [3, 7],
-        hidden_channels : list[int]   = [128, 256],
-        down_size       : list[int]   = [128, 256],
-        hidden_layers   : list[int]   = [2, 2],
-        out_layers      : list[int]   = [1, 1],
-        omega_0         : list[float] = [30.0, 30.0],
-        first_bias_scale: list[float] = [None, None],
-        nonlinear       : list[Literal["finer", "gauss", "relu", "sigmoid", "sine"]] = ["sine", "sine"],
-        weight_decay    : list[float] = [0.1, 0.0001, 0.001],
-        dba_eps         : float       = 0.05,
-        gf_radius       : int         = 3,
-        denoise         : bool        = False,
-        denoise_ksize   : list[float] = (3, 3),
-        denoise_color   : float       = 0.5,
-        denoise_space   : list[float] = (1.5, 1.5),
+        window_size      : list[int]   = [3, 5, 7],
+        hidden_channels  : int         = 256,
+        down_size        : int         = 256,
+        hidden_layers    : int         = 2,
+        out_layers       : int         = 1,
+        omega_0          : float       = 30.0,
+        first_bias_scale : float       = None,
+        nonlinear        : Literal["finer", "gauss", "relu", "sigmoid", "sine"] = "sine",
+        weight_decay     : list[float] = [0.1, 0.0001, 0.001],
+        ff_embedded      : bool        = False,
+        ff_gaussian_scale: float       = 10,
+        dba_eps          : float       = 0.05,
+        gf_radius        : int         = 3,
+        denoise          : bool        = False,
+        denoise_ksize    : list[float] = (3, 3),
+        denoise_color    : float       = 0.5,
+        denoise_space    : list[float] = (1.5, 1.5),
         *args, **kwargs
     ):
         super().__init__()
@@ -333,92 +335,79 @@ class MLP_RGB(MLP):
         self.denoise_space = denoise_space
         self.out_channels  = 3
         self.num_scales    = len(window_size)
+        mid_channels       = hidden_channels // 2
+        output_in_channels = mid_channels * (self.num_scales + 1)
         
-        self.value_nets  = nn.ModuleList()
-        self.coords_nets = nn.ModuleList()
-        self.output_nets = nn.ModuleList()
+        self.value_nets = nn.ModuleList()
         for i in range(self.num_scales):
-            window_size_      = window_size[i]
-            hidden_channels_  = hidden_channels[i]
-            down_size_        = down_size[i]
-            hidden_layers_    = hidden_layers[i]
-            out_layers_       = out_layers[i]
-            omega_0_          = omega_0[i]
-            first_bias_scale_ = first_bias_scale[i]
-            nonlinear_        = nonlinear[i]
-            mid_channels_     = hidden_channels_ // 2
-            self.value_nets.append(nn.ContextImplicitFeatureEncoder(window_size_, mid_channels_, down_size_, hidden_layers_, omega_0_, first_bias_scale_, nonlinear_, weight_decay[1]))
-            self.coords_nets.append(nn.ContextImplicitCoordinatesEncoder(mid_channels_, down_size_, hidden_layers_, omega_0_, first_bias_scale_, nonlinear_, weight_decay[0]))
-            self.output_nets.append(nn.ContextImplicitDecoder(hidden_channels_, self.out_channels, out_layers_, omega_0_, nonlinear_, weight_decay[2]))
-        self.dba = nn.BoundaryAwarePrior(eps=dba_eps, normalized=False)
-        self.w_0 = nn.Parameter(torch.Tensor([0.5]))
+            window_size_ = window_size[i]
+            self.value_nets.append(nn.ContextImplicitFeatureEncoder(window_size_, mid_channels, down_size, hidden_layers, omega_0, first_bias_scale, nonlinear, weight_decay[1], ff_embedded, ff_gaussian_scale))
+        self.coords_net = nn.ContextImplicitCoordinatesEncoder(mid_channels, down_size, hidden_layers, omega_0, first_bias_scale, nonlinear, weight_decay[0], ff_embedded, ff_gaussian_scale)
+        self.output_net = nn.ContextImplicitDecoder(output_in_channels, self.out_channels, out_layers, omega_0, nonlinear, weight_decay[2])
+        self.dba        = nn.BoundaryAwarePrior(eps=dba_eps, normalized=False)
         
     def forward(self, image: torch.Tensor, depth: torch.Tensor = None) -> torch.Tensor:
         # Prepare input
         if depth is None:
             depth = core.rgb_to_grayscale(image)
         edge = self.dba(depth)
-        # Multi-scale
-        outputs = {
-            "image": image,
-            "depth": depth,
-            "edge" : edge,
-        }
-        enhanced_list = []
+        # Mapping
+        image_lrs   = []
+        value_inrs  = []
         for i in range(self.num_scales):
-            # Mapping
             image_lr_i, value_inr_i = self.value_nets[i](image)
-            depth_lr_i              = self.interpolate_image(depth, self.down_size[i])
-            edge_lr_i               = self.interpolate_image(edge,  self.down_size[i])
-            coords_i                = self.coords_nets[i](image)
-            # Combining
-            illu_res_lr_i = self.output_nets[i](torch.cat([value_inr_i, coords_i], -1))
-            illu_res_lr_i = illu_res_lr_i.view(1, self.out_channels, self.down_size[i], self.down_size[i])
-            # Enhancement
-            illu_lr_i     = illu_res_lr_i + image_lr_i
-            enhanced_lr_i = image_lr_i / (illu_lr_i + 1e-8)
-            if self.denoise:
-                enhanced_lr_i = kornia.filters.bilateral_blur(enhanced_lr_i, self.denoise_ksize, self.denoise_color, self.denoise_space)
-            enhanced_i = self.filter_up(image_lr_i, enhanced_lr_i, image, self.gf_radius)
-            enhanced_i = enhanced_i / torch.max(enhanced_i)
-            # Save
-            enhanced_list.append(enhanced_i)
-            outputs |= {
-                f"image_lr_{i}"   : image_lr_i,
-                f"depth_lr_{i}"   : depth_lr_i,
-                f"edge_lr_{i}"    : edge_lr_i,
-                f"illu_res_lr_{i}": illu_res_lr_i,
-                f"illu_lr_{i}"    : illu_lr_i,
-                f"enhanced_lr_{i}": enhanced_lr_i,
-                f"enhanced_{i}"   : enhanced_i,
-            }
-        # Combine Enhanced
-        # enhanced  = sum(enhanced_list) / self.num_scales
-        enhanced  = enhanced_list[0] * self.w_0 + enhanced_list[1] * (1 - self.w_0)
-        outputs  |= {"enhanced": enhanced}
+            image_lrs.append(image_lr_i)
+            value_inrs.append(value_inr_i)
+        depth_lr    = self.interpolate_image(depth, self.down_size)
+        edge_lr     = self.interpolate_image(edge,  self.down_size)
+        coords      = self.coords_net(image)
+        # Combining
+        illu_res_lr = self.output_net(torch.cat(value_inrs + [coords], -1))
+        illu_res_lr = illu_res_lr.view(1, self.out_channels, self.down_size, self.down_size)
+        # Enhancement
+        image_lr    = image_lrs[0]
+        illu_lr     = illu_res_lr + image_lr
+        enhanced_lr = image_lr / (illu_lr + 1e-8)
+        if self.denoise:
+            enhanced_lr = kornia.filters.bilateral_blur(enhanced_lr, self.denoise_ksize, self.denoise_color, self.denoise_space)
+        enhanced = self.filter_up(image_lr, enhanced_lr, image, self.gf_radius)
+        # enhanced = enhanced / torch.max(enhanced)
         # Return
-        return outputs
+        return {
+            "image"      : image,
+            "depth"      : depth,
+            "edge"       : edge,
+            "image_lr"   : image_lr,
+            "depth_lr"   : depth_lr,
+            "edge_lr"    : edge_lr,
+            "illu_res_lr": illu_res_lr,
+            "illu_lr"    : illu_lr,
+            "enhanced_lr": enhanced_lr,
+            "enhanced"   : enhanced,
+        }
 
 
 class MLP_RGB_D(MLP):
     
     def __init__(
         self,
-        window_size     : list[int]   = [3, 7],
-        hidden_channels : list[int]   = [128, 256],
-        down_size       : list[int]   = [128, 256],
-        hidden_layers   : list[int]   = [2, 2],
-        out_layers      : list[int]   = [1, 1],
-        omega_0         : list[float] = [30.0, 30.0],
-        first_bias_scale: list[float] = [None, None],
-        nonlinear       : list[Literal["finer", "gauss", "relu", "sigmoid", "sine"]] = ["sine", "sine"],
-        weight_decay    : list[float] = [0.1, 0.0001, 0.001],
-        dba_eps         : float       = 0.05,
-        gf_radius       : int         = 3,
-        denoise         : bool        = False,
-        denoise_ksize   : list[float] = (3, 3),
-        denoise_color   : float       = 0.5,
-        denoise_space   : list[float] = (1.5, 1.5),
+        window_size      : list[int]   = [3, 5, 7],
+        hidden_channels  : int         = 256,
+        down_size        : int         = 256,
+        hidden_layers    : int         = 2,
+        out_layers       : int         = 1,
+        omega_0          : float       = 30.0,
+        first_bias_scale : float       = None,
+        nonlinear        : Literal["finer", "gauss", "relu", "sigmoid", "sine"] = "sine",
+        weight_decay     : list[float] = [0.1, 0.0001, 0.001],
+        ff_embedded      : bool        = False,
+        ff_gaussian_scale: float       = 10,
+        dba_eps          : float       = 0.05,
+        gf_radius        : int         = 3,
+        denoise          : bool        = False,
+        denoise_ksize    : list[float] = (3, 3),
+        denoise_color    : float       = 0.5,
+        denoise_space    : list[float] = (1.5, 1.5),
         *args, **kwargs
     ):
         super().__init__()
@@ -431,96 +420,81 @@ class MLP_RGB_D(MLP):
         self.denoise_space = denoise_space
         self.out_channels  = 3
         self.num_scales    = len(window_size)
+        mid_channels       = hidden_channels // 2
+        output_in_channels = mid_channels * (self.num_scales + 3)
         
-        self.value_nets  = nn.ModuleList()
-        self.depth_nets  = nn.ModuleList()
-        self.edge_nets   = nn.ModuleList()
-        self.coords_nets = nn.ModuleList()
-        self.output_nets = nn.ModuleList()
+        self.value_nets = nn.ModuleList()
         for i in range(self.num_scales):
-            window_size_      = window_size[i]
-            hidden_channels_  = hidden_channels[i]
-            down_size_        = down_size[i]
-            hidden_layers_    = hidden_layers[i]
-            out_layers_       = out_layers[i]
-            omega_0_          = omega_0[i]
-            first_bias_scale_ = first_bias_scale[i]
-            nonlinear_        = nonlinear[i]
-            mid_channels_     = hidden_channels_ // 4
-            self.value_nets.append(nn.ContextImplicitFeatureEncoder(window_size_, mid_channels_, down_size_, hidden_layers_, omega_0_, first_bias_scale_, nonlinear_, weight_decay[1]))
-            self.depth_nets.append(nn.ContextImplicitFeatureEncoder(window_size_, mid_channels_, down_size_, hidden_layers_, omega_0_, first_bias_scale_, nonlinear_, weight_decay[1]))
-            self.edge_nets.append(nn.ContextImplicitFeatureEncoder(window_size_, mid_channels_, down_size_, hidden_layers_, omega_0_, first_bias_scale_, nonlinear_, weight_decay[1]))
-            self.coords_nets.append(nn.ContextImplicitCoordinatesEncoder(mid_channels_, down_size_, hidden_layers_, omega_0_, first_bias_scale_, nonlinear_, weight_decay[0]))
-            self.output_nets.append(nn.ContextImplicitDecoder(hidden_channels_, self.out_channels, out_layers_, omega_0_, nonlinear_, weight_decay[2]))
-        self.dba = nn.BoundaryAwarePrior(eps=dba_eps, normalized=False)
-        self.w_0 = nn.Parameter(torch.Tensor([0.5]))
+            window_size_ = window_size[i]
+            self.value_nets.append(nn.ContextImplicitFeatureEncoder(window_size_, mid_channels, down_size, hidden_layers, omega_0, first_bias_scale, nonlinear, weight_decay[1], ff_embedded, ff_gaussian_scale))
+        self.depth_net  = nn.ContextImplicitFeatureEncoder(window_size[-1], mid_channels, down_size, hidden_layers, omega_0, first_bias_scale, nonlinear, weight_decay[1], ff_embedded, ff_gaussian_scale)
+        self.edge_net   = nn.ContextImplicitFeatureEncoder(window_size[-1], mid_channels, down_size, hidden_layers, omega_0, first_bias_scale, nonlinear, weight_decay[1], ff_embedded, ff_gaussian_scale)
+        self.coords_net = nn.ContextImplicitCoordinatesEncoder(mid_channels, down_size, hidden_layers, omega_0, first_bias_scale, nonlinear, weight_decay[0], ff_embedded, ff_gaussian_scale)
+        self.output_net = nn.ContextImplicitDecoder(output_in_channels, self.out_channels, out_layers, omega_0, nonlinear, weight_decay[2])
+        self.dba        = nn.BoundaryAwarePrior(eps=dba_eps, normalized=False)
         
     def forward(self, image: torch.Tensor, depth: torch.Tensor = None) -> torch.Tensor:
         # Prepare input
         if depth is None:
             depth = core.rgb_to_grayscale(image)
         edge = self.dba(depth)
-        # Multi-scale
-        outputs = {
-            "image": image,
-            "depth": depth,
-            "edge" : edge,
-        }
-        enhanced_list = []
+        # Mapping
+        image_lrs  = []
+        value_inrs = []
         for i in range(self.num_scales):
-            # Mapping
             image_lr_i, value_inr_i = self.value_nets[i](image)
-            depth_lr_i, depth_inr_i = self.depth_nets[i](depth)
-            edge_lr_i,  edge_inr_i  = self.edge_nets[i](edge)
-            coords_i                = self.coords_nets[i](image)
-            # Combining
-            illu_res_lr_i = self.output_nets[i](torch.cat([value_inr_i, depth_inr_i, edge_inr_i, coords_i], -1))
-            illu_res_lr_i = illu_res_lr_i.view(1, self.out_channels, self.down_size[i], self.down_size[i])
-            # Enhancement
-            illu_lr_i     = illu_res_lr_i + image_lr_i
-            enhanced_lr_i = image_lr_i / (illu_lr_i + 1e-8)
-            if self.denoise:
-                enhanced_lr_i = kornia.filters.bilateral_blur(enhanced_lr_i, self.denoise_ksize, self.denoise_color, self.denoise_space)
-            enhanced_i = self.filter_up(image_lr_i, enhanced_lr_i, image, self.gf_radius)
-            enhanced_i = enhanced_i / torch.max(enhanced_i)
-            # Save
-            enhanced_list.append(enhanced_i)
-            outputs |= {
-                f"image_lr_{i}"   : image_lr_i,
-                f"depth_lr_{i}"   : depth_lr_i,
-                f"edge_lr_{i}"    : edge_lr_i,
-                f"illu_res_lr_{i}": illu_res_lr_i,
-                f"illu_lr_{i}"    : illu_lr_i,
-                f"enhanced_lr_{i}": enhanced_lr_i,
-                f"enhanced_{i}"   : enhanced_i,
-            }
-        # Combine Enhanced
-        # enhanced  = sum(enhanced_list) / self.num_scales
-        enhanced  = enhanced_list[0] * self.w_0 + enhanced_list[1] * (1 - self.w_0)
-        outputs  |= {"enhanced": enhanced}
+            image_lrs.append(image_lr_i)
+            value_inrs.append(value_inr_i)
+        depth_lr, depth_inr = self.depth_net(depth)
+        edge_lr,  edge_inr  = self.edge_net(edge)
+        coords              = self.coords_net(image)
+        # Combining
+        illu_res_lr = self.output_net(torch.cat(value_inrs + [depth_inr, edge_inr, coords], -1))
+        illu_res_lr = illu_res_lr.view(1, self.out_channels, self.down_size, self.down_size)
+        # Enhancement
+        image_lr    = image_lrs[0]
+        illu_lr     = illu_res_lr + image_lr
+        enhanced_lr = image_lr / (illu_lr + 1e-8)
+        if self.denoise:
+            enhanced_lr = kornia.filters.bilateral_blur(enhanced_lr, self.denoise_ksize, self.denoise_color, self.denoise_space)
+        enhanced = self.filter_up(image_lr, enhanced_lr, image, self.gf_radius)
+        # enhanced = enhanced / torch.max(enhanced)
         # Return
-        return outputs
+        return {
+            "image"      : image,
+            "depth"      : depth,
+            "edge"       : edge,
+            "image_lr"   : image_lr,
+            "depth_lr"   : depth_lr,
+            "edge_lr"    : edge_lr,
+            "illu_res_lr": illu_res_lr,
+            "illu_lr"    : illu_lr,
+            "enhanced_lr": enhanced_lr,
+            "enhanced"   : enhanced,
+        }
 
 
-class MLP_HSV_V(MLP):
+class MLP_HSV(MLP):
     
     def __init__(
         self,
-        window_size     : list[int]   = [3, 7],
-        hidden_channels : list[int]   = [128, 256],
-        down_size       : list[int]   = [128, 256],
-        hidden_layers   : list[int]   = [2, 2],
-        out_layers      : list[int]   = [1, 1],
-        omega_0         : list[float] = [30.0, 30.0],
-        first_bias_scale: list[float] = [None, None],
-        nonlinear       : list[Literal["finer", "gauss", "relu", "sigmoid", "sine"]] = ["sine", "sine"],
-        weight_decay    : list[float] = [0.1, 0.0001, 0.001],
-        dba_eps         : float       = 0.05,
-        gf_radius       : int         = 3,
-        denoise         : bool        = False,
-        denoise_ksize   : list[float] = (3, 3),
-        denoise_color   : float       = 0.5,
-        denoise_space   : list[float] = (1.5, 1.5),
+        window_size      : list[int]   = [3, 5, 7],
+        hidden_channels  : int         = 256,
+        down_size        : int         = 256,
+        hidden_layers    : int         = 2,
+        out_layers       : int         = 1,
+        omega_0          : float       = 30.0,
+        first_bias_scale : float       = None,
+        nonlinear        : Literal["finer", "gauss", "relu", "sigmoid", "sine"] = "sine",
+        weight_decay     : list[float] = [0.1, 0.0001, 0.001],
+        ff_embedded      : bool        = False,
+        ff_gaussian_scale: float       = 10,
+        dba_eps          : float       = 0.05,
+        gf_radius        : int         = 3,
+        denoise          : bool        = False,
+        denoise_ksize    : list[float] = (3, 3),
+        denoise_color    : float       = 0.5,
+        denoise_space    : list[float] = (1.5, 1.5),
         *args, **kwargs
     ):
         super().__init__()
@@ -533,26 +507,16 @@ class MLP_HSV_V(MLP):
         self.denoise_space = denoise_space
         self.out_channels  = 1
         self.num_scales    = len(window_size)
+        mid_channels       = hidden_channels // 2
+        output_in_channels = mid_channels * (self.num_scales + 1)
         
-        self.value_nets   = nn.ModuleList()
-        self.coords_nets  = nn.ModuleList()
-        self.output_nets  = nn.ModuleList()
+        self.value_nets = nn.ModuleList()
         for i in range(self.num_scales):
-            window_size_      = window_size[i]
-            hidden_channels_  = hidden_channels[i]
-            down_size_        = down_size[i]
-            hidden_layers_    = hidden_layers[i]
-            out_layers_       = out_layers[i]
-            omega_0_          = omega_0[i]
-            first_bias_scale_ = first_bias_scale[i]
-            nonlinear_        = nonlinear[i]
-            mid_channels_     = hidden_channels_ // 2
-            self.value_nets.append(nn.ContextImplicitFeatureEncoder(window_size_, mid_channels_, down_size_, hidden_layers_, omega_0_, first_bias_scale_, nonlinear_, weight_decay[1]))
-            self.coords_nets.append(nn.ContextImplicitCoordinatesEncoder(mid_channels_, down_size_, hidden_layers_, omega_0_, first_bias_scale_, nonlinear_, weight_decay[0]))
-            self.output_nets.append(nn.ContextImplicitDecoder(hidden_channels_, self.out_channels, out_layers_, omega_0_, nonlinear_, weight_decay[2]))
-        self.dba = nn.BoundaryAwarePrior(eps=dba_eps, normalized=False)
-        self.w_0 = nn.Parameter(torch.Tensor([0.5]))
-        # self.lfa = nn.LayeredFeatureAggregation([3] * self.num_scales, 3)
+            window_size_ = window_size[i]
+            self.value_nets.append(nn.ContextImplicitFeatureEncoder(window_size_, mid_channels, down_size, hidden_layers, omega_0, first_bias_scale, nonlinear, weight_decay[1], ff_embedded, ff_gaussian_scale))
+        self.coords_net = nn.ContextImplicitCoordinatesEncoder(mid_channels, down_size, hidden_layers, omega_0, first_bias_scale, nonlinear, weight_decay[0], ff_embedded, ff_gaussian_scale)
+        self.output_net = nn.ContextImplicitDecoder(output_in_channels, self.out_channels, out_layers, omega_0, nonlinear, weight_decay[2], ff_embedded, ff_gaussian_scale)
+        self.dba        = nn.BoundaryAwarePrior(eps=dba_eps, normalized=False)
         
     def forward(self, image: torch.Tensor, depth: torch.Tensor = None) -> torch.Tensor:
         # Prepare input
@@ -561,49 +525,133 @@ class MLP_HSV_V(MLP):
         edge      = self.dba(depth)
         image_hsv = core.rgb_to_hsv(image)
         image_v   = core.rgb_to_v(image)
-        # Multi-scale
-        outputs = {
-            "image": image,
-            "depth": depth,
-            "edge" : edge,
-        }
-        enhanced_list = []
+        # Mapping
+        image_lrs   = []
+        value_inrs  = []
         for i in range(self.num_scales):
-            # Mapping
             image_lr_i, value_inr_i = self.value_nets[i](image_v)
-            depth_lr_i              = self.interpolate_image(depth, self.down_size[i])
-            edge_lr_i               = self.interpolate_image(edge,  self.down_size[i])
-            coords_i                = self.coords_nets[i](image_v)
-            # Combining
-            illu_res_lr_i = self.output_nets[i](torch.cat([value_inr_i, coords_i], -1))
-            illu_res_lr_i = illu_res_lr_i.view(1, self.out_channels, self.down_size[i], self.down_size[i])
-            # Enhancement
-            illu_lr_i     = illu_res_lr_i + image_lr_i
-            enhanced_lr_i = image_lr_i / (illu_lr_i + 1e-8)
-            if self.denoise:
-                enhanced_lr_i = kornia.filters.bilateral_blur(enhanced_lr_i, self.denoise_ksize, self.denoise_color, self.denoise_space)
-            enhanced_v_i = self.filter_up(image_lr_i, enhanced_lr_i, image_v, self.gf_radius)
-            enhanced_i   = self.replace_v_component(image_hsv, enhanced_v_i)
-            enhanced_i   = core.hsv_to_rgb(enhanced_i.clone())
-            enhanced_i   = enhanced_i / torch.max(enhanced_i)
-            # Save
-            enhanced_list.append(enhanced_i)
-            outputs |= {
-                f"image_lr_{i}"   : image_lr_i,
-                f"depth_lr_{i}"   : depth_lr_i,
-                f"edge_lr_{i}"    : edge_lr_i,
-                f"illu_res_lr_{i}": illu_res_lr_i,
-                f"illu_lr_{i}"    : illu_lr_i,
-                f"enhanced_lr_{i}": enhanced_lr_i,
-                f"enhanced_{i}"   : enhanced_i,
-            }
-        # Combine Enhanced
-        # enhanced  = sum(enhanced_list) / self.num_scales
-        enhanced  = enhanced_list[0] * self.w_0 + enhanced_list[1] * (1 - self.w_0)
-        # enhanced  = self.lfa(enhanced_list)
-        outputs  |= {"enhanced": enhanced}
+            image_lrs.append(image_lr_i)
+            value_inrs.append(value_inr_i)
+        depth_lr    = self.interpolate_image(depth, self.down_size)
+        edge_lr     = self.interpolate_image(edge,  self.down_size)
+        coords      = self.coords_net(image_v)
+        # Combining
+        illu_res_lr = self.output_net(torch.cat(value_inrs + [coords], -1))
+        illu_res_lr = illu_res_lr.view(1, self.out_channels, self.down_size, self.down_size)
+        # Enhancement
+        image_lr    = image_lrs[0]
+        illu_lr     = illu_res_lr + image_lr
+        enhanced_lr = image_lr / (illu_lr + 1e-8)
+        if self.denoise:
+            enhanced_lr = kornia.filters.bilateral_blur(enhanced_lr, self.denoise_ksize, self.denoise_color, self.denoise_space)
+        enhanced_v  = self.filter_up(image_lr, enhanced_lr, image_v, self.gf_radius)
+        enhanced    = self.replace_v_component(image_hsv, enhanced_v)
+        enhanced    = core.hsv_to_rgb(enhanced.clone())
+        # enhanced    = enhanced / torch.max(enhanced)
         # Return
-        return outputs
+        return {
+            "image"      : image,
+            "depth"      : depth,
+            "edge"       : edge,
+            "image_lr"   : image_lr,
+            "depth_lr"   : depth_lr,
+            "edge_lr"    : edge_lr,
+            "illu_res_lr": illu_res_lr,
+            "illu_lr"    : illu_lr,
+            "enhanced_lr": enhanced_lr,
+            "enhanced"   : enhanced,
+        }
+
+
+class MLP_HSV_D(MLP):
+    
+    def __init__(
+        self,
+        window_size      : list[int]   = [3, 5, 7],
+        hidden_channels  : int         = 256,
+        down_size        : int         = 256,
+        hidden_layers    : int         = 2,
+        out_layers       : int         = 1,
+        omega_0          : float       = 30.0,
+        first_bias_scale : float       = None,
+        nonlinear        : Literal["finer", "gauss", "relu", "sigmoid", "sine"] = "sine",
+        weight_decay     : list[float] = [0.1, 0.0001, 0.001],
+        ff_embedded      : bool        = False,
+        ff_gaussian_scale: float       = 10,
+        dba_eps          : float       = 0.05,
+        gf_radius        : int         = 3,
+        denoise          : bool        = False,
+        denoise_ksize    : list[float] = (3, 3),
+        denoise_color    : float       = 0.5,
+        denoise_space    : list[float] = (1.5, 1.5),
+        *args, **kwargs
+    ):
+        super().__init__()
+        self.window_size   = window_size
+        self.down_size     = down_size
+        self.gf_radius     = gf_radius
+        self.denoise       = denoise
+        self.denoise_ksize = denoise_ksize
+        self.denoise_color = denoise_color
+        self.denoise_space = denoise_space
+        self.out_channels  = 1
+        self.num_scales    = len(window_size)
+        mid_channels       = hidden_channels // 2
+        output_in_channels = mid_channels * (self.num_scales + 3)
+        
+        self.value_nets = nn.ModuleList()
+        for i in range(self.num_scales):
+            window_size_ = window_size[i]
+            self.value_nets.append(nn.ContextImplicitFeatureEncoder(window_size_, mid_channels, down_size, hidden_layers, omega_0, first_bias_scale, nonlinear, weight_decay[1], ff_embedded, ff_gaussian_scale))
+        self.depth_net  = nn.ContextImplicitFeatureEncoder(window_size[-1], mid_channels, down_size, hidden_layers, omega_0, first_bias_scale, nonlinear, weight_decay[1], ff_embedded, ff_gaussian_scale)
+        self.edge_net   = nn.ContextImplicitFeatureEncoder(window_size[-1], mid_channels, down_size, hidden_layers, omega_0, first_bias_scale, nonlinear, weight_decay[1], ff_embedded, ff_gaussian_scale)
+        self.coords_net = nn.ContextImplicitCoordinatesEncoder(mid_channels, down_size, hidden_layers, omega_0, first_bias_scale, nonlinear, weight_decay[0], ff_embedded, ff_gaussian_scale)
+        self.output_net = nn.ContextImplicitDecoder(output_in_channels, self.out_channels, out_layers, omega_0, nonlinear, weight_decay[2])
+        self.dba        = nn.BoundaryAwarePrior(eps=dba_eps, normalized=False)
+        
+    def forward(self, image: torch.Tensor, depth: torch.Tensor = None) -> torch.Tensor:
+        # Prepare input
+        if depth is None:
+            depth = core.rgb_to_grayscale(image)
+        edge      = self.dba(depth)
+        image_hsv = core.rgb_to_hsv(image)
+        image_v   = core.rgb_to_v(image)
+        # Mapping
+        image_lrs   = []
+        value_inrs  = []
+        for i in range(self.num_scales):
+            image_lr_i, value_inr_i = self.value_nets[i](image_v)
+            image_lrs.append(image_lr_i)
+            value_inrs.append(value_inr_i)
+        depth_lr, depth_inr = self.depth_net(depth)
+        edge_lr,  edge_inr  = self.edge_net(edge)
+        coords              = self.coords_net(image_v)
+        # Combining
+        illu_res_lr = self.output_net(torch.cat(value_inrs + [depth_inr, edge_inr, coords], -1))
+        illu_res_lr = illu_res_lr.view(1, self.out_channels, self.down_size, self.down_size)
+        # Enhancement
+        image_lr    = image_lrs[0]
+        illu_lr     = illu_res_lr + image_lr
+        enhanced_lr = image_lr / (illu_lr + 1e-8)
+        if self.denoise:
+            enhanced_lr = kornia.filters.bilateral_blur(enhanced_lr, self.denoise_ksize, self.denoise_color, self.denoise_space)
+        enhanced_v  = self.filter_up(image_lr, enhanced_lr, image_v, self.gf_radius)
+        enhanced    = self.replace_v_component(image_hsv, enhanced_v)
+        enhanced    = core.hsv_to_rgb(enhanced.clone())
+        # enhanced    = enhanced / torch.max(enhanced)
+        # Return
+        return {
+            "image"      : image,
+            "depth"      : depth,
+            "edge"       : edge,
+            "image_lr"   : image_lr,
+            "depth_lr"   : depth_lr,
+            "edge_lr"    : edge_lr,
+            "illu_res_lr": illu_res_lr,
+            "illu_lr"    : illu_lr,
+            "enhanced_lr": enhanced_lr,
+            "enhanced"   : enhanced,
+        }
 
 # endregion
 
@@ -621,33 +669,35 @@ class ZeroMIE_MS(base.ImageEnhancementModel):
     
     def __init__(
         self,
-        name            : str         = "zero_mie_ms",
-        color_space     : Literal["rgb", "rgb_d", "hsv_v"] = "hsv_v",
-        window_size     : list[int]   = [7, 7],
-        hidden_channels : list[int]   = [128, 256],
-        down_size       : list[int]   = [128, 256],
-        hidden_layers   : list[int]   = [2, 2],
-        out_layers      : list[int]   = [1, 1],
-        omega_0         : list[float] = [30.0, 30.0],
-        first_bias_scale: list[float] = [None, None],
-        nonlinear       : list[Literal["finer", "gauss", "relu", "sigmoid", "sine"]] = ["sine", "sine"],
-        dba_eps         : float       = 0.05,
-        gf_radius       : int         = 3,
-        denoise         : bool        = False,
-        denoise_ksize   : list[float] = (3, 3),
-        denoise_color   : float       = 0.5,
-        denoise_space   : list[float] = (1.5, 1.5),
+        name             : str         = "zero_mie_ms",
+        color_space      : Literal["rgb", "rgb_d", "hsv", "hsv_d"] = "hsv",
+        window_size      : list[int]   = [3, 5, 7],
+        hidden_channels  : int         = 256,
+        down_size        : int         = 256,
+        hidden_layers    : int         = 2,
+        out_layers       : int         = 1,
+        omega_0          : float       = 30.0,
+        first_bias_scale : float       = None,
+        nonlinear        : Literal["finer", "gauss", "relu", "sigmoid", "sine"] = "sine",
+        ff_embedded      : bool        = False,
+        ff_gaussian_scale: float       = 10,
+        dba_eps          : float       = 0.05,
+        gf_radius        : int         = 3,
+        denoise          : bool        = False,
+        denoise_ksize    : list[float] = (3, 3),
+        denoise_color    : float       = 0.5,
+        denoise_space    : list[float] = (1.5, 1.5),
         # Loss
-        loss_hsv        : bool        = True,
-        exp_mean        : float       = 0.6,
-        exp_weight      : float       = 10,
-        spa_weight      : float       = 1,
-        color_weight    : float       = 5,
-        tv_weight       : float       = 1600,
-        depth_weight    : float       = 1,
-        edge_weight     : float       = 1,
-        use_pseudo_gt   : bool        = False,
-        number_refs     : int         = 2,
+        loss_hsv         : bool        = True,
+        exp_mean         : float       = 0.6,
+        exp_weight       : float       = 10,
+        spa_weight       : float       = 1,
+        color_weight     : float       = 5,
+        tv_weight        : float       = 1600,
+        depth_weight     : float       = 1,
+        edge_weight      : float       = 1,
+        use_pseudo_gt    : bool        = False,
+        number_refs      : int         = 2,
         *args, **kwargs
     ):
         super().__init__(name=name, *args, **kwargs)
@@ -660,27 +710,31 @@ class ZeroMIE_MS(base.ImageEnhancementModel):
             mlp = MLP_RGB
         elif color_space == "rgb_d":
             mlp = MLP_RGB_D
-        elif color_space == "hsv_v":
-            mlp = MLP_HSV_V
+        elif color_space == "hsv":
+            mlp = MLP_HSV
+        elif color_space == "hsv_d":
+            mlp = MLP_HSV_D
         else:
             raise ValueError(f"Invalid color space: {color_space}")
         
         self.mlp = mlp(
-            window_size      = window_size,
-            hidden_channels  = hidden_channels,
-            down_size        = down_size,
-            hidden_layers    = hidden_layers,
-            out_layers       = out_layers,
-            omega_0          = omega_0,
-            first_bias_scale = first_bias_scale,
-            nonlinear        = nonlinear,
-            weight_decay     = weight_decay,
-            dba_eps          = dba_eps,
-            gf_radius        = gf_radius,
-            denoise          = denoise,
-            denoise_ksize    = denoise_ksize,
-            denoise_color    = denoise_color,
-            denoise_space    = denoise_space,
+            window_size       = window_size,
+            hidden_channels   = hidden_channels,
+            down_size         = down_size,
+            hidden_layers     = hidden_layers,
+            out_layers        = out_layers,
+            omega_0           = omega_0,
+            first_bias_scale  = first_bias_scale,
+            nonlinear         = nonlinear,
+            weight_decay      = weight_decay,
+            ff_embedded       = ff_embedded,
+            ff_gaussian_scale = ff_gaussian_scale,
+            dba_eps           = dba_eps,
+            gf_radius         = gf_radius,
+            denoise           = denoise,
+            denoise_ksize     = denoise_ksize,
+            denoise_color     = denoise_color,
+            denoise_space     = denoise_space,
         )
         self.pseudo_gt_generator = utils.PseudoGTGenerator(
             number_refs   = self.number_refs,
@@ -777,20 +831,17 @@ class ZeroMIE_MS(base.ImageEnhancementModel):
             nth_pseudo_gt = self.pseudo_gt_generator(nth_image, nth_enhanced)
             if self.saved_input is not None:
                 # Getting (n - 1)th input and (n - 1)-th pseudo gt -> calculate loss -> update model weight (handled automatically by pytorch lightning)
-                outputs  = self.forward(datapoint=datapoint, *args, **kwargs)
-                image    = outputs["image"]
-                enhanced = outputs["enhanced"]
-                loss_enh = 0
-                for i in range(self.num_scales):
-                    image_lr_i     = outputs[f"image_lr_{i}"]
-                    illu_lr_i      = outputs[f"illu_lr_{i}"]
-                    enhanced_lr_i  = outputs[f"enhanced_lr_{i}"]
-                    depth_lr_i     = outputs[f"depth_lr_{i}"]
-                    loss_i         = self.loss(image, image_lr_i, illu_lr_i, enhanced, enhanced_lr_i, depth_lr_i)
-                    loss_enh      += loss_i
-                pseudo_gt       = self.saved_pseudo_gt
-                loss_recon      = self.loss_recon(enhanced, pseudo_gt)
-                loss            = loss_recon + loss_enh  # * 5
+                outputs     = self.forward(datapoint=datapoint, *args, **kwargs)
+                image       = outputs["image"]
+                enhanced    = outputs["enhanced"]
+                image_lr    = outputs["image_lr"]
+                illu_lr     = outputs["illu_lr"]
+                enhanced_lr = outputs["enhanced_lr"]
+                depth_lr    = outputs["depth_lr"]
+                loss_enh    = self.loss(image, image_lr, illu_lr, enhanced, enhanced_lr, depth_lr)
+                pseudo_gt   = self.saved_pseudo_gt
+                loss_recon  = self.loss_recon(enhanced, pseudo_gt)
+                loss        = loss_recon + loss_enh  # * 5
                 outputs["loss"] = loss
             else:  # Skip updating model's weight at the first batch
                 outputs = {"loss": None}
@@ -798,28 +849,23 @@ class ZeroMIE_MS(base.ImageEnhancementModel):
             self.saved_input     = nth_input
             self.saved_pseudo_gt = nth_pseudo_gt
         else:
-            outputs  = self.forward(datapoint=datapoint, *args, **kwargs)
-            image    = outputs["image"]
-            enhanced = outputs["enhanced"]
-            loss     = 0
-            for i in range(self.num_scales):
-                image_lr_i     = outputs[f"image_lr_{i}"]
-                illu_lr_i      = outputs[f"illu_lr_{i}"]
-                enhanced_lr_i  = outputs[f"enhanced_lr_{i}"]
-                depth_lr_i     = outputs[f"depth_lr_{i}"]
-                loss_i         = self.loss(image, image_lr_i, illu_lr_i, enhanced, enhanced_lr_i, depth_lr_i)
-                loss          += loss_i
+            outputs     = self.forward(datapoint=datapoint, *args, **kwargs)
+            image       = outputs["image"]
+            enhanced    = outputs["enhanced"]
+            image_lr    = outputs["image_lr"]
+            illu_lr     = outputs["illu_lr"]
+            enhanced_lr = outputs["enhanced_lr"]
+            depth_lr    = outputs["depth_lr"]
+            loss        = self.loss(image, image_lr, illu_lr, enhanced, enhanced_lr, depth_lr)
             outputs["loss"] = loss
         return outputs
         
-    def forward(self, datapoint: dict, n_iters: int = 1, *args, **kwargs) -> dict:
+    def forward(self, datapoint: dict, *args, **kwargs) -> dict:
         # Prepare input
         self.assert_datapoint(datapoint)
-        image = datapoint.get("image")
-        depth = datapoint.get("depth")
-        for i in range(n_iters):
-            outputs = self.mlp(image, depth)
-            image   = outputs["enhanced"]
+        image   = datapoint.get("image")
+        depth   = datapoint.get("depth")
+        outputs = self.mlp(image, depth)
         # Return
         return outputs
        
@@ -856,7 +902,7 @@ class ZeroMIE_MS(base.ImageEnhancementModel):
         
         # Training
         for _ in range(epochs):
-            outputs = self.forward_loss(datapoint=datapoint, n_iters=1)
+            outputs = self.forward_loss(datapoint=datapoint)
             optimizer.zero_grad()
             loss    = outputs["loss"]
             if loss is not None:
@@ -869,7 +915,7 @@ class ZeroMIE_MS(base.ImageEnhancementModel):
         self.eval()
         timer = core.Timer()
         timer.tick()
-        outputs = self.forward(datapoint=datapoint, n_iters=1)
+        outputs = self.forward(datapoint=datapoint)
         timer.tock()
         self.assert_outputs(outputs)
         

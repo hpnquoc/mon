@@ -28,43 +28,45 @@ verbose    = True
 # region Model
 
 model = {
-	"name"            : model_name,     # The model's name.
-	"fullname"        : fullname,       # A full model name to save the checkpoint or weight.
-	"root"            : root,           # The root directory of the model.
-	"in_channels"     : 3,              # The first layer's input channel.
-	"out_channels"    : None,           # A number of classes, which is also the last layer's output channels.
-	"color_space"     : "hsv_v",        # Color space. Best: hsv_v
-	"window_size"     : 7,              # Context window size.
-	"hidden_channels" : 256,            # Hidden channels.
-	"down_size"       : 256,            # Downsampling size.
-	"hidden_layers"   : 2,              # Number of hidden layers.
-	"out_layers"      : 1,              # Number of output layers.
-	"omega_0"         : 30.0,           # Best: 30.0
-	"first_bias_scale": None,           # Best: None
-	"nonlinear"       : "sine",         # Non-linear activation. Best: sine
-	"dba_eps"         : 0.01,           # DBA epsilon. Best: 0.01
-	"gf_radius"       : 3,              # Radius of the guided filter. Best: 3
-	"denoise"         : False,          # If ``True``, use denoising. Best: False
-	"denoise_ksize"   : (3, 3),         # Best: (3, 3)
-	"denoise_color"   : 0.1,            # Best: 0.1
-	"denoise_space"   : (1.5, 1.5),     # Best: (1.5, 1.5)
-	"loss_hsv"        : True,           # If ``True``, use HSV loss. Best: True
-	"exp_mean"        : 0.7,            # Best: 0.7
-	"exp_weight"      : 10,             # Best: 10
-	"spa_weight"	  : 1,              # Best: 1
-	"color_weight"    : 5,              # Best: 5
-	"tv_weight"       : 100,            # Best: 100
-	"depth_weight"    : 0,              # Best: 0
-	"edge_weight"     : 1,              # Best: 1
-	"use_pseudo_gt"   : False,          # If ``True``, use PSE. Best: False
-	"number_refs"     : 2,			    # Number of references.
-	"weights"         : None,           # The model's weights.
-	"metrics"         : {
+	"name"             : model_name,     # The model's name.
+	"fullname"         : fullname,       # A full model name to save the checkpoint or weight.
+	"root"             : root,           # The root directory of the model.
+	"in_channels"      : 3,              # The first layer's input channel.
+	"out_channels"     : None,           # A number of classes, which is also the last layer's output channels.
+	"color_space"      : "hsv",          # Color space. Best: hsv
+	"window_size"      : 7,              # Context window size.
+	"hidden_channels"  : 256,            # Hidden channels.
+	"down_size"        : 256,            # Downsampling size.
+	"hidden_layers"    : 2,              # Number of hidden layers.
+	"out_layers"       : 1,              # Number of output layers.
+	"omega_0"          : 30.0,           # Best: 30.0
+	"first_bias_scale" : None,           # Best: None
+	"nonlinear"        : "sine",         # Non-linear activation. Best: sine
+	"ff_embedded"      : False,
+	"ff_gaussian_scale": 10,
+	"dba_eps"          : 0.01,           # DBA epsilon. Best: 0.01
+	"gf_radius"        : 3,              # Radius of the guided filter. Best: 3
+	"denoise"          : False,          # If ``True``, use denoising. Best: False
+	"denoise_ksize"    : (3, 3),         # Best: (3, 3)
+	"denoise_color"    : 0.1,            # Best: 0.1
+	"denoise_space"    : (1.5, 1.5),     # Best: (1.5, 1.5)
+	"loss_hsv"         : True,           # If ``True``, use HSV loss. Best: True
+	"exp_mean"         : 0.7,            # Best: 0.7
+	"exp_weight"       : 10,             # Best: 10
+	"spa_weight"	   : 1,              # Best: 1
+	"color_weight"     : 5,              # Best: 5
+	"tv_weight"        : 100,            # Best: 100
+	"depth_weight"     : 0,              # Best: 0
+	"edge_weight"      : 1,              # Best: 1
+	"use_pseudo_gt"    : False,          # If ``True``, use PSE. Best: False
+	"number_refs"      : 2,			     # Number of references.
+	"weights"          : None,           # The model's weights.
+	"metrics"          : {
 	    "train": None,
 		"val"  : [{"name": "psnr"}, {"name": "ssim"}],
 		"test" : [{"name": "psnr"}, {"name": "ssim"}],
     },          # A list metrics for validating and testing model.
-	"optimizers"      : [
+	"optimizers"       : [
 		{
             "optimizer"          : {
 	            "name"        : "adam",
@@ -76,8 +78,8 @@ model = {
 			"network_params_only": True,
         }
     ],          # Optimizer(s) for training model.
-	"debug"           : False,          # If ``True``, run the model in debug mode (when predicting).
-	"verbose"         : verbose,        # Verbosity.
+	"debug"            : False,          # If ``True``, run the model in debug mode (when predicting).
+	"verbose"          : verbose,        # Verbosity.
 }
 
 # endregion
