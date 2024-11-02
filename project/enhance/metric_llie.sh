@@ -15,21 +15,29 @@ task="llie"
 arch="zero_mie"
 model="zero_mie_ms"
 data=(
+    ### Unpaired Set
     # "dicm"
     # "lime"
     # "mef"
     # "npe"
     # "vv"
-    "fivek_e"
-    # "loli_street"
+    ### LOLs Set
     # "lol_v1"
     # "lol_v2_real"
     # "lol_v2_synthetic"
-    # "nightcity"
+    ### Multiple Exposure Set
+    # "fivek_e"
     # "sice"
     # "sice_grad"
     # "sice_mix_v2"
+    ### Camera-Specific Set
     # "sid_sony"
+    ### Real-World Set
+    # "darkcityscapes"
+    # "darkface"
+    # "exdark"
+    # "loli_street"
+    # "nightcity"
 )
 device="cuda:0"
 

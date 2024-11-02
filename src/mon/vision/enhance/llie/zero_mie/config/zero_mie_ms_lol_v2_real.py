@@ -46,7 +46,7 @@ model = {
 	"ff_gaussian_scale": 10,
 	"dba_eps"          : 0.05,           # DBA epsilon. Best: 0.05
 	"gf_radius"        : 3,              # Radius of the guided filter. Best: 3
-	"denoise"          : False,          # If ``True``, use denoising. Best: False
+	"denoise"          : True,          # If ``True``, use denoising. Best: True
 	"denoise_ksize"    : (3, 3),         # Best: (3, 3)
     "denoise_color"    : 0.1,            # Best: 0.1
     "denoise_space"    : (1.5, 1.5),     # Best: (1.5, 1.5)

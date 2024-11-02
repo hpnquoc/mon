@@ -49,7 +49,7 @@ class LoLIStreet(MultimodalDataset):
             patterns = [
                 self.root / "loli_street" / self.split_str / "image",
             ]
-            
+
         # Images
         images: list[ImageAnnotation] = []
         with core.get_progress_bar(disable=self.disable_pbar) as pbar:

@@ -300,7 +300,29 @@ class MLP(nn.Module, ABC):
         """Replaces the `I` component of an HVI image `[1, 3, H, W]`."""
         image_hvi[:, 2, :, :] = i_new
         return image_hvi
-
+    
+    def laplace(self, model_output: torch.Tensor, coords: torch.Tensor):
+        y    = model_output
+        x    = coords
+        grad = self.gradient(y, x)
+        return self.divergence(grad, x)
+    
+    def divergence(self, model_output: torch.Tensor, coords: torch.Tensor):
+        y   = model_output
+        x   = coords
+        div = 0.0
+        for i in range(y.shape[-1]):
+            div += torch.autograd.grad(y[..., i], x, torch.ones_like(y[..., i]), create_graph=True)[0][..., i : i + 1]
+        return div
+    
+    def gradient(self, model_output: torch.Tensor, coords: torch.Tensor, grad_outputs: torch.Tensor = None):
+        y = model_output
+        x = coords
+        if grad_outputs is None:
+            grad_outputs = torch.ones_like(y)
+        grad = torch.autograd.grad(y, [x], grad_outputs=grad_outputs, create_graph=True)[0]
+        return grad
+    
 
 class MLP_RGB(MLP):
     
@@ -515,7 +537,7 @@ class MLP_HSV(MLP):
             window_size_ = window_size[i]
             self.value_nets.append(nn.ContextImplicitFeatureEncoder(window_size_, mid_channels, down_size, hidden_layers, omega_0, first_bias_scale, nonlinear, weight_decay[1], ff_embedded, ff_gaussian_scale))
         self.coords_net = nn.ContextImplicitCoordinatesEncoder(mid_channels, down_size, hidden_layers, omega_0, first_bias_scale, nonlinear, weight_decay[0], ff_embedded, ff_gaussian_scale)
-        self.output_net = nn.ContextImplicitDecoder(output_in_channels, self.out_channels, out_layers, omega_0, nonlinear, weight_decay[2], ff_embedded, ff_gaussian_scale)
+        self.output_net = nn.ContextImplicitDecoder(output_in_channels, self.out_channels, out_layers, omega_0, nonlinear, weight_decay[2])
         self.dba        = nn.BoundaryAwarePrior(eps=dba_eps, normalized=False)
         
     def forward(self, image: torch.Tensor, depth: torch.Tensor = None) -> torch.Tensor:
