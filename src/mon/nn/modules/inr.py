@@ -767,7 +767,7 @@ class ContextImplicitFeatureEncoder(nn.Module):
         first_bias_scale : float = None,
         nonlinear        : Literal["finer", "gauss", "relu", "sigmoid", "sine"] = "sine",
         weight_decay     : float = 0.0001,
-        ff_embedded      : bool  = False,
+        use_ff           : bool  = False,
         ff_gaussian_scale: float = 10,
     ):
         super().__init__()
@@ -778,7 +778,7 @@ class ContextImplicitFeatureEncoder(nn.Module):
         in_channels          = window_size ** 2
         net_in_channels      = in_channels
         
-        if ff_embedded:
+        if use_ff:
             self.register_buffer("B", torch.randn((out_channels, in_channels)) * ff_gaussian_scale)
             net_in_channels = out_channels * 2
         else:
@@ -843,7 +843,7 @@ class ContextImplicitCoordinatesEncoder(nn.Module):
         first_bias_scale : float = None,
         nonlinear        : Literal["finer", "gauss", "relu", "sigmoid", "sine"] = "sine",
         weight_decay     : float = 0.1,
-        ff_embedded      : bool  = False,
+        use_ff           : bool  = False,
         ff_gaussian_scale: float = 10,
     ):
         super().__init__()
@@ -853,7 +853,7 @@ class ContextImplicitCoordinatesEncoder(nn.Module):
         in_channels          = 2
         hidden_channels      = in_channels
         
-        if ff_embedded:
+        if use_ff:
             self.register_buffer("B", torch.randn((out_channels, in_channels)) * ff_gaussian_scale)
             hidden_channels = out_channels * 2
         else:

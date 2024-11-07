@@ -4,7 +4,6 @@
 from __future__ import annotations
 
 import mon
-from mon import albumentation as A
 from mon.config import default
 
 current_file = mon.Path(__file__).absolute()
@@ -12,8 +11,8 @@ current_file = mon.Path(__file__).absolute()
 
 # region Basic
 
-model_name = "zero_mie_supervised"
-data_name  = "lol_v1"
+model_name = "zero_mie_ms_wo_exp"
+data_name  = "fivek_e"
 root       = current_file.parents[1] / "run"
 data_root  = mon.DATA_DIR / "enhance"
 project    = None
@@ -34,33 +33,33 @@ model = {
 	"root"             : root,           # The root directory of the model.
 	"in_channels"      : 3,              # The first layer's input channel.
 	"out_channels"     : None,           # A number of classes, which is also the last layer's output channels.
-	"color_space"      : "rgb_d",        # Color space. Best: rgb_d
-	"window_size"      : 7,              # Context window size.
+	"color_space"      : "hsv_d",        # Color space. Best: hsv_d
+	"window_size"      : [3, 5, 7],      # Context window size.
 	"hidden_channels"  : 256,            # Hidden channels.
 	"down_size"        : 256,            # Downsampling size.
 	"hidden_layers"    : 2,              # Number of hidden layers.
 	"out_layers"       : 1,              # Number of output layers.
-	"omega_0"          : 30.0,
-	"first_bias_scale" : None,
+	"omega_0"          : 30.0,           # Best: 30.0
+	"first_bias_scale" : None,           # Best: None
 	"nonlinear"        : "sine",         # Non-linear activation. Best: sine
-	"ff_embedded"      : False,
+	"use_ff"           : True,           # Best: True
 	"ff_gaussian_scale": 10,
-	"dba_eps"          : 0.01,           # DBA epsilon. Best: 0.01
-	"gf_radius"        : 1,              # Radius of the guided filter. Best: 1
-	"denoise"          : True,           # If ``True``, use denoising. Best: True
-	"denoise_ksize"    : (5, 5),         # Best: (5, 5)
+	"edge_threshold"   : 0.05,           # Edge threshold. Best: 0.05
+	"depth_gamma"	   : 0,              # Depth gamma. Best: 0.0 | View: 0.5
+	"gf_radius"        : 3,              # Radius of the guided filter. Best: 3
+	"use_denoise"      : False,          # If ``True``, use denoising. Best: False
+	"denoise_ksize"    : (3, 3),         # Best: (3, 3)
     "denoise_color"    : 0.1,            # Best: 0.1
-    "denoise_space"    : (2.0, 2.0),     # Best: (2.0, 2.0)
+    "denoise_space"    : (1.5, 1.5),     # Best: (1.5, 1.5)
 	"loss_hsv"         : True,           # If ``True``, use HSV loss. Best: True
-	"exp_mean"         : 0.6,            # Best: 0.6
-	"exp_weight"       : 10,             # Best: 10
+	"exp_mean"         : 0.3,            # Best: 0.3
+	"exp_weight"       : 0,              # Best: 8
 	"spa_weight"	   : 1,              # Best: 1
-	"color_weight"     : 5,              # Best: 5
-	"tv_weight"        : 100,            # Best: 100
+	"tv_weight"        : 20,             # Best: 20
+	"spar_weight"	   : 5,              # Best: 5
 	"depth_weight"     : 1,              # Best: 1
 	"edge_weight"      : 1,              # Best: 1
-	"use_pseudo_gt"    : False,          # If ``True``, use PSE. Best: False
-	"number_refs"      : 2,			     # Number of references.
+	"color_weight"     : 5,              # Best: 5
 	"weights"          : None,           # The model's weights.
 	"metrics"          : {
 	    "train": None,
@@ -91,11 +90,7 @@ model = {
 data = {
     "name"      : data_name,
     "root"      : data_root,     # A root directory where the data is stored.
-	"transform" : A.Compose(transforms=[
-		A.Resize(height=image_size[0], width=image_size[1]),
-		A.Flip(),
-		A.Rotate(),
-    ]),  # Transformations performing on both the input and target.
+	"transform" : None,          # Transformations performing on both the input and target.
     "to_tensor" : True,          # If ``True``, convert input and target to :class:`torch.Tensor`.
     "cache_data": False,         # If ``True``, cache data to disk for faster loading next time.
     "batch_size": 1,             # The number of samples in one forward pass.
@@ -113,17 +108,15 @@ trainer = default.trainer | {
 	"callbacks"        : [
 		default.log_training_progress,
 		default.model_checkpoint | {
-			"filename"         : fullname,
-			"monitor"          : "val/psnr",
-			"mode"             : "max",
-			"save_weights_only": True,
+			"filename": fullname,
+			"monitor" : "val/psnr",
+			"mode"    : "max",
 		},
 		default.model_checkpoint | {
-			"filename"         : fullname,
-			"monitor"          : "val/ssim",
-			"mode"             : "max",
-			"save_weights_only": True,
-			"save_last"        : True,
+			"filename" : fullname,
+			"monitor"  : "val/ssim",
+			"mode"     : "max",
+			"save_last": True,
 		},
 		default.learning_rate_monitor,
 		default.rich_model_summary,
@@ -134,7 +127,7 @@ trainer = default.trainer | {
 	"logger"           : {
 		"tensorboard": default.tensorboard,
 	},
-	"max_epochs"       : 300,
+	"max_epochs"       : 200,
 }
 
 # endregion

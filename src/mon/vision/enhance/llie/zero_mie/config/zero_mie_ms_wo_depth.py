@@ -11,8 +11,8 @@ current_file = mon.Path(__file__).absolute()
 
 # region Basic
 
-model_name = "zero_mie_ms"
-data_name  = "vv"
+model_name = "zero_mie_ms_wo_depth"
+data_name  = "fivek_e"
 root       = current_file.parents[1] / "run"
 data_root  = mon.DATA_DIR / "enhance"
 project    = None
@@ -34,7 +34,7 @@ model = {
 	"in_channels"      : 3,              # The first layer's input channel.
 	"out_channels"     : None,           # A number of classes, which is also the last layer's output channels.
 	"color_space"      : "hsv_d",        # Color space. Best: hsv_d
-	"window_size"      : [7],            # Context window size.
+	"window_size"      : [3, 5, 7],      # Context window size.
 	"hidden_channels"  : 256,            # Hidden channels.
 	"down_size"        : 256,            # Downsampling size.
 	"hidden_layers"    : 2,              # Number of hidden layers.
@@ -45,19 +45,19 @@ model = {
 	"use_ff"           : True,           # Best: True
 	"ff_gaussian_scale": 10,
 	"edge_threshold"   : 0.05,           # Edge threshold. Best: 0.05
-	"depth_gamma"	   : 0.5,            # Depth gamma. Best: 0.5
+	"depth_gamma"	   : 0,              # Depth gamma. Best: 0.0 | View: 0.5
 	"gf_radius"        : 3,              # Radius of the guided filter. Best: 3
 	"use_denoise"      : False,          # If ``True``, use denoising. Best: False
 	"denoise_ksize"    : (3, 3),         # Best: (3, 3)
     "denoise_color"    : 0.1,            # Best: 0.1
     "denoise_space"    : (1.5, 1.5),     # Best: (1.5, 1.5)
 	"loss_hsv"         : True,           # If ``True``, use HSV loss. Best: True
-	"exp_mean"         : 0.7,            # Best: 0.7
+	"exp_mean"         : 0.3,            # Best: 0.3
 	"exp_weight"       : 8,              # Best: 8
 	"spa_weight"	   : 1,              # Best: 1
 	"tv_weight"        : 20,             # Best: 20
 	"spar_weight"	   : 5,              # Best: 5
-	"depth_weight"     : 1,              # Best: 1
+	"depth_weight"     : 0,              # Best: 1
 	"edge_weight"      : 1,              # Best: 1
 	"color_weight"     : 5,              # Best: 5
 	"weights"          : None,           # The model's weights.

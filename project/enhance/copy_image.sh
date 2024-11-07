@@ -17,7 +17,7 @@ if ! [ -d "${input_dir}" ]; then
     input_dir="${current_dir}/run/predict"
 fi
 output_dir="${current_dir}/run/paper"
-image_file="dicm/01"
+image_file="dicm/24"
 
 # Run
 cd "${runml_dir}" || exit

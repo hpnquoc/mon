@@ -21,12 +21,11 @@ import torch
 from fvcore.nn import parameter_count
 from torch.nn import functional as F
 from torch.nn.common_types import _size_2_t
-from torchvision.models import vgg
 
 from mon import core, nn
 from mon.globals import MODELS, Scheme, Task
 from mon.vision import filtering
-from mon.vision.enhance import base, utils
+from mon.vision.enhance import base
 
 console      = core.console
 current_file = core.Path(__file__).absolute()
@@ -48,6 +47,7 @@ class Loss(nn.Loss):
         depth_weight: float = 1.0,
         edge_weight : float = 1.0,
         reduction   : Literal["none", "mean", "sum"] = "mean",
+        verbose     : bool  = False,
         *args, **kwargs
     ):
         super().__init__(reduction=reduction, *args, **kwargs)
@@ -57,13 +57,14 @@ class Loss(nn.Loss):
         self.tv_weight    = tv_weight
         self.depth_weight = depth_weight
         self.edge_weight  = edge_weight
+        self.verbose      = verbose
         
         self.exp_loss   = nn.ExposureControlLoss(16, exp_mean, reduction=reduction)
         self.spa_loss   = nn.SpatialConsistencyLoss(8, reduction=reduction)
         self.color_loss = nn.ColorConstancyLoss(reduction=reduction)
         self.tv_loss    = nn.TotalVariationLoss(reduction=reduction)
-        self.depth_loss = nn.MultiscaleDepthConsistencyLoss(reduction=reduction)
-        self.edge_loss  = nn.EdgeAwareDepthConsistencyLoss(reduction=reduction)
+        self.depth_loss = nn.DepthWeightedSmoothnessLoss(reduction=reduction)
+        self.edge_loss  = nn.EdgeAwareLoss(reduction=reduction)
         
     def forward(
         self,
@@ -73,16 +74,19 @@ class Loss(nn.Loss):
         enhanced       : torch.Tensor,
         enhanced_lr    : torch.Tensor,
         depth_lr       : torch.Tensor = None,
+        edge_lr        : torch.Tensor = None,
     ) -> torch.Tensor:
         exp_loss   = self.exp_weight   * self.exp_loss(input=enhanced)
         spa_loss   = self.spa_weight   * self.spa_loss(input=enhanced, target=image)
         color_loss = self.color_weight * self.color_loss(input=enhanced)
         tv_loss    = self.tv_weight    * self.tv_loss(input=illumination_lr)
         if depth_lr is not None:
-            depth_loss = self.depth_weight * self.depth_loss(enhanced_lr, depth_lr)
-            edge_loss  = self.edge_weight  *  self.edge_loss(enhanced_lr, depth_lr)
+            depth_loss = self.depth_weight * self.depth_loss(illumination_lr, depth_lr)
         else:
             depth_loss = 0
+        if edge_lr is not None:
+            edge_loss  = self.edge_weight  *  self.edge_loss(illumination_lr, edge_lr)
+        else:
             edge_loss  = 0
         loss = exp_loss + spa_loss + color_loss + tv_loss + depth_loss + edge_loss
         '''
@@ -107,10 +111,11 @@ class LossHSV(nn.Loss):
         spa_weight  : float = 1.0,
         tv_weight   : float = 20.0,
         spar_weight : float = 5.0,
-        depth_weight: float = 0.0,
-        edge_weight : float = 0.0,
-        color_weight: float = 0.0,
-        reduction: Literal["none", "mean", "sum"] = "mean",
+        depth_weight: float = 1.0,
+        edge_weight : float = 1.0,
+        color_weight: float = 5.0,
+        reduction   : Literal["none", "mean", "sum"] = "mean",
+        verbose     : bool = True,
         *args, **kwargs
     ):
         super().__init__(reduction=reduction, *args, **kwargs)
@@ -121,11 +126,12 @@ class LossHSV(nn.Loss):
         self.depth_weight = depth_weight
         self.edge_weight  = edge_weight
         self.color_weight = color_weight
+        self.verbose      = verbose
         
         self.exp_loss   = nn.ExposureValueControlLoss(16, exp_mean, reduction=reduction)
         self.tv_loss    = nn.TotalVariationLoss(reduction=reduction)
-        self.depth_loss = nn.MultiscaleDepthConsistencyLoss(reduction=reduction)
-        self.edge_loss  = nn.EdgeAwareDepthConsistencyLoss(reduction=reduction)
+        self.depth_loss = nn.DepthWeightedSmoothnessLoss(reduction=reduction)
+        self.edge_loss  = nn.EdgeAwareLoss(reduction=reduction)
         self.color_loss = nn.ColorConstancyLoss(reduction=reduction)
         
     def forward(
@@ -135,140 +141,41 @@ class LossHSV(nn.Loss):
         illumination_lr: torch.Tensor,
         enhanced       : torch.Tensor,
         enhanced_lr    : torch.Tensor,
-        depth          : torch.Tensor = None,
+        depth_lr       : torch.Tensor = None,
+        edge_lr        : torch.Tensor = None,
     ) -> torch.Tensor:
         exp_loss   = self.exp_weight   * torch.mean(self.exp_loss(illumination_lr))
         spa_loss   = self.spa_weight   * torch.mean(torch.abs(torch.pow(illumination_lr - image_lr, 2)))
         tv_loss    = self.tv_weight    * self.tv_loss(illumination_lr)
         spar_loss  = self.spar_weight  * torch.mean(enhanced)
         color_loss = self.color_weight * self.color_loss(enhanced)
-        # noise_loss = ((enhanced - image) ** 2).mean()
-        if depth is not None:
-            depth_loss = self.depth_weight * (self.depth_loss(enhanced_lr, depth))
-            edge_loss  = self.edge_weight  * ( self.edge_loss(enhanced_lr, depth))
+        if depth_lr is not None:
+            depth_loss = self.depth_weight * self.depth_loss(illumination_lr, depth_lr)
         else:
             depth_loss = 0
+        if edge_lr is not None:
+            edge_loss  = self.edge_weight  *  self.edge_loss(illumination_lr, edge_lr)
+        else:
             edge_loss  = 0
+        loss = exp_loss + spa_loss + tv_loss + spar_loss + color_loss + depth_loss + edge_loss
         
-        loss = exp_loss + spa_loss + tv_loss + spar_loss + color_loss + depth_loss + edge_loss  # + noise_loss
-        '''
-        print(
-            f"exp_loss: {exp_loss:.4f}, "
-            f"spa_loss: {spa_loss:.4f}, "
-            f"tv_loss: {tv_loss:.4f}, "
-            f"spar_loss: {spar_loss:.4f}, "
-            f"color_loss: {color_loss:.4f}, "
-            f"depth_loss: {depth_loss:.4f}, "
-            f"edge_loss: {edge_loss:.4f}"
-        )
-        '''
-        return loss
-
-
-class LossS(nn.Loss):
-    """
-    λ1, λ2, λ3, λ4 = {0.40, 0.05, 0.15, 0.40} for the LOL dataset.
-    λ1, λ2, λ3, λ4 = {0.35, 0.10, 0.25, 0.30} for the VE-LOL dataset.
-    """
-    
-    def __init__(
-        self,
-        str_weight: float = 0.40,
-        tv_weight : float = 0.05,
-        reg_weight: float = 0.15,
-        per_weight: float = 0.40,
-        reduction : Literal["none", "mean", "sum"] = "mean",
-        *args, **kwargs
-    ):
-        super().__init__(*args, **kwargs, reduction=reduction)
-        self.str_weight = str_weight
-        self.tv_weight  = tv_weight
-        self.reg_weight = reg_weight
-        self.per_weight = per_weight
+        if self.verbose:
+            console.log(
+                f"exp_loss: {exp_loss:.4f}, "
+                f"spa_loss: {spa_loss:.4f}, "
+                f"tv_loss: {tv_loss:.4f}, "
+                f"spar_loss: {spar_loss:.4f}, "
+                f"color_loss: {color_loss:.4f}, "
+                f"depth_loss: {depth_loss:.4f}, "
+                f"edge_loss: {edge_loss:.4f}"
+            )
         
-        self.ms_ssim_loss = nn.MSSSIMLoss(data_range=1.0)
-        self.ssim_loss    = nn.SSIMLoss(data_range=1.0, non_negative_ssim=True)
-        self.per_loss     = nn.PerceptualLoss(
-            net        = vgg.vgg19(weights=vgg.VGG19_Weights.IMAGENET1K_V1).features,
-            layers     = ["26"],
-            preprocess = True,
-            reduction  = reduction,
-        )
-        self.tv_loss = nn.TotalVariationLoss(reduction=reduction)
-    
-    def forward(self, input: torch.Tensor, target: torch.Tensor) -> torch.Tensor:
-        str_loss = self.ms_ssim_loss(input, target) + self.ssim_loss(input, target)
-        per_loss = self.per_loss(input, target)
-        reg_loss = self.region_loss(input, target)
-        tv_loss  = self.tv_loss(input)
-        loss     = (
-              self.str_weight * str_loss
-            + self.tv_weight  * tv_loss
-            + self.reg_weight * reg_loss
-            + self.per_weight * per_loss
-        )
         return loss
-    
-    @staticmethod
-    def region_loss(input: torch.Tensor, target: torch.Tensor) -> torch.Tensor:
-        gray     = (
-              0.30 * target[:, 0, :, :]
-            + 0.59 * target[:, 1, :, :]
-            + 0.11 * target[:, 2, :, :]
-        )
-        gray     = gray.view(-1)
-        value    = -torch.topk(-gray, int(gray.shape[0] * 0.4))[0][0]
-        weight   = 1 * (target > value) + 4 * (target <= value)
-        abs_diff = torch.abs(input - target)
-        return torch.mean(weight * abs_diff)
 
 # endregion
 
 
 # region Modules
-
-class FiLM(nn.Module):
-    
-    def __init__(self, in_channels):
-        super().__init__()
-        # Two linear layers to generate scale and shift from depth information
-        self.fc_scale = nn.Linear(1, in_channels)  # Scale from depth
-        self.fc_shift = nn.Linear(1, in_channels)  # Shift from depth
-
-    def forward(self, x, depth_map):
-        batch_size = depth_map.size(0)  # This should be 1 for your case
-        height, width, _ = x.size()  # height=256, width=256, in_channels=64
-
-        # Flatten depth_map to [B, H*W, 1]
-        depth_map_flat = depth_map.view(batch_size, -1, 1)  # Shape: [1, 256*256, 1]
-
-        # Calculate scale and shift based on depth
-        scale = self.fc_scale(depth_map_flat)  # Shape: [1, H*W, in_channels]
-        shift = self.fc_shift(depth_map_flat)  # Shape: [1, H*W, in_channels]
-
-        # Reshape x to [B, H*W, in_channels]
-        x = x.view(-1, x.size(2))  # Flatten x to shape [H*W, in_channels] => [65536, 64]
-
-        # Apply FiLM to input features
-        x = (x * scale.view(-1, x.size(1))) + shift.view(-1, x.size(1))  # Apply modulation
-
-        # Reshape back to original dimensions [H, W, C]
-        return x.view(height, width, -1)  # Shape: [H, W, in_channels]
-
-
-class CrossAttentionLayer(nn.Module):
-    
-    def __init__(self, dim: int, num_heads: int):
-        super().__init__()
-        self.attn = nn.MultiheadAttention(embed_dim=dim, num_heads=num_heads)
-
-    def forward(self, query: torch.Tensor, key: torch.Tensor, value: torch.Tensor) -> torch.Tensor:
-        query   = query.permute(1, 0, 2)  # [seq_len, batch_size, dim]
-        key     =   key.permute(1, 0, 2)
-        value   = value.permute(1, 0, 2)
-        attn, _ = self.attn(query, key, value)
-        return attn.permute(1, 0, 2)  # Back to [batch_size, seq_len, dim]
-
 
 class MLP(nn.Module, ABC):
     
@@ -336,37 +243,39 @@ class MLP_RGB(MLP):
         omega_0          : float       = 30.0,
         first_bias_scale : float       = None,
         nonlinear        : Literal["finer", "gauss", "relu", "sigmoid", "sine"] = "sine",
-        weight_decay     : list[float] = [0.1, 0.0001, 0.001],
-        ff_embedded      : bool        = False,
+        use_ff           : bool        = False,
         ff_gaussian_scale: float       = 10,
-        dba_eps          : float       = 0.05,
+        weight_decay     : list[float] = [0.1, 0.0001, 0.001],
+        edge_threshold   : float       = 0.05,
+        depth_gamma      : float       = 0.7,
         gf_radius        : int         = 3,
-        denoise          : bool        = False,
+        use_denoise      : bool        = False,
         denoise_ksize    : list[float] = (3, 3),
         denoise_color    : float       = 0.5,
         denoise_space    : list[float] = (1.5, 1.5),
         *args, **kwargs
     ):
         super().__init__()
-        self.window_size   = window_size
+        self.window_size   = core.to_int_list(window_size)
+        self.num_scales    = len(self.window_size)
         self.down_size     = down_size
+        self.depth_gamma   = depth_gamma
         self.gf_radius     = gf_radius
-        self.denoise       = denoise
+        self.use_denoise   = use_denoise
         self.denoise_ksize = denoise_ksize
         self.denoise_color = denoise_color
         self.denoise_space = denoise_space
         self.out_channels  = 3
-        self.num_scales    = len(window_size)
         mid_channels       = hidden_channels // 2
         output_in_channels = mid_channels * (self.num_scales + 1)
         
         self.value_nets = nn.ModuleList()
         for i in range(self.num_scales):
-            window_size_ = window_size[i]
-            self.value_nets.append(nn.ContextImplicitFeatureEncoder(window_size_, mid_channels, down_size, hidden_layers, omega_0, first_bias_scale, nonlinear, weight_decay[1], ff_embedded, ff_gaussian_scale))
-        self.coords_net = nn.ContextImplicitCoordinatesEncoder(mid_channels, down_size, hidden_layers, omega_0, first_bias_scale, nonlinear, weight_decay[0], ff_embedded, ff_gaussian_scale)
+            window_size_ = self.window_size[i]
+            self.value_nets.append(nn.ContextImplicitFeatureEncoder(window_size_, mid_channels, down_size, hidden_layers, omega_0, first_bias_scale, nonlinear, weight_decay[1]))
+        self.coords_net = nn.ContextImplicitCoordinatesEncoder(mid_channels, down_size, hidden_layers, omega_0, first_bias_scale, nonlinear, weight_decay[0], use_ff, ff_gaussian_scale)
         self.output_net = nn.ContextImplicitDecoder(output_in_channels, self.out_channels, out_layers, omega_0, nonlinear, weight_decay[2])
-        self.dba        = nn.BoundaryAwarePrior(eps=dba_eps, normalized=False)
+        self.dba        = nn.BoundaryAwarePrior(eps=edge_threshold, normalized=False)
         
     def forward(self, image: torch.Tensor, depth: torch.Tensor = None) -> torch.Tensor:
         # Prepare input
@@ -380,32 +289,36 @@ class MLP_RGB(MLP):
             image_lr_i, value_inr_i = self.value_nets[i](image)
             image_lrs.append(image_lr_i)
             value_inrs.append(value_inr_i)
-        depth_lr    = self.interpolate_image(depth, self.down_size)
-        edge_lr     = self.interpolate_image(edge,  self.down_size)
-        coords      = self.coords_net(image)
+        depth_lr = self.interpolate_image(depth, self.down_size)
+        edge_lr  = self.interpolate_image(edge,  self.down_size)
+        coords   = self.coords_net(image)
         # Combining
         illu_res_lr = self.output_net(torch.cat(value_inrs + [coords], -1))
         illu_res_lr = illu_res_lr.view(1, self.out_channels, self.down_size, self.down_size)
         # Enhancement
-        image_lr    = image_lrs[0]
-        illu_lr     = illu_res_lr + image_lr
-        enhanced_lr = image_lr / (illu_lr + 1e-8)
-        if self.denoise:
+        image_lr     = image_lrs[0]
+        illu_lr      = image_lr + illu_res_lr
+        illu_res_lr2 = illu_res_lr * (1 + self.depth_gamma * (1 - depth_lr / depth_lr.max()))
+        illu_lr2     = image_lr + illu_res_lr2
+        enhanced_lr  = image_lr / (illu_lr2 + 1e-8)
+        if self.use_denoise:
             enhanced_lr = kornia.filters.bilateral_blur(enhanced_lr, self.denoise_ksize, self.denoise_color, self.denoise_space)
         enhanced = self.filter_up(image_lr, enhanced_lr, image, self.gf_radius)
         # enhanced = enhanced / torch.max(enhanced)
         # Return
         return {
-            "image"      : image,
-            "depth"      : depth,
-            "edge"       : edge,
-            "image_lr"   : image_lr,
-            "depth_lr"   : depth_lr,
-            "edge_lr"    : edge_lr,
-            "illu_res_lr": illu_res_lr,
-            "illu_lr"    : illu_lr,
-            "enhanced_lr": enhanced_lr,
-            "enhanced"   : enhanced,
+            "image"       : image,
+            "depth"       : depth,
+            "edge"        : edge,
+            "image_lr"    : image_lr,
+            "depth_lr"    : depth_lr,
+            "edge_lr"     : edge_lr,
+            "illu_res_lr" : illu_res_lr,
+            "illu_res_lr2": illu_res_lr2,
+            "illu_lr"     : illu_lr,
+            "illu_lr2"    : illu_lr2,
+            "enhanced_lr" : enhanced_lr,
+            "enhanced"    : enhanced,
         }
 
 
@@ -421,39 +334,41 @@ class MLP_RGB_D(MLP):
         omega_0          : float       = 30.0,
         first_bias_scale : float       = None,
         nonlinear        : Literal["finer", "gauss", "relu", "sigmoid", "sine"] = "sine",
-        weight_decay     : list[float] = [0.1, 0.0001, 0.001],
-        ff_embedded      : bool        = False,
+        use_ff           : bool        = False,
         ff_gaussian_scale: float       = 10,
-        dba_eps          : float       = 0.05,
+        weight_decay     : list[float] = [0.1, 0.0001, 0.001],
+        edge_threshold   : float       = 0.05,
+        depth_gamma      : float       = 0.7,
         gf_radius        : int         = 3,
-        denoise          : bool        = False,
+        use_denoise      : bool        = False,
         denoise_ksize    : list[float] = (3, 3),
         denoise_color    : float       = 0.5,
         denoise_space    : list[float] = (1.5, 1.5),
         *args, **kwargs
     ):
         super().__init__()
-        self.window_size   = window_size
+        self.window_size   = core.to_int_list(window_size)
+        self.num_scales    = len(self.window_size)
         self.down_size     = down_size
+        self.depth_gamma   = depth_gamma
         self.gf_radius     = gf_radius
-        self.denoise       = denoise
+        self.use_denoise   = use_denoise
         self.denoise_ksize = denoise_ksize
         self.denoise_color = denoise_color
         self.denoise_space = denoise_space
         self.out_channels  = 3
-        self.num_scales    = len(window_size)
         mid_channels       = hidden_channels // 2
         output_in_channels = mid_channels * (self.num_scales + 3)
         
         self.value_nets = nn.ModuleList()
         for i in range(self.num_scales):
             window_size_ = window_size[i]
-            self.value_nets.append(nn.ContextImplicitFeatureEncoder(window_size_, mid_channels, down_size, hidden_layers, omega_0, first_bias_scale, nonlinear, weight_decay[1], ff_embedded, ff_gaussian_scale))
-        self.depth_net  = nn.ContextImplicitFeatureEncoder(window_size[-1], mid_channels, down_size, hidden_layers, omega_0, first_bias_scale, nonlinear, weight_decay[1], ff_embedded, ff_gaussian_scale)
-        self.edge_net   = nn.ContextImplicitFeatureEncoder(window_size[-1], mid_channels, down_size, hidden_layers, omega_0, first_bias_scale, nonlinear, weight_decay[1], ff_embedded, ff_gaussian_scale)
-        self.coords_net = nn.ContextImplicitCoordinatesEncoder(mid_channels, down_size, hidden_layers, omega_0, first_bias_scale, nonlinear, weight_decay[0], ff_embedded, ff_gaussian_scale)
+            self.value_nets.append(nn.ContextImplicitFeatureEncoder(window_size_, mid_channels, down_size, hidden_layers, omega_0, first_bias_scale, nonlinear, weight_decay[1]))
+        self.depth_net  = nn.ContextImplicitFeatureEncoder(window_size[-1], mid_channels, down_size, hidden_layers, omega_0, first_bias_scale, nonlinear, weight_decay[1])
+        self.edge_net   = nn.ContextImplicitFeatureEncoder(window_size[-1], mid_channels, down_size, hidden_layers, omega_0, first_bias_scale, nonlinear, weight_decay[1])
+        self.coords_net = nn.ContextImplicitCoordinatesEncoder(mid_channels, down_size, hidden_layers, omega_0, first_bias_scale, nonlinear, weight_decay[0], use_ff, ff_gaussian_scale)
         self.output_net = nn.ContextImplicitDecoder(output_in_channels, self.out_channels, out_layers, omega_0, nonlinear, weight_decay[2])
-        self.dba        = nn.BoundaryAwarePrior(eps=dba_eps, normalized=False)
+        self.dba        = nn.BoundaryAwarePrior(eps=edge_threshold, normalized=False)
         
     def forward(self, image: torch.Tensor, depth: torch.Tensor = None) -> torch.Tensor:
         # Prepare input
@@ -474,25 +389,29 @@ class MLP_RGB_D(MLP):
         illu_res_lr = self.output_net(torch.cat(value_inrs + [depth_inr, edge_inr, coords], -1))
         illu_res_lr = illu_res_lr.view(1, self.out_channels, self.down_size, self.down_size)
         # Enhancement
-        image_lr    = image_lrs[0]
-        illu_lr     = illu_res_lr + image_lr
-        enhanced_lr = image_lr / (illu_lr + 1e-8)
-        if self.denoise:
+        image_lr     = image_lrs[0]
+        illu_lr      = image_lr + illu_res_lr
+        illu_res_lr2 = illu_res_lr * (1 + self.depth_gamma * (1 - depth_lr / depth_lr.max()))
+        illu_lr2     = image_lr + illu_res_lr2
+        enhanced_lr  = image_lr / (illu_lr2 + 1e-8)
+        if self.use_denoise:
             enhanced_lr = kornia.filters.bilateral_blur(enhanced_lr, self.denoise_ksize, self.denoise_color, self.denoise_space)
         enhanced = self.filter_up(image_lr, enhanced_lr, image, self.gf_radius)
         # enhanced = enhanced / torch.max(enhanced)
         # Return
         return {
-            "image"      : image,
-            "depth"      : depth,
-            "edge"       : edge,
-            "image_lr"   : image_lr,
-            "depth_lr"   : depth_lr,
-            "edge_lr"    : edge_lr,
-            "illu_res_lr": illu_res_lr,
-            "illu_lr"    : illu_lr,
-            "enhanced_lr": enhanced_lr,
-            "enhanced"   : enhanced,
+            "image"       : image,
+            "depth"       : depth,
+            "edge"        : edge,
+            "image_lr"    : image_lr,
+            "depth_lr"    : depth_lr,
+            "edge_lr"     : edge_lr,
+            "illu_res_lr" : illu_res_lr,
+            "illu_res_lr2": illu_res_lr2,
+            "illu_lr"     : illu_lr,
+            "illu_lr2"    : illu_lr2,
+            "enhanced_lr" : enhanced_lr,
+            "enhanced"    : enhanced,
         }
 
 
@@ -508,38 +427,40 @@ class MLP_HSV(MLP):
         omega_0          : float       = 30.0,
         first_bias_scale : float       = None,
         nonlinear        : Literal["finer", "gauss", "relu", "sigmoid", "sine"] = "sine",
-        weight_decay     : list[float] = [0.1, 0.0001, 0.001],
-        ff_embedded      : bool        = False,
+        use_ff           : bool        = False,
         ff_gaussian_scale: float       = 10,
-        dba_eps          : float       = 0.05,
+        weight_decay     : list[float] = [0.1, 0.0001, 0.001],
+        edge_threshold   : float       = 0.05,
+        depth_gamma      : float       = 0.7,
         gf_radius        : int         = 3,
-        denoise          : bool        = False,
+        use_denoise      : bool        = False,
         denoise_ksize    : list[float] = (3, 3),
         denoise_color    : float       = 0.5,
         denoise_space    : list[float] = (1.5, 1.5),
         *args, **kwargs
     ):
         super().__init__()
-        self.window_size   = window_size
+        self.window_size   = core.to_int_list(window_size)
+        self.num_scales    = len(self.window_size)
         self.down_size     = down_size
+        self.depth_gamma   = depth_gamma
         self.gf_radius     = gf_radius
-        self.denoise       = denoise
+        self.use_denoise   = use_denoise
         self.denoise_ksize = denoise_ksize
         self.denoise_color = denoise_color
         self.denoise_space = denoise_space
         self.out_channels  = 1
-        self.num_scales    = len(window_size)
         mid_channels       = hidden_channels // 2
         output_in_channels = mid_channels * (self.num_scales + 1)
         
         self.value_nets = nn.ModuleList()
         for i in range(self.num_scales):
             window_size_ = window_size[i]
-            self.value_nets.append(nn.ContextImplicitFeatureEncoder(window_size_, mid_channels, down_size, hidden_layers, omega_0, first_bias_scale, nonlinear, weight_decay[1], ff_embedded, ff_gaussian_scale))
-        self.coords_net = nn.ContextImplicitCoordinatesEncoder(mid_channels, down_size, hidden_layers, omega_0, first_bias_scale, nonlinear, weight_decay[0], ff_embedded, ff_gaussian_scale)
-        self.output_net = nn.ContextImplicitDecoder(output_in_channels, self.out_channels, out_layers, omega_0, nonlinear, weight_decay[2])
-        self.dba        = nn.BoundaryAwarePrior(eps=dba_eps, normalized=False)
-        
+            self.value_nets.append(nn.ContextImplicitFeatureEncoder(window_size_, mid_channels, down_size, hidden_layers, omega_0, first_bias_scale, nonlinear, weight_decay[1]))
+        self.coords_net  = nn.ContextImplicitCoordinatesEncoder(mid_channels, down_size, hidden_layers, omega_0, first_bias_scale, nonlinear, weight_decay[0], use_ff, ff_gaussian_scale)
+        self.output_net  = nn.ContextImplicitDecoder(output_in_channels, self.out_channels, out_layers, omega_0, nonlinear, weight_decay[2])
+        self.dba         = nn.BoundaryAwarePrior(eps=edge_threshold, normalized=False)
+
     def forward(self, image: torch.Tensor, depth: torch.Tensor = None) -> torch.Tensor:
         # Prepare input
         if depth is None:
@@ -554,17 +475,19 @@ class MLP_HSV(MLP):
             image_lr_i, value_inr_i = self.value_nets[i](image_v)
             image_lrs.append(image_lr_i)
             value_inrs.append(value_inr_i)
-        depth_lr    = self.interpolate_image(depth, self.down_size)
-        edge_lr     = self.interpolate_image(edge,  self.down_size)
-        coords      = self.coords_net(image_v)
+        depth_lr = self.interpolate_image(depth, self.down_size)
+        edge_lr  = self.interpolate_image(edge,  self.down_size)
+        coords   = self.coords_net(image_v)
         # Combining
         illu_res_lr = self.output_net(torch.cat(value_inrs + [coords], -1))
         illu_res_lr = illu_res_lr.view(1, self.out_channels, self.down_size, self.down_size)
         # Enhancement
-        image_lr    = image_lrs[0]
-        illu_lr     = illu_res_lr + image_lr
-        enhanced_lr = image_lr / (illu_lr + 1e-8)
-        if self.denoise:
+        image_lr     = image_lrs[0]
+        illu_lr      = image_lr + illu_res_lr
+        illu_res_lr2 = illu_res_lr * (1 + self.depth_gamma * (1 - depth_lr / depth_lr.max()))
+        illu_lr2     = image_lr + illu_res_lr2
+        enhanced_lr  = image_lr / (illu_lr2 + 1e-8)
+        if self.use_denoise:
             enhanced_lr = kornia.filters.bilateral_blur(enhanced_lr, self.denoise_ksize, self.denoise_color, self.denoise_space)
         enhanced_v  = self.filter_up(image_lr, enhanced_lr, image_v, self.gf_radius)
         enhanced    = self.replace_v_component(image_hsv, enhanced_v)
@@ -572,16 +495,18 @@ class MLP_HSV(MLP):
         # enhanced    = enhanced / torch.max(enhanced)
         # Return
         return {
-            "image"      : image,
-            "depth"      : depth,
-            "edge"       : edge,
-            "image_lr"   : image_lr,
-            "depth_lr"   : depth_lr,
-            "edge_lr"    : edge_lr,
-            "illu_res_lr": illu_res_lr,
-            "illu_lr"    : illu_lr,
-            "enhanced_lr": enhanced_lr,
-            "enhanced"   : enhanced,
+            "image"       : image,
+            "depth"       : depth,
+            "edge"        : edge,
+            "image_lr"    : image_lr,
+            "depth_lr"    : depth_lr,
+            "edge_lr"     : edge_lr,
+            "illu_res_lr" : illu_res_lr,
+            "illu_res_lr2": illu_res_lr2,
+            "illu_lr"     : illu_lr,
+            "illu_lr2"    : illu_lr2,
+            "enhanced_lr" : enhanced_lr,
+            "enhanced"    : enhanced,
         }
 
 
@@ -597,39 +522,41 @@ class MLP_HSV_D(MLP):
         omega_0          : float       = 30.0,
         first_bias_scale : float       = None,
         nonlinear        : Literal["finer", "gauss", "relu", "sigmoid", "sine"] = "sine",
-        weight_decay     : list[float] = [0.1, 0.0001, 0.001],
-        ff_embedded      : bool        = False,
+        use_ff           : bool        = False,
         ff_gaussian_scale: float       = 10,
-        dba_eps          : float       = 0.05,
+        weight_decay     : list[float] = [0.1, 0.0001, 0.001],
+        edge_threshold   : float       = 0.05,
+        depth_gamma      : float       = 0.7,
         gf_radius        : int         = 3,
-        denoise          : bool        = False,
+        use_denoise      : bool        = False,
         denoise_ksize    : list[float] = (3, 3),
         denoise_color    : float       = 0.5,
         denoise_space    : list[float] = (1.5, 1.5),
         *args, **kwargs
     ):
         super().__init__()
-        self.window_size   = window_size
+        self.window_size   = core.to_int_list(window_size)
+        self.num_scales    = len(self.window_size)
         self.down_size     = down_size
+        self.depth_gamma   = depth_gamma
         self.gf_radius     = gf_radius
-        self.denoise       = denoise
+        self.use_denoise   = use_denoise
         self.denoise_ksize = denoise_ksize
         self.denoise_color = denoise_color
         self.denoise_space = denoise_space
         self.out_channels  = 1
-        self.num_scales    = len(window_size)
         mid_channels       = hidden_channels // 2
         output_in_channels = mid_channels * (self.num_scales + 3)
         
         self.value_nets = nn.ModuleList()
         for i in range(self.num_scales):
             window_size_ = window_size[i]
-            self.value_nets.append(nn.ContextImplicitFeatureEncoder(window_size_, mid_channels, down_size, hidden_layers, omega_0, first_bias_scale, nonlinear, weight_decay[1], ff_embedded, ff_gaussian_scale))
-        self.depth_net  = nn.ContextImplicitFeatureEncoder(window_size[-1], mid_channels, down_size, hidden_layers, omega_0, first_bias_scale, nonlinear, weight_decay[1], ff_embedded, ff_gaussian_scale)
-        self.edge_net   = nn.ContextImplicitFeatureEncoder(window_size[-1], mid_channels, down_size, hidden_layers, omega_0, first_bias_scale, nonlinear, weight_decay[1], ff_embedded, ff_gaussian_scale)
-        self.coords_net = nn.ContextImplicitCoordinatesEncoder(mid_channels, down_size, hidden_layers, omega_0, first_bias_scale, nonlinear, weight_decay[0], ff_embedded, ff_gaussian_scale)
+            self.value_nets.append(nn.ContextImplicitFeatureEncoder(window_size_, mid_channels, down_size, hidden_layers, omega_0, first_bias_scale, nonlinear, weight_decay[1]))
+        self.depth_net  = nn.ContextImplicitFeatureEncoder(window_size[-1], mid_channels, down_size, hidden_layers, omega_0, first_bias_scale, nonlinear, weight_decay[1])
+        self.edge_net   = nn.ContextImplicitFeatureEncoder(window_size[-1], mid_channels, down_size, hidden_layers, omega_0, first_bias_scale, nonlinear, weight_decay[1])
+        self.coords_net = nn.ContextImplicitCoordinatesEncoder(mid_channels, down_size, hidden_layers, omega_0, first_bias_scale, nonlinear, weight_decay[0], use_ff, ff_gaussian_scale)
         self.output_net = nn.ContextImplicitDecoder(output_in_channels, self.out_channels, out_layers, omega_0, nonlinear, weight_decay[2])
-        self.dba        = nn.BoundaryAwarePrior(eps=dba_eps, normalized=False)
+        self.dba        = nn.BoundaryAwarePrior(eps=edge_threshold, normalized=False)
         
     def forward(self, image: torch.Tensor, depth: torch.Tensor = None) -> torch.Tensor:
         # Prepare input
@@ -639,8 +566,8 @@ class MLP_HSV_D(MLP):
         image_hsv = core.rgb_to_hsv(image)
         image_v   = core.rgb_to_v(image)
         # Mapping
-        image_lrs   = []
-        value_inrs  = []
+        image_lrs  = []
+        value_inrs = []
         for i in range(self.num_scales):
             image_lr_i, value_inr_i = self.value_nets[i](image_v)
             image_lrs.append(image_lr_i)
@@ -652,10 +579,12 @@ class MLP_HSV_D(MLP):
         illu_res_lr = self.output_net(torch.cat(value_inrs + [depth_inr, edge_inr, coords], -1))
         illu_res_lr = illu_res_lr.view(1, self.out_channels, self.down_size, self.down_size)
         # Enhancement
-        image_lr    = image_lrs[0]
-        illu_lr     = illu_res_lr + image_lr
-        enhanced_lr = image_lr / (illu_lr + 1e-8)
-        if self.denoise:
+        image_lr     = image_lrs[0]
+        illu_lr      = image_lr + illu_res_lr
+        illu_res_lr2 = illu_res_lr * (1 + self.depth_gamma * (1 - depth_lr / depth_lr.max()))
+        illu_lr2     = image_lr + illu_res_lr2
+        enhanced_lr  = image_lr / (illu_lr2 + 1e-8)
+        if self.use_denoise:
             enhanced_lr = kornia.filters.bilateral_blur(enhanced_lr, self.denoise_ksize, self.denoise_color, self.denoise_space)
         enhanced_v  = self.filter_up(image_lr, enhanced_lr, image_v, self.gf_radius)
         enhanced    = self.replace_v_component(image_hsv, enhanced_v)
@@ -663,16 +592,18 @@ class MLP_HSV_D(MLP):
         # enhanced    = enhanced / torch.max(enhanced)
         # Return
         return {
-            "image"      : image,
-            "depth"      : depth,
-            "edge"       : edge,
-            "image_lr"   : image_lr,
-            "depth_lr"   : depth_lr,
-            "edge_lr"    : edge_lr,
-            "illu_res_lr": illu_res_lr,
-            "illu_lr"    : illu_lr,
-            "enhanced_lr": enhanced_lr,
-            "enhanced"   : enhanced,
+            "image"       : image,
+            "depth"       : depth,
+            "edge"        : edge,
+            "image_lr"    : image_lr,
+            "depth_lr"    : depth_lr,
+            "edge_lr"     : edge_lr,
+            "illu_res_lr" : illu_res_lr,
+            "illu_res_lr2": illu_res_lr2,
+            "illu_lr"     : illu_lr,
+            "illu_lr2"    : illu_lr2,
+            "enhanced_lr" : enhanced_lr,
+            "enhanced"    : enhanced,
         }
 
 # endregion
@@ -680,7 +611,15 @@ class MLP_HSV_D(MLP):
 
 # region Model
 
-@MODELS.register(name="zero_mie_ms", arch="zero_mie")
+@MODELS.register(name="zero_mie_ms_wo_color", arch="zero_mie")
+@MODELS.register(name="zero_mie_ms_wo_depth", arch="zero_mie")
+@MODELS.register(name="zero_mie_ms_wo_edge",  arch="zero_mie")
+@MODELS.register(name="zero_mie_ms_wo_exp",   arch="zero_mie")
+@MODELS.register(name="zero_mie_ms_wo_ff",    arch="zero_mie")
+@MODELS.register(name="zero_mie_ms_wo_spa",   arch="zero_mie")
+@MODELS.register(name="zero_mie_ms_wo_spar",  arch="zero_mie")
+@MODELS.register(name="zero_mie_ms_wo_tv",    arch="zero_mie")
+@MODELS.register(name="zero_mie_ms",          arch="zero_mie")
 class ZeroMIE_MS(base.ImageEnhancementModel):
     
     model_dir: core.Path    = current_dir
@@ -701,31 +640,29 @@ class ZeroMIE_MS(base.ImageEnhancementModel):
         omega_0          : float       = 30.0,
         first_bias_scale : float       = None,
         nonlinear        : Literal["finer", "gauss", "relu", "sigmoid", "sine"] = "sine",
-        ff_embedded      : bool        = False,
+        use_ff           : bool        = False,
         ff_gaussian_scale: float       = 10,
-        dba_eps          : float       = 0.05,
+        edge_threshold   : float       = 0.05,
+        depth_gamma      : float       = 0.7,
         gf_radius        : int         = 3,
-        denoise          : bool        = False,
+        use_denoise      : bool        = False,
         denoise_ksize    : list[float] = (3, 3),
         denoise_color    : float       = 0.5,
         denoise_space    : list[float] = (1.5, 1.5),
         # Loss
         loss_hsv         : bool        = True,
-        exp_mean         : float       = 0.6,
+        exp_mean         : float       = 0.7,
         exp_weight       : float       = 10,
         spa_weight       : float       = 1,
-        color_weight     : float       = 5,
-        tv_weight        : float       = 1600,
+        tv_weight        : float       = 20,
+        spar_weight      : float       = 5,
         depth_weight     : float       = 1,
         edge_weight      : float       = 1,
-        use_pseudo_gt    : bool        = False,
-        number_refs      : int         = 2,
+        color_weight     : float       = 5,
         *args, **kwargs
     ):
         super().__init__(name=name, *args, **kwargs)
         self.num_scales  = len(window_size)
-        self.use_pgt     = use_pseudo_gt
-        self.number_refs = number_refs
         weight_decay     = [0.1, 0.0001, 0.001]
         
         if color_space == "rgb":
@@ -748,33 +685,26 @@ class ZeroMIE_MS(base.ImageEnhancementModel):
             omega_0           = omega_0,
             first_bias_scale  = first_bias_scale,
             nonlinear         = nonlinear,
-            weight_decay      = weight_decay,
-            ff_embedded       = ff_embedded,
+            use_ff            = use_ff,
             ff_gaussian_scale = ff_gaussian_scale,
-            dba_eps           = dba_eps,
+            weight_decay      = weight_decay,
+            edge_threshold    = edge_threshold,
+            depth_gamma       = depth_gamma,
             gf_radius         = gf_radius,
-            denoise           = denoise,
+            use_denoise       = use_denoise,
             denoise_ksize     = denoise_ksize,
             denoise_color     = denoise_color,
             denoise_space     = denoise_space,
         )
-        self.pseudo_gt_generator = utils.PseudoGTGenerator(
-            number_refs   = self.number_refs,
-            gamma_upper   = -2,
-            gamma_lower   =  3,
-            exposed_level =  0.5,
-            pool_size     =  25,
-        )
-        self.saved_input     = None
-        self.saved_pseudo_gt = None
         
         # Loss
         if loss_hsv and "hsv" in color_space:
             self.loss = LossHSV(
                 exp_mean     = 1.0 - exp_mean,
-                # exp_weight   = exp_weight,
-                # spa_weight   = spa_weight,
-                # tv_weight    = tv_weight,
+                exp_weight   = exp_weight,
+                spa_weight   = spa_weight,
+                tv_weight    = tv_weight,
+                spar_weight  = spar_weight,
                 depth_weight = depth_weight,
                 edge_weight  = edge_weight,
                 color_weight = color_weight,
@@ -812,10 +742,11 @@ class ZeroMIE_MS(base.ImageEnhancementModel):
         of parameters, and runtime.
         """
         # Define input tensor
+        c         = channels
         h, w      = core.get_image_size(image_size)
         datapoint = {
-            "image": torch.rand(1, channels, h, w).to(self.device),
-            "depth": torch.rand(1,        1, h, w).to(self.device)
+            "image": torch.rand(1, c, h, w).to(self.device),
+            "depth": torch.rand(1, 1, h, w).to(self.device)
         }
         
         # Get FLOPs and Params
@@ -844,42 +775,16 @@ class ZeroMIE_MS(base.ImageEnhancementModel):
     def forward_loss(self, datapoint: dict, *args, **kwargs) -> dict:
         # Forward
         self.assert_datapoint(datapoint)
-        if self.use_pgt:
-            # Saving n-th input and n-th pseudo gt
-            nth_input     = datapoint
-            nth_output    = self.forward(datapoint=datapoint, *args, **kwargs)
-            nth_image     = nth_output["image"]
-            nth_enhanced  = nth_output["enhanced"].clone().detach()
-            nth_pseudo_gt = self.pseudo_gt_generator(nth_image, nth_enhanced)
-            if self.saved_input is not None:
-                # Getting (n - 1)th input and (n - 1)-th pseudo gt -> calculate loss -> update model weight (handled automatically by pytorch lightning)
-                outputs     = self.forward(datapoint=datapoint, *args, **kwargs)
-                image       = outputs["image"]
-                enhanced    = outputs["enhanced"]
-                image_lr    = outputs["image_lr"]
-                illu_lr     = outputs["illu_lr"]
-                enhanced_lr = outputs["enhanced_lr"]
-                depth_lr    = outputs["depth_lr"]
-                loss_enh    = self.loss(image, image_lr, illu_lr, enhanced, enhanced_lr, depth_lr)
-                pseudo_gt   = self.saved_pseudo_gt
-                loss_recon  = self.loss_recon(enhanced, pseudo_gt)
-                loss        = loss_recon + loss_enh  # * 5
-                outputs["loss"] = loss
-            else:  # Skip updating model's weight at the first batch
-                outputs = {"loss": None}
-            # Saving n-th input and n-th pseudo gt
-            self.saved_input     = nth_input
-            self.saved_pseudo_gt = nth_pseudo_gt
-        else:
-            outputs     = self.forward(datapoint=datapoint, *args, **kwargs)
-            image       = outputs["image"]
-            enhanced    = outputs["enhanced"]
-            image_lr    = outputs["image_lr"]
-            illu_lr     = outputs["illu_lr"]
-            enhanced_lr = outputs["enhanced_lr"]
-            depth_lr    = outputs["depth_lr"]
-            loss        = self.loss(image, image_lr, illu_lr, enhanced, enhanced_lr, depth_lr)
-            outputs["loss"] = loss
+        outputs     = self.forward(datapoint=datapoint, *args, **kwargs)
+        image       = outputs["image"]
+        image_lr    = outputs["image_lr"]
+        depth_lr    = outputs["depth_lr"]
+        edge_lr     = outputs["edge_lr"]
+        illu_lr     = outputs["illu_lr"]
+        enhanced_lr = outputs["enhanced_lr"]
+        enhanced    = outputs["enhanced"]
+        loss        = self.loss(image, image_lr, illu_lr, enhanced, enhanced_lr, depth_lr, edge_lr)
+        outputs["loss"] = loss
         return outputs
         
     def forward(self, datapoint: dict, *args, **kwargs) -> dict:
@@ -894,15 +799,15 @@ class ZeroMIE_MS(base.ImageEnhancementModel):
     def infer(
         self,
         datapoint    : dict,
-        epochs       : int   = 300,   # 500
+        epochs       : int   = 300,   # 300
         lr           : float = 1e-5,  # 1e-5
-        weight_decay : float = 3e-4,
+        weight_decay : float = 3e-4,  # 3e-4
         reset_weights: bool  = True,
         *args, **kwargs
     ) -> dict:
         # Initialize training components
         self.train()
-        if reset_weights:
+        if reset_weights and self.initial_state_dict is not None:
             self.load_state_dict(self.initial_state_dict)
         if isinstance(self.optims, dict):
             optimizer = self.optims.get("optimizer", None)
@@ -915,8 +820,6 @@ class ZeroMIE_MS(base.ImageEnhancementModel):
             )
         
         # Pre-processing
-        self.saved_input     = None
-        self.saved_pseudo_gt = None
         self.assert_datapoint(datapoint)
         for k, v in datapoint.items():
             if isinstance(v, torch.Tensor):
@@ -926,13 +829,11 @@ class ZeroMIE_MS(base.ImageEnhancementModel):
         for _ in range(epochs):
             outputs = self.forward_loss(datapoint=datapoint)
             optimizer.zero_grad()
-            loss    = outputs["loss"]
+            loss = outputs["loss"]
             if loss is not None:
                 loss.backward(retain_graph=True)
                 optimizer.step()
-            # if self.verbose:
-            #    console.log(f"Loss: {loss.item()}")
-            
+        
         # Forward
         self.eval()
         timer = core.Timer()

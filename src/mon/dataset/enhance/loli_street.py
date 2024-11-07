@@ -8,6 +8,8 @@ from __future__ import annotations
 __all__ = [
     "LoLIStreet",
     "LoLIStreetDataModule",
+    "LoLIStreetTest",
+    "LoLIStreetVal",
 ]
 
 from typing import Literal
@@ -62,7 +64,75 @@ class LoLIStreet(MultimodalDataset):
                         images.append(ImageAnnotation(path=path, root=pattern))
         
         self.datapoints["image"] = images
+
+
+@DATASETS.register(name="loli_street_val")
+class LoLIStreetVal(MultimodalDataset):
+
+    tasks : list[Task]  = [Task.LLIE]
+    splits: list[Split] = [Split.TEST]
+    datapoint_attrs     = DatapointAttributes({
+        "image"    : ImageAnnotation,
+        "depth"    : DepthMapAnnotation,
+        "ref_image": ImageAnnotation,
+        "ref_depth": DepthMapAnnotation,
+    })
+    has_test_annotations: bool = False
     
+    def __init__(self, root: core.Path = default_root_dir, *args, **kwargs):
+        super().__init__(root=root, *args, **kwargs)
+    
+    def get_data(self):
+        patterns = [
+            self.root / "loli_street" / "val" / "image",
+        ]
+        
+        # Images
+        images: list[ImageAnnotation] = []
+        with core.get_progress_bar(disable=self.disable_pbar) as pbar:
+            for pattern in patterns:
+                for path in pbar.track(
+                    sequence    = sorted(list(pattern.rglob("*"))),
+                    description = f"Listing {self.__class__.__name__} {self.split_str} images"
+                ):
+                    if path.is_image_file():
+                        images.append(ImageAnnotation(path=path, root=pattern))
+        
+        self.datapoints["image"] = images
+        
+
+@DATASETS.register(name="loli_street_test")
+class LoLIStreetTest(MultimodalDataset):
+
+    tasks : list[Task]  = [Task.LLIE]
+    splits: list[Split] = [Split.TEST]
+    datapoint_attrs     = DatapointAttributes({
+        "image": ImageAnnotation,
+        "depth": DepthMapAnnotation,
+    })
+    has_test_annotations: bool = False
+    
+    def __init__(self, root: core.Path = default_root_dir, *args, **kwargs):
+        super().__init__(root=root, *args, **kwargs)
+    
+    def get_data(self):
+        patterns = [
+            self.root / "loli_street" / "test" / "image",
+        ]
+        
+        # Images
+        images: list[ImageAnnotation] = []
+        with core.get_progress_bar(disable=self.disable_pbar) as pbar:
+            for pattern in patterns:
+                for path in pbar.track(
+                    sequence    = sorted(list(pattern.rglob("*"))),
+                    description = f"Listing {self.__class__.__name__} {self.split_str} images"
+                ):
+                    if path.is_image_file():
+                        images.append(ImageAnnotation(path=path, root=pattern))
+        
+        self.datapoints["image"] = images
+        
 
 @DATAMODULES.register(name="loli_street")
 class LoLIStreetDataModule(DataModule):

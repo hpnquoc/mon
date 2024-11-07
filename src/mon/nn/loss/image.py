@@ -15,8 +15,9 @@ __all__ = [
     "ColorConstancyLoss",
     "ColorLoss",
     "ContradictChannelLoss",
-    "DepthConsistencyLoss",
+    "DepthWeightedSmoothnessLoss",
     "EdgeAwareDepthConsistencyLoss",
+    "EdgeAwareLoss",
     "EdgeCharbonnierLoss",
     "EdgeConstancyLoss",
     "EdgeLoss",
@@ -26,7 +27,7 @@ __all__ = [
     "GradientLoss",
     "HistogramLoss",
     "MSSSIMLoss",
-    "MultiscaleDepthConsistencyLoss",
+    "NIQELoss",
     "PSNRLoss",
     "PerceptualL1Loss",
     "PerceptualLoss",
@@ -44,6 +45,7 @@ __all__ = [
 from typing import Literal
 
 import numpy as np
+import pyiqa
 import torch
 import torchvision
 from torch import nn
@@ -285,70 +287,82 @@ class ContradictChannelLoss(base.Loss):
         return loss
 
 
-@LOSSES.register(name="depth_consistency_loss")
-class DepthConsistencyLoss(base.Loss):
+@LOSSES.register(name="depth_weighted_smoothness_loss")
+class DepthWeightedSmoothnessLoss(base.Loss):
+    """
+    Calculate the depth-weighted smoothness loss for 4D tensors.
+    
+    Args:
+        input: Predicted illumination map.
+        depth: Depth map.
+        alpha: Weighting factor for depth influence.
+    """
     
     def __init__(
         self,
-        alpha      : float = 0.5,
+        alpha      : float = 1.0,
         loss_weight: float = 1.0,
         reduction  : Literal["none", "mean", "sum"] = "mean"
     ):
         super().__init__(loss_weight=loss_weight, reduction=reduction)
         self.alpha = alpha
     
-    def forward(
-        self,
-        input : torch.Tensor,
-        depth : torch.Tensor,
-        target: torch.Tensor = None
-    ) -> torch.Tensor:
-        # Repeat depth map to match the number of channels of the predicted image
-        depth = depth.repeat(1, input.size(1), 1, 1)
-        # Compute spatial gradients of predicted image for each channel
-        grad_pred_x, grad_pred_y = apply_sobel_filter_to_rgb(input)
-        # Calculate depth-weighted consistency loss
-        depth_diff = torch.abs(depth - depth.transpose(2, 3))  # [B, H, W]
-        weight     = torch.exp(-self.alpha * depth_diff)
-        # Depth consistency loss between neighboring pixels
-        loss = (weight * (grad_pred_x ** 2 + grad_pred_y ** 2)).mean()
+    def forward(self, input: torch.Tensor, depth: torch.Tensor) -> torch.Tensor:
+        # Calculate gradients of illumination map (L) in x and y directions
+        L_dx = input[:, :, :, 1:] - input[:, :, :, :-1]
+        L_dy = input[:, :, 1:, :] - input[:, :, :-1, :]
+        
+        # Calculate gradients of depth map (D) in x and y directions
+        D_dx = depth[:, :, :, 1:] - depth[:, :, :, :-1]
+        D_dy = depth[:, :, 1:, :] - depth[:, :, :-1, :]
+        
+        # Compute depth-weighted terms for x and y directions
+        weight_dx = torch.exp(-self.alpha * torch.abs(D_dx))
+        weight_dy = torch.exp(-self.alpha * torch.abs(D_dy))
+        
+        # Apply depth weights to illumination gradients and take the mean
+        loss_dx = torch.mean(weight_dx * torch.abs(L_dx))
+        loss_dy = torch.mean(weight_dy * torch.abs(L_dy))
+        
+        # Sum the losses from both directions
+        loss = loss_dx + loss_dy
         loss = self.loss_weight * loss
         return loss
 
 
-@LOSSES.register(name="multiscale_depth_consistency_loss")
-class MultiscaleDepthConsistencyLoss(base.Loss):
+@LOSSES.register(name="edge_aware_loss")
+class EdgeAwareLoss(base.Loss):
     
     def __init__(
         self,
-        scales     : list  = [1, 0.5, 0.25],
-        lambdas    : list  = [1, 0.5, 0.25],
         loss_weight: float = 1.0,
         reduction  : Literal["none", "mean", "sum"] = "mean"
     ):
         super().__init__(loss_weight=loss_weight, reduction=reduction)
-        self.scales  = scales
-        self.lambdas = lambdas
-        self.loss    = DepthConsistencyLoss()
     
-    def forward(
-        self,
-        input : torch.Tensor,
-        depth : torch.Tensor,
-        target: torch.Tensor = None
-    ) -> torch.Tensor:
-        total_loss = 0.0
-        for i, scale in enumerate(self.scales):
-            # Downsample image and depth map to the corresponding scale
-            scaled_pred_image = F.interpolate(input, scale_factor=scale, mode="bilinear", align_corners=False)
-            scaled_depth_map  = F.interpolate(depth, scale_factor=scale, mode="bilinear", align_corners=False)
-            # Compute depth consistency loss at the current scale
-            loss        = self.loss(scaled_pred_image, scaled_depth_map)
-            total_loss += self.lambdas[i] * loss
-        total_loss = self.loss_weight * total_loss
-        return total_loss
+    def forward(self, input: torch.Tensor, edge: torch.Tensor) -> torch.Tensor:
+        # Calculate gradients of illumination map (L) in x and y directions
+        L_dx = input[:, :, :, 1:] - input[:, :, :, :-1]
+        L_dy = input[:, :, 1:, :] - input[:, :, :-1, :]
+        
+        # Calculate gradients of edge map (E) in x and y directions
+        E_dx = edge[:, :, :, 1:] - edge[:, :, :, :-1]
+        E_dy = edge[:, :, 1:, :] - edge[:, :, :-1, :]
+        
+        # Apply edge weights to illumination gradients; areas with stronger edges have lower weight
+        weight_dx = torch.exp(-torch.abs(E_dx))
+        weight_dy = torch.exp(-torch.abs(E_dy))
+        
+        # Calculate edge-aware losses by penalizing illumination changes along strong edges
+        loss_dx = torch.mean(weight_dx * torch.abs(L_dx))
+        loss_dy = torch.mean(weight_dy * torch.abs(L_dy))
+        
+        # Sum the losses from both directions
+        loss = loss_dx + loss_dy
+        loss = self.loss_weight * loss
+        return loss
+      
     
-
 @LOSSES.register(name="edge_aware_depth_consistency_loss")
 class EdgeAwareDepthConsistencyLoss(base.Loss):
     
@@ -361,12 +375,7 @@ class EdgeAwareDepthConsistencyLoss(base.Loss):
         super().__init__(loss_weight=loss_weight, reduction=reduction)
         self.tau = tau
     
-    def forward(
-        self,
-        input : torch.Tensor,
-        depth : torch.Tensor,
-        target: torch.Tensor = None
-    ) -> torch.Tensor:
+    def forward(self, input: torch.Tensor, depth: torch.Tensor) -> torch.Tensor:
         # Compute depth edges
         depth_edges = self.compute_depth_edges(depth)
         # Apply a threshold to get edge-aware mask
@@ -673,6 +682,26 @@ class HistogramLoss(base.Loss):
     
     def gaussian_kernel(self, x: torch.Tensor, mu: int, sigma: float) -> torch.Tensor:
         return torch.exp(-0.5 * ((x - mu) / sigma) ** 2)
+  
+
+@LOSSES.register(name="niqe_loss")
+class NIQELoss(base.Loss):
+    """NIQE Loss.
+    """
+    
+    def __init__(
+        self,
+        loss_weight: float = 1.0,
+        reduction  : Literal["none", "mean", "sum"] = "mean"
+    ):
+        super().__init__(loss_weight=loss_weight, reduction=reduction)
+        self.niqe = pyiqa.InferenceModel("niqe", True)
+    
+    def forward(self, input: torch.Tensor) -> torch.Tensor:
+        loss = self.niqe(input)
+        loss = torch.mean(loss)
+        loss = self.loss_weight * loss
+        return loss
     
 
 @LOSSES.register(name="perceptual_loss")
