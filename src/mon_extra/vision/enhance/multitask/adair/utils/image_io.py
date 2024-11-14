@@ -190,7 +190,7 @@ def save_heatmap(name, image_np):
 def save_graph(name, graph_list, output_path="output/"):
     plt.clf()
     plt.plot(graph_list)
-    plt.savefig(output_path + name + ".png")
+    plt.savefig(output_path + name + ".jpg")
 
 
 def create_augmentations(np_image):
@@ -235,7 +235,7 @@ def save_graphs(name, graph_dict, output_path="output/"):
     ax.set_xlabel('iterations')
     ax.set_ylabel('MSE-loss')
     plt.legend()
-    plt.savefig(output_path + name + ".png")
+    plt.savefig(output_path + name + ".jpg")
 
 
 def load(path):

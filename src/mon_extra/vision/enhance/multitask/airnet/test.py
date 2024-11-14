@@ -31,7 +31,7 @@ def test_denoise(net, dataset, sigma=15):
             psnr.update(temp_psnr, N)
             ssim.update(temp_ssim, N)
 
-            save_image_tensor(restored, output_path + clean_name[0] + ".png")
+            save_image_tensor(restored, output_path + clean_name[0] + ".jpg")
 
         print("Deonise sigma=%d: psnr: %.2f, ssim: %.4f" % (sigma, psnr.avg, ssim.avg))
 
@@ -55,7 +55,7 @@ def test_derain_dehaze(net, dataset, task="derain"):
             psnr.update(temp_psnr, N)
             ssim.update(temp_ssim, N)
 
-            save_image_tensor(restored, output_path + degraded_name[0] + ".png")
+            save_image_tensor(restored, output_path + degraded_name[0] + ".jpg")
 
         print("PSNR: %.2f, SSIM: %.4f" % (psnr.avg, ssim.avg))
 

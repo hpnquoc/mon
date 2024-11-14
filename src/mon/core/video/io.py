@@ -282,7 +282,7 @@ class VideoWriterCV(VideoWriter):
 				dir_path    = self.dst,
 				name        = f"{pathlib.Path(path).stem}.png",
 				prefix      = "",
-				extension   = ".png",
+				extension   = ".jpg",
 				denormalize = denormalize
 			)
 		
@@ -430,7 +430,7 @@ class VideoWriterFFmpeg(VideoWriter):
 				dir_path	= self.dst,
 				name        = f"{pathlib.Path(path).stem}.png",
 				prefix      = "",
-				extension   = ".png",
+				extension   = ".jpg",
 				denormalize = denormalize
 			)
 		

@@ -135,6 +135,7 @@ def write_image(path: pathlib.Path, image: torch.Tensor | np.ndarray):
             - :obj:`numpy.ndarray` in ``[H, W, C]`` format with data in the
                 range ``[0, 255]``.
     """
+    path = pathlib.Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
     if isinstance(image, torch.Tensor):
         torchvision.utils.save_image(image, str(path))
@@ -150,7 +151,7 @@ def write_image_cv(
     dir_path   : pathlib.Path,
     name       : str,
     prefix     : str  = "",
-    extension  : str  = ".png",
+    extension  : str  = ".jpg",
     denormalize: bool = False
 ):
     """Write an image to a directory using :obj:`cv2`.
@@ -194,7 +195,7 @@ def write_image_torch(
     dir_path   : pathlib.Path,
     name       : str,
     prefix     : str  = "",
-    extension  : str  = ".png",
+    extension  : str  = ".jpg",
     denormalize: bool = False
 ):
     """Write an image to a directory.
@@ -235,7 +236,7 @@ def write_image_torch(
     file_path = dir_path / name
     if extension in [".jpg", ".jpeg"]:
         torchvision.io.image.write_jpeg(input=image, filename=str(file_path))
-    elif extension in [".png"]:
+    elif extension in [".jpg"]:
         torchvision.io.image.write_png(input=image, filename=str(file_path))
 
 
@@ -244,7 +245,7 @@ def write_images_cv(
     dir_path   : pathlib.Path,
     names      : list[str],
     prefixes   : list[str] = "",
-    extension  : str       = ".png",
+    extension  : str       = ".jpg",
     denormalize: bool      = False
 ):
     """Write a :obj:`list` of images to a directory using :obj:`cv2`.
@@ -282,7 +283,7 @@ def write_images_torch(
     dir_path   : pathlib.Path,
     names      : list[str],
     prefixes   : list[str] = "",
-    extension  : str       = ".png",
+    extension  : str       = ".jpg",
     denormalize: bool      = False
 ):
     """Write a :obj:`list` of images to a directory using :obj:`torchvision`.

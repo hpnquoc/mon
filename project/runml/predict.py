@@ -100,7 +100,7 @@ def predict(args: dict) -> str:
                     output_dir = save_dir / rel_path.parent
                 else:
                     output_dir = save_dir / data_name
-                output_path  = output_dir / f"{meta['stem']}.png"
+                output_path  = output_dir / f"{meta['stem']}.jpg"
                 output_path.parent.mkdir(parents=True, exist_ok=True)
                 mon.write_image(output_path, output)
             # Save video
@@ -116,7 +116,7 @@ def predict(args: dict) -> str:
                 output_path.parent.mkdir(parents=True, exist_ok=True)
                 for k, v in outputs.items():
                     if mon.is_image(v):
-                        path = debug_output_dir / f"{meta['stem']}_{k}.png"
+                        path = debug_output_dir / f"{meta['stem']}_{k}.jpg"
                         mon.write_image(path, v)
     
     # Finish

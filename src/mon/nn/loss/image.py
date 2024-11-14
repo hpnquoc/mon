@@ -335,10 +335,12 @@ class EdgeAwareLoss(base.Loss):
     
     def __init__(
         self,
+        beta       : float = 1.0,
         loss_weight: float = 1.0,
         reduction  : Literal["none", "mean", "sum"] = "mean"
     ):
         super().__init__(loss_weight=loss_weight, reduction=reduction)
+        self.beta = beta
     
     def forward(self, input: torch.Tensor, edge: torch.Tensor) -> torch.Tensor:
         # Calculate gradients of illumination map (L) in x and y directions
@@ -350,8 +352,10 @@ class EdgeAwareLoss(base.Loss):
         E_dy = edge[:, :, 1:, :] - edge[:, :, :-1, :]
         
         # Apply edge weights to illumination gradients; areas with stronger edges have lower weight
-        weight_dx = torch.exp(-torch.abs(E_dx))
-        weight_dy = torch.exp(-torch.abs(E_dy))
+        # weight_dx = torch.exp(-torch.abs(E_dx))
+        # weight_dy = torch.exp(-torch.abs(E_dy))
+        weight_dx = 1 - self.beta * torch.abs(E_dx)
+        weight_dy = 1 - self.beta * torch.abs(E_dy)
         
         # Calculate edge-aware losses by penalizing illumination changes along strong edges
         loss_dx = torch.mean(weight_dx * torch.abs(L_dx))

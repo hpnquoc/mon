@@ -180,9 +180,10 @@ def dark_channel_prior_02(
 
 
 def boundary_aware_prior(
-    image     : torch.Tensor | np.ndarray,
-    eps       : float = 0.05,
-    normalized: bool  = False
+    image      : torch.Tensor | np.ndarray,
+    eps        : float = 0.05,
+    as_gradient: bool  = False,
+    normalized : bool  = False,
 ) -> torch.Tensor | np.ndarray:
     """Get the boundary prior from an RGB or grayscale image.
     
@@ -193,6 +194,7 @@ def boundary_aware_prior(
             - :obj:`numpy.ndarray` in ``[H, W, C]`` format with data in the
                 range ``[0, 255]``.
         eps: Threshold to remove weak edges. Default: ``0.05``.
+        as_gradient: If ``True``, return the gradient image. Default: ``False``.
         normalized: If ``True``, L1 norm of the kernel is set to ``1``.
             Default: ``False``.
         
@@ -215,7 +217,12 @@ def boundary_aware_prior(
         return boundary
     else:
         raise ValueError(f"Unsupported input type: {type(image)}.")
-    return boundary
+    
+    # return boundary, gradient
+    if as_gradient:
+        return gradient
+    else:
+        return boundary
 
 
 class BoundaryAwarePrior(nn.Module):

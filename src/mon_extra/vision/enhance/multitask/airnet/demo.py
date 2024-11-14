@@ -57,4 +57,4 @@ if __name__ == "__main__":
 
             restored = net(x_query=degrad_patch, x_key=degrad_patch)
 
-            save_image_tensor(restored, opt.output_path + clean_name[0] + ".png")
+            save_image_tensor(restored, opt.output_path + clean_name[0] + ".jpg")

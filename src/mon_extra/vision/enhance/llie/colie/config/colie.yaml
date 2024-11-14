@@ -14,7 +14,7 @@ weights     : ~
 device      : 0
 local_rank  : -1
 launcher    : ~
-epochs      : 200
+epochs      : 100
 steps       : ~
 imgsz       : 256
 resize      : ~

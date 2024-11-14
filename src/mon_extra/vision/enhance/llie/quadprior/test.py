@@ -119,7 +119,7 @@ if __name__ == '__main__':
 
     for img_path in img_list:
         save_name = os.path.split(img_path)[1]
-        save_name = os.path.splitext(save_name)[0] + ".png"
+        save_name = os.path.splitext(save_name)[0] + ".jpg"
         save_path = os.path.join(args.same_folder, save_name)
 
         if os.path.exists(save_path):

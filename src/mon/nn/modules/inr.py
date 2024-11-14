@@ -14,13 +14,13 @@ References:
 from __future__ import annotations
 
 __all__ = [
-    "ContextImplicitCoordinatesEncoder",
-    "ContextImplicitDecoder",
-    "ContextImplicitFeatureEncoder",
     "FINER",
     "GAUSS",
+    "INRCoordinatesEncoder",
+    "INRDecoder",
     "INRLayer",
     "INRModulatorWrapper",
+    "INRPatchEncoder",
     "PEMLP",
     "SIREN",
     "WIRE",
@@ -749,7 +749,7 @@ class WIRE(nn.Module):
 
 # region Context-INR
 
-class ContextImplicitFeatureEncoder(nn.Module):
+class INRPatchEncoder(nn.Module):
     """Implicit Neural Representation (INR) of a specific value of a
     context-window in an image.
     
@@ -789,6 +789,7 @@ class ContextImplicitFeatureEncoder(nn.Module):
             net.append(INRLayer(out_channels, out_channels, is_first=False, omega_0=omega_0, nonlinear=nonlinear))
         net.append(INRLayer(out_channels, out_channels, is_first=False, omega_0=omega_0, nonlinear=nonlinear))
         self.net = nn.Sequential(*net)
+        # print(self.net)
         
         weight_decay = weight_decay or 0.0001
         self.params  = [{"params": self.net.parameters(), "weight_decay": weight_decay}]
@@ -826,7 +827,7 @@ class ContextImplicitFeatureEncoder(nn.Module):
             return embedding
         
 
-class ContextImplicitCoordinatesEncoder(nn.Module):
+class INRCoordinatesEncoder(nn.Module):
     """Implicit Neural Representation (INR) of coordinates (x, y) of a
     context-window an image.
     
@@ -864,6 +865,7 @@ class ContextImplicitCoordinatesEncoder(nn.Module):
             net.append(INRLayer(out_channels, out_channels, is_first=False, omega_0=omega_0, nonlinear=nonlinear))
         net.append(INRLayer(out_channels, out_channels, is_first=False, omega_0=omega_0, nonlinear=nonlinear))
         self.net = nn.Sequential(*net)
+        # print(self.net)
         
         weight_decay = weight_decay or 0.1
         self.params  = [{"params": self.net.parameters(), "weight_decay": weight_decay}]
@@ -883,7 +885,7 @@ class ContextImplicitCoordinatesEncoder(nn.Module):
             return embedding
   
 
-class ContextImplicitDecoder(nn.Module):
+class INRDecoder(nn.Module):
     """MLP for combining values and coordinates INRs.
     
     References:
@@ -908,6 +910,7 @@ class ContextImplicitDecoder(nn.Module):
             net.append(INRLayer(in_channels, in_channels, is_first=False, omega_0=omega_0, nonlinear=nonlinear))
         net.append(INRLayer(in_channels, out_channels, is_last=True, omega_0=omega_0))
         self.net = nn.Sequential(*net)
+        # print(self.net)
         
         weight_decay = weight_decay or 0.001
         self.params  = [{"params": self.net.parameters(), "weight_decay": weight_decay}]
