@@ -6,7 +6,7 @@ from .dpm_solver import NoiseScheduleVP, model_wrapper, DPM_Solver
 
 MODEL_TYPES = {
     "eps": "noise",
-    "v": "v"
+    "v"  : "v"
 }
 
 
@@ -82,11 +82,11 @@ class DPMSolverSampler(object):
         model_fn = model_wrapper(
             lambda x, t, c: self.model.apply_model(x, t, c),
             ns,
-            model_type=MODEL_TYPES[self.model.parameterization],
-            guidance_type="classifier-free",
-            condition=conditioning,
-            unconditional_condition=unconditional_conditioning,
-            guidance_scale=unconditional_guidance_scale,
+            model_type              = MODEL_TYPES[self.model.parameterization],
+            guidance_type           = "classifier-free",
+            condition               = conditioning,
+            unconditional_condition = unconditional_conditioning,
+            guidance_scale          = unconditional_guidance_scale,
         )
 
         dpm_solver = DPM_Solver(model_fn, ns, predict_x0=True, thresholding=False)

@@ -39,7 +39,7 @@ def draw_figure(image, text, save_path, cmap="gray"):
 	fig.savefig(save_path, dpi=dpi, bbox_inches="tight", pad_inches=0)
 	
 	
-image = mon.read_image("data/Venice.png", to_tensor=True, normalize=True)
+image = mon.read_image("data/112_image_dav2_vitb_c.jpg", to_tensor=True, normalize=True)
 edge, gradient = mon.boundary_aware_prior(image, eps=0.05)
 gradient       = mon.to_image_nparray(gradient, denormalize=False)
 edge           = mon.to_image_nparray(edge, denormalize=False)

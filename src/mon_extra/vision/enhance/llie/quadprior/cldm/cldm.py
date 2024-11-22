@@ -50,6 +50,7 @@ class ControlledUnetModel(UNetModel):
 
 
 class ControlNet(nn.Module):
+    
     def __init__(
             self,
             image_size,
@@ -286,14 +287,14 @@ class ControlNet(nn.Module):
         return TimestepEmbedSequential(zero_module(conv_nd(self.dims, channels, channels, 1, padding=0)))
     
     def add_prior(self):
-        self.prior_conv = PriorConv2d('W', k=3, scale=0.0)
+        self.prior_conv          = PriorConv2d("W", k=3, scale=0.0)
         self.input_hint_block[0] = conv_nd(2, 6, 16, 3, padding=1)
 
     def forward(self, x, hint, timesteps, context, **kwargs):
         t_emb = timestep_embedding(timesteps, self.model_channels, repeat_only=False).to(dtype=x.dtype)
-        emb = self.time_embed(t_emb)
+        emb   = self.time_embed(t_emb)
 
-        hint = self.prior_conv(hint)
+        hint  = self.prior_conv(hint)
         guided_hint = self.input_hint_block(hint, emb, context)
 
         outs = []

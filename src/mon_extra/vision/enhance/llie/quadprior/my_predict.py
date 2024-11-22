@@ -7,15 +7,16 @@ from cldm.hack import disable_verbosity
 
 disable_verbosity()
 
-import argparse
 import random
+import argparse
+import copy
 
+import torch.optim
+import torch.utils
 import cv2
 import einops
 import numpy as np
 import torch
-import torch.optim
-import torch.utils
 from pytorch_lightning import seed_everything
 
 import mon
@@ -29,6 +30,10 @@ current_dir  = current_file.parents[0]
 
 
 # region Predict
+
+def calculate_model_parameters(model):
+    return sum(p.numel() for p in model.parameters())
+
 
 def process(
     model,
@@ -47,7 +52,7 @@ def process(
 ):
     with torch.no_grad():
         detected_map = resize_image(HWC3(input_image), image_resolution)
-        H, W, C = detected_map.shape
+        H, W, C      = detected_map.shape
         
         if use_float16:
             control = torch.from_numpy(detected_map.copy()).cuda().to(dtype=torch.float16) / 255.0
@@ -55,7 +60,7 @@ def process(
             control = torch.from_numpy(detected_map.copy()).cuda() / 255.0
         control = torch.stack([control for _ in range(num_samples)], dim=0)
         control = einops.rearrange(control, "b h w c -> b c h w").clone()
-        ae_hs = model.encode_first_stage(control*2-1)[1]
+        ae_hs   = model.encode_first_stage(control * 2 - 1)[1]
         
         if seed == -1:
             seed = random.randint(0, 65535)
@@ -144,6 +149,22 @@ def predict(args: argparse.Namespace):
     else:
         model = model.to(device)
     diffusion_sampler = DPMSolverSampler(model)
+    
+    if benchmark:
+        # total_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
+        flops, params, avg_time = mon.compute_efficiency_score(
+            model      = copy.deepcopy(model),
+            image_size = imgsz,
+            channels   = 3,
+            runs       = 1000,
+            use_cuda   = True,
+            verbose    = False,
+        )
+        total_params = calculate_model_parameters(model)
+        console.log(f"FLOPs        = {flops:.4f}")
+        console.log(f"Params       = {params:.4f}")
+        console.log(f"Time         = {avg_time:.17f}")
+        console.log(f"Total Params = {total_params:.4f}")
     
     # Data I/O
     console.log(f"[bold red]{data}")
