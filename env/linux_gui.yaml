@@ -61,9 +61,9 @@ dependencies:
       - tensorboard            # TensorFlow's Visualization Toolkit.
       - tensorflow             # TensorFlow is an open source machine learning framework for everyone.
       - thop                   # Count the MACs / FLOPs of your PyTorch model.
-      - torch>=2.4.1           # PyTorch is an optimized tensor library for deep learning using GPUs and CPUs.
+      - torch>=2.5.1           # PyTorch is an optimized tensor library for deep learning using GPUs and CPUs.
       - torchaudio             # Simple audio I/O for pytorch.
-      - torchmetrics>=1.4.2    # Collection of PyTorch native metrics for easy evaluating machine learning models.
+      - torchmetrics>=1.6.0    # Collection of PyTorch native metrics for easy evaluating machine learning models.
       - torchvision            # Image and video datasets and models for Torch deep learning.
       # Optional: UI
       - matplotlib             # Publication quality figures in Python.
@@ -75,7 +75,7 @@ dependencies:
       - mkdocstrings           # Automatic documentation from sources, for MkDocs.
       - sphinx                 # Sphinx is a tool that makes it easy to create intelligent and beautiful documentation.
       - sphinx-paramlinks      # A Sphinx extension which allows :param: directives within Python documentation to be linkable.
-      # Optional
+      # Optional: Others
       - filterpy               # Kalman filters and other optimal and non-optimal estimation filters in Python.
       - scikit-image           # Image processing in Python.
       - scikit-learn           # A set of python modules for machine learning and data mining.
