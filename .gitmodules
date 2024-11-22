@@ -10,9 +10,6 @@
 [submodule "src/mon_extra/vision/depth/depth_pro"]
 	path = src/mon_extra/vision/depth/depth_pro
 	url  = https://github.com/phlong3105/depth_pro
-[submodule "src/mon_extra/vision/detect/yolov7"]
-	path = src/mon_extra/vision/detect/yolov7
-	url  = https://github.com/phlong3105/yolov7
 [submodule "src/mon_extra/vision/detect/yolov9"]
 	path = src/mon_extra/vision/detect/yolov9
 	url  = https://github.com/phlong3105/yolov9
