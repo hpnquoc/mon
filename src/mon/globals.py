@@ -674,7 +674,6 @@ class RunMode(DT.Enum):
     TRAIN   = "train"
     PREDICT = "predict"
     METRIC  = "metric"
-    PLOT    = "plot"
 
 
 class Scheme(DT.Enum):
@@ -1116,14 +1115,6 @@ EXTRA_MODELS      = {  # architecture/model (+ variant)
             "torch_distributed_launch": True,
         },
     },
-    "neurop"       : {
-        "neurop": {
-            "tasks"    : [Task.LLIE, Task.RETOUCH],
-            "schemes"  : [Scheme.SUPERVISED],
-            "model_dir": MON_EXTRA_DIR / "vision" / "enhance" / "retouch" / "neurop",
-            "torch_distributed_launch": False,
-        },
-    },
     "restormer"    : {
         "restormer": {
             "tasks"    : [Task.DEBLUR, Task.DENOISE, Task.DERAIN, Task.DESNOW, Task.LLIE],
@@ -1134,7 +1125,14 @@ EXTRA_MODELS      = {  # architecture/model (+ variant)
     },
     # endregion
     # region enhance/retouch
-    
+    "neurop"       : {
+        "neurop": {
+            "tasks"    : [Task.RETOUCH, Task.LLIE],
+            "schemes"  : [Scheme.SUPERVISED],
+            "model_dir": MON_EXTRA_DIR / "vision" / "enhance" / "retouch" / "neurop",
+            "torch_distributed_launch": False,
+        },
+    },
     # endregion
     # region enhance/sr
     "srno"         : {
@@ -1147,14 +1145,6 @@ EXTRA_MODELS      = {  # architecture/model (+ variant)
     },
     # endregion
     # region segment
-    "mobile_sam"   : {
-        "mobile_sam_vit_t": {
-            "tasks"    : [Task.SEGMENT],
-            "schemes"  : [Scheme.SUPERVISED],
-            "model_dir": MON_EXTRA_DIR / "vision" / "segment" / "mobile_sam",
-            "torch_distributed_launch": False,
-        },
-    },
     "sam"          : {
         "sam_vit_b": {
             "tasks"    : [Task.SEGMENT],

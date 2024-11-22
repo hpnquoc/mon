@@ -66,7 +66,6 @@ ultralytics       = {path="src/mon_extra/vision/ultralytics"            , develo
 yolor             = {path="src/mon_extra/vision/detect/yolor"           , develop=true}
 yolov7            = {path="src/mon_extra/vision/detect/yolov7"          , develop=true}
 yolov9            = {path="src/mon_extra/vision/detect/yolov9"          , develop=true}
-yolox             = {path="src/mon_extra/vision/detect/yolox"           , develop=true}
 
 [tool.poetry.extras]
 dev = [
@@ -78,7 +77,6 @@ dev = [
     "yolor",
     "yolov7",
     "yolov9",
-    "yolox",
 ]
 
 [build-system]

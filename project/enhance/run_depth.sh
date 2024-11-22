@@ -26,5 +26,3 @@ python -W ignore main.py \
 
 # Done
 cd "${current_dir}" || exit
-
-# --data "dicm, fusion, lime, mef, npe, vv, fivek_e, loli_street, lol_v1, lol_v2_real, lol_v2_synthetic, nightcity, sice, sice_grad, sice_mix_v2, sid_sony" \
