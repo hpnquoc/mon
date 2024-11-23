@@ -10,10 +10,10 @@ __all__ = [
     "SICEDataModule",
     "SICEGrad",
     "SICEGradDataModule",
+    "SICEME",
+    "SICEMEDataModule",
     "SICEMix",
     "SICEMixDataModule",
-    "SICEMixV2",
-    "SICEMixV2DataModule",
 ]
 
 from typing import Literal
@@ -100,8 +100,8 @@ class SICEGrad(MultimodalDataset):
         self.datapoints["image"] = images
 
 
-@DATASETS.register(name="sice_mix")
-class SICEMix(MultimodalDataset):
+@DATASETS.register(name="sice_me")
+class SICEME(MultimodalDataset):
     
     tasks : list[Task]  = [Task.LLIE]
     splits: list[Split] = [Split.TRAIN]
@@ -116,7 +116,7 @@ class SICEMix(MultimodalDataset):
     
     def get_data(self):
         patterns = [
-            self.root / "sice_mix" / self.split_str / "image",
+            self.root / "sice_me" / self.split_str / "image",
         ]
         
         # Images
@@ -133,8 +133,8 @@ class SICEMix(MultimodalDataset):
         self.datapoints["image"] = images
 
 
-@DATASETS.register(name="sice_mix_v2")
-class SICEMixV2(MultimodalDataset):
+@DATASETS.register(name="sice_mix")
+class SICEMix(MultimodalDataset):
 
     tasks : list[Task]  = [Task.LLIE]
     splits: list[Split] = [Split.TRAIN, Split.TEST]
@@ -151,7 +151,7 @@ class SICEMixV2(MultimodalDataset):
     
     def get_data(self):
         patterns = [
-            self.root / "sice_mix_v2" / self.split_str / "image",
+            self.root / "sice_mix" / self.split_str / "image",
         ]
         
         # Images
@@ -214,6 +214,29 @@ class SICEGradDataModule(DataModule):
             self.summarize()
 
 
+@DATAMODULES.register(name="sice_me")
+class SICEMEDataModule(DataModule):
+    
+    tasks: list[Task] = [Task.LLIE]
+    
+    def prepare_data(self, *args, **kwargs):
+        pass
+    
+    def setup(self, stage: Literal["train", "test", "predict", None] = None):
+        if self.can_log:
+            console.log(f"Setup [red]{self.__class__.__name__}[/red].")
+        
+        if stage in [None, "train"]:
+            self.train = SICEME(split=Split.TRAIN, **self.dataset_kwargs)
+            self.val   = SICEME(split=Split.TEST, **self.dataset_kwargs)
+        if stage in [None, "test"]:
+            self.test  = SICEME(split=Split.TEST, **self.dataset_kwargs)
+            
+        self.get_classlabels()
+        if self.can_log:
+            self.summarize()
+
+
 @DATAMODULES.register(name="sice_mix")
 class SICEMixDataModule(DataModule):
     
@@ -228,32 +251,9 @@ class SICEMixDataModule(DataModule):
         
         if stage in [None, "train"]:
             self.train = SICEMix(split=Split.TRAIN, **self.dataset_kwargs)
-            self.val   = SICEMix(split=Split.TEST,  **self.dataset_kwargs)
+            self.val   = SICEMix(split=Split.TEST, **self.dataset_kwargs)
         if stage in [None, "test"]:
-            self.test  = SICEMix(split=Split.TEST,  **self.dataset_kwargs)
-            
-        self.get_classlabels()
-        if self.can_log:
-            self.summarize()
-
-
-@DATAMODULES.register(name="sice_mix_v2")
-class SICEMixV2DataModule(DataModule):
-    
-    tasks: list[Task] = [Task.LLIE]
-    
-    def prepare_data(self, *args, **kwargs):
-        pass
-    
-    def setup(self, stage: Literal["train", "test", "predict", None] = None):
-        if self.can_log:
-            console.log(f"Setup [red]{self.__class__.__name__}[/red].")
-        
-        if stage in [None, "train"]:
-            self.train = SICEMixV2(split=Split.TRAIN, **self.dataset_kwargs)
-            self.val   = SICEMixV2(split=Split.TEST,  **self.dataset_kwargs)
-        if stage in [None, "test"]:
-            self.test  = SICEMixV2(split=Split.TEST,  **self.dataset_kwargs)
+            self.test  = SICEMix(split=Split.TEST, **self.dataset_kwargs)
         
         self.get_classlabels()
         if self.can_log:

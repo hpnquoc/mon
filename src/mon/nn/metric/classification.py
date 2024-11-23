@@ -29,6 +29,7 @@ __all__ = [
     "ROC",
     "Recall",
     "RecallAtFixedPrecision",
+	"SensitivityAtSpecificity",
     "Specificity",
     "SpecificityAtSensitivity",
     "StatScores",
@@ -61,6 +62,7 @@ PrecisionRecallCurve     = torchmetrics.classification.PrecisionRecallCurve
 ROC                      = torchmetrics.classification.ROC
 Recall                   = torchmetrics.classification.Recall
 RecallAtFixedPrecision   = torchmetrics.classification.RecallAtFixedPrecision
+SensitivityAtSpecificity = torchmetrics.classification.SensitivityAtSpecificity
 Specificity              = torchmetrics.classification.Specificity
 SpecificityAtSensitivity = torchmetrics.classification.SpecificityAtSensitivity
 StatScores               = torchmetrics.classification.StatScores
@@ -85,6 +87,7 @@ METRICS.register(name="precision_recall_curve",     module=PrecisionRecallCurve)
 METRICS.register(name="roc",                        module=ROC)
 METRICS.register(name="recall",                     module=Recall)
 METRICS.register(name="recall_at_fixed_precision",  module=RecallAtFixedPrecision)
+METRICS.register(name="sensitivity_at_specificity", module=SensitivityAtSpecificity)
 METRICS.register(name="specificity",                module=Specificity)
 METRICS.register(name="specificity_at_sensitivity", module=SpecificityAtSensitivity)
 METRICS.register(name="stat_scores",                module=StatScores)

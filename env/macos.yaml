@@ -11,7 +11,7 @@ channels:
   - conda-forge
   - defaults
 dependencies:
-  # Required
+  # Required: Basic of Python
   - python=3.12
   - pip                        # PyPA recommended tool for installing Python packages.
   - git                        # Distributed version control system.
