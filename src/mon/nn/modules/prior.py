@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Image Priors.
+"""Priors.
 
-This module implements priors used in images.
+This module implements priors.
 """
 
 from __future__ import annotations

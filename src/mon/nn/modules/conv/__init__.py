@@ -13,7 +13,9 @@ import mon.nn.modules.conv.base
 import mon.nn.modules.conv.bsconv
 import mon.nn.modules.conv.dsconv
 import mon.nn.modules.conv.ffconv
+import mon.nn.modules.conv.linear
 from mon.nn.modules.conv.base import *
 from mon.nn.modules.conv.bsconv import *
 from mon.nn.modules.conv.dsconv import *
 from mon.nn.modules.conv.ffconv import *
+from mon.nn.modules.conv.linear import *

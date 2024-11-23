@@ -54,7 +54,7 @@ from torch.nn.common_types import _size_2_t
 from torch.nn.modules.pooling import *
 
 from mon import core
-from mon.nn.modules import padding as pad
+from mon.nn.modules import conv, padding as pad
 
 
 # region Adaptive Pool
@@ -135,20 +135,19 @@ class AdaptivePool2d(nn.Module):
         pool_type  : Literal["fast", "avg", "avg_max", "cat_avg_max", "max"] = "fast",
         flatten    : bool = False,
     ):
-        from mon.nn.modules import linear, flatten
+        from mon.nn.modules import misc
         
         super().__init__()
         self.pool_type = pool_type or ""
         
-        self.flatten = flatten.Flatten(1) \
-            if flatten else linear.Identity()
+        self.flatten = misc.Flatten(1) if flatten else conv.Identity()
         if pool_type == "":
-            self.pool = linear.Identity()  # pass through
+            self.pool = conv.Identity()  # pass through
         elif pool_type == "fast":
             if output_size != 1:
                 raise ValueError()
             self.pool = FastAdaptiveAvgPool2d(flatten)
-            self.flatten = linear.Identity()
+            self.flatten = conv.Identity()
         elif pool_type == "avg":
             self.pool = AdaptiveAvgPool2d(output_size)
         elif pool_type == "avg_max":

@@ -27,7 +27,7 @@ import torch
 from torch import nn
 from torch.nn.common_types import _size_2_t
 
-from mon.nn.modules import activation
+from mon.nn.modules import activation as act
 
 
 # region Depthwise Separable Convolution
@@ -215,7 +215,7 @@ class DepthwiseSeparableConv2dReLU(nn.Module):
             device       = device,
             dtype        = dtype,
         )
-        self.act = activation.ReLU(inplace=True)
+        self.act = act.ReLU(inplace=True)
     
     def forward(self, input: torch.Tensor) -> torch.Tensor:
         x = input

@@ -30,8 +30,8 @@ import torch
 from torch import nn
 from torch.nn.common_types import _size_2_t
 
-from mon.nn.modules import activation, linear, normalization, pooling
-from mon.nn.modules.conv import base as conv
+from mon.nn.modules import activation as act, normalization, pooling
+from mon.nn.modules.conv import base as conv, linear
 
 
 # region Fourier Transform
@@ -71,7 +71,7 @@ class FourierUnit(nn.Module):
             bias         = False,
         )
         self.bn   = normalization.BatchNorm2d(out_channels * 2)
-        self.relu = activation.ReLU(inplace=True)
+        self.relu = act.ReLU(inplace=True)
 
     def forward(self, input: torch.Tensor) -> torch.Tensor:
         x          = input
@@ -171,7 +171,7 @@ class SpectralTransform2d(nn.Module):
                 bias         = False
             ),
             normalization.BatchNorm2d(out_channels // 2),
-            activation.ReLU(inplace=True)
+            act.ReLU(inplace=True)
         )
         self.fu = FourierUnit2d(  # Fourier Unit
             in_channels  = out_channels // 2,
@@ -393,7 +393,7 @@ class FastFourierConv2dSE(nn.Module):
             kernel_size  = 1,
             bias         = True,
         )
-        self.relu1    = activation.ReLU(inplace=True)
+        self.relu1    = act.ReLU(inplace=True)
         self.conv_a2l = None if in_cl == 0 else conv.Conv2d(
             in_channels  = channels // r,
             out_channels = in_cl,
@@ -406,7 +406,7 @@ class FastFourierConv2dSE(nn.Module):
             kernel_size  = 1,
             bias         = True,
         )
-        self.sigmoid  = activation.Sigmoid()
+        self.sigmoid  = act.Sigmoid()
     
     def forward(self, input: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
         x          = input

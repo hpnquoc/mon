@@ -9,6 +9,7 @@ This module implements miscellaneous layers.
 from __future__ import annotations
 
 __all__ = [
+	"ChannelShuffle",
 	"Chuncat",
 	"Concat",
 	"CustomConcat",
@@ -17,6 +18,8 @@ __all__ = [
 	"ExtractFeatures",
 	"ExtractItem",
 	"ExtractItems",
+	"Flatten",
+	"FlattenSingle",
 	"Fold",
 	"Foldcut",
 	"InterpolateConcat",
@@ -26,9 +29,12 @@ __all__ = [
 	"PatchMerging",
 	"PatchMergingV2",
 	"Permute",
+	"PixelShuffle",
+	"PixelUnshuffle",
 	"Shortcut",
 	"SoftmaxFusion",
 	"Sum",
+	"Unflatten",
 	"Unfold",
 ]
 
@@ -38,7 +44,10 @@ import numpy as np
 import torch
 from torch import nn
 from torch.nn import Embedding, functional as F
+from torch.nn.modules.channelshuffle import *
+from torch.nn.modules.flatten import *
 from torch.nn.modules.fold import Fold, Unfold
+from torch.nn.modules.pixelshuffle import *
 from torchvision.ops.misc import MLP, Permute
 
 from mon import core
@@ -270,6 +279,27 @@ class Max(nn.Module):
 # endregion
 
 
+# region Flatten
+
+class FlattenSingle(nn.Module):
+	"""Flatten a tensor along a single dimension.
+
+	Args:
+		dim: Dimension to flatten. Default: ``1``.
+	"""
+	
+	def __init__(self, dim: int = 1):
+		super().__init__()
+		self.dim = dim
+	
+	def forward(self, input: torch.Tensor) -> torch.Tensor:
+		x = input
+		y = torch.flatten(x, self.dim)
+		return y
+
+# endregion
+
+
 # region Fusion
 
 class Foldcut(nn.Module):
@@ -449,5 +479,10 @@ class PatchMergingV2(nn.Module):
 		x = self.reduction(x)  # ... H/2 W/2 2*C
 		y = self.norm(x)
 		return y
+
+# endregion
+
+
+# region Shuffle
 
 # endregion

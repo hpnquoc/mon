@@ -50,8 +50,8 @@ from torch.nn.common_types import _size_2_t
 from torchvision.ops.misc import SqueezeExcitation
 
 from mon.nn.modules import (
-    activation as act, conv, dropout as drop, flatten, linear,
-    normalization as norm, pooling, projection,
+    activation as act, conv, dropout as drop, misc, normalization as norm,
+    pooling, transformer,
 )
 
 
@@ -204,7 +204,7 @@ class BAM(nn.Module):
             for i in range(len(gate_channels) - 2):
                 self.c_gate.add_module(
                     name   = "gate_c_fc_%d" % i,
-                    module = linear.Linear(
+                    module = conv.Linear(
                         in_features  = gate_channels[i],
                         out_features = gate_channels[i + 1],
                     )
@@ -222,7 +222,7 @@ class BAM(nn.Module):
             
             self.c_gate.add_module(
                 name   = "gate_c_fc_final",
-                module = linear.Linear(
+                module = conv.Linear(
                     in_features  = gate_channels[-2],
                     out_features = gate_channels[-1],
                 )
@@ -359,13 +359,13 @@ class CBAM(nn.Module):
             super().__init__()
             self.channels = channels
             self.mlp      = nn.Sequential(
-                flatten.Flatten(),
-                linear.Linear(
+                misc.Flatten(),
+                conv.Linear(
                     in_features  = channels,
                     out_features = channels  // reduction_ratio,
                 ),
                 act.ReLU(),
-                linear.Linear(
+                conv.Linear(
                     in_features  = channels  // reduction_ratio,
                     out_features = channels,
                 )
@@ -779,8 +779,8 @@ class ShiftedWindowAttention(nn.Module):
         self.attention_dropout = attention_dropout
         self.dropout           = dropout
         
-        self.qkv  = linear.Linear(channels, channels * 3, bias=qkv_bias)
-        self.proj = linear.Linear(channels, channels, bias=proj_bias)
+        self.qkv  = conv.Linear(channels, channels * 3, bias=qkv_bias)
+        self.proj = conv.Linear(channels, channels, bias=proj_bias)
         
         self.define_relative_position_bias_table()
         self.define_relative_position_index()
@@ -871,9 +871,9 @@ class ShiftedWindowAttentionV2(ShiftedWindowAttention):
         self.logit_scale = nn.Parameter(torch.log(10 * torch.ones((num_heads, 1, 1))))
         # MLP to generate continuous relative position bias
         self.cpb_mlp = nn.Sequential(
-            linear.Linear(2, 512, bias=True),
+            conv.Linear(2, 512, bias=True),
             act.ReLU(inplace=True),
-            linear.Linear(512, num_heads, bias=False)
+            conv.Linear(512, num_heads, bias=False)
         )
         if qkv_bias:
             length = self.qkv.bias.numel() // 3
@@ -969,7 +969,7 @@ class WindowAttention(nn.Module):
         
         self.token_projection = token_projection
         self.attn_drop        = drop.Dropout(attn_drop)
-        self.proj             = linear.Linear(channels, channels)
+        self.proj             = conv.Linear(channels, channels)
         self.proj_drop        = drop.Dropout(proj_drop)
         self.softmax          = act.Softmax(dim=-1)
     
@@ -1114,7 +1114,7 @@ class SqueezeExciteL(nn.Module):
         super().__init__()
         self.avg_pool   = pooling.AdaptiveAvgPool2d(1)  # squeeze
         self.excitation = nn.Sequential(
-            linear.Linear(
+            conv.Linear(
                 in_features  = channels,
                 out_features = channels  // reduction_ratio,
                 bias         = bias,
@@ -1122,7 +1122,7 @@ class SqueezeExciteL(nn.Module):
                 dtype        = dtype,
             ),
             act.ReLU(inplace=True),
-            linear.Linear(
+            conv.Linear(
                 in_features  = channels  // reduction_ratio,
                 out_features = channels,
                 bias         = bias,

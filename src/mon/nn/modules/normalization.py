@@ -47,7 +47,7 @@ from torch.nn.modules.batchnorm import *
 from torch.nn.modules.instancenorm import *
 from torch.nn.modules.normalization import *
 
-from mon.nn.modules import activation
+from mon.nn.modules import activation as act
 
 
 # region Batch Normalization
@@ -92,7 +92,7 @@ class BatchNorm2dAct(nn.BatchNorm2d):
         track_running_stats: bool     = True,
         device             : Any      = None,
         dtype              : Any      = None,
-        act_layer          : Callable = activation.ReLU(),
+        act_layer          : Callable = act.ReLU(),
         inplace            : bool     = True,
         *args, **kwargs
     ):
@@ -105,7 +105,7 @@ class BatchNorm2dAct(nn.BatchNorm2d):
             device              = device,
             dtype               = dtype
         )
-        self.act = activation.to_act_layer(act_layer, inplace)
+        self.act = act.to_act_layer(act_layer, inplace)
     
     def forward(self, input: torch.Tensor) -> torch.Tensor:
         x = input
@@ -144,7 +144,7 @@ class BatchNorm2dReLU(BatchNorm2dAct):
             track_running_stats = track_running_stats,
             device              = device,
             dtype               = dtype,
-            act_layer           = activation.ReLU(),
+            act_layer           = act.ReLU(),
             inplace             = inplace,
             drop_block          = drop_block
         )
@@ -295,7 +295,7 @@ class GroupNormAct(GroupNorm):
         affine      : bool     = True,
         device      : Any      = None,
         dtype       : Any      = None,
-        act_layer   : Callable = activation.ReLU,
+        act_layer   : Callable = act.ReLU,
         inplace     : bool     = True,
     ):
         super().__init__(
@@ -306,7 +306,7 @@ class GroupNormAct(GroupNorm):
             device       = device,
             dtype        = dtype
         )
-        self.act = activation.to_act_layer(act_layer, inplace)
+        self.act = act.to_act_layer(act_layer, inplace)
     
     def forward(self, input: torch.Tensor) -> torch.Tensor:
         x = input

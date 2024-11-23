@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Projection Layers.
+"""Transformer Layers.
 
 This module implements projection layers. A projection layer in neural networks
 typically refers to the process of transforming the input data into a different
@@ -24,7 +24,7 @@ from einops import rearrange
 from torch import nn
 from torch.nn.common_types import _size_2_t
 
-from mon.nn.modules import conv, linear
+from mon.nn.modules import conv
 
 
 # region Embedding Q, K, V
@@ -99,8 +99,8 @@ class LinearProjection(nn.Module):
         super().__init__()
         inner_channels      = head_channels * heads
         self.heads          = heads
-        self.to_q           = linear.Linear(channels, inner_channels    , bias=bias)
-        self.to_kv          = linear.Linear(channels, inner_channels * 2, bias=bias)
+        self.to_q           = conv.Linear(channels, inner_channels    , bias=bias)
+        self.to_kv          = conv.Linear(channels, inner_channels * 2, bias=bias)
         self.dim            = channels
         self.inner_channels = inner_channels
 
