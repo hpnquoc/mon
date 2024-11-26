@@ -711,7 +711,7 @@ DEPTH_DATA_SOURCES   = [None, "dav2_vitb_g", "dav2_vitl_g"]
 # List 3rd party modules
 EXTRA_DATASET_STR = "[extra]"
 EXTRA_MODEL_STR   = "[extra]"
-EXTRA_DATASETS    = {  }
+EXTRA_DATASETS    = { }
 EXTRA_MODELS      = {  # architecture/model (+ variant)
     # region depth
     "depth_anything_v2": {

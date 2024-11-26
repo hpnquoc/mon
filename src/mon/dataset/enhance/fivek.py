@@ -115,7 +115,7 @@ class FiveKInit(MultimodalDataset):
        
     def get_data(self):
         patterns = [
-            self.root / "fivek_init",
+            self.root / "fivek" / "retouch_init",
         ]
         
         # Exposure images
@@ -185,7 +185,7 @@ class FiveKA(MultimodalDataset):
         
     def get_data(self):
         patterns = [
-            self.root / "fivek_a" / self.split_str / "image",
+            self.root / "fivek" / self.split_str / "image",
         ]
         
         # Images
@@ -200,7 +200,24 @@ class FiveKA(MultimodalDataset):
                         images.append(ImageAnnotation(path=path, root=pattern))
     
         self.datapoints["image"] = images
-
+    
+    def get_reference_image(self):
+        """Get reference image."""
+        images     = self.datapoints.get("image",     [])
+        ref_images = self.datapoints.get("ref_image", [])
+        
+        if len(ref_images) == 0:
+            ref_images: list[ImageAnnotation] = []
+            with core.get_progress_bar(disable=self.disable_pbar) as pbar:
+                for img in pbar.track(
+                    sequence    = images,
+                    description = f"Listing {self.__class__.__name__} {self.split_str} reference images"
+                ):
+                    root_name = img.root.name
+                    path      = img.path.replace(f"/{root_name}/", f"/ref_a/")
+                    ref_images.append(ImageAnnotation(path=path.image_file(), root=img.root))
+            self.datapoints["ref_image"] = ref_images
+    
 
 @DATASETS.register(name="fivek_b")
 class FiveKB(MultimodalDataset):
@@ -223,7 +240,7 @@ class FiveKB(MultimodalDataset):
         
     def get_data(self):
         patterns = [
-            self.root / "fivek_b" / self.split_str / "image",
+            self.root / "fivek" / self.split_str / "image",
         ]
         
         # Images
@@ -238,7 +255,24 @@ class FiveKB(MultimodalDataset):
                         images.append(ImageAnnotation(path=path, root=pattern))
         
         self.datapoints["image"] = images
-
+    
+    def get_reference_image(self):
+        """Get reference image."""
+        images     = self.datapoints.get("image",     [])
+        ref_images = self.datapoints.get("ref_image", [])
+        
+        if len(ref_images) == 0:
+            ref_images: list[ImageAnnotation] = []
+            with core.get_progress_bar(disable=self.disable_pbar) as pbar:
+                for img in pbar.track(
+                    sequence    = images,
+                    description = f"Listing {self.__class__.__name__} {self.split_str} reference images"
+                ):
+                    root_name = img.root.name
+                    path      = img.path.replace(f"/{root_name}/", f"/ref_b/")
+                    ref_images.append(ImageAnnotation(path=path.image_file(), root=img.root))
+            self.datapoints["ref_image"] = ref_images
+            
 
 @DATASETS.register(name="fivek_c")
 class FiveKC(MultimodalDataset):
@@ -261,7 +295,7 @@ class FiveKC(MultimodalDataset):
         
     def get_data(self):
         patterns = [
-            self.root / "fivek_c" / self.split_str / "image",
+            self.root / "fivek" / self.split_str / "image",
         ]
         
         # Images
@@ -276,7 +310,24 @@ class FiveKC(MultimodalDataset):
                         images.append(ImageAnnotation(path=path, root=pattern))
         
         self.datapoints["image"] = images
-
+    
+    def get_reference_image(self):
+        """Get reference image."""
+        images     = self.datapoints.get("image",     [])
+        ref_images = self.datapoints.get("ref_image", [])
+        
+        if len(ref_images) == 0:
+            ref_images: list[ImageAnnotation] = []
+            with core.get_progress_bar(disable=self.disable_pbar) as pbar:
+                for img in pbar.track(
+                    sequence    = images,
+                    description = f"Listing {self.__class__.__name__} {self.split_str} reference images"
+                ):
+                    root_name = img.root.name
+                    path      = img.path.replace(f"/{root_name}/", f"/ref_c/")
+                    ref_images.append(ImageAnnotation(path=path.image_file(), root=img.root))
+            self.datapoints["ref_image"] = ref_images
+            
 
 @DATASETS.register(name="fivek_d")
 class FiveKD(MultimodalDataset):
@@ -299,7 +350,7 @@ class FiveKD(MultimodalDataset):
         
     def get_data(self):
         patterns = [
-            self.root / "fivek_d" / self.split_str / "image",
+            self.root / "fivek" / self.split_str / "image",
         ]
         
         # Images
@@ -314,7 +365,24 @@ class FiveKD(MultimodalDataset):
                         images.append(ImageAnnotation(path=path, root=pattern))
         
         self.datapoints["image"] = images
-
+    
+    def get_reference_image(self):
+        """Get reference image."""
+        images     = self.datapoints.get("image",     [])
+        ref_images = self.datapoints.get("ref_image", [])
+        
+        if len(ref_images) == 0:
+            ref_images: list[ImageAnnotation] = []
+            with core.get_progress_bar(disable=self.disable_pbar) as pbar:
+                for img in pbar.track(
+                    sequence    = images,
+                    description = f"Listing {self.__class__.__name__} {self.split_str} reference images"
+                ):
+                    root_name = img.root.name
+                    path      = img.path.replace(f"/{root_name}/", f"/ref_d/")
+                    ref_images.append(ImageAnnotation(path=path.image_file(), root=img.root))
+            self.datapoints["ref_image"] = ref_images
+            
 
 @DATASETS.register(name="fivek_e")
 class FiveKE(MultimodalDataset):
@@ -337,7 +405,7 @@ class FiveKE(MultimodalDataset):
         
     def get_data(self):
         patterns = [
-            self.root / "fivek_e" / self.split_str / "image",
+            self.root / "fivek" / self.split_str / "image",
         ]
         
         # Images
@@ -352,6 +420,23 @@ class FiveKE(MultimodalDataset):
                         images.append(ImageAnnotation(path=path, root=pattern))
         
         self.datapoints["image"] = images
+    
+    def get_reference_image(self):
+        """Get reference image."""
+        images     = self.datapoints.get("image",     [])
+        ref_images = self.datapoints.get("ref_image", [])
+        
+        if len(ref_images) == 0:
+            ref_images: list[ImageAnnotation] = []
+            with core.get_progress_bar(disable=self.disable_pbar) as pbar:
+                for img in pbar.track(
+                    sequence    = images,
+                    description = f"Listing {self.__class__.__name__} {self.split_str} reference images"
+                ):
+                    root_name = img.root.name
+                    path      = img.path.replace(f"/{root_name}/", f"/ref_e/")
+                    ref_images.append(ImageAnnotation(path=path.image_file(), root=img.root))
+            self.datapoints["ref_image"] = ref_images
 
 
 @DATAMODULES.register(name="fivek_init")

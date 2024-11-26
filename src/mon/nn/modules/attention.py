@@ -961,9 +961,9 @@ class WindowAttention(nn.Module):
         torch.nn.init.trunc_normal_(self.relative_position_bias_table, std=.02)
         
         if token_projection == "conv":
-            self.qkv = projection.ConvProjection(channels, num_heads, channels // num_heads, bias=qkv_bias)
+            self.qkv = transformer.ConvProjection(channels, num_heads, channels // num_heads, bias=qkv_bias)
         elif token_projection == "linear":
-            self.qkv = projection.LinearProjection(channels, num_heads, channels // num_heads, bias=qkv_bias)
+            self.qkv = transformer.LinearProjection(channels, num_heads, channels // num_heads, bias=qkv_bias)
         else:
             raise Exception("Projection error!")
         

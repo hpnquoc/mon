@@ -26,13 +26,14 @@ __all__ = [
     "WIRE",
 ]
 
-from typing import Literal, Sequence
+from typing import Literal
 
 import numpy as np
 import torch
 from einops import rearrange
 from torch import nn
 from torch.nn import functional as F
+from torch.nn.common_types import _size_2_t
 
 from mon import core
 from mon.nn.modules import activation as act
@@ -40,7 +41,7 @@ from mon.nn.modules import activation as act
 
 # region Utils
 
-def get_coords(size: int | Sequence[int]) -> torch.Tensor:
+def get_coords(size: _size_2_t) -> torch.Tensor:
     """Creates a coordinates grid.
     
     Args:
