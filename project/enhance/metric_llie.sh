@@ -25,11 +25,15 @@ data=(
     "lol_v2_real"
     "lol_v2_synthetic"
     ### FiveK Set
+    # "fivek_a"
+    # "fivek_b"
+    # "fivek_c"
+    # "fivek_d"
     "fivek_e"
     ### SICE Set
     "sice"
     "sice_grad"
-    "sice_mix_v2"
+    "sice_mix"
     ### Camera-Specific Set
     "sid_sony"
     ### Real-World Set
@@ -46,12 +50,35 @@ device="cuda:0"
 cd "${runml_dir}" || exit
 for (( i=0; i<${#data[@]}; i++ )); do
     # Input
-    input_dir="${data_dir}/#predict/${arch}/${model}/${data[i]}"
-    if ! [ -d "${input_dir}" ]; then
-        input_dir="${current_dir}/run/predict/${arch}/${model}/${data[i]}"
+    if [ "${data[i]}" == "fivek_a" ]; then
+        input_dir="${current_dir}/run/predict/${arch}/${model}/fivek"
+    elif [ "${data[i]}" == "fivek_b" ]; then
+        input_dir="${current_dir}/run/predict/${arch}/${model}/fivek"
+    elif [ "${data[i]}" == "fivek_c" ]; then
+        input_dir="${current_dir}/run/predict/${arch}/${model}/fivek"
+    elif [ "${data[i]}" == "fivek_d" ]; then
+        input_dir="${current_dir}/run/predict/${arch}/${model}/fivek"
+    elif [ "${data[i]}" == "fivek_e" ]; then
+        input_dir="${current_dir}/run/predict/${arch}/${model}/fivek"
+    else
+        input_dir="${data_dir}/#predict/${arch}/${model}/${data[i]}"
+        if ! [ -d "${input_dir}" ]; then
+            input_dir="${current_dir}/run/predict/${arch}/${model}/${data[i]}"
+        fi
     fi
+
     # Target
-    if [ "${data[i]}" == "loli_street_val" ]; then
+    if [ "${data[i]}" == "fivek_e" ]; then
+        target_dir="${data_dir}/fivek/test/ref_a"
+    elif [ "${data[i]}" == "fivek_b" ]; then
+        target_dir="${data_dir}/fivek/test/ref_b"
+    elif [ "${data[i]}" == "fivek_c" ]; then
+        target_dir="${data_dir}/fivek/test/ref_c"
+    elif [ "${data[i]}" == "fivek_d" ]; then
+        target_dir="${data_dir}/fivek/test/ref_d"
+    elif [ "${data[i]}" == "fivek_e" ]; then
+        target_dir="${data_dir}/fivek/test/ref_e"
+    elif [ "${data[i]}" == "loli_street_val" ]; then
         target_dir="${data_dir}/loli_street/val/ref"
     elif [ "${data[i]}" == "loli_street_test" ]; then
         target_dir="${data_dir}/loli_street/test/ref"
