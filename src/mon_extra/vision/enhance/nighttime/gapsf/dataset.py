@@ -1,7 +1,8 @@
-import torch.utils.data as data
-from PIL import Image
 import os
 import os.path
+
+import torch.utils.data as data
+from PIL import Image
 
 
 def has_file_allowed_extension(filename, extensions):
@@ -41,15 +42,15 @@ class DatasetFolder(data.Dataset):
     def __init__(self, root, loader, extensions, transform=None, target_transform=None):
         samples = make_dataset(root, extensions)
         if len(samples) == 0:
-            raise(RuntimeError("Found 0 files in subfolders of: " + root + "\n"
-                               "Supported extensions are: " + ",".join(extensions)))
+            raise RuntimeError("Found 0 files in subfolders of: " + root + "\n"
+                               "Supported extensions are: " + ",".join(extensions))
 
-        self.root = root
-        self.loader = loader
-        self.extensions = extensions
-        self.samples = samples
+        self.root             = root
+        self.loader           = loader
+        self.extensions       = extensions
+        self.samples          = samples
 
-        self.transform = transform
+        self.transform        = transform
         self.target_transform = target_transform
 
     def __getitem__(self, index):
