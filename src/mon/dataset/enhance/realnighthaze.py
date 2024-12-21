@@ -1,18 +1,16 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""MEF Datasets."""
+"""RealNightHaze Datasets."""
 
 from __future__ import annotations
 
 __all__ = [
-    "MEF",
-    "MEFDataModule",
+    "RealNightHaze",
+    "RealNightHazeDataModule",
 ]
 
 from typing import Literal
-
-import cv2
 
 from mon import core
 from mon.globals import DATA_DIR, DATAMODULES, DATASETS, Split, Task
@@ -28,14 +26,14 @@ MultimodalDataset   = core.MultimodalDataset
 
 # region Dataset
 
-@DATASETS.register(name="mef")
-class MEF(MultimodalDataset):
+@DATASETS.register(name="realnighthaze")
+class RealNightHaze(MultimodalDataset):
     
-    tasks : list[Task]  = [Task.LLIE]
+    tasks : list[Task]  = [Task.NIGHTTIME]
     splits: list[Split] = [Split.TEST]
     datapoint_attrs     = DatapointAttributes({
         "image": ImageAnnotation,
-        "depth": DepthMapAnnotation,
+        # "depth": DepthMapAnnotation,
     })
     has_test_annotations: bool = False
     
@@ -44,7 +42,7 @@ class MEF(MultimodalDataset):
     
     def get_data(self):
         patterns = [
-            self.root / "mef" / self.split_str / "image",
+            self.root / "realnighthaze" / self.split_str / "image",
         ]
         
         # Images
@@ -61,10 +59,10 @@ class MEF(MultimodalDataset):
         self.datapoints["image"] = images
 
 
-@DATAMODULES.register(name="mef")
-class MEFDataModule(DataModule):
+@DATAMODULES.register(name="realnighthaze")
+class RealNightHazeDataModule(DataModule):
     
-    tasks: list[Task] = [Task.LLIE]
+    tasks: list[Task] = [Task.NIGHTTIME]
     
     def prepare_data(self, *args, **kwargs):
         pass
@@ -74,10 +72,10 @@ class MEFDataModule(DataModule):
             console.log(f"Setup [red]{self.__class__.__name__}[/red].")
         
         if stage in [None, "train"]:
-            self.train = MEF(split=Split.TEST, **self.dataset_kwargs)
-            self.val   = MEF(split=Split.TEST, **self.dataset_kwargs)
+            self.train = RealNightHaze(split=Split.TEST, **self.dataset_kwargs)
+            self.val   = RealNightHaze(split=Split.TEST, **self.dataset_kwargs)
         if stage in [None, "test"]:
-            self.test  = MEF(split=Split.TEST, **self.dataset_kwargs)
+            self.test  = RealNightHaze(split=Split.TEST, **self.dataset_kwargs)
         
         self.get_classlabels()
         if self.can_log:

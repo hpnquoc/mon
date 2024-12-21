@@ -1,18 +1,20 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""MEF Datasets."""
+"""GTA5 Nighttime Fog Datasets.
+
+References:
+    https://github.com/jinyeying/nighttime_dehaze
+"""
 
 from __future__ import annotations
 
 __all__ = [
-    "MEF",
-    "MEFDataModule",
+    "GTA5NighttimeFog",
+    "GTA5NighttimeFogDataModule",
 ]
 
 from typing import Literal
-
-import cv2
 
 from mon import core
 from mon.globals import DATA_DIR, DATAMODULES, DATASETS, Split, Task
@@ -26,25 +28,30 @@ ImageAnnotation     = core.ImageAnnotation
 MultimodalDataset   = core.MultimodalDataset
 
 
-# region Dataset
-
-@DATASETS.register(name="mef")
-class MEF(MultimodalDataset):
+@DATASETS.register(name="gta5_nighttime_fog")
+class GTA5NighttimeFog(MultimodalDataset):
+    """GTA5 Nighttime Fog Datasets.
     
-    tasks : list[Task]  = [Task.LLIE]
-    splits: list[Split] = [Split.TEST]
+    References:
+        https://github.com/jinyeying/nighttime_dehaze
+    """
+    
+    tasks : list[Task]  = [Task.DEHAZE, Task.NIGHTTIME]
+    splits: list[Split] = [Split.TRAIN, Split.TEST]
     datapoint_attrs     = DatapointAttributes({
-        "image": ImageAnnotation,
-        "depth": DepthMapAnnotation,
+        "image"    : ImageAnnotation,
+        # "depth"    : DepthMapAnnotation,
+        "ref_image": ImageAnnotation,
+        # "ref_depth": DepthMapAnnotation,
     })
-    has_test_annotations: bool = False
+    has_test_annotations: bool = True
     
     def __init__(self, root: core.Path = default_root_dir, *args, **kwargs):
         super().__init__(root=root, *args, **kwargs)
     
     def get_data(self):
         patterns = [
-            self.root / "mef" / self.split_str / "image",
+            self.root / "gta5_nighttime_fog" / self.split_str / "image",
         ]
         
         # Images
@@ -57,14 +64,14 @@ class MEF(MultimodalDataset):
                 ):
                     if path.is_image_file():
                         images.append(ImageAnnotation(path=path, root=pattern))
-          
+        
         self.datapoints["image"] = images
 
 
-@DATAMODULES.register(name="mef")
-class MEFDataModule(DataModule):
+@DATAMODULES.register(name="gta5_nighttime_fog")
+class GTA5NighttimeFogDataModule(DataModule):
     
-    tasks: list[Task] = [Task.LLIE]
+    tasks: list[Task] = [Task.DEHAZE, Task.NIGHTTIME]
     
     def prepare_data(self, *args, **kwargs):
         pass
@@ -74,10 +81,10 @@ class MEFDataModule(DataModule):
             console.log(f"Setup [red]{self.__class__.__name__}[/red].")
         
         if stage in [None, "train"]:
-            self.train = MEF(split=Split.TEST, **self.dataset_kwargs)
-            self.val   = MEF(split=Split.TEST, **self.dataset_kwargs)
+            self.train = GTA5NighttimeFog(split=Split.TRAIN, **self.dataset_kwargs)
+            self.val   = GTA5NighttimeFog(split=Split.TEST,  **self.dataset_kwargs)
         if stage in [None, "test"]:
-            self.test  = MEF(split=Split.TEST, **self.dataset_kwargs)
+            self.test  = GTA5NighttimeFog(split=Split.TEST,  **self.dataset_kwargs)
         
         self.get_classlabels()
         if self.can_log:

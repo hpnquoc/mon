@@ -47,7 +47,7 @@ class NightCity(MultimodalDataset):
     	https://dmcv.sjtu.edu.cn/people/phd/tanxin/NightCity/index.html
     """
     
-    tasks : list[Task]  = [Task.LLIE, Task.SEGMENT]
+    tasks : list[Task]  = [Task.LLIE, Task.NIGHTTIME, Task.SEGMENT]
     splits: list[Split] = [Split.TRAIN, Split.VAL, Split.TEST]
     datapoint_attrs     = DatapointAttributes({
         "image"   : ImageAnnotation,
@@ -138,7 +138,7 @@ class NightCity(MultimodalDataset):
 @DATAMODULES.register(name="nightcity")
 class NightCityDataModule(DataModule):
     
-    tasks: list[Task] = [Task.LLIE, Task.SEGMENT]
+    tasks: list[Task] = [Task.LLIE, Task.NIGHTTIME, Task.SEGMENT]
     
     def prepare_data(self, *args, **kwargs):
         pass

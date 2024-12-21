@@ -16,6 +16,7 @@ import mon.dataset.enhance.fivek
 import mon.dataset.enhance.flare7k
 import mon.dataset.enhance.flarereal800
 import mon.dataset.enhance.fusion
+import mon.dataset.enhance.gta5_nighttime_fog
 import mon.dataset.enhance.gtrain
 import mon.dataset.enhance.gtsnow
 import mon.dataset.enhance.ihaze
@@ -38,6 +39,7 @@ import mon.dataset.enhance.rain13k
 import mon.dataset.enhance.rain1400
 import mon.dataset.enhance.rain2800
 import mon.dataset.enhance.rain800
+import mon.dataset.enhance.realnighthaze
 import mon.dataset.enhance.reside
 import mon.dataset.enhance.sice
 import mon.dataset.enhance.sid
@@ -51,6 +53,7 @@ from mon.dataset.enhance.fivek import *
 from mon.dataset.enhance.flare7k import *
 from mon.dataset.enhance.flarereal800 import *
 from mon.dataset.enhance.fusion import *
+from mon.dataset.enhance.gta5_nighttime_fog import *
 from mon.dataset.enhance.gtrain import *
 from mon.dataset.enhance.gtsnow import *
 from mon.dataset.enhance.ihaze import *
@@ -73,6 +76,7 @@ from mon.dataset.enhance.rain13k import *
 from mon.dataset.enhance.rain1400 import *
 from mon.dataset.enhance.rain2800 import *
 from mon.dataset.enhance.rain800 import *
+from mon.dataset.enhance.realnighthaze import *
 from mon.dataset.enhance.reside import *
 from mon.dataset.enhance.sice import *
 from mon.dataset.enhance.sid import *
