@@ -6,10 +6,12 @@
 from __future__ import annotations
 
 __all__ = [
+    "Flare7KPPExtra",
+    "Flare7KPPExtraDataModule",
     "Flare7KPPReal",
     "Flare7KPPRealDataModule",
-    "Flare7KPPSyn",
-    "Flare7KPPSynDataModule",
+    "Flare7KPPSynthetic",
+    "Flare7KPPSyntheticDataModule",
 ]
 
 from typing import Literal
@@ -29,7 +31,7 @@ MultimodalDataset   = core.MultimodalDataset
 
 @DATASETS.register(name="flare7k++_real")
 class Flare7KPPReal(MultimodalDataset):
-    """Flare7K++-Real dataset consists of 100 flare/clear image pairs."""
+    """Flare7K++Real dataset consists of 100 flare/clear image pairs."""
     
     tasks : list[Task]  = [Task.NIGHTTIME]
     splits: list[Split] = [Split.TEST]
@@ -44,7 +46,7 @@ class Flare7KPPReal(MultimodalDataset):
     
     def get_data(self):
         patterns = [
-            self.root / "flare7k++_real" / self.split_str / "image",
+            self.root / "flare7k++" / self.split_str / "real" / "image",
         ]
         
         # Images
@@ -61,9 +63,9 @@ class Flare7KPPReal(MultimodalDataset):
         self.datapoints["image"] = images
         
 
-@DATASETS.register(name="flare7k++_syn")
-class Flare7KPPSyn(MultimodalDataset):
-    """Flare7K++-Syn dataset consists of ``100`` flare/clear image pairs."""
+@DATASETS.register(name="flare7k++_synthetic")
+class Flare7KPPSynthetic(MultimodalDataset):
+    """Flare7K++Synthetic dataset consists of ``100`` flare/clear image pairs."""
     
     tasks : list[Task]  = [Task.NIGHTTIME]
     splits: list[Split] = [Split.TEST]
@@ -78,7 +80,7 @@ class Flare7KPPSyn(MultimodalDataset):
     
     def get_data(self):
         patterns = [
-            self.root / "flare7k++_syn" / self.split_str / "image",
+            self.root / "flare7k++" / self.split_str / "synthetic" / "image",
         ]
         
         # Images
@@ -93,7 +95,41 @@ class Flare7KPPSyn(MultimodalDataset):
                         images.append(ImageAnnotation(path=path, root=pattern))
         
         self.datapoints["image"] = images
+
+
+@DATASETS.register(name="flare7k++_extra")
+class Flare7KPPExtra(MultimodalDataset):
+    """Flare7K++Extra dataset consists of ``100`` flare images."""
+    
+    tasks : list[Task]  = [Task.NIGHTTIME]
+    splits: list[Split] = [Split.TEST]
+    datapoint_attrs     = DatapointAttributes({
+        "image"    : ImageAnnotation,
+        # "ref_image": ImageAnnotation,
+    })
+    has_test_annotations: bool = False
+    
+    def __init__(self, root: core.Path = default_root_dir, *args, **kwargs):
+        super().__init__(root=root, *args, **kwargs)
+    
+    def get_data(self):
+        patterns = [
+            self.root / "flare7k++" / self.split_str / "extra" / "image",
+        ]
         
+        # Images
+        images: list[ImageAnnotation] = []
+        with core.get_progress_bar(disable=self.disable_pbar) as pbar:
+            for pattern in patterns:
+                for path in pbar.track(
+                    sequence    = sorted(list(pattern.rglob("*"))),
+                    description = f"Listing {self.__class__.__name__} {self.split_str} images"
+                ):
+                    if path.is_image_file():
+                        images.append(ImageAnnotation(path=path, root=pattern))
+        
+        self.datapoints["image"] = images
+
 
 @DATAMODULES.register(name="flare7k++_real")
 class Flare7KPPRealDataModule(DataModule):
@@ -118,8 +154,8 @@ class Flare7KPPRealDataModule(DataModule):
             self.summarize()
     
 
-@DATAMODULES.register(name="flare7k++_syn")
-class Flare7KPPSynDataModule(DataModule):
+@DATAMODULES.register(name="flare7k++_synthetic")
+class Flare7KPPSyntheticDataModule(DataModule):
     
     tasks: list[Task] = [Task.NIGHTTIME]
     
@@ -131,10 +167,33 @@ class Flare7KPPSynDataModule(DataModule):
             console.log(f"Setup [red]{self.__class__.__name__}[/red].")
         
         if stage in [None, "train"]:
-            self.train = Flare7KPPSyn(split=Split.TEST, **self.dataset_kwargs)
-            self.val   = Flare7KPPSyn(split=Split.TEST, **self.dataset_kwargs)
+            self.train = Flare7KPPExtra(split=Split.TEST, **self.dataset_kwargs)
+            self.val   = Flare7KPPExtra(split=Split.TEST, **self.dataset_kwargs)
         if stage in [None, "test"]:
-            self.test  = Flare7KPPSyn(split=Split.TEST, **self.dataset_kwargs)
+            self.test  = Flare7KPPExtra(split=Split.TEST, **self.dataset_kwargs)
+
+        self.get_classlabels()
+        if self.can_log:
+            self.summarize()
+
+
+@DATAMODULES.register(name="flare7k++_extra")
+class Flare7KPPExtraDataModule(DataModule):
+    
+    tasks: list[Task] = [Task.NIGHTTIME]
+    
+    def prepare_data(self, *args, **kwargs):
+        pass
+
+    def setup(self, stage: Literal["train", "test", "predict", None] = None):
+        if self.can_log:
+            console.log(f"Setup [red]{self.__class__.__name__}[/red].")
+        
+        if stage in [None, "train"]:
+            self.train = Flare7KPPExtra(split=Split.TEST, **self.dataset_kwargs)
+            self.val   = Flare7KPPExtra(split=Split.TEST, **self.dataset_kwargs)
+        if stage in [None, "test"]:
+            self.test  = Flare7KPPExtra(split=Split.TEST, **self.dataset_kwargs)
 
         self.get_classlabels()
         if self.can_log:
