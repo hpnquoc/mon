@@ -29,7 +29,7 @@ MultimodalDataset   = core.MultimodalDataset
 class LEDLight(MultimodalDataset):
     """LEDLight dataset consists of 100 flare/clear image pairs."""
     
-    tasks : list[Task]  = [Task.LES]
+    tasks : list[Task]  = [Task.NIGHTTIME]
     splits: list[Split] = [Split.TEST]
     datapoint_attrs     = DatapointAttributes({
         "image"    : ImageAnnotation,
@@ -62,7 +62,7 @@ class LEDLight(MultimodalDataset):
 @DATAMODULES.register(name="ledlight")
 class LEDLightDataModule(DataModule):
 
-    tasks: list[Task] = [Task.LES]
+    tasks: list[Task] = [Task.NIGHTTIME]
     
     def prepare_data(self, *args, **kwargs):
         pass

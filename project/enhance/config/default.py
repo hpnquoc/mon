@@ -22,7 +22,7 @@ TASKS = [
     Task.DERAIN,
     Task.DESNOW,
     Task.INPAINT,
-    Task.LES,
+    Task.NIGHTTIME,
     Task.LLIE,
 	Task.RETOUCH,
     Task.SEGMENT,

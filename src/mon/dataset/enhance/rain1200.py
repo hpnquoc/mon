@@ -44,9 +44,9 @@ class Rain1200(MultimodalDataset):
     def get_data(self):
         if self.split in [Split.TRAIN]:
             patterns = [
-                self.root / "rain1200_light"  / self.split_str / "image",
-                self.root / "rain1200_medium" / self.split_str / "image",
-                self.root / "rain1200_heavy"  / self.split_str / "image",
+                self.root / "rain1200" / self.split_str / "light"  / "image",
+                self.root / "rain1200" / self.split_str / "medium" / "image",
+                self.root / "rain1200" / self.split_str / "heavy"  / "image",
             ]
         else:
             patterns = [

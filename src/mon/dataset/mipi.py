@@ -40,7 +40,7 @@ class MIPI24Flare(MultimodalDataset):
 		https://mipi-challenge.org/MIPI2024/index.html
 	"""
 	
-	tasks : list[Task]  = [Task.LES]
+	tasks : list[Task]  = [Task.NIGHTTIME]
 	splits: list[Split] = [Split.TRAIN, Split.VAL, Split.TEST]
 	datapoint_attrs     = DatapointAttributes({
 		"image"    : ImageAnnotation,
@@ -91,7 +91,7 @@ class MIPI24FlareDataModule(DataModule):
 		https://mipi-challenge.org/MIPI2024/index.html
 	"""
 	
-	tasks: list[Task] = [Task.LES]
+	tasks: list[Task] = [Task.NIGHTTIME]
 	
 	def prepare_data(self, *args, **kwargs):
 		pass

@@ -1,6 +1,7 @@
 import os
-os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
+os.environ["CUDA_DEVICE_ORDER"]    = "PCI_BUS_ID"
 os.environ["CUDA_VISIBLE_DEVICES"] = '0'
+
 import torch
 torch.backends.cudnn.benchmark = True
 import torch.optim as optim
@@ -17,6 +18,7 @@ from torch.utils.tensorboard import SummaryWriter
 import argparse
 from spikingjelly.activation_based import functional
 
+
 if __name__ == "__main__":
     ######### Set Seeds ###########
     random.seed(1234)
@@ -26,44 +28,41 @@ if __name__ == "__main__":
     start_epoch = 1
 
     parser = argparse.ArgumentParser(description='Image Deraining')
-    parser.add_argument('--train_dir', default='', type=str,
-                        help='Directory of train images')
-    parser.add_argument('--val_dir', default='', type=str,
-                        help='Directory of validation images')
-    parser.add_argument('--model_save_dir', default='./checkpoints/', type=str, help='Path to save weights')
-    parser.add_argument('--pretrain_weights', default='./checkpoints/model_best.pth', type=str,
-                        help='Path to pretrain-weights')
-    parser.add_argument('--mode', default='ESDNet3', type=str)
-    parser.add_argument('--session', default='DID-Data_new', type=str, help='session')
-    parser.add_argument('--patch_size_train', default=64, type=int, help='training patch size')
-    parser.add_argument('--patch_size_test', default=64, type=int, help='val patch size')
-    parser.add_argument('--num_epochs', default=1000, type=int, help='num_epochs')
-    parser.add_argument('--batch_size', default=12, type=int, help='batch_size')
-    parser.add_argument('--val_epochs', default=1, type=int, help='val_epochs')
-    parser.add_argument('--lr', default=1e-3, type=int, help='LearningRate')
-    parser.add_argument('--min_lr', default=1e-7, type=int, help='min_LearningRate')
-    parser.add_argument('--warmup_epochs', default=3, type=int, help='warmup_epochs')
-    parser.add_argument('--clip_grad', default=1.0, type=float, help='clip_grad')
-    parser.add_argument('--use_amp', default=False, type=bool, help='use_amp')
-    parser.add_argument('--num_workers', default=2, type=int, help='num_workers')
+    parser.add_argument('--train_dir',        default='',               type=str,   help='Directory of train images')
+    parser.add_argument('--val_dir',          default='',               type=str,   help='Directory of validation images')
+    parser.add_argument('--model_save_dir',   default='./checkpoints/', type=str,   help='Path to save weights')
+    parser.add_argument('--pretrain_weights', default='./checkpoints/model_best.pth', type=str, help='Path to pretrain-weights')
+    parser.add_argument('--mode',             default='ESDNet3',        type=str)
+    parser.add_argument('--session',          default='DID-Data_new',   type=str,   help='session')
+    parser.add_argument('--patch_size_train', default=64,               type=int,   help='training patch size')
+    parser.add_argument('--patch_size_test',  default=64,               type=int,   help='val patch size')
+    parser.add_argument('--num_epochs',       default=1000,             type=int,   help='num_epochs')
+    parser.add_argument('--batch_size',       default=12,               type=int,   help='batch_size')
+    parser.add_argument('--val_epochs',       default=1,                type=int,   help='val_epochs')
+    parser.add_argument('--lr',               default=1e-3,             type=int,   help='LearningRate')
+    parser.add_argument('--min_lr',           default=1e-7,             type=int,   help='min_LearningRate')
+    parser.add_argument('--warmup_epochs',    default=3,                type=int,   help='warmup_epochs')
+    parser.add_argument('--clip_grad',        default=1.0,              type=float, help='clip_grad')
+    parser.add_argument('--use_amp',          default=False,            type=bool,  help='use_amp')
+    parser.add_argument('--num_workers',      default=2,                type=int,   help='num_workers')
     args = parser.parse_args()
 
-    start_lr = args.lr
-    end_lr = args.min_lr
-    clip_grad = args.clip_grad
-    use_amp = args.use_amp
-    mode = args.mode
-    session = args.session
+    start_lr         = args.lr
+    end_lr           = args.min_lr
+    clip_grad        = args.clip_grad
+    use_amp          = args.use_amp
+    mode             = args.mode
+    session          = args.session
     patch_size_train = args.patch_size_train
-    patch_size_test = args.patch_size_test
-    model_dir = os.path.join(args.model_save_dir, mode, 'models', session)
+    patch_size_test  = args.patch_size_test
+    model_dir        = os.path.join(args.model_save_dir, mode, 'models', session)
     utils.mkdir(model_dir)
-    train_dir = args.train_dir
-    val_dir = args.val_dir
-    num_epochs = args.num_epochs
-    batch_size = args.batch_size
-    val_epochs = args.val_epochs
-    num_workers = args.num_workers
+    train_dir        = args.train_dir
+    val_dir          = args.val_dir
+    num_epochs       = args.num_epochs
+    batch_size       = args.batch_size
+    val_epochs       = args.val_epochs
+    num_workers      = args.num_workers
 
     ######### Model ###########
     model_restoration = model
@@ -89,8 +88,7 @@ if __name__ == "__main__":
     # scheduler_cosine = optim.lr_scheduler.StepLR(step_size=50, gamma=0.8,
     #                                       optimizer=optimizer)  ####step_size epoch, best_epoch 445
 
-    scheduler = GradualWarmupScheduler(optimizer, multiplier=1, total_epoch=warmup_epochs,
-                                       after_scheduler=scheduler_cosine)
+    scheduler = GradualWarmupScheduler(optimizer, multiplier=1, total_epoch=warmup_epochs, after_scheduler=scheduler_cosine)
 
     # scheduler.step()
     RESUME = False
@@ -99,7 +97,6 @@ if __name__ == "__main__":
     ######### Pretrain ###########
     if Pretrain:
         utils.load_checkpoint(model_restoration, model_pre_dir)
-
         print('------------------------------------------------------------------------------')
         print("==> Retrain Training with: " + model_pre_dir)
         print('------------------------------------------------------------------------------')
@@ -129,12 +126,24 @@ if __name__ == "__main__":
     ######### DataLoaders ###########
 
     dataset_train = Dataload(data_dir=train_dir, patch_size=patch_size_train)
-    train_loader = DataLoader(dataset=dataset_train, num_workers=num_workers, batch_size=batch_size, shuffle=True, drop_last=False,
-                              pin_memory=True)
+    train_loader  = DataLoader(
+        dataset     = dataset_train,
+        num_workers = num_workers,
+        batch_size  = batch_size,
+        shuffle     = True,
+        drop_last   = False,
+        pin_memory  = True
+    )
 
     dataset_val = Dataload(data_dir=val_dir, patch_size=patch_size_test)
-    val_loader = DataLoader(dataset=dataset_val, num_workers=1, batch_size=batch_size, shuffle=False, drop_last=False,
-                            pin_memory=True)
+    val_loader  = DataLoader(
+        dataset     = dataset_val,
+        num_workers = 1,
+        batch_size  = batch_size,
+        shuffle     = False,
+        drop_last   = False,
+        pin_memory  = True
+    )
     # train_dataset = get_training_data(train_dir, {'patch_size': patch_size_train})
     # train_loader = DataLoader(dataset=train_dataset, batch_size=batch_size, shuffle=True, num_workers=num_workers,
     #                           drop_last=False,
@@ -147,25 +156,25 @@ if __name__ == "__main__":
     print('===> Start Epoch {} End Epoch {}'.format(start_epoch, num_epochs + 1))
     print('===> Loading datasets')
 
-    best_psnr = 0
+    best_psnr  = 0
     best_epoch = 0
-    writer = SummaryWriter(model_dir)
-    iter = 0
-    scaler = torch.cuda.amp.GradScaler()
+    writer     = SummaryWriter(model_dir)
+    iter       = 0
+    scaler     = torch.cuda.amp.GradScaler()
 
     for epoch in range(start_epoch, num_epochs + 1):
-        epoch_start_time = time.time()
-        epoch_loss = 0
-        train_id = 1
+        epoch_start_time   = time.time()
+        epoch_loss         = 0
+        train_id           = 1
         train_psnr_val_rgb = []
-        scaled_loss = 0
+        scaled_loss        = 0
         model_restoration.train()
         # scheduler.step()
         for i, data in enumerate(tqdm(train_loader, unit='img'), 0):
             for param in model_restoration.parameters():
                 param.grad = None
-            target_ = data[1].cuda()
-            input_ = data[0].cuda()
+            target_  = data[1].cuda()
+            input_   = data[0].cuda()
             restored = model_restoration(input_)
             if use_amp:
                 with torch.cuda.amp.autocast():
@@ -188,14 +197,14 @@ if __name__ == "__main__":
                 functional.reset_net(model_restoration)
             torch.cuda.synchronize()
             epoch_loss += loss.item()
-            iter += 1
+            iter       += 1
             for res, tar in zip(restored, target_):
                 train_psnr_val_rgb.append(utils.torchPSNR(res, tar))
             psnr_train = torch.stack(train_psnr_val_rgb).mean().item()
 
-            writer.add_scalar('loss/iter_loss', loss.item(), iter)
+            writer.add_scalar('loss/iter_loss',  loss.item(), iter)
             writer.add_scalar('loss/epoch_loss', epoch_loss, epoch)
-            writer.add_scalar('lr/epoch_loss', scheduler.get_lr()[0], epoch)
+            writer.add_scalar('lr/epoch_loss',   scheduler.get_lr()[0], epoch)
         #### Evaluation ####
         if epoch % val_epochs == 0:
             model_restoration.eval()
@@ -214,20 +223,28 @@ if __name__ == "__main__":
             psnr_val_rgb = torch.stack(psnr_val_rgb).mean().item()
             writer.add_scalar('val/psnr', psnr_val_rgb, epoch)
             if psnr_val_rgb > best_psnr:
-                best_psnr = psnr_val_rgb
+                best_psnr  = psnr_val_rgb
                 best_epoch = epoch
                 torch.save(model_restoration.state_dict(), os.path.join(model_dir, "model_best.pth"))
 
             print("[epoch %d Training PSNR: %.4f --- best_epoch %d Test_PSNR %.4f]" % (epoch, psnr_train, best_epoch, best_psnr))
         if epoch % 50 == 0:
-            torch.save({'epoch': epoch,
-                        'state_dict': model_restoration.state_dict(),
-                        'optimizer': optimizer.state_dict()
-                        }, os.path.join(model_dir, f"model_epoch_{epoch}.pth"))
-        torch.save({'epoch': epoch,
+            torch.save(
+                {
+                    'epoch'     : epoch,
                     'state_dict': model_restoration.state_dict(),
-                    'optimizer': optimizer.state_dict()
-                    }, os.path.join(model_dir, "model_last.pth"))
+                    'optimizer' : optimizer.state_dict()
+                },
+                os.path.join(model_dir, f"model_epoch_{epoch}.pth")
+            )
+        torch.save(
+            {
+                'epoch'     : epoch,
+                'state_dict': model_restoration.state_dict(),
+                'optimizer' : optimizer.state_dict()
+            },
+            os.path.join(model_dir, "model_last.pth")
+        )
         scheduler.step()
         print("-" * 150)
         print(

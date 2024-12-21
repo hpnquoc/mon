@@ -29,7 +29,7 @@ MultimodalDataset   = core.MultimodalDataset
 class FlareReal800(MultimodalDataset):
     """FlareReal800 dataset consists of 800 flare/clear image pairs."""
     
-    tasks : list[Task]  = [Task.LES]
+    tasks : list[Task]  = [Task.NIGHTTIME]
     splits: list[Split] = [Split.TRAIN, Split.VAL]
     datapoint_attrs     = DatapointAttributes({
         "image"    : ImageAnnotation,
@@ -62,7 +62,7 @@ class FlareReal800(MultimodalDataset):
 @DATAMODULES.register(name="flarereal800")
 class FlareReal800DataModule(DataModule):
     
-    tasks: list[Task] = [Task.LES]
+    tasks: list[Task] = [Task.NIGHTTIME]
     
     def prepare_data(self, *args, **kwargs):
         pass

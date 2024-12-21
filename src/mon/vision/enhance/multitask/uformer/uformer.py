@@ -707,7 +707,7 @@ class Uformer_RE(base.MultiTaskImageEnhancementModel):
     """
     
     arch   : str  = "uformer"
-    tasks  : list[Task]   = [Task.DEBLUR, Task.DENOISE, Task.DERAIN, Task.DESNOW, Task.LES, Task.LLIE]
+    tasks  : list[Task]   = [Task.DEBLUR, Task.DENOISE, Task.DERAIN, Task.DESNOW, Task.NIGHTTIME, Task.LLIE]
     schemes: list[Scheme] = [Scheme.SUPERVISED]
     zoo    : dict = {}
     

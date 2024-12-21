@@ -649,23 +649,23 @@ class MemoryUnit(DT.Enum):
 class Task(DT.Enum):
     """Task types."""
     
-    CLASSIFY = "classify"  # classification
-    DEBLUR   = "deblur"    # deblurring
-    DEHAZE   = "dehaze"    # dehazing
-    DENOISE  = "denoise"   # denoising
-    DEPTH    = "depth"     # depth estimation
-    DERAIN   = "derain"    # deraining
-    DESNOW   = "desnow"    # desnowing
-    DETECT   = "detect"    # object detection
-    INPAINT  = "inpaint"   # inpainting
-    LES      = "les"       # light effect suppression
-    LLIE     = "llie"      # low-light image enhancement
-    POSE     = "pose"      # pose estimation
-    RETOUCH  = "retouch"   # image retouching
-    SEGMENT  = "segment"   # semantic segmentation
-    SR       = "sr"        # super-resolution
-    TRACK    = "track"     # object tracking
-    UIE      = "uie"       # underwater image enhancement
+    CLASSIFY  = "classify"  # classification
+    DEBLUR    = "deblur"    # deblurring
+    DEHAZE    = "dehaze"    # dehazing
+    DENOISE   = "denoise"   # denoising
+    DEPTH     = "depth"     # depth estimation
+    DERAIN    = "derain"    # deraining
+    DESNOW    = "desnow"    # desnowing
+    DETECT    = "detect"    # object detection
+    INPAINT   = "inpaint"   # inpainting
+    LLIE      = "llie"      # low-light image enhancement
+    NIGHTTIME = "nighttime" # nighttime
+    POSE      = "pose"      # pose estimation
+    RETOUCH   = "retouch"   # image retouching
+    SEGMENT   = "segment"   # semantic segmentation
+    SR        = "sr"        # super-resolution
+    TRACK     = "track"     # object tracking
+    UIE       = "uie"       # underwater image enhancement
 
 
 class RunMode(DT.Enum):

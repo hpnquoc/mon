@@ -31,7 +31,7 @@ MultimodalDataset   = core.MultimodalDataset
 class Flare7KPPReal(MultimodalDataset):
     """Flare7K++-Real dataset consists of 100 flare/clear image pairs."""
     
-    tasks : list[Task]  = [Task.LES]
+    tasks : list[Task]  = [Task.NIGHTTIME]
     splits: list[Split] = [Split.TEST]
     datapoint_attrs     = DatapointAttributes({
         "image"    : ImageAnnotation,
@@ -65,7 +65,7 @@ class Flare7KPPReal(MultimodalDataset):
 class Flare7KPPSyn(MultimodalDataset):
     """Flare7K++-Syn dataset consists of ``100`` flare/clear image pairs."""
     
-    tasks : list[Task]  = [Task.LES]
+    tasks : list[Task]  = [Task.NIGHTTIME]
     splits: list[Split] = [Split.TEST]
     datapoint_attrs     = DatapointAttributes({
         "image"    : ImageAnnotation,
@@ -98,7 +98,7 @@ class Flare7KPPSyn(MultimodalDataset):
 @DATAMODULES.register(name="flare7k++_real")
 class Flare7KPPRealDataModule(DataModule):
     
-    tasks: list[Task] = [Task.LES]
+    tasks: list[Task] = [Task.NIGHTTIME]
     
     def prepare_data(self, *args, **kwargs):
         pass
@@ -121,7 +121,7 @@ class Flare7KPPRealDataModule(DataModule):
 @DATAMODULES.register(name="flare7k++_syn")
 class Flare7KPPSynDataModule(DataModule):
     
-    tasks: list[Task] = [Task.LES]
+    tasks: list[Task] = [Task.NIGHTTIME]
     
     def prepare_data(self, *args, **kwargs):
         pass

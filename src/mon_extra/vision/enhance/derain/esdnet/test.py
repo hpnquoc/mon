@@ -16,23 +16,23 @@ from tqdm import tqdm
 from model import model
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--preprocess', type=str, default='crop')
-parser.add_argument('--batch_size', type=int, default=1)
-parser.add_argument('--gpu_ids', type=str, default='0', help='gpu ids: e.g. 0  0,1,2, 0,2. -1 for CPU')
-parser.add_argument('--data_path', type=str, default='')
-parser.add_argument('--save_path', type=str, default='')
+parser.add_argument('--preprocess',   type=str, default='crop')
+parser.add_argument('--batch_size',   type=int, default=1)
+parser.add_argument('--gpu_ids',      type=str, default='0', help='gpu ids: e.g. 0  0,1,2, 0,2. -1 for CPU')
+parser.add_argument('--data_path',    type=str, default='')
+parser.add_argument('--save_path',    type=str, default='')
 parser.add_argument('--eval_workers', type=int, default=4)
-parser.add_argument('--crop_size', type=int, default=80)
+parser.add_argument('--crop_size',    type=int, default=80)
 parser.add_argument('--overlap_size', type=int, default=8)
-parser.add_argument('--weights', type=str, default='')
+parser.add_argument('--weights',      type=str, default='')
 opt = parser.parse_args()
 
-os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
+os.environ["CUDA_DEVICE_ORDER"]    = "PCI_BUS_ID"
 os.environ["CUDA_VISIBLE_DEVICES"] = opt.gpu_ids
 
-crop_size = opt.crop_size
+crop_size    = opt.crop_size
 overlap_size = opt.overlap_size
-batch_size = opt.batch_size
+batch_size   = opt.batch_size
 
 
 def save_img(filepath, img):
@@ -40,6 +40,7 @@ def save_img(filepath, img):
 
 
 class DataLoaderEval(data.Dataset):
+    
     def __init__(self, opt):
         super(DataLoaderEval, self).__init__()
         self.opt = opt
@@ -148,8 +149,8 @@ if __name__ == '__main__':
     os.makedirs(result_dir, exist_ok=True)
     with torch.no_grad():
         for input_, file_ in tqdm(eval_loader, unit='img'):
-            input_ = input_.cuda()
-            B, C, H, W = input_.shape
+            input_             = input_.cuda()
+            B, C, H, W         = input_.shape
             split_data, starts = splitimage(input_)
             for i, data in enumerate(split_data):
                 split_data[i] = model_restoration(data).cuda()
@@ -159,7 +160,7 @@ if __name__ == '__main__':
             restored = mergeimage(split_data, starts, resolution=(B, C, H, W))
             restored = torch.clamp(restored, 0, 1).permute(0, 2, 3, 1).numpy()
             for j in range(B):
-                fname = file_[j]
+                fname     = file_[j]
                 cleanname = fname
                 save_file = os.path.join(result_dir, cleanname)
                 save_img(save_file, img_as_ubyte(restored[j]))

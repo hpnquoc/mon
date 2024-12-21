@@ -224,7 +224,7 @@ class HINet_RE(base.ImageEnhancementModel):
     model_dir: core.Path    = current_dir
     arch     : str          = "hinet"
     tasks    : list[Task]   = [Task.DEBLUR, Task.DENOISE, Task.DERAIN,
-                               Task.DESNOW, Task.LES]
+                               Task.DESNOW, Task.NIGHTTIME]
     schemes  : list[Scheme] = [Scheme.SUPERVISED]
     zoo      : dict         = {}
     

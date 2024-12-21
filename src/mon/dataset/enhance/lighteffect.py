@@ -29,7 +29,7 @@ MultimodalDataset   = core.MultimodalDataset
 class LightEffect(MultimodalDataset):
     """LightEffect dataset consists 961 flare images."""
     
-    tasks : list[Task]  = [Task.LES]
+    tasks : list[Task]  = [Task.NIGHTTIME]
     splits: list[Split] = [Split.TRAIN]
     datapoint_attrs     = DatapointAttributes({
         "image": ImageAnnotation,
@@ -62,7 +62,7 @@ class LightEffect(MultimodalDataset):
 @DATAMODULES.register(name="lighteffect")
 class LightEffectDataModule(DataModule):
     
-    tasks: list[Task] = [Task.LES]
+    tasks: list[Task] = [Task.NIGHTTIME]
     
     def prepare_data(self, *args, **kwargs):
         pass
