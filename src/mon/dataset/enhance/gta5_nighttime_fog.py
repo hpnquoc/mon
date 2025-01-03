@@ -40,9 +40,9 @@ class GTA5NighttimeFog(MultimodalDataset):
     splits: list[Split] = [Split.TRAIN, Split.TEST]
     datapoint_attrs     = DatapointAttributes({
         "image"    : ImageAnnotation,
-        # "depth"    : DepthMapAnnotation,
+        "depth"    : DepthMapAnnotation,
         "ref_image": ImageAnnotation,
-        # "ref_depth": DepthMapAnnotation,
+        "ref_depth": DepthMapAnnotation,
     })
     has_test_annotations: bool = True
     

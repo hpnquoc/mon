@@ -6,24 +6,22 @@
 from __future__ import annotations
 
 __all__ = [
-    "RESIDEHSTSReal",
-    "RESIDEHSTSRealDataModule",
-    "RESIDEHSTSSyn",
-    "RESIDEHSTSSynDataModule",
-    "RESIDEITS",
-    "RESIDEITSDataModule",
-    "RESIDEITSV2",
-    "RESIDEITSV2DataModule",
-    "RESIDEOTS",
-    "RESIDEOTSDataModule",
-    "RESIDERTTS",
-    "RESIDERTTSDataModule",
-    "RESIDESOTSIndoor",
-    "RESIDESOTSIndoorDataModule",
-    "RESIDESOTSOutdoor",
-    "RESIDESOTSOutdoorDataModule",
-    "RESIDEUHI",
-    "RESIDEUHIDataModule",
+    "RESIDE_HSTS_Real",
+    "RESIDE_HSTS_Real_DataModule",
+    "RESIDE_HSTS_Synthetic",
+    "RESIDE_HSTS_Synthetic_DataModule",
+    "RESIDE_ITS",
+    "RESIDE_ITS_DataModule",
+    "RESIDE_OTS",
+    "RESIDE_OTS_DataModule",
+    "RESIDE_RTTS",
+    "RESIDE_RTTS_DataModule",
+    "RESIDE_SOTS_Indoor",
+    "RESIDE_SOTS_Indoor_DataModule",
+    "RESIDE_SOTS_Outdoor",
+    "RESIDE_SOTS_Outdoor_DataModule",
+    "RESIDE_URHI",
+    "RESIDE_URHI_DataModule",
 ]
 
 from typing import Literal
@@ -41,7 +39,7 @@ MultimodalDataset   = core.MultimodalDataset
 
 
 @DATASETS.register(name="reside_hsts_real")
-class RESIDEHSTSReal(MultimodalDataset):
+class RESIDE_HSTS_Real(MultimodalDataset):
     """RESIDE-HSTS-Real dataset consists of 10 real hazy images."""
     
     tasks : list[Task]  = [Task.DEHAZE]
@@ -56,7 +54,7 @@ class RESIDEHSTSReal(MultimodalDataset):
     
     def get_data(self):
         patterns = [
-            self.root / "reside_hsts_real" / self.split_str / "image",
+            self.root / "reside" / "hsts" / "real" / self.split_str / "image",
         ]
         
         # Images
@@ -73,9 +71,9 @@ class RESIDEHSTSReal(MultimodalDataset):
         self.datapoints["image"] = images
         
         
-@DATASETS.register(name="reside_hsts_syn")
-class RESIDEHSTSSyn(MultimodalDataset):
-    """RESIDE-HSTS-Syn dataset consists of ``10`` pairs of hazy and
+@DATASETS.register(name="reside_hsts_synthetic")
+class RESIDE_HSTS_Synthetic(MultimodalDataset):
+    """RESIDE-HSTS-Synthetic dataset consists of ``10`` pairs of hazy and
     corresponding haze-free images.
     """
     
@@ -92,7 +90,7 @@ class RESIDEHSTSSyn(MultimodalDataset):
     
     def get_data(self):
         patterns = [
-            self.root / "reside_hsts_syn" / self.split_str / "image",
+            self.root / "reside" / "hsts" / "synthetic" / self.split_str / "image",
         ]
         
         # Images
@@ -110,7 +108,7 @@ class RESIDEHSTSSyn(MultimodalDataset):
         
 
 @DATASETS.register(name="reside_its")
-class RESIDEITS(MultimodalDataset):
+class RESIDE_ITS(MultimodalDataset):
     """RESIDE-ITS dataset consists of ``13,990`` pairs of hazy and corresponding
     haze-free images.
     """
@@ -128,7 +126,7 @@ class RESIDEITS(MultimodalDataset):
     
     def get_data(self):
         patterns = [
-            self.root / "reside_its" / self.split_str / "image",
+            self.root / "reside" / "its" / self.split_str / "image",
         ]
         
         # Images
@@ -156,59 +154,10 @@ class RESIDEITS(MultimodalDataset):
         
         self.datapoints["image"]     = images
         self.datapoints["ref_image"] = ref_images
-        
 
-@DATASETS.register(name="reside_its_v2")
-class RESIDEITSV2(MultimodalDataset):
-    """RESIDE-ITS-V2 dataset consists of ``13,990`` pairs of hazy and
-    corresponding haze-free images.
-    """
-    
-    tasks : list[Task]  = [Task.DEHAZE]
-    splits: list[Split] = [Split.TRAIN]
-    datapoint_attrs     = DatapointAttributes({
-        "image"    : ImageAnnotation,
-        "ref_image": ImageAnnotation,
-    })
-    has_test_annotations: bool = True
-    
-    def __init__(self, root: core.Path = default_root_dir, *args, **kwargs):
-        super().__init__(root=root, *args, **kwargs)
-    
-    def get_data(self):
-        patterns = [
-            self.root / "reside_its_v2" / self.split_str / "image",
-        ]
-        
-        # Images
-        images: list[ImageAnnotation] = []
-        with core.get_progress_bar(disable=self.disable_pbar) as pbar:
-            for pattern in patterns:
-                for path in pbar.track(
-                    sequence    = sorted(list(pattern.rglob("*"))),
-                    description = f"Listing {self.__class__.__name__} {self.split_str} images"
-                ):
-                    if path.is_image_file():
-                        images.append(ImageAnnotation(path=path, root=pattern))
-        
-        # Reference images
-        ref_images: list[ImageAnnotation] = []
-        with core.get_progress_bar(disable=self.disable_pbar) as pbar:
-            for img in pbar.track(
-                sequence    = images,
-                description = f"Listing {self.__class__.__name__} {self.split_str} reference images"
-            ):
-                stem = str(img.path.stem).split("_")[0]
-                path = img.path.replace("/image/", "/ref/")
-                path = path.parent / f"{stem}.{img.path.suffix}"
-                ref_images.append(ImageAnnotation(path=path.image_file(), root=pattern))
-        
-        self.datapoints["image"]     = images
-        self.datapoints["ref_image"] = ref_images
-        
 
 @DATASETS.register(name="reside_ots")
-class RESIDEOTS(MultimodalDataset):
+class RESIDE_OTS(MultimodalDataset):
     """RESIDE-OTS dataset consists of ``73,135`` pairs of hazy and corresponding
     haze-free images.
     """
@@ -226,7 +175,7 @@ class RESIDEOTS(MultimodalDataset):
     
     def get_data(self):
         patterns = [
-            self.root / "reside_ots" / self.split_str / "image",
+            self.root / "reside" / "ots" / self.split_str / "image",
         ]
         
         # Images
@@ -257,7 +206,7 @@ class RESIDEOTS(MultimodalDataset):
         
 
 @DATASETS.register(name="reside_rtts")
-class RESIDERTTS(MultimodalDataset):
+class RESIDE_RTTS(MultimodalDataset):
     """RESIDE-RTTS dataset consists of ``4,322`` real hazy images."""
     
     tasks : list[Task]  = [Task.DEHAZE]
@@ -272,7 +221,7 @@ class RESIDERTTS(MultimodalDataset):
     
     def get_data(self):
         patterns = [
-            self.root / "reside_rtts" / self.split_str / "image",
+            self.root / "reside" / "rtts" / self.split_str / "image",
         ]
         
         # Images
@@ -290,7 +239,7 @@ class RESIDERTTS(MultimodalDataset):
         
 
 @DATASETS.register(name="reside_sots_indoor")
-class RESIDESOTSIndoor(MultimodalDataset):
+class RESIDE_SOTS_Indoor(MultimodalDataset):
     """RESIDE-SOTS-Indoor dataset consists of ``500`` pairs of hazy and
     corresponding haze-free images.
     """
@@ -308,7 +257,7 @@ class RESIDESOTSIndoor(MultimodalDataset):
     
     def get_data(self):
         patterns = [
-            self.root / "reside_sots_indoor " / self.split_str / "image",
+            self.root / "reside" / "sots" / "indoor" / self.split_str / "image",
         ]
         
         # Images
@@ -339,7 +288,7 @@ class RESIDESOTSIndoor(MultimodalDataset):
         
 
 @DATASETS.register(name="reside_sots_outdoor")
-class RESIDESOTSOutdoor(MultimodalDataset):
+class RESIDE_SOTS_Outdoor(MultimodalDataset):
     """RESIDE-SOTS-Outdoor dataset consists of ``500`` pairs of hazy and
     corresponding haze-free images.
     """
@@ -357,7 +306,7 @@ class RESIDESOTSOutdoor(MultimodalDataset):
     
     def get_data(self):
         patterns = [
-            self.root / "reside_sots_outdoor" / self.split_str / "image",
+            self.root / "reside" / "sots" / "outdoor" / self.split_str / "image",
         ]
         
         # Images
@@ -387,8 +336,8 @@ class RESIDESOTSOutdoor(MultimodalDataset):
         self.datapoints["ref_image"] = ref_images
 
 
-@DATASETS.register(name="reside_uhi")
-class RESIDEUHI(MultimodalDataset):
+@DATASETS.register(name="reside_urhi")
+class RESIDE_URHI(MultimodalDataset):
     """RESIDE-UHI dataset consists of ``4,809`` real hazy images."""
     
     tasks : list[Task]  = [Task.DEHAZE]
@@ -403,7 +352,7 @@ class RESIDEUHI(MultimodalDataset):
     
     def get_data(self):
         patterns = [
-            self.root / "reside_uhi" / self.split_str / "image"
+            self.root / "reside" / "urhi" / self.split_str / "image"
         ]
         
         # Images
@@ -421,7 +370,7 @@ class RESIDEUHI(MultimodalDataset):
         
 
 @DATAMODULES.register(name="reside_hsts_real")
-class RESIDEHSTSRealDataModule(DataModule):
+class RESIDE_HSTS_Real_DataModule(DataModule):
 
     tasks: list[Task] = [Task.DEHAZE]
     
@@ -433,18 +382,18 @@ class RESIDEHSTSRealDataModule(DataModule):
             console.log(f"Setup [red]{self.__class__.__name__}[/red].")
         
         if stage in [None, "train"]:
-            self.train = RESIDEHSTSReal(split=Split.TEST, **self.dataset_kwargs)
-            self.val   = RESIDEHSTSReal(split=Split.TEST, **self.dataset_kwargs)
+            self.train = RESIDE_HSTS_Real(split=Split.TEST, **self.dataset_kwargs)
+            self.val   = RESIDE_HSTS_Real(split=Split.TEST, **self.dataset_kwargs)
         if stage in [None, "test"]:
-            self.test  = RESIDEHSTSReal(split=Split.TEST, **self.dataset_kwargs)
+            self.test  = RESIDE_HSTS_Real(split=Split.TEST, **self.dataset_kwargs)
 
         self.get_classlabels()
         if self.can_log:
             self.summarize()
 
 
-@DATAMODULES.register(name="reside_hsts_syn")
-class RESIDEHSTSSynDataModule(DataModule):
+@DATAMODULES.register(name="reside_hsts_synthetic")
+class RESIDE_HSTS_Synthetic_DataModule(DataModule):
 
     tasks: list[Task] = [Task.DEHAZE]
     
@@ -456,10 +405,10 @@ class RESIDEHSTSSynDataModule(DataModule):
             console.log(f"Setup [red]{self.__class__.__name__}[/red].")
         
         if stage in [None, "train"]:
-            self.train = RESIDEHSTSSyn(split=Split.TEST, **self.dataset_kwargs)
-            self.val   = RESIDEHSTSSyn(split=Split.TEST, **self.dataset_kwargs)
+            self.train = RESIDE_HSTS_Synthetic(split=Split.TEST, **self.dataset_kwargs)
+            self.val   = RESIDE_HSTS_Synthetic(split=Split.TEST, **self.dataset_kwargs)
         if stage in [None, "test"]:
-            self.test = RESIDEHSTSSyn(split=Split.TEST,  **self.dataset_kwargs)
+            self.test = RESIDE_HSTS_Synthetic(split=Split.TEST, **self.dataset_kwargs)
 
         self.get_classlabels()
         if self.can_log:
@@ -467,7 +416,7 @@ class RESIDEHSTSSynDataModule(DataModule):
 
 
 @DATAMODULES.register(name="reside_its")
-class RESIDEITSDataModule(DataModule):
+class RESIDE_ITS_DataModule(DataModule):
 
     tasks: list[Task] = [Task.DEHAZE]
     
@@ -479,33 +428,10 @@ class RESIDEITSDataModule(DataModule):
             console.log(f"Setup [red]{self.__class__.__name__}[/red].")
         
         if stage in [None, "train"]:
-            self.train = RESIDEITS(split=Split.TRAIN, **self.dataset_kwargs)
-            self.val   = RESIDEITS(split=Split.VAL,   **self.dataset_kwargs)
+            self.train = RESIDE_ITS(split=Split.TRAIN, **self.dataset_kwargs)
+            self.val   = RESIDE_ITS(split=Split.VAL, **self.dataset_kwargs)
         if stage in [None, "test"]:
-            self.test  = RESIDEITS(split=Split.TEST,  **self.dataset_kwargs)
-
-        self.get_classlabels()
-        if self.can_log:
-            self.summarize()
-
-
-@DATAMODULES.register(name="reside_its_v2")
-class RESIDEITSV2DataModule(DataModule):
-
-    tasks: list[Task] = [Task.DEHAZE]
-    
-    def prepare_data(self, *args, **kwargs):
-        pass
-
-    def setup(self, stage: Literal["train", "test", "predict", None] = None):
-        if self.can_log:
-            console.log(f"Setup [red]{self.__class__.__name__}[/red].")
-        
-        if stage in [None, "train"]:
-            self.train = RESIDEITSV2(split=Split.TRAIN, **self.dataset_kwargs)
-            self.val   =   RESIDEITS(split=Split.VAL,   **self.dataset_kwargs)
-        if stage in [None, "test"]:
-            self.test  =   RESIDEITS(split=Split.TEST,  **self.dataset_kwargs)
+            self.test  = RESIDE_ITS(split=Split.TEST, **self.dataset_kwargs)
 
         self.get_classlabels()
         if self.can_log:
@@ -513,7 +439,7 @@ class RESIDEITSV2DataModule(DataModule):
 
 
 @DATAMODULES.register(name="reside_ots")
-class RESIDEOTSDataModule(DataModule):
+class RESIDE_OTS_DataModule(DataModule):
 
     tasks: list[Task] = [Task.DEHAZE]
     
@@ -525,10 +451,10 @@ class RESIDEOTSDataModule(DataModule):
             console.log(f"Setup [red]{self.__class__.__name__}[/red].")
         
         if stage in [None, "train"]:
-            self.train = RESIDEOTS(split=Split.TRAIN, **self.dataset_kwargs)
-            self.val   = RESIDEITS(split=Split.VAL,   **self.dataset_kwargs)
+            self.train = RESIDE_OTS(split=Split.TRAIN, **self.dataset_kwargs)
+            self.val   = RESIDE_ITS(split=Split.VAL, **self.dataset_kwargs)
         if stage in [None, "test"]:
-            self.test  = RESIDEITS(split=Split.TEST,  **self.dataset_kwargs)
+            self.test  = RESIDE_ITS(split=Split.TEST, **self.dataset_kwargs)
 
         self.get_classlabels()
         if self.can_log:
@@ -536,7 +462,7 @@ class RESIDEOTSDataModule(DataModule):
 
 
 @DATAMODULES.register(name="reside_rtts")
-class RESIDERTTSDataModule(DataModule):
+class RESIDE_RTTS_DataModule(DataModule):
 
     tasks: list[Task] = [Task.DEHAZE]
     
@@ -548,10 +474,10 @@ class RESIDERTTSDataModule(DataModule):
             console.log(f"Setup [red]{self.__class__.__name__}[/red].")
         
         if stage in [None, "train"]:
-            self.train = RESIDERTTS(split=Split.TEST, **self.dataset_kwargs)
-            self.val   = RESIDERTTS(split=Split.TEST, **self.dataset_kwargs)
+            self.train = RESIDE_RTTS(split=Split.TEST, **self.dataset_kwargs)
+            self.val   = RESIDE_RTTS(split=Split.TEST, **self.dataset_kwargs)
         if stage in [None, "test"]:
-            self.test = RESIDERTTS(split=Split.TEST,  **self.dataset_kwargs)
+            self.test = RESIDE_RTTS(split=Split.TEST, **self.dataset_kwargs)
 
         self.get_classlabels()
         if self.can_log:
@@ -559,7 +485,7 @@ class RESIDERTTSDataModule(DataModule):
 
 
 @DATAMODULES.register(name="reside_sots_indoor")
-class RESIDESOTSIndoorDataModule(DataModule):
+class RESIDE_SOTS_Indoor_DataModule(DataModule):
 
     tasks: list[Task] = [Task.DEHAZE]
     
@@ -571,10 +497,10 @@ class RESIDESOTSIndoorDataModule(DataModule):
             console.log(f"Setup [red]{self.__class__.__name__}[/red].")
         
         if stage in [None, "train"]:
-            self.train = RESIDESOTSIndoor(split=Split.TEST, **self.dataset_kwargs)
-            self.val   = RESIDESOTSIndoor(split=Split.TEST, **self.dataset_kwargs)
+            self.train = RESIDE_SOTS_Indoor(split=Split.TEST, **self.dataset_kwargs)
+            self.val   = RESIDE_SOTS_Indoor(split=Split.TEST, **self.dataset_kwargs)
         if stage in [None, "test"]:
-            self.test = RESIDESOTSIndoor(split=Split.TEST,  **self.dataset_kwargs)
+            self.test = RESIDE_SOTS_Indoor(split=Split.TEST, **self.dataset_kwargs)
 
         self.get_classlabels()
         if self.can_log:
@@ -582,7 +508,7 @@ class RESIDESOTSIndoorDataModule(DataModule):
 
 
 @DATAMODULES.register(name="reside_sots_outdoor")
-class RESIDESOTSOutdoorDataModule(DataModule):
+class RESIDE_SOTS_Outdoor_DataModule(DataModule):
 
     tasks: list[Task] = [Task.DEHAZE]
     
@@ -594,18 +520,18 @@ class RESIDESOTSOutdoorDataModule(DataModule):
             console.log(f"Setup [red]{self.__class__.__name__}[/red].")
         
         if stage in [None, "train"]:
-            self.train = RESIDESOTSOutdoor(split=Split.TEST, **self.dataset_kwargs)
-            self.val   = RESIDESOTSOutdoor(split=Split.TEST, **self.dataset_kwargs)
+            self.train = RESIDE_SOTS_Outdoor(split=Split.TEST, **self.dataset_kwargs)
+            self.val   = RESIDE_SOTS_Outdoor(split=Split.TEST, **self.dataset_kwargs)
         if stage in [None, "test"]:
-            self.test  = RESIDESOTSOutdoor(split=Split.TEST, **self.dataset_kwargs)
+            self.test  = RESIDE_SOTS_Outdoor(split=Split.TEST, **self.dataset_kwargs)
 
         self.get_classlabels()
         if self.can_log:
             self.summarize()
 
 
-@DATAMODULES.register(name="reside_uhi")
-class RESIDEUHIDataModule(DataModule):
+@DATAMODULES.register(name="reside_urhi")
+class RESIDE_URHI_DataModule(DataModule):
 
     tasks: list[Task] = [Task.DEHAZE]
     
@@ -617,10 +543,10 @@ class RESIDEUHIDataModule(DataModule):
             console.log(f"Setup [red]{self.__class__.__name__}[/red].")
         
         if stage in [None, "train"]:
-            self.train = RESIDEUHI(split=Split.TEST, **self.dataset_kwargs)
-            self.val   = RESIDEUHI(split=Split.TEST, **self.dataset_kwargs)
+            self.train = RESIDE_URHI(split=Split.TEST, **self.dataset_kwargs)
+            self.val   = RESIDE_URHI(split=Split.TEST, **self.dataset_kwargs)
         if stage in [None, "test"]:
-            self.test  = RESIDEUHI(split=Split.TEST, **self.dataset_kwargs)
+            self.test  = RESIDE_URHI(split=Split.TEST, **self.dataset_kwargs)
         
         self.get_classlabels()
         if self.can_log:

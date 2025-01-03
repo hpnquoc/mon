@@ -33,7 +33,7 @@ class RealNightHaze(MultimodalDataset):
     splits: list[Split] = [Split.TEST]
     datapoint_attrs     = DatapointAttributes({
         "image": ImageAnnotation,
-        # "depth": DepthMapAnnotation,
+        "depth": DepthMapAnnotation,
     })
     has_test_annotations: bool = False
     

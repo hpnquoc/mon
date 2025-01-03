@@ -61,6 +61,7 @@ dependencies:
       - tensorboard            # TensorFlow's Visualization Toolkit.
       - tensorflow             # TensorFlow is an open source machine learning framework for everyone.
       - thop                   # Count the MACs / FLOPs of your PyTorch model.
+      - torch-fidelity
       - torch>=2.5.1           # PyTorch is an optimized tensor library for deep learning using GPUs and CPUs.
       - torchaudio             # Simple audio I/O for pytorch.
       - torchmetrics>=1.6.0    # Collection of PyTorch native metrics for easy evaluating machine learning models.
