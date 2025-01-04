@@ -25,7 +25,7 @@ from torch.nn.common_types import _size_2_t
 from mon import core, nn
 from mon.globals import MODELS, Scheme, Task
 from mon.nn import init
-from mon.vision import dtype, filtering
+from mon.vision import dtype, filtering, geometry
 from mon.vision.enhance import base
 
 console      = core.console
@@ -286,10 +286,10 @@ class EnhanceNet(nn.Module):
         depth: torch.Tensor = None
     ) -> tuple[torch.Tensor, torch.Tensor]:
         x    = image
-        gray = core.rgb_to_grayscale(image)
+        gray = dtype.rgb_to_grayscale(image)
         edge = None
-        if depth is not None and core.is_color_image(depth):
-            depth = core.rgb_to_grayscale(depth)
+        if depth is not None and dtype.is_color_image(depth):
+            depth = dtype.rgb_to_grayscale(depth)
         if self.use_depth:
             x = torch.cat([x, depth], 1)
         if self.use_edge:
@@ -512,8 +512,8 @@ class GCENet_ZSN2N(GCENet):
         self.assert_datapoint(datapoint)
         image          = datapoint.get("image")
         depth          = datapoint.get("depth")
-        image1, image2 = core.pair_downsample(image)
-        depth1, depth2 = core.pair_downsample(depth)
+        image1, image2 = geometry.pair_downsample(image)
+        depth1, depth2 = geometry.pair_downsample(depth)
         datapoint1     = datapoint | {"image": image1, "depth": depth1}
         datapoint2     = datapoint | {"image": image2, "depth": depth2}
         outputs1       = self.forward(datapoint=datapoint1, *args, **kwargs)
@@ -525,7 +525,7 @@ class GCENet_ZSN2N(GCENet):
         enhanced2 = outputs2["enhanced"]
         adjust    =  outputs["adjust"]
         enhanced  =  outputs["enhanced"]
-        enhanced_1, enhanced_2 = core.pair_downsample(enhanced)
+        enhanced_1, enhanced_2 = geometry.pair_downsample(enhanced)
         mse_loss = nn.MSELoss()
         loss_res = 0.5 * (mse_loss(image1,     enhanced2) + mse_loss(image2,     enhanced1))
         loss_con = 0.5 * (mse_loss(enhanced_1, enhanced1) + mse_loss(enhanced_2, enhanced2))

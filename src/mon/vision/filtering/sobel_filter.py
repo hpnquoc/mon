@@ -15,7 +15,7 @@ __all__ = [
 import cv2
 import numpy as np
 
-from mon import core
+from mon.vision import dtype
 
 
 def sobel_filter(image: np.ndarray, kernel_size: int = 3) -> np.ndarray:
@@ -29,7 +29,7 @@ def sobel_filter(image: np.ndarray, kernel_size: int = 3) -> np.ndarray:
                 range ``[0, 255]``.
         kernel_size: Size of the Sobel kernel. Default: ``3``.
     """
-    if core.is_color_image(image):
+    if dtype.is_color_image(image):
         image = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
     # Sobel filter in the x direction
     sobel_x = cv2.Sobel(image, cv2.CV_64F, 1, 0, ksize=kernel_size)

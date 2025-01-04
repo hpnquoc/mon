@@ -269,7 +269,7 @@ class CoLIE_RE(base.ImageEnhancementModel):
     
     def get_patches(self, image: torch.Tensor) -> torch.Tensor:
         """Creates a tensor where the channel contains patch information."""
-        num_channels = core.get_image_num_channels(image)
+        num_channels = dtype.get_image_num_channels(image)
         kernel       = torch.zeros((self.window_size ** 2, num_channels, self.window_size, self.window_size)).to(self.device)
         for i in range(self.window_size):
             for j in range(self.window_size):

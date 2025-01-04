@@ -40,6 +40,15 @@ StepOutput    = lightning.pytorch.utilities.types.STEP_OUTPUT
 EpochOutput   = Any  # lightning.pytorch.utilities.types.EPOCH_OUTPUT
 
 
+# region Utils
+
+def is_image(image: torch.Tensor) -> bool:
+    from mon.vision.dtype import image as I
+    return I.is_image(image)
+    
+# endregion
+
+
 # region Checkpoint
 
 def get_epoch_from_checkpoint(ckpt: core.Path) -> int:
@@ -730,7 +739,7 @@ class Model(lightning.LightningModule, ABC):
         log_values |= {
             f"train/{k}": v
             for k, v in outputs.items()
-            if v is not None and not core.is_image(v)
+            if v is not None and not is_image(v)
         }
         self.log_dict(
             dictionary     = log_values,
@@ -784,7 +793,7 @@ class Model(lightning.LightningModule, ABC):
         log_values |= {
             f"val/{k}": v
             for k, v in outputs.items()
-            if v is not None and not core.is_image(v)
+            if v is not None and not is_image(v)
         }
         self.log_dict(
             dictionary     = log_values,
@@ -850,7 +859,7 @@ class Model(lightning.LightningModule, ABC):
         log_values |= {
             f"test/{k}": v
             for k, v in outputs.items()
-            if v is not None and not core.is_image(v)
+            if v is not None and not is_image(v)
         }
         self.log_dict(
             dictionary     = log_values,

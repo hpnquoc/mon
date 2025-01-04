@@ -24,7 +24,7 @@ from torch.nn.common_types import _size_2_t
 
 from mon import core, nn
 from mon.globals import MODELS, Scheme, Task
-from mon.vision import filtering
+from mon.vision import dtype, filtering
 from mon.vision.enhance import base, utils
 
 console      = core.console
@@ -289,7 +289,7 @@ class MLP_RGB(MLP):
     def forward(self, image: torch.Tensor, depth: torch.Tensor = None) -> torch.Tensor:
         # Prepare input
         if depth is None:
-            depth = core.rgb_to_grayscale(image)
+            depth = dtype.rgb_to_grayscale(image)
         edge = self.dba(depth)
         # Mapping
         image_lr, value_inr = self.value_net(image)
@@ -363,7 +363,7 @@ class MLP_RGB_D(MLP):
     def forward(self, image: torch.Tensor, depth: torch.Tensor = None) -> torch.Tensor:
         # Prepare input
         if depth is None:
-            depth = core.rgb_to_grayscale(image)
+            depth = dtype.rgb_to_grayscale(image)
         edge = self.dba(depth)
         # Mapping
         image_lr, value_inr = self.value_net(image)
@@ -435,10 +435,10 @@ class MLP_HSV(MLP):
     def forward(self, image: torch.Tensor, depth: torch.Tensor = None) -> torch.Tensor:
         # Prepare input
         if depth is None:
-            depth = core.rgb_to_grayscale(image)
+            depth = dtype.rgb_to_grayscale(image)
         edge      = self.dba(depth)
-        image_hsv = core.rgb_to_hsv(image)
-        image_v   = core.rgb_to_v(image)
+        image_hsv = dtype.rgb_to_hsv(image)
+        image_v   = dtype.rgb_to_v(image)
         # Mapping
         image_lr, value_inr = self.value_net(image_v)
         depth_lr            = self.interpolate_image(depth, self.down_size)
@@ -454,7 +454,7 @@ class MLP_HSV(MLP):
             enhanced_lr = kornia.filters.bilateral_blur(enhanced_lr, self.denoise_ksize, self.denoise_color, self.denoise_space)
         enhanced_v = self.filter_up(image_lr, enhanced_lr, image_v, self.gf_radius)
         enhanced   = self.replace_v_component(image_hsv, enhanced_v)
-        enhanced   = core.hsv_to_rgb(enhanced)
+        enhanced   = dtype.hsv_to_rgb(enhanced)
         enhanced   = enhanced / torch.max(enhanced)
         # Return
         return {
@@ -517,8 +517,8 @@ class MLP_HSV_D(MLP):
         if depth is None:
             depth = core.rgb_to_grayscale(image)
         edge = self.dba(depth)
-        image_hsv = core.rgb_to_hsv(image)
-        image_v   = core.rgb_to_v(image)
+        image_hsv = dtype.rgb_to_hsv(image)
+        image_v   = dtype.rgb_to_v(image)
         # Mapping
         image_lr, value_inr = self.value_net(image_v)
         depth_lr, depth_inr = self.depth_net(depth)
@@ -536,7 +536,7 @@ class MLP_HSV_D(MLP):
             enhanced_lr = kornia.filters.bilateral_blur(enhanced_lr, self.denoise_ksize, self.denoise_color, self.denoise_space)
         enhanced_v = self.filter_up(image_lr, enhanced_lr, image_v, self.gf_radius)
         enhanced   = self.replace_v_component(image_hsv, enhanced_v)
-        enhanced   = core.hsv_to_rgb(enhanced)
+        enhanced   = dtype.hsv_to_rgb(enhanced)
         enhanced   = enhanced / torch.max(enhanced)
         # Return
         return {
@@ -684,7 +684,7 @@ class ZeroMIE(base.ImageEnhancementModel):
         of parameters, and runtime.
         """
         # Define input tensor
-        h, w      = core.get_image_size(image_size)
+        h, w      = dtype.get_image_size(image_size)
         datapoint = {
             "image": torch.rand(1, channels, h, w).to(self.device),
             "depth": torch.rand(1,        1, h, w).to(self.device)

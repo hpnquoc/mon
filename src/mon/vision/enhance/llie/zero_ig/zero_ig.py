@@ -25,6 +25,7 @@ from mon import core, nn
 from mon.globals import MODELS, Scheme, Task
 from mon.nn import functional as F
 from mon.nn.model import StepOutput
+from mon.vision import dtype
 from mon.vision.enhance import base
 
 console      = core.console
@@ -560,7 +561,7 @@ class ZeroIG(base.ImageEnhancementModel):
         log_values |= {
             f"train/{k}": v
             for k, v in outputs.items()
-            if v is not None and not core.is_image(v)
+            if v is not None and not dtype.is_image(v)
         }
         self.log_dict(
             dictionary     = log_values,
