@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Data Structures Package.
+"""Dataset Package.
 
 This package implements the data structures for annotations, datasets, and
 datamodules. The base classes are designed to be implemented by the user to
@@ -13,9 +13,9 @@ We try to support all possible data types: :obj:`torch.Tensor`,
 
 from __future__ import annotations
 
-import mon.core.data.annotation
-import mon.core.data.datamodule
-import mon.core.data.dataset
-from mon.core.data.annotation import *
-from mon.core.data.datamodule import *
-from mon.core.data.dataset import *
+import mon.dataset.dtype.annotation
+import mon.dataset.dtype.datamodule
+import mon.dataset.dtype.dataset
+from mon.dataset.dtype.annotation import *
+from mon.dataset.dtype.datamodule import *
+from mon.dataset.dtype.dataset import *

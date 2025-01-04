@@ -12,7 +12,8 @@ __all__ = [
 	"parse_io_worker",
 ]
 
-from mon import core
+from mon import core, vision
+from mon.dataset import dtype
 from mon.globals import DATA_DIR, DATASETS, Split
 
 
@@ -25,7 +26,7 @@ def parse_io_worker(
 	denormalize: bool            = False,
 	data_root  : core.Path | str = None,
 	verbose    : bool            = False,
-) -> tuple[str, core.Dataset, core.VideoWriterCV]:
+) -> tuple[str, dtype.Dataset, vision.VideoWriterCV]:
 	"""Parse the :obj:`src` and :obj:`dst` to get the correct I/O worker.
 	
 	Args:
@@ -40,9 +41,9 @@ def parse_io_worker(
 	Return:
 		A input loader and an output writer
 	"""
-	data_name  : str                = ""
-	data_loader: core.Dataset       = None
-	data_writer: core.VideoWriterCV = None
+	data_name  : str                  = ""
+	data_loader: dtype.Dataset        = None
+	data_writer: vision.VideoWriterCV = None
 	
 	if isinstance(src, str) and src in DATASETS:
 		defaults_dict = dict(
@@ -67,19 +68,19 @@ def parse_io_worker(
 		data_loader = DATASETS.build(config=config)
 	elif core.Path(src).is_dir() and core.Path(src).exists():
 		data_name   = core.Path(src).name
-		data_loader = core.ImageLoader(
+		data_loader = dtype.ImageLoader(
 			root      = src,
 			to_tensor = to_tensor,
 			verbose   = verbose,
 		)
 	elif core.Path(src).is_video_file():
 		data_name   = core.Path(src).name
-		data_loader = core.VideoLoaderCV(
+		data_loader = dtype.VideoLoaderCV(
 			root      = src,
 			to_tensor = to_tensor,
 			verbose   = verbose,
 		)
-		data_writer = core.VideoWriterCV(
+		data_writer = vision.VideoWriterCV(
 			dst         = core.Path(dst),
 			image_size  = data_loader.imgsz,
 			frame_rate  = data_loader.fps,

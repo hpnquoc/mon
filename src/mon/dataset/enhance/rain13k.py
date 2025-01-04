@@ -13,16 +13,17 @@ __all__ = [
 from typing import Literal
 
 from mon import core
+from mon.dataset import dtype
 from mon.dataset.enhance.rain100 import Rain100
 from mon.globals import DATA_DIR, DATAMODULES, DATASETS, Split, Task
 
 console             = core.console
 default_root_dir    = DATA_DIR / "enhance"
-DataModule          = core.DataModule
-DatapointAttributes = core.DatapointAttributes
-DepthMapAnnotation  = core.DepthMapAnnotation
-ImageAnnotation     = core.ImageAnnotation
-MultimodalDataset   = core.MultimodalDataset
+DataModule          = dtype.DataModule
+DatapointAttributes = dtype.DatapointAttributes
+DepthMapAnnotation  = dtype.DepthMapAnnotation
+ImageAnnotation     = dtype.ImageAnnotation
+MultimodalDataset   = dtype.MultimodalDataset
 
 
 @DATASETS.register(name="rain13k")

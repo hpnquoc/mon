@@ -12,28 +12,29 @@ References:
 from __future__ import annotations
 
 __all__ = [
-	"MIPI24Flare",
-	"MIPI24FlareDataModule",
+	"MIPI2024Flare",
+	"MIPI2024FlareDataModule",
 ]
 
 from typing import Literal
 
 from mon import core
+from mon.dataset import dtype
 from mon.globals import DATA_DIR, DATAMODULES, DATASETS, Split, Task
 
 console             = core.console
 default_root_dir    = DATA_DIR / "mipi"
-DataModule          = core.DataModule
-DatapointAttributes = core.DatapointAttributes
-DepthMapAnnotation  = core.DepthMapAnnotation
-ImageAnnotation     = core.ImageAnnotation
-MultimodalDataset   = core.MultimodalDataset
+DataModule          = dtype.DataModule
+DatapointAttributes = dtype.DatapointAttributes
+DepthMapAnnotation  = dtype.DepthMapAnnotation
+ImageAnnotation     = dtype.ImageAnnotation
+MultimodalDataset   = dtype.MultimodalDataset
 
 
 # region Dataset
 
-@DATASETS.register(name="mipi24_flare")
-class MIPI24Flare(MultimodalDataset):
+@DATASETS.register(name="mipi2024_flare")
+class MIPI2024Flare(MultimodalDataset):
 	"""Nighttime Flare Removal dataset used in MIPI 2024 Challenge.
 	
 	References:
@@ -83,8 +84,8 @@ class MIPI24Flare(MultimodalDataset):
 		
 # region DataModule
 
-@DATAMODULES.register(name="mipi24_flare")
-class MIPI24FlareDataModule(DataModule):
+@DATAMODULES.register(name="mipi2024_flare")
+class MIPI2024FlareDataModule(DataModule):
 	"""Nighttime Flare Removal datamodule used in MIPI 2024 Challenge.
 	
 	References:
@@ -101,10 +102,10 @@ class MIPI24FlareDataModule(DataModule):
 			console.log(f"Setup [red]{self.__class__.__name__}[/red].")
 		
 		if stage in [None, "train"]:
-			self.train = MIPI24Flare(split=Split.TRAIN, **self.dataset_kwargs)
-			self.val   = MIPI24Flare(split=Split.VAL, **self.dataset_kwargs)
+			self.train = MIPI2024Flare(split=Split.TRAIN, **self.dataset_kwargs)
+			self.val   = MIPI2024Flare(split=Split.VAL, **self.dataset_kwargs)
 		if stage in [None, "test"]:
-			self.test  = MIPI24Flare(split=Split.VAL, **self.dataset_kwargs)
+			self.test  = MIPI2024Flare(split=Split.VAL, **self.dataset_kwargs)
 		
 		self.get_classlabels()
 		if self.can_log:

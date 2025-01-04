@@ -14,19 +14,19 @@ from __future__ import annotations
 
 from typing import Optional
 
-import mon.core.data.annotation.base
-import mon.core.data.annotation.bbox
-import mon.core.data.annotation.category
-import mon.core.data.annotation.classlabel
-import mon.core.data.annotation.image
-import mon.core.data.annotation.value
-from mon.core.data.annotation.base import *
-from mon.core.data.annotation.bbox import *
-from mon.core.data.annotation.category import *
-from mon.core.data.annotation.classlabel import *
-from mon.core.data.annotation.image import *
-from mon.core.data.annotation.value import *
+import mon.dataset.dtype.annotation.base
+import mon.dataset.dtype.annotation.bbox
+import mon.dataset.dtype.annotation.category
+import mon.dataset.dtype.annotation.classlabel
+import mon.dataset.dtype.annotation.image
+import mon.dataset.dtype.annotation.value
 from mon.core.rich import error_console
+from mon.dataset.dtype.annotation.base import *
+from mon.dataset.dtype.annotation.bbox import *
+from mon.dataset.dtype.annotation.category import *
+from mon.dataset.dtype.annotation.classlabel import *
+from mon.dataset.dtype.annotation.image import *
+from mon.dataset.dtype.annotation.value import *
 
 
 # region Utils

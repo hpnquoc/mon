@@ -21,9 +21,8 @@ import cv2
 import numpy as np
 import torch
 
-from mon.core import pathlib
-from mon.core.data.annotation import base, classlabel
-from mon.core.image import io, utils
+from mon import core, vision
+from mon.dataset.dtype.annotation import base, classlabel
 from mon.globals import DEPTH_DATA_SOURCES
 
 ClassLabels = classlabel.ClassLabels
@@ -59,9 +58,9 @@ class ImageAnnotation(base.Annotation):
     
     def __init__(
         self,
-        path : pathlib.Path | str,
-        root : pathlib.Path | str = None,
-        flags: int                = cv2.IMREAD_COLOR,
+        path : core.Path | str,
+        root : core.Path | str = None,
+        flags: int             = cv2.IMREAD_COLOR,
         *args, **kwargs
     ):
         super().__init__(*args, **kwargs)
@@ -72,16 +71,16 @@ class ImageAnnotation(base.Annotation):
         self._shape = None
     
     @property
-    def path(self) -> pathlib.Path:
+    def path(self) -> core.Path:
         return self._path
     
     @path.setter
-    def path(self, path: pathlib.Path | str):
-        if path is None or not pathlib.Path(path).is_image_file():
+    def path(self, path: core.Path | str):
+        if path is None or not core.Path(path).is_image_file():
             raise ValueError(f"`path` must be a valid path to an image file, "
                              f"but got {path}.")
-        self._path  = pathlib.Path(path)
-        self._shape = io.read_image_shape(path=self._path)
+        self._path  = core.Path(path)
+        self._shape = vision.read_image_shape(path=self._path)
     
     @property
     def name(self) -> str:
@@ -112,12 +111,12 @@ class ImageAnnotation(base.Annotation):
             "stem" : self.stem,
             "path" : self.path,
             "shape": self.shape,
-            "hash" : self.path.stat().st_size if isinstance(self.path, pathlib.Path) else None,
+            "hash" : self.path.stat().st_size if isinstance(self.path, core.Path) else None,
         }
     
     def load(
         self,
-        path : pathlib.Path | str = None,
+        path : core.Path | str = None,
         flags: int  = None,
         cache: bool = False,
     ) -> np.ndarray:
@@ -139,7 +138,7 @@ class ImageAnnotation(base.Annotation):
         # Load the image
         self.path  = path  if path  else self.path
         self.flags = flags if flags else self.flags
-        image = io.read_image(
+        image = vision.read_image(
             path      = self.path,
             flags     = self.flags,
             to_tensor = False,
@@ -166,7 +165,7 @@ class ImageAnnotation(base.Annotation):
                 Default: ``False``.
             normalize: If ``True``, normalize the input data. Default: ``True``.
         """
-        return utils.to_image_tensor(data, keepdim, normalize)
+        return vision.to_image_tensor(data, keepdim, normalize)
     
     @staticmethod
     def collate_fn(
@@ -179,7 +178,7 @@ class ImageAnnotation(base.Annotation):
 		Args:
 			batch: A :obj:`list` of images.
 		"""
-        return utils.to_4d_image(batch)
+        return vision.to_4d_image(batch)
     
 
 class FrameAnnotation(base.Annotation):
@@ -198,25 +197,25 @@ class FrameAnnotation(base.Annotation):
         self,
         index: int,
         frame: np.ndarray,
-        path : pathlib.Path | str = None,
+        path : core.Path | str = None,
         *args, **kwargs
     ):
         super().__init__(*args, **kwargs)
         self.index = index
         self.frame = frame
         self.path  = path
-        self.shape = utils.get_image_shape(image=frame)
+        self.shape = vision.get_image_shape(image=frame)
     
     @property
-    def path(self) -> pathlib.Path:
+    def path(self) -> core.Path:
         return self._path
     
     @path.setter
-    def path(self, path: pathlib.Path | str):
-        if path is None or not pathlib.Path(path).is_video_file():
+    def path(self, path: core.Path | str):
+        if path is None or not core.Path(path).is_video_file():
             raise ValueError(f"`path` must be a valid path to a video file, "
                              f"but got {path}.")
-        self._path = pathlib.Path(path)
+        self._path = core.Path(path)
     
     @property
     def name(self) -> str:
@@ -241,7 +240,7 @@ class FrameAnnotation(base.Annotation):
             "stem" : self.stem,
             "path" : self.path,
             "shape": self.shape,
-            "hash" : self.path.stat().st_size if isinstance(self.path, pathlib.Path) else None,
+            "hash" : self.path.stat().st_size if isinstance(self.path, core.Path) else None,
         }
     
     @staticmethod
@@ -258,7 +257,7 @@ class FrameAnnotation(base.Annotation):
                 Default: ``False``.
             normalize: If ``True``, normalize the input data. Default: ``True``.
         """
-        return utils.to_image_tensor(data, keepdim, normalize)
+        return vision.to_image_tensor(data, keepdim, normalize)
     
     @staticmethod
     def collate_fn(
@@ -271,7 +270,7 @@ class FrameAnnotation(base.Annotation):
 		Args:
 			batch: A :obj:`list` of images.
 		"""
-        return utils.to_4d_image(batch)
+        return vision.to_4d_image(batch)
     
 # endregion
 
@@ -283,8 +282,8 @@ class DepthMapAnnotation(ImageAnnotation):
     
     def __init__(
         self,
-        path  : pathlib.Path | str,
-        root  : pathlib.Path | str           = None,
+        path  : core.Path | str,
+        root  : core.Path | str              = None,
         source: Literal[*DEPTH_DATA_SOURCES] = None,
         flags : int                          = cv2.IMREAD_COLOR,
         *args, **kwargs
@@ -325,8 +324,8 @@ class SemanticSegmentationAnnotation(base.Annotation):
     
     def __init__(
         self,
-        path : pathlib.Path | str,
-        root : pathlib.Path | str = None,
+        path : core.Path | str,
+        root : core.Path | str = None,
         flags: int                = cv2.IMREAD_COLOR,
         *args, **kwargs
     ):
@@ -338,16 +337,16 @@ class SemanticSegmentationAnnotation(base.Annotation):
         self._shape = None
     
     @property
-    def path(self) -> pathlib.Path:
+    def path(self) -> core.Path:
         return self._path
     
     @path.setter
-    def path(self, path: pathlib.Path | str | None):
-        if path is None or not pathlib.Path(path).is_image_file():
+    def path(self, path: core.Path | str | None):
+        if path is None or not core.Path(path).is_image_file():
             raise ValueError(f"`path` must be a valid path to an image file, "
                              f"but got {path}.")
-        self._path  = pathlib.Path(path)
-        self._shape = io.read_image_shape(path=self._path)
+        self._path  = core.Path(path)
+        self._shape = vision.read_image_shape(path=self._path)
     
     @property
     def name(self) -> str:
@@ -378,12 +377,12 @@ class SemanticSegmentationAnnotation(base.Annotation):
             "stem" : self.stem,
             "path" : self.path,
             "shape": self.shape,
-            "hash" : self.path.stat().st_size if isinstance(self.path, pathlib.Path) else None,
+            "hash" : self.path.stat().st_size if isinstance(self.path, core.Path) else None,
         }
     
     def load(
         self,
-        path : pathlib.Path | str = None,
+        path : core.Path | str = None,
         flags: int  = None,
         cache: bool = False,
     ) -> np.ndarray | None:
@@ -404,7 +403,7 @@ class SemanticSegmentationAnnotation(base.Annotation):
         
         self.path  = path  if path  else self.path
         self.flags = flags if flags else self.flags
-        mask = io.read_image(
+        mask = vision.read_image(
             path      = self.path,
             flags     = self.flags,
             to_tensor = False,
@@ -427,7 +426,7 @@ class SemanticSegmentationAnnotation(base.Annotation):
                 Default: ``False``.
             normalize: If ``True``, normalize the input data. Default: ``True``.
         """
-        return utils.to_image_tensor(data, keepdim, normalize)
+        return vision.to_image_tensor(data, keepdim, normalize)
     
     @staticmethod
     def collate_fn(
@@ -440,6 +439,6 @@ class SemanticSegmentationAnnotation(base.Annotation):
 		Args:
 			batch: A :obj:`list` of images.
 		"""
-        return utils.to_4d_image(batch)
+        return vision.to_4d_image(batch)
 
 # endregion

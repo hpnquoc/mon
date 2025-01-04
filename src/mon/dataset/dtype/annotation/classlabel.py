@@ -12,9 +12,9 @@ __all__ = [
 	"ClassLabels",
 ]
 
-import copy
+from mon import core
 
-from mon.core.rich import console, print_table
+console = core.console
 
 
 # region ClassLabel
@@ -91,6 +91,6 @@ class ClassLabels(list[dict]):
 			console.log("[yellow]No class is available.")
 			return
 		console.log("Classlabels:")
-		print_table(self)
+		core.print_table(self)
 
 # endregion

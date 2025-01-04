@@ -18,7 +18,7 @@ __all__ = [
 import cv2
 import numpy as np
 
-from mon.core.image import utils
+from mon.vision import dtype
 
 
 def draw_bbox(
@@ -115,9 +115,9 @@ def draw_heatmap(
         raise ValueError(f"`alpha` should be in the range ``[0.0, 1.0]``, "
                          f"but got: {alpha}.")
 
-    heatmap = utils.depth_map_to_color(heatmap, color_map, use_rgb)
+    heatmap = dtype.depth_map_to_color(heatmap, color_map, use_rgb)
     heatmap = np.float32(heatmap) / 255
-    drawing = utils.blend_images(image, heatmap, alpha)
+    drawing = dtype.blend_images(image, heatmap, alpha)
     # drawing = (1 - alpha) * heatmap + alpha * image
     drawing = drawing / np.max(drawing)
     drawing = np.uint8(255 * drawing)
@@ -141,8 +141,8 @@ def draw_semantic(
         alpha: The transparency ratio of the image. The final result is:
             `alpha * image + (1 - alpha) * mask`. Default: ``0.5``.
     """
-    color_map = utils.label_map_id_to_color(semantic, classlabels)
-    drawing   = utils.blend_images(image, color_map, alpha)
+    color_map = dtype.label_map_id_to_color(semantic, classlabels)
+    drawing   = dtype.blend_images(image, color_map, alpha)
     drawing   = drawing.astype(np.uint8)
     return drawing
     

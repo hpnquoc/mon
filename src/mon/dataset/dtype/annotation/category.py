@@ -17,7 +17,7 @@ __all__ = [
 import numpy as np
 import torch
 
-from mon.core.data.annotation import base
+from mon.dataset.dtype.annotation import base
 
 
 # region Utils

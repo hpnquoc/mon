@@ -27,12 +27,11 @@ from torch.utils.data import dataset
 from torch.utils.data.dataset import *
 
 from mon import core
-from mon.core import pathlib
-from mon.core.data import annotation
-from mon.core.rich import console
 from mon.core.transform import albumentation as A
+from mon.dataset.dtype import annotation
 from mon.globals import DEPTH_DATA_SOURCES, Split, Task
 
+console             = core.console
 ClassLabels         = annotation.ClassLabels
 DatapointAttributes = annotation.DatapointAttributes
 DepthMapAnnotation  = annotation.DepthMapAnnotation
@@ -74,7 +73,7 @@ class Dataset(dataset.Dataset, ABC):
     
     def __init__(
         self,
-        root      : pathlib.Path,
+        root      : core.Path,
         split     : Split           = Split.TRAIN,
         transform : A.Compose | Any = None,
         to_tensor : bool            = False,
@@ -83,7 +82,7 @@ class Dataset(dataset.Dataset, ABC):
         *args, **kwargs
     ):
         super().__init__(*args, **kwargs)
-        self.root       = pathlib.Path(root)
+        self.root       = core.Path(root)
         self.split 	    = split
         self.transform  = transform
         self.to_tensor  = to_tensor
@@ -230,14 +229,14 @@ class Dataset(dataset.Dataset, ABC):
         if cache_data:
             self.cache_data(path=cache_file)
         else:
-            pathlib.delete_cache(cache_file)
+            core.delete_cache(cache_file)
     
     @abstractmethod
     def get_data(self):
         """Get the base data."""
         pass
     
-    def cache_data(self, path: pathlib.Path):
+    def cache_data(self, path: core.Path):
         """Cache data to :obj:`path`."""
         hash_ = 0
         if path.is_cache_file():
@@ -250,7 +249,7 @@ class Dataset(dataset.Dataset, ABC):
             if self.verbose:
                 console.log(f"Cached data to: {path}")
     
-    def load_cache(self, path: pathlib.Path):
+    def load_cache(self, path: core.Path):
         """Load cache data from :obj:`path`."""
         self.datapoints = torch.load(path)
         self.datapoints.pop("hash", None)
@@ -407,7 +406,7 @@ class MultimodalDataset(Dataset, ABC):
         if cache_data:
             self.cache_data(path=cache_file)
         else:
-            pathlib.delete_cache(cache_file)
+            core.delete_cache(cache_file)
             
     def get_multimodal_data(self):
         """Get multimodal data."""

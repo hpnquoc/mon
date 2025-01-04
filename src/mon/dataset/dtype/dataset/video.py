@@ -18,12 +18,12 @@ from typing import Any
 import albumentations as A
 import cv2
 
-from mon.core import pathlib, rich
-from mon.core.data import annotation
-from mon.core.data.dataset import base
+from mon import core
+from mon.dataset.dtype import annotation
+from mon.dataset.dtype.dataset import base
 from mon.globals import Split
 
-console             = rich.console
+console             = core.console
 ClassLabels         = annotation.ClassLabels
 DatapointAttributes = annotation.DatapointAttributes
 FrameAnnotation     = annotation.FrameAnnotation
@@ -60,7 +60,7 @@ class VideoLoader(base.Dataset, ABC):
 	
 	def __init__(
 		self,
-		root       : pathlib.Path,
+		root       : core.Path,
 		split      : Split     = Split.PREDICT,
 		transform  : A.Compose = None,
 		to_tensor  : bool      = False,
@@ -142,7 +142,7 @@ class VideoLoaderCV(VideoLoader):
 	
 	def __init__(
 		self,
-		root       : pathlib.Path,
+		root       : core.Path,
 		split      : Split     = Split.PREDICT,
 		transform  : A.Compose = None,
 		to_tensor  : bool      = False,
@@ -234,7 +234,7 @@ class VideoLoaderCV(VideoLoader):
 	# region Initialization
 	
 	def get_data(self):
-		root = pathlib.Path(self.root)
+		root = core.Path(self.root)
 		if root.is_video_file():
 			self.video_capture = cv2.VideoCapture(str(root), cv2.CAP_FFMPEG)
 			num_frames = int(self.video_capture.get(cv2.CAP_PROP_FRAME_COUNT))
@@ -296,7 +296,7 @@ class VideoLoaderCV(VideoLoader):
 			"fps"          : self.fps,
 			"frame_height" : self.frame_height,
 			"frame_width"  : self.frame_width,
-			"hash"         : self.root.stat().st_size if isinstance(self.root, pathlib.Path) else None,
+			"hash"         : self.root.stat().st_size if isinstance(self.root, core.Path) else None,
 			"image_size"   : (self.frame_height, self.frame_width),
 			"imgsz" 	   : (self.frame_height, self.frame_width),
 			"index"        : index,

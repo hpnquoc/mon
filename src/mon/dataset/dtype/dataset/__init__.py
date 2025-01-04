@@ -11,9 +11,9 @@ For transformation operations, we use
 
 from __future__ import annotations
 
-import mon.core.data.dataset.base
-import mon.core.data.dataset.image
-import mon.core.data.dataset.video
-from mon.core.data.dataset.base import *
-from mon.core.data.dataset.image import *
-from mon.core.data.dataset.video import *
+import mon.dataset.dtype.dataset.base
+import mon.dataset.dtype.dataset.image
+import mon.dataset.dtype.dataset.video
+from mon.dataset.dtype.dataset.base import *
+from mon.dataset.dtype.dataset.image import *
+from mon.dataset.dtype.dataset.video import *

@@ -708,7 +708,7 @@ TORCH_FILE_FORMATS   = [".pt", ".pth", ".weights", ".ckpt", ".tar", ".onnx"]
 WEIGHTS_FILE_FORMATS = [".pt", ".pth", ".onnx"]
 DEPTH_DATA_SOURCES   = [None, "dav2_vitb_g", "dav2_vitl_g"]
 
-# List 3rd party modules
+# List 3rd party moduless
 EXTRA_DATASET_STR = "[extra]"
 EXTRA_MODEL_STR   = "[extra]"
 EXTRA_DATASETS    = { }

@@ -16,12 +16,12 @@ import glob
 
 import albumentations as A
 
-from mon.core import pathlib, rich
-from mon.core.data import annotation
-from mon.core.data.dataset import base
+from mon import core
+from mon.dataset.dtype import annotation
+from mon.dataset.dtype.dataset import base
 from mon.globals import Split
 
-console             = rich.console
+console             = core.console
 ClassLabels         = annotation.ClassLabels
 DatapointAttributes = annotation.DatapointAttributes
 ImageAnnotation     = annotation.ImageAnnotation
@@ -40,7 +40,7 @@ class ImageLoader(base.MultimodalDataset):
     
     def __init__(
         self,
-        root       : pathlib.Path,
+        root       : core.Path,
         split      : Split     = Split.PREDICT,
         transform  : A.Compose = None,
         to_tensor  : bool      = False,
@@ -67,12 +67,12 @@ class ImageLoader(base.MultimodalDataset):
             paths = list(self.root.rglob("*"))
         # A file path pattern
         elif "*" in str(self.root):
-            paths = [pathlib.Path(i) for i in glob.glob(str(self.root))]
+            paths = [core.Path(i) for i in glob.glob(str(self.root))]
         else:
             raise IOError(f"Error when listing image files.")
         
         images: list[ImageAnnotation] = []
-        with rich.get_progress_bar() as pbar:
+        with core.get_progress_bar() as pbar:
             for path in pbar.track(
                 sequence    = sorted(paths),
                 description = f"[bright_yellow]Listing {self.__class__.__name__} {self.split_str} images"

@@ -19,7 +19,7 @@ import lightning
 from torch.utils import data
 
 from mon.core import dtype, rich
-from mon.core.data.dataset import base
+from mon.dataset.dtype import dataset
 from mon.globals import Task
 
 
@@ -69,7 +69,7 @@ class DataModule(lightning.LightningDataModule, ABC):
             test    = datasets.pop("test")    if "test"    in datasets else None
             predict = datasets.pop("predict") if "predict" in datasets else None
             self.dataset_kwargs = kwargs | datasets
-        elif isinstance(datasets, base.Dataset):
+        elif isinstance(datasets, dataset.Dataset):
             train   = datasets
             val     = datasets
             test    = datasets
@@ -207,7 +207,7 @@ class DataModule(lightning.LightningDataModule, ABC):
     
     def get_classlabels(self):
         """Load all the class-labels of the dataset."""
-        if isinstance(self.classlabels, base.ClassLabels):
+        if isinstance(self.classlabels, dataset.ClassLabels):
             return
         elif self.train is not None:
             self.classlabels = getattr(self.train, "classlabels", None)
@@ -222,7 +222,7 @@ class DataModule(lightning.LightningDataModule, ABC):
         
     def split_train_val(
         self,
-        dataset    : base.Dataset,
+        dataset    : dataset.Dataset,
         split_ratio: float = 0.8,
         full_train : bool  = True
     ):

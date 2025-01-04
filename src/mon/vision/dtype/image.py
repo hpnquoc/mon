@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Image Utilities.
+"""Image I/O.
 
-This module implements utility functions for image processing.
+This module implements the basic I/O functionalities of images.
 """
 
 from __future__ import annotations
@@ -12,8 +12,12 @@ __all__ = [
     "ImageLocalMean",
     "ImageLocalStdDev",
     "ImageLocalVariance",
+    "add_noise",
     "add_weighted",
+    "adjust_gamma",
     "blend_images",
+    "denormalize_image",
+    "denormalize_image_mean_std",
     "depth_map_to_color",
     "get_image_center",
     "get_image_center4",
@@ -36,6 +40,11 @@ __all__ = [
     "label_map_id_to_one_hot",
     "label_map_id_to_train_id",
     "label_map_one_hot_to_id",
+    "normalize_image",
+    "normalize_image_by_range",
+    "normalize_image_mean_std",
+    "read_image",
+    "read_image_shape",
     "to_2d_image",
     "to_3d_image",
     "to_4d_image",
@@ -44,19 +53,31 @@ __all__ = [
     "to_image_nparray",
     "to_image_tensor",
     "to_list_of_3d_image",
+    "write_image",
+    "write_image_cv",
+    "write_image_torch",
+    "write_images_cv",
+    "write_images_torch",
 ]
 
 import copy
+import functools
 import math
-from typing import Any, Sequence
+import multiprocessing
+from typing import Any, Literal, Sequence
 
 import cv2
+import joblib
 import numpy as np
+import rawpy
 import torch
+import torchvision
+from PIL import Image
 from torch import nn
 from torch.nn import functional as F
+from torchvision.transforms import functional as TF
 
-from mon.core import pathlib
+from mon import core
 
 
 # region Assertion
@@ -330,7 +351,7 @@ def get_image_shape(image: torch.Tensor | np.ndarray) -> list[int]:
 
 
 def get_image_size(
-    input  : torch.Tensor | np.ndarray | int | Sequence[int] | str | pathlib.Path,
+    input  : torch.Tensor | np.ndarray | int | Sequence[int] | str | core.Path,
     divisor: int = None,
 ) -> tuple[int, int]:
     """Return height and width value of an image in the ``[H, W]`` format.
@@ -368,8 +389,7 @@ def get_image_size(
             size = (input.shape[-2], input.shape[-1])
         else:
             size = (input.shape[-3], input.shape[-2])
-    elif isinstance(input, str | pathlib.Path):
-        from mon.core.image.io import read_image_shape
+    elif isinstance(input, str | core.Path):
         size = read_image_shape(input)[0:2]
     else:
         raise TypeError(f"`input` must be a `torch.Tensor`, `numpy.ndarray`, "
@@ -382,7 +402,6 @@ def get_image_size(
         new_w = int(math.ceil(w / divisor) * divisor)
         size  = (new_h, new_w)
     return size
-
 
 # endregion
 
@@ -783,8 +802,6 @@ def to_image_nparray(
     Returns:
         An image of type :obj:`numpy.ndarray`.
     """
-    from mon.core.image.photometry import denormalize_image
-    
     if not 3 <= image.ndim <= 5:
         raise ValueError(f"`image`'s number of dimensions must be between "
                          f"``3`` and ``5``, but got {image.ndim}.")
@@ -824,8 +841,6 @@ def to_image_tensor(
     Returns:
         A image of type :obj:`torch.Tensor`.
     """
-    from mon.core.image.photometry import normalize_image
-    
     if isinstance(image, np.ndarray):
         image = torch.from_numpy(image).contiguous()
     elif isinstance(image, torch.Tensor):
@@ -943,4 +958,542 @@ class ImageLocalStdDev(nn.Module):
     def forward(self, image):
         return image_local_stddev(image, self.patch_size, self.eps)
     
+# endregion
+
+
+# region I/O
+
+def read_image(
+    path     : core.Path,
+    flags    : int  = cv2.IMREAD_COLOR,
+    to_tensor: bool = False,
+    normalize: bool = False,
+) -> torch.Tensor | np.ndarray:
+    """Read an image from a file path using :obj:`cv2`. Optionally, convert it
+    to RGB format, and :obj:`torch.Tensor` type of shape ``[1, C, H, W]``.
+
+    Args:
+        path: An image's file path.
+        flags: A flag to read the image. One of:
+            - cv2.IMREAD_UNCHANGED           = -1,
+            - cv2.IMREAD_GRAYSCALE           = 0,
+            - cv2.IMREAD_COLOR               = 1,
+            - cv2.IMREAD_ANYDEPTH            = 2,
+            - cv2.IMREAD_ANYCOLOR            = 4,
+            - cv2.IMREAD_LOAD_GDAL           = 8,
+            - cv2.IMREAD_REDUCED_GRAYSCALE_2 = 16,
+            - cv2.IMREAD_REDUCED_COLOR_2     = 17,
+            - cv2.IMREAD_REDUCED_GRAYSCALE_4 = 32,
+            - cv2.IMREAD_REDUCED_COLOR_4     = 33,
+            - cv2.IMREAD_REDUCED_GRAYSCALE_8 = 64,
+            - cv2.IMREAD_REDUCED_COLOR_8     = 65,
+            - cv2.IMREAD_IGNORE_ORIENTATION  = 128
+            Default: ``cv2.IMREAD_COLOR``.
+        to_tensor: If ``True``, convert the image from :obj:`numpy.ndarray`
+            to :obj:`torch.Tensor`. Default: ``False``.
+        normalize: If ``True``, normalize the image to ``[0.0, 1.0]``.
+            Default: ``False``.
+        
+    Return:
+        An RGB or grayscale image of type:
+            - :obj:`torch.Tensor` in ``[B, C, H, W]`` format with data in
+                the range ``[0.0, 1.0]``.
+            - :obj:`numpy.ndarray` in ``[H, W, C]`` format with data in the
+                range ``[0, 255]``.
+    """
+    path = core.Path(path)
+    # Read raw image
+    if path.is_raw_image_file():
+        image = rawpy.imread(str(path))
+        image = image.postprocess()
+    # Read other types of image
+    else:
+        image = cv2.imread(str(path), flags)  # BGR
+        if image.ndim == 2:  # HW -> HW1 (OpenCV read grayscale image)
+            image = np.expand_dims(image, axis=-1)
+        if is_color_image(image):
+            image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+    # Convert to tensor
+    if to_tensor:
+        image = to_image_tensor(image, False, normalize)
+    return image
+
+
+def read_image_shape(path: core.Path) -> tuple[int, int, int]:
+    """Read an image from a file path using :obj:`PIL` and get its shape in
+    ``[H, W, C]`` format. Using :obj:`PIL` is faster than using OpenCV.
+    
+    Args:
+        path: An image file path.
+    """
+    # Read raw image
+    if path.is_raw_image_file():
+        image = rawpy.imread('path_to_your_image.dng')
+        image = image.raw_image_visible
+        h, w  = image.shape
+        c     = 3
+    # Read other types of image
+    else:
+        with Image.open(str(path)) as image:
+            w, h = image.size
+            mode = image.mode  # This tells the color depth (e.g., "RGB", "L", "RGBA")
+            # Determine the number of channels (depth) based on the mode
+            if mode == "RGB":
+                c = 3
+            elif mode == "RGBA":
+                c = 4
+            elif mode == "L":  # Grayscale
+                c = 1
+            else:
+                raise ValueError(f"Unsupported image mode: {mode}.")
+    return h, w, c
+
+
+def write_image(path: core.Path, image: torch.Tensor | np.ndarray):
+    """Write an image to a file path.
+    
+    Args:
+        path: A path to write the image to.
+        image: An RGB image of type:
+            - :obj:`torch.Tensor` in ``[B, C, H, W]`` format with data in
+                the range ``[0.0, 1.0]``.
+            - :obj:`numpy.ndarray` in ``[H, W, C]`` format with data in the
+                range ``[0, 255]``.
+    """
+    path = core.Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    if isinstance(image, torch.Tensor):
+        torchvision.save_image(image, str(path))
+    elif isinstance(image, np.ndarray):
+        cv2.imwrite(str(path), cv2.cvtColor(image, cv2.COLOR_RGB2BGR))
+    else:
+        raise ValueError(f"`image` must be `torch.Tensor` or `numpy.ndarray`, "
+                         f"but got {type(image)}.")
+    
+
+def write_image_cv(
+    image      : torch.Tensor | np.ndarray,
+    dir_path   : core.Path,
+    name       : str,
+    prefix     : str  = "",
+    extension  : str  = ".jpg",
+    denormalize: bool = False
+):
+    """Write an image to a directory using :obj:`cv2`.
+    
+    Args:
+        image: An RGB image of type:
+            - :obj:`torch.Tensor` in ``[B, C, H, W]`` format with data in
+                the range ``[0.0, 1.0]``.
+            - :obj:`numpy.ndarray` in ``[H, W, C]`` format with data in the
+                range ``[0, 255]``.
+        dir_path: A directory to write the image to.
+        name: An image's name.
+        prefix: A prefix to add to the :obj:`name`. Default: ``''``.
+        extension: An extension of the image file. Default: ``'.png'``.
+        denormalize: If ``True``, convert the image to ``[0, 255]``.
+            Default: ``False``.
+    """
+    # Convert image
+    if isinstance(image, torch.Tensor):
+        image = to_image_nparray(image, True, denormalize)
+    image = to_channel_last_image(image)
+    if 2 <= image.ndim <= 3:
+        raise ValueError(f"`image`'s number of dimensions must be between "
+                         f"``2`` and ``3``, but got {image.ndim}.")
+    # Write image
+    dir_path  = core.Path(dir_path)
+    dir_path.mkdir(parents=True, exist_ok=True)
+    name      = core.Path(name)
+    stem      = name.stem
+    extension = extension  # name.suffix
+    extension = f"{name.suffix}" if extension == "" else extension
+    extension = f".{extension}"  if "." not in extension else extension
+    stem      = f"{prefix}_{stem}" if prefix != "" else stem
+    name      = f"{stem}{extension}"
+    file_path = dir_path / name
+    cv2.imwrite(str(file_path), image)
+
+
+def write_image_torch(
+    image      : torch.Tensor | np.ndarray,
+    dir_path   : core.Path,
+    name       : str,
+    prefix     : str  = "",
+    extension  : str  = ".jpg",
+    denormalize: bool = False
+):
+    """Write an image to a directory.
+    
+    Args:
+        image: An RGB image of type:
+            - :obj:`torch.Tensor` in ``[B, C, H, W]`` format with data in
+                the range ``[0.0, 1.0]``.
+            - :obj:`numpy.ndarray` in ``[H, W, C]`` format with data in the
+                range ``[0, 255]``.
+        dir_path: A directory to write the image to.
+        name: An image's name.
+        prefix: A prefix to add to the :obj:`name`. Default: ``''``.
+        extension: An extension of the image file. Default: ``'.png'``.
+        denormalize: If ``True``, convert the image to ``[0, 255]``.
+            Default: ``False``.
+    """
+    # Convert image
+    if isinstance(image, np.ndarray):
+        image = torch.from_numpy(image)
+        image = to_channel_first_image(image)
+    image = denormalize_image(image) if denormalize else image
+    image = image.to(torch.uint8)
+    image = image.cpu()
+    if 2 <= image.ndim <= 3:
+        raise ValueError(f"`image`'s number of dimensions must be between "
+                         f"``2`` and ``3``, but got {image.ndim}.")
+    # Write image
+    dir_path  = core.Path(dir_path)
+    dir_path.mkdir(parents=True, exist_ok=True)
+    name      = core.Path(name)
+    stem      = name.stem
+    extension = extension  # name.suffix
+    extension = f"{name.suffix}" if extension == "" else extension
+    extension = f".{extension}" if "." not in extension else extension
+    stem      = f"{prefix}_{stem}" if prefix != "" else stem
+    name      = f"{stem}{extension}"
+    file_path = dir_path / name
+    if extension in [".jpg", ".jpeg"]:
+        torchvision.io.image.write_jpeg(input=image, filename=str(file_path))
+    elif extension in [".jpg"]:
+        torchvision.io.image.write_png(input=image, filename=str(file_path))
+
+
+def write_images_cv(
+    images     : list[torch.Tensor | np.ndarray],
+    dir_path   : core.Path,
+    names      : list[str],
+    prefixes   : list[str] = "",
+    extension  : str       = ".jpg",
+    denormalize: bool      = False
+):
+    """Write a :obj:`list` of images to a directory using :obj:`cv2`.
+   
+    Args:
+        images: A :obj:`list` of images.
+        dir_path: A directory to write the images to.
+        names: A :obj:`list` of images' names.
+        prefixes: A prefix to add to the :obj:`names`. Default: ``''``.
+        extension: An extension of image files. Default: ``'.png'``.
+        denormalize: If ``True``, convert image to ``[0, 255]``.
+            Default: ``False``.
+    """
+    if isinstance(names, str):
+        names = [names for _ in range(len(images))]
+    if isinstance(prefixes, str):
+        prefixes = [prefixes for _ in range(len(prefixes))]
+    if not len(images) == len(names):
+        raise ValueError(f"`images` and `names` must have the same length, "
+                         f"but got {len(images)} and {len(names)}.")
+    if not len(images) == len(prefixes):
+        raise ValueError(f"`images` and `prefixes` must have the same length, "
+                         f"but got {len(images)} and {len(prefixes)}.")
+    num_jobs = multiprocessing.cpu_count()
+    joblib.Parallel(n_jobs=num_jobs)(
+        joblib.delayed(write_image_cv)(
+            image, dir_path, names[i], prefixes[i], extension, denormalize
+        )
+        for i, image in enumerate(images)
+    )
+
+
+def write_images_torch(
+    images     : list[torch.Tensor | np.ndarray],
+    dir_path   : core.Path,
+    names      : list[str],
+    prefixes   : list[str] = "",
+    extension  : str       = ".jpg",
+    denormalize: bool      = False
+):
+    """Write a :obj:`list` of images to a directory using :obj:`torchvision`.
+   
+    Args:
+        images: A :obj:`list` of images.
+        dir_path: A directory to write the images to.
+        names: A :obj:`list` of images' names.
+        prefixes: A prefix to add to the :obj:`names`. Default: ``''``.
+        extension: An extension of image files. Default: ``'.png'``.
+        denormalize: If ``True``, convert image to ``[0, 255]``.
+            Default: ``False``.
+    """
+    if isinstance(names, str):
+        names = [names for _ in range(len(images))]
+    if isinstance(prefixes, str):
+        prefixes = [prefixes for _ in range(len(prefixes))]
+    if not len(images) == len(names):
+        raise ValueError(f"`images` and `names` must have the same length, "
+                         f"but got {len(images)} and {len(names)}.")
+    if not len(images) == len(prefixes):
+        raise ValueError(f"`images` and `prefixes` must have the same length, "
+                         f"but got {len(images)} and {len(prefixes)}.")
+    num_jobs = multiprocessing.cpu_count()
+    joblib.Parallel(n_jobs=num_jobs)(
+        joblib.delayed(write_image_torch)(
+            image, dir_path, names[i], prefixes[i], extension, denormalize
+        )
+        for i, image in enumerate(images)
+    )
+
+# endregion
+
+
+# region Adjustment
+
+def adjust_gamma(
+    image: torch.Tensor | np.ndarray,
+    gamma: float = 1.0,
+    gain : float = 1.0
+) -> torch.Tensor | np.ndarray:
+    """Adjust gamma value in the image. Also known as Power Law Transform.
+    
+    Args:
+        image: An RGB image of type:
+            - :obj:`torch.Tensor` in ``[B, C, H, W]`` format with data in
+                the range ``[0.0, 1.0]``.
+            - :obj:`numpy.ndarray` in ``[H, W, C]`` format with data in the
+                range ``[0, 255]``.
+        gamma: Non-negative real number, same as `gamma` in the equation.
+            - :obj:`gamma` larger than ``1`` makes the shadows darker, while
+            - :obj:`gamma` smaller than ``1`` makes dark regions lighter.
+        gain: The constant multiplier.
+        
+    Returns:
+        A gamma-corrected image.
+    """
+    if isinstance(image, torch.Tensor):
+        return TF.adjust_gamma(img=image, gamma=gamma, gain=gain)
+    elif isinstance(image, np.ndarray):
+        # Build a lookup table mapping the pixel values [0, 255] to their adjusted gamma values.
+        inv_gamma = 1.0 / gamma
+        table     = np.array([((i / 255.0) ** inv_gamma) * 255 for i in np.arange(0, 256)])
+        table.astype("uint8")
+        # Apply gamma correction using the lookup table
+        return cv2.LUT(image, table)
+    else:
+        raise TypeError(f"`image` must be a `torch.Tensor` or `numpy.ndarray`, "
+                        f"but got {type(image)}.")
+    
+    
+def add_noise(
+    image      : torch.Tensor,
+    noise_level: int = 25,
+    noise_type : Literal["gaussian", "poisson"] = "gaussian"
+) -> torch.Tensor:
+    """Add noise to an image.
+    
+    Args:
+        image: An RGB image of type:
+            - :obj:`torch.Tensor` in ``[B, C, H, W]`` format with data in
+                the range ``[0.0, 1.0]``.
+            - :obj:`numpy.ndarray` in ``[H, W, C]`` format with data in the
+                range ``[0, 255]``.
+        noise_level: The noise level.
+        noise_type: The type of noise to add. One of:
+            - ``'gaussian'``
+            - ``'poisson'``
+            Default: ``"gaussian"``.
+        
+    Returns:
+        A noisy image.
+    """
+    if noise_type == "gaussian":
+        noisy = image + torch.normal(0, noise_level / 255, image.shape)
+        noisy = torch.clamp(noisy, 0, 1)
+    elif noise_type == "poisson":
+        noisy = torch.poisson(noise_level * image) / noise_level
+    else:
+        raise ValueError(f"Unknown noise type: {noise_type}")
+    return noisy
+
+# endregion
+
+
+# region Normalize
+
+def denormalize_image_mean_std(
+    image: torch.Tensor | np.ndarray,
+    mean : float | list[float] = [0.485, 0.456, 0.406],
+    std  : float | list[float] = [0.229, 0.224, 0.225],
+    eps  : float               = 1e-6,
+) -> torch.Tensor | np.ndarray:
+    """Denormalize an image with mean and standard deviation.
+    
+    image[channel] = (image[channel] * std[channel]) + mean[channel]
+    where `mean` is [M_1, ..., M_n] and `std` [S_1, ..., S_n] for `n` channels.
+
+    Args:
+        image: An image of type :obj:`torch.Tensor` in ``[B, C, H, W]`` format
+            with data in the range ``[0.0, 1.0]``.
+        mean: A sequence of means for each channel.
+            Default: ``[0.485, 0.456, 0.406]``.
+        std: A sequence of standard deviations for each channel.
+            Default: ``[0.229, 0.224, 0.225]``.
+        eps: Epsilon value to avoid division by zero. Defaults: ``1e-6``.
+        
+    Returns:
+        A denormalized image.
+    """
+    if not image.ndim >= 3:
+        raise ValueError(f"`image`'s number of dimensions must be >= ``3``, "
+                         f"but got {image.ndim}.")
+    if isinstance(image, torch.Tensor):
+        image = image.clone()
+        image = image.to(dtype=torch.get_default_dtype()) \
+            if not image.is_floating_point() else image
+        shape  = image.shape
+        device = image.device
+        dtype  = image.dtype
+        if isinstance(mean, float):
+            mean = torch.tensor([mean] * shape[1], dtype=dtype, device=device)
+        elif isinstance(mean, (list, tuple)):
+            mean = torch.as_tensor(mean, dtype=dtype, device=image.device)
+        elif isinstance(mean, torch.Tensor):
+            mean = mean.to(dtype=dtype, device=image.device)
+        
+        if isinstance(std, float):
+            std = torch.tensor([std] * shape[1], dtype=dtype, device=device)
+        elif isinstance(std, (list, tuple)):
+            std = torch.as_tensor(std, dtype=dtype, device=image.device)
+        elif isinstance(std, torch.Tensor):
+            std = std.to(dtype=dtype, device=image.device)
+        
+        std_inv  = 1.0 / (std + eps)
+        mean_inv = -mean * std_inv
+        std_inv  = std_inv.view(-1, 1, 1)  if std_inv.ndim  == 1 else std_inv
+        mean_inv = mean_inv.view(-1, 1, 1) if mean_inv.ndim == 1 else mean_inv
+        image.sub_(mean_inv).div_(std_inv)
+    elif isinstance(image, np.ndarray):
+        raise NotImplementedError(f"This function has not been implemented.")
+    else:
+        raise TypeError(f"`image` must be a `torch.Tensor` or `numpy.ndarray`, "
+                        f"but got {type(image)}.")
+    return image
+
+
+def normalize_image_mean_std(
+    image: torch.Tensor | np.ndarray,
+    mean : float | list[float] = [0.485, 0.456, 0.406],
+    std  : float | list[float] = [0.229, 0.224, 0.225],
+    eps  : float               = 1e-6,
+) -> torch.Tensor | np.ndarray:
+    """Normalize an image with mean and standard deviation.
+    
+    image[channel] = (image[channel] * std[channel]) + mean[channel]
+    where :obj:`mean` is [M_1, ..., M_n] and `std` [S_1, ..., S_n] for ``n``
+    channels.
+
+    Args:
+        image: An image of type :obj:`torch.Tensor` in ``[B, C, H, W]`` format
+            with data in the range ``[0, 255]``.
+        mean: A sequence of means for each channel.
+            Default: ``[0.485, 0.456, 0.406]``.
+        std: A sequence of standard deviations for each channel.
+            Default: ``[0.229, 0.224, 0.225]``.
+        eps: Epsilon value to avoid division by zero. Defaults: ``1e-6``.
+        
+    Returns:
+        A normalized image.
+    """
+    if not image.ndim >= 3:
+        raise ValueError(f"`image`'s number of dimensions must be >= ``3``, "
+                         f"but got {image.ndim}.")
+    if isinstance(image, torch.Tensor):
+        image = image.clone()
+        image = image.to(dtype=torch.get_default_dtype()) \
+            if not image.is_floating_point() else image
+        shape  = image.shape
+        device = image.device
+        dtype  = image.dtype
+        if isinstance(mean, float):
+            mean = torch.tensor([mean] * shape[1], device=device, dtype=dtype)
+        elif isinstance(mean, (list, tuple)):
+            mean = torch.as_tensor(mean, dtype=dtype, device=image.device)
+        elif isinstance(mean, torch.Tensor):
+            mean = mean.to(dtype=dtype, device=image.device)
+        
+        if isinstance(std, float):
+            std = torch.tensor([std] * shape[1], device=device, dtype=dtype)
+        elif isinstance(std, (list, tuple)):
+            std = torch.as_tensor(std, dtype=dtype, device=image.device)
+        elif isinstance(std, torch.Tensor):
+            std = std.to(dtype=dtype, device=image.device)
+        std += eps
+        
+        mean = mean.view(-1, 1, 1) if mean.ndim == 1 else mean
+        std  = std.view(-1, 1, 1)  if std.ndim  == 1 else std
+        image.sub_(mean).div_(std)
+    elif isinstance(image, np.ndarray):
+        raise NotImplementedError(f"This function has not been implemented.")
+    else:
+        raise TypeError(f"`image` must be a `torch.Tensor` or `numpy.ndarray`, "
+                        f"but got {type(image)}.")
+    return image
+
+
+def normalize_image_by_range(
+    image  : torch.Tensor | np.ndarray,
+    min    : float = 0.0,
+    max    : float = 255.0,
+    new_min: float = 0.0,
+    new_max: float = 1.0,
+) -> torch.Tensor | np.ndarray:
+    """Normalize an image from the range ``[:obj:`min`, :obj:`max`]`` to the
+    ``[:obj:`new_min`, :obj:`new_max`]``.
+    
+    Args:
+        image: An image of type :obj:`torch.Tensor` in ``[B, C, H, W]`` format
+            with data in the range ``[0, 255]``.
+        min: The current minimum pixel value of the image. Default: ``0.0``.
+        max: The current maximum pixel value of the image. Default: ``255.0``.
+        new_min: A new minimum pixel value of the image. Default: ``0.0``.
+        new_max: A new minimum pixel value of the image. Default: ``1.0``.
+        
+    Returns:
+        A normalized image.
+    """
+    if not image.ndim >= 3:
+        raise ValueError(f"`image`'s number of dimensions must be >= ``3``, "
+                         f"but got {image.ndim}.")
+    # if is_normalized_image(image=image):
+    #     return image
+    if isinstance(image, torch.Tensor):
+        image = image.clone()
+        # input = input.to(dtype=torch.get_default_dtype()) if not input.is_floating_point() else input
+        image = image.to(dtype=torch.get_default_dtype())
+        ratio = (new_max - new_min) / (max - min)
+        image = (image - min) * ratio + new_min
+        # image = torch.clamp(image, new_min, new_max)
+    elif isinstance(image, np.ndarray):
+        image = copy.deepcopy(image)
+        image = image.astype(np.float32)
+        ratio = (new_max - new_min) / (max - min)
+        image = (image - min) * ratio + new_min
+        # image = np.clip(image, new_min, new_max)
+    else:
+        raise TypeError(f"`image` must be a `torch.Tensor` or `numpy.ndarray`, "
+                        f"but got {type(image)}.")
+    return image
+
+
+denormalize_image = functools.partial(
+    normalize_image_by_range,
+    min     = 0.0,
+    max     = 1.0,
+    new_min = 0.0,
+    new_max = 255.0
+)
+normalize_image = functools.partial(
+    normalize_image_by_range,
+    min     = 0.0,
+    max     = 255.0,
+    new_min = 0.0,
+    new_max = 1.0
+)
+
 # endregion

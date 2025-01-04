@@ -25,7 +25,8 @@ import ffmpeg
 import numpy as np
 import torch
 
-from mon.core import image as ci, pathlib
+from mon import core
+from mon.vision.dtype import image as I
 
 
 # region Read
@@ -68,7 +69,7 @@ def read_video_ffmpeg(
 			.reshape([height, width, 3])
 		)  # Numpy
 		if to_tensor:
-			image = ci.to_image_tensor(image, False, normalize)
+			image = I.to_image_tensor(image, False, normalize)
 	return image
 
 # endregion
@@ -90,12 +91,12 @@ def write_video_ffmpeg(
 			Default: ``False``.
 	"""
 	if isinstance(frame, np.ndarray):
-		if ci.is_normalized_image(frame):
-			frame = ci.denormalize_image(frame)
-		if ci.is_channel_first_image(frame):
-			frame = ci.to_channel_last_image(frame)
+		if I.is_normalized_image(frame):
+			frame = I.denormalize_image(frame)
+		if I.is_channel_first_image(frame):
+			frame = I.to_channel_last_image(frame)
 	elif isinstance(frame, torch.Tensor):
-		frame = ci.to_image_nparray(frame, False, denormalize)
+		frame = I.to_image_nparray(frame, False, denormalize)
 	else:
 		raise ValueError(f"`image` must be a `torch.Tensor` or `numpy.ndarray`, "
 		                 f"but got {type(frame)}.")
@@ -122,7 +123,7 @@ class VideoWriter(abc.ABC):
 	
 	def __init__(
 		self,
-		dst		   : pathlib.Path,
+		dst		   : core.Path,
 		image_size : int | Sequence[int] = [480, 640],
 		frame_rate : float = 10,
 		save_image : bool  = False,
@@ -130,10 +131,10 @@ class VideoWriter(abc.ABC):
 		verbose    : bool  = False,
 		*args, **kwargs
 	):
-		self.dst         = pathlib.Path(dst)
+		self.dst         = core.Path(dst)
 		self.denormalize = denormalize
 		self.index       = 0
-		self.image_size  = ci.get_image_size(image_size)
+		self.image_size  = I.get_image_size(image_size)
 		self.frame_rate  = frame_rate
 		self.save_image  = save_image
 		self.verbose     = verbose
@@ -161,7 +162,7 @@ class VideoWriter(abc.ABC):
 	def write(
 		self,
 		frame      : torch.Tensor | np.ndarray,
-		path       : pathlib.Path = None,
+		path       : core.Path = None,
 		denormalize: bool 		  = False
 	):
 		"""Write an image to :obj:`dst`.
@@ -178,7 +179,7 @@ class VideoWriter(abc.ABC):
 	def write_batch(
 		self,
 		frames     : list[torch.Tensor | np.ndarray],
-		paths      : list[pathlib.Path] = None,
+		paths      : list[core.Path] = None,
 		denormalize: bool			 	= False
 	):
 		"""Write a batch of images to :obj:`dst`.
@@ -215,7 +216,7 @@ class VideoWriterCV(VideoWriter):
 	
 	def __init__(
 		self,
-		dst		   : pathlib.Path,
+		dst		   : core.Path,
 		image_size : int | Sequence[int] = [480, 640],
 		frame_rate : float = 30,
 		fourcc     : str   = "mp4v",
@@ -264,7 +265,7 @@ class VideoWriterCV(VideoWriter):
 	def write(
 		self,
 		frame      : torch.Tensor | np.ndarray,
-		path       : pathlib.Path = None,
+		path       : core.Path = None,
 		denormalize: bool 		  = False
 	):
 		"""Write an image to :obj:`dst`.
@@ -277,16 +278,16 @@ class VideoWriterCV(VideoWriter):
 		"""
 		denormalize = denormalize or self.denormalize
 		if self.save_image:
-			ci.write_image_cv(
+			I.write_image_cv(
 				image       = frame,
 				dir_path    = self.dst,
-				name        = f"{pathlib.Path(path).stem}.png",
+				name        = f"{core.Path(path).stem}.png",
 				prefix      = "",
 				extension   = ".jpg",
 				denormalize = denormalize
 			)
 		
-		image = ci.to_image_nparray(frame, True, denormalize)
+		image = I.to_image_nparray(frame, True, denormalize)
 		# IMPORTANT: Image must be in a BGR format
 		image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
 		
@@ -296,7 +297,7 @@ class VideoWriterCV(VideoWriter):
 	def write_batch(
 		self,
 		frames     : list[torch.Tensor | np.ndarray],
-		paths      : list[pathlib.Path] = None,
+		paths      : list[core.Path] = None,
 		denormalize: bool 				= False
 	):
 		"""Write a batch of images to :obj:`dst`.
@@ -332,7 +333,7 @@ class VideoWriterFFmpeg(VideoWriter):
 	
 	def __init__(
 		self,
-		dst		   : pathlib.Path,
+		dst		   : core.Path,
 		image_size : int | Sequence[int] = [480, 640],
 		frame_rate : float = 10,
 		pix_fmt    : str   = "yuv420p",
@@ -411,7 +412,7 @@ class VideoWriterFFmpeg(VideoWriter):
 	def write(
 		self,
 		frame      : torch.Tensor | np.ndarray,
-		path       : pathlib.Path = None,
+		path       : core.Path = None,
 		denormalize: bool 		  = False
 	):
 		"""Write an image to :obj:`dst`.
@@ -424,11 +425,11 @@ class VideoWriterFFmpeg(VideoWriter):
 		"""
 		denormalize = denormalize or self.denormalize
 		if self.save_image:
-			assert isinstance(path, pathlib.Path)
-			ci.write_image_cv(
+			assert isinstance(path, core.Path)
+			I.write_image_cv(
 				image       = frame,
 				dir_path	= self.dst,
-				name        = f"{pathlib.Path(path).stem}.png",
+				name        = f"{core.Path(path).stem}.png",
 				prefix      = "",
 				extension   = ".jpg",
 				denormalize = denormalize
@@ -440,7 +441,7 @@ class VideoWriterFFmpeg(VideoWriter):
 	def write_batch(
 		self,
 		frames     : list[torch.Tensor | np.ndarray],
-		paths      : list[pathlib.Path] = None,
+		paths      : list[core.Path] = None,
 		denormalize: bool 			    = False,
 	):
 		"""Write a batch of images to :obj:`dst`.
