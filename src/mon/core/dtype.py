@@ -1,14 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Data Types.
+"""Generic Data Types.
 
-This module offer data handling capabilities, including lists, dictionaries,
-tuples, sets, and more advanced data structures from the :obj:`collections`
-module.
-
-This name combines "data" and "types" to convey that the module provides various
-data structures and types for data handling.
+This module implements data handling capabilities, including lists,
+dictionaries, tuples, sets, and more advanced data structures from the
+:obj:`collections` module.
 """
 
 from __future__ import annotations

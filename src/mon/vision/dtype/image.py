@@ -1,9 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Image I/O.
+"""Image Data Type.
 
-This module implements the basic I/O functionalities of images.
 """
 
 from __future__ import annotations

@@ -12,13 +12,22 @@ __all__ = [
     "LayeredFeatureAggregation",
 ]
 
-from typing import Sequence
+from typing import Any, Sequence
 
 import torch
 from torch import nn
 from torch.nn.common_types import _size_2_t
 
 from mon import core
+
+
+# region Utils
+
+def get_image_size(input: Any) -> tuple[int, int]:
+    from mon.vision.dtype import image as I
+    return I.get_image_size(input)
+    
+# endregion
 
 
 # region Layer
@@ -41,7 +50,7 @@ class LayeredFeatureAggregation(nn.Module):
         self.num_experts  = len(self.in_channels)
         # Resize & Linear
         if size is not None:
-            self.size    = core.get_image_size(size)
+            self.size    = get_image_size(size)
             self.resize  = nn.Upsample(size=self.size, mode="bilinear", align_corners=False)
             linears      = []
             for in_c in self.in_channels:

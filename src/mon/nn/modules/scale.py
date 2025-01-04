@@ -22,16 +22,23 @@ __all__ = [
 ]
 
 import math
-from typing import Literal
+from typing import Any, Literal
 
 import numpy as np
 import torch
 from torch import nn
 from torch.nn import functional as F
+from torch.nn.common_types import _ratio_2_t, _size_2_t
 from torch.nn.modules.upsampling import *
-from torch.nn.common_types import _size_2_t, _ratio_2_t
 
-from mon import core
+
+# region Utils
+
+def get_image_size(input: Any) -> tuple[int, int]:
+    from mon.vision.dtype import image as I
+    return I.get_image_size(input)
+    
+# endregion
 
 
 # region Downsampling
@@ -359,7 +366,7 @@ class Interpolate(nn.Module):
     
     def __init__(self, size: _size_2_t):
         super().__init__()
-        self.size = core.get_image_size(size)
+        self.size = get_image_size(size)
     
     def forward(self, input: torch.Tensor) -> torch.Tensor:
         return F.interpolate(input, self.size)

@@ -178,6 +178,8 @@ def parse_predict_input_args() -> argparse.Namespace:
 
 def parse_predict_args(model_root: str | core.Path = None) -> argparse.Namespace:
     """Parse arguments for prediction."""
+    from mon.vision import dtype
+    
     hostname = socket.gethostname().lower()
     
     # Get input args
@@ -220,7 +222,7 @@ def parse_predict_args(model_root: str | core.Path = None) -> argparse.Namespace
     save_dir = core.Path(save_dir)
     weights  = core.parse_weights_file(weights)
     device   = core.parse_device(device)
-    imgsz    = core.get_image_size(imgsz)
+    imgsz    = dtype.get_image_size(imgsz)
     
     # Update arguments
     args["hostname"]     = hostname

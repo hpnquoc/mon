@@ -26,7 +26,7 @@ __all__ = [
     "WIRE",
 ]
 
-from typing import Literal
+from typing import Any, Literal
 
 import numpy as np
 import torch
@@ -35,11 +35,20 @@ from torch import nn
 from torch.nn import functional as F
 from torch.nn.common_types import _size_2_t
 
-from mon import core
 from mon.nn.modules import activation as act
 
 
 # region Utils
+
+def get_image_size(input: Any) -> tuple[int, int]:
+    from mon.vision.dtype import image as I
+    return I.get_image_size(input)
+
+
+def get_image_num_channels(image: torch.Tensor | np.ndarray) -> int:
+    from mon.vision.dtype import image as I
+    return I.get_image_num_channels(image)
+
 
 def get_coords(size: _size_2_t) -> torch.Tensor:
     """Creates a coordinates grid.
@@ -47,7 +56,7 @@ def get_coords(size: _size_2_t) -> torch.Tensor:
     Args:
         size: The size of the coordinates grid.
     """
-    size   = core.get_image_size(size)
+    size   = get_image_size(size)
     h, w   = size
     coords = np.dstack(np.meshgrid(np.linspace(0, 1, h), np.linspace(0, 1, w)))
     coords = torch.from_numpy(coords).float()
@@ -576,7 +585,7 @@ class FINER(nn.Module):
         self.net = nn.Sequential(*net)
     
     def forward(self, image: torch.Tensor) -> torch.Tensor:
-        h, w   = core.get_image_size(image)
+        h, w   = get_image_size(image)
         coords = get_coords((h, w)).to(image.device)
         return self.net(coords)
 
@@ -613,7 +622,7 @@ class GAUSS(nn.Module):
         self.net = nn.Sequential(*net)
     
     def forward(self, image: torch.Tensor) -> torch.Tensor:
-        h, w   = core.get_image_size(image)
+        h, w   = get_image_size(image)
         coords = get_coords((h, w)).to(image.device)
         return self.net(coords)
 
@@ -650,10 +659,9 @@ class PEMLP(nn.Module):
         self.net = nn.Sequential(*self.net)
     
     def forward(self, image: torch.Tensor) -> torch.Tensor:
-        h, w   = core.get_image_size(image)
+        h, w   = get_image_size(image)
         coords = get_coords((h, w)).to(image.device)
         return self.net(coords)
-
 
 # endregion
 
@@ -693,7 +701,7 @@ class SIREN(nn.Module):
         self.net = nn.Sequential(*net)
     
     def forward(self, image: torch.Tensor) -> torch.Tensor:
-        h, w   = core.get_image_size(image)
+        h, w   = get_image_size(image)
         coords = get_coords((h, w)).to(image.device)
         return self.net(coords)
 
@@ -741,7 +749,7 @@ class WIRE(nn.Module):
         self.net = nn.Sequential(*net)
     
     def forward(self, image: torch.Tensor) -> torch.Tensor:
-        h, w   = core.get_image_size(image)
+        h, w   = get_image_size(image)
         coords = get_coords((h, w)).to(image.device)
         return self.net(coords)
 
@@ -808,7 +816,7 @@ class INRPatchEncoder(nn.Module):
     
     def get_patch(self, image: torch.Tensor) -> torch.Tensor:
         """Creates a tensor where the channel contains patch information."""
-        num_channels = core.get_image_num_channels(image)
+        num_channels = get_image_num_channels(image)
         kernel       = torch.zeros((self.window_size ** 2, num_channels, self.window_size, self.window_size)).to(image.device)
         for i in range(self.window_size):
             for j in range(self.window_size):

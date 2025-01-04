@@ -68,7 +68,7 @@ from kornia.geometry import transform
 from kornia.geometry.transform import *
 from torch.nn import functional as F
 
-from mon.core.image import utils
+from mon.vision import dtype
 
 
 # region Resize
@@ -155,12 +155,12 @@ def resize(
     """
     # Parse size
     if size:
-        size = utils.get_image_size(size, divisible_by)
+        size = dtype.get_image_size(size, divisible_by)
     else:
-        size = utils.get_image_size(image, divisible_by)
+        size = dtype.get_image_size(image, divisible_by)
     # Resize based on the shortest dimension
     if side == "short":
-        h0, w0 = utils.get_image_size(image)
+        h0, w0 = dtype.get_image_size(image)
         h1, w1 = size
         if h0 < w0:
             scale = h1 / h0
@@ -177,7 +177,7 @@ def resize(
         size = (new_h, new_w)
     # Resize based on the longest dimension
     elif side == "long":
-        h0, w0 = utils.get_image_size(image)
+        h0, w0 = dtype.get_image_size(image)
         h1, w1 = size
         if h0 > w0:
             scale = h1 / h0

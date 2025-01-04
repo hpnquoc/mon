@@ -34,8 +34,9 @@ def compute_efficiency_score(
 	use_cuda  : bool = True,
 	verbose   : bool = False,
 ):
+	from mon.vision.dtype import image as I
 	# Define input tensor
-	h, w  = core.get_image_size(image_size)
+	h, w  = I.get_image_size(image_size)
 	input = torch.rand(1, channels, h, w)
 	
 	# Deploy to cuda
