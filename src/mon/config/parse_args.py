@@ -18,6 +18,7 @@ __all__ = [
 
 import argparse
 import socket
+from typing import Any
 
 from mon import core
 
@@ -40,6 +41,11 @@ def _float_or_none(value) -> float | None:
     if value == "None":
         return None
     return float(value)
+
+
+def get_image_size(input: Any) -> tuple[int, int]:
+    from mon.vision.dtype import image as I
+    return I.get_image_size(input)
 
 # endregion
 
@@ -178,8 +184,6 @@ def parse_predict_input_args() -> argparse.Namespace:
 
 def parse_predict_args(model_root: str | core.Path = None) -> argparse.Namespace:
     """Parse arguments for prediction."""
-    from mon.vision import dtype
-    
     hostname = socket.gethostname().lower()
     
     # Get input args
@@ -222,7 +226,7 @@ def parse_predict_args(model_root: str | core.Path = None) -> argparse.Namespace
     save_dir = core.Path(save_dir)
     weights  = core.parse_weights_file(weights)
     device   = core.parse_device(device)
-    imgsz    = dtype.get_image_size(imgsz)
+    imgsz    = get_image_size(imgsz)
     
     # Update arguments
     args["hostname"]     = hostname

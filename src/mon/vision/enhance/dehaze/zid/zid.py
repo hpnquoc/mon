@@ -24,6 +24,7 @@ from torch.nn.common_types import _size_2_t
 
 from mon import core, nn
 from mon.globals import MODELS, Scheme, Task
+from mon.vision import dtype
 from mon.vision.enhance import base
 
 console      = core.console
@@ -346,7 +347,7 @@ class ZID(base.ImageEnhancementModel):
             loss         = loss,
             *args, **kwargs
         )
-        self.image_size = core.get_image_size(image_size or [512, 512])
+        self.image_size = dtype.get_image_size(image_size or [512, 512])
         self.clip       = clip
         self.save_image = save_image
         

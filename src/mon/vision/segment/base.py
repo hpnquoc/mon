@@ -18,6 +18,7 @@ import cv2
 
 from mon import core, nn
 from mon.globals import Scheme, Task
+from mon.vision import dtype
 from mon.vision.model import VisionModel
 
 console = core.console
@@ -95,12 +96,12 @@ class SegmentationModel(VisionModel, ABC):
         outputs       =    data.get("outputs",  {})
         pred_semantic = outputs.pop("semantic", None)
         
-        image         = list(core.to_image_nparray(image,         keepdim=False, denormalize=True))
-        tar_semantic  = list(core.to_image_nparray(tar_semantic,  keepdim=False, denormalize=True)) if tar_semantic is not None else None
-        pred_semantic = list(core.to_image_nparray(pred_semantic, keepdim=False, denormalize=True))
-        extra_images  = {k: v for k, v in outputs.items() if core.is_image(v)}
+        image         = list(dtype.to_image_nparray(image,         keepdim=False, denormalize=True))
+        tar_semantic  = list(dtype.to_image_nparray(tar_semantic,  keepdim=False, denormalize=True)) if tar_semantic is not None else None
+        pred_semantic = list(dtype.to_image_nparray(pred_semantic, keepdim=False, denormalize=True))
+        extra_images  = {k: v for k, v in outputs.items() if dtype.is_image(v)}
         extra         = {
-            k: list(core.to_image_nparray(v, keepdim=False, denormalize=True))
+            k: list(dtype.to_image_nparray(v, keepdim=False, denormalize=True))
             for k, v in extra_images.items()
         } if extra_images else {}
         

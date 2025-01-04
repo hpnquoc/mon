@@ -23,7 +23,7 @@ from abc import ABC
 from typing import Any
 
 from torchvision.models import (
-    vgg11, vgg11_bn, vgg13, vgg13_bn, vgg16, vgg16_bn, vgg19, vgg19_bn,
+	vgg11, vgg11_bn, vgg13, vgg13_bn, vgg16, vgg16_bn, vgg19, vgg19_bn,
 )
 
 from mon import core, nn

@@ -23,6 +23,7 @@ import torch
 
 from mon import core, nn
 from mon.globals import MODELS, Scheme, Task
+from mon.vision import dtype, geometry
 from mon.vision.enhance import base
 
 torch.autograd.set_detect_anomaly(True)
@@ -326,7 +327,7 @@ class ZeroRestoreDehaze(base.ImageEnhancementModel):
             if isinstance(v, torch.Tensor):
                 datapoint[k] = v.to(self.device)
         image = datapoint.get("image")
-        image = core.resize(image, divisible_by=32)
+        image = geometry.resize(image, divisible_by=32)
         
         # Training
         for _ in range(epochs):
@@ -340,14 +341,14 @@ class ZeroRestoreDehaze(base.ImageEnhancementModel):
         # Forward
         self.eval()
         image    = datapoint.get("image")
-        h, w     = core.get_image_size(image)
-        image    = core.resize(image, divisible_by=32)
+        h, w     = dtype.get_image_size(image)
+        image    = geometry.resize(image, divisible_by=32)
         timer    = core.Timer()
         timer.tick()
         outputs  = self.forward(datapoint={"image": image})
         timer.tock()
         enhanced = outputs["enhanced"]
-        enhanced = core.resize(enhanced, (h, w))
+        enhanced = geometry.resize(enhanced, (h, w))
         outputs["enhanced"] = torch.clamp(enhanced, 0, 1)
         self.assert_outputs(outputs)
         

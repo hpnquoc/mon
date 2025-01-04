@@ -19,8 +19,8 @@ from abc import ABC
 from typing import Any
 
 from torchvision.models import (
-    shufflenet_v2_x0_5, shufflenet_v2_x1_0, shufflenet_v2_x1_5,
-    shufflenet_v2_x2_0,
+	shufflenet_v2_x0_5, shufflenet_v2_x1_0, shufflenet_v2_x1_5,
+	shufflenet_v2_x2_0,
 )
 
 from mon import core, nn

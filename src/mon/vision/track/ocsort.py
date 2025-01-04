@@ -21,6 +21,7 @@ from filterpy.kalman import KalmanFilter
 
 from mon import core
 from mon.globals import TrackState
+from mon.vision import dtype
 from mon.vision.track import base
 
 console = core.console
@@ -233,8 +234,8 @@ class SORT(base.Tracker):
         bboxes        = detections[:, 0:4]  # [x1, y1, x2, y2]
         classes       = detections[:,   5]
         # Scale the detections
-        input_size    = core.get_image_size(input_size)
-        image_size    = core.get_image_size(image_size)
+        input_size    = dtype.get_image_size(input_size)
+        image_size    = dtype.get_image_size(image_size)
         inp_h, inp_w  = input_size[0], input_size[1]
         img_h, img_w  = image_size[0], image_size[1]
         scale         = min(float(img_h) / float(inp_h), float(img_w) / float(inp_w))

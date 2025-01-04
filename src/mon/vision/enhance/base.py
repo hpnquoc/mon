@@ -18,6 +18,7 @@ import cv2
 
 from mon import core, nn
 from mon.globals import Scheme
+from mon.vision import dtype
 from mon.vision.model import VisionModel
 
 console = core.console
@@ -93,12 +94,12 @@ class ImageEnhancementModel(VisionModel, ABC):
         outputs   =    data.get("outputs",  {})
         enhanced  = outputs.pop("enhanced", None)
         
-        image        = list(core.to_image_nparray(image,     keepdim=True, denormalize=True))
-        ref_image    = list(core.to_image_nparray(ref_image, keepdim=True, denormalize=True)) if ref_image is not None else None
-        enhanced     = list(core.to_image_nparray(enhanced,  keepdim=True, denormalize=True))
-        extra_images = {k: v for k, v in outputs.items() if core.is_image(v)}
+        image        = list(dtype.to_image_nparray(image,     keepdim=True, denormalize=True))
+        ref_image    = list(dtype.to_image_nparray(ref_image, keepdim=True, denormalize=True)) if ref_image is not None else None
+        enhanced     = list(dtype.to_image_nparray(enhanced,  keepdim=True, denormalize=True))
+        extra_images = {k: v for k, v in outputs.items() if dtype.is_image(v)}
         extra        = {
-            k: list(core.to_image_nparray(v, keepdim=True, denormalize=True))
+            k: list(dtype.to_image_nparray(v, keepdim=True, denormalize=True))
             for k, v in extra_images.items()
         } if extra_images else {}
         

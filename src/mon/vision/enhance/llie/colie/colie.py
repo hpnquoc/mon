@@ -26,7 +26,7 @@ from torch.nn.common_types import _size_2_t
 
 from mon import core, nn
 from mon.globals import MODELS, Scheme, Task
-from mon.vision import filtering
+from mon.vision import dtype, filtering
 from mon.vision.enhance import base
 
 console      = core.console
@@ -190,7 +190,7 @@ class CoLIE_RE(base.ImageEnhancementModel):
         of parameters, and runtime.
         """
         # Define input tensor
-        h, w      = core.get_image_size(image_size)
+        h, w      = dtype.get_image_size(image_size)
         datapoint = {
             "image": torch.rand(1, channels, h, w).to(self.device),
             # "depth": torch.rand(1,        1, h, w).to(self.device)

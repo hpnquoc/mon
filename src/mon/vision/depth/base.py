@@ -15,7 +15,7 @@ __all__ = [
 from abc import ABC
 
 from mon import core, nn
-from mon.globals import Scheme, Task, ZOO_DIR
+from mon.globals import Scheme, Task
 from mon.vision.model import VisionModel
 
 console = core.console

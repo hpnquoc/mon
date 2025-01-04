@@ -25,9 +25,9 @@ from abc import ABC
 from typing import Any
 
 from torchvision.models import (
-    resnet101, resnet152, resnet18, resnet34,
-    resnet50, resnext101_32x8d, resnext101_64x4d, resnext50_32x4d,
-    wide_resnet101_2, wide_resnet50_2,
+	resnet101, resnet152, resnet18, resnet34,
+	resnet50, resnext101_32x8d, resnext101_64x4d, resnext50_32x4d,
+	wide_resnet101_2, wide_resnet50_2,
 )
 
 from mon import core, nn

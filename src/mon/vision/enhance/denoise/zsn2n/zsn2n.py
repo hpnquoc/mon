@@ -22,6 +22,7 @@ from torch.nn.common_types import _size_2_t
 
 from mon import core, nn
 from mon.globals import MODELS, Scheme, Task
+from mon.vision import dtype, geometry
 from mon.vision.enhance import base
 
 console      = core.console
@@ -166,13 +167,13 @@ class ZSN2N(base.ImageEnhancementModel):
         # Pre-processing
         self.assert_datapoint(datapoint)
         image  = datapoint.get("image")
-        h0, w0 = core.get_image_size(image)
+        h0, w0 = dtype.get_image_size(image)
         for k, v in datapoint.items():
-            if core.is_image(v):
+            if dtype.is_image(v):
                 if resize:
-                    datapoint[k] = core.resize(v, image_size)
+                    datapoint[k] = geometry.resize(v, image_size)
                 else:
-                    datapoint[k] = core.resize(v, divisible_by=32)
+                    datapoint[k] = geometry.resize(v, divisible_by=32)
         for k, v in datapoint.items():
             if isinstance(v, torch.Tensor):
                 datapoint[k] = v.to(self.device)
@@ -198,10 +199,10 @@ class ZSN2N(base.ImageEnhancementModel):
         
         # Post-processing
         for k, v in outputs.items():
-            if core.is_image(v):
-                h1, w1 = core.get_image_size(v)
+            if dtype.is_image(v):
+                h1, w1 = dtype.get_image_size(v)
                 if h1 != h0 or w1 != w0:
-                    outputs[k] = core.resize(v, (h0, w0))
+                    outputs[k] = geometry.resize(v, (h0, w0))
         
         # Return
         outputs["time"] = timer.avg_time
@@ -215,12 +216,12 @@ class ZSN2N(base.ImageEnhancementModel):
 def run_zsn2n():
     path      = core.Path("./data/00691.png")
     image     = cv2.imread(str(path))
-    datapoint = {"image": core.to_image_tensor(image, False, True)}
+    datapoint = {"image": dtype.to_image_tensor(image, False, True)}
     device    = torch.device("cuda:0")
     net       = ZSN2N(channels=3, num_channels=64).to(device)
     outputs   = net.infer(datapoint)
     denoise   = outputs.get("enhanced")
-    denoise   = core.to_image_nparray(denoise, False, True)
+    denoise   = dtype.to_image_nparray(denoise, False, True)
     cv2.imshow("Image",    image)
     cv2.imshow("Denoised", denoise)
     cv2.waitKey(0)

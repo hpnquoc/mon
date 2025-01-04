@@ -19,7 +19,7 @@ from abc import ABC
 from typing import Any
 
 from torchvision.models import (
-    convnext_base, convnext_large, convnext_small, convnext_tiny,
+	convnext_base, convnext_large, convnext_small, convnext_tiny,
 )
 
 from mon import core, nn

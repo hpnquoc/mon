@@ -18,8 +18,9 @@ import cv2
 import numpy as np
 import torch
 
-from mon import core, nn
+from mon import nn
 from mon.nn import functional as F
+from mon.vision import dtype
 
 
 # region Utils
@@ -112,7 +113,7 @@ def box_filter(
         normalize   = kwargs.get("normalize",  False)
         borderType  = kwargs.get("borderType", cv2.BORDER_DEFAULT)
         kernel_size = kernel_size or 2 * radius + 1
-        kernel_size = core.get_image_size(kernel_size)
+        kernel_size = dtype.get_image_size(kernel_size)
         return cv2.boxFilter(
             src        = image,
             ddepth     = ddepth,

@@ -19,7 +19,7 @@ from abc import ABC
 from typing import Any
 
 from torchvision.models import (
-    densenet121, densenet161, densenet169, densenet201,
+	densenet121, densenet161, densenet169, densenet201,
 )
 
 from mon import core, nn

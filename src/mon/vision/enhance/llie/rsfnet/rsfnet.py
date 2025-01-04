@@ -16,15 +16,12 @@ __all__ = []
 
 from typing import Any, Literal
 
-import kornia
-import numpy as np
 import torch
-from torch.autograd import Variable
-from torch.nn import functional as F
 import torch.linalg as la
+from torch.autograd import Variable
+
 from mon import core, nn
 from mon.globals import MODELS, Scheme, Task
-from mon.vision import filtering
 from mon.vision.enhance import base
 
 console      = core.console

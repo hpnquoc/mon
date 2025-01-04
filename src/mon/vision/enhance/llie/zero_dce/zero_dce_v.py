@@ -16,7 +16,6 @@ __all__ = [
 
 from typing import Any, Literal
 
-import numpy as np
 import torch
 from torch.nn import functional as F
 

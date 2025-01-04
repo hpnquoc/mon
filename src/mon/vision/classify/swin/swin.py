@@ -21,7 +21,7 @@ from abc import ABC
 from typing import Any
 
 from torchvision.models import (
-    swin_b, swin_s, swin_t, swin_v2_b, swin_v2_s, swin_v2_t,
+	swin_b, swin_s, swin_t, swin_v2_b, swin_v2_s, swin_v2_t,
 )
 
 from mon import core, nn
