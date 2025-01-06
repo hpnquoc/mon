@@ -8,13 +8,23 @@
 from __future__ import annotations
 
 __all__ = [
+    "BoundaryAwarePrior",
+    "BrightnessAttentionMap",
     "ImageLocalMean",
     "ImageLocalStdDev",
     "ImageLocalVariance",
     "add_noise",
     "add_weighted",
     "adjust_gamma",
+    "atmospheric_prior",
     "blend_images",
+    "blur_spot_prior",
+    "boundary_aware_prior",
+    "bright_channel_prior",
+    "bright_spot_prior",
+    "brightness_attention_map",
+    "dark_channel_prior",
+    "dark_channel_prior_02",
     "denormalize_image",
     "denormalize_image_mean_std",
     "depth_map_to_color",
@@ -67,6 +77,7 @@ from typing import Any, Literal, Sequence
 
 import cv2
 import joblib
+import kornia
 import numpy as np
 import rawpy
 import torch
@@ -74,9 +85,81 @@ import torchvision
 from PIL import Image
 from torch import nn
 from torch.nn import functional as F
+from torch.nn.common_types import _size_2_t
 from torchvision.transforms import functional as TF
 
 from mon import core
+
+
+# region Adjustment
+
+def adjust_gamma(
+    image: torch.Tensor | np.ndarray,
+    gamma: float = 1.0,
+    gain : float = 1.0
+) -> torch.Tensor | np.ndarray:
+    """Adjust gamma value in the image. Also known as Power Law Transform.
+    
+    Args:
+        image: An RGB image of type:
+            - :obj:`torch.Tensor` in ``[B, C, H, W]`` format with data in
+                the range ``[0.0, 1.0]``.
+            - :obj:`numpy.ndarray` in ``[H, W, C]`` format with data in the
+                range ``[0, 255]``.
+        gamma: Non-negative real number, same as `gamma` in the equation.
+            - :obj:`gamma` larger than ``1`` makes the shadows darker, while
+            - :obj:`gamma` smaller than ``1`` makes dark regions lighter.
+        gain: The constant multiplier.
+        
+    Returns:
+        A gamma-corrected image.
+    """
+    if isinstance(image, torch.Tensor):
+        return TF.adjust_gamma(img=image, gamma=gamma, gain=gain)
+    elif isinstance(image, np.ndarray):
+        # Build a lookup table mapping the pixel values [0, 255] to their adjusted gamma values.
+        inv_gamma = 1.0 / gamma
+        table     = np.array([((i / 255.0) ** inv_gamma) * 255 for i in np.arange(0, 256)])
+        table.astype("uint8")
+        # Apply gamma correction using the lookup table
+        return cv2.LUT(image, table)
+    else:
+        raise TypeError(f"`image` must be a `torch.Tensor` or `numpy.ndarray`, "
+                        f"but got {type(image)}.")
+    
+    
+def add_noise(
+    image      : torch.Tensor,
+    noise_level: int = 25,
+    noise_type : Literal["gaussian", "poisson"] = "gaussian"
+) -> torch.Tensor:
+    """Add noise to an image.
+    
+    Args:
+        image: An RGB image of type:
+            - :obj:`torch.Tensor` in ``[B, C, H, W]`` format with data in
+                the range ``[0.0, 1.0]``.
+            - :obj:`numpy.ndarray` in ``[H, W, C]`` format with data in the
+                range ``[0, 255]``.
+        noise_level: The noise level.
+        noise_type: The type of noise to add. One of:
+            - ``'gaussian'``
+            - ``'poisson'``
+            Default: ``"gaussian"``.
+        
+    Returns:
+        A noisy image.
+    """
+    if noise_type == "gaussian":
+        noisy = image + torch.normal(0, noise_level / 255, image.shape)
+        noisy = torch.clamp(noisy, 0, 1)
+    elif noise_type == "poisson":
+        noisy = torch.poisson(noise_level * image) / noise_level
+    else:
+        raise ValueError(f"Unknown noise type: {noise_type}")
+    return noisy
+
+# endregion
 
 
 # region Assertion
@@ -383,7 +466,7 @@ def get_image_size(
                              f"``[1, 3]``, but got {input}.")
     elif isinstance(input, int | float):
         size = (input, input)
-    elif isinstance(input, torch.Tensor | np.ndarray):
+    elif isinstance(input, (torch.Tensor, np.ndarray)):
         if is_channel_first_image(input):
             size = (input.shape[-2], input.shape[-1])
         else:
@@ -860,106 +943,6 @@ def to_image_tensor(
 # endregion
 
 
-# region Gradient
-
-def image_local_mean(image: torch.Tensor, patch_size: int = 5) -> torch.Tensor:
-    """Calculate the local mean of an image using a sliding window.
-    
-    Args:
-        image: The input image tensor of shape ``[B, C, H, W]``.
-        patch_size: The size of the sliding window. Default: ``5``.
-    """
-    padding = patch_size // 2
-    image   = F.pad(image, (padding, padding, padding, padding), mode="reflect")
-    patches = image.unfold(2, patch_size, 1).unfold(3, patch_size, 1)
-    return patches.mean(dim=(4, 5))
-
-
-def image_local_variance(image: torch.Tensor, patch_size: int = 5) -> torch.Tensor:
-    """Calculate the local variance of an image using a sliding window.
-    
-    Args:
-        image: The input image tensor of shape ``[B, C, H, W]``.
-        patch_size: The size of the sliding window. Default: ``5``.
-    """
-    padding = patch_size // 2
-    image   = F.pad(image, (padding, padding, padding, padding), mode="reflect")
-    patches = image.unfold(2, patch_size, 1).unfold(3, patch_size, 1)
-    mean    = patches.mean(dim=(4, 5))
-    return ((patches - mean.unsqueeze(4).unsqueeze(5)) ** 2).mean(dim=(4, 5))
-
-
-def image_local_stddev(
-    image     : torch.Tensor,
-    patch_size: int   = 5,
-    eps       : float = 1e-9
-) -> torch.Tensor:
-    """Calculate the local standard deviation of an image using a sliding window.
-    
-    Args:
-        image: The input image tensor of shape ``[B, C, H, W]``.
-        patch_size: The size of the sliding window. Default: ``5``.
-        eps: A small value to avoid sqrt by zero. Default: ``1e-9``.
-    """
-    padding        = patch_size // 2
-    image          = F.pad(image, (padding, padding, padding, padding), mode="reflect")
-    patches        = image.unfold(2, patch_size, 1).unfold(3, patch_size, 1)
-    mean           = patches.mean(dim=(4, 5), keepdim=True)
-    squared_diff   = (patches - mean) ** 2
-    local_variance = squared_diff.mean(dim=(4, 5))
-    local_stddev   = torch.sqrt(local_variance + eps)
-    return local_stddev
-
-
-class ImageLocalMean(nn.Module):
-    """Calculate the local mean of an image using a sliding window.
-    
-    Args:
-        patch_size: The size of the sliding window. Default: ``5``.
-    """
-    
-    def __init__(self, patch_size: int = 5):
-        super().__init__()
-        self.patch_size = patch_size
-    
-    def forward(self, image):
-        return image_local_mean(image, self.patch_size)
-
-
-class ImageLocalVariance(nn.Module):
-    """Calculate the local variance of an image using a sliding window.
-    
-    Args:
-        patch_size: The size of the sliding window. Default: ``5``.
-    """
-    
-    def __init__(self, patch_size: int = 5):
-        super().__init__()
-        self.patch_size = patch_size
-    
-    def forward(self, image):
-        return image_local_variance(image, self.patch_size)
-
-
-class ImageLocalStdDev(nn.Module):
-    """Calculate the local standard deviation of an image using a sliding window.
-    
-    Args:
-        patch_size: The size of the sliding window. Default: ``5``.
-        eps: A small value to avoid sqrt by zero. Default: ``1e-9``.
-    """
-    
-    def __init__(self, patch_size: int = 5, eps: float = 1e-9):
-        super().__init__()
-        self.patch_size = patch_size
-        self.eps        = eps
-    
-    def forward(self, image):
-        return image_local_stddev(image, self.patch_size, self.eps)
-    
-# endregion
-
-
 # region I/O
 
 def read_image(
@@ -1062,7 +1045,7 @@ def write_image(path: core.Path, image: torch.Tensor | np.ndarray):
     path = core.Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
     if isinstance(image, torch.Tensor):
-        torchvision.save_image(image, str(path))
+        torchvision.utils.save_image(image, str(path))
     elif isinstance(image, np.ndarray):
         cv2.imwrite(str(path), cv2.cvtColor(image, cv2.COLOR_RGB2BGR))
     else:
@@ -1238,77 +1221,6 @@ def write_images_torch(
         )
         for i, image in enumerate(images)
     )
-
-# endregion
-
-
-# region Adjustment
-
-def adjust_gamma(
-    image: torch.Tensor | np.ndarray,
-    gamma: float = 1.0,
-    gain : float = 1.0
-) -> torch.Tensor | np.ndarray:
-    """Adjust gamma value in the image. Also known as Power Law Transform.
-    
-    Args:
-        image: An RGB image of type:
-            - :obj:`torch.Tensor` in ``[B, C, H, W]`` format with data in
-                the range ``[0.0, 1.0]``.
-            - :obj:`numpy.ndarray` in ``[H, W, C]`` format with data in the
-                range ``[0, 255]``.
-        gamma: Non-negative real number, same as `gamma` in the equation.
-            - :obj:`gamma` larger than ``1`` makes the shadows darker, while
-            - :obj:`gamma` smaller than ``1`` makes dark regions lighter.
-        gain: The constant multiplier.
-        
-    Returns:
-        A gamma-corrected image.
-    """
-    if isinstance(image, torch.Tensor):
-        return TF.adjust_gamma(img=image, gamma=gamma, gain=gain)
-    elif isinstance(image, np.ndarray):
-        # Build a lookup table mapping the pixel values [0, 255] to their adjusted gamma values.
-        inv_gamma = 1.0 / gamma
-        table     = np.array([((i / 255.0) ** inv_gamma) * 255 for i in np.arange(0, 256)])
-        table.astype("uint8")
-        # Apply gamma correction using the lookup table
-        return cv2.LUT(image, table)
-    else:
-        raise TypeError(f"`image` must be a `torch.Tensor` or `numpy.ndarray`, "
-                        f"but got {type(image)}.")
-    
-    
-def add_noise(
-    image      : torch.Tensor,
-    noise_level: int = 25,
-    noise_type : Literal["gaussian", "poisson"] = "gaussian"
-) -> torch.Tensor:
-    """Add noise to an image.
-    
-    Args:
-        image: An RGB image of type:
-            - :obj:`torch.Tensor` in ``[B, C, H, W]`` format with data in
-                the range ``[0.0, 1.0]``.
-            - :obj:`numpy.ndarray` in ``[H, W, C]`` format with data in the
-                range ``[0, 255]``.
-        noise_level: The noise level.
-        noise_type: The type of noise to add. One of:
-            - ``'gaussian'``
-            - ``'poisson'``
-            Default: ``"gaussian"``.
-        
-    Returns:
-        A noisy image.
-    """
-    if noise_type == "gaussian":
-        noisy = image + torch.normal(0, noise_level / 255, image.shape)
-        noisy = torch.clamp(noisy, 0, 1)
-    elif noise_type == "poisson":
-        noisy = torch.poisson(noise_level * image) / noise_level
-    else:
-        raise ValueError(f"Unknown noise type: {noise_type}")
-    return noisy
 
 # endregion
 
@@ -1494,5 +1406,392 @@ normalize_image = functools.partial(
     new_min = 0.0,
     new_max = 1.0
 )
+
+# endregion
+
+
+# region Prior
+
+def atmospheric_prior(
+    image      : np.ndarray,
+    kernel_size: _size_2_t = 15,
+    p          : float     = 0.0001
+) -> np.ndarray:
+    """Get the atmosphere light in RGB image.
+
+    Args:
+        image: An RGB image of type :obj:`numpy.ndarray` in ``[H, W, C]``
+            format with data in the range ``[0, 255]``.
+        kernel_size: Window for the dark channel. Default: ``15``.
+        p: Percentage of pixels for estimating the atmosphere light.
+            Default: ``0.0001``.
+    
+    Returns:
+        A 3-element array containing atmosphere light ``([0, L-1])`` for each
+        channel.
+    """
+    image      = image.transpose(1, 2, 0)
+    # Reference CVPR09, 4.4
+    dark       = dark_channel_prior_02(image=image, kernel_size=kernel_size)
+    m, n       = dark.shape
+    flat_i     = image.reshape(m * n, 3)
+    flat_dark  = dark.ravel()
+    search_idx = (-flat_dark).argsort()[:int(m * n * p)]  # find top M * N * p indexes
+    # Return the highest intensity for each channel
+    return np.max(flat_i.take(search_idx, axis=0), axis=0)
+
+
+def blur_spot_prior(image: np.ndarray, threshold: int = 250) -> bool:
+    # Convert image to grayscale
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    # Apply binary thresholding for bright spot detection
+    _, binary = cv2.threshold(gray, 200, 255, cv2.THRESH_BINARY)
+    # Apply Laplacian filter for edge detection
+    laplacian = cv2.Laplacian(gray, cv2.CV_64F)
+    # Calculate maximum intensity and variance
+    laplacian_var = laplacian.var()
+    # Check blur condition based on variance of Laplacian image
+    is_blur = True if laplacian_var < threshold else False
+    return is_blur
+
+
+def boundary_aware_prior(
+    image      : torch.Tensor | np.ndarray,
+    eps        : float = 0.05,
+    as_gradient: bool  = False,
+    normalized : bool  = False,
+) -> torch.Tensor | np.ndarray:
+    """Get the boundary prior from an RGB or grayscale image.
+    
+    Args:
+        image: An RGB image of type:
+            - :obj:`torch.Tensor` in ``[B, C, H, W]`` format with data in
+                the range ``[0.0, 1.0]``.
+            - :obj:`numpy.ndarray` in ``[H, W, C]`` format with data in the
+                range ``[0, 255]``.
+        eps: Threshold to remove weak edges. Default: ``0.05``.
+        as_gradient: If ``True``, return the gradient image. Default: ``False``.
+        normalized: If ``True``, L1 norm of the kernel is set to ``1``.
+            Default: ``False``.
+        
+    Returns:
+        A boundary aware prior as a binary image.
+    """
+    if isinstance(image, torch.Tensor):
+        gradient = kornia.filters.sobel(image, normalized=normalized, eps=1e-6)
+        g_max    = torch.max(gradient)
+        gradient = gradient / g_max
+        boundary = (gradient > eps).float()
+    elif isinstance(image, np.ndarray):
+        if is_color_image(image):
+            image = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
+        from mon.vision.filtering import sobel_filter
+        gradient = sobel_filter(image, kernel_size=3)
+        g_max    = np.max(gradient)
+        gradient = gradient / g_max
+        boundary = (gradient > eps).float()
+        return boundary
+    else:
+        raise ValueError(f"Unsupported input type: {type(image)}.")
+    
+    # return boundary, gradient
+    if as_gradient:
+        return gradient
+    else:
+        return boundary
+
+
+def bright_spot_prior(image: np.ndarray) -> bool:
+    # Convert image to grayscale
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    # Apply binary thresholding for bright spot detection
+    _, binary = cv2.threshold(gray, 200, 255, cv2.THRESH_BINARY)
+    # Calculate maximum intensity and variance
+    binary_var = binary.var()
+    # Check bright spot condition based on variance of binary image
+    is_bright = True if 5000 < binary_var < 8500 else False
+    return is_bright
+
+
+def bright_channel_prior(
+    image      : torch.Tensor | np.ndarray,
+    kernel_size: _size_2_t
+) -> torch.Tensor | np.ndarray:
+    """Get the bright channel prior from an RGB image.
+    
+    Args:
+        image: An RGB image of type:
+            - :obj:`torch.Tensor` in ``[B, C, H, W]`` format with data in
+                the range ``[0.0, 1.0]``.
+            - :obj:`numpy.ndarray` in ``[H, W, C]`` format with data in the
+                range ``[0, 255]``.
+        kernel_size: Window size.
+
+    Returns:
+        A bright channel prior.
+    """
+    kernel_size = core.to_2tuple(kernel_size)
+    if isinstance(image, torch.Tensor):
+        bright_channel = torch.max(image, dim=1)[0]
+        kernel         = torch.ones(kernel_size[0], kernel_size[0])
+        bcp            = kornia.morphology.erosion(bright_channel, kernel)
+    elif isinstance(image, np.ndarray):
+        bright_channel = np.max(image, axis=2)
+        kernel_size    = core.to_2tuple(kernel_size)
+        kernel         = cv2.getStructuringElement(cv2.MORPH_RECT, kernel_size)
+        bcp            = cv2.erode(bright_channel, kernel)
+    else:
+        raise ValueError(f"`image` must be a `torch.Tensor` or `numpy.ndarray`,"
+                         f" but got {type(image)}.")
+    return bcp
+
+
+def brightness_attention_map(
+    image        : torch.Tensor | np.ndarray,
+    gamma        : float     = 2.5,
+    denoise_ksize: _size_2_t = None,
+) -> torch.Tensor:
+    """Get the Brightness Attention Map (BAM) prior from an RGB image.
+    
+    This is a self-attention map extracted from the V-channel of a low-light
+    image. This map is multiplied to convolutional activations of all layers in
+    the enhancement network. Brighter regions are given lower weights to avoid
+    over-saturation, while preserving image details and enhancing the contrast
+    in the dark regions effectively.
+    
+    Equation: `I_{attn} = (1 - I_{V})^{\gamma}`, where `\gamma \geq 1`.
+    
+    Args:
+        image: An RGB image of type:
+            - :obj:`torch.Tensor` in ``[B, C, H, W]`` format with data in
+                the range ``[0.0, 1.0]``.
+            - :obj:`numpy.ndarray` in ``[H, W, C]`` format with data in the
+                range ``[0, 255]``.
+        gamma: A parameter controls the curvature of the map.
+        denoise_ksize: Window size for de-noising operation. Default: ``None``.
+        
+    Returns:
+        An :obj:`numpy.ndarray` brightness enhancement map as prior.
+    """
+    if isinstance(image, torch.Tensor):
+        if denoise_ksize:
+            image = kornia.filters.median_blur(image, denoise_ksize)
+            # image = kornia.filters.bilateral_blur(image, denoise_ksize, 0.1, (1.5, 1.5))
+        hsv = kornia.color.rgb_to_hsv(image)
+        v   = get_image_channel(image=hsv, index=(2, 3), keep_dim=True)  # hsv[:, 2:3, :, :]
+        bam = torch.pow((1 - v), gamma)
+    elif isinstance(image, np.ndarray):
+        if denoise_ksize:
+            image = cv2.medianBlur(image, denoise_ksize)
+        hsv = cv2.cvtColor(image, cv2.COLOR_RGB2HSV)
+        if hsv.dtype != np.float64:
+            hsv  = hsv.astype("float64")
+            hsv /= 255.0
+        v   = get_image_channel(image=hsv, index=(2, 3), keep_dim=True)  # hsv[:, :, 2:3]
+        bam = np.power((1 - v), gamma)
+    else:
+        raise ValueError(f"Unsupported input type: {type(image)}.")
+    return bam
+
+
+def dark_channel_prior(
+    image      : torch.Tensor | np.ndarray,
+    kernel_size: int
+) -> torch.Tensor | np.ndarray:
+    """Get the dark channel prior from an RGB image.
+    
+    Args:
+        image: An RGB image of type:
+            - :obj:`torch.Tensor` in ``[B, C, H, W]`` format with data in
+                the range ``[0.0, 1.0]``.
+            - :obj:`numpy.ndarray` in ``[H, W, C]`` format with data in the
+                range ``[0, 255]``.
+        kernel_size: Window size.
+        
+    Returns:
+        A dark channel prior.
+    """
+    kernel_size = core.to_2tuple(kernel_size)
+    if isinstance(image, torch.Tensor):
+        dark_channel = torch.min(image, dim=1)[0]
+        kernel       = torch.ones(kernel_size[0], kernel_size[1])
+        dcp          = kornia.morphology.erosion(dark_channel, kernel)
+    elif isinstance(image, np.ndarray):
+        dark_channel = np.min(image, axis=2)
+        kernel       = cv2.getStructuringElement(cv2.MORPH_RECT, kernel_size)
+        dcp          = cv2.erode(dark_channel, kernel)
+    else:
+        raise ValueError(f"`image` must be a `torch.Tensor` or `numpy.ndarray`,"
+                         f" but got {type(image)}.")
+    return dcp
+
+
+def dark_channel_prior_02(
+    image      : torch.Tensor | np.ndarray,
+    kernel_size: _size_2_t
+) -> torch.Tensor | np.ndarray:
+    """Get the dark channel prior from an RGB image.
+
+    Args:
+        image: An RGB image of type:
+            - :obj:`torch.Tensor` in ``[B, C, H, W]`` format with data in
+                the range ``[0.0, 1.0]``.
+            - :obj:`numpy.ndarray` in ``[H, W, C]`` format with data in the
+                range ``[0, 255]``.
+        kernel_size: Window size.
+
+    Returns:
+        A dark channel prior.
+    """
+    m, n, _ = image.shape
+    w       = kernel_size
+    padded  = np.pad(image, ((w // 2, w // 2), (w // 2, w // 2), (0, 0)), "edge")
+    dcp     = np.zeros((m, n))
+    for i, j in np.ndindex(dcp.shape):
+        dcp[i, j] = np.min(padded[i:i + w, j:j + w, :])  # CVPR09, eq.5
+    return dcp
+
+
+def image_local_mean(image: torch.Tensor, patch_size: int = 5) -> torch.Tensor:
+    """Calculate the local mean of an image using a sliding window.
+    
+    Args:
+        image: The input image tensor of shape ``[B, C, H, W]``.
+        patch_size: The size of the sliding window. Default: ``5``.
+    """
+    padding = patch_size // 2
+    image   = F.pad(image, (padding, padding, padding, padding), mode="reflect")
+    patches = image.unfold(2, patch_size, 1).unfold(3, patch_size, 1)
+    return patches.mean(dim=(4, 5))
+
+
+def image_local_variance(image: torch.Tensor, patch_size: int = 5) -> torch.Tensor:
+    """Calculate the local variance of an image using a sliding window.
+    
+    Args:
+        image: The input image tensor of shape ``[B, C, H, W]``.
+        patch_size: The size of the sliding window. Default: ``5``.
+    """
+    padding = patch_size // 2
+    image   = F.pad(image, (padding, padding, padding, padding), mode="reflect")
+    patches = image.unfold(2, patch_size, 1).unfold(3, patch_size, 1)
+    mean    = patches.mean(dim=(4, 5))
+    return ((patches - mean.unsqueeze(4).unsqueeze(5)) ** 2).mean(dim=(4, 5))
+
+
+def image_local_stddev(
+    image     : torch.Tensor,
+    patch_size: int   = 5,
+    eps       : float = 1e-9
+) -> torch.Tensor:
+    """Calculate the local standard deviation of an image using a sliding window.
+    
+    Args:
+        image: The input image tensor of shape ``[B, C, H, W]``.
+        patch_size: The size of the sliding window. Default: ``5``.
+        eps: A small value to avoid sqrt by zero. Default: ``1e-9``.
+    """
+    padding        = patch_size // 2
+    image          = F.pad(image, (padding, padding, padding, padding), mode="reflect")
+    patches        = image.unfold(2, patch_size, 1).unfold(3, patch_size, 1)
+    mean           = patches.mean(dim=(4, 5), keepdim=True)
+    squared_diff   = (patches - mean) ** 2
+    local_variance = squared_diff.mean(dim=(4, 5))
+    local_stddev   = torch.sqrt(local_variance + eps)
+    return local_stddev
+
+
+class BoundaryAwarePrior(nn.Module):
+    """Get the boundary prior from an RGB or grayscale image.
+    
+    Args:
+        eps: Threshold weak edges. Default: ``0.05``.
+        normalized: If ``True``, L1 norm of the kernel is set to ``1``.
+            Default: ``True``.
+    """
+    
+    def __init__(self, eps: float = 0.05, normalized: bool = False):
+        super().__init__()
+        self.eps        = eps
+        self.normalized = normalized
+    
+    def forward(self, image: torch.Tensor) -> torch.Tensor:
+        return boundary_aware_prior(image, self.eps, self.normalized)
+
+
+class BrightnessAttentionMap(nn.Module):
+    """Get the Brightness Attention Map (BAM) prior from an RGB image.
+    
+    This is a self-attention map extracted from the V-channel of a low-light
+    image. This map is multiplied to convolutional activations of all layers in
+    the enhancement network. Brighter regions are given lower weights to avoid
+    over-saturation, while preserving image details and enhancing the contrast
+    in the dark regions effectively.
+    
+    Equation: `I_{attn} = (1 - I_{V})^{\gamma}`, where `\gamma \geq 1`.
+    
+    Args:
+        gamma: A parameter controls the curvature of the map.
+        denoise_ksize: Window size for de-noising operation. Default: ``None``.
+    """
+    
+    def __init__(
+        self,
+        gamma        : float     = 2.5,
+        denoise_ksize: _size_2_t = None
+    ):
+        super().__init__()
+        self.gamma         = gamma
+        self.denoise_ksize = denoise_ksize
+    
+    def forward(self, image: torch.Tensor) -> torch.Tensor:
+        return brightness_attention_map(image, self.gamma, self.denoise_ksize)
+
+
+class ImageLocalMean(nn.Module):
+    """Calculate the local mean of an image using a sliding window.
+    
+    Args:
+        patch_size: The size of the sliding window. Default: ``5``.
+    """
+    
+    def __init__(self, patch_size: int = 5):
+        super().__init__()
+        self.patch_size = patch_size
+    
+    def forward(self, image):
+        return image_local_mean(image, self.patch_size)
+
+
+class ImageLocalVariance(nn.Module):
+    """Calculate the local variance of an image using a sliding window.
+    
+    Args:
+        patch_size: The size of the sliding window. Default: ``5``.
+    """
+    
+    def __init__(self, patch_size: int = 5):
+        super().__init__()
+        self.patch_size = patch_size
+    
+    def forward(self, image):
+        return image_local_variance(image, self.patch_size)
+
+
+class ImageLocalStdDev(nn.Module):
+    """Calculate the local standard deviation of an image using a sliding window.
+    
+    Args:
+        patch_size: The size of the sliding window. Default: ``5``.
+        eps: A small value to avoid sqrt by zero. Default: ``1e-9``.
+    """
+    
+    def __init__(self, patch_size: int = 5, eps: float = 1e-9):
+        super().__init__()
+        self.patch_size = patch_size
+        self.eps        = eps
+    
+    def forward(self, image):
+        return image_local_stddev(image, self.patch_size, self.eps)
 
 # endregion

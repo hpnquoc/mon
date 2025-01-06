@@ -26,13 +26,12 @@ from mon import core, nn
 from mon.globals import MODELS, Scheme, Task
 from mon.nn import init
 from mon.vision import dtype, filtering, geometry
+from mon.vision.dtype import image as I
 from mon.vision.enhance import base
 
 console      = core.console
 current_file = core.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
-
-DepthBoundaryAware = nn.BoundaryAwarePrior
 
 
 # region Loss
@@ -253,7 +252,7 @@ class EnhanceNet(nn.Module):
         self.num_channels  = num_channels
         self.out_channels  = 3
         # Depth Boundary Aware
-        self.dba     = DepthBoundaryAware(eps=eps, normalized=False)
+        self.dba     = I.BoundaryAwarePrior(eps=eps, normalized=False)
         # Encoder
         self.e_conv1 = ConvBlock(self.in_channels,  self.num_channels, norm=norm)
         self.e_conv2 = ConvBlock(self.num_channels, self.num_channels, norm=norm)
@@ -389,7 +388,7 @@ class GCENet(base.ImageEnhancementModel):
             use_edge     = self.use_edge,
         )
         self.gf  = filtering.GuidedFilter(radius=self.gf_radius, eps=self.gf_eps)
-        self.bam = nn.BrightnessAttentionMap(gamma=self.bam_gamma, denoise_ksize=self.bam_ksize)
+        self.bam = I.BrightnessAttentionMap(gamma=self.bam_gamma, denoise_ksize=self.bam_ksize)
         
         # Loss
         self.loss = Loss(reduction="mean")

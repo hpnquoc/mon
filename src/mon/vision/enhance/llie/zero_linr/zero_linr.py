@@ -25,6 +25,7 @@ from torch.nn.common_types import _size_2_t
 from mon import core, nn
 from mon.globals import MODELS, Scheme, Task
 from mon.vision import dtype, filtering
+from mon.vision.dtype import image as I
 from mon.vision.enhance import base
 
 console      = core.console
@@ -275,7 +276,7 @@ class MLP_RGB(MLP):
             self.value_nets.append(nn.INRPatchEncoder(window_size_, mid_channels, down_size, hidden_layers, omega_0, first_bias_scale, nonlinear, weight_decay[1]))
         self.coords_net = nn.INRCoordinatesEncoder(mid_channels, down_size, hidden_layers, omega_0, first_bias_scale, nonlinear, weight_decay[0], use_ff, ff_gaussian_scale)
         self.output_net = nn.INRDecoder(output_in_channels, self.out_channels, out_layers, omega_0, nonlinear, weight_decay[2])
-        self.dba        = nn.BoundaryAwarePrior(eps=edge_threshold, normalized=False)
+        self.dba        = I.BoundaryAwarePrior(eps=edge_threshold, normalized=False)
         
     def forward(self, image: torch.Tensor, depth: torch.Tensor = None) -> torch.Tensor:
         # Prepare input
@@ -368,7 +369,7 @@ class MLP_RGB_D(MLP):
         self.edge_net   = nn.INRPatchEncoder(window_size[-1], mid_channels, down_size, hidden_layers, omega_0, first_bias_scale, nonlinear, weight_decay[1])
         self.coords_net = nn.INRCoordinatesEncoder(mid_channels, down_size, hidden_layers, omega_0, first_bias_scale, nonlinear, weight_decay[0], use_ff, ff_gaussian_scale)
         self.output_net = nn.INRDecoder(output_in_channels, self.out_channels, out_layers, omega_0, nonlinear, weight_decay[2])
-        self.dba        = nn.BoundaryAwarePrior(eps=edge_threshold, normalized=False)
+        self.dba        = I.BoundaryAwarePrior(eps=edge_threshold, normalized=False)
         
     def forward(self, image: torch.Tensor, depth: torch.Tensor = None) -> torch.Tensor:
         # Prepare input
@@ -459,7 +460,7 @@ class MLP_HSV(MLP):
             self.value_nets.append(nn.INRPatchEncoder(window_size_, mid_channels, down_size, hidden_layers, omega_0, first_bias_scale, nonlinear, weight_decay[1]))
         self.coords_net  = nn.INRCoordinatesEncoder(mid_channels, down_size, hidden_layers, omega_0, first_bias_scale, nonlinear, weight_decay[0], use_ff, ff_gaussian_scale)
         self.output_net  = nn.INRDecoder(output_in_channels, self.out_channels, out_layers, omega_0, nonlinear, weight_decay[2])
-        self.dba         = nn.BoundaryAwarePrior(eps=edge_threshold, normalized=False)
+        self.dba         = I.BoundaryAwarePrior(eps=edge_threshold, normalized=False)
 
     def forward(self, image: torch.Tensor, depth: torch.Tensor = None) -> torch.Tensor:
         # Prepare input
@@ -556,7 +557,7 @@ class MLP_HSV_D(MLP):
         self.edge_net   = nn.INRPatchEncoder(window_size[-1], mid_channels, down_size, hidden_layers, omega_0, first_bias_scale, nonlinear, weight_decay[1])
         self.coords_net = nn.INRCoordinatesEncoder(mid_channels, down_size, hidden_layers, omega_0, first_bias_scale, nonlinear, weight_decay[0], use_ff, ff_gaussian_scale)
         self.output_net = nn.INRDecoder(output_in_channels, self.out_channels, out_layers, omega_0, nonlinear, weight_decay[2])
-        self.dba        = nn.BoundaryAwarePrior(eps=edge_threshold, normalized=False)
+        self.dba        = I.BoundaryAwarePrior(eps=edge_threshold, normalized=False)
         
     def forward(self, image: torch.Tensor, depth: torch.Tensor = None) -> torch.Tensor:
         # Prepare input

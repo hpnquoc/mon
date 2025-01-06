@@ -21,7 +21,6 @@ import mon.nn.modules.moe
 import mon.nn.modules.normalization
 import mon.nn.modules.padding
 import mon.nn.modules.pooling
-import mon.nn.modules.prior
 import mon.nn.modules.scale
 import mon.nn.modules.transformer
 from mon.nn.modules.activation import *
@@ -34,6 +33,5 @@ from mon.nn.modules.moe import *
 from mon.nn.modules.normalization import *
 from mon.nn.modules.padding import *
 from mon.nn.modules.pooling import *
-from mon.nn.modules.prior import *
 from mon.nn.modules.scale import *
 from mon.nn.modules.transformer import *

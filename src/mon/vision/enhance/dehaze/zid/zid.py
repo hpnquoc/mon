@@ -24,7 +24,7 @@ from torch.nn.common_types import _size_2_t
 
 from mon import core, nn
 from mon.globals import MODELS, Scheme, Task
-from mon.vision import dtype
+from mon.vision.dtype import image as I
 from mon.vision.enhance import base
 
 console      = core.console
@@ -347,7 +347,7 @@ class ZID(base.ImageEnhancementModel):
             loss         = loss,
             *args, **kwargs
         )
-        self.image_size = dtype.get_image_size(image_size or [512, 512])
+        self.image_size = I.get_image_size(image_size or [512, 512])
         self.clip       = clip
         self.save_image = save_image
         
@@ -427,7 +427,7 @@ class ZID(base.ImageEnhancementModel):
         loss        += 0.1   * self.std_loss(ambient)
         dcp_prior    = torch.min(image.permute(0, 2, 3, 1), 3)[0]
         loss        += self.mse_loss(dcp_prior, torch.zeros_like(dcp_prior)) - 0.05
-        atmosphere   = nn.atmospheric_prior(lq_image.detach().cpu().numpy()[0])
+        atmosphere   = I.atmospheric_prior(lq_image.detach().cpu().numpy()[0])
         ambient_val  = nn.Parameter(data=torch.cuda.FloatTensor(atmosphere.reshape((1, 3, 1, 1))), requires_grad=False)
         loss        += self.mse_loss(ambient, ambient_val * torch.ones_like(ambient))
         outputs["loss"] = loss

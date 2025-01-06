@@ -56,7 +56,6 @@ from torchvision import models, transforms
 from mon import core
 from mon.globals import LOSSES
 from mon.nn.loss import base
-from mon.nn.modules import prior
 
 
 # region Utils
@@ -98,7 +97,8 @@ class BrightnessConstancyLoss(base.Loss):
         self.eps   = eps
     
     def forward(self, input: torch.Tensor, target: torch.Tensor) -> torch.Tensor:
-        target = prior.brightness_attention_map(target, self.gamma, self.ksize)
+        from mon.vision.dtype import image as I
+        target = I.brightness_attention_map(target, self.gamma, self.ksize)
         loss   = torch.sqrt((target - input) ** 2 + (self.eps * self.eps))
         loss   = base.reduce_loss(loss=loss, reduction=self.reduction)
         loss   = self.loss_weight * loss
