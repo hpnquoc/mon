@@ -48,7 +48,7 @@ class TotalVariationLoss(nn.Loss):
     neighboring pixels.
     
     References:
-        `<https://github.com/Li-Chongyi/Zero-DCE/blob/master/Zero-DCE_code/Myloss.py>`__
+        https://github.com/Li-Chongyi/Zero-DCE/blob/master/Zero-DCE_code/Myloss.py
     """
     
     def __init__(

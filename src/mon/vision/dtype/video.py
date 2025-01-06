@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Video I/O.
+"""Video Data Type.
 
-This module implements the basic I/O functionalities of video data.
+This module implements the basic functionalities for video data.
 """
 
 from __future__ import annotations

@@ -3,7 +3,7 @@
 
 """Data Types for Vision Tasks.
 
-This module offer data handling capabilities, including image, video,
+This package implements data types for vision tasks, including: image, video,
 pointcloud, depth map, etc.
 """
 
