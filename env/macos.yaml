@@ -55,13 +55,15 @@ dependencies:
       - fvcore                 # Collection of common code shared among different research projects in FAIR computer vision team.
       - lightning>=2.5.0       # The Deep Learning framework to train, deploy, and ship AI products Lightning fast.
       - onnxruntime            # ONNX Runtime is a performance-focused scoring engine for Open Neural Network Exchange (ONNX) models.
+      - snntorch               # Deep and online learning with spiking neural networks in Python.
+      - spikingjelly           # SpikingJelly is an open-source deep learning framework for Spiking Neural Network (SNN) based on PyTorch.
       - tensorboard            # TensorFlow's Visualization Toolkit.
       - tensorflow             # TensorFlow is an open source machine learning framework for everyone.
       - thop                   # Count the MACs / FLOPs of your PyTorch model.
       - torch-fidelity
       - torch>=2.5.1           # PyTorch is an optimized tensor library for deep learning using GPUs and CPUs.
       - torchaudio             # Simple audio I/O for pytorch.
-      - torchmetrics>=1.6.0    # Collection of PyTorch native metrics for easy evaluating machine learning models.
+      - torchmetrics>=1.6.1    # Collection of PyTorch native metrics for easy evaluating machine learning models.
       - torchvision            # Image and video datasets and models for Torch deep learning.
       # Optional: UI
       - matplotlib             # Publication quality figures in Python.

@@ -38,11 +38,11 @@ try:
     import depth_anything_v2
     from depth_anything_v2 import dpt
     depth_anything_v2_available = True
-except ImportError:
+except ImportError as e:
     depth_anything_v2_available = False
-    error_console.log("The package 'depth_anything_v2' has not been installed.")
-    # sys.exit(1)  # Exit and raise error
+    error_console.log(f"Missing library: {e.name}. Skipping execution.")
     sys.exit(0)  # Exit without error
+    # sys.exit(1)  # Exit and raise error
 
 
 # region Model
