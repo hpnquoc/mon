@@ -18,6 +18,7 @@ dependencies:
   # Optional: Hardware Acceleration
   - cuda-toolkit=12.4          # CUDA Toolkit - Including CUDA runtime.
   - cudnn                      # NVIDIA's cuDNN deep neural network acceleration library.
+  - cupy                       # NumPy & SciPy for GPU.
   - pynvml                     # Python Bindings for the NVIDIA Management Library.
   - openblas                   # OpenBLAS is an optimized BLAS library.
   - pip:
@@ -71,8 +72,6 @@ dependencies:
       # Optional: UI
       - matplotlib             # Publication quality figures in Python.
       - PyQt6                  # Python bindings for the Qt cross-platform application toolkit.
-      # Optional: Hardware Acceleration
-      - cupy-cuda12x           # NumPy & SciPy for GPU.
       # Optional: Documentation
       - markdown               # Python implementation of Markdown.
       - mkdocs                 # Project documentation with Markdown.

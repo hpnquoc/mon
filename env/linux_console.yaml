@@ -18,6 +18,7 @@ dependencies:
   # Optional: Hardware Acceleration
   - cuda-toolkit=12.4          # CUDA Toolkit - Including CUDA runtime.
   - cudnn                      # NVIDIA's cuDNN deep neural network acceleration library.
+  - cupy                       # NumPy & SciPy for GPU.
   - pynvml                     # Python Bindings for the NVIDIA Management Library.
   - openblas                   # OpenBLAS is an optimized BLAS library.
   - pip:
@@ -68,8 +69,6 @@ dependencies:
       - torchaudio             # Simple audio I/O for pytorch.
       - torchmetrics>=1.6.1    # Collection of PyTorch native metrics for easy evaluating machine learning models.
       - torchvision            # Image and video datasets and models for Torch deep learning.
-      # Optional: Hardware Acceleration
-      - cupy-cuda12x           # NumPy & SciPy for GPU.
       # Optional: Documentation
       - markdown               # Python implementation of Markdown.
       - mkdocs                 # Project documentation with Markdown.

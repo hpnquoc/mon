@@ -29,6 +29,11 @@ os.environ["CUDA_DEVICE_ORDER"]    = "PCI_BUS_ID"
 os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 torch.backends.cudnn.benchmark     = True
 
+# A workaround for the bug in numpy >= 1.2.4
+np.int   = np.int32
+np.float = np.float64
+np.bool  = np.bool_
+
 console      = mon.console
 current_file = mon.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
@@ -106,7 +111,11 @@ def train(args: argparse.Namespace):
         pin_memory  = True
     )
     
-    val_dataset = Dataload(data_dir=str(data_dir / "val"), patch_size=patch_size_test)
+    if (data_dir / "val").exists():
+        val_dir = data_dir / "val"
+    else:
+        val_dir = data_dir / "test"
+    val_dataset = Dataload(data_dir=str(val_dir), patch_size=patch_size_test)
     val_loader  = torch.utils.data.DataLoader(
         val_dataset,
         batch_size  = batch_size,
