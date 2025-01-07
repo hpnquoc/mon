@@ -4,7 +4,7 @@ config      : ~
 arch        : "fourllie"
 model       : "fourllie"
 data        : "lsrw_huawei"
-data_dir    : "enhance/llie/lsrw_huawei"
+data_dir    : "data/enhance/lsrw_huawei"
 root        : ~
 project     : ~
 variant     : ~

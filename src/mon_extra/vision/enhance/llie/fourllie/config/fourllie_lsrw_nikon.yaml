@@ -4,7 +4,7 @@ config      : ~
 arch        : "fourllie"
 model       : "fourllie"
 data        : "lsrw_nikon"
-data_dir    : "enhance/llie/lsrw_nikon"
+data_dir    : "data/enhance/lsrw_nikon"
 root        : ~
 project     : ~
 variant     : ~

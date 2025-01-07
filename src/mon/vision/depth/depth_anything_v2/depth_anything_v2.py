@@ -42,7 +42,6 @@ except ImportError as e:
     depth_anything_v2_available = False
     error_console.log(f"Missing library: {e.name}. Skipping execution.")
     sys.exit(0)  # Exit without error
-    # sys.exit(1)  # Exit and raise error
 
 
 # region Model

@@ -4,7 +4,7 @@ config      : ~
 arch        : "mtfe"
 model       : "mtfe"
 data        : "lol_v1"
-data_dir    : "data/enhance/llie/lol_v1"
+data_dir    : "data/enhance/lol_v1"
 root        : ~
 project     : ~
 variant     : ~

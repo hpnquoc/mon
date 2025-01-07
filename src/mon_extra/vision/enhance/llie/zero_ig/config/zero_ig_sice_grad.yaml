@@ -4,7 +4,7 @@ config      : ~
 arch        : "zero_ig"
 model       : "zero_ig"
 data        : "sice_grad"
-data_dir    : "data/enhance/llie/sice_grad"
+data_dir    : "data/enhance/sice_grad"
 root        : ~
 project     : ~
 variant     : ~

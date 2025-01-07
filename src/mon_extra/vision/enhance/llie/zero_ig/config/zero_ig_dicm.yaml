@@ -4,7 +4,7 @@ config      : ~
 arch        : "zero_ig"
 model       : "zero_ig"
 data        : "dicm"
-data_dir    : "data/enhance/llie/dicm"
+data_dir    : "data/enhance/dicm"
 root        : ~
 project     : ~
 variant     : ~

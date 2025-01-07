@@ -30,10 +30,9 @@ current_dir   = current_file.parents[0]
 try:
     import depth_pro
     depth_pro_available = True
-except ImportError:
+except ImportError as e:
     depth_pro_available = False
-    error_console.log("The package 'depth_pro' has not been installed.")
-    # sys.exit(1)  # Exit and raise error
+    error_console.log(f"Missing library: {e.name}. Skipping execution.")
     sys.exit(0)  # Exit without error
 
 

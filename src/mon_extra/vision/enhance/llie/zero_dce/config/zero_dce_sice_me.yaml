@@ -1,16 +1,16 @@
 # Basic
 hostname    : ~
 config      : ~
-arch        : "zero_didce"
-model       : "zero_didce"
-data        : "sice_mix"
-data_dir    : "data/enhance/llie/sice_mix"
+arch        : "zero_dce"
+model       : "zero_dce"
+data        : "sice_me"
+data_dir    : "data/enhance/sice_me"
 root        : ~
 project     : ~
 variant     : ~
-fullname    : "zero_didce_sice_mix"
+fullname    : "zero_dce_sice_mix"
 save_dir    : ~
-weights     : "zoo/vision/enhance/llie/zero_didce/zero_didce/sice_mix/zero_didce_sice_mix.pth"
+weights     : "zoo/vision/enhance/llie/zero_dce/zero_dce/sice_me/zero_dce_sice_me.pth"
 device      : 0
 local_rank  : -1
 launcher    : ~

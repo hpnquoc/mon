@@ -11,7 +11,7 @@ channels:
   - conda-forge
   - defaults
 dependencies:
-  # Required: Basic of Python
+  # Required: Python Basic
   - python=3.12
   - pip                        # PyPA recommended tool for installing Python packages.
   - git                        # Distributed version control system.
@@ -68,6 +68,8 @@ dependencies:
       - torchaudio             # Simple audio I/O for pytorch.
       - torchmetrics>=1.6.1    # Collection of PyTorch native metrics for easy evaluating machine learning models.
       - torchvision            # Image and video datasets and models for Torch deep learning.
+      # Optional: Hardware Acceleration
+      - cupy-cuda12x           # NumPy & SciPy for GPU.
       # Optional: Documentation
       - markdown               # Python implementation of Markdown.
       - mkdocs                 # Project documentation with Markdown.

@@ -4,7 +4,7 @@ config      : ~
 arch        : "snr"
 model       : "snr"
 data        : "lol_v2_real"
-data_dir    : "enhance/llie/lol_v2_real"
+data_dir    : "data/enhance/lol_v2_real"
 root        : ~
 project     : ~
 variant     : ~

@@ -115,6 +115,7 @@ class CharbonnierLoss(nn.Module):
 
 
 class EdgeLoss(nn.Module):
+    
     def __init__(self):
         super(EdgeLoss, self).__init__()
         k = torch.Tensor([[.05, .25, .4, .25, .05]])
@@ -143,6 +144,7 @@ class EdgeLoss(nn.Module):
 
 
 class fftLoss(nn.Module):
+    
     def __init__(self):
         super(fftLoss, self).__init__()
 

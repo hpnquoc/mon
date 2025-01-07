@@ -4,7 +4,7 @@ config      : ~
 arch        : "retinexnet"
 model       : "retinexnet"
 data        : "lol_v1"
-data_dir    : ~
+data_dir    : "data/enhance/lol_v1"
 root        : ~
 project     : ~
 variant     : ~

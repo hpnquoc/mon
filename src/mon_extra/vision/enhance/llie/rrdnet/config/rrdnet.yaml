@@ -4,7 +4,7 @@ config      : ~
 arch        : "rrdnet"
 model       : "rrdnet"
 data        : ~
-data_dir    : !
+data_dir    : ~
 root        : ~
 project     : ~
 variant     : ~

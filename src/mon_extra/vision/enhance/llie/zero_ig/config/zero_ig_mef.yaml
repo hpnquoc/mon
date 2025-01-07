@@ -4,7 +4,7 @@ config      : ~
 arch        : "zero_ig"
 model       : "zero_ig"
 data        : "mef"
-data_dir    : "data/enhance/llie/mef"
+data_dir    : "data/enhance/mef"
 root        : ~
 project     : ~
 variant     : ~

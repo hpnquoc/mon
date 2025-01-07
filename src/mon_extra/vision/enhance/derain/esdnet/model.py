@@ -1,13 +1,8 @@
-from spikingjelly.activation_based.neuron import (
-    LIFNode,
-)
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from spikingjelly.activation_based import functional, layer
-from spikingjelly.activation_based.neuron import (
-    LIFNode,
-)
+from spikingjelly.activation_based.neuron import LIFNode
 
 v_th  = 0.15
 alpha = 1 / (2 ** 0.5)

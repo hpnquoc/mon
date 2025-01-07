@@ -4,7 +4,7 @@ config      : ~
 arch        : "sci"
 model       : "sci"
 data        : "fivek_e"
-data_dir    : ~
+data_dir    : "data/enhance/fivek"
 root        : ~
 project     : ~
 variant     : ~

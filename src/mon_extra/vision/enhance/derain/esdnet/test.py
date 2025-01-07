@@ -76,7 +76,7 @@ def getevalloader(opt):
 
 def splitimage(imgtensor, crop_size=crop_size, overlap_size=overlap_size):
     _, C, H, W = imgtensor.shape
-    hstarts = [x for x in range(0, H, crop_size - overlap_size)]
+    hstarts    = [x for x in range(0, H, crop_size - overlap_size)]
     while hstarts[-1] + crop_size >= H:
         hstarts.pop()
     hstarts.append(H - crop_size)
@@ -84,7 +84,7 @@ def splitimage(imgtensor, crop_size=crop_size, overlap_size=overlap_size):
     while wstarts[-1] + crop_size >= W:
         wstarts.pop()
     wstarts.append(W - crop_size)
-    starts = []
+    starts     = []
     split_data = []
     for hs in hstarts:
         for ws in wstarts:

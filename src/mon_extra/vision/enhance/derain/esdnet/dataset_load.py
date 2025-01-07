@@ -13,19 +13,20 @@ from torch.utils.data import Dataset
 # data_dir = 'D:/1Single_Image_Derain/data/Rain200H'
 
 class Dataload(Dataset):
+    
     def __init__(self, data_dir, patch_size):
         super(Dataload, self).__init__()
-        self.rand_state = RandomState(66)
+        self.rand_state      = RandomState(66)
         # self.name = name
         # self.root_dir = os.path.join(data_dir)
-        self.root_dir = data_dir
-        self.root_dir_rain = os.path.join(self.root_dir, "input")
-        self.root_dir_label = os.path.join(self.root_dir, "target")
+        self.root_dir        = data_dir
+        self.root_dir_rain   = os.path.join(self.root_dir, "image")
+        self.root_dir_label  = os.path.join(self.root_dir, "ref")
 
-        self.mat_files_rain = sorted(os.listdir(self.root_dir_rain))
+        self.mat_files_rain  = sorted(os.listdir(self.root_dir_rain))
         self.mat_files_label = sorted(os.listdir(self.root_dir_label))
-        self.patch_size = patch_size
-        self.file_num = len(self.mat_files_label)
+        self.patch_size      = patch_size
+        self.file_num        = len(self.mat_files_label)
 
     def __len__(self):
         # if self.name == "train":
@@ -34,13 +35,13 @@ class Dataload(Dataset):
         return self.file_num
 
     def __getitem__(self, idx):
-        file_name_rain = self.mat_files_rain[idx % self.file_num]
+        file_name_rain  = self.mat_files_rain[idx % self.file_num]
         file_name_label = self.mat_files_label[idx % self.file_num]
 
-        img_file_rain = os.path.join(self.root_dir_rain, file_name_rain)
-        img_file_label = os.path.join(self.root_dir_label, file_name_label)
+        img_file_rain   = os.path.join(self.root_dir_rain, file_name_rain)
+        img_file_label  = os.path.join(self.root_dir_label, file_name_label)
 
-        img_rain = io.imread(img_file_rain).astype(np.float32) / 255
+        img_rain  = io.imread(img_file_rain).astype(np.float32) / 255
         img_label = io.imread(img_file_label).astype(np.float32) / 255
 
         O, B = self.crop(img_rain, img_label)
@@ -71,18 +72,19 @@ class Dataload(Dataset):
 
 
 class TrainValDataset(Dataset):
+    
     def __init__(self, data_dir, name, patch_size):
         super(TrainValDataset, self).__init__()
-        self.rand_state = RandomState(66)
-        self.name = name
-        self.root_dir = os.path.join(data_dir, self.name)
-        self.root_dir_rain = os.path.join(self.root_dir, "input")
-        self.root_dir_label = os.path.join(self.root_dir, "target")
+        self.rand_state      = RandomState(66)
+        self.name            = name
+        self.root_dir        = os.path.join(data_dir, self.name)
+        self.root_dir_rain   = os.path.join(self.root_dir, "image")
+        self.root_dir_label  = os.path.join(self.root_dir, "ref")
 
-        self.mat_files_rain = sorted(os.listdir(self.root_dir_rain))
+        self.mat_files_rain  = sorted(os.listdir(self.root_dir_rain))
         self.mat_files_label = sorted(os.listdir(self.root_dir_label))
-        self.patch_size = patch_size
-        self.file_num = len(self.mat_files_label)
+        self.patch_size      = patch_size
+        self.file_num        = len(self.mat_files_label)
 
     def __len__(self):
         if self.name == "train":
@@ -91,13 +93,13 @@ class TrainValDataset(Dataset):
             return self.file_num
 
     def __getitem__(self, idx):
-        file_name_rain = self.mat_files_rain[idx % self.file_num]
+        file_name_rain  = self.mat_files_rain[idx % self.file_num]
         file_name_label = self.mat_files_label[idx % self.file_num]
 
-        img_file_rain = os.path.join(self.root_dir_rain, file_name_rain)
-        img_file_label = os.path.join(self.root_dir_label, file_name_label)
+        img_file_rain   = os.path.join(self.root_dir_rain, file_name_rain)
+        img_file_label  = os.path.join(self.root_dir_label, file_name_label)
 
-        img_rain = io.imread(img_file_rain).astype(np.float32) / 255
+        img_rain  = io.imread(img_file_rain).astype(np.float32) / 255
         img_label = io.imread(img_file_label).astype(np.float32) / 255
 
         O, B = self.crop(img_rain, img_label)
@@ -111,7 +113,7 @@ class TrainValDataset(Dataset):
 
     def crop(self, img_rain, img_label):
         patch_size = self.patch_size
-        h, w, c = img_rain.shape
+        h, w, c    = img_rain.shape
         h = h - 1
         w = w - 1
         # print(1, img_rain.shape)

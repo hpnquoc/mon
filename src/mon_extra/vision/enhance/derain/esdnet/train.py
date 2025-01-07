@@ -27,24 +27,24 @@ if __name__ == "__main__":
     torch.cuda.manual_seed_all(1234)
     start_epoch = 1
 
-    parser = argparse.ArgumentParser(description='Image Deraining')
-    parser.add_argument('--train_dir',        default='',               type=str,   help='Directory of train images')
-    parser.add_argument('--val_dir',          default='',               type=str,   help='Directory of validation images')
-    parser.add_argument('--model_save_dir',   default='./checkpoints/', type=str,   help='Path to save weights')
-    parser.add_argument('--pretrain_weights', default='./checkpoints/model_best.pth', type=str, help='Path to pretrain-weights')
-    parser.add_argument('--mode',             default='ESDNet3',        type=str)
-    parser.add_argument('--session',          default='DID-Data_new',   type=str,   help='session')
-    parser.add_argument('--patch_size_train', default=64,               type=int,   help='training patch size')
-    parser.add_argument('--patch_size_test',  default=64,               type=int,   help='val patch size')
-    parser.add_argument('--num_epochs',       default=1000,             type=int,   help='num_epochs')
-    parser.add_argument('--batch_size',       default=12,               type=int,   help='batch_size')
-    parser.add_argument('--val_epochs',       default=1,                type=int,   help='val_epochs')
-    parser.add_argument('--lr',               default=1e-3,             type=int,   help='LearningRate')
-    parser.add_argument('--min_lr',           default=1e-7,             type=int,   help='min_LearningRate')
-    parser.add_argument('--warmup_epochs',    default=3,                type=int,   help='warmup_epochs')
-    parser.add_argument('--clip_grad',        default=1.0,              type=float, help='clip_grad')
-    parser.add_argument('--use_amp',          default=False,            type=bool,  help='use_amp')
-    parser.add_argument('--num_workers',      default=2,                type=int,   help='num_workers')
+    parser = argparse.ArgumentParser(description="Image Deraining")
+    parser.add_argument("--train_dir",        default="",               type=str,   help="Directory of train images")
+    parser.add_argument("--val_dir",          default="",               type=str,   help="Directory of validation images")
+    parser.add_argument("--model_save_dir",   default="./checkpoints/", type=str,   help="Path to save weights")
+    parser.add_argument("--pretrain_weights", default="./checkpoints/model_best.pth", type=str, help="Path to pretrain-weights")
+    parser.add_argument("--mode",             default="ESDNet3",        type=str)
+    parser.add_argument("--session",          default="DID-Data_new",   type=str,   help="session")
+    parser.add_argument("--patch_size_train", default=64,               type=int,   help="training patch size")
+    parser.add_argument("--patch_size_test",  default=64,               type=int,   help="val patch size")
+    parser.add_argument("--num_epochs",       default=1000,             type=int,   help="num_epochs")
+    parser.add_argument("--batch_size",       default=12,               type=int,   help="batch_size")
+    parser.add_argument("--val_epochs",       default=1,                type=int,   help="val_epochs")
+    parser.add_argument("--lr",               default=1e-3,             type=int,   help="LearningRate")
+    parser.add_argument("--min_lr",           default=1e-7,             type=int,   help="min_LearningRate")
+    parser.add_argument("--warmup_epochs",    default=3,                type=int,   help="warmup_epochs")
+    parser.add_argument("--clip_grad",        default=1.0,              type=float, help="clip_grad")
+    parser.add_argument("--use_amp",          default=False,            type=bool,  help="use_amp")
+    parser.add_argument("--num_workers",      default=2,                type=int,   help="num_workers")
     args = parser.parse_args()
 
     start_lr         = args.lr
@@ -231,17 +231,17 @@ if __name__ == "__main__":
         if epoch % 50 == 0:
             torch.save(
                 {
-                    'epoch'     : epoch,
-                    'state_dict': model_restoration.state_dict(),
-                    'optimizer' : optimizer.state_dict()
+                    "epoch"     : epoch,
+                    "state_dict": model_restoration.state_dict(),
+                    "optimizer" : optimizer.state_dict()
                 },
                 os.path.join(model_dir, f"model_epoch_{epoch}.pth")
             )
         torch.save(
             {
-                'epoch'     : epoch,
-                'state_dict': model_restoration.state_dict(),
-                'optimizer' : optimizer.state_dict()
+                "epoch"     : epoch,
+                "state_dict": model_restoration.state_dict(),
+                "optimizer" : optimizer.state_dict()
             },
             os.path.join(model_dir, "model_last.pth")
         )

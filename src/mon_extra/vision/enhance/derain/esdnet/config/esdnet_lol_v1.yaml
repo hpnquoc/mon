@@ -1,20 +1,20 @@
 # Basic
 hostname    : ~
 config      : ~
-arch        : "zero_ig"
-model       : "zero_ig"
+arch        : "esdnet"
+model       : "esdnet"
 data        : "lol_v1"
 data_dir    : "data/enhance/lol_v1"
 root        : ~
 project     : ~
 variant     : ~
-fullname    : "zero_ig_lol_v1"
+fullname    : "esdnet_lol_v1"
 save_dir    : ~
-weights     : "zoo/vision/enhance/llie/zero_ig/zero_ig/lol_v1/zero_ig_lol_v1.pt"
+weights     : ~
 device      : 0
-local_rank  : ~
+local_rank  : -1
 launcher    : ~
-epochs      : 2001
+epochs      : 1000
 steps       : ~
 imgsz       : 512
 resize      : ~
@@ -27,7 +27,13 @@ exist_ok    : False
 verbose     : True
 
 # Model Specific
-seed       : 2
-batch_size : 1
-num_workers: 0
-lr         : 0.0003
+mode            : "ESDNet3"
+patch_size_train: 64
+patch_size_test : 64
+batch_size      : 12
+lr              : 0.0001
+min_lr          : 0.0000001
+warmup_epochs   : 3
+clip_grad       : 1.0
+use_amp         : False
+num_workers     : 2

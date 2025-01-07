@@ -4,7 +4,7 @@ config      : ~
 arch        : "zero_ig"
 model       : "zero_ig"
 data        : "fivek_e"
-data_dir    : "data/enhance/llie/fivek_e"
+data_dir    : "data/enhance/fivek"
 root        : ~
 project     : ~
 variant     : ~
