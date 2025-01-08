@@ -10,15 +10,14 @@ import time
 
 import torch.optim
 import torch.optim as optim
-from spikingjelly.activation_based import functional
 from torch.utils.tensorboard import SummaryWriter
-from tqdm import tqdm
 
 import mon
 import utils
 from dataset_load import Dataload
 from losses import *
 from model import model
+from spikingjelly.activation_based import functional
 
 random.seed(1234)
 np.random.seed(1234)
@@ -41,18 +40,11 @@ current_dir  = current_file.parents[0]
 
 # region Train
 
-def weights_init(m):
-    classname = m.__class__.__name__
-    if classname.find("Conv") != -1:
-        m.weight.data.normal_(0.0, 0.02)
-    elif classname.find("BatchNorm") != -1:
-        m.weight.data.normal_(1.0, 0.02)
-        m.bias.data.fill_(0)
-
-
 def train(args: argparse.Namespace):
     # General config
+    data             = args.data
     data_dir         = mon.ROOT_DIR / args.data_dir
+    fullname         = args.fullname
     save_dir         = mon.Path(args.save_dir)
     weights          = args.weights
     device           = mon.set_device(args.device)
@@ -73,27 +65,19 @@ def train(args: argparse.Namespace):
     weights_dir = save_dir
     weights_dir.mkdir(parents=True, exist_ok=True)
     
-    # print number of model
-    # get_parameter_number(model_restoration)
-    # device_ids = 0
-    device_ids = [i for i in range(torch.cuda.device_count())]
-    print(device_ids)
-    if torch.cuda.device_count() > 1:
-        print("\n\nLet's use", torch.cuda.device_count(), "GPUs!\n\n")
-        
     # Model
     model_restoration = model
-    model_restoration.cuda()
+    model_restoration.to(device)
+    if weights is not None and mon.Path(weights).is_weights_file():
+        model_restoration.load_state_dict(torch.load(weights, map_location=device, weights_only=True))
     functional.set_step_mode(model_restoration, step_mode="m")
     functional.set_backend(model_restoration,   backend="cupy")
-    if len(device_ids) > 1:
-        model_restoration = nn.DataParallel(model_restoration, device_ids=device_ids)
-        
+    
     # Loss
-    # criterion = nn.MSELoss().cuda()
-    criterion_ssim = utils.SSIM().cuda()
-    # criterion_L1 = nn.SmoothL1Loss().cuda()
-    criterion_psnr = PSNRLoss().cuda()
+    # criterion = nn.MSELoss().to(device)
+    criterion_ssim = utils.SSIM().to(device)
+    # criterion_L1 = nn.SmoothL1Loss().to(device)
+    criterion_psnr = PSNRLoss().to(device)
     
     # Optimizer
     optimizer        = optim.AdamW(model_restoration.parameters(), lr=start_lr, betas=(0.9, 0.999), eps=1e-8)
@@ -101,7 +85,8 @@ def train(args: argparse.Namespace):
     scheduler        = mon.GradualWarmupScheduler(optimizer, multiplier=1, total_epoch=warmup_epochs, after_scheduler=scheduler_cosine)
     
     # Data I/O
-    train_dataset = Dataload(data_dir=str(data_dir / "train"), patch_size=patch_size_train)
+    train_dir     = data_dir / "train"
+    train_dataset = Dataload(data_dir=train_dir, patch_size=patch_size_train)
     train_loader  = torch.utils.data.DataLoader(
         train_dataset,
         batch_size  = batch_size,
@@ -115,7 +100,7 @@ def train(args: argparse.Namespace):
         val_dir = data_dir / "val"
     else:
         val_dir = data_dir / "test"
-    val_dataset = Dataload(data_dir=str(val_dir), patch_size=patch_size_test)
+    val_dataset = Dataload(data_dir=val_dir, patch_size=patch_size_test)
     val_loader  = torch.utils.data.DataLoader(
         val_dataset,
         batch_size  = batch_size,
@@ -126,35 +111,38 @@ def train(args: argparse.Namespace):
     )
     
     # Training
-    best_psnr  = 0
-    best_epoch = 0
-    writer     = SummaryWriter(weights_dir)
-    iter       = 0
-    scaler     = torch.cuda.amp.GradScaler()
+    writer          = SummaryWriter(weights_dir)
+    scaler          = torch.cuda.amp.GradScaler()
+    best_psnr       = 0
+    best_ssim       = 0
+    best_psnr_epoch = 0
+    best_ssim_epoch = 0
+    iter            = 0
     
-    with mon.get_progress_bar() as pbar:
-        for epoch in pbar.track(
-            sequence    = range(epochs),
-            total       = epochs,
-            description = f"[bright_yellow] Training"
-        ):
-            epoch_start_time   = time.time()
-            epoch_loss         = 0
-            train_psnr_val_rgb = []
-            scaled_loss        = 0
-            model_restoration.train()
-            # scheduler.step()
-            
-            # Train
-            for i, data in enumerate(tqdm(train_loader, unit="img"), 0):
+    for epoch in range(0, epochs):
+        epoch_start_time   = time.time()
+        epoch_loss         = 0
+        scaled_loss        = 0
+        train_psnr_val_rgb = []
+        model_restoration.train()
+        # scheduler.step()
+        
+        # Train
+        with mon.get_progress_bar() as pbar:
+            for i, data in pbar.track(
+                sequence    = train_loader,
+                total       = len(train_loader),
+                description = f"[bright_yellow] Training"
+            ):
                 for param in model_restoration.parameters():
                     param.grad = None
-                input_   = data[0].cuda()
-                target_  = data[1].cuda()
-                restored = model_restoration(input_)
+                image    = data[0].to(device)
+                ref      = data[1].to(device)
+                restored = model_restoration(image)
                 if use_amp:
                     with torch.cuda.amp.autocast():
-                        ssim = criterion_ssim(restored, target_)
+                        ssim = criterion_ssim(restored, ref)
+                        # psnr = criterion_psnr(restored, ref)
                         loss = 1 - ssim
                     scaler.scale(loss).backward()
                     # torch.nn.utils.clip_grad_norm_(model_restoration.parameters(), clip_grad)
@@ -162,9 +150,8 @@ def train(args: argparse.Namespace):
                     scaler.update()
                     functional.reset_net(model_restoration)
                 else:
-                    # L1_Loss = criterion_L1(restored, target_)
-                    ssim = criterion_ssim(restored, target_)
-                    psnr = criterion_psnr(restored, target_)
+                    ssim = criterion_ssim(restored, ref)
+                    # psnr = criterion_psnr(restored, ref)
                     loss = 1 - ssim
                     loss.backward()
                     scaled_loss += loss.item()
@@ -174,9 +161,10 @@ def train(args: argparse.Namespace):
                 torch.cuda.synchronize()
                 epoch_loss += loss.item()
                 iter       += 1
-                for res, tar in zip(restored, target_):
+                for res, tar in zip(restored, ref):
                     train_psnr_val_rgb.append(utils.torchPSNR(res, tar))
                 psnr_train = torch.stack(train_psnr_val_rgb).mean().item()
+                ssim_train = ssim.item()
                 
                 writer.add_scalar("loss/iter_loss",  loss.item(), iter)
                 writer.add_scalar("loss/epoch_loss", epoch_loss, epoch)
@@ -186,24 +174,31 @@ def train(args: argparse.Namespace):
             if epoch % 1 == 0:
                 model_restoration.eval()
                 psnr_val_rgb = []
-                for ii, data_val in enumerate(tqdm(val_loader, unit="img"), 0):
-                    input_ = data_val[0].cuda()
-                    target = data_val[1].cuda()
+                for ii, data_val in enumerate(val_loader):
+                    image = data_val[0].to(device)
+                    ref   = data_val[1].to(device)
                     
                     with torch.no_grad():
-                        restored = model_restoration(input_)
+                        restored = model_restoration(image)
                     functional.reset_net(model_restoration)
-        
-                    for res, tar in zip(restored, target):
+                    
+                    for res, tar in zip(restored, ref):
                         psnr_val_rgb.append(utils.torchPSNR(res, tar))
-                
+
                 psnr_val_rgb = torch.stack(psnr_val_rgb).mean().item()
+                ssim_val_rgb = criterion_ssim(restored, ref).item()
                 writer.add_scalar("val/psnr", psnr_val_rgb, epoch)
+                writer.add_scalar("val/ssim", ssim_val_rgb, epoch)
                 if psnr_val_rgb > best_psnr:
-                    best_psnr  = psnr_val_rgb
-                    best_epoch = epoch
-                    torch.save(model_restoration.state_dict(), str(weights_dir / "esdnet_best.pt"))
-                print("[epoch %d Training PSNR: %.4f --- best_epoch %d Test_PSNR %.4f]" % (epoch, psnr_train, best_epoch, best_psnr))
+                    best_psnr       = psnr_val_rgb
+                    best_psnr_epoch = epoch
+                    torch.save(model_restoration.state_dict(), str(weights_dir / f"{fullname}_best_psnr.pt"))
+                if ssim_val_rgb > best_ssim:
+                    best_ssim       = ssim_val_rgb
+                    best_ssim_epoch = epoch
+                    torch.save(model_restoration.state_dict(), str(weights_dir / f"{fullname}_best_ssim.pt"))
+                print("[Epoch %d Training PSNR: %.4f --- best_psnr_epoch %d Test_PSNR %.4f]" % (epoch, psnr_train, best_psnr_epoch, best_psnr))
+                print("[Epoch %d Training SSIM: %.4f --- best_ssim_epoch %d Test_SSIM %.4f]" % (epoch, ssim_train, best_ssim_epoch, best_ssim))
             
             # Save model
             if epoch % 50 == 0:
@@ -225,11 +220,27 @@ def train(args: argparse.Namespace):
             )
             scheduler.step()
             print("-" * 150)
-            print("Epoch: {}\tTime: {:.4f}\tLoss: {:.4f}\tTrain_PSNR: {:.4f}\tSSIM: {:.4f}\tLearningRate {:.8f}\tTest_PSNR: {:.4f}".format(
-                    epoch, time.time() - epoch_start_time, loss.item(), psnr_train, ssim, scheduler.get_lr()[0],
-                    best_psnr, ))
+            print(
+                "Epoch: {}\t"
+                "Time: {:.4f}\t"
+                "Loss: {:.4f}\t"
+                "Train PSNR: {:.4f}\t"
+                "SSIM: {:.4f}\t"
+                "Learning Rate: {:.8f}\t"
+                "Test PSNR: {:.4f}\t"
+                "Test SSIM: {:.4f}".format(
+                    epoch,
+                    time.time() - epoch_start_time,
+                    loss.item(),
+                    psnr_train,
+                    ssim,
+                    scheduler.get_lr()[0],
+                    best_psnr,
+                    best_ssim,
+                )
+            )
             print("-" * 150)
-        writer.close()
+    writer.close()
         
 # endregion
 

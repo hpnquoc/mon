@@ -189,7 +189,7 @@ if __name__ == "__main__":
                 # L1_Loss = criterion_L1(restored, target_)
                 ssim = criterion_ssim(restored, target_)
                 psnr = criterion_psnr(restored, target_)
-                loss = 1-ssim
+                loss = 1 - ssim
                 loss.backward()
                 scaled_loss += loss.item()
                 # torch.nn.utils.clip_grad_norm_(model_restoration.parameters(), clip_grad)
@@ -219,7 +219,7 @@ if __name__ == "__main__":
 
                 for res, tar in zip(restored, target):
                     psnr_val_rgb.append(utils.torchPSNR(res, tar))
-
+            
             psnr_val_rgb = torch.stack(psnr_val_rgb).mean().item()
             writer.add_scalar('val/psnr', psnr_val_rgb, epoch)
             if psnr_val_rgb > best_psnr:

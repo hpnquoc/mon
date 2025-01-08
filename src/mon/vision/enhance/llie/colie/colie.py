@@ -134,18 +134,18 @@ class CoLIE_RE(base.ImageEnhancementModel):
         self.omega_0     = 30.0
         self.siren_C     = 6.0
         
-        patch_layers   = [nn.SIRENLayer(self.patch_dim, hidden_dim, self.omega_0, self.siren_C, is_first=True)]
-        spatial_layers = [nn.SIRENLayer(2, hidden_dim, self.omega_0, self.siren_C, is_first=True)]
+        patch_layers   = [nn.INRLayer(self.patch_dim, hidden_dim, True, True, omega_0=self.omega_0, scale=self.siren_C)]
+        spatial_layers = [nn.INRLayer(2,   hidden_dim, True, True, omega_0=self.omega_0, scale=self.siren_C)]
         for _ in range(1, add_layer - 2):
-            patch_layers.append(nn.SIRENLayer(hidden_dim, hidden_dim, self.omega_0, self.siren_C))
-            spatial_layers.append(nn.SIRENLayer(hidden_dim, hidden_dim, self.omega_0, self.siren_C))
-        patch_layers.append(nn.SIRENLayer(hidden_dim, hidden_dim // 2, self.omega_0, self.siren_C))
-        spatial_layers.append(nn.SIRENLayer(hidden_dim, hidden_dim // 2, self.omega_0, self.siren_C))
+            patch_layers.append(nn.INRLayer(hidden_dim, hidden_dim, omega_0=self.omega_0, scale=self.siren_C))
+            spatial_layers.append(nn.INRLayer(hidden_dim, hidden_dim, omega_0=self.omega_0, scale=self.siren_C))
+        patch_layers.append(nn.INRLayer(hidden_dim, hidden_dim // 2, omega_0=self.omega_0, scale=self.siren_C))
+        spatial_layers.append(nn.INRLayer(hidden_dim, hidden_dim // 2, omega_0=self.omega_0, scale=self.siren_C))
         
         output_layers  = []
         for _ in range(add_layer, num_layers - 1):
-            output_layers.append(nn.SIRENLayer(hidden_dim, hidden_dim, self.omega_0, self.siren_C))
-        output_layers.append(nn.SIRENLayer(hidden_dim, 1, self.omega_0, self.siren_C, is_last=True))
+            output_layers.append(nn.INRLayer(hidden_dim, hidden_dim, omega_0=self.omega_0, scale=self.siren_C))
+        output_layers.append(nn.INRLayer(hidden_dim, 1, True, False, True, omega_0=self.omega_0, scale=self.siren_C))
         
         self.patch_net   = nn.Sequential(*patch_layers)
         self.spatial_net = nn.Sequential(*spatial_layers)

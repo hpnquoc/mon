@@ -11,7 +11,7 @@ framework.
 from __future__ import annotations
 
 __all__ = [
-    "GPUMemoryUsageColumn",
+    "MemoryUsageColumn",
     "ProcessedItemsColumn",
     "ProcessingSpeedColumn",
     "console",
@@ -210,7 +210,7 @@ def get_progress_bar(
     )
 
 
-class GPUMemoryUsageColumn(progress.ProgressColumn):
+class MemoryUsageColumn(progress.ProgressColumn):
     """A progress column showing current CPU/GPU memory usage,
     e.g. ``33.1/48.0GB``.
     
@@ -249,7 +249,7 @@ class GPUMemoryUsageColumn(progress.ProgressColumn):
         """Return a :obj:`rich.text.Text` object showing current GPU memory
         status.
         """
-        num_devices = len(self.devices)
+        num_devices          = len(self.devices)
         totals, useds, frees = [], [], []
         for i in self.devices:
             t, u, f  = utils.get_gpu_device_memory(device=i, unit=self.unit)

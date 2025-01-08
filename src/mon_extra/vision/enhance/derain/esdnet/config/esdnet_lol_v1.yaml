@@ -30,7 +30,7 @@ verbose     : True
 mode            : "ESDNet3"
 patch_size_train: 64
 patch_size_test : 64
-batch_size      : 12
+batch_size      : 8
 lr              : 0.0001
 min_lr          : 0.0000001
 warmup_epochs   : 3

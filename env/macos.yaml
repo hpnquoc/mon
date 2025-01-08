@@ -56,7 +56,7 @@ dependencies:
       - lightning>=2.5.0       # The Deep Learning framework to train, deploy, and ship AI products Lightning fast.
       - onnxruntime            # ONNX Runtime is a performance-focused scoring engine for Open Neural Network Exchange (ONNX) models.
       - snntorch               # Deep and online learning with spiking neural networks in Python.
-      - spikingjelly           # SpikingJelly is an open-source deep learning framework for Spiking Neural Network (SNN) based on PyTorch.
+      # - spikingjelly           # SpikingJelly is an open-source deep learning framework for Spiking Neural Network (SNN) based on PyTorch.
       - tensorboard            # TensorFlow's Visualization Toolkit.
       - tensorflow             # TensorFlow is an open source machine learning framework for everyone.
       - thop                   # Count the MACs / FLOPs of your PyTorch model.

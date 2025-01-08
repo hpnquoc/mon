@@ -4,6 +4,9 @@
 [submodule "src/mon_extra/multimodal/openclip"]
 	path = src/mon_extra/multimodal/openclip
 	url  = https://github.com/phlong3105/openclip
+[submodule "src/mon_extra/nn/spikingjelly"]
+	path = src/mon_extra/nn/spikingjelly
+	url  = https://github.com/phlong3105/spikingjelly
 [submodule "src/mon_extra/vision/depth/depth_anything_v2"]
 	path = src/mon_extra/vision/depth/depth_anything_v2
 	url  = https://github.com/phlong3105/depth_anything_v2
