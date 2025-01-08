@@ -1,17 +1,21 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""This module implements Uformer models."""
+"""Uformer.
+
+This module implements the paper: "Uformer: A General U-Shaped Transformer for
+Image Restoration".
+
+References:
+    https://github.com/ZhendongWang6/Uformer
+"""
 
 from __future__ import annotations
 
 __all__ = [
-    "UformerB_RE",
-    "UformerSFastleff_RE",
-    "UformerSNoshift_RE",
-    "UformerS_RE",
-    "UformerT_RE",
-    "Uformer_RE",
+    "Uformer_B_RE",
+    "Uformer_S_RE",
+    "Uformer_T_RE",
 ]
 
 import math
@@ -20,14 +24,17 @@ from typing import Any
 import torch
 import torch.utils.checkpoint as checkpoint
 from einops import rearrange
+from torch.nn.common_types import _size_2_t
 
 from mon import core, nn
-from mon.core import _callable, _size_2_t
 from mon.globals import MODELS, Scheme, Task
 from mon.nn import functional as F
-from mon.vision.enhance.multitask import base
+from mon.vision.dtype import image as I
+from mon.vision.enhance import base
 
-console = core.console
+console      = core.console
+current_file = core.Path(__file__).absolute()
+current_dir  = current_file.parents[0]
 
 
 # region Module
@@ -92,10 +99,10 @@ class FastLeFF(nn.Module):
     
     def __init__(
         self,
-        in_channels : int       = 32,
-        out_channels: int       = 128,
-        act_layer   : _callable = nn.GELU,
-        dropout     : float     = 0.4,
+        in_channels : int   = 32,
+        out_channels: int   = 128,
+        act_layer           = nn.GELU,
+        dropout     : float = 0.4,
     ):
         super().__init__()
         self.linear1 = nn.Sequential(nn.Linear(in_channels, out_channels), act_layer())
@@ -142,7 +149,7 @@ class Attention(nn.Module):
         num_heads       : int,
         token_projection: str   = "linear",
         qkv_bias        : bool  = True,
-        qk_scale        : Any   = None,
+        qk_scale        : float = None,
         attn_drop       : float = 0.0,
         proj_drop       : float = 0.0,
     ):
@@ -161,8 +168,8 @@ class Attention(nn.Module):
     def forward(
         self,
         input  : torch.Tensor,
-        attn_kv: torch.Tensor | None = None,
-        mask   : torch.Tensor | None = None,
+        attn_kv: torch.Tensor = None,
+        mask   : torch.Tensor = None,
     ) -> torch.Tensor:
         x        = input
         b_, n, c = x.shape
@@ -189,7 +196,7 @@ class Attention(nn.Module):
     def extra_repr(self) -> str:
         return f"dim={self.in_channels}, num_heads={self.num_heads}"
 
-    def flops(self, q_num, kv_num) -> int:
+    def flops(self, q_num: int, kv_num: int) -> int:
         # Calculate flops for 1 window with token length of N
         # print(N, self.dim)
         flops = 0
@@ -213,13 +220,13 @@ class MLP(nn.Module):
     def __init__(
         self,
         in_channels    : int,
-        hidden_channels: int | None = None,
-        out_channels   : int | None = None,
-        act_layer      : _callable  = nn.GELU,
-        dropout        : float      = 0.0
+        hidden_channels: int   = None,
+        out_channels   : int   = None,
+        act_layer              = nn.GELU,
+        dropout        : float = 0.0
     ):
         super().__init__()
-        out_channels    = out_channels or in_channels
+        out_channels    = out_channels    or in_channels
         hidden_channels = hidden_channels or in_channels
         self.fc1  = nn.Linear(in_channels, hidden_channels)
         self.act  = act_layer()
@@ -252,11 +259,11 @@ class LeFF(nn.Module):
     
     def __init__(
         self,
-        channels       : int       = 32,
-        hidden_channels: int       = 128,
-        act_layer      : _callable = nn.GELU,
-        dropout        : float     = 0.0,
-        use_eca        : bool      = False,
+        channels       : int   = 32,
+        hidden_channels: int   = 128,
+        act_layer              = nn.GELU,
+        dropout        : float = 0.0,
+        use_eca        : bool  = False,
         *args, **kwargs
     ):
         super().__init__()
@@ -308,8 +315,8 @@ class InputProj(nn.Module):
         out_channels: int       = 64,
         kernel_size : _size_2_t = 3,
         stride      : _size_2_t = 1,
-        norm_layer  : _callable = None,
-        act_layer   : _callable = nn.LeakyReLU
+        norm_layer              = None,
+        act_layer               = nn.LeakyReLU
     ):
         super().__init__()
         self.proj = nn.Sequential(
@@ -349,13 +356,11 @@ class OutputProj(nn.Module):
         out_channels: int       = 3,
         kernel_size : _size_2_t = 3,
         stride      : _size_2_t = 1,
-        norm_layer  : _callable = None,
-        act_layer   : _callable = None
+        norm_layer              = None,
+        act_layer               = None
     ):
         super().__init__()
-        self.proj = nn.Sequential(
-            nn.Conv2d(in_channels, out_channels, kernel_size=3, stride=stride, padding=kernel_size // 2),
-        )
+        self.proj = nn.Sequential(nn.Conv2d(in_channels, out_channels, kernel_size=3, stride=stride, padding=kernel_size // 2))
         if act_layer:
             self.proj.append(act_layer(inplace=True))
         if norm_layer:
@@ -382,7 +387,6 @@ class OutputProj(nn.Module):
         flops += h * w * self.in_channel * self.out_channel * 3 * 3
         if self.norm:
             flops += h * w * self.out_channel
-        # print("Output_proj:{%.2f}" % (flops / 1e9))
         return flops
 
 
@@ -393,20 +397,20 @@ class LeWinTransformerBlock(nn.Module):
         in_channels     : int,
         input_resolution: _size_2_t,
         num_heads       : int,
-        window_size     : int       = 8,
-        shift_size      : int       = 0,
-        mlp_ratio       : float     = 4.0,
-        qkv_bias        : bool      = True,
-        qk_scale        : Any       = None,
-        dropout         : float     = 0.0,
-        attn_drop       : float     = 0.0,
-        drop_path       : float     = 0.0,
-        act_layer       : _callable = nn.GELU,
-        norm_layer      : _callable = nn.LayerNorm,
-        token_projection: str       = "linear",
-        token_mlp       : str       = "leff",
-        modulator       : bool      = False,
-        cross_modulator : bool      = False,
+        window_size     : int   = 8,
+        shift_size      : int   = 0,
+        mlp_ratio       : float = 4.0,
+        qkv_bias        : bool  = True,
+        qk_scale        : Any   = None,
+        dropout         : float = 0.0,
+        attn_drop       : float = 0.0,
+        drop_path       : float = 0.0,
+        act_layer               = nn.GELU,
+        norm_layer              = nn.LayerNorm,
+        token_projection: str   = "linear",
+        token_mlp       : str   = "leff",
+        modulator       : bool  = False,
+        cross_modulator : bool  = False,
     ):
         super().__init__()
         self.in_channels      = in_channels
@@ -494,7 +498,7 @@ class LeWinTransformerBlock(nn.Module):
             f"modulator={self.modulator}"
         )
 
-    def forward(self, input: torch.Tensor, mask: torch.Tensor | None = None) -> torch.Tensor:
+    def forward(self, input: torch.Tensor, mask: torch.Tensor = None) -> torch.Tensor:
         x = input
         b, l, c = x.shape
         h = int(math.sqrt(l))
@@ -609,19 +613,19 @@ class BasicUformerLayer(nn.Module):
         depth           : int,
         num_heads       : int,
         window_size     : int,
-        mlp_ratio       : float     = 4.0,
-        qkv_bias        : bool      = True,
-        qk_scale        : Any       = None,
-        dropout         : float     = 0.0,
-        attn_drop       : float     = 0.0,
-        drop_path       : Any       = 0.0,
-        norm_layer      : _callable = nn.LayerNorm,
-        use_checkpoint  : bool      = False,
-        token_projection: str       = "linear",
-        token_mlp       : str       = "ffn",
-        shift_flag      : bool      = True,
-        modulator       : bool      = False,
-        cross_modulator : bool      = False,
+        mlp_ratio       : float = 4.0,
+        qkv_bias        : bool  = True,
+        qk_scale        : Any   = None,
+        dropout         : float = 0.0,
+        attn_drop       : float = 0.0,
+        drop_path       : Any   = 0.0,
+        norm_layer              = nn.LayerNorm,
+        use_checkpoint  : bool  = False,
+        token_projection: str   = "linear",
+        token_mlp       : str   = "ffn",
+        shift_flag      : bool  = True,
+        modulator       : bool  = False,
+        cross_modulator : bool  = False,
     ):
         super().__init__()
         self.in_channels      = in_channels
@@ -632,7 +636,7 @@ class BasicUformerLayer(nn.Module):
         if shift_flag:
             self.blocks = nn.ModuleList([
                 LeWinTransformerBlock(
-                    channels         = in_channels,
+                    in_channels      = in_channels,
                     input_resolution = input_resolution,
                     num_heads        = num_heads,
                     window_size      = window_size,
@@ -652,7 +656,7 @@ class BasicUformerLayer(nn.Module):
         else:
             self.blocks = nn.ModuleList([
                 LeWinTransformerBlock(
-                    channels         = in_channels,
+                    in_channels      = in_channels,
                     input_resolution = input_resolution,
                     num_heads        = num_heads,
                     window_size      = window_size,
@@ -699,20 +703,22 @@ class BasicUformerLayer(nn.Module):
 # region Model
 
 @MODELS.register(name="uformer_re", arch="uformer")
-class Uformer_RE(base.MultiTaskImageEnhancementModel):
-    """A General U-Shaped Transformer (Uformer) Network.
+class Uformer_RE(base.ImageEnhancementModel):
+    """Uformer: A General U-Shaped Transformer for Image Restoration.
     
     References:
-        `<https://github.com/ZhendongWang6/Uformer>`__
+        https://github.com/ZhendongWang6/Uformer
     """
     
-    arch   : str  = "uformer"
-    tasks  : list[Task]   = [Task.DEBLUR, Task.DENOISE, Task.DERAIN, Task.DESNOW, Task.NIGHTTIME, Task.LLIE]
-    schemes: list[Scheme] = [Scheme.SUPERVISED]
-    zoo    : dict = {}
+    model_dir: core.Path    = current_dir
+    arch     : str          = "uformer"
+    tasks    : list[Task]   = [Task.DEBLUR, Task.DENOISE, Task.DERAIN, Task.DESNOW, Task.NIGHTTIME, Task.LLIE]
+    schemes  : list[Scheme] = [Scheme.SUPERVISED]
+    zoo      : dict         = {}
     
     def __init__(
         self,
+        name            : str       = "uformer_re",
         image_size      : _size_2_t = 256,
         in_channels     : int       = 3,
         dd_in           : int       = 3,
@@ -726,13 +732,13 @@ class Uformer_RE(base.MultiTaskImageEnhancementModel):
         dropout         : float     = 0.0,
         attn_drop_rate  : float     = 0.0,
         drop_path_rate  : float     = 0.1,
-        norm_layer      : _callable = nn.LayerNorm,
+        norm_layer                  = nn.LayerNorm,
         patch_norm      : bool      = True,
         use_checkpoint  : bool      = False,
         token_projection: str       = "linear",
         token_mlp       : str       = "leff",
-        downsample      : _callable = nn.DownsampleConv2d,
-        upsample        : _callable = nn.UpsampleConv2d,
+        downsample                  = nn.DownsampleConv2d,
+        upsample                    = nn.UpsampleConv2d,
         shift_flag      : bool      = True,
         modulator       : bool      = False,
         cross_modulator : bool      = False,
@@ -740,18 +746,12 @@ class Uformer_RE(base.MultiTaskImageEnhancementModel):
         *args, **kwargs
     ):
         super().__init__(
+            name        = name,
             in_channels = in_channels,
             weights     = weights,
             *args, **kwargs
         )
-        
-        # Populate hyperparameter values from pretrained weights
-        if isinstance(self.weights, dict):
-            image_size  = self.weights.get("image_size" , image_size)
-            dd_in       = self.weights.get("dd_in"      , dd_in)
-            in_channels = self.weights.get("in_channels", in_channels)
-        
-        self.image_size       = core.get_image_size(image_size)
+        self.image_size       = I.get_image_size(image_size)
         self.in_channels      = in_channels
         self.dd_in            = dd_in
         self.embed_channels   = embed_channels
@@ -1048,34 +1048,29 @@ class Uformer_RE(base.MultiTaskImageEnhancementModel):
         mask[:, :, ((x - h)//2):((x - h)//2 + h), ((x - w)//2):((x - w)//2 + w)].fill_(1)
         return image, mask
     
-    def forward(
-        self,
-        input    : torch.Tensor,
-        augment  : _callable = None,
-        profile  : bool      = False,
-        out_index: int       = -1,
-        *args, **kwargs
-    ) -> torch.Tensor:
-        mask = None
+    def forward(self, datapoint: dict, *args, **kwargs) -> dict:
+        # Prepare input
+        self.assert_datapoint(datapoint)
+        image = datapoint.get("image")
+        mask  = datapoint.get("mask", None)
         if self.predicting:
-            _, _, h, w  = input.shape
-            input, mask = self.expand2square(input, factor=self.image_size[0])
-        
-        x = input
+            _, _, h, w  = image.shape
+            image, mask = self.expand2square(image, factor=self.image_size[0])
         # Input Projection
-        y = self.input_proj(x)
-        y = self.pos_drop(y)
+        x       = image
+        y       = self.input_proj(x)
+        y       = self.pos_drop(y)
         # Encoder
-        conv0 = self.encoderlayer_0(y, mask=mask)
-        pool0 = self.downsample_0(conv0)
-        conv1 = self.encoderlayer_1(pool0, mask=mask)
-        pool1 = self.downsample_1(conv1)
-        conv2 = self.encoderlayer_2(pool1, mask=mask)
-        pool2 = self.downsample_2(conv2)
-        conv3 = self.encoderlayer_3(pool2, mask=mask)
-        pool3 = self.downsample_3(conv3)
+        conv0   = self.encoderlayer_0(y, mask=mask)
+        pool0   = self.downsample_0(conv0)
+        conv1   = self.encoderlayer_1(pool0, mask=mask)
+        pool1   = self.downsample_1(conv1)
+        conv2   = self.encoderlayer_2(pool1, mask=mask)
+        pool2   = self.downsample_2(conv2)
+        conv3   = self.encoderlayer_3(pool2, mask=mask)
+        pool3   = self.downsample_3(conv3)
         # Bottleneck
-        conv4 = self.conv(pool3, mask=mask)
+        conv4   = self.conv(pool3, mask=mask)
         # Decoder
         up0     = self.upsample_0(conv4)
         deconv0 = torch.cat([up0, conv3], -1)
@@ -1092,29 +1087,25 @@ class Uformer_RE(base.MultiTaskImageEnhancementModel):
         # Output Projection
         y = self.output_proj(deconv3)
         y = x + y if self.dd_in == 3 else y
-        
+        # Post-processing
         if self.predicting:
             y = torch.masked_select(y, mask.bool()).reshape(1, 3, h, w)
             # y = torch.clamp(y, 0, 1)
             # y = torch.clamp(y, 0, 1).cpu().detach().numpy().squeeze().transpose((1, 2, 0))
             # y = skimage.util.img_as_ubyte(y)
-        
+        # Return
         return {"enhanced": y}
     
 
 @MODELS.register(name="uformer_t_re", arch="uformer")
-class UformerT_RE(Uformer_RE):
-    """Uformer Tiny model.
-    
-    References:
-        `<https://github.com/ZhendongWang6/Uformer>`__
-    """
+class Uformer_T_RE(Uformer_RE):
+    """Uformer tiny model."""
     
     zoo: dict = {}
     
-    def __init__(self, args, **kwargs):
+    def __init__(self, name: str = "uformer_t_re", *args, **kwargs):
         super().__init__(
-            name             = "uformer_t_re",
+            name             = name,
             embed_channels   = 16,
             window_size      = 8,
             token_projection = "linear",
@@ -1126,74 +1117,18 @@ class UformerT_RE(Uformer_RE):
 
 
 @MODELS.register(name="uformer_s_re", arch="uformer")
-class UformerS_RE(Uformer_RE):
-    """Uformer Small model.
-    
-    References:
-        `<https://github.com/ZhendongWang6/Uformer>`__
-    """
+class Uformer_S_RE(Uformer_RE):
+    """Uformer small model."""
     
     zoo: dict = {}
     
-    def __init__(
-        self,
-        image_size: _size_2_t = 256,
-        *args, **kwargs
-    ):
+    def __init__(self, name: str = "uformer_s_re", *args, **kwargs):
         super().__init__(
-            name             = "uformer_s_re",
-            image_size       = image_size,
+            name             = name,
             embed_channels   = 32,
             window_size      = 8,
             token_projection = "linear",
             token_mlp        = "leff",
-            shift_flag       = True,
-            modulator        = True,
-            *args, **kwargs
-        )
-
-
-@MODELS.register(name="uformer_s_noshift_re", arch="uformer")
-class UformerSNoshift_RE(Uformer_RE):
-    
-    zoo: dict = {}
-    
-    def __init__(
-        self,
-        image_size: _size_2_t = 256,
-        *args, **kwargs
-    ):
-        super().__init__(
-            name             = "uformer_s_noshift_re",
-            image_size       = image_size,
-            embed_channels   = 32,
-            window_size      = 8,
-            token_projection = "linear",
-            token_mlp        = "leff",
-            shift_flag       = False,
-            modulator        = True,
-            *args, **kwargs
-        )
-
-
-@MODELS.register(name="uformer_s_fastleff_re", arch="uformer")
-class UformerSFastleff_RE(Uformer_RE):
-    
-    zoo: dict = {}
-    
-    def __init__(
-        self,
-        image_size: _size_2_t = 256,
-        *args, **kwargs
-    ):
-        super().__init__(
-            name             = "uformer_s_fastleff_re",
-            image_size       = image_size,
-            embed_channels   = 32,
-            depths           = [1, 2, 8, 8, 2, 8, 8, 2, 1],
-            window_size      = 8,
-            token_projection = "linear",
-            token_mlp        = "fastleff",
             shift_flag       = True,
             modulator        = True,
             *args, **kwargs
@@ -1201,65 +1136,14 @@ class UformerSFastleff_RE(Uformer_RE):
 
 
 @MODELS.register(name="uformer_b_re", arch="uformer")
-class UformerB_RE(Uformer_RE):
-    """Uformer Big model.
+class Uformer_B_RE(Uformer_RE):
+    """Uformer base model."""
     
-    References:
-        `<https://github.com/ZhendongWang6/Uformer>`__
-    """
+    zoo: dict = {}
     
-    zoo: dict = {
-        "gopro" : {
-            "url"        : None,
-            "path"       : "uformer_b/uformer_b_gopro",
-            "num_classes": None,
-            "image_size" : 128,
-            "dd_in"      : 3,
-            "map": {
-                "dowsample_0": "downsample_0",
-                "dowsample_1": "downsample_1",
-                "dowsample_2": "downsample_2",
-                "dowsample_3": "downsample_3",
-            },
-        },
-        "gtrain": {
-            "url"        : None,
-            "path"       : "uformer_b/uformer_b_gtrain",
-            "num_classes": None,
-            "image_size" : 128,
-            "dd_in"      : 3,
-            "map": {
-                "dowsample_0": "downsample_0",
-                "dowsample_1": "downsample_1",
-                "dowsample_2": "downsample_2",
-                "dowsample_3": "downsample_3",
-            },
-        },
-        "sidd"  : {
-            "url"        : None,
-            "path"       : "uformer_b/uformer_b_sidd",
-            "num_classes": None,
-            "image_size" : 128,
-            "dd_in"      : 3,
-            "map": {
-                "dowsample_0": "downsample_0",
-                "dowsample_1": "downsample_1",
-                "dowsample_2": "downsample_2",
-                "dowsample_3": "downsample_3",
-            },
-        },
-    }
-    
-    def __init__(
-        self,
-        dd_in     : int       = 3,
-        image_size: _size_2_t = 256,
-        *args, **kwargs
-    ):
+    def __init__(self, name: str = "uformer_b_re", *args, **kwargs):
         super().__init__(
-            name             = "uformer_b_re",
-            image_size       = image_size,
-            dd_in            = dd_in,
+            name             = name,
             embed_channels   = 32,
             depths           = [1, 2, 8, 8, 2, 8, 8, 2, 1],
             window_size      = 8,

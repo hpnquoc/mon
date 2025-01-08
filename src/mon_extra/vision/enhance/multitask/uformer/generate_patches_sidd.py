@@ -11,8 +11,7 @@ from glob import glob
 
 import cv2
 import numpy as np
-from joblib import Parallel, delayed
-from natsort import natsorted
+from joblib import delayed, Parallel
 from tqdm import tqdm
 
 parser = argparse.ArgumentParser(description="Generate patches from Full Resolution images")
@@ -40,7 +39,7 @@ os.makedirs(noisy_patchDir)
 os.makedirs(clean_patchDir)
 
 # get sorted folders
-files = natsorted(glob(os.path.join(src, '*', '*.PNG')))
+files = sorted(glob(os.path.join(src, '*', '*.PNG')))
 
 noisy_files, clean_files = [], []
 for file_ in files:
@@ -69,4 +68,3 @@ def save_files(i):
 
 
 Parallel(n_jobs=NUM_CORES)(delayed(save_files)(i) for i in tqdm(range(len(noisy_files))))
-

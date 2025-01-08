@@ -13,79 +13,72 @@ import torch.nn.functional as F
 import torch.utils.checkpoint as checkpoint
 from einops import rearrange, repeat
 from timm.models.layers import DropPath, to_2tuple, trunc_normal_
+from torch.nn.common_types import _size_2_t
 
 
 class FastLeFF(nn.Module):
 
-    def __init__(self, dim=32, hidden_dim=128, act_layer=nn.GELU, drop=0.):
+    def __init__(self, dim: int = 32, hidden_dim: int = 128, act_layer: nn.Module = nn.GELU):
         super().__init__()
-
-        from torch_dwconv import DepthwiseConv2d
-
-        self.linear1 = nn.Sequential(nn.Linear(dim, hidden_dim),
-                                     act_layer())
-        self.dwconv = nn.Sequential(
-            DepthwiseConv2d(hidden_dim, hidden_dim, kernel_size=3, stride=1,
-                            padding=1),
-            act_layer())
-        self.linear2 = nn.Sequential(nn.Linear(hidden_dim, dim))
-        self.dim = dim
+        # from torch_dwconv import DepthwiseConv2d
+        
+        self.linear1    = nn.Sequential(nn.Linear(dim, hidden_dim), act_layer())
+        # self.dwconv  = nn.Sequential(
+        #     DepthwiseConv2d(hidden_dim, hidden_dim, kernel_size=3, stride=1, padding=1),
+        #     act_layer()
+        # )
+        self.dwconv     = nn.Sequential(
+            nn.Conv2d(hidden_dim, hidden_dim, kernel_size=3, stride=1, padding=1, groups=hidden_dim),
+            act_layer()
+        )
+        self.linear2    = nn.Sequential(nn.Linear(hidden_dim, dim))
+        self.dim        = dim
         self.hidden_dim = hidden_dim
 
-    def forward(self, x):
-        # bs x hw x c
-        bs, hw, c = x.size()
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        bs, hw, c = x.size()  # bs x hw x c
         hh = int(math.sqrt(hw))
-
-        x = self.linear1(x)
-
-        # spatial restore
-        x = rearrange(x, ' b (h w) (c) -> b c h w ', h=hh, w=hh)
-        # bs,hidden_dim,32x32
-
-        x = self.dwconv(x)
-
-        # flaten
-        x = rearrange(x, ' b c h w -> b (h w) c', h=hh, w=hh)
-
-        x = self.linear2(x)
-
+        x  = self.linear1(x)
+        # Spatial restore
+        x  = rearrange(x, " b (h w) (c) -> b c h w ", h=hh, w=hh)  # bs,hidden_dim,32x32
+        x  = self.dwconv(x)
+        # Flatten
+        x  = rearrange(x, " b c h w -> b (h w) c", h=hh, w=hh)
+        x  = self.linear2(x)
         return x
 
-    def flops(self, H, W):
-        flops = 0
+    def flops(self, h: int, w: int) -> int:
+        flops  = 0
         # fc1
-        flops += H * W * self.dim * self.hidden_dim
+        flops += h * w * self.dim * self.hidden_dim
         # dwconv
-        flops += H * W * self.hidden_dim * 3 * 3
+        flops += h * w * self.hidden_dim * 3 * 3
         # fc2
-        flops += H * W * self.hidden_dim * self.dim
+        flops += h * w * self.hidden_dim * self.dim
         print("LeFF:{%.2f}" % (flops / 1e9))
         return flops
 
 
-def conv(in_channels, out_channels, kernel_size, bias=False, stride=1):
-    return nn.Conv2d(
-        in_channels, out_channels, kernel_size,
-        padding=(kernel_size // 2), bias=bias, stride=stride)
+def conv(in_channels: int, out_channels: int, kernel_size: _size_2_t, stride: _size_2_t = 1, bias: bool = False):
+    return nn.Conv2d(in_channels, out_channels, kernel_size, stride=stride, padding=(kernel_size // 2), bias=bias)
 
 
 # Supervised Attention Module
 
 class SAM(nn.Module):
 
-    def __init__(self, n_feat, kernel_size=3, bias=True):
-        super(SAM, self).__init__()
+    def __init__(self, n_feat: int, kernel_size: _size_2_t = 3, bias: bool = True):
+        super().__init__()
         self.conv1 = conv(n_feat, n_feat, kernel_size, bias=bias)
         self.conv2 = conv(n_feat, 3, kernel_size, bias=bias)
         self.conv3 = conv(3, n_feat, kernel_size, bias=bias)
 
-    def forward(self, x, x_img):
-        x1 = self.conv1(x)
+    def forward(self, x: torch.Tensor, x_img: torch.Tensor) -> torch.Tensor:
+        x1  = self.conv1(x)
         img = self.conv2(x) + x_img
-        x2 = torch.sigmoid(self.conv3(img))
-        x1 = x1 * x2
-        x1 = x1 + x
+        x2  = torch.sigmoid(self.conv3(img))
+        x1  = x1 * x2
+        x1  = x1 + x
         return x1, img
 
 
@@ -93,72 +86,65 @@ class SAM(nn.Module):
 
 class ConvBlock(nn.Module):
 
-    def __init__(self, in_channel, out_channel, strides=1):
-        super(ConvBlock, self).__init__()
-        self.strides = strides
-        self.in_channel = in_channel
-        self.out_channel = out_channel
-        self.block = nn.Sequential(
-            nn.Conv2d(in_channel, out_channel, kernel_size=3, stride=strides,
-                      padding=1),
+    def __init__(self, in_channels: int, out_channels: int, strides: _size_2_t = 1):
+        super().__init__()
+        self.strides      = strides
+        self.in_channels  = in_channels
+        self.out_channels = out_channels
+        self.block  = nn.Sequential(
+            nn.Conv2d(in_channels, out_channels, kernel_size=3, stride=strides, padding=1),
             nn.LeakyReLU(inplace=True),
-            nn.Conv2d(out_channel, out_channel, kernel_size=3, stride=strides,
-                      padding=1),
+            nn.Conv2d(out_channels, out_channels, kernel_size=3, stride=strides, padding=1),
             nn.LeakyReLU(inplace=True),
         )
-        self.conv11 = nn.Conv2d(in_channel, out_channel, kernel_size=1,
-                                stride=strides, padding=0)
+        self.conv11 = nn.Conv2d(in_channels, out_channels, kernel_size=1, stride=strides, padding=0)
 
-    def forward(self, x):
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
         out1 = self.block(x)
         out2 = self.conv11(x)
-        out = out1 + out2
+        out  = out1 + out2
         return out
 
-    def flops(self, H, W):
-        flops = H * W * self.in_channel * self.out_channel * (
-                    3 * 3 + 1) + H * W * self.out_channel * self.out_channel * 3 * 3
+    def flops(self, h: int, w: int) -> int:
+        flops = (h * w * self.in_channels * self.out_channels * (3 * 3 + 1) +
+                 h * w * self.out_channels * self.out_channels * 3 * 3)
         return flops
 
 
 class UNet(nn.Module):
 
-    def __init__(self, block=ConvBlock, dim=32):
-        super(UNet, self).__init__()
-
-        self.dim = dim
+    def __init__(self, block=ConvBlock, dim: int = 32):
+        super().__init__()
+        self.dim        = dim
         self.ConvBlock1 = ConvBlock(3, dim, strides=1)
-        self.pool1 = nn.Conv2d(dim, dim, kernel_size=4, stride=2, padding=1)
+        self.pool1      = nn.Conv2d(dim, dim, kernel_size=4, stride=2, padding=1)
 
         self.ConvBlock2 = block(dim, dim * 2, strides=1)
-        self.pool2 = nn.Conv2d(dim * 2, dim * 2, kernel_size=4, stride=2,
-                               padding=1)
+        self.pool2      = nn.Conv2d(dim * 2, dim * 2, kernel_size=4, stride=2, padding=1)
 
         self.ConvBlock3 = block(dim * 2, dim * 4, strides=1)
-        self.pool3 = nn.Conv2d(dim * 4, dim * 4, kernel_size=4, stride=2,
-                               padding=1)
+        self.pool3      = nn.Conv2d(dim * 4, dim * 4, kernel_size=4, stride=2, padding=1)
 
         self.ConvBlock4 = block(dim * 4, dim * 8, strides=1)
-        self.pool4 = nn.Conv2d(dim * 8, dim * 8, kernel_size=4, stride=2,
-                               padding=1)
+        self.pool4      = nn.Conv2d(dim * 8, dim * 8, kernel_size=4, stride=2, padding=1)
 
         self.ConvBlock5 = block(dim * 8, dim * 16, strides=1)
 
-        self.upv6 = nn.ConvTranspose2d(dim * 16, dim * 8, 2, stride=2)
+        self.upv6       = nn.ConvTranspose2d(dim * 16, dim * 8, 2, stride=2)
         self.ConvBlock6 = block(dim * 16, dim * 8, strides=1)
 
-        self.upv7 = nn.ConvTranspose2d(dim * 8, dim * 4, 2, stride=2)
+        self.upv7       = nn.ConvTranspose2d(dim * 8, dim * 4, 2, stride=2)
         self.ConvBlock7 = block(dim * 8, dim * 4, strides=1)
 
-        self.upv8 = nn.ConvTranspose2d(dim * 4, dim * 2, 2, stride=2)
+        self.upv8       = nn.ConvTranspose2d(dim * 4, dim * 2, 2, stride=2)
         self.ConvBlock8 = block(dim * 4, dim * 2, strides=1)
 
-        self.upv9 = nn.ConvTranspose2d(dim * 2, dim, 2, stride=2)
+        self.upv9       = nn.ConvTranspose2d(dim * 2, dim, 2, stride=2)
         self.ConvBlock9 = block(dim * 2, dim, strides=1)
 
-        self.conv10 = nn.Conv2d(dim, 3, kernel_size=3, stride=1, padding=1)
+        self.conv10     = nn.Conv2d(dim, 3, kernel_size=3, stride=1, padding=1)
 
-    def forward(self, x):
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
         conv1 = self.ConvBlock1(x)
         pool1 = self.pool1(conv1)
 
@@ -173,82 +159,77 @@ class UNet(nn.Module):
 
         conv5 = self.ConvBlock5(pool4)
 
-        up6 = self.upv6(conv5)
-        up6 = torch.cat([up6, conv4], 1)
+        up6   = self.upv6(conv5)
+        up6   = torch.cat([up6, conv4], 1)
         conv6 = self.ConvBlock6(up6)
 
-        up7 = self.upv7(conv6)
-        up7 = torch.cat([up7, conv3], 1)
+        up7   = self.upv7(conv6)
+        up7   = torch.cat([up7, conv3], 1)
         conv7 = self.ConvBlock7(up7)
 
-        up8 = self.upv8(conv7)
-        up8 = torch.cat([up8, conv2], 1)
+        up8   = self.upv8(conv7)
+        up8   = torch.cat([up8, conv2], 1)
         conv8 = self.ConvBlock8(up8)
 
-        up9 = self.upv9(conv8)
-        up9 = torch.cat([up9, conv1], 1)
+        up9   = self.upv9(conv8)
+        up9   = torch.cat([up9, conv1], 1)
         conv9 = self.ConvBlock9(up9)
 
         conv10 = self.conv10(conv9)
-        out = x + conv10
+        out    = x + conv10
 
         return out
 
-    def flops(self, H, W):
+    def flops(self, h: int, w: int) -> int:
         flops = 0
-        flops += self.ConvBlock1.flops(H, W)
-        flops += H / 2 * W / 2 * self.dim * self.dim * 4 * 4
-        flops += self.ConvBlock2.flops(H / 2, W / 2)
-        flops += H / 4 * W / 4 * self.dim * 2 * self.dim * 2 * 4 * 4
-        flops += self.ConvBlock3.flops(H / 4, W / 4)
-        flops += H / 8 * W / 8 * self.dim * 4 * self.dim * 4 * 4 * 4
-        flops += self.ConvBlock4.flops(H / 8, W / 8)
-        flops += H / 16 * W / 16 * self.dim * 8 * self.dim * 8 * 4 * 4
+        flops += self.ConvBlock1.flops(h, w)
+        flops += h / 2 * w / 2 * self.dim * self.dim * 4 * 4
+        flops += self.ConvBlock2.flops(h / 2, w / 2)
+        flops += h / 4 * w / 4 * self.dim * 2 * self.dim * 2 * 4 * 4
+        flops += self.ConvBlock3.flops(h / 4, w / 4)
+        flops += h / 8 * w / 8 * self.dim * 4 * self.dim * 4 * 4 * 4
+        flops += self.ConvBlock4.flops(h / 8, w / 8)
+        flops += h / 16 * w / 16 * self.dim * 8 * self.dim * 8 * 4 * 4
 
-        flops += self.ConvBlock5.flops(H / 16, W / 16)
+        flops += self.ConvBlock5.flops(h / 16, w / 16)
 
-        flops += H / 8 * W / 8 * self.dim * 16 * self.dim * 8 * 2 * 2
-        flops += self.ConvBlock6.flops(H / 8, W / 8)
-        flops += H / 4 * W / 4 * self.dim * 8 * self.dim * 4 * 2 * 2
-        flops += self.ConvBlock7.flops(H / 4, W / 4)
-        flops += H / 2 * W / 2 * self.dim * 4 * self.dim * 2 * 2 * 2
-        flops += self.ConvBlock8.flops(H / 2, W / 2)
-        flops += H * W * self.dim * 2 * self.dim * 2 * 2
-        flops += self.ConvBlock9.flops(H, W)
+        flops += h / 8 * w / 8 * self.dim * 16 * self.dim * 8 * 2 * 2
+        flops += self.ConvBlock6.flops(h / 8, w / 8)
+        flops += h / 4 * w / 4 * self.dim * 8 * self.dim * 4 * 2 * 2
+        flops += self.ConvBlock7.flops(h / 4, w / 4)
+        flops += h / 2 * w / 2 * self.dim * 4 * self.dim * 2 * 2 * 2
+        flops += self.ConvBlock8.flops(h / 2, w / 2)
+        flops += h * w * self.dim * 2 * self.dim * 2 * 2
+        flops += self.ConvBlock9.flops(h, w)
 
-        flops += H * W * self.dim * 3 * 3 * 3
+        flops += h * w * self.dim * 3 * 3 * 3
         return flops
 
 
 class LPU(nn.Module):
     """
-    Local Perception Unit to extract local infomation.
+    Local Perception Unit to extract local information.
     LPU(X) = DWConv(X) + X
     """
 
-    def __init__(self, in_channels, out_channels, stride=1):
-        super(LPU, self).__init__()
-        self.depthwise = nn.Conv2d(in_channels, out_channels, kernel_size=3,
-                                   stride=stride, padding=1, groups=in_channels,
-                                   bias=True
-                                   )
-        self.in_channels = in_channels
+    def __init__(self, in_channels: int, out_channels: int, stride: int = 1):
+        super().__init__()
+        self.depthwise    = nn.Conv2d(in_channels, out_channels, kernel_size=3, stride=stride, padding=1, groups=in_channels, bias=True)
+        self.in_channels  = in_channels
         self.out_channels = out_channels
 
-    def forward(self, x):
-        B, L, C = x.shape
-        # import pdb;pdb.set_trace()
-        H = int(math.sqrt(L))
-        W = int(math.sqrt(L))
-        x = x.transpose(1, 2).contiguous().view(B, C, H, W)
-        result = (self.depthwise(x) + x).flatten(2).transpose(1,
-                                                              2).contiguous()  # B H*W C
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        b, l, c = x.shape
+        h       = int(math.sqrt(l))
+        w       = int(math.sqrt(l))
+        x       = x.transpose(1, 2).contiguous().view(b, c, h, w)
+        result  = (self.depthwise(x) + x).flatten(2).transpose(1, 2).contiguous()  # b h*w c
         return result
 
-    def flops(self, H, W):
-        flops = 0
+    def flops(self, h: int, w: int) -> int:
+        flops  = 0
         # conv
-        flops += H * W * self.out_channels * 3 * 3
+        flops += h * w * self.out_channels * 3 * 3
         return flops
 
 
@@ -256,19 +237,17 @@ class LPU(nn.Module):
 
 class PosCNN(nn.Module):
 
-    def __init__(self, in_chans, embed_dim=768, s=1):
-        super(PosCNN, self).__init__()
-        self.proj = nn.Sequential(
-            nn.Conv2d(in_chans, embed_dim, 3, s, 1, bias=True,
-                      groups=embed_dim))
-        self.s = s
+    def __init__(self, in_channels: int, embed_dim: int = 768, s: int = 1):
+        super().__init__()
+        self.proj = nn.Sequential(nn.Conv2d(in_channels, embed_dim, 3, s, 1, bias=True, groups=embed_dim))
+        self.s    = s
 
-    def forward(self, x, H=None, W=None):
-        B, N, C = x.shape
-        H = H or int(math.sqrt(N))
-        W = W or int(math.sqrt(N))
+    def forward(self, x: torch.Tensor, h: int = None, w: int = None):
+        b, n, c = x.shape
+        h       = h or int(math.sqrt(n))
+        w       = w or int(math.sqrt(n))
         feat_token = x
-        cnn_feat = feat_token.transpose(1, 2).view(B, C, H, W)
+        cnn_feat   = feat_token.transpose(1, 2).view(b, c, h, w)
         if self.s == 1:
             x = self.proj(cnn_feat) + cnn_feat
         else:
@@ -277,23 +256,23 @@ class PosCNN(nn.Module):
         return x
 
     def no_weight_decay(self):
-        return ['proj.%d.weight' % i for i in range(4)]
+        return ["proj.%d.weight" % i for i in range(4)]
 
 
 class SELayer(nn.Module):
 
-    def __init__(self, channel, reduction=16):
-        super(SELayer, self).__init__()
+    def __init__(self, channels: int, reduction: int = 16):
+        super().__init__()
         self.avg_pool = nn.AdaptiveAvgPool1d(1)
         self.fc = nn.Sequential(
-            nn.Linear(channel, channel // reduction, bias=False),
+            nn.Linear(channels, channels // reduction, bias=False),
             nn.ReLU(inplace=True),
-            nn.Linear(channel // reduction, channel, bias=False),
+            nn.Linear(channels // reduction, channels, bias=False),
             nn.Sigmoid()
         )
         self.reduction = reduction
 
-    def forward(self, x):  # x: [B, N, C]
+    def forward(self, x: torch.Tensor) -> torch.Tensor:  # x: [B, N, C]
         x = torch.transpose(x, 1, 2)  # [B, C, N]
         b, c, _ = x.size()
         y = self.avg_pool(x).view(b, c)
@@ -302,124 +281,112 @@ class SELayer(nn.Module):
         x = torch.transpose(x, 1, 2)  # [B, N, C]
         return x
 
-    def flops(self):
-        flops = 0
+    def flops(self) -> int:
+        flops  = 0
         flops += self.channel * self.channel / self.reduction * 2
-
         return flops
 
 
 class eca_layer(nn.Module):
     """Constructs a ECA module.
     Args:
-        channel: Number of channels of the input feature map
-        k_size: Adaptive selection of kernel size
+        channels: Number of channels of the input feature map
+        kernel_size: Adaptive selection of kernel size
     """
 
-    def __init__(self, channel, k_size=3):
-        super(eca_layer, self).__init__()
-        self.avg_pool = nn.AdaptiveAvgPool2d(1)
-        self.conv = nn.Conv1d(1, 1, kernel_size=k_size,
-                              padding=(k_size - 1) // 2, bias=False)
-        self.sigmoid = nn.Sigmoid()
-        self.channel = channel
-        self.k_size = k_size
+    def __init__(self, channels: int, kernel_size: _size_2_t = 3):
+        super().__init__()
+        self.avg_pool    = nn.AdaptiveAvgPool2d(1)
+        self.conv        = nn.Conv1d(1, 1, kernel_size=kernel_size, padding=(kernel_size - 1) // 2, bias=False)
+        self.sigmoid     = nn.Sigmoid()
+        self.channel     = channels
+        self.kernel_size = kernel_size
 
-    def forward(self, x):
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
         # feature descriptor on the global spatial information
         y = self.avg_pool(x)
-
         # Two different branches of ECA module
-        y = self.conv(y.squeeze(-1).transpose(-1, -2)).transpose(-1,
-                                                                 -2).unsqueeze(
-            -1)
-
+        y = self.conv(y.squeeze(-1).transpose(-1, -2)).transpose(-1, -2).unsqueeze(-1)
         # Multi-scale information fusion
         y = self.sigmoid(y)
-
         return x * y.expand_as(x)
 
-    def flops(self):
-        flops = 0
-        flops += self.channel * self.channel * self.k_size
-
+    def flops(self) -> int:
+        flops  = 0
+        flops += self.channel * self.channel * self.kernel_size
         return flops
 
 
 class eca_layer_1d(nn.Module):
     """Constructs a ECA module.
     Args:
-        channel: Number of channels of the input feature map
-        k_size: Adaptive selection of kernel size
+        channels: Number of channels of the input feature map
+        kernel_size: Adaptive selection of kernel size
     """
 
-    def __init__(self, channel, k_size=3):
-        super(eca_layer_1d, self).__init__()
-        self.avg_pool = nn.AdaptiveAvgPool1d(1)
-        self.conv = nn.Conv1d(1, 1, kernel_size=k_size,
-                              padding=(k_size - 1) // 2, bias=False)
-        self.sigmoid = nn.Sigmoid()
-        self.channel = channel
-        self.k_size = k_size
+    def __init__(self, channels: int, kernel_size: _size_2_t = 3):
+        super().__init__()
+        self.avg_pool    = nn.AdaptiveAvgPool1d(1)
+        self.conv        = nn.Conv1d(1, 1, kernel_size=kernel_size, padding=(kernel_size - 1) // 2, bias=False)
+        self.sigmoid     = nn.Sigmoid()
+        self.channel     = channels
+        self.kernel_size = kernel_size
 
-    def forward(self, x):
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
         # b hw c
         # feature descriptor on the global spatial information
         y = self.avg_pool(x.transpose(-1, -2))
-
         # Two different branches of ECA module
         y = self.conv(y.transpose(-1, -2))
-
         # Multi-scale information fusion
         y = self.sigmoid(y)
-
         return x * y.expand_as(x)
 
-    def flops(self):
-        flops = 0
-        flops += self.channel * self.channel * self.k_size
-
+    def flops(self) -> int:
+        flops  = 0
+        flops += self.channel * self.channel * self.kernel_size
         return flops
 
 
-class SepConv2d(torch.nn.Module):
+class SepConv2d(nn.Module):
 
     def __init__(
         self,
-        in_channels,
-        out_channels,
-        kernel_size,
-        stride=1,
-        padding=0,
-        dilation=1,
-        act_layer=nn.ReLU
+        in_channels : int,
+        out_channels: int,
+        kernel_size : _size_2_t,
+        stride      : _size_2_t = 1,
+        padding     : _size_2_t = 0,
+        dilation    : int       = 1,
+        act_layer               = nn.ReLU
     ):
-        super(SepConv2d, self).__init__()
-        self.depthwise = torch.nn.Conv2d(in_channels,
-                                         in_channels,
-                                         kernel_size=kernel_size,
-                                         stride=stride,
-                                         padding=padding,
-                                         dilation=dilation,
-                                         groups=in_channels)
-        self.pointwise = torch.nn.Conv2d(in_channels, out_channels,
-                                         kernel_size=1)
-        self.act_layer = act_layer() if act_layer is not None else nn.Identity()
-        self.in_channels = in_channels
+        super().__init__()
+        self.depthwise = nn.Conv2d(
+            in_channels  = in_channels,
+            out_channels = in_channels,
+            kernel_size  = kernel_size,
+            stride       = stride,
+            padding      = padding,
+            dilation     = dilation,
+            groups       = in_channels
+        )
+        self.pointwise    = nn.Conv2d(in_channels, out_channels, kernel_size=1)
+        self.act_layer    = act_layer() if act_layer is not None else nn.Identity()
+        self.in_channels  = in_channels
         self.out_channels = out_channels
-        self.kernel_size = kernel_size
-        self.stride = stride
+        self.kernel_size  = kernel_size
+        self.stride       = stride
 
-    def forward(self, x):
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
         x = self.depthwise(x)
         x = self.act_layer(x)
         x = self.pointwise(x)
         return x
 
-    def flops(self, HW):
-        flops = 0
-        flops += HW * self.in_channels * self.kernel_size ** 2 / self.stride ** 2
-        flops += HW * self.in_channels * self.out_channels
+    def flops(self, hw: int) -> int:
+        flops  = 0
+        flops += hw * self.in_channels * self.kernel_size ** 2 / self.stride ** 2
+        flops += hw * self.in_channels * self.out_channels
         print("SeqConv2d:{%.2f}" % (flops / 1e9))
         return flops
 
@@ -427,39 +394,49 @@ class SepConv2d(torch.nn.Module):
 ######## Embedding for q,k,v ########
 
 class ConvProjection(nn.Module):
-    def __init__(self, dim, heads=8, dim_head=64, kernel_size=3, q_stride=1,
-                 k_stride=1, v_stride=1, dropout=0.,
-                 last_stage=False, bias=True):
+    
+    def __init__(
+        self,
+        dim        : int,
+        heads      : int       = 8,
+        dim_head   : int       = 64,
+        kernel_size: _size_2_t = 3,
+        q_stride   : int       = 1,
+        k_stride   : int       = 1,
+        v_stride   : int       = 1,
+        dropout    : float     = 0.0,
+        last_stage : bool      = False,
+        bias       : bool      = True
+    ):
         super().__init__()
-
-        inner_dim = dim_head * heads
+        inner_dim  = dim_head * heads
         self.heads = heads
-        pad = (kernel_size - q_stride) // 2
-        self.to_q = SepConv2d(dim, inner_dim, kernel_size, q_stride, pad, bias)
-        self.to_k = SepConv2d(dim, inner_dim, kernel_size, k_stride, pad, bias)
-        self.to_v = SepConv2d(dim, inner_dim, kernel_size, v_stride, pad, bias)
+        pad        = (kernel_size - q_stride) // 2
+        self.to_q  = SepConv2d(dim, inner_dim, kernel_size, q_stride, pad, bias)
+        self.to_k  = SepConv2d(dim, inner_dim, kernel_size, k_stride, pad, bias)
+        self.to_v  = SepConv2d(dim, inner_dim, kernel_size, v_stride, pad, bias)
 
-    def forward(self, x, attn_kv=None):
+    def forward(self, x: torch.Tensor, attn_kv=None) -> torch.Tensor:
         b, n, c, h = *x.shape, self.heads
         l = int(math.sqrt(n))
         w = int(math.sqrt(n))
 
         attn_kv = x if attn_kv is None else attn_kv
-        x = rearrange(x, 'b (l w) c -> b c l w', l=l, w=w)
-        attn_kv = rearrange(attn_kv, 'b (l w) c -> b c l w', l=l, w=w)
-        # print(attn_kv)
+        x       = rearrange(x, "b (l w) c -> b c l w", l=l, w=w)
+        attn_kv = rearrange(attn_kv, "b (l w) c -> b c l w", l=l, w=w)
+        
         q = self.to_q(x)
-        q = rearrange(q, 'b (h d) l w -> b h (l w) d', h=h)
+        q = rearrange(q, "b (h d) l w -> b h (l w) d", h=h)
 
         k = self.to_k(attn_kv)
         v = self.to_v(attn_kv)
-        k = rearrange(k, 'b (h d) l w -> b h (l w) d', h=h)
-        v = rearrange(v, 'b (h d) l w -> b h (l w) d', h=h)
+        k = rearrange(k, "b (h d) l w -> b h (l w) d", h=h)
+        v = rearrange(v, "b (h d) l w -> b h (l w) d", h=h)
         return q, k, v
 
     def flops(self, q_L, kv_L=None):
-        kv_L = kv_L or q_L
-        flops = 0
+        kv_L   = kv_L or q_L
+        flops  = 0
         flops += self.to_q.flops(q_L)
         flops += self.to_k.flops(kv_L)
         flops += self.to_v.flops(kv_L)
@@ -467,175 +444,185 @@ class ConvProjection(nn.Module):
 
 
 class LinearProjection(nn.Module):
-    def __init__(self, dim, heads=8, dim_head=64, dropout=0., bias=True):
+    
+    def __init__(
+        self,
+        dim     : int,
+        heads   : int   = 8,
+        dim_head: int   = 64,
+        dropout : float = 0.0,
+        bias    : bool  = True
+    ):
         super().__init__()
-        inner_dim = dim_head * heads
-        self.heads = heads
-        self.to_q = nn.Linear(dim, inner_dim, bias=bias)
-        self.to_kv = nn.Linear(dim, inner_dim * 2, bias=bias)
-        self.dim = dim
+        inner_dim      = dim_head * heads
+        self.heads     = heads
+        self.to_q      = nn.Linear(dim, inner_dim,     bias=bias)
+        self.to_kv     = nn.Linear(dim, inner_dim * 2, bias=bias)
+        self.dim       = dim
         self.inner_dim = inner_dim
 
-    def forward(self, x, attn_kv=None):
-        B_, N, C = x.shape
+    def forward(self, x: torch.Tensor, attn_kv=None):
+        b_, n, c = x.shape
         if attn_kv is not None:
-            attn_kv = attn_kv.unsqueeze(0).repeat(B_, 1, 1)
+            attn_kv = attn_kv.unsqueeze(0).repeat(b_, 1, 1)
         else:
             attn_kv = x
-        N_kv = attn_kv.size(1)
-        q = self.to_q(x).reshape(B_, N, 1, self.heads, C // self.heads).permute(
-            2, 0, 3, 1, 4)
-        kv = self.to_kv(attn_kv).reshape(B_, N_kv, 2, self.heads,
-                                         C // self.heads).permute(2, 0, 3, 1, 4)
-        q = q[0]
+        n_kv = attn_kv.size(1)
+        q    = self.to_q(x).reshape(b_, n, 1, self.heads, c // self.heads).permute(2, 0, 3, 1, 4)
+        kv   = self.to_kv(attn_kv).reshape(b_, n_kv, 2, self.heads, c // self.heads).permute(2, 0, 3, 1, 4)
+        q    = q[0]
         k, v = kv[0], kv[1]
         return q, k, v
 
-    def flops(self, q_L, kv_L=None):
-        kv_L = kv_L or q_L
+    def flops(self, q_L, kv_L=None) -> int:
+        kv_L  = kv_L or q_L
         flops = q_L * self.dim * self.inner_dim + kv_L * self.dim * self.inner_dim * 2
         return flops
 
-    #########################################
-
-
 ########### window-based self-attention #############
-class WindowAttention(nn.Module):
-    def __init__(self, dim, win_size, num_heads, token_projection='linear',
-                 qkv_bias=True, qk_scale=None, attn_drop=0., proj_drop=0.):
 
+class WindowAttention(nn.Module):
+    def __init__(
+        self,
+        dim             : int,
+        win_size        : int,
+        num_heads       : int,
+        token_projection: str   = "linear",
+        qkv_bias        : bool  = True,
+        qk_scale        : float = None,
+        attn_drop       : float = 0.0,
+        proj_drop       : float = 0.0
+    ):
         super().__init__()
-        self.dim = dim
-        self.win_size = win_size  # Wh, Ww
+        self.dim       = dim
+        self.win_size  = win_size  # Wh, Ww
         self.num_heads = num_heads
-        head_dim = dim // num_heads
-        self.scale = qk_scale or head_dim ** -0.5
+        head_dim       = dim // num_heads
+        self.scale     = qk_scale or head_dim ** -0.5
 
         # define a parameter table of relative position bias
-        self.relative_position_bias_table = nn.Parameter(
-            torch.zeros((2 * win_size[0] - 1) * (2 * win_size[1] - 1),
-                        num_heads))  # 2*Wh-1 * 2*Ww-1, nH
+        self.relative_position_bias_table = nn.Parameter(torch.zeros((2 * win_size[0] - 1) * (2 * win_size[1] - 1), num_heads))  # 2*Wh-1 * 2*Ww-1, nH
 
         # get pair-wise relative position index for each token inside the window
         coords_h = torch.arange(self.win_size[0])  # [0,...,Wh-1]
         coords_w = torch.arange(self.win_size[1])  # [0,...,Ww-1]
-        coords = torch.stack(torch.meshgrid([coords_h, coords_w]))  # 2, Wh, Ww
-        coords_flatten = torch.flatten(coords, 1)  # 2, Wh*Ww
-        relative_coords = coords_flatten[:, :, None] - coords_flatten[:, None,
-                                                       :]  # 2, Wh*Ww, Wh*Ww
+        coords   = torch.stack(torch.meshgrid([coords_h, coords_w]))  # 2, Wh, Ww
+        coords_flatten  = torch.flatten(coords, 1)  # 2, Wh*Ww
+        relative_coords = coords_flatten[:, :, None] - coords_flatten[:, None, :]  # 2, Wh*Ww, Wh*Ww
         relative_coords = relative_coords.permute(1, 2,
                                                   0).contiguous()  # Wh*Ww, Wh*Ww, 2
-        relative_coords[:, :, 0] += self.win_size[
-                                        0] - 1  # shift to start from 0
+        relative_coords[:, :, 0] += self.win_size[0] - 1  # shift to start from 0
         relative_coords[:, :, 1] += self.win_size[1] - 1
         relative_coords[:, :, 0] *= 2 * self.win_size[1] - 1
         relative_position_index = relative_coords.sum(-1)  # Wh*Ww, Wh*Ww
         self.register_buffer("relative_position_index", relative_position_index)
         trunc_normal_(self.relative_position_bias_table, std=.02)
 
-        if token_projection == 'conv':
-            self.qkv = ConvProjection(dim, num_heads, dim // num_heads,
-                                      bias=qkv_bias)
-        elif token_projection == 'linear':
-            self.qkv = LinearProjection(dim, num_heads, dim // num_heads,
-                                        bias=qkv_bias)
+        if token_projection == "conv":
+            self.qkv = ConvProjection(dim, num_heads, dim // num_heads, bias=qkv_bias)
+        elif token_projection == "linear":
+            self.qkv = LinearProjection(dim, num_heads, dim // num_heads, bias=qkv_bias)
         else:
             raise Exception("Projection error!")
 
         self.token_projection = token_projection
-        self.attn_drop = nn.Dropout(attn_drop)
-        self.proj = nn.Linear(dim, dim)
-        self.proj_drop = nn.Dropout(proj_drop)
+        self.attn_drop        = nn.Dropout(attn_drop)
+        self.proj             = nn.Linear(dim, dim)
+        self.proj_drop        = nn.Dropout(proj_drop)
 
-        self.softmax = nn.Softmax(dim=-1)
+        self.softmax          = nn.Softmax(dim=-1)
 
-    def forward(self, x, attn_kv=None, mask=None):
-        B_, N, C = x.shape
-        q, k, v = self.qkv(x, attn_kv)
-        q = q * self.scale
-        attn = (q @ k.transpose(-2, -1))
-
+    def forward(self, x: torch.Tensor, attn_kv: torch.Tensor = None, mask: torch.Tensor = None) -> torch.Tensor:
+        b_, n, c = x.shape
+        q, k, v  = self.qkv(x, attn_kv)
+        q        = q * self.scale
+        attn     = (q @ k.transpose(-2, -1))
+        
         relative_position_bias = self.relative_position_bias_table[
             self.relative_position_index.view(-1)].view(
             self.win_size[0] * self.win_size[1],
             self.win_size[0] * self.win_size[1], -1)  # Wh*Ww,Wh*Ww,nH
-        relative_position_bias = relative_position_bias.permute(2, 0,
-                                                                1).contiguous()  # nH, Wh*Ww, Wh*Ww
+        relative_position_bias = relative_position_bias.permute(2, 0, 1).contiguous()  # nH, Wh*Ww, Wh*Ww
         ratio = attn.size(-1) // relative_position_bias.size(-1)
-        relative_position_bias = repeat(relative_position_bias,
-                                        'nH l c -> nH l (c d)', d=ratio)
+        relative_position_bias = repeat(relative_position_bias, "nH l c -> nH l (c d)", d=ratio)
 
         attn = attn + relative_position_bias.unsqueeze(0)
 
         if mask is not None:
             nW = mask.shape[0]
-            mask = repeat(mask, 'nW m n -> nW m (n d)', d=ratio)
-            attn = attn.view(B_ // nW, nW, self.num_heads, N,
-                             N * ratio) + mask.unsqueeze(1).unsqueeze(0)
-            attn = attn.view(-1, self.num_heads, N, N * ratio)
+            mask = repeat(mask, "nW m n -> nW m (n d)", d=ratio)
+            attn = attn.view(b_ // nW, nW, self.num_heads, n, n * ratio) + mask.unsqueeze(1).unsqueeze(0)
+            attn = attn.view(-1, self.num_heads, n, n * ratio)
             attn = self.softmax(attn)
         else:
             attn = self.softmax(attn)
 
         attn = self.attn_drop(attn)
 
-        x = (attn @ v).transpose(1, 2).reshape(B_, N, C)
+        x = (attn @ v).transpose(1, 2).reshape(b_, n, c)
         x = self.proj(x)
         x = self.proj_drop(x)
         return x
 
     def extra_repr(self) -> str:
-        return f'dim={self.dim}, win_size={self.win_size}, num_heads={self.num_heads}'
+        return f"dim={self.dim}, win_size={self.win_size}, num_heads={self.num_heads}"
 
-    def flops(self, H, W):
+    def flops(self, h: int, w: int) -> int:
         # calculate flops for 1 window with token length of N
         # print(N, self.dim)
-        flops = 0
-        N = self.win_size[0] * self.win_size[1]
-        nW = H * W / N
+        flops  = 0
+        N      = self.win_size[0] * self.win_size[1]
+        nW     = h * w / N
         # qkv = self.qkv(x)
         # flops += N * self.dim * 3 * self.dim
-        flops += self.qkv.flops(H * W, H * W)
-
+        flops += self.qkv.flops(h * w, h * w)
         # attn = (q @ k.transpose(-2, -1))
-
         flops += nW * self.num_heads * N * (self.dim // self.num_heads) * N
-        #  x = (attn @ v)
+        # x = (attn @ v)
         flops += nW * self.num_heads * N * N * (self.dim // self.num_heads)
-
         # x = self.proj(x)
         flops += nW * N * self.dim * self.dim
         print("W-MSA:{%.2f}" % (flops / 1e9))
         return flops
 
 
-########### self-attention #############
+########### Self-attention #############
+
 class Attention(nn.Module):
-    def __init__(self, dim, num_heads, token_projection='linear', qkv_bias=True,
-                 qk_scale=None, attn_drop=0., proj_drop=0.):
-
+    
+    def __init__(
+        self,
+        dim             : int,
+        num_heads       : int,
+        token_projection: str   = "linear",
+        qkv_bias        : bool  = True,
+        qk_scale        : float = None,
+        attn_drop       : float = 0.0,
+        proj_drop       : float = 0.0
+    ):
         super().__init__()
-        self.dim = dim
+        self.dim       = dim
         self.num_heads = num_heads
-        head_dim = dim // num_heads
-        self.scale = qk_scale or head_dim ** -0.5
-
-        self.qkv = LinearProjection(dim, num_heads, dim // num_heads,
-                                    bias=qkv_bias)
-
+        head_dim       = dim // num_heads
+        self.scale     = qk_scale or head_dim ** -0.5
+        self.qkv = LinearProjection(dim, num_heads, dim // num_heads, bias=qkv_bias)
         self.token_projection = token_projection
         self.attn_drop = nn.Dropout(attn_drop)
-        self.proj = nn.Linear(dim, dim)
+        self.proj      = nn.Linear(dim, dim)
         self.proj_drop = nn.Dropout(proj_drop)
+        self.softmax   = nn.Softmax(dim=-1)
 
-        self.softmax = nn.Softmax(dim=-1)
-
-    def forward(self, x, attn_kv=None, mask=None):
-        B_, N, C = x.shape
-        q, k, v = self.qkv(x, attn_kv)
-        q = q * self.scale
-        attn = (q @ k.transpose(-2, -1))
-
+    def forward(
+        self,
+        x      : torch.Tensor,
+        attn_kv: torch.Tensor = None,
+        mask   : torch.Tensor = None
+    ) -> torch.Tensor:
+        b_, n, c = x.shape
+        q, k, v  = self.qkv(x, attn_kv)
+        q        = q * self.scale
+        attn     = (q @ k.transpose(-2, -1))
+        
         # relative_position_bias = self.relative_position_bias_table[self.relative_position_index.view(-1)].view(
         #     self.win_size[0] * self.win_size[1], self.win_size[0] * self.win_size[1], -1)  # Wh*Ww,Wh*Ww,nH
         # relative_position_bias = relative_position_bias.permute(2, 0, 1).contiguous()  # nH, Wh*Ww, Wh*Ww
@@ -643,28 +630,26 @@ class Attention(nn.Module):
         # relative_position_bias = repeat(relative_position_bias, 'nH l c -> nH l (c d)', d = ratio)
 
         # attn = attn + relative_position_bias.unsqueeze(0)
-
+        
         if mask is not None:
             nW = mask.shape[0]
             # mask = repeat(mask, 'nW m n -> nW m (n d)',d = ratio)
-            attn = attn.view(B_ // nW, nW, self.num_heads, N,
-                             N) + mask.unsqueeze(1).unsqueeze(0)
-            attn = attn.view(-1, self.num_heads, N, N)
+            attn = attn.view(b_ // nW, nW, self.num_heads, n, n) + mask.unsqueeze(1).unsqueeze(0)
+            attn = attn.view(-1, self.num_heads, n, n)
             attn = self.softmax(attn)
         else:
             attn = self.softmax(attn)
-
         attn = self.attn_drop(attn)
 
-        x = (attn @ v).transpose(1, 2).reshape(B_, N, C)
+        x = (attn @ v).transpose(1, 2).reshape(b_, n, c)
         x = self.proj(x)
         x = self.proj_drop(x)
         return x
 
     def extra_repr(self) -> str:
-        return f'dim={self.dim}, num_heads={self.num_heads}'
+        return f"dim={self.dim}, num_heads={self.num_heads}"
 
-    def flops(self, q_num, kv_num):
+    def flops(self, q_num, kv_num) -> int:
         # calculate flops for 1 window with token length of N
         # print(N, self.dim)
         flops = 0
@@ -674,34 +659,39 @@ class Attention(nn.Module):
         # flops += N * self.dim * 3 * self.dim
         flops += self.qkv.flops(q_num, kv_num)
         # attn = (q @ k.transpose(-2, -1))
-
         flops += self.num_heads * q_num * (self.dim // self.num_heads) * kv_num
         #  x = (attn @ v)
         flops += self.num_heads * q_num * (self.dim // self.num_heads) * kv_num
-
         # x = self.proj(x)
         flops += q_num * self.dim * self.dim
         print("MCA:{%.2f}" % (flops / 1e9))
         return flops
 
 
-#########################################
-########### feed-forward network #############
-class Mlp(nn.Module):
-    def __init__(self, in_features, hidden_features=None, out_features=None,
-                 act_layer=nn.GELU, drop=0.):
-        super().__init__()
-        out_features = out_features or in_features
-        hidden_features = hidden_features or in_features
-        self.fc1 = nn.Linear(in_features, hidden_features)
-        self.act = act_layer()
-        self.fc2 = nn.Linear(hidden_features, out_features)
-        self.drop = nn.Dropout(drop)
-        self.in_features = in_features
-        self.hidden_features = hidden_features
-        self.out_features = out_features
+########### Feed-forward network #############
 
-    def forward(self, x):
+class Mlp(nn.Module):
+    
+    def __init__(
+        self,
+        in_features    : int,
+        hidden_features: int   = None,
+        out_features   : int   = None,
+        act_layer              = nn.GELU,
+        drop           : float = 0.0
+    ):
+        super().__init__()
+        out_features         = out_features    or in_features
+        hidden_features      = hidden_features or in_features
+        self.fc1             = nn.Linear(in_features, hidden_features)
+        self.act             = act_layer()
+        self.fc2             = nn.Linear(hidden_features, out_features)
+        self.drop            = nn.Dropout(drop)
+        self.in_features     = in_features
+        self.hidden_features = hidden_features
+        self.out_features    = out_features
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
         x = self.fc1(x)
         x = self.act(x)
         x = self.drop(x)
@@ -709,69 +699,69 @@ class Mlp(nn.Module):
         x = self.drop(x)
         return x
 
-    def flops(self, H, W):
-        flops = 0
+    def flops(self, h: int, w: int) -> int:
+        flops  = 0
         # fc1
-        flops += H * W * self.in_features * self.hidden_features
+        flops += h * w * self.in_features * self.hidden_features
         # fc2
-        flops += H * W * self.hidden_features * self.out_features
+        flops += h * w * self.hidden_features * self.out_features
         print("MLP:{%.2f}" % (flops / 1e9))
         return flops
 
 
 class LeFF(nn.Module):
-    def __init__(self, dim=32, hidden_dim=128, act_layer=nn.GELU, drop=0.,
-                 use_eca=False):
+    
+    def __init__(
+        self,
+        dim       : int   = 32,
+        hidden_dim: int   = 128,
+        act_layer         = nn.GELU,
+        drop      : float = 0.0,
+        use_eca   : bool  = False
+    ):
         super().__init__()
-        self.linear1 = nn.Sequential(nn.Linear(dim, hidden_dim),
-                                     act_layer())
-        self.dwconv = nn.Sequential(
-            nn.Conv2d(hidden_dim, hidden_dim, groups=hidden_dim, kernel_size=3,
-                      stride=1, padding=1),
-            act_layer())
-        self.linear2 = nn.Sequential(nn.Linear(hidden_dim, dim))
-        self.dim = dim
+        self.linear1 = nn.Sequential(nn.Linear(dim, hidden_dim), act_layer())
+        self.dwconv  = nn.Sequential(
+            nn.Conv2d(hidden_dim, hidden_dim, groups=hidden_dim, kernel_size=3, stride=1, padding=1),
+            act_layer()
+        )
+        self.linear2    = nn.Sequential(nn.Linear(hidden_dim, dim))
+        self.dim        = dim
         self.hidden_dim = hidden_dim
-        self.eca = eca_layer_1d(dim) if use_eca else nn.Identity()
+        self.eca        = eca_layer_1d(dim) if use_eca else nn.Identity()
 
-    def forward(self, x):
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
         # bs x hw x c
         bs, hw, c = x.size()
         hh = int(math.sqrt(hw))
-
-        x = self.linear1(x)
-
-        # spatial restore
+        x  = self.linear1(x)
+        # Spatial restore
         x = rearrange(x, ' b (h w) (c) -> b c h w ', h=hh, w=hh)
         # bs,hidden_dim,32x32
-
         x = self.dwconv(x)
-
-        # flaten
+        # Flatten
         x = rearrange(x, ' b c h w -> b (h w) c', h=hh, w=hh)
-
         x = self.linear2(x)
         x = self.eca(x)
-
         return x
 
-    def flops(self, H, W):
+    def flops(self, h: int, w: int) -> int:
         flops = 0
         # fc1
-        flops += H * W * self.dim * self.hidden_dim
+        flops += h * w * self.dim * self.hidden_dim
         # dwconv
-        flops += H * W * self.hidden_dim * 3 * 3
+        flops += h * w * self.hidden_dim * 3 * 3
         # fc2
-        flops += H * W * self.hidden_dim * self.dim
+        flops += h * w * self.hidden_dim * self.dim
         print("LeFF:{%.2f}" % (flops / 1e9))
         # eca 
-        if hasattr(self.eca, 'flops'):
+        if hasattr(self.eca, "flops"):
             flops += self.eca.flops()
         return flops
 
 
-#########################################
-########### window operation#############
+########### Window operation #############
+
 def window_partition(x, win_size, dilation_rate=1):
     B, H, W, C = x.shape
     if dilation_rate != 1:
@@ -805,8 +795,8 @@ def window_reverse(windows, win_size, H, W, dilation_rate=1):
     return x
 
 
-#########################################
 # Downsample Block
+
 class Downsample(nn.Module):
     def __init__(self, in_channel, out_channel):
         super(Downsample, self).__init__()
@@ -835,6 +825,7 @@ class Downsample(nn.Module):
 
 
 # Upsample Block
+
 class Upsample(nn.Module):
     def __init__(self, in_channel, out_channel):
         super(Upsample, self).__init__()

@@ -141,9 +141,9 @@ def predict(args: argparse.Namespace):
                 split_data, starts = split_image(image, crop_size=crop_size, overlap_size=overlap_size)
                 for j, data in enumerate(split_data):
                     split_data[j] = model_restoration(data).to(device)
-                    functional.reset_net(model_restoration)
                     split_data[j] = split_data[j].cpu()
-                enhanced = merge_image(split_data, starts, resolution=(b, c, h, w))
+                    functional.reset_net(model_restoration)
+                enhanced = merge_image(split_data, starts, resolution=(b, c, crop_size, crop_size))
                 enhanced = torch.clamp(enhanced, 0, 1).permute(0, 2, 3, 1).numpy()
                 timer.tock()
                 
