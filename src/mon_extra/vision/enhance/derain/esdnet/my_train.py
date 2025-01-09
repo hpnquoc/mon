@@ -130,7 +130,7 @@ def train(args: argparse.Namespace):
         # Train
         with mon.get_progress_bar() as pbar:
             for i, data in pbar.track(
-                sequence    = train_loader,
+                sequence    = enumerate(train_loader),
                 total       = len(train_loader),
                 description = f"[bright_yellow] Training"
             ):

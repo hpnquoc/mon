@@ -33,10 +33,12 @@ class Dataload(Dataset):
         return self.file_num
 
     def __getitem__(self, index: int):
-        img_file_rain  =  self.files_rain[index % self.file_num]
-        img_file_label = self.files_label[index % self.file_num]
+        # file_name_rain    = self.mat_files_rain[index % self.file_num]
+        # file_name_label   = self.mat_files_label[index % self.file_num]
         # img_file_rain   = os.path.join(self.root_dir_rain,  file_name_rain)
         # img_file_label  = os.path.join(self.root_dir_label, file_name_label)
+        img_file_rain  =  self.files_rain[index % self.file_num]
+        img_file_label = self.files_label[index % self.file_num]
         img_rain  =  io.imread(img_file_rain).astype(np.float32) / 255
         img_label = io.imread(img_file_label).astype(np.float32) / 255
         O, B = self.crop(img_rain, img_label)
