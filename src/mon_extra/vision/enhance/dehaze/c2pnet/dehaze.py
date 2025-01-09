@@ -23,18 +23,18 @@ if opt.save:
     if not os.path.exists(opt.save_dir):
         os.mkdir(opt.save_dir)
     output_dir = os.path.join(opt.save_dir, dataset)
-    print("pred_dir:", output_dir)
+    print("pred_dir: ", output_dir)
     if not os.path.exists(output_dir):
         os.mkdir(output_dir)
 
-if dataset == 'indoor':
-    haze_dir = 'data/SOTS/indoor/hazy/'
-    clear_dir = 'data/SOTS/indoor/clear/'
-    model_dir = 'trained_models/ITS.pkl'
-elif dataset == 'outdoor':
-    haze_dir = 'data/SOTS/outdoor/hazy/'
-    clear_dir = 'data/SOTS/outdoor/clear/'
-    model_dir = 'trained_models/OTS.pkl'
+if dataset == "indoor":
+    haze_dir  = "data/SOTS/indoor/hazy/"
+    clear_dir = "data/SOTS/indoor/clear/"
+    model_dir = "trained_models/ITS.pkl"
+elif dataset == "outdoor":
+    haze_dir  = "data/SOTS/outdoor/hazy/"
+    clear_dir = "data/SOTS/outdoor/clear/"
+    model_dir = "trained_models/OTS.pkl"
 
 device = 'cuda:0' if torch.cuda.is_available() else 'cpu'
 
@@ -47,12 +47,12 @@ psnr_list = []
 ssim_list = []
 
 for im in tqdm(os.listdir(haze_dir)):
-    haze = Image.open(os.path.join(haze_dir, im)).convert('RGB')
-    if dataset == 'indoor' or dataset == 'outdoor':
-        clear_im = im.split('_')[0] + '.png'
+    haze = Image.open(os.path.join(haze_dir, im)).convert("RGB")
+    if dataset == "indoor" or dataset == "outdoor":
+        clear_im = im.split("_")[0] + ".png"
     else:
         clear_im = im
-    clear = Image.open(os.path.join(clear_dir, clear_im)).convert('RGB')
+    clear = Image.open(os.path.join(clear_dir, clear_im)).convert("RGB")
     haze1 = tfs.ToTensor()(haze)[None, ::]
     haze1 = haze1.to(device)
     clear_no = tfs.ToTensor()(clear)[None, ::]

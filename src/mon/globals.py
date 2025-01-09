@@ -873,6 +873,14 @@ EXTRA_MODELS      = {  # architecture/model (+ variant)
     },
     # endregion
     # region enhance/dehaze
+    "c2pnet"       : {
+        "c2pnet": {
+            "tasks"    : [Task.DEHAZE],
+            "schemes"  : [Scheme.SUPERVISED],
+            "model_dir": MON_EXTRA_DIR / "vision" / "enhance" / "dehaze" / "c2pnet",
+            "torch_distributed_launch": False,
+        },
+    },
     "zid"          : {
         "zid": {
             "tasks"    : [Task.DEHAZE],

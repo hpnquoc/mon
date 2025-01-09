@@ -70,8 +70,7 @@ def clcr_train(train_model, train_loader, test_loader, optim, criterion):
     else:
         weights = curriculum_weight(0)
         print('train from scratch *** ')
-        print(
-            f'n1_weight:{weights[0]}| n2_weight:{weights[1]}| n3_weight:{weights[2]}| n4_weight:{weights[3]}| n5_weight:{weights[4]}|n6_weight:{weights[5]}|inp_weight:{weights[6]}')
+        print(f'n1_weight:{weights[0]}| n2_weight:{weights[1]}| n3_weight:{weights[2]}| n4_weight:{weights[3]}| n5_weight:{weights[4]}|n6_weight:{weights[5]}|inp_weight:{weights[6]}')
     for step in range(start_step + 1, opt.steps + 1):
         train_model.train()
         lr = opt.lr
@@ -80,14 +79,14 @@ def clcr_train(train_model, train_loader, test_loader, optim, criterion):
             for param_group in optim.param_groups:
                 param_group["lr"] = lr
         x, y, n1, n2, n3, n4, n5, n6, inp = next(iter(train_loader))
-        x = x.to(opt.device)
-        y = y.to(opt.device)
-        n1 = n1.to(opt.device)
-        n2 = n2.to(opt.device)
-        n3 = n3.to(opt.device)
-        n4 = n4.to(opt.device)
-        n5 = n5.to(opt.device)
-        n6 = n6.to(opt.device)
+        x   = x.to(opt.device)
+        y   = y.to(opt.device)
+        n1  = n1.to(opt.device)
+        n2  = n2.to(opt.device)
+        n3  = n3.to(opt.device)
+        n4  = n4.to(opt.device)
+        n5  = n5.to(opt.device)
+        n6  = n6.to(opt.device)
         out = train_model(x)
         pixel_loss = criterion[0](out, y)
         loss2 = 0
@@ -179,8 +178,7 @@ if __name__ == "__main__":
         net = torch.nn.DataParallel(net)
         cudnn.benchmark = True
     criterion = [nn.L1Loss().to(opt.device)]
-    optimizer = optim.Adam(params=filter(lambda x: x.requires_grad, net.parameters()), lr=opt.lr, betas=(0.9, 0.999),
-                           eps=1e-08)
+    optimizer = optim.Adam(params=filter(lambda x: x.requires_grad, net.parameters()), lr=opt.lr, betas=(0.9, 0.999), eps=1e-08)
     optimizer.zero_grad()
     if opt.clcrloss:
         criterion.append(C2R().to(opt.device))

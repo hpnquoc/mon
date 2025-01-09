@@ -14,12 +14,12 @@ from torchvision.transforms import functional as FF
 from metrics import *
 from option import opt
 
-sys.path.append('net')
-sys.path.append('')
+sys.path.append("net")
+sys.path.append("")
 BS = opt.bs
 print(BS)
-crop_size = 'whole_img'
-path = opt.dataset_dir
+crop_size = "whole_img"
+path      = opt.dataset_dir
 if opt.crop:
     crop_size = opt.crop_size
 
@@ -41,7 +41,7 @@ class RESIDE_Dataset(data.Dataset):
         if isinstance(self.size, int):
             while haze.size[0] < self.size or haze.size[1] < self.size:
                 index = random.randint(0, 20000)
-                haze = Image.open(self.haze_imgs[index])
+                haze  = Image.open(self.haze_imgs[index])
         img = self.haze_imgs[index]
         id = img.split('/')[-1].split('_')[0]
         clear_name = id + self.format
@@ -49,7 +49,7 @@ class RESIDE_Dataset(data.Dataset):
         clear = tfs.CenterCrop(haze.size[::-1])(clear)
         if not isinstance(self.size, str):
             i, j, h, w = tfs.RandomCrop.get_params(haze, output_size=(self.size, self.size))
-            haze = FF.crop(haze, i, j, h, w)
+            haze  = FF.crop(haze, i, j, h, w)
             clear = FF.crop(clear, i, j, h, w)
         haze, clear = self.augData(haze.convert("RGB"), clear.convert("RGB"))
         return haze, clear

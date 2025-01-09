@@ -22,7 +22,7 @@ current_dir  = current_file.parents[0]
 
 # region Predict
 
-def get_scoremap(b, c, h, w, is_mean: bool = True) -> torch.Tensor:
+def get_score_map(b, c, h, w, is_mean: bool = True) -> torch.Tensor:
     center_h = h / 2
     center_w = w / 2
     score    = torch.ones((b, c, h, w))
@@ -64,7 +64,7 @@ def merge_image(split_data, starts, resolution=(1, 3, 80, 80)) -> torch.Tensor:
     b, c, h, w = resolution[0], resolution[1], resolution[2], resolution[3]
     tot_score  = torch.zeros((b, c, h, w))
     merge_img  = torch.zeros((b, c, h, w))
-    scoremap   = get_scoremap(b, c, h, w, is_mean=False)
+    scoremap   = get_score_map(b, c, h, w, is_mean=False)
     for simg, cstart in zip(split_data, starts):
         hs, ws = cstart
         merge_img[:, :, hs:hs + h, ws:ws + w] += scoremap * simg
