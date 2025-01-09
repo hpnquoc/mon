@@ -41,6 +41,7 @@ def load_namespace(file):
 
 
 ## DENOISING #############################################
+
 def denoiseCBM3D(I):
     # _,psd,_ = get_experiment_noise('g4', 0.005, 0, I.shape) # <--- GOLDEN
     # _,psd,_ = get_experiment_noise('g4', 0.001, 0, I.shape) # <--- GOLDEN
@@ -51,6 +52,7 @@ def denoiseCBM3D(I):
 
 
 ## metric ####################
+
 def calculate_psnr(img1, img2):
     # img1 and img2 have range [0, 255]
     img1 = img1.astype(np.float64)

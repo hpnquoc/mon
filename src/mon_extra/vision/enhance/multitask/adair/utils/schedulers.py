@@ -1,12 +1,12 @@
 import math
-from collections import Counter
-from torch.optim.lr_scheduler import _LRScheduler
-import torch
 import warnings
+from collections import Counter
 from typing import List
 
 from torch import nn
 from torch.optim import Adam, Optimizer
+from torch.optim.lr_scheduler import _LRScheduler
+
 
 class MultiStepRestartLR(_LRScheduler):
     """ MultiStep with restarts learning rate scheme.

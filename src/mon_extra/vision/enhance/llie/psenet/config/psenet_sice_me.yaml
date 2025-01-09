@@ -1,0 +1,27 @@
+# Basic
+hostname    : ~
+config      : ~
+arch        : "psenet"
+model       : "psenet"
+data        : "sice_me"
+data_dir    : ~
+root        : ~
+project     : ~
+variant     : ~
+fullname    : "psenet_sice_me"
+save_dir    : ~
+weights     : "zoo/vision/enhance/llie/psenet/psenet/sice_me/psenet_sice_me.pth"
+device      : 0
+local_rank  : -1
+launcher    : ~
+epochs      : 200
+steps       : ~
+imgsz       : 512
+resize      : ~
+benchmark   : True
+save_image  : True
+save_debug  : False
+use_data_dir: False
+use_fullpath: False
+exist_ok    : False
+verbose     : True

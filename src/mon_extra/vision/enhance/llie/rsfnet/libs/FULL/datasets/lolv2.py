@@ -1,11 +1,13 @@
 import os
+
 import numpy as np
 from PIL import Image
-import torch
 from torch.utils.data import Dataset
 from torchvision import transforms
 
+
 class lolv2(Dataset):
+    
     def __init__(self, config, mode):
         self.mode=mode
         self.f_RGB = config.f_RGB
@@ -65,4 +67,3 @@ class lolv2(Dataset):
         if not self.f_RGB:  gtdata  = gtdata.convert('YCbCr')
         gtdata  = self.augment(gtdata)
         return {'imNum':imNum, 'gtdata':gtdata, 'imlow':imlow}
-

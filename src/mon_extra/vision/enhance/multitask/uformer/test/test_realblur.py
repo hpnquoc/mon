@@ -3,17 +3,14 @@ import os,sys
 import argparse
 from tqdm import tqdm
 
-import torch.nn as nn
 import torch
 from torch.utils.data import DataLoader
-import torch.nn.functional as F
 
 dir_name = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.join(dir_name,'../dataset/'))
 sys.path.append(os.path.join(dir_name,'..'))
 
 from skimage import img_as_ubyte,io
-from pdb import set_trace as stx
 from dataset.dataset_motiondeblur import *
 import utils
 import math
@@ -23,8 +20,6 @@ from natsort import natsorted
 import cv2
 from skimage.metrics import structural_similarity
 import concurrent.futures
-
-from model import UNet,Uformer
 
 parser = argparse.ArgumentParser(description='Image motion deblurring evaluation on RealBlur_J/RealBlur_R')
 

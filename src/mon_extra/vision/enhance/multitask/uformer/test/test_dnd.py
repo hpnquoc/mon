@@ -2,13 +2,9 @@ import numpy as np
 import os,sys
 import argparse
 from tqdm import tqdm
-from einops import rearrange, repeat
 
-import torch.nn as nn
 import torch
 from torch.utils.data import DataLoader
-import torch.nn.functional as F
-from ptflops import get_model_complexity_info
 import math
 
 dir_name = os.path.dirname(os.path.abspath(__file__))
@@ -19,12 +15,8 @@ import scipy.io as sio
 from dataset.dataset_denoise import *
 import utils
 
-from model import UNet,Uformer
-
 from utils.bundle_submissions import bundle_submissions_srgb_v1
-from skimage import img_as_float32, img_as_ubyte
-from skimage.metrics import peak_signal_noise_ratio as psnr_loss
-from skimage.metrics import structural_similarity as ssim_loss
+from skimage import img_as_ubyte
 
 parser = argparse.ArgumentParser(description='RGB denoising evaluation on the validation set of SIDD')
 parser.add_argument('--input_dir', default='/data1/wangzd/datasets/denoising/dnd/input/',

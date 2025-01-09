@@ -67,8 +67,8 @@ class UNetConvBlock(nn.Module):
     def forward(
         self,
         input: torch.Tensor,
-        enc  : torch.Tensor | None = None,
-        dec  : torch.Tensor | None = None
+        enc  : torch.Tensor = None,
+        dec  : torch.Tensor = None
     ) -> torch.Tensor | tuple[torch.Tensor, torch.Tensor]:
         x = input
         y = self.conv_1(x)
@@ -135,10 +135,7 @@ class SupervisedAttentionModule(nn.Module):
         dtype       : Any       = None,
     ):
         super().__init__()
-        padding = kernel_size[0] // 2 \
-            if isinstance(kernel_size, Sequence) \
-            else kernel_size // 2
-        
+        padding    = kernel_size[0] // 2 if isinstance(kernel_size, Sequence) else kernel_size // 2
         self.conv1 = nn.Conv2d(
             in_channels  = channels,
             out_channels = channels,
@@ -223,7 +220,7 @@ class HINet_RE(base.ImageEnhancementModel):
     
     model_dir: core.Path    = current_dir
     arch     : str          = "hinet"
-    tasks    : list[Task]   = [Task.DEBLUR, Task.DENOISE, Task.DERAIN, Task.DESNOW, Task.NIGHTTIME]
+    tasks    : list[Task]   = [Task.DEBLUR, Task.DENOISE, Task.DERAIN, Task.DESNOW, Task.LLIE]
     schemes  : list[Scheme] = [Scheme.SUPERVISED]
     zoo      : dict         = {}
     
@@ -244,16 +241,6 @@ class HINet_RE(base.ImageEnhancementModel):
             weights     = weights,
             *args, **kwargs
         )
-        
-        # Populate hyperparameter values from pretrained weights
-        if isinstance(self.weights, dict):
-            in_channels  = self.weights.get("in_channels" , in_channels)
-            num_channels = self.weights.get("num_channels", num_channels)
-            depth        = self.weights.get("depth"       , depth)
-            relu_slope   = self.weights.get("relu_slope"  , relu_slope)
-            in_pos_left  = self.weights.get("in_pos_left" , in_pos_left)
-            in_pos_right = self.weights.get("in_pos_right", in_pos_right)
-            
         self.in_channels  = in_channels
         self.num_channels = num_channels
         self.depth        = depth
@@ -299,7 +286,7 @@ class HINet_RE(base.ImageEnhancementModel):
         if classname.find("Conv") != -1:
             if hasattr(m, "conv"):
                 nn.init.orthogonal_(m.weight, gain=gain)
-                if not m.bias is None:
+                if m.bias is not None:
                     nn.init.constant_(m.bias, 0)
     
     def forward_loss(self, datapoint: dict, *args, **kwargs) -> dict:

@@ -1,9 +1,11 @@
+import os
+import sys
+
 import numpy as np
-from PIL import Image
-import os, sys
 from bm3d import bm3d_rgb
+from scipy.io import loadmat, savemat
+
 from experiment_funcs import get_experiment_noise
-from scipy.io import savemat, loadmat
 
 eps = np.finfo(float).eps
 

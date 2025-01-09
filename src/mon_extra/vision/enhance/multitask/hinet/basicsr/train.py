@@ -194,8 +194,7 @@ def main(args):
         train_data = prefetcher.next()
 
         while train_data is not None:
-            data_time = time.time() - data_time
-            
+            data_time     = time.time() - data_time
             current_iter += 1
             if current_iter > total_iters:
                 break

@@ -997,6 +997,14 @@ EXTRA_MODELS      = {  # architecture/model (+ variant)
             "torch_distributed_launch": True,
         },
     },
+    "psenet"       : {
+        "psenet": {
+            "tasks"    : [Task.LLIE],
+            "schemes"  : [Scheme.SUPERVISED],
+            "model_dir": MON_EXTRA_DIR / "vision" / "enhance" / "llie" / "psenet",
+            "torch_distributed_launch": True,
+        },
+    },
     "quadprior"    : {
         "quadprior": {
             "tasks"    : [Task.LLIE],

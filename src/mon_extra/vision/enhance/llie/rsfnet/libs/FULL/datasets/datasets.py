@@ -1,8 +1,9 @@
+from libs.FULL.datasets.lolsyn import lolsyn
 from libs.FULL.datasets.lolv1 import lolv1
 from libs.FULL.datasets.lolv2 import lolv2
-from libs.FULL.datasets.lolsyn import lolsyn
 from libs.FULL.datasets.lolve import lolve
 from libs.FULL.datasets.misc import misc
+
 
 def MyDataset(config, mode):
     if config.dataset.lower()=='lolv1':

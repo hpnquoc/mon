@@ -15,6 +15,7 @@ from kornia.color import ycbcr_to_rgb
 
 
 class BurstLoss(_Loss):
+    
     def __init__(self, rank=None, size_average=None, reduce=None, reduction='mean'):
         super(BurstLoss, self).__init__(size_average, reduce, reduction)
         self.reduction = reduction
@@ -61,6 +62,7 @@ class BurstLoss(_Loss):
 
 
 class PerceptualLoss(torch.nn.Module):
+    
     def __init__(self):
         super(PerceptualLoss, self).__init__()
         self.vgg = models.vgg19(pretrained=True).features[:35].eval().cuda()
@@ -75,6 +77,7 @@ class PerceptualLoss(torch.nn.Module):
 
 
 class L_color(nn.Module):
+    
     def __init__(self):
         super(L_color, self).__init__()
 
@@ -90,6 +93,7 @@ class L_color(nn.Module):
 
 
 class L_colorYCbCr(nn.Module):
+    
     def __init__(self):
         super(L_colorYCbCr, self).__init__()
         
@@ -107,6 +111,7 @@ class L_colorYCbCr(nn.Module):
 
 
 class L_color_with_gt(nn.Module):
+    
     def __init__(self):
         super(L_color_with_gt, self).__init__()
 
@@ -124,6 +129,7 @@ class L_color_with_gt(nn.Module):
 
 
 class L_color_with_gt2(nn.Module):
+    
     def __init__(self):
         super(L_color_with_gt2, self).__init__()
 
@@ -142,6 +148,7 @@ class L_color_with_gt2(nn.Module):
 			
 
 class L_spa(nn.Module):
+    
     def __init__(self,rank=None):
         super(L_spa, self).__init__()
         # print(1)kernel = torch.FloatTensor(kernel).unsqueeze(0).unsqueeze(0)
@@ -275,6 +282,7 @@ class L_spa9(nn.Module):
 
 # New spa loss SGZ : https://github.com/ShenZheng2000/Semantic-Guided-Low-Light-Image-Enhancement/blob/main/Myloss.py
 class L_spa8(nn.Module):
+    
     def __init__(self, patch_size=4, rank=None):
         super(L_spa8, self).__init__()
         # print(1)kernel = torch.FloatTensor(kernel).unsqueeze(0).unsqueeze(0)
@@ -345,6 +353,7 @@ class L_spa8(nn.Module):
 
 
 class L_expYCbCr(nn.Module):
+    
     def __init__(self,patch_size,mean_val):
         super(L_expYCbCr, self).__init__()
         # print(1)
@@ -362,6 +371,7 @@ class L_expYCbCr(nn.Module):
 
 
 class L_exp(nn.Module):
+    
     def __init__(self,patch_size,mean_val):
         super(L_exp, self).__init__()
         # print(1)
@@ -379,6 +389,7 @@ class L_exp(nn.Module):
 
 
 class L_TV1(nn.Module):
+    
     def __init__(self,TVLoss_weight=1):
         super(L_TV1,self).__init__()
         self.TVLoss_weight = TVLoss_weight
@@ -395,6 +406,7 @@ class L_TV1(nn.Module):
 
 
 class L_TV(nn.Module):
+    
     def __init__(self,TVLoss_weight=1):
         super(L_TV,self).__init__()
         self.TVLoss_weight = TVLoss_weight
@@ -415,6 +427,7 @@ class L_TV(nn.Module):
 
 
 class L_TVfactors(nn.Module):
+    
     def __init__(self,TVLoss_weight=1):
         super(L_TVfactors,self).__init__()
         self.TVLoss_weight = TVLoss_weight
@@ -438,6 +451,7 @@ class L_TVfactors(nn.Module):
 
 
 class Sa_Loss(nn.Module):
+    
     def __init__(self):
         super(Sa_Loss, self).__init__()
         # print(1)
@@ -458,6 +472,7 @@ class Sa_Loss(nn.Module):
 
 
 class perception_loss(nn.Module):
+    
     def __init__(self):
         super(perception_loss, self).__init__()
         features = vgg16(pretrained=True).features
@@ -534,6 +549,7 @@ def edge_aware_loss_v2(img, disp):
 
 
 class SmoothLoss(nn.Module):
+    
     def __init__(self):
         super(SmoothLoss, self).__init__()
         self.sigma = 10
@@ -638,6 +654,7 @@ class SmoothLoss(nn.Module):
 # Denoising SMOOTHING from : https://github.com/fengzhang427/HEP/blob/main/models/loss.py
 
 class Smooth_loss(nn.Module):
+    
     def __init__(self):
         super(Smooth_loss, self).__init__()
 
@@ -665,6 +682,7 @@ def gradient(input_tensor, direction):
 
 
 class IS_loss(nn.Module):
+    
     def __init__(self):
         super(IS_loss, self).__init__()
 
@@ -685,6 +703,7 @@ class IS_loss(nn.Module):
 
 # perceptual loss from HEP
 class vgg_19(nn.Module):
+    
     def __init__(self, index):
         super(vgg_19, self).__init__()
         vgg_model = torchvision.models.vgg19(pretrained=True)
@@ -698,6 +717,7 @@ class vgg_19(nn.Module):
 
 
 class Perceptual_loss(nn.Module):
+    
     def __init__(self):
         super(Perceptual_loss, self).__init__()
         self.instancenorm = nn.InstanceNorm2d(512, affine=False)

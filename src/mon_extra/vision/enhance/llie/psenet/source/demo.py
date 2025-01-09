@@ -29,10 +29,9 @@ parser = argparse.ArgumentParser()
 parser.add_argument("--checkpoint", type=str, default="../pretrained/afifi.pth")
 parser.add_argument("--input_dir",  type=str, default="samples")
 parser.add_argument("--output_dir", type=str, default="output")
-
 args  = parser.parse_args()
 
-model = UnetTMO()
+model      = UnetTMO()
 state_dict = read_pytorch_lightning_state_dict(torch.load(args.checkpoint))
 model.load_state_dict(state_dict)
 model.eval()

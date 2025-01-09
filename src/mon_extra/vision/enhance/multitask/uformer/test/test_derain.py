@@ -18,7 +18,7 @@ import torch
 from torch.utils.data import DataLoader
 
 import mon
-from mon import RUN_DIR, DATA_DIR
+from mon import DATA_DIR, RUN_DIR
 
 dir_name = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.join(dir_name, "../dataset/"))

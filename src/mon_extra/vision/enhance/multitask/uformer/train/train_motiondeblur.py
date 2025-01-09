@@ -23,17 +23,12 @@ torch.backends.cudnn.benchmark = True
 
 # device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 # print(device)
-import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader
-from natsort import natsorted
-import glob
 import random
 import time
 import numpy as np
-from einops import rearrange, repeat
 import datetime
-from pdb import set_trace as stx
 
 from losses import CharbonnierLoss
 
@@ -41,9 +36,6 @@ from tqdm import tqdm
 from warmup_scheduler import GradualWarmupScheduler
 from torch.optim.lr_scheduler import StepLR
 from timm.utils import NativeScaler
-
-
-
 
 ######### Logs dir ###########
 log_dir = os.path.join(opt.save_dir,'motiondeblur',opt.dataset, opt.arch+opt.env)

@@ -1,15 +1,15 @@
 import glob
 
-import torch
-import torchvision
 import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
+import torch
+import torchvision
 from PIL import Image
 
 # import skvideo.io
 
-matplotlib.use('agg')
+matplotlib.use("agg")
 
 
 def prepare_hazy_image(file_name):

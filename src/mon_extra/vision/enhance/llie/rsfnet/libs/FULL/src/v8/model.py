@@ -13,6 +13,7 @@ eps = torch.finfo(torch.float32).eps
 
 ########## MODULE 1
 class Factorization(nn.Module):
+    
     def __init__(self,config) -> None:
         super(Factorization,self).__init__()
         self.factors    = config.factors
@@ -143,6 +144,7 @@ class Factorization(nn.Module):
 
 ########## MODULE 2
 class Fusion(nn.Module):
+    
     def __init__(self, config) -> None:
         super(Fusion,self).__init__()
         self.relu          = nn.ReLU(inplace=True)
@@ -224,6 +226,7 @@ class Fusion(nn.Module):
 
 ############### FULL ARCH
 class RRNet(nn.Module):
+    
     def __init__(self, config) -> None:
         super(RRNet,self).__init__()
         self.factNet        = Factorization(config)

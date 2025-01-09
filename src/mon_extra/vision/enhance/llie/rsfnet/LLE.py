@@ -1,13 +1,13 @@
 ## SETUP #############################################
+import concurrent.futures
+import os
+import sys
+
 import cv2
-import os, sys
-from tqdm.auto import tqdm
 import numpy as np
 import quaternion as Q
 from bm3d import bm3d_rgb
-from multiprocessing import cpu_count
-from multiprocessing.pool import ThreadPool
-import concurrent.futures
+from tqdm.auto import tqdm
 
 sys.path.append(os.path.join(os.getcwd(),'utils'))
 from experiment_funcs import get_experiment_noise

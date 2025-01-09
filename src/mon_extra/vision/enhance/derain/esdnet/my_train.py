@@ -208,7 +208,7 @@ def train(args: argparse.Namespace):
                         "state_dict": model_restoration.state_dict(),
                         "optimizer" : optimizer.state_dict()
                     },
-                    str(weights_dir / f"esdnet_epoch_{epoch}.pt")
+                    str(weights_dir / f"{fullname}_epoch_{epoch}.pt")
                 )
             torch.save(
                 {
@@ -216,7 +216,7 @@ def train(args: argparse.Namespace):
                     "state_dict": model_restoration.state_dict(),
                     "optimizer" : optimizer.state_dict()
                 },
-                str(weights_dir / "esdnet_last.pt")
+                str(weights_dir / f"{fullname}_last.pt")
             )
             scheduler.step()
             print("-" * 150)

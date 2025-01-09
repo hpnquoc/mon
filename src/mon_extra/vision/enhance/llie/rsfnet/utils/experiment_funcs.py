@@ -3,9 +3,9 @@ Define functions needed for the demos.
 """
 
 import numpy as np
-from scipy.fftpack import fft2, ifft2, fftshift, ifftshift
-from scipy.signal import fftconvolve
 from bm3d import gaussian_kernel
+from scipy.fftpack import fft2, fftshift, ifft2, ifftshift
+from scipy.signal import fftconvolve
 
 
 def get_psnr(y_est: np.ndarray, y_ref: np.ndarray) -> float:
