@@ -5,9 +5,9 @@ from pprint import pprint
 
 from distutils.util import strtobool
 
-import libs.FULL.src.v8.tester as tester
+import libs.full.src.v8.tester as tester
 # sys.path.append('/home2/saurabh.saini/WORK/CODES/RRR')
-import libs.FULL.src.v8.trainer as trainer
+import libs.full.src.v8.trainer as trainer
 
 set_modes    = {'train', 'test'}
 set_devices  = {'cuda', 'cpu'}
@@ -76,11 +76,11 @@ def chk_args(config):
     if config.dataset not in set_datasets: sys.exit('ERROR: Dataset not found (should be :'+str(set_datasets))
     if config.resume:
         if not (os.path.exists(config.p_model)): sys.exit('ERROR: Model_path incorrect.')
-    if config.mode=='train':
+    if config.mode is 'train':
         if not (os.path.exists(config.p_trainDir)): sys.exit('ERROR: Dataset_path incorrect.')
         if not (os.path.exists(config.p_trainList)): sys.exit('ERROR: Train_inList_path incorrect.')
         if not (os.path.exists(config.p_trainGtDir)): sys.exit('ERROR: Train_gt_path incorrect.')
-    if config.mode=='test':
+    if config.mode is 'test':
         if not (os.path.exists(config.p_model)): sys.exit('ERROR: Model_path incorrect.')
         if not (os.path.exists(config.p_testDir)): sys.exit('ERROR: TestDir path incorrect.')
         if (not (config.p_testList==None)) and (not os.path.exists(config.p_testList)): sys.exit('ERROR: Train_inList_path incorrect.')

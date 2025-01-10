@@ -393,7 +393,7 @@ def qSIM_parallel(max_cpus, args):
 ################################################################################################
 if __name__=='__main__':    
     with open('/home/saurabh/Desktop/Lolv1_testList.my') as f:
-        L = f.readlines()
+        L  = f.readlines()
         LL = [l.split()[0] for l in L]    
         
         # parallel execution

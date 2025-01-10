@@ -27,3 +27,19 @@ exist_ok    : False
 verbose     : True
 
 # Model Specific
+eval_step    : 5000
+lr           : 0.0001
+gps          : 3
+blocks       : 19
+bs           : 2
+crop         : False
+crop_size    : 240
+no_lr_sche   : False
+cl_lambda    : 0.25
+loss_weight  : 0.2
+clcrloss     : False
+norm         : False
+ablation_type: 0
+clip         : False
+beta1        : 0.9
+beta2        : 0.999

@@ -1,0 +1,46 @@
+# Basic
+hostname    : ~
+config      : ~
+arch        : "rsfnet"
+model       : "rsfnet"
+data        : "lol_v1"
+data_dir    : "data/enhance/lol_v1"
+root        : ~
+project     : ~
+variant     : ~
+fullname    : "rsfnet"
+save_dir    : ~
+weights     : "zoo/vision/enhance/llie/rsfnet/rsfnet/lol_v1/rsfnet_lol_v1.pth"
+device      : 0
+local_rank  : -1
+launcher    : ~
+epochs      : 25
+steps       : ~
+imgsz       : 512
+resize      : ~
+benchmark   : True
+save_image  : True
+save_debug  : False
+use_data_dir: False
+use_fullpath: False
+exist_ok    : False
+verbose     : True
+
+# Model Specific
+num_workers : 10
+lr          : 0.01
+lr_step     : 1
+lr_decay    : 0.9
+batch_size  : 8
+maxIter     : 3
+factors     : 5
+dataMean    : 0.05
+seed        : 2
+freeze      : 25
+etaA        : 0.5
+wc          : 10
+ws          : 0
+we          : 2
+wt          : 2
+wf          : 2
+wd          : 0

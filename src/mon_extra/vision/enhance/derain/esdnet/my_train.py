@@ -60,6 +60,8 @@ def train(args: argparse.Namespace):
     clip_grad        = args.clip_grad
     use_amp          = args.use_amp
     num_workers      = args.num_workers
+    start_epoch      = 0
+    optim_state_dict = None
     
     # Directory
     weights_dir = save_dir
@@ -69,7 +71,12 @@ def train(args: argparse.Namespace):
     model_restoration = model
     model_restoration.to(device)
     if weights is not None and mon.Path(weights).is_weights_file():
-        model_restoration.load_state_dict(torch.load(weights, map_location=device, weights_only=True))
+        state_dict = torch.load(weights, map_location=device, weights_only=True)
+        if mon.Path(weights).suffix == ".ckpt":
+            state_dict       = state_dict["state_dict"]
+            start_epoch      = state_dict["epoch"]
+            optim_state_dict = state_dict["optimizer"]
+        model_restoration.load_state_dict(state_dict)
     functional.set_step_mode(model_restoration, step_mode="m")
     functional.set_backend(model_restoration,   backend="cupy")
     
@@ -83,6 +90,8 @@ def train(args: argparse.Namespace):
     optimizer        = optim.AdamW(model_restoration.parameters(), lr=start_lr, betas=(0.9, 0.999), eps=1e-8)
     scheduler_cosine = optim.lr_scheduler.CosineAnnealingLR(optimizer, epochs - warmup_epochs, eta_min=end_lr)
     scheduler        = mon.GradualWarmupScheduler(optimizer, multiplier=1, total_epoch=warmup_epochs, after_scheduler=scheduler_cosine)
+    if optim_state_dict is not None:
+        optimizer.load_state_dict(optim_state_dict)
     
     # Data I/O
     train_dir     = data_dir / "train"
@@ -119,7 +128,7 @@ def train(args: argparse.Namespace):
     best_ssim_epoch = 0
     iter            = 0
     
-    for epoch in range(0, epochs):
+    for epoch in range(start_epoch, epochs):
         epoch_start_time   = time.time()
         epoch_loss         = 0
         scaled_loss        = 0
@@ -201,22 +210,22 @@ def train(args: argparse.Namespace):
                 print("[Epoch %d Training SSIM: %.4f --- best_ssim_epoch %d Test_SSIM %.4f]" % (epoch, ssim_train, best_ssim_epoch, best_ssim))
             
             # Save model
-            if epoch % 50 == 0:
-                torch.save(
-                    {
-                        "epoch"     : epoch,
-                        "state_dict": model_restoration.state_dict(),
-                        "optimizer" : optimizer.state_dict()
-                    },
-                    str(weights_dir / f"{fullname}_epoch_{epoch}.pt")
-                )
+            # if epoch % 50 == 0:
+            #     torch.save(
+            #         {
+            #             "epoch"     : epoch,
+            #             "state_dict": model_restoration.state_dict(),
+            #             "optimizer" : optimizer.state_dict()
+            #         },
+            #         str(weights_dir / f"{fullname}_epoch_{epoch}.ckpt")
+            #     )
             torch.save(
                 {
                     "epoch"     : epoch,
                     "state_dict": model_restoration.state_dict(),
                     "optimizer" : optimizer.state_dict()
                 },
-                str(weights_dir / f"{fullname}_last.pt")
+                str(weights_dir / f"{fullname}_last.ckpt")
             )
             scheduler.step()
             print("-" * 150)

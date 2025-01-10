@@ -55,7 +55,8 @@ class lolv1(Dataset):
         imNum,_ = os.path.splitext(self.imList[idx])
         p_low   = os.path.join(self.p_inDir, imNum+'.png')
         imlow   = Image.open(p_low)
-        if not self.f_RGB: imlow  = imlow.convert('YCbCr')
+        if not self.f_RGB:
+            imlow  = imlow.convert('YCbCr')
         imlow   = self.augment(imlow)
         p_gt    = os.path.join(self.p_gtDir, imNum+'.png')
         gtdata  = Image.open(p_gt)

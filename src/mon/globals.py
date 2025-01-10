@@ -750,7 +750,7 @@ EXTRA_MODELS      = {  # architecture/model (+ variant)
     },
     # endregion
     # region detect
-    "yolor"        : {
+    "yolor" : {
         "yolor_d6": {
             "tasks"    : [Task.DETECT],
             "schemes"  : [Scheme.SUPERVISED],
@@ -776,7 +776,7 @@ EXTRA_MODELS      = {  # architecture/model (+ variant)
             "torch_distributed_launch": True,
         },
     },
-    "yolov7"       : {
+    "yolov7": {
         "yolov7"    : {
             "tasks"    : [Task.DETECT],
             "schemes"  : [Scheme.SUPERVISED],
@@ -814,7 +814,7 @@ EXTRA_MODELS      = {  # architecture/model (+ variant)
             "torch_distributed_launch": True,
         },
     },
-    "yolov8"       : {
+    "yolov8": {
         "yolov8n": {
             "tasks"    : [Task.DETECT],
             "schemes"  : [Scheme.SUPERVISED],
@@ -845,7 +845,7 @@ EXTRA_MODELS      = {  # architecture/model (+ variant)
             "torch_distributed_launch": False,
         },
     },
-    "yolov9"       : {
+    "yolov9": {
         "gelan_c" : {
             "tasks"    : [Task.DETECT],
             "schemes"  : [Scheme.SUPERVISED],
@@ -873,7 +873,7 @@ EXTRA_MODELS      = {  # architecture/model (+ variant)
     },
     # endregion
     # region enhance/dehaze
-    "c2pnet"       : {
+    "c2pnet": {
         "c2pnet": {
             "tasks"    : [Task.DEHAZE],
             "schemes"  : [Scheme.SUPERVISED],
@@ -881,7 +881,7 @@ EXTRA_MODELS      = {  # architecture/model (+ variant)
             "torch_distributed_launch": False,
         },
     },
-    "zid"          : {
+    "zid"   : {
         "zid": {
             "tasks"    : [Task.DEHAZE],
             "schemes"  : [Scheme.ZERO_REFERENCE, Scheme.INSTANCE],
@@ -891,7 +891,7 @@ EXTRA_MODELS      = {  # architecture/model (+ variant)
     },
     # endregion
     # region enhance/derain
-    "esdnet"       : {
+    "esdnet": {
         "esdnet": {
             "tasks"    : [Task.DERAIN, Task.LLIE],
             "schemes"  : [Scheme.SUPERVISED],
@@ -1125,7 +1125,7 @@ EXTRA_MODELS      = {  # architecture/model (+ variant)
     },
     # endregion
     # region enhance/multitask
-    "airnet"       : {
+    "airnet"   : {
         "airnet": {
             "tasks"    : [Task.DENOISE, Task.DERAIN, Task.DEHAZE],
             "schemes"  : [Scheme.SUPERVISED],
@@ -1133,7 +1133,7 @@ EXTRA_MODELS      = {  # architecture/model (+ variant)
             "torch_distributed_launch": True,
         },
     },
-    "restormer"    : {
+    "restormer": {
         "restormer": {
             "tasks"    : [Task.DEBLUR, Task.DENOISE, Task.DERAIN, Task.DESNOW, Task.LLIE],
             "schemes"  : [Scheme.SUPERVISED],
@@ -1143,7 +1143,7 @@ EXTRA_MODELS      = {  # architecture/model (+ variant)
     },
     # endregion
     # region enhance/retouch
-    "neurop"       : {
+    "neurop": {
         "neurop": {
             "tasks"    : [Task.RETOUCH, Task.LLIE],
             "schemes"  : [Scheme.SUPERVISED],
@@ -1153,7 +1153,7 @@ EXTRA_MODELS      = {  # architecture/model (+ variant)
     },
     # endregion
     # region enhance/sr
-    "srno"         : {
+    "srno": {
         "srno": {
             "tasks"    : [Task.SR],
             "schemes"  : [Scheme.SUPERVISED],
@@ -1163,7 +1163,7 @@ EXTRA_MODELS      = {  # architecture/model (+ variant)
     },
     # endregion
     # region segment
-    "sam"          : {
+    "sam" : {
         "sam_vit_b": {
             "tasks"    : [Task.SEGMENT],
             "schemes"  : [Scheme.SUPERVISED],
@@ -1183,7 +1183,7 @@ EXTRA_MODELS      = {  # architecture/model (+ variant)
             "torch_distributed_launch": False,
         },
     },
-    "sam2"         : {
+    "sam2": {
         "sam2_hiera_b+": {
             "tasks"    : [Task.SEGMENT],
             "schemes"  : [Scheme.SUPERVISED],

@@ -47,25 +47,25 @@ def curriculum_weight(difficulty):
 
 
 def clcr_train(train_model, train_loader, test_loader, optim, criterion):
-    losses = []
+    losses     = []
     start_step = 0
-    max_ssim = 0
-    max_psnr = 0
-    best_psnr = 0
-    ssims = []
-    psnrs = []
+    max_ssim   = 0
+    max_psnr   = 0
+    best_psnr  = 0
+    ssims      = []
+    psnrs      = []
     initial_loss_weight = opt.loss_weight
     if opt.resume and os.path.exists(opt.model_dir):
         print(f'resume from {opt.model_dir}')
         ckp = torch.load(opt.model_dir)
         print(opt.best_model_dir)
-        losses = ckp['losses']
+        losses     = ckp['losses']
         start_step = ckp['step']
-        max_ssim = ckp['max_ssim']
-        max_psnr = ckp['max_psnr']
-        psnrs = ckp['psnrs']
-        ssims = ckp['ssims']
-        weights = curriculum_weight(best_psnr)
+        max_ssim   = ckp['max_ssim']
+        max_psnr   = ckp['max_psnr']
+        psnrs      = ckp['psnrs']
+        ssims      = ckp['ssims']
+        weights    = curriculum_weight(best_psnr)
         print(f'start_step:{start_step} start training ---')
     else:
         weights = curriculum_weight(0)
@@ -103,7 +103,8 @@ def clcr_train(train_model, train_loader, test_loader, optim, criterion):
         losses.append(loss.item())
         print(
             f'\rpixel loss : {pixel_loss.item():.5f}| cr loss : {opt.loss_weight * loss2.item():.5f}| step :{step}/{opt.steps}|lr :{lr :.7f} |time_used :{(time.time() - start_time) / 60 :.1f}',
-            end='', flush=True)
+            end='', flush=True
+        )
 
         if step % opt.eval_step == 0:
             opt.loss_weight = initial_loss_weight
@@ -122,11 +123,11 @@ def clcr_train(train_model, train_loader, test_loader, optim, criterion):
             ssims.append(ssim_eval)
             psnrs.append(psnr_eval)
             torch.save({
-                'step': step,
-                'ssims': ssims,
-                'psnrs': psnrs,
+                'step'  : step,
+                'ssims' : ssims,
+                'psnrs' : psnrs,
                 'losses': losses,
-                'model': train_model.state_dict(),
+                'model' : train_model.state_dict(),
                 'weight': weights
             }, opt.latest_model_dir)
             if ssim_eval > max_ssim and psnr_eval > max_psnr:
@@ -157,11 +158,11 @@ def test(test_model, loader_test):
     ssims = []
     psnrs = []
     for i, (inputs, targets) in enumerate(loader_test):
-        inputs = inputs.to(opt.device)
+        inputs  = inputs.to(opt.device)
         targets = targets.to(opt.device)
-        pred = test_model(inputs)
-        ssim1 = ssim(pred, targets).item()
-        psnr1 = psnr(pred, targets)
+        pred    = test_model(inputs)
+        ssim1   = ssim(pred, targets).item()
+        psnr1   = psnr(pred, targets)
         ssims.append(ssim1)
         psnrs.append(psnr1)
         return np.mean(ssims), np.mean(psnrs)
@@ -169,7 +170,7 @@ def test(test_model, loader_test):
 
 if __name__ == "__main__":
     loader_train = loaders_[opt.trainset]
-    loader_test = loaders_[opt.testset]
+    loader_test  = loaders_[opt.testset]
     net = models_[opt.net]
     net = net.to(opt.device)
     pytorch_total_params = sum(p.nelement() for p in net.parameters() if p.requires_grad)

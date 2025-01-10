@@ -10,6 +10,7 @@ import math
 import torch
 import torch.optim
 import torchvision
+from torch.nn import functional as F
 
 import mon
 from model import model
@@ -60,15 +61,15 @@ def split_image(
     return split_data, starts
 
 
-def merge_image(split_data, starts, resolution=(1, 3, 80, 80)) -> torch.Tensor:
-    b, c, h, w = resolution[0], resolution[1], resolution[2], resolution[3]
+def merge_image(split_data, starts, crop_size, shape=(1, 3, 80, 80)) -> torch.Tensor:
+    b, c, h, w = shape[0], shape[1], shape[2], shape[3]
     tot_score  = torch.zeros((b, c, h, w))
     merge_img  = torch.zeros((b, c, h, w))
-    scoremap   = get_score_map(b, c, h, w, is_mean=False)
+    score_map  = get_score_map(b, c, crop_size, crop_size, is_mean=False)
     for simg, cstart in zip(split_data, starts):
         hs, ws = cstart
-        merge_img[:, :, hs:hs + h, ws:ws + w] += scoremap * simg
-        tot_score[:, :, hs:hs + h, ws:ws + w] += scoremap
+        merge_img[:, :, hs:hs + crop_size, ws:ws + crop_size] += score_map * simg
+        tot_score[:, :, hs:hs + crop_size, ws:ws + crop_size] += score_map
     merge_img = merge_img / tot_score
     return merge_img
 
@@ -81,18 +82,22 @@ def predict(args: argparse.Namespace):
     device       = mon.set_device(args.device)
     imgsz        = args.imgsz
     resize       = args.resize
-    crop_size    = 80
-    overlap_size = 8
     benchmark    = args.benchmark
     save_image   = args.save_image
     save_debug   = args.save_debug
     use_fullpath = args.use_fullpath
+    crop_size    = imgsz[0]  # 80
+    overlap_size = 8         # 8
+    pad_size     = 16        # 16 * 2 = 32
     
     # Model
     model_restoration = model.to(device)
     functional.set_step_mode(model_restoration, step_mode="m")
     functional.set_backend(model_restoration,   backend="cupy")
-    model_restoration.load_state_dict(torch.load(weights, map_location=device, weights_only=True))
+    state_dict = torch.load(weights, map_location=device, weights_only=True)
+    if mon.Path(weights).suffix == ".ckpt":
+        state_dict = state_dict["state_dict"]
+    model_restoration.load_state_dict(state_dict)
     model_restoration.to(device)
     model_restoration.eval()
     
@@ -115,7 +120,7 @@ def predict(args: argparse.Namespace):
     data_name, data_loader, data_writer = mon.parse_io_worker(
         src         = data,
         dst         = save_dir,
-        to_tensor   = False,
+        to_tensor   = True,
         denormalize = True,
         verbose     = False,
     )
@@ -129,12 +134,16 @@ def predict(args: argparse.Namespace):
                 total       = len(data_loader),
                 description = f"[bright_yellow] Predicting"
             ):
-                # Input
-                image      = datapoint.get("image")
-                image      = image.to(device)
-                meta       = datapoint.get("meta")
-                image_path = mon.Path(meta["path"])
-                b, c, h, w = image.shape
+                # Pre-processing
+                image        = datapoint.get("image")
+                image        = image.to(device)
+                meta         = datapoint.get("meta")
+                image_path   = mon.Path(meta["path"])
+                _, _, h0, w0 = image.shape
+                if resize:
+                    image = mon.resize(image, imgsz)
+                image        = F.pad(image, (pad_size, pad_size, pad_size, pad_size), mode="constant", value=0)
+                b, c, h1, w1 = image.shape
                 
                 # Infer
                 timer.tick()
@@ -143,9 +152,14 @@ def predict(args: argparse.Namespace):
                     split_data[j] = model_restoration(data).to(device)
                     split_data[j] = split_data[j].cpu()
                     functional.reset_net(model_restoration)
-                enhanced = merge_image(split_data, starts, resolution=(b, c, crop_size, crop_size))
-                enhanced = torch.clamp(enhanced, 0, 1).permute(0, 2, 3, 1).numpy()
+                enhanced = merge_image(split_data, starts, crop_size=crop_size, shape=(b, c, h1, w1))
+                enhanced = torch.clamp(enhanced, 0, 1)
                 timer.tock()
+                
+                # Post-processing
+                enhanced = enhanced[:, :, pad_size:-pad_size, pad_size:-pad_size]
+                if h1 != h0 or w1 != w0:
+                    enhanced = mon.resize(enhanced, (h0, w0))
                 
                 # Save
                 if save_image:

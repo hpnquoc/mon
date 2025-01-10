@@ -6,6 +6,7 @@
 from __future__ import annotations
 
 __all__ = [
+    "FiveK",
     "FiveKA",
     "FiveKADataModule",
     "FiveKB",
@@ -14,6 +15,7 @@ __all__ = [
     "FiveKCDataModule",
     "FiveKD",
     "FiveKDDataModule",
+    "FiveKDataModule",
     "FiveKE",
     "FiveKEDataModule",
     "FiveKInit",
@@ -163,7 +165,43 @@ class FiveKInit(MultimodalDataset):
     def verify_data(self):
         """Verify dataset."""
         pass
+
+
+@DATASETS.register(name="fivek")
+class FiveK(MultimodalDataset):
+    """MIT-Adobe FiveK dataset with Expert A ground-truth. It consists of
+    5,000 low/high image pairs.
+    """
     
+    tasks : list[Task]  = [Task.LLIE]
+    splits: list[Split] = [Split.TEST]
+    datapoint_attrs     = DatapointAttributes({
+        "image": ImageAnnotation,
+        "depth": DepthMapAnnotation,
+    })
+    has_test_annotations: bool = False
+    
+    def __init__(self, root: core.Path = default_root_dir, *args, **kwargs):
+        super().__init__(root=root, *args, **kwargs)
+        
+    def get_data(self):
+        patterns = [
+            self.root / "fivek" / self.split_str / "image",
+        ]
+        
+        # Images
+        images: list[ImageAnnotation] = []
+        with core.get_progress_bar(disable=self.disable_pbar) as pbar:
+            for pattern in patterns:
+                for path in pbar.track(
+                    sequence    = sorted(list(pattern.rglob("*"))),
+                    description = f"Listing {self.__class__.__name__} {self.split_str} images"
+                ):
+                    if path.is_image_file():
+                        images.append(ImageAnnotation(path=path, root=pattern))
+    
+        self.datapoints["image"] = images
+        
 
 @DATASETS.register(name="fivek_a")
 class FiveKA(MultimodalDataset):
@@ -457,6 +495,29 @@ class FiveKInitDataModule(DataModule):
             self.val   = None
         if stage in [None, "test"]:
             self.test  = None
+        
+        self.get_classlabels()
+        if self.can_log:
+            self.summarize()
+
+
+@DATAMODULES.register(name="fivek")
+class FiveKDataModule(DataModule):
+
+    tasks: list[Task] = [Task.LLIE]
+    
+    def prepare_data(self, *args, **kwargs):
+        pass
+    
+    def setup(self, stage: Literal["train", "test", "predict", None] = None):
+        if self.can_log:
+            console.log(f"Setup [red]{self.__class__.__name__}[/red].")
+       
+        if stage in [None, "train"]:
+            self.train = FiveK(split=Split.TEST, **self.dataset_kwargs)
+            self.val   = FiveK(split=Split.TEST, **self.dataset_kwargs)
+        if stage in [None, "test"]:
+            self.test  = FiveK(split=Split.TEST, **self.dataset_kwargs)
         
         self.get_classlabels()
         if self.can_log:
