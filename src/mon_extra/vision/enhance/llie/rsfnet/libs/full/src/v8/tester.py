@@ -8,9 +8,9 @@ import lpips
 import numpy as np
 import torch
 from colorama import Back, Fore, Style
-from libs.FULL.datasets.datasets import MyDataset
-from libs.FULL.src.v8.model import RRNet
-from libs.FULL.utils.helpers import bgr2ycbcr
+from libs.full.datasets.datasets import MyDataset
+from libs.full.src.v8.model import RRNet
+from libs.full.utils.helpers import bgr2ycbcr
 from skimage.metrics import (
     peak_signal_noise_ratio as psnr,
     structural_similarity as ssim,

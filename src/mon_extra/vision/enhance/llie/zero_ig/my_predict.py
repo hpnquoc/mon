@@ -138,7 +138,7 @@ def predict(args: argparse.Namespace):
                         output_dir = save_dir / rel_path.parents[0]
                     else:
                         output_dir = save_dir / data_name
-                    output_path    = output_dir / image_path.name
+                    output_path    = output_dir / f"{image_path.stem}.jpg"
                     output_path.parent.mkdir(parents=True, exist_ok=True)
                     cv2.imwrite(str(output_path), enhance)
                 if save_debug:
@@ -147,7 +147,7 @@ def predict(args: argparse.Namespace):
                         debug_dir  = save_dir / rel_path.parents[1] / f"{rel_path.parent.name}_denoise"
                     else:
                         debug_dir  = save_dir / f"{data_name}_denoise"
-                    output_path    = debug_dir / image_path.name
+                    output_path    = debug_dir / f"{image_path.stem}.jpg"
                     output_path.parent.mkdir(parents=True, exist_ok=True)
                     cv2.imwrite(str(output_path), output)
                 

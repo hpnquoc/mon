@@ -27,7 +27,16 @@ exist_ok    : False
 verbose     : True
 
 # Model Specific
+# Setup
 num_workers : 10
+# Flags
+f_valFromTrain: False
+f_OverExp     : False
+f_saveRes     : False
+f_RGB         : True
+f_eval        : True
+f_denoise     : True
+# Optim params
 lr          : 0.01
 lr_step     : 1
 lr_decay    : 0.9
@@ -36,6 +45,7 @@ maxIter     : 3
 factors     : 5
 dataMean    : 0.05
 seed        : 2
+# Loss params
 freeze      : 25
 etaA        : 0.5
 wc          : 10

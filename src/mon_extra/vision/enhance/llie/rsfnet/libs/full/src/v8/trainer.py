@@ -93,7 +93,7 @@ def train(args):
             optimizer.param_groups[0]['lr']   = optimizer.param_groups[0]['lr'] * args.lr_decay
             optimizer.param_groups[1]['lr']   = optimizer.param_groups[1]['lr'] * args.lr_decay
                 
-        for _,data in tqdm(enumerate(loader_train), total=len(loader_train), leave=False, colour='BLUE'):
+        for _, data in tqdm(enumerate(loader_train), total=len(loader_train), leave=False, colour='BLUE'):
             imNum, y_labels, imlow  = data['imNum'], data['gtdata'], data['imlow']
             y_labels, imlow         = y_labels.to(device).type(torch.float32), imlow.to(device).type(torch.float32)
             optimizer.zero_grad()
@@ -116,11 +116,13 @@ def train(args):
         for i in range(args.factors):
             print(f'''\t E[{i}][0]={model.factNet.lmbda_E[i][0].item():0.9f} \t A[{i}][0]={model.factNet.lmbda_A[i][0].item():0.9f} \t step[{i}][0]={model.factNet.step[i][0].item():0.9f} ''')
         
-        p_model         = os.path.join(p_resDir, model_name+'_'+str(epoch)+'.pt')
+        p_model = os.path.join(p_resDir, model_name+'_'+str(epoch)+'.pt')
         print(f'Saving model at {p_model}')
-        if torch.cuda.device_count() and len(args.gpuId.split(',')) > 1:  torch.save(model.module.state_dict(), p_model)
-        else:   torch.save(model.state_dict(), p_model)
-        with open(os.path.join(p_resDir,model_name+'.json'),'w') as f:
-            json.dump({'epoch':epoch, 'lr':optimizer.param_groups[0]['lr'], 'config':args.__dict__}, f, indent=4)
+        if torch.cuda.device_count() and len(args.gpuId.split(',')) > 1:
+            torch.save(model.module.state_dict(), p_model)
+        else:
+            torch.save(model.state_dict(), p_model)
+        with open(os.path.join(p_resDir,model_name+'.json'), 'w') as f:
+            json.dump({'epoch':epoch, 'lr':optimizer.param_groups[0]['lr'], 'config': args.__dict__}, f, indent=4)
 
     print(f'COMPLETED TRAINING. SAVED @ {p_resDir}')

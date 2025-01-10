@@ -1045,6 +1045,14 @@ EXTRA_MODELS      = {  # architecture/model (+ variant)
             "torch_distributed_launch": True,
         },
     },
+    "rsfnet"       : {
+        "rsfnet": {
+            "tasks"    : [Task.LLIE],
+            "schemes"  : [Scheme.ZERO_REFERENCE],
+            "model_dir": MON_EXTRA_DIR / "vision" / "enhance" / "llie" / "rsfnet",
+            "torch_distributed_launch": True,
+        },
+    },
     "ruas"         : {
         "ruas": {
             "tasks"    : [Task.LLIE],

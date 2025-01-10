@@ -103,7 +103,7 @@ def test(args: argparse.Namespace):
                 enhanced_image = model(image)
                 enhanced_image = enhanced_image.clamp(0, 1).cpu()
                 run_time       = (time.time() - start_time)
-                output_path    = args.output_dir / image_path.name
+                output_path    = args.output_dir / f"{image_path.stem}.jpg"
                 torchvision.utils.save_image(enhanced_image, str(output_path))
                 sum_time      += run_time
         avg_time = float(sum_time / len(image_paths))

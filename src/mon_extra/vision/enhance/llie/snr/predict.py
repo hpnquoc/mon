@@ -81,7 +81,7 @@ def predict(args: argparse.Namespace):
                 visuals        = model.get_current_visuals(need_GT=False)
                 enhanced_image = util.tensor2img(visuals['rlt'])  # uint8
                 enhanced_image = cv2.resize(enhanced_image, (w, h))
-                output_path    = args.output_dir / image_path.name
+                output_path    = args.output_dir / f"{image_path.stem}.jpg"
                 cv2.imwrite(str(output_path), enhanced_image)
                 # torchvision.utils.save_image(enhanced_image, str(output_path))
                 sum_time += run_time

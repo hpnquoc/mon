@@ -178,12 +178,12 @@ class Fusion(nn.Module):
         for i in range(len(s)):
             s[i] = s[i] * w[i]
         S  = torch.cat(s, dim=1)
-        e1 = self.relu(self.e_conv1(S))
-        e2 = self.relu(self.e_conv2(e1))
-        e3 = self.relu(self.e_conv3(e2))
-        e4 = self.relu(self.e_conv3(e3))
-        d1 = self.relu(self.d_conv5(torch.cat([e3, e4], 1)))
-        d2 = self.relu(self.d_conv6(torch.cat([e2, d1], 1)))
+        e1 =  self.relu(self.e_conv1(S))
+        e2 =  self.relu(self.e_conv2(e1))
+        e3 =  self.relu(self.e_conv3(e2))
+        e4 =  self.relu(self.e_conv3(e3))
+        d1 =  self.relu(self.d_conv5(torch.cat([e3, e4], 1)))
+        d2 =  self.relu(self.d_conv6(torch.cat([e2, d1], 1)))
         O  = torch.tanh(self.d_conv7(torch.cat([e1, d2], 1)))
         
         # SIMPLE Merge <---- GOLDEN

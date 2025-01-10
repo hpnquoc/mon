@@ -4,24 +4,16 @@
 from __future__ import annotations
 
 import argparse
-
-import torch
-import torch.optim
-
-import mon
-import json
-import os
 import random
 import warnings
-from datetime import datetime
 
 import numpy as np
 import torch
 import torch.nn as nn
-from libs.full.datasets.datasets import MyDataset
+import torch.optim
+from mon import albumentation as A
+import mon
 from libs.full.src.v8.model import RRNet
-from torch.utils.data import DataLoader
-from tqdm.auto import tqdm
 
 torch.autograd.set_detect_anomaly(True)
 warnings.filterwarnings("ignore", category=FutureWarning)
@@ -41,11 +33,11 @@ def weights_init(m):
         
 def train(args: argparse.Namespace):
     # General config
-    data     = args.data
     fullname = args.fullname
     save_dir = mon.Path(args.save_dir)
     weights  = args.weights
     device   = mon.set_device(args.device)
+    imgsz    = args.imgsz
     epochs   = args.epochs
     verbose  = args.verbose
     
@@ -58,9 +50,10 @@ def train(args: argparse.Namespace):
     weights_dir.mkdir(parents=True, exist_ok=True)
     
     # Model
-    model = RRNet(args).to(device)
+    model = RRNet(args)
     if weights is not None and mon.Path(weights).is_weights_file():
         model.load_state_dict(torch.load(weights, map_location=device, weights_only=True))
+    model = model.to(device)
     model.apply(weights_init)
     
     # Optimizer
@@ -74,14 +67,24 @@ def train(args: argparse.Namespace):
         optimizer.add_param_group({"params": model.factNet.step[i].parameters(),    "lr": 0.01})  # 0.01
         
     # Data I/O
-    train_dataset = dataloader.lowlight_loader(args.data)
-    train_loader  = torch.utils.data.DataLoader(
-        train_dataset,
-        batch_size  = args.train_batch_size,
-        shuffle     = True,
-        num_workers = args.num_workers,
-        pin_memory  = True
-    )
+    data_args = {
+        "name"      : args.data,
+        "root"      : mon.DATA_DIR / "enhance",
+        "transform" : A.Compose(transforms=[
+            A.Resize(width=imgsz, height=imgsz),
+        ]),
+        "to_tensor" : True,
+        "cache_data": False,
+        "batch_size": args.batch_size,
+        "devices"   : device,
+        "shuffle"   : True,
+        "verbose"   : verbose,
+    }
+    datamodule: mon.DataModule = mon.DATAMODULES.build(config=data_args)
+    datamodule.prepare_data()
+    datamodule.setup(stage="train")
+    train_dataloader = datamodule.train_dataloader
+    val_dataloader   = datamodule.val_dataloader
     
     # Training
     for epoch in range(0, epochs):
@@ -94,33 +97,41 @@ def train(args: argparse.Namespace):
             optimizer.param_groups[1]["lr"] = optimizer.param_groups[1]["lr"] * args.lr_decay
     
         with mon.get_progress_bar() as pbar:
-            for _, data in pbar.track(
-                sequence    = enumerate(train_loader),
-                total       = len(train_loader),
+            for i, data in pbar.track(
+                sequence    = enumerate(train_dataloader),
+                total       = len(train_dataloader),
                 description = f"[bright_yellow] Training"
             ):
+                optimizer.zero_grad()
+                image      = data.get("image").to(device).type(torch.float32)
+                ref        = data.get("ref").to(device).type(torch.float32)
+                pred, loss = model(image, epoch, imNum=i)
+                if args.f_OverExp:
+                    pred = 1 - pred
                 
+                dic["train_loss"] += (loss.item()        / len(train_dataloader))
+                dic["L_color"]    += (model.L["L_color"] / len(train_dataloader))
+                dic["L_exp"]      += (model.L["L_exp"]   / len(train_dataloader))
+                dic["L_TV"]       += (model.L["L_TV"]    / len(train_dataloader))
+                dic["L_fact"]     += (model.L["L_fact"]  / len(train_dataloader))
                 
-                for iteration, img_lowlight in enumerate(train_loader):
-                    img_lowlight = img_lowlight.to(device)
-                    enhanced_image_1, enhanced_image, A = DCE_net(img_lowlight)
-                    
-                    loss_tv  = 200 * L_tv(A)
-                    loss_spa = torch.mean(L_spa(enhanced_image, img_lowlight))
-                    loss_col = 5   * torch.mean(L_color(enhanced_image))
-                    loss_exp = 10  * torch.mean(L_exp(enhanced_image))
-                    loss     = loss_tv + loss_spa + loss_col + loss_exp
+                model.freezeFact(epoch)
+                loss.backward()
+                torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)  # for LOLv1, LOLv2, LOLsyn
+                optimizer.step()
+                del loss, pred
+            
+            for j in range(args.factors):
+                print(
+                    f'''
+                    \tE[{j}][0]={model.factNet.lmbda_E[j][0].item():0.9f}
+                    \tA[{j}][0]={model.factNet.lmbda_A[j][0].item():0.9f}
+                    \tstep[{j}][0]={model.factNet.step[j][0].item():0.9f}
+                    '''
+                )
         
-                    optimizer.zero_grad()
-                    loss.backward()
-                    torch.nn.utils.clip_grad_norm(DCE_net.parameters(), args.grad_clip_norm)
-                    optimizer.step()
-                    
-                    if ((iteration + 1) % args.display_iter) == 0:
-                        print("Loss at iteration", iteration + 1, ":", loss.item())
-                    if ((iteration + 1) % args.checkpoints_iter) == 0:
-                        torch.save(DCE_net.state_dict(), weights_dir / "best.pt")
-
+            torch.save(model.state_dict(), weights_dir / f"{fullname}_last.pt")
+            
 # endregion
 
 

@@ -84,7 +84,7 @@ def train(args: argparse.Namespace):
     # criterion = nn.MSELoss().to(device)
     criterion_ssim = utils.SSIM().to(device)
     # criterion_L1 = nn.SmoothL1Loss().to(device)
-    criterion_psnr = PSNRLoss().to(device)
+    # criterion_psnr = PSNRLoss().to(device)
     
     # Optimizer
     optimizer        = optim.AdamW(model_restoration.parameters(), lr=start_lr, betas=(0.9, 0.999), eps=1e-8)

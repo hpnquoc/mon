@@ -155,7 +155,7 @@ def main(args: argparse.Namespace):
                 run_time  = (time.time() - start_time)
                 sum_time += run_time
                 
-                output_path = args.output_dir / image_path.name
+                output_path = args.output_dir / f"{image_path.stem}.jpg"
                 imwrite(str(output_path), sr)
         avg_time = float(sum_time / len(image_paths))
         console.log(f"Average time: {avg_time}")

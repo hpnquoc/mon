@@ -39,7 +39,7 @@ def main(args: argparse.Namespace):
             start_time     = time.time()
             enhanced_image = pie.PIE(image)
             run_time       = (time.time() - start_time)
-            output_path    = args.output_dir / image_path.name
+            output_path    = args.output_dir / f"{image_path.stem}.jpg"
             cv2.imwrite(str(output_path), enhanced_image)
             sum_time      += run_time
     avg_time = float(sum_time / len(image_paths))

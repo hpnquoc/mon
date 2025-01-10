@@ -104,11 +104,11 @@ class Inference(nn.Module):
                 total       = len(low_image_paths),
                 description = f"[bright_yellow] Inferring"
             ):
-                high_image_path   = self.opts.input_high / low_image_path.name
+                high_image_path   = self.opts.input_high / low_f"{image_path.stem}.jpg"
                 low_image         = self.transform(Image.open(low_image_path)).unsqueeze(0)
                 high_image        = self.transform(Image.open(high_image_path)).unsqueeze(0)
                 enhance, run_time = self.forward(low_image, high_image)
-                result_path       = self.opts.output_dir / low_image_path.name
+                result_path       = self.opts.output_dir / low_f"{image_path.stem}.jpg"
                 torchvision.utils.save_image(enhance, str(result_path))
             """
             if not os.path.exists(self.opts.output):

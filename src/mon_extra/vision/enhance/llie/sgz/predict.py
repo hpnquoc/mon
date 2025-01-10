@@ -81,7 +81,7 @@ class Tester:
             ):
                 enhanced_image, run_time = self.inference(image_path)
                 sum_time    += run_time
-                output_path  = args.output_dir / image_path.name
+                output_path  = args.output_dir / f"{image_path.stem}.jpg"
                 torchvision.utils.save_image(enhanced_image, str(output_path))
         avg_time = float(sum_time / len(image_paths))
         console.log(f"Average time: {avg_time}")

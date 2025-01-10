@@ -130,7 +130,7 @@ def test(args: argparse.Namespace):
             ):
                 # console.log(image_path)
                 enhanced_image, run_time = model.run(image_path)
-                output_path  = args.output_dir / image_path.name
+                output_path  = args.output_dir / f"{image_path.stem}.jpg"
                 torchvision.utils.save_image(enhanced_image, str(output_path))
                 sum_time    += run_time
         avg_time = float(sum_time / len(image_paths))
