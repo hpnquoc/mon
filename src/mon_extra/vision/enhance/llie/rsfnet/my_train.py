@@ -11,9 +11,10 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torch.optim
-from mon import albumentation as A
+
 import mon
 from libs.full.src.v8.model import RRNet
+from mon import albumentation as A
 
 torch.autograd.set_detect_anomaly(True)
 warnings.filterwarnings("ignore", category=FutureWarning)
@@ -97,15 +98,15 @@ def train(args: argparse.Namespace):
             optimizer.param_groups[1]["lr"] = optimizer.param_groups[1]["lr"] * args.lr_decay
     
         with mon.get_progress_bar() as pbar:
-            for i, data in pbar.track(
+            for i, datapoint in pbar.track(
                 sequence    = enumerate(train_dataloader),
                 total       = len(train_dataloader),
                 description = f"[bright_yellow] Training"
             ):
                 optimizer.zero_grad()
-                image      = data.get("image").to(device).type(torch.float32)
-                ref        = data.get("ref").to(device).type(torch.float32)
-                pred, loss = model(image, epoch, imNum=i)
+                image      = datapoint.get("image").to(device).type(torch.float32)
+                ref        = datapoint.get("ref").to(device).type(torch.float32)
+                pred, loss = model(image, epoch)
                 if args.f_OverExp:
                     pred = 1 - pred
                 

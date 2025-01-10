@@ -25,16 +25,17 @@ warnings.filterwarnings("ignore", category=FutureWarning)
 
 
 def test(config):
-    if config.p_resDir==None:
+    if config.p_resDir is None:
         config.p_resDir = os.path.split(config.p_model)[0]
-    p_resDir    = os.path.join(config.p_resDir,config.dataset)
-    if not os.path.isdir(p_resDir): os.makedirs(p_resDir)
-    device      = torch.device("cuda") if (config.device=='cuda' and torch.cuda.is_available()) else torch.device("cpu")
+    p_resDir = os.path.join(config.p_resDir,config.dataset)
+    if not os.path.isdir(p_resDir):
+        os.makedirs(p_resDir)
+    device = torch.device("cuda") if (config.device is 'cuda' and torch.cuda.is_available()) else torch.device("cpu")
     config.device = device
     print(f'WORKING ON Device={device}')
     
-    dataset_test    = MyDataset(config, 'test')
-    loader_test     = DataLoader(dataset_test, num_workers=config.num_workers, batch_size=config.batch_size)
+    dataset_test = MyDataset(config, 'test')
+    loader_test  = DataLoader(dataset_test, num_workers=config.num_workers, batch_size=config.batch_size)
     
     model = RRNet(config)
     print('Loading model from ', config.p_model)
@@ -56,12 +57,13 @@ def test(config):
 
     with torch.set_grad_enabled(False):
         for _,data in tqdm(enumerate(loader_test), total=len(loader_test), colour='blue', leave=False):
-            imNum, y_labels, imlow  = data['imNum'], data['gtdata'], data['imlow']
-            imNum        = imNum[0]
-            y_labels, imlow         = y_labels.to(device).type(torch.float32), imlow.to(device).type(torch.float32)
+            imNum, y_labels, imlow = data['imNum'], data['gtdata'], data['imlow']
+            imNum = imNum[0]
+            y_labels, imlow = y_labels.to(device).type(torch.float32), imlow.to(device).type(torch.float32)
             model.to(device)
-            pred,_       = model(imlow, imNum=imNum)
-            if config.f_OverExp: pred = 1-pred
+            pred, _= model(imlow, imNum=imNum)
+            if config.f_OverExp:
+                pred = 1-pred
             
             # if config.f_denoise: pred = bilateral_blur(pred,(5,5), 0.4, (1.0,1.0))
             # if config.f_denoise: pred = bilateral_blur(pred,(5,5), 0.4, (1.0,1.0))

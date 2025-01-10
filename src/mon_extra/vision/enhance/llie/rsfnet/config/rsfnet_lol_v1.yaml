@@ -10,7 +10,7 @@ project     : ~
 variant     : ~
 fullname    : "rsfnet"
 save_dir    : ~
-weights     : "zoo/vision/enhance/llie/rsfnet/rsfnet/lol_v1/rsfnet_lol_v1.pth"
+weights     : "zoo/vision/enhance/llie/rsfnet/rsfnet/lol_v1/rsfnet_lol_v1.pt"
 device      : 0
 local_rank  : -1
 launcher    : ~
