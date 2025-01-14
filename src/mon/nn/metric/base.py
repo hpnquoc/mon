@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Base Metric Module.
+"""Base Metric.
 
 This module implements the base classes for all metrics, and the corresponding
 helper functions.
@@ -40,7 +40,7 @@ import torchmetrics
 # region Base
 
 class Metric(torchmetrics.Metric, ABC):
-    """The base class for all loss functions.
+    """The base class for all metrics.
 
     Args:
         mode: One of: ``'FR'`` or ``'NR'``. Default: ``'FR'``.
@@ -106,11 +106,11 @@ def scale_gt_mean(
     References:
         https://github.com/Fediory/HVI-CIDNet/blob/master/measure.py
     """
-    from mon.core.image import color_space
+    from mon.vision.dtype import color_space
     
     if isinstance(image, torch.Tensor) and isinstance(target, torch.Tensor):
-        mean_image  = color.rgb_to_grayscale(image).mean()
-        mean_target = color.rgb_to_grayscale(target).mean()
+        mean_image  = color_space.rgb_to_grayscale(image).mean()
+        mean_target = color_space.rgb_to_grayscale(target).mean()
         image       = torch.clip(image * (mean_target / mean_image), 0, 1)
     elif isinstance(image, np.ndarray) and isinstance(target, np.ndarray):
         mean_restored = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY).mean()

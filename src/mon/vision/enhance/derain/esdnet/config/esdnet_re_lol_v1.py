@@ -91,7 +91,7 @@ data = {
 	]),  # Transformations performing on both the input and target.
     "to_tensor" : True,          # If ``True``, convert input and target to :class:`torch.Tensor`.
     "cache_data": False,         # If ``True``, cache data to disk for faster loading next time.
-    "batch_size": 8,             # The number of samples in one forward pass.
+    "batch_size": 16,            # The number of samples in one forward pass.
     "devices"   : 0,             # A list of devices to use. Default: ``0``.
     "shuffle"   : True,          # If ``True``, reshuffle the datapoints at the beginning of every epoch.
     "verbose"   : verbose,       # Verbosity.
@@ -125,7 +125,7 @@ trainer = default.trainer | {
 	"default_root_dir" : root,  # Default path for logs and weights.
 	"devices"          : [0],
 	# "gradient_clip_val": 0.1,
-	"log_image_every_n_epochs": 1,
+	"log_image_every_n_epochs": 100,
 	"logger"           : {
 		"tensorboard": default.tensorboard,
 	},

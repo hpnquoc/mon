@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Efficiency Metric Module.
+"""Efficiency Metric.
 
 This module implements efficiency score metrics.
 """

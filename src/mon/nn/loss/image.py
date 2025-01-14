@@ -852,8 +852,8 @@ class SSIMLoss(base.Loss):
         reduction        : Literal["none", "mean", "sum"] = "mean",
     ):
         super().__init__(loss_weight=loss_weight, reduction=reduction)
-        from mon.nn.metric import CustomSSIM
-        self.ssim = CustomSSIM(
+        from mon.nn.metric.pytorch_msssim import SSIM
+        self.ssim = SSIM(
             data_range        = data_range,
             size_average      = size_average,
             window_size       = window_size,
@@ -887,8 +887,8 @@ class MSSSIMLoss(base.Loss):
         reduction   : Literal["none", "mean", "sum"] = "mean",
     ):
         super().__init__(loss_weight=loss_weight, reduction=reduction)
-        from mon.nn.metric import CustomMSSSIM
-        self.ms_ssim = CustomMSSSIM(
+        from mon.nn.metric.pytorch_msssim import MS_SSIM
+        self.ms_ssim = MS_SSIM(
             data_range   = data_range,
             size_average = size_average,
             window_size  = window_size,

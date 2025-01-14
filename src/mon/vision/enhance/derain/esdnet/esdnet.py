@@ -21,7 +21,6 @@ from typing import Any, Sequence
 
 import torch
 import torch.nn.functional as F
-from torch.autograd import Variable
 
 from mon import core, nn
 from mon.globals import MODELS, Scheme, Task
@@ -144,72 +143,6 @@ class UpSampling(nn.Module):
 # endregion
 
 
-# region Loss
-
-def gaussian(window_size: int, sigma: float) -> torch.Tensor:
-    gauss = torch.Tensor([math.exp(-(x - window_size // 2) ** 2 / float(2 * sigma ** 2)) for x in range(window_size)])
-    return gauss / gauss.sum()
-
-
-def create_window(window_size: int, channel: int) -> torch.Tensor:
-    _1D_window = gaussian(window_size, 1.5).unsqueeze(1)
-    _2D_window = _1D_window.mm(_1D_window.t()).float().unsqueeze(0).unsqueeze(0)
-    window     = Variable(_2D_window.expand(channel, 1, window_size, window_size).contiguous())
-    return window
-
-
-def _ssim(img1, img2, window: int, window_size: int, channel: int, size_average: bool = True):
-    mu1     = F.conv2d(img1, window, padding=window_size // 2, groups=channel)
-    mu2     = F.conv2d(img2, window, padding=window_size // 2, groups=channel)
-    
-    mu1_sq  = mu1.pow(2)
-    mu2_sq  = mu2.pow(2)
-    mu1_mu2 = mu1 * mu2
-
-    sigma1_sq = F.conv2d(img1 * img1, window, padding=window_size // 2, groups=channel) - mu1_sq
-    sigma2_sq = F.conv2d(img2 * img2, window, padding=window_size // 2, groups=channel) - mu2_sq
-    sigma12   = F.conv2d(img1 * img2, window, padding=window_size // 2, groups=channel) - mu1_mu2
-
-    C1 = 0.01 ** 2
-    C2 = 0.03 ** 2
-
-    ssim_map = ((2 * mu1_mu2 + C1) * (2 * sigma12 + C2)) / ((mu1_sq + mu2_sq + C1) * (sigma1_sq + sigma2_sq + C2))
-
-    if size_average:
-        return ssim_map.mean()
-    else:
-        return ssim_map.mean(1).mean(1).mean(1)
-
-
-class SSIM(nn.Module):
-    
-    def __init__(self, window_size: int = 11, size_average: bool = True):
-        super().__init__()
-        self.window_size  = window_size
-        self.size_average = size_average
-        self.channel      = 1
-        self.window       = create_window(window_size, self.channel)
-
-    def forward(self, img1, img2):
-        (_, channel, _, _) = img1.size()
-
-        if channel == self.channel and self.window.data.type() == img1.data.type():
-            window = self.window
-        else:
-            window = create_window(self.window_size, channel)
-
-            if img1.is_cuda:
-                window = window.cuda(img1.get_device())
-            window = window.type_as(img1)
-
-            self.window  = window
-            self.channel = channel
-
-        return _ssim(img1, img2, window, self.window_size, channel, self.size_average)
-
-# endregion
-
-
 # region Model
 
 @MODELS.register(name="esdnet_re", arch="esdnet")
@@ -230,9 +163,9 @@ class ESDNet_RE(base.ImageEnhancementModel):
         self,
         in_channels   : int       = 3,
         out_channels  : int       = 3,
-        dim           : int       = 24,
-        enc_num_blocks: list[int] = [4, 4, 6, 6],
-        dec_num_blocks: list[int] = [4, 4, 6, 6],
+        dim           : int       = 48,
+        enc_num_blocks: list[int] = [4, 4, 8, 8],
+        dec_num_blocks: list[int] = [2, 2, 2, 2],
         bias          : bool      = False,
         T             : int       = 4,
         weights       : Any       = None,
@@ -296,14 +229,16 @@ class ESDNet_RE(base.ImageEnhancementModel):
         functional.set_backend(self, backend="cupy")
         
         # Loss
-        self.loss = nn.SSIMLoss(reduction="mean")
-        # self.loss = SSIM()
+        # self.loss = nn.SSIMLoss(reduction="mean")
+        self.criterion_ssim = nn.metric.custom_ssim.SSIM()
         
         # Load weights
         if self.weights:
             self.load_weights()
         else:
             self.apply(self.init_weights)
+    
+    # region Initialization
     
     def init_weights(self, m: nn.Module):
         pass
@@ -326,6 +261,10 @@ class ESDNet_RE(base.ImageEnhancementModel):
         }
     '''
     
+    # endregion
+    
+    # region Forward Pass
+    
     def forward_loss(self, datapoint: dict, *args, **kwargs) -> dict:
         for param in self.parameters():
             param.grad = None
@@ -336,7 +275,7 @@ class ESDNet_RE(base.ImageEnhancementModel):
         # Loss
         pred   = outputs.get("enhanced")
         target = datapoint.get("ref_image")
-        outputs["loss"] = self.loss(pred, target)
+        outputs["loss"] = 1 - self.criterion_ssim(pred, target)
         # Return
         return outputs
     
@@ -384,7 +323,11 @@ class ESDNet_RE(base.ImageEnhancementModel):
         for m in self.modules():
             if hasattr(m, "reset"):
                 m.reset()
-            
+    
+    # endregion
+    
+    # region Predicting
+    
     def infer(
         self,
         datapoint   : dict,
@@ -504,5 +447,7 @@ class ESDNet_RE(base.ImageEnhancementModel):
             total_score[:, :, hs:hs + h, ws:ws + w] += score_map
         merge_img = merge_img / total_score
         return merge_img
-
+    
+    # endregion
+    
 # endregion
