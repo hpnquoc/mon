@@ -29,32 +29,52 @@ verbose    = True
 # region Model
 
 model = {
-	"name"        : model_name,     # The model's name.
-	"fullname"    : fullname,       # A full model name to save the checkpoint or weight.
-	"root"        : root,           # The root directory of the model.
-	"in_channels" : 3,              # The first layer's input channel.
-	"out_channels": None,           # A number of classes, which is also the last layer's output channels.
-	"weights"     : None,           # The model's weights.
-	"loss"        : None,           # Loss function for training the model.
-	"metrics"     : {
+	"name"          : model_name,     # The model's name.
+	"fullname"      : fullname,       # A full model name to save the checkpoint or weight.
+	"root"          : root,           # The root directory of the model.
+	"in_channels"   : 3,              # The first layer's input channel.
+	"out_channels"  : 3,              # A number of classes, which is also the last layer's output channels.
+	"dim"           : 48,
+	"enc_num_blocks": [4, 4, 8, 8],
+	"dec_num_blocks": [2, 2, 2, 2],
+	"T"             : 4,
+	"weights"       : None,           # The model's weights.
+	"loss"          : None,           # Loss function for training the model.
+	"metrics"       : {
 	    "train": None,  # [{"name": "psnr"}],
 		"val"  : [{"name": "psnr"}, {"name": "ssim"}],
 		"test" : [{"name": "psnr"}, {"name": "ssim"}],
     },          # A list metrics for validating and testing model.
-	"optimizers"  : [
+	"optimizers"    : [
 		{
             "optimizer"          : {
-	            "name"        : "adam",
-	            "lr"          : 0.00005,
-	            "weight_decay": 0.00001,
-	            "betas"       : [0.9, 0.99],
+	            "name"  : "adamw",
+	            "lr"    : 0.0001,
+	            "betas" : [0.9, 0.99],
 			},
-			"lr_scheduler"       : None,
+			"lr_scheduler"       : {
+				"scheduler": {
+					"name"           : "gradual_warmup_scheduler",
+					"multiplier"     : 1,
+					"total_epoch"    : 3,
+					"after_scheduler": {
+						"name"      : "cosine_annealing_lr",
+						"T_max"     : 1000 - 3,
+						"eta_min"   : 0.0000001,
+						"last_epoch": -1
+					}
+				},
+				"interval" : "epoch",
+				"frequency": 1,
+				"monitor"  : "train/loss",
+				"strict"   : True,
+				"name"     : None,
+			},
 			"network_params_only": True,
         }
     ],          # Optimizer(s) for training model.
-	"debug"       : False,          # If ``True``, run the model in debug mode (when predicting).
-	"verbose"     : verbose,        # Verbosity.
+	"debug"         : False,          # If ``True``, run the model in debug mode (when predicting).
+	"verbose"       : verbose,        # Verbosity.
 }
 
 # endregion
@@ -86,15 +106,17 @@ trainer = default.trainer | {
 	"callbacks"        : [
 		default.log_training_progress,
 		default.model_checkpoint | {
-			"filename": fullname,
-			"monitor" : "val/psnr",
-			"mode"    : "max",
+			"filename"         : fullname,
+			"monitor"          : "val/psnr",
+			"mode"             : "max",
+			"save_weights_only": True,
 		},
 		default.model_checkpoint | {
-			"filename" : fullname,
-			"monitor"  : "val/ssim",
-			"mode"     : "max",
-			"save_last": True,
+			"filename"         : fullname,
+			"monitor"          : "val/ssim",
+			"mode"             : "max",
+			"save_last"        : True,
+			"save_weights_only": True,
 		},
 		default.learning_rate_monitor,
 		default.rich_model_summary,
@@ -107,6 +129,7 @@ trainer = default.trainer | {
 	"logger"           : {
 		"tensorboard": default.tensorboard,
 	},
+	"max_epochs"       : 1000,  # The number of epochs to train the model.
 }
 
 # endregion

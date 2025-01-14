@@ -17,14 +17,14 @@ class Factorization(nn.Module):
     def __init__(self, config):
         super().__init__()
         self.factors      = config.factors
-        self.maxIt        = config.maxIt
+        self.maxIt        = config.maxIter
         self.device       = config.device
         self.Etmean       = [[] for i in range(self.factors)]
         self.relu         = nn.ReLU(inplace=True)
         self.etaA         = config.etaA
         self.epoch        = 0
         self.freeze       = config.freeze
-        self.p_resDir     = config.p_resDir
+        # self.p_resDir     = config.p_resDir
         self.mode         = config.mode
         self.dataMean     = config.dataMean
         self.f_initialize = True
@@ -123,8 +123,8 @@ class Factorization(nn.Module):
         allE = torch.Tensor().to(input.device)
         loss = 0 
         
-        if not os.path.exists(os.path.join(self.p_resDir, "factors")):
-            os.makedirs(os.path.join(self.p_resDir, "factors"))
+        # if not os.path.exists(os.path.join(self.p_resDir, "factors")):
+        #     os.makedirs(os.path.join(self.p_resDir, "factors"))
         
         # FACTORIZATION 
         a = input
@@ -151,7 +151,7 @@ class Fusion(nn.Module):
         self.relu     = nn.ReLU(inplace=True)
         self.sigmoid  = nn.Sigmoid()
         self.factors  = config.factors
-        self.p_resDir = config.p_resDir
+        # self.p_resDir = config.p_resDir
         self.device   = config.device
         self.mode     = config.mode
         n_filters     = 3
@@ -241,7 +241,7 @@ class RRNet(nn.Module):
         self.wf        = config.wf
         self.freeze    = config.freeze
         self.factors   = config.factors
-        self.maxIt     = config.maxIt
+        self.maxIt     = config.maxIter
         self.f_denoise = config.f_denoise
         self.mode      = config.mode
     

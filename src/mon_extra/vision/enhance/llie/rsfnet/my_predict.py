@@ -39,6 +39,8 @@ def predict(args: argparse.Namespace):
     use_fullpath = args.use_fullpath
     
     # Model
+    args.mode   = "predict"
+    args.device = device
     model = RRNet(args)
     model.load_state_dict(torch.load(weights, weights_only=True))
     model.to(device)

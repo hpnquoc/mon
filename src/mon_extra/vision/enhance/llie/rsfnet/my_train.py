@@ -51,6 +51,8 @@ def train(args: argparse.Namespace):
     weights_dir.mkdir(parents=True, exist_ok=True)
     
     # Model
+    args.mode   = "train"
+    args.device = device
     model = RRNet(args)
     if weights is not None and mon.Path(weights).is_weights_file():
         model.load_state_dict(torch.load(weights, map_location=device, weights_only=True))
@@ -105,7 +107,7 @@ def train(args: argparse.Namespace):
             ):
                 optimizer.zero_grad()
                 image      = datapoint.get("image").to(device).type(torch.float32)
-                ref        = datapoint.get("ref").to(device).type(torch.float32)
+                ref        = datapoint.get("ref_image").to(device).type(torch.float32)
                 pred, loss = model(image, epoch)
                 if args.f_OverExp:
                     pred = 1 - pred
@@ -122,6 +124,7 @@ def train(args: argparse.Namespace):
                 optimizer.step()
                 del loss, pred
             
+            """
             for j in range(args.factors):
                 print(
                     f'''
@@ -130,7 +133,7 @@ def train(args: argparse.Namespace):
                     \tstep[{j}][0]={model.factNet.step[j][0].item():0.9f}
                     '''
                 )
-        
+            """
             torch.save(model.state_dict(), weights_dir / f"{fullname}_last.pt")
             
 # endregion

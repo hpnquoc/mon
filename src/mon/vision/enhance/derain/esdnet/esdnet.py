@@ -13,7 +13,7 @@ References:
 from __future__ import annotations
 
 __all__ = [
-
+    "ESDNet_RE",
 ]
 
 import math
@@ -21,11 +21,10 @@ from typing import Any, Sequence
 
 import torch
 import torch.nn.functional as F
+from torch.autograd import Variable
 
 from mon import core, nn
 from mon.globals import MODELS, Scheme, Task
-from mon.vision import geometry
-from mon.vision.dtype import image as I
 from mon.vision.enhance import base
 from spikingjelly.activation_based import functional, layer, neuron
 
@@ -67,7 +66,7 @@ class OverlapPatchEmbed(nn.Module):
     def __init__(self, in_channels: int = 3, embed_dim: int = 32, bias: bool = False):
         super().__init__()
         functional.set_step_mode(self, step_mode="m")
-        self.proj = layer.Conv2d(in_channels, embed_dim, kernel_size=3, stride=1, padding=1, bias=bias)
+        self.proj = layer.Conv2d(in_channels, embed_dim, kernel_size=3, stride=1, padding=1, bias=bias, step_mode="m")
 	
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         x = self.proj(x)
@@ -145,10 +144,76 @@ class UpSampling(nn.Module):
 # endregion
 
 
+# region Loss
+
+def gaussian(window_size: int, sigma: float) -> torch.Tensor:
+    gauss = torch.Tensor([math.exp(-(x - window_size // 2) ** 2 / float(2 * sigma ** 2)) for x in range(window_size)])
+    return gauss / gauss.sum()
+
+
+def create_window(window_size: int, channel: int) -> torch.Tensor:
+    _1D_window = gaussian(window_size, 1.5).unsqueeze(1)
+    _2D_window = _1D_window.mm(_1D_window.t()).float().unsqueeze(0).unsqueeze(0)
+    window     = Variable(_2D_window.expand(channel, 1, window_size, window_size).contiguous())
+    return window
+
+
+def _ssim(img1, img2, window: int, window_size: int, channel: int, size_average: bool = True):
+    mu1     = F.conv2d(img1, window, padding=window_size // 2, groups=channel)
+    mu2     = F.conv2d(img2, window, padding=window_size // 2, groups=channel)
+    
+    mu1_sq  = mu1.pow(2)
+    mu2_sq  = mu2.pow(2)
+    mu1_mu2 = mu1 * mu2
+
+    sigma1_sq = F.conv2d(img1 * img1, window, padding=window_size // 2, groups=channel) - mu1_sq
+    sigma2_sq = F.conv2d(img2 * img2, window, padding=window_size // 2, groups=channel) - mu2_sq
+    sigma12   = F.conv2d(img1 * img2, window, padding=window_size // 2, groups=channel) - mu1_mu2
+
+    C1 = 0.01 ** 2
+    C2 = 0.03 ** 2
+
+    ssim_map = ((2 * mu1_mu2 + C1) * (2 * sigma12 + C2)) / ((mu1_sq + mu2_sq + C1) * (sigma1_sq + sigma2_sq + C2))
+
+    if size_average:
+        return ssim_map.mean()
+    else:
+        return ssim_map.mean(1).mean(1).mean(1)
+
+
+class SSIM(nn.Module):
+    
+    def __init__(self, window_size: int = 11, size_average: bool = True):
+        super().__init__()
+        self.window_size  = window_size
+        self.size_average = size_average
+        self.channel      = 1
+        self.window       = create_window(window_size, self.channel)
+
+    def forward(self, img1, img2):
+        (_, channel, _, _) = img1.size()
+
+        if channel == self.channel and self.window.data.type() == img1.data.type():
+            window = self.window
+        else:
+            window = create_window(self.window_size, channel)
+
+            if img1.is_cuda:
+                window = window.cuda(img1.get_device())
+            window = window.type_as(img1)
+
+            self.window  = window
+            self.channel = channel
+
+        return _ssim(img1, img2, window, self.window_size, channel, self.size_average)
+
+# endregion
+
+
 # region Model
 
-@MODELS.register(name="esdnet", arch="esdnet")
-class ESDNet(base.ImageEnhancementModel):
+@MODELS.register(name="esdnet_re", arch="esdnet")
+class ESDNet_RE(base.ImageEnhancementModel):
     """Learning A Spiking Neural Network for Efficient Image Deraining.
     
     References:
@@ -174,7 +239,7 @@ class ESDNet(base.ImageEnhancementModel):
         *args, **kwargs
     ):
         super().__init__(
-            name        = "esdnet",
+            name        = "esdnet_re",
             in_channels = in_channels,
             weights     = weights,
             *args, **kwargs
@@ -188,8 +253,6 @@ class ESDNet(base.ImageEnhancementModel):
         # Construct model
         v_th  = 0.15
         alpha = 1 / (2 ** 0.5)
-        functional.set_backend(self,   backend="cupy")
-        functional.set_step_mode(self, step_mode="m")
         
         self.T = T
         self.patch_embed    = OverlapPatchEmbed(in_channels=in_channels, embed_dim=dim)
@@ -229,17 +292,53 @@ class ESDNet(base.ImageEnhancementModel):
         self.refinement = FeatureRefinementBlock(channel=int(dim * 2 ** 1), reduction=8)
         self.output     = nn.Sequential(nn.Conv2d(in_channels=int(dim * 2 ** 1), out_channels=out_channels, kernel_size=3, stride=1, padding=1))
         
+        functional.set_step_mode(self, step_mode="m")
+        functional.set_backend(self, backend="cupy")
+        
         # Loss
-        self.loss = nn.PSNRLoss(reduction="mean")
+        self.loss = nn.SSIMLoss(reduction="mean")
+        # self.loss = SSIM()
         
         # Load weights
         if self.weights:
             self.load_weights()
         else:
             self.apply(self.init_weights)
-
+    
     def init_weights(self, m: nn.Module):
         pass
+    
+    '''
+    def configure_optimizers(self):
+        optim            = self.optims[0]
+        lr               = optim["optimizer"]["lr"]
+        min_lr           = optim["lr_scheduler"]["min_lr"]
+        warmup_epochs    = optim["lr_scheduler"]["warmup_epochs"]
+        optimizer        = nn.AdamW(self.parameters(), lr=lr, betas=(0.9, 0.999), eps=1e-8)
+        scheduler_cosine = nn.CosineAnnealingLR(optimizer, 1000 - warmup_epochs, eta_min=min_lr)
+        scheduler        = nn.GradualWarmupScheduler(optimizer, multiplier=1, total_epoch=warmup_epochs, after_scheduler=scheduler_cosine)
+        return {
+            "optimizer"   : optimizer,
+            "lr_scheduler": {
+                "scheduler": scheduler,
+                "monitor"  : "train/loss",
+            }
+        }
+    '''
+    
+    def forward_loss(self, datapoint: dict, *args, **kwargs) -> dict:
+        for param in self.parameters():
+            param.grad = None
+        # Forward
+        self.assert_datapoint(datapoint)
+        outputs = self.forward(datapoint=datapoint, *args, **kwargs)
+        self.assert_outputs(outputs)
+        # Loss
+        pred   = outputs.get("enhanced")
+        target = datapoint.get("ref_image")
+        outputs["loss"] = self.loss(pred, target)
+        # Return
+        return outputs
     
     def forward(self, datapoint: dict, *args, **kwargs) -> dict:
         self.assert_datapoint(datapoint)
@@ -248,8 +347,7 @@ class ESDNet(base.ImageEnhancementModel):
         # Repeat Feature
         if len(input.shape) < 5:
             input = (input.unsqueeze(0)).repeat(self.T, 1, 1, 1, 1)
-        
-        functional.reset_net(self)
+            
         inp_enc_level1 = self.patch_embed(input)
         out_enc_level1 = self.encoder_level1(inp_enc_level1)
         
@@ -275,10 +373,18 @@ class ESDNet(base.ImageEnhancementModel):
         out_dec_level1 = self.refinement(out_dec_level1.mean(0))
         enhanced       = (self.output(out_dec_level1)) + short
         
+        self.reset_net()
+        
         return {
-            "enhanced": enhanced
+            "enhanced": enhanced,
         }
     
+    def reset_net(self):
+        # functional.reset_net(self)
+        for m in self.modules():
+            if hasattr(m, "reset"):
+                m.reset()
+            
     def infer(
         self,
         datapoint   : dict,

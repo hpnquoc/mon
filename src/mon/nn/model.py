@@ -579,8 +579,8 @@ class Model(lightning.LightningModule, ABC):
                 raise ValueError(f"`optimizer` must be defined.")
             if isinstance(optimizer, dict):
                 optimizer = OPTIMIZERS.build(
-                    network = self,
-                    config  = optimizer,
+                    network             = self,
+                    config              = optimizer,
                     network_params_only = network_params_only
                 )
             optim["optimizer"] = optimizer

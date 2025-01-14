@@ -19,7 +19,7 @@ import lightning
 from torch.utils import data
 
 from mon.core import dtype, rich
-from mon.dataset.dtype import dataset
+from mon.dataset.dtype import dataset, annotation
 from mon.globals import Task
 
 
@@ -207,7 +207,7 @@ class DataModule(lightning.LightningDataModule, ABC):
     
     def get_classlabels(self):
         """Load all the class-labels of the dataset."""
-        if isinstance(self.classlabels, dataset.ClassLabels):
+        if isinstance(self.classlabels, annotation.ClassLabels):
             return
         elif self.train is not None:
             self.classlabels = getattr(self.train, "classlabels", None)
