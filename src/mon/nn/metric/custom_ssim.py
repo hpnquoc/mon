@@ -45,8 +45,8 @@ def _ssim(
     k           : tuple[float, float] = (0.01, 0.03),
     size_average: bool = True,
 ) -> torch.Tensor:
-    mu1     = F.conv2d(image1, window, padding=window_size // 2, groups=channel)
-    mu2     = F.conv2d(image2, window, padding=window_size // 2, groups=channel)
+    mu1 = F.conv2d(image1, window, padding=window_size // 2, groups=channel)
+    mu2 = F.conv2d(image2, window, padding=window_size // 2, groups=channel)
     
     mu1_sq  = mu1.pow(2)
     mu2_sq  = mu2.pow(2)
@@ -69,16 +69,22 @@ def _ssim(
 
 class SSIM(nn.Module):
 
-    def __init__(self, window_size: int = 11, size_average: bool = True):
+    def __init__(
+        self,
+        window_size : int  = 11,
+        channel     : int  = 1,
+        k           : tuple[float, float] = (0.01, 0.03),
+        size_average: bool = True,
+    ):
         super().__init__()
         self.window_size  = window_size
         self.size_average = size_average
-        self.channel      = 1
+        self.channel      = channel
+        self.k            = k
         self.window       = _create_window(window_size, self.channel)
     
     def forward(self, image1: torch.Tensor, image2: torch.Tensor) -> torch.Tensor:
-        (_, channel, _, _) = image1.size()
-
+        _, channel, _, _ = image1.size()
         if channel == self.channel and self.window.data.type() == image1.data.type():
             window = self.window
         else:
@@ -91,4 +97,12 @@ class SSIM(nn.Module):
             self.window  = window
             self.channel = channel
 
-        return _ssim(image1, image2, window, self.window_size, channel, size_average=self.size_average)
+        return _ssim(
+            image1       = image1,
+            image2       = image2,
+            window       = window,
+            window_size  = self.window_size,
+            channel      = channel,
+            k            = self.k,
+            size_average = self.size_average
+        )
