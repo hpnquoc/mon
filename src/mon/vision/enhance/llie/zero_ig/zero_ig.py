@@ -25,7 +25,8 @@ from mon import core, nn
 from mon.globals import MODELS, Scheme, Task
 from mon.nn import functional as F
 from mon.nn.model import StepOutput
-from mon.vision import dtype
+from mon.vision import geometry as G
+from mon.vision.dtype import image as I
 from mon.vision.enhance import base
 
 console      = core.console
@@ -162,6 +163,51 @@ class SmoothLoss(nn.Loss):
         return total_term
     
 
+class TextureDifferenceLoss(nn.Loss):
+    """Texture Difference Loss.
+    
+    References:
+        https://github.com/Doyle59217/ZeroIG/blob/main/loss.py
+    """
+    
+    def __init__(
+        self,
+        patch_size : int   = 5,
+        constant_c : float = 1e-5,
+        threshold  : float = 0.975,
+        loss_weight: float = 1.0,
+        reduction  : Literal["none", "mean", "sum"] = "mean",
+    ):
+        super().__init__(loss_weight=loss_weight, reduction=reduction)
+        self.patch_size = patch_size
+        self.constant_c = constant_c
+        self.threshold  = threshold
+    
+    # noinspection PyMethodMayBeStatic
+    def rgb_to_gray(self, image: torch.Tensor) -> torch.Tensor:
+        # Convert RGB image to grayscale using the luminance formula
+        gray_image =  0.144 * image[:, 0, :, :] + 0.5870 * image[:, 1, :, :] + 0.299 * image[:, 2, :, :]
+        return gray_image.unsqueeze(1)  # Add a channel dimension for compatibility
+    
+    def forward(self, input: torch.Tensor, target: torch.Tensor) -> torch.Tensor:
+        # Convert RGB images to grayscale
+        input       = self.rgb_to_gray(input)
+        target      = self.rgb_to_gray(target)
+        # Calculate local standard deviation for input and target images
+        stddev1     = I.image_local_stddev(input)
+        stddev2     = I.image_local_stddev(target)
+        numerator   = 2 * stddev1 * stddev2
+        denominator = stddev1 ** 2 + stddev2 ** 2 + self.constant_c
+        diff        = numerator / denominator
+        # Apply threshold to diff tensor
+        binary_diff = torch.where(
+            diff > self.threshold,
+            torch.tensor(1.0, device=diff.device),
+            torch.tensor(0.0, device=diff.device)
+        )
+        return binary_diff
+    
+
 class Loss(nn.Loss):
     
     def __init__(
@@ -172,7 +218,7 @@ class Loss(nn.Loss):
         super().__init__(reduction=reduction, *args, **kwargs)
         self.l1_loss     = nn.L1Loss()
         self.l2_loss     = nn.L2Loss()
-        self.local_mean  = core.ImageLocalMean(patch_size = 5)
+        self.local_mean  = I.ImageLocalMean(patch_size = 5)
         self.smooth_loss = SmoothLoss()
         self.tv_loss     = nn.TotalVariationLoss()
     
@@ -221,16 +267,16 @@ class Loss(nn.Loss):
         loss += self.smooth_loss(l2.detach(), s2) * 5
         loss += self.tv_loss(s2) * 1600
         # Loss_res_1
-        l11, l12 = core.pair_downsample(image)
+        l11, l12 = G.pair_downsample(image)
         loss += self.l2_loss(l11, l_pred2) * 1000
         loss += self.l2_loss(l12, l_pred1) * 1000
-        denoised1, denoised2 = core.pair_downsample(l2)
+        denoised1, denoised2 = G.pair_downsample(l2)
         loss += self.l2_loss(l_pred1, denoised1) * 1000
         loss += self.l2_loss(l_pred2, denoised2) * 1000
         # Loss_res_2
         loss += self.l2_loss(h3_pred, torch.cat([h12.detach(), s22.detach()], 1)) * 1000
         loss += self.l2_loss(h4_pred, torch.cat([h11.detach(), s21.detach()], 1)) * 1000
-        h3_denoised1, h3_denoised2 = core.pair_downsample(h3)
+        h3_denoised1, h3_denoised2 = G.pair_downsample(h3)
         loss += self.l2_loss(h3_pred[:, 0:3, :, :], h3_denoised1) * 1000
         loss += self.l2_loss(h4_pred[:, 0:3, :, :], h3_denoised2) * 1000
         # Loss_color
@@ -397,7 +443,7 @@ class ZeroIG(base.ImageEnhancementModel):
         self.enhance  = Enhance(layers=self.in_channels, channels=self.num_channels)
         self.denoise1 = Denoise1(embed_channels=self.embed_channels)
         self.denoise2 = Denoise2(embed_channels=self.embed_channels)
-        self.texture_difference     = nn.TextureDifferenceLoss()
+        self.texture_difference     = TextureDifferenceLoss()
         self.automatic_optimization = False
         
         # Loss
@@ -454,13 +500,13 @@ class ZeroIG(base.ImageEnhancementModel):
             }
         # Training
         else:
-            l11, l12 = core.pair_downsample(image)
+            l11, l12 = G.pair_downsample(image)
             l_pred1  = l11   - self.denoise1(l11)
             l_pred2  = l12   - self.denoise1(l12)
             l2       = image - self.denoise1(image)
             l2       = torch.clamp(l2, eps, 1)
             s2       = self.enhance(l2.detach())
-            s21, s22 = core.pair_downsample(s2)
+            s21, s22 = G.pair_downsample(s2)
             h2       = image / s2
             h2       = torch.clamp(h2, eps, 1.0)
             h11      = l11 / s21
@@ -480,7 +526,7 @@ class ZeroIG(base.ImageEnhancementModel):
             h3       = h5_pred[:, :3, :, :]
             s3       = h5_pred[:, 3:, :, :]
             l_pred1_l_pred2_diff           = self.texture_difference(l_pred1, l_pred2)
-            h3_denoised1, h3_denoised2     = core.pair_downsample(h3)
+            h3_denoised1, h3_denoised2     = G.pair_downsample(h3)
             h3_denoised1_h3_denoised2_diff = self.texture_difference(h3_denoised1, h3_denoised2)
             h1       = l2 / s2
             h1       = torch.clamp(h1, 0.0, 1.0)
@@ -561,7 +607,7 @@ class ZeroIG(base.ImageEnhancementModel):
         log_values |= {
             f"train/{k}": v
             for k, v in outputs.items()
-            if v is not None and not dtype.is_image(v)
+            if v is not None and not I.is_image(v)
         }
         self.log_dict(
             dictionary     = log_values,

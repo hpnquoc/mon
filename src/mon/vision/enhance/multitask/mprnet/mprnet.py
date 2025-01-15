@@ -15,7 +15,7 @@ __all__ = [
     "MPRNet",
 ]
 
-from typing import Any, Sequence
+from typing import Any, Literal, Sequence
 
 import torch
 from torch.nn.common_types import _size_2_t
@@ -354,6 +354,34 @@ class ORSNet(nn.Module):
 # endregion
 
 
+# region Loss
+
+class EdgeCharbonnierLoss(nn.Loss):
+    """A combination of Charbonnier Loss and Edge Loss."""
+    
+    def __init__(
+        self,
+        edge_loss_weight: float = 1.0,
+        char_loss_weight: float = 1.0,
+        loss_weight     : float = 1.0,
+        reduction       : Literal["none", "mean", "sum"] = "mean"
+    ):
+        super().__init__(loss_weight=loss_weight, reduction=reduction)
+        self.edge_loss_weight = edge_loss_weight
+        self.char_loss_weight = char_loss_weight
+        self.edge_loss        = nn.EdgeLoss()
+        self.char_loss        = nn.CharbonnierLoss()
+    
+    def forward(self, input: torch.Tensor, target: torch.Tensor, **_) -> torch.Tensor:
+        edge_loss = self.edge_loss(input, target)
+        char_loss = self.char_loss(input, target)
+        loss 	  = self.char_loss_weight * char_loss + self.edge_loss_weight * edge_loss
+        loss 	  = nn.reduce_loss(loss=loss, reduction=self.reduction)
+        return loss
+
+# endregion
+
+
 # region Model
 
 @MODELS.register(name="mprnet", arch="mprnet")
@@ -393,14 +421,12 @@ class MPRNet(base.ImageEnhancementModel):
         reduction        : int       = 4,
         bias             : bool      = False,
         weights          : Any       = None,
-        loss 		     : Any       = nn.EdgeCharbonnierLoss(edge_loss_weight=0.05),
         *args, **kwargs
     ):
         super().__init__(
             name        = "mprnet",
             in_channels = in_channels,
             weights     = weights,
-            loss        = loss,
             *args, **kwargs
         )
         
@@ -449,6 +475,9 @@ class MPRNet(base.ImageEnhancementModel):
         self.concat12 	    = conv(self.num_channels * 2, self.num_channels, kernel_size, bias=bias)
         self.concat23  		= conv(self.num_channels * 2, self.num_channels + scale_orsnetfeats, kernel_size, bias=bias)
         self.tail      		= conv(self.num_channels+scale_orsnetfeats, self.in_channels, kernel_size, bias=bias)
+        
+        # Loss
+        self.loss = EdgeCharbonnierLoss(edge_loss_weight=0.05, reduction="mean")
         
         # Load weights
         if self.weights:

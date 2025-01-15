@@ -41,7 +41,7 @@ class PseudoGTGenerator:
         self.number_refs = number_refs
         self.gamma_upper = gamma_upper
         self.gamma_lower = gamma_lower
-        self.iqa         = nn.GoodLookingImageMetric(exposed_level=exposed_level, pool_size=pool_size)
+        self.iqa         = nn.metric.iqa.ImageQualityAssessment(exposed_level=exposed_level, pool_size=pool_size)
     
     def __call__(
         self,

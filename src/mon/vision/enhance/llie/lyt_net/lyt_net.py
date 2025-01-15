@@ -21,6 +21,7 @@ from typing import Any, Literal
 import torch
 import torch.nn.functional as F
 import torch.nn.init as init
+from torchvision import models
 
 from mon import core, nn
 from mon.globals import MODELS, Scheme, Task
@@ -54,12 +55,7 @@ class Loss(nn.Loss):
         self.alpha4 = alpha4
         self.alpha5 = alpha5
         self.alpha6 = alpha6
-        
-        self.smooth_l1_loss  = nn.SmoothL1Loss(reduction=reduction)
-        self.perceptual_loss = nn.VGGPerceptualLoss(reduction=reduction)
-        self.histogram_loss  = nn.HistogramLoss(reduction=reduction)
-        self.ms_ssim_loss    = nn.MSSSIMLoss(data_range=1.0, reduction=reduction, size_average=True)
-        self.color_loss      = nn.ColorLoss(reduction=reduction)
+        self.perceptual_loss = VGGPerceptualLoss(reduction=reduction)
         
     def forward(self, input: torch.Tensor, target: torch.Tensor) -> torch.Tensor:
         smooth_l1_loss  = self.smooth_l1_loss(input, target)
@@ -79,25 +75,22 @@ class Loss(nn.Loss):
         loss = nn.reduce_loss(loss=loss, reduction=self.reduction)
         return loss
     
-    '''
     def smooth_l1_loss(self, input: torch.Tensor, target: torch.Tensor) -> torch.Tensor:
         loss = F.smooth_l1_loss(input, target)
         return loss
     
     def multiscale_ssim_loss(
         self,
-        input        : torch.Tensor,
-        target       : torch.Tensor,
-        max_val      : float     = 1.0,
-        power_factors: list[int] = [0.5, 0.5]
+        input  : torch.Tensor,
+        target : torch.Tensor,
+        max_val: float = 1.0,
     ) -> torch.Tensor:
-        loss = 1.0 - nn.custom_ms_ssim(input, target, data_range=max_val, size_average=True)
+        loss = 1.0 - nn.metric.pytorch_msssim.ms_ssim(input, target, data_range=max_val, size_average=True)
         return loss
     
     def color_loss(self, input: torch.Tensor, target: torch.Tensor) -> torch.Tensor:
         loss = torch.mean(torch.abs(torch.mean(input, dim=[1, 2, 3]) - torch.mean(target, dim=[1, 2, 3])))
         return loss
-    '''
     
     def psnr_loss(self, input: torch.Tensor, target: torch.Tensor) -> torch.Tensor:
         mse  = F.mse_loss(input, target)
@@ -105,7 +98,6 @@ class Loss(nn.Loss):
         loss = 40.0 - torch.mean(psnr)
         return loss
     
-    '''
     def gaussian_kernel(self, x: torch.Tensor, mu: int, sigma: float) -> torch.Tensor:
         return torch.exp(-0.5 * ((x - mu) / sigma) ** 2)
     
@@ -116,14 +108,35 @@ class Loss(nn.Loss):
         bins  : int   = 256,
         sigma : float = 0.01
     ) -> torch.Tensor:
-        bin_edges     = torch.linspace(0.0, 1.0, bins, device=target.device)
-        y_true_hist   = torch.sum(self.gaussian_kernel(target.unsqueeze(-1), bin_edges, sigma), dim=0)
-        y_pred_hist   = torch.sum(self.gaussian_kernel(input.unsqueeze(-1),  bin_edges, sigma), dim=0)
-        y_true_hist  /= y_true_hist.sum()
-        y_pred_hist  /= y_pred_hist.sum()
-        hist_distance = torch.mean(torch.abs(y_true_hist - y_pred_hist))
+        bin_edges      = torch.linspace(0.0, 1.0, bins, device=target.device)
+        y_true_hist    = torch.sum(self.gaussian_kernel(target.unsqueeze(-1), bin_edges, sigma), dim=0)
+        y_pred_hist    = torch.sum(self.gaussian_kernel(input.unsqueeze(-1),  bin_edges, sigma), dim=0)
+        y_true_hist   /= y_true_hist.sum()
+        y_pred_hist   /= y_pred_hist.sum()
+        hist_distance  = torch.mean(torch.abs(y_true_hist - y_pred_hist))
         return hist_distance
-    '''
+
+
+class VGGPerceptualLoss(nn.Loss):
+    """VGG19 Perceptual Loss."""
+    
+    def __init__(
+        self,
+        loss_weight: float = 1.0,
+        reduction  : Literal["none", "mean", "sum"] = "mean"
+    ):
+        super().__init__(loss_weight=loss_weight, reduction=reduction)
+        vgg = models.vgg19(weights=True).features[:16]  # Until block3_conv3
+        self.loss_model = vgg.eval()
+        for param in self.loss_model.parameters():
+            param.requires_grad = False
+    
+    def forward(self, input: torch.Tensor, target: torch.Tensor) -> torch.Tensor:
+        y_true = target.to(next(self.loss_model.parameters()))
+        y_pred = input.to(next(self.loss_model.parameters()))
+        loss   = F.mse_loss(self.loss_model(y_true), self.loss_model(y_pred))
+        loss   = self.loss_weight * loss
+        return loss
     
 # endregion
 

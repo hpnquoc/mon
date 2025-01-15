@@ -1,24 +1,23 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Image Metric.
+"""Image Quality Assessment Metric.
 
-This module implements image metrics.
+References:
+    https://github.com/VinAIResearch/PSENet-Image-Enhancement/blob/main/source/iqa.py
 """
 
 from __future__ import annotations
 
 __all__ = [
-    "GoodLookingImageMetric",
+    "ImageQualityAssessment",
 ]
 
 import torch
 from torch import nn
 
 
-# region Good-Looking Image Metric
-
-class GoodLookingImageMetric(nn.Module):
+class ImageQualityAssessment(nn.Module):
     """A good-looking image is one with a low well-exposedness, but high
     contrast and saturation.
     
@@ -41,5 +40,3 @@ class GoodLookingImageMetric(nn.Module):
         exposedness = torch.abs(mean_rgb - self.exposed_level) + eps
         contrast    = self.mean_pool(images * images).mean(dim=1, keepdim=True) - mean_rgb ** 2
         return torch.mean((saturation * contrast) / exposedness, dim=[1], keepdim=True)
-    
-# endregion

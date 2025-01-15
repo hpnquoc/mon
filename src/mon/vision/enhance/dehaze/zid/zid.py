@@ -15,11 +15,12 @@ __all__ = [
     "ZID",
 ]
 
-from typing import Any
+from typing import Any, Literal
 
 import numpy as np
 import torch
 from cv2.ximgproc import guidedFilter
+from torch.nn import functional as F
 from torch.nn.common_types import _size_2_t
 
 from mon import core, nn
@@ -316,6 +317,42 @@ class VariationalAutoEncoder(nn.Module):
 # endregion
 
 
+# region Loss
+
+class StdLoss(nn.Loss):
+    """Loss on the variance of the image. Works in the grayscale. If the image
+    is smooth, gets zero.
+    """
+    
+    def __init__(
+        self,
+        loss_weight: float = 1.0,
+        reduction  : Literal["none", "mean", "sum"] = "mean"
+    ):
+        super().__init__(loss_weight=loss_weight, reduction=reduction)
+        blur         = (1 / 25) * np.ones((5, 5))
+        blur         = blur.reshape(1, 1, blur.shape[0], blur.shape[1])
+        self.blur    = nn.Parameter(data=torch.FloatTensor(blur), requires_grad=False)
+        self.l2_loss = nn.L2Loss()
+        
+        image       = np.zeros((5, 5))
+        image[2, 2] = 1
+        image       = image.reshape(1, 1, image.shape[0], image.shape[1])
+        self.image  = nn.Parameter(data=torch.FloatTensor(image), requires_grad=False)
+    
+    def forward(self, input: torch.Tensor, target: torch.Tensor = None) -> torch.Tensor:
+        x = input
+        x = torch.mean(x, 1, keepdim=True)
+        if self.image.device != x.device:
+            self.image = self.image.to(x.device)
+        loss = self.l2_loss(F.conv2d(x, self.image), F.conv2d(x, self.blur))
+        loss = nn.reduce_loss(loss=loss, reduction=self.reduction)
+        loss = self.loss_weight * loss
+        return loss
+    
+# endregion
+
+
 # region Model
 
 @MODELS.register(name="zid", arch="zid")
@@ -383,8 +420,8 @@ class ZID(base.ImageEnhancementModel):
         self.ambient_net = VariationalAutoEncoder(size=self.image_size).type(torch.cuda.FloatTensor)
         
         # Loss Functions
-        self.mse_loss = nn.MSELoss(reduction="mean").type(torch.cuda.FloatTensor)
-        self.std_loss = nn.StdLoss(reduction="mean").type(torch.cuda.FloatTensor)
+        self.mse_loss = nn.MSELoss(reduction="mean").type(torch.FloatTensor)
+        self.std_loss = StdLoss(reduction="mean").type(torch.FloatTensor)
         
         if self.weights:
             self.load_weights()

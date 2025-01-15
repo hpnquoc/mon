@@ -34,10 +34,8 @@ __all__ = [
     "MultiLabelSoftMarginLoss",
     "MultiMarginLoss",
     "NLLLoss",
-    "NLLLoss2d",
     "PoissonNLLLoss",
     "SmoothL1Loss",
-    "SmoothMAELoss",
     "SoftMarginLoss",
     "TripletMarginLoss",
     "TripletMarginWithDistanceLoss",
@@ -219,7 +217,7 @@ class ExtendedL1Loss(Loss):
         loss = reduce_loss(loss=loss, reduction=self.reduction)
         loss = self.loss_weight * loss
         return loss
-
+    
 
 BCELoss                       = nn.BCELoss
 BCEWithLogitsLoss             = nn.BCEWithLogitsLoss
@@ -237,38 +235,34 @@ MultiLabelMarginLoss          = nn.MultiLabelMarginLoss
 MultiLabelSoftMarginLoss      = nn.MultiLabelSoftMarginLoss
 MultiMarginLoss               = nn.MultiMarginLoss
 NLLLoss                       = nn.NLLLoss
-NLLLoss2d                     = nn.NLLLoss2d
 ExtendedMAELoss               = ExtendedL1Loss
 PoissonNLLLoss                = nn.PoissonNLLLoss
 SmoothL1Loss                  = nn.SmoothL1Loss
-SmoothMAELoss                 = SmoothL1Loss
 SoftMarginLoss                = nn.SoftMarginLoss
 TripletMarginLoss             = nn.TripletMarginLoss
 TripletMarginWithDistanceLoss = nn.TripletMarginWithDistanceLoss
 
-LOSSES.register(name="bce_loss"                         , module=BCELoss)
-LOSSES.register(name="bce_with_logits_loss"             , module=BCEWithLogitsLoss)
-LOSSES.register(name="cosine_embedding_loss"            , module=CosineEmbeddingLoss)
-LOSSES.register(name="cross_entropy_loss"               , module=CrossEntropyLoss)
-LOSSES.register(name="ctc_loss"                         , module=CTCLoss)
-LOSSES.register(name="gaussian_nll_loss"                , module=GaussianNLLLoss)
-LOSSES.register(name="hinge_embedding_loss"             , module=HingeEmbeddingLoss)
-LOSSES.register(name="huber_loss"                       , module=HuberLoss)
-LOSSES.register(name="kl_div_loss"                      , module=KLDivLoss)
-LOSSES.register(name="mae_loss"                         , module=MAELoss)
-LOSSES.register(name="margin_ranking_loss"              , module=MarginRankingLoss)
-LOSSES.register(name="mae_loss"                         , module=MSELoss)
-LOSSES.register(name="multi_label_margin_loss"          , module=MultiLabelMarginLoss)
-LOSSES.register(name="multi_label_soft_margin_loss"     , module=MultiLabelSoftMarginLoss)
-LOSSES.register(name="multi_margin_loss"                , module=MultiMarginLoss)
-LOSSES.register(name="nll_loss"                         , module=NLLLoss)
-LOSSES.register(name="nll_loss2d"                       , module=NLLLoss2d)
-LOSSES.register(name="extended_mae_loss"                , module=ExtendedMAELoss)
-LOSSES.register(name="poisson_nll_loss"                 , module=PoissonNLLLoss)
-LOSSES.register(name="smooth_l1_loss"                   , module=SmoothL1Loss)
-LOSSES.register(name="smooth_mae_loss"                  , module=SmoothMAELoss)
-LOSSES.register(name="soft_margin_loss"                 , module=SoftMarginLoss)
-LOSSES.register(name="triplet_margin_loss"              , module=TripletMarginLoss)
+LOSSES.register(name="bce_loss",                          module=BCELoss)
+LOSSES.register(name="bce_with_logits_loss",              module=BCEWithLogitsLoss)
+LOSSES.register(name="cosine_embedding_loss",             module=CosineEmbeddingLoss)
+LOSSES.register(name="cross_entropy_loss",                module=CrossEntropyLoss)
+LOSSES.register(name="ctc_loss",                          module=CTCLoss)
+LOSSES.register(name="gaussian_nll_loss",                 module=GaussianNLLLoss)
+LOSSES.register(name="hinge_embedding_loss",              module=HingeEmbeddingLoss)
+LOSSES.register(name="huber_loss",                        module=HuberLoss)
+LOSSES.register(name="kl_div_loss",                       module=KLDivLoss)
+LOSSES.register(name="mae_loss",                          module=MAELoss)
+LOSSES.register(name="margin_ranking_loss",               module=MarginRankingLoss)
+LOSSES.register(name="mae_loss",                          module=MSELoss)
+LOSSES.register(name="multi_label_margin_loss",           module=MultiLabelMarginLoss)
+LOSSES.register(name="multi_label_soft_margin_loss",      module=MultiLabelSoftMarginLoss)
+LOSSES.register(name="multi_margin_loss",                 module=MultiMarginLoss)
+LOSSES.register(name="nll_loss",                          module=NLLLoss)
+LOSSES.register(name="extended_mae_loss",                 module=ExtendedMAELoss)
+LOSSES.register(name="poisson_nll_loss",                  module=PoissonNLLLoss)
+LOSSES.register(name="smooth_l1_loss",                    module=SmoothL1Loss)
+LOSSES.register(name="soft_margin_loss",                  module=SoftMarginLoss)
+LOSSES.register(name="triplet_margin_loss",               module=TripletMarginLoss)
 LOSSES.register(name="triplet_margin_with_distance_Loss", module=TripletMarginWithDistanceLoss)
 
 # endregion

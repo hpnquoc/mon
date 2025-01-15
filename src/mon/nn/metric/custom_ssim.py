@@ -3,6 +3,9 @@
 
 """Custom SSIM for PyTorch.
 
+This module implements the custom SSIM which is used as the loss function in the
+paper: "ESDNet: Efficient and Scalable Deep Net for Small Object Detection".
+
 References:
     https://github.com/MingTian99/ESDNet/blob/master/utils/image_utils.py
 """
