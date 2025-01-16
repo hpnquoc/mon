@@ -30,19 +30,16 @@ class DepthEstimationModel(VisionModel, ABC):
     
     def assert_datapoint(self, datapoint: dict) -> bool:
         if "image" not in datapoint:
-            raise ValueError("The key ``'image'`` must be defined in the "
-                             "`datapoint`.")
+            raise ValueError("The key ``'image'`` must be defined in the `datapoint`.")
         
         has_target = any(item in self.schemes for item in [Scheme.SUPERVISED]) and not self.predicting
         if has_target:
             if "depth" not in datapoint:
-                raise ValueError("The key ``'depth'`` must be defined in the "
-                                 "`datapoint`.")
+                raise ValueError("The key ``'depth'`` must be defined in the `datapoint`.")
             
     def assert_outputs(self, outputs: dict) -> bool:
         if "depth" not in outputs:
-            raise ValueError("The key ``'depth'`` must be defined in the "
-                             "`outputs`.")
+            raise ValueError("The key ``'depth'`` must be defined in the `outputs`.")
     
     def forward_loss(self, datapoint: dict, *args, **kwargs) -> dict:
         # Forward

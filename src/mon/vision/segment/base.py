@@ -33,19 +33,16 @@ class SegmentationModel(VisionModel, ABC):
     
     def assert_datapoint(self, datapoint: dict) -> bool:
         if "image" not in datapoint:
-            raise ValueError(f"The key ``'image'`` must be defined in the "
-                             f"`datapoint`.")
+            raise ValueError(f"The key ``'image'`` must be defined in the `datapoint`.")
         
         has_target = any(item in self.schemes for item in [Scheme.SUPERVISED]) and not self.predicting
         if has_target:
             if "semantic" not in datapoint:
-                raise ValueError(f"The key ``'semantic'`` must be defined in "
-                                 f"the `datapoint`.")
+                raise ValueError(f"The key ``'semantic'`` must be defined in the `datapoint`.")
             
     def assert_outputs(self, outputs: dict) -> bool:
         if "semantic" not in outputs:
-            raise ValueError(f"The key ``'semantic'`` must be defined in the "
-                             f"`outputs`.")
+            raise ValueError(f"The key ``'semantic'`` must be defined in the `outputs`.")
     
     def forward_loss(self, datapoint: dict, *args, **kwargs) -> dict:
         # Forward
@@ -107,13 +104,11 @@ class SegmentationModel(VisionModel, ABC):
         
         if len(image) != len(pred_semantic):
             raise ValueError(f"The number of `images` and `pred_semantic` must "
-                             f"be the same, but got "
-                             f"{len(image)} != {len(pred_semantic)}.")
+                             f"be the same, but got {len(image)} != {len(pred_semantic)}.")
         if tar_semantic is not None:
             if len(image) != len(tar_semantic):
                 raise ValueError(f"The number of `images` and `tar_semantic` "
-                                 f"must be the same, but got "
-                                 f"{len(image)} != {len(tar_semantic)}.")
+                                 f"must be the same, but got {len(image)} != {len(tar_semantic)}.")
         
         for i in range(len(image)):
             if tar_semantic:

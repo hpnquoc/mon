@@ -35,7 +35,7 @@ current_dir  = current_file.parents[0]
 class DoubleConvBlock(nn.Module):
     """(Convolution => BN => ReLU) * 2"""
     
-    def __init__(self, in_channels: int, out_channels: int, mid_channels: int | None = None):
+    def __init__(self, in_channels: int, out_channels: int, mid_channels: int = None):
         super().__init__()
         if not mid_channels:
             mid_channels = out_channels
@@ -46,8 +46,7 @@ class DoubleConvBlock(nn.Module):
         self.norm2 = nn.BatchNorm2d(out_channels)
         self.relu2 = nn.ReLU(inplace=True)
     
-    def forward(self, input: torch.Tensor) -> torch.Tensor:
-        x = input
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
         x = self.con1(x)
         x = self.norm1(x)
         x = self.relu1(x)
@@ -65,8 +64,7 @@ class DownConvBlock(nn.Module):
         self.pool = nn.MaxPool2d(2)
         self.conv = DoubleConvBlock(in_channels, out_channels)
         
-    def forward(self, input: torch.Tensor) -> torch.Tensor:
-        x = input
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
         x = self.pool(x)
         x = self.conv(x)
         return x
@@ -79,7 +77,7 @@ class UpConvBlock(nn.Module):
         super().__init__()
         # If bilinear, use the normal convolutions to reduce the number of channels
         if bilinear:
-            self.up   = nn.Upsample(scale_factor=2, mode='bilinear', align_corners=True)
+            self.up   = nn.Upsample(scale_factor=2, mode="bilinear", align_corners=True)
             self.conv = DoubleConvBlock(in_channels, out_channels, in_channels // 2)
         else:
             self.up   = nn.ConvTranspose2d(in_channels, in_channels // 2, kernel_size=2, stride=2)
@@ -104,8 +102,8 @@ class OutConv(nn.Module):
         super().__init__()
         self.conv = nn.Conv2d(in_channels, out_channels, kernel_size=1)
     
-    def forward(self, input: torch.Tensor) -> torch.Tensor:
-        return self.conv(input)
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        return self.conv(x)
     
 # endregion
 
@@ -114,7 +112,7 @@ class OutConv(nn.Module):
 
 @MODELS.register(name="unet", arch="unet")
 class UNet(base.SegmentationModel):
-    """U-Net: Convolutional Networks for Biomedical Image Segmentation
+    """U-Net: Convolutional Networks for Biomedical Image Segmentation.
     
     References:
         https://github.com/milesial/Pytorch-UNet
@@ -139,11 +137,6 @@ class UNet(base.SegmentationModel):
             weights     = weights,
             *args, **kwargs
         )
-        
-        # Populate hyperparameter values from pretrained weights
-        if isinstance(self.weights, dict):
-            in_channels = self.weights.get("in_channels", in_channels)
-            num_classes = self.weights.get("num_classes", num_classes)
         self.in_channels  = in_channels or self.in_channels
         self.out_channels = num_classes or self.out_channels
         
@@ -179,8 +172,9 @@ class UNet(base.SegmentationModel):
     def forward(self, datapoint: dict, *args, **kwargs) -> dict:
         self.assert_datapoint(datapoint)
         image = datapoint.get("image")
+        x     = image
         # Encoder
-        x1 = self.inc(image)
+        x1 = self.inc(x)
         x2 = self.down1(x1)
         x3 = self.down2(x2)
         x4 = self.down3(x3)
@@ -191,7 +185,7 @@ class UNet(base.SegmentationModel):
         y3 = self.up3(y2, x2)
         y4 = self.up4(y3, x1)
         y  = self.outc(y4)
-        #
+        # Return
         return {
             "semantic": y,
         }

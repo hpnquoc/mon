@@ -201,11 +201,11 @@ def train(args: argparse.Namespace):
                 if val_psnr > best_psnr:
                     best_psnr       = val_psnr
                     best_psnr_epoch = epoch
-                    # torch.save(model_restoration.state_dict(), str(weights_dir / f"{fullname}_best_psnr.pt"))
+                    torch.save(model_restoration.state_dict(), str(weights_dir / f"{fullname}_best_psnr.pt"))
                 if val_ssim > best_ssim:
                     best_ssim       = val_ssim
                     best_ssim_epoch = epoch
-                    torch.save(model_restoration.state_dict(), str(weights_dir / f"{fullname}_best.pt"))
+                    torch.save(model_restoration.state_dict(), str(weights_dir / f"{fullname}_best_ssim.pt"))
                 print("[Epoch %d Validating PSNR: %2.4f --- best_psnr_epoch %d Test_PSNR %2.4f]" % (epoch, val_psnr, best_psnr_epoch, best_psnr))
                 print("[Epoch %d Validating SSIM: %2.4f --- best_ssim_epoch %d Test_SSIM %2.4f]" % (epoch, val_ssim, best_ssim_epoch, best_ssim))
             

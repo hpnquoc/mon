@@ -31,19 +31,16 @@ class ImageEnhancementModel(VisionModel, ABC):
     
     def assert_datapoint(self, datapoint: dict) -> bool:
         if "image" not in datapoint:
-            raise ValueError(f"The key ``'image'`` must be defined in the "
-                             f"`datapoint`.")
+            raise ValueError(f"The key ``'image'`` must be defined in the `datapoint`.")
         
         has_target = any(item in self.schemes for item in [Scheme.SUPERVISED]) and not self.predicting
         if has_target:
             if "ref_image" not in datapoint:
-                raise ValueError(f"The key ``'ref_image'`` must be defined in "
-                                 f"the `datapoint`.")
+                raise ValueError(f"The key ``'ref_image'`` must be defined in the `datapoint`.")
             
     def assert_outputs(self, outputs: dict) -> bool:
         if "enhanced" not in outputs:
-            raise ValueError(f"The key ``'enhanced'`` must be defined in the "
-                             f"`outputs`.")
+            raise ValueError(f"The key ``'enhanced'`` must be defined in the `outputs`.")
     
     def forward_loss(self, datapoint: dict, *args, **kwargs) -> dict:
         # Forward
@@ -109,8 +106,7 @@ class ImageEnhancementModel(VisionModel, ABC):
         if ref_image is not None:
             if len(image) != len(ref_image):
                 raise ValueError(f"The number of `image` and `ref_image` must "
-                                 f"be the same, but got "
-                                 f"{len(image)} != {len(ref_image)}.")
+                                 f"be the same, but got {len(image)} != {len(ref_image)}.")
             
         for i in range(len(image)):
             if ref_image:
