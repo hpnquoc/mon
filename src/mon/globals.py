@@ -715,6 +715,26 @@ EXTRA_MODEL_STR   = "[extra]"
 EXTRA_DATASETS    = { }
 EXTRA_MODELS      = {  # architecture/model (+ variant)
     # region depth
+    "depth_anything"   : {
+        "depth_anything_vitb": {
+            "tasks"    : [Task.DEPTH],
+            "schemes"  : [Scheme.SUPERVISED],
+            "model_dir": MON_EXTRA_DIR / "vision" / "depth" / "depth_anything",
+            "torch_distributed_launch": True,
+        },
+        "depth_anything_vits": {
+            "tasks"    : [Task.DEPTH],
+            "schemes"  : [Scheme.SUPERVISED],
+            "model_dir": MON_EXTRA_DIR / "vision" / "depth" / "depth_anything",
+            "torch_distributed_launch": True,
+        },
+        "depth_anything_vitl": {
+            "tasks"    : [Task.DEPTH],
+            "schemes"  : [Scheme.SUPERVISED],
+            "model_dir": MON_EXTRA_DIR / "vision" / "depth" / "depth_anything",
+            "torch_distributed_launch": True,
+        },
+    },
     "depth_anything_v2": {
         "depth_anything_v2_vitb": {
             "tasks"    : [Task.DEPTH],

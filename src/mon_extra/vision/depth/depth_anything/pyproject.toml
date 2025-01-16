@@ -1,0 +1,29 @@
+#
+#     /\_____/\
+#    /  o   o  \
+#   ( ==  ^  == )
+#    )         (
+#   (           )
+#  ( (  )   (  ) )
+# (__(__)___(__)__)
+#
+[tool.poetry]
+name        = "depth_anything"
+version     = "1.0.0"
+description = "Depth Anything: Unleashing the Power of Large-Scale Unlabeled Data. Foundation Model for Monocular Depth Estimation"
+license     = "Apache-2.0 license"
+authors     = [
+]
+packages = [
+    {include="depth_anything"},
+]
+include  = []
+exclude  = []
+
+[tool.poetry.dependencies]
+gradio-imageslider = "*"
+gradio             = "4.29.0"
+
+[build-system]
+requires      = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

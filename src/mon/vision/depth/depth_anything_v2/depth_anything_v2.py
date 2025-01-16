@@ -196,5 +196,7 @@ def build_depth_anything_v2(
         return DepthAnythingV2_ViTB(in_channels=in_channels, weights=weights, *args, **kwargs)
     elif encoder == "vitl":
         return DepthAnythingV2_ViTL(in_channels=in_channels, weights=weights, *args, **kwargs)
+    elif encoder == "vitg":
+        raise NotImplementedError("The `vitg` encoder has been not implemented yet.")
     
 # endregion

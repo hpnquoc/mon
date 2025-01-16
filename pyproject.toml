@@ -59,6 +59,7 @@ exclude       = []
 [tool.poetry.dependencies]
 python            = ">=3.11, <3.13"
 spikingjelly      = {path="src/mon_extra/nn/spikingjelly"               , develop=true}
+depth_anything    = {path="src/mon_extra/vision/depth/depth_anything"   , develop=true}
 depth_anything_v2 = {path="src/mon_extra/vision/depth/depth_anything_v2", develop=true}
 depth_pro         = {path="src/mon_extra/vision/depth/depth_pro"        , develop=true}
 sam               = {path="src/mon_extra/vision/segment/sam"            , develop=true}
@@ -70,6 +71,7 @@ yolov9            = {path="src/mon_extra/vision/detect/yolov9"          , develo
 
 [tool.poetry.extras]
 dev = [
+    "depth_anything",
     "depth_anything_v2",
     "depth_pro",
     "sam",

@@ -1,7 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""This module implements the SORT: A Simple, Online and Realtime Tracker."""
+"""SORT.
+
+This module implements the SORT: A Simple, Online and Realtime Tracker.
+"""
 
 from __future__ import annotations
 
@@ -11,6 +14,7 @@ __all__ = [
 ]
 
 from timeit import default_timer as timer
+from typing import Sequence
 
 import numpy as np
 import torch
@@ -18,6 +22,8 @@ from filterpy.kalman import KalmanFilter
 
 from mon import core
 from mon.globals import TrackState
+from mon.vision import geometry as G
+from mon.vision.dtype import image as I
 from mon.vision.track import base, sort
 
 console = core.console
@@ -49,9 +55,9 @@ def associate_detections_to_tracks(
     
     # iou_matrix = iou_batch(detections, tracks)
     if association == "giou":
-        iou_matrix = core.bbox_giou(detections, tracks)
+        iou_matrix = G.bbox_giou(detections, tracks)
     else:
-        iou_matrix = core.bbox_iou(detections, tracks)
+        iou_matrix = G.bbox_iou(detections, tracks)
     
     if min(iou_matrix.shape) > 0:
         a = (iou_matrix > iou_threshold).astype(np.int32)
@@ -105,7 +111,7 @@ class KalmanBoxScoreTrack(base.Track):
         self,
         bbox         : np.ndarray,
         det_threshold: float,
-        id_          : int | None = None,
+        id_          : int        = None,
         state        : TrackState = TrackState.NEW,
     ):
         super().__init__(
@@ -158,9 +164,9 @@ class KalmanBoxScoreTrack(base.Track):
     def update(
         self,
         frame_id  : int,
+        class_id  : int,
         bbox      : np.ndarray,
         confidence: float,
-        classlabel: int | None  = None,
         timestamp : int | float = timer(),
         *args, **kwargs
     ):
@@ -175,9 +181,9 @@ class KalmanBoxScoreTrack(base.Track):
         self.history.append(
             base.Detection(
                 frame_id   = frame_id,
+                class_id   = class_id,
                 bbox       = bbox,
                 confidence = confidence,
-                classlabel = classlabel,
                 timestamp  = timestamp,
                 *args, **kwargs
             )
@@ -234,36 +240,35 @@ class SORTScore(base.Tracker):
     
     def update(
         self,
-        detections: torch.Tensor | np.ndarray,
-        # input_size: int | Sequence[int],
-        # image_size: int | Sequence[int],
-        frame_id  : int | None = None,
+        det_results: torch.Tensor | np.ndarray,
+        input_size : int | Sequence[int],
+        image_size : int | Sequence[int],
+        frame_id   : int = None,
     ):
         """Requires: this method must be called once for each frame even with
         empty detections (use np.empty((0, 5)) for frames without detections).
         
         Args:
-            detections: A :obj:`torch.Tensor` or :obj:`numpy.ndarray` of
-                detections in the format of `[[x1, y1, x2, y2, score, class], ...]`.
-            input_size: The size of the input image in the format ``[H, W]``.
-            image_size: The size of the original image in the format ``[H, W]``.
-            frame_id  : The frame number.
+            det_results: A :obj:`torch.Tensor` or :obj:`numpy.ndarray` of
+                detections in the format of ``[[x1, y1, x2, y2, score, class], ...]``.
+            input_size: The size of the input image in the format `[H, W]`.
+            image_size: The size of the original image in the format `[H, W]`.
+            frame_id: The frame number. Default: ``None``.
         """
         self.frame_count += 1
         # Post-process detections
-        detections    = detections.cpu().numpy() if isinstance(detections, torch.Tensor) else detections
-        scores        = detections[:,   4] * detections[:, 5]
-        bboxes        = detections[:, 0:4]  # [x1, y1, x2, y2]
-        classes       = detections[:,   5]
-        '''
+        det_results   = det_results.cpu().numpy() if isinstance(det_results, torch.Tensor) else det_results
+        scores        = det_results[:,   4] * det_results[:, 5]
+        bboxes        = det_results[:, 0:4]  # [x1, y1, x2, y2]
+        classes       = det_results[:,   5]
         # Scale the detections
-        input_size    = core.parse_hw(input_size)
-        image_size    = core.parse_hw(image_size)
+        input_size    = I.get_image_size(input_size)
+        image_size    = I.get_image_size(image_size)
         inp_h, inp_w  = input_size[0], input_size[1]
         img_h, img_w  = image_size[0], image_size[1]
-        scale         = min(float(img_h) / float(inp_h), float(img_w) / float(inp_w))
-        bboxes       /= scale
-        '''
+        if inp_h != img_h or inp_w != img_w:
+            scale   = min(float(img_h) / float(inp_h), float(img_w) / float(inp_w))
+            bboxes /= scale
         # Filter detection with low confidence score
         dets          = np.concatenate((bboxes, np.expand_dims(scores, axis=-1)), axis=1)
         remain_ids    = scores > self.det_threshold
@@ -293,9 +298,9 @@ class SORTScore(base.Tracker):
         for m in matched:
             self.tracks[m[1]].update(
                 frame_id   = frame_id or self.frame_count,
+                class_id   = classes[m[0]],
                 bbox       = dets[m[0], 0:4],
                 confidence = dets[m[0],   4],
-                classlabel = classes[m[0]],
             )
         # Create and initialize new tracks for unmatched detections
         for i in unmatched_dets:

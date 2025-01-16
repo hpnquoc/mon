@@ -18,6 +18,7 @@ import numpy as np
 
 from mon import core
 from mon.globals import TrackState
+from mon.vision import geometry as G
 
 console = core.console
 
@@ -44,9 +45,9 @@ class Detection:
         class_id  : int,
         bbox      : np.ndarray,
         confidence: float,
-        polygon   : np.ndarray | None = None,
-        feature   : np.ndarray | None = None,
-        timestamp : int | float       = timer(),
+        polygon   : np.ndarray  = None,
+        feature   : np.ndarray  = None,
+        timestamp : int | float = timer(),
     ):
         self.frame_id   = frame_id
         self.class_id   = class_id
@@ -65,14 +66,11 @@ class Detection:
         elif isinstance(value, Detection):
             return value
         else:
-            raise ValueError(
-                f"`value` must be a `Detection` class or "
-                f"a `dict`, but got {type(value)}."
-            )
+            raise ValueError(f"`value` must be a `Detection` class or a `dict`, but got {type(value)}.")
     
     @property
     def bbox(self) -> np.ndarray:
-        """Return the bounding box of shape `[4]`."""
+        """Return the bounding box of shape ``[4]``."""
         return self._bbox
     
     @bbox.setter
@@ -81,11 +79,11 @@ class Detection:
         if bbox.ndim == 1 and bbox.size == 4:
             self._bbox = bbox
         else:
-            raise ValueError(f"`bbox` must be a 1D array of size 4, but got {bbox.ndim} and {bbox.size}.")
+            raise ValueError(f"`bbox` must be a 1D array of size ``4``, but got {bbox.ndim} and {bbox.size}.")
     
     @property
     def bbox_center(self) -> np.ndarray:
-        return core.bbox_center(bbox=self.bbox)[0]
+        return G.bbox_center(bbox=self.bbox)[0]
     
     @property
     def bbox_tl(self) -> np.ndarray:
@@ -94,7 +92,7 @@ class Detection:
     
     @property
     def bbox_corners_points(self) -> np.ndarray:
-        return core.bbox_corners_points(bbox=self.bbox)[0]
+        return G.bbox_corners_points(bbox=self.bbox)[0]
     
     @property
     def confidence(self) -> float:
@@ -103,9 +101,9 @@ class Detection:
     
     @confidence.setter
     def confidence(self, confidence: float):
-            if not 0.0 <= confidence <= 1.0:
-                raise ValueError(f"`confidence` must be between ``0.0`` and ``1.0``, but got {confidence}.")
-            self._confidence = confidence
+        if not 0.0 <= confidence <= 1.0:
+            raise ValueError(f"`confidence` must be between ``0.0`` and ``1.0``, but got {confidence}.")
+        self._confidence = confidence
     
 
 class Track(ABC):
@@ -122,22 +120,21 @@ class Track(ABC):
     Args:
         id_: The unique ID of the track. Default: ``None``.
         state: The state of the track. Default: :obj:`TrackState.NEW`.
-        detections: The list of detections associated with the track.
-            Default: ``[]``.
+        detections: The list of detections associated with the track. Default: ``[]``.
     """
     
     count: int = 0
     
     def __init__(
         self,
-        id_       : int | None = None,
+        id_       : int        = None,
         state     : TrackState = TrackState.NEW,
         detections: Detection | list[Detection] = [],
     ):
-        self.id_     = id_ or Track.count
-        self.state   = state
-        self.history = detections
-        Track.count += 1
+        self.id_      = id_ or Track.count
+        self.state    = state
+        self.history  = detections
+        Track.count  += 1
     
     @property
     def history(self) -> list[Detection]:

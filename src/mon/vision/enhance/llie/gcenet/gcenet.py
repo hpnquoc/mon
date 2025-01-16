@@ -100,10 +100,10 @@ class LRNet(nn.Module):
     
     def __init__(
         self,
-        in_channels : int   = 3,
-        mid_channels: int   = 24,
-        layers      : int   = 5,
-        relu_slope  : float = 0.2,
+        in_channels : int       = 3,
+        mid_channels: int       = 24,
+        layers      : int       = 5,
+        relu_slope  : float     = 0.2,
         norm        : nn.Module = nn.AdaptiveBatchNorm2d,
     ):
         super().__init__()
@@ -155,10 +155,10 @@ class GuidedMap(nn.Module):
     
     def __init__(
         self,
-        in_channels: int   = 3,
-        channels   : int   = 64,
-        dilation   : int   = 0,
-        relu_slope : float = 0.2,
+        in_channels: int       = 3,
+        channels   : int       = 64,
+        dilation   : int       = 0,
+        relu_slope : float     = 0.2,
         norm       : nn.Module = nn.AdaptiveBatchNorm2d,
     ):
         super().__init__()
@@ -205,8 +205,8 @@ class ConvBlock(nn.Module):
         self,
         in_channels  : int,
         out_channels : int,
-        relu_slope   : float = 0.2,
-        is_last_layer: bool  = False,
+        relu_slope   : float     = 0.2,
+        is_last_layer: bool      = False,
         norm         : nn.Module = nn.AdaptiveBatchNorm2d,
     ):
         super().__init__()
@@ -239,9 +239,9 @@ class EnhanceNet(nn.Module):
         num_channels: int,
         num_iters   : int,
         norm        : nn.Module = nn.AdaptiveBatchNorm2d,
-        eps         : float = 0.05,
-        use_depth   : bool  = False,
-        use_edge    : bool  = False,
+        eps         : float     = 0.05,
+        use_depth   : bool      = False,
+        use_edge    : bool      = False,
     ):
         super().__init__()
         self.use_depth     = use_depth

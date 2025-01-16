@@ -88,7 +88,7 @@ class CoLIE_RE(base.ImageEnhancementModel):
     Args:
         window_size: Context window size. Default: ``1``.
         down_size  : Downsampling size. Default: ``256``.
-        add_layer: Should be in range of  ``[1, :obj:`num_layers` - 2]``.
+        add_layer: Should be in range of ``[1, :obj:`num_layers` - 2]``.
         L: The "optimally-intense threshold", lower values produce brighter
             images. Default: ``0.3``.
         alpha: Fidelity control. Default: ``1``.

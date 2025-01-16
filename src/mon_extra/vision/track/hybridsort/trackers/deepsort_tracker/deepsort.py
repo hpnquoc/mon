@@ -23,6 +23,7 @@ def _nn_cosine_distance(x, y):
 
 
 class Tracker:
+    
     def __init__(self, metric, max_iou_distance=0.7, max_age=70, n_init=3, args=None):
         self.metric = metric
         self.max_iou_distance = max_iou_distance
@@ -134,6 +135,7 @@ class Tracker:
 
 
 class NearestNeighborDistanceMetric(object):
+    
     def __init__(self, metric, matching_threshold, budget=None):
 
         if metric == "cosine":

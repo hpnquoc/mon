@@ -335,7 +335,6 @@ class KalmanFilterNew(object):
         self.attr_saved = None
         self.observed = False 
 
-
     def predict(self, u=None, B=None, F=None, Q=None):
         """
         Predict next state (prior) using the Kalman filter state propagation
@@ -378,14 +377,11 @@ class KalmanFilterNew(object):
         self.x_prior = self.x.copy()
         self.P_prior = self.P.copy()
 
-
-
     def freeze(self):
         """
             Save the parameters before non-observation forward
         """
         self.attr_saved = deepcopy(self.__dict__)
-
 
     def unfreeze(self):
         if self.attr_saved is not None:
@@ -432,7 +428,6 @@ class KalmanFilterNew(object):
                 self.update(new_box)
                 if not i == (index2-index1-1):
                     self.predict()
-
 
     def update(self, z, R=None, H=None):
         """
@@ -1417,7 +1412,6 @@ def predict_steadystate(x, F=1, u=0, B=1):
     return x
 
 
-
 def batch_filter(x, P, zs, Fs, Qs, Hs, Rs, Bs=None, us=None,
                  update_first=False, saver=None):
     """
@@ -1523,7 +1517,6 @@ def batch_filter(x, P, zs, Fs, Qs, Hs, Rs, Bs=None, us=None,
                 saver.save()
 
     return (means, covariances, means_p, covariances_p)
-
 
 
 def rts_smoother(Xs, Ps, Fs, Qs):
