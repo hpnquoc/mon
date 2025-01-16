@@ -150,18 +150,18 @@ def train(args: argparse.Namespace):
                 restored = model_restoration(image)
                 if use_amp:
                     with torch.cuda.amp.autocast():
-                        ssim = criterion_ssim(restored, ref)
+                        train_ssim = criterion_ssim(restored, ref)
                         # psnr = criterion_psnr(restored, ref)
-                        loss = 1 - ssim
+                        loss = 1 - train_ssim
                     scaler.scale(loss).backward()
                     # torch.nn.utils.clip_grad_norm_(model_restoration.parameters(), clip_grad)
                     scaler.step(optimizer)
                     scaler.update()
                     functional.reset_net(model_restoration)
                 else:
-                    ssim = criterion_ssim(restored, ref)
+                    train_ssim = criterion_ssim(restored, ref)
                     # psnr = criterion_psnr(restored, ref)
-                    loss = 1 - ssim
+                    loss = 1 - train_ssim
                     loss.backward()
                     scaled_loss += loss.item()
                     # torch.nn.utils.clip_grad_norm_(model_restoration.parameters(), clip_grad)
@@ -172,8 +172,8 @@ def train(args: argparse.Namespace):
                 iter       += 1
                 for res, tar in zip(restored, ref):
                     train_psnr_val_rgb.append(utils.torchPSNR(res, tar))
-                psnr_train = torch.stack(train_psnr_val_rgb).mean().item()
-                ssim_train = ssim.item()
+                train_psnr = torch.stack(train_psnr_val_rgb).mean().item()
+                train_ssim = train_ssim.item()
                 
                 writer.add_scalar("loss/iter_loss",  loss.item(), iter)
                 writer.add_scalar("loss/epoch_loss", epoch_loss, epoch)
@@ -182,7 +182,7 @@ def train(args: argparse.Namespace):
             # Evaluation
             if epoch % 1 == 0:
                 model_restoration.eval()
-                psnr_val_rgb = []
+                val_psnr = []
                 for ii, data_val in enumerate(val_loader):
                     image = data_val[0].to(device)
                     ref   = data_val[1].to(device)
@@ -192,22 +192,22 @@ def train(args: argparse.Namespace):
                     functional.reset_net(model_restoration)
                     
                     for res, tar in zip(restored, ref):
-                        psnr_val_rgb.append(utils.torchPSNR(res, tar))
+                        val_psnr.append(utils.torchPSNR(res, tar))
 
-                psnr_val_rgb = torch.stack(psnr_val_rgb).mean().item()
-                ssim_val_rgb = criterion_ssim(restored, ref).item()
-                writer.add_scalar("val/psnr", psnr_val_rgb, epoch)
-                writer.add_scalar("val/ssim", ssim_val_rgb, epoch)
-                if psnr_val_rgb > best_psnr:
-                    best_psnr       = psnr_val_rgb
+                val_psnr = torch.stack(val_psnr).mean().item()
+                val_ssim = criterion_ssim(restored, ref).item()
+                writer.add_scalar("val/psnr", val_psnr, epoch)
+                writer.add_scalar("val/ssim", val_ssim, epoch)
+                if val_psnr > best_psnr:
+                    best_psnr       = val_psnr
                     best_psnr_epoch = epoch
                     # torch.save(model_restoration.state_dict(), str(weights_dir / f"{fullname}_best_psnr.pt"))
-                if ssim_val_rgb > best_ssim:
-                    best_ssim       = ssim_val_rgb
+                if val_ssim > best_ssim:
+                    best_ssim       = val_ssim
                     best_ssim_epoch = epoch
                     torch.save(model_restoration.state_dict(), str(weights_dir / f"{fullname}_best.pt"))
-                print("[Epoch %d Training PSNR: %.4f --- best_psnr_epoch %d Test_PSNR %.4f]" % (epoch, psnr_train, best_psnr_epoch, best_psnr))
-                print("[Epoch %d Training SSIM: %.4f --- best_ssim_epoch %d Test_SSIM %.4f]" % (epoch, ssim_train, best_ssim_epoch, best_ssim))
+                print("[Epoch %d Validating PSNR: %2.4f --- best_psnr_epoch %d Test_PSNR %2.4f]" % (epoch, val_psnr, best_psnr_epoch, best_psnr))
+                print("[Epoch %d Validating SSIM: %2.4f --- best_ssim_epoch %d Test_SSIM %2.4f]" % (epoch, val_ssim, best_ssim_epoch, best_ssim))
             
             # Save model
             # if epoch % 50 == 0:
@@ -227,6 +227,7 @@ def train(args: argparse.Namespace):
                 },
                 str(weights_dir / f"{fullname}_last.ckpt")
             )
+            torch.save(model_restoration.state_dict(), str(weights_dir / f"{fullname}_last.pt"))
             scheduler.step()
             print("-" * 150)
             print(
@@ -234,18 +235,18 @@ def train(args: argparse.Namespace):
                 "Time: {:.4f}\t"
                 "Loss: {:.4f}\t"
                 "Train PSNR: {:.4f}\t"
-                "SSIM: {:.4f}\t"
+                "Train SSIM: {:.4f}\t"
                 "Learning Rate: {:.8f}\t"
-                "Test PSNR: {:.4f}\t"
-                "Test SSIM: {:.4f}".format(
+                "Validate PSNR: {:.4f}\t"
+                "Validate SSIM: {:.4f}".format(
                     epoch,
                     time.time() - epoch_start_time,
                     loss.item(),
-                    psnr_train,
-                    ssim,
+                    train_psnr,
+                    train_ssim,
                     scheduler.get_lr()[0],
-                    best_psnr,
-                    best_ssim,
+                    val_psnr,
+                    val_ssim,
                 )
             )
             print("-" * 150)

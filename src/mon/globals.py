@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Globals
+"""Globals.
 
 This module defines all global constants used across :obj:`mon` package.
 
