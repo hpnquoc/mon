@@ -60,24 +60,20 @@ StochasticWeightAveraging     = callbacks.StochasticWeightAveraging
 SpikeDetection                = callbacks.SpikeDetection
 TimerCallback                 = callbacks.Timer
 TQDMProgressBar               = callbacks.TQDMProgressBar
-# TuneReportCallback            = ray.TuneReportCallback
-# TuneReportCheckpointCallback  = ray.TuneReportCheckpointCallback
 
-CALLBACKS.register(name="backbone_finetuning"            , module=BackboneFinetuning)
-CALLBACKS.register(name="batch_size_finder"              , module=BatchSizeFinder)
-CALLBACKS.register(name="device_stats_monitor"           , module=DeviceStatsMonitor)
-CALLBACKS.register(name="early_stopping"                 , module=EarlyStopping)
+CALLBACKS.register(name="backbone_finetuning",             module=BackboneFinetuning)
+CALLBACKS.register(name="batch_size_finder",               module=BatchSizeFinder)
+CALLBACKS.register(name="device_stats_monitor",            module=DeviceStatsMonitor)
+CALLBACKS.register(name="early_stopping",                  module=EarlyStopping)
 CALLBACKS.register(name="gradient_accumulation_scheduler", module=GradientAccumulationScheduler)
-CALLBACKS.register(name="learning_rate_finder"           , module=LearningRateFinder)
-CALLBACKS.register(name="learning_rate_monitor"          , module=LearningRateMonitor)
-CALLBACKS.register(name="model_pruning"                  , module=ModelPruning)
-CALLBACKS.register(name="model_summary"                  , module=ModelSummary)
-CALLBACKS.register(name="on_exception_checkpoint"        , module=OnExceptionCheckpoint)
-CALLBACKS.register(name="stochastic_weight_averaging"    , module=StochasticWeightAveraging)
-CALLBACKS.register(name="spike_detection"                , module=SpikeDetection)
-CALLBACKS.register(name="timer"                          , module=TimerCallback)
-CALLBACKS.register(name="tqdm_progress_bar"              , module=TQDMProgressBar)
-# CALLBACKS.register(name="tune_report_callback"           , module=TuneReportCallback)
-# CALLBACKS.register(name="tune_report_checkpoint_callback", module=TuneReportCheckpointCallback)
+CALLBACKS.register(name="learning_rate_finder",            module=LearningRateFinder)
+CALLBACKS.register(name="learning_rate_monitor",           module=LearningRateMonitor)
+CALLBACKS.register(name="model_pruning",                   module=ModelPruning)
+CALLBACKS.register(name="model_summary",                   module=ModelSummary)
+CALLBACKS.register(name="on_exception_checkpoint",         module=OnExceptionCheckpoint)
+CALLBACKS.register(name="spike_detection",                 module=SpikeDetection)
+CALLBACKS.register(name="stochastic_weight_averaging",     module=StochasticWeightAveraging)
+CALLBACKS.register(name="timer",                           module=TimerCallback)
+CALLBACKS.register(name="tqdm_progress_bar",               module=TQDMProgressBar)
 
 # endregion

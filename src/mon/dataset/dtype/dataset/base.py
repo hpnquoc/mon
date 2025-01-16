@@ -27,8 +27,8 @@ from torch.utils.data import dataset
 from torch.utils.data.dataset import *
 
 from mon import core
-from mon.core.transform import albumentation as A
 from mon.dataset.dtype import annotation
+from mon.dataset.dtype.transform import albumentation as A
 from mon.globals import DEPTH_DATA_SOURCES, Split, Task
 
 console             = core.console

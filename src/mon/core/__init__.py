@@ -30,7 +30,6 @@ import mon.core.logging
 import mon.core.pathlib
 import mon.core.rich
 import mon.core.thop
-import mon.core.transform
 import mon.core.utils
 from mon.core.dtype import *
 from mon.core.factory import *
@@ -43,5 +42,4 @@ from mon.core.rich import (
 	get_terminal_size, print_dict, print_table, set_terminal_size,
 )
 from mon.core.thop import *
-from mon.core.transform import albumentation
 from mon.core.utils import *
