@@ -42,20 +42,16 @@ import torchmetrics
 class Metric(torchmetrics.Metric, ABC):
     """The base class for all metrics.
 
-    Args:
+    Attributes:
         mode: One of: ``'FR'`` or ``'NR'``. Default: ``'FR'``.
-        lower_is_better: Default: ``False``.
+        higher_is_better: Default: ``False``.
     """
     
-    def __init__(
-        self,
-        mode           : Literal["FR", "NR"] = "FR",
-        lower_is_better: bool = False,
-        *args, **kwargs
-    ):
+    mode            : Literal["FR", "NR"] = "FR"
+    higher_is_better: bool = True
+
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.mode            = mode
-        self.lower_is_better = lower_is_better
 
 # endregion
 

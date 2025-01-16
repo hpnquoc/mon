@@ -1,0 +1,39 @@
+# Basic
+hostname    : ~
+config      : ~
+arch        : "esdnet"
+model       : "esdnet"
+data        : "gtrain"
+data_dir    : "data/enhance/gtrain"
+root        : ~
+project     : ~
+variant     : ~
+fullname    : "esdnet_gtrain"
+save_dir    : ~
+weights     : ~
+device      : 0
+local_rank  : -1
+launcher    : ~
+epochs      : 1000
+steps       : ~
+imgsz       : 512
+resize      : ~
+benchmark   : True
+save_image  : True
+save_debug  : False
+use_data_dir: False
+use_fullpath: False
+exist_ok    : False
+verbose     : True
+
+# Model Specific
+mode            : "ESDNet3"
+patch_size_train: 64
+patch_size_test : 64
+batch_size      : 16
+lr              : 0.0001
+min_lr          : 0.0000001
+warmup_epochs   : 3
+clip_grad       : 1.0
+use_amp         : False
+num_workers     : 2
