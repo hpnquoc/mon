@@ -3,6 +3,8 @@
 
 """Spiking Neural Network (SNN).
 
+This module implements Spiking Neural Networks (SNN), its variants and networks.
+It also provides a wrapper around the `snntorch` and `spikingjelly` libraries.
 """
 
 from __future__ import annotations
