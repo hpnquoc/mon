@@ -21,7 +21,7 @@ env/anaconda3.sh
 env/anaconda3_arm64.sh
 project/*/data/*/
 project/*/run/*/
-project/openss
+project/tss_old
 run/*/
 src/project/*/
 zoo/*/
