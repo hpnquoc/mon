@@ -7,7 +7,7 @@ from __future__ import annotations
 
 __all__ = [
     "LOLv1",
-    "LOLV1DataModule",
+    "LOLv1DataModule",
 ]
 
 from typing import Literal
@@ -67,7 +67,7 @@ class LOLv1(MultimodalDataset):
 
 
 @DATAMODULES.register(name="lol_v1")
-class LOLV1DataModule(DataModule):
+class LOLv1DataModule(DataModule):
     
     tasks: list[Task] = [Task.LLIE]
     

@@ -1,12 +1,14 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""This module defines all global constants used across :obj:`openss` package.
+"""Globals.
+
+This module defines all global constants used across :obj:`mon_tss` package.
 
 Notes:
-    - To avoid circular dependency, only define constants of basic/atomic types.
-      The same goes for type aliases.
-    - The only exception is the enum and factory constants.
+    * To avoid circular dependency, only define constants of basic/atomic types.
+    * The same goes for type aliases.
+    * The only exception is the enum and factory constants.
 """
 
 from __future__ import annotations

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""The MON package."""
+"""The MON framework."""
 
 from __future__ import annotations
 

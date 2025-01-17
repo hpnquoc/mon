@@ -107,8 +107,13 @@ def train(args: argparse.Namespace):
     
     if (data_dir / "val").exists():
         val_dir = data_dir / "val"
-    else:
+    elif (data_dir / "test").exists():
         val_dir = data_dir / "test"
+    elif data in ["rain13k"]:
+        val_dir = mon.ROOT_DIR / "data" / "enhance" / "rain100" / "test"
+    else:
+        raise ValueError("No validation dataset found.")
+        
     val_dataset = Dataload(data_dir=val_dir, patch_size=patch_size_test)
     val_loader  = torch.utils.data.DataLoader(
         val_dataset,
@@ -129,10 +134,10 @@ def train(args: argparse.Namespace):
     iter            = 0
     
     for epoch in range(start_epoch, epochs):
-        epoch_start_time   = time.time()
-        epoch_loss         = 0
-        scaled_loss        = 0
-        train_psnr_val_rgb = []
+        epoch_start_time = time.time()
+        epoch_loss       = 0
+        scaled_loss      = 0
+        train_psnrs      = []
         model_restoration.train()
         # scheduler.step()
         
@@ -171,8 +176,8 @@ def train(args: argparse.Namespace):
                 epoch_loss += loss.item()
                 iter       += 1
                 for res, tar in zip(restored, ref):
-                    train_psnr_val_rgb.append(utils.torchPSNR(res, tar))
-                train_psnr = torch.stack(train_psnr_val_rgb).mean().item()
+                    train_psnrs.append(utils.torchPSNR(res, tar))
+                train_psnr = torch.stack(train_psnrs).mean().item()
                 train_ssim = train_ssim.item()
                 
                 writer.add_scalar("loss/iter_loss",  loss.item(), iter)
@@ -182,7 +187,7 @@ def train(args: argparse.Namespace):
             # Evaluation
             if epoch % 1 == 0:
                 model_restoration.eval()
-                val_psnr = []
+                val_psnrs = []
                 for ii, data_val in enumerate(val_loader):
                     image = data_val[0].to(device)
                     ref   = data_val[1].to(device)
@@ -192,9 +197,9 @@ def train(args: argparse.Namespace):
                     functional.reset_net(model_restoration)
                     
                     for res, tar in zip(restored, ref):
-                        val_psnr.append(utils.torchPSNR(res, tar))
+                        val_psnrs.append(utils.torchPSNR(res, tar))
 
-                val_psnr = torch.stack(val_psnr).mean().item()
+                val_psnr = torch.stack(val_psnrs).mean().item()
                 val_ssim = criterion_ssim(restored, ref).item()
                 writer.add_scalar("val/psnr", val_psnr, epoch)
                 writer.add_scalar("val/ssim", val_ssim, epoch)

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""OpenSS (Open-source Surveillance System)."""
+"""MON's Traffic Surveillance System."""
 
 from __future__ import annotations
