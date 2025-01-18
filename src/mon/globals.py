@@ -982,7 +982,7 @@ EXTRA_MODELS      = {  # architecture/model (+ variant)
         "llunet++": {
             "tasks"    : [Task.LLIE],
             "schemes"  : [Scheme.SUPERVISED],
-            "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "llunet++",
+            "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "llunetpp",
             "torch_distributed_launch": True,
         },
     },
@@ -1129,10 +1129,12 @@ EXTRA_MODELS      = {  # architecture/model (+ variant)
             "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "zero_dce",
             "torch_distributed_launch": True,
         },
+    },
+    "zero_dce++"   : {
         "zero_dce++": {
             "tasks"    : [Task.LLIE],
             "schemes"  : [Scheme.ZERO_REFERENCE],
-            "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "zero_dce++",
+            "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "zero_dcepp",
             "torch_distributed_launch": True,
         },
     },

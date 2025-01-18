@@ -14,7 +14,7 @@ import sys
 import torch
 from collections import OrderedDict
 from imresize import imresize
-from Measure import Measure, psnr
+from measure import Measure, psnr
 from models import create_model
 from natsort import natsort
 from utils.util import opt_get
