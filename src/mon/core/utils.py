@@ -125,11 +125,17 @@ def list_configs(
     model_root  : str | pathlib.Path = None,
     model       : str                = None
 ) -> list[str]:
+    # List model's configuration files
     config_files = list_config_files(
         project_root = project_root,
         model_root   = model_root,
         model        = model
     )
+    if is_extra_model(model):
+        config_files = [f for f in config_files if ".py" not in f.suffix]
+    else:
+        config_files = [f for f in config_files if ".py" in f.suffix]
+    # Sort
     config_files = [str(f.name) for f in config_files]
     config_files = dtype.unique(config_files)
     config_files = sorted(config_files, key=lambda x: (os.path.splitext(x)[1], x))

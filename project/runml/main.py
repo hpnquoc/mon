@@ -12,6 +12,7 @@ import subprocess
 
 import click
 import mon
+from mon import is_extra_model
 
 current_file = mon.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
@@ -305,11 +306,12 @@ def main(
     arch	     = click.prompt(click.style(f"Architecture {archs_str_}", fg="bright_green", bold=True), type=str, default=arch)
     arch 	     = archs_[int(arch)] if mon.is_int(arch) else arch
     # Model
-    models_      = mon.list_models(project_root=root, task=task, mode=mode, arch=arch)
-    models_str_  = mon.parse_menu_string(models_)
-    model	     = click.prompt(click.style(f"Model {models_str_}", fg="bright_green", bold=True), type=str, default=model)
-    model 	     = models_[int(model)] if mon.is_int(model) else model
-    model_name   = mon.parse_model_name(model)
+    models_        = mon.list_models(project_root=root, task=task, mode=mode, arch=arch)
+    models_str_    = mon.parse_menu_string(models_)
+    model	       = click.prompt(click.style(f"Model {models_str_}", fg="bright_green", bold=True), type=str, default=model)
+    model 	       = models_[int(model)] if mon.is_int(model) else model
+    model_name     = mon.parse_model_name(model)
+    is_extra_model = mon.is_extra_model(model)
     # Config
     model_dir    = mon.parse_model_dir(arch, model)
     configs_     = mon.list_configs(project_root=root, model_root=model_dir, model=model)
