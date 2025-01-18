@@ -32,8 +32,7 @@ classifiers   = [
     "Programming Language :: Python :: 3 :: Only",
 ]
 packages      = [
-    {include="mon",       from="src"},
-    {include="mon_extra", from="src"},
+    {include="mon", from="src"},
 ]
 include       = [
     ".gitignore",
@@ -58,6 +57,7 @@ exclude       = []
 
 [tool.poetry.dependencies]
 python            = ">=3.11, <3.13"
+snntorch          = {path="src/mon/extra/snntorch",                 develop=true}
 spikingjelly      = {path="src/mon/extra/spikingjelly",             develop=true}
 ultralytics       = {path="src/mon/extra/ultralytics",              develop=true}
 # depth_anything    = {path="src/mon/vision/depth/depth_anything",    develop=true}
