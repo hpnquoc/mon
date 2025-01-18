@@ -1,27 +1,27 @@
-[submodule "src/mon_extra/multimodal/clip"]
-	path = src/mon_extra/multimodal/clip
-	url  = https://github.com/phlong3105/clip
-[submodule "src/mon_extra/multimodal/openclip"]
-	path = src/mon_extra/multimodal/openclip
-	url  = https://github.com/phlong3105/openclip
-[submodule "src/mon_extra/nn/spikingjelly"]
-	path = src/mon_extra/nn/spikingjelly
+[submodule "src/mon/extra/spikingjelly"]
+	path = src/mon/extra/spikingjelly
 	url  = https://github.com/phlong3105/spikingjelly
-[submodule "src/mon_extra/vision/depth/depth_anything_v2"]
-	path = src/mon_extra/vision/depth/depth_anything_v2
-	url  = https://github.com/phlong3105/depth_anything_v2
-[submodule "src/mon_extra/vision/depth/depth_pro"]
-	path = src/mon_extra/vision/depth/depth_pro
-	url  = https://github.com/phlong3105/depth_pro
-[submodule "src/mon_extra/vision/detect/yolov9"]
-	path = src/mon_extra/vision/detect/yolov9
-	url  = https://github.com/phlong3105/yolov9
-[submodule "src/mon_extra/vision/segment/sam"]
-	path = src/mon_extra/vision/segment/sam
-	url  = https://github.com/phlong3105/sam
-[submodule "src/mon_extra/vision/segment/sam2"]
-	path = src/mon_extra/vision/segment/sam2
-	url  = https://github.com/phlong3105/sam2
-[submodule "src/mon_extra/vision/ultralytics"]
-	path = src/mon_extra/vision/ultralytics
+[submodule "src/mon/extra/ultralytics"]
+	path = src/mon/extra/ultralytics
 	url  = https://github.com/phlong3105/ultralytics
+[submodule "src/mon/vision/depth/depth_anything_v2"]
+	path = src/mon/vision/depth/depth_anything_v2
+	url  = https://github.com/phlong3105/depth_anything_v2
+[submodule "src/mon/vision/depth/depth_anything"]
+	path = src/mon/vision/depth/depth_anything
+	url  = https://github.com/phlong3105/depth_anything
+[submodule "src/mon/vision/depth/depth_pro"]
+	path = src/mon/vision/depth/depth_pro
+	url  = https://github.com/phlong3105/depth_pro
+[submodule "src/mon/vision/segment/sam"]
+	path = src/mon/vision/segment/sam
+	url  = https://github.com/phlong3105/sam
+[submodule "src/mon/vision/segment/sam2"]
+	path = src/mon/vision/segment/sam2
+	url  = https://github.com/phlong3105/sam2
+[submodule "src/mon/vlm/openclip"]
+	path = src/mon/vlm/openclip
+	url  = https://github.com/phlong3105/openclip
+[submodule "src/mon/vlm/clip"]
+	path = src/mon/vlm/clip
+	url  = https://github.com/phlong3105/clip

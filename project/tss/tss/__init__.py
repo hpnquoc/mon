@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""MON's Traffic Surveillance System."""
+"""Traffic Surveillance System (TSS)."""
 
 from __future__ import annotations
+
+__version__ = "2.0.0"

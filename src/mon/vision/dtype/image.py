@@ -531,8 +531,8 @@ def add_weighted(
     elif isinstance(output, np.ndarray):
         output = np.clip(output, 0, bound).astype(image1.dtype)
     else:
-        raise TypeError(f"`image` must be a `torch.Tensor` or `numpy.ndarray`, "
-                        f"but got {type(input)}.")
+        raise TypeError(f"`output` must be a `torch.Tensor` or `numpy.ndarray`, "
+                        f"but got {type(output)}.")
     return output
 
 

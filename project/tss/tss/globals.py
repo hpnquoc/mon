@@ -3,7 +3,7 @@
 
 """Globals.
 
-This module defines all global constants used across :obj:`mon_tss` package.
+This module defines all global constants used across :obj:`tss` framework.
 
 Notes:
     * To avoid circular dependency, only define constants of basic/atomic types.
@@ -14,13 +14,12 @@ Notes:
 from __future__ import annotations
 
 __all__ = [
-    "CAMERAS",
+    "CONFIG_DIR",
     "DATA_DIR",
     "ROOT_DIR",
+    "SRC_DIR",
     "ZOO_DIR",
 ]
-
-import os
 
 import mon
 from mon.globals import *
@@ -29,33 +28,27 @@ from mon.globals import *
 # region Directory
 
 current_file = mon.Path(__file__).absolute()
-ROOT_DIR      = current_file.parents[2]
-SRC_DIR       = current_file.parents[1]
-PACKAGE_DIR   = current_file.parents[0]
-MON_DIR       = SRC_DIR / "mon"
-MON_EXTRA_DIR = SRC_DIR / "mon_extra"
+ROOT_DIR     = current_file.parents[1]  # tss
+SRC_DIR      = current_file.parents[0]  # tss/tss
+CONFIG_DIR   = ROOT_DIR / "config"      # tss/config
+DATA_DIR     = ROOT_DIR / "data"        # tss/data
+ZOO_DIR      = ROOT_DIR / "zoo"         # tss/zoo
 
-ZOO_DIR = None
-for i, parent in enumerate(current_file.parents):
-    if (parent / "zoo").is_dir():
-        ZOO_DIR = parent / "zoo"
-        break
-    if i >= 5:
-        break
-if ZOO_DIR is None:
-    raise Warning(f"Cannot locate the ``zoo`` directory.")
-
-DATA_DIR = mon.Path(os.getenv("DATA_DIR", None))
-DATA_DIR = DATA_DIR or mon.Path("/data")
-DATA_DIR = DATA_DIR if DATA_DIR.is_dir() else ROOT_DIR / "data"
+if not CONFIG_DIR.is_dir():
+    raise Warning(f"Cannot locate the ``config`` directory.")
 if not DATA_DIR.is_dir():
     raise Warning(f"Cannot locate the ``data`` directory.")
+if not ZOO_DIR.is_dir():
+    raise Warning(f"Cannot locate the ``zoo`` directory.")
 
 # endregion
 
 
-# region Factory
+# region Enum
 
-CAMERAS = mon.Factory(name="Cameras")
+# endregion
+
+
+# region Constants
 
 # endregion

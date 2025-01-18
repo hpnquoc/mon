@@ -9,7 +9,7 @@
 #
 [tool.poetry]
 name          = "mon"
-version       = "2.5.1"
+version       = "2.5.2"
 description   = "MON covers a wide range of research topics in computer vision, machine learning, and deep learning."
 license       = "MIT"
 authors       = [
@@ -58,29 +58,29 @@ exclude       = []
 
 [tool.poetry.dependencies]
 python            = ">=3.11, <3.13"
-spikingjelly      = {path="src/mon_extra/nn/spikingjelly"               , develop=true}
-depth_anything    = {path="src/mon_extra/vision/depth/depth_anything"   , develop=true}
-depth_anything_v2 = {path="src/mon_extra/vision/depth/depth_anything_v2", develop=true}
-depth_pro         = {path="src/mon_extra/vision/depth/depth_pro"        , develop=true}
-sam               = {path="src/mon_extra/vision/segment/sam"            , develop=true}
-sam2              = {path="src/mon_extra/vision/segment/sam2"           , develop=true}
-ultralytics       = {path="src/mon_extra/vision/ultralytics"            , develop=true}
-yolor             = {path="src/mon_extra/vision/detect/yolor"           , develop=true}
-yolov7            = {path="src/mon_extra/vision/detect/yolov7"          , develop=true}
-yolov9            = {path="src/mon_extra/vision/detect/yolov9"          , develop=true}
+spikingjelly      = {path="src/mon/extra/spikingjelly",             develop=true}
+ultralytics       = {path="src/mon/extra/ultralytics",              develop=true}
+# depth_anything    = {path="src/mon/vision/depth/depth_anything",    develop=true}
+# depth_anything_v2 = {path="src/mon/vision/depth/depth_anything_v2", develop=true}
+# depth_pro         = {path="src/mon/vision/depth/depth_pro",         develop=true}
+# sam               = {path="src/mon/vision/segment/sam",             develop=true}
+# sam2              = {path="src/mon/vision/segment/sam2",            develop=true}
+# yolor             = {path="src/mon/vision/detect/yolor",  develop=true}
+# yolov7            = {path="src/mon/vision/detect/yolov7", develop=true}
+# yolov9            = {path="src/mon/vision/detect/yolov9", develop=true}
 
 [tool.poetry.extras]
 dev = [
-    "depth_anything",
-    "depth_anything_v2",
-    "depth_pro",
-    "sam",
-    "sam2",
+    # "depth_anything",
+    # "depth_anything_v2",
+    # "depth_pro",
+    # "sam",
+    # "sam2",
     "spikingjelly",
     "ultralytics",
-    "yolor",
-    "yolov7",
-    "yolov9",
+    # "yolor",
+    # "yolov7",
+    # "yolov9",
 ]
 
 [build-system]

@@ -75,7 +75,7 @@ current_file = pathlib.Path(__file__).absolute()
 ROOT_DIR      = current_file.parents[2]
 SRC_DIR       = current_file.parents[1]
 MON_DIR       = current_file.parents[0]
-MON_EXTRA_DIR = SRC_DIR / "mon_extra"
+MON_EXTRA_DIR = MON_DIR / "extra"
 
 ZOO_DIR = None
 for i, parent in enumerate(current_file.parents):
@@ -719,19 +719,19 @@ EXTRA_MODELS      = {  # architecture/model (+ variant)
         "depth_anything_vitb": {
             "tasks"    : [Task.DEPTH],
             "schemes"  : [Scheme.SUPERVISED],
-            "model_dir": MON_EXTRA_DIR / "vision" / "depth" / "depth_anything",
+            "model_dir": MON_DIR / "vision" / "depth" / "depth_anything",
             "torch_distributed_launch": True,
         },
         "depth_anything_vits": {
             "tasks"    : [Task.DEPTH],
             "schemes"  : [Scheme.SUPERVISED],
-            "model_dir": MON_EXTRA_DIR / "vision" / "depth" / "depth_anything",
+            "model_dir": MON_DIR / "vision" / "depth" / "depth_anything",
             "torch_distributed_launch": True,
         },
         "depth_anything_vitl": {
             "tasks"    : [Task.DEPTH],
             "schemes"  : [Scheme.SUPERVISED],
-            "model_dir": MON_EXTRA_DIR / "vision" / "depth" / "depth_anything",
+            "model_dir": MON_DIR / "vision" / "depth" / "depth_anything",
             "torch_distributed_launch": True,
         },
     },
@@ -739,25 +739,25 @@ EXTRA_MODELS      = {  # architecture/model (+ variant)
         "depth_anything_v2_vitb": {
             "tasks"    : [Task.DEPTH],
             "schemes"  : [Scheme.SUPERVISED],
-            "model_dir": MON_EXTRA_DIR / "vision" / "depth" / "depth_anything_v2",
+            "model_dir": MON_DIR / "vision" / "depth" / "depth_anything_v2",
             "torch_distributed_launch": True,
         },
         "depth_anything_v2_vits": {
             "tasks"    : [Task.DEPTH],
             "schemes"  : [Scheme.SUPERVISED],
-            "model_dir": MON_EXTRA_DIR / "vision" / "depth" / "depth_anything_v2",
+            "model_dir": MON_DIR / "vision" / "depth" / "depth_anything_v2",
             "torch_distributed_launch": True,
         },
         "depth_anything_v2_vitl": {
             "tasks"    : [Task.DEPTH],
             "schemes"  : [Scheme.SUPERVISED],
-            "model_dir": MON_EXTRA_DIR / "vision" / "depth" / "depth_anything_v2",
+            "model_dir": MON_DIR / "vision" / "depth" / "depth_anything_v2",
             "torch_distributed_launch": True,
         },
         "depth_anything_v2_vitg": {
             "tasks"    : [Task.DEPTH],
             "schemes"  : [Scheme.SUPERVISED],
-            "model_dir": MON_EXTRA_DIR / "vision" / "depth" / "depth_anything_v2",
+            "model_dir": MON_DIR / "vision" / "depth" / "depth_anything_v2",
             "torch_distributed_launch": True,
         },
     },
@@ -765,7 +765,7 @@ EXTRA_MODELS      = {  # architecture/model (+ variant)
         "depth_pro": {
             "tasks"    : [Task.DEPTH],
             "schemes"  : [Scheme.ZERO_SHOT],
-            "model_dir": MON_EXTRA_DIR / "vision" / "depth" / "depth_pro",
+            "model_dir": MON_DIR / "vision" / "depth" / "depth_pro",
             "torch_distributed_launch": False,
         },
     },
@@ -775,25 +775,25 @@ EXTRA_MODELS      = {  # architecture/model (+ variant)
         "yolor_d6": {
             "tasks"    : [Task.DETECT],
             "schemes"  : [Scheme.SUPERVISED],
-            "model_dir": MON_EXTRA_DIR / "vision" / "detect" / "yolor",
+            "model_dir": MON_DIR / "vision" / "detect" / "yolor",
             "torch_distributed_launch": True,
         },
         "yolor_e6": {
             "tasks"    : [Task.DETECT],
             "schemes"  : [Scheme.SUPERVISED],
-            "model_dir": MON_EXTRA_DIR / "vision" / "detect" / "yolor",
+            "model_dir": MON_DIR / "vision" / "detect" / "yolor",
             "torch_distributed_launch": True,
         },
         "yolor_p6": {
             "tasks"    : [Task.DETECT],
             "schemes"  : [Scheme.SUPERVISED],
-            "model_dir": MON_EXTRA_DIR / "vision" / "detect" / "yolor",
+            "model_dir": MON_DIR / "vision" / "detect" / "yolor",
             "torch_distributed_launch": True,
         },
         "yolor_w6": {
             "tasks"    : [Task.DETECT],
             "schemes"  : [Scheme.SUPERVISED],
-            "model_dir": MON_EXTRA_DIR / "vision" / "detect" / "yolor",
+            "model_dir": MON_DIR / "vision" / "detect" / "yolor",
             "torch_distributed_launch": True,
         },
     },
@@ -801,37 +801,37 @@ EXTRA_MODELS      = {  # architecture/model (+ variant)
         "yolov7"    : {
             "tasks"    : [Task.DETECT],
             "schemes"  : [Scheme.SUPERVISED],
-            "model_dir": MON_EXTRA_DIR / "vision" / "detect" / "yolov7",
+            "model_dir": MON_DIR / "vision" / "detect" / "yolov7",
             "torch_distributed_launch": True,
         },
         "yolov7_d6" : {
             "tasks"    : [Task.DETECT],
             "schemes"  : [Scheme.SUPERVISED],
-            "model_dir": MON_EXTRA_DIR / "vision" / "detect" / "yolov7",
+            "model_dir": MON_DIR / "vision" / "detect" / "yolov7",
             "torch_distributed_launch": True,
         },
         "yolov7_e6" : {
             "tasks"    : [Task.DETECT],
             "schemes"  : [Scheme.SUPERVISED],
-            "model_dir": MON_EXTRA_DIR / "vision" / "detect" / "yolov7",
+            "model_dir": MON_DIR / "vision" / "detect" / "yolov7",
             "torch_distributed_launch": True,
         },
         "yolov7_e6e": {
             "tasks"    : [Task.DETECT],
             "schemes"  : [Scheme.SUPERVISED],
-            "model_dir": MON_EXTRA_DIR / "vision" / "detect" / "yolov7",
+            "model_dir": MON_DIR / "vision" / "detect" / "yolov7",
             "torch_distributed_launch": True,
         },
         "yolov7_w6" : {
             "tasks"    : [Task.DETECT],
             "schemes"  : [Scheme.SUPERVISED],
-            "model_dir": MON_EXTRA_DIR / "vision" / "detect" / "yolov7",
+            "model_dir": MON_DIR / "vision" / "detect" / "yolov7",
             "torch_distributed_launch": True,
         },
         "yolov7x"   : {
             "tasks"    : [Task.DETECT],
             "schemes"  : [Scheme.SUPERVISED],
-            "model_dir": MON_EXTRA_DIR / "vision" / "detect" / "yolov7",
+            "model_dir": MON_DIR / "vision" / "detect" / "yolov7",
             "torch_distributed_launch": True,
         },
     },
@@ -870,25 +870,25 @@ EXTRA_MODELS      = {  # architecture/model (+ variant)
         "gelan_c" : {
             "tasks"    : [Task.DETECT],
             "schemes"  : [Scheme.SUPERVISED],
-            "model_dir": MON_EXTRA_DIR / "vision" / "detect" / "yolov9",
+            "model_dir": MON_DIR / "vision" / "detect" / "yolov9",
             "torch_distributed_launch": True,
         },
         "gelan_e" : {
             "tasks"    : [Task.DETECT],
             "schemes"  : [Scheme.SUPERVISED],
-            "model_dir": MON_EXTRA_DIR / "vision" / "detect" / "yolov9",
+            "model_dir": MON_DIR / "vision" / "detect" / "yolov9",
             "torch_distributed_launch": True,
         },
         "yolov9_c": {
             "tasks"    : [Task.DETECT],
             "schemes"  : [Scheme.SUPERVISED],
-            "model_dir": MON_EXTRA_DIR / "vision" / "detect" / "yolov9",
+            "model_dir": MON_DIR / "vision" / "detect" / "yolov9",
             "torch_distributed_launch": True,
         },
         "yolov9_e": {
             "tasks"    : [Task.DETECT],
             "schemes"  : [Scheme.SUPERVISED],
-            "model_dir": MON_EXTRA_DIR / "vision" / "detect" / "yolov9",
+            "model_dir": MON_DIR / "vision" / "detect" / "yolov9",
             "torch_distributed_launch": True,
         },
     },
@@ -898,7 +898,7 @@ EXTRA_MODELS      = {  # architecture/model (+ variant)
         "c2pnet": {
             "tasks"    : [Task.DEHAZE],
             "schemes"  : [Scheme.SUPERVISED],
-            "model_dir": MON_EXTRA_DIR / "vision" / "enhance" / "dehaze" / "c2pnet",
+            "model_dir": MON_DIR / "vision" / "enhance" / "dehaze" / "c2pnet",
             "torch_distributed_launch": False,
         },
     },
@@ -906,7 +906,7 @@ EXTRA_MODELS      = {  # architecture/model (+ variant)
         "zid": {
             "tasks"    : [Task.DEHAZE],
             "schemes"  : [Scheme.ZERO_REFERENCE, Scheme.INSTANCE],
-            "model_dir": MON_EXTRA_DIR / "vision" / "enhance" / "dehaze" / "zid",
+            "model_dir": MON_DIR / "vision" / "enhance" / "dehaze" / "zid",
             "torch_distributed_launch": False,
         },
     },
@@ -916,7 +916,7 @@ EXTRA_MODELS      = {  # architecture/model (+ variant)
         "esdnet": {
             "tasks"    : [Task.DERAIN, Task.LLIE],
             "schemes"  : [Scheme.SUPERVISED],
-            "model_dir": MON_EXTRA_DIR / "vision" / "enhance" / "derain" / "esdnet",
+            "model_dir": MON_DIR / "vision" / "enhance" / "derain" / "esdnet",
             "torch_distributed_launch": False,
         },
     },
@@ -926,23 +926,23 @@ EXTRA_MODELS      = {  # architecture/model (+ variant)
         "colie": {
             "tasks"    : [Task.LLIE],
             "schemes"  : [Scheme.ZERO_REFERENCE, Scheme.INSTANCE],
-            "model_dir": MON_EXTRA_DIR / "vision" / "enhance" / "llie" / "colie",
+            "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "colie",
             "torch_distributed_launch": False,
         },
     },
     "dccnet"       : {
         "dccnet": {
-                "tasks"    : [Task.LLIE],
-                "schemes"  : [Scheme.SUPERVISED],
-                "model_dir": MON_EXTRA_DIR / "vision" / "enhance" / "llie" / "dccnet",
-                "torch_distributed_launch": True,
-            },
+            "tasks"    : [Task.LLIE],
+            "schemes"  : [Scheme.SUPERVISED],
+            "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "dccnet",
+            "torch_distributed_launch": True,
+        },
     },
     "enlightengan" : {
         "enlightengan": {
             "tasks"    : [Task.LLIE],
             "schemes"  : [Scheme.ZERO_REFERENCE],
-            "model_dir": MON_EXTRA_DIR / "vision" / "enhance" / "llie" / "enlightengan",
+            "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "enlightengan",
             "torch_distributed_launch": True,
         },
     },
@@ -950,7 +950,7 @@ EXTRA_MODELS      = {  # architecture/model (+ variant)
         "fourllie": {
             "tasks"    : [Task.LLIE],
             "schemes"  : [Scheme.SUPERVISED],
-            "model_dir": MON_EXTRA_DIR / "vision" / "enhance" / "llie" / "fourllie",
+            "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "fourllie",
             "torch_distributed_launch": False,
         },
     },
@@ -958,7 +958,7 @@ EXTRA_MODELS      = {  # architecture/model (+ variant)
         "hvi_cidnet": {
             "tasks"    : [Task.LLIE],
             "schemes"  : [Scheme.SUPERVISED],
-            "model_dir": MON_EXTRA_DIR / "vision" / "enhance" / "llie" / "hvi_cidnet",
+            "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "hvi_cidnet",
             "torch_distributed_launch": True,
         },
     },
@@ -966,7 +966,7 @@ EXTRA_MODELS      = {  # architecture/model (+ variant)
         "lime": {
             "tasks"    : [Task.LLIE],
             "schemes"  : [Scheme.TRADITIONAL],
-            "model_dir": MON_EXTRA_DIR / "vision" / "enhance" / "llie" / "lime",
+            "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "lime",
             "torch_distributed_launch": True,
         },
     },
@@ -974,7 +974,7 @@ EXTRA_MODELS      = {  # architecture/model (+ variant)
         "llflow": {
             "tasks"    : [Task.LLIE],
             "schemes"  : [Scheme.SUPERVISED],
-            "model_dir": MON_EXTRA_DIR / "vision" / "enhance" / "llie" / "llflow",
+            "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "llflow",
             "torch_distributed_launch": True,
         },
     },
@@ -982,7 +982,7 @@ EXTRA_MODELS      = {  # architecture/model (+ variant)
         "llunet++": {
             "tasks"    : [Task.LLIE],
             "schemes"  : [Scheme.SUPERVISED],
-            "model_dir": MON_EXTRA_DIR / "vision" / "enhance" / "llie" / "llunet++",
+            "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "llunet++",
             "torch_distributed_launch": True,
         },
     },
@@ -990,7 +990,7 @@ EXTRA_MODELS      = {  # architecture/model (+ variant)
         "lyt_net": {
             "tasks"    : [Task.LLIE],
             "schemes"  : [Scheme.SUPERVISED],
-            "model_dir": MON_EXTRA_DIR / "vision" / "enhance" / "llie" / "lyt_net",
+            "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "lyt_net",
             "torch_distributed_launch": True,
         },
     },
@@ -998,7 +998,7 @@ EXTRA_MODELS      = {  # architecture/model (+ variant)
         "mtfe": {
             "tasks"    : [Task.LLIE],
             "schemes"  : [Scheme.SUPERVISED],
-            "model_dir": MON_EXTRA_DIR / "vision" / "enhance" / "llie" / "mtfe",
+            "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "mtfe",
             "torch_distributed_launch": True,
         },
     },
@@ -1006,7 +1006,7 @@ EXTRA_MODELS      = {  # architecture/model (+ variant)
         "nerco": {
             "tasks"    : [Task.LLIE],
             "schemes"  : [Scheme.UNSUPERVISED],
-            "model_dir": MON_EXTRA_DIR / "vision" / "enhance" / "llie" / "nerco",
+            "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "nerco",
             "torch_distributed_launch": False,
         },
     },
@@ -1014,7 +1014,7 @@ EXTRA_MODELS      = {  # architecture/model (+ variant)
         "pairlie": {
             "tasks"    : [Task.LLIE],
             "schemes"  : [Scheme.ZERO_REFERENCE],
-            "model_dir": MON_EXTRA_DIR / "vision" / "enhance" / "llie" / "pairlie",
+            "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "pairlie",
             "torch_distributed_launch": False,
         },
     },
@@ -1022,7 +1022,7 @@ EXTRA_MODELS      = {  # architecture/model (+ variant)
         "pie": {
             "tasks"    : [Task.LLIE],
             "schemes"  : [Scheme.TRADITIONAL],
-            "model_dir": MON_EXTRA_DIR / "vision" / "enhance" / "llie" / "pie",
+            "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "pie",
             "torch_distributed_launch": True,
         },
     },
@@ -1030,7 +1030,7 @@ EXTRA_MODELS      = {  # architecture/model (+ variant)
         "psenet": {
             "tasks"    : [Task.LLIE],
             "schemes"  : [Scheme.SUPERVISED],
-            "model_dir": MON_EXTRA_DIR / "vision" / "enhance" / "llie" / "psenet",
+            "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "psenet",
             "torch_distributed_launch": True,
         },
     },
@@ -1038,7 +1038,7 @@ EXTRA_MODELS      = {  # architecture/model (+ variant)
         "quadprior": {
             "tasks"    : [Task.LLIE],
             "schemes"  : [Scheme.ZERO_REFERENCE],
-            "model_dir": MON_EXTRA_DIR / "vision" / "enhance" / "llie" / "quadprior",
+            "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "quadprior",
             "torch_distributed_launch": False,
         }
     },
@@ -1046,7 +1046,7 @@ EXTRA_MODELS      = {  # architecture/model (+ variant)
         "retinexformer": {
             "tasks"    : [Task.LLIE],
             "schemes"  : [Scheme.SUPERVISED],
-            "model_dir": MON_EXTRA_DIR / "vision" / "enhance" / "llie" / "retinexformer",
+            "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "retinexformer",
             "torch_distributed_launch": True,
         },
     },
@@ -1054,7 +1054,7 @@ EXTRA_MODELS      = {  # architecture/model (+ variant)
         "retinexnet": {
             "tasks"    : [Task.LLIE],
             "schemes"  : [Scheme.SUPERVISED],
-            "model_dir": MON_EXTRA_DIR / "vision" / "enhance" / "llie" / "retinexnet",
+            "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "retinexnet",
             "torch_distributed_launch": True,
         },
     },
@@ -1062,7 +1062,7 @@ EXTRA_MODELS      = {  # architecture/model (+ variant)
         "rrdnet": {
             "tasks"    : [Task.LLIE],
             "schemes"  : [Scheme.ZERO_REFERENCE, Scheme.INSTANCE],
-            "model_dir": MON_EXTRA_DIR / "vision" / "enhance" / "llie" / "rrdnet",
+            "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "rrdnet",
             "torch_distributed_launch": True,
         },
     },
@@ -1070,7 +1070,7 @@ EXTRA_MODELS      = {  # architecture/model (+ variant)
         "rsfnet": {
             "tasks"    : [Task.LLIE],
             "schemes"  : [Scheme.ZERO_REFERENCE],
-            "model_dir": MON_EXTRA_DIR / "vision" / "enhance" / "llie" / "rsfnet",
+            "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "rsfnet",
             "torch_distributed_launch": True,
         },
     },
@@ -1078,7 +1078,7 @@ EXTRA_MODELS      = {  # architecture/model (+ variant)
         "ruas": {
             "tasks"    : [Task.LLIE],
             "schemes"  : [Scheme.ZERO_REFERENCE],
-            "model_dir": MON_EXTRA_DIR / "vision" / "enhance" / "llie" / "ruas",
+            "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "ruas",
             "torch_distributed_launch": True,
         },
     },
@@ -1086,7 +1086,7 @@ EXTRA_MODELS      = {  # architecture/model (+ variant)
         "sci": {
             "tasks"    : [Task.LLIE],
             "schemes"  : [Scheme.ZERO_REFERENCE],
-            "model_dir": MON_EXTRA_DIR / "vision" / "enhance" / "llie" / "sci",
+            "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "sci",
             "torch_distributed_launch": True,
         },
     },
@@ -1094,7 +1094,7 @@ EXTRA_MODELS      = {  # architecture/model (+ variant)
         "sgz": {
             "tasks"    : [Task.LLIE],
             "schemes"  : [Scheme.ZERO_REFERENCE],
-            "model_dir": MON_EXTRA_DIR / "vision" / "enhance" / "llie" / "sgz",
+            "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "sgz",
             "torch_distributed_launch": True,
         },
     },
@@ -1102,7 +1102,7 @@ EXTRA_MODELS      = {  # architecture/model (+ variant)
         "snr": {
             "tasks"    : [Task.LLIE],
             "schemes"  : [Scheme.SUPERVISED],
-            "model_dir": MON_EXTRA_DIR / "vision" / "enhance" / "llie" / "snr",
+            "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "snr",
             "torch_distributed_launch": True,
         },
     },
@@ -1110,7 +1110,7 @@ EXTRA_MODELS      = {  # architecture/model (+ variant)
         "uretinexnet": {
             "tasks"    : [Task.LLIE],
             "schemes"  : [Scheme.SUPERVISED],
-            "model_dir": MON_EXTRA_DIR / "vision" / "enhance" / "llie" / "uretinexnet",
+            "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "uretinexnet",
             "torch_distributed_launch": True,
         },
     },
@@ -1118,7 +1118,7 @@ EXTRA_MODELS      = {  # architecture/model (+ variant)
         "utvnet": {
             "tasks"    : [Task.LLIE],
             "schemes"  : [Scheme.SUPERVISED],
-            "model_dir": MON_EXTRA_DIR / "vision" / "enhance" / "llie" / "utvnet",
+            "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "utvnet",
             "torch_distributed_launch": True,
         },
     },
@@ -1126,13 +1126,13 @@ EXTRA_MODELS      = {  # architecture/model (+ variant)
         "zero_dce"  : {
             "tasks"    : [Task.LLIE],
             "schemes"  : [Scheme.ZERO_REFERENCE],
-            "model_dir": MON_EXTRA_DIR / "vision" / "enhance" / "llie" / "zero_dce",
+            "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "zero_dce",
             "torch_distributed_launch": True,
         },
         "zero_dce++": {
             "tasks"    : [Task.LLIE],
             "schemes"  : [Scheme.ZERO_REFERENCE],
-            "model_dir": MON_EXTRA_DIR / "vision" / "enhance" / "llie" / "zero_dce++",
+            "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "zero_dce++",
             "torch_distributed_launch": True,
         },
     },
@@ -1140,7 +1140,7 @@ EXTRA_MODELS      = {  # architecture/model (+ variant)
         "zero_didce": {
             "tasks"    : [Task.LLIE],
             "schemes"  : [Scheme.ZERO_REFERENCE],
-            "model_dir": MON_EXTRA_DIR / "vision" / "enhance" / "llie" / "zero_didce",
+            "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "zero_didce",
             "torch_distributed_launch": True,
         },
     },
@@ -1148,7 +1148,7 @@ EXTRA_MODELS      = {  # architecture/model (+ variant)
         "zero_ig": {
             "tasks"    : [Task.LLIE],
             "schemes"  : [ Scheme.ZERO_REFERENCE],
-            "model_dir": MON_EXTRA_DIR / "vision" / "enhance" / "llie" / "zero_ig",
+            "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "zero_ig",
             "torch_distributed_launch": True,
         },
     },
@@ -1158,7 +1158,7 @@ EXTRA_MODELS      = {  # architecture/model (+ variant)
         "airnet": {
             "tasks"    : [Task.DENOISE, Task.DERAIN, Task.DEHAZE],
             "schemes"  : [Scheme.SUPERVISED],
-            "model_dir": MON_EXTRA_DIR / "vision" / "enhance" / "multitask" / "airnet",
+            "model_dir": MON_DIR / "vision" / "enhance" / "multitask" / "airnet",
             "torch_distributed_launch": True,
         },
     },
@@ -1166,7 +1166,7 @@ EXTRA_MODELS      = {  # architecture/model (+ variant)
         "restormer": {
             "tasks"    : [Task.DEBLUR, Task.DENOISE, Task.DERAIN, Task.DESNOW, Task.LLIE],
             "schemes"  : [Scheme.SUPERVISED],
-            "model_dir": MON_EXTRA_DIR / "vision" / "enhance" / "multitask" / "restormer",
+            "model_dir": MON_DIR / "vision" / "enhance" / "multitask" / "restormer",
             "torch_distributed_launch": True,
         },
     },
@@ -1176,7 +1176,7 @@ EXTRA_MODELS      = {  # architecture/model (+ variant)
         "neurop": {
             "tasks"    : [Task.RETOUCH, Task.LLIE],
             "schemes"  : [Scheme.SUPERVISED],
-            "model_dir": MON_EXTRA_DIR / "vision" / "enhance" / "retouch" / "neurop",
+            "model_dir": MON_DIR / "vision" / "enhance" / "retouch" / "neurop",
             "torch_distributed_launch": False,
         },
     },
@@ -1186,7 +1186,7 @@ EXTRA_MODELS      = {  # architecture/model (+ variant)
         "srno": {
             "tasks"    : [Task.SR],
             "schemes"  : [Scheme.SUPERVISED],
-            "model_dir": MON_EXTRA_DIR / "vision" / "enhance" / "sr" / "srno",
+            "model_dir": MON_DIR / "vision" / "enhance" / "sr" / "srno",
             "torch_distributed_launch": False,
         },
     },
@@ -1196,19 +1196,19 @@ EXTRA_MODELS      = {  # architecture/model (+ variant)
         "sam_vit_b": {
             "tasks"    : [Task.SEGMENT],
             "schemes"  : [Scheme.SUPERVISED],
-            "model_dir": MON_EXTRA_DIR / "vision" / "segment" / "sam",
+            "model_dir": MON_DIR / "vision" / "segment" / "sam",
             "torch_distributed_launch": False,
         },
         "sam_vit_h": {
             "tasks"    : [Task.SEGMENT],
             "schemes"  : [Scheme.SUPERVISED],
-            "model_dir": MON_EXTRA_DIR / "vision" / "segment" / "sam",
+            "model_dir": MON_DIR / "vision" / "segment" / "sam",
             "torch_distributed_launch": False,
         },
         "sam_vit_l": {
             "tasks"    : [Task.SEGMENT],
             "schemes"  : [Scheme.SUPERVISED],
-            "model_dir": MON_EXTRA_DIR / "vision" / "segment" / "sam",
+            "model_dir": MON_DIR / "vision" / "segment" / "sam",
             "torch_distributed_launch": False,
         },
     },
@@ -1216,25 +1216,25 @@ EXTRA_MODELS      = {  # architecture/model (+ variant)
         "sam2_hiera_b+": {
             "tasks"    : [Task.SEGMENT],
             "schemes"  : [Scheme.SUPERVISED],
-            "model_dir": MON_EXTRA_DIR / "vision" / "segment" / "sam2",
+            "model_dir": MON_DIR / "vision" / "segment" / "sam2",
             "torch_distributed_launch": False,
         },
         "sam2_hiera_l" : {
             "tasks"    : [Task.SEGMENT],
             "schemes"  : [Scheme.SUPERVISED],
-            "model_dir": MON_EXTRA_DIR / "vision" / "segment" / "sam2",
+            "model_dir": MON_DIR / "vision" / "segment" / "sam2",
             "torch_distributed_launch": False,
         },
         "sam2_hiera_s" : {
             "tasks"    : [Task.SEGMENT],
             "schemes"  : [Scheme.SUPERVISED],
-            "model_dir": MON_EXTRA_DIR / "vision" / "segment" / "sam2",
+            "model_dir": MON_DIR / "vision" / "segment" / "sam2",
             "torch_distributed_launch": False,
         },
         "sam2_hiera_t" : {
             "tasks"    : [Task.SEGMENT],
             "schemes"  : [Scheme.SUPERVISED],
-            "model_dir": MON_EXTRA_DIR / "vision" / "segment" / "sam2",
+            "model_dir": MON_DIR / "vision" / "segment" / "sam2",
             "torch_distributed_launch": False,
         },
     },
