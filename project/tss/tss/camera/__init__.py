@@ -9,9 +9,9 @@ camera and manages its configuration.
 
 from __future__ import annotations
 
-import mon_tss.camera.camera
-import mon_tss.camera.moi
-import mon_tss.camera.roi
-from mon_tss.camera.camera import *
-from mon_tss.camera.moi import *
-from mon_tss.camera.roi import *
+import tss.camera.camera
+import tss.camera.moi
+import tss.camera.roi
+from tss.camera.camera import *
+from tss.camera.moi import *
+from tss.camera.roi import *

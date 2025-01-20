@@ -11,12 +11,15 @@ from __future__ import annotations
 
 __all__ = [
 	"ROI",
+	"assign_roi_to_detections",
 ]
 
 from typing import Any
 
 import cv2
 import numpy as np
+
+import mon
 
 
 class ROI:
@@ -27,7 +30,9 @@ class ROI:
 		points: A sequence of points that defines the region boundary. Each item
 			is a tuple of ``(x, y)`` coordinate.
 		offset: The offset value when determining whether a vehicle is inside
-			the ROI.
+			the ROI. Default: -50.
+		color: The color of the ROI for visualization.
+			Default: ``(52, 199, 89)`` - Apple's Green.
 	"""
 	
 	def __init__(
@@ -35,13 +40,15 @@ class ROI:
 		id_   : int,
 		points: np.ndarray,
 		offset: float = -50,
+		color : tuple[int, int, int] = (52, 199, 89),  # Apple's Green
 		*args, **kwargs
 	):
 		self.id_    = id_
 		self.points = points
 		self.offset = offset
+		self.color  = color
 		
-		if len(self.points) < 2:
+		if self.points is None or len(self.points) < 2:
 			raise ValueError("Insufficient number of points in the ROI.")
 	
 	@property
@@ -57,54 +64,55 @@ class ROI:
 		else:
 			raise ValueError(f"`points` must be a `numpy.ndarray`, but got {type(points)}.")
 	
-	def is_bbox_in_roi(self, bbox_xyxy: np.ndarray) -> bool:
+	def is_bbox_in_roi(self, bbox: np.ndarray) -> bool:
 		"""Check whether the bounding box is inside the ROI or not."""
-		d = self.distance_between_bbox_center_and_roi(bbox_xyxy=bbox_xyxy)
+		# d = self.distance_between_bbox_and_roi(bbox_xyxy)
+		d = self.distance_between_bbox_center_and_roi(bbox)
 		return d >= self.offset
 	
-	def distance_between_bbox_and_roi(self, bbox_xyxy: np.ndarray, compute_distance: bool = True) -> int:
+	def distance_between_bbox_and_roi(self, bbox: np.ndarray) -> float:
 		"""Compute the distance between the bounding box and the ROI.
 		
 		Args:
-			bbox_xyxy: The bounding box coordinates in ``XYXY`` format.
-			compute_distance: Should calculate the distance from the bounding
-				box coordinates to the ROI? Default: ``False``.
-				
+			bbox: The bounding box coordinates in ``XYXY`` format.
+			
 		Returns:
 			positive if the bounding box is inside the ROI,
 			zero if the bounding box is on the edge of the ROI, and
 			negative if the bounding box is outside the ROI.
 		"""
-		tl = cv2.pointPolygonTest(self.points, (bbox_xyxy[0], bbox_xyxy[1]), compute_distance)
-		tr = cv2.pointPolygonTest(self.points, (bbox_xyxy[2], bbox_xyxy[1]), compute_distance)
-		br = cv2.pointPolygonTest(self.points, (bbox_xyxy[2], bbox_xyxy[3]), compute_distance)
-		bl = cv2.pointPolygonTest(self.points, (bbox_xyxy[0], bbox_xyxy[3]), compute_distance)
-		if tl > 0 and tr > 0 and br > 0 and bl > 0:
-			return min(tl, tr, br, bl)
-		elif tl < 0 and tr < 0 and br < 0 and bl < 0:
-			return min(tl, tr, br, bl)
-		else:
-			return 0
-	
-	def distance_between_bbox_center_and_roi(self, bbox_xyxy: np.ndarray, compute_distance: bool = True) -> int:
+		return mon.distance_between_bbox_and_polygon(bbox, self.points)
+		
+	def distance_between_bbox_center_and_roi(self, bbox: np.ndarray) -> float:
 		"""Compute the distance between the bounding box center and the ROI.
 		
 		Args:
-			bbox_xyxy: The bounding box coordinates in ``XYXY`` format.
-			compute_distance: Should calculate the distance from the center of
-				the bounding box to the ROI? Default: ``False``.
-		
+			bbox: The bounding box coordinates in ``XYXY`` format.
+			
 		Returns:
 			positive if the bounding box is inside the ROI,
 			zero if the bounding box is on the edge of the ROI, and
 			negative if the bounding box is outside the ROI.
 		"""
-		cx = (bbox_xyxy[0] + bbox_xyxy[2]) / 2
-		cy = (bbox_xyxy[1] + bbox_xyxy[3]) / 2
-		return int(cv2.pointPolygonTest(self.points, (cx, cy), compute_distance))
+		return mon.distance_between_bbox_center_and_polygon(bbox, self.points)
 	
-	def draw(self, image: np.ndarray, color: tuple[int, int, int]) -> np.ndarray:
+	def draw(self, image: np.ndarray, color: tuple[int, int, int] = None) -> np.ndarray:
 		"""Draw the ROI on the image."""
-		pts = self.points.reshape((-1, 1, 2))
+		color = color or self.color
+		pts   = self.points.reshape((-1, 1, 2))
 		cv2.polylines(img=image, pts=[pts], isClosed=True, color=color, thickness=2)
 		return image
+
+
+def assign_roi_to_detections(rois: list[ROI], detections: list):
+	"""Assign the ROI to detections.
+	
+	Args:
+		rois: A list of ROIs.
+		detections: A list of :obj:`Detection` objects.
+	"""
+	for d in detections:
+		for roi in rois:
+			if roi.is_bbox_in_roi(bbox=d.bbox):
+				d.roi_id = roi.id_
+				break

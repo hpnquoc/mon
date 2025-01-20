@@ -62,6 +62,5 @@ def convert_contour(
             return contour_yolo_to_voc(contour, height, width)
         case _:
             return contour
-    
 
 # endregion

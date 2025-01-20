@@ -22,7 +22,7 @@ __all__ = [
 ]
 
 import mon
-from mon.globals import *
+from mon.core import dtype as DT
 
 
 # region Directory
@@ -45,6 +45,23 @@ if not ZOO_DIR.is_dir():
 
 
 # region Enum
+
+class AppleRGB(DT.Enum):
+    """Apple's 12 RGB colors."""
+    
+    GRAY   = (128, 128, 128)
+    RED    = (255, 59 , 48)
+    GREEN  = (52 , 199, 89)
+    BLUE   = (0  , 122, 255)
+    ORANGE = (255, 149, 5)
+    YELLOW = (255, 204, 0)
+    BROWN  = (162, 132, 94)
+    PINK   = (255, 45 , 85)
+    PURPLE = (88 , 86 , 214)
+    TEAL   = (90 , 200, 250)
+    INDIGO = (85 , 190, 240)
+    BLACK  = (0  , 0  , 0)
+    WHITE  = (255, 255, 255)
 
 # endregion
 
