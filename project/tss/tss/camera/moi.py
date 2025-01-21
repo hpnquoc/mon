@@ -22,6 +22,7 @@ import cv2
 import numpy as np
 
 import mon
+from tss.globals import AppleRGB
 
 
 class MOI(abc.ABC):
@@ -35,25 +36,21 @@ class MOI(abc.ABC):
 		id_: MOI's identifier.
 		points: A sequence of points that defines the region boundary. Each item
 			is a tuple of ``(x, y)`` coordinate.
-		color: The color of the MOI for visualization. Default: ``(229, 229, 234)`` - Apple's Gray (5).
+		color: The color of the MOI for visualization. Default: ``AppleRGB.DARK_GRAY3``.
 	"""
 	
 	def __init__(
 		self,
 		id_   : int,
 		points: np.ndarray,
-		color : tuple[int, int, int] = (229, 229, 234),  # Apple's Gray (5)
+		color : tuple[int, int, int] = AppleRGB.DARK_GRAY3,
 		*args, **kwargs
 	):
 		self.id_    = id_
 		self.points = points
 		self.color  = color
-		
 		self.type: Literal[None, "trajectory", "polygon"] = None
 		
-		if self.points is None or len(self.points) < 2:
-			raise ValueError("Insufficient number of points in the MOI.")
-	
 	@property
 	def points(self) -> np.ndarray:
 		return self._points
@@ -66,7 +63,10 @@ class MOI(abc.ABC):
 			self._points = points
 		else:
 			raise ValueError(f"`points` must be a `numpy.ndarray`, but got {type(points)}.")
-	
+		# Assert
+		if len(self._points) < 2:
+			raise ValueError("Insufficient number of points in the MOI.")
+		
 	@abc.abstractmethod
 	def draw(self, image: np.ndarray, color: tuple[int, int, int] = None) -> np.ndarray:
 		"""Draw the MOI on the image."""

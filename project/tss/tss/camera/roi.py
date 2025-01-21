@@ -20,6 +20,7 @@ import cv2
 import numpy as np
 
 import mon
+from tss.globals import AppleRGB
 
 
 class ROI:
@@ -31,8 +32,7 @@ class ROI:
 			is a tuple of ``(x, y)`` coordinate.
 		offset: The offset value when determining whether a vehicle is inside
 			the ROI. Default: -50.
-		color: The color of the ROI for visualization.
-			Default: ``(52, 199, 89)`` - Apple's Green.
+		color: The color of the ROI for visualization. Default: ``AppleRGB.DARK_GREEN``.
 	"""
 	
 	def __init__(
@@ -40,7 +40,7 @@ class ROI:
 		id_   : int,
 		points: np.ndarray,
 		offset: float = -50,
-		color : tuple[int, int, int] = (52, 199, 89),  # Apple's Green
+		color : tuple[int, int, int] = AppleRGB.DARK_GREEN.value,
 		*args, **kwargs
 	):
 		self.id_    = id_
@@ -48,9 +48,6 @@ class ROI:
 		self.offset = offset
 		self.color  = color
 		
-		if self.points is None or len(self.points) < 2:
-			raise ValueError("Insufficient number of points in the ROI.")
-	
 	@property
 	def points(self) -> np.ndarray:
 		return self._points
@@ -63,7 +60,10 @@ class ROI:
 			self._points = points
 		else:
 			raise ValueError(f"`points` must be a `numpy.ndarray`, but got {type(points)}.")
-	
+		# Assert
+		if len(self._points) < 2:
+			raise ValueError("Insufficient number of points in the ROI.")
+		
 	def is_bbox_in_roi(self, bbox: np.ndarray) -> bool:
 		"""Check whether the bounding box is inside the ROI or not."""
 		# d = self.distance_between_bbox_and_roi(bbox_xyxy)
