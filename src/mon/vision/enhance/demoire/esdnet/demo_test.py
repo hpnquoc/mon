@@ -1,29 +1,12 @@
 import datetime
-import logging
-import lpips
-import numpy as np
-import torch
-import argparse
-import cv2
-import torch.utils.data as data
-import torchvision
-import random
-import torch.nn.functional as F
-import torch.nn as nn
-from tensorboardX import SummaryWriter
-import torch.optim as optim
-import os
-from model.model import model_fn_decorator
-from model.nets import my_model
-from dataset.load_data import *
+
 from tqdm import tqdm
-from utils.loss_util import *
-from utils.common import *
+
 from config.config import args
-import logging
-from PIL import Image
-from PIL import ImageFile
-import os
+from dataset.load_data import *
+from model.nets import my_model
+from utils.common import *
+from utils.loss_util import *
 
 
 def demo_test(args, TestImgLoader, model, save_path, device):
@@ -94,6 +77,7 @@ def set_logging(log_path):
     logger.addHandler(file_handler)
     logger.addHandler(stream_handler)
 
+
 def test_model_fn(args, data, model, save_path, device):
     # prepare input and forward
     in_img = data['in_img'].to(device)
@@ -124,6 +108,7 @@ def test_model_fn(args, data, model, save_path, device):
         out_save = out_1.detach().cpu()
         torchvision.utils.save_image(out_save, save_path + '/' + 'test_%s' % number[0] + '.%s' % args.SAVE_IMG)
 
+
 def create_demo_dataset(
     args,
     data_path,
@@ -148,6 +133,7 @@ def create_demo_dataset(
 
     return data_loader
 
+
 class demo_data_loader(data.Dataset):
 
     def __init__(self, image_list):
@@ -170,6 +156,7 @@ class demo_data_loader(data.Dataset):
 
     def __len__(self):
         return len(self.image_list)
+
 
 def main():
     device = init()
@@ -204,5 +191,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
-

@@ -3,23 +3,28 @@ A pytorch implementation for reproducing results in MATLAB, slightly modified fr
 https://github.com/mayorx/matlab_ssim_pytorch_implementation.
 """
 
-import torch
 import cv2
 import numpy as np
+import torch
+
 
 def generate_1d_gaussian_kernel():
     return cv2.getGaussianKernel(11, 1.5)
 
+
 def generate_2d_gaussian_kernel():
     kernel = generate_1d_gaussian_kernel()
     return np.outer(kernel, kernel.transpose())
+
 
 def generate_3d_gaussian_kernel():
     kernel = generate_1d_gaussian_kernel()
     window = generate_2d_gaussian_kernel()
     return np.stack([window * k for k in kernel], axis=0)
 
+
 class MATLAB_SSIM(torch.nn.Module):
+    
     def __init__(self, device='cpu'):
         super(MATLAB_SSIM, self).__init__()
         self.device = device

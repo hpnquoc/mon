@@ -938,7 +938,7 @@ EXTRA_MODELS      = {  # architecture/model (+ variant)
     # region enhance/demoire
     "esdnet": {
         "esdnet": {
-            "tasks"    : [Task.DEMOIRE],
+            "tasks"    : [Task.DEMOIRE, Task.LLIE],
             "schemes"  : [Scheme.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "enhance" / "demoire" / "esdnet",
             "torch_distributed_launch": False,

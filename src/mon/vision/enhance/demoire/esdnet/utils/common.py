@@ -1,19 +1,15 @@
-import cv2
-from datetime import datetime
 import logging
 import math
-import numpy as np
 import os
 import random
-from shutil import get_terminal_size
-import sys
-import time
-from thop import profile, clever_format
-import torch
-from torchvision.utils import make_grid
-from torch.optim.lr_scheduler import _LRScheduler
-import torch.nn.functional as F
 from math import exp
+
+import numpy as np
+import torch
+import torch.nn.functional as F
+from thop import clever_format, profile
+from torch.optim.lr_scheduler import _LRScheduler
+from torchvision.utils import make_grid
 
 
 class CosineAnnealingWarmRestarts(_LRScheduler):
@@ -39,6 +35,7 @@ class CosineAnnealingWarmRestarts(_LRScheduler):
     .. _SGDR\: Stochastic Gradient Descent with Warm Restarts:
         https://arxiv.org/abs/1608.03983
     """
+    
     def __init__(self, optimizer, T_0, T_mult=1, eta_min=0, last_epoch=-1, verbose=False):
         if T_0 <= 0 or not isinstance(T_0, int):
             raise ValueError("Expected positive integer T_0, but got {}".format(T_0))
@@ -58,6 +55,7 @@ class CosineAnnealingWarmRestarts(_LRScheduler):
                                   "please use `get_last_lr()`.", UserWarning)
         return [self.eta_min + (base_lr - self.eta_min) * (1 + math.cos(math.pi * self.T_cur / self.T_i)) / 2
                 for base_lr in self.base_lrs]
+    
     def step(self, epoch=None):
         """Step could be called after every batch update
         Example:
@@ -118,6 +116,7 @@ class CosineAnnealingWarmRestarts(_LRScheduler):
                 self.print_lr(self.verbose, i, lr, epoch)
         self._last_lr = [group['lr'] for group in self.optimizer.param_groups]
 
+
 def tensor2img(tensor, out_type=np.uint8, min_max=(0, 1)):
     tensor = tensor.squeeze().float().cpu().clamp_(*min_max)
     tensor = (tensor - min_max[0]) / (min_max[1] - min_max[0])
@@ -142,9 +141,11 @@ def tensor2img(tensor, out_type=np.uint8, min_max=(0, 1)):
     
     return img_np.astype(out_type)
 
+
 def mkdir(path):
     if not os.path.exists(path):
         os.makedirs(path)
+
 
 def init_random_seed(seed=0):
     random.seed(seed)
@@ -155,6 +156,7 @@ def init_random_seed(seed=0):
     torch.manual_seed(seed)
     torch.cuda.manual_seed(seed)
     torch.cuda.manual_seed_all(seed)
+
 
 def set_requires_grad(nets, requires_grad=False):
 	"""Set requies_grad=Fasle for all the networks to avoid unnecessary computations
@@ -169,11 +171,13 @@ def set_requires_grad(nets, requires_grad=False):
 			for param in net.parameters():
 				param.requires_grad = requires_grad
 
+
 def calculate_cost(model, input_size=(1,3,224,224)):
     input_ = torch.randn(input_size).cuda()
     macs, params = profile(model, inputs=(input_, ))
     macs, params = clever_format([macs, params], "%.3f")
     logging.warning("MACs:" + macs + ", Params:" + params)
+
 
 def img_pad(x, w_pad, h_pad, w_odd_pad, h_odd_pad):
     '''
@@ -191,15 +195,18 @@ def img_pad(x, w_pad, h_pad, w_odd_pad, h_odd_pad):
 
     return y
 
+
 def gaussian(window_size, sigma):
     gauss = torch.Tensor([exp(-(x - window_size//2)**2/float(2*sigma**2)) for x in range(window_size)])
     return gauss/gauss.sum()
+
 
 def create_window(window_size, channel=1):
     _1D_window = gaussian(window_size, 1.5).unsqueeze(1)
     _2D_window = _1D_window.mm(_1D_window.t()).float().unsqueeze(0).unsqueeze(0)
     window = _2D_window.expand(channel, 1, window_size, window_size).contiguous()
     return window
+
 
 def ssim(img1, img2, window_size=11, window=None, size_average=True, full=False, val_range=None):
     # Value range can be different from 255. Other common ranges are 1 (sigmoid) and 2 (tanh).
@@ -252,12 +259,14 @@ def ssim(img1, img2, window_size=11, window=None, size_average=True, full=False,
         return ret, cs
     return ret
 
+
 # Classes to re-use window
 class SSIM(torch.nn.Module):
     """
     Fast pytorch implementation for SSIM, referred from
     "https://github.com/jorge-pessoa/pytorch-msssim/blob/master/pytorch_msssim/__init__.py"
     """
+    
     def __init__(self, window_size=11, size_average=True, val_range=None):
         super(SSIM, self).__init__()
         self.window_size = window_size
@@ -281,6 +290,7 @@ class SSIM(torch.nn.Module):
         return ssim(img1, img2, window=window, window_size=self.window_size, size_average=self.size_average)
         
 class PSNR(torch.nn.Module):
+    
     def __init__(self):
         super(PSNR, self).__init__()
 
@@ -288,6 +298,3 @@ class PSNR(torch.nn.Module):
         psnr = -10*torch.log10(torch.mean((img1-img2)**2))
         
         return psnr
-        
-
-

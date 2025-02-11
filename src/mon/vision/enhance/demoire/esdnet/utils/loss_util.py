@@ -1,21 +1,18 @@
-import numpy as np
-import torch.nn as nn
-import torch.nn.functional as F
 import torch
+import torch.nn.functional as F
 import torchvision
 from utils.common import *
-from torchvision import models as tv
-from torch.nn.parameter import Parameter
-import os
-
+from utils.common import *
 
 
 class multi_VGGPerceptualLoss(torch.nn.Module):
+    
     def __init__(self, lam=1, lam_p=1):
         super(multi_VGGPerceptualLoss, self).__init__()
         self.loss_fn = VGGPerceptualLoss()
         self.lam = lam
         self.lam_p = lam_p
+        
     def forward(self, out1, out2, out3, gt1, feature_layers=[2]):
         gt2 = F.interpolate(gt1, scale_factor=0.5, mode='bilinear', align_corners=False)
         gt3 = F.interpolate(gt1, scale_factor=0.25, mode='bilinear', align_corners=False)
@@ -26,7 +23,9 @@ class multi_VGGPerceptualLoss(torch.nn.Module):
         
         return loss1+loss2+loss3            
 
+
 class VGGPerceptualLoss(torch.nn.Module):
+    
     def __init__(self, resize=True):
         super(VGGPerceptualLoss, self).__init__()
         blocks = []

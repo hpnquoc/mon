@@ -1,21 +1,26 @@
-from .common import SSIM, PSNR, tensor2img
-from skimage.metrics import peak_signal_noise_ratio as ski_psnr
-from skimage.metrics import structural_similarity as ski_ssim
-from utils.matlab_ssim import MATLAB_SSIM
-import lpips
-import torch
-import numpy as np
 from math import log10
 
-class create_metrics():
-    """
-       We note that for different benchmarks, previous works calculate metrics in different ways, which might
+import lpips
+import numpy as np
+import torch
+from skimage.metrics import (
+    peak_signal_noise_ratio as ski_psnr,
+    structural_similarity as ski_ssim,
+)
+from utils.matlab_ssim import MATLAB_SSIM
+
+from .common import PSNR, SSIM, tensor2img
+
+
+class create_metrics:
+    """We note that for different benchmarks, previous works calculate metrics in different ways, which might
        lead to inconsistent SSIM results (and slightly different PSNR), and thus we follow their individual
        ways to compute metrics on each individual dataset for fair comparisons.
        For our 4K dataset, calculating metrics for 4k image is much time-consuming,
        thus we benchmark evaluations for all methods with a fast pytorch SSIM implementation referred from
        "https://github.com/jorge-pessoa/pytorch-msssim/blob/master/pytorch_msssim/__init__.py".
     """
+    
     def __init__(self, args, device):
         self.data_type = args.DATA_TYPE
         self.lpips_fn = lpips.LPIPS(net='alex').cuda()
@@ -41,7 +46,6 @@ class create_metrics():
         # calculate LPIPS
         res_lpips = self.lpips_fn.forward(pre, tar, normalize=True).item()
         return res_lpips, res_psnr, res_ssim
-
 
     def fast_psnr_ssim(self, out_img, gt):
         pre = torch.clamp(out_img, min=0, max=1)

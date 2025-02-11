@@ -86,7 +86,7 @@ def train(args: argparse.Namespace):
     
                 optimizer.zero_grad()
                 loss.backward()
-                torch.nn.utils.clip_grad_norm(DCE_net.parameters(), args.grad_clip_norm)
+                torch.nn.utils.clip_grad_norm_(DCE_net.parameters(), args.grad_clip_norm)
                 optimizer.step()
                 
                 if ((iteration + 1) % args.display_iter) == 0:
