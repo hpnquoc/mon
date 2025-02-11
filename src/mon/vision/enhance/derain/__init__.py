@@ -8,5 +8,5 @@ This package implements single-image deraining algorithms and models.
 
 from __future__ import annotations
 
-import mon.vision.enhance.derain.esdnet_re
-from mon.vision.enhance.derain.esdnet_re import *
+import mon.vision.enhance.derain.esdnet_snn_re
+from mon.vision.enhance.derain.esdnet_snn_re import *

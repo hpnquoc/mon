@@ -936,11 +936,11 @@ EXTRA_MODELS      = {  # architecture/model (+ variant)
     },
     # endregion
     # region enhance/derain
-    "esdnet": {
-        "esdnet": {
+    "esdnet_snn": {
+        "esdnet_snn": {
             "tasks"    : [Task.DERAIN, Task.LLIE],
             "schemes"  : [Scheme.SUPERVISED],
-            "model_dir": MON_DIR / "vision" / "enhance" / "derain" / "esdnet",
+            "model_dir": MON_DIR / "vision" / "enhance" / "derain" / "esdnet_snn",
             "torch_distributed_launch": False,
         },
     },

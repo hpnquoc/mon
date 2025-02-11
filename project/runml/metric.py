@@ -12,12 +12,14 @@ import logging
 
 import click
 import pyiqa
+import pyiqa.default_model_configs
+import pyiqa.models.inference_model
 import torch
 
 import mon
 
 console  = mon.console
-_METRICS = pyiqa.DEFAULT_CONFIGS
+_METRICS = pyiqa.default_model_configs.DEFAULT_CONFIGS
 
 
 # region Metric
@@ -78,7 +80,7 @@ def measure_metric_pyiqa(
     for i, m in enumerate(metric):
         if m not in _METRICS:
             continue
-        metric_f[m] = pyiqa.InferenceModel(
+        metric_f[m] = pyiqa.models.inference_model.InferenceModel(
             metric_name = m,
             as_loss     = False,
             device      = device,

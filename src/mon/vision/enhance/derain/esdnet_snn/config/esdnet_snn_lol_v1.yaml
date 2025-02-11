@@ -1,0 +1,39 @@
+# Basic
+hostname    : ~
+config      : ~
+arch        : "esdnet_snn"
+model       : "esdnet_snn"
+data        : "lol_v1"
+data_dir    : "data/enhance/lol_v1"
+root        : ~
+project     : ~
+variant     : ~
+fullname    : "esdnet_snn_lol_v1"
+save_dir    : ~
+weights     : "zoo/vision/enhance/derain/esdnet_snn/esdnet_snn/lol_v1/esdnet_snn_lol_v1_best_psnr.pt"
+device      : 0
+local_rank  : -1
+launcher    : ~
+epochs      : 1000
+steps       : ~
+imgsz       : 512
+resize      : True
+benchmark   : False
+save_image  : True
+save_debug  : False
+use_data_dir: False
+use_fullpath: False
+exist_ok    : False
+verbose     : True
+
+# Model Specific
+mode            : "ESDNet3"
+patch_size_train: 64
+patch_size_test : 64
+batch_size      : 16
+lr              : 0.0001
+min_lr          : 0.0000001
+warmup_epochs   : 3
+clip_grad       : 1.0
+use_amp         : False
+num_workers     : 2

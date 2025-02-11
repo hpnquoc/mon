@@ -11,7 +11,7 @@ current_file = mon.Path(__file__).absolute()
 
 # region Basic
 
-model_name = "zero_linr_wo_ff"
+model_name = "zero_linr_siren_de"
 data_name  = "fivek_e"
 root       = current_file.parents[1] / "run"
 data_root  = mon.DATA_DIR / "enhance"
@@ -41,7 +41,7 @@ model = {
 	"out_layers"       : 1,              # Number of output layers.
 	"omega_0"          : 30.0,           # Best: 30.0
 	"first_bias_scale" : 20,             # Best: None
-	"nonlinear"        : "relu",         # Non-linear activation. Best: sine
+	"nonlinear"        : "sine",         # Non-linear activation. Best: sine
 	"use_ff"           : False,          # Best: True
 	"ff_gaussian_scale": 10,
 	"edge_threshold"   : 0.05,           # Edge threshold. Best: 0.05
@@ -57,8 +57,8 @@ model = {
 	"spa_weight"	   : 1,              # Best: 1
 	"tv_weight"        : 20,             # Best: 20
 	"spar_weight"	   : 5,              # Best: 5
-	"depth_weight"     : 1,              # Best: 1
-	"edge_weight"      : 1,              # Best: 1
+	"depth_weight"     : 0,              # Best: 1
+	"edge_weight"      : 0,              # Best: 1
 	"color_weight"     : 5,              # Best: 5
 	"weights"          : None,           # The model's weights.
 	"metrics"          : {

@@ -612,15 +612,21 @@ class MLP_HSV_D(MLP):
 
 # region Model
 
-@MODELS.register(name="zero_linr_wo_color", arch="zero_linr")
-@MODELS.register(name="zero_linr_wo_depth", arch="zero_linr")
-@MODELS.register(name="zero_linr_wo_edge",  arch="zero_linr")
-@MODELS.register(name="zero_linr_wo_exp",   arch="zero_linr")
-@MODELS.register(name="zero_linr_wo_ff",    arch="zero_linr")
-@MODELS.register(name="zero_linr_wo_spa",   arch="zero_linr")
-@MODELS.register(name="zero_linr_wo_spar",  arch="zero_linr")
-@MODELS.register(name="zero_linr_wo_tv",    arch="zero_linr")
-@MODELS.register(name="zero_linr",          arch="zero_linr")
+@MODELS.register(name="zero_linr_ffn",           arch="zero_linr")
+@MODELS.register(name="zero_linr_ffn_de",        arch="zero_linr")
+@MODELS.register(name="zero_linr_ffn_de_ldes",   arch="zero_linr")
+@MODELS.register(name="zero_linr_siren",         arch="zero_linr")
+@MODELS.register(name="zero_linr_siren_de",      arch="zero_linr")
+@MODELS.register(name="zero_linr_siren_de_ldes", arch="zero_linr")
+@MODELS.register(name="zero_linr_wo_color",      arch="zero_linr")
+@MODELS.register(name="zero_linr_wo_depth",      arch="zero_linr")
+@MODELS.register(name="zero_linr_wo_edge",       arch="zero_linr")
+@MODELS.register(name="zero_linr_wo_exp",        arch="zero_linr")
+@MODELS.register(name="zero_linr_wo_ff",         arch="zero_linr")
+@MODELS.register(name="zero_linr_wo_spa",        arch="zero_linr")
+@MODELS.register(name="zero_linr_wo_spar",       arch="zero_linr")
+@MODELS.register(name="zero_linr_wo_tv",         arch="zero_linr")
+@MODELS.register(name="zero_linr",               arch="zero_linr")
 class ZeroLINR(base.ImageEnhancementModel):
     
     model_dir: core.Path    = current_dir
