@@ -68,7 +68,6 @@ from typing import Any
 
 from mon.core import dtype as DT, factory, pathlib
 
-
 # region Directory
 
 current_file = pathlib.Path(__file__).absolute()
@@ -677,6 +676,7 @@ class Task(DT.Enum):
     CLASSIFY  = "classify"   # classification
     DEBLUR    = "deblur"     # deblurring
     DEHAZE    = "dehaze"     # dehazing
+    DEMOIRE   = "demoire"    # demoireing
     DENOISE   = "denoise"    # denoising
     DEPTH     = "depth"      # depth estimation
     DERAIN    = "derain"     # deraining
@@ -931,6 +931,16 @@ EXTRA_MODELS      = {  # architecture/model (+ variant)
             "tasks"    : [Task.DEHAZE],
             "schemes"  : [Scheme.ZERO_REFERENCE, Scheme.INSTANCE],
             "model_dir": MON_DIR / "vision" / "enhance" / "dehaze" / "zid",
+            "torch_distributed_launch": False,
+        },
+    },
+    # endregion
+    # region enhance/demoire
+    "esdnet": {
+        "esdnet": {
+            "tasks"    : [Task.DEMOIRE],
+            "schemes"  : [Scheme.SUPERVISED],
+            "model_dir": MON_DIR / "vision" / "enhance" / "demoire" / "esdnet",
             "torch_distributed_launch": False,
         },
     },
