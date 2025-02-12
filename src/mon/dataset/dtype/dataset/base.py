@@ -410,10 +410,16 @@ class MultimodalDataset(Dataset, ABC):
             
     def get_multimodal_data(self):
         """Get multimodal data."""
-        if "ref_image" in self.datapoint_attrs:
-            self.get_reference_image()
-        if "depth" in self.datapoint_attrs or "ref_depth" in self.datapoint_attrs:
+        if "depth" in self.datapoint_attrs:
             self.get_depth_map()
+            
+        if self.has_annotations:
+            self.get_reference_image()
+            if "ref_depth" in self.datapoint_attrs:
+                self.get_reference_depth_map()
+        else:
+            self.datapoints.pop("ref_image", None)
+            self.datapoints.pop("ref_depth", None)
     
     def get_reference_image(self):
         """Get reference image."""
@@ -434,10 +440,8 @@ class MultimodalDataset(Dataset, ABC):
     
     def get_depth_map(self):
         """Get depth map."""
-        images     = self.datapoints.get("image",     [])
-        depths     = self.datapoints.get("depth",     [])
-        ref_images = self.datapoints.get("ref_image", [])
-        ref_depths = self.datapoints.get("ref_depth", [])
+        images = self.datapoints.get("image", [])
+        depths = self.datapoints.get("depth", [])
         
         # Depth images
         if len(images) > 0 and len(depths) == 0:
@@ -458,6 +462,11 @@ class MultimodalDataset(Dataset, ABC):
                     )
             self.datapoints["depth"] = depths
             
+    def get_reference_depth_map(self):
+        """Get depth map."""
+        ref_images = self.datapoints.get("ref_image", [])
+        ref_depths = self.datapoints.get("ref_depth", [])
+
         # Reference depth images
         if len(ref_images) > 0 and len(ref_depths) == 0:
             ref_depths: list[DepthMapAnnotation] = []

@@ -14,16 +14,16 @@ def demo_test(args, TestImgLoader, model, save_path, device):
     for batch_idx, data in enumerate(tbar):
         model.eval()
         test_model_fn(args, data, model, save_path, device)
-        desc = 'Test demo'
+        desc = "Test demo"
         tbar.set_description(desc)
         tbar.update()
 
 
 def init():
     # Make dirs
-    args.TEST_RESULT_DIR = os.path.join(args.SAVE_PREFIX, args.EXP_NAME, 'test_result')
+    args.TEST_RESULT_DIR = os.path.join(args.SAVE_PREFIX, args.EXP_NAME, "test_result")
     mkdir(args.TEST_RESULT_DIR)
-    args.NETS_DIR = os.path.join(args.SAVE_PREFIX, args.EXP_NAME, 'net_checkpoints')
+    args.NETS_DIR = os.path.join(args.SAVE_PREFIX, args.EXP_NAME, "net_checkpoints")
     os.environ["CUDA_VISIBLE_DEVICES"] = "%d" % args.GPU_ID
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
@@ -45,16 +45,16 @@ def init():
 def load_checkpoint(model):
     if args.LOAD_PATH:
         load_path = args.LOAD_PATH
-        save_path = args.TEST_RESULT_DIR + '/customer'
-        log_path = args.TEST_RESULT_DIR + '/customer_result.log'
+        save_path = args.TEST_RESULT_DIR + "/customer"
+        log_path = args.TEST_RESULT_DIR + "/customer_result.log"
     else:
-        print('Please specify a checkpoint path in the config file!!!')
+        print("Please specify a checkpoint path in the config file!!!")
         raise NotImplementedError
     mkdir(save_path)
-    if load_path.endswith('.pth'):
+    if load_path.endswith(".pth"):
         model_state_dict = torch.load(load_path)
     else:
-        model_state_dict = torch.load(load_path)['state_dict']
+        model_state_dict = torch.load(load_path)["state_dict"]
     model.load_state_dict(model_state_dict)
 
     return load_path, save_path, log_path
@@ -64,9 +64,9 @@ def set_logging(log_path):
     logger = logging.getLogger()
     logger.setLevel(level=logging.DEBUG)
 
-    formatter = logging.Formatter('%(message)s')
+    formatter = logging.Formatter("%(message)s")
 
-    file_handler = logging.FileHandler(log_path, mode='w')
+    file_handler = logging.FileHandler(log_path, mode="w")
     file_handler.setLevel(level=logging.INFO)
     file_handler.setFormatter(formatter)
 
@@ -80,8 +80,8 @@ def set_logging(log_path):
 
 def test_model_fn(args, data, model, save_path, device):
     # prepare input and forward
-    in_img = data['in_img'].to(device)
-    number = data['number']
+    in_img = data["in_img"].to(device)
+    number = data["number"]
     b, c, h, w = in_img.size()
 
     # pad image such that the resolution is a multiple of 32
@@ -106,7 +106,7 @@ def test_model_fn(args, data, model, save_path, device):
     # save images
     if args.SAVE_IMG:
         out_save = out_1.detach().cpu()
-        torchvision.utils.save_image(out_save, save_path + '/' + 'test_%s' % number[0] + '.%s' % args.SAVE_IMG)
+        torchvision.utils.save_image(out_save, save_path + "/" + "test_%s" % number[0] + ".%s" % args.SAVE_IMG)
 
 
 def create_demo_dataset(
@@ -144,13 +144,13 @@ class demo_data_loader(data.Dataset):
         data = {}
         path_src = self.image_list[index]
         number = os.path.split(path_src)[-1]
-        number = number.split('.')[0]
+        number = number.split(".")[0]
 
-        img = Image.open(path_src).convert('RGB')
+        img = Image.open(path_src).convert("RGB")
         img = default_toTensor(img)
 
-        data['in_img'] = img
-        data['number'] = number
+        data["in_img"] = img
+        data["number"] = number
 
         return data
 
@@ -175,9 +175,9 @@ def main():
     set_logging(log_path)
     logging.warning(datetime.now())
 
-    logging.warning('load model from %s' % load_path)
-    logging.warning('save image results to %s' % save_path)
-    logging.warning('save logger to %s' % log_path)
+    logging.warning("load model from %s" % load_path)
+    logging.warning("save image results to %s" % save_path)
+    logging.warning("save logger to %s" % log_path)
 
     # Create dataset
     test_path = args.DEMO_DATASET
@@ -189,5 +189,5 @@ def main():
     demo_test(args, DemoImgLoader, model, save_path, device)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

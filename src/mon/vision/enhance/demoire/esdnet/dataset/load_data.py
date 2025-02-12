@@ -18,32 +18,38 @@ def create_dataset(args, data_path, mode="train"):
         file_list.sort()
         return file_list
     
-    if args.DATA_TYPE == "UHDM":
+    if args.DATA["DATA_TYPE"] == "UHDM":
         uhdm_files  = _list_image_files_recursively(data_dir=data_path)
         dataset     = UHDMDataLoader(args, uhdm_files, mode=mode)
-    elif args.DATA_TYPE == "FHDMi":
+    elif args.DATA["DATA_TYPE"] == "FHDMi":
         fhdmi_files = sorted([file for file in os.listdir(data_path + "/target") if file.endswith(".png")])
         dataset     = FHDMIDataLoader(args, fhdmi_files, mode=mode)
-    elif args.DATA_TYPE == "TIP":
+    elif args.DATA["DATA_TYPE"] == "TIP":
         tip_files   = sorted([file for file in os.listdir(data_path + "/source") if file.endswith(".png")])
         dataset     = TIPDataLoader(args, tip_files, mode=mode)
-    elif args.DATA_TYPE == "LCDMoire":
+    elif args.DATA["DATA_TYPE"] == "LCDMoire":
         if mode == "train":
             aim_files = sorted([file for file in os.listdir(data_path + "/moire") if file.endswith(".jpg")])
         else:
             aim_files = sorted([file for file in os.listdir(data_path + "/moire") if file.endswith(".png")])
         dataset = LCDMoireDataLoader(args, aim_files, mode=mode)
-    elif args.DATA_TYPE == "NTIRE_2024_LLIE":
-        ntire_files = sorted([file for file in os.listdir(data_path + "image") if file.endswith(".png")])
+    elif args.DATA["DATA_TYPE"] == "NTIRE_2024_LLIE":
+        ntire_files = sorted([file for file in os.listdir(data_path + "/image") if file.endswith(".png")])
         dataset     = NTIRELLIEMDataLoader(args, ntire_files, mode=mode)
-    elif args.DATA_TYPE == "NTIRE_2025_LLIE":
-        ntire_files = sorted([file for file in os.listdir(data_path + "image") if file.endswith(".png")])
+    elif args.DATA["DATA_TYPE"] == "NTIRE_2025_LLIE":
+        ntire_files = sorted([file for file in os.listdir(data_path + "/image") if file.endswith(".png")])
         dataset     = NTIRELLIEMDataLoader(args, ntire_files, mode=mode)
     else:
         print("Unrecognized data_type!")
         raise NotImplementedError
     
-    data_loader = data.DataLoader(dataset, batch_size=args.BATCH_SIZE, shuffle=True, num_workers=args.WORKER, drop_last=True)
+    data_loader = data.DataLoader(
+        dataset,
+        batch_size  = args.TRAIN["BATCH_SIZE"],
+        shuffle     = True,
+        num_workers = args.GENERAL["WORKER"],
+        drop_last   = True
+    )
     return data_loader
 
 
@@ -53,7 +59,7 @@ class UHDMDataLoader(data.Dataset):
         self.image_list = image_list
         self.args       = args
         self.mode       = mode
-        self.loader     = args.LOADER
+        self.loader     = args.TRAIN["LOADER"]
 
     def __getitem__(self, index):
         ImageFile.LOAD_TRUNCATED_IMAGES = True
@@ -69,11 +75,11 @@ class UHDMDataLoader(data.Dataset):
                 else:
                     w = 4032
                     h = 3024
-                x = random.randint(0, w - self.args.CROP_SIZE)
-                y = random.randint(0, h - self.args.CROP_SIZE)
-                ref_image, image         = crop_loader(self.args.CROP_SIZE, x, y, [path_tar, path_src])
+                x = random.randint(0, w - self.args.TRAIN["CROP_SIZE"])
+                y = random.randint(0, h - self.args.TRAIN["CROP_SIZE"])
+                ref_image, image         = crop_loader(self.args.TRAIN["CROP_SIZE"], x, y, [path_tar, path_src])
             elif self.loader == "resize":
-                ref_image, image         = resize_loader(self.args.RESIZE_SIZE, [path_tar, path_src])
+                ref_image, image         = resize_loader(self.args.TRAIN["RESIZE_SIZE"], [path_tar, path_src])
                 data["origin_ref_image"] = default_loader([path_tar])[0]
             elif self.loader == "default":
                 ref_image, image         = default_loader([path_tar, path_src])
@@ -81,7 +87,7 @@ class UHDMDataLoader(data.Dataset):
                 raise NotImplementedError
         elif self.mode == "test":
             if self.loader == "resize":
-                ref_image, image         = resize_loader(self.args.RESIZE_SIZE, [path_tar, path_src])
+                ref_image, image         = resize_loader(self.args.TRAIN["RESIZE_SIZE"], [path_tar, path_src])
                 data["origin_ref_image"] = default_loader([path_tar])[0]
             else:
                 ref_image, image         = default_loader([path_tar, path_src])
@@ -104,7 +110,7 @@ class FHDMIDataLoader(data.Dataset):
         self.image_list = image_list
         self.args       = args
         self.mode       = mode
-        self.loader     = args.LOADER
+        self.loader     = args.TRAIN["LOADER"]
 
     def __getitem__(self, index):
         ImageFile.LOAD_TRUNCATED_IMAGES = True
@@ -113,24 +119,24 @@ class FHDMIDataLoader(data.Dataset):
         number      = image_in_gt[4:9]
         image_in    = "src_" + number + ".png"
         if self.mode == "train":
-            path_tar = self.args.TRAIN_DATASET + "/target/" + image_in_gt
-            path_src = self.args.TRAIN_DATASET + "/source/" + image_in
+            path_tar = self.args.DATA["TRAIN_DATASET"] + "/target/" + image_in_gt
+            path_src = self.args.DATA["TRAIN_DATASET"] + "/source/" + image_in
             if self.loader == "crop":
-                x = random.randint(0, 1920 - self.args.CROP_SIZE)
-                y = random.randint(0, 1080 - self.args.CROP_SIZE)
-                ref_image, image         = crop_loader(self.args.CROP_SIZE, x, y, [path_tar, path_src])
+                x = random.randint(0, 1920 - self.args.TRAIN["CROP_SIZE"])
+                y = random.randint(0, 1080 - self.args.TRAIN["CROP_SIZE"])
+                ref_image, image         = crop_loader(self.args.TRAIN["CROP_SIZE"], x, y, [path_tar, path_src])
             elif self.loader == "resize":
-                ref_image, image         = resize_loader(self.args.RESIZE_SIZE, [path_tar, path_src])
+                ref_image, image         = resize_loader(self.args.TRAIN["RESIZE_SIZE"], [path_tar, path_src])
                 data["origin_ref_image"] = default_loader([path_tar])[0]
             elif self.loader == "default":
                 ref_image, image         = default_loader([path_tar, path_src])
             else:
                 raise NotImplementedError
         elif self.mode == "test":
-            path_tar = self.args.TEST_DATASET + "/target/" + image_in_gt
-            path_src = self.args.TEST_DATASET + "/source/" + image_in
+            path_tar = self.args.DATA["TEST_DATASET"] + "/target/" + image_in_gt
+            path_src = self.args.DATA["TEST_DATASET"] + "/source/" + image_in
             if self.loader == "resize":
-                ref_image, image         = resize_loader(self.args.RESIZE_SIZE, [path_tar, path_src])
+                ref_image, image         = resize_loader(self.args.TRAIN["RESIZE_SIZE"], [path_tar, path_src])
                 data["origin_ref_image"] = default_loader([path_tar])[0]
             else:
                 ref_image, image         = default_loader([path_tar, path_src])
@@ -153,7 +159,7 @@ class LCDMoireDataLoader(data.Dataset):
         self.image_list = image_list
         self.args       = args
         self.mode       = mode
-        self.loader     = args.LOADER
+        self.loader     = args.TRAIN["LOADER"]
 
     def __getitem__(self, index):
         ImageFile.LOAD_TRUNCATED_IMAGES = True
@@ -162,24 +168,24 @@ class LCDMoireDataLoader(data.Dataset):
         number      = image_in_gt[0:6]
         image_in    = number + ".jpg"
         if self.mode == "train":
-            path_tar = self.args.TRAIN_DATASET + "/clear/" + image_in_gt
-            path_src = self.args.TRAIN_DATASET + "/moire/" + image_in
+            path_tar = self.args.DATA["TRAIN_DATASET"] + "/clear/" + image_in_gt
+            path_src = self.args.DATA["TRAIN_DATASET"] + "/moire/" + image_in
             if self.loader == "crop":
-                x = random.randint(0, 1024 - self.args.CROP_SIZE)
-                y = random.randint(0, 1024 - self.args.CROP_SIZE)
-                ref_image, image         = crop_loader(self.args.CROP_SIZE, x, y, [path_tar, path_src])
+                x = random.randint(0, 1024 - self.args.TRAIN["CROP_SIZE"])
+                y = random.randint(0, 1024 - self.args.TRAIN["CROP_SIZE"])
+                ref_image, image         = crop_loader(self.args.TRAIN["CROP_SIZE"], x, y, [path_tar, path_src])
             elif self.loader == "resize":
-                ref_image, image         = resize_loader(self.args.RESIZE_SIZE, [path_tar, path_src])
+                ref_image, image         = resize_loader(self.args.TRAIN["RESIZE_SIZE"], [path_tar, path_src])
                 data["origin_ref_image"] = default_loader([path_tar])[0]
             elif self.loader == "default":
                 ref_image, image         = default_loader([path_tar, path_src])
         elif self.mode == "test":
             image_in    = number + ".png"
             image_in_gt = number + ".png"
-            path_tar    = self.args.TEST_DATASET + "/clear/" + image_in_gt
-            path_src    = self.args.TEST_DATASET + "/moire/" + image_in
+            path_tar    = self.args.DATA["TEST_DATASET"] + "/clear/" + image_in_gt
+            path_src    = self.args.DATA["TEST_DATASET"] + "/moire/" + image_in
             if self.loader == "resize":
-                ref_image, image         = resize_loader(self.args.RESIZE_SIZE, [path_tar, path_src])
+                ref_image, image         = resize_loader(self.args.TRAIN["RESIZE_SIZE"], [path_tar, path_src])
                 data["origin_ref_image"] = default_loader([path_tar])[0]
             else:
                 ref_image, image         = default_loader([path_tar, path_src])
@@ -216,8 +222,8 @@ class TIPDataLoader(data.Dataset):
         number      = image_in_gt[:-11]
 
         if self.mode == "train":
-            ref_image = self.default_loader(self.args.TRAIN_DATASET + "/target/" + image_in_gt)
-            image     = self.default_loader(self.args.TRAIN_DATASET + "/source/" + image_in)
+            ref_image = self.default_loader(self.args.DATA["TRAIN_DATASET"] + "/target/" + image_in_gt)
+            image     = self.default_loader(self.args.DATA["TRAIN_DATASET"] + "/source/" + image_in)
             w, h      = ref_image.size
             i         = random.randint(-6, 6)
             j         = random.randint(-6, 6)
@@ -226,8 +232,8 @@ class TIPDataLoader(data.Dataset):
             ref_image = ref_image.resize((256, 256), Image.BILINEAR)
             image     = image.resize((256, 256), Image.BILINEAR)
         elif self.mode == "test":
-            ref_image = self.default_loader(self.args.TEST_DATASET + "/target/" + image_in_gt)
-            image     = self.default_loader(self.args.TEST_DATASET + "/source/" + image_in)
+            ref_image = self.default_loader(self.args.DATA["TEST_DATASET"] + "/target/" + image_in_gt)
+            image     = self.default_loader(self.args.DATA["TEST_DATASET"] + "/source/" + image_in)
             w, h      = ref_image.size
             ref_image = ref_image.crop((int(w / 6), int(h / 6), int(w * 5 / 6), int(h * 5 / 6)))
             image     = image.crop((int(w / 6), int(h / 6), int(w * 5 / 6), int(h * 5 / 6)))
@@ -255,23 +261,23 @@ class NTIRELLIEMDataLoader(data.Dataset):
         self.image_list = image_list
         self.args       = args
         self.mode       = mode
-        self.loader     = args.LOADER
+        self.loader     = args.TRAIN["LOADER"]
 
     def __getitem__(self, index):
         ImageFile.LOAD_TRUNCATED_IMAGES = True
         data     = {}
-        path_src = self.image_list[index]
-        path_tar = path_src.replace("/image/", "/ref/")
+        path_src = self.args.DATA["TRAIN_DATASET"] + "/image/" + self.image_list[index]
+        path_tar = self.args.DATA["TRAIN_DATASET"] + "/ref/"   + self.image_list[index]
         number   = pathlib.Path(path_src).stem
         if self.mode == "train":
             if self.loader == "crop":
                 w = 2992
                 h = 2000
-                x = random.randint(0, w - self.args.CROP_SIZE)
-                y = random.randint(0, h - self.args.CROP_SIZE)
-                ref_image, image   = crop_loader(self.args.CROP_SIZE, x, y, [path_tar, path_src])
+                x = random.randint(0, w - self.args.TRAIN["CROP_SIZE"])
+                y = random.randint(0, h - self.args.TRAIN["CROP_SIZE"])
+                ref_image, image   = crop_loader(self.args.TRAIN["CROP_SIZE"], x, y, [path_tar, path_src])
             elif self.loader == "resize":
-                ref_image, image         = resize_loader(self.args.RESIZE_SIZE, [path_tar, path_src])
+                ref_image, image         = resize_loader(self.args.TRAIN["RESIZE_SIZE"], [path_tar, path_src])
                 data["origin_ref_image"] = default_loader([path_tar])[0]
             elif self.loader == "default":
                 ref_image, image         = default_loader([path_tar, path_src])
@@ -279,7 +285,7 @@ class NTIRELLIEMDataLoader(data.Dataset):
                 raise NotImplementedError
         elif self.mode == "test":
             if self.loader == "resize":
-                ref_image, image         = resize_loader(self.args.RESIZE_SIZE, [path_tar, path_src])
+                ref_image, image         = resize_loader(self.args.TRAIN["RESIZE_SIZE"], [path_tar, path_src])
                 data["origin_ref_image"] = default_loader([path_tar])[0]
             else:
                 ref_image, image         = default_loader([path_tar, path_src])

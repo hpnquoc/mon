@@ -16,11 +16,9 @@ python -W ignore main.py \
     --root "${current_dir}" \
     --task "llie" \
     --mode "predict" \
-    --data "dicm, fusion, lime, mef, npe, vv, lol_v1, lol_v2_real, lol_v2_synthetic, fivek, sice, sice_grad, sice_mix, sid_sony, loli_street_val, loli_street_test, nightcity" \
+    --data "ntire_2025_llie" \
     --verbose \
     "$@"
-
-# --data "dicm, fusion, lime, mef, npe, vv, lol_v1, lol_v2_real, lol_v2_synthetic, fivek, sice, sice_grad, sice_mix, sid_sony, loli_street_val, loli_street_test, nightcity" \
 
 # Done
 cd "${current_dir}" || exit

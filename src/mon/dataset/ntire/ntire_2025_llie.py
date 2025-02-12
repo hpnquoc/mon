@@ -36,6 +36,7 @@ MultimodalDataset   = dtype.MultimodalDataset
 @DATASETS.register(name="ntire_2025_llie")
 class NTIRE2025LLIE(MultimodalDataset):
 	"""
+	
 	References:
 		https://codalab.lisn.upsaclay.fr/competitions/21636
 	"""
@@ -62,7 +63,7 @@ class NTIRE2025LLIE(MultimodalDataset):
 			]
 		elif self.split in [Split.TEST]:
 			patterns = [
-				self.root / "ntire_2025_llie" / "test" / "image",
+				self.root / "ntire_2025_llie" / "val" / "image",
 			]
 		else:
 			raise ValueError
@@ -86,6 +87,7 @@ class NTIRE2025LLIE(MultimodalDataset):
 @DATAMODULES.register(name="ntire_2025_llie")
 class NTIRE2025LLIEDataModule(DataModule):
 	"""
+	
 	References:
 		https://codalab.lisn.upsaclay.fr/competitions/21636
 	"""
@@ -103,7 +105,7 @@ class NTIRE2025LLIEDataModule(DataModule):
 			self.train = NTIRE2025LLIE(split=Split.TRAIN, **self.dataset_kwargs)
 			self.val   = NTIRE2025LLIE(split=Split.TRAIN, **self.dataset_kwargs)
 		if stage in [None, "test"]:
-			self.test  = NTIRE2025LLIE(split=Split.VAL, **self.dataset_kwargs)
+			self.test  = NTIRE2025LLIE(split=Split.TEST,  **self.dataset_kwargs)
 		
 		self.get_classlabels()
 		if self.can_log:

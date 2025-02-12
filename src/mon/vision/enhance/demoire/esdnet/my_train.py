@@ -63,23 +63,27 @@ def load_checkpoint(model, optimizer, load_epoch):
 
 def train(args: argparse.Namespace):
     # General config
+    root     = mon.Path(args.root)
     save_dir = mon.Path(args.save_dir)
-    weights  = args.weights
+    weights  = mon.Path(args.weights) if args.weights is not None else mon.Path("")
     device   = mon.set_device(args.device)
     epochs   = args.epochs
     verbose  = args.verbose
     
     # Directory
+    save_dir    = root / save_dir
     weights_dir = save_dir
     weights_dir.mkdir(parents=True, exist_ok=True)
     
     # Device
-    os.environ["CUDA_VISIBLE_DEVICES"] = "%d" % args.GPU_ID
-    random.seed(args.SEED)
-    np.random.seed(args.SEED)
-    torch.manual_seed(args.SEED)
-    torch.cuda.manual_seed_all(args.SEED)
-    if args.SEED == 0:
+    os.environ["CUDA_VISIBLE_DEVICES"] = "%d" % args.GENERAL["GPU_ID"]
+    
+    # Seed
+    random.seed(args.GENERAL["SEED"])
+    np.random.seed(args.GENERAL["SEED"])
+    torch.manual_seed(args.GENERAL["SEED"])
+    torch.cuda.manual_seed_all(args.GENERAL["SEED"])
+    if args.GENERAL["SEED"] == 0:
         torch.backends.cudnn.deterministic = True
         torch.backends.cudnn.benchmark     = False
     else:
@@ -88,28 +92,39 @@ def train(args: argparse.Namespace):
     
     # Model
     model = my_model(
-        en_feature_num = args.EN_FEATURE_NUM,
-        en_inter_num   = args.EN_INTER_NUM,
-        de_feature_num = args.DE_FEATURE_NUM,
-        de_inter_num   = args.DE_INTER_NUM,
-        sam_number     = args.SAM_NUMBER,
+        en_feature_num = args.MODEL["EN_FEATURE_NUM"],
+        en_inter_num   = args.MODEL["EN_INTER_NUM"],
+        de_feature_num = args.MODEL["DE_FEATURE_NUM"],
+        de_inter_num   = args.MODEL["DE_INTER_NUM"],
+        sam_number     = args.MODEL["SAM_NUMBER"],
     ).to(device)
     model._initialize_weights()
     
     # Optimizer
-    optimizer     = optim.Adam([{"params": model.parameters(), "initial_lr": args.BASE_LR}], betas=(0.9, 0.999))
-    learning_rate = args.BASE_LR
+    optimizer     = optim.Adam(
+        [{"params": model.parameters(), "initial_lr": args.SOLVER["BASE_LR"]}],
+        betas=(0.9, 0.999)
+    )
+    learning_rate = args.SOLVER["BASE_LR"]
     iters         = 0
-    if args.LOAD_EPOCH:
+    if weights is not None and weights.is_ckpt_file():
         learning_rate, iters = load_checkpoint(model, optimizer, weights)
-    lr_scheduler = CosineAnnealingWarmRestarts(optimizer, T_0=args.T_0, T_mult=args.T_MULT, eta_min=args.ETA_MIN, last_epoch=args.LOAD_EPOCH - 1)
+    lr_scheduler = CosineAnnealingWarmRestarts(
+        optimizer,
+        T_0        = args.SOLVER["T_0"],
+        T_mult     = args.SOLVER["T_MULT"],
+        eta_min    = args.SOLVER["ETA_MIN"],
+        last_epoch = args.TRAIN["LOAD_EPOCH"] - 1
+    )
     
     # Loss
-    loss_fn  = multi_VGGPerceptualLoss(lam=args.LAM, lam_p=args.LAM_P).to(device)
+    loss_fn  = multi_VGGPerceptualLoss(lam=args.TRAIN["LAM"], lam_p=args.TRAIN["LAM_P"]).to(device)
     model_fn = model_fn_decorator(loss_fn=loss_fn, device=device)
     
     # Data I/O
-    train_path       = args.TRAIN_DATASET
+    args.DATA["TRAIN_DATASET"] = str(mon.ROOT_DIR / args.DATA["TRAIN_DATASET"])
+    args.DATA["TEST_DATASET"]  = str(mon.ROOT_DIR / args.DATA["TEST_DATASET"])
+    train_path       = args.DATA["TRAIN_DATASET"]
     train_img_loader = create_dataset(args, data_path=train_path, mode="train")
     
     # Logger
@@ -118,10 +133,10 @@ def train(args: argparse.Namespace):
     # start training
     console.log(f"****Start training!!!****")
     avg_train_loss = 0
-    for epoch in range(args.LOAD_EPOCH + 1, args.EPOCHS + 1):
+    for epoch in range(args.TRAIN["LOAD_EPOCH"] + 1, args.SOLVER["EPOCHS"] + 1):
         learning_rate, avg_train_loss, iters = train_epoch(args, train_img_loader, model, model_fn, optimizer, epoch, iters, lr_scheduler)
-        logger.add_scalar("Train/avg_loss",      avg_train_loss, epoch)
-        logger.add_scalar("Train/learning_rate", learning_rate,  epoch)
+        logger.add_scalar("train/avg_loss",      avg_train_loss, epoch)
+        logger.add_scalar("train/learning_rate", learning_rate,  epoch)
         
         # Save the latest model
         torch.save({
