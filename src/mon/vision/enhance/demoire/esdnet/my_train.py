@@ -65,13 +65,17 @@ def train(args: argparse.Namespace):
     # General config
     root     = mon.Path(args.root)
     save_dir = mon.Path(args.save_dir)
-    weights  = mon.Path(args.weights) if args.weights is not None else mon.Path("")
+    weights  = args.weights
     device   = mon.set_device(args.device)
     epochs   = args.epochs
     verbose  = args.verbose
     
+    if weights is not None and str(root) not in str(weights):
+        weights = root / weights
+    
     # Directory
-    save_dir    = root / save_dir
+    if str(root) not in str(save_dir):
+        save_dir = root / save_dir
     weights_dir = save_dir
     weights_dir.mkdir(parents=True, exist_ok=True)
     

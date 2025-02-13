@@ -21,7 +21,7 @@ from albumentations.core.transforms_interface import (
 	BaseTransformInitSchema,
 	DualTransform,
 )
-from albumentations.core.types import Targets
+from albumentations.core.type_definitions import Targets
 from pydantic import Field
 
 
