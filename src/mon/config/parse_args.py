@@ -114,9 +114,18 @@ def parse_train_args(model_root: str | core.Path = None) -> argparse.Namespace:
     extra_args = input_args.get("extra_args")
 
     # Parse arguments
-    save_dir = save_dir or core.parse_save_dir(root/"run"/"train", arch, model, data, project, variant)
-    save_dir = core.Path(save_dir)
-    weights  = core.parse_weights_file(weights)
+    if save_dir in [None, ""]:
+        save_dir = core.parse_save_dir(root/"run"/"train", arch, model, data, project, variant)
+    else:
+        save_dir = core.Path(save_dir)
+        if str("run/train") not in str(save_dir):
+            save_dir = core.Path(f"run/train/{save_dir}")
+        if str(root) not in str(save_dir):
+            save_dir = root / save_dir
+        # if (root / "run" / "train" / save_dir).exists():
+        #     save_dir = root / "run" / "train" / save_dir
+            
+    weights  = core.parse_weights_file(root/"run"/"train", weights)
     device   = core.parse_device(device)
     
     # Update arguments
@@ -224,7 +233,14 @@ def parse_predict_args(model_root: str | core.Path = None) -> argparse.Namespace
     # Parse arguments
     save_dir = save_dir or core.parse_save_dir(root/"run"/"predict", arch, model, None, project, variant)
     save_dir = core.Path(save_dir)
-    weights  = core.parse_weights_file(weights)
+    if str("run/predict") not in str(save_dir):
+        save_dir = core.Path(f"run/predict/{save_dir}")
+    # if str(root/"run"/"predict") not in str(save_dir):
+    #     save_dir = root / "run" / "predict" / save_dir
+    if str(root) not in str(save_dir):
+        save_dir = root / save_dir
+        
+    weights  = core.parse_weights_file(root, weights)
     device   = core.parse_device(device)
     imgsz    = get_image_size(imgsz)
     

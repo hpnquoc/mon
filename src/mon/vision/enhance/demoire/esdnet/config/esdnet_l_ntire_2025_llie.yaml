@@ -36,7 +36,7 @@ GENERAL:
 
 DATA:
   DATA_TYPE    : NTIRE_2025_LLIE  # Please specify the type of the dataset (select from LCDMoire/UHDM/FHDMi/TIP)
-  TRAIN_DATASET: "data/ntire/ntire_2025_llie/train"  # The training data path, e.g., ./uhdm_data/Train
+  TRAIN_DATASET: "data/ntire/ntire_2025_llie/train_extra"  # The training data path, e.g., ./uhdm_data/Train
   TEST_DATASET : "data/ntire/ntire_2025_llie/val"    # The test data path, e.g., ./uhdm_data/Test
 
 MODEL:

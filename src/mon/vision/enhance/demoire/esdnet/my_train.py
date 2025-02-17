@@ -70,12 +70,19 @@ def train(args: argparse.Namespace):
     epochs   = args.epochs
     verbose  = args.verbose
     
-    if weights is not None and str(root) not in str(weights):
-        weights = root / weights
+    if weights not in [None, ""]:
+        weights = mon.Path(weights)
+        if not weights.is_ckpt_file(exist=True):
+            if (root / weights).is_ckpt_file(exist=True):
+                weights = root / weights
+            if (root / "run" / "train" / weights).is_ckpt_file(exist=True):
+                weights = root / "run" / "train" / weights
+    console.log(weights)
     
     # Directory
-    if str(root) not in str(save_dir):
-        save_dir = root / save_dir
+    # if str(root) not in str(save_dir):
+    #     save_dir = root / save_dir
+    console.log(f"{save_dir}")
     weights_dir = save_dir
     weights_dir.mkdir(parents=True, exist_ok=True)
     
@@ -111,7 +118,7 @@ def train(args: argparse.Namespace):
     )
     learning_rate = args.SOLVER["BASE_LR"]
     iters         = 0
-    if weights is not None and weights.is_ckpt_file():
+    if weights is not None:
         learning_rate, iters = load_checkpoint(model, optimizer, weights)
     lr_scheduler = CosineAnnealingWarmRestarts(
         optimizer,

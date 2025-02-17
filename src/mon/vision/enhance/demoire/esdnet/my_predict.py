@@ -97,8 +97,8 @@ def predict(args: argparse.Namespace):
                 
                 # Resize
                 _, _, h0, w0 = image.size()
-                if h0 != 2000 or w0 != 2992:
-                    image = mon.resize(image, [2000, 2992])
+                # if h0 != 2000 or w0 != 2992:
+                #     image = mon.resize(image, [2000, 2992])
                 
                 # Infer
                 timer.tick()
@@ -121,8 +121,8 @@ def predict(args: argparse.Namespace):
                 timer.tock()
                 
                 enhanced = out_1.detach().cpu()
-                if h0 != 2000 or w0 != 2992:
-                    enhanced = mon.resize(enhanced, [h0, w0])
+                # if h0 != 2000 or w0 != 2992:
+                #     enhanced = mon.resize(enhanced, [h0, w0])
                 
                 # Save
                 if save_image:

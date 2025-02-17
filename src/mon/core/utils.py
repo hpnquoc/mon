@@ -846,6 +846,7 @@ def list_weights_files(
 
 
 def parse_weights_file(
+    root   : str | pathlib.Path,
     weights: str | pathlib.Path | Sequence[str | pathlib.Path]
 ) -> str | pathlib.Path | Sequence[str | pathlib.Path]:
     """Parse weights file. If the weights file is a relative path in the `zoo`
@@ -854,18 +855,21 @@ def parse_weights_file(
     single weights.
     
     Args:
+        root: The root directory.
         weights: The weights file to parse.
     """
-    from mon.globals import ZOO_DIR
+    from mon.globals import ROOT_DIR, ZOO_DIR
+    root    = pathlib.Path(root)
     weights = dtype.to_list(weights)
+    
     for i, w in enumerate(weights):
         w = pathlib.Path(w)
-        if not w.is_weights_file():
+        if not w.is_weights_file(exist=True):
             if w.parts[0] in ["zoo"]:
                 weights[i] = ZOO_DIR.parent / w
-            else:
-                weights[i] = ZOO_DIR / w
-    
+            elif (root / w).is_weights_file(exist=True):
+                weights[i] = root / w
+            
     if isinstance(weights, list | tuple):
         if len(weights) == 1:
             weights = weights[0]
