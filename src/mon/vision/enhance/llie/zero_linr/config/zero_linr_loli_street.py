@@ -33,33 +33,33 @@ model = {
 	"root"             : root,           # The root directory of the model.
 	"in_channels"      : 3,              # The first layer's input channel.
 	"out_channels"     : None,           # A number of classes, which is also the last layer's output channels.
-	"color_space"      : "hsv_d",        # Color space. Best: hsv_d
-	"window_size"      : [3, 5, 7],      # Context window size.
-	"hidden_channels"  : 256,            # Hidden channels.
-	"down_size"        : 256,            # Downsampling size.
-	"hidden_layers"    : 2,              # Number of hidden layers.
-	"out_layers"       : 1,              # Number of output layers.
-	"omega_0"          : 30.0,           # Best: 30.0
-	"first_bias_scale" : None,           # Best: None
-	"nonlinear"        : "sine",         # Non-linear activation. Best: sine
-	"use_ff"           : True,           # Best: True
-	"ff_gaussian_scale": 10,
-	"edge_threshold"   : 0.05,           # Edge threshold. Best: 0.05
-	"depth_gamma"	   : 0.5,            # Depth gamma. Best: 0.5
-	"gf_radius"        : 3,              # Radius of the guided filter. Best: 3
-	"use_denoise"      : False,          # If ``True``, use denoising. Best: False
-	"denoise_ksize"    : (3, 3),         # Best: (3, 3)
-    "denoise_color"    : 0.1,            # Best: 0.1
-    "denoise_space"    : (1.5, 1.5),     # Best: (1.5, 1.5)
-	"loss_hsv"         : True,           # If ``True``, use HSV loss. Best: True
-	"exp_mean"         : 0.9,            # Best: 0.4
-	"exp_weight"       : 8,              # Best: 8
-	"spa_weight"	   : 1,              # Best: 1
-	"tv_weight"        : 20,             # Best: 20
-	"spar_weight"	   : 5,              # Best: 5
-	"depth_weight"     : 1,              # Best: 1
-	"edge_weight"      : 1,              # Best: 1
-	"color_weight"     : 5,              # Best: 5
+	"color_space"      : "hsv_d",        # Color space. Default: hsv_d
+	"window_size"      : [3, 5, 7],      # Context window size. Default: [3, 5, 7]
+	"hidden_channels"  : 256,            # Hidden channels. Default: 256
+	"down_size"        : 256,            # Downsampling size. Default: 256
+	"hidden_layers"    : 2,              # Number of hidden layers. Default: 2
+	"out_layers"       : 1,              # Number of output layers. Default: 1
+	"omega_0"          : 30.0,           # Default: 30.0
+	"first_bias_scale" : None,           # Default: None
+	"nonlinear"        : "sine",         # Non-linear activation. Default: sine
+	"use_ff"           : True,           # Default: True
+	"ff_gaussian_scale": 10.0,  	     # Default: 10.0
+	"edge_threshold"   : 0.05,           # Edge threshold. Default: 0.05
+	"depth_gamma"	   : 0.5,            # Depth gamma. Default: 0.5
+	"gf_radius"        : 3,              # Radius of the guided filter. Default: 3
+	"use_denoise"      : False,          # If ``True``, use denoising. Default: False
+	"denoise_ksize"    : (3, 3),         # Default: (3, 3)
+    "denoise_color"    : 0.1,            # Default: 0.1
+    "denoise_space"    : (1.5, 1.5),     # Default: (1.5, 1.5)
+	"loss_hsv"         : True,           # If ``True``, use HSV loss. Default: True
+	"exp_mean"         : 0.9,            # Default: 0.7 | Best: 0.9
+	"exp_weight"       : 8,              # Default: 8
+	"spa_weight"	   : 1,              # Default: 1
+	"tv_weight"        : 20,             # Default: 20
+	"spar_weight"	   : 5,              # Default: 5
+	"depth_weight"     : 1,              # Default: 1
+	"edge_weight"      : 1,              # Default: 1
+	"color_weight"     : 5,              # Default: 5
 	"weights"          : None,           # The model's weights.
 	"metrics"          : {
 	    "train": None,

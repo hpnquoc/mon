@@ -45,7 +45,7 @@ model = {
 	"use_ff"           : False,          # Default: True
 	"ff_gaussian_scale": 10.0,           # Default: 10.0
 	"edge_threshold"   : 0.05,           # Edge threshold. Default: 0.05
-	"depth_gamma"	   : 0.0,            # Depth gamma. Default: 0.0 | View: 0.5
+	"depth_gamma"	   : 0.5,            # Depth gamma. Default: 0.5
 	"gf_radius"        : 3,              # Radius of the guided filter. Default: 3
 	"use_denoise"      : False,          # If ``True``, use denoising. Default: False
 	"denoise_ksize"    : (3, 3),         # Default: (3, 3)
