@@ -12,7 +12,7 @@ data_dir="${mon_dir}/data/enhance"
 
 # Input
 arch="zero_linr"
-model="zero_linr_rebuttal"
+model="zero_linr_ff_finer"
 data=(
     ### Unpaired Set
     # "dicm"
@@ -21,15 +21,15 @@ data=(
     # "npe"
     # "vv"
     ### LOLs Set
-    "lol_v1"
-    "lol_v2_real"
-    "lol_v2_synthetic"
+    # "lol_v1"
+    # "lol_v2_real"
+    # "lol_v2_synthetic"
     ### FiveK Set
     # "fivek_a"
     # "fivek_b"
     # "fivek_c"
     # "fivek_d"
-    # "fivek_e"
+    "fivek_e"
     ### SICE Set
     # "sice"
     # "sice_grad"

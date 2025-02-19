@@ -33,7 +33,7 @@ model = {
 	"root"             : root,           # The root directory of the model.
 	"in_channels"      : 3,              # The first layer's input channel.
 	"out_channels"     : None,           # A number of classes, which is also the last layer's output channels.
-	"color_space"      : "hsv",          # Color space. Best: hsv_d
+	"color_space"      : "hsv_d",        # Color space. Best: hsv_d
 	"window_size"      : [3, 5, 7],      # Context window size.
 	"hidden_channels"  : 256,            # Hidden channels.
 	"down_size"        : 256,            # Downsampling size.

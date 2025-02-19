@@ -616,12 +616,10 @@ class MLP_HSV_D(MLP):
 @MODELS.register(name="zero_linr_ff_gauss", arch="zero_linr")
 @MODELS.register(name="zero_linr_ff_relu",  arch="zero_linr")
 @MODELS.register(name="zero_linr_ff_siren", arch="zero_linr")
-@MODELS.register(name="zero_linr_ff_wire",  arch="zero_linr")
 @MODELS.register(name="zero_linr_finer",    arch="zero_linr")
 @MODELS.register(name="zero_linr_gauss",    arch="zero_linr")
 @MODELS.register(name="zero_linr_relu",     arch="zero_linr")
 @MODELS.register(name="zero_linr_siren",    arch="zero_linr")
-@MODELS.register(name="zero_linr_wire",     arch="zero_linr")
 @MODELS.register(name="zero_linr",          arch="zero_linr")
 class ZeroLINR(base.ImageEnhancementModel):
     

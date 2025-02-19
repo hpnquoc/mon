@@ -803,7 +803,6 @@ class INRPatchEncoder(nn.Module):
             net.append(INRLayer(out_channels, out_channels, is_first=False, omega_0=omega_0, nonlinear=nonlinear))
         net.append(INRLayer(out_channels, out_channels, is_first=False, omega_0=omega_0, nonlinear=nonlinear))
         self.net = nn.Sequential(*net)
-        # print(self.net)
         
         weight_decay = weight_decay or 0.0001
         self.params  = [{"params": self.net.parameters(), "weight_decay": weight_decay}]
