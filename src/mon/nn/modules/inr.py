@@ -96,14 +96,14 @@ class ComplexGaborLayer(nn.Module):
             dtype = torch.cfloat
             
         # Set trainable parameters if they are to be simultaneously optimized
-        self.omega_0 = nn.Parameter(self.omega_0*torch.ones(1), trainable)
-        self.scale_0 = nn.Parameter(self.scale_0*torch.ones(1), trainable)
+        self.omega_0 = nn.Parameter(self.omega_0 * torch.ones(1), trainable)
+        self.scale_0 = nn.Parameter(self.scale_0 * torch.ones(1), trainable)
         self.linear  = nn.Linear(in_channels, out_channels, bias=bias, dtype=dtype)
     
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        lin   = self.linear(x)
-        omega = self.omega_0 * lin
-        scale = self.scale_0 * lin
+        linear = self.linear(x)
+        omega  = self.omega_0 * linear
+        scale  = self.scale_0 * linear
         return torch.exp(1j * omega - scale.abs().square())
 
 
@@ -131,8 +131,8 @@ class FINERLayer(nn.Module):
         out_channels    : int,
         bias            : bool  = True,
         is_first        : bool  = False,
-        omega_0         : float = 30,
-        first_bias_scale: float = None,
+        omega_0         : float = 30.0,
+        first_bias_scale: float = 20.0,
         scale_req_grad  : bool  = False
     ):
         super().__init__()
@@ -150,8 +150,7 @@ class FINERLayer(nn.Module):
     def init_weights(self):
         with torch.no_grad():
             if self.is_first:
-                self.linear.weight.uniform_(-1 / self.in_channels,
-                                             1 / self.in_channels)
+                self.linear.weight.uniform_(-1 / self.in_channels, 1 / self.in_channels)
             else:
                 self.linear.weight.uniform_(-np.sqrt(6 / self.in_channels) / self.omega_0,
                                              np.sqrt(6 / self.in_channels) / self.omega_0)
@@ -170,10 +169,9 @@ class FINERLayer(nn.Module):
         return scale
         
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        x     = self.linear(x)
-        scale = self.generate_scale(x)
-        out   = torch.sin(self.omega_0 * scale * x)
-        return out
+        linear = self.linear(x)
+        scale  = self.generate_scale(linear)
+        return torch.sin(self.omega_0 * scale * linear)
 
 
 class GaussLayer(nn.Module):
@@ -401,7 +399,7 @@ class INRLayer(nn.Module):
         first_bias_scale: The scale of the first bias. Defaults: ``20.0``.
         nonlinear: The non-linearity to use. The layer defined here already
             include a ``nn.Linear()`` layer. One of: ``"gauss"``, ``"relu"``,
-            ``"sigmoid"``, ``"sine"``, ``"finer"``. Defaults: ``"sine"``.
+            ``"sigmoid"``, ``"sine"``, ``"finer"``, ``"wire"``. Defaults: ``"sine"``.
         dropout: The dropout rate. Defaults: ``0.0``.
     """
     
@@ -415,7 +413,7 @@ class INRLayer(nn.Module):
         omega_0         : float = 30.0,
         scale           : float = 10.0,
         first_bias_scale: float = None,
-        nonlinear       : Literal["gauss", "finer", "relu", "sigmoid", "sine", "tanh"] = "sine",
+        nonlinear       : Literal["gauss", "finer", "relu", "sigmoid", "sine", "tanh", "wire"] = "sine",
         dropout         : float = 0.0
     ):
         super().__init__()
@@ -469,6 +467,14 @@ class INRLayer(nn.Module):
                 in_channels  = in_channels,
                 out_channels = out_channels,
                 bias         = bias,
+            )
+        elif nonlinear == "wire":
+            self.nonlinear = ComplexGaborLayer(
+                in_channels  = in_channels,
+                out_channels = out_channels,
+                bias         = bias,
+                is_first     = is_first,
+                omega_0      = omega_0,
             )
         else:
             raise ValueError(f"Non-linearity '{nonlinear}' is not supported.")
@@ -735,7 +741,6 @@ class WIRE(nn.Module):
         
         self.hidden_channels = hidden_channels
         self.hidden_layers   = hidden_layers
-        self.complex         = True
         
         net = [ComplexGaborLayer(in_channels, hidden_channels, bias, is_first=True, omega_0=first_omega_0, sigma_0=scale)]
         for i in range(hidden_layers):
@@ -774,10 +779,10 @@ class INRPatchEncoder(nn.Module):
         hidden_layers    : int   = 2,
         omega_0          : float = 30.0,
         first_bias_scale : float = None,
-        nonlinear        : Literal["finer", "gauss", "relu", "sigmoid", "sine"] = "sine",
+        nonlinear        : Literal["finer", "gauss", "relu", "sigmoid", "sine", "wire"] = "sine",
         weight_decay     : float = 0.0001,
         use_ff           : bool  = False,
-        ff_gaussian_scale: float = 10,
+        ff_gaussian_scale: float = 10.0,
     ):
         super().__init__()
         self.window_size     = window_size
@@ -851,7 +856,7 @@ class INRCoordinatesEncoder(nn.Module):
         hidden_layers    : int   = 2,
         omega_0          : float = 30.0,
         first_bias_scale : float = None,
-        nonlinear        : Literal["finer", "gauss", "relu", "sigmoid", "sine"] = "sine",
+        nonlinear        : Literal["finer", "gauss", "relu", "sigmoid", "sine", "wire"] = "sine",
         weight_decay     : float = 0.1,
         use_ff           : bool  = False,
         ff_gaussian_scale: float = 10,
@@ -907,7 +912,7 @@ class INRDecoder(nn.Module):
         out_channels : int   = 3,
         hidden_layers: int   = 1,
         omega_0      : float = 30.0,
-        nonlinear    : Literal["gauss", "relu", "sigmoid", "sine", "finer"] = "sine",
+        nonlinear    : Literal["gauss", "relu", "sigmoid", "sine", "finer", "wire"] = "sine",
         weight_decay : float = 0.001,
     ):
         super().__init__()

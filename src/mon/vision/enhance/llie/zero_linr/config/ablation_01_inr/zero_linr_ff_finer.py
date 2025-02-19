@@ -11,8 +11,8 @@ current_file = mon.Path(__file__).absolute()
 
 # region Basic
 
-model_name = "zero_mie"
-data_name  = "lime"
+model_name = "zero_linr_ff_finer"
+data_name  = "fivek_e"
 root       = current_file.parents[1] / "run"
 data_root  = mon.DATA_DIR / "enhance"
 project    = None
@@ -28,38 +28,45 @@ verbose    = True
 # region Model
 
 model = {
-	"name"           : model_name,     # The model's name.
-	"fullname"       : fullname,       # A full model name to save the checkpoint or weight.
-	"root"           : root,           # The root directory of the model.
-	"in_channels"    : 3,              # The first layer's input channel.
-	"out_channels"   : None,           # A number of classes, which is also the last layer's output channels.
-	"color_space"    : "hsv_v",        # Color space. Best: hsv_v
-	"window_size"    : 7,              # Context window size.
-	"hidden_channels": 256,            # Hidden channels.
-	"down_size"      : 256,            # Downsampling size.
-	"hidden_layers"  : 2,              # Number of hidden layers.
-	"out_layers"     : 1,              # Number of output layers.
-	"nonlinear"      : "finer",        # Non-linear activation. Best: sine
-	"dba_eps"        : 0.05,           # DBA epsilon.
-	"gf_radius"      : 3,              # Radius of the guided filter. Best: ``1``     | View: ``3``
-	"denoise"        : False,          # If ``True``, use denoising.  Best: ``True``  | View: ``False``
-	"loss_hsv"       : True,           # If ``True``, use HSV loss.   Best: ``False`` | View: ``True``
-	"exp_mean"       : 0.7,            # Best: ``0.7``
-	"exp_weight"     : 10,
-	"spa_weight"	 : 1,
-	"color_weight"   : 5,
-	"tv_weight"      : 1600,
-	"depth_weight"   : 1,
-	"edge_weight"    : 1,
-	"use_pseudo_gt"  : False,          # If ``True``, use PSE. Best: False
-	"number_refs"    : 2,			   # Number of references.
-	"weights"        : None,           # The model's weights.
-	"metrics"        : {
+	"name"             : model_name,     # The model's name.
+	"fullname"         : fullname,       # A full model name to save the checkpoint or weight.
+	"root"             : root,           # The root directory of the model.
+	"in_channels"      : 3,              # The first layer's input channel.
+	"out_channels"     : None,           # A number of classes, which is also the last layer's output channels.
+	"color_space"      : "hsv",          # Color space. Best: hsv_d
+	"window_size"      : [3, 5, 7],      # Context window size.
+	"hidden_channels"  : 256,            # Hidden channels.
+	"down_size"        : 256,            # Downsampling size.
+	"hidden_layers"    : 2,              # Number of hidden layers.
+	"out_layers"       : 1,              # Number of output layers.
+	"omega_0"          : 30.0,           # Default: 30.0
+	"first_bias_scale" : 20.0,           # Default: 20.0
+	"nonlinear"        : "finer",        # Non-linear activation.
+	"use_ff"           : True,           # Default: True
+	"ff_gaussian_scale": 10.0,  	     # Default: 10.0
+	"edge_threshold"   : 0.05,           # Edge threshold. Default: 0.05
+	"depth_gamma"	   : 0.0,            # Depth gamma. Default: 0.0 | View: 0.5
+	"gf_radius"        : 3,              # Radius of the guided filter. Default: 3
+	"use_denoise"      : False,          # If ``True``, use denoising. Default: False
+	"denoise_ksize"    : (3, 3),         # Default: (3, 3)
+    "denoise_color"    : 0.1,            # Default: 0.1
+    "denoise_space"    : (1.5, 1.5),     # Default: (1.5, 1.5)
+	"loss_hsv"         : True,           # If ``True``, use HSV loss. Default: True
+	"exp_mean"         : 0.7,            # Default: 0.7
+	"exp_weight"       : 8.0,            # Default: 8.0
+	"spa_weight"	   : 1.0,            # Default: 1.0
+	"tv_weight"        : 20.0,           # Default: 20.0
+	"spar_weight"	   : 5.0,            # Default: 5.0
+	"depth_weight"     : 1.0,            # Default: 1.0
+	"edge_weight"      : 1.0,            # Default: 1.0
+	"color_weight"     : 5.0,            # Default: 5.0
+	"weights"          : None,           # The model's weights.
+	"metrics"          : {
 	    "train": None,
 		"val"  : [{"name": "psnr"}, {"name": "ssim"}],
 		"test" : [{"name": "psnr"}, {"name": "ssim"}],
     },          # A list metrics for validating and testing model.
-	"optimizers"     : [
+	"optimizers"       : [
 		{
             "optimizer"          : {
 	            "name"        : "adam",
@@ -71,8 +78,8 @@ model = {
 			"network_params_only": True,
         }
     ],          # Optimizer(s) for training model.
-	"debug"          : False,          # If ``True``, run the model in debug mode (when predicting).
-	"verbose"        : verbose,        # Verbosity.
+	"debug"            : False,          # If ``True``, run the model in debug mode (when predicting).
+	"verbose"          : verbose,        # Verbosity.
 }
 
 # endregion

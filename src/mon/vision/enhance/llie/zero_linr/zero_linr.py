@@ -243,9 +243,9 @@ class MLP_RGB(MLP):
         out_layers       : int         = 1,
         omega_0          : float       = 30.0,
         first_bias_scale : float       = None,
-        nonlinear        : Literal["finer", "gauss", "relu", "sigmoid", "sine"] = "sine",
+        nonlinear        : Literal["finer", "gauss", "relu", "sigmoid", "sine", "wire"] = "sine",
         use_ff           : bool        = False,
-        ff_gaussian_scale: float       = 10,
+        ff_gaussian_scale: float       = 10.0,
         weight_decay     : list[float] = [0.1, 0.0001, 0.001],
         edge_threshold   : float       = 0.05,
         depth_gamma      : float       = 0.7,
@@ -334,9 +334,9 @@ class MLP_RGB_D(MLP):
         out_layers       : int         = 1,
         omega_0          : float       = 30.0,
         first_bias_scale : float       = None,
-        nonlinear        : Literal["finer", "gauss", "relu", "sigmoid", "sine"] = "sine",
+        nonlinear        : Literal["finer", "gauss", "relu", "sigmoid", "sine", "wire"] = "sine",
         use_ff           : bool        = False,
-        ff_gaussian_scale: float       = 10,
+        ff_gaussian_scale: float       = 10.0,
         weight_decay     : list[float] = [0.1, 0.0001, 0.001],
         edge_threshold   : float       = 0.05,
         depth_gamma      : float       = 0.7,
@@ -427,9 +427,9 @@ class MLP_HSV(MLP):
         out_layers       : int         = 1,
         omega_0          : float       = 30.0,
         first_bias_scale : float       = None,
-        nonlinear        : Literal["finer", "gauss", "relu", "sigmoid", "sine"] = "sine",
+        nonlinear        : Literal["finer", "gauss", "relu", "sigmoid", "sine", "wire"] = "sine",
         use_ff           : bool        = False,
-        ff_gaussian_scale: float       = 10,
+        ff_gaussian_scale: float       = 10.0,
         weight_decay     : list[float] = [0.1, 0.0001, 0.001],
         edge_threshold   : float       = 0.05,
         depth_gamma      : float       = 0.7,
@@ -522,9 +522,9 @@ class MLP_HSV_D(MLP):
         out_layers       : int         = 1,
         omega_0          : float       = 30.0,
         first_bias_scale : float       = None,
-        nonlinear        : Literal["finer", "gauss", "relu", "sigmoid", "sine"] = "sine",
+        nonlinear        : Literal["finer", "gauss", "relu", "sigmoid", "sine", "wire"] = "sine",
         use_ff           : bool        = False,
-        ff_gaussian_scale: float       = 10,
+        ff_gaussian_scale: float       = 10.0,
         weight_decay     : list[float] = [0.1, 0.0001, 0.001],
         edge_threshold   : float       = 0.05,
         depth_gamma      : float       = 0.7,
@@ -612,21 +612,17 @@ class MLP_HSV_D(MLP):
 
 # region Model
 
-@MODELS.register(name="zero_linr_ffn",           arch="zero_linr")
-@MODELS.register(name="zero_linr_ffn_de",        arch="zero_linr")
-@MODELS.register(name="zero_linr_ffn_de_ldes",   arch="zero_linr")
-@MODELS.register(name="zero_linr_siren",         arch="zero_linr")
-@MODELS.register(name="zero_linr_siren_de",      arch="zero_linr")
-@MODELS.register(name="zero_linr_siren_de_ldes", arch="zero_linr")
-@MODELS.register(name="zero_linr_wo_color",      arch="zero_linr")
-@MODELS.register(name="zero_linr_wo_depth",      arch="zero_linr")
-@MODELS.register(name="zero_linr_wo_edge",       arch="zero_linr")
-@MODELS.register(name="zero_linr_wo_exp",        arch="zero_linr")
-@MODELS.register(name="zero_linr_wo_ff",         arch="zero_linr")
-@MODELS.register(name="zero_linr_wo_spa",        arch="zero_linr")
-@MODELS.register(name="zero_linr_wo_spar",       arch="zero_linr")
-@MODELS.register(name="zero_linr_wo_tv",         arch="zero_linr")
-@MODELS.register(name="zero_linr",               arch="zero_linr")
+@MODELS.register(name="zero_linr_ff_finer", arch="zero_linr")
+@MODELS.register(name="zero_linr_ff_gauss", arch="zero_linr")
+@MODELS.register(name="zero_linr_ff_relu",  arch="zero_linr")
+@MODELS.register(name="zero_linr_ff_siren", arch="zero_linr")
+@MODELS.register(name="zero_linr_ff_wire",  arch="zero_linr")
+@MODELS.register(name="zero_linr_finer",    arch="zero_linr")
+@MODELS.register(name="zero_linr_gauss",    arch="zero_linr")
+@MODELS.register(name="zero_linr_relu",     arch="zero_linr")
+@MODELS.register(name="zero_linr_siren",    arch="zero_linr")
+@MODELS.register(name="zero_linr_wire",     arch="zero_linr")
+@MODELS.register(name="zero_linr",          arch="zero_linr")
 class ZeroLINR(base.ImageEnhancementModel):
     
     model_dir: core.Path    = current_dir
@@ -646,9 +642,9 @@ class ZeroLINR(base.ImageEnhancementModel):
         out_layers       : int         = 1,
         omega_0          : float       = 30.0,
         first_bias_scale : float       = None,
-        nonlinear        : Literal["finer", "gauss", "relu", "sigmoid", "sine"] = "sine",
+        nonlinear        : Literal["finer", "gauss", "relu", "sigmoid", "sine", "wire"] = "sine",
         use_ff           : bool        = False,
-        ff_gaussian_scale: float       = 10,
+        ff_gaussian_scale: float       = 10.0,
         edge_threshold   : float       = 0.05,
         depth_gamma      : float       = 0.7,
         gf_radius        : int         = 3,

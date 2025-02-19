@@ -11,7 +11,7 @@ current_file = mon.Path(__file__).absolute()
 
 # region Basic
 
-model_name = "zero_linr_ffn"
+model_name = "zero_linr_ff_wire"
 data_name  = "fivek_e"
 root       = current_file.parents[1] / "run"
 data_root  = mon.DATA_DIR / "enhance"
@@ -39,27 +39,27 @@ model = {
 	"down_size"        : 256,            # Downsampling size.
 	"hidden_layers"    : 2,              # Number of hidden layers.
 	"out_layers"       : 1,              # Number of output layers.
-	"omega_0"          : 30.0,           # Best: 30.0
-	"first_bias_scale" : 20,             # Best: None
-	"nonlinear"        : "relu",         # Non-linear activation. Best: sine
-	"use_ff"           : True,           # Best: True
-	"ff_gaussian_scale": 10,
-	"edge_threshold"   : 0.05,           # Edge threshold. Best: 0.05
-	"depth_gamma"	   : 0,              # Depth gamma. Best: 0.0 | View: 0.5
-	"gf_radius"        : 3,              # Radius of the guided filter. Best: 3
-	"use_denoise"      : False,          # If ``True``, use denoising. Best: False
-	"denoise_ksize"    : (3, 3),         # Best: (3, 3)
-    "denoise_color"    : 0.1,            # Best: 0.1
-    "denoise_space"    : (1.5, 1.5),     # Best: (1.5, 1.5)
-	"loss_hsv"         : True,           # If ``True``, use HSV loss. Best: True
-	"exp_mean"         : 0.7,            # Best: 0.3
-	"exp_weight"       : 8,              # Best: 8
-	"spa_weight"	   : 1,              # Best: 1
-	"tv_weight"        : 20,             # Best: 20
-	"spar_weight"	   : 5,              # Best: 5
-	"depth_weight"     : 0,              # Best: 1
-	"edge_weight"      : 0,              # Best: 1
-	"color_weight"     : 5,              # Best: 5
+	"omega_0"          : 20.0,           # Default: 20.0
+	"first_bias_scale" : None,           # Default: None
+	"nonlinear"        : "wire",         # Non-linear activation.
+	"use_ff"           : True,           # Default: True
+	"ff_gaussian_scale": 10.0,  	     # Default: 10.0
+	"edge_threshold"   : 0.05,           # Edge threshold. Default: 0.05
+	"depth_gamma"	   : 0.0,            # Depth gamma. Default: 0.0 | View: 0.5
+	"gf_radius"        : 3,              # Radius of the guided filter. Default: 3
+	"use_denoise"      : False,          # If ``True``, use denoising. Default: False
+	"denoise_ksize"    : (3, 3),         # Default: (3, 3)
+    "denoise_color"    : 0.1,            # Default: 0.1
+    "denoise_space"    : (1.5, 1.5),     # Default: (1.5, 1.5)
+	"loss_hsv"         : True,           # If ``True``, use HSV loss. Default: True
+	"exp_mean"         : 0.7,            # Default: 0.7
+	"exp_weight"       : 8.0,            # Default: 8.0
+	"spa_weight"	   : 1.0,            # Default: 1.0
+	"tv_weight"        : 20.0,           # Default: 20.0
+	"spar_weight"	   : 5.0,            # Default: 5.0
+	"depth_weight"     : 1.0,            # Default: 1.0
+	"edge_weight"      : 1.0,            # Default: 1.0
+	"color_weight"     : 5.0,            # Default: 5.0
 	"weights"          : None,           # The model's weights.
 	"metrics"          : {
 	    "train": None,
