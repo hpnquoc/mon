@@ -55,7 +55,7 @@ class NightCity(MultimodalDataset):
         "depth"   : DepthMapAnnotation,
         "semantic": SemanticSegmentationAnnotation,
     })
-    has_test_annotations: bool        = True
+    has_test_annotations: bool        = False
     classlabels         : ClassLabels = ClassLabels([
         {"name": "unlabeled"           , "id": 0 , "train_id": 255, "category": "void"        , "category_id": 0, "ignore_in_eval": True , "color": [0  , 0  ,   0]},
         {"name": "ego vehicle"         , "id": 1 , "train_id": 255, "category": "void"        , "category_id": 0, "ignore_in_eval": True , "color": [0  , 0  ,   0]},

@@ -167,7 +167,7 @@ def parse_predict_args(model_root: str | mon.Path = None) -> dict:
     extra_args   = input_args.get("extra_args")
     
     # Parse arguments
-    save_dir = save_dir or mon.parse_save_dir(root/"run"/"predict", arch, model, None, project, variant)
+    save_dir = save_dir or mon.parse_save_dir(root/"run"/"predict", arch, fullname, None, project, variant)
     save_dir = mon.Path(save_dir)
     weights  = mon.to_list(weights)
     weights  = None       if isinstance(weights, list | tuple) and len(weights) == 0 else weights

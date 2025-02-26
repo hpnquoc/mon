@@ -3,7 +3,7 @@
 
 """Implicit Neural Representations.
 
-This module implements Implicit Neural Representations (INR), its variants and
+This module implements Implicit Neural Representations (INR), their layers and
 networks.
 
 References:
@@ -16,11 +16,7 @@ from __future__ import annotations
 __all__ = [
     "FINER",
     "GAUSS",
-    "INRCoordinatesEncoder",
-    "INRDecoder",
     "INRLayer",
-    "INRModulatorWrapper",
-    "INRPatchEncoder",
     "PEMLP",
     "SIREN",
     "WIRE",
@@ -30,19 +26,19 @@ from typing import Any, Literal
 
 import numpy as np
 import torch
-from einops import rearrange
 from torch import nn
 from torch.nn import functional as F
-from torch.nn.common_types import _size_2_t
 
 from mon.nn.modules import activation as act
+
+INR_AF = Literal["sigmoid", "tanh", "relu", "sine", "gauss", "finer", "wire"]
 
 
 # region Utils
 
-def get_image_size(input: Any) -> tuple[int, int]:
+def get_image_size(x: Any) -> tuple[int, int]:
     from mon.vision.dtype import image as I
-    return I.get_image_size(input)
+    return I.get_image_size(x)
 
 
 def get_image_num_channels(image: torch.Tensor | np.ndarray) -> int:
@@ -50,28 +46,111 @@ def get_image_num_channels(image: torch.Tensor | np.ndarray) -> int:
     return I.get_image_num_channels(image)
 
 
-def get_coords(size: _size_2_t) -> torch.Tensor:
+def get_coords(down_size: int) -> torch.Tensor:
     """Creates a coordinates grid.
     
     Args:
-        size: The size of the coordinates grid.
+        down_size: The size of the coordinates grid.
     """
-    size   = get_image_size(size)
-    h, w   = size
+    h, w   = down_size, down_size
     coords = np.dstack(np.meshgrid(np.linspace(0, 1, h), np.linspace(0, 1, w)))
     coords = torch.from_numpy(coords).float()
     return coords
 
+
+def get_patches(image: torch.Tensor, kernel_size: int = 1) -> torch.Tensor:
+    """Creates a tensor where the channel contains patch information."""
+    from mon.vision.dtype import image as I
+    num_channels = I.get_image_num_channels(image)
+    kernel       = torch.zeros((kernel_size ** 2, num_channels, kernel_size, kernel_size)).to(image.device)
+    for i in range(kernel_size):
+        for j in range(kernel_size):
+            kernel[int(torch.sum(kernel).item()), 0, i, j] = 1
+    
+    pad       = nn.ReflectionPad2d(kernel_size // 2)
+    im_padded = pad(image)
+    extracted = F.conv2d(im_padded, kernel, padding=0).squeeze(0)
+    return torch.movedim(extracted, 0, -1)
+
+
+def interpolate_image(image: torch.Tensor, down_size: int) -> torch.Tensor:
+    """Reshapes the image based on new resolution."""
+    return F.interpolate(image, size=(down_size, down_size), mode="bicubic")
+
+
+def ff_embedding(p: torch.Tensor, B: torch.Tensor = None) -> torch.Tensor:
+    if B is None:
+        return p
+    else:
+        x_proj    = (2. * np.pi * p) @ B.T
+        embedding = torch.cat([torch.sin(x_proj), torch.cos(x_proj)], axis=-1)
+        return embedding
+
 # endregion
 
 
-# region INR Layer
+# region INR Activation Layers
 
-class ComplexGaborLayer(nn.Module):
-    """Complex Gabor Layer from WIRE (https://github.com/vishwa91/wire)
+class SigmoidLayer(nn.Module):
+    """Drop in replacement for SineLayer but with Sigmoid non-linearity.
+    
+    Args:
+        in_channels: The number of input channels.
+        out_channels: The number of output channels.
+        bias: Whether to use bias. Defaults: ``True``.
+    """
+    
+    def __init__(
+        self,
+        in_channels : int,
+        out_channels: int,
+        bias        : bool = True,
+        *args, **kwargs
+    ):
+        super().__init__()
+        self.in_channels = in_channels
+        self.linear      = nn.Linear(in_channels, out_channels, bias)
+        self.act         = act.Sigmoid()
+        
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        return self.act(self.linear(x))
+    
+
+class TanhLayer(nn.Module):
+    """Drop in replacement for SineLayer but with Tanh non-linearity.
+    
+    Args:
+        in_channels: The number of input channels.
+        out_channels: The number of output channels.
+        bias: Whether to use bias. Defaults: ``True``.
+    """
+    
+    def __init__(
+        self,
+        in_channels : int,
+        out_channels: int,
+        bias        : bool = True,
+        *args, **kwargs
+    ):
+        super().__init__()
+        self.in_channels = in_channels
+        self.linear      = nn.Linear(in_channels, out_channels, bias)
+        self.act         = act.Tanh()
+        
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        return self.act(self.linear(x))
+    
+    
+class ReLULayer(nn.Module):
+    """Drop in replacement for SineLayer but with ReLU non-linearity
+    
+    Args:
+        in_channels: The number of input channels.
+        out_channels: The number of output channels.
+        bias: Whether to use bias. Defaults: ``True``.
     
     References:
-        https://github.com/liuzhen0212/FINER/blob/main/models.py
+        https://github.com/vishwa91/wire/blob/main/modules/relu.py
     """
     
     def __init__(
@@ -79,32 +158,98 @@ class ComplexGaborLayer(nn.Module):
         in_channels : int,
         out_channels: int,
         bias        : bool  = True,
-        is_first    : bool  = False,
-        omega_0     : float = 10.0,
-        sigma_0     : float = 40.0,
-        trainable   : bool  = False
+        *args, **kwargs
     ):
         super().__init__()
-        self.omega_0     = omega_0
-        self.scale_0     = sigma_0
-        self.is_first    = is_first
         self.in_channels = in_channels
-        
-        if self.is_first:
-            dtype = torch.float
-        else:
-            dtype = torch.cfloat
-            
-        # Set trainable parameters if they are to be simultaneously optimized
-        self.omega_0 = nn.Parameter(self.omega_0 * torch.ones(1), trainable)
-        self.scale_0 = nn.Parameter(self.scale_0 * torch.ones(1), trainable)
-        self.linear  = nn.Linear(in_channels, out_channels, bias=bias, dtype=dtype)
+        self.linear      = nn.Linear(in_channels, out_channels, bias=bias)
+        self.act         = act.ReLU()
     
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        linear = self.linear(x)
-        omega  = self.omega_0 * linear
-        scale  = self.scale_0 * linear
-        return torch.exp(1j * omega - scale.abs().square())
+        return self.act(self.linear(x))
+ 
+
+class SineLayer(nn.Module):
+    """Sine Layer.
+    
+    See paper sec. 3.2, final paragraph, and supplement Sec. 1.5 for
+    discussion of omega_0.
+    
+    Args:
+        in_channels: The number of input channels.
+        out_channels: The number of output channels.
+        omega_0: The frequency of the sine activation function. Defaults: ``30.0``.
+        is_first: Whether this is the first layer. Defaults: ``False``.
+        bias: Whether to use bias. Defaults: ``True``.
+        init_weights: Whether to initialize the weights. Defaults: ``True``.
+    
+    References:
+        https://github.com/vishwa91/wire/blob/main/modules/siren.py
+    """
+    
+    def __init__(
+        self,
+        in_channels : int,
+        out_channels: int,
+        omega_0     : float = 30.0,
+        is_first    : bool  = False,
+        bias        : bool  = True,
+        init_weights: bool  = True,
+        *args, **kwargs
+    ):
+        super().__init__()
+        self.in_channels = in_channels
+        self.omega_0     = omega_0
+        self.is_first    = is_first
+        self.linear      = nn.Linear(in_channels, out_channels, bias)
+        if init_weights:
+            self.init_weights()
+    
+    def init_weights(self):
+        with torch.no_grad():
+            if self.is_first:
+                self.linear.weight.uniform_(-1 / self.in_channels, 1 / self.in_channels)
+            else:
+                self.linear.weight.uniform_(-np.sqrt(6 / self.in_channels) / self.omega_0,
+                                             np.sqrt(6 / self.in_channels) / self.omega_0)
+            
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        return torch.sin(self.omega_0 * self.linear(x))
+
+    def forward_with_intermediate(self, x: torch.Tensor) -> torch.Tensor:
+        # For visualization of activation distributions
+        intermediate = self.omega_0 * self.linear(x)
+        return torch.sin(intermediate), intermediate
+
+
+class GaussLayer(nn.Module):
+    """Drop in replacement for SineLayer but with Gaussian non-linearity
+    
+    Args:
+        in_channels: The number of input channels.
+        out_channels: The number of output channels.
+        scale: The scale factor. Defaults: ``10.0``.
+        bias: Whether to use bias. Defaults: ``True``.
+    
+    References:
+        https://github.com/vishwa91/wire/blob/main/modules/gauss.py
+    """
+    
+    def __init__(
+        self,
+        in_channels : int,
+        out_channels: int,
+        scale       : float = 10.0,
+        bias        : bool  = True,
+        *args, **kwargs
+    ):
+        super().__init__()
+        self.in_channels = in_channels
+        self.scale       = scale
+        self.linear      = nn.Linear(in_channels, out_channels, bias=bias)
+    
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        return torch.exp(-(self.scale * self.linear(x)) ** 2)
 
 
 class FINERLayer(nn.Module):
@@ -115,10 +260,10 @@ class FINERLayer(nn.Module):
     Args:
         in_channels: The number of input channels.
         out_channels: The number of output channels.
-        bias: Whether to use bias. Defaults: ``True``.
-        is_first: Whether this is the first layer. Defaults: ``False``.
         omega_0: The frequency of the sine activation function. Defaults: ``30.0``.
         first_bias_scale: The scale of the first bias. Defaults: ``20.0``.
+        bias: Whether to use bias. Defaults: ``True``.
+        is_first: Whether this is the first layer. Defaults: ``False``.
         scale_req_grad: Whether the scale requires gradient. Defaults: ``False``.
     
     References:
@@ -129,11 +274,11 @@ class FINERLayer(nn.Module):
         self,
         in_channels     : int,
         out_channels    : int,
-        bias            : bool  = True,
-        is_first        : bool  = False,
         omega_0         : float = 30.0,
         first_bias_scale: float = 20.0,
-        scale_req_grad  : bool  = False
+        is_first        : bool  = False,
+        bias            : bool  = True,
+        scale_req_grad  : bool  = False,
     ):
         super().__init__()
         self.omega_0     = omega_0
@@ -174,36 +319,44 @@ class FINERLayer(nn.Module):
         return torch.sin(self.omega_0 * scale * linear)
 
 
-class GaussLayer(nn.Module):
-    """Drop in replacement for SineLayer but with Gaussian non-linearity
-    
-    Args:
-        in_channels: The number of input channels.
-        out_channels: The number of output channels.
-        bias: Whether to use bias. Defaults: ``True``.
-        is_first: Whether this is the first layer. Defaults: ``False``.
-        omega_0: The frequency of the sine activation function. Defaults: ``30.0``.
-        scale: The scale factor. Defaults: ``10.0``.
+class ComplexGaborLayer(nn.Module):
+    """Complex Gabor Layer from WIRE (https://github.com/vishwa91/wire)
     
     References:
-        https://github.com/vishwa91/wire/blob/main/modules/gauss.py
+        https://github.com/liuzhen0212/FINER/blob/main/models.py
     """
     
     def __init__(
         self,
         in_channels : int,
         out_channels: int,
+        omega_0     : float = 10.0,
+        sigma_0     : float = 40.0,
+        is_first    : bool  = False,
         bias        : bool  = True,
-        scale       : float = 10.0,
-        *args, **kwargs
+        trainable   : bool  = False,
     ):
         super().__init__()
+        self.omega_0     = omega_0
+        self.scale_0     = sigma_0
+        self.is_first    = is_first
         self.in_channels = in_channels
-        self.scale       = scale
-        self.linear      = nn.Linear(in_channels, out_channels, bias=bias)
+        
+        if self.is_first:
+            dtype = torch.float
+        else:
+            dtype = torch.cfloat
+            
+        # Set trainable parameters if they are to be simultaneously optimized
+        self.omega_0 = nn.Parameter(self.omega_0 * torch.ones(1), trainable)
+        self.scale_0 = nn.Parameter(self.scale_0 * torch.ones(1), trainable)
+        self.linear  = nn.Linear(in_channels, out_channels, bias=bias, dtype=dtype)
     
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        return torch.exp(-(self.scale * self.linear(x)) ** 2)
+        linear = self.linear(x)
+        omega  = self.omega_0 * linear
+        scale  = self.scale_0 * linear
+        return torch.exp(1j * omega - scale.abs().square())
 
 
 class PositionalEncoding(nn.Module):
@@ -231,158 +384,7 @@ class PositionalEncoding(nn.Module):
             for func in self.funcs:
                 out += [func(freq * x)]
         return torch.cat(out, -1)
-    
 
-class ReLULayer(nn.Module):
-    """Drop in replacement for SineLayer but with ReLU non-linearity
-    
-    Args:
-        in_channels: The number of input channels.
-        out_channels: The number of output channels.
-        bias: Whether to use bias. Defaults: ``True``.
-        is_first: Whether this is the first layer. Defaults: ``False``.
-        omega_0: The frequency of the sine activation function. Defaults: ``30.0``.
-        scale: The scale factor. Defaults: ``10.0``.
-    
-    References:
-        https://github.com/vishwa91/wire/blob/main/modules/relu.py
-    """
-    
-    def __init__(
-        self,
-        in_channels : int,
-        out_channels: int,
-        bias        : bool  = True,
-        is_first    : bool  = False,
-        omega_0     : float = 30.0,
-        scale       : float = 10.0,
-        *args, **kwargs
-    ):
-        super().__init__()
-        self.in_channels = in_channels
-        self.omega_0     = omega_0
-        self.scale       = scale
-        self.is_first    = is_first
-        self.linear      = nn.Linear(in_channels, out_channels, bias=bias)
-    
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
-        return nn.functional.relu(self.linear(x))
- 
-
-class SigmoidLayer(nn.Module):
-    """Drop in replacement for SineLayer but with Sigmoid non-linearity.
-    
-    Args:
-        in_channels: The number of input channels.
-        out_channels: The number of output channels.
-        bias: Whether to use bias. Defaults: ``True``.
-        is_first: Whether this is the first layer. Defaults: ``False``.
-        omega_0: The frequency of the sine activation function. Defaults: ``30.0``.
-        scale: The scale factor. Defaults: ``10.0``.
-        init_weights: Whether to initialize the weights. Defaults: ``True``.
-    """
-    
-    def __init__(
-        self,
-        in_channels : int,
-        out_channels: int,
-        bias        : bool = True,
-        *args, **kwargs
-    ):
-        super().__init__()
-        self.in_channels = in_channels
-        self.linear      = nn.Linear(in_channels, out_channels, bias)
-        self.act         = act.Sigmoid()
-        
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
-        return self.act(self.linear(x))
-
-
-class SineLayer(nn.Module):
-    """Sine Layer.
-    
-    See paper sec. 3.2, final paragraph, and supplement Sec. 1.5 for
-    discussion of omega_0.
-    
-    Args:
-        in_channels: The number of input channels.
-        out_channels: The number of output channels.
-        bias: Whether to use bias. Defaults: ``True``.
-        is_first: Whether this is the first layer. Defaults: ``False``.
-        omega_0: The frequency of the sine activation function. Defaults: ``30.0``.
-        scale: The scale factor. Defaults: ``10.0``.
-        init_weights: Whether to initialize the weights. Defaults: ``True``.
-    
-    References:
-        https://github.com/vishwa91/wire/blob/main/modules/siren.py
-    """
-    
-    def __init__(
-        self,
-        in_channels : int,
-        out_channels: int,
-        bias        : bool  = True,
-        is_first    : bool  = False,
-        omega_0     : float = 30.0,
-        scale       : float = 10.0,
-        init_weights: bool  = True,
-        *args, **kwargs
-    ):
-        super().__init__()
-        self.in_channels = in_channels
-        self.omega_0     = omega_0
-        self.scale       = scale
-        self.is_first    = is_first
-        self.linear      = nn.Linear(in_channels, out_channels, bias)
-        if init_weights:
-            self.init_weights()
-    
-    def init_weights(self):
-        with torch.no_grad():
-            if self.is_first:
-                self.linear.weight.uniform_(-1 / self.in_channels,
-                                             1 / self.in_channels)
-            else:
-                self.linear.weight.uniform_(-np.sqrt(6 / self.in_channels) / self.omega_0,
-                                             np.sqrt(6 / self.in_channels) / self.omega_0)
-            
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
-        return torch.sin(self.omega_0 * self.linear(x))
-
-    def forward_with_intermediate(self, x: torch.Tensor) -> torch.Tensor:
-        # For visualization of activation distributions
-        intermediate = self.omega_0 * self.linear(x)
-        return torch.sin(intermediate), intermediate
-
-
-class TanhLayer(nn.Module):
-    """Drop in replacement for SineLayer but with Tanh non-linearity.
-    
-    Args:
-        in_channels: The number of input channels.
-        out_channels: The number of output channels.
-        bias: Whether to use bias. Defaults: ``True``.
-        is_first: Whether this is the first layer. Defaults: ``False``.
-        omega_0: The frequency of the sine activation function. Defaults: ``30.0``.
-        scale: The scale factor. Defaults: ``10.0``.
-        init_weights: Whether to initialize the weights. Defaults: ``True``.
-    """
-    
-    def __init__(
-        self,
-        in_channels : int,
-        out_channels: int,
-        bias        : bool = True,
-        *args, **kwargs
-    ):
-        super().__init__()
-        self.in_channels = in_channels
-        self.linear      = nn.Linear(in_channels, out_channels, bias)
-        self.act         = act.Tanh()
-        
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
-        return self.act(self.linear(x))
-    
 
 class INRLayer(nn.Module):
     """INR Layer with different nonlinear layers. The layer consists of:
@@ -391,15 +393,16 @@ class INRLayer(nn.Module):
     Args:
         in_channels: The number of input channels.
         out_channels: The number of output channels.
-        bias: Whether to use bias. Defaults: ``True``.
-        is_first: Whether this is the first layer. Defaults: ``False``.
-        is_last: Whether this is the last layer. Defaults: ``False``.
+        nonlinear: The non-linearity to use. The layer defined here already
+            include a ``nn.Linear()`` layer. One of: ``"sigmoid"``, ``"tanh"``,
+            ``"relu"``, ``"sine"``, ``"gauss"``, ``"finer"``, ``"wire"``.
+            Defaults: ``"sine"``.
         omega_0: The frequency of the sine activation function. Defaults: ``30.0``.
         scale: The scale factor. Defaults: ``10.0``.
         first_bias_scale: The scale of the first bias. Defaults: ``20.0``.
-        nonlinear: The non-linearity to use. The layer defined here already
-            include a ``nn.Linear()`` layer. One of: ``"gauss"``, ``"relu"``,
-            ``"sigmoid"``, ``"sine"``, ``"finer"``, ``"wire"``. Defaults: ``"sine"``.
+        is_first: Whether this is the first layer. Defaults: ``False``.
+        is_last: Whether this is the last layer. Defaults: ``False``.
+        bias: Whether to use bias. Defaults: ``True``.
         dropout: The dropout rate. Defaults: ``0.0``.
     """
     
@@ -407,47 +410,33 @@ class INRLayer(nn.Module):
         self,
         in_channels     : int,
         out_channels    : int,
-        bias            : bool  = True,
-        is_first        : bool  = False,
-        is_last         : bool  = False,
+        nonlinear       : Literal["sigmoid", "tanh", "relu", "sine", "gauss", "finer", "wire"] = "sine",
         omega_0         : float = 30.0,
         scale           : float = 10.0,
         first_bias_scale: float = None,
-        nonlinear       : Literal["gauss", "finer", "relu", "sigmoid", "sine", "tanh", "wire"] = "sine",
-        dropout         : float = 0.0
+        is_first        : bool  = False,
+        is_last         : bool  = False,
+        bias            : bool  = True,
+        dropout         : float = 0.0,
     ):
         super().__init__()
         if is_last:
             nonlinear = "sigmoid"
-        
-        if nonlinear == "finer":
-            self.nonlinear = FINERLayer(
-                in_channels      = in_channels,
-                out_channels     = out_channels,
-                bias             = bias,
-                is_first         = is_first,
-                omega_0          = omega_0,
-                scale_req_grad   = False,
-                first_bias_scale = first_bias_scale,
-            )
-        elif nonlinear == "gauss":
-            self.nonlinear = GaussLayer(
+            
+        if nonlinear == "sigmoid":
+            self.nonlinear = SigmoidLayer(
                 in_channels  = in_channels,
                 out_channels = out_channels,
                 bias         = bias,
-                scale        = scale,
+            )
+        elif nonlinear == "tanh":
+            self.nonlinear = TanhLayer(
+                in_channels  = in_channels,
+                out_channels = out_channels,
+                bias         = bias,
             )
         elif nonlinear == "relu":
             self.nonlinear = ReLULayer(
-                in_channels  = in_channels,
-                out_channels = out_channels,
-                bias         = bias,
-                is_first     = is_first,
-                omega_0      = omega_0,
-                scale        = scale,
-            )
-        elif nonlinear == "sigmoid":
-            self.nonlinear = SigmoidLayer(
                 in_channels  = in_channels,
                 out_channels = out_channels,
                 bias         = bias,
@@ -456,25 +445,35 @@ class INRLayer(nn.Module):
             self.nonlinear = SineLayer(
                 in_channels  = in_channels,
                 out_channels = out_channels,
-                bias         = bias,
-                is_first     = is_first,
                 omega_0      = omega_0,
-                scale        = scale,
+                is_first     = is_first,
+                bias         = bias,
                 init_weights = not is_last,
             )
-        elif nonlinear == "tanh":
-            self.nonlinear = TanhLayer(
+        elif nonlinear == "gauss":
+            self.nonlinear = GaussLayer(
                 in_channels  = in_channels,
                 out_channels = out_channels,
+                scale        = scale,
                 bias         = bias,
+            )
+        elif nonlinear == "finer":
+            self.nonlinear = FINERLayer(
+                in_channels      = in_channels,
+                out_channels     = out_channels,
+                omega_0          = omega_0,
+                first_bias_scale = first_bias_scale,
+                is_first         = is_first,
+                bias             = bias,
+                scale_req_grad   = False,
             )
         elif nonlinear == "wire":
             self.nonlinear = ComplexGaborLayer(
                 in_channels  = in_channels,
                 out_channels = out_channels,
-                bias         = bias,
-                is_first     = is_first,
                 omega_0      = omega_0,
+                is_first     = is_first,
+                bias         = bias,
             )
         else:
             raise ValueError(f"Non-linearity '{nonlinear}' is not supported.")
@@ -486,78 +485,13 @@ class INRLayer(nn.Module):
         y = self.dropout(y)
         return y
 
-
-class INRModulator(nn.Module):
-    
-    def __init__(self, in_channels: int, hidden_channels: int, hidden_layers: int):
-        super().__init__()
-        
-        self.layers = nn.ModuleList([])
-        for ind in range(hidden_layers):
-            is_first    = ind == 0
-            in_channels = in_channels if is_first else (hidden_channels + in_channels)
-            self.layers.append(
-                nn.Sequential(
-                    nn.Linear(in_channels, hidden_channels),
-                    nn.ReLU(),
-                )
-            )
-
-    def forward(self, z: torch.Tensor) -> tuple[torch.Tensor, ...]:
-        x       = z
-        hiddens = []
-        for layer in self.layers:
-            x = layer(x)
-            hiddens.append(x)
-            x = torch.cat((x, z))
-        return tuple(hiddens)
-
-
-class INRModulatorWrapper(nn.Module):
-    
-    def __init__(
-        self,
-        net            : nn.Module,
-        image_width    : int = 256,
-        image_height   : int = 256,
-        latent_channels: int = None
-    ):
-        super().__init__()
-        self.net          = net
-        self.image_width  = image_width
-        self.image_height = image_height
-
-        self.modulator = None
-        if latent_channels is not None:
-            self.modulator = INRModulator(
-                in_channels     = latent_channels,
-                hidden_channels = net.hidden_channels,
-                hidden_layers   = net.hidden_layers
-            )
-
-        tensors = [torch.linspace(-1, 1, steps=image_height), torch.linspace(-1, 1, steps=image_width)]
-        mgrid   = torch.stack(torch.meshgrid(*tensors, indexing = "ij"), dim=-1)
-        mgrid   = rearrange(mgrid, "h w c -> (h w) c")
-        self.register_buffer("grid", mgrid)
-
-    def forward(self, img = None, *, latent = None):
-        modulate = self.modulator is not None
-        assert not (modulate ^ latent is not None), 'latent vector must be only supplied if `latent_dim` was passed in on instantiation'
-        mods   = self.modulator(latent) if modulate else None
-        coords = self.grid.clone().detach().requires_grad_()
-        out    = self.net(coords, mods)
-        out    = rearrange(out, "(h w) c -> () c h w", h=self.image_height, w=self.image_width)
-        if img is not None:
-            return F.mse_loss(img, out)
-        return out
-    
 # endregion
 
 
-# region FINER Network
+# region INR Networks
 
-class FINER(nn.Module):
-    """FINER network.
+class SIREN(nn.Module):
+    """SIREN network.
     
     References:
         https://github.com/liuzhen0212/FINER/blob/main/models.py
@@ -565,23 +499,21 @@ class FINER(nn.Module):
     
     def __init__(
         self,
-        in_channels     : int,
-        out_channels    : int,
-        hidden_channels : int,
-        hidden_layers   : int,
-        bias            : bool  = True,
-        first_omega_0   : float = 30.0,
-        hidden_omega_0  : float = 30.0,
-        first_bias_scale: float = None,
-        scale_req_grad  : bool  = False
+        in_channels    : int,
+        out_channels   : int,
+        hidden_channels: int,
+        hidden_layers  : int,
+        first_omega_0  : float = 30.0,
+        hidden_omega_0 : float = 30.0,
+        bias           : bool  = True,
     ):
         super().__init__()
         self.hidden_channels = hidden_channels
         self.hidden_layers   = hidden_layers
         
-        net = [FINERLayer(in_channels, hidden_channels, bias, is_first=True, omega_0=first_omega_0, first_bias_scale=first_bias_scale, scale_req_grad=scale_req_grad)]
+        net = [SineLayer(in_channels, hidden_channels, first_omega_0, is_first=True, bias=bias)]
         for i in range(hidden_layers):
-            net.append(FINERLayer(hidden_channels, hidden_channels, is_first=False, omega_0=hidden_omega_0, scale_req_grad=scale_req_grad))
+            net.append(SineLayer(hidden_channels, hidden_channels, hidden_omega_0, bias=bias,))
         
         final_linear = nn.Linear(hidden_channels, out_channels)
         with torch.no_grad():
@@ -595,10 +527,6 @@ class FINER(nn.Module):
         coords = get_coords((h, w)).to(image.device)
         return self.net(coords)
 
-# endregion
-
-
-# region GAUSS Network
 
 class GAUSS(nn.Module):
     """Gauss network.
@@ -613,16 +541,16 @@ class GAUSS(nn.Module):
         out_channels   : int,
         hidden_channels: int,
         hidden_layers  : int,
+        scale          : float = 30.0,
         bias           : bool  = True,
-        scale          : float = 30.0
     ):
         super().__init__()
         self.hidden_channels = hidden_channels
         self.hidden_layers   = hidden_layers
         
-        net = [GaussLayer(in_channels, hidden_channels, bias, scale)]
+        net = [GaussLayer(in_channels, hidden_channels, scale, bias=bias)]
         for i in range(hidden_layers):
-            net.append(GaussLayer(hidden_channels, hidden_channels, bias, scale))
+            net.append(GaussLayer(hidden_channels, hidden_channels, scale, bias=bias))
         final_linear = nn.Linear(hidden_channels, out_channels)
         net.append(final_linear)
         self.net = nn.Sequential(*net)
@@ -632,10 +560,89 @@ class GAUSS(nn.Module):
         coords = get_coords((h, w)).to(image.device)
         return self.net(coords)
 
-# endregion
+
+class FINER(nn.Module):
+    """FINER network.
+    
+    References:
+        https://github.com/liuzhen0212/FINER/blob/main/models.py
+    """
+    
+    def __init__(
+        self,
+        in_channels     : int,
+        out_channels    : int,
+        hidden_channels : int,
+        hidden_layers   : int,
+        first_omega_0   : float = 30.0,
+        hidden_omega_0  : float = 30.0,
+        first_bias_scale: float = None,
+        bias            : bool  = True,
+        scale_req_grad  : bool  = False
+    ):
+        super().__init__()
+        self.hidden_channels = hidden_channels
+        self.hidden_layers   = hidden_layers
+        
+        net = [FINERLayer(in_channels, hidden_channels, first_omega_0, first_bias_scale, is_first=True, bias=bias, scale_req_grad=scale_req_grad)]
+        for i in range(hidden_layers):
+            net.append(FINERLayer(hidden_channels, hidden_channels, hidden_omega_0, bias=bias, scale_req_grad=scale_req_grad))
+        
+        final_linear = nn.Linear(hidden_channels, out_channels)
+        with torch.no_grad():
+            final_linear.weight.uniform_(-np.sqrt(6 / hidden_channels) / hidden_omega_0,
+                                          np.sqrt(6 / hidden_channels) / hidden_omega_0)
+        net.append(final_linear)
+        self.net = nn.Sequential(*net)
+    
+    def forward(self, image: torch.Tensor) -> torch.Tensor:
+        h, w   = get_image_size(image)
+        coords = get_coords((h, w)).to(image.device)
+        return self.net(coords)
 
 
-# region PEMLP Network
+class WIRE(nn.Module):
+    """WIRE network.
+    
+    References:
+        https://github.com/liuzhen0212/FINER/blob/main/models.py
+    """
+    
+    def __init__(
+        self,
+        in_channels    : int,
+        out_channels   : int,
+        hidden_channels: int,
+        hidden_layers  : int,
+        first_omega_0  : float = 20,
+        hidden_omega_0 : float = 20,
+        scale          : float = 10.0,
+        bias           : bool  = True,
+    ):
+        super().__init__()
+        # Since complex numbers are two real numbers, reduce the number of hidden parameters by 2
+        hidden_channels = int(hidden_channels / np.sqrt(2))
+        dtype           = torch.cfloat
+        
+        self.hidden_channels = hidden_channels
+        self.hidden_layers   = hidden_layers
+        
+        net = [ComplexGaborLayer(in_channels, hidden_channels, first_omega_0, sigma_0=scale, is_first=True, bias=bias)]
+        for i in range(hidden_layers):
+            net.append(ComplexGaborLayer(hidden_channels, hidden_channels, hidden_omega_0, sigma_0=scale, bias=bias))
+        
+        final_linear = nn.Linear(hidden_channels, out_channels, dtype=dtype)
+        with torch.no_grad():
+            final_linear.weight.uniform_(-np.sqrt(6 / hidden_channels) / hidden_omega_0,
+                                          np.sqrt(6 / hidden_channels) / hidden_omega_0)
+        net.append(final_linear)
+        self.net = nn.Sequential(*net)
+    
+    def forward(self, image: torch.Tensor) -> torch.Tensor:
+        h, w   = get_image_size(image)
+        coords = get_coords((h, w)).to(image.device)
+        return self.net(coords)
+
 
 class PEMLP(nn.Module):
     
@@ -668,267 +675,5 @@ class PEMLP(nn.Module):
         h, w   = get_image_size(image)
         coords = get_coords((h, w)).to(image.device)
         return self.net(coords)
-
-# endregion
-
-
-# region SIREN Network
-
-class SIREN(nn.Module):
-    """SIREN network.
-    
-    References:
-        https://github.com/liuzhen0212/FINER/blob/main/models.py
-    """
-    
-    def __init__(
-        self,
-        in_channels    : int,
-        out_channels   : int,
-        hidden_channels: int,
-        hidden_layers  : int,
-        bias           : bool  = True,
-        first_omega_0  : float = 30.0,
-        hidden_omega_0 : float = 30.0,
-    ):
-        super().__init__()
-        self.hidden_channels = hidden_channels
-        self.hidden_layers   = hidden_layers
-        
-        net = [SineLayer(in_channels, hidden_channels, bias, is_first=True, omega_0=first_omega_0)]
-        for i in range(hidden_layers):
-            net.append(SineLayer(hidden_channels, hidden_channels, is_first=False, omega_0=hidden_omega_0))
-        
-        final_linear = nn.Linear(hidden_channels, out_channels)
-        with torch.no_grad():
-            final_linear.weight.uniform_(-np.sqrt(6 / hidden_channels) / hidden_omega_0,
-                                          np.sqrt(6 / hidden_channels) / hidden_omega_0)
-        net.append(final_linear)
-        self.net = nn.Sequential(*net)
-    
-    def forward(self, image: torch.Tensor) -> torch.Tensor:
-        h, w   = get_image_size(image)
-        coords = get_coords((h, w)).to(image.device)
-        return self.net(coords)
-
-# endregion
-
-
-# region WIRE Network
-
-class WIRE(nn.Module):
-    """WIRE network.
-    
-    References:
-        https://github.com/liuzhen0212/FINER/blob/main/models.py
-    """
-    
-    def __init__(
-        self,
-        in_channels    : int,
-        out_channels   : int,
-        hidden_channels: int,
-        hidden_layers  : int,
-        bias           : bool  = True,
-        first_omega_0  : float = 20,
-        hidden_omega_0 : float = 20,
-        scale          : float = 10.0
-    ):
-        super().__init__()
-        # Since complex numbers are two real numbers, reduce the number of hidden parameters by 2
-        hidden_channels = int(hidden_channels / np.sqrt(2))
-        dtype           = torch.cfloat
-        
-        self.hidden_channels = hidden_channels
-        self.hidden_layers   = hidden_layers
-        
-        net = [ComplexGaborLayer(in_channels, hidden_channels, bias, is_first=True, omega_0=first_omega_0, sigma_0=scale)]
-        for i in range(hidden_layers):
-            net.append(ComplexGaborLayer(hidden_channels, hidden_channels, is_first=False, omega_0=hidden_omega_0, sigma_0=scale))
-        
-        final_linear = nn.Linear(hidden_channels, out_channels, dtype=dtype)
-        with torch.no_grad():
-            final_linear.weight.uniform_(-np.sqrt(6 / hidden_channels) / hidden_omega_0,
-                                          np.sqrt(6 / hidden_channels) / hidden_omega_0)
-        net.append(final_linear)
-        self.net = nn.Sequential(*net)
-    
-    def forward(self, image: torch.Tensor) -> torch.Tensor:
-        h, w   = get_image_size(image)
-        coords = get_coords((h, w)).to(image.device)
-        return self.net(coords)
-
-# endregion
-
-
-# region Context-INR
-
-class INRPatchEncoder(nn.Module):
-    """Implicit Neural Representation (INR) of a specific value of a
-    context-window in an image.
-    
-    References:
-        https://github.com/ctom2/colie
-    """
-    
-    def __init__(
-        self,
-        window_size      : int   = 1,
-        out_channels     : int   = 256,
-        down_size        : int   = 256,
-        hidden_layers    : int   = 2,
-        omega_0          : float = 30.0,
-        first_bias_scale : float = None,
-        nonlinear        : Literal["finer", "gauss", "relu", "sigmoid", "sine", "wire"] = "sine",
-        weight_decay     : float = 0.0001,
-        use_ff           : bool  = False,
-        ff_gaussian_scale: float = 10.0,
-    ):
-        super().__init__()
-        self.window_size     = window_size
-        self.down_size       = down_size
-        self.hidden_channels = out_channels
-        self.hidden_layers   = hidden_layers
-        in_channels          = window_size ** 2
-        net_in_channels      = in_channels
-        
-        if use_ff:
-            self.register_buffer("B", torch.randn((out_channels, in_channels)) * ff_gaussian_scale)
-            net_in_channels = out_channels * 2
-        else:
-            self.B = None
-        
-        net = [INRLayer(net_in_channels, out_channels, is_first=True, omega_0=omega_0, first_bias_scale=first_bias_scale, nonlinear=nonlinear)]
-        for _ in range(1, hidden_layers):
-            net.append(INRLayer(out_channels, out_channels, is_first=False, omega_0=omega_0, nonlinear=nonlinear))
-        net.append(INRLayer(out_channels, out_channels, is_first=False, omega_0=omega_0, nonlinear=nonlinear))
-        self.net = nn.Sequential(*net)
-        
-        weight_decay = weight_decay or 0.0001
-        self.params  = [{"params": self.net.parameters(), "weight_decay": weight_decay}]
-        
-    def forward(self, image: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
-        image_lr  = self.interpolate_image(image)
-        patch     = self.get_patch(image_lr)
-        embedding = self.ff_embedding(patch, self.B)
-        patch     = self.net(embedding)
-        return image_lr, patch
-    
-    def interpolate_image(self, image: torch.Tensor) -> torch.Tensor:
-        """Reshapes the image based on new resolution."""
-        return F.interpolate(image, size=(self.down_size, self.down_size), mode="bicubic")
-    
-    def get_patch(self, image: torch.Tensor) -> torch.Tensor:
-        """Creates a tensor where the channel contains patch information."""
-        num_channels = get_image_num_channels(image)
-        kernel       = torch.zeros((self.window_size ** 2, num_channels, self.window_size, self.window_size)).to(image.device)
-        for i in range(self.window_size):
-            for j in range(self.window_size):
-                kernel[int(torch.sum(kernel).item()), 0, i, j] = 1
-        
-        pad       = nn.ReflectionPad2d(self.window_size // 2)
-        im_padded = pad(image)
-        extracted = F.conv2d(im_padded, kernel, padding=0).squeeze(0)
-        return torch.movedim(extracted, 0, -1)
-    
-    def ff_embedding(self, image: torch.Tensor, B: torch.Tensor = None) -> torch.Tensor:
-        if B is None:
-            return image
-        else:
-            x_proj    = (2. * np.pi * image) @ B.T
-            embedding = torch.cat([torch.sin(x_proj), torch.cos(x_proj)], axis=-1)
-            return embedding
-        
-
-class INRCoordinatesEncoder(nn.Module):
-    """Implicit Neural Representation (INR) of coordinates (x, y) of a
-    context-window an image.
-    
-    References:
-        https://github.com/ctom2/colie
-    """
-    
-    def __init__(
-        self,
-        out_channels     : int   = 256,
-        down_size        : int   = 256,
-        hidden_layers    : int   = 2,
-        omega_0          : float = 30.0,
-        first_bias_scale : float = None,
-        nonlinear        : Literal["finer", "gauss", "relu", "sigmoid", "sine", "wire"] = "sine",
-        weight_decay     : float = 0.1,
-        use_ff           : bool  = False,
-        ff_gaussian_scale: float = 10,
-    ):
-        super().__init__()
-        self.down_size       = down_size
-        self.hidden_channels = out_channels
-        self.hidden_layers   = hidden_layers
-        in_channels          = 2
-        hidden_channels      = in_channels
-        
-        if use_ff:
-            self.register_buffer("B", torch.randn((out_channels, in_channels)) * ff_gaussian_scale)
-            hidden_channels = out_channels * 2
-        else:
-            self.B = None
-            
-        net = [INRLayer(hidden_channels, out_channels, is_first=True, omega_0=omega_0, first_bias_scale=first_bias_scale, nonlinear=nonlinear)]
-        for _ in range(1, hidden_layers):
-            net.append(INRLayer(out_channels, out_channels, is_first=False, omega_0=omega_0, nonlinear=nonlinear))
-        net.append(INRLayer(out_channels, out_channels, is_first=False, omega_0=omega_0, nonlinear=nonlinear))
-        self.net = nn.Sequential(*net)
-        # print(self.net)
-        
-        weight_decay = weight_decay or 0.1
-        self.params  = [{"params": self.net.parameters(), "weight_decay": weight_decay}]
-        
-    def forward(self, image: torch.Tensor) -> torch.Tensor:
-        coords    = get_coords((self.down_size, self.down_size)).to(image.device)
-        embedding = self.ff_embedding(coords, self.B)
-        coords    = self.net(embedding)
-        return coords
-    
-    def ff_embedding(self, image: torch.Tensor, B: torch.Tensor = None) -> torch.Tensor:
-        if B is None:
-            return image
-        else:
-            x_proj    = (2. * np.pi * image) @ B.T
-            embedding = torch.cat([torch.sin(x_proj), torch.cos(x_proj)], axis=-1)
-            return embedding
-  
-
-class INRDecoder(nn.Module):
-    """MLP for combining values and coordinates INRs.
-    
-    References:
-        https://github.com/ctom2/colie
-    """
-    
-    def __init__(
-        self,
-        in_channels  : int   = 256,
-        out_channels : int   = 3,
-        hidden_layers: int   = 1,
-        omega_0      : float = 30.0,
-        nonlinear    : Literal["gauss", "relu", "sigmoid", "sine", "finer", "wire"] = "sine",
-        weight_decay : float = 0.001,
-    ):
-        super().__init__()
-        self.hidden_channels = out_channels
-        self.hidden_layers   = hidden_layers
-        
-        net = []
-        for _ in range(0, hidden_layers):
-            net.append(INRLayer(in_channels, in_channels, is_first=False, omega_0=omega_0, nonlinear=nonlinear))
-        net.append(INRLayer(in_channels, out_channels, is_last=True, omega_0=omega_0))
-        self.net = nn.Sequential(*net)
-        # print(self.net)
-        
-        weight_decay = weight_decay or 0.001
-        self.params  = [{"params": self.net.parameters(), "weight_decay": weight_decay}]
-        
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
-        return self.net(x)
 
 # endregion

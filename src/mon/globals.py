@@ -68,6 +68,7 @@ from typing import Any
 
 from mon.core import dtype as DT, factory, pathlib
 
+
 # region Directory
 
 current_file = pathlib.Path(__file__).absolute()
@@ -86,7 +87,8 @@ for i, parent in enumerate(current_file.parents):
 if ZOO_DIR is None:
     raise Warning(f"Cannot locate the ``zoo`` directory.")
 
-DATA_DIR = pathlib.Path(os.getenv("DATA_DIR", None))
+DATA_DIR = os.getenv("DATA_DIR", None)
+DATA_DIR = pathlib.Path(DATA_DIR) if DATA_DIR else None
 DATA_DIR = DATA_DIR or pathlib.Path("/data")
 DATA_DIR = DATA_DIR if DATA_DIR.is_dir() else ROOT_DIR / "data"
 if not DATA_DIR.is_dir():

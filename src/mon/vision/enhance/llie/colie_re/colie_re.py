@@ -132,20 +132,19 @@ class CoLIE_RE(base.ImageEnhancementModel):
         self.patch_dim   = window_size ** 2
         self.down_size   = down_size
         self.omega_0     = 30.0
-        self.siren_C     = 6.0
         
-        patch_layers   = [nn.INRLayer(self.patch_dim, hidden_dim, True, True, omega_0=self.omega_0, scale=self.siren_C)]
-        spatial_layers = [nn.INRLayer(2,   hidden_dim, True, True, omega_0=self.omega_0, scale=self.siren_C)]
+        patch_layers   = [nn.INRLayer(self.patch_dim, hidden_dim, "sine", omega_0=self.omega_0, is_first=True)]
+        spatial_layers = [nn.INRLayer(2,   hidden_dim, "sine", omega_0=self.omega_0, is_first=True)]
         for _ in range(1, add_layer - 2):
-            patch_layers.append(nn.INRLayer(hidden_dim, hidden_dim, omega_0=self.omega_0, scale=self.siren_C))
-            spatial_layers.append(nn.INRLayer(hidden_dim, hidden_dim, omega_0=self.omega_0, scale=self.siren_C))
-        patch_layers.append(nn.INRLayer(hidden_dim, hidden_dim // 2, omega_0=self.omega_0, scale=self.siren_C))
-        spatial_layers.append(nn.INRLayer(hidden_dim, hidden_dim // 2, omega_0=self.omega_0, scale=self.siren_C))
+            patch_layers.append(  nn.INRLayer(hidden_dim, hidden_dim, "sine", omega_0=self.omega_0))
+            spatial_layers.append(nn.INRLayer(hidden_dim, hidden_dim, "sine", omega_0=self.omega_0))
+        patch_layers.append(  nn.INRLayer(hidden_dim, hidden_dim // 2, "sine", omega_0=self.omega_0))
+        spatial_layers.append(nn.INRLayer(hidden_dim, hidden_dim // 2, "sine", omega_0=self.omega_0))
         
         output_layers  = []
         for _ in range(add_layer, num_layers - 1):
-            output_layers.append(nn.INRLayer(hidden_dim, hidden_dim, omega_0=self.omega_0, scale=self.siren_C))
-        output_layers.append(nn.INRLayer(hidden_dim, 1, True, False, True, omega_0=self.omega_0, scale=self.siren_C))
+            output_layers.append(nn.INRLayer(hidden_dim, hidden_dim, "sine", omega_0=self.omega_0))
+        output_layers.append(nn.INRLayer(hidden_dim, 1, "sine", omega_0=self.omega_0, is_last=True))
         
         self.patch_net   = nn.Sequential(*patch_layers)
         self.spatial_net = nn.Sequential(*spatial_layers)
@@ -237,8 +236,8 @@ class CoLIE_RE(base.ImageEnhancementModel):
         self.assert_datapoint(datapoint)
         image_rgb        = datapoint.get("image")
         # Enhance
-        image_hsv        = core.rgb_to_hsv(image_rgb)
-        image_v          = core.rgb_to_v(image_rgb)
+        image_hsv        = dtype.rgb_to_hsv(image_rgb)
+        image_v          = dtype.rgb_to_v(image_rgb)
         image_v_lr       = self.interpolate_image(image_v)
         patch            = self.get_patches(image_v_lr)
         spatial          = self.get_coords()
@@ -248,7 +247,7 @@ class CoLIE_RE(base.ImageEnhancementModel):
         image_v_fixed_lr = image_v_lr / (illu_lr + 1e-4)
         image_v_fixed    = self.filter_up(image_v_lr, image_v_fixed_lr, image_v)
         image_hsv_fixed  = self.replace_v_component(image_hsv, image_v_fixed)
-        image_rgb_fixed  = core.hsv_to_rgb(image_hsv_fixed)
+        image_rgb_fixed  = dtype.hsv_to_rgb(image_hsv_fixed)
         image_rgb_fixed  = image_rgb_fixed / torch.max(image_rgb_fixed)
         # Return
         if self.debug:

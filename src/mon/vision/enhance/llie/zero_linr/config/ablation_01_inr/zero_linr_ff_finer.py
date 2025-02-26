@@ -11,8 +11,8 @@ current_file = mon.Path(__file__).absolute()
 
 # region Basic
 
-model_name = "zero_linr_ff_finer"
-data_name  = "fivek_e"
+model_name = "zero_linr_finer"
+data_name  = ""
 root       = current_file.parents[1] / "run"
 data_root  = mon.DATA_DIR / "enhance"
 project    = None
@@ -31,53 +31,57 @@ model = {
 	"name"             : model_name,     # The model's name.
 	"fullname"         : fullname,       # A full model name to save the checkpoint or weight.
 	"root"             : root,           # The root directory of the model.
+	# Model
 	"in_channels"      : 3,              # The first layer's input channel.
 	"out_channels"     : None,           # A number of classes, which is also the last layer's output channels.
-	"color_space"      : "hsv_d",        # Color space. Best: hsv_d
-	"window_size"      : [3, 5, 7],      # Context window size.
-	"hidden_channels"  : 256,            # Hidden channels.
-	"down_size"        : 256,            # Downsampling size.
-	"hidden_layers"    : 2,              # Number of hidden layers.
-	"out_layers"       : 1,              # Number of output layers.
+	"mapping_func"     : "pvde",         # One of: ["p", "v", "d", "e", "pv", "pd", "pe", "pvde"]. Default: "pvde"
+	"window_size"      : 1,              # Context window size. Default: 1
+	"down_size"        : 256,            # Input image size. Default: 256
+	"num_layers"       : 4,              # Total layer's depth. Default: 4
+	"add_layers"       : 2,              # Number of layers for output branch. Default: 2
 	"omega_0"          : 30.0,           # Default: 30.0
-	"first_bias_scale" : 20.0,           # Default: 20.0
-	"nonlinear"        : "finer",        # Non-linear activation.
-	"use_ff"           : True,           # Default: True
-	"ff_gaussian_scale": 10.0,  	     # Default: 10.0
+	"first_bias_scale" : None,           # For "finer". Default: 20.0
+	"s_nonlinear"      : "finer",        # Activation function for the spatial branch. Default: "finer"
+	"use_ff"           : True,           # Use Fourier Feature embedding for the spatial branch. Default: True
+	"ff_gaussian_scale": 10.0,           # For Fourier Feature embedding. Default: 10.0
+	"v_nonlinear"      : "finer",        # Activation function for the pixel value branch. Default: "sine"
+	"depth_threshold"  : 0.0,            # For adjusting the learned residual. Default: 0.7
 	"edge_threshold"   : 0.05,           # Edge threshold. Default: 0.05
-	"depth_gamma"	   : 0.5,            # Depth gamma. Default: 0.5
-	"gf_radius"        : 3,              # Radius of the guided filter. Default: 3
-	"use_denoise"      : False,          # If ``True``, use denoising. Default: False
-	"denoise_ksize"    : (3, 3),         # Default: (3, 3)
-    "denoise_color"    : 0.1,            # Default: 0.1
-    "denoise_space"    : (1.5, 1.5),     # Default: (1.5, 1.5)
-	"loss_hsv"         : True,           # If ``True``, use HSV loss. Default: True
-	"exp_mean"         : 0.7,            # Default: 0.7
-	"exp_weight"       : 8.0,            # Default: 8.0
-	"spa_weight"	   : 1.0,            # Default: 1.0
-	"tv_weight"        : 20.0,           # Default: 20.0
-	"spar_weight"	   : 5.0,            # Default: 5.0
-	"depth_weight"     : 1.0,            # Default: 1.0
-	"edge_weight"      : 1.0,            # Default: 1.0
-	"color_weight"     : 5.0,            # Default: 5.0
+	# Post-process
+	"gf_radius"        : 1,              # Radius of the guided filter. Default: 1
+	"use_denoise"      : False,          # Use denoising. Default: False
+	"denoise_ksize"    : (3, 3),         # For denoising. Default: (3, 3)
+	"denoise_color"    : 0.1,            # For denoising. Default: 0.1
+	"denoise_space"    : (1.5, 1.5),     # For denoising. Default: (1.5, 1.5)
+	# Loss
+	"loss_hsv"         : True,           # Use HSV loss. Default: True
+	"l_exp_mean"       : 0.9,            # Default: 0.7
+	"l_exp_weight"     : 8,              # Default: 8
+	"l_spa_weight"	   : 1,              # Default: 1
+	"l_tv_weight"      : 20,             # Default: 20
+	"l_spar_weight"	   : 5,              # Default: 5
+	"l_depth_weight"   : 1,              # Default: 1
+	"l_edge_weight"    : 1,              # Default: 1
+	"l_color_weight"   : 5,              # Default: 5
+	#
 	"weights"          : None,           # The model's weights.
 	"metrics"          : {
-	    "train": None,
+		"train": None,
 		"val"  : [{"name": "psnr"}, {"name": "ssim"}],
 		"test" : [{"name": "psnr"}, {"name": "ssim"}],
-    },          # A list metrics for validating and testing model.
+	},          # A list metrics for validating and testing model.
 	"optimizers"       : [
 		{
-            "optimizer"          : {
-	            "name"        : "adam",
-	            "lr"          : 0.00005,
-	            "weight_decay": 0.00001,
-	            "betas"       : [0.9, 0.99],
+			"optimizer"          : {
+				"name"        : "adam",
+				"lr"          : 0.00005,
+				"weight_decay": 0.00001,
+				"betas"       : [0.9, 0.99],
 			},
 			"lr_scheduler"       : None,
 			"network_params_only": True,
-        }
-    ],          # Optimizer(s) for training model.
+		}
+	],          # Optimizer(s) for training model.
 	"debug"            : False,          # If ``True``, run the model in debug mode (when predicting).
 	"verbose"          : verbose,        # Verbosity.
 }
@@ -88,15 +92,15 @@ model = {
 # region Data
 
 data = {
-    "name"      : data_name,
-    "root"      : data_root,     # A root directory where the data is stored.
+	"name"      : data_name,
+	"root"      : data_root,     # A root directory where the data is stored.
 	"transform" : None,          # Transformations performing on both the input and target.
-    "to_tensor" : True,          # If ``True``, convert input and target to :class:`torch.Tensor`.
-    "cache_data": False,         # If ``True``, cache data to disk for faster loading next time.
-    "batch_size": 1,             # The number of samples in one forward pass.
-    "devices"   : 0,             # A list of devices to use. Default: ``0``.
-    "shuffle"   : True,          # If ``True``, reshuffle the datapoints at the beginning of every epoch.
-    "verbose"   : verbose,       # Verbosity.
+	"to_tensor" : True,          # If ``True``, convert input and target to :class:`torch.Tensor`.
+	"cache_data": False,         # If ``True``, cache data to disk for faster loading next time.
+	"batch_size": 1,             # The number of samples in one forward pass.
+	"devices"   : 0,             # A list of devices to use. Default: ``0``.
+	"shuffle"   : True,          # If ``True``, reshuffle the datapoints at the beginning of every epoch.
+	"verbose"   : verbose,       # Verbosity.
 }
 
 # endregion
@@ -121,13 +125,13 @@ trainer = default.trainer | {
 		default.learning_rate_monitor,
 		default.rich_model_summary,
 		default.rich_progress_bar,
-	],
+		],
 	"default_root_dir" : root,  # Default path for logs and weights.
 	"log_image_every_n_epochs": 1,
 	"logger"           : {
 		"tensorboard": default.tensorboard,
 	},
-	"max_epochs"       : 200,
+	"max_epochs"       : 100,
 }
 
 # endregion
