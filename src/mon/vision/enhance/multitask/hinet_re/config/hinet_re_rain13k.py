@@ -14,16 +14,17 @@ current_file = mon.Path(__file__).absolute()
 
 # region Basic
 
-model_name  = "hinet_re"
-data_name   = "rain13k"
-root       = current_file.parents[1] / "run"
-data_root  = mon.DATA_DIR / "enhance"
-project    = None
-variant    = None
-fullname   = f"{model_name}_{data_name}"
-image_size  = [256, 256]
-seed	    = 100
-verbose     = True
+model_name   = "hinet_re"
+data_name    = "rain13k"
+root         = mon.ROOT_DIR / "project" / "run"
+data_root    = mon.DATA_DIR / "enhance"
+project      = None
+variant      = None
+fullname     = f"{model_name}_{data_name}"
+image_size   = [256, 256]
+seed	     = 100
+use_fullname = False
+verbose      = True
 
 # endregion
 

@@ -14,13 +14,14 @@ root_dir     = current_file.parents[1]
 
 # region Basic
 
-model_name = "hvi_cidnet_re"
-data_name  = "lol_v2_real"
-root       = root_dir / "run"
-fullname   = f"{model_name}_{data_name}"
-image_size = [256, 256]
-seed	   = 1000000
-verbose    = True
+model_name   = "hvi_cidnet_re"
+data_name    = "lol_v2_real"
+root         = root_dir / "run"
+fullname     = f"{model_name}_{data_name}"
+image_size   = [256, 256]
+seed	     = 1000000
+use_fullname = False
+verbose      = True
 
 # endregion
 

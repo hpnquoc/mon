@@ -20,15 +20,16 @@ root_dir     = current_file.parents[1]
 
 # region Basic
 
-model_name = ""
-data_name  = ""
-root       = root_dir / "run"
-project    = None
-variant    = None
-fullname   = f"{model_name}_{data_name}"
-image_size = [512, 512]
-seed	   = 100
-verbose    = True
+model_name   = ""
+data_name    = ""
+root         = root_dir / "run"
+project      = None
+variant      = None
+fullname     = f"{model_name}_{data_name}"
+image_size   = [512, 512]
+seed	     = 100
+use_fullname = False  # Use fullname for saving directory's name.
+verbose      = True
 
 # endregion
 

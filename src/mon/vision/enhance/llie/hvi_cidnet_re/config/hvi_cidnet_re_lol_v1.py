@@ -12,16 +12,17 @@ current_file = mon.Path(__file__).absolute()
 
 # region Basic
 
-model_name = "hvi_cidnet_re"
-data_name  = "lol_v1"
-root       = current_file.parents[1] / "run"
-data_root  = mon.DATA_DIR / "enhance"
-project    = None
-variant    = None
-fullname   = f"{model_name}_{data_name}"
-image_size = [256, 256]
-seed	   = 1000000
-verbose    = True
+model_name   = "hvi_cidnet_re"
+data_name    = "lol_v1"
+root         = mon.ROOT_DIR / "project" / "run"
+data_root    = mon.DATA_DIR / "enhance"
+project      = None
+variant      = None
+fullname     = f"{model_name}_{data_name}"
+image_size   = [256, 256]
+seed	     = 1000000
+use_fullname = False
+verbose      = True
 
 # endregion
 

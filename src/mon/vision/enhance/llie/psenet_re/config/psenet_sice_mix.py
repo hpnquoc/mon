@@ -12,16 +12,17 @@ current_file = mon.Path(__file__).absolute()
 
 # region Basic
 
-model_name = "psenet"
-data_name  = "sice_mix"
-root       = current_file.parents[1] / "run"
-data_root  = mon.DATA_DIR / "enhance"
-project    = None
-variant    = None
-fullname   = f"{model_name}_{data_name}"
-image_size = [256, 256]
-seed	   = 42
-verbose    = True
+model_name   = "psenet"
+data_name    = "sice_mix"
+root         = mon.ROOT_DIR / "project" / "run"
+data_root    = mon.DATA_DIR / "enhance"
+project      = None
+variant      = None
+fullname     = f"{model_name}_{data_name}"
+image_size   = [256, 256]
+seed	     = 42
+use_fullname = False
+verbose      = True
 
 # endregion
 

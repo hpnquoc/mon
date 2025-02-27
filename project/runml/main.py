@@ -345,6 +345,8 @@ def main(
         data 	  = mon.to_list(data)
         data 	  = [data_[int(d)] if mon.is_int(d) else d for d in data]
     # Fullname
+    # config_as_fullname = click.prompt(click.style(f"Save debug? [yes/no]", fg="bright_yellow", bold=True), type=str, default="yes")
+    # config_as_fullname = True if config_as_fullname   == "yes" else False
     fullname    = mon.Path(config).stem if config not in [None, "None", ""] else model_name
     fullname    = click.prompt(click.style(f"Save name: {fullname}", fg="bright_green", bold=True), type=str, default=fullname)
     # Device
@@ -355,39 +357,39 @@ def main(
     device	    = devices_[int(device)] if mon.is_int(device) else device
     # Training Flags
     if mode in ["train", "instance"]:  # Epochs
-        epochs = click.prompt(click.style(f"Epochs              ", fg="bright_yellow", bold=True), type=int, default=epochs)
+        epochs = click.prompt(click.style(f"Epochs                ", fg="bright_yellow", bold=True), type=int, default=epochs)
         epochs = None if epochs < 0 else epochs
-        steps  = click.prompt(click.style(f"Steps               ", fg="bright_yellow", bold=True), type=int, default=steps)
+        steps  = click.prompt(click.style(f"Steps                 ", fg="bright_yellow", bold=True), type=int, default=steps)
         steps  = None if steps  < 0 else steps
     # Predict Flags
     if mode in ["predict", "instance"]:  # Image size
         imgsz_       = imgsz
-        imgsz        = click.prompt(click.style(f"Image size          ", fg="bright_yellow", bold=True), type=str, default=imgsz)
+        imgsz        = click.prompt(click.style(f"Image size            ", fg="bright_yellow", bold=True), type=str, default=imgsz)
         imgsz        = mon.to_int_list(imgsz)
         imgsz        = imgsz[0] if len(imgsz) == 1 else imgsz
         imgsz        = None if imgsz < 0 else imgsz
         resize       = "yes" if imgsz_ not in [None, -1] else "no"
-        resize       = click.prompt(click.style(f"Resize?     [yes/no]", fg="bright_yellow", bold=True), type=str, default=resize)
+        resize       = click.prompt(click.style(f"Resize?       [yes/no]", fg="bright_yellow", bold=True), type=str, default=resize)
         resize       = True if resize       == "yes" else False
-        benchmark    = click.prompt(click.style(f"Benchmark?  [yes/no]", fg="bright_yellow", bold=True), type=str, default="no")
+        benchmark    = click.prompt(click.style(f"Benchmark?    [yes/no]", fg="bright_yellow", bold=True), type=str, default="no")
         benchmark    = True if benchmark    == "yes" else False
-        save_image   = click.prompt(click.style(f"Save image? [yes/no]", fg="bright_yellow", bold=True), type=str, default="yes")
+        save_image   = click.prompt(click.style(f"Save image?   [yes/no]", fg="bright_yellow", bold=True), type=str, default="yes")
         save_image   = True if save_image   == "yes" else False
-        save_debug   = click.prompt(click.style(f"Save debug? [yes/no]", fg="bright_yellow", bold=True), type=str, default="yes")
+        save_debug   = click.prompt(click.style(f"Save debug?   [yes/no]", fg="bright_yellow", bold=True), type=str, default="yes")
         save_debug   = True if save_debug   == "yes" else False
-        use_data_dir = click.prompt(click.style(f"Data dir?   [yes/no]", fg="bright_yellow", bold=True), type=str, default="no")
+        use_data_dir = click.prompt(click.style(f"Data dir?     [yes/no]", fg="bright_yellow", bold=True), type=str, default="no")
         use_data_dir = True if use_data_dir == "yes" else False
-        use_fullpath = click.prompt(click.style(f"Fullpath?   [yes/no]", fg="bright_yellow", bold=True), type=str, default="no")
+        use_fullpath = click.prompt(click.style(f"Use fullpath? [yes/no]", fg="bright_yellow", bold=True), type=str, default="no")
         use_fullpath = True if use_fullpath == "yes" else False
     # Common Flags
     # Exist OK?
-    exist_ok = click.prompt(click.style(f"Exist OK?   [yes/no]", fg="bright_yellow", bold=True), type=str, default=exist_ok)
+    exist_ok = click.prompt(click.style(f"Exist OK?     [yes/no]", fg="bright_yellow", bold=True), type=str, default=exist_ok)
     exist_ok = True if exist_ok == "yes" else False
     # Use Verbose
-    verbose  = click.prompt(click.style(f"Verbosity?  [yes/no]", fg="bright_yellow", bold=True), type=str, default=verbose)
+    verbose  = click.prompt(click.style(f"Verbosity?    [yes/no]", fg="bright_yellow", bold=True), type=str, default=verbose)
     verbose  = True if verbose  == "yes" else False
     
-    print("\n")
+    # print("\n")
     
     # Run
     if mode in ["install"]:

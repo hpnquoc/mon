@@ -12,7 +12,7 @@ data_dir="${mon_dir}/data/enhance"
 
 # Input
 arch="zero_linr"
-model="zero_linr_ff_finer_gfsize_3"
+model="zero_linr"
 data=(
     ### Unpaired Set
     # "dicm"

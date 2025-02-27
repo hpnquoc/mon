@@ -14,16 +14,17 @@ root_dir     = current_file.parents[1]
 
 # region Basic
 
-model_name = "lllinet_hvi"
-data_name  = "lol_v1"
-root       = current_file.parents[1] / "run"
-data_root  = mon.DATA_DIR / "enhance"
-project    = None
-variant    = None
-fullname   = f"{model_name}_{data_name}"
-image_size = [384, 384]
-seed	   = 1234
-verbose    = True
+model_name   = "lllinet_hvi"
+data_name    = "lol_v1"
+root         = mon.ROOT_DIR / "project" / "run"
+data_root    = mon.DATA_DIR / "enhance"
+project      = None
+variant      = None
+fullname     = f"{model_name}_{data_name}"
+image_size   = [384, 384]
+seed	     = 1234
+use_fullname = False
+verbose      = True
 
 # endregion
 
