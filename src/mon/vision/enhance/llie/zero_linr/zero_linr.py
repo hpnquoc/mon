@@ -6,6 +6,7 @@
 This module implement our idea: "Zero-Shot Low-light Image Enhancement Network
 using Neural Implicit Representations".
 
+
 """
 
 from __future__ import annotations
@@ -300,20 +301,18 @@ class INF1_P(nn.Module):
 		self.down_size   = down_size
 		
 		# Construct MLP/INF
-		patch_dim  = window_size ** 2
 		hidden_dim = 256
-		mid_dim    = hidden_dim
 		if use_ff:
-			self.register_buffer("B", torch.randn((hidden_dim, 2)) * ff_gaussian_scale)
+			self.register_buffer("B1", torch.randn((hidden_dim, 2)) * ff_gaussian_scale)
 			s_in_channels = hidden_dim * 2
 		else:
-			self.B        = None
+			self.B1       = None
 			s_in_channels = 2
 		
 		p_layers = [nn.INRLayer(s_in_channels, hidden_dim, s_nonlinear, omega_0=omega_0, first_bias_scale=first_bias_scale, is_first=True)]
 		for _ in range(1, add_layers - 2):
 			p_layers.append(nn.INRLayer(hidden_dim, hidden_dim, s_nonlinear, omega_0=omega_0, first_bias_scale=first_bias_scale))
-		p_layers.append(nn.INRLayer(hidden_dim, mid_dim, s_nonlinear, omega_0=omega_0, first_bias_scale=first_bias_scale))
+		p_layers.append(nn.INRLayer(hidden_dim, hidden_dim, s_nonlinear, omega_0=omega_0, first_bias_scale=first_bias_scale))
 		
 		o_layers = [nn.INRLayer(hidden_dim, hidden_dim, v_nonlinear, omega_0=omega_0, first_bias_scale=first_bias_scale)]
 		for _ in range(add_layers + 1, num_layers - 1):
@@ -330,7 +329,7 @@ class INF1_P(nn.Module):
 		self.params += [{"params": self.o_net.parameters(), "weight_decay": weight_decay[2]}]
 		
 	def forward(self, p: torch.Tensor, v: torch.Tensor) -> torch.Tensor:
-		p = ff_embedding(p, self.B)
+		p = ff_embedding(p, self.B1)
 		return self.o_net(self.p_net(p))
 
 
@@ -366,18 +365,17 @@ class INF1_V(nn.Module):
 		# Construct MLP/INF
 		patch_dim  = window_size ** 2
 		hidden_dim = 256
-		mid_dim    = hidden_dim
 		if use_ff:
-			self.register_buffer("B", torch.randn((hidden_dim, 2)) * ff_gaussian_scale)
-			s_in_channels = hidden_dim * 2
+			self.register_buffer("B2", torch.randn((hidden_dim, 2)) * ff_gaussian_scale)
+			v_in_channels = patch_dim  * 2
 		else:
-			self.B        = None
-			s_in_channels = 2
+			self.B2       = None
+			v_in_channels = patch_dim
 		
-		v_layers = [nn.INRLayer(patch_dim, hidden_dim, v_nonlinear, omega_0=omega_0, first_bias_scale=first_bias_scale, is_first=True)]
+		v_layers = [nn.INRLayer(v_in_channels, hidden_dim, v_nonlinear, omega_0=omega_0, first_bias_scale=first_bias_scale, is_first=True)]
 		for _ in range(1, add_layers - 2):
 			v_layers.append(nn.INRLayer(hidden_dim, hidden_dim, v_nonlinear, omega_0=omega_0, first_bias_scale=first_bias_scale))
-		v_layers.append(nn.INRLayer(hidden_dim, mid_dim, v_nonlinear, omega_0=omega_0, first_bias_scale=first_bias_scale))
+		v_layers.append(nn.INRLayer(hidden_dim, hidden_dim, v_nonlinear, omega_0=omega_0, first_bias_scale=first_bias_scale))
 		
 		o_layers = [nn.INRLayer(hidden_dim, hidden_dim, v_nonlinear, omega_0=omega_0, first_bias_scale=first_bias_scale)]
 		for _ in range(add_layers + 1, num_layers - 1):
@@ -395,6 +393,7 @@ class INF1_V(nn.Module):
 		
 	def forward(self, p: torch.Tensor, v: torch.Tensor) -> torch.Tensor:
 		v_patch = get_patches(v, self.window_size)
+		v_patch = ff_embedding(v_patch, self.B2)
 		return self.o_net(self.v_net(v_patch))
 
 
@@ -432,14 +431,18 @@ class INF2(nn.Module):
 		hidden_dim   = 256
 		mid_channels = hidden_dim // 2 if reduce_channels else hidden_dim
 		if use_ff:
-			self.register_buffer("B", torch.randn((hidden_dim, 2)) * ff_gaussian_scale)
+			self.register_buffer("B1", torch.randn((hidden_dim, 2)) * ff_gaussian_scale)
 			s_in_channels = hidden_dim * 2
+			self.register_buffer("B2", torch.randn((hidden_dim, patch_dim)) * ff_gaussian_scale)
+			v_in_channels = hidden_dim * 2
 		else:
-			self.B        = None
+			self.B1       = None
+			self.B2       = None
 			s_in_channels = 2
+			v_in_channels = patch_dim
 		
 		p_layers = [nn.INRLayer(s_in_channels, hidden_dim, s_nonlinear, omega_0=omega_0, first_bias_scale=first_bias_scale, is_first=True)]
-		v_layers = [nn.INRLayer(patch_dim,     hidden_dim, v_nonlinear, omega_0=omega_0, first_bias_scale=first_bias_scale, is_first=True)]
+		v_layers = [nn.INRLayer(v_in_channels, hidden_dim, v_nonlinear, omega_0=omega_0, first_bias_scale=first_bias_scale, is_first=True)]
 		for _ in range(1, add_layers - 2):
 			p_layers.append(nn.INRLayer(hidden_dim, hidden_dim, s_nonlinear, omega_0=omega_0, first_bias_scale=first_bias_scale))
 			v_layers.append(nn.INRLayer(hidden_dim, hidden_dim, v_nonlinear, omega_0=omega_0, first_bias_scale=first_bias_scale))
@@ -463,9 +466,10 @@ class INF2(nn.Module):
 		self.params += [{"params": self.o_net.parameters(), "weight_decay": weight_decay[2]}]
 		
 	def forward(self, p: torch.Tensor, v: torch.Tensor) -> torch.Tensor:
-		p       = ff_embedding(p, self.B)
+		p       = ff_embedding(p, self.B1)
 		v_patch = get_patches(v, self.window_size)
-		return self.o_net(torch.cat((self.v_net(v_patch), self.p_net(p)), -1))
+		v_patch = ff_embedding(v_patch, self.B2)
+		return self.o_net(torch.cat((self.p_net(p), self.v_net(v_patch)), -1))
 
 
 class INF4(nn.Module):
@@ -502,16 +506,20 @@ class INF4(nn.Module):
 		hidden_dim   = 256
 		mid_channels = hidden_dim // 4 if reduce_channels else hidden_dim
 		if use_ff:
-			self.register_buffer("B", torch.randn((hidden_dim, 2)) * ff_gaussian_scale)
+			self.register_buffer("B1", torch.randn((hidden_dim, 2)) * ff_gaussian_scale)
 			s_in_channels = hidden_dim * 2
+			self.register_buffer("B2", torch.randn((hidden_dim, patch_dim)) * ff_gaussian_scale)
+			v_in_channels = hidden_dim * 2
 		else:
-			self.B        = None
+			self.B1       = None
+			self.B2       = None
 			s_in_channels = 2
+			v_in_channels = patch_dim
 		
 		p_layers = [nn.INRLayer(s_in_channels, hidden_dim, s_nonlinear, omega_0=omega_0, first_bias_scale=first_bias_scale, is_first=True)]
-		v_layers = [nn.INRLayer(patch_dim,     hidden_dim, v_nonlinear, omega_0=omega_0, first_bias_scale=first_bias_scale, is_first=True)]
-		d_layers = [nn.INRLayer(patch_dim,     hidden_dim, v_nonlinear, omega_0=omega_0, first_bias_scale=first_bias_scale, is_first=True)]
-		e_layers = [nn.INRLayer(patch_dim,     hidden_dim, v_nonlinear, omega_0=omega_0, first_bias_scale=first_bias_scale, is_first=True)]
+		v_layers = [nn.INRLayer(v_in_channels, hidden_dim, v_nonlinear, omega_0=omega_0, first_bias_scale=first_bias_scale, is_first=True)]
+		d_layers = [nn.INRLayer(v_in_channels, hidden_dim, v_nonlinear, omega_0=omega_0, first_bias_scale=first_bias_scale, is_first=True)]
+		e_layers = [nn.INRLayer(v_in_channels, hidden_dim, v_nonlinear, omega_0=omega_0, first_bias_scale=first_bias_scale, is_first=True)]
 		for _ in range(1, add_layers - 2):
 			p_layers.append(nn.INRLayer(hidden_dim, hidden_dim, s_nonlinear, omega_0=omega_0, first_bias_scale=first_bias_scale))
 			v_layers.append(nn.INRLayer(hidden_dim, hidden_dim, v_nonlinear, omega_0=omega_0, first_bias_scale=first_bias_scale))
@@ -543,28 +551,29 @@ class INF4(nn.Module):
 		self.params += [{"params": self.o_net.parameters(), "weight_decay": weight_decay[2]}]
 		
 	def forward(self, p: torch.Tensor, v: torch.Tensor, d: torch.Tensor, e: torch.Tensor) -> torch.Tensor:
-		p       = ff_embedding(p, self.B)
+		p       = ff_embedding(p, self.B1)
 		v_patch = get_patches(v, self.window_size)
 		d_patch = get_patches(d, self.window_size)
 		e_patch = get_patches(e, self.window_size)
-		return self.o_net(torch.cat((self.v_net(v_patch), self.d_net(d_patch), self.e_net(e_patch), self.p_net(p)), -1))
+		v_patch = ff_embedding(v_patch, self.B2)
+		d_patch = ff_embedding(d_patch, self.B2)
+		e_patch = ff_embedding(e_patch, self.B2)
+		return self.o_net(torch.cat((self.p_net(p), self.v_net(v_patch), self.d_net(d_patch), self.e_net(e_patch)), -1))
 
 # endregion
 
 
 # region Model
 
-@MODELS.register(name="zero_linr_ff_finer20", arch="zero_linr")
-@MODELS.register(name="zero_linr_ff_finer",   arch="zero_linr")
-@MODELS.register(name="zero_linr_ff_gauss",   arch="zero_linr")
-@MODELS.register(name="zero_linr_ff_relu",    arch="zero_linr")
-@MODELS.register(name="zero_linr_ff_siren",   arch="zero_linr")
-@MODELS.register(name="zero_linr_finer20",    arch="zero_linr")
-@MODELS.register(name="zero_linr_finer",      arch="zero_linr")
-@MODELS.register(name="zero_linr_gauss",      arch="zero_linr")
-@MODELS.register(name="zero_linr_relu",       arch="zero_linr")
-@MODELS.register(name="zero_linr_siren",      arch="zero_linr")
-@MODELS.register(name="zero_linr",            arch="zero_linr")
+@MODELS.register(name="zero_linr_ff_finer", arch="zero_linr")
+@MODELS.register(name="zero_linr_ff_gauss", arch="zero_linr")
+@MODELS.register(name="zero_linr_ff_relu",  arch="zero_linr")
+@MODELS.register(name="zero_linr_ff_siren", arch="zero_linr")
+@MODELS.register(name="zero_linr_finer",    arch="zero_linr")
+@MODELS.register(name="zero_linr_gauss",    arch="zero_linr")
+@MODELS.register(name="zero_linr_relu",     arch="zero_linr")
+@MODELS.register(name="zero_linr_siren",    arch="zero_linr")
+@MODELS.register(name="zero_linr",          arch="zero_linr")
 class ZeroLINR(base.ImageEnhancementModel):
 	
 	model_dir: core.Path    = current_dir
