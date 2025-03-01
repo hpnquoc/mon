@@ -15,7 +15,7 @@ arch="zero_linr"
 model="zero_linr"
 data=(
     ### Unpaired Set
-    # "dicm"
+    "dicm"
     # "lime"
     # "mef"
     # "npe"
@@ -31,7 +31,7 @@ data=(
     # "fivek_d"
     # "fivek_e"
     ### SICE Set
-    "sice"
+    # "sice"
     # "sice_grad"
     # "sice_mix"
     ### Camera-Specific Set

@@ -34,35 +34,36 @@ model = {
 	# Model
 	"in_channels"      : 3,              # The first layer's input channel.
 	"out_channels"     : None,           # A number of classes, which is also the last layer's output channels.
-	"mapping_func"     : "pvde",         # One of: ["p", "v", "d", "e", "pv", "pd", "pe", "pvde"]. Default: "pvde"
-	"window_size"      : 1,              # Context window size. Default: 1
-	"down_size"        : 256,            # Input image size. Default: 256
-	"num_layers"       : 4,              # Total layer's depth. Default: 4
-	"add_layers"       : 2,              # Number of layers for output branch. Default: 2
-	"omega_0"          : 30.0,           # Default: 30.0
-	"first_bias_scale" : 20.0,           # For "finer". Default: 20.0
-	"s_nonlinear"      : "finer",        # Activation function for the spatial branch. Default: "finer"
-	"use_ff"           : True,           # Use Fourier Feature embedding for the spatial branch. Default: True
-	"ff_gaussian_scale": 10.0,           # For Fourier Feature embedding. Default: 10.0
-	"v_nonlinear"      : "finer",        # Activation function for the pixel value branch. Default: "sine"
-	"depth_threshold"  : 0.7,            # For adjusting the learned residual. Default: 0.7
-	"edge_threshold"   : 0.05,           # Edge threshold. Default: 0.05
+	"mapping_func"     : "pvde",         # One of: ["p", "v", "d", "e", "pv", "pd", "pe", "pvde"]. Default: "pvde".
+	"window_size"      : 1,              # Context window size. Default: 1.
+	"down_size"        : 256,            # Input image size. Default: 256.
+	"num_layers"       : 4,              # Total layer's depth. Default: 4.
+	"add_layers"       : 2,              # Number of layers for output branch. Default: 2.
+	"omega_0"          : 30.0,           # Default: 30.0.
+	"first_bias_scale" : 20.0,           # For "finer". Default: 20.0.
+	"s_nonlinear"      : "finer",        # Activation function for the spatial branch. Default: "finer".
+	"use_ff"           : True,           # Use Fourier Feature embedding for the spatial branch. Default: True.
+	"ff_gaussian_scale": 10.0,           # For Fourier Feature embedding. Default: 10.0.
+	"v_nonlinear"      : "finer",        # Activation function for the pixel value branch. Default: "sine".
+	"reduce_channels"  : False,          # Reduce the output channels of input encoders.
+	"depth_threshold"  : 0.7,            # For adjusting the learned residual. Default: 0.7.
+	"edge_threshold"   : 0.05,           # Edge threshold. Default: 0.05.
 	# Post-process
-	"gf_radius"        : 1,              # Radius of the guided filter. Default: 1
-	"use_denoise"      : False,          # Use denoising. Default: False
-	"denoise_ksize"    : (3, 3),         # For denoising. Default: (3, 3)
-    "denoise_color"    : 0.1,            # For denoising. Default: 0.1
-    "denoise_space"    : (1.5, 1.5),     # For denoising. Default: (1.5, 1.5)
+	"gf_radius"        : 1,              # Radius of the guided filter. Default: 1.
+	"use_denoise"      : False,          # Use denoising. Default: False.
+	"denoise_ksize"    : (3, 3),         # For denoising. Default: (3, 3).
+    "denoise_color"    : 0.1,            # For denoising. Default: 0.1.
+    "denoise_space"    : (1.5, 1.5),     # For denoising. Default: (1.5, 1.5).
 	# Loss
-	"loss_hsv"         : True,           # Use HSV loss. Default: True
-	"l_exp_mean"       : 0.7,            # Default: 0.7
-	"l_exp_weight"     : 8,              # Default: 8
-	"l_spa_weight"	   : 1,              # Default: 1
-	"l_tv_weight"      : 20,             # Default: 20
-	"l_spar_weight"	   : 5,              # Default: 5
-	"l_depth_weight"   : 1,              # Default: 1
-	"l_edge_weight"    : 1,              # Default: 1
-	"l_color_weight"   : 5,              # Default: 5
+	"loss_hsv"         : True,           # Use HSV loss. Default: True.
+	"l_exp_mean"       : 0.7,            # Default: 0.7.
+	"l_exp_weight"     : 8,              # Default: 8.
+	"l_spa_weight"	   : 1,              # Default: 1.
+	"l_tv_weight"      : 20,             # Default: 20.
+	"l_spar_weight"	   : 5,              # Default: 5.
+	"l_depth_weight"   : 1,              # Default: 1.
+	"l_edge_weight"    : 1,              # Default: 1.
+	"l_color_weight"   : 5,              # Default: 5.
 	#
 	"weights"          : None,           # The model's weights.
 	"metrics"          : {

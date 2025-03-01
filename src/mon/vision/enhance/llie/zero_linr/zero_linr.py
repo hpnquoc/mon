@@ -291,6 +291,7 @@ class INF1_P(nn.Module):
 		use_ff           : bool        = True,
 		ff_gaussian_scale: float       = 10.0,
 		v_nonlinear      : INR_AF      = "sine",
+		reduce_channels  : bool        = False,
 		weight_decay     : list[float] = [0.1, 0.0001, 0.001],
 		*args, **kwargs
 	):
@@ -354,6 +355,7 @@ class INF1_V(nn.Module):
 		use_ff           : bool        = True,
 		ff_gaussian_scale: float       = 10.0,
 		v_nonlinear      : INR_AF      = "sine",
+		reduce_channels  : bool        = False,
 		weight_decay     : list[float] = [0.1, 0.0001, 0.001],
 		*args, **kwargs
 	):
@@ -417,6 +419,7 @@ class INF2(nn.Module):
 		use_ff           : bool        = True,
 		ff_gaussian_scale: float       = 10.0,
 		v_nonlinear      : INR_AF      = "sine",
+		reduce_channels  : bool        = False,
 		weight_decay     : list[float] = [0.1, 0.0001, 0.001],
 		*args, **kwargs
 	):
@@ -425,8 +428,9 @@ class INF2(nn.Module):
 		self.down_size   = down_size
 		
 		# Construct MLP/INF
-		patch_dim  = window_size ** 2
-		hidden_dim = 256
+		patch_dim    = window_size ** 2
+		hidden_dim   = 256
+		mid_channels = hidden_dim // 2 if reduce_channels else hidden_dim
 		if use_ff:
 			self.register_buffer("B", torch.randn((hidden_dim, 2)) * ff_gaussian_scale)
 			s_in_channels = hidden_dim * 2
@@ -439,10 +443,10 @@ class INF2(nn.Module):
 		for _ in range(1, add_layers - 2):
 			p_layers.append(nn.INRLayer(hidden_dim, hidden_dim, s_nonlinear, omega_0=omega_0, first_bias_scale=first_bias_scale))
 			v_layers.append(nn.INRLayer(hidden_dim, hidden_dim, v_nonlinear, omega_0=omega_0, first_bias_scale=first_bias_scale))
-		p_layers.append(nn.INRLayer(hidden_dim, hidden_dim, s_nonlinear, omega_0=omega_0, first_bias_scale=first_bias_scale))
-		v_layers.append(nn.INRLayer(hidden_dim, hidden_dim, v_nonlinear, omega_0=omega_0, first_bias_scale=first_bias_scale))
+		p_layers.append(nn.INRLayer(hidden_dim, mid_channels, s_nonlinear, omega_0=omega_0, first_bias_scale=first_bias_scale))
+		v_layers.append(nn.INRLayer(hidden_dim, mid_channels, v_nonlinear, omega_0=omega_0, first_bias_scale=first_bias_scale))
 		
-		o_layers = [nn.INRLayer(hidden_dim * 2, hidden_dim, v_nonlinear, omega_0=omega_0, first_bias_scale=first_bias_scale)]
+		o_layers = [nn.INRLayer(mid_channels * 2, hidden_dim, v_nonlinear, omega_0=omega_0, first_bias_scale=first_bias_scale)]
 		for _ in range(add_layers + 1, num_layers - 1):
 			o_layers.append(nn.INRLayer(hidden_dim, hidden_dim, v_nonlinear, omega_0=omega_0, first_bias_scale=first_bias_scale))
 		o_layers.append(nn.INRLayer(hidden_dim, 1, v_nonlinear, omega_0=omega_0, first_bias_scale=first_bias_scale, is_last=True))
@@ -485,6 +489,7 @@ class INF4(nn.Module):
 		use_ff           : bool        = True,
 		ff_gaussian_scale: float       = 10.0,
 		v_nonlinear      : INR_AF      = "sine",
+		reduce_channels  : bool        = False,
 		weight_decay     : list[float] = [0.1, 0.0001, 0.001],
 		*args, **kwargs
 	):
@@ -493,8 +498,9 @@ class INF4(nn.Module):
 		self.down_size   = down_size
 		
 		# Construct MLP/INF
-		patch_dim  = window_size ** 2
-		hidden_dim = 256
+		patch_dim    = window_size ** 2
+		hidden_dim   = 256
+		mid_channels = hidden_dim // 4 if reduce_channels else hidden_dim
 		if use_ff:
 			self.register_buffer("B", torch.randn((hidden_dim, 2)) * ff_gaussian_scale)
 			s_in_channels = hidden_dim * 2
@@ -511,12 +517,12 @@ class INF4(nn.Module):
 			v_layers.append(nn.INRLayer(hidden_dim, hidden_dim, v_nonlinear, omega_0=omega_0, first_bias_scale=first_bias_scale))
 			d_layers.append(nn.INRLayer(hidden_dim, hidden_dim, v_nonlinear, omega_0=omega_0, first_bias_scale=first_bias_scale))
 			e_layers.append(nn.INRLayer(hidden_dim, hidden_dim, v_nonlinear, omega_0=omega_0, first_bias_scale=first_bias_scale))
-		p_layers.append(nn.INRLayer(hidden_dim, hidden_dim, s_nonlinear, omega_0=omega_0, first_bias_scale=first_bias_scale))
-		v_layers.append(nn.INRLayer(hidden_dim, hidden_dim, v_nonlinear, omega_0=omega_0, first_bias_scale=first_bias_scale))
-		d_layers.append(nn.INRLayer(hidden_dim, hidden_dim, v_nonlinear, omega_0=omega_0, first_bias_scale=first_bias_scale))
-		e_layers.append(nn.INRLayer(hidden_dim, hidden_dim, v_nonlinear, omega_0=omega_0, first_bias_scale=first_bias_scale))
+		p_layers.append(nn.INRLayer(hidden_dim, mid_channels, s_nonlinear, omega_0=omega_0, first_bias_scale=first_bias_scale))
+		v_layers.append(nn.INRLayer(hidden_dim, mid_channels, v_nonlinear, omega_0=omega_0, first_bias_scale=first_bias_scale))
+		d_layers.append(nn.INRLayer(hidden_dim, mid_channels, v_nonlinear, omega_0=omega_0, first_bias_scale=first_bias_scale))
+		e_layers.append(nn.INRLayer(hidden_dim, mid_channels, v_nonlinear, omega_0=omega_0, first_bias_scale=first_bias_scale))
 		
-		o_layers = [nn.INRLayer(hidden_dim * 4, hidden_dim, v_nonlinear, omega_0=omega_0, first_bias_scale=first_bias_scale)]
+		o_layers = [nn.INRLayer(mid_channels * 4, hidden_dim, v_nonlinear, omega_0=omega_0, first_bias_scale=first_bias_scale)]
 		for _ in range(add_layers + 1, num_layers - 1):
 			o_layers.append(nn.INRLayer(hidden_dim, hidden_dim, v_nonlinear, omega_0=omega_0, first_bias_scale=first_bias_scale))
 		o_layers.append(nn.INRLayer(hidden_dim, 1, v_nonlinear, omega_0=omega_0, first_bias_scale=first_bias_scale, is_last=True))
@@ -582,6 +588,7 @@ class ZeroLINR(base.ImageEnhancementModel):
 		use_ff           : bool         = True,
 		ff_gaussian_scale: float        = 10.0,
 		v_nonlinear      : INR_AF       = "sine",
+		reduce_channels  : bool         = False,
 		depth_threshold  : float        = 0.7,
 		edge_threshold   : float        = 0.05,
 		# Post-process
@@ -654,6 +661,7 @@ class ZeroLINR(base.ImageEnhancementModel):
 			use_ff            = use_ff,
 			ff_gaussian_scale = ff_gaussian_scale,
 			v_nonlinear       = v_nonlinear,
+			reduce_channels   = reduce_channels,
 			weight_decay      = weight_decay,
 		)
 		

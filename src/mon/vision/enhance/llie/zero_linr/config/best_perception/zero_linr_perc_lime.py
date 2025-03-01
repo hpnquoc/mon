@@ -11,16 +11,16 @@ current_file = mon.Path(__file__).absolute()
 
 # region Basic
 
-model_name   = "zero_linr_finer"
-data_name    = ""
+model_name   = "zero_linr"
+data_name    = "lime"
 root         = mon.ROOT_DIR / "project" / "run"
 data_root    = mon.DATA_DIR / "enhance"
 project      = None
 variant      = None
 fullname     = f"{model_name}_{data_name}"
 image_size   = [512, 512]
-seed	     = 100
-use_fullname = True
+seed         = 100
+use_fullname = False
 verbose      = True
 
 # endregion
@@ -36,28 +36,28 @@ model = {
 	"in_channels"      : 3,              # The first layer's input channel.
 	"out_channels"     : None,           # A number of classes, which is also the last layer's output channels.
 	"mapping_func"     : "pvde",         # One of: ["p", "v", "d", "e", "pv", "pd", "pe", "pvde"]. Default: "pvde"
-	"window_size"      : 1,              # Context window size. Default: 1
+	"window_size"      : 9,              # Context window size. Default: 9
 	"down_size"        : 256,            # Input image size. Default: 256
 	"num_layers"       : 4,              # Total layer's depth. Default: 4
 	"add_layers"       : 2,              # Number of layers for output branch. Default: 2
 	"omega_0"          : 30.0,           # Default: 30.0
-	"first_bias_scale" : None,           # For "finer". Default: 20.0
+	"first_bias_scale" : 20.0,           # For "finer". Default: 20.0
 	"s_nonlinear"      : "finer",        # Activation function for the spatial branch. Default: "finer"
 	"use_ff"           : True,           # Use Fourier Feature embedding for the spatial branch. Default: True
 	"ff_gaussian_scale": 10.0,           # For Fourier Feature embedding. Default: 10.0
 	"v_nonlinear"      : "finer",        # Activation function for the pixel value branch. Default: "sine"
 	"reduce_channels"  : False,          # Reduce the output channels of input encoders.
-	"depth_threshold"  : 0.7,            # For adjusting the learned residual. Default: 0.7
+	"depth_threshold"  : 1.0,            # For adjusting the learned residual. Default: 1.0
 	"edge_threshold"   : 0.05,           # Edge threshold. Default: 0.05
 	# Post-process
-	"gf_radius"        : 1,              # Radius of the guided filter. Default: 1
-	"use_denoise"      : False,          # Use denoising. Default: False
+	"gf_radius"        : 7,              # Radius of the guided filter. Default: 7
+	"use_denoise"      : True,           # Use denoising. Default: True
 	"denoise_ksize"    : (3, 3),         # For denoising. Default: (3, 3)
 	"denoise_color"    : 0.1,            # For denoising. Default: 0.1
 	"denoise_space"    : (1.5, 1.5),     # For denoising. Default: (1.5, 1.5)
 	# Loss
 	"loss_hsv"         : True,           # Use HSV loss. Default: True
-	"l_exp_mean"       : 0.9,            # Default: 0.7
+	"l_exp_mean"       : 0.9,            # Default: 0.9
 	"l_exp_weight"     : 8,              # Default: 8
 	"l_spa_weight"	   : 1,              # Default: 1
 	"l_tv_weight"      : 20,             # Default: 20

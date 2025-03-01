@@ -45,8 +45,9 @@ model = {
 	"s_nonlinear"      : "gauss",        # Activation function for the spatial branch. Default: "finer"
 	"use_ff"           : False,          # Use Fourier Feature embedding for the spatial branch. Default: True
 	"ff_gaussian_scale": 10.0,           # For Fourier Feature embedding. Default: 10.0
-	"v_nonlinear"      : "gauss",        # Activation function for the pixel value branch. Default: "sine"
-	"depth_threshold"  : 0.0,            # For adjusting the learned residual. Default: 0.7
+	"v_nonlinear"      : "gauss",        # Activation function for the pixel value branch. Default: "sine".
+	"reduce_channels"  : False,          # Reduce the output channels of input encoders.
+	"depth_threshold"  : 0.0,            # For adjusting the learned residual. Default: 0.7.
 	"edge_threshold"   : 0.05,           # Edge threshold. Default: 0.05
 	# Post-process
 	"gf_radius"        : 1,              # Radius of the guided filter. Default: 1

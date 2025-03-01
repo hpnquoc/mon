@@ -37,15 +37,16 @@ model = {
 	"out_channels"     : None,           # A number of classes, which is also the last layer's output channels.
 	"mapping_func"     : "pvde",         # One of: ["p", "v", "d", "e", "pv", "pd", "pe", "pvde"]. Default: "pvde"
 	"window_size"      : 1,              # Context window size. Default: 1
-	"down_size"        : 256,            # Input image size. Default: 256
-	"num_layers"       : 4,              # Total layer's depth. Default: 4
-	"add_layers"       : 2,              # Number of layers for output branch. Default: 2
-	"omega_0"          : 30.0,           # Default: 30.0
-	"first_bias_scale" : None,           # For "finer". Default: 20.0
-	"s_nonlinear"      : "finer",        # Activation function for the spatial branch. Default: "finer"
-	"use_ff"           : True,           # Use Fourier Feature embedding for the spatial branch. Default: True
+	"down_size"        : 256,            # Input image size. Default: 256.
+	"num_layers"       : 4,              # Total layer's depth. Default: 4.
+	"add_layers"       : 2,              # Number of layers for output branch. Default: 2.
+	"omega_0"          : 30.0,           # Default: 30.0.
+	"first_bias_scale" : None,           # For "finer". Default: 20.0.
+	"s_nonlinear"      : "finer",        # Activation function for the spatial branch. Default: "finer".
+	"use_ff"           : True,           # Use Fourier Feature embedding for the spatial branch. Default: True.
 	"ff_gaussian_scale": 10.0,           # For Fourier Feature embedding. Default: 10.0
 	"v_nonlinear"      : "finer",        # Activation function for the pixel value branch. Default: "sine"
+	"reduce_channels"  : False,          # Reduce the output channels of input encoders.
 	"depth_threshold"  : 0.0,            # For adjusting the learned residual. Default: 0.7
 	"edge_threshold"   : 0.05,           # Edge threshold. Default: 0.05
 	# Post-process
