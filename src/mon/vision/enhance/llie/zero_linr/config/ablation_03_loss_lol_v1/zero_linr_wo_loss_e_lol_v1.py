@@ -52,14 +52,14 @@ model = {
 	# Post-process
 	"gf_radius"        : 7,              # Radius of the guided filter. Default: 7.
 	"use_denoise"      : True,           # Use denoising. Default: True.
-	"denoise_ksize"    : (5, 5),         # For denoising. Default: (3, 3).
+	"denoise_ksize"    : (3, 3),         # For denoising. Default: (3, 3).
 	"denoise_color"    : 0.1,            # For denoising. Default: 0.1.
 	"denoise_space"    : (1.5, 1.5),     # For denoising. Default: (1.5, 1.5).
 	# Loss
 	"loss_e_mean"      : -0.3,           # Default: -0.3.
 	"loss_w_f"         : 1,              # Default: 1.
 	"loss_w_s"         : 5,              # Default: 5.
-	"loss_w_e"         : 8,              # Default: 8.
+	"loss_w_e"         : 0,              # Default: 8.
 	"loss_w_tv"        : 20,             # Default: 20.
 	"loss_w_de"        : 1,              # Default: 1.
 	"loss_w_c"         : 5,              # Default: 5.
