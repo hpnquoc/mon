@@ -15,13 +15,13 @@ arch="zero_linr"
 model="zero_linr"
 data=(
     ### Unpaired Set
-    "dicm"
+    # "dicm"
     # "lime"
     # "mef"
     # "npe"
     # "vv"
     ### LOLs Set
-    # "lol_v1"
+    "lol_v1"
     # "lol_v2_real"
     # "lol_v2_synthetic"
     ### FiveK Set
@@ -31,7 +31,7 @@ data=(
     # "fivek_d"
     # "fivek_e"
     ### SICE Set
-    # "sice"
+    "sice"
     # "sice_grad"
     # "sice_mix"
     ### Camera-Specific Set

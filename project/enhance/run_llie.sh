@@ -16,7 +16,7 @@ python -W ignore main.py \
     --root "${current_dir}" \
     --task "llie" \
     --mode "predict" \
-    --data "dicm" \
+    --data "sice" \
     --verbose \
     "$@"
 

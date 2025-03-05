@@ -19,4 +19,4 @@ from mon.nn import *
 from mon.vision import *
 from mon.config import *
 
-__version__ = "2.5.2"
+__version__ = "2.6.0"

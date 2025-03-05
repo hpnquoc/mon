@@ -12,7 +12,7 @@ current_file = mon.Path(__file__).absolute()
 # region Basic
 
 model_name   = "zero_linr"
-data_name    = "dicm"
+data_name    = "lol_v2_real"
 root         = mon.ROOT_DIR / "project" / "run"
 data_root    = mon.DATA_DIR / "enhance"
 project      = None
@@ -50,13 +50,13 @@ model = {
 	"depth_threshold"  : 1.0,            # For adjusting the learned residual. Default: 1.0.
 	"edge_threshold"   : 0.05,           # Edge threshold. Default: 0.05.
 	# Post-process
-	"gf_radius"        : 7,              # Radius of the guided filter. Default: 7.
-	"use_denoise"      : False,          # Use denoising. Default: False.
+	"gf_radius"        : 9,              # Radius of the guided filter. Default: 7.
+	"use_denoise"      : True,           # Use denoising. Default: False.
 	"denoise_ksize"    : (3, 3),         # For denoising. Default: (3, 3).
 	"denoise_color"    : 0.1,            # For denoising. Default: 0.1.
 	"denoise_space"    : (1.5, 1.5),     # For denoising. Default: (1.5, 1.5).
 	# Loss
-	"loss_e_mean"      : 0.1,            # Default: 0.1.
+	"loss_e_mean"      : -0.3,           # Default: -0.3.
 	"loss_w_f"         : 1,              # Default: 1.
 	"loss_w_s"         : 5,              # Default: 5.
 	"loss_w_e"         : 8,              # Default: 8.

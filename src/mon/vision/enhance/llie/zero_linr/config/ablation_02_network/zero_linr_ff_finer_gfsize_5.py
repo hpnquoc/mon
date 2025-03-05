@@ -11,7 +11,7 @@ current_file = mon.Path(__file__).absolute()
 
 # region Basic
 
-model_name   = "zero_linr_finer"
+model_name   = "zero_linr"
 data_name    = ""
 root         = mon.ROOT_DIR / "project" / "run"
 data_root    = mon.DATA_DIR / "enhance"
@@ -56,16 +56,14 @@ model = {
 	"denoise_color"    : 0.1,            # For denoising. Default: 0.1
 	"denoise_space"    : (1.5, 1.5),     # For denoising. Default: (1.5, 1.5)
 	# Loss
-	"loss_hsv"         : True,           # Use HSV loss. Default: True
-	"l_exp_mean"       : 0.9,            # Default: 0.7
-	"l_exp_weight"     : 8,              # Default: 8
-	"l_spa_weight"	   : 1,              # Default: 1
-	"l_tv_weight"      : 20,             # Default: 20
-	"l_spar_weight"	   : 5,              # Default: 5
-	"l_depth_weight"   : 1,              # Default: 1
-	"l_edge_weight"    : 1,              # Default: 1
-	"l_color_weight"   : 5,              # Default: 5
-	#
+	"loss_e_mean"      : 0.1,            # Default: 0.1.
+	"loss_w_f"         : 1,              # Default: 1.
+	"loss_w_s"         : 5,              # Default: 5.
+	"loss_w_e"         : 8,              # Default: 8.
+	"loss_w_tv"        : 20,             # Default: 20.
+	"loss_w_de"        : 1,              # Default: 1.
+	"loss_w_c"         : 5,              # Default: 5.
+	# Training
 	"weights"          : None,           # The model's weights.
 	"metrics"          : {
 		"train": None,

@@ -133,32 +133,31 @@ class Loss(nn.Loss):
 	
 	def __init__(
 		self,
-		exp_mean    : float = 0.6,
-		exp_weight  : float = 10.0,
-		spa_weight  : float = 1.0,
-		color_weight: float = 5.0,
-		tv_weight   : float = 1600,
-		depth_weight: float = 1.0,
-		edge_weight : float = 1.0,
-		reduction   : Literal["none", "mean", "sum"] = "mean",
-		verbose     : bool  = False,
+		loss_e_mean: float = 0.1,
+		loss_w_f   : float = 1.0,
+		loss_w_s   : float = 5.0,
+		loss_w_e   : float = 8.0,
+		loss_w_tv  : float = 20.0,
+		loss_w_de  : float = 1.0,
+		loss_w_c   : float = 5.0,
+		reduction  : Literal["none", "mean", "sum"] = "mean",
+		verbose    : bool = True,
 		*args, **kwargs
 	):
 		super().__init__(reduction=reduction, *args, **kwargs)
-		self.exp_weight   = exp_weight
-		self.spa_weight   = spa_weight
-		self.color_weight = color_weight
-		self.tv_weight    = tv_weight
-		self.depth_weight = depth_weight
-		self.edge_weight  = edge_weight
-		self.verbose      = verbose
+		self.loss_w_f   = loss_w_f
+		self.loss_w_s   = loss_w_s
+		self.loss_w_e   = loss_w_e
+		self.loss_w_tv  = loss_w_tv
+		self.loss_w_de  = loss_w_de
+		self.loss_w_c   = loss_w_c
+		self.verbose    = verbose
 		
-		self.exp_loss     = nn.ExposureControlLoss(16, exp_mean, reduction=reduction)
-		self.spa_loss     = nn.SpatialConsistencyLoss(8, reduction=reduction)
-		self.color_loss   = nn.ColorConstancyLoss(reduction=reduction)
-		self.tv_loss      = nn.TotalVariationLoss(reduction=reduction)
-		self.depth_loss   = nn.DepthWeightedSmoothnessLoss(reduction=reduction)
-		self.edge_loss    = nn.EdgeAwareLoss(reduction=reduction)
+		self.loss_e     = nn.ExposureValueControlLoss(16, loss_e_mean, reduction=reduction)
+		self.loss_tv    = nn.TotalVariationLoss(reduction=reduction)
+		self.loss_depth = nn.DepthWeightedSmoothnessLoss(reduction=reduction)
+		self.loss_edge  = nn.EdgeAwareLoss(reduction=reduction)
+		self.loss_c     = nn.ColorConstancyLoss(reduction=reduction)
 		
 	def forward(
 		self,
@@ -170,98 +169,27 @@ class Loss(nn.Loss):
 		d_lr    : torch.Tensor = None,
 		e_lr    : torch.Tensor = None,
 	) -> torch.Tensor:
-		exp_loss   = self.exp_weight   * self.exp_loss(input=enhanced)
-		spa_loss   = self.spa_weight   * self.spa_loss(input=enhanced, target=image)
-		color_loss = self.color_weight * self.color_loss(input=enhanced)
-		tv_loss    = self.tv_weight    * self.tv_loss(input=x_lr)
+		loss_f  = self.loss_w_f  * torch.mean(torch.abs(torch.pow(x_lr - v_lr, 2)))
+		loss_s  = self.loss_w_s  * torch.mean(enhanced)
+		loss_e  = self.loss_w_e  * torch.mean(self.loss_e(x_lr))
+		loss_tv = self.loss_w_tv * self.loss_tv(x_lr)
+		loss_c  = self.loss_w_c  * self.loss_c(enhanced)
+		loss_de = 0.0
 		if d_lr is not None:
-			depth_loss = self.depth_weight * self.depth_loss(x_lr, d_lr)
-		else:
-			depth_loss = 0
-		if e_lr is not None:
-			edge_loss  = self.edge_weight  *  self.edge_loss(x_lr, e_lr)
-		else:
-			edge_loss  = 0
-		loss = exp_loss + spa_loss + color_loss + tv_loss + depth_loss + edge_loss
-		'''
-		print(
-			f"exp_loss: {exp_loss:.4f}, "
-			f"spa_loss: {spa_loss:.4f}, "
-			f"color_loss: {color_loss:.4f}, "
-			f"tv_loss: {tv_loss:.4f}, "
-			f"depth_loss: {depth_loss:.4f}, "
-			f"edge_loss: {edge_loss:.4f}"
-		)
-		'''
-		return loss
-
-
-class LossHSV(nn.Loss):
-	
-	def __init__(
-		self,
-		exp_mean    : float = 0.1,
-		exp_weight  : float = 8.0,
-		spa_weight  : float = 1.0,
-		tv_weight   : float = 20.0,
-		spar_weight : float = 5.0,
-		depth_weight: float = 1.0,
-		edge_weight : float = 1.0,
-		color_weight: float = 5.0,
-		reduction   : Literal["none", "mean", "sum"] = "mean",
-		verbose     : bool = True,
-		*args, **kwargs
-	):
-		super().__init__(reduction=reduction, *args, **kwargs)
-		self.exp_weight   = exp_weight
-		self.spa_weight   = spa_weight
-		self.tv_weight    = tv_weight
-		self.spar_weight  = spar_weight
-		self.depth_weight = depth_weight
-		self.edge_weight  = edge_weight
-		self.color_weight = color_weight
-		self.verbose      = verbose
-		
-		self.exp_loss     = nn.ExposureValueControlLoss(16, exp_mean, reduction=reduction)
-		self.tv_loss      = nn.TotalVariationLoss(reduction=reduction)
-		self.depth_loss   = nn.DepthWeightedSmoothnessLoss(reduction=reduction)
-		self.edge_loss    = nn.EdgeAwareLoss(reduction=reduction)
-		self.color_loss   = nn.ColorConstancyLoss(reduction=reduction)
-		
-	def forward(
-		self,
-		image   : torch.Tensor,
-		enhanced: torch.Tensor,
-		v_lr    : torch.Tensor,
-		x_lr    : torch.Tensor,
-		z_lr    : torch.Tensor,
-		d_lr    : torch.Tensor = None,
-		e_lr    : torch.Tensor = None,
-	) -> torch.Tensor:
-		exp_loss   = self.exp_weight   * torch.mean(self.exp_loss(x_lr))
-		spa_loss   = self.spa_weight   * torch.mean(torch.abs(torch.pow(x_lr - v_lr, 2)))
-		tv_loss    = self.tv_weight    * self.tv_loss(x_lr)
-		spar_loss  = self.spar_weight  * torch.mean(enhanced)
-		color_loss = self.color_weight * self.color_loss(enhanced)
-		if d_lr is not None:
-			depth_loss = self.depth_weight * self.depth_loss(x_lr, d_lr)
-		else:
-			depth_loss = 0
-		if e_lr is not None:
-			edge_loss  = self.edge_weight  *  self.edge_loss(x_lr, e_lr)
-		else:
-			edge_loss  = 0
-		loss = exp_loss + spa_loss + tv_loss + spar_loss + color_loss + depth_loss + edge_loss
+			loss_de += self.loss_depth(x_lr, d_lr)
+		if  e_lr is not None:
+			loss_de += self.loss_edge(x_lr, e_lr)
+		loss_de = self.loss_w_de * loss_de
+		loss = loss_f + loss_s + loss_e + loss_tv + loss_de + loss_c
 		
 		if self.verbose:
 			console.log(
-				f"exp_loss: {exp_loss:.4f}, "
-				f"spa_loss: {spa_loss:.4f}, "
-				f"tv_loss: {tv_loss:.4f}, "
-				f"spar_loss: {spar_loss:.4f}, "
-				f"color_loss: {color_loss:.4f}, "
-				f"depth_loss: {depth_loss:.4f}, "
-				f"edge_loss: {edge_loss:.4f}"
+				f"loss_f: {loss_f:.4f}, "
+				f"loss_s: {loss_s:.4f}, "
+				f"loss_e: {loss_e:.4f}, "
+				f"loss_tv: {loss_tv:.4f}, "
+				f"loss_de: {loss_de:.4f}, "
+				f"loss_c: {loss_c:.4f}"
 			)
 		
 		return loss
@@ -565,15 +493,7 @@ class INF4(nn.Module):
 
 # region Model
 
-@MODELS.register(name="zero_linr_ff_finer", arch="zero_linr")
-@MODELS.register(name="zero_linr_ff_gauss", arch="zero_linr")
-@MODELS.register(name="zero_linr_ff_relu",  arch="zero_linr")
-@MODELS.register(name="zero_linr_ff_siren", arch="zero_linr")
-@MODELS.register(name="zero_linr_finer",    arch="zero_linr")
-@MODELS.register(name="zero_linr_gauss",    arch="zero_linr")
-@MODELS.register(name="zero_linr_relu",     arch="zero_linr")
-@MODELS.register(name="zero_linr_siren",    arch="zero_linr")
-@MODELS.register(name="zero_linr",          arch="zero_linr")
+@MODELS.register(name="zero_linr", arch="zero_linr")
 class ZeroLINR(base.ImageEnhancementModel):
 	
 	model_dir: core.Path    = current_dir
@@ -587,7 +507,7 @@ class ZeroLINR(base.ImageEnhancementModel):
 		name             : str          = "zero_linr",
 		# Model
 		mapping_func     : MAPPING_FUNC = "pvde",
-		window_size      : int          = 1,
+		window_size      : int          = 9,
 		down_size        : int          = 256,
 		num_layers       : int          = 4,
 		add_layers       : int          = 2,
@@ -596,32 +516,30 @@ class ZeroLINR(base.ImageEnhancementModel):
 		s_nonlinear      : INR_AF       = "finer",
 		use_ff           : bool         = True,
 		ff_gaussian_scale: float        = 10.0,
-		v_nonlinear      : INR_AF       = "sine",
+		v_nonlinear      : INR_AF       = "finer",
 		reduce_channels  : bool         = False,
-		depth_threshold  : float        = 0.7,
+		depth_threshold  : float        = 1.0,
 		edge_threshold   : float        = 0.05,
 		# Post-process
-		gf_radius        : int          = 1,
+		gf_radius        : int          = 7,
 		use_denoise      : bool         = False,
 		denoise_ksize    : list[float]  = (3, 3),
 		denoise_color    : float        = 0.5,
 		denoise_space    : list[float]  = (1.5, 1.5),
 		# Loss
-		loss_hsv         : bool         = True,
-		l_exp_mean       : float        = 0.7,
-		l_exp_weight     : float        = 10,
-		l_spa_weight     : float        = 1,
-		l_tv_weight      : float        = 20,
-		l_spar_weight    : float        = 5,
-		l_depth_weight   : float        = 1,
-		l_edge_weight    : float        = 1,
-		l_color_weight   : float        = 5,
+		loss_e_mean      : float        = 0.9,
+		loss_w_f         : float        = 1,
+		loss_w_s         : float        = 5,
+		loss_w_e         : float        = 8,
+		loss_w_tv        : float        = 20,
+		loss_w_de        : float        = 1,
+		loss_w_c         : float        = 5,
 		*args, **kwargs
 	):
 		super().__init__(name=name, *args, **kwargs)
 		self.mapping_func    = mapping_func
 		self.down_size       = down_size
-		self.depth_threshold = depth_threshold or 0.0
+		self.depth_threshold = depth_threshold
 		self.edge_threshold  = edge_threshold
 		self.gf_radius       = gf_radius
 		self.use_denoise     = use_denoise
@@ -632,31 +550,26 @@ class ZeroLINR(base.ImageEnhancementModel):
 		
 		# Model
 		if mapping_func in ["p"]:
-			inf = INF1_P
-			l_depth_weight = 0.0
-			l_edge_weight  = 0.0
+			inf       = INF1_P
+			loss_w_de = 0.0
 		elif mapping_func in ["v"]:
-			inf = INF1_V
-			l_depth_weight = 0.0
-			l_edge_weight  = 0.0
+			inf       = INF1_V
+			loss_w_de = 0.0
 		elif mapping_func in ["d"]:
-			inf = INF1_V
-			l_edge_weight  = 0.0
+			inf       = INF1_V
 		elif mapping_func in ["e"]:
-			inf = INF1_V
-			l_depth_weight = 0.0
+			inf       = INF1_V
+			loss_w_de = 0.0
 		elif mapping_func in ["pv"]:
-			inf = INF2
-			l_depth_weight = 0.0
-			l_edge_weight  = 0.0
+			inf       = INF2
+			loss_w_de = 0.0
 		elif mapping_func in ["pd"]:
-			inf = INF2
-			l_edge_weight  = 0.0
+			inf       = INF2
 		elif mapping_func in ["pe"]:
-			inf = INF2
-			l_depth_weight = 0.0
+			inf       = INF2
+			loss_w_de = 0.0
 		elif mapping_func in ["pvde"]:
-			inf = INF4
+			inf       = INF4
 		else:
 			raise ValueError(f"``mapping_func`` must be one of {MAPPING_FUNC}, but got: {mapping_func}.")
 		self.inf = inf(
@@ -675,27 +588,15 @@ class ZeroLINR(base.ImageEnhancementModel):
 		)
 		
 		# Loss
-		if loss_hsv:
-			self.loss = LossHSV(
-				exp_mean     = 1.0 - l_exp_mean,
-				exp_weight   = l_exp_weight,
-				spa_weight   = l_spa_weight,
-				tv_weight    = l_tv_weight,
-				spar_weight  = l_spar_weight,
-				depth_weight = l_depth_weight,
-				edge_weight  = l_edge_weight,
-				color_weight = l_color_weight,
-			)
-		else:
-			self.loss = Loss(
-				exp_mean     = l_exp_mean,
-				exp_weight   = l_exp_weight,
-				spa_weight   = l_spa_weight,
-				color_weight = l_color_weight,
-				tv_weight    = l_tv_weight,
-				depth_weight = l_depth_weight,
-				edge_weight  = l_edge_weight,
-			)
+		self.loss = Loss(
+			loss_e_mean = loss_e_mean,  # 1.0 - loss_e_mean,
+			loss_w_f    = loss_w_f,
+			loss_w_s    = loss_w_s,
+			loss_w_e    = loss_w_e,
+			loss_w_tv   = loss_w_tv,
+			loss_w_de   = loss_w_de,
+			loss_w_c    = loss_w_c,
+		)
 		
 		# Load weights
 		if self.weights:

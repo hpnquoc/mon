@@ -46,7 +46,7 @@ model = {
 	"use_ff"           : True,           # Use Fourier Feature embedding for the spatial branch. Default: True.
 	"ff_gaussian_scale": 10.0,           # For Fourier Feature embedding. Default: 10.0.
 	"v_nonlinear"      : "finer",        # Activation function for the pixel value branch. Default: "sine".
-	"reduce_channels"  : False,          # Reduce the output channels of input encoders.
+	"reduce_channels"  : False,          # Reduce the output channels of input encoders. Default: False.
 	"depth_threshold"  : 1.0,            # For adjusting the learned residual. Default: 1.0.
 	"edge_threshold"   : 0.05,           # Edge threshold. Default: 0.05.
 	# Post-process
@@ -56,16 +56,14 @@ model = {
 	"denoise_color"    : 0.1,            # For denoising. Default: 0.1.
 	"denoise_space"    : (1.5, 1.5),     # For denoising. Default: (1.5, 1.5).
 	# Loss
-	"loss_hsv"         : True,           # Use HSV loss. Default: True.
-	"l_exp_mean"       : 1.1,            # Default: 1.1.
-	"l_exp_weight"     : 8,              # Default: 8.
-	"l_spa_weight"	   : 1,              # Default: 1.
-	"l_tv_weight"      : 20,             # Default: 20.
-	"l_spar_weight"	   : 5,              # Default: 5.
-	"l_depth_weight"   : 1,              # Default: 1.
-	"l_edge_weight"    : 1,              # Default: 1.
-	"l_color_weight"   : 5,              # Default: 5.
-	#
+	"loss_e_mean"      : -0.5,           # Default: -0.4.
+	"loss_w_f"         : 1,              # Default: 1.
+	"loss_w_s"         : 5,              # Default: 5.
+	"loss_w_e"         : 8,              # Default: 8.
+	"loss_w_tv"        : 20,             # Default: 20.
+	"loss_w_de"        : 1,              # Default: 1.
+	"loss_w_c"         : 5,              # Default: 5.
+	# Training
 	"weights"          : None,           # The model's weights.
 	"metrics"          : {
 		"train": None,
