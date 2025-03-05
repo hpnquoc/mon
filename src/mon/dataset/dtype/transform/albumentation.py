@@ -16,7 +16,6 @@ from typing import Literal
 import albumentations
 from albumentations import *
 from albumentations.augmentations.geometric import functional as fgeometric
-from albumentations.core.pydantic import InterpolationType, ProbabilityType
 from albumentations.core.transforms_interface import (
 	BaseTransformInitSchema,
 	DualTransform,
@@ -137,8 +136,8 @@ class ResizeMultipleOf(DualTransform):
 	_targets = (Targets.IMAGE, Targets.MASK, Targets.KEYPOINTS, Targets.BBOXES)
 	
 	class InitSchema(BaseTransformInitSchema):
-		height           : int  = Field(ge=1,                 description="Desired height of the output.")
-		width            : int  = Field(ge=1,                 description="Desired width of the output.")
+		height           : int  = Field(ge=1,          description="Desired height of the output.")
+		width            : int  = Field(ge=1,          description="Desired width of the output.")
 		keep_aspect_ratio: bool = Field(False,         description="Keep the aspect ratio of the input sample.")
 		multiple_of      : int  = Field(1,             description="Output height and width are constrained to be multiple of this parameter.")
 		resize_method	 : str  = Field("lower_bound", description="Resize method.")

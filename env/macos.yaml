@@ -46,6 +46,7 @@ dependencies:
       - opencv-python          # Computer vision and machine learning software library.
       - opencv-contrib-python  # Wrapper package for OpenCV python bindings.
       - Pillow                 # Python Imaging Library (Fork).
+      - pillow_heif            # Python interface for libheif library.
       - pycocotools            # COCO dataset and evaluation metrics for object detection, instance segmentation, and person keypoint detection.
       - pyiqa                  # PyTorch Toolbox for Image Quality Assessment.
       - rawpy                  # rawpy is an easy-to-use Python wrapper for the LibRaw library. It also contains some extra functionality for finding and repairing hot/dead pixels.

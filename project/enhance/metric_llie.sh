@@ -32,8 +32,8 @@ data=(
     # "fivek_e"
     ### SICE Set
     "sice"
-    # "sice_grad"
-    # "sice_mix"
+    "sice_grad"
+    "sice_mix"
     ### Camera-Specific Set
     # "sid_sony"
     ### Real-World Set
