@@ -12,7 +12,7 @@ current_file = mon.Path(__file__).absolute()
 # region Basic
 
 model_name   = "zero_linr"
-data_name    = "lol_v1"
+data_name    = "fivek"
 root         = mon.ROOT_DIR / "project" / "run"
 data_root    = mon.DATA_DIR / "enhance"
 project      = None
@@ -20,7 +20,7 @@ variant      = None
 fullname     = f"{model_name}_{data_name}"
 image_size   = [512, 512]
 seed         = 100
-use_fullname = False
+use_fullname = True
 verbose      = True
 
 # endregion
@@ -51,18 +51,18 @@ model = {
 	"edge_threshold"   : 0.05,           # Edge threshold. Default: 0.05.
 	# Post-process
 	"gf_radius"        : 7,              # Radius of the guided filter. Default: 7.
-	"use_denoise"      : True,           # Use denoising. Default: True.
+	"use_denoise"      : False,          # Use denoising. Default: False.
 	"denoise_ksize"    : (3, 3),         # For denoising. Default: (3, 3).
 	"denoise_color"    : 0.1,            # For denoising. Default: 0.1.
 	"denoise_space"    : (1.5, 1.5),     # For denoising. Default: (1.5, 1.5).
 	# Loss
-	"loss_e_mean"      : -0.3,           # Default: -0.3.
+	"loss_e_mean"      : 0.3,            # Default: 0.3.
 	"loss_w_f"         : 1,              # Default: 1.
 	"loss_w_s"         : 5,              # Default: 5.
 	"loss_w_e"         : 8,              # Default: 8.
-	"loss_w_tv"        : 20,             # Default: 20.
-	"loss_w_de"        : 1,              # Default: 1.
-	"loss_w_c"         : 5,              # Default: 5.
+	"loss_w_tv"        : 0,              # Default: 20.
+	"loss_w_de"        : 0,              # Default: 1.
+	"loss_w_c"         : 0,              # Default: 5.
 	# Training
 	"weights"          : None,           # The model's weights.
 	"metrics"          : {
@@ -112,17 +112,15 @@ trainer = default.trainer | {
 	"callbacks"        : [
 		default.log_training_progress,
 		default.model_checkpoint | {
-			"filename"         : fullname,
-			"monitor"          : "val/psnr",
-			"mode"             : "max",
-			"save_weights_only": True,
+			"filename": fullname,
+			"monitor" : "val/psnr",
+			"mode"    : "max",
 		},
 		default.model_checkpoint | {
-			"filename"         : fullname,
-			"monitor"          : "val/ssim",
-			"mode"             : "max",
-			"save_last"        : True,
-			"save_weights_only": True,
+			"filename" : fullname,
+			"monitor"  : "val/ssim",
+			"mode"     : "max",
+			"save_last": True,
 		},
 		default.learning_rate_monitor,
 		default.rich_model_summary,
