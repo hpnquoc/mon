@@ -12,7 +12,7 @@ data_dir="${mon_dir}/data/enhance"
 
 # Input
 arch="zero_linr"
-model="zero_linr"
+model="zero_linr_wo_loss_de"
 data=(
     ### Unpaired Set
     # "dicm"
@@ -21,9 +21,9 @@ data=(
     # "npe"
     # "vv"
     ### LOLs Set
-    "lol_v1"
-    # "lol_v2_real"
-    # "lol_v2_synthetic"
+    # "lol_v1"
+    "lol_v2_real"
+    "lol_v2_synthetic"
     ### FiveK Set
     # "fivek_a"
     # "fivek_b"
@@ -31,9 +31,9 @@ data=(
     # "fivek_d"
     # "fivek_e"
     ### SICE Set
-    "sice"
-    "sice_grad"
-    "sice_mix"
+    # "sice"
+    # "sice_grad"
+    # "sice_mix"
     ### Camera-Specific Set
     # "sid_sony"
     ### Real-World Set

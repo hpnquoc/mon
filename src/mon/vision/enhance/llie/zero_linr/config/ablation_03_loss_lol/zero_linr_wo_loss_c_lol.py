@@ -20,7 +20,7 @@ variant      = None
 fullname     = f"{model_name}_{data_name}"
 image_size   = [512, 512]
 seed         = 100
-use_fullname = False
+use_fullname = True
 verbose      = True
 
 # endregion

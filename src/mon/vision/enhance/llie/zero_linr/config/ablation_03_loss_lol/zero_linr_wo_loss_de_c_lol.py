@@ -20,7 +20,7 @@ variant      = None
 fullname     = f"{model_name}_{data_name}"
 image_size   = [512, 512]
 seed         = 100
-use_fullname = False
+use_fullname = True
 verbose      = True
 
 # endregion
@@ -58,11 +58,11 @@ model = {
 	# Loss
 	"loss_e_mean"      : -0.3,           # Default: -0.3.
 	"loss_w_f"         : 1,              # Default: 1.
-	"loss_w_s"         : 0,              # Default: 5.
+	"loss_w_s"         : 5,              # Default: 5.
 	"loss_w_e"         : 8,              # Default: 8.
 	"loss_w_tv"        : 20,             # Default: 20.
-	"loss_w_de"        : 1,              # Default: 1.
-	"loss_w_c"         : 5,              # Default: 5.
+	"loss_w_de"        : 0,              # Default: 1.
+	"loss_w_c"         : 0,              # Default: 5.
 	# Training
 	"weights"          : None,           # The model's weights.
 	"metrics"          : {

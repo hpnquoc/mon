@@ -50,7 +50,7 @@ model = {
 	"depth_threshold"  : 1.0,            # For adjusting the learned residual. Default: 1.0.
 	"edge_threshold"   : 0.05,           # Edge threshold. Default: 0.05.
 	# Post-process
-	"gf_radius"        : 9,              # Radius of the guided filter. Default: 7.
+	"gf_radius"        : 7,              # Radius of the guided filter. Default: 7.
 	"use_denoise"      : True,           # Use denoising. Default: False.
 	"denoise_ksize"    : (3, 3),         # For denoising. Default: (3, 3).
 	"denoise_color"    : 0.1,            # For denoising. Default: 0.1.
