@@ -56,13 +56,13 @@ model = {
 	"denoise_color"    : 0.1,            # For denoising. Default: 0.1.
 	"denoise_space"    : (1.5, 1.5),     # For denoising. Default: (1.5, 1.5).
 	# Loss
-	"loss_e_mean"      : -0.6,           # Default: -0.4.
+	"loss_e_mean"      : -0.4,           # Default: -0.4.
 	"loss_w_f"         : 1,              # Default: 1.
 	"loss_w_s"         : 5,              # Default: 5.
 	"loss_w_e"         : 8,              # Default: 8.
 	"loss_w_tv"        : 20,             # Default: 20.
 	"loss_w_de"        : 1,              # Default: 1.
-	"loss_w_c"         : 5,              # Default: 5.
+	"loss_w_c"         : 0,              # Default: 0.
 	# Training
 	"weights"          : None,           # The model's weights.
 	"metrics"          : {

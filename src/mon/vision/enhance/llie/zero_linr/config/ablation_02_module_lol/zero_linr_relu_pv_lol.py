@@ -12,14 +12,14 @@ current_file = mon.Path(__file__).absolute()
 # region Basic
 
 model_name   = "zero_linr"
-data_name    = ""
+data_name    = "lol_v1"
 root         = mon.ROOT_DIR / "project" / "run"
 data_root    = mon.DATA_DIR / "enhance"
 project      = None
 variant      = None
 fullname     = f"{model_name}_{data_name}"
 image_size   = [512, 512]
-seed	     = 100
+seed         = 100
 use_fullname = True
 verbose      = True
 
@@ -35,28 +35,28 @@ model = {
 	# Model
 	"in_channels"      : 3,              # The first layer's input channel.
 	"out_channels"     : None,           # A number of classes, which is also the last layer's output channels.
-	"mapping_func"     : "pvde",         # One of: ["p", "v", "d", "e", "pv", "pd", "pe", "pvde"]. Default: "pvde"
-	"window_size"      : 1,              # Context window size. Default: 1
-	"down_size"        : 256,            # Input image size. Default: 256
-	"num_layers"       : 4,              # Total layer's depth. Default: 4
-	"add_layers"       : 2,              # Number of layers for output branch. Default: 2
-	"omega_0"          : 30.0,           # Default: 30.0
-	"first_bias_scale" : None,           # For "finer". Default: 20.0
-	"s_nonlinear"      : "finer",        # Activation function for the spatial branch. Default: "finer"
-	"use_ff"           : True,           # Use Fourier Feature embedding for the spatial branch. Default: True
-	"ff_gaussian_scale": 10.0,           # For Fourier Feature embedding. Default: 10.0
-	"v_nonlinear"      : "finer",        # Activation function for the pixel value branch. Default: "sine"
-	"reduce_channels"  : False,          # Reduce the output channels of input encoders.
-	"depth_threshold"  : 0.0,            # For adjusting the learned residual. Default: 0.7
-	"edge_threshold"   : 0.05,           # Edge threshold. Default: 0.05
+	"mapping_func"     : "pv",           # One of: ["p", "v", "d", "e", "pv", "pd", "pe", "pvde"]. Default: "pv".
+	"window_size"      : 9,              # Context window size. Default: 9.
+	"down_size"        : 256,            # Input image size. Default: 256.
+	"num_layers"       : 4,              # Total layer's depth. Default: 4.
+	"add_layers"       : 2,              # Number of layers for output branch. Default: 2.
+	"omega_0"          : 30.0,           # Default: 30.0.
+	"first_bias_scale" : 20.0,           # For "finer". Default: 20.0.
+	"s_nonlinear"      : "relu",         # Activation function for the spatial branch. Default: "relu".
+	"use_ff"           : False,          # Use Fourier Feature embedding for the spatial branch. Default: False.
+	"ff_gaussian_scale": 10.0,           # For Fourier Feature embedding. Default: 10.0.
+	"v_nonlinear"      : "relu",         # Activation function for the pixel value branch. Default: "relu".
+	"reduce_channels"  : False,          # Reduce the output channels of input encoders. Default: False.
+	"depth_threshold"  : 1.0,            # For adjusting the learned residual. Default: 1.0.
+	"edge_threshold"   : 0.05,           # Edge threshold. Default: 0.05.
 	# Post-process
-	"gf_radius"        : 7,              # Radius of the guided filter. Default: 1
-	"use_denoise"      : False,          # Use denoising. Default: False
-	"denoise_ksize"    : (3, 3),         # For denoising. Default: (3, 3)
-	"denoise_color"    : 0.1,            # For denoising. Default: 0.1
-	"denoise_space"    : (1.5, 1.5),     # For denoising. Default: (1.5, 1.5)
+	"gf_radius"        : 7,              # Radius of the guided filter. Default: 7.
+	"use_denoise"      : True,           # Use denoising. Default: True.
+	"denoise_ksize"    : (3, 3),         # For denoising. Default: (3, 3).
+	"denoise_color"    : 0.1,            # For denoising. Default: 0.1.
+	"denoise_space"    : (1.5, 1.5),     # For denoising. Default: (1.5, 1.5).
 	# Loss
-	"loss_e_mean"      : 0.1,            # Default: 0.1.
+	"loss_e_mean"      : -0.3,           # Default: -0.3.
 	"loss_w_f"         : 1,              # Default: 1.
 	"loss_w_s"         : 5,              # Default: 5.
 	"loss_w_e"         : 8,              # Default: 8.
@@ -112,15 +112,17 @@ trainer = default.trainer | {
 	"callbacks"        : [
 		default.log_training_progress,
 		default.model_checkpoint | {
-			"filename": fullname,
-			"monitor" : "val/psnr",
-			"mode"    : "max",
+			"filename"         : fullname,
+			"monitor"          : "val/psnr",
+			"mode"             : "max",
+			"save_weights_only": True,
 		},
 		default.model_checkpoint | {
-			"filename" : fullname,
-			"monitor"  : "val/ssim",
-			"mode"     : "max",
-			"save_last": True,
+			"filename"         : fullname,
+			"monitor"          : "val/ssim",
+			"mode"             : "max",
+			"save_last"        : True,
+			"save_weights_only": True,
 		},
 		default.learning_rate_monitor,
 		default.rich_model_summary,
