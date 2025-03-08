@@ -63,7 +63,7 @@ class NTIRE2025LLIE(MultimodalDataset):
 			]
 		elif self.split in [Split.TEST]:
 			patterns = [
-				self.root / "ntire_2025_llie" / "val" / "image",
+				self.root / "ntire_2025_llie" / "test" / "image",
 			]
 		else:
 			raise ValueError

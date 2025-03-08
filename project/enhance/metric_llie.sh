@@ -12,7 +12,7 @@ data_dir="${mon_dir}/data/enhance"
 
 # Input
 arch="zero_linr"
-model="zero_linr_wo_loss_s"
+model="zero_linr_numlayers_6_addlayers_3_fivek"
 data=(
     ### Unpaired Set
     # "dicm"
@@ -29,9 +29,9 @@ data=(
     # "fivek_b"
     # "fivek_c"
     # "fivek_d"
-    # "fivek_e"
+    "fivek_e"
     ### SICE Set
-    "sice"
+    # "sice"
     # "sice_grad"
     # "sice_mix"
     ### Camera-Specific Set

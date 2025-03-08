@@ -1,16 +1,18 @@
 # !/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import kornia
 import torch
 
 import mon
 
 data_name   = "lol_v1"
 split       = "test"
-ref_ext     = ".png
+ref_ext     = ".png"
+use_gf      = True
 input_dir   = mon.DATA_DIR / "enhance" / data_name / split / "image"
 ref_dir     = mon.DATA_DIR / "enhance" / data_name / split / "ref"
-output_dir  = mon.Path(f"run/predict/zero_linr/zero_linr_ref_v/{data_name}")
+output_dir  = mon.Path(f"run/predict/zero_linr/zero_linr_ref_v_gf/{data_name}")
 
 # List image files
 image_files = list(input_dir.rglob("*"))
@@ -38,7 +40,8 @@ with mon.get_progress_bar() as pbar:
             ref_hsv = mon.resize(image_hsv, (h0, w0))
         image_hsv[:, -1, :, :] = ref_hsv[:, -1, :, :]
         output    = mon.hsv_to_rgb(image_hsv)
-        # output    = kornia.filters.bilateral_blur(output, (3, 3), 0.5, (1.5, 1.5))
+        if use_gf:
+            output = kornia.filters.bilateral_blur(output, (3, 3), 0.5, (1.5, 1.5))
         # Output
         output_path = output_dir / f"{image_file.stem}.png"
         output_path.parent.mkdir(parents=True, exist_ok=True)
