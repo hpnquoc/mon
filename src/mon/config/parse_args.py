@@ -234,7 +234,7 @@ def parse_predict_args(model_root: str | core.Path = None) -> argparse.Namespace
     
     # Parse arguments
     if "run/train/" in str(save_dir):
-        save_dir.replace("run/train/", "")
+        save_dir = save_dir.replace("run/train/", "")
     if save_dir in [None, ""]:
         if use_fullname:
             save_dir = core.parse_save_dir(root/"run"/"predict", arch, fullname, None, project, variant)
