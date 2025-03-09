@@ -12,7 +12,7 @@ using Neural Implicit Representations".
 from __future__ import annotations
 
 __all__ = [
-	"SLINR",
+	# "SLINR",
 	"ZeroLINR",
 ]
 
@@ -765,7 +765,7 @@ class ZeroLINR(base.ImageEnhancementModel):
 		return outputs
 
 
-@MODELS.register(name="s_linr", arch="s_linr")
+# @MODELS.register(name="s_linr", arch="s_linr")
 class SLINR(base.ImageEnhancementModel):
 	
 	model_dir: core.Path    = current_dir
