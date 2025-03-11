@@ -5,8 +5,6 @@
 
 This module implement our idea: "Zero-Shot Low-light Image Enhancement Network
 using Neural Implicit Representations".
-
-
 """
 
 from __future__ import annotations
@@ -771,7 +769,7 @@ class SLINR(base.ImageEnhancementModel):
 	model_dir: core.Path    = current_dir
 	arch     : str          = "s_linr"
 	tasks    : list[Task]   = [Task.LLIE]
-	schemes  : list[Scheme] = [Scheme.SUPERVISED, Scheme.INSTANCE]
+	schemes  : list[Scheme] = [Scheme.SUPERVISED]
 	zoo      : dict         = {}
 	
 	def __init__(

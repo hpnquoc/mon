@@ -11,7 +11,6 @@ import torchvision
 
 import mon
 from models import create_model
-from options.test_options import TestOptions
 
 console      = mon.console
 current_file = mon.Path(__file__).absolute()

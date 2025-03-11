@@ -11,8 +11,8 @@ runml_dir="${project_dir}/runml"
 data_dir="${mon_dir}/data/enhance"
 
 # Input
-arch="zero_linr"
-model="zero_linr"
+arch="io"
+model="ref"
 data=(
     ### Unpaired Set
     # "dicm"
@@ -29,7 +29,7 @@ data=(
     # "fivek_b"
     # "fivek_c"
     # "fivek_d"
-    "fivek_e"
+    # "fivek_e"
     ### SICE Set
     # "sice"
     # "sice_grad"
@@ -37,10 +37,10 @@ data=(
     ### Camera-Specific Set
     # "sid_sony"
     ### Real-World Set
-    # "darkcityscapes"
+    "darkcityscapes"
     # "darkface"
     # "exdark"
-    # "loli_street_val"
+    "loli_street_val"
     # "loli_street_test"
     # "nightcity"
 )

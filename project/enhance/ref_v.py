@@ -6,13 +6,14 @@ import torch
 
 import mon
 
-data_name   = "lol_v1"
+data_name   = "darkcityscapes"
 split       = "test"
 ref_ext     = ".png"
-use_gf      = True
+use_gf      = False
 input_dir   = mon.DATA_DIR / "enhance" / data_name / split / "image"
 ref_dir     = mon.DATA_DIR / "enhance" / data_name / split / "ref"
-output_dir  = mon.Path(f"run/predict/zero_linr/zero_linr_ref_v_gf/{data_name}")
+output_dir  = "ref_v_gf" if use_gf else "ref_v"
+output_dir  = mon.Path(f"run/predict/io/{output_dir}/{data_name}")
 
 # List image files
 image_files = list(input_dir.rglob("*"))

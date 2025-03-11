@@ -31,7 +31,7 @@ from torch.nn import functional as F
 
 from mon.nn.modules import activation as act
 
-INR_AF = Literal["sigmoid", "tanh", "relu", "sine", "gauss", "finer", "wire"]
+INR_AF = Literal["sigmoid", "tanh", "relu", "sine", "gauss", "wire", "finer"]
 
 
 # region Utils
@@ -359,7 +359,12 @@ class ComplexGaborLayer(nn.Module):
         return torch.exp(1j * omega - scale.abs().square())
 
 
-class PositionalEncoding(nn.Module):
+class PositionalEncodingLayer(nn.Module):
+    """Layer used in PEMLP.
+    
+    References:
+        https://github.com/liuzhen0212/FINER/blob/main/models.py
+    """
     
     def __init__(
         self,
@@ -388,7 +393,7 @@ class PositionalEncoding(nn.Module):
 
 class INRLayer(nn.Module):
     """INR Layer with different nonlinear layers. The layer consists of:
-    (linear + non-linear) + dropout.
+    (linear + activation function) + dropout.
     
     Args:
         in_channels: The number of input channels.
@@ -410,7 +415,7 @@ class INRLayer(nn.Module):
         self,
         in_channels     : int,
         out_channels    : int,
-        nonlinear       : Literal["sigmoid", "tanh", "relu", "sine", "gauss", "finer", "wire"] = "sine",
+        nonlinear       : Literal["sigmoid", "tanh", "relu", "sine", "gauss", "wire", "finer"] = "sine",
         omega_0         : float = 30.0,
         scale           : float = 10.0,
         first_bias_scale: float = None,
@@ -457,6 +462,14 @@ class INRLayer(nn.Module):
                 scale        = scale,
                 bias         = bias,
             )
+        elif nonlinear == "wire":
+            self.nonlinear = ComplexGaborLayer(
+                in_channels  = in_channels,
+                out_channels = out_channels,
+                omega_0      = omega_0,
+                is_first     = is_first,
+                bias         = bias,
+            )
         elif nonlinear == "finer":
             self.nonlinear = FINERLayer(
                 in_channels      = in_channels,
@@ -466,14 +479,6 @@ class INRLayer(nn.Module):
                 is_first         = is_first,
                 bias             = bias,
                 scale_req_grad   = False,
-            )
-        elif nonlinear == "wire":
-            self.nonlinear = ComplexGaborLayer(
-                in_channels  = in_channels,
-                out_channels = out_channels,
-                omega_0      = omega_0,
-                is_first     = is_first,
-                bias         = bias,
             )
         else:
             raise ValueError(f"Non-linearity '{nonlinear}' is not supported.")
@@ -657,7 +662,7 @@ class PEMLP(nn.Module):
         super().__init__()
         self.hidden_channels = hidden_channels
         self.hidden_layers   = hidden_layers
-        self.encoding        = PositionalEncoding(in_channels=in_channels, N_freqs=N_freqs)
+        self.encoding        = PositionalEncodingLayer(in_channels=in_channels, N_freqs=N_freqs)
         
         self.net = []
         self.net.append(nn.Linear(self.encoding.out_channels, hidden_channels))
@@ -674,6 +679,6 @@ class PEMLP(nn.Module):
     def forward(self, image: torch.Tensor) -> torch.Tensor:
         h, w   = get_image_size(image)
         coords = get_coords((h, w)).to(image.device)
-        return self.net(coords)
+        return self.net(self.enconding(coords))
 
 # endregion
