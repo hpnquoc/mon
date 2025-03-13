@@ -12,7 +12,7 @@ data_dir="${mon_dir}/data/enhance"
 
 # Input
 arch="esdnet_snn"
-model="esdnet_snn_lol_v1"
+model="esdnet_snn_lol_v2_real"
 data=(
     ### Unpaired Set
     # "dicm"
@@ -37,11 +37,11 @@ data=(
     ### Camera-Specific Set
     # "sid_sony"
     ### Real-World Set
-    # "darkcityscapes"
-    # "darkface"
+    "darkcityscapes"
+    "darkface"
     # "exdark"
-    # "loli_street_test"
-    # "loli_street_val"
+    "loli_street_test"
+    "loli_street_val"
     "nightcity"
 )
 device="cuda:0"

@@ -1,13 +1,19 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 """
-Copyright (C) 2018 NVIDIA Corporation.  All rights reserved.
-Licensed under the CC BY-NC-SA 4.0 license (https://creativecommons.org/licenses/by-nc-sa/4.0/legalcode).
+Reference:
+    https://github.com/RPM-Robotics-Lab/sRGB-TIR
 """
 
-from __future__ import print_function
+from __future__ import annotations, print_function
 
 import argparse
+import os
+import sys
 
 import numpy as np
+import torch
 import torch.nn.functional as F
 import torchvision.utils as vutils
 from scipy.stats import entropy
@@ -20,15 +26,6 @@ from utils import (
     get_config, get_data_loader_folder, load_inception,
     pytorch03_to_pytorch04,
 )
-
-try:
-    from itertools import izip as zip
-except ImportError:  # will be 3.x series
-    pass
-import sys
-import torch
-import os
-
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--config",        type=str, default="configs/edges2handbags_folder", help="Path to the config file.")

@@ -29,7 +29,7 @@ MultimodalDataset   = dtype.MultimodalDataset
 class DarkCityscapes(MultimodalDataset):
     """DarkCityscapes dataset consists of 150 pair low/normal-light images."""
     
-    tasks : list[Task]  = [Task.LLIE, Task.DETECT]
+    tasks : list[Task]  = [Task.LLIE, Task.SEGMENT]
     splits: list[Split] = [Split.TEST]
     datapoint_attrs     = DatapointAttributes({
         "image"    : ImageAnnotation,

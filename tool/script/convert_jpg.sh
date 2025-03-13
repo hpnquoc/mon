@@ -13,8 +13,8 @@ mon_dir=$(dirname "$tool_dir")          # mon/
 data_dir="${mon_dir}/data"              # mon/data/
 
 # Define the directory where you want to perform the recursive image conversion
-directory="/media/longpham/hdd_01/50_archives/20_projects/hcmc_tss_2013_2017"
-# directory="${data_dir}/mix_aicity_kodas"
+directory="/media/longpham/hdd_01/50_archives/30_areas/higher_study"
+# directory="${data_dir}/auto_sensor_2018_2021/code"
 
 # Replace "-" with "_" in directory names (recursively)
 cd "${directory}" || exit
