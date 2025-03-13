@@ -37,11 +37,11 @@ data=(
     ### Camera-Specific Set
     # "sid_sony"
     ### Real-World Set
-    "darkcityscapes"
-    "darkface"
+    # "darkcityscapes"
+    # "darkface"
     # "exdark"
-    "loli_street_test"
-    "loli_street_val"
+    # "loli_street_test"
+    # "loli_street_val"
     "nightcity"
 )
 device="cuda:0"

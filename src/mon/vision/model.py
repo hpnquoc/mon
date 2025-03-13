@@ -20,7 +20,6 @@ import torch
 from fvcore.nn import parameter_count
 
 from mon import core, nn
-from mon.vision import dtype, geometry
 
 console = core.console
 
@@ -45,7 +44,8 @@ class VisionModel(nn.Model, ABC):
         of parameters, and runtime.
         """
         # Define input tensor
-        h, w      = dtype.get_image_size(image_size)
+        from mon.vision.dtype import image as I
+        h, w      = I.get_image_size(image_size)
         datapoint = {"image": torch.rand(1, channels, h, w).to(self.device)}
         
         # Get FLOPs and Params
@@ -95,12 +95,15 @@ class VisionModel(nn.Model, ABC):
             resize: Resize the input image to the model's input size.
                 Default: ``False``.
         """
+        from mon.vision.dtype import image as I
+        from mon.vision import geometry
+        
         # Pre-processing
         self.assert_datapoint(datapoint)
         image  = datapoint.get("image")
-        h0, w0 = dtype.get_image_size(image)
+        h0, w0 = I.get_image_size(image)
         for k, v in datapoint.items():
-            if dtype.is_image(v):
+            if I.is_image(v):
                 if resize:
                     datapoint[k] = geometry.resize(v, image_size)
                 else:
@@ -118,8 +121,8 @@ class VisionModel(nn.Model, ABC):
         
         # Post-processing
         for k, v in outputs.items():
-            if dtype.is_image(v):
-                h1, w1 = dtype.get_image_size(v)
+            if I.is_image(v):
+                h1, w1 = I.get_image_size(v)
                 if h1 != h0 or w1 != w0:
                     outputs[k] = geometry.resize(v, (h0, w0))
         
