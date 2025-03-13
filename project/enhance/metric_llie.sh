@@ -11,8 +11,8 @@ runml_dir="${project_dir}/runml"
 data_dir="${mon_dir}/data/enhance"
 
 # Input
-arch="io"
-model="ref"
+arch="esdnet_snn"
+model="esdnet_snn_lol_v1"
 data=(
     ### Unpaired Set
     # "dicm"
@@ -38,11 +38,11 @@ data=(
     # "sid_sony"
     ### Real-World Set
     "darkcityscapes"
-    # "darkface"
+    "darkface"
     # "exdark"
+    "loli_street_test"
     "loli_street_val"
-    # "loli_street_test"
-    # "nightcity"
+    "nightcity"
 )
 device="cuda:0"
 
