@@ -143,11 +143,22 @@ def train(args: argparse.Namespace):
     
     # start training
     console.log(f"****Start training!!!****")
-    avg_train_loss = 0
+    best_loss = 100.0
     for epoch in range(args.TRAIN["LOAD_EPOCH"] + 1, args.SOLVER["EPOCHS"] + 1):
         learning_rate, avg_train_loss, iters = train_epoch(args, train_img_loader, model, model_fn, optimizer, epoch, iters, lr_scheduler)
         logger.add_scalar("train/avg_loss",      avg_train_loss, epoch)
         logger.add_scalar("train/learning_rate", learning_rate,  epoch)
+        
+        # Save the best model
+        if avg_train_loss < best_loss:
+            best_loss = avg_train_loss
+            torch.save({
+                "learning_rate": learning_rate,
+                "iters"        : iters,
+                "optimizer"    : optimizer.state_dict(),
+                "state_dict"   : model.state_dict()
+            }, weights_dir / "best.ckpt")
+            torch.save(model.state_dict(), weights_dir / "best.pt")
         
         # Save the latest model
         torch.save({

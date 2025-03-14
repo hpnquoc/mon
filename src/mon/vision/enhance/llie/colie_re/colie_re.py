@@ -318,7 +318,7 @@ class CoLIE_RE(base.ImageEnhancementModel):
     def infer(
         self,
         datapoint    : dict,
-        epochs       : int   = 200,
+        epochs       : int   = 100,
         lr           : float = 1e-5,
         weight_decay : float = 3e-4,
         reset_weights: bool  = True,
