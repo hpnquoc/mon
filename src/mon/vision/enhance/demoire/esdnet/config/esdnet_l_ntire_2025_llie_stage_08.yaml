@@ -8,9 +8,9 @@ data_dir    : "data/ntire/ntire_2025_llie"
 root        : ~
 project     : ~
 variant     : ~
-fullname    : "esdnet_l_ntire_2025_llie_stage_8"
-save_dir    : "run/train/esdnet/esdnet_l/ntire_2025_llie_stage_8"
-weights     : "run/train/esdnet/esdnet_l/ntire_2025_llie_stage_7/last.ckpt"
+fullname    : "esdnet_l_ntire_2025_llie_stage_08"
+save_dir    : "run/train/esdnet/esdnet_l/ntire_2025_llie_stage_08"
+weights     : "run/train/esdnet/esdnet_l/ntire_2025_llie_stage_07/last.ckpt"
 device      : 0
 local_rank  : -1
 launcher    : ~

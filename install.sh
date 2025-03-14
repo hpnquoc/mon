@@ -144,7 +144,6 @@ setup_resilio_sync() {
 
 
 # region Main
-
 echo "$HOSTNAME"
 
 # Directory

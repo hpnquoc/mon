@@ -8,13 +8,13 @@ data_dir    : "data/ntire/ntire_2025_llie"
 root        : ~
 project     : ~
 variant     : ~
-fullname    : "esdnet_l_ntire_2025_llie_stage_2"
-save_dir    : "run/train/esdnet/esdnet_l/ntire_2025_llie_stage_2"
-weights     : "run/train/esdnet/esdnet_l/ntire_2025_llie_stage_1/last.ckpt"
+fullname    : "esdnet_l_ntire_2025_llie_stage_09"
+save_dir    : "run/train/esdnet/esdnet_l/ntire_2025_llie_stage_09"
+weights     : "run/train/esdnet/esdnet_l/ntire_2025_llie_stage_08a/last.ckpt"
 device      : 0
 local_rank  : -1
 launcher    : ~
-epochs      : 585
+epochs      : 2000
 steps       : ~
 imgsz       : 512
 resize      : ~
@@ -48,17 +48,17 @@ MODEL:
   SAM_NUMBER    : 2   # The number of SAM for each encoder or decoder level; set 1 for our ESDNet, and 2 for ESDNet-L
 
 TRAIN:
-  BATCH_SIZE : 4
+  BATCH_SIZE : 1
   LOADER     : crop   # The loading way for training data, e.g., crop, resize, default; see ./dataset/load_data.py
-  CROP_SIZE  : 1024   # Set the crop size if LOADER==crop
+  CROP_SIZE  : 1920   # Set the crop size if LOADER==crop
   RESIZE_SIZE: 384    # Set the resizing size if LOADER==crop
-  SAVE_ITER  : 500    # Save training images/results at each SAVE_ITER*n iter
+  SAVE_ITER  : 1000   # Save training images/results at each SAVE_ITER*n iter
   LOAD_EPOCH : False  # If specify it, loading the corresponding model for resuming training
   LAM        : 1      # The loss weight for L1 loss
   LAM_P      : 0.04   # The loss weight for perceptual loss
 
 TEST:
-  TEST_EPOCH       : 585    # Input 'auto' for loading the latest model
+  TEST_EPOCH       : 2000   # Input 'auto' for loading the latest model
   SAVE_IMG         : False  # The file type (e.g., jpg, png) for saving the output image; set False to avoid saving
   LOAD_PATH        : False  # If specify a load path for a checkpoint, TEST_EPOCH will be deprecated
   EVALUATION_METRIC: True   # If True, calculate metrics
@@ -66,7 +66,7 @@ TEST:
   EVALUATION_COST  : False  # If True, calculate MACs and Parameters number
 
 SOLVER:
-  EPOCHS : 585       # The total training epochs
+  EPOCHS : 2000      # The total training epochs
   T_0    : 50        # The total epochs for the first learning cycle (learning rate warms up then)
   T_MULT : 1         # The learning cycle would be (T_0, T_0*T_MULT, T_0*T_MULT^2, T_0*T_MULT^3, ...)
   ETA_MIN: 0.000001  # Initial learning rate in each learning cycle
