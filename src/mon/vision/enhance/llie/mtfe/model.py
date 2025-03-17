@@ -19,14 +19,14 @@ class intensityTransform(nn.Module):
 
     def forward(self, inputs):
         images, transforms = inputs
-
+        device     = images.device
         transforms = transforms.unsqueeze(3)  # Index tensor must have the same number of dimensions as input tensor
 
         # images = 0.5 * images + 0.5
         images = torch.round(self.scale * images)
         images = images.type(torch.LongTensor)
-        images = images.cuda()
-        transforms = transforms.cuda()
+        images = images.to(device)
+        transforms = transforms.to(device)
         minimum_w = images.size(3)
         iter_n = 0
         temp = 1

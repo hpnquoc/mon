@@ -67,7 +67,7 @@ def predict(args: argparse.Namespace):
     data_name, data_loader, data_writer = mon.parse_io_worker(
         src         = data,
         dst         = save_dir,
-        to_tensor   = False,
+        to_tensor   = True,
         denormalize = True,
         verbose     = False,
     )
@@ -82,13 +82,15 @@ def predict(args: argparse.Namespace):
                 description = f"[bright_yellow] Predicting"
             ):
                 # Input
+                data_lowlight = datapoint["image"]
                 meta          = datapoint.get("meta")
                 image_path    = mon.Path(meta["path"])
-                data_lowlight = Image.open(image_path)
-                data_lowlight = (np.asarray(data_lowlight) / 255.0)
-                data_lowlight = torch.from_numpy(data_lowlight).float()
-                data_lowlight = data_lowlight.permute(2, 0, 1)
-                data_lowlight = data_lowlight.to(device).unsqueeze(0)
+                # data_lowlight = Image.open(image_path)
+                # data_lowlight = (np.asarray(data_lowlight) / 255.0)
+                # data_lowlight = torch.from_numpy(data_lowlight).float()
+                # data_lowlight = data_lowlight.permute(2, 0, 1)
+                # data_lowlight = data_lowlight.to(device).unsqueeze(0)
+                data_lowlight = data_lowlight.to(device)
                 h, w          = mon.get_image_size(data_lowlight)
                 data_lowlight = mon.resize(data_lowlight, divisible_by=32)
                 

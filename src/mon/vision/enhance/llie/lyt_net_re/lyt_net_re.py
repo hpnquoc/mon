@@ -61,7 +61,7 @@ class Loss(nn.Loss):
         smooth_l1_loss  = self.smooth_l1_loss(input, target)
         perceptual_loss = self.perceptual_loss(input, target)
         histogram_loss  = self.histogram_loss(input, target)
-        ms_ssim_loss    = self.ms_ssim_loss(input, target)
+        ms_ssim_loss    = self.multiscale_ssim_loss(input, target)
         psnr_loss       = self.psnr_loss(input, target)
         color_loss      = self.color_loss(input, target)
         loss = (

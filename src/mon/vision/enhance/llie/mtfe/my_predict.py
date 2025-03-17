@@ -20,7 +20,6 @@ from torch import nn
 
 import mon
 from model import Image_network
-from mon import core
 
 console      = mon.console
 current_file = mon.Path(__file__).absolute()
@@ -53,7 +52,7 @@ def calculate_efficiency_score(
     verbose   : bool = False,
 ):
     # Define input tensor
-    h, w  = core.get_image_size(image_size)
+    h, w  = mon.get_image_size(image_size)
     input = torch.rand(1, channels, h, w)
     hist  = np.zeros((3, 256))
     hist  = torch.from_numpy(hist).float()

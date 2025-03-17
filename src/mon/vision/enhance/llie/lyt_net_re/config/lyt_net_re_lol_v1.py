@@ -21,7 +21,7 @@ variant      = None
 fullname     = f"{model_name}_{data_name}"
 image_size   = [256, 256]
 seed	     = 1
-use_fullname = False
+use_fullname = True
 verbose      = True
 
 # endregion
@@ -131,6 +131,7 @@ trainer = default.trainer | {
 
 predictor = default.predictor | {
 	"default_root_dir": root,   # Default path for saving results.
+	"resize"          : True,   # Resize the input image.
 }
 
 # endregion

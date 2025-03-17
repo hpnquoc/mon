@@ -11,8 +11,8 @@ runml_dir="${project_dir}/runml"
 data_dir="${mon_dir}/data/enhance"
 
 # Input
-arch="enlightengan"
-model="enlightengan"
+arch="llflow"
+model="llflow_lol_v2_real"
 data=(
     ### Unpaired Set
     "dicm"
