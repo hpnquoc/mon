@@ -88,7 +88,7 @@ def predict(args: argparse.Namespace):
                 data_lowlight = (np.asarray(data_lowlight) / 255.0)
                 data_lowlight = torch.from_numpy(data_lowlight).float()
                 data_lowlight = data_lowlight.permute(2, 0, 1)
-                data_lowlight = data_lowlight.cuda().unsqueeze(0)
+                data_lowlight = data_lowlight.to(device).unsqueeze(0)
                 h, w          = mon.get_image_size(data_lowlight)
                 data_lowlight = mon.resize(data_lowlight, divisible_by=32)
                 

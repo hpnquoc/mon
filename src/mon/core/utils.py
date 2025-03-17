@@ -342,9 +342,10 @@ def set_device(device: Any, use_single_device: bool = True) -> torch.device:
     """
     device = parse_device(device)
     device = device[0] if isinstance(device, list) and use_single_device else device
-    os.environ["CUDA_VISIBLE_DEVICES"] = f"{device}"
+    # os.environ["CUDA_DEVICE_ORDER"]    = "PCI_BUS_ID"
+    # os.environ["CUDA_VISIBLE_DEVICES"] = f"{device}"
     device = torch.device(f"cuda:{device}" if torch.cuda.is_available() else "cpu")
-    torch.cuda.set_device(device)  # change allocation of current GPU
+    # print(device)
     return device
 
 
