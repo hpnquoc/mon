@@ -30,8 +30,8 @@ class enhancement_model(BaseModel):
         train_opt = opt['train']
 
         # define network and load pretrained models
-        # self.netG = networks.define_G(opt).to(self.device)
-        self.netG = networks.define_G(opt).cuda()
+        self.netG = networks.define_G(opt).to(self.device)
+        # self.netG = networks.define_G(opt).cuda()
         # if opt['dist']:
         #     self.netG = DistributedDataParallel(self.netG, device_ids=[torch.cuda.current_device()])
         # else:
@@ -39,7 +39,8 @@ class enhancement_model(BaseModel):
         # print network
         # self.print_network()
         self.load()
-        self.netG = self.netG.cuda()
+        # self.netG = self.netG.cuda()
+        self.netG = self.netG.to(self.device)
         
         if self.is_train:
             self.netG.train()
@@ -229,13 +230,13 @@ class enhancement_model(BaseModel):
         
     def measure_efficiency_score(self, image_size=512, channels=3, runs=1000):
         h, w  = mon.get_image_size(image_size)
-        input = torch.rand(1, channels, h, w).cuda()
+        input = torch.rand(1, channels, h, w).to(self.device)
         data  = {
             "idx": 0,
             "LQs": input,
             "nf" : input,
         }
-        self.netG = self.netG.cuda()
+        self.netG = self.netG.to(self.device)
         self.feed_data(data, need_GT=False)
         flops, params = profile(self, inputs=(), verbose=False)
         g_flops       = flops  * 1e-9

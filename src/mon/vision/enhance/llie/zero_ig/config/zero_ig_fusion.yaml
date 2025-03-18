@@ -14,7 +14,7 @@ weights     : "zoo/vision/enhance/llie/zero_ig/zero_ig/fusion/zero_ig_fusion.pt"
 device      : 0
 local_rank  : ~
 launcher    : ~
-epochs      : 2001
+epochs      : 2000
 steps       : ~
 imgsz       : 512
 resize      : ~

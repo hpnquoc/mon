@@ -1,16 +1,18 @@
 import os
-import torch
-from collections import OrderedDict
 from abc import ABC, abstractmethod
+from collections import OrderedDict
 
+import torch
 from mypy.state import state
 
+from mon import nn
 from . import networks
 
 
-class BaseModel(ABC):
+class BaseModel(nn.Module, ABC):
 
     def __init__(self, opt):
+        super().__init__()
         self.opt = opt
         self.gpu_ids = opt.gpu_ids
         self.isTrain = opt.isTrain

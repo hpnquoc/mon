@@ -165,19 +165,26 @@ class Network(nn.Module):
 
 class Finetunemodel(nn.Module):
 
-    def __init__(self, weights):
+    def __init__(self, weights=None):
         super().__init__()
         self.enhance   = Enhancer(layers=3, channels=64)
         self.denoise_1 = Denoise_1(chan_embed=48)
         self.denoise_2 = Denoise_2(chan_embed=48)
         
-        base_weights    = torch.load(weights, map_location='cuda:0', weights_only=True)
-        pretrained_dict = base_weights
-        model_dict      = self.state_dict()
-        pretrained_dict = {k: v for k, v in pretrained_dict.items() if k in model_dict}
-        model_dict.update(pretrained_dict)
-        self.load_state_dict(model_dict)
-
+        if weights is not None:
+            if isinstance(weights, dict):
+                model_dict      = self.state_dict()
+                pretrained_dict = weights
+                pretrained_dict = {k: v for k, v in pretrained_dict.items() if k in model_dict}
+                model_dict.update(pretrained_dict)
+                self.load_state_dict(model_dict)
+            else:
+                model_dict      = self.state_dict()
+                pretrained_dict = torch.load(weights, map_location='cuda:0', weights_only=True)
+                pretrained_dict = {k: v for k, v in pretrained_dict.items() if k in model_dict}
+                model_dict.update(pretrained_dict)
+                self.load_state_dict(model_dict)
+    
     def weights_init(self, m):
         if isinstance(m, nn.Conv2d):
             m.weight.data.normal_(0, 0.02)

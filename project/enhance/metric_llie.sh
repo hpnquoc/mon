@@ -11,8 +11,8 @@ runml_dir="${project_dir}/runml"
 data_dir="${mon_dir}/data/enhance"
 
 # Input
-arch="retinexnet"
-model="retinexnet_lol_v1"
+arch="utvnet"
+model="utvnet"
 data=(
     ### Unpaired Set
     "dicm"

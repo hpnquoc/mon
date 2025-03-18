@@ -1,20 +1,20 @@
 # Basic
 hostname    : ~
 config      : ~
-arch        : "rrdnet"
-model       : "rrdnet"
+arch        : "zero_ig"
+model       : "zero_ig"
 data        : ~
 data_dir    : ~
 root        : ~
 project     : ~
 variant     : ~
-fullname    : "rrdnet"
+fullname    : "zero_ig"
 save_dir    : ~
 weights     : ~
 device      : 0
-local_rank  : -1
+local_rank  : ~
 launcher    : ~
-epochs      : 1000
+epochs      : 2000
 steps       : ~
 imgsz       : 512
 resize      : ~
@@ -23,18 +23,12 @@ save_image  : True
 save_debug  : True
 use_data_dir: False
 use_fullpath: False
-use_fullname: True
+use_fullname: False
 exist_ok    : True
 verbose     : True
 
 # Model Specific
-lr            : 0.001
-illu_factor   : 1
-reflect_factor: 1
-noise_factor  : 5000
-reffac        : 1
-gamma         : 0.4
-# Gaussian Kernel Initialization
-g_kernel_size : 5
-g_padding     : 2
-sigma         : 3
+seed       : 2
+batch_size : 1
+num_workers: 0
+lr         : 0.0003

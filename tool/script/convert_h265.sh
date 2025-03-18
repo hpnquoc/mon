@@ -49,7 +49,7 @@ data_dir="${mon_dir}/data"              # mon/data/
 
 # Define the directory where you want to perform the recursive video conversion
 # directory="${data_dir}/"
-directory="/media/longpham/hdd_01/50_archives/20_projects/scene_2020_2022/resources"
+directory="/media/longpham/hdd_01/40_resources/programming_language/ios/old_code/saving_data"
 # directory="/media/longpham/hdd_01/40_resources/programming_language/ios"
 
 case "$OSTYPE" in

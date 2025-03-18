@@ -14,7 +14,7 @@ weights     : "zoo/vision/enhance/llie/zero_ig/zero_ig/npe/zero_ig_npe.pt"
 device      : 0
 local_rank  : ~
 launcher    : ~
-epochs      : 2001
+epochs      : 2000
 steps       : ~
 imgsz       : 512
 resize      : ~

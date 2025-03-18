@@ -1028,14 +1028,6 @@ EXTRA_MODELS      = {  # architecture/model (+ variant)
             "torch_distributed_launch": True,
         },
     },
-    "lyt_net"      : {
-        "lyt_net": {
-            "tasks"    : [Task.LLIE],
-            "schemes"  : [Scheme.SUPERVISED],
-            "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "lyt_net",
-            "torch_distributed_launch": True,
-        },
-    },
     "nerco"        : {
         "nerco": {
             "tasks"    : [Task.LLIE],
@@ -1089,14 +1081,6 @@ EXTRA_MODELS      = {  # architecture/model (+ variant)
             "tasks"    : [Task.LLIE],
             "schemes"  : [Scheme.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "retinexnet",
-            "torch_distributed_launch": True,
-        },
-    },
-    "rrdnet"       : {
-        "rrdnet": {
-            "tasks"    : [Task.LLIE],
-            "schemes"  : [Scheme.ZERO_REFERENCE, Scheme.INSTANCE],
-            "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "rrdnet",
             "torch_distributed_launch": True,
         },
     },

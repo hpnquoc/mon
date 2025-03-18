@@ -13,7 +13,7 @@ References:
 from __future__ import annotations
 
 __all__ = [
-    "RRDNet_RE",
+    "RRDNet",
 ]
 
 from typing import Any, Literal
@@ -180,8 +180,8 @@ class Loss(nn.Loss):
 
 # region Model
 
-@MODELS.register(name="rrdnet_re", arch="rrdnet")
-class RRDNet_RE(base.ImageEnhancementModel):
+@MODELS.register(name="rrdnet", arch="rrdnet")
+class RRDNet(base.ImageEnhancementModel):
     
     model_dir: core.Path    = current_dir
     arch     : str          = "rrdnet"

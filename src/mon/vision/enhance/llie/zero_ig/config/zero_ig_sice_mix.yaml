@@ -14,7 +14,7 @@ weights     : "zoo/vision/enhance/llie/zero_ig/zero_ig/sice_mix_v2/zero_ig_sice_
 device      : 0
 local_rank  : ~
 launcher    : ~
-epochs      : 2001
+epochs      : 2000
 steps       : ~
 imgsz       : 512
 resize      : ~

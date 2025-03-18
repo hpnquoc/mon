@@ -12,5 +12,5 @@ References:
 
 from __future__ import annotations
 
-import mon.vision.enhance.llie.rrdnet_re.rrdnet_re
-from mon.vision.enhance.llie.rrdnet_re.rrdnet_re import *
+import mon.vision.enhance.llie.rrdnet.rrdnet
+from mon.vision.enhance.llie.rrdnet.rrdnet import *

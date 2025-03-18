@@ -14,7 +14,7 @@ weights     : "zoo/vision/enhance/llie/zero_ig/zero_ig/lol_v2_real/zero_ig_lol_v
 device      : 0
 local_rank  : ~
 launcher    : ~
-epochs      : 2001
+epochs      : 2000
 steps       : ~
 imgsz       : 512
 resize      : ~
