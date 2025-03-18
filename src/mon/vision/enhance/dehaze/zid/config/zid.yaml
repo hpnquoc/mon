@@ -23,6 +23,6 @@ save_image  : True
 save_debug  : False
 use_data_dir: False
 use_fullpath: False
-use_fullname: False
+use_fullname: True
 exist_ok    : True
 verbose     : True

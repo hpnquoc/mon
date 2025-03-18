@@ -13,6 +13,7 @@ import torch.nn.functional as F
 
 
 class double_conv(nn.Module):
+    
     '''(conv => BN => ReLU) * 2'''
     def __init__(self, in_ch, out_ch):
         super(double_conv, self).__init__()
@@ -31,6 +32,7 @@ class double_conv(nn.Module):
 
 
 class inconv(nn.Module):
+    
     def __init__(self, in_ch, out_ch):
         super(inconv, self).__init__()
         self.conv = double_conv(in_ch, out_ch)
@@ -41,6 +43,7 @@ class inconv(nn.Module):
 
 
 class down(nn.Module):
+    
     def __init__(self, in_ch, out_ch):
         super(down, self).__init__()
         self.mpconv = nn.Sequential(
@@ -54,6 +57,7 @@ class down(nn.Module):
 
 
 class up(nn.Module):
+    
     def __init__(self, in_ch, out_ch, bilinear=True):
         super(up, self).__init__()
 
@@ -78,6 +82,7 @@ class up(nn.Module):
 
 
 class outconv(nn.Module):
+    
     def __init__(self, in_ch, out_ch):
         super(outconv, self).__init__()
         self.conv = nn.Conv2d(in_ch, out_ch, 1)
@@ -88,6 +93,7 @@ class outconv(nn.Module):
 
 
 class UNet(nn.Module):
+    
     def __init__(self, n_channels, n_classes):
         super(UNet, self).__init__()
         self.inc = inconv(n_channels, 64)

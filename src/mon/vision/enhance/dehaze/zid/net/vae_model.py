@@ -12,7 +12,6 @@ class VAE(torch.nn.Module):
 
     def __init__(self, size):
         super().__init__()
-
         self.encoder = Encoder(size)
         self.decoder = Decoder(size)
 
@@ -85,8 +84,6 @@ class Encoder(torch.nn.Module):
         var   = self.fc2(data)
         return means, var
 
-
-#
 
 class Decoder(torch.nn.Module):
     def __init__(self, size):

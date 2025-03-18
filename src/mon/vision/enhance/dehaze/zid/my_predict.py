@@ -1,6 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+"""
+References:
+    https://github.com/XLearning-SCU/2020-TIP-ZID
+"""
+
 from __future__ import annotations
 
 import argparse
