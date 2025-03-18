@@ -88,13 +88,23 @@ def main():
     train_low_data_names = './data/1'
     TrainDataset = DataLoader(img_dir=train_low_data_names, task='train')
     test_low_data_names = './data/1'
-    TestDataset = DataLoader(img_dir=test_low_data_names, task='test')
-    train_queue = torch.utils.data.DataLoader(
-        TrainDataset, batch_size=args.batch_size,
-        pin_memory=True, num_workers=0, shuffle=False, generator=torch.Generator(device='cuda'))
-    test_queue = torch.utils.data.DataLoader(
-        TestDataset, batch_size=1,
-        pin_memory=True, num_workers=0, shuffle=False, generator=torch.Generator(device='cuda'))
+    TestDataset  = DataLoader(img_dir=test_low_data_names, task='test')
+    train_queue  = torch.utils.data.DataLoader(
+        TrainDataset,
+        batch_size   = args.batch_size,
+        pin_memory   = True,
+        num_workers  = 0,
+        shuffle      = False,
+        generator    = torch.Generator(device = 'cuda')
+    )
+    test_queue   = torch.utils.data.DataLoader(
+        TestDataset,
+        batch_size  = 1,
+        pin_memory  = True,
+        num_workers = 0,
+        shuffle     = False,
+        generator   = torch.Generator(device = 'cuda')
+    )
 
     total_step = 0
     model.train()

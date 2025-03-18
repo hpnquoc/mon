@@ -10,7 +10,7 @@ project     : ~
 variant     : ~
 fullname    : "zero_ig"
 save_dir    : ~
-weights     : ~
+weights     : "zoo/vision/enhance/llie/zero_ig/zero_ig/pretrained/zero_ig_lol.pt"
 device      : 0
 local_rank  : ~
 launcher    : ~
