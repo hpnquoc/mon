@@ -1,8 +1,8 @@
 # General settings
-name       : restormer_gopro
+name       : restormer_lol_v2_real
 model_type : ImageCleanModel
 scale      : 1
-num_gpu    : 8  # set num_gpu: 0 for cpu mode
+num_gpu    : 1  # set num_gpu: 0 for cpu mode
 manual_seed: 100
 image_color: RGB
 
@@ -11,41 +11,43 @@ datasets:
   train:
     name          : TrainSet
     type          : Dataset_PairedImage
-    dataroot_gt   : deblur/train/gopro/clear
-    dataroot_lq   : deblur/train/gopro/blur
+    dataroot_gt   : enhance/lol_v2_real/train/ref
+    dataroot_lq   : enhance/lol_v2_real/train/image
     geometric_augs: true
     filename_tmpl : "{}"
     io_backend:
       type: disk
-
     # data loader
     use_shuffle       : true
     num_worker_per_gpu: 8
     batch_size_per_gpu: 8
-
     ### -------------Progressive training--------------------------
     mini_batch_sizes: [8, 5, 4, 2, 1, 1]  # Batch size per gpu
     iters           : [92000, 64000, 48000, 36000, 36000, 24000]
-    gt_size         : 384   # Max patch size for progressive training
+    gt_size         : 384  # Max patch size for progressive training
     gt_sizes        : [128, 160, 192, 256, 320, 384]  # Patch sizes for progressive training.
     ### ------------------------------------------------------------
-
     ### ------- Training on single fixed-patch size 128x128---------
     # mini_batch_sizes: [8]   
     # iters: [300000]
     # gt_size: 128   
     # gt_sizes: [128]
     ### ------------------------------------------------------------
-
     dataset_enlarge_ratio: 1
     prefetch_mode        : ~
-
   val:
     name       : ValSet
     type       : Dataset_PairedImage
-    dataroot_gt: deblur/val/gopro/clear
-    dataroot_lq: deblur/val/gopro/blur
+    dataroot_gt: enhance/lol_v2_real/train/ref
+    dataroot_lq: enhance/lol_v2_real/train/image
     io_backend :
+      type: disk
+  test:
+    name: TestSet
+    type: Dataset_PairedImage
+    dataroot_gt: enhance/lol_v2_real/test/ref
+    dataroot_lq: enhance/lol_v2_real/test/image
+    io_backend:
       type: disk
 
 # Network structures
@@ -100,7 +102,7 @@ train:
     loss_weight: 1
     reduction  : mean
 
-# validation settings
+# Validation settings
 val:
   window_size  : 8
   val_freq     : !!float 4e3
@@ -113,7 +115,7 @@ val:
     psnr: # metric name, can be arbitrary
       type          : calculate_psnr
       crop_border   : 0
-      test_y_channel: false
+      test_y_channel: true
 
 # Logging settings
 logger:

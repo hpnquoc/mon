@@ -373,7 +373,7 @@ class ControlLDM(LatentDiffusion):
         from my_vae.autoencoder import AutoencoderKL
         self.first_stage_model = AutoencoderKL(load_checkpoint=False)
 
-        state_dict = torch.load(checkpoint_file, map_location=torch.device("cpu"))["state_dict"]
+        state_dict = torch.load(checkpoint_file, weights_only=False, map_location=torch.device("cpu"))["state_dict"]
         new_state_dict = {}
         for s in state_dict:
             if "my_vae" in s:

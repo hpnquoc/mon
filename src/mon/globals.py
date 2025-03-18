@@ -1036,14 +1036,6 @@ EXTRA_MODELS      = {  # architecture/model (+ variant)
             "torch_distributed_launch": True,
         },
     },
-    "mtfe"         : {
-        "mtfe": {
-            "tasks"    : [Task.LLIE],
-            "schemes"  : [Scheme.SUPERVISED],
-            "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "mtfe",
-            "torch_distributed_launch": True,
-        },
-    },
     "nerco"        : {
         "nerco": {
             "tasks"    : [Task.LLIE],
@@ -1140,11 +1132,11 @@ EXTRA_MODELS      = {  # architecture/model (+ variant)
             "torch_distributed_launch": True,
         },
     },
-    "snr"          : {
-        "snr": {
+    "snr_net"      : {
+        "snr_net": {
             "tasks"    : [Task.LLIE],
             "schemes"  : [Scheme.SUPERVISED],
-            "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "snr",
+            "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "snr_net",
             "torch_distributed_launch": True,
         },
     },

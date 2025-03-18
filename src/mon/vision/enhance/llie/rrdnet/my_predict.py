@@ -133,7 +133,7 @@ def predict(args: argparse.Namespace):
                     rel_path    = image_path.relative_path(data_name)
                     output_path = save_dir / f"{rel_path.parent}_debug"
                 else:
-                    output_path = save_dir / f"{rel_path.parent}_debug"
+                    output_path = save_dir / f"{image_path.parent}_debug"
                 output_path.mkdir(parents=True, exist_ok=True)
                 torchvision.utils.save_image(illumination, str(output_path / f"{image_path.stem}_illumination.jpg"))
                 torchvision.utils.save_image(adjust_illu,  str(output_path / f"{image_path.stem}_adjust_illumination.jpg"))

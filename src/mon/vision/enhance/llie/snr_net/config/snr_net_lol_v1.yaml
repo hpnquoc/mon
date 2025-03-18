@@ -1,22 +1,22 @@
 # Basic
 hostname    : ~
 config      : ~
-arch        : "mtfe"
-model       : "mtfe"
+arch        : "snr_net"
+model       : "snr_net"
 data        : "lol_v1"
 data_dir    : "data/enhance/lol_v1"
 root        : ~
 project     : ~
 variant     : ~
-fullname    : "mtfe_lol_v1"
+fullname    : "snr_net_lol_v1"
 save_dir    : ~
-weights     : "zoo/vision/enhance/llie/mtfe/mtfe/lol_v1/mtfe_lol_v1.pth"
+weights     : "zoo/vision/enhance/llie/snr_net/snr_net/lol_v1/snr_net_lol_v1.pth"
 device      : 0
 local_rank  : ~
 launcher    : ~
 epochs      : 1000
 steps       : ~
-imgsz       : 256
+imgsz       : 512
 resize      : ~
 benchmark   : False
 save_image  : True
@@ -24,17 +24,8 @@ save_debug  : True
 use_data_dir: False
 use_fullpath: False
 use_fullname: True
-exist_ok    : False
+exist_ok    : True
 verbose     : True
 
 # Model Specific
-load_pretrain   : False
-beta            : 1
-train_batch_size: 16
-val_batch_size  : 8
-num_workers     : 5
-lr              : 0.0001
-weight_decay    : 0.00005
-grad_clip_norm  : 0.1
-display_iter    : 10
-checkpoint_iter : 10
+opt_path: "lol_v1.yaml"

@@ -28,7 +28,6 @@ from __future__ import annotations
 
 import argparse
 import copy
-import time
 
 import numpy as np
 import torch
@@ -82,7 +81,7 @@ def predict(args: argparse.Namespace):
     data_name, data_loader, data_writer = mon.parse_io_worker(
         src         = data,
         dst         = save_dir,
-        to_tensor   = False,
+        to_tensor   = True,
         denormalize = True,
         verbose     = False,
     )
@@ -98,13 +97,9 @@ def predict(args: argparse.Namespace):
                 description = f"[bright_yellow] Predicting"
             ):
                 # Input
+                image      = datapoint.get("image").to(device)
                 meta       = datapoint.get("meta")
                 image_path = mon.Path(meta["path"])
-                image      = Image.open(image_path).convert("RGB")
-                image      = (np.asarray(image) / 255.0)
-                image      = torch.from_numpy(image).float()
-                image      = image.permute(2, 0, 1)
-                image      = image.to(device).unsqueeze(0)
                 
                 # Infer
                 timer.tick()

@@ -20,11 +20,11 @@ imgsz       : 512
 resize      : ~
 benchmark   : True
 save_image  : True
-save_debug  : False
+save_debug  : True
 use_data_dir: False
 use_fullpath: False
-use_fullname: False
-exist_ok    : False
+use_fullname: True
+exist_ok    : True
 verbose     : True
 
 # Model Specific

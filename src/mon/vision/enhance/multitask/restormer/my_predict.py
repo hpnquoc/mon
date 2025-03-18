@@ -5,7 +5,6 @@ from __future__ import annotations
 
 import argparse
 import os
-import time
 
 import cv2
 import numpy as np

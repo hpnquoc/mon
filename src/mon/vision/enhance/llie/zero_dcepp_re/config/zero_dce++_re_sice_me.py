@@ -1,4 +1,4 @@
-#!/usr/bin/edenoised1nv python
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 from __future__ import annotations
@@ -12,16 +12,16 @@ current_file = mon.Path(__file__).absolute()
 
 # region Basic
 
-model_name   = "neurop_re"
-data_name    = "fivek_dark"
+model_name   = "zero_dce++_re"
+data_name    = "sice_me"
 root         = mon.ROOT_DIR / "project" / "run"
 data_root    = mon.DATA_DIR / "enhance"
 project      = None
 variant      = None
 fullname     = f"{model_name}_{data_name}"
 image_size   = [512, 512]
-seed	     = 0
-use_fullname = False
+seed	     = 100
+use_fullname = True
 verbose      = True
 
 # endregion
@@ -30,35 +30,32 @@ verbose      = True
 # region Model
 
 model = {
-	"name"        : model_name,  # The model's name.
-	"fullname"    : fullname,    # A full model name to save the checkpoint or weight.
-	"root"        : root,        # The root directory of the model.
-	"in_channels" : 3,           # The first layer's input channel.
-	"out_channels": 3,           # A number of classes, which is also the last layer's output channels.
-	"base_nf"     : 64,
-	"encode_nf"   : 32,
-	"pixel_weight": 10.0,
-	"init_weights": mon.ZOO_DIR / "vision/enhance/retouch/neurop/neurop/neurop_init.pt",
-	"weights"     : None,        # The model's weights.
+	"name"        : model_name,     # The model's name.
+	"fullname"    : fullname,       # A full model name to save the checkpoint or weight.
+	"root"        : root,           # The root directory of the model.
+	"in_channels" : 3,              # The first layer's input channel.
+	"out_channels": None,           # A number of classes, which is also the last layer's output channels.
+	"weights"     : None,           # The model's weights.
+	"loss"        : None,           # Loss function for training the model.
 	"metrics"     : {
-	    "train": None,
+	    "train": None,  # [{"name": "psnr"}],
 		"val"  : [{"name": "psnr"}, {"name": "ssim"}],
 		"test" : [{"name": "psnr"}, {"name": "ssim"}],
-    },       # A list metrics for validating and testing model.
+    },          # A list metrics for validating and testing model.
 	"optimizers"  : [
 		{
             "optimizer"          : {
 	            "name"        : "adam",
 	            "lr"          : 0.00005,
-	            "weight_decay": 0,
+	            "weight_decay": 0.00001,
 	            "betas"       : [0.9, 0.99],
 			},
 			"lr_scheduler"       : None,
 			"network_params_only": True,
         }
-    ],       # Optimizer(s) for training model.
-	"debug"       : False,       # If ``True``, run the model in debug mode (when predicting).
-	"verbose"     : verbose,     # Verbosity.
+    ],          # Optimizer(s) for training model.
+	"debug"       : False,          # If ``True``, run the model in debug mode (when predicting).
+	"verbose"     : verbose,        # Verbosity.
 }
 
 # endregion
@@ -76,7 +73,7 @@ data = {
 	]),  # Transformations performing on both the input and target.
     "to_tensor" : True,          # If ``True``, convert input and target to :class:`torch.Tensor`.
     "cache_data": False,         # If ``True``, cache data to disk for faster loading next time.
-    "batch_size": 1,             # The number of samples in one forward pass.
+    "batch_size": 8,             # The number of samples in one forward pass.
     "devices"   : 0,             # A list of devices to use. Default: ``0``.
     "shuffle"   : True,          # If ``True``, reshuffle the datapoints at the beginning of every epoch.
     "verbose"   : verbose,       # Verbosity.
@@ -106,11 +103,12 @@ trainer = default.trainer | {
 		default.rich_progress_bar,
 	],
 	"default_root_dir" : root,  # Default path for logs and weights.
+	"devices"          : [0],
+	"gradient_clip_val": 0.1,
 	"log_image_every_n_epochs": 1,
 	"logger"           : {
 		"tensorboard": default.tensorboard,
 	},
-	"max_steps"        : 600000,
 }
 
 # endregion
@@ -119,8 +117,7 @@ trainer = default.trainer | {
 # region Predicting
 
 predictor = default.predictor | {
-	"default_root_dir": root,  # Default path for saving results.
-	"save_debug"      : True,  # Save debug images.
+	"default_root_dir": root,   # Default path for saving results.
 }
 
 # endregion

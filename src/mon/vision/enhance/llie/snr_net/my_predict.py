@@ -59,7 +59,7 @@ def predict(args: argparse.Namespace):
     data_name, data_loader, data_writer = mon.parse_io_worker(
         src         = data,
         dst         = save_dir,
-        to_tensor   = False,
+        to_tensor   = True,
         denormalize = True,
         verbose     = False,
     )
@@ -77,7 +77,7 @@ def predict(args: argparse.Namespace):
                 meta       = datapoint.get("meta")
                 image_path = mon.Path(meta["path"])
                 image      = dutil.read_img(None, str(image_path))
-                image      = image[:, :, ::-1]
+                # image      = image[:, :, ::-1]
                 h, w       = mon.get_image_size(image)
                 # image      = cv2.resize(image, (600, 400))
                 image      = mon.resize(image, divisible_by=32)

@@ -58,6 +58,8 @@ def model_fn_decorator(loss_fn, device, mode="train"):
         label  = data["ref_image"].to(device)
         out_1, out_2, out_3 = model(in_img)
         loss   = loss_fn(out_1, out_2, out_3, label)
+        psnr   = PSNR()(out_1, label)
+        ssim   = SSIM()(out_1, label)
         
         # save images
         if iters % args.TRAIN["SAVE_ITER"] == (args.TRAIN["SAVE_ITER"] - 1):
@@ -68,7 +70,7 @@ def model_fn_decorator(loss_fn, device, mode="train"):
             save_number = (iters + 1) // args.TRAIN["SAVE_ITER"]
             # torchvision.utils.save_image(res_save, args.VISUALS_DIR + "/visual_x%04d_" % args.SAVE_ITER + "%05d" % save_number + ".jpg")
 
-        return loss
+        return loss, psnr, ssim
 
     if mode == "test":
         fn = test_model_fn

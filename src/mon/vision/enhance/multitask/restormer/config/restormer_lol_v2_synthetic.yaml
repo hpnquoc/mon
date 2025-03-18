@@ -1,5 +1,5 @@
 # General settings
-name       : restormer-ntire24-llie
+name       : restormer_lol_v2_synthetic
 model_type : ImageCleanModel
 scale      : 1
 num_gpu    : 1  # set num_gpu: 0 for cpu mode
@@ -11,8 +11,8 @@ datasets:
   train:
     name          : TrainSet
     type          : Dataset_PairedImage
-    dataroot_gt   : ntire/ntire24_llie/train/high
-    dataroot_lq   : ntire/ntire24_llie/train/low
+    dataroot_gt   : enhance/lol_v2_synthetic/train/ref
+    dataroot_lq   : enhance/lol_v2_synthetic/train/image
     geometric_augs: true
     filename_tmpl : "{}"
     io_backend:
@@ -38,15 +38,15 @@ datasets:
   val:
     name       : ValSet
     type       : Dataset_PairedImage
-    dataroot_gt: ntire/ntire24_llie/train/high
-    dataroot_lq: ntire/ntire24_llie/train/low
+    dataroot_gt: enhance/lol_v2_synthetic/train/ref
+    dataroot_lq: enhance/lol_v2_synthetic/train/image
     io_backend :
       type: disk
   test:
     name: TestSet
     type: Dataset_PairedImage
-    dataroot_gt:
-    dataroot_lq: ntire/ntire24_llie/val/low
+    dataroot_gt: enhance/lol_v2_synthetic/test/ref
+    dataroot_lq: enhance/lol_v2_synthetic/test/image
     io_backend:
       type: disk
 

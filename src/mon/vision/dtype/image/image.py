@@ -959,19 +959,21 @@ def read_image(
     Args:
         path: An image's file path.
         flags: A flag to read the image. One of:
-            - cv2.IMREAD_UNCHANGED           = -1,
-            - cv2.IMREAD_GRAYSCALE           = 0,
-            - cv2.IMREAD_COLOR               = 1,
-            - cv2.IMREAD_ANYDEPTH            = 2,
-            - cv2.IMREAD_ANYCOLOR            = 4,
-            - cv2.IMREAD_LOAD_GDAL           = 8,
-            - cv2.IMREAD_REDUCED_GRAYSCALE_2 = 16,
-            - cv2.IMREAD_REDUCED_COLOR_2     = 17,
-            - cv2.IMREAD_REDUCED_GRAYSCALE_4 = 32,
-            - cv2.IMREAD_REDUCED_COLOR_4     = 33,
-            - cv2.IMREAD_REDUCED_GRAYSCALE_8 = 64,
-            - cv2.IMREAD_REDUCED_COLOR_8     = 65,
-            - cv2.IMREAD_IGNORE_ORIENTATION  = 128
+            - cv2.IMREAD_UNCHANGED
+            - cv2.IMREAD_GRAYSCALE
+            - cv2.IMREAD_COLOR_BGR
+            - cv2.IMREAD_COLOR
+            - cv2.IMREAD_ANYDEPTH
+            - cv2.IMREAD_ANYCOLOR
+            - cv2.IMREAD_LOAD_GDAL
+            - cv2.IMREAD_REDUCED_GRAYSCALE_2
+            - cv2.IMREAD_REDUCED_COLOR_2
+            - cv2.IMREAD_REDUCED_GRAYSCALE_4
+            - cv2.IMREAD_REDUCED_COLOR_4
+            - cv2.IMREAD_REDUCED_GRAYSCALE_8
+            - cv2.IMREAD_REDUCED_COLOR_8
+            - cv2.IMREAD_IGNORE_ORIENTATION
+            - cv2.IMREAD_COLOR_RGB
             Default: ``cv2.IMREAD_COLOR``.
         to_tensor: If ``True``, convert the image from :obj:`numpy.ndarray`
             to :obj:`torch.Tensor`. Default: ``False``.

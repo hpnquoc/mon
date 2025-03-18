@@ -46,7 +46,7 @@ def predict(args: argparse.Namespace):
     
     # Model
     model      = UnetTMO()
-    state_dict = read_pytorch_lightning_state_dict(torch.load(weights, weights_only=True))
+    state_dict = read_pytorch_lightning_state_dict(torch.load(str(weights), weights_only=False))
     model.load_state_dict(state_dict)
     model.eval()
     model.to(device)
@@ -90,6 +90,7 @@ def predict(args: argparse.Namespace):
                 image      = cv2.imread(str(image_path))[:, :, ::-1]
                 image      = image / 255.0
                 image      = torch.from_numpy(image).float().permute(2, 0, 1).unsqueeze(0)
+                image      = image.to(device)
                 
                 # Infer
                 timer.tick()

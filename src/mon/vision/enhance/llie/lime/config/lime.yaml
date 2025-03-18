@@ -18,11 +18,11 @@ epochs      : ~
 steps       : ~
 imgsz       : 512
 resize      : ~
-benchmark   : False
+benchmark   : True
 save_image  : True
 save_debug  : True
 use_data_dir: False
 use_fullpath: False
 use_fullname: True
-exist_ok    : False
+exist_ok    : True
 verbose     : True

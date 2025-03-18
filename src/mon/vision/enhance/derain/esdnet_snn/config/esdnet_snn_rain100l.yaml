@@ -24,7 +24,7 @@ save_debug  : True
 use_data_dir: False
 use_fullpath: False
 use_fullname: True
-exist_ok    : False
+exist_ok    : True
 verbose     : True
 
 # Model Specific

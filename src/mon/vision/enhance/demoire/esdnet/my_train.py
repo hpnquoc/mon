@@ -28,24 +28,31 @@ current_dir  = current_file.parents[0]
 def train_epoch(args, train_img_loader, model, model_fn, optimizer, epoch, iters, lr_scheduler):
     """Training Loop for each epoch"""
     tbar       = tqdm(train_img_loader)
-    total_loss = 0
     lr         = optimizer.state_dict()["param_groups"][0]["lr"]
+    total_loss = 0.0
+    total_psnr = 0.0
+    total_ssim = 0.0
     for batch_idx, data in enumerate(tbar):
-        loss = model_fn(args, data, model, iters)
+        loss, psnr, ssim = model_fn(args, data, model, iters)
         # Backward and update
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
         iters          += 1
         total_loss     += loss.item()
+        total_psnr     += psnr
+        total_ssim     += ssim
         avg_train_loss  = total_loss / (batch_idx + 1)
-        desc            = "Training: Epoch %d, lr %.7f, Avg. Loss = %.5f" % (epoch, lr, avg_train_loss)
+        avg_train_psnr  = total_psnr / (batch_idx + 1)
+        avg_train_ssim  = total_ssim / (batch_idx + 1)
+        desc            = ("Training: Epoch %d, lr %.7f, Avg. Loss = %.5f, Avg. PSNR = %.5f, Avg. SSIM = %.5f"
+                           % (epoch, lr, avg_train_loss, avg_train_psnr, avg_train_ssim))
         tbar.set_description(desc)
         tbar.update()
     lr = optimizer.state_dict()["param_groups"][0]["lr"]
     # the learning rate is adjusted after each epoch
     lr_scheduler.step()
-    return lr, avg_train_loss, iters
+    return lr, avg_train_loss, avg_train_psnr, avg_train_ssim, iters
 
 
 def load_checkpoint(model, optimizer, load_epoch):
@@ -144,21 +151,25 @@ def train(args: argparse.Namespace):
     # start training
     console.log(f"****Start training!!!****")
     best_loss = 100.0
+    best_psnr = 0.0
+    best_ssim = 0.0
     for epoch in range(args.TRAIN["LOAD_EPOCH"] + 1, args.SOLVER["EPOCHS"] + 1):
-        learning_rate, avg_train_loss, iters = train_epoch(args, train_img_loader, model, model_fn, optimizer, epoch, iters, lr_scheduler)
+        learning_rate, avg_train_loss, avg_train_psnr, avg_train_ssim, iters = (
+            train_epoch(args, train_img_loader, model, model_fn, optimizer, epoch, iters, lr_scheduler)
+        )
         logger.add_scalar("train/avg_loss",      avg_train_loss, epoch)
         logger.add_scalar("train/learning_rate", learning_rate,  epoch)
         
         # Save the best model
         if avg_train_loss < best_loss:
             best_loss = avg_train_loss
-            torch.save({
-                "learning_rate": learning_rate,
-                "iters"        : iters,
-                "optimizer"    : optimizer.state_dict(),
-                "state_dict"   : model.state_dict()
-            }, weights_dir / "best.ckpt")
             torch.save(model.state_dict(), weights_dir / "best.pt")
+        if avg_train_psnr > best_psnr:
+            best_psnr = avg_train_psnr
+            torch.save(model.state_dict(), weights_dir / "best_psnr.pt")
+        if avg_train_ssim > best_ssim:
+            best_ssim = avg_train_ssim
+            torch.save(model.state_dict(), weights_dir / "best_ssim.pt")
         
         # Save the latest model
         torch.save({

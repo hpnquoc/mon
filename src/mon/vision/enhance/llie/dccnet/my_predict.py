@@ -8,11 +8,9 @@ from __future__ import annotations
 import argparse
 import copy
 
-import numpy as np
 import torch
 import torch.optim
 import torchvision
-from PIL import Image
 
 import mon
 import src.model as mmodel
@@ -82,21 +80,20 @@ def predict(args: argparse.Namespace):
                 description = f"[bright_yellow] Predicting"
             ):
                 # Input
-                data_lowlight = datapoint["image"]
-                meta          = datapoint.get("meta")
-                image_path    = mon.Path(meta["path"])
+                image      = datapoint.get("image").to(device)
+                meta       = datapoint.get("meta")
+                image_path = mon.Path(meta["path"])
                 # data_lowlight = Image.open(image_path)
                 # data_lowlight = (np.asarray(data_lowlight) / 255.0)
                 # data_lowlight = torch.from_numpy(data_lowlight).float()
                 # data_lowlight = data_lowlight.permute(2, 0, 1)
                 # data_lowlight = data_lowlight.to(device).unsqueeze(0)
-                data_lowlight = data_lowlight.to(device)
-                h, w          = mon.get_image_size(data_lowlight)
-                data_lowlight = mon.resize(data_lowlight, divisible_by=32)
+                h, w  = mon.get_image_size(image)
+                image = mon.resize(image, divisible_by=32)
                 
                 # Infer
                 timer.tick()
-                gray, color_hist, enhanced_image = color_net(data_lowlight)
+                gray, color_hist, enhanced_image = color_net(image)
                 timer.tock()
                 
                 # Post-processing

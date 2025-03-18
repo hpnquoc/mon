@@ -269,13 +269,13 @@ class SSIM(torch.nn.Module):
     
     def __init__(self, window_size=11, size_average=True, val_range=None):
         super(SSIM, self).__init__()
-        self.window_size = window_size
+        self.window_size  = window_size
         self.size_average = size_average
-        self.val_range = val_range
+        self.val_range    = val_range
 
         # Assume 1 channel for SSIM
         self.channel = 1
-        self.window = create_window(window_size)
+        self.window  = create_window(window_size)
 
     def forward(self, img1, img2):
         (_, channel, _, _) = img1.size()
@@ -289,6 +289,7 @@ class SSIM(torch.nn.Module):
 
         return ssim(img1, img2, window=window, window_size=self.window_size, size_average=self.size_average)
         
+        
 class PSNR(torch.nn.Module):
     
     def __init__(self):
@@ -296,5 +297,4 @@ class PSNR(torch.nn.Module):
 
     def forward(self, img1, img2):
         psnr = -10*torch.log10(torch.mean((img1-img2)**2))
-        
         return psnr

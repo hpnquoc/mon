@@ -12,16 +12,16 @@ current_file = mon.Path(__file__).absolute()
 
 # region Basic
 
-model_name   = "neurop_re"
-data_name    = "fivek_e"
+model_name   = "psenet"
+data_name    = "sice_me"
 root         = mon.ROOT_DIR / "project" / "run"
 data_root    = mon.DATA_DIR / "enhance"
 project      = None
 variant      = None
 fullname     = f"{model_name}_{data_name}"
-image_size   = [512, 512]
-seed	     = 0
-use_fullname = False
+image_size   = [256, 256]
+seed	     = 42
+use_fullname = True
 verbose      = True
 
 # endregion
@@ -30,35 +30,27 @@ verbose      = True
 # region Model
 
 model = {
-	"name"        : model_name,  # The model's name.
-	"fullname"    : fullname,    # A full model name to save the checkpoint or weight.
-	"root"        : root,        # The root directory of the model.
-	"in_channels" : 3,           # The first layer's input channel.
-	"out_channels": 3,           # A number of classes, which is also the last layer's output channels.
-	"base_nf"     : 64,
-	"encode_nf"   : 32,
-	"pixel_weight": 10.0,
-	"init_weights": mon.ZOO_DIR / "vision/enhance/retouch/neurop/neurop/neurop_init.pt",
-	"weights"     : None,        # The model's weights.
-	"metrics"     : {
+	"name"           : model_name,     # The model's name.
+	"fullname"       : fullname,       # A full model name to save the checkpoint or weight.
+	"root"           : root,           # The root directory of the model.
+	"in_channels"    : 3,              # The first layer's input channel.
+	"out_channels"   : 3,              # A number of classes, which is also the last layer's output channels.
+	"base_channels"  : 16,
+	"tv_weight"      : 5,
+	"gamma_lower"    : -2,
+	"gamma_upper"    : 3,
+	"number_refs"    : 1,
+	"lr"             : 5e-4,
+	"afifi_evaluation": False,
+	"weights"        : None,           # The model's weights.
+	"metrics"        : {
 	    "train": None,
 		"val"  : [{"name": "psnr"}, {"name": "ssim"}],
 		"test" : [{"name": "psnr"}, {"name": "ssim"}],
-    },       # A list metrics for validating and testing model.
-	"optimizers"  : [
-		{
-            "optimizer"          : {
-	            "name"        : "adam",
-	            "lr"          : 0.00005,
-	            "weight_decay": 0,
-	            "betas"       : [0.9, 0.99],
-			},
-			"lr_scheduler"       : None,
-			"network_params_only": True,
-        }
-    ],       # Optimizer(s) for training model.
-	"debug"       : False,       # If ``True``, run the model in debug mode (when predicting).
-	"verbose"     : verbose,     # Verbosity.
+    },          # A list metrics for validating and testing model.
+	"optimizers"     : None,           # Optimizer(s) for training model.
+	"debug"          : False,          # If ``True``, run the model in debug mode (when predicting).
+	"verbose"        : verbose,        # Verbosity.
 }
 
 # endregion
@@ -69,17 +61,14 @@ model = {
 data = {
     "name"      : data_name,
     "root"      : data_root,     # A root directory where the data is stored.
-	"transform" : A.Compose(
-		transforms = [
-			A.Resize(height=image_size[0], width=image_size[1]),
-			A.Flip(),
-			A.Rotate(),
-		],
-		is_check_shapes = False
-	),  # Transformations performing on both the input and target.
+	"transform" : A.Compose(transforms=[
+		A.Resize(height=image_size[0], width=image_size[1]),
+		# A.Flip(),
+		# A.Rotate(),
+	]),  # Transformations performing on both the input and target.
     "to_tensor" : True,          # If ``True``, convert input and target to :class:`torch.Tensor`.
     "cache_data": False,         # If ``True``, cache data to disk for faster loading next time.
-    "batch_size": 1,             # The number of samples in one forward pass.
+    "batch_size": 64,            # The number of samples in one forward pass.
     "devices"   : 0,             # A list of devices to use. Default: ``0``.
     "shuffle"   : True,          # If ``True``, reshuffle the datapoints at the beginning of every epoch.
     "verbose"   : verbose,       # Verbosity.
@@ -113,7 +102,7 @@ trainer = default.trainer | {
 	"logger"           : {
 		"tensorboard": default.tensorboard,
 	},
-	"max_steps"        : 600000,
+	"max_epochs"       : 140,
 }
 
 # endregion
@@ -123,7 +112,6 @@ trainer = default.trainer | {
 
 predictor = default.predictor | {
 	"default_root_dir": root,  # Default path for saving results.
-	"save_debug"      : True,  # Save debug images.
 }
 
 # endregion

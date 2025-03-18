@@ -1,16 +1,16 @@
 # Basic
 hostname    : ~
 config      : ~
-arch        : "snr"
-model       : "snr"
+arch        : "snr_net"
+model       : "snr_net"
 data        : "lol_v2_real"
 data_dir    : "data/enhance/lol_v2_real"
 root        : ~
 project     : ~
 variant     : ~
-fullname    : "snr_lol_v2_real"
+fullname    : "snr_net_lol_v2_real"
 save_dir    : ~
-weights     : "zoo/vision/enhance/llie/snr/snr/lol_v2_real/snr_lol_v2_real.pth"
+weights     : "zoo/vision/enhance/llie/snr_net/snr_net/lol_v2_real/snr_net_lol_v2_real.pth"
 device      : 0
 local_rank  : ~
 launcher    : ~
@@ -20,11 +20,11 @@ imgsz       : 512
 resize      : ~
 benchmark   : False
 save_image  : True
-save_debug  : False
+save_debug  : True
 use_data_dir: False
 use_fullpath: False
-use_fullname: False
-exist_ok    : False
+use_fullname: True
+exist_ok    : True
 verbose     : True
 
 # Model Specific

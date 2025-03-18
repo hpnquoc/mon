@@ -42,8 +42,9 @@ def predict(args: argparse.Namespace):
     use_fullpath = args.use_fullpath
     
     # Model
-    model = NestedUNet().to(device)
-    model.load_state_dict(torch.load(weights, weights_only=True))
+    model = NestedUNet()
+    model.load_state_dict(torch.load(weights, weights_only=True, map_location=device))
+    model = model.to(device)
     model.eval()
     
     # Benchmark

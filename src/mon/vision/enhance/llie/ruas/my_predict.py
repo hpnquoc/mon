@@ -93,10 +93,9 @@ def predict(args: argparse.Namespace):
                 description = f"[bright_yellow] Predicting"
             ):
                 # Input
-                image      = datapoint.get("image")
+                image      = datapoint.get("image").to(device)
                 meta       = datapoint.get("meta")
                 image_path = mon.Path(meta["path"])
-                image      = image.to(device)
                 
                 # Infer
                 timer.tick()

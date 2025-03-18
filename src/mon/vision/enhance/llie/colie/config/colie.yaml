@@ -18,13 +18,13 @@ epochs      : 100
 steps       : ~
 imgsz       : 256
 resize      : ~
-benchmark   : False
+benchmark   : True
 save_image  : True
 save_debug  : False
 use_data_dir: False
 use_fullpath: False
 use_fullname: False
-exist_ok    : False
+exist_ok    : True
 verbose     : True
 
 # Model Specific
