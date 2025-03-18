@@ -186,7 +186,7 @@ class RRDNet(base.ImageEnhancementModel):
     model_dir: core.Path    = current_dir
     arch     : str          = "rrdnet"
     tasks    : list[Task]   = [Task.LLIE]
-    schemes  : list[Scheme] = [Scheme.ZERO_REFERENCE, Scheme.INSTANCE]
+    schemes  : list[Scheme] = [Scheme.ZERO_SHOT]
     zoo      : dict         = {}
     
     def __init__(
@@ -296,7 +296,15 @@ class RRDNet(base.ImageEnhancementModel):
         reset_weights: bool  = True,
         *args, **kwargs
     ) -> dict:
-        # Initialize training components
+        # Pre-processing
+        self.assert_datapoint(datapoint)
+        for k, v in datapoint.items():
+            if isinstance(v, torch.Tensor):
+                datapoint[k] = v.to(self.device)
+        
+        # Training
+        timer = core.Timer()
+        timer.tick()
         self.train()
         if reset_weights:
             self.load_state_dict(self.initial_state_dict)
@@ -305,13 +313,6 @@ class RRDNet(base.ImageEnhancementModel):
         else:
             optimizer = nn.Adam(self.parameters(), lr=lr, betas=(0.9, 0.999))
         
-        # Pre-processing
-        self.assert_datapoint(datapoint)
-        for k, v in datapoint.items():
-            if isinstance(v, torch.Tensor):
-                datapoint[k] = v.to(self.device)
-        
-        # Training
         for _ in range(epochs - 1):
             outputs = self.forward_loss(datapoint=datapoint)
             self.zero_grad()
@@ -319,11 +320,7 @@ class RRDNet(base.ImageEnhancementModel):
             loss = outputs["loss"]
             loss.backward(retain_graph=True)
             optimizer.step()
-            
-        # Forward
         self.eval()
-        timer = core.Timer()
-        timer.tick()
         outputs = self.forward(datapoint=datapoint)
         timer.tock()
         self.assert_outputs(outputs)

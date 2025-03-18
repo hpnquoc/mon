@@ -46,7 +46,6 @@ class dataset(data.Dataset):
         
         sample[0] = transform(sample[0])
         sample[1] = transform(sample[1])
-        
         return sample
 
     def __len__(self):

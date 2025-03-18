@@ -498,7 +498,7 @@ class ZeroLINR(base.ImageEnhancementModel):
 	model_dir: core.Path    = current_dir
 	arch     : str          = "zero_linr"
 	tasks    : list[Task]   = [Task.LLIE]
-	schemes  : list[Scheme] = [Scheme.ZERO_REFERENCE, Scheme.INSTANCE]
+	schemes  : list[Scheme] = [Scheme.ZERO_SHOT]
 	zoo      : dict         = {}
 	
 	def __init__(

@@ -11,8 +11,8 @@ runml_dir="${project_dir}/runml"
 data_dir="${mon_dir}/data/enhance"
 
 # Input
-arch="utvnet"
-model="utvnet"
+arch="nerco"
+model="nerco_lol_v1"
 data=(
     ### Unpaired Set
     "dicm"

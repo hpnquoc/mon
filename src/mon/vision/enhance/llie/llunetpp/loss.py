@@ -1,10 +1,11 @@
 import torch
 import torch.nn as nn
-import mon
 from torch.nn import functional as F
 from torch.nn.modules.loss import _Loss
 from torchvision import transforms
 from torchvision.models import vgg
+
+import mon
 
 
 class Loss(_Loss):

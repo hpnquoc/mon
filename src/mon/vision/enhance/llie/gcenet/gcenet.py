@@ -341,7 +341,7 @@ class GCENet(base.ImageEnhancementModel):
     model_dir: core.Path    = current_dir
     arch     : str          = "gcenet"
     tasks    : list[Task]   = [Task.LLIE]
-    schemes  : list[Scheme] = [Scheme.UNSUPERVISED, Scheme.ZERO_REFERENCE]
+    schemes  : list[Scheme] = [Scheme.UNSUPERVISED]
     zoo      : dict         = {}
     
     def __init__(
@@ -538,7 +538,7 @@ class GCENet_ZSN2N(GCENet):
 @MODELS.register(name="gcenet_instance", arch="gcenet")
 class GCENet_Instance(GCENet):
     
-    schemes: list[Scheme] = [Scheme.ZERO_REFERENCE, Scheme.INSTANCE]
+    schemes: list[Scheme] = [Scheme.ZERO_SHOT]
     
     def __init__(self, name: str = "gcenet_instance", *args, **kwargs):
         super().__init__(name=name, *args, **kwargs)

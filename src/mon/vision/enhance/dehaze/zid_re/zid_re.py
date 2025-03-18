@@ -362,7 +362,7 @@ class ZID_RE(base.ImageEnhancementModel):
     model_dir: core.Path    = current_dir
     arch     : str          = "zid"
     tasks    : list[Task]   = [Task.DEHAZE]
-    schemes  : list[Scheme] = [Scheme.UNSUPERVISED, Scheme.ZERO_REFERENCE]
+    schemes  : list[Scheme] = [Scheme.ZERO_SHOT]
     zoo      : dict         = {}
     
     def __init__(
