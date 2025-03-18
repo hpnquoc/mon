@@ -18,7 +18,7 @@ epochs      : 1000
 steps       : ~
 imgsz       : 256
 resize      : ~
-benchmark   : True
+benchmark   : False
 save_image  : True
 save_debug  : False
 use_data_dir: False
