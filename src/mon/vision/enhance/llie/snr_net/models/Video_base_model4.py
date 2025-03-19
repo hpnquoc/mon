@@ -14,7 +14,6 @@ import torch.nn as nn
 from models.loss import CharbonnierLoss, VGGLoss
 from thop import profile
 
-import mon
 from .base_model import BaseModel
 
 logger = logging.getLogger('base')
@@ -266,8 +265,9 @@ class VideoBaseModel(BaseModel):
     def forward(self):
         self.test()
     
-    def measure_efficiency_score(self, image_size=512, channels=3, runs=100):
-        h, w  = mon.get_image_size(image_size)
+    def measure_efficiency_score(self, image_size=512, channels=3, runs=1000):
+        from mon import get_image_size
+        h, w  = get_image_size(image_size)
         input = torch.rand(1, channels, h, w).cuda()
         data  = {
             "idx": 0,

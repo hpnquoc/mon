@@ -12,7 +12,7 @@ data_dir="${mon_dir}/data/enhance"
 
 # Input
 arch="neurop"
-model="neurop_fivek_lite"
+model="neurop_fivek_ppr10k_c"
 data=(
     ### Unpaired Set
     "dicm"

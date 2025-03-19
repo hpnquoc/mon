@@ -4,7 +4,6 @@
 # Modified from BasicSR (https://github.com/xinntao/BasicSR)
 # Copyright 2018-2020 BasicSR Authors
 # ------------------------------------------------------------------------
-import torch
 
 # from basicsr.data import create_dataloader, create_dataset
 from basicsr.models import create_model
@@ -40,4 +39,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 
 import itertools
+import time
 
 import clip
 import numpy as np
 import torch
+from thop import profile
 from torchvision.transforms import Resize
 from util.image_pool import ImagePool
 
@@ -49,17 +51,17 @@ class NeRComodel(BaseModel):
         else:  # during test time, only load Gs
             self.model_names = ['G_A', 'Pre', 'H']
 
-        self.netG_A = networks.define_G(opt.input_nc * 2, opt.output_nc, opt.ngf, opt.netG, opt.norm, not opt.no_dropout, opt.init_type, opt.init_gain, self.gpu_ids)
-        self.netG_B = networks.define_G(opt.output_nc,    opt.input_nc,  opt.ngf, opt.netG, opt.norm, not opt.no_dropout, opt.init_type, opt.init_gain, self.gpu_ids)
-        self.netPre = networks.define_Pre(opt.output_nc,  opt.input_nc,  opt.ngf, opt.netG, opt.norm, not opt.no_dropout, opt.init_type, opt.init_gain, self.gpu_ids)
-        self.netH   = networks.define_H(opt.input_nc,     opt.output_nc, opt.ngf, opt.netG, opt.norm, not opt.no_dropout, opt.init_type, opt.init_gain, self.gpu_ids)
-
+        self.netG_A = networks.define_G(opt.input_nc * 2, opt.output_nc, opt.ngf, opt.netG, opt.norm, not opt.no_dropout, opt.init_type, opt.init_gain)
+        self.netG_B = networks.define_G(opt.output_nc,    opt.input_nc,  opt.ngf, opt.netG, opt.norm, not opt.no_dropout, opt.init_type, opt.init_gain)
+        self.netPre = networks.define_Pre(opt.output_nc,  opt.input_nc,  opt.ngf, opt.netG, opt.norm, not opt.no_dropout, opt.init_type, opt.init_gain)
+        self.netH   = networks.define_H(opt.input_nc,     opt.output_nc, opt.ngf, opt.netG, opt.norm, not opt.no_dropout, opt.init_type, opt.init_gain)
+        
         if self.isTrain:  # define discriminators
-            self.netD_A      = networks.define_D(opt.output_nc, opt.ndf, opt.netD, opt.n_layers_D, opt.norm, opt.init_type, opt.init_gain, self.gpu_ids)
-            self.netD_B      = networks.define_D(opt.input_nc,  opt.ndf, opt.netD, opt.n_layers_D, opt.norm, opt.init_type, opt.init_gain, self.gpu_ids)
-            self.netD_A_edge = networks.define_D(opt.output_nc, opt.ndf, opt.netD, opt.n_layers_D, opt.norm, opt.init_type, opt.init_gain, self.gpu_ids)
-            self.netD_B_edge = networks.define_D(opt.input_nc,  opt.ndf, opt.netD, opt.n_layers_D, opt.norm, opt.init_type, opt.init_gain, self.gpu_ids)
-
+            self.netD_A      = networks.define_D(opt.output_nc, opt.ndf, opt.netD, opt.n_layers_D, opt.norm, opt.init_type, opt.init_gain)
+            self.netD_B      = networks.define_D(opt.input_nc,  opt.ndf, opt.netD, opt.n_layers_D, opt.norm, opt.init_type, opt.init_gain)
+            self.netD_A_edge = networks.define_D(opt.output_nc, opt.ndf, opt.netD, opt.n_layers_D, opt.norm, opt.init_type, opt.init_gain)
+            self.netD_B_edge = networks.define_D(opt.input_nc,  opt.ndf, opt.netD, opt.n_layers_D, opt.norm, opt.init_type, opt.init_gain)
+        
         if self.isTrain:
             if opt.lambda_identity > 0.0:  # only works when input and output images have the same number of channels
                 assert opt.input_nc == opt.output_nc
@@ -76,8 +78,8 @@ class NeRComodel(BaseModel):
             self.criterionIdt     = torch.nn.L1Loss()
             # initialize optimizers; schedulers will be automatically created by function <BaseModel.setup>.
 
-            self.optimizer_G = torch.optim.Adam(itertools.chain(self.netPre.parameters(), self.netG_A.parameters(), self.netG_B.parameters(), self.netH.parameters()), lr=opt.lr, betas=(opt.beta1, 0.999))
-            self.optimizer_D = torch.optim.Adam(itertools.chain(self.netD_A.parameters(), self.netD_B.parameters(),self.netD_A_edge.parameters(), self.netD_B_edge.parameters()), lr=opt.lr, betas=(opt.beta1, 0.999))
+            self.optimizer_G = torch.optim.Adam(itertools.chain(self.netPre.parameters(), self.netG_A.parameters(), self.netG_B.parameters(),      self.netH.parameters()),        lr=opt.lr, betas=(opt.beta1, 0.999))
+            self.optimizer_D = torch.optim.Adam(itertools.chain(self.netD_A.parameters(), self.netD_B.parameters(), self.netD_A_edge.parameters(), self.netD_B_edge.parameters()), lr=opt.lr, betas=(opt.beta1, 0.999))
             self.optimizers.append(self.optimizer_G)
             self.optimizers.append(self.optimizer_D)
     
@@ -231,3 +233,24 @@ class NeRComodel(BaseModel):
         self.optimizer_D.step()  # update D_A and D_B's weights
 
         return loss_G + loss_D_A + loss_D_B + loss_D_A_edge + loss_D_B_edge
+    
+    def measure_efficiency_score(self, image_size=512, channels=3, runs=1000):
+        from mon import get_image_size
+        h, w  = get_image_size(image_size)
+        input = torch.rand(1, channels, h, w)
+        data  = {
+            "A"      : input,
+            "B"      : input,
+            "A_paths": "",
+            "B_paths": ""
+        }
+        self.set_input(data)
+        flops, params = profile(self, inputs=(), verbose=False)
+        g_flops       = flops  * 1e-9
+        m_params      = params * 1e-6
+        start_time    = time.time()
+        # for i in range(runs):
+        #    _ = self.get_sr(input)
+        runtime  = time.time() - start_time
+        avg_time = runtime / runs
+        return flops, params, avg_time

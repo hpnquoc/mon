@@ -44,23 +44,18 @@ def predict(args: argparse.Namespace):
     opt.serial_batches = True    # disable data shuffling; comment this line if results on randomly chosen images are needed.
     opt.no_flip        = True    # no flip; comment this line if results on flipped images are needed.
     opt.display_id     = -1      # no visdom display; the test code saves the results to a HTML file.
+    opt.device         = device
     
     # Model
     model = create_model(opt)    # create a model given opt.model and other options
     model.setup(weights, opt)    # regular setup: load and print networks; create schedulers
+    model = model.to(device)
     if opt.eval:
         model.eval()
     
     # Benchmark
     if benchmark:
-        flops, params, avg_time = mon.compute_efficiency_score(
-            model      = copy.deepcopy(model),
-            image_size = imgsz,
-            channels   = 3,
-            runs       = 1000,
-            use_cuda   = True,
-            verbose    = False,
-        )
+        flops, params, avg_time = model.measure_efficiency_score()
         console.log(f"FLOPs  = {flops:.4f}")
         console.log(f"Params = {params:.4f}")
         console.log(f"Time   = {avg_time:.17f}")
