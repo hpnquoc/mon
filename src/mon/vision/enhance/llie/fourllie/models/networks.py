@@ -1,9 +1,8 @@
-import torch
 import models.archs.FourLLIE as FourLLIE
 
 # Generator
 def define_G(opt):
-    opt_net = opt['network_G']
+    opt_net     = opt['network_G']
     which_model = opt_net['which_model_G']
 
     if which_model == 'FourLLIE':
@@ -12,4 +11,3 @@ def define_G(opt):
         raise NotImplementedError('Generator model [{:s}] not recognized'.format(which_model))
 
     return netG
-

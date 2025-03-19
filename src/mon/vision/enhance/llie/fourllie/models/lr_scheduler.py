@@ -1,13 +1,12 @@
 import math
-from collections import Counter
-from collections import defaultdict
-import torch
+from collections import Counter, defaultdict
+
 from torch.optim.lr_scheduler import _LRScheduler
 
 
 class MultiStepLR_Restart(_LRScheduler):
-    def __init__(self, optimizer, milestones, restarts=None, weights=None, gamma=0.1,
-                 clear_state=False, last_epoch=-1):
+    
+    def __init__(self, optimizer, milestones, restarts=None, weights=None, gamma=0.1, clear_state=False, last_epoch=-1):
         self.milestones = Counter(milestones)
         self.gamma = gamma
         self.clear_state = clear_state
@@ -33,6 +32,7 @@ class MultiStepLR_Restart(_LRScheduler):
 
 
 class CosineAnnealingLR_Restart(_LRScheduler):
+    
     def __init__(self, optimizer, T_period, restarts=None, weights=None, eta_min=0, last_epoch=-1):
         self.T_period = T_period
         self.T_max = self.T_period[0]  # current T period
@@ -62,4 +62,3 @@ class CosineAnnealingLR_Restart(_LRScheduler):
                 (1 + math.cos(math.pi * ((self.last_epoch - self.last_restart) - 1) / self.T_max)) *
                 (group['lr'] - self.eta_min) + self.eta_min
                 for group in self.optimizer.param_groups]
-

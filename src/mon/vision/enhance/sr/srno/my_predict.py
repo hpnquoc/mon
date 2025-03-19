@@ -75,14 +75,14 @@ def predict(args: argparse.Namespace):
                 description = f"[bright_yellow] Predicting"
             ):
                 # Input
-                image      = datapoint.get("image")
-                meta       = datapoint.get("meta")
-                image_path = mon.Path(meta["path"])
-                h      = int(image.shape[-2] * int(scale))
-                w      = int(image.shape[-1] * int(scale))
-                scale_ = h / image.shape[-2]
-                coord  = make_coord((h, w), flatten=False).to(device)
-                cell   = torch.ones(1, 2).to(device)
+                image       = datapoint.get("image").to(device)
+                meta        = datapoint.get("meta")
+                image_path  = mon.Path(meta["path"])
+                h           = int(image.shape[-2] * int(scale))
+                w           = int(image.shape[-1] * int(scale))
+                scale_      = h / image.shape[-2]
+                coord       = make_coord((h, w), flatten=False).to(device)
+                cell        = torch.ones(1, 2).to(device)
                 cell[:, 0] *= 2 / h
                 cell[:, 1] *= 2 / w
                 cell_factor = max(scale_ / scale_max, 1)

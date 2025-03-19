@@ -92,7 +92,6 @@ class VGGLoss(nn.Module):
 import torch
 import torch.nn.functional as F
 from torch.autograd import Variable
-import numpy as np
 from math import exp
 
 def gaussian(window_size, sigma):

@@ -179,4 +179,5 @@ if __name__ == '__main__':
         install_requires=get_requirements(),
         ext_modules=ext_modules,
         cmdclass={'build_ext': BuildExtension},
-        zip_safe=False)
+        zip_safe=False
+    )

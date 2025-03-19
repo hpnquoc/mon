@@ -90,13 +90,13 @@ def predict(args: argparse.Namespace):
                 # Infer
                 timer.tick()
                 model.feed_data(
-                    data = {
+                    data    = {
                         "idx"   : i,
                         "LQs"   : image,
                         "nf"    : image_nf,
                         "border": 0,
                     },
-                    need_GT=False
+                    need_GT = False,
                 )
                 model.test()
                 timer.tock()

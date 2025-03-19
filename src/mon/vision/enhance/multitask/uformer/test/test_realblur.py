@@ -26,8 +26,7 @@ parser = argparse.ArgumentParser(description='Image motion deblurring evaluation
 parser.add_argument('--input_dir', default='/data1/wangzd/datasets/deblurring', type=str, help='Directory of validation images')
 parser.add_argument('--result_dir', default='/data1/wangzd/uformer_cvpr/results_release/deblurring/', type=str, help='Directory for results')
 parser.add_argument('--dataset', default='RealBlur_J,RealBlur_R', type=str, help='Test Dataset') 
-parser.add_argument('--weights', default='/data1/wangzd/uformer_cvpr/logs/motiondeblur/GoPro/Uformer_B_1129/models/model_best.pth',
-    type=str, help='Path to weights')
+parser.add_argument('--weights', default='/data1/wangzd/uformer_cvpr/logs/motiondeblur/GoPro/Uformer_B_1129/models/model_best.pth', type=str, help='Path to weights')
 parser.add_argument('--gpus', default='3', type=str, help='CUDA_VISIBLE_DEVICES')
 parser.add_argument('--arch', default='Uformer_B', type=str, help='arch')
 parser.add_argument('--batch_size', default=1, type=int, help='Batch size for dataloader')
