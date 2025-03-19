@@ -1,11 +1,14 @@
+import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-import numpy as np
+
 # hidden_list = [256,256]
 # hidden_list = [256,256,256,256]
-hidden_list = [256,256,256]
-L = 8
+hidden_list = [256, 256, 256]
+L           = 8
+
+
 def make_coord(shape, ranges=None, flatten=True):
     """ Make coordinates at grid centers.
     """
@@ -23,7 +26,9 @@ def make_coord(shape, ranges=None, flatten=True):
         ret = ret.view(-1, ret.shape[-1])
     return ret
 
+
 class MLP(nn.Module):
+    
     def __init__(self, in_dim, out_dim, hidden_list):
         super().__init__()
         layers = []
@@ -39,6 +44,7 @@ class MLP(nn.Module):
         shape = x.shape[:-1]
         x = self.layers(x.view(-1, x.shape[-1]))
         return x.view(*shape, -1)
+
 
 class NRN(nn.Module):
 

@@ -1,9 +1,12 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 import os
+import random
+
 from data.base_dataset import BaseDataset, get_transform
 from data.image_folder import make_dataset
 from PIL import Image
-import random
-from torchvision import transforms
 
 
 class UnalignedTestDataset(BaseDataset):
@@ -24,16 +27,15 @@ class UnalignedTestDataset(BaseDataset):
             opt (Option class) -- stores all the experiment flags; needs to be a subclass of BaseOptions
         """
         BaseDataset.__init__(self, opt)
-        self.dir_A   = os.path.join(opt.dataroot, opt.phase + 'A')  # create a path '/path/to/data/trainA'
-        self.dir_B   = os.path.join(opt.dataroot, opt.phase + 'B')  # create a path '/path/to/data/trainB'
-
+        self.dir_A   = os.path.join(opt.dataroot, opt.phase + "A")  # create a path '/path/to/data/trainA'
+        self.dir_B   = os.path.join(opt.dataroot, opt.phase + "B")  # create a path '/path/to/data/trainB'
         self.A_paths = sorted(make_dataset(self.dir_A, opt.max_dataset_size))   # load images from '/path/to/data/trainA'
         self.B_paths = sorted(make_dataset(self.dir_B, opt.max_dataset_size))   # load images from '/path/to/data/trainB'
         self.A_size  = len(self.A_paths)  # get the size of dataset A
         self.B_size  = len(self.B_paths)  # get the size of dataset B
-        btoA         = self.opt.direction == 'BtoA'
+        btoA         = self.opt.direction == "BtoA"
         input_nc     = self.opt.output_nc if btoA else self.opt.input_nc       # get the number of channels of input image
-        output_nc    = self.opt.input_nc if btoA else self.opt.output_nc      # get the number of channels of output image
+        output_nc    = self.opt.input_nc  if btoA else self.opt.output_nc      # get the number of channels of output image
         self.transform_A = get_transform(self.opt, grayscale=(input_nc == 1))
         self.transform_B = get_transform(self.opt, grayscale=(output_nc == 1))
 

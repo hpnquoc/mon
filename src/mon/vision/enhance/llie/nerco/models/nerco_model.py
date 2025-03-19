@@ -12,17 +12,17 @@ from . import networks, sobel
 from .base_model import BaseModel
 
 '''CLIP code'''
-device = "cuda" if torch.cuda.is_available() else "cpu"
+device           = "cuda" if torch.cuda.is_available() else "cpu"
 CLIP, preprocess = clip.load("RN50", device=device)
-torch_resize = Resize([224,224])
+torch_resize = Resize([224, 224])
 
-real_B = np.array([[0., 1.]])
+real_B = np.array([[0.0, 1.0]])
 real_B = torch.Tensor(real_B).to(device)
 
-real_A = np.array([[1., 0.]])
+real_A = np.array([[1.0, 0.0]])
 real_A = torch.Tensor(real_A).to(device)
 
-text = clip.tokenize(["low light image", "high light image"]).to(device)
+text   = clip.tokenize(["low light image", "high light image"]).to(device)
 
 
 class NeRComodel(BaseModel):
@@ -34,14 +34,13 @@ class NeRComodel(BaseModel):
             parser.add_argument('--lambda_A',        type=float, default=10.0, help='weight for cycle loss (A -> B -> A)')
             parser.add_argument('--lambda_B',        type=float, default=10.0, help='weight for cycle loss (B -> A -> B)')
             parser.add_argument('--lambda_identity', type=float, default=0.5,  help='use identity mapping. Setting lambda_identity other than 0 has an effect of scaling the weight of the identity mapping loss. For example, if the weight of the identity loss should be 10 times smaller than the weight of the reconstruction loss, please set lambda_identity = 0.1')
-
         return parser
 
     def __init__(self, opt):
         BaseModel.__init__(self, opt)
         # specify the training losses you want to print out. The training/test scripts will call <BaseModel.get_current_losses>
-        self.loss_names = ['D_A', 'G_A', 'cycle_A', 'idt_A', 'D_B', 'G_B', 'cycle_B', 'idt_B', 'D_A_edge', 'D_B_edge', 'D_A_CLIP', 'D_B_CLIP', 'PreConsis', 'H']
-        visual_names_A = ['fake_B']
+        self.loss_names   = ['D_A', 'G_A', 'cycle_A', 'idt_A', 'D_B', 'G_B', 'cycle_B', 'idt_B', 'D_A_edge', 'D_B_edge', 'D_A_CLIP', 'D_B_CLIP', 'PreConsis', 'H']
+        visual_names_A    = ['fake_B']
         
         self.visual_names = visual_names_A
         # specify the models you want to save to the disk. The training/test scripts will call <BaseModel.save_networks> and <BaseModel.load_networks>.
@@ -63,7 +62,7 @@ class NeRComodel(BaseModel):
 
         if self.isTrain:
             if opt.lambda_identity > 0.0:  # only works when input and output images have the same number of channels
-                assert(opt.input_nc == opt.output_nc)
+                assert opt.input_nc == opt.output_nc
             self.fake_A_pool      = ImagePool(opt.pool_size)  # create image buffer to store previously generated images
             self.fake_B_pool      = ImagePool(opt.pool_size)  # create image buffer to store previously generated images
             self.pre_A_pool       = ImagePool(opt.pool_size)  # create image buffer to store previously generated images
@@ -83,31 +82,31 @@ class NeRComodel(BaseModel):
             self.optimizers.append(self.optimizer_D)
     
     def set_input(self, input):
-        AtoB             = self.opt.direction == 'AtoB'
-        self.real_A      = input['A' if AtoB else 'B'].to(self.device)
-        self.real_B      = input['B' if AtoB else 'A'].to(self.device)
-        self.image_paths = input['A_paths' if AtoB else 'B_paths']
+        AtoB             = self.opt.direction == "AtoB"
+        self.real_A      = input["A" if AtoB else "B"].to(self.device)
+        self.real_B      = input["B" if AtoB else "A"].to(self.device)
+        self.image_paths = input["A_paths" if AtoB else "B_paths"]
 
     def forward(self):
         """Run forward pass; called by both functions <optimize_parameters> and <test>."""
-        self.pre_A = self.netPre(self.real_A)
+        self.pre_A        = self.netPre(self.real_A)
         self.H, self.mask = self.netH(self.real_A)
 
-        temp = torch.cat((self.real_A, self.pre_A), 1)
+        temp        = torch.cat((self.real_A, self.pre_A), 1)
         self.fake_B = self.netG_A(temp * self.mask)  # G_A(A)
-        self.rec_A = self.netG_B(self.fake_B)   # G_B(G_A(A))
+        self.rec_A  = self.netG_B(self.fake_B)   # G_B(G_A(A))
 
         self.fake_A = self.netG_B(self.real_B * self.mask)  # G_B(B)
         self.pre_A1 = self.netPre(self.fake_A)
-        temp = torch.cat((self.fake_A, self.pre_A1), 1)
-        self.rec_B = self.netG_A(temp)   # G_A(G_B(B))
+        temp        = torch.cat((self.fake_A, self.pre_A1), 1)
+        self.rec_B  = self.netG_A(temp)   # G_A(G_B(B))
 
     def backward_D_basic(self, netD, real, fake):
         # Real
-        pred_real = netD(real)
+        pred_real   = netD(real)
         loss_D_real = self.criterionGAN(pred_real, True)
         # Fake
-        pred_fake = netD(fake.detach())
+        pred_fake   = netD(fake.detach())
         loss_D_fake = self.criterionGAN(pred_fake, False)
         # Combined loss and calculate gradients
         loss_D = (loss_D_real + loss_D_fake) * 0.5
@@ -127,8 +126,8 @@ class NeRComodel(BaseModel):
         return self.loss_D_A_edge
     
     def backward_D_B(self):
-        fake_A = self.fake_A_pool.query(self.fake_A)
-        pre_A  = self.pre_A_pool.query(self.pre_A)
+        fake_A        = self.fake_A_pool.query(self.fake_A)
+        pre_A         = self.pre_A_pool.query(self.pre_A)
         self.loss_D_B = self.backward_D_basic(self.netD_B, self.real_A, fake_A) + self.backward_D_basic(self.netD_B, self.real_A, pre_A)
         return self.loss_D_B
     
@@ -166,7 +165,7 @@ class NeRComodel(BaseModel):
         self.loss_cycle_A  = self.criterionCycle(self.rec_A, self.real_A) * lambda_A
 
         # Backward cycle loss || G_A(G_B(B)) - B||
-        self.loss_cycle_B = self.criterionCycle(self.rec_B, self.real_B) * lambda_B
+        self.loss_cycle_B   = self.criterionCycle(self.rec_B, self.real_B) * lambda_B
 
         self.loss_PreConsis = self.criterionCycle(self.pre_A, self.real_A) * 4 * lambda_A + self.criterionGAN(self.netD_B(self.pre_A), True)
 
@@ -225,8 +224,8 @@ class NeRComodel(BaseModel):
         # D_A and D_B
         self.set_requires_grad([self.netD_A, self.netD_B, self.netD_A_edge, self.netD_B_edge], True)
         self.optimizer_D.zero_grad()   # set D_A and D_B's gradients to zero
-        loss_D_A = self.backward_D_A()      # calculate gradients for D_A
-        loss_D_B = self.backward_D_B()      # calculate graidents for D_B
+        loss_D_A      = self.backward_D_A()      # calculate gradients for D_A
+        loss_D_B      = self.backward_D_B()      # calculate graidents for D_B
         loss_D_A_edge = self.backward_D_A_edge()
         loss_D_B_edge = self.backward_D_B_edge()
         self.optimizer_D.step()  # update D_A and D_B's weights

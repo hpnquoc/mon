@@ -13,19 +13,19 @@ class BaseModel(nn.Module, ABC):
 
     def __init__(self, opt):
         super().__init__()
-        self.opt = opt
-        self.gpu_ids = opt.gpu_ids
-        self.isTrain = opt.isTrain
-        self.device = torch.device('cuda:{}'.format(self.gpu_ids[0])) if self.gpu_ids else torch.device('cpu')  # get device name: CPU or GPU
+        self.opt      = opt
+        self.gpu_ids  = opt.gpu_ids
+        self.isTrain  = opt.isTrain
+        self.device   = torch.device('cuda:{}'.format(self.gpu_ids[0])) if self.gpu_ids else torch.device('cpu')  # get device name: CPU or GPU
         self.save_dir = os.path.join(opt.checkpoints_dir, opt.name)  # save all the checkpoints to save_dir
         if opt.preprocess != 'scale_width':  # with [scale_width], input images might have different sizes, which hurts the performance of cudnn.benchmark.
             torch.backends.cudnn.benchmark = True
-        self.loss_names = []
-        self.model_names = []
+        self.loss_names   = []
+        self.model_names  = []
         self.visual_names = []
-        self.optimizers = []
-        self.image_paths = []
-        self.metric = 0  # used for learning rate policy 'plateau'
+        self.optimizers   = []
+        self.image_paths  = []
+        self.metric       = 0  # used for learning rate policy 'plateau'
 
     @staticmethod
     def modify_commandline_options(parser, is_train):
@@ -49,9 +49,9 @@ class BaseModel(nn.Module, ABC):
         if self.isTrain:
             self.schedulers = [networks.get_scheduler(optimizer, opt) for optimizer in self.optimizers]
         if not self.isTrain or opt.continue_train:
-            load_suffix = '%d' % opt.load_iter if opt.load_iter > 0 else opt.epoch
+            load_suffix = "%d" % opt.load_iter if opt.load_iter > 0 else opt.epoch
             self.load_networks(weight_dir, load_suffix)
-        self.print_networks(opt.verbose)
+        # self.print_networks(opt.verbose)
 
     def eval(self):
         """Make models eval mode during test time"""
@@ -136,7 +136,7 @@ class BaseModel(nn.Module, ABC):
                 net           = getattr(self, 'net' + name)
                 if isinstance(net, torch.nn.DataParallel):
                     net = net.module
-                print('loading the model from %s' % load_path)
+                # print('loading the model from %s' % load_path)
                 # if you are using PyTorch newer than 0.4 (e.g., built from
                 # GitHub source), you can remove str() on self.device
                 state_dict = torch.load(load_path, map_location=str(self.device), weights_only=True)
@@ -147,9 +147,9 @@ class BaseModel(nn.Module, ABC):
                 # print(state_dict.keys())
                 # patch InstanceNorm checkpoints prior to 0.4
                 for key in list(state_dict.keys()):  # need to copy keys here because we mutate in loop
-                    self.__patch_instance_norm_state_dict(state_dict, net, key.split('.'))
-                    if "conv_block.5." in key:
-                        state_dict[key.replace("conv_block.5.", "conv_block.6.")] = state_dict.pop(key)
+                    self.__patch_instance_norm_state_dict(state_dict, net, key.split("."))
+                    #if "conv_block.5." in key:
+                        #state_dict[key.replace("conv_block.5.", "conv_block.6.")] = state_dict.pop(key)
                 net.load_state_dict(state_dict)
                 print('Loaded the model from %s' % load_path)
 

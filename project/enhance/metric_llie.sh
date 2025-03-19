@@ -11,8 +11,8 @@ runml_dir="${project_dir}/runml"
 data_dir="${mon_dir}/data/enhance"
 
 # Input
-arch="nerco"
-model="nerco_lol_v1"
+arch="psenet"
+model="psenet_sice_me"
 data=(
     ### Unpaired Set
     "dicm"

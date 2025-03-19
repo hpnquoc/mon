@@ -53,7 +53,7 @@ class Visualizer:
 
     It uses a Python library 'visdom' for display, and a Python library 'dominate' (wrapped in 'HTML') for creating HTML files with images.
     """
-
+    
     def __init__(self, opt):
         """Initialize the Visualizer class
 

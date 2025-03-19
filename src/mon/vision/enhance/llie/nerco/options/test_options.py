@@ -15,7 +15,7 @@ class TestOptions(BaseOptions):
         # Dropout and Batchnorm has different behavioir during training and test.
         parser.add_argument('--eval', action='store_true', help='use eval mode during test time.')
         # rewrite devalue values
-        parser.set_defaults(model='NeRCo')
+        parser.set_defaults(model='nerco')
         # To avoid cropping, the load_size should be the same as crop_size
         parser.set_defaults(load_size=parser.get_default('crop_size'))
         parser.add_argument('--dataset_mode', type=str, default='unaligned_test')

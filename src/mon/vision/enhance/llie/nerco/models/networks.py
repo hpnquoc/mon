@@ -1,21 +1,16 @@
 # -*- coding: utf-8 -*-
-from numpy import outer
+import functools
+
 import torch
 import torch.nn as nn
-from torch.nn import init
-import functools
-from torch.optim import lr_scheduler
-import torch
-from torchvision import transforms
 from models.mlp import NRN
-from torchvision import utils as vutils
-
+from torch.nn import init
+from torch.optim import lr_scheduler
 
 """
 Helper Functions
 ##############################################################################
 """
-
 
 
 class Identity(nn.Module):
@@ -90,6 +85,7 @@ def define_Pre(input_nc, output_nc, ngf, netG, norm='batch', use_dropout=False, 
     net = PreProcess(input_nc, output_nc, ngf, norm_layer=norm_layer, use_dropout=use_dropout, n_blocks=9)
     return init_net(net, init_type, init_gain, gpu_ids)
 
+
 def define_G(input_nc, output_nc, ngf, netG, norm='batch', use_dropout=False, init_type='normal', init_gain=0.02, gpu_ids=[]):
     net = None
     norm_layer = get_norm_layer(norm_type=norm)
@@ -107,6 +103,7 @@ def define_G(input_nc, output_nc, ngf, netG, norm='batch', use_dropout=False, in
     else:
         raise NotImplementedError('Generator model name [%s] is not recognized' % netG)
     return init_net(net, init_type, init_gain, gpu_ids)
+
 
 def define_H(input_nc, output_nc, ngf, netH, norm='batch', use_dropout=False, init_type='normal', init_gain=0.02, gpu_ids=[]):
     net = None
@@ -145,6 +142,7 @@ def define_D(input_nc, ndf, netD, n_layers_D=3, norm='batch', init_type='normal'
 # Classes
 # #############################################################################
 class GANLoss(nn.Module):
+    
     def __init__(self, gan_mode, target_real_label=1.0, target_fake_label=0.0):
         super(GANLoss, self).__init__()
         self.register_buffer('real_label', torch.tensor(target_real_label))
@@ -202,7 +200,9 @@ def cal_gradient_penalty(netD, real_data, fake_data, device, type='mixed', const
     else:
         return 0.0, None
 
+
 class SpatialAttention(nn.Module):
+    
     def __init__(self, kernel_size=7):
         super(SpatialAttention, self).__init__()
  
@@ -220,6 +220,7 @@ class SpatialAttention(nn.Module):
         defineH_output = self.conv1(defineH_output)
         real_A = self.sigmoid(defineH_output) * real_A
         return real_A
+
 
 class ResnetGenerator(nn.Module):
 
@@ -267,6 +268,7 @@ class ResnetGenerator(nn.Module):
     def forward(self, input):
         """Standard forward"""
         return self.model(input)
+
 
 class PreProcess(nn.Module):
 
@@ -376,9 +378,6 @@ class ResnetExtractor(nn.Module):
         self.sigmoid = nn.Sigmoid()
         # self.out = nn.Conv2d(ngf, ngf, kernel_size=7, padding=0, bias=False)
 
-
-
-
     def forward(self, input):
         # Channel attention
         h_featuremap = self.model(input)
@@ -470,8 +469,6 @@ class ResnetUnetGenerator(nn.Module):
         self.softmax = nn.Softmax(dim=1)
         self.out_conv = nn.Conv2d(num_features, output_nc, 1, padding=0, stride=1)
 
-        
-
     def forward(self, input):
         """Standard forward"""
         output_resnet_RGB = self.model_resnet(input)
@@ -494,7 +491,6 @@ class ResnetUnetGenerator(nn.Module):
         V = V1 + V2
         V = self.out_conv(V)
         return V, output_resnet_RGB, output_unet_RGB
-
 
 
 class ResnetBlock(nn.Module):
@@ -658,6 +654,7 @@ class NLayerDiscriminator(nn.Module):
 
 class PixelDiscriminator(nn.Module):
     """Defines a 1x1 PatchGAN discriminator (pixelGAN)"""
+    
     def __init__(self, input_nc, ndf=64, norm_layer=nn.BatchNorm2d):
         super(PixelDiscriminator, self).__init__()
         if type(norm_layer) == functools.partial:  # no need to use bias as BatchNorm2d has affine parameters
