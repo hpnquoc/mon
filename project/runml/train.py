@@ -20,7 +20,7 @@ current_dir  = current_file.parents[0]
 
 # region Train
 
-def train(args: dict | argparse.Namespace) -> str:
+def train(args: argparse.Namespace) -> str:
     # Parse args
     args         = vars(args)
     hostname     = args["hostname"]

@@ -12,8 +12,8 @@ import torch.optim
 import torchvision
 from torch.nn import functional as F
 
+import model as M
 import mon
-from model import model
 from spikingjelly.activation_based import functional
 
 console      = mon.console
@@ -75,45 +75,36 @@ def merge_image(split_data, starts, crop_size, shape=(1, 3, 80, 80)) -> torch.Te
 
 
 def predict(args: argparse.Namespace):
-    # General config
+    # Parse args
+    hostname     = args.hostname
     data         = args.data
+    fullname     = args.fullname
     save_dir     = args.save_dir
     weights      = args.weights
-    device       = mon.set_device(args.device)
+    device       = args.device
+    seed         = args.seed
     imgsz        = args.imgsz
     resize       = args.resize
+    epochs       = args.epochs
+    steps        = args.steps
     benchmark    = args.benchmark
     save_image   = args.save_image
     save_debug   = args.save_debug
     use_fullpath = args.use_fullpath
+    verbose      = args.verbose
     crop_size    = imgsz[0]  # 80
     overlap_size = 8         # 8
     pad_size     = 16        # 16 * 2 = 32
     
-    # Model
-    model_restoration = model.to(device)
-    functional.set_step_mode(model_restoration, step_mode="m")
-    functional.set_backend(model_restoration,   backend="cupy")
-    state_dict = torch.load(weights, map_location=device, weights_only=True)
-    if mon.Path(weights).suffix == ".ckpt":
-        state_dict = state_dict["state_dict"]
-    model_restoration.load_state_dict(state_dict)
-    model_restoration.to(device)
-    model_restoration.eval()
+    # Start
+    console.rule(f"[bold red] {fullname}")
+    console.log(f"Machine: {hostname}")
     
-    # Benchmark
-    if benchmark:
-        flops, params, avg_time = mon.compute_efficiency_score(
-            model      = copy.deepcopy(model_restoration),
-            image_size = imgsz,
-            channels   = 3,
-            runs       = 1000,
-            use_cuda   = True,
-            verbose    = False,
-        )
-        console.log(f"FLOPs  = {flops:.4f}")
-        console.log(f"Params = {params:.4f}")
-        console.log(f"Time   = {avg_time:.17f}")
+    # Device
+    device = mon.set_device(device)
+    
+    # Seed
+    mon.set_random_seed(seed)
     
     # Data I/O
     console.log(f"[bold red]{data}")
@@ -125,6 +116,20 @@ def predict(args: argparse.Namespace):
         verbose     = False,
     )
     
+    # Model
+    model = M.model.to(device)
+    functional.set_step_mode(model, step_mode="m")
+    functional.set_backend(model,   backend="cupy")
+    state_dict = torch.load(weights, map_location=device, weights_only=True)
+    if mon.Path(weights).suffix == ".ckpt":
+        state_dict = state_dict["state_dict"]
+    model.load_state_dict(state_dict)
+    model.eval()
+    
+    # Benchmark
+    if benchmark:
+        mon.compute_efficiency_score(model=copy.deepcopy(model), image_size=imgsz, verbose=True)
+    
     # Predicting
     timer = mon.Timer()
     with torch.no_grad():
@@ -134,24 +139,24 @@ def predict(args: argparse.Namespace):
                 total       = len(data_loader),
                 description = f"[bright_yellow] Predicting"
             ):
-                # Pre-processing
-                image        = datapoint.get("image")
-                image        = image.to(device)
-                meta         = datapoint.get("meta")
-                image_path   = mon.Path(meta["path"])
-                _, _, h0, w0 = image.shape
+                # Input
+                meta       = datapoint.get("meta")
+                image_path = mon.Path(meta["path"])
+                image      = datapoint.get("image")
+                image      = image.to(device)
+                h0, w0     = mon.get_image_size(image)
                 if resize:
                     image = mon.resize(image, imgsz)
-                image        = F.pad(image, (pad_size, pad_size, pad_size, pad_size), mode="constant", value=0)
+                image = F.pad(image, (pad_size, pad_size, pad_size, pad_size), mode="constant", value=0)
                 b, c, h1, w1 = image.shape
                 
                 # Infer
                 timer.tick()
                 split_data, starts = split_image(image, crop_size=crop_size, overlap_size=overlap_size)
                 for j, data in enumerate(split_data):
-                    split_data[j] = model_restoration(data).to(device)
+                    split_data[j] = model(data).to(device)
                     split_data[j] = split_data[j].cpu()
-                    functional.reset_net(model_restoration)
+                    functional.reset_net(model)
                 enhanced = merge_image(split_data, starts, crop_size=crop_size, shape=(b, c, h1, w1))
                 enhanced = torch.clamp(enhanced, 0, 1)
                 timer.tock()
@@ -170,9 +175,9 @@ def predict(args: argparse.Namespace):
                         output_path = save_dir / data_name / f"{image_path.stem}.jpg"
                     output_path.parent.mkdir(parents=True, exist_ok=True)
                     torchvision.utils.save_image(enhanced, str(output_path))
-        
-        avg_time = float(timer.avg_time)
-        console.log(f"Average time: {avg_time}")
+    
+    # Finish
+    console.log(f"Average time: {float(timer.avg_time)}")
 
 # endregion
 

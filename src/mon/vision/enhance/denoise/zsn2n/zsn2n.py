@@ -16,7 +16,6 @@ __all__ = [
     "ZSN2N",
 ]
 
-import cv2
 import torch
 from torch.nn.common_types import _size_2_t
 
@@ -53,31 +52,18 @@ class ZSN2N(base.ImageEnhancementModel):
     
     def __init__(
         self,
+        name        : str = "zsn2n",
         in_channels : int = 3,
         num_channels: int = 48,
         *args, **kwargs
     ):
-        super().__init__(
-            name        = "zsn2n",
-            in_channels = in_channels,
-            *args, **kwargs
-        )
-        
-        # Populate hyperparameter values from pretrained weights
-        if isinstance(self.weights, dict):
-            in_channels  = self.weights.get("in_channels" , in_channels)
-            num_channels = self.weights.get("num_channels", num_channels)
-        self.in_channels  = in_channels
-        self.num_channels = num_channels
-        
-        # Construct network
-        self.conv1 = nn.Conv2d(self.in_channels,  self.num_channels, kernel_size=3, padding=1)
-        self.conv2 = nn.Conv2d(self.num_channels, self.num_channels, kernel_size=3, padding=1)
-        self.conv3 = nn.Conv2d(self.num_channels, self.out_channels, kernel_size=1)
+        super().__init__(name=name, *args, **kwargs)
+    
+        # Network
+        self.conv1 = nn.Conv2d(in_channels,  num_channels, kernel_size=3, padding=1)
+        self.conv2 = nn.Conv2d(num_channels, num_channels, kernel_size=3, padding=1)
+        self.conv3 = nn.Conv2d(num_channels, in_channels,  kernel_size=1)
         self.act   = nn.LeakyReLU(negative_slope=0.2, inplace=True)
-        
-        # Loss
-        self._loss = None
         
         # Load weights
         if self.weights:
@@ -164,70 +150,38 @@ class ZSN2N(base.ImageEnhancementModel):
             optimizer = nn.Adam(self.parameters(), lr=lr)
             scheduler = nn.StepLR(optimizer, step_size=step_size, gamma=gamma)
         
-        # Pre-processing
+        # Input
         self.assert_datapoint(datapoint)
-        image  = datapoint.get("image")
+        image  = datapoint.get("image").to(self.device)
         h0, w0 = dtype.get_image_size(image)
-        for k, v in datapoint.items():
-            if dtype.is_image(v):
-                if resize:
-                    datapoint[k] = geometry.resize(v, image_size)
-                else:
-                    datapoint[k] = geometry.resize(v, divisible_by=32)
-        for k, v in datapoint.items():
-            if isinstance(v, torch.Tensor):
-                datapoint[k] = v.to(self.device)
+        if resize:
+            image = geometry.resize(image, image_size)
+        else:
+            image = geometry.resize(image, divisible_by=32)
         
-        # Training
+        # Optimize
+        timer = core.Timer()
+        timer.tick()
         for _ in range(epochs):
-            outputs = self.forward_loss(datapoint=datapoint)
+            outputs = self.forward_loss(datapoint={"image": image})
             optimizer.zero_grad()
             loss = outputs["loss"]
             loss.backward(retain_graph=True)
             optimizer.step()
             scheduler.step()
-        
-        # Forward
         self.eval()
-        timer = core.Timer()
-        timer.tick()
-        outputs = self.forward(datapoint=datapoint)
-        # with torch.no_grad():
-        #    pred = torch.clamp(self.forward(input=input), 0, 1)
+        outputs = self.forward(datapoint={"image": image})
         timer.tock()
-        self.assert_outputs(outputs)
         
         # Post-processing
-        for k, v in outputs.items():
-            if dtype.is_image(v):
-                h1, w1 = dtype.get_image_size(v)
-                if h1 != h0 or w1 != w0:
-                    outputs[k] = geometry.resize(v, (h0, w0))
+        self.assert_outputs(outputs)
+        enhanced = outputs["enhanced"]
+        enhanced = geometry.resize(enhanced, (h0, w0))
         
         # Return
-        outputs["time"] = timer.avg_time
-        return outputs
+        return outputs | {
+            "enhanced": enhanced,
+            "time"    : timer.avg_time,
+        }
         
-# endregion
-
-
-# region Main
-
-def run_zsn2n():
-    path      = core.Path("./data/00691.png")
-    image     = cv2.imread(str(path))
-    datapoint = {"image": dtype.to_image_tensor(image, False, True)}
-    device    = torch.device("cuda:0")
-    net       = ZSN2N(channels=3, num_channels=64).to(device)
-    outputs   = net.infer(datapoint)
-    denoise   = outputs.get("enhanced")
-    denoise   = dtype.to_image_nparray(denoise, False, True)
-    cv2.imshow("Image",    image)
-    cv2.imshow("Denoised", denoise)
-    cv2.waitKey(0)
-
-
-if __name__ == "__main__":
-    run_zsn2n()
-
 # endregion

@@ -120,19 +120,15 @@ class CoLIE_RE(base.ImageEnhancementModel):
         beta        : float       = 20,
         gamma       : float       = 8,
         delta       : float       = 5,
-        weights     : Any         = None,
         *args, **kwargs
     ):
-        super().__init__(
-            name    = name,
-            weights = weights,
-            *args, **kwargs
-        )
+        super().__init__(name=name, *args, **kwargs)
         self.window_size = window_size
         self.patch_dim   = window_size ** 2
         self.down_size   = down_size
         self.omega_0     = 30.0
         
+        # Network
         patch_layers   = [nn.INRLayer(self.patch_dim, hidden_dim, "sine", omega_0=self.omega_0, is_first=True)]
         spatial_layers = [nn.INRLayer(2,   hidden_dim, "sine", omega_0=self.omega_0, is_first=True)]
         for _ in range(1, add_layer - 2):
@@ -152,18 +148,9 @@ class CoLIE_RE(base.ImageEnhancementModel):
         
         weight_decay = weight_decay or [0.1, 0.0001, 0.001]
         self.params  = []
-        self.params += [{
-	        "params"      : self.spatial_net.parameters(),
-	        "weight_decay": weight_decay[0]
-        }]
-        self.params += [{
-	        "params"      : self.patch_net.parameters(),
-	        "weight_decay": weight_decay[1]
-        }]
-        self.params += [{
-	        "params"      : self.output_net.parameters(),
-	        "weight_decay": weight_decay[2]
-        }]
+        self.params += [{"params": self.spatial_net.parameters(), "weight_decay": weight_decay[0]}]
+        self.params += [{"params": self.patch_net.parameters(),   "weight_decay": weight_decay[1]}]
+        self.params += [{"params": self.output_net.parameters(),  "weight_decay": weight_decay[2]}]
         
         # Loss
         self.loss = Loss(L, alpha, beta, gamma, delta)
@@ -178,45 +165,27 @@ class CoLIE_RE(base.ImageEnhancementModel):
     def init_weights(self, m: nn.Module):
         pass
     
-    def compute_efficiency_score(
-        self,
-        image_size: _size_2_t = 512,
-        channels  : int       = 3,
-        runs      : int       = 1000,
-        verbose   : bool      = False,
-    ) -> tuple[float, float, float]:
-        """Compute the efficiency score of the model, including FLOPs, number
-        of parameters, and runtime.
+    def compute_efficiency_score(self, image_size: _size_2_t = 512) -> tuple[float, float]:
+        """Compute the efficiency score of the model, including FLOPs and number
+        of parameters.
         """
         # Define input tensor
         h, w      = dtype.get_image_size(image_size)
         datapoint = {
-            "image": torch.rand(1, channels, h, w).to(self.device),
-            # "depth": torch.rand(1,        1, h, w).to(self.device)
+            "image": torch.rand(1, 3, h, w).to(self.device),
         }
-        
         # Get FLOPs and Params
-        flops, params = core.custom_profile(self, inputs=datapoint, verbose=verbose)
+        flops, params = core.custom_profile(self, inputs=datapoint, verbose=False)
         # flops         = FlopCountAnalysis(self, datapoint).total() if flops == 0 else flops
         params        = self.params                if hasattr(self, "params") and params == 0 else params
         params        = parameter_count(self)      if hasattr(self, "params")  else params
         params        = sum(list(params.values())) if isinstance(params, dict) else params
-        
-        # Get time
-        timer = core.Timer()
-        for i in range(runs):
-            timer.tick()
-            _ = self(datapoint)
-            timer.tock()
-        avg_time = timer.avg_time
-        
         # Print
-        if verbose:
-            console.log(f"FLOPs (G) : {flops:.4f}")
-            console.log(f"Params (M): {params:.4f}")
-            console.log(f"Time (s)  : {avg_time:.17f}")
-        
-        return flops, params, avg_time
+        if self.verbose:
+            console.log(f"FLOPs : {flops:.4f}")
+            console.log(f"Params: {params:.4f}")
+        # Return
+        return flops, params
     
     def forward_loss(self, datapoint: dict, *args, **kwargs) -> dict:
         # Forward
@@ -325,43 +294,39 @@ class CoLIE_RE(base.ImageEnhancementModel):
         *args, **kwargs
     ) -> dict:
         # Initialize training components
-        self.train()
         if reset_weights:
             self.load_state_dict(self.initial_state_dict)
         if isinstance(self.optims, dict):
             optimizer = self.optims.get("optimizer", None)
         else:
-            optimizer = nn.Adam(
-                self.parameters(),
-                lr           = lr,
-                betas        = (0.9, 0.999),
-                weight_decay = weight_decay,
-            )
+            optimizer = nn.Adam(self.parameters(), lr=lr, weight_decay=weight_decay)
         
-        # Pre-processing
+        # Input
         self.assert_datapoint(datapoint)
         for k, v in datapoint.items():
             if isinstance(v, torch.Tensor):
                 datapoint[k] = v.to(self.device)
         
-        # Training
+        # Optimize
+        timer = core.Timer()
+        timer.tick()
+        self.train()
         for _ in range(epochs):
             outputs = self.forward_loss(datapoint=datapoint)
             optimizer.zero_grad()
             loss = outputs["loss"]
             loss.backward(retain_graph=True)
             optimizer.step()
-            
-        # Forward
         self.eval()
-        timer = core.Timer()
-        timer.tick()
         outputs = self.forward(datapoint=datapoint)
         timer.tock()
+        
+        # Post-processing
         self.assert_outputs(outputs)
-    
+        
         # Return
-        outputs["time"] = timer.avg_time
-        return outputs
+        return outputs | {
+            "time": timer.avg_time,
+        }
     
 # endregion

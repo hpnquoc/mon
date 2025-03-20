@@ -19,7 +19,7 @@ current_dir  = current_file.parents[0]
 
 # region Predict
 
-def predict(args: dict | argparse.Namespace) -> str:
+def predict(args: argparse.Namespace) -> str:
     # Parse args
     args         = vars(args)
     hostname     = args["hostname"]
@@ -41,6 +41,7 @@ def predict(args: dict | argparse.Namespace) -> str:
     
     # Start
     console.rule(f"[bold red] {fullname}")
+    console.log(f"Machine: {hostname}")
     
     # Device
     device = mon.set_device(device)

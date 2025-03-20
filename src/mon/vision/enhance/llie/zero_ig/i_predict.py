@@ -4,7 +4,6 @@
 from __future__ import annotations
 
 import argparse
-import copy
 import logging
 import sys
 
@@ -12,8 +11,6 @@ import cv2
 import numpy as np
 import torch.backends.cudnn as cudnn
 import torch.optim
-import torch.optim
-import torch.utils
 import torch.utils
 from PIL import Image
 from thop import profile
@@ -46,28 +43,31 @@ def calculate_model_flops(model, input_tensor):
     return flops_in_gigaflops
 
 
-def predict(args: dict | argparse.Namespace):
+def predict(args: argparse.Namespace):
     # Parse args
     hostname     = args.hostname
     data         = args.data
     fullname     = args.fullname
     save_dir     = args.save_dir
     weights      = args.weights
-    device       = mon.set_device(args.device)
-    epochs       = args.epochs
+    device       = args.device
     seed         = args.seed
     imgsz        = args.imgsz
     resize       = args.resize
+    epochs       = args.epochs
+    steps        = args.steps
     benchmark    = args.benchmark
     save_image   = args.save_image
     save_debug   = args.save_debug
     use_fullpath = args.use_fullpath
-    mon.set_random_seed(seed)
+    verbose      = args.verbose
     
     # Start
     console.rule(f"[bold red] {fullname}")
+    console.log(f"Machine: {hostname}")
     
-    # Model
+    # Device
+    device = mon.set_device(device)
     if torch.cuda.is_available():
         torch.set_default_tensor_type("torch.cuda.FloatTensor")
         cudnn.benchmark = True
@@ -77,13 +77,9 @@ def predict(args: dict | argparse.Namespace):
         logging.info('no gpu device available')
         sys.exit(1)
     
-    # Benchmark
-    if benchmark:
-        model = Network()
-        mon.compute_efficiency_score(model=model, image_size=imgsz, channels=3, verbose=True)
-        total_params = calculate_model_parameters(model)
-        console.log(f"Total Params = {total_params:.4f}")
-        
+    # Seed
+    mon.set_random_seed(seed)
+    
     # Data I/O
     console.log(f"[bold red]{data}")
     data_name, data_loader, data_writer = mon.parse_io_worker(
@@ -94,6 +90,13 @@ def predict(args: dict | argparse.Namespace):
         verbose     = False,
     )
     
+    # Benchmark
+    if benchmark:
+        model = Network()
+        mon.compute_efficiency_score(model=model, image_size=imgsz, channels=3, verbose=True)
+        total_params = calculate_model_parameters(model)
+        console.log(f"Total Params = {total_params:.4f}")
+        
     # Predicting
     timer = mon.Timer()
     with mon.get_progress_bar() as pbar:
@@ -114,14 +117,12 @@ def predict(args: dict | argparse.Namespace):
             # Optimize
             timer.tick()
             model = Network()
-            if weights is not None and mon.Path(weights).is_weights_file():
-                model.load_state_dict(torch.load(weights))
             model.enhance.in_conv.apply(model.enhance_weights_init)
             model.enhance.conv.apply(model.enhance_weights_init)
             model.enhance.out_conv.apply(model.enhance_weights_init)
             model = model.to(device)
             model.train()
-            optimizer = torch.optim.Adam(model.parameters(), lr=args.lr, betas=(0.9, 0.999), weight_decay=3e-4)
+            optimizer = torch.optim.Adam(model.parameters(), lr=args.lr, weight_decay=3e-4)
             input     = Variable(image, requires_grad=False).to(device)
             for _ in range(epochs):
                 optimizer.zero_grad()
@@ -130,8 +131,6 @@ def predict(args: dict | argparse.Namespace):
                 loss.backward()
                 nn.utils.clip_grad_norm_(model.parameters(), 5)
                 optimizer.step()
-            
-            # Infer
             model = Finetunemodel(model.state_dict())
             input = Variable(image, volatile=True).to(device)
             enhance, output = model(input)
@@ -162,9 +161,9 @@ def predict(args: dict | argparse.Namespace):
                 output_path    = debug_dir / f"{image_path.stem}.jpg"
                 output_path.parent.mkdir(parents=True, exist_ok=True)
                 cv2.imwrite(str(output_path), output)
-            
-    avg_time = float(timer.avg_time)
-    console.log(f"Average time: {avg_time}")
+    
+    # Finish
+    console.log(f"Average time: {float(timer.avg_time)}")
 
 # endregion
 

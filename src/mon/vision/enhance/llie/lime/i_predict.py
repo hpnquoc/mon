@@ -1,7 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# https://github.com/DavidQiuChao/PIE
+"""
+Reference:
+    https://github.com/pvnieo/Low-light-Image-Enhancement
+"""
 
 from __future__ import annotations
 
@@ -9,10 +12,9 @@ import argparse
 from typing import Sequence
 
 import cv2
-import numpy as np
 
 import mon
-import pie
+from exposure_enhancement import enhance_image_exposure
 
 console      = mon.console
 current_file = mon.Path(__file__).absolute()
@@ -21,56 +23,33 @@ current_dir  = current_file.parents[0]
 
 # region Predict
 
-def compute_efficiency_score(
-    args,
-    image_size: int | Sequence[int] = 512,
-    channels  : int  = 3,
-    runs      : int  = 1000,
-    use_cuda  : bool = True,
-    verbose   : bool = False,
-):
-    # Define input tensor
-    h, w  = mon.get_image_size(image_size)
-    input = np.random.rand(h, w, channels).astype(np.uint8)
-    
-    # Get time
-    timer = mon.Timer()
-    for i in range(runs):
-        timer.tick()
-        _ = pie.PIE(input)
-        timer.tock()
-    avg_time = timer.avg_time
-    
-    # Print
-    if verbose:
-        # console.log(f"FLOPs (G) : {flops:.4f}")
-        # console.log(f"Params (M): {params:.4f}")
-        console.log(f"Time (s)  : {avg_time:.17f}")
-        
-        
 def predict(args: argparse.Namespace):
     # General config
+    hostname     = args.hostname
     data         = args.data
+    fullname     = args.fullname
     save_dir     = args.save_dir
+    weights      = args.weights
+    device       = args.device
+    seed         = args.seed
     imgsz        = args.imgsz
-    imgsz        = imgsz[0] if isinstance(imgsz, (list, tuple)) else imgsz
+    imgsz        = imgsz[0] if isinstance(imgsz, Sequence) else imgsz
     resize       = args.resize
+    epochs       = args.epochs
+    steps        = args.steps
     benchmark    = args.benchmark
     save_image   = args.save_image
     save_debug   = args.save_debug
     use_fullpath = args.use_fullpath
+    verbose      = args.verbose
     
-    # Measure efficiency score
-    if benchmark:
-        compute_efficiency_score(
-            args       = args,
-            image_size = imgsz,
-            channels   = 3,
-            runs       = 100,
-            use_cuda   = True,
-            verbose    = True,
-        )
-        
+    # Start
+    console.rule(f"[bold red] {fullname}")
+    console.log(f"Machine: {hostname}")
+    
+    # Seed
+    mon.set_random_seed(seed)
+    
     # Data I/O
     console.log(f"[bold red]{data}")
     data_name, data_loader, data_writer = mon.parse_io_worker(
@@ -90,16 +69,31 @@ def predict(args: argparse.Namespace):
             description = f"[bright_yellow] Predicting"
         ):
             # Input
-            image      = datapoint.get("image")
             meta       = datapoint.get("meta")
             image_path = mon.Path(meta["path"])
+            image      = datapoint.get("image")
+            h0, w0     = mon.get_image_size(image)
+            if resize:
+                image = cv2.resize(image, (imgsz, imgsz))
             
             # Infer
             timer.tick()
-            enhanced_image = pie.PIE(image)
+            enhanced_image = enhance_image_exposure(
+                im      = image,
+                gamma   = args.gamma,
+                lambda_ = args.lambda_,
+                dual    = not args.lime,
+                sigma   = args.sigma,
+                bc      = args.bc,
+                bs      = args.bs,
+                be      = args.be,
+                eps     = args.eps
+            )
             timer.tock()
             
             # Post-processing
+            if resize:
+                enhanced_image = cv2.resize(enhanced_image, (w0, h0))
             enhanced_image = cv2.cvtColor(enhanced_image, cv2.COLOR_RGB2BGR)
             
             # Save
@@ -112,8 +106,8 @@ def predict(args: argparse.Namespace):
                 output_path.parent.mkdir(parents=True, exist_ok=True)
                 cv2.imwrite(str(output_path), enhanced_image)
     
-    avg_time = float(timer.avg_time)
-    console.log(f"Average time: {avg_time}")
+    # Finish
+    console.log(f"Average time: {float(timer.avg_time)}")
 
 # endregion
 
@@ -127,5 +121,4 @@ def main() -> str:
 
 if __name__ == "__main__":
     main()
-
 # endregion

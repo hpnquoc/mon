@@ -1,17 +1,17 @@
 # Basic
 root        : ~                                                                 # Root directory of the current run.
-arch        : ~                                                                 # Model architecture or family (e.g., resnet).
-model       : &model    "zero_restore_llie"                                     # Model name (e.g., resnet50).
-data        : &data     ~                                                       # Dataset name (e.g., cifar10) or directory (e.g., data/cifar10).
+arch        : "zero_restore"                                                    # Model architecture or family (e.g., resnet).
+model       : &model "zero_restore_llie"                                        # Model name (e.g., resnet50).
+data        : &data ~                                                           # Dataset name (e.g., cifar10) or directory (e.g., data/cifar10).
 fullname    : &fullname "zero_restore_llie"                                     # Full name of the current run (e.g., resnet50_cifar10_01). If not set, it will be this file's name.
 save_dir    : &save_dir ~                                                       # Saving directory. If not set, it will be `root/arch/model/data`.
-weights     : &weights  ~                                                       # Path to the pretrained weights.
+weights     : &weights ~                                                        # Path to the pretrained weights.
 device      : 0                                                                 # Running device (i.e., cuda:0 | cuda:0,1,2,3 | cpu).
 seed        : 100                                                               # Random seed.
 imgsz       : &imgsz 512                                                        # Image size for the model.
 resize      : False                                                             # Resize the input image to `imgsz`.
 epochs      : &epochs 10000                                                     # Training epochs.
-steps       : &steps  -1                                                        # Training steps.
+steps       : &steps ~                                                          # Training steps.
 benchmark   : False                                                             # Benchmark the model.
 save_image  : True                                                              # Save the output image.
 save_debug  : &save_debug False                                                 # Save the debug information.

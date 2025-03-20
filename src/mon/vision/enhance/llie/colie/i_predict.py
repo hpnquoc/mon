@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+from typing import Sequence
 
 import torch.optim
 
@@ -21,19 +22,24 @@ current_dir  = current_file.parents[0]
 # region Predict
 
 def predict(args: argparse.Namespace):
-    # General config
+    # Parse args
+    hostname     = args.hostname
     data         = args.data
+    fullname     = args.fullname
     save_dir     = args.save_dir
     weights      = args.weights
-    device       = mon.set_device(args.device)
-    epochs       = args.epochs
+    device       = args.device
+    seed         = args.seed
     imgsz        = args.imgsz
-    imgsz        = imgsz[0] if isinstance(imgsz, list | tuple) else imgsz
+    imgsz        = imgsz[0] if isinstance(imgsz, Sequence) else imgsz
     resize       = args.resize
+    epochs       = args.epochs
+    steps        = args.steps
     benchmark    = args.benchmark
     save_image   = args.save_image
     save_debug   = args.save_debug
     use_fullpath = args.use_fullpath
+    verbose      = args.verbose
     window       = int(args.window)
     L            = float(args.L)
     alpha        = float(args.alpha)
@@ -41,20 +47,15 @@ def predict(args: argparse.Namespace):
     gamma        = float(args.gamma)
     delta        = float(args.delta)
     
-    # Benchmark
-    if benchmark:
-        model = INF(patch_dim=window**2, num_layers=4, hidden_dim=256, add_layer=2)
-        flops, params, avg_time = mon.compute_efficiency_score(
-            model      = model,
-            image_size = imgsz,
-            channels   = 3,
-            runs       = 1000,
-            use_cuda   = True,
-            verbose    = False,
-        )
-        console.log(f"FLOPs  = {flops:.4f}")
-        console.log(f"Params = {params:.4f}")
-        console.log(f"Time   = {avg_time:.17f}")
+    # Start
+    console.rule(f"[bold red] {fullname}")
+    console.log(f"Machine: {hostname}")
+    
+    # Device
+    device = mon.set_device(device)
+    
+    # Seed
+    mon.set_random_seed(seed)
     
     # Data I/O
     console.log(f"[bold red]{data}")
@@ -65,7 +66,12 @@ def predict(args: argparse.Namespace):
         denormalize = True,
         verbose     = False,
     )
-
+    
+    # Benchmark
+    if benchmark:
+        model = INF(patch_dim=window**2, num_layers=4, hidden_dim=256, add_layer=2)
+        mon.compute_efficiency_score(model=model, image_size=imgsz, verbose=True)
+    
     # Predicting
     timer = mon.Timer()
     with mon.get_progress_bar() as pbar:
@@ -78,25 +84,22 @@ def predict(args: argparse.Namespace):
             meta       = datapoint.get("meta")
             image_path = mon.Path(meta["path"])
             img_rgb    = get_image(str(image_path))
-            # h0, w0     = img_rgb.shape[0], img_rgb.shape[1]
-            # img_rgb    = mon.resize(img_rgb, (imgsz, imgsz))
             img_hsv    = rgb2hsv_torch(img_rgb)
             img_v      = get_v_component(img_hsv)
             img_v_lr   = interpolate_image(img_v, imgsz, imgsz)
             coords     = get_coords(imgsz, imgsz)
             patches    = get_patches(img_v_lr, window)
+            
             # Model
             img_siren  = INF(patch_dim=window ** 2, num_layers=4, hidden_dim=256, add_layer=2)
             img_siren  = img_siren.to(device)
-            
             # Optimizer
             optimizer  = torch.optim.Adam(img_siren.parameters(), lr=1e-5, betas=(0.9, 0.999), weight_decay=3e-4)
-            
             # Loss Functions
             l_exp = L_exp(16, L)
             l_TV  = L_TV()
 
-            # Training
+            # Optimize
             timer.tick()
             for epoch in range(epochs):
                 img_siren.train()
@@ -118,7 +121,6 @@ def predict(args: argparse.Namespace):
             img_hsv_fixed = replace_v_component(img_hsv, img_v_fixed)
             img_rgb_fixed = hsv2rgb_torch(img_hsv_fixed)
             img_rgb_fixed = img_rgb_fixed / torch.max(img_rgb_fixed)
-            # img_rgb_fixed = mon.resize(img_rgb_fixed, (h0, w0))
             timer.tock()
             
             # Save
@@ -131,8 +133,8 @@ def predict(args: argparse.Namespace):
                 output_path.parent.mkdir(parents=True, exist_ok=True)
                 Image.fromarray((torch.movedim(img_rgb_fixed, 1, -1)[0].detach().cpu().numpy() * 255).astype(np.uint8)).save(str(output_path))
     
-    avg_time = float(timer.avg_time)
-    console.log(f"Average time: {avg_time}")
+    # Finish
+    console.log(f"Average time: {float(timer.avg_time)}")
 
 # endregion
 

@@ -41,7 +41,7 @@ current_dir  = current_file.parents[0]
 # region Train
 
 def train(args: argparse.Namespace):
-    # General config
+    # Parse args
     data             = args.data
     data_dir         = mon.ROOT_DIR / args.data_dir
     fullname         = args.fullname
@@ -113,7 +113,6 @@ def train(args: argparse.Namespace):
         val_dir = mon.ROOT_DIR / "data" / "enhance" / "rain100" / "test"
     else:
         raise ValueError("No validation dataset found.")
-        
     val_dataset = Dataload(data_dir=val_dir, patch_size=patch_size_test)
     val_loader  = torch.utils.data.DataLoader(
         val_dataset,

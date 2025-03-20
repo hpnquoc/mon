@@ -86,7 +86,7 @@ def run_train(args: dict):
     # Parse script file
     if use_extra_model:
         # torch_distributed_launch = mon.EXTRA_MODELS[arch][model]["torch_distributed_launch"]
-        script_file = mon.EXTRA_MODELS[arch][model]["model_dir"] / "my_train.py"
+        script_file = mon.EXTRA_MODELS[arch][model]["model_dir"] / "i_train.py"
         python_call = ["python"]
         # device      = mon.parse_device(device)
         # if isinstance(device, list) and torch_distributed_launch:
@@ -198,7 +198,7 @@ def run_predict(args: dict):
         
         # Parse script file
         if use_extra_model:
-            script_file = mon.EXTRA_MODELS[arch][model]["model_dir"] / "my_predict.py"
+            script_file = mon.EXTRA_MODELS[arch][model]["model_dir"] / "i_predict.py"
             python_call = ["python"]
         else:
             script_file = current_dir / "predict.py"

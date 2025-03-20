@@ -675,24 +675,24 @@ class MemoryUnit(DT.Enum):
 class Task(DT.Enum):
     """Task types."""
     
-    CLASSIFY  = "classify"   # classification
-    DEBLUR    = "deblur"     # deblurring
-    DEHAZE    = "dehaze"     # dehazing
-    DEMOIRE   = "demoire"    # demoireing
-    DENOISE   = "denoise"    # denoising
-    DEPTH     = "depth"      # depth estimation
-    DERAIN    = "derain"     # deraining
-    DESNOW    = "desnow"     # desnowing
-    DETECT    = "detect"     # object detection
-    INPAINT   = "inpaint"    # inpainting
-    LLIE      = "llie"       # low-light image enhancement
-    NIGHTTIME = "nighttime"  # nighttime
-    POSE      = "pose"       # pose estimation
-    RETOUCH   = "retouch"    # image retouching
-    SEGMENT   = "segment"    # semantic segmentation
-    SR        = "sr"         # super-resolution
-    TRACK     = "track"      # object tracking
-    UIE       = "uie"        # underwater image enhancement
+    CLASSIFY  = "classify"              # classification
+    DEBLUR    = "deblur"                # deblurring
+    DEHAZE    = "dehaze"                # dehazing
+    DEMOIRE   = "demoire"               # demoireing
+    DENOISE   = "denoise"               # denoising
+    DEPTH     = "depth"                 # depth estimation
+    DERAIN    = "derain"                # deraining
+    DESNOW    = "desnow"                # desnowing
+    DETECT    = "detect"                # object detection
+    INPAINT   = "inpaint"               # inpainting
+    LLIE      = "llie"                  # low-light image enhancement
+    NIGHTTIME = "nighttime"             # nighttime
+    POSE      = "pose"                  # pose estimation
+    RETOUCH   = "retouch"               # image retouching
+    SEGMENT   = "segment"               # semantic segmentation
+    SR        = "sr"                    # super-resolution
+    TRACK     = "track"                 # object tracking
+    UIE       = "uie"                   # underwater image enhancement
 
 
 class RunMode(DT.Enum):
@@ -706,11 +706,11 @@ class RunMode(DT.Enum):
 class Scheme(DT.Enum):
     """Learning schemes."""
     
-    INFERENCE      = "inference"       # Inference Only: we don't have training code.
-    SUPERVISED     = "supervised"      # Supervised Learning:
-    TRADITIONAL    = "traditional"     # Traditional Method (no learning)
-    UNSUPERVISED   = "unsupervised"    # Unsupervised Learning: find hidden patterns or groupings in data without labels.
-    ZERO_SHOT      = "zero_shot"       # Zero-Shot Learning.
+    INFERENCE    = "inference"          # Inference Only: we don't have training code.
+    SUPERVISED   = "supervised"         # Supervised Learning.
+    TRADITIONAL  = "traditional"        # Traditional Method (non-learning)
+    UNSUPERVISED = "unsupervised"       # Unsupervised Learning.
+    ZERO_SHOT    = "zero_shot"          # Zero-Shot Learning.
 
 
 class Split(DT.Enum):
@@ -737,7 +737,7 @@ DEPTH_DATA_SOURCES   = [None, "dav2_vitb", "dav2_vitl"]
 EXTRA_DATASET_STR = "[extra]"
 EXTRA_MODEL_STR   = "[extra]"
 EXTRA_DATASETS    = { }
-EXTRA_MODELS      = {  # architecture/model (+ variant)
+EXTRA_MODELS      = {                   # architecture/model (+ variant)
     # region dtype/depth
     "depth_anything"   : {
         "depth_anything_vitb": {
@@ -918,14 +918,6 @@ EXTRA_MODELS      = {  # architecture/model (+ variant)
     },
     # endregion
     # region enhance/dehaze
-    "c2pnet": {
-        "c2pnet": {
-            "tasks"    : [Task.DEHAZE],
-            "schemes"  : [Scheme.SUPERVISED],
-            "model_dir": MON_DIR / "vision" / "enhance" / "dehaze" / "c2pnet",
-            "torch_distributed_launch": False,
-        },
-    },
     "zid"   : {
         "zid": {
             "tasks"    : [Task.DEHAZE],
