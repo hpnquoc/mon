@@ -1,9 +1,11 @@
 #!/bin/bash
-echo "$HOSTNAME"
+
+# Main
 clear
+echo "$HOSTNAME"
 
 # Define the directory where you want to perform the recursive renaming
-directory="/path/to/your/directory"
+directory="/media/longpham/hdd_01/40_resources/programming_language/ios/ray_wenderlich"
 
 
 # Replace "-" with "_" in filenames (recursively)

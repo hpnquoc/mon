@@ -8,10 +8,9 @@ This script predicts the output of a model on a given dataset.
 
 from __future__ import annotations
 
-import socket
+import argparse
 
 import mon
-import torch
 
 console      = mon.console
 current_file = mon.Path(__file__).absolute()
@@ -20,56 +19,68 @@ current_dir  = current_file.parents[0]
 
 # region Predict
 
-def predict(args: dict) -> str:
-    # Get arguments
+def predict(args: dict | argparse.Namespace) -> str:
+    # Parse args
+    args         = vars(args)
+    hostname     = args["hostname"]
+    data         = args["data"]
     fullname     = args["fullname"]
-    imgsz        = mon.get_image_size(args["image_size"])
+    save_dir     = args["save_dir"]
+    weights      = args["weights"]
+    device       = args["device"] or "auto"
     seed         = args["seed"]
-    save_dir     = args["predictor"]["default_root_dir"]
-    source       = args["predictor"]["source"]
-    devices      = args["predictor"]["devices"] or "auto"
-    resize       = args["predictor"]["resize"]
-    benchmark    = args["predictor"]["benchmark"]
-    save_image   = args["predictor"]["save_image"]
-    save_debug   = args["predictor"]["save_debug"]
-    use_data_dir = args["predictor"]["use_data_dir"]
-    use_fullpath = args["predictor"]["use_fullpath"]
+    imgsz        = args["imgsz"]
+    resize       = args["resize"]
+    # epochs       = args["epochs"]
+    # steps        = args["steps"]
+    benchmark    = args["benchmark"]
+    save_image   = args["save_image"]
+    save_debug   = args["save_debug"]
+    use_fullpath = args["use_fullpath"]
+    verbose      = args["verbose"]
+    
+    # Start
     console.rule(f"[bold red] {fullname}")
+    
+    # Device
+    device = mon.set_device(device)
     
     # Seed
     mon.set_random_seed(seed)
     
-    # Device
-    devices = torch.device(("cpu" if not torch.cuda.is_available() else devices))
-    
-    # Model
-    model: mon.Model = mon.MODELS.build(config=args["model"])
-    model = model.to(devices)
-    model.eval()
-    
-    # Benchmark
-    if benchmark and torch.cuda.is_available() and hasattr(model, "compute_efficiency_score"):
-        flops, params, avg_time = model.compute_efficiency_score(
-            image_size = imgsz,
-            channels   = 3,
-            runs       = 100,
-            verbose    = False,
-        )
-        console.log(f"FLOPs  = {flops:.4f}")
-        console.log(f"Params = {params:.4f}")
-        console.log(f"Time   = {avg_time:.17f}")
-    
     # Data I/O
-    console.log(f"[bold red] {source}")
+    console.log(f"[bold red] {data}")
     data_name, data_loader, data_writer = mon.parse_io_worker(
-        src         = source,
+        src         = data,
         dst         = save_dir,
         to_tensor   = True,
         denormalize = True,
         verbose     = False,
     )
-    save_dir = save_dir if save_dir not in [None, "None", "", "."] else model.root
     
+    # Model
+    args["mon"]["network"] |= {
+    
+    }
+    args["mon"]["model"] |= {
+        "fullname"  : fullname,
+        "root"      : save_dir,
+        # "num_classes" : num_classes,,
+        "weights"   : weights,
+        "optimizers": None,  # Skip initialization for efficiency
+        "loss"      : None,  # Skip initialization for efficiency
+        "metrics"   : None,  # Skip initialization for efficiency
+        "debug"     : save_debug,
+        "verbose"   : verbose,
+    }
+    model: mon.Model = mon.MODELS.build(config=args["mon"]["model"])
+    model = model.to(device)
+    model.eval()
+    
+    # Benchmark
+    if benchmark and hasattr(model, "compute_efficiency_score"):
+        flops, params = model.compute_efficiency_score(image_size=imgsz)
+      
     # Predicting
     run_time = []
     with mon.get_progress_bar() as pbar:
@@ -92,7 +103,7 @@ def predict(args: dict) -> str:
             if time:
                 run_time.append(time)
             
-            # Save
+            # Save image
             if save_image:
                 _, output = outputs.popitem()
                 if use_fullpath:
@@ -129,97 +140,8 @@ def predict(args: dict) -> str:
 
 # region Main
 
-def parse_predict_args(model_root: str | mon.Path = None) -> dict:
-    hostname = socket.gethostname().lower()
-    
-    # Get input args
-    input_args = vars(mon.parse_predict_input_args())
-    config     = input_args.get("config")
-    root       = mon.Path(input_args.get("root"))
-    
-    # Get config args
-    config = mon.parse_config_file(
-        project_root = root,
-        model_root   = model_root,
-        weights_path = None,
-        config       = config,
-    )
-    args   = mon.load_config(config)
-    
-    # Prioritize input args --> config file args
-    predictor_args = args.get("predictor", {})
-    arch           = input_args.get("arch")
-    model          = input_args.get("model")         or args.get("model_name")
-    data           = input_args.get("data")          or predictor_args.get("source")
-    project        = input_args.get("project")       or args.get("project")
-    variant        = input_args.get("variant")       or args.get("variant")
-    fullname       = input_args.get("fullname")      or args.get("fullname")
-    save_dir       = input_args.get("save_dir")
-    weights        = input_args.get("weights")       or args["model"]["weights"]
-    devices        = input_args.get("device")        or predictor_args.get("devices")
-    imgsz          = input_args.get("imgsz")         or args.get("image_size")
-    resize         = input_args.get("resize")        or predictor_args.get("resize")
-    benchmark      = input_args.get("benchmark")     or predictor_args.get("benchmark")
-    save_image     = input_args.get("save_image")    or predictor_args.get("save_image")
-    save_debug     = input_args.get("save_debug")    or predictor_args.get("save_debug")
-    use_data_dir   = input_args.get("use_data_dir")  or predictor_args.get("use_data_dir")
-    use_fullpath   = input_args.get("use_fullpath")  or predictor_args.get("use_fullpath")
-    use_fullname   =                                    args.get("use_fullname", False)
-    verbose        = input_args.get("verbose")       or args.get("verbose")
-    extra_args     = input_args.get("extra_args")
-    
-    # Parse arguments
-    if use_fullname:
-        save_dir = save_dir or mon.parse_save_dir(root/"run"/"predict", arch, fullname, None, project, variant)
-    else:
-        save_dir = save_dir or mon.parse_save_dir(root/"run"/"predict", arch, model,    None, project, variant)
-    save_dir = mon.Path(save_dir)
-    weights  = mon.to_list(weights)
-    weights  = None       if isinstance(weights, list | tuple) and len(weights) == 0 else weights
-    weights  = weights[0] if isinstance(weights, list | tuple) and len(weights) == 1 else weights
-    
-    # Update arguments
-    args["hostname"]    = hostname
-    args["config"]      = config
-    args["arch"]        = arch
-    args["root"]        = root
-    args["project"]     = project
-    args["variant"]     = variant
-    args["fullname"]    = fullname
-    args["image_size"]  = imgsz
-    args["verbose"]     = verbose
-    args["model"]      |= {
-        "root"      : save_dir,
-        "fullname"  : fullname,
-        "weights"   : weights,
-        "loss"      : None,
-        "metrics"   : None,
-        "optimizers": None,
-        "debug"     : save_debug,
-        "verbose"   : verbose,
-    }
-    args["predictor"]  |= {
-        "default_root_dir": save_dir,
-        "source"          : data,
-        "devices"         : devices,
-        "resize"          : resize,
-        "benchmark"       : benchmark,
-        "save_image"      : save_image,
-        "save_debug"      : save_debug,
-        "use_data_dir"    : use_data_dir,
-        "use_fullpath"    : use_fullpath,
-        "verbose"         : verbose,
-    }
-    
-    save_dir.mkdir(parents=True, exist_ok=True)
-    if config and config.is_config_file():
-        mon.copy_file(src=config, dst=save_dir / f"config{config.suffix}")
-        
-    return args
-
-
 def main():
-    args = parse_predict_args()
+    args = mon.parse_predict_args()
     predict(args)
 
 

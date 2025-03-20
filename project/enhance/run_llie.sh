@@ -17,6 +17,10 @@ python -W ignore main.py \
     --task "llie" \
     --mode "predict" \
     --data "dicm, fusion, lime, mef, npe, vv, lol_v1, lol_v2_real, lol_v2_synthetic, fivek, sice, sice_grad, sice_mix, sid_sony, darkcityscapes, darkface, exdark, loli_street_test, loli_street_val, nightcity" \
+    --benchmark \
+    --save-image \
+    --save-debug \
+    --exist-ok \
     --verbose \
     "$@"
 

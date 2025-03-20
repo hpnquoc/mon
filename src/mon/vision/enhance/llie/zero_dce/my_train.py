@@ -58,7 +58,7 @@ def train(args: argparse.Namespace):
     optimizer = torch.optim.Adam(DCE_net.parameters(), lr=args.lr, weight_decay=args.weight_decay)
     
     # Data I/O
-    train_dataset = dataloader.lowlight_loader(args.data)
+    train_dataset = dataloader.LowLightLoader(args.data)
     train_loader  = torch.utils.data.DataLoader(
         train_dataset,
         batch_size  = args.train_batch_size,

@@ -7,42 +7,37 @@ from torchvision.models.vgg import vgg16
 class L_color(nn.Module):
 
     def __init__(self):
-        super(L_color, self).__init__()
+        super().__init__()
 
-    def forward(self, x):
-
-        b,c,h,w = x.shape
-
-        mean_rgb = torch.mean(x,[2,3],keepdim=True)
-        mr,mg, mb = torch.split(mean_rgb, 1, dim=1)
-        Drg = torch.pow(mr-mg,2)
-        Drb = torch.pow(mr-mb,2)
-        Dgb = torch.pow(mb-mg,2)
-        k = torch.pow(torch.pow(Drg,2) + torch.pow(Drb,2) + torch.pow(Dgb,2),0.5)
-
-
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        b, c, h, w = x.shape
+        mean_rgb   = torch.mean(x, [2, 3], keepdim=True)
+        mr, mg, mb = torch.split(mean_rgb, 1, dim=1)
+        d_rg       = torch.pow(mr - mg, 2)
+        d_rb       = torch.pow(mr - mb, 2)
+        d_gb       = torch.pow(mb - mg, 2)
+        k          = torch.pow(torch.pow(d_rg, 2) + torch.pow(d_rb, 2) + torch.pow(d_gb, 2), 0.5)
         return k
 
 			
 class L_spa(nn.Module):
 
     def __init__(self):
-        super(L_spa, self).__init__()
+        super().__init__()
         # print(1)kernel = torch.FloatTensor(kernel).unsqueeze(0).unsqueeze(0)
-        kernel_left = torch.FloatTensor( [[0,0,0],[-1,1,0],[0,0,0]]).cuda().unsqueeze(0).unsqueeze(0)
-        kernel_right = torch.FloatTensor( [[0,0,0],[0,1,-1],[0,0,0]]).cuda().unsqueeze(0).unsqueeze(0)
-        kernel_up = torch.FloatTensor( [[0,-1,0],[0,1, 0 ],[0,0,0]]).cuda().unsqueeze(0).unsqueeze(0)
-        kernel_down = torch.FloatTensor( [[0,0,0],[0,1, 0],[0,-1,0]]).cuda().unsqueeze(0).unsqueeze(0)
-        self.weight_left = nn.Parameter(data=kernel_left, requires_grad=False)
+        kernel_left       = torch.FloatTensor( [[0,  0, 0], [-1, 1,  0], [0,  0, 0]]).cuda().unsqueeze(0).unsqueeze(0)
+        kernel_right      = torch.FloatTensor( [[0,  0, 0], [ 0, 1, -1], [0,  0, 0]]).cuda().unsqueeze(0).unsqueeze(0)
+        kernel_up         = torch.FloatTensor( [[0, -1, 0], [ 0, 1,  0], [0,  0, 0]]).cuda().unsqueeze(0).unsqueeze(0)
+        kernel_down       = torch.FloatTensor( [[0,  0, 0], [ 0, 1,  0], [0, -1, 0]]).cuda().unsqueeze(0).unsqueeze(0)
+        self.weight_left  = nn.Parameter(data=kernel_left,  requires_grad=False)
         self.weight_right = nn.Parameter(data=kernel_right, requires_grad=False)
-        self.weight_up = nn.Parameter(data=kernel_up, requires_grad=False)
-        self.weight_down = nn.Parameter(data=kernel_down, requires_grad=False)
-        self.pool = nn.AvgPool2d(4)
+        self.weight_up    = nn.Parameter(data=kernel_up,    requires_grad=False)
+        self.weight_down  = nn.Parameter(data=kernel_down,  requires_grad=False)
+        self.pool         = nn.AvgPool2d(4)
         
     def forward(self, org, enhance):
-        b,c,h,w = org.shape
-
-        org_mean = torch.mean(org,1,keepdim=True)
+        b, c, h, w   = org.shape
+        org_mean     = torch.mean(org,1,keepdim=True)
         enhance_mean = torch.mean(enhance,1,keepdim=True)
 
         org_pool =  self.pool(org_mean)			

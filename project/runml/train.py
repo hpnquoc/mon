@@ -8,9 +8,7 @@ This script trains a model on a given dataset.
 
 from __future__ import annotations
 
-import socket
-
-from lightning.pytorch import callbacks as lcallbacks
+import argparse
 
 import mon
 import mon.core.utils
@@ -22,51 +20,87 @@ current_dir  = current_file.parents[0]
 
 # region Train
 
-def train(args: dict) -> str:
-    # General config
+def train(args: dict | argparse.Namespace) -> str:
+    # Parse args
+    args         = vars(args)
+    hostname     = args["hostname"]
+    data         = args["data"]
+    fullname     = args["fullname"]
+    save_dir     = args["save_dir"]
+    weights      = args["weights"]
+    device       = args["device"]
+    seed         = args["seed"]
+    # imgsz        = args["imgsz"]
+    # resize       = args["resize"]
+    epochs       = args["epochs"]
+    steps        = args["steps"]
+    benchmark    = args["benchmark"]
+    save_image   = args["save_image"]
+    save_debug   = args["save_debug"]
+    use_fullpath = args["use_fullpath"]
+    verbose      = args["verbose"]
+    
+    # Start
     if mon.is_rank_zero():
-        console.rule("[bold red]1. INITIALIZATION")
-        console.log(f"Machine: {args['hostname']}")
+        console.rule("[bold red] INITIALIZATION")
+        console.log(f"Machine: {hostname}")
+    
+    # Device
+    # device = mon.set_device(device)
     
     # Seed
-    mon.set_random_seed(args["seed"])
+    mon.set_random_seed(seed)
     
     # Data I/O
-    datamodule: mon.DataModule = mon.DATAMODULES.build(config=args["data"])
+    datamodule: mon.DataModule = mon.DATAMODULES.build(config=args["mon"]["datamodule"])
     datamodule.prepare_data()
     datamodule.setup(stage="train")
+    num_classes = getattr(datamodule.classlabels, "num_trainable_classes", None)
+    num_classes = num_classes or args["mon"]["network"].get("num_classes", None)
     
     # Model
-    num_classes = getattr(datamodule.classlabels, "num_trainable_classes", None)
-    args["model"]["num_classes"] = num_classes
-    model: mon.Model = mon.MODELS.build(config=args["model"])
+    args["mon"]["network"] |= {
+        "num_classes": num_classes
+    }
+    args["mon"]["model"] |= {
+        "fullname"   : fullname,
+        "root"       : save_dir,
+        "num_classes": num_classes,
+        "weights"    : weights,
+        "debug"      : save_debug,
+        "verbose"    : verbose,
+    }
+    model: mon.Model = mon.MODELS.build(config=args["mon"]["model"])
     if mon.is_rank_zero():
-        mon.print_dict(args, title=model.fullname)
+        mon.print_dict(args, title=fullname)
         console.log("[green]Done")
     
     # Trainer
     if mon.is_rank_zero():
-        console.rule("[bold red]2. SETUP TRAINER")
-    mon.copy_file(src=args["config"], dst=model.root / "config.py")
+        console.rule("[bold red] SETUP TRAINER")
     
-    ckpt      = mon.get_latest_checkpoint(dirpath=model.ckpt_dir) if model.ckpt_dir.exists() else None
-    callbacks = mon.CALLBACKS.build_instances(configs=args["trainer"]["callbacks"])
-
-    logger = []
-    for k, v in args["trainer"]["logger"].items():
-        if k == "tensorboard":
-            v |= {"save_dir": model.root}
-            logger.append(mon.TensorBoardLogger(**v))
+    callbacks = args["mon"]["trainer"]["callbacks"]
+    for i, callback in enumerate(callbacks):
+        if callback["name"] == "model_checkpoint":
+            callbacks[i] |= {"filename": fullname}
+    callbacks = mon.CALLBACKS.build_instances(configs=args["mon"]["trainer"]["callbacks"])
+    ckpt      = mon.get_latest_checkpoint(dirpath=model.ckpt_dir)
+    devices   = mon.to_int_list(device) if "auto" not in device else "auto"
+    if args["mon"]["trainer"]["logger"]:
+        logger = [mon.TensorBoardLogger(save_dir=save_dir)]
+    else:
+        logger = False
     
-    save_dir = args["trainer"]["default_root_dir"]
-    save_dir = save_dir if save_dir not in [None, "None", ""] else model.root
-    args["trainer"]["callbacks"]            = callbacks
-    args["trainer"]["default_root_dir"]     = save_dir
-    args["trainer"]["enable_checkpointing"] = any(isinstance(cb, lcallbacks.Checkpoint) for cb in callbacks)
-    args["trainer"]["logger"]               = logger
-    args["trainer"]["num_sanity_val_steps"] = (0 if ckpt else args["trainer"]["num_sanity_val_steps"])
-    
-    trainer               = mon.Trainer(**args["trainer"])
+    args["mon"]["trainer"] |= {
+        "callbacks"           : callbacks,
+        "devices"             : devices,
+        "default_root_dir"    : save_dir,
+        "logger"              : logger,
+        "max_epochs"          : epochs,
+        "max_steps"           : steps,
+        "num_sanity_val_steps": 0,
+    }
+    trainer               = mon.Trainer(**args["mon"]["trainer"])
     trainer.current_epoch = mon.get_epoch_from_checkpoint(ckpt=ckpt)
     trainer.global_step   = mon.get_global_step_from_checkpoint(ckpt=ckpt)
     if mon.is_rank_zero():
@@ -74,7 +108,7 @@ def train(args: dict) -> str:
     
     # Training
     if mon.is_rank_zero():
-        console.rule("[bold red]3. TRAINING")
+        console.rule("[bold red] TRAINING")
     trainer.fit(
         model             = model,
         train_dataloaders = datamodule.train_dataloader,
@@ -82,9 +116,10 @@ def train(args: dict) -> str:
         ckpt_path         = ckpt,
     )
     if mon.is_rank_zero():
-        console.log(f"Model: {args['model']['fullname']}")  # Log
+        console.log(f"Model: {fullname}")  # Log
         console.log("[green]Done")
     
+    # Return
     return str(save_dir)
     
 # endregion
@@ -92,88 +127,8 @@ def train(args: dict) -> str:
 
 # region Main
 
-def parse_train_args(model_root: str | mon.Path = None) -> dict:
-    hostname = socket.gethostname().lower()
-    
-    # Get input args
-    input_args = vars(mon.parse_train_input_args())
-    config     = input_args.get("config")
-    root       = mon.Path(input_args.get("root"))
-    
-    # Get config args
-    config = mon.parse_config_file(
-        project_root = root,
-        model_root   = model_root,
-        weights_path = None,
-        config       = config,
-    )
-    args   = mon.load_config(config)
-    
-    # Prioritize input args --> config file args
-    arch       = input_args.get("arch")
-    model      = input_args.get("model")    or args.get("model_name")
-    data       = input_args.get("data")     or args.get("data_name")
-    root       = root                       or args.get("root")
-    project    = input_args.get("project")  or args.get("project")
-    variant    = input_args.get("variant")  or args.get("variant")
-    fullname   = input_args.get("fullname") or args.get("fullname")
-    save_dir   = input_args.get("save_dir") or args.get("save_dir")
-    weights    = input_args.get("weights")  or args["model"]["weights"]
-    devices    = input_args.get("device")   or args["trainer"]["devices"]
-    local_rank = input_args.get("local_rank")
-    launcher   = input_args.get("launcher")
-    epochs     = input_args.get("epochs")
-    epochs     = epochs if epochs not in [-1, None] else args["trainer"]["max_epochs"]
-    steps      = input_args.get("steps")
-    steps      = steps  if steps  not in [-1, None] else args["trainer"]["max_steps"]
-    exist_ok   = input_args.get("exist_ok") or args.get("exist_ok")
-    verbose    = input_args.get("verbose")  or args.get("verbose")
-    extra_args = input_args.get("extra_args")
-    
-    # Parse arguments
-    save_dir = save_dir or mon.parse_save_dir(root/"run"/"train", arch, model, data, project, variant)
-    save_dir = mon.Path(save_dir)
-    weights  = mon.to_list(weights)
-    weights  = None       if isinstance(weights, list | tuple) and len(weights) == 0 else weights
-    weights  = weights[0] if isinstance(weights, list | tuple) and len(weights) == 1 else weights
-    devices  = mon.parse_device(devices)
-    devices  = mon.to_int_list(devices) if "auto" not in devices else "auto"
-    # devices  = len(devices) if isinstance(devices, list | tuple) else devices
-    
-    # Update arguments
-    args["hostname"]  = hostname
-    args["config"]    = config
-    args["arch"]      = arch
-    args["root"]      = root
-    args["project"]   = project
-    args["variant"]   = variant
-    args["fullname"]  = fullname
-    args["verbose"]   = verbose
-    args["model"]    |= {
-        "root"    : save_dir,
-        "fullname": fullname,
-        "weights" : weights,
-        "verbose" : verbose,
-    }
-    args["trainer"]  |= {
-        "default_root_dir": save_dir,
-        "devices"         : devices,
-        "max_epochs"      : epochs if steps else None,
-        "max_steps"       : steps,
-    }
-    
-    if not exist_ok:
-        mon.delete_dir(paths=mon.Path(save_dir))
-    
-    save_dir.mkdir(parents=True, exist_ok=True)
-    if config and config.is_config_file():
-        mon.copy_file(src=config, dst=save_dir / f"config{config.suffix}")
-        
-    return args
-
-
 def main():
-    args = parse_train_args()
+    args = mon.parse_train_args()
     train(args)
 
 

@@ -91,11 +91,15 @@ def get_latest_checkpoint(dirpath: core.Path) -> str | None:
 	Args:
 		dirpath: The directory that contains the checkpoints.
 	"""
-    dirpath = core.Path(dirpath)
-    ckpts   = dirpath.files(recursive=True)
-    ckpts   = [ckpt for ckpt in ckpts if ckpt.is_torch_file()]
-    ckpts   = sorted(ckpts, key=lambda x: x.stat().st_mtime, reverse=True)
-    ckpt    = ckpts[0] if ckpts else None
+    if dirpath is None:
+        ckpt    = None
+    else:
+        dirpath = core.Path(dirpath)
+        ckpts   = dirpath.files(recursive=True)
+        ckpts   = [ckpt for ckpt in ckpts if ckpt.is_torch_file()]
+        ckpts   = sorted(ckpts, key=lambda x: x.stat().st_mtime, reverse=True)
+        ckpt    = ckpts[0] if ckpts else None
+    
     if ckpt is None:
         error_console.log(f"[red]Cannot find checkpoint file {dirpath}.")
     return ckpt
@@ -196,19 +200,16 @@ class Model(lightning.LightningModule, ABC):
             Default: ``None`` mean it will be the same as :obj:`name`.
         root: The root directory of the model. It is used to save the model
             checkpoint during training: ``{root}/{fullname}``.
-        in_channels: The first layer's input channel. Default: ``3`` for RGB
-            image.
-        out_channels: The last layer's output channels (number of classes).
-            Default: ``None`` mean it will be determined during model parsing.
-        num_classes: Alias to :obj:`out_channels`, but for classification tasks.
+        num_classes: Alias to :obj:`out_channels`, for classification tasks.
         weights: The model's weights. Any of:
             - A state :obj:`dict`.
             - A key in the :obj:`zoo`. Ex: ``'yolov8x_det_coco'``.
             - A path to an ``.pt``, ``.pth``, or ``.ckpt`` file.
+        optimizers: Optimizer(s) for a training model. Default: ``None``.
         loss: Loss function for training the model. Default: ``None``.
         metrics: A list metrics for training, validating and testing model.
             Default: ``None``.
-        optimizers: Optimizer(s) for a training model. Default: ``None``.
+        debug: Debug mode. Default: ``False``.
         verbose: Verbosity. Default: ``True``.
     
     Example:
@@ -245,21 +246,19 @@ class Model(lightning.LightningModule, ABC):
     
     def __init__(
         self,
-        # For saving/loading
+        # Basic
         name        : str  = None,
         fullname    : str  = None,
         root        : core.Path = core.Path(),
-        # For model architecture
-        in_channels : int  = 3,
-        out_channels: int  = None,
+        # Network
         num_classes : int  = None,
         weights     : Any  = None,
-        # For training          
+        # Training
+        optimizers  : Any  = None,
         loss        : Any  = None,
         metrics     : Any  = None,
-        optimizers  : Any  = None,
         # Misc
-        debug       : bool = True,
+        debug       : bool = False,
         verbose     : bool = True,
         *args, **kwargs
     ):
@@ -267,21 +266,20 @@ class Model(lightning.LightningModule, ABC):
         # Misc
         self.debug         = debug
         self.verbose       = verbose
-        # For saving/loading
+        # Basic
         self.name          = name
         self.fullname      = fullname
         self.root          = root
-        # For model architecture
-        self.in_channels   = in_channels
-        self.out_channels  = out_channels or num_classes or self.in_channels
+        # Network
+        self.num_classes   = num_classes
         self.weights       = None
         self.assign_weights(weights)
-        # For training
+        # Training
+        self.optims        = optimizers
         self.loss          = None
         self.train_metrics = None
         self.val_metrics   = None
         self.test_metrics  = None
-        self.optims        = optimizers
         self.init_loss(loss)
         self.init_metrics(metrics)
         
@@ -306,8 +304,7 @@ class Model(lightning.LightningModule, ABC):
     
     @fullname.setter
     def fullname(self, fullname: str):
-        """Specify the model's fullname. This value should only be defined once.
-        """
+        """Specify the model's fullname. This value should only be defined once."""
         self._fullname = fullname if fullname not in [None, ""] else self.name
     
     @property
@@ -317,8 +314,6 @@ class Model(lightning.LightningModule, ABC):
     @root.setter
     def root(self, root: Any):
         root = core.Path(root)
-        # if root.name != self.fullname:
-        #     root /= self.fullname
         self._root      = root
         self._debug_dir = root / "debug"
         self._ckpt_dir  = root
@@ -623,12 +618,12 @@ class Model(lightning.LightningModule, ABC):
         self.optims = optimizers
         return self.optims
     
-    def compute_efficiency_score(self, *args, **kwargs) -> tuple[float, float, float]:
-        """Compute the efficiency score of the model, including FLOPs, number
-        of parameters, and runtime.
+    def compute_efficiency_score(self, *args, **kwargs) -> tuple[float, float]:
+        """Compute the efficiency score of the model, including FLOPs and number
+        of parameters.
         """
         error_console.log(f"[yellow]This method has not been implemented yet!")
-        return 0, 0, 0
+        return 0, 0
     
     # endregion
     

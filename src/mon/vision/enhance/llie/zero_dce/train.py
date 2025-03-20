@@ -13,7 +13,7 @@ import dataloader
 import model
 import mon
 import myloss
-from mon import ZOO_DIR, RUN_DIR
+from mon import ZOO_DIR
 
 
 def weights_init(m):
@@ -35,7 +35,7 @@ def train(args):
     if args.load_pretrain:
         DCE_net.load_state_dict(torch.load(args.weights))
    
-    train_dataset = dataloader.lowlight_loader(args.input_dir)
+    train_dataset = dataloader.LowLightLoader(args.input_dir)
     train_loader  = torch.utils.data.DataLoader(
 	    train_dataset,
 	    batch_size  = args.train_batch_size,

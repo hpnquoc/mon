@@ -243,19 +243,13 @@ class ZeroRestoreLLIE(base.ImageEnhancementModel):
         name        : str = "zero_restore_llie",
         in_channels : int = 3,
         num_channels: int = 64,
-        weights     : Any = None,
         *args, **kwargs
     ):
-        super().__init__(
-            name        = name,
-            in_channels = in_channels,
-            weights     = weights,
-            *args, **kwargs
-        )
+        super().__init__(name=name, *args, **kwargs)
         self.in_channels  = in_channels
         self.num_channels = num_channels
         
-        # Construct model
+        # Network
         self.estimation = Estimation(self.num_channels)
         
         # Load weights
@@ -343,62 +337,51 @@ class ZeroRestoreLLIE(base.ImageEnhancementModel):
     def infer(
         self,
         datapoint    : dict,
-        epochs       : int   = 1000,
+        epochs       : int   = 10000,
         lr           : float = 1e-3,
         weight_decay : float = 1e-2,
         reset_weights: bool  = True,
         *args, **kwargs
     ) -> dict:
         # Initialize training components
-        self.train()
         if reset_weights:
             self.load_state_dict(self.initial_state_dict)
         if isinstance(self.optims, dict):
             optimizer = self.optims.get("optimizer", None)
         else:
-            optimizer = nn.Adam(
-                self.parameters(),
-                lr           = lr,
-                betas        = (0.9, 0.999),
-                eps          = 1e-8,
-                weight_decay = weight_decay,
-            )
+            optimizer = nn.Adam(self.parameters(), lr=lr, weight_decay=weight_decay)
         
-        # Pre-processing
+        # Input
         self.assert_datapoint(datapoint)
-        for k, v in datapoint.items():
-            if isinstance(v, torch.Tensor):
-                datapoint[k] = v.to(self.device)
-        image = datapoint.get("image")
-        image = geometry.resize(image, divisible_by=32)
+        image  = datapoint.get("image").to(self.device)
+        h0, w0 = dtype.get_image_size(image)
+        image  = geometry.resize(image, divisible_by=32)
         
-        # Training
+        # Optimize
+        timer = core.Timer()
+        timer.tick()
+        self.train()
         for _ in range(epochs):
-            image   = self.augment(image)
-            outputs = self.forward_loss(datapoint={"image": image})
+            image_  = self.augment(image)
+            outputs = self.forward_loss(datapoint={"image": image_})
             optimizer.zero_grad()
             loss = outputs["loss"]
             loss.backward()
             optimizer.step()
-            
-        # Inference
         self.eval()
-        image    = datapoint.get("image")
-        h, w     = dtype.get_image_size(image)
-        image    = geometry.resize(image, divisible_by=32)
-        timer    = core.Timer()
-        timer.tick()
-        outputs  = self.forward(datapoint={"image": image})
+        outputs = self.forward(datapoint={"image": image})
         timer.tock()
         
         # Post-processing
-        enhanced = outputs["enhanced"]
-        enhanced = geometry.resize(enhanced, (h, w))
-        outputs["enhanced"] = torch.clamp(enhanced, 0, 1)
         self.assert_outputs(outputs)
+        enhanced = outputs["enhanced"]
+        enhanced = geometry.resize(enhanced, (h0, w0))
+        enhanced = torch.clamp(enhanced, 0, 1)
         
         # Return
-        outputs["time"] = timer.avg_time
-        return outputs
+        return outputs | {
+            "enhanced": enhanced,
+            "time"    : timer.avg_time,
+        }
     
 # endregion

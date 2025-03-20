@@ -1,40 +1,35 @@
-import os
-import sys
-
-import torch
-import torch.utils.data as data
-
-import numpy as np
-from PIL import Image
 import glob
 import random
-import cv2
+
+import numpy as np
+import torch
+import torch.utils.data as data
+from PIL import Image
 
 random.seed(1143)
 
 
-def populate_train_list(lowlight_images_path):
-	image_list_lowlight = glob.glob(lowlight_images_path + "*.jpg")
-	train_list          = image_list_lowlight
-	random.shuffle(train_list)
-	return train_list
+def populate_train_list(image_dir: str):
+	image_list = glob.glob(image_dir + "*.jpg")
+	random.shuffle(image_list)
+	return image_list
 
 
-class lowlight_loader(data.Dataset):
+class LowLightLoader(data.Dataset):
 	
-	def __init__(self, lowlight_images_path):
-		self.train_list = populate_train_list(lowlight_images_path) 
+	def __init__(self, image_dir: str):
 		self.size       = 256
+		self.train_list = populate_train_list(image_dir)
 		self.data_list  = self.train_list
-		print("Total training examples:", len(self.train_list))
+		# print("Total training examples:", len(self.train_list))
 
-	def __getitem__(self, index):
-		data_lowlight_path = self.data_list[index]
-		data_lowlight      = Image.open(data_lowlight_path)
-		data_lowlight      = data_lowlight.resize((self.size, self.size), Image.ANTIALIAS)
-		data_lowlight      = (np.asarray(data_lowlight) / 255.0)
-		data_lowlight      = torch.from_numpy(data_lowlight).float()
-		return data_lowlight.permute(2, 0, 1)
+	def __getitem__(self, index: int) -> torch.Tensor:
+		image = Image.open(self.data_list[index])
+		image = image.resize((self.size, self.size), Image.ANTIALIAS)
+		image = (np.asarray(image) / 255.0)
+		image = torch.from_numpy(image).float()
+		image = image.permute(2, 0, 1)
+		return image
 
-	def __len__(self):
+	def __len__(self) -> int:
 		return len(self.data_list)

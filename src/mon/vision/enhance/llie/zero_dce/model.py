@@ -11,7 +11,7 @@ import torch.nn.functional as F
 class enhance_net_nopool(nn.Module):
 
 	def __init__(self):
-		super(enhance_net_nopool, self).__init__()
+		super().__init__()
 		self.relu     = nn.ReLU(inplace=True)
 		number_f      = 32
 		self.e_conv1  = nn.Conv2d(3, number_f, 3, 1, 1, bias=True)
@@ -24,7 +24,7 @@ class enhance_net_nopool(nn.Module):
 		self.maxpool  = nn.MaxPool2d(2, stride=2, return_indices=False, ceil_mode=False)
 		self.upsample = nn.UpsamplingBilinear2d(scale_factor=2)
 
-	def forward(self, x):
+	def forward(self, x: torch.Tensor) -> torch.Tensor:
 		x1  = self.relu(self.e_conv1(x))
 		# p1 = self.maxpool(x1)
 		x2  = self.relu(self.e_conv2(x1))

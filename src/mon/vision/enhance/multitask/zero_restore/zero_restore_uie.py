@@ -17,12 +17,12 @@ __all__ = [
 ]
 
 import random
-from typing import Any
 
 import torch
 
 from mon import core, nn
 from mon.globals import MODELS, Scheme, Task
+from mon.vision import dtype, geometry
 from mon.vision.enhance import base
 
 torch.autograd.set_detect_anomaly(True)
@@ -206,19 +206,13 @@ class ZeroRestoreUIE(base.ImageEnhancementModel):
         name        : str = "zero_restore_uie",
         in_channels : int = 3,
         num_channels: int = 64,
-        weights     : Any = None,
         *args, **kwargs
     ):
-        super().__init__(
-            name        = name,
-            in_channels = in_channels,
-            weights     = weights,
-            *args, **kwargs
-        )
+        super().__init__(name=name, *args, **kwargs)
         self.in_channels  = in_channels
         self.num_channels = num_channels
         
-        # Construct model
+        # Network
         self.estimation = Estimation(self.num_channels)
         
         # Load weights
@@ -309,59 +303,44 @@ class ZeroRestoreUIE(base.ImageEnhancementModel):
         *args, **kwargs
     ) -> dict:
         # Initialize training components
-        self.train()
         if reset_weights:
             self.load_state_dict(self.initial_state_dict)
         if isinstance(self.optims, dict):
             optimizer = self.optims.get("optimizer", None)
         else:
-            optimizer = nn.Adam(
-                self.parameters(),
-                lr           = lr,
-                betas        = (0.9, 0.999),
-                eps          = 1e-8,
-                weight_decay = weight_decay,
-            )
+            optimizer = nn.Adam(self.parameters(), lr=lr, weight_decay=weight_decay)
         
-        # Pre-processing
+        # Input
         self.assert_datapoint(datapoint)
-        for k, v in datapoint.items():
-            if isinstance(v, torch.Tensor):
-                datapoint[k] = v.to(self.device)
+        image  = datapoint.get("image").to(self.device)
+        h0, w0 = dtype.get_image_size(image)
+        image  = geometry.resize(image, divisible_by=32)
         
-        image   = datapoint.get("image")
-        meta    = datapoint.get("meta")
-        h, w    = image.shape[2], image.shape[3]
-        h       = h - h % 32
-        w       = w - w % 32
-        image   = image[:, :, 0:h, 0:w]
-        image_g = torch.mean(image[0, 1, :, :])
-        image_r = torch.mean(image[0, 0, :, :])
-        image[0, 0, :, :] = image[0, 0, :, :] + (image_g - image_r) * (1 - image[0, 0, :, :]) * image[0, 1, :, :]
-        image   = torch.clamp(image, 0, 1)
-        
-        # Training
+        # Optimize
+        timer = core.Timer()
+        timer.tick()
+        self.train()
         for _ in range(epochs):
-            image   = self.augment(image)
-            outputs = self.forward_loss(datapoint={"image": image, "meta": meta})
+            image_  = self.augment(image)
+            outputs = self.forward_loss(datapoint={"image": image_})
             optimizer.zero_grad()
             loss = outputs["loss"]
             loss.backward()
             optimizer.step()
-            
-        # Forward
         self.eval()
-        timer = core.Timer()
-        timer.tick()
-        outputs = self.forward(datapoint=datapoint)
+        outputs = self.forward(datapoint={"image": image})
         timer.tock()
-        enhanced = outputs["enhanced"]
-        outputs["enhanced"] = torch.clamp(enhanced, 0, 1)
+        
+        # Post-processing
         self.assert_outputs(outputs)
+        enhanced = outputs["enhanced"]
+        enhanced = geometry.resize(enhanced, (h0, w0))
+        enhanced = torch.clamp(enhanced, 0, 1)
         
         # Return
-        outputs["time"] = timer.avg_time
-        return outputs
-
+        return outputs | {
+            "enhanced": enhanced,
+            "time"    : timer.avg_time,
+        }
 
 # endregion

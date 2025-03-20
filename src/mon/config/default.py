@@ -21,7 +21,6 @@ __all__ = [
     "tensorboard",
     "trainer",
     "tune_report_callback",
-    "tuner",
 ]
 
 # region Callback
@@ -45,19 +44,19 @@ log_training_progress = {
 
 model_checkpoint = {
     "name"                   : "model_checkpoint",
-	"dirpath"                : None,        # Directory to save the model file.
-	"filename"               : None,        # Checkpoint filename.
-	"monitor"                : "loss/val",  # Quantity to monitor.
-	"mode"                   : "min",       # ``'min'`` or ``'max'``.
-	"save_last"              : False,       # Save an exact copy of the checkpoint to a file `last.pt`.
-	"save_top_k"             : 1,           # Save the best k models.
-	"save_weights_only"      : False,       # Only the model's weights will be saved.
-    "every_n_epochs"         : 1,           # Number of epochs between checkpoints.
-    "every_n_train_steps"    : 0,           # Number of training steps between checkpoints (0 = disable).
-	"train_time_interval"    : None,        # Checkpoints are monitored at the specified time interval.
-    "save_on_train_epoch_end": True,        # Run checkpointing at the end of the training epoch.
-	"auto_insert_metric_name": True,        # The checkpoints filenames will contain the metric name.
-    "verbose"                : True,        # Verbosity mode.
+	"dirpath"                : None,          # Directory to save the model file.
+	"filename"               : None,          # Checkpoint filename.
+	"monitor"                : "train/loss",  # Quantity to monitor.
+	"mode"                   : "min",         # ``'min'`` or ``'max'``.
+	"save_last"              : False,         # Save an exact copy of the checkpoint to a file `last.pt`.
+	"save_top_k"             : 1,             # Save the best k models.
+	"save_weights_only"      : False,         # Only the model's weights will be saved.
+    "every_n_epochs"         : 1,             # Number of epochs between checkpoints.
+    "every_n_train_steps"    : 0,             # Number of training steps between checkpoints (0 = disable).
+	"train_time_interval"    : None,          # Checkpoints are monitored at the specified time interval.
+    "save_on_train_epoch_end": True,          # Run checkpointing at the end of the training epoch.
+	"auto_insert_metric_name": True,          # The checkpoints filenames will contain the metric name.
+    "verbose"                : True,          # Verbosity mode.
 }
 
 rich_model_summary = {
@@ -183,48 +182,6 @@ predictor = {
 	"use_data_dir"    : False,   # Use data directory.
 	"use_fullpath"    : False,   # Use full path.
     "verbose"         : True,    # Verbosity.
-}
-
-# endregion
-
-
-# region Tuner
-
-tuner = {
-    "callbacks"            : None,   # List of callbacks.
-    "chdir_to_trial_dir"   : True,   #
-    "checkpoint_at_end"    : False,  # Whether to checkpoint at the end of the experiment.
-    "checkpoint_freq"      : 0,      # How many training iterations between checkpoints (0 = disable).
-    "checkpoint_score_attr": None,   # Specifies by which attribute to rank the best checkpoint.
-    "config"               : {},
-    "export_formats"       : None,   # List of formats that exported at the end of the experiment.
-    "fail_fast"            : False,  # Whether to fail upon the first error.
-    "keep_checkpoints_num" : None,   # Number of checkpoints to keep (None = keep all).
-    "local_dir"            : "~/ray_results",  # Local dir to save training results.
-    "log_to_file"          : False,
-    "name"                 : None,   # Name of experiment.
-    "num_samples"          : 1,      # Number of times to sample from the hyperparameter space.
-    "max_concurrent_trials": None,   # Maximum number of trials to run concurrently.
-    "max_failures"         : 0,      # Try to recover a trial at least this many times (-1 = infinite retries, 0 = disable).
-    "metric"               : None,   # Metric to optimize.
-    "mode"                 : "min",  # ``'min'`` or ``'max'``.
-    "progress_reporter"    : None,   #  Progress reporter for reporting intermediate experiment progress.
-    "raise_on_failed_trial": True,
-    "resources_per_trial"  : {},     # Machine resources to allocate per trial. Ex: {"cpu": 64, "gpu": 8}.
-    "restore"              : None,   # Path to checkpoint.
-    "resume"               : False,  # True, False, "LOCAL", "REMOTE", "PROMPT", "AUTO"
-    "reuse_actors"         : None,   # Whether to reuse actors between different trials when possible.
-    "run_or_experiment"    : None,
-    "scheduler"            : None,   # Scheduler for executing the experiment. Refer to :obj:`ray.tune.schedulers` for more options.
-    "search_alg"           : None,   # Search algorithm for optimization.
-    "server_port"          : None,   # Port number for launching TuneServer.
-    "stop"                 : None,   # Stopping criteria.
-    "sync_config"          : None,   # Configuration object for syncing. See :obj:`tune.SyncConfig`.
-    "time_budget_s"        : None,   # Global time budget in seconds after which all trials are stopped.
-    "trial_dirname_creator": None,
-    "trial_executor"       : None,   # Manage the execution of trials.
-    "trial_name_creator"   : None,
-    "verbose"              : 3,      # 0 = silent, 1 = only status updates, 2 = status and brief trial results, 3 = status and detailed trial results.
 }
 
 # endregion

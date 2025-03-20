@@ -46,9 +46,11 @@ def calculate_model_flops(model, input_tensor):
     return flops_in_gigaflops
 
 
-def predict(args: argparse.Namespace):
-    # General config
+def predict(args: dict | argparse.Namespace):
+    # Parse args
+    hostname     = args.hostname
     data         = args.data
+    fullname     = args.fullname
     save_dir     = args.save_dir
     weights      = args.weights
     device       = mon.set_device(args.device)
@@ -61,6 +63,9 @@ def predict(args: argparse.Namespace):
     save_debug   = args.save_debug
     use_fullpath = args.use_fullpath
     mon.set_random_seed(seed)
+    
+    # Start
+    console.rule(f"[bold red] {fullname}")
     
     # Model
     if torch.cuda.is_available():
@@ -75,18 +80,8 @@ def predict(args: argparse.Namespace):
     # Benchmark
     if benchmark:
         model = Network()
-        flops, params, avg_time = mon.compute_efficiency_score(
-            model      = copy.deepcopy(model),
-            image_size = imgsz,
-            channels   = 3,
-            runs       = 1000,
-            use_cuda   = True,
-            verbose    = False,
-        )
+        mon.compute_efficiency_score(model=model, image_size=imgsz, channels=3, verbose=True)
         total_params = calculate_model_parameters(model)
-        console.log(f"FLOPs        = {flops:.4f}")
-        console.log(f"Params       = {params:.4f}")
-        console.log(f"Time         = {avg_time:.17f}")
         console.log(f"Total Params = {total_params:.4f}")
         
     # Data I/O

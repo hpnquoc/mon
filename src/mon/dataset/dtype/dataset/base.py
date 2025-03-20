@@ -74,11 +74,11 @@ class Dataset(dataset.Dataset, ABC):
     def __init__(
         self,
         root      : core.Path,
-        split     : Split           = Split.TRAIN,
-        transform : A.Compose | Any = None,
-        to_tensor : bool            = False,
-        cache_data: bool            = False,
-        verbose   : bool            = False,
+        split     : Split     = Split.TRAIN,
+        transform : A.Compose = None,
+        to_tensor : bool      = False,
+        cache_data: bool      = False,
+        verbose   : bool      = False,
         *args, **kwargs
     ):
         super().__init__(*args, **kwargs)

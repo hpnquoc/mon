@@ -131,10 +131,10 @@ def list_configs(
         model_root   = model_root,
         model        = model
     )
-    if is_extra_model(model):
-        config_files = [f for f in config_files if ".py" not in f.suffix]
-    else:
-        config_files = [f for f in config_files if ".py" in f.suffix]
+    # if is_extra_model(model):
+    #     config_files = [f for f in config_files if ".py" not in f.suffix]
+    # else:
+    #     config_files = [f for f in config_files if ".py" in f.suffix]
     # Sort
     config_files = [str(f.name) for f in config_files]
     config_files = dtype.unique(config_files)
@@ -148,7 +148,7 @@ def parse_config_file(
     model_root  : str | pathlib.Path = None,
     weights_path: str | pathlib.Path = None,
 ) -> pathlib.Path | None:
-    from mon.core.rich import error_console, console
+    from mon.core.rich import error_console
     if config not in [None, "None", ""]:
         # Check `config` itself
         config = pathlib.Path(config)
@@ -663,32 +663,22 @@ def parse_save_dir(
     project: str = None,
     variant: str = None,
 ) -> str | pathlib.Path:
-    """Parse save_dir in the following format:
-    `
-        root              | root
-         |_ arch          |  |_ arch
-             |_ model     |      |_ project
-                 |_ data  |          |_ variant
-    `
+    """Parse ``save_dir`` in the following format:
+        root
+         |_ arch
+             |_ model/fullname
+                 |_ data
     
     Args:
         root: The project root.
         arch: The model's architecture.
         model: The model's name.
         data: The dataset's name.
-        project: The project's name. Usually used to perform ablation studies.
-            Default is `None`.
-        variant: The variant's name. Usually used to perform ablation studies.
-            Default is `None`.
     """
     save_dir = pathlib.Path(root)
     if arch not in [None, "None", ""]:
         save_dir /= arch
-    if project not in [None, "None", ""]:
-        save_dir = save_dir / project
-        if variant not in [None, "None", ""]:
-            save_dir = save_dir / variant
-    elif model not in [None, "None", ""]:
+    if model not in [None, "None", ""]:
         save_dir = save_dir / model
         if data not in [None, "None", ""]:
             save_dir = save_dir / data
@@ -859,7 +849,7 @@ def parse_weights_file(
         root: The root directory.
         weights: The weights file to parse.
     """
-    from mon.globals import ROOT_DIR, ZOO_DIR
+    from mon.globals import ZOO_DIR
     root    = pathlib.Path(root)
     weights = dtype.to_list(weights)
     

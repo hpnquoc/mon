@@ -48,18 +48,18 @@ class ModelCheckpoint(callbacks.ModelCheckpoint):
         self,
         dirpath                : str       = None,
         filename               : str       = None,
-        monitor                : str       = None,
+        monitor                : str       = "train/loss",
         mode                   : str       = "min",
         save_last              : bool      = False,
         save_top_k             : int       = 1,
         save_weights_only      : bool      = False,
         every_n_epochs         : int       = 1,
-        every_n_train_steps    : int       = None,
+        every_n_train_steps    : int       = 0,
         train_time_interval    : timedelta = None,
-        save_on_train_epoch_end: bool      = False,
+        save_on_train_epoch_end: bool      = True,
         enable_version_counter : bool      = False,
         auto_insert_metric_name: bool      = True,
-        verbose                : bool      = False,
+        verbose                : bool      = True,
     ):
         if dirpath:
             dirpath = core.Path(dirpath)

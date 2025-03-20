@@ -205,8 +205,7 @@ class Factory(dict):
         if configs is None:
             return None
         if not isinstance(configs, list):
-            raise ValueError(f"`configs` must be a `list`, "
-                             f"but got {type(configs)}.")
+            raise ValueError(f"`configs` must be a `list`, but got {type(configs)}.")
         
         configs_ = copy.deepcopy(configs)
         objs     = {} if to_dict else []

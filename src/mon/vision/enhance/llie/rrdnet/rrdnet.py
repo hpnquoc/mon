@@ -196,15 +196,15 @@ class RRDNet(base.ImageEnhancementModel):
         illu_factor   : float = 1,
         reflect_factor: float = 1,
         noise_factor  : float = 5000,
-        weights       : Any   = None,
         *args, **kwargs
     ):
-        super().__init__(name=name, weights=weights, *args, **kwargs)
+        super().__init__(name=name, *args, **kwargs)
         self.gamma          = gamma
         self.illu_factor    = illu_factor
         self.reflect_factor = reflect_factor
         self.noise_factor   = noise_factor
         
+        # Network
         self.illumination_net = nn.Sequential(
             nn.Conv2d(3, 16, 3, 1, 1),
             nn.ReLU(),
@@ -240,11 +240,7 @@ class RRDNet(base.ImageEnhancementModel):
         )
         
         # Loss
-        self.loss = Loss(
-            illu_factor    = illu_factor,
-            reflect_factor = reflect_factor,
-            noise_factor   = noise_factor,
-        )
+        self.loss = Loss(illu_factor=illu_factor, reflect_factor=reflect_factor, noise_factor=noise_factor)
         
         # Load weights
         if self.weights:
@@ -296,23 +292,24 @@ class RRDNet(base.ImageEnhancementModel):
         reset_weights: bool  = True,
         *args, **kwargs
     ) -> dict:
-        # Pre-processing
-        self.assert_datapoint(datapoint)
-        for k, v in datapoint.items():
-            if isinstance(v, torch.Tensor):
-                datapoint[k] = v.to(self.device)
-        
-        # Training
-        timer = core.Timer()
-        timer.tick()
-        self.train()
+        # Initialize training components
         if reset_weights:
             self.load_state_dict(self.initial_state_dict)
         if isinstance(self.optims, dict):
             optimizer = self.optims.get("optimizer", None)
         else:
-            optimizer = nn.Adam(self.parameters(), lr=lr, betas=(0.9, 0.999))
+            optimizer = nn.Adam(self.parameters(), lr=lr)
+            
+        # Input
+        self.assert_datapoint(datapoint)
+        for k, v in datapoint.items():
+            if isinstance(v, torch.Tensor):
+                datapoint[k] = v.to(self.device)
         
+        # Optimize
+        timer = core.Timer()
+        timer.tick()
+        self.train()
         for _ in range(epochs - 1):
             outputs = self.forward_loss(datapoint=datapoint)
             self.zero_grad()
@@ -323,10 +320,13 @@ class RRDNet(base.ImageEnhancementModel):
         self.eval()
         outputs = self.forward(datapoint=datapoint)
         timer.tock()
+        
+        # Post-processing
         self.assert_outputs(outputs)
         
         # Return
-        outputs["time"] = timer.avg_time
-        return outputs
+        return outputs | {
+            "time": timer.avg_time,
+        }
 
 # endregion

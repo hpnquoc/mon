@@ -504,7 +504,7 @@ class ZeroLINR(base.ImageEnhancementModel):
 	def __init__(
 		self,
 		name             : str          = "zero_linr",
-		# Model
+		# Network
 		mapping_func     : MAPPING_FUNC = "pvde",
 		window_size      : int          = 9,
 		down_size        : int          = 256,
@@ -607,46 +607,27 @@ class ZeroLINR(base.ImageEnhancementModel):
 	def init_weights(self, m: nn.Module):
 		pass
 	
-	def compute_efficiency_score(
-		self,
-		image_size: _size_2_t = 512,
-		channels  : int       = 3,
-		runs      : int       = 1000,
-		verbose   : bool      = False,
-	) -> tuple[float, float, float]:
-		"""Compute the efficiency score of the model, including FLOPs, number
-		of parameters, and runtime.
+	def compute_efficiency_score(self, image_size: _size_2_t = 512) -> tuple[float, float]:
+		"""Compute the efficiency score of the model, including FLOPs and number
+		of parameters.
 		"""
 		# Define input tensor
-		c         = channels
 		h, w      = dtype.get_image_size(image_size)
 		datapoint = {
-			"image": torch.rand(1, c, h, w).to(self.device),
+			"image": torch.rand(1, 3, h, w).to(self.device),
 			"depth": torch.rand(1, 1, h, w).to(self.device)
 		}
-		
 		# Get FLOPs and Params
-		flops, params = core.custom_profile(self, inputs=datapoint, verbose=verbose)
-		# flops         = FlopCountAnalysis(self, datapoint).total() if flops == 0 else flops
+		flops, params = core.custom_profile(self, inputs=datapoint, verbose=False)
 		params        = self.params                if hasattr(self, "params") and params == 0 else params
 		params        = parameter_count(self)      if hasattr(self, "params")  else params
 		params        = sum(list(params.values())) if isinstance(params, dict) else params
-		
-		# Get time
-		timer = core.Timer()
-		for i in range(runs):
-			timer.tick()
-			_ = self.forward(datapoint)
-			timer.tock()
-		avg_time = timer.avg_time
-		
 		# Print
-		if verbose:
-			console.log(f"FLOPs (G) : {flops:.4f}")
-			console.log(f"Params (M): {params:.4f}")
-			console.log(f"Time (s)  : {avg_time:.17f}")
-		
-		return flops, params, avg_time
+		if self.verbose:
+			console.log(f"FLOPs  = {flops:.4f}")
+			console.log(f"Params = {params:.4f}")
+		# Return
+		return flops, params
 	
 	def forward_loss(self, datapoint: dict, *args, **kwargs) -> dict:
 		# Forward
@@ -762,252 +743,4 @@ class ZeroLINR(base.ImageEnhancementModel):
 		outputs["time"] = timer.avg_time
 		return outputs
 
-
-# @MODELS.register(name="s_linr", arch="s_linr")
-class SLINR(base.ImageEnhancementModel):
-	
-	model_dir: core.Path    = current_dir
-	arch     : str          = "s_linr"
-	tasks    : list[Task]   = [Task.LLIE]
-	schemes  : list[Scheme] = [Scheme.SUPERVISED]
-	zoo      : dict         = {}
-	
-	def __init__(
-		self,
-		name             : str          = "s_linr",
-		# Model
-		mapping_func     : MAPPING_FUNC = "pvde",
-		window_size      : int          = 9,
-		down_size        : int          = 256,
-		num_layers       : int          = 4,
-		add_layers       : int          = 2,
-		omega_0          : float        = 30.0,
-		first_bias_scale : float        = 20.0,
-		s_nonlinear      : INR_AF       = "finer",
-		use_ff           : bool         = True,
-		ff_gaussian_scale: float        = 10.0,
-		v_nonlinear      : INR_AF       = "finer",
-		reduce_channels  : bool         = False,
-		depth_threshold  : float        = 1.0,
-		edge_threshold   : float        = 0.05,
-		# Post-process
-		gf_radius        : int          = 7,
-		use_denoise      : bool         = False,
-		denoise_ksize    : list[float]  = (3, 3),
-		denoise_color    : float        = 0.5,
-		denoise_space    : list[float]  = (1.5, 1.5),
-		*args, **kwargs
-	):
-		super().__init__(name=name, *args, **kwargs)
-		self.mapping_func    = mapping_func
-		self.down_size       = down_size
-		self.depth_threshold = depth_threshold
-		self.edge_threshold  = edge_threshold
-		self.gf_radius       = gf_radius
-		self.use_denoise     = use_denoise
-		self.denoise_ksize   = denoise_ksize
-		self.denoise_color   = denoise_color
-		self.denoise_space   = denoise_space
-		weight_decay         = [0.1, 0.0001, 0.001]
-		
-		# Model
-		if mapping_func in ["p"]:
-			inf = INF1_P
-		elif mapping_func in ["v"]:
-			inf = INF1_V
-		elif mapping_func in ["d"]:
-			inf = INF1_V
-		elif mapping_func in ["e"]:
-			inf = INF1_V
-		elif mapping_func in ["pv"]:
-			inf = INF2
-		elif mapping_func in ["pd"]:
-			inf = INF2
-		elif mapping_func in ["pe"]:
-			inf = INF2
-		elif mapping_func in ["pvde"]:
-			inf = INF4
-		else:
-			raise ValueError(f"``mapping_func`` must be one of {MAPPING_FUNC}, but got: {mapping_func}.")
-		self.inf = inf(
-			window_size       = window_size,
-			down_size         = down_size,
-			num_layers        = num_layers,
-			add_layers        = add_layers,
-			omega_0           = omega_0,
-			first_bias_scale  = first_bias_scale,
-			s_nonlinear       = s_nonlinear,
-			use_ff            = use_ff,
-			ff_gaussian_scale = ff_gaussian_scale,
-			v_nonlinear       = v_nonlinear,
-			reduce_channels   = reduce_channels,
-			weight_decay      = weight_decay,
-		)
-		
-		# Loss
-		self.loss = None
-		
-		# Load weights
-		if self.weights:
-			self.load_weights()
-		else:
-			self.apply(self.init_weights)
-		self.initial_state_dict = self.state_dict()
-	
-	def init_weights(self, m: nn.Module):
-		pass
-	
-	def compute_efficiency_score(
-		self,
-		image_size: _size_2_t = 512,
-		channels  : int       = 3,
-		runs      : int       = 1000,
-		verbose   : bool      = False,
-	) -> tuple[float, float, float]:
-		"""Compute the efficiency score of the model, including FLOPs, number
-		of parameters, and runtime.
-		"""
-		# Define input tensor
-		c         = channels
-		h, w      = dtype.get_image_size(image_size)
-		datapoint = {
-			"image": torch.rand(1, c, h, w).to(self.device),
-			"depth": torch.rand(1, 1, h, w).to(self.device)
-		}
-		
-		# Get FLOPs and Params
-		flops, params = core.custom_profile(self, inputs=datapoint, verbose=verbose)
-		# flops         = FlopCountAnalysis(self, datapoint).total() if flops == 0 else flops
-		params        = self.params                if hasattr(self, "params") and params == 0 else params
-		params        = parameter_count(self)      if hasattr(self, "params")  else params
-		params        = sum(list(params.values())) if isinstance(params, dict) else params
-		
-		# Get time
-		timer = core.Timer()
-		for i in range(runs):
-			timer.tick()
-			_ = self.forward(datapoint)
-			timer.tock()
-		avg_time = timer.avg_time
-		
-		# Print
-		if verbose:
-			console.log(f"FLOPs (G) : {flops:.4f}")
-			console.log(f"Params (M): {params:.4f}")
-			console.log(f"Time (s)  : {avg_time:.17f}")
-		
-		return flops, params, avg_time
-	
-	def forward_loss(self, datapoint: dict, *args, **kwargs) -> dict:
-		# Forward
-		self.assert_datapoint(datapoint)
-		outputs  = self.forward(datapoint=datapoint, *args, **kwargs)
-		z        = outputs.get("z",        None)
-		enhanced = outputs.get("enhanced", None)
-		ref      = datapoint["ref_image"]
-		ref_v    = dtype.rgb_to_v(ref)
-		loss     = torch.mean(torch.abs(torch.pow(z - ref_v, 2))) + torch.mean(torch.abs(torch.pow(enhanced - ref, 2)))
-		outputs["loss"] = loss
-		return outputs
-		
-	def forward(self, datapoint: dict, *args, **kwargs) -> dict:
-		# Prepare input
-		self.assert_datapoint(datapoint)
-		image = datapoint["image"]
-		p     = get_coords(self.down_size).to(image.device)
-		v     = dtype.rgb_to_v(image)
-		d     = datapoint.get("depth", None)
-		e     = I.boundary_aware_prior(d, self.edge_threshold) if d is not None else None
-		v_lr = interpolate_image(v, self.down_size)
-		d_lr = interpolate_image(d, self.down_size) if d is not None else None
-		e_lr = interpolate_image(e, self.down_size) if e is not None else None
-		# Mapping
-		if self.mapping_func in ["p", "v", "pv"]:
-			r = self.inf(p, v_lr)
-		elif self.mapping_func in ["d", "pd"]:
-			r = self.inf(p, d_lr)
-		elif self.mapping_func in ["e", "pe"]:
-			r = self.inf(p, e_lr)
-		elif self.mapping_func in ["pvde"]:
-			r = self.inf(p, v_lr, d_lr, e_lr)
-		else:
-			raise ValueError(f"``mapping_func`` must be one of {MAPPING_FUNC}, but got: {self.mapping}")
-		r_lr = r.view(1, 1, self.down_size, self.down_size)
-		# Enhance
-		if self.depth_threshold > 0:
-			r_lr = r_lr * (1 + self.depth_threshold * (1 - d_lr / d_lr.max()))
-		x_lr = v_lr + r_lr
-		z_lr = v_lr / (x_lr + 1e-8)
-		# Post-process
-		if self.use_denoise:
-			z_lr = kornia.filters.bilateral_blur(z_lr, self.denoise_ksize, self.denoise_color, self.denoise_space)
-		z   = filter_up(v_lr, z_lr, v, self.gf_radius)
-		hsv = dtype.rgb_to_hsv(image)
-		hsv = replace_v_component(hsv, z)
-		rgb = dtype.hsv_to_rgb(hsv.clone())
-		# Return
-		return {
-			"image"   : image,
-			"depth"   : d,
-			"edge"    : e,
-			"v_lr"    : v_lr,
-			"d_lr"    : d_lr,
-			"e_lr"    : e_lr,
-			"r_lr"    : r_lr,
-			"x_lr"    : x_lr,
-			"z_lr"    : z_lr,
-			"z"       : z,
-			"enhanced": rgb,
-		}
-	 
-	def infer(
-		self,
-		datapoint    : dict,
-		epochs       : int   = 300,   # 300
-		lr           : float = 1e-5,  # 1e-5
-		weight_decay : float = 3e-4,  # 3e-4
-		reset_weights: bool  = True,
-		*args, **kwargs
-	) -> dict:
-		# Initialize training components
-		self.train()
-		if reset_weights and self.initial_state_dict is not None:
-			self.load_state_dict(self.initial_state_dict)
-		if isinstance(self.optims, dict):
-			optimizer = self.optims.get("optimizer", None)
-		else:
-			optimizer = nn.Adam(
-				self.parameters(),
-				lr           = lr,
-				betas        = (0.9, 0.999),
-				weight_decay = weight_decay
-			)
-		
-		# Pre-processing
-		self.assert_datapoint(datapoint)
-		for k, v in datapoint.items():
-			if isinstance(v, torch.Tensor):
-				datapoint[k] = v.to(self.device)
-		
-		# Training
-		for _ in range(epochs):
-			outputs = self.forward_loss(datapoint=datapoint)
-			optimizer.zero_grad()
-			loss = outputs["loss"]
-			if loss is not None:
-				loss.backward(retain_graph=True)
-				optimizer.step()
-		
-		# Forward
-		self.eval()
-		timer = core.Timer()
-		timer.tick()
-		outputs = self.forward(datapoint=datapoint)
-		timer.tock()
-		self.assert_outputs(outputs)
-		
-		# Return
-		outputs["time"] = timer.avg_time
-		return outputs
-	
 # endregion

@@ -11,8 +11,8 @@ runml_dir="${project_dir}/runml"
 data_dir="${mon_dir}/data/enhance"
 
 # Input
-arch="neurop"
-model="neurop_fivek_ppr10k_c"
+arch="retinexformer"
+model="retinexformer_sid"
 data=(
     ### Unpaired Set
     "dicm"
