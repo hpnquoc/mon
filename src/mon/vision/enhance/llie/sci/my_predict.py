@@ -114,7 +114,6 @@ def predict(args: argparse.Namespace):
 
 def main() -> str:
     args = mon.parse_predict_args(model_root=current_dir)
-    args.weights = args.weights
     predict(args)
 
 

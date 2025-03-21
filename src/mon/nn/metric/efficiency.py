@@ -35,7 +35,7 @@ def compute_efficiency_score(
 	# Define input tensor
 	h, w  = I.get_image_size(image_size)
 	input = torch.rand(1, channels, h, w)
-	input = input.to(model.device)
+	input = input.to(core.get_model_device(model))
 	# Get FLOPs and Params
 	flops, params = core.profile(deepcopy(model), inputs=(input, ), verbose=False)
 	flops         = FlopCountAnalysis(model, input).total() if flops == 0 else flops

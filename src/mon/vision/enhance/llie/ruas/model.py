@@ -150,7 +150,7 @@ class DenoiseNetwork(nn.Module):
 
 
 class Network(nn.Module):
-
+    
     def __init__(self):
         super(Network, self).__init__()
 
@@ -192,7 +192,7 @@ class Network(nn.Module):
             momentum     = 0.9,
             weight_decay = 3e-4
         )
-
+        
         self._init_weights()
 
     def _init_weights(self):

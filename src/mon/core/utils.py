@@ -13,6 +13,7 @@ __all__ = [
     "check_installed_package",
     "get_gpu_device_memory",
     "get_machine_memory",
+    "get_model_device",
     "get_project_default_config",
     "is_extra_model",
     "is_rank_zero",
@@ -56,6 +57,7 @@ from typing import Any, Collection, Sequence
 import numpy as np
 import psutil
 import torch
+from torch import nn
 
 import mon
 
@@ -423,6 +425,14 @@ def parse_device(device: Any) -> list[int] | int | str:
             device = [int(x) for x in device.split(",")]
         device = [0] if len(device) == 0 else device
     return device
+
+
+def get_model_device(model: nn.Module) -> torch.device:
+    """Get the device of the given model since ``nn.Module`` doesn't directly
+    store a ``.device`` attribute.
+    """
+    return next(model.parameters()).device
+    
 # endregion
 
 
