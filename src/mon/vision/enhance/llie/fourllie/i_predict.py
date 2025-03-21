@@ -45,10 +45,9 @@ def predict(args: dict) -> str:
     use_fullpath = args["use_fullpath"]
     verbose      = args["verbose"]
     
-    opt_path      = str(current_dir / "options" / "test" / args["opt_path"])
-    opt           = option.parse(opt_path, is_train=False)
-    opt           = option.dict_to_nonedict(opt)
-    opt["device"] = device
+    opt_path = str(current_dir / "options" / "test" / args["opt_path"])
+    opt      = option.parse(opt_path, is_train=False)
+    opt      = option.dict_to_nonedict(opt)
     
     # Start
     console.rule(f"[bold red] {fullname}")
@@ -56,6 +55,7 @@ def predict(args: dict) -> str:
     
     # Device
     device = mon.set_device(device)
+    opt["device"] = device
     
     # Seed
     mon.set_random_seed(seed)

@@ -69,8 +69,8 @@ def predict(args: dict) -> str:
     
     # Benchmark
     if benchmark:
-        h = (imgsz // scale_factor) * scale_factor
-        w = (imgsz // scale_factor) * scale_factor
+        h = (512 // scale_factor) * scale_factor
+        w = (512 // scale_factor) * scale_factor
         flops, params = mon.compute_efficiency_score( model=dce_net, image_size=[h, w])
         console.log(f"FLOPs : {flops:.4f}")
         console.log(f"Params: {params:.4f}")

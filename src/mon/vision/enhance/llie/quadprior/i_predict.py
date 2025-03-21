@@ -175,7 +175,7 @@ def predict(args: dict) -> str:
     
     # Benchmark
     if benchmark:
-        flops, params = mon.compute_efficiency_score(model=model, image_size=imgsz)
+        flops, params = mon.compute_efficiency_score(model=model, image_size=512)
         total_params  = calculate_model_parameters(model)
         console.log(f"FLOPs        = {flops:.4f}")
         console.log(f"Params       = {params:.4f}")

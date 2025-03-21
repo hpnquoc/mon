@@ -397,10 +397,10 @@ class GCENet(base.ImageEnhancementModel):
     
     def compute_efficiency_score(
         self,
-        image_size: _size_2_t = 512,
-        channels  : int       = 3,
-        runs      : int       = 1000,
-        verbose   : bool      = False,
+        image_size: int  = 512,
+        channels  : int  = 3,
+        runs      : int  = 1000,
+        verbose   : bool = False,
     ) -> tuple[float, float, float]:
         """Compute the efficiency score of the model, including FLOPs, number
         of parameters, and runtime.

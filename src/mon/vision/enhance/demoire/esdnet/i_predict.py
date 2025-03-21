@@ -1,5 +1,5 @@
-import argparse
-import copy
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 import mon
 from model.nets import my_model
@@ -13,25 +13,25 @@ current_dir  = current_file.parents[0]
 
 # region Predict
 
-def predict(args: argparse.Namespace):
+def predict(args: dict) -> str:
     # Parse args
-    hostname     = args.hostname
-    root         = args.root
-    data         = args.data
-    fullname     = args.fullname
-    save_dir     = args.save_dir
-    weights      = args.weights
-    device       = args.device
-    seed         = args.seed
-    imgsz        = args.imgsz
-    resize       = args.resize
-    epochs       = args.epochs
-    steps        = args.steps
-    benchmark    = args.benchmark
-    save_image   = args.save_image
-    save_debug   = args.save_debug
-    use_fullpath = args.use_fullpath
-    verbose      = args.verbose
+    hostname     = args["hostname"]
+    root         = args["root"]
+    data         = args["data"]
+    fullname     = args["fullname"]
+    save_dir     = args["save_dir"]
+    weights      = args["weights"]
+    device       = args["device"]
+    seed         = args["seed"]
+    imgsz        = args["imgsz"]
+    resize       = args["resize"]
+    epochs       = args["epochs"]
+    steps        = args["steps"]
+    benchmark    = args["benchmark"]
+    save_image   = args["save_image"]
+    save_debug   = args["save_debug"]
+    use_fullpath = args["use_fullpath"]
+    verbose      = args["verbose"]
     
     # Start
     console.rule(f"[bold red] {fullname}")
@@ -39,14 +39,14 @@ def predict(args: argparse.Namespace):
     
     # Device
     device = mon.set_device(device)
-    os.environ["CUDA_VISIBLE_DEVICES"] = "%d" % args.GENERAL["GPU_ID"]
+    os.environ["CUDA_VISIBLE_DEVICES"] = "%d" % args["GENERAL"]["GPU_ID"]
     
     # Seed
-    random.seed(args.GENERAL["SEED"])
-    np.random.seed(args.GENERAL["SEED"])
-    torch.manual_seed(args.GENERAL["SEED"])
-    torch.cuda.manual_seed_all(args.GENERAL["SEED"])
-    if args.GENERAL["SEED"] == 0:
+    random.seed(args["GENERAL"]["SEED"])
+    np.random.seed(args["GENERAL"]["SEED"])
+    torch.manual_seed(args["GENERAL"]["SEED"])
+    torch.cuda.manual_seed_all(args["GENERAL"]["SEED"])
+    if args["GENERAL"]["SEED"] == 0:
         torch.backends.cudnn.deterministic = True
         torch.backends.cudnn.benchmark     = False
     else:
@@ -65,11 +65,11 @@ def predict(args: argparse.Namespace):
     
     # Model
     model = my_model(
-        en_feature_num = args.MODEL["EN_FEATURE_NUM"],
-        en_inter_num   = args.MODEL["EN_INTER_NUM"],
-        de_feature_num = args.MODEL["DE_FEATURE_NUM"],
-        de_inter_num   = args.MODEL["DE_INTER_NUM"],
-        sam_number     = args.MODEL["SAM_NUMBER"],
+        en_feature_num = args["MODEL"]["EN_FEATURE_NUM"],
+        en_inter_num   = args["MODEL"]["EN_INTER_NUM"],
+        de_feature_num = args["MODEL"]["DE_FEATURE_NUM"],
+        de_inter_num   = args["MODEL"]["DE_INTER_NUM"],
+        sam_number     = args["MODEL"]["SAM_NUMBER"],
     ).to(device)
     if weights.is_ckpt_file():
         model_state_dict = torch.load(weights)["state_dict"]
@@ -82,17 +82,9 @@ def predict(args: argparse.Namespace):
     
     # Benchmark
     if benchmark:
-        flops, params, avg_time = mon.compute_efficiency_score(
-            model      = copy.deepcopy(model),
-            image_size = imgsz,
-            channels   = 3,
-            runs       = 1000,
-            use_cuda   = True,
-            verbose    = False,
-        )
+        flops, params = mon.compute_efficiency_score(model=model, image_size=512)
         console.log(f"FLOPs : {flops:.4f}")
         console.log(f"Params: {params:.4f}")
-        console.log(f"Time   = {avg_time:.17f}")
         
     # Predicting
     timer = mon.Timer()
@@ -149,6 +141,7 @@ def predict(args: argparse.Namespace):
                     torchvision.utils.save_image(enhanced, str(output_path))
 
 # endregion
+
 
 # region Main
 

@@ -607,7 +607,7 @@ class ZeroLINR(base.ImageEnhancementModel):
 	def init_weights(self, m: nn.Module):
 		pass
 	
-	def compute_efficiency_score(self, image_size: _size_2_t = 512) -> tuple[float, float]:
+	def compute_efficiency_score(self, image_size: int = 512) -> tuple[float, float]:
 		"""Compute the efficiency score of the model, including FLOPs and number
 		of parameters.
 		"""

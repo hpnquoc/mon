@@ -1,5 +1,4 @@
 import logging
-import time
 from collections import OrderedDict
 
 import models.lr_scheduler as lr_scheduler
@@ -22,6 +21,7 @@ class enhancement_model(BaseModel):
         
         # My modification
         self.training = False
+        self.device   = opt["device"]
         
         if opt['dist']:
             self.rank = torch.distributed.get_rank()
@@ -230,14 +230,12 @@ class enhancement_model(BaseModel):
         
     def measure_efficiency_score(self, image_size: int = 512, channels: int = 3) -> tuple[float, float]:
         h, w  = mon.get_image_size(image_size)
-        input = torch.rand(1, channels, h, w)
-        input = input.to(mon.get_model_device(self))
+        input = torch.rand(1, channels, h, w).to(self.device)
         data  = {
             "idx": 0,
             "LQs": input,
             "nf" : input,
         }
-        self.netG = self.netG.to(self.device)
         self.feed_data(data, need_GT=False)
         flops, params = profile(self, inputs=(), verbose=False)
         return flops, params
