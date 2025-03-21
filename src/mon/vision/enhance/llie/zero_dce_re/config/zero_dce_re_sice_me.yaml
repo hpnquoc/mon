@@ -8,7 +8,7 @@ save_dir    : &save_dir ~                                                       
 weights     : &weights "zoo/vision/enhance/llie/zero_dce/zero_dce_re/sice_me/zero_dce_re_sice_me.pt" # Path to the pretrained weights.
 device      : 0                                                                 # Running device (i.e., cuda:0 | cuda:0,1,2,3 | cpu).
 seed        : 100                                                               # Random seed.
-imgsz       : &imgsz 512                                                        # Image size for the model.
+imgsz       : &imgsz 256                                                        # Image size for the model.
 resize      : False                                                             # Resize the input image to `imgsz`.
 epochs      : &epochs 200                                                       # Training epochs.
 steps       : &steps ~                                                          # Training steps.
@@ -29,7 +29,7 @@ network: &network                                                               
   scale_factor: 1.0
   
 # Optimizer
-optimizers: &optimizers                                                         # Optimizer(s).
+optimizer: &optimizer                                                           # Optimizer(s).
   - optimizer:
       name        : "adam"
       lr          : 0.00005
@@ -52,16 +52,16 @@ metrics: &metrics                                                               
     
 # Model-module (Note: I want to name this `model`, but it conflicts with the `model` key in the basic section)
 modelmodule:
-  name      : *model                                                            # Model name (e.g., resnet50).
-  root      : *save_dir                                                         # Root directory of the current run.
-  fullname  : *fullname                                                         # Full name of the current run (e.g., resnet50_cifar10_01).
-  <<        : *network                                                          # Network architecture.
-  weights   : *weights                                                          # Path to the pretrained weights.
-  optimizers: *optimizers                                                       # Optimizer(s).
-  loss      : *loss                                                             # Loss function.
-  metrics   : *metrics                                                          # Metrics for evaluation.
-  debug     : *save_debug 
-  verbose   : *verbose                                                          # Verbosity.
+  name     : *model                                                             # Model name (e.g., resnet50).
+  root     : *save_dir                                                          # Root directory of the current run.
+  fullname : *fullname                                                          # Full name of the current run (e.g., resnet50_cifar10_01).
+  <<       : *network                                                           # Network architecture.
+  weights  : *weights                                                           # Path to the pretrained weights.
+  optimizer: *optimizer                                                         # Optimizer(s).
+  loss     : *loss                                                              # Loss function.
+  metrics  : *metrics                                                           # Metrics for evaluation.
+  debug    : *save_debug                                                        
+  verbose  : *verbose                                                           # Verbosity.
 
 # Datamodule
 datamodule:

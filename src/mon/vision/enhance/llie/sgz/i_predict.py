@@ -4,13 +4,18 @@
 from __future__ import annotations
 
 import argparse
+import os
 
 import torch
-import torch.optim
 import torchvision
+from numba import Sequence
 
 import mon
-from source.model import UnetTMO
+import utils
+from modeling import model as mmodel
+
+os.environ["KMP_DUPLICATE_LIB_OK"] = "True"
+# os.environ["CUDA_VISIBLE_DEVICES"] = "1"  # For GPU only
 
 console      = mon.console
 current_file = mon.Path(__file__).absolute()
@@ -18,16 +23,6 @@ current_dir  = current_file.parents[0]
 
 
 # region Predict
-
-def read_pytorch_lightning_state_dict(ckpt):
-    new_state_dict = {}
-    for k, v in ckpt["state_dict"].items():
-        if k.startswith("model."):
-            new_state_dict[k[len("model.") :]] = v
-        else:
-            new_state_dict[k] = v
-    return new_state_dict
-
 
 def predict(args: argparse.Namespace):
     # Parse args
@@ -40,6 +35,7 @@ def predict(args: argparse.Namespace):
     device       = args.device
     seed         = args.seed
     imgsz        = args.imgsz
+    imgsz        = imgsz[0] if isinstance(imgsz, Sequence) else imgsz
     resize       = args.resize
     epochs       = args.epochs
     steps        = args.steps
@@ -48,6 +44,7 @@ def predict(args: argparse.Namespace):
     save_debug   = args.save_debug
     use_fullpath = args.use_fullpath
     verbose      = args.verbose
+    scale_factor = args.network.scale_factor
     
     # Start
     console.rule(f"[bold red] {fullname}")
@@ -64,21 +61,21 @@ def predict(args: argparse.Namespace):
     data_name, data_loader, data_writer = mon.parse_io_worker(
         src         = data,
         dst         = save_dir,
-        to_tensor   = True,
+        to_tensor   = False,
         denormalize = True,
         verbose     = False,
     )
     
     # Model
-    model      = UnetTMO()
-    state_dict = read_pytorch_lightning_state_dict(torch.load(str(weights), weights_only=False))
-    model.load_state_dict(state_dict)
-    model.to(device)
-    model.eval()
+    net = mmodel.enhance_net_nopool(scale_factor, conv_type="dsc").to(device)
+    net.load_state_dict(torch.load(weights, map_location=device, weights_only=True))
+    net.eval()
     
     # Benchmark
     if benchmark:
-        flops, params = mon.compute_efficiency_score(model=model, image_size=imgsz)
+        h = (imgsz // scale_factor) * scale_factor
+        w = (imgsz // scale_factor) * scale_factor
+        flops, params = mon.compute_efficiency_score(model=net, image_size=[h, w])
         console.log(f"FLOPs : {flops:.4f}")
         console.log(f"Params: {params:.4f}")
     
@@ -94,12 +91,19 @@ def predict(args: argparse.Namespace):
                 # Input
                 meta       = datapoint.get("meta")
                 image_path = mon.Path(meta["path"])
-                image      = datapoint.get("image").to(device)
+                image      = utils.image_from_path(str(image_path))
+                h0, w0     = mon.get_image_size(meta["shape"])
+                # Scale image to have the resolution of multiple of 4
+                image      = utils.scale_image(image, scale_factor, device) if scale_factor != 1 else image
+                image      = image.to(device)
                 
                 # Infer
                 timer.tick()
-                enhanced, _ = model(image)
+                enhanced, params_maps = net(image)
                 timer.tock()
+                
+                # Post-processing
+                enhanced = mon.resize(enhanced, (h0, w0), side=None)
                 
                 # Save
                 if save_image:
@@ -110,10 +114,10 @@ def predict(args: argparse.Namespace):
                         output_path = save_dir / data_name / f"{image_path.stem}.jpg"
                     output_path.parent.mkdir(parents=True, exist_ok=True)
                     torchvision.utils.save_image(enhanced, str(output_path))
-       
+    
     # Finish
     console.log(f"Average time: {timer.avg_time}")
-
+        
 # endregion
 
 
@@ -126,5 +130,5 @@ def main() -> str:
 
 if __name__ == "__main__":
     main()
-    
+
 # endregion

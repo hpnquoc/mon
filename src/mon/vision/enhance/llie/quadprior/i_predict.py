@@ -200,7 +200,7 @@ def predict(args: argparse.Namespace):
                 # Infer
                 timer.tick()
                 # If you set num_samples > 1, process will return multiple results
-                output      = process(
+                enhanced = process(
                     model, diffusion_sampler,
                     input_image      = image,
                     num_samples      = 1,
@@ -210,8 +210,8 @@ def predict(args: argparse.Namespace):
                 timer.tock()
                 
                 # Post-processing
-                output = mon.resize(output, (h0, w0), interpolation=cv2.INTER_LINEAR)
-                output = cv2.cvtColor(output, cv2.COLOR_BGR2RGB)
+                enhanced = mon.resize(enhanced, (h0, w0), interpolation=cv2.INTER_LINEAR)
+                enhanced = cv2.cvtColor(enhanced, cv2.COLOR_BGR2RGB)
                 
                 # Save
                 if save_image:
@@ -221,7 +221,7 @@ def predict(args: argparse.Namespace):
                     else:
                         output_path = save_dir / data_name / f"{image_path.stem}.jpg"
                     output_path.parent.mkdir(parents=True, exist_ok=True)
-                    cv2.imwrite(str(output_path), output)
+                    cv2.imwrite(str(output_path), enhanced)
         
     # Finish
     console.log(f"Average time: {timer.avg_time}")

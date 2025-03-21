@@ -4,13 +4,10 @@
 from __future__ import annotations
 
 import argparse
-import copy
 
-import numpy as np
 import torch
 import torch.optim
 import torchvision
-from PIL import Image
 
 import model as mmodel
 import mon
@@ -23,46 +20,55 @@ current_dir  = current_file.parents[0]
 # region Predict
 
 def predict(args: argparse.Namespace):
-    # General config
+    # Parse args
+    hostname     = args.hostname
+    root         = args.root
     data         = args.data
+    fullname     = args.fullname
     save_dir     = args.save_dir
     weights      = args.weights
-    device       = mon.set_device(args.device)
+    device       = args.device
+    seed         = args.seed
     imgsz        = args.imgsz
     resize       = args.resize
+    epochs       = args.epochs
+    steps        = args.steps
     benchmark    = args.benchmark
     save_image   = args.save_image
     save_debug   = args.save_debug
     use_fullpath = args.use_fullpath
+    verbose      = args.verbose
     
-    # Model
-    DCE_net = mmodel.enhance_net_nopool().to(device)
-    DCE_net.load_state_dict(torch.load(weights, weights_only=True))
-    DCE_net.eval()
+    # Start
+    console.rule(f"[bold red] {fullname}")
+    console.log(f"Machine: {hostname}")
     
-    # Benchmark
-    if benchmark:
-        flops, params, avg_time = mon.compute_efficiency_score(
-            model      = copy.deepcopy(DCE_net),
-            image_size = imgsz,
-            channels   = 3,
-            runs       = 1000,
-            use_cuda   = True,
-            verbose    = False,
-        )
-        console.log(f"FLOPs : {flops:.4f}")
-        console.log(f"Params: {params:.4f}")
-        console.log(f"Time   = {avg_time:.17f}")
+    # Device
+    device = mon.set_device(device)
+    
+    # Seed
+    mon.set_random_seed(seed)
     
     # Data I/O
     console.log(f"[bold red]{data}")
     data_name, data_loader, data_writer = mon.parse_io_worker(
         src         = data,
         dst         = save_dir,
-        to_tensor   = False,
+        to_tensor   = True,
         denormalize = True,
         verbose     = False,
     )
+    
+    # Model
+    dce_net = mmodel.enhance_net_nopool().to(device)
+    dce_net.load_state_dict(torch.load(weights, map_location=device, weights_only=True))
+    dce_net.eval()
+    
+    # Benchmark
+    if benchmark:
+        flops, params = mon.compute_efficiency_score(model=dce_net, image_size=imgsz)
+        console.log(f"FLOPs : {flops:.4f}")
+        console.log(f"Params: {params:.4f}")
     
     # Predicting
     timer = mon.Timer()
@@ -74,17 +80,13 @@ def predict(args: argparse.Namespace):
                 description = f"[bright_yellow] Predicting"
             ):
                 # Input
-                meta          = datapoint.get("meta")
-                image_path    = mon.Path(meta["path"])
-                data_lowlight = Image.open(image_path).convert("RGB")
-                data_lowlight = (np.asarray(data_lowlight) / 255.0)
-                data_lowlight = torch.from_numpy(data_lowlight).float()
-                data_lowlight = data_lowlight.permute(2, 0, 1)
-                data_lowlight = data_lowlight.to(device).unsqueeze(0)
-                
+                meta       = datapoint.get("meta")
+                image_path = mon.Path(meta["path"])
+                image      = datapoint.get("meta").to(device)
+               
                 # Infer
                 timer.tick()
-                _, enhanced_image, _ = DCE_net(data_lowlight)
+                _, enhanced, _ = dce_net(image)
                 timer.tock()
                 
                 # Save
@@ -95,10 +97,10 @@ def predict(args: argparse.Namespace):
                     else:
                         output_path = save_dir / data_name / f"{image_path.stem}.jpg"
                     output_path.parent.mkdir(parents=True, exist_ok=True)
-                    torchvision.utils.save_image(enhanced_image, str(output_path))
+                    torchvision.utils.save_image(enhanced, str(output_path))
         
-        avg_time = float(timer.avg_time)
-        console.log(f"Average time: {avg_time}")
+    # Finish
+    console.log(f"Average time: {timer.avg_time}")
 
 # endregion
 

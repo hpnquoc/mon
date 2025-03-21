@@ -102,11 +102,11 @@ class ZeroDCEpp_RE(base.ImageEnhancementModel):
         https://github.com/Li-Chongyi/Zero-DCE_extension
     """
     
-    model_dir: core.Path    = current_dir
     arch     : str          = "zero_dce++"
     name     : str          = "zero_dce++_re"
     tasks    : list[Task]   = [Task.LLIE]
     schemes  : list[Scheme] = [Scheme.UNSUPERVISED]
+    model_dir: core.Path    = current_dir
     zoo      : dict         = {}
 
     def __init__(
@@ -118,21 +118,19 @@ class ZeroDCEpp_RE(base.ImageEnhancementModel):
         *args, **kwargs
     ):
         super().__init__(*args, **kwargs)
-        self.in_channels  = in_channels
-        self.num_channels = num_channels
         self.num_iters    = num_iters
         self.scale_factor = scale_factor
         
         # Network
         self.relu     = nn.ReLU(inplace=True)
         self.upsample = nn.UpsamplingBilinear2d(self.scale_factor)
-        self.e_conv1  = nn.DSConv2d(self.in_channels,      self.num_channels, 3, 1, 1)
-        self.e_conv2  = nn.DSConv2d(self.num_channels,     self.num_channels, 3, 1, 1)
-        self.e_conv3  = nn.DSConv2d(self.num_channels,     self.num_channels, 3, 1, 1)
-        self.e_conv4  = nn.DSConv2d(self.num_channels,     self.num_channels, 3, 1, 1)
-        self.e_conv5  = nn.DSConv2d(self.num_channels * 2, self.num_channels, 3, 1, 1)
-        self.e_conv6  = nn.DSConv2d(self.num_channels * 2, self.num_channels, 3, 1, 1)
-        self.e_conv7  = nn.DSConv2d(self.num_channels * 2, self.out_channels, 3, 1, 1)
+        self.e_conv1  = nn.DSConv2d(in_channels,      num_channels, 3, 1, 1)
+        self.e_conv2  = nn.DSConv2d(num_channels,     num_channels, 3, 1, 1)
+        self.e_conv3  = nn.DSConv2d(num_channels,     num_channels, 3, 1, 1)
+        self.e_conv4  = nn.DSConv2d(num_channels,     num_channels, 3, 1, 1)
+        self.e_conv5  = nn.DSConv2d(num_channels * 2, num_channels, 3, 1, 1)
+        self.e_conv6  = nn.DSConv2d(num_channels * 2, num_channels, 3, 1, 1)
+        self.e_conv7  = nn.DSConv2d(num_channels * 2, 3, 3, 1, 1)
         
         # Loss
         self.loss = Loss()

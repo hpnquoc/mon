@@ -1,16 +1,22 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+"""
+References:
+    https://github.com/vis-opt-group/SCI
+"""
+
 from __future__ import annotations
 
 import argparse
 
 import torch
-import torch.optim
+import torch.utils
 import torchvision
+from torch.autograd import Variable
 
 import mon
-from source.model import UnetTMO
+from model import Finetunemodel
 
 console      = mon.console
 current_file = mon.Path(__file__).absolute()
@@ -18,16 +24,6 @@ current_dir  = current_file.parents[0]
 
 
 # region Predict
-
-def read_pytorch_lightning_state_dict(ckpt):
-    new_state_dict = {}
-    for k, v in ckpt["state_dict"].items():
-        if k.startswith("model."):
-            new_state_dict[k[len("model.") :]] = v
-        else:
-            new_state_dict[k] = v
-    return new_state_dict
-
 
 def predict(args: argparse.Namespace):
     # Parse args
@@ -70,10 +66,7 @@ def predict(args: argparse.Namespace):
     )
     
     # Model
-    model      = UnetTMO()
-    state_dict = read_pytorch_lightning_state_dict(torch.load(str(weights), weights_only=False))
-    model.load_state_dict(state_dict)
-    model.to(device)
+    model = Finetunemodel(weights).to(device)
     model.eval()
     
     # Benchmark
@@ -94,11 +87,12 @@ def predict(args: argparse.Namespace):
                 # Input
                 meta       = datapoint.get("meta")
                 image_path = mon.Path(meta["path"])
-                image      = datapoint.get("image").to(device)
+                image      = datapoint.get("image")
+                image      = Variable(image).to(device)
                 
                 # Infer
                 timer.tick()
-                enhanced, _ = model(image)
+                i, r = model(image)
                 timer.tock()
                 
                 # Save
@@ -109,7 +103,7 @@ def predict(args: argparse.Namespace):
                     else:
                         output_path = save_dir / data_name / f"{image_path.stem}.jpg"
                     output_path.parent.mkdir(parents=True, exist_ok=True)
-                    torchvision.utils.save_image(enhanced, str(output_path))
+                    torchvision.utils.save_image(r, str(output_path))
        
     # Finish
     console.log(f"Average time: {timer.avg_time}")

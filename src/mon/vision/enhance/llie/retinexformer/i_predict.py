@@ -122,15 +122,15 @@ def predict(args: argparse.Namespace):
                 
                 # Infer
                 timer.tick()
-                restored = model(input)
+                enhanced = model(input)
                 timer.tock()
                 
                 # Post-processing
                 # Unpad images to original dimensions
-                restored = restored[:, :, :h, :w]
+                enhanced = enhanced[:, :, :h, :w]
                 if resize:
-                    restored = mon.resize(restored, (h0, w0))
-                restored = torch.clamp(restored, 0, 1).cpu().detach().permute(0, 2, 3, 1).squeeze(0).numpy()
+                    enhanced = mon.resize(enhanced, (h0, w0))
+                enhanced = torch.clamp(enhanced, 0, 1).cpu().detach().permute(0, 2, 3, 1).squeeze(0).numpy()
                 
                 # Save
                 if save_image:
@@ -140,7 +140,7 @@ def predict(args: argparse.Namespace):
                     else:
                         output_path = save_dir / data_name / f"{image_path.stem}.jpg"
                     output_path.parent.mkdir(parents=True, exist_ok=True)
-                    utils.save_img(str(output_path), img_as_ubyte(restored))
+                    utils.save_img(str(output_path), img_as_ubyte(enhanced))
         
     # Finish
     console.log(f"Average time: {timer.avg_time}")

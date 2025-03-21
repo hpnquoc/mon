@@ -120,15 +120,15 @@ def predict(args: argparse.Namespace):
                 timer.tick()
                 model.set_input(dp)
                 model.test()
-                visuals = model.get_current_visuals()
-                fake_B  = visuals.get("fake_B")
+                visuals  = model.get_current_visuals()
+                enhanced = visuals.get("fake_B")
                 timer.tock()
                 
                 # Post-process
-                h1, w1 = mon.get_image_size(fake_B)
+                h1, w1 = mon.get_image_size(enhanced)
                 if h1 != h0 or w1 != w0:
-                    fake_B = mon.resize(fake_B, (h0, w0))
-                fake_B = util.tensor2im(fake_B)
+                    enhanced = mon.resize(enhanced, (h0, w0))
+                enhanced = util.tensor2im(enhanced)
                 
                 # Save
                 if save_image:
@@ -138,7 +138,7 @@ def predict(args: argparse.Namespace):
                     else:
                         output_path = save_dir / data_name / f"{image_path.stem}.jpg"
                     output_path.parent.mkdir(parents=True, exist_ok=True)
-                    image_pil = Image.fromarray(fake_B)
+                    image_pil = Image.fromarray(enhanced)
                     image_pil.save(str(output_path))
                 '''
                 if save_debug:

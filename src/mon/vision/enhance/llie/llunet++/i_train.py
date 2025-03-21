@@ -3,7 +3,7 @@
 
 """
 References:
-    `<https://github.com/xiwang-online/LLUnetPlusPlus>`__
+    https://github.com/xiwang-online/LLUnetPlusPlus
 """
 
 from __future__ import annotations
@@ -40,7 +40,7 @@ def train_epoch(train_loader, model, criterion, optimizer, device):
             description = f"[bright_yellow] Training"
         ):
             input  = datapoint.get("image").to(device)
-            target = datapoint.get("hq_image").to(device)
+            target = datapoint.get("ref_image").to(device)
             meta   = datapoint.get("meta")
             output = model(input)
             loss   = criterion(output, target)
@@ -64,7 +64,7 @@ def val_epoch(val_loader, model, criterion, device):
             description = f"[bright_yellow] Validating"
         ):
             input  = datapoint.get("image").to(device)
-            target = datapoint.get("hq_image").to(device)
+            target = datapoint.get("ref_image").to(device)
             meta   = datapoint.get("meta")
             output = model(input)
             loss   = criterion(output, target)

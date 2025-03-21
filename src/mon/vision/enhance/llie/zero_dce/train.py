@@ -4,7 +4,6 @@
 from __future__ import annotations
 
 import argparse
-import os
 
 import torch
 import torch.optim
@@ -14,6 +13,9 @@ import model
 import mon
 import myloss
 from mon import ZOO_DIR
+
+
+# os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 
 
 def weights_init(m):
@@ -26,7 +28,7 @@ def weights_init(m):
 
 
 def train(args):
-    os.environ["CUDA_VISIBLE_DEVICES"] = "0"
+    
     args.checkpoints_dir = mon.Path(args.checkpoints_dir)
     args.checkpoints_dir.mkdir(parents=True, exist_ok=True)
 

@@ -1,16 +1,39 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+# https://github.com/CharlieZCJ/UTVNet
+
+'''
+This is a PyTorch implementation of the ICCV 2021 paper:
+"Adaptive Unfolding Total Variation Network for Low-Light Image Enhancement": https://arxiv.org/abs/2110.00984
+
+Please cite the paper if you use this code
+
+@InProceedings{Zheng_2021_ICCV,
+    author    = {Zheng, Chuanjun and Shi, Daming and Shi, Wentian},
+    title     = {Adaptive Unfolding Total Variation Network for Low-Light Image Enhancement},
+    booktitle = {Proceedings of the IEEE/CVF International Conference on Computer Vision (ICCV)},
+    month     = {October},
+    year      = {2021},
+    pages     = {4439-4448}
+}
+
+Tested with Pytorch 1.7.1, Python 3.6
+
+Author: Chuanjun Zheng (chuanjunzhengcs@gmail.com)
+
+'''
+
 from __future__ import annotations
 
 import argparse
+import copy
 
 import torch
-import torch.optim
 import torchvision
 
 import mon
-from source.model import UnetTMO
+from models import network
 
 console      = mon.console
 current_file = mon.Path(__file__).absolute()
@@ -18,16 +41,6 @@ current_dir  = current_file.parents[0]
 
 
 # region Predict
-
-def read_pytorch_lightning_state_dict(ckpt):
-    new_state_dict = {}
-    for k, v in ckpt["state_dict"].items():
-        if k.startswith("model."):
-            new_state_dict[k[len("model.") :]] = v
-        else:
-            new_state_dict[k] = v
-    return new_state_dict
-
 
 def predict(args: argparse.Namespace):
     # Parse args
@@ -70,10 +83,8 @@ def predict(args: argparse.Namespace):
     )
     
     # Model
-    model      = UnetTMO()
-    state_dict = read_pytorch_lightning_state_dict(torch.load(str(weights), weights_only=False))
-    model.load_state_dict(state_dict)
-    model.to(device)
+    model = network.UTVNet().to(device)
+    model.load_state_dict(torch.load(str(weights), map_location=device, weights_only=True))
     model.eval()
     
     # Benchmark
@@ -84,6 +95,7 @@ def predict(args: argparse.Namespace):
     
     # Predicting
     timer = mon.Timer()
+    torch.set_grad_enabled(False)
     with torch.no_grad():
         with mon.get_progress_bar() as pbar:
             for i, datapoint in pbar.track(
@@ -98,7 +110,8 @@ def predict(args: argparse.Namespace):
                 
                 # Infer
                 timer.tick()
-                enhanced, _ = model(image)
+                enhanced_image = model(image)
+                enhanced_image = enhanced_image.clamp(0, 1).cpu()
                 timer.tock()
                 
                 # Save
@@ -109,8 +122,8 @@ def predict(args: argparse.Namespace):
                     else:
                         output_path = save_dir / data_name / f"{image_path.stem}.jpg"
                     output_path.parent.mkdir(parents=True, exist_ok=True)
-                    torchvision.utils.save_image(enhanced, str(output_path))
-       
+                    torchvision.utils.save_image(enhanced_image, str(output_path))
+        
     # Finish
     console.log(f"Average time: {timer.avg_time}")
 

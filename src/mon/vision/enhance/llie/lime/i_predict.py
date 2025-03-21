@@ -48,6 +48,9 @@ def predict(args: argparse.Namespace):
     console.rule(f"[bold red] {fullname}")
     console.log(f"Machine: {hostname}")
     
+    # Device
+    device = mon.set_device(device)
+    
     # Seed
     mon.set_random_seed(seed)
     

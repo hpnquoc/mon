@@ -8,7 +8,7 @@ save_dir    : &save_dir ~                                                       
 weights     : &weights "zoo/vision/enhance/llie/zero_dce++/zero_dce++/sice_me/zero_dce++_sice_me.pth" # Path to the pretrained weights.
 device      : 0                                                                 # Running device (i.e., cuda:0 | cuda:0,1,2,3 | cpu).
 seed        : 100                                                               # Random seed.
-imgsz       : &imgsz 512                                                        # Image size for the model.
+imgsz       : &imgsz 256                                                        # Image size for the model.
 resize      : False                                                             # Resize the input image to `imgsz`.
 epochs      : &epochs 200                                                       # Training epochs.
 steps       : &steps ~                                                          # Training steps.
@@ -19,6 +19,10 @@ use_fullname: True                                                              
 use_fullpath: False                                                             # Use the full path for the input image.
 exist_ok    : True                                                              # If ``False``, it will delete the save directory if it already exists.
 verbose     : &verbose True                                                     # Verbosity.
+
+# Network
+network: &network                                                               # Network architecture.
+  scale_factor: 1
 
 # Optimizer
 optimizer: &optimizer                                                           # Optimizer(s).
@@ -36,8 +40,8 @@ datamodule:
   shuffle   : True                                                              # If ``True``, shuffle the data.
   verbose   : *verbose                                                          # Verbosity.
   
-# Misc
-scale_factor    : 1
-grad_clip_norm  : 0.1
-display_iter    : 10
-checkpoint_iter : 10
+# Trainer
+trainer:
+  grad_clip_norm : 0.1
+  display_iter   : 10
+  checkpoint_iter: 10

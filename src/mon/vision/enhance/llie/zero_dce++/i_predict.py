@@ -4,7 +4,6 @@
 from __future__ import annotations
 
 import argparse
-import copy
 from typing import Sequence
 
 import numpy as np
@@ -59,13 +58,13 @@ def predict(args: argparse.Namespace):
     data_name, data_loader, data_writer = mon.parse_io_worker(
         src         = data,
         dst         = save_dir,
-        to_tensor   = False,
+        to_tensor   = True,
         denormalize = True,
         verbose     = False,
     )
     
     # Model
-    scale_factor = args.scale_factor
+    scale_factor = args.network.scale_factor
     dce_net      = model.enhance_net_nopool(scale_factor).to(device)
     dce_net.load_state_dict(torch.load(weights, map_location=device, weights_only=True))
     dce_net.eval()
@@ -88,25 +87,22 @@ def predict(args: argparse.Namespace):
                 description = f"[bright_yellow] Predicting"
             ):
                 # Input
-                meta          = datapoint.get("meta")
-                image_path    = mon.Path(meta["path"])
-                data_lowlight = Image.open(image_path).convert("RGB")
-                data_lowlight = (np.asarray(data_lowlight) / 255.0)
-                data_lowlight = torch.from_numpy(data_lowlight).float()
-                h0, w0        = data_lowlight.shape[0], data_lowlight.shape[1]
-                h1            = (h0 // scale_factor) * scale_factor
-                w1            = (w0 // scale_factor) * scale_factor
-                data_lowlight = data_lowlight[0:h1, 0:w1, :]
-                data_lowlight = data_lowlight.permute(2, 0, 1)
-                data_lowlight = data_lowlight.to(device).unsqueeze(0)
+                meta       = datapoint.get("meta")
+                image_path = mon.Path(meta["path"])
+                image      = datapoint.get("image")
+                h0, w0     = mon.get_image_size(image)
+                h1         = (h0 // scale_factor) * scale_factor
+                w1         = (w0 // scale_factor) * scale_factor
+                image      = image[:, :, 0:h1, 0:w1]
+                image      = image.to(device)
                 
                 # Infer
                 timer.tick()
-                enhanced_image, params_maps = dce_net(data_lowlight)
+                enhanced, _ = dce_net(image)
                 timer.tock()
                 
                 # Predict
-                enhanced_image = mon.resize(enhanced_image, (h0, w0))
+                enhanced = mon.resize(enhanced, (h0, w0))
                 
                 # Save
                 if save_image:
@@ -116,10 +112,10 @@ def predict(args: argparse.Namespace):
                     else:
                         output_path = save_dir / data_name / f"{image_path.stem}.jpg"
                     output_path.parent.mkdir(parents=True, exist_ok=True)
-                    torchvision.utils.save_image(enhanced_image, str(output_path))
-                
-        avg_time = float(timer.avg_time)
-        console.log(f"Average time: {avg_time}")
+                    torchvision.utils.save_image(enhanced, str(output_path))
+    
+    # Finish
+    console.log(f"Average time: {timer.avg_time}")
 
 # endregion
 

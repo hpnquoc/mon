@@ -1,16 +1,24 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+"""
+Reference:
+    https://github.com/dvlab-research/SNR-Aware-Low-Light-Enhance
+"""
+
 from __future__ import annotations
 
 import argparse
 
+import cv2
+import numpy as np
 import torch
-import torch.optim
-import torchvision
 
+import data.util as dutil
 import mon
-from source.model import UnetTMO
+import options.options as option
+import utils.util as util
+from models import create_model
 
 console      = mon.console
 current_file = mon.Path(__file__).absolute()
@@ -19,18 +27,8 @@ current_dir  = current_file.parents[0]
 
 # region Predict
 
-def read_pytorch_lightning_state_dict(ckpt):
-    new_state_dict = {}
-    for k, v in ckpt["state_dict"].items():
-        if k.startswith("model."):
-            new_state_dict[k[len("model.") :]] = v
-        else:
-            new_state_dict[k] = v
-    return new_state_dict
-
-
 def predict(args: argparse.Namespace):
-    # Parse args
+    # General config
     hostname     = args.hostname
     root         = args.root
     data         = args.data
@@ -48,6 +46,9 @@ def predict(args: argparse.Namespace):
     save_debug   = args.save_debug
     use_fullpath = args.use_fullpath
     verbose      = args.verbose
+    opt_path     = str(current_dir / "model_config" / args.opt_path)
+    opt          = option.parse(opt_path, is_train=False)
+    opt          = option.dict_to_nonedict(opt)
     
     # Start
     console.rule(f"[bold red] {fullname}")
@@ -55,7 +56,8 @@ def predict(args: argparse.Namespace):
     
     # Device
     device = mon.set_device(device)
-    
+    opt["device"] = device
+
     # Seed
     mon.set_random_seed(seed)
     
@@ -69,16 +71,13 @@ def predict(args: argparse.Namespace):
         verbose     = False,
     )
     
-    # Model
-    model      = UnetTMO()
-    state_dict = read_pytorch_lightning_state_dict(torch.load(str(weights), weights_only=False))
-    model.load_state_dict(state_dict)
-    model.to(device)
-    model.eval()
+    # Load model
+    opt["path"]["pretrain_model_G"] = str(weights)
+    model = create_model(opt)
     
-    # Benchmark
+    # Measure efficiency score
     if benchmark:
-        flops, params = mon.compute_efficiency_score(model=model, image_size=imgsz)
+        flops, params = model.measure_efficiency_score(image_size=imgsz)
         console.log(f"FLOPs : {flops:.4f}")
         console.log(f"Params: {params:.4f}")
     
@@ -94,12 +93,33 @@ def predict(args: argparse.Namespace):
                 # Input
                 meta       = datapoint.get("meta")
                 image_path = mon.Path(meta["path"])
-                image      = datapoint.get("image").to(device)
+                image      = dutil.read_img(None, str(image_path))
+                h, w       = mon.get_image_size(image)
+                image      = mon.resize(image, divisible_by=32)
+                image_nf   = cv2.blur(image, (5, 5))
+                image_nf   = image_nf * 1.0 / 255.0
+                image_nf   = torch.from_numpy(np.ascontiguousarray(np.transpose(image_nf, (2, 0, 1)))).float()
+                image      = torch.from_numpy(np.ascontiguousarray(np.transpose(image,    (2, 0, 1)))).float()
+                image      = image.unsqueeze(0).to(device)
+                image_nf   = image_nf.unsqueeze(0).to(device)
                 
                 # Infer
                 timer.tick()
-                enhanced, _ = model(image)
+                model.feed_data(
+                    data = {
+                        "idx": i,
+                        "LQs": image,
+                        "nf" : image_nf,
+                    },
+                    need_GT=False
+                )
+                model.test()
                 timer.tock()
+                
+                # Post-processing
+                visuals  = model.get_current_visuals(need_GT=False)
+                enhanced = util.tensor2img(visuals["rlt"])  # uint8
+                enhanced = cv2.resize(enhanced, (w, h))
                 
                 # Save
                 if save_image:
@@ -109,11 +129,12 @@ def predict(args: argparse.Namespace):
                     else:
                         output_path = save_dir / data_name / f"{image_path.stem}.jpg"
                     output_path.parent.mkdir(parents=True, exist_ok=True)
-                    torchvision.utils.save_image(enhanced, str(output_path))
-       
+                    cv2.imwrite(str(output_path), enhanced)
+                    # torchvision.utils.save_image(enhanced, str(output_path))
+    
     # Finish
     console.log(f"Average time: {timer.avg_time}")
-
+    
 # endregion
 
 
@@ -126,5 +147,5 @@ def main() -> str:
 
 if __name__ == "__main__":
     main()
-    
+
 # endregion

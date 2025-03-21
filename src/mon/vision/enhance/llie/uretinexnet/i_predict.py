@@ -1,0 +1,196 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+"""
+References:
+    https://github.com/AndersonYong/URetinex-Net
+"""
+
+from __future__ import annotations
+
+import argparse
+import time
+
+import torchvision.transforms as transforms
+
+import mon
+from mon import nn
+from network.decom import Decom
+from network.Math_Module import P, Q
+from utils import *
+
+console      = mon.console
+current_file = mon.Path(__file__).absolute()
+current_dir  = current_file.parents[0]
+
+
+# region Predict
+
+def one2three(x):
+    return torch.cat([x, x, x], dim=1).to(x)
+
+
+class Inference(nn.Module):
+    
+    def __init__(self, opts):
+        super().__init__()
+        self.opts = opts
+        # Loading decomposition model
+        self.model_Decom_low = Decom()
+        self.model_Decom_low = load_initialize(self.model_Decom_low, self.opts.decom_model_low_weights)
+        # Loading R; old_model_opts; and L model
+        self.unfolding_opts, self.model_R, self.model_L = load_unfolding(self.opts.unfolding_model_weights)
+        # Loading adjustment model
+        self.adjust_model    = load_adjustment(self.opts.adjust_model_weights)
+        self.P = P()
+        self.Q = Q()
+        transform = [
+            transforms.ToTensor(),
+            # transforms.Resize(1280),
+        ]
+        self.transform = transforms.Compose(transform)
+        # console.log(self.model_Decom_low)
+        # console.log(self.model_R)
+        # console.log(self.model_L)
+        # console.log(self.adjust_model)
+        # time.sleep(8)
+
+    def unfolding(self, input_low_img):
+        for t in range(self.unfolding_opts.round):      
+            if t == 0:  # Initialize R0, L0
+                P, Q = self.model_Decom_low(input_low_img)
+            else:  # Update P and Q
+                w_p = (self.unfolding_opts.gamma + self.unfolding_opts.Roffset * t)
+                w_q = (self.unfolding_opts.lamda + self.unfolding_opts.Loffset * t)
+                P   = self.P(I=input_low_img, Q=Q, R=R, gamma=w_p)
+                Q   = self.Q(I=input_low_img, P=P, L=L, lamda=w_q)
+            R = self.model_R(r=P, l=Q)
+            L = self.model_L(l=Q)
+        return R, L
+    
+    def illumination_adjust(self, L, ratio):
+        ratio = torch.ones(L.shape).cuda() * ratio
+        return self.adjust_model(l=L, alpha=ratio)
+    
+    def forward(self, input_low_img):
+        if torch.cuda.is_available():
+            input_low_img = input_low_img.cuda()
+        with torch.no_grad():
+            start_time = time.time()
+            R, L       = self.unfolding(input_low_img)
+            High_L     = self.illumination_adjust(L, self.opts.ratio)
+            I_enhance  = High_L * R
+            run_time   = (time.time() - start_time)
+        return I_enhance, run_time
+
+    def run(self, low_img_path):
+        low_img           = self.transform(Image.open(str(low_img_path)).convert("RGB")).unsqueeze(0)
+        enhance, run_time = self.forward(input_low_img=low_img)
+        """
+        file_name = os.path.basename(self.opts.img_path)
+        name      = file_name.split('.')[0]
+        if not os.path.exists(self.opts.output):
+            os.makedirs(self.opts.output)
+        save_path = os.path.join(self.opts.output, file_name.replace(name, "%s_%d_URetinexNet"%(name, self.opts.ratio)))
+        np_save_TensorImg(enhance, save_path)
+        console.log("================================= time for %s: %f============================"%(file_name, p_time))
+        """
+        return enhance, run_time
+        
+
+def predict(args: argparse.Namespace):
+    # Parse args
+    hostname     = args.hostname
+    root         = args.root
+    data         = args.data
+    fullname     = args.fullname
+    save_dir     = args.save_dir
+    weights      = args.weights
+    device       = args.device
+    seed         = args.seed
+    imgsz        = args.imgsz
+    resize       = args.resize
+    epochs       = args.epochs
+    steps        = args.steps
+    benchmark    = args.benchmark
+    save_image   = args.save_image
+    save_debug   = args.save_debug
+    use_fullpath = args.use_fullpath
+    verbose      = args.verbose
+    
+    # Start
+    console.rule(f"[bold red] {fullname}")
+    console.log(f"Machine: {hostname}")
+    
+    # Device
+    device = mon.set_device(device)
+    
+    # Data I/O
+    console.log(f"[bold red]{data}")
+    data_name, data_loader, data_writer = mon.parse_io_worker(
+        src         = data,
+        dst         = save_dir,
+        to_tensor   = False,
+        denormalize = True,
+        verbose     = False,
+    )
+    
+    # Model
+    model = Inference(args).to(device)
+    model.eval()
+    
+    # Benchmark
+    if benchmark:
+        flops, params = mon.compute_efficiency_score(model=model, image_size=imgsz)
+        console.log(f"FLOPs : {flops:.4f}")
+        console.log(f"Params: {params:.4f}")
+    
+    # Predicting
+    sum_time = 0
+    with torch.no_grad():
+        with mon.get_progress_bar() as pbar:
+            for i, datapoint in pbar.track(
+                sequence    = enumerate(data_loader),
+                total       = len(data_loader),
+                description = f"[bright_yellow] Predicting"
+            ):
+                # Input
+                meta       = datapoint.get("meta")
+                image_path = meta["path"]
+                
+                # Infer
+                enhanced, run_time = model.run(image_path)
+                sum_time += run_time
+                
+                # Save
+                if save_image:
+                    if use_fullpath:
+                        rel_path    = image_path.relative_path(data_name)
+                        output_path = save_dir / rel_path.parent / f"{image_path.stem}.jpg"
+                    else:
+                        output_path = save_dir / data_name / f"{image_path.stem}.jpg"
+                    output_path.parent.mkdir(parents=True, exist_ok=True)
+                    torchvision.utils.save_image(enhanced, str(output_path))
+        
+    # Finish
+    avg_time = float(sum_time / len(data_loader))
+    console.log(f"Average time: {avg_time}")
+
+# endregion
+
+
+# region Main
+
+def main() -> str:
+    args = mon.parse_predict_args(model_root=current_dir)
+    args.decom_model_low_weights = mon.ZOO_DIR / "vision/enhance/llie/uretinexnet/uretinexnet/lol_v1/uretinexnet_lol_v1_init_low.pth"
+    args.unfolding_model_weights = mon.ZOO_DIR / "vision/enhance/llie/uretinexnet/uretinexnet/lol_v1/uretinexnet_lol_v1_unfolding.pth"
+    args.adjust_model_weights    = mon.ZOO_DIR / "vision/enhance/llie/uretinexnet/uretinexnet/lol_v1/uretinexnet_lol_v1_l_adjust.pth"
+    args.ratio = 5
+    predict(args)
+
+
+if __name__ == "__main__":
+    main()
+    
+# endregion

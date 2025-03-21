@@ -97,12 +97,12 @@ class ZeroDCE_RE(base.ImageEnhancementModel):
     References:
         https://github.com/Li-Chongyi/Zero-DCE
     """
-    
-    model_dir: core.Path    = current_dir
+
     arch     : str          = "zero_dce"
     name     : str          = "zero_dce_re"
     tasks    : list[Task]   = [Task.LLIE]
     schemes  : list[Scheme] = [Scheme.UNSUPERVISED]
+    model_dir: core.Path    = current_dir
     zoo      : dict         = {}
     
     def __init__(
@@ -113,20 +113,18 @@ class ZeroDCE_RE(base.ImageEnhancementModel):
         *args, **kwargs
     ):
         super().__init__(*args, **kwargs)
-        self.in_channels  = in_channels  or self.in_channels
-        self.num_channels = num_channels
-        self.num_iters    = num_iters
-        self.out_channels = self.in_channels * self.num_iters
+        self.num_iters = num_iters
+        out_channels   = in_channels * num_iters
         
         # Construct model
         self.relu     = nn.ReLU(inplace=True)
-        self.e_conv1  = nn.Conv2d(self.in_channels,      self.num_channels, 3, 1, 1, bias=True)
-        self.e_conv2  = nn.Conv2d(self.num_channels,     self.num_channels, 3, 1, 1, bias=True)
-        self.e_conv3  = nn.Conv2d(self.num_channels,     self.num_channels, 3, 1, 1, bias=True)
-        self.e_conv4  = nn.Conv2d(self.num_channels,     self.num_channels, 3, 1, 1, bias=True)
-        self.e_conv5  = nn.Conv2d(self.num_channels * 2, self.num_channels, 3, 1, 1, bias=True)
-        self.e_conv6  = nn.Conv2d(self.num_channels * 2, self.num_channels, 3, 1, 1, bias=True)
-        self.e_conv7  = nn.Conv2d(self.num_channels * 2, self.out_channels, 3, 1, 1, bias=True)
+        self.e_conv1  = nn.Conv2d(in_channels,      num_channels, 3, 1, 1, bias=True)
+        self.e_conv2  = nn.Conv2d(num_channels,     num_channels, 3, 1, 1, bias=True)
+        self.e_conv3  = nn.Conv2d(num_channels,     num_channels, 3, 1, 1, bias=True)
+        self.e_conv4  = nn.Conv2d(num_channels,     num_channels, 3, 1, 1, bias=True)
+        self.e_conv5  = nn.Conv2d(num_channels * 2, num_channels, 3, 1, 1, bias=True)
+        self.e_conv6  = nn.Conv2d(num_channels * 2, num_channels, 3, 1, 1, bias=True)
+        self.e_conv7  = nn.Conv2d(num_channels * 2, out_channels, 3, 1, 1, bias=True)
         self.maxpool  = nn.MaxPool2d(2, 2, return_indices=False, ceil_mode=False)
         self.upsample = nn.UpsamplingBilinear2d(scale_factor=2)
         
