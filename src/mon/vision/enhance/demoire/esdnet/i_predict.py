@@ -1,6 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+"""
+References:
+    https://github.com/CVMI-Lab/UHDM
+"""
+
 import mon
 from model.nets import my_model
 from utils.common import *
@@ -98,8 +103,7 @@ def predict(args: dict) -> str:
                 # Input
                 meta       = datapoint["meta"]
                 image_path = mon.Path(meta["path"])
-                image      = datapoint["image"]
-                image      = image.to(device)
+                image      = datapoint["image"].to(device)
                 
                 # Resize
                 _, _, h0, w0 = image.size()
@@ -126,6 +130,7 @@ def predict(args: dict) -> str:
                     out_1 = out_1[:, :, :, w_pad:-w_odd_pad]
                 timer.tock()
                 
+                # Post-processing
                 enhanced = out_1.detach().cpu()
                 # if h0 != 2000 or w0 != 2992:
                 #     enhanced = mon.resize(enhanced, [h0, w0])
@@ -139,7 +144,10 @@ def predict(args: dict) -> str:
                         output_path = save_dir / data_name / f"{image_path.stem}.png"
                     output_path.parent.mkdir(parents=True, exist_ok=True)
                     torchvision.utils.save_image(enhanced, str(output_path))
-
+    
+    # Finish
+    console.log(f"Average time: {timer.avg_time}")
+    
 # endregion
 
 

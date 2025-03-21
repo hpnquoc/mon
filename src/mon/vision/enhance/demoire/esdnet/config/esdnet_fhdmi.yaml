@@ -3,7 +3,7 @@ root        : ~                                                                 
 arch        : "esdnet"                                                          # Model architecture or family (e.g., resnet).
 model       : &model "esdnet"                                                   # Model name (e.g., resnet50).
 data        : &data "fhdmi"                                                     # Dataset name (e.g., cifar10) or directory (e.g., data/cifar10).
-fullname    : &fullname "zero_ig"                                               # Full name of the current run (e.g., resnet50_cifar10_01). If not set, it will be this file's name.
+fullname    : &fullname "esdnet_fhdmi"                                          # Full name of the current run (e.g., resnet50_cifar10_01). If not set, it will be this file's name.
 save_dir    : &save_dir ~                                                       # Saving directory. If not set, it will be `root/arch/model/data`.
 weights     : &weights "zoo/vision/enhance/demoire/esdnet/esdnet/fhdmi/esdnet_fhdmi.pth"  # Path to the pretrained weights.
 device      : &device 0                                                         # Running device (i.e., cuda:0 | cuda:0,1,2,3 | cpu).

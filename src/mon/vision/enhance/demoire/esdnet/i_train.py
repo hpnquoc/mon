@@ -2,12 +2,9 @@
 # -*- coding: utf-8 -*-
 
 """
-
 Reference:
     https://github.com/CVMI-Lab/UHDM
 """
-
-import argparse
 
 import torch.optim as optim
 from tensorboardX import SummaryWriter
@@ -24,6 +21,8 @@ console      = mon.console
 current_file = mon.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
+
+# region Train
 
 def train_epoch(args, train_img_loader, model, model_fn, optimizer, epoch, iters, lr_scheduler):
     """Training Loop for each epoch"""
@@ -68,15 +67,53 @@ def load_checkpoint(model, optimizer, load_epoch):
     return learning_rate, iters
 
 
-def train(args: argparse.Namespace):
-    # General config
-    root     = mon.Path(args.root)
-    save_dir = mon.Path(args.save_dir)
-    weights  = args.weights
-    device   = mon.set_device(args.device)
-    epochs   = args.epochs
-    verbose  = args.verbose
+def train(args: dict) -> str:
+    # Parse args
+    hostname     = args["hostname"]
+    root         = args["root"]
+    data         = args["data"]
+    fullname     = args["fullname"]
+    save_dir     = args["save_dir"]
+    weights      = args["weights"]
+    device       = args["device"]
+    seed         = args["seed"]
+    imgsz        = args["imgsz"]
+    resize       = args["resize"]
+    epochs       = args["epochs"]
+    steps        = args["steps"]
+    benchmark    = args["benchmark"]
+    save_image   = args["save_image"]
+    save_debug   = args["save_debug"]
+    use_fullpath = args["use_fullpath"]
+    verbose      = args["verbose"]
     
+    # Start
+    console.rule(f"[bold red] {fullname}")
+    console.log(f"Machine: {hostname}")
+    
+    # Device
+    device = mon.set_device(device)
+    os.environ["CUDA_VISIBLE_DEVICES"] = "%d" % args["GENERAL"]["GPU_ID"]
+    
+    # Seed
+    random.seed(args["GENERAL"]["SEED"])
+    np.random.seed(args["GENERAL"]["SEED"])
+    torch.manual_seed(args["GENERAL"]["SEED"])
+    torch.cuda.manual_seed_all(args["GENERAL"]["SEED"])
+    if args["GENERAL"]["SEED"] == 0:
+        torch.backends.cudnn.deterministic = True
+        torch.backends.cudnn.benchmark     = False
+    else:
+        torch.backends.cudnn.deterministic = False
+        torch.backends.cudnn.benchmark     = True
+    
+    # Data I/O
+    args["DATA"]["TRAIN_DATASET"] = str(mon.ROOT_DIR / args["DATA"]["TRAIN_DATASET"])
+    args["DATA"]["TEST_DATASET"]  = str(mon.ROOT_DIR / args["DATA"]["TEST_DATASET"])
+    train_path       = args["DATA"]["TRAIN_DATASET"]
+    train_img_loader = create_dataset(args, data_path=train_path, mode="train")
+    
+    # Model
     if weights not in [None, ""]:
         weights = mon.Path(weights)
         if not weights.is_ckpt_file(exist=True):
@@ -86,74 +123,43 @@ def train(args: argparse.Namespace):
                 weights = root / "run" / "train" / weights
     console.log(weights)
     
-    # Directory
-    # if str(root) not in str(save_dir):
-    #     save_dir = root / save_dir
-    console.log(f"{save_dir}")
-    weights_dir = save_dir
-    weights_dir.mkdir(parents=True, exist_ok=True)
-    
-    # Device
-    os.environ["CUDA_VISIBLE_DEVICES"] = "%d" % args.GENERAL["GPU_ID"]
-    
-    # Seed
-    random.seed(args.GENERAL["SEED"])
-    np.random.seed(args.GENERAL["SEED"])
-    torch.manual_seed(args.GENERAL["SEED"])
-    torch.cuda.manual_seed_all(args.GENERAL["SEED"])
-    if args.GENERAL["SEED"] == 0:
-        torch.backends.cudnn.deterministic = True
-        torch.backends.cudnn.benchmark     = False
-    else:
-        torch.backends.cudnn.deterministic = False
-        torch.backends.cudnn.benchmark     = True
-    
-    # Model
     model = my_model(
-        en_feature_num = args.MODEL["EN_FEATURE_NUM"],
-        en_inter_num   = args.MODEL["EN_INTER_NUM"],
-        de_feature_num = args.MODEL["DE_FEATURE_NUM"],
-        de_inter_num   = args.MODEL["DE_INTER_NUM"],
-        sam_number     = args.MODEL["SAM_NUMBER"],
+        en_feature_num = args["MODEL"]["EN_FEATURE_NUM"],
+        en_inter_num   = args["MODEL"]["EN_INTER_NUM"],
+        de_feature_num = args["MODEL"]["DE_FEATURE_NUM"],
+        de_inter_num   = args["MODEL"]["DE_INTER_NUM"],
+        sam_number     = args["MODEL"]["SAM_NUMBER"],
     ).to(device)
     model._initialize_weights()
     
     # Optimizer
-    optimizer     = optim.Adam(
-        [{"params": model.parameters(), "initial_lr": args.SOLVER["BASE_LR"]}],
-        betas=(0.9, 0.999)
+    optimizer = optim.Adam(
+        [{"params": model.parameters(), "initial_lr": args["SOLVER"]["BASE_LR"]}],
     )
-    learning_rate = args.SOLVER["BASE_LR"]
-    iters         = 0
+    learning_rate = args["SOLVER"]["BASE_LR"]
+    iters = 0
     if weights is not None:
         learning_rate, iters = load_checkpoint(model, optimizer, weights)
     lr_scheduler = CosineAnnealingWarmRestarts(
         optimizer,
-        T_0        = args.SOLVER["T_0"],
-        T_mult     = args.SOLVER["T_MULT"],
-        eta_min    = args.SOLVER["ETA_MIN"],
-        last_epoch = args.TRAIN["LOAD_EPOCH"] - 1
+        T_0        = args["SOLVER"]["T_0"],
+        T_mult     = args["SOLVER"]["T_MULT"],
+        eta_min    = args["SOLVER"]["ETA_MIN"],
+        last_epoch = args["TRAIN"]["LOAD_EPOCH"] - 1
     )
     
     # Loss
-    loss_fn  = multi_VGGPerceptualLoss(lam=args.TRAIN["LAM"], lam_p=args.TRAIN["LAM_P"]).to(device)
+    loss_fn  = multi_VGGPerceptualLoss(lam=args["TRAIN"]["LAM"], lam_p=args["TRAIN"]["LAM_P"]).to(device)
     model_fn = model_fn_decorator(loss_fn=loss_fn, device=device)
     
-    # Data I/O
-    args.DATA["TRAIN_DATASET"] = str(mon.ROOT_DIR / args.DATA["TRAIN_DATASET"])
-    args.DATA["TEST_DATASET"]  = str(mon.ROOT_DIR / args.DATA["TEST_DATASET"])
-    train_path       = args.DATA["TRAIN_DATASET"]
-    train_img_loader = create_dataset(args, data_path=train_path, mode="train")
-    
     # Logger
-    logger = SummaryWriter(str(weights_dir))
+    logger = SummaryWriter(str(save_dir))
     
-    # start training
-    console.log(f"****Start training!!!****")
+    # Training
     best_loss = 100.0
     best_psnr = 0.0
     best_ssim = 0.0
-    for epoch in range(args.TRAIN["LOAD_EPOCH"] + 1, args.SOLVER["EPOCHS"] + 1):
+    for epoch in range(args["TRAIN"]["LOAD_EPOCH"] + 1, args["SOLVER"]["EPOCHS"] + 1):
         learning_rate, avg_train_loss, avg_train_psnr, avg_train_ssim, iters = (
             train_epoch(args, train_img_loader, model, model_fn, optimizer, epoch, iters, lr_scheduler)
         )
@@ -163,13 +169,13 @@ def train(args: argparse.Namespace):
         # Save the best model
         if avg_train_loss < best_loss:
             best_loss = avg_train_loss
-            torch.save(model.state_dict(), weights_dir / "best.pt")
+            torch.save(model.state_dict(), save_dir / "best.pt")
         if avg_train_psnr > best_psnr:
             best_psnr = avg_train_psnr
-            torch.save(model.state_dict(), weights_dir / "best_psnr.pt")
+            torch.save(model.state_dict(), save_dir / "best_psnr.pt")
         if avg_train_ssim > best_ssim:
             best_ssim = avg_train_ssim
-            torch.save(model.state_dict(), weights_dir / "best_ssim.pt")
+            torch.save(model.state_dict(), save_dir / "best_ssim.pt")
         
         # Save the latest model
         torch.save({
@@ -177,8 +183,10 @@ def train(args: argparse.Namespace):
             "iters"        : iters,
             "optimizer"    : optimizer.state_dict(),
             "state_dict"   : model.state_dict()
-        }, weights_dir / "last.ckpt")
-        torch.save(model.state_dict(), weights_dir / "last.pt")
+        }, save_dir / "last.ckpt")
+        torch.save(model.state_dict(), save_dir / "last.pt")
+
+# endregion
 
 
 # region Main
