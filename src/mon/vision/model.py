@@ -82,8 +82,7 @@ class VisionModel(nn.Model, ABC):
         from mon.vision import geometry
         
         # Pre-processing
-        self.assert_datapoint(datapoint)
-        image  = datapoint.get("image")
+        image  = datapoint["image"]
         h0, w0 = I.get_image_size(image)
         for k, v in datapoint.items():
             if I.is_image(v):
@@ -100,7 +99,6 @@ class VisionModel(nn.Model, ABC):
         timer.tick()
         outputs = self.forward(datapoint, *args, **kwargs)
         timer.tock()
-        self.assert_outputs(outputs)
         
         # Post-processing
         for k, v in outputs.items():

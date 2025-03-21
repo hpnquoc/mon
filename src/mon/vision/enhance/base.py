@@ -29,27 +29,12 @@ console = core.console
 class ImageEnhancementModel(VisionModel, ABC):
     """The base class for all image enhancement models."""
     
-    def assert_datapoint(self, datapoint: dict) -> bool:
-        if "image" not in datapoint:
-            raise ValueError(f"The key ``'image'`` must be defined in the `datapoint`.")
-        
-        has_target = any(item in self.schemes for item in [Scheme.SUPERVISED]) and not self.predicting
-        if has_target:
-            if "ref_image" not in datapoint:
-                raise ValueError(f"The key ``'ref_image'`` must be defined in the `datapoint`.")
-            
-    def assert_outputs(self, outputs: dict) -> bool:
-        if "enhanced" not in outputs:
-            raise ValueError(f"The key ``'enhanced'`` must be defined in the `outputs`.")
-    
     def forward_loss(self, datapoint: dict, *args, **kwargs) -> dict:
         # Forward
-        self.assert_datapoint(datapoint)
         outputs = self.forward(datapoint=datapoint, *args, **kwargs)
-        self.assert_outputs(outputs)
         # Loss
-        pred   = outputs.get("enhanced")
-        target = datapoint.get("ref_image")
+        pred   = outputs["enhanced"]
+        target = datapoint["ref_image"]
         outputs["loss"] = self.loss(pred, target)
         # Return
         return outputs
@@ -60,12 +45,9 @@ class ImageEnhancementModel(VisionModel, ABC):
         outputs  : dict,
         metrics  : list[nn.Metric] = None
     ) -> dict:
-        # Check
-        self.assert_datapoint(datapoint)
-        self.assert_outputs(outputs)
         # Metrics
-        pred    = outputs.get("enhanced")
-        target  = datapoint.get("ref_image")
+        pred    = outputs["enhanced"]
+        target  = datapoint["ref_image"]
         results = {}
         if metrics is not None:
             for i, metric in enumerate(metrics):

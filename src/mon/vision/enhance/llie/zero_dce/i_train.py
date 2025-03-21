@@ -95,7 +95,7 @@ def train(args: dict) -> str:
             description = f"[bright_yellow] Training"
         ):
             for i, datapoint in enumerate(train_dataloader):
-                image          = datapoint.get("image").to(device)
+                image          = datapoint["image"].to(device)
                 _, enhanced, r = dce_net(image)
                 
                 loss_tv  = 200 * L_tv(r)

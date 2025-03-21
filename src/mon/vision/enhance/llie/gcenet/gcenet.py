@@ -437,10 +437,8 @@ class GCENet(base.ImageEnhancementModel):
     
     def forward_loss(self, datapoint: dict, *args, **kwargs) -> dict:
         # Forward
-        self.assert_datapoint(datapoint)
-        image    = datapoint.get("image")
+        image    = datapoint["image"]
         outputs  = self.forward(datapoint=datapoint,  *args, **kwargs)
-        self.assert_outputs(outputs)
         # Symmetric Loss
         adjust   = outputs["adjust"]
         enhanced = outputs["enhanced"]
@@ -451,9 +449,8 @@ class GCENet(base.ImageEnhancementModel):
         
     def forward(self, datapoint: dict, *args, **kwargs) -> dict:
         # Prepare input
-        self.assert_datapoint(datapoint)
-        image = datapoint.get("image")
-        depth = datapoint.get("depth")
+        image = datapoint["image"]
+        depth = datapoint["depth"]
         # Enhancement
         adjust, edge = self.en(image, depth)
         edge  = edge.detach() if edge is not None else None  # Must call detach() else error
@@ -501,9 +498,8 @@ class GCENet_ZSN2N(GCENet):
     
     def forward_loss(self, datapoint: dict, *args, **kwargs) -> dict:
         # Forward
-        self.assert_datapoint(datapoint)
-        image          = datapoint.get("image")
-        depth          = datapoint.get("depth")
+        image          = datapoint["image"]
+        depth          = datapoint["depth"]
         image1, image2 = geometry.pair_downsample(image)
         depth1, depth2 = geometry.pair_downsample(depth)
         datapoint1     = datapoint | {"image": image1, "depth": depth1}
@@ -511,7 +507,6 @@ class GCENet_ZSN2N(GCENet):
         outputs1       = self.forward(datapoint=datapoint1, *args, **kwargs)
         outputs2       = self.forward(datapoint=datapoint2, *args, **kwargs)
         outputs        = self.forward(datapoint=datapoint,  *args, **kwargs)
-        self.assert_outputs(outputs)
         # Symmetric Loss
         enhanced1 = outputs1["enhanced"]
         enhanced2 = outputs2["enhanced"]

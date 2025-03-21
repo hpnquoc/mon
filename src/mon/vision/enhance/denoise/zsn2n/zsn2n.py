@@ -84,15 +84,13 @@ class ZSN2N(base.ImageEnhancementModel):
         
     def forward_loss(self, datapoint: dict, *args, **kwargs) -> dict:
         # Forward
-        self.assert_datapoint(datapoint)
-        noisy                = datapoint.get("image")
+        noisy                = datapoint["image"]
         noisy1, noisy2       = self.pair_downsampler(noisy)
         datapoint1           = datapoint | {"image": noisy1}
         datapoint2           = datapoint | {"image": noisy2}
         outputs1             = self.forward(datapoint=datapoint1, *args, **kwargs)
         outputs2             = self.forward(datapoint=datapoint2, *args, **kwargs)
         outputs              = self.forward(datapoint=datapoint,  *args, **kwargs)
-        self.assert_outputs(outputs)
         # Symmetric Loss
         pred1                = noisy1 - outputs1["enhanced"]
         pred2                = noisy2 - outputs2["enhanced"]
@@ -108,8 +106,7 @@ class ZSN2N(base.ImageEnhancementModel):
         return outputs
     
     def forward(self, datapoint: dict, *args, **kwargs) -> dict:
-        self.assert_datapoint(datapoint)
-        x = datapoint.get("image")
+        x = datapoint["image"]
         x = self.act(self.conv1(x))
         x = self.act(self.conv2(x))
         y = self.conv3(x)
@@ -148,8 +145,7 @@ class ZSN2N(base.ImageEnhancementModel):
         scheduler = scheduler or nn.StepLR(optimizer, step_size=1000, gamma=0.5)
         
         # Input
-        self.assert_datapoint(datapoint)
-        image  = datapoint.get("image").to(self.device)
+        image  = datapoint["image"].to(self.device)
         h0, w0 = dtype.get_image_size(image)
         if resize:
             image = geometry.resize(image, image_size)
@@ -172,7 +168,6 @@ class ZSN2N(base.ImageEnhancementModel):
         timer.tock()
         
         # Post-processing
-        self.assert_outputs(outputs)
         enhanced = outputs["enhanced"]
         enhanced = geometry.resize(enhanced, (h0, w0))
         

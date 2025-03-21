@@ -191,9 +191,9 @@ def predict(args: dict) -> str:
                 description = f"[bright_yellow] Predicting"
             ):
                 # Input
-                meta        = datapoint.get("meta")
+                meta        = datapoint["meta"]
                 image_path  = mon.Path(meta["path"])
-                image       = datapoint.get("image")
+                image       = datapoint["image"]
                 h0, w0      = image.shape[0], image.shape[1]
                 
                 # Infer

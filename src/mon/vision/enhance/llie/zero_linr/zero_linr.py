@@ -631,7 +631,6 @@ class ZeroLINR(base.ImageEnhancementModel):
 	
 	def forward_loss(self, datapoint: dict, *args, **kwargs) -> dict:
 		# Forward
-		self.assert_datapoint(datapoint)
 		outputs  = self.forward(datapoint=datapoint, *args, **kwargs)
 		image    = outputs.get("image",    None)
 		v_lr     = outputs.get("v_lr",     None)
@@ -646,7 +645,6 @@ class ZeroLINR(base.ImageEnhancementModel):
 		
 	def forward(self, datapoint: dict, *args, **kwargs) -> dict:
 		# Prepare input
-		self.assert_datapoint(datapoint)
 		image = datapoint["image"]
 		p     = get_coords(self.down_size).to(image.device)
 		v     = dtype.rgb_to_v(image)
@@ -717,7 +715,6 @@ class ZeroLINR(base.ImageEnhancementModel):
 			)
 		
 		# Pre-processing
-		self.assert_datapoint(datapoint)
 		for k, v in datapoint.items():
 			if isinstance(v, torch.Tensor):
 				datapoint[k] = v.to(self.device)
@@ -737,7 +734,6 @@ class ZeroLINR(base.ImageEnhancementModel):
 		timer.tick()
 		outputs = self.forward(datapoint=datapoint)
 		timer.tock()
-		self.assert_outputs(outputs)
 		
 		# Return
 		outputs["time"] = timer.avg_time

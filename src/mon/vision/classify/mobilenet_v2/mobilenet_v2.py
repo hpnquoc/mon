@@ -95,8 +95,7 @@ class MobileNetV2(nn.ExtraModel, base.ImageClassificationModel):
         pass
     
     def forward(self, datapoint: dict, *args, **kwargs) -> dict:
-        self.assert_datapoint(datapoint)
-        x = datapoint.get("image")
+        x = datapoint["image"]
         y = self.model(x)
         return {"logits": y}
 

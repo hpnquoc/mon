@@ -256,20 +256,18 @@ class RRDNet(base.ImageEnhancementModel):
         
     def forward_loss(self, datapoint: dict, *args, **kwargs) -> dict:
         # Forward
-        self.assert_datapoint(datapoint)
         outputs         = self.forward(datapoint=datapoint, *args, **kwargs)
-        image           = outputs.get("image")
-        illumination    = outputs.get("illumination")
-        reflectance     = outputs.get("reflectance")
-        noise           = outputs.get("noise")
+        image           = outputs["image"]
+        illumination    = outputs["illumination"]
+        reflectance     = outputs["reflectance"]
+        noise           = outputs["noise"]
         loss            = self.loss(image, illumination, reflectance, noise)
         outputs["loss"] = loss
         return outputs
         
     def forward(self, datapoint: dict, *args, **kwargs) -> dict:
         # Prepare input
-        self.assert_datapoint(datapoint)
-        image        = datapoint.get("image")
+        image        = datapoint["image"]
         # Enhance
         illumination = torch.sigmoid(self.illumination_net(image))
         reflectance  = torch.sigmoid(self.reflectance_net(image))
@@ -294,7 +292,6 @@ class RRDNet(base.ImageEnhancementModel):
         optimizer = optimizer or nn.Adam(self.parameters(), lr=0.001)
             
         # Input
-        self.assert_datapoint(datapoint)
         for k, v in datapoint.items():
             if isinstance(v, torch.Tensor):
                 datapoint[k] = v.to(self.device)
@@ -313,9 +310,6 @@ class RRDNet(base.ImageEnhancementModel):
         self.eval()
         outputs = self.forward(datapoint=datapoint)
         timer.tock()
-        
-        # Post-processing
-        self.assert_outputs(outputs)
         
         # Return
         return outputs | {

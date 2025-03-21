@@ -81,9 +81,9 @@ def predict(args: dict) -> str:
                 description = f"[bright_yellow] Predicting"
             ):
                 # Input
-                meta        = datapoint.get("meta")
+                meta        = datapoint["meta"]
                 image_path  = mon.Path(meta["path"])
-                image       = datapoint.get("image").to(device)
+                image       = datapoint["image"].to(device)
                 h           = int(image.shape[-2] * int(scale))
                 w           = int(image.shape[-1] * int(scale))
                 scale_      = h / image.shape[-2]

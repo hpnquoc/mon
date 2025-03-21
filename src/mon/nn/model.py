@@ -588,28 +588,6 @@ class Model(lightning.LightningModule, ABC):
     # region Forward Pass
     
     @abstractmethod
-    def assert_datapoint(self, datapoint: dict) -> bool:
-        """Check the datapoint before passing it to the :obj:`forward()`.
-        Because each type of model requires different attributes in the
-        datapoint, this method is used to ensure that the datapoint is valid.
-        
-        Args:
-            datapoint: A :obj:`dict` containing all attributes of a datapoint.
-        """
-        pass
-    
-    @abstractmethod
-    def assert_outputs(self, outputs: dict) -> bool:
-        """Check the outputs after passing it to the :obj:`forward()`. Because
-        each type of model returns different attributes in the outputs, this
-        method is used to ensure that the outputs are valid.
-
-		Args:
-			outputs: A :obj:`dict` containing all predictions.
-		"""
-        pass
-    
-    @abstractmethod
     def forward_loss(self, datapoint: dict, *args, **kwargs) -> dict:
         """Forward pass, then compute the loss value.
         

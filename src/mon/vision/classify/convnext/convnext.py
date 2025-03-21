@@ -40,17 +40,16 @@ class ConvNeXt(nn.ExtraModel, base.ImageClassificationModel, ABC):
         https://arxiv.org/abs/2201.03545
     """
     
-    model_dir: core.Path    = current_dir
     arch     : str          = "convnext"
     schemes  : list[Scheme] = [Scheme.SUPERVISED]
+    model_dir: core.Path    = current_dir
     zoo      : dict         = {}
     
     def init_weights(self, m: nn.Module):
         pass
     
     def forward(self, datapoint: dict, *args, **kwargs) -> dict:
-        self.assert_datapoint(datapoint)
-        x = datapoint.get("image")
+        x = datapoint["image"]
         y = self.model(x)
         return {"logits": y}
 
@@ -58,7 +57,8 @@ class ConvNeXt(nn.ExtraModel, base.ImageClassificationModel, ABC):
 @MODELS.register(name="convnext_base", arch="convnext")
 class ConvNeXtBase(ConvNeXt):
     
-    zoo: dict = {
+    name: str = "convnext_base"
+    zoo : dict = {
         "imagenet1k_v1": {
             "url"        : "https://download.pytorch.org/models/convnext_base-6075fbad.pth",
             "path"       : ZOO_DIR / "vision/classify/convnext/convnext_base/imagenet1k_v1/convnext_base_imagenet1k_v1.pth",
@@ -68,27 +68,13 @@ class ConvNeXtBase(ConvNeXt):
     
     def __init__(
         self,
-        name       : str = "convnext_base",
-        in_channels: int = 3,
         num_classes: int = 1000,
-        weights    : Any = None,
         *args, **kwargs
     ):
-        super().__init__(
-            name        = name,
-            in_channels = in_channels,
-            num_classes = num_classes,
-            weights     = weights,
-            *args, **kwargs
-        )
+        super().__init__(*args, **kwargs)
         
-        if isinstance(self.weights, dict):
-            in_channels = self.weights.get("in_channels", in_channels)
-            num_classes = self.weights.get("num_classes", num_classes)
-        self.in_channels  = in_channels or self.in_channels
-        self.out_channels = num_classes or self.out_channels
-        
-        self.model = convnext_base(num_classes=self.out_channels)
+        # Network
+        self.model = convnext_base(num_classes=num_classes)
         
         if self.weights:
             self.load_weights()

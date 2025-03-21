@@ -147,20 +147,17 @@ class ZeroDCE_RE(base.ImageEnhancementModel):
     
     def forward_loss(self, datapoint: dict, *args, **kwargs) -> dict | None:
         # Forward
-        outputs = self.forward(datapoint=datapoint, *args, **kwargs)
-        self.assert_datapoint(datapoint)
-        self.assert_outputs(outputs)
+        outputs  = self.forward(datapoint=datapoint, *args, **kwargs)
         # Loss
-        image    = datapoint.get("image")
-        enhanced = outputs.get("enhanced")
+        image    = datapoint["image"]
+        enhanced = outputs["enhanced"]
         adjust   = outputs.pop("adjust")
         outputs["loss"] = self.loss(image, adjust, enhanced)
         # Return
         return outputs
     
     def forward(self, datapoint: dict, *args, **kwargs) -> dict:
-        self.assert_datapoint(datapoint)
-        x       = datapoint.get("image")
+        x       = datapoint["image"]
         x1      =  self.relu(self.e_conv1(x))
         x2      =  self.relu(self.e_conv2(x1))
         x3      =  self.relu(self.e_conv3(x2))

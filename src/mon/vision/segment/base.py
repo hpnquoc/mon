@@ -31,27 +31,12 @@ class SegmentationModel(VisionModel, ABC):
     
     tasks: list[Task] = [Task.SEGMENT]
     
-    def assert_datapoint(self, datapoint: dict) -> bool:
-        if "image" not in datapoint:
-            raise ValueError(f"The key ``'image'`` must be defined in the `datapoint`.")
-        
-        has_target = any(item in self.schemes for item in [Scheme.SUPERVISED]) and not self.predicting
-        if has_target:
-            if "semantic" not in datapoint:
-                raise ValueError(f"The key ``'semantic'`` must be defined in the `datapoint`.")
-            
-    def assert_outputs(self, outputs: dict) -> bool:
-        if "semantic" not in outputs:
-            raise ValueError(f"The key ``'semantic'`` must be defined in the `outputs`.")
-    
     def forward_loss(self, datapoint: dict, *args, **kwargs) -> dict:
         # Forward
-        self.assert_datapoint(datapoint)
         outputs = self.forward(datapoint=datapoint, *args, **kwargs)
-        self.assert_outputs(outputs)
         # Loss
-        pred   = outputs.get("semantic")
-        target = datapoint.get("semantic")
+        pred    = outputs["semantic"]
+        target  = datapoint["semantic"]
         outputs["loss"] = self.loss(pred, target)
         # Return
         return outputs
@@ -62,12 +47,9 @@ class SegmentationModel(VisionModel, ABC):
         outputs  : dict,
         metrics  : list[nn.Metric] = None
     ) -> dict:
-        # Check
-        self.assert_datapoint(datapoint)
-        self.assert_outputs(outputs)
         # Metrics
-        pred    = outputs.get("semantic")
-        target  = datapoint.get("semantic")
+        pred    = outputs["semantic"]
+        target  = datapoint["semantic"]
         results = {}
         if metrics is not None:
             for i, metric in enumerate(metrics):

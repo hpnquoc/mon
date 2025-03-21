@@ -28,30 +28,12 @@ class ImageClassificationModel(VisionModel, ABC):
     
     tasks: list[Task] = [Task.CLASSIFY]
     
-    def assert_datapoint(self, datapoint: dict) -> bool:
-        if "image" not in datapoint:
-            raise ValueError(f"The key ``'image'`` must be defined in the "
-                             f"`datapoint`.")
-        
-        has_target = any(item in self.schemes for item in [Scheme.SUPERVISED]) and not self.predicting
-        if has_target:
-            if "class_id" not in datapoint:
-                raise ValueError(f"The key ``'class_id'`` must be defined in "
-                                 f"the `datapoint`.")
-            
-    def assert_outputs(self, outputs: dict) -> bool:
-        if "logits" not in outputs:
-            raise ValueError(f"The key ``'logits'`` must be defined in the "
-                             f"`outputs`.")
-    
     def forward_loss(self, datapoint: dict, *args, **kwargs) -> dict:
         # Forward
-        self.assert_datapoint(datapoint)
         outputs = self.forward(datapoint=datapoint, *args, **kwargs)
-        self.assert_outputs(outputs)
         # Loss
-        pred    = outputs.get("logits")
-        target  = datapoint.get("class_id")
+        pred    = outputs["logits"]
+        target  = datapoint["class_id"]
         outputs["loss"] = self.loss(pred, target) if self.loss else None
         # Return
         return outputs
@@ -62,12 +44,9 @@ class ImageClassificationModel(VisionModel, ABC):
         outputs  : dict,
         metrics  : list[nn.Metric] = None
     ) -> dict:
-        # Check
-        self.assert_datapoint(datapoint)
-        self.assert_outputs(outputs)
         # Metrics
-        pred    = outputs.get("logits")
-        target  = datapoint.get("class_id")
+        pred    = outputs["logits"]
+        target  = datapoint["class_id"]
         results = {}
         if metrics is not None:
             for i, metric in enumerate(metrics):

@@ -80,7 +80,7 @@ def predict(args: dict) -> str:
                 # Input
                 meta       = datapoint["meta"]
                 image_path = mon.Path(meta["path"])
-                image      = datapoint.get("meta").to(device)
+                image      = datapoint["meta"].to(device)
                
                 # Infer
                 timer.tick()

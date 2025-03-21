@@ -187,9 +187,7 @@ class CoLIE_RE(base.ImageEnhancementModel):
     
     def forward_loss(self, datapoint: dict, *args, **kwargs) -> dict:
         # Forward
-        self.assert_datapoint(datapoint)
         outputs = self.forward(datapoint=datapoint, *args, **kwargs)
-        self.assert_outputs(outputs)
         # Loss
         illu_lr          = outputs["illu_lr"]
         image_v_lr       = outputs["image_v_lr"]
@@ -200,8 +198,7 @@ class CoLIE_RE(base.ImageEnhancementModel):
         
     def forward(self, datapoint: dict, *args, **kwargs) -> dict:
         # Prepare input
-        self.assert_datapoint(datapoint)
-        image_rgb        = datapoint.get("image")
+        image_rgb        = datapoint["image"]
         # Enhance
         image_hsv        = dtype.rgb_to_hsv(image_rgb)
         image_v          = dtype.rgb_to_v(image_rgb)
@@ -290,7 +287,6 @@ class CoLIE_RE(base.ImageEnhancementModel):
         optimizer = optimizer or nn.Adam(self, lr=1e-5, weight_decay=3e-4)
         
         # Input
-        self.assert_datapoint(datapoint)
         for k, v in datapoint.items():
             if isinstance(v, torch.Tensor):
                 datapoint[k] = v.to(self.device)
@@ -308,9 +304,6 @@ class CoLIE_RE(base.ImageEnhancementModel):
         self.eval()
         outputs = self.forward(datapoint=datapoint)
         timer.tock()
-        
-        # Post-processing
-        self.assert_outputs(outputs)
         
         # Return
         return outputs | {

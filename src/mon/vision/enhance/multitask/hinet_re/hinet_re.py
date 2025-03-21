@@ -292,10 +292,8 @@ class HINet_RE(base.ImageEnhancementModel):
     def forward_loss(self, datapoint: dict, *args, **kwargs) -> dict:
         # Forward
         outputs = self.forward(datapoint=datapoint, *args, **kwargs)
-        self.assert_datapoint(datapoint)
-        self.assert_outputs(outputs)
         # Loss
-        target = datapoint.get("ref_image")
+        target  = datapoint["ref_image"]
         if self.loss:
             loss = 0
             for p in outputs.values():
@@ -306,8 +304,7 @@ class HINet_RE(base.ImageEnhancementModel):
         return outputs
     
     def forward(self, datapoint: dict, *args, **kwargs) -> dict:
-        self.assert_datapoint(datapoint)
-        x = datapoint.get("image")
+        x = datapoint["image"]
 
         # Stage 1
         x1   = self.conv_01(x)

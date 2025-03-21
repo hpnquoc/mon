@@ -65,7 +65,7 @@ def predict(args: dict) -> str:
             total       = len(data_loader),
             description = f"[bright_yellow] Predicting"
         ):
-            meta        = datapoint.get("meta")
+            meta        = datapoint["meta"]
             image_path  = meta["path"]
             image_paths.append(image_path)
     

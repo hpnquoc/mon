@@ -28,27 +28,12 @@ class DepthEstimationModel(VisionModel, ABC):
     
     tasks: list[Task] = [Task.DEPTH]
     
-    def assert_datapoint(self, datapoint: dict) -> bool:
-        if "image" not in datapoint:
-            raise ValueError("The key ``'image'`` must be defined in the `datapoint`.")
-        
-        has_target = any(item in self.schemes for item in [Scheme.SUPERVISED]) and not self.predicting
-        if has_target:
-            if "depth" not in datapoint:
-                raise ValueError("The key ``'depth'`` must be defined in the `datapoint`.")
-            
-    def assert_outputs(self, outputs: dict) -> bool:
-        if "depth" not in outputs:
-            raise ValueError("The key ``'depth'`` must be defined in the `outputs`.")
-    
     def forward_loss(self, datapoint: dict, *args, **kwargs) -> dict:
         # Forward
-        self.assert_datapoint(datapoint)
         outputs = self.forward(datapoint=datapoint, *args, **kwargs)
-        self.assert_outputs(outputs)
         # Loss
-        pred    = outputs.get("depth")
-        target  = datapoint.get("depth")
+        pred    = outputs["depth"]
+        target  = datapoint["depth"]
         outputs["loss"] = self.loss(pred, target) if self.loss else None
         # Return
         return outputs
@@ -59,12 +44,9 @@ class DepthEstimationModel(VisionModel, ABC):
         outputs  : dict,
         metrics  : list[nn.Metric] = None
     ) -> dict:
-        # Check
-        self.assert_datapoint(datapoint)
-        self.assert_outputs(outputs)
         # Metrics
-        pred    = outputs.get("depth")
-        target  = datapoint.get("depth")
+        pred    = outputs["depth"]
+        target  = datapoint["depth"]
         results = {}
         if metrics is not None:
             for i, metric in enumerate(metrics):

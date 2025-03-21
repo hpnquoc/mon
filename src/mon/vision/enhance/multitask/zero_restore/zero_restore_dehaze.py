@@ -230,9 +230,8 @@ class ZeroRestoreDehaze(base.ImageEnhancementModel):
     
     def forward_loss(self, datapoint: dict, *args, **kwargs) -> dict:
         # Forward 1
-        self.assert_datapoint(datapoint)
         outputs   = self.forward(datapoint=datapoint, *args, **kwargs)
-        image     = datapoint.get("image")
+        image     = datapoint["image"]
         trans_map = outputs["trans"]
         atm_map   = outputs["atm"]
         enhanced  = outputs["enhanced"]
@@ -259,8 +258,7 @@ class ZeroRestoreDehaze(base.ImageEnhancementModel):
         
     def forward(self, datapoint: dict, *args, **kwargs) -> dict:
         # Prepare input
-        self.assert_datapoint(datapoint)
-        image = datapoint.get("image")
+        image = datapoint["image"]
         # Forward
         trans, atm = self.estimation(image)
         atm        = torch.unsqueeze(torch.unsqueeze(atm, 2), 2)
@@ -300,8 +298,7 @@ class ZeroRestoreDehaze(base.ImageEnhancementModel):
         optimizer = optimizer or nn.Adam(self, lr=1e-3, weight_decay=1e-2)
         
         # Input
-        self.assert_datapoint(datapoint)
-        image  = datapoint.get("image").to(self.device)
+        image  = datapoint["image"].to(self.device)
         h0, w0 = dtype.get_image_size(image)
         image  = geometry.resize(image, divisible_by=32)
         
@@ -322,7 +319,6 @@ class ZeroRestoreDehaze(base.ImageEnhancementModel):
         timer.tock()
         
         # Post-processing
-        self.assert_outputs(outputs)
         enhanced = outputs["enhanced"]
         enhanced = geometry.resize(enhanced, (h0, w0))
         enhanced = torch.clamp(enhanced, 0, 1)

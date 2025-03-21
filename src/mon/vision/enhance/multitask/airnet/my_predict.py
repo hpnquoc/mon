@@ -80,8 +80,8 @@ def predict(args: argparse.Namespace):
             total       = len(data_loader),
             description = f"[bright_yellow] Predicting"
         ):
-            image       = datapoint.get("image")
-            meta        = datapoint.get("meta")
+            image       = datapoint["image"]
+            meta        = datapoint["meta"]
             image_path  = mon.Path(meta["path"])
             timer.tick()
             restored    = model(x_query=image, x_key=image)
