@@ -228,9 +228,10 @@ class enhancement_model(BaseModel):
     def forward(self):
         self.test()
         
-    def measure_efficiency_score(self, image_size=512, channels=3, runs=1000):
+    def measure_efficiency_score(self, image_size: int = 512, channels: int = 3) -> tuple[float, float]:
         h, w  = mon.get_image_size(image_size)
-        input = torch.rand(1, channels, h, w).to(self.device)
+        input = torch.rand(1, channels, h, w)
+        input = input.to(mon.get_model_device(self))
         data  = {
             "idx": 0,
             "LQs": input,
@@ -239,11 +240,4 @@ class enhancement_model(BaseModel):
         self.netG = self.netG.to(self.device)
         self.feed_data(data, need_GT=False)
         flops, params = profile(self, inputs=(), verbose=False)
-        g_flops       = flops  * 1e-9
-        m_params      = params * 1e-6
-        start_time    = time.time()
-        for i in range(runs):
-            self.forward()
-        runtime  = time.time() - start_time
-        avg_time = runtime / runs
-        return flops, params, avg_time
+        return flops, params

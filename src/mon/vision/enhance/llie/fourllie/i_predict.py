@@ -1,11 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# https://github.com/JianghaiSCU/R2RNet
+"""
+References:
+    https://github.com/JianghaiSCU/R2RNet
+"""
 
 from __future__ import annotations
-
-import argparse
 
 import cv2
 import numpy as np
@@ -24,35 +25,40 @@ current_dir  = current_file.parents[0]
 
 # region Predict
 
-def predict(args: argparse.Namespace):
-    # General config
-    data         = args.data
-    save_dir     = mon.Path(args.save_dir)
-    weights      = args.weights
-    device       = mon.set_device(args.device)
-    imgsz        = args.imgsz
-    resize       = args.resize
-    benchmark    = args.benchmark
-    save_image   = args.save_image
-    save_debug   = args.save_debug
-    use_fullpath = args.use_fullpath
-    opt_path     = str(current_dir / "options" / "test" / args.opt_path)
+def predict(args: dict) -> str:
+    # Parse args
+    hostname     = args["hostname"]
+    root         = args["root"]
+    data         = args["data"]
+    fullname     = args["fullname"]
+    save_dir     = args["save_dir"]
+    weights      = args["weights"]
+    device       = args["device"]
+    seed         = args["seed"]
+    imgsz        = args["imgsz"]
+    resize       = args["resize"]
+    epochs       = args["epochs"]
+    steps        = args["steps"]
+    benchmark    = args["benchmark"]
+    save_image   = args["save_image"]
+    save_debug   = args["save_debug"]
+    use_fullpath = args["use_fullpath"]
+    verbose      = args["verbose"]
     
-    # Override options with args
+    opt_path      = str(current_dir / "options" / "test" / args["opt_path"])
     opt           = option.parse(opt_path, is_train=False)
     opt           = option.dict_to_nonedict(opt)
     opt["device"] = device
     
-    # Load model
-    opt["path"]["pretrain_model_G"] = str(weights)
-    model = create_model(opt)
+    # Start
+    console.rule(f"[bold red] {fullname}")
+    console.log(f"Machine: {hostname}")
     
-    # Measure efficiency score
-    if benchmark:
-        flops, params, avg_time = model.measure_efficiency_score(image_size=imgsz)
-        console.log(f"FLOPs : {flops:.4f}")
-        console.log(f"Params: {params:.4f}")
-        console.log(f"Time   = {avg_time:.17f}")
+    # Device
+    device = mon.set_device(device)
+    
+    # Seed
+    mon.set_random_seed(seed)
     
     # Data I/O
     console.log(f"[bold red]{data}")
@@ -63,6 +69,16 @@ def predict(args: argparse.Namespace):
         denormalize = True,
         verbose     = False,
     )
+    
+    # Model
+    opt["path"]["pretrain_model_G"] = str(weights)
+    model = create_model(opt)
+    
+    # Measure efficiency score
+    if benchmark:
+        flops, params = model.measure_efficiency_score(image_size=imgsz)
+        console.log(f"FLOPs : {flops:.4f}")
+        console.log(f"Params: {params:.4f}")
     
     # Predicting
     timer = mon.Timer()
@@ -78,7 +94,7 @@ def predict(args: argparse.Namespace):
                 image_path = mon.Path(meta["path"])
                 image      = dutil.read_img(None, str(image_path))
                 image      = image[:, :, ::-1]
-                h, w       = mon.get_image_size(image)
+                h0, w0     = mon.get_image_size(image)
                 image      = mon.resize(image, divisible_by=32)
                 image_nf   = cv2.blur(image, (5, 5))
                 image_nf   = image_nf * 1.0 / 255.0
@@ -102,9 +118,9 @@ def predict(args: argparse.Namespace):
                 timer.tock()
                 
                 # Post-processing
-                visuals        = model.get_current_visuals(need_GT=False)
-                enhanced_image = util.tensor2img(visuals["rlt"])  # uint8
-                enhanced_image = cv2.resize(enhanced_image, (w, h))
+                visuals  = model.get_current_visuals(need_GT=False)
+                enhanced = util.tensor2img(visuals["rlt"])  # uint8
+                enhanced = cv2.resize(enhanced, (w0, h0))
                 
                 # Save
                 if save_image:
@@ -114,11 +130,10 @@ def predict(args: argparse.Namespace):
                     else:
                         output_path = save_dir / data_name / f"{image_path.stem}.jpg"
                     output_path.parent.mkdir(parents=True, exist_ok=True)
-                    cv2.imwrite(str(output_path), enhanced_image)
-                    # torchvision.utils.save_image(enhanced_image, str(output_path))
-        
-        avg_time = float(timer.avg_time)
-        console.log(f"Average time: {avg_time}")
+                    cv2.imwrite(str(output_path), enhanced)
+    
+    # Finish
+    console.log(f"Average time: {timer.avg_time}")
     
 # endregion
 

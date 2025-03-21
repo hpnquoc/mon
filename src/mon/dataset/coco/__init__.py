@@ -8,5 +8,5 @@ This module implements COCO datasets for object detection and instance segmentat
 
 from __future__ import annotations
 
-import mon.dataset.coco.coco2017
-from mon.dataset.coco.coco2017 import *
+import mon.dataset.coco.coco_2017
+from mon.dataset.coco.coco_2017 import *
