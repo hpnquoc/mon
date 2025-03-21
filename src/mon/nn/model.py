@@ -186,26 +186,27 @@ class Model(lightning.LightningModule, ABC):
     """The base class for all machine learning models.
     
     Attributes:
-        arch: The model's architecture. Default: ``None`` mean it will be
+        arch: The model's architecture or family. Default: ``None`` mean it will
+            be :obj:`self.__class__.__name__`.
+        name: The model's name. Default: ``None`` mean it will be
             :obj:`self.__class__.__name__`.
         tasks: A list of tasks that the model can perform.
         schemes: A list of learning schemes that the model can perform.
+        model_dir: The model's directory. Default: ``None``.
         zoo: A :obj:`dict` containing all pretrained weights of the model.
         
     Args:
-        name: The model's name. Default: ``None`` mean it will be
-            :obj:`self.__class__.__name__`.
+        root: The root directory of the model. It is used to save the model
+            checkpoint during training: ``{root}/{fullname}``.
         fullname: The model's fullname to save the checkpoint or weights. It
             should have the following format: {name}-{dataset}-{suffix}.
             Default: ``None`` mean it will be the same as :obj:`name`.
-        root: The root directory of the model. It is used to save the model
-            checkpoint during training: ``{root}/{fullname}``.
         num_classes: Alias to :obj:`out_channels`, for classification tasks.
         weights: The model's weights. Any of:
             - A state :obj:`dict`.
             - A key in the :obj:`zoo`. Ex: ``'yolov8x_det_coco'``.
             - A path to an ``.pt``, ``.pth``, or ``.ckpt`` file.
-        optimizers: Optimizer(s) for a training model. Default: ``None``.
+        optimizer: Optimizer(s) for a training model. Default: ``None``.
         loss: Loss function for training the model. Default: ``None``.
         metrics: A list metrics for training, validating and testing model.
             Default: ``None``.
@@ -231,30 +232,29 @@ class Model(lightning.LightningModule, ABC):
             >>>     weights="imagenet",
             >>> )
 
-        Case 02: Define the full path to an ``.pt``, ``.pth``, or ``.ckpt``
-        file.
+        Case 02: Define the full path to an ``.pt``, ``.pth``, or ``.ckpt`` file.
             >>> model = Model(
             >>>     weights="home/workspace/.../vgg19-imagenet.pth",
             >>> )
     """
     
-    model_dir: core.Path    = None
     arch     : str          = ""  # The model's architecture.
+    name     : str          = ""  # The model's name.
     tasks    : list[Task]   = []  # A list of tasks that the model can perform.
     schemes  : list[Scheme] = []  # A list of learning schemes that the model can perform.
+    model_dir: core.Path    = None
     zoo      : dict         = {}  # A dictionary containing all pretrained weights of the model.
     
     def __init__(
         self,
         # Basic
-        name       : str  = None,
-        fullname   : str  = None,
         root       : core.Path = core.Path(),
+        fullname   : str  = None,
         # Network
         num_classes: int  = None,
         weights    : Any  = None,
         # Training
-        optimizers : Any  = None,
+        optimizer  : Any  = None,
         loss       : Any  = None,
         metrics    : Any  = None,
         # Misc
@@ -267,15 +267,15 @@ class Model(lightning.LightningModule, ABC):
         self.debug         = debug
         self.verbose       = verbose
         # Basic
-        self.name          = name
-        self.fullname      = fullname
+        self.init_name()
         self.root          = root
+        self.fullname      = fullname
         # Network
         self.num_classes   = num_classes
         self.weights       = None
         self.assign_weights(weights)
         # Training
-        self.optims        = optimizers
+        self.optimizer     = optimizer
         self.loss          = None
         self.train_metrics = None
         self.val_metrics   = None
@@ -286,18 +286,6 @@ class Model(lightning.LightningModule, ABC):
     # region Properties
     
     @property
-    def name(self) -> str:
-        """Return the model's name."""
-        return self._name
-    
-    @name.setter
-    def name(self, name: str):
-        """Specify the model's name. This value should only be defined once."""
-        if name is None or name == "":
-            name = humps.kebabize(self.__class__.__name__).lower()
-        self._name = name
-    
-    @property
     def fullname(self) -> str:
         """Return the model's fullname = name-suffix"""
         return self._fullname
@@ -305,7 +293,7 @@ class Model(lightning.LightningModule, ABC):
     @fullname.setter
     def fullname(self, fullname: str):
         """Specify the model's fullname. This value should only be defined once."""
-        self._fullname = fullname if fullname not in [None, ""] else self.name
+        self._fullname = fullname if fullname not in [None, "None", ""] else self.name
     
     @property
     def root(self) -> core.Path:
@@ -371,6 +359,11 @@ class Model(lightning.LightningModule, ABC):
     # endregion
     
     # region Initialization
+    
+    def init_name(self):
+        """Specify the model's name. This value should only be defined once."""
+        if self.name in [None, "None", ""]:
+            self.name = humps.kebabize(self.__class__.__name__).lower()
     
     def create_dir(self):
         """Create directories before training begins."""
@@ -547,74 +540,41 @@ class Model(lightning.LightningModule, ABC):
                     {"optimizer": optimizer2, "lr_scheduler": scheduler2},
                 )
         """
-        optimizers = self.optims
-        
-        if optimizers is None:
-            console.log(f"[yellow]No optimizers have been defined! Consider "
-                        f"subclassing this function to manually define the "
-                        f"optimizers.")
+        if self.optimizer is None:
             return None
-        if isinstance(optimizers, dict):
-            optimizers = [optimizers]
-        if (
-            not isinstance(optimizers, list)
-            or not all(isinstance(o, dict) for o in optimizers)
-        ):
-            raise ValueError(f"`optimizers` must be a `list` of `dict`.")
+        elif not isinstance(self.optimizer, dict):
+            raise ValueError(f"`optimizer` must be a `dict`.")
         
-        for optim in optimizers:
-            optimizer           = optim.get("optimizer", None)
-            network_params_only = optim.get("network_params_only", True)
-            lr_scheduler        = optim.get("lr_scheduler", None)
-           
-            # Define optimizer
-            if optimizer is None:
-                raise ValueError(f"`optimizer` must be defined.")
-            if isinstance(optimizer, dict):
-                optimizer = OPTIMIZERS.build(
-                    network             = self,
-                    config              = optimizer,
-                    network_params_only = network_params_only
+        optimizer           = self.optimizer.get("optimizer",           None)
+        lr_scheduler        = self.optimizer.get("lr_scheduler",        None)
+        network_params_only = self.optimizer.get("network_params_only", True)
+        
+        # Define optimizer
+        if optimizer is None:
+            raise ValueError(f"`optimizer` must be a `dict`.")
+        elif isinstance(optimizer, dict):
+            optimizer = OPTIMIZERS.build(
+                network             = self,
+                config              = optimizer,
+                network_params_only = network_params_only
+            )
+        
+        # Define learning rate scheduler
+        if lr_scheduler and isinstance(lr_scheduler, dict):
+            scheduler = lr_scheduler.get("scheduler", None)
+            if scheduler is None:
+                raise ValueError(f"`scheduler` must be defined.")
+            else:
+                lr_scheduler["scheduler"] = LR_SCHEDULERS.build(
+                    optimizer = optimizer,
+                    config    = scheduler
                 )
-            optim["optimizer"] = optimizer
-            
-            # Define learning rate scheduler
-            if "lr_scheduler" in optim and lr_scheduler is None:
-                optim.pop("lr_scheduler")
-            elif lr_scheduler and isinstance(lr_scheduler, dict):
-                scheduler = lr_scheduler.get("scheduler", None)
-                if scheduler is None:
-                    raise ValueError(f"`scheduler` must be defined.")
-                if isinstance(scheduler, dict):
-                    # after scheduler
-                    if "after_scheduler" in scheduler:
-                        after_scheduler = scheduler["after_scheduler"]
-                        scheduler.pop("after_scheduler")
-                    else:
-                        after_scheduler = None
-                    if isinstance(after_scheduler, dict):
-                        after_scheduler = LR_SCHEDULERS.build(
-                            optimizer = optim["optimizer"],
-                            config    = after_scheduler
-                        )
-                        scheduler["after_scheduler"] = after_scheduler
-                    #
-                    scheduler = LR_SCHEDULERS.build(
-                        optimizer = optim["optimizer"],
-                        config    = scheduler
-                    )
-                lr_scheduler["scheduler"] = scheduler
-                optim["lr_scheduler"]     = lr_scheduler
-            
-            # Update optim
-            if "network_params_only" in optim:
-                _ = optim.pop("network_params_only")
         
-        # Re-assign optims
-        if isinstance(optimizers, list | tuple) and len(optimizers) == 1:
-            optimizers = optimizers[0]
-        self.optims = optimizers
-        return self.optims
+        self.optimizer = {
+            "optimizer"    : optimizer,
+            "lr_scheduler" : lr_scheduler,
+        }
+        return self.optimizer
     
     def compute_efficiency_score(self, *args, **kwargs) -> tuple[float, float]:
         """Compute the efficiency score of the model, including FLOPs and number

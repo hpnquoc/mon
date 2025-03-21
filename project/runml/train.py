@@ -53,9 +53,9 @@ def train(args: argparse.Namespace) -> str:
     mon.set_random_seed(seed)
     
     # Data I/O
-    data_dir = mon.parse_data_dir(root, args["datamodule"].get("root", ""))
+    data_root = mon.parse_data_dir(root, args["datamodule"].get("root", ""))
     args["datamodule"] |= {
-        "root": data_dir,
+        "root": data_root,
     }
     datamodule: mon.DataModule = mon.DATAMODULES.build(config=args["datamodule"])
     datamodule.prepare_data()

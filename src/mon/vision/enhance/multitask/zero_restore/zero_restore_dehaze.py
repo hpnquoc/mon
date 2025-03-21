@@ -194,20 +194,22 @@ class ZeroRestoreDehaze(base.ImageEnhancementModel):
     
     model_dir: core.Path    = current_dir
     arch     : str          = "zero_restore"
+    name     : str          = "zero_restore_dehaze"
     tasks    : list[Task]   = [Task.DEHAZE]
     schemes  : list[Scheme] = [Scheme.ZERO_SHOT]
     zoo      : dict         = {}
     
     def __init__(
         self,
-        name        : str = "zero_restore_dehaze",
         in_channels : int = 3,
         num_channels: int = 64,
+        iters       : int = 10000,
         *args, **kwargs
     ):
-        super().__init__(name=name, *args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.in_channels  = in_channels
         self.num_channels = num_channels
+        self.iters        = iters
         
         # Network
         self.estimation = Estimation(self.num_channels)
@@ -290,22 +292,12 @@ class ZeroRestoreDehaze(base.ImageEnhancementModel):
             image = image.flip(3)
         return image
         
-    def infer(
-        self,
-        datapoint    : dict,
-        epochs       : int   = 10000,
-        lr           : float = 1e-3,
-        weight_decay : float = 1e-2,
-        reset_weights: bool  = True,
-        *args, **kwargs
-    ) -> dict:
+    def infer(self, datapoint: dict, reset_weights: bool = True, *args, **kwargs) -> dict:
         # Initialize training components
         if reset_weights:
             self.load_state_dict(self.initial_state_dict)
-        if isinstance(self.optims, dict):
-            optimizer = self.optims.get("optimizer", None)
-        else:
-            optimizer = nn.Adam(self.parameters(), lr=lr, weight_decay=weight_decay)
+        optimizer = self.optimizer.get("optimizer", None)
+        optimizer = optimizer or nn.Adam(self, lr=1e-3, weight_decay=1e-2)
         
         # Input
         self.assert_datapoint(datapoint)
@@ -317,7 +309,8 @@ class ZeroRestoreDehaze(base.ImageEnhancementModel):
         timer = core.Timer()
         timer.tick()
         self.train()
-        for _ in range(epochs):
+        
+        for _ in range(self.iters):
             image_  = self.augment(image)
             outputs = self.forward_loss(datapoint={"image": image_})
             optimizer.zero_grad()

@@ -100,21 +100,22 @@ class CoLIE_RE(base.ImageEnhancementModel):
         https://github.com/ctom2/colie
     """
     
-    model_dir: core.Path    = current_dir
     arch     : str          = "colie"
+    name     : str          = "colie_re"
     tasks    : list[Task]   = [Task.LLIE]
     schemes  : list[Scheme] = [Scheme.ZERO_SHOT]
+    model_dir: core.Path    = current_dir
     zoo      : dict         = {}
     
     def __init__(
         self,
-        name        : str         = "colie_re",
         window_size : int         = 7,
         down_size   : int         = 256,
         num_layers  : int         = 4,
         hidden_dim  : int         = 256,
         add_layer   : int         = 2,
         weight_decay: list[float] = [0.1, 0.0001, 0.001],
+        iters       : int         = 100,
         L           : float       = 0.3,
         alpha       : float       = 1,
         beta        : float       = 20,
@@ -122,11 +123,12 @@ class CoLIE_RE(base.ImageEnhancementModel):
         delta       : float       = 5,
         *args, **kwargs
     ):
-        super().__init__(name=name, *args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.window_size = window_size
         self.patch_dim   = window_size ** 2
         self.down_size   = down_size
         self.omega_0     = 30.0
+        self.iters       = iters
         
         # Network
         patch_layers   = [nn.INRLayer(self.patch_dim, hidden_dim, "sine", omega_0=self.omega_0, is_first=True)]
@@ -180,10 +182,6 @@ class CoLIE_RE(base.ImageEnhancementModel):
         params        = self.params                if hasattr(self, "params") and params == 0 else params
         params        = parameter_count(self)      if hasattr(self, "params")  else params
         params        = sum(list(params.values())) if isinstance(params, dict) else params
-        # Print
-        if self.verbose:
-            console.log(f"FLOPs : {flops:.4f}")
-            console.log(f"Params: {params:.4f}")
         # Return
         return flops, params
     
@@ -284,22 +282,12 @@ class CoLIE_RE(base.ImageEnhancementModel):
         image_hvi[:, 2, :, :] = i_new
         return image_hvi
     
-    def infer(
-        self,
-        datapoint    : dict,
-        epochs       : int   = 100,
-        lr           : float = 1e-5,
-        weight_decay : float = 3e-4,
-        reset_weights: bool  = True,
-        *args, **kwargs
-    ) -> dict:
+    def infer(self, datapoint: dict, reset_weights: bool = True, *args, **kwargs) -> dict:
         # Initialize training components
         if reset_weights:
             self.load_state_dict(self.initial_state_dict)
-        if isinstance(self.optims, dict):
-            optimizer = self.optims.get("optimizer", None)
-        else:
-            optimizer = nn.Adam(self.parameters(), lr=lr, weight_decay=weight_decay)
+        optimizer = self.optimizer.get("optimizer", None)
+        optimizer = optimizer or nn.Adam(self, lr=1e-5, weight_decay=3e-4)
         
         # Input
         self.assert_datapoint(datapoint)
@@ -311,7 +299,7 @@ class CoLIE_RE(base.ImageEnhancementModel):
         timer = core.Timer()
         timer.tick()
         self.train()
-        for _ in range(epochs):
+        for _ in range(self.iters):
             outputs = self.forward_loss(datapoint=datapoint)
             optimizer.zero_grad()
             loss = outputs["loss"]

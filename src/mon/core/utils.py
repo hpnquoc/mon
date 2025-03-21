@@ -274,10 +274,7 @@ def list_datasets(
     return datasets
 
 
-def parse_data_dir(
-    root    : str | pathlib.Path,
-    data_dir: str | pathlib.Path
-) -> str | pathlib.Path | Sequence[str | pathlib.Path]:
+def parse_data_dir(root: str | pathlib.Path, data_dir: str | pathlib.Path) -> str | pathlib.Path:
     """Parse absolute data directory path from given components.
     
     Args:
@@ -680,12 +677,10 @@ def list_train_save_dirs(root: str | pathlib.Path) -> list[pathlib.Path]:
 
 
 def parse_save_dir(
-    root   : str | pathlib.Path,
-    arch   : str = None,
-    model  : str = None,
-    data   : str = None,
-    project: str = None,
-    variant: str = None,
+    root : str | pathlib.Path,
+    arch : str = None,
+    model: str = None,
+    data : str = None,
 ) -> str | pathlib.Path:
     """Parse ``save_dir`` in the following format:
         root

@@ -92,7 +92,7 @@ def predict(args: argparse.Namespace):
                 cv2.imwrite(str(output_path), enhanced)
     
     # Finish
-    console.log(f"Average time: {float(timer.avg_time)}")
+    console.log(f"Average time: {timer.avg_time}")
 
 # endregion
 

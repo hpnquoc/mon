@@ -1,20 +1,20 @@
 # Basic
 root        : ~                                                                 # Root directory of the current run.
-arch        : "zero_restore"                                                    # Model architecture or family (e.g., resnet).
-model       : &model "zero_restore_llie"                                        # Model name (e.g., resnet50).
+arch        : ~                                                                 # Model architecture or family (e.g., resnet).
+model       : &model ~                                                          # Model name (e.g., resnet50).
 data        : &data ~                                                           # Dataset name (e.g., cifar10) or directory (e.g., data/cifar10).
-fullname    : &fullname "zero_restore_llie"                                     # Full name of the current run (e.g., resnet50_cifar10_01). If not set, it will be this file's name.
+fullname    : &fullname ~                                                       # Full name of the current run (e.g., resnet50_cifar10_01). If not set, it will be this file's name.
 save_dir    : &save_dir ~                                                       # Saving directory. If not set, it will be `root/arch/model/data`.
-weights     : &weights ~                                                        # Path to the pretrained weights.
+weights     : &weights  ~                                                       # Path to the pretrained weights.
 device      : 0                                                                 # Running device (i.e., cuda:0 | cuda:0,1,2,3 | cpu).
-seed        : 100                                                               # Random seed.
+seed        : ~                                                                 # Random seed.
 imgsz       : &imgsz 512                                                        # Image size for the model.
 resize      : False                                                             # Resize the input image to `imgsz`.
-epochs      : &epochs 10000                                                     # Training epochs.
-steps       : &steps ~                                                          # Training steps.
+epochs      : &epochs -1                                                        # Training epochs.
+steps       : &steps -1                                                         # Training steps.
 benchmark   : False                                                             # Benchmark the model.
 save_image  : True                                                              # Save the output image.
-save_debug  : &save_debug True                                                  # Save the debug information.
+save_debug  : &save_debug False                                                 # Save the debug information.
 use_fullname: True                                                              # Use the full name for the save_dir.
 use_fullpath: False                                                             # Use the full path for the input image.
 exist_ok    : True                                                              # If ``False``, it will delete the save directory if it already exists.
@@ -23,17 +23,14 @@ verbose     : &verbose True                                                     
 ### For ``mon`` Framework ###
 # Network
 network: &network                                                               # Network architecture.
-  in_channels : 3
-  num_channels: 64
-  iters       : *epochs
+  num_classes: ~                                                                # Number of classes (for classification task).
 
 # Optimizer
 optimizer: &optimizer                                                           # Optimizer(s).
   optimizer:
-    name        : "adam"
-    lr          : 1e-3
-    weight_decay: 1e-2
-  lr_scheduler       : ~                                                        # Learning rate scheduler.s
+    name: "adam"
+    lr  : 0.0001
+  lr_scheduler       : ~                                                      # Learning rate scheduler.s
   network_params_only: True
 
 # Loss
@@ -42,12 +39,8 @@ loss: &loss ~                                                                   
 # Metric
 metrics: &metrics                                                               # Metrics for evaluation.
   train: ~
-  val  :
-    - {name: "psnr"}
-    - {name: "ssim"}
-  test :
-    - {name: "psnr"}
-    - {name: "ssim"}
+  val  : ~
+  test : ~
 
 # Model-module (Note: I want to name this `model`, but it conflicts with the `model` key in the basic section)
 modelmodule:
@@ -65,8 +58,9 @@ modelmodule:
 # Datamodule
 datamodule:
   name      : *data                                                             # Data module name (e.g., cifar10).
-  root      : ~                                                                 # Root directory of the dataset.
-  transform : ~                                                                 # Data augmentation.
+  root      : "data/"                                                           # Root directory of the dataset.
+  transform :                                                                   # Data augmentation.
+    - {name: "resize", height: *imgsz, width : *imgsz}
   to_tensor : True                                                              # If ``True``, convert the data to tensor.
   batch_size: 1                                                                 # Batch size.
   cache_data: False                                                             # If ``True``, cache the data.
@@ -77,8 +71,8 @@ datamodule:
 trainer:
   accelerator: "auto"                                                           # Accelerator.
   callbacks:
-    - {name: "model_checkpoint", filename: *fullname, monitor: "val/psnr", mode: "max"}
-    - {name: "model_checkpoint", filename: *fullname, monitor: "val/ssim", mode: "max", save_last: True}
+    - {name: "model_checkpoint", filename: *fullname, monitor: "val/", mode: "max"}
+    - {name: "model_checkpoint", filename: *fullname, monitor: "val/", mode: "max", save_last: True}
     - {name: "log_training_progress", "filename": "log.csv", "every_n_epochs": 1, verbose: *verbose}
     - {name: "learning_rate_monitor"}
     - {name: "rich_model_summary", max_depth: 2}
@@ -86,9 +80,9 @@ trainer:
   check_val_every_n_epoch: 1                                                    # Run validation loop every after every `n` training epochs.
   default_root_dir       : *save_dir                                            # Default path for logs and weights.
   devices                : "auto"                                               # Will be mapped to either `gpus`, `tpu_cores`, `num_processes` or `ipus`.
-  enable_checkpointing   : True
-  enable_model_summary   : True
-  enable_progress_bar    : True
+  enable_checkpointing   : True                                                 
+  enable_model_summary   : True                                                 
+  enable_progress_bar    : True                                                 
   log_every_n_steps      : 1                                                    # How often to log within steps.
   logger                 : True                                                 # Logger (or iterable collection of loggers) for experiment tracking (True = `TensorBoardLogger`).
   max_epochs             : *epochs                                              # -1: infinite training.

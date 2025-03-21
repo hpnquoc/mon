@@ -4,7 +4,6 @@
 from __future__ import annotations
 
 import argparse
-import copy
 
 import torch
 import torch.optim
@@ -22,38 +21,36 @@ current_dir  = current_file.parents[0]
 # region Predict
 
 def predict(args: argparse.Namespace):
-    # General config
+    # Parse args
+    hostname     = args.hostname
+    root         = args.root
     data         = args.data
+    fullname     = args.fullname
     save_dir     = args.save_dir
     weights      = args.weights
-    device       = mon.set_device(args.device)
+    device       = args.device
+    seed         = args.seed
     imgsz        = args.imgsz
     resize       = args.resize
+    epochs       = args.epochs
+    steps        = args.steps
     benchmark    = args.benchmark
     save_image   = args.save_image
     save_debug   = args.save_debug
     use_fullpath = args.use_fullpath
-    # Model specific
+    verbose      = args.verbose
     scale        = args.scale
     scale_max    = args.scale_max
     
-    # Model
-    model = models.make(torch.load(weights, weights_only=True)["model"], load_sd=True).to(device)
-    model.eval()
+    # Start
+    console.rule(f"[bold red] {fullname}")
+    console.log(f"Machine: {hostname}")
     
-    # Benchmark
-    if benchmark:
-        flops, params, avg_time = mon.compute_efficiency_score(
-            model      = copy.deepcopy(model),
-            image_size = imgsz,
-            channels   = 3,
-            runs       = 1000,
-            use_cuda   = True,
-            verbose    = False,
-        )
-        console.log(f"FLOPs  = {flops:.4f}")
-        console.log(f"Params = {params:.4f}")
-        console.log(f"Time   = {avg_time:.17f}")
+    # Device
+    device = mon.set_device(device)
+    
+    # Seed
+    mon.set_random_seed(seed)
     
     # Data I/O
     console.log(f"[bold red]{data}")
@@ -65,6 +62,16 @@ def predict(args: argparse.Namespace):
         verbose     = False,
     )
     
+    # Model
+    model = models.make(torch.load(weights, weights_only=True)["model"], load_sd=True).to(device)
+    model.eval()
+    
+    # Benchmark
+    if benchmark:
+        flops, params = mon.compute_efficiency_score(model=model, image_size=imgsz)
+        console.log(f"FLOPs  = {flops:.4f}")
+        console.log(f"Params = {params:.4f}")
+        
     # Predicting
     timer = mon.Timer()
     with torch.no_grad():
@@ -75,9 +82,9 @@ def predict(args: argparse.Namespace):
                 description = f"[bright_yellow] Predicting"
             ):
                 # Input
-                image       = datapoint.get("image").to(device)
                 meta        = datapoint.get("meta")
                 image_path  = mon.Path(meta["path"])
+                image       = datapoint.get("image").to(device)
                 h           = int(image.shape[-2] * int(scale))
                 w           = int(image.shape[-1] * int(scale))
                 scale_      = h / image.shape[-2]
@@ -106,9 +113,9 @@ def predict(args: argparse.Namespace):
                         output_path = save_dir / data_name / f"{image_path.stem}.jpg"
                     output_path.parent.mkdir(parents=True, exist_ok=True)
                     torchvision.utils.save_image(pred, str(output_path))
-        
-        avg_time = float(timer.avg_time)
-        console.log(f"Average time: {avg_time}")
+    
+    # Finish
+    console.log(f"Average time: {timer.avg_time}")
 
 # endregion
 

@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import random
+from typing import Sequence
 
 import torch.optim
 from PIL import Image
@@ -25,6 +26,7 @@ current_dir  = current_file.parents[0]
 def predict(args: argparse.Namespace):
     # Parse args
     hostname     = args.hostname
+    root         = args.root
     data         = args.data
     fullname     = args.fullname
     save_dir     = args.save_dir
@@ -102,7 +104,6 @@ def predict(args: argparse.Namespace):
                 meta       = datapoint.get("meta")
                 image_path = mon.Path(meta["path"])
                 indexB     = random.randint(0, testB_size - 1)
-                
                 imageA     = Image.open(image_path).convert("RGB")
                 imageB     = Image.open(testB_files[indexB]).convert("RGB")
                 w0, h0     = imageA.size
@@ -151,8 +152,7 @@ def predict(args: argparse.Namespace):
                     # torchvision.utils.save_image(pre, str(output_path / f"{image_path.stem}_pre.jpg"))
                 '''
                 
-        avg_time = float(timer.avg_time)
-        console.log(f"Average time: {avg_time}")
+    console.log(f"Average time: {timer.avg_time}")
 
 # endregion
 

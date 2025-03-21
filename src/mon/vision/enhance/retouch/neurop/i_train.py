@@ -30,29 +30,36 @@ current_dir  = current_file.parents[0]
 # region Train
 
 def train(args: argparse.Namespace):
-    # General config
-    opt_path = str(current_dir / "model_config" / "train" / args.opt_path)
-    save_dir = mon.Path(args.save_dir)
-    weights  = args.weights
-    device   = mon.set_device(args.device)
-    epochs   = args.epochs
-    verbose  = args.verbose
+    # Parse args
+    hostname     = args.hostname
+    root         = args.root
+    data         = args.data
+    fullname     = args.fullname
+    save_dir     = args.save_dir
+    weights      = args.weights
+    device       = args.device
+    seed         = args.seed
+    imgsz        = args.imgsz
+    resize       = args.resize
+    epochs       = args.epochs
+    steps        = args.steps
+    benchmark    = args.benchmark
+    save_image   = args.save_image
+    save_debug   = args.save_debug
+    use_fullpath = args.use_fullpath
+    verbose      = args.verbose
     
-    # Override options with args
-    opt = parse(opt_path)
-    opt = dict_to_nonedict(opt)
-    opt["network_G"]["init_model"] = mon.ZOO_DIR / opt["network_G"]["init_model"]
+    opt_path = str(current_dir / "options" / "train" / args.opt_path)
+    opt      = parse(opt_path)
+    opt      = dict_to_nonedict(opt)
+    opt["network_G"]["init_model"] = mon.ROOT_DIR / opt["network_G"]["init_model"]
     
-    # Directory
-    weights_dir = save_dir
-    weights_dir.mkdir(parents=True, exist_ok=True)
+    # Start
+    console.rule(f"[bold red] {fullname}")
+    console.log(f"Machine: {hostname}")
     
-    # Model
-    model = build_model(opt)
-    
-    # Data I/O
-    dataset_opt  = opt["datasets"]
-    train_loader = build_train_loader(dataset_opt)
+    # Device
+    device = mon.set_device(device)
     
     # Seed
     seed = opt["train"]["manual_seed"]
@@ -62,12 +69,17 @@ def train(args: argparse.Namespace):
     np.random.seed(seed)
     torch.manual_seed(seed)
     
-    total_iters  = opt["train"]["niter"]
-    total_epochs = int(total_iters / len(train_loader))
+    # Data I/O
+    dataset_opt  = opt["datasets"]
+    train_loader = build_train_loader(dataset_opt)
+    
+    # Model
+    model = build_model(opt)
     
     # Training
     current_step = 0
-    start_epoch  = 0
+    total_iters  = opt["train"]["niter"]
+    total_epochs = int(total_iters / len(train_loader))
     with mon.get_progress_bar() as pbar:
         for epoch in pbar.track(
             sequence    = range(total_epochs + 1),
@@ -81,14 +93,17 @@ def train(args: argparse.Namespace):
                     break
                 model.feed_data(train_data)
                 model.optimize_parameters()
+            
             # Log
             logs    = model.get_current_log()
             message = "[epoch:{:3d}, iter:{:8,d}, ".format(epoch, current_step)
-            for k,v in logs.items():
+            for k, v in logs.items():
                 v /= len(train_loader)
                 message += "{:s}: {:.4e} ".format(k, v)
             model.log_dict = defaultdict(int)
-            model.save("latest", save_dir=weights_dir)
+            
+            # Save
+            model.save("latest", save_dir=save_dir)
             
 # endregion
 

@@ -16,7 +16,7 @@ __all__ = [
     "ZeroDCE_RE",
 ]
 
-from typing import Any, Literal
+from typing import Literal
 
 import torch
 
@@ -100,6 +100,7 @@ class ZeroDCE_RE(base.ImageEnhancementModel):
     
     model_dir: core.Path    = current_dir
     arch     : str          = "zero_dce"
+    name     : str          = "zero_dce_re"
     tasks    : list[Task]   = [Task.LLIE]
     schemes  : list[Scheme] = [Scheme.UNSUPERVISED]
     zoo      : dict         = {}
@@ -109,20 +110,9 @@ class ZeroDCE_RE(base.ImageEnhancementModel):
         in_channels : int = 3,
         num_channels: int = 32,
         num_iters   : int = 8,
-        weights     : Any = None,
         *args, **kwargs
     ):
-        super().__init__(
-            name        = "zero_dce_re",
-            in_channels = in_channels,
-            weights     = weights,
-            *args, **kwargs
-        )
-        # Populate hyperparameter values from pretrained weights
-        if isinstance(self.weights, dict):
-            in_channels  = self.weights.get("in_channels" , in_channels)
-            num_channels = self.weights.get("num_channels", num_channels)
-            num_iters    = self.weights.get("num_iters"   , num_iters)
+        super().__init__(*args, **kwargs)
         self.in_channels  = in_channels  or self.in_channels
         self.num_channels = num_channels
         self.num_iters    = num_iters

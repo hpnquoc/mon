@@ -28,6 +28,7 @@ current_dir  = current_file.parents[0]
 def predict(args: argparse.Namespace):
     # Parse args
     hostname     = args.hostname
+    root         = args.root
     data         = args.data
     fullname     = args.fullname
     save_dir     = args.save_dir
@@ -77,7 +78,7 @@ def predict(args: argparse.Namespace):
     
     # Benchmark
     if benchmark:
-        flops, params = mon.compute_efficiency_score(model=copy.deepcopy(color_net), image_size=imgsz)
+        flops, params = mon.compute_efficiency_score(model=color_net, image_size=imgsz)
         console.log(f"FLOPs  = {flops:.4f}")
         console.log(f"Params = {params:.4f}")
         
@@ -116,7 +117,7 @@ def predict(args: argparse.Namespace):
                     torchvision.utils.save_image(enhanced, str(output_path))
         
     # Finish
-    console.log(f"Average time: {float(timer.avg_time)}")
+    console.log(f"Average time: {timer.avg_time}")
 
 # endregion
 

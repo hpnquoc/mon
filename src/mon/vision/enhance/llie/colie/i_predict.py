@@ -40,12 +40,12 @@ def predict(args: argparse.Namespace):
     save_debug   = args.save_debug
     use_fullpath = args.use_fullpath
     verbose      = args.verbose
-    window       = int(args.window)
-    L            = float(args.L)
-    alpha        = float(args.alpha)
-    beta         = float(args.beta)
-    gamma        = float(args.gamma)
-    delta        = float(args.delta)
+    window       = args.window
+    L            = args.L
+    alpha        = args.alpha
+    beta         = args.beta
+    gamma        = args.gamma
+    delta        = args.delta
     
     # Start
     console.rule(f"[bold red] {fullname}")
@@ -136,7 +136,7 @@ def predict(args: argparse.Namespace):
                 Image.fromarray((torch.movedim(img_rgb_fixed, 1, -1)[0].detach().cpu().numpy() * 255).astype(np.uint8)).save(str(output_path))
     
     # Finish
-    console.log(f"Average time: {float(timer.avg_time)}")
+    console.log(f"Average time: {timer.avg_time}")
 
 # endregion
 

@@ -16,7 +16,7 @@ __all__ = [
     "ZeroDCEpp_RE",
 ]
 
-from typing import Any, Literal
+from typing import Literal
 
 import torch
 
@@ -96,7 +96,7 @@ class ZeroDCEpp_RE(base.ImageEnhancementModel):
             layers. Default: ``32``.
         num_iters: The number of convolutional layers in the model.
             Default: ``8``.
-        scale_factor: Downsampling/upsampling ratio. Defaults: ``1``.
+        scale_factor: Downsampling/upsampling ratio. Defaults: ``1.0``.
         
     References:
         https://github.com/Li-Chongyi/Zero-DCE_extension
@@ -104,6 +104,7 @@ class ZeroDCEpp_RE(base.ImageEnhancementModel):
     
     model_dir: core.Path    = current_dir
     arch     : str          = "zero_dce++"
+    name     : str          = "zero_dce++_re"
     tasks    : list[Task]   = [Task.LLIE]
     schemes  : list[Scheme] = [Scheme.UNSUPERVISED]
     zoo      : dict         = {}
@@ -114,27 +115,15 @@ class ZeroDCEpp_RE(base.ImageEnhancementModel):
         num_channels: int   = 32,
         num_iters   : int   = 8,
         scale_factor: float = 1.0,
-        weights     : Any   = None,
         *args, **kwargs
     ):
-        super().__init__(
-            name        = "zero_dce++_re",
-            in_channels = in_channels,
-            weights     = weights,
-            *args, **kwargs
-        )
-        # Populate hyperparameter values from pretrained weights
-        if isinstance(self.weights, dict):
-            in_channels  = self.weights.get("in_channels" , in_channels)
-            num_channels = self.weights.get("num_channels", num_channels)
-            num_iters    = self.weights.get("num_iters"   , num_iters)
-            scale_factor = self.weights.get("scale_factor", scale_factor)
+        super().__init__(*args, **kwargs)
         self.in_channels  = in_channels
         self.num_channels = num_channels
         self.num_iters    = num_iters
         self.scale_factor = scale_factor
         
-        # Construct model
+        # Network
         self.relu     = nn.ReLU(inplace=True)
         self.upsample = nn.UpsamplingBilinear2d(self.scale_factor)
         self.e_conv1  = nn.DSConv2d(self.in_channels,      self.num_channels, 3, 1, 1)

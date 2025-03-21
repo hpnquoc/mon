@@ -35,7 +35,7 @@ def parse_io_worker(
 		to_tensor: If ``True``, convert the image to a tensor. Default: ``False``.
 		denormalize: If ``True``, denormalize the image to ``[0, 255]``.
 			Default: ``False``.
-		data_root: The root directory of all datasets, i.e., :file:`data/`.
+		data_root: The root directory of the dataset, i.e., :file:`data/ntire_2025_llie`.
 		verbose: Verbosity. Default: ``False``.
 		
 	Return:
@@ -46,17 +46,14 @@ def parse_io_worker(
 	data_writer: vision.VideoWriterCV = None
 	
 	if isinstance(src, str) and src in DATASETS:
-		defaults_dict = dict(
-			zip(DATASETS[src].__init__.__code__.co_varnames[1:], DATASETS[src].__init__.__defaults__)
-		)
-		root = defaults_dict.get("root", DATA_DIR)
-		if (
-			         root not in [None, "None", ""]
-			and data_root not in [None, "None", ""]
-			and core.Path(data_root).is_dir()
-			and str(root) != str(data_root)
-		):
+		if data_root not in [None, "None", ""] and core.Path(data_root).is_dir():
 			root = data_root
+		else:
+			defaults_dict = dict(zip(DATASETS[src].__init__.__code__.co_varnames[1:], DATASETS[src].__init__.__defaults__))
+			root = defaults_dict.get("root", None)
+		if root and not root.is_dir():
+			root = DATA_DIR
+		
 		config      = {
 			"name"     : src,
 			"root"     : root,

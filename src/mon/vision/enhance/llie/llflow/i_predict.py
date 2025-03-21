@@ -87,6 +87,7 @@ def predict(args: argparse.Namespace):
     # General config
     # Parse args
     hostname     = args.hostname
+    root         = args.root
     data         = args.data
     fullname     = args.fullname
     save_dir     = args.save_dir
@@ -190,7 +191,7 @@ def predict(args: argparse.Namespace):
                     imwrite(str(output_path), sr)
     
     # Finish
-    console.log(f"Average time: {float(timer.avg_time)}")
+    console.log(f"Average time: {timer.avg_time}")
 
 # endregion
 

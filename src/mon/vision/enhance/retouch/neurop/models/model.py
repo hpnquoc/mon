@@ -1,5 +1,4 @@
 import logging
-import time
 from collections import defaultdict, OrderedDict
 
 import torch
@@ -172,25 +171,17 @@ class InitModel(nn.Module):
     def forward(self):
         self.test()
     
-    def measure_efficiency_score(self, image_size=512, channels=3, runs=1000):
+    def measure_efficiency_score(self, image_size: int = 512, channels: int = 3) -> tuple[float, float]:
         h, w  = mon.get_image_size(image_size)
-        input = torch.rand(1, channels, h, w).cuda()
+        input = torch.rand(1, channels, h, w).to(self.netG.device)
         data  = {
             "idx": 0,
             "LQ" : input,
             "GT" : input,
         }
-        self.netG = self.netG.cuda()
         self.feed_data(data)
         flops, params = profile(self, inputs=(), verbose=False)
-        g_flops       = flops  * 1e-9
-        m_params      = params * 1e-6
-        start_time    = time.time()
-        for i in range(runs):
-            self.forward()
-        runtime  = time.time() - start_time
-        avg_time = runtime / runs
-        return flops, params, avg_time
+        return flops, params
     
 
 class FinetuneModel(nn.Module):
@@ -293,9 +284,9 @@ class FinetuneModel(nn.Module):
     def forward(self):
         self.test()
         
-    def measure_efficiency_score(self, image_size=512, channels=3, runs=1000):
+    def measure_efficiency_score(self, image_size: int = 512, channels: int = 3):
         h, w  = mon.get_image_size(image_size)
-        input = torch.rand(1, channels, h, w).to(self.device)
+        input = torch.rand(1, channels, h, w).to(self.netG.device)
         data  = {
             "idx": 0,
             "LQ" : input,
@@ -303,11 +294,4 @@ class FinetuneModel(nn.Module):
         }
         self.feed_data(data)
         flops, params = profile(self, inputs=(), verbose=False)
-        g_flops       = flops  * 1e-9
-        m_params      = params * 1e-6
-        start_time    = time.time()
-        for i in range(runs):
-            self.forward()
-        runtime  = time.time() - start_time
-        avg_time = runtime / runs
-        return flops, params, avg_time
+        return flops, params

@@ -14,7 +14,7 @@ datasets:
 
 #### network structures
 network_G:
-  init_model : vision/enhance/retouch/neurop/neurop/fivek_init/neurop_fivek_init.pth
+  init_model : zoo/vision/enhance/retouch/neurop/neurop/fivek_init/neurop_fivek_init.pth
   in_nc      : 3
   out_nc     : 3
   base_nf    : 64

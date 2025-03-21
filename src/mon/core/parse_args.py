@@ -18,7 +18,7 @@ import argparse
 import socket
 from typing import Any
 
-from mon import core
+from mon.core import pathlib, utils
 
 
 # region Utils
@@ -77,7 +77,7 @@ def parse_cli_args() -> argparse.Namespace:
     return args
 
 
-def parse_train_args(model_root: str | core.Path = None) -> dict | argparse.Namespace:
+def parse_train_args(model_root: str | pathlib.Path = None) -> dict | argparse.Namespace:
     """Parse arguments for training."""
     hostname = socket.gethostname().lower()
     
@@ -85,17 +85,17 @@ def parse_train_args(model_root: str | core.Path = None) -> dict | argparse.Name
     cli_args = vars(parse_cli_args())
     config   = cli_args.get("config")
     root     = cli_args.get("root")
-    root     = core.Path(root) if root else None
+    root     = pathlib.Path(root) if root else None
     weights  = cli_args.get("weights")
     
     # Get config args
-    config = core.parse_config_file(
+    config = utils.parse_config_file(
         project_root = root,
         model_root   = model_root,
         weights_path = weights,
         config       = config,
     )
-    args   = core.load_config(config)
+    args   = utils.load_config(config)
     
     # Prioritize cli_args -> args
     root         = root                         or args.get("root")
@@ -121,16 +121,16 @@ def parse_train_args(model_root: str | core.Path = None) -> dict | argparse.Name
     
     # Parse arguments
     if save_dir in [None, ""]:
-        save_dir = core.parse_save_dir(root/"run"/"train", arch, model, data)
+        save_dir = utils.parse_save_dir(root/"run"/"train", arch, model, data)
     else:
-        save_dir = core.Path(save_dir)
+        save_dir = pathlib.Path(save_dir)
         if str("run/train") not in str(save_dir):
-            save_dir = core.Path(f"run/train/{save_dir}")
+            save_dir = pathlib.Path(f"run/train/{save_dir}")
         if str(root) not in str(save_dir):
             save_dir = root / save_dir
             
-    weights = core.parse_weights_file(root/"run"/"train", weights)
-    device  = core.parse_device(device)
+    weights = utils.parse_weights_file(root/"run"/"train", weights)
+    device  = utils.parse_device(device)
     
     # Update arguments
     args["hostname"]     = hostname
@@ -157,19 +157,19 @@ def parse_train_args(model_root: str | core.Path = None) -> dict | argparse.Name
     
     # Save config file
     if not exist_ok:
-        core.delete_dir(paths=save_dir)
+        pathlib.delete_dir(paths=save_dir)
         
     save_dir.mkdir(parents=True, exist_ok=True)
     if config and config.is_config_file():
-        # core.copy_file(src=config, dst=save_dir / f"config{config.suffix}")
-        core.copy_file(src=config, dst=save_dir / f"{config.name}")
+        # pathlib.copy_file(src=config, dst=save_dir / f"config{config.suffix}")
+        pathlib.copy_file(src=config, dst=save_dir / f"{config.name}")
     
     # Return
     args = argparse.Namespace(**args)
     return args
 
 
-def parse_predict_args(model_root: str | core.Path = None) -> dict | argparse.Namespace:
+def parse_predict_args(model_root: str | pathlib.Path = None) -> dict | argparse.Namespace:
     """Parse arguments for predicting."""
     hostname = socket.gethostname().lower()
     
@@ -177,17 +177,17 @@ def parse_predict_args(model_root: str | core.Path = None) -> dict | argparse.Na
     cli_args = vars(parse_cli_args())
     config   = cli_args.get("config")
     root     = cli_args.get("root")
-    root     = core.Path(root) if root else None
+    root     = pathlib.Path(root) if root else None
     weights  = cli_args.get("weights")
     
     # Get config args
-    config = core.parse_config_file(
+    config = utils.parse_config_file(
         project_root = root,
         model_root   = model_root,
         weights_path = weights,
         config       = config,
     )
-    args   = core.load_config(config)
+    args   = utils.load_config(config)
     
     # Prioritize cli_args -> args
     root         = root                         or args.get("root")
@@ -214,19 +214,19 @@ def parse_predict_args(model_root: str | core.Path = None) -> dict | argparse.Na
     # Parse arguments
     if save_dir in [None, ""]:
         if use_fullname:
-            save_dir = core.parse_save_dir(root/"run"/"predict", arch, fullname, None)
+            save_dir = utils.parse_save_dir(root/"run"/"predict", arch, fullname, None)
         else:
-            save_dir = core.parse_save_dir(root/"run"/"predict", arch, model,    None)
+            save_dir = utils.parse_save_dir(root/"run"/"predict", arch, model,    None)
     else:
-        save_dir = core.Path(save_dir)
+        save_dir = pathlib.Path(save_dir)
         save_dir = save_dir.replace("run/train/", "")
         if str("run/predict") not in str(save_dir):
-            save_dir = core.Path(f"run/predict/{save_dir}")
+            save_dir = pathlib.Path(f"run/predict/{save_dir}")
         if str(root) not in str(save_dir):
             save_dir = root / save_dir
         
-    weights = core.parse_weights_file(root, weights)
-    device  = core.parse_device(device)
+    weights = utils.parse_weights_file(root, weights)
+    device  = utils.parse_device(device)
     imgsz   = get_image_size(imgsz)
     
     # Update arguments
@@ -254,12 +254,12 @@ def parse_predict_args(model_root: str | core.Path = None) -> dict | argparse.Na
     
     # Save config file
     if not exist_ok:
-        core.delete_dir(paths=save_dir)
+        pathlib.delete_dir(paths=save_dir)
     
     save_dir.mkdir(parents=True, exist_ok=True)
     if config and config.is_config_file():
-        # core.copy_file(src=config, dst=save_dir / f"config{config.suffix}")
-        core.copy_file(src=config, dst=save_dir / f"{config.name}")
+        # pathlib.copy_file(src=config, dst=save_dir / f"config{config.suffix}")
+        pathlib.copy_file(src=config, dst=save_dir / f"{config.name}")
     
     # Return
     args = argparse.Namespace(**args)

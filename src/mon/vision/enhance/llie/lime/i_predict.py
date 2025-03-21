@@ -26,6 +26,7 @@ current_dir  = current_file.parents[0]
 def predict(args: argparse.Namespace):
     # General config
     hostname     = args.hostname
+    root         = args.root
     data         = args.data
     fullname     = args.fullname
     save_dir     = args.save_dir
@@ -107,7 +108,7 @@ def predict(args: argparse.Namespace):
                 cv2.imwrite(str(output_path), enhanced)
     
     # Finish
-    console.log(f"Average time: {float(timer.avg_time)}")
+    console.log(f"Average time: {timer.avg_time}")
 
 # endregion
 

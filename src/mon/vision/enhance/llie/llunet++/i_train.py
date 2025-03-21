@@ -78,6 +78,7 @@ def val_epoch(val_loader, model, criterion, device):
 def train(args: argparse.Namespace):
     # Parse args
     hostname     = args.hostname
+    root         = args.root
     data         = args.data
     fullname     = args.fullname
     save_dir     = args.save_dir
@@ -106,19 +107,10 @@ def train(args: argparse.Namespace):
     mon.set_random_seed(seed)
     
     # Data I/O
-    data_args = {
-        "name"      : args.data,
-        "root"      : mon.DATA_DIR / "enhance",
-        "transform" : A.Compose(transforms=[
-            A.Resize(width=imgsz, height=imgsz),
-        ]),
-        "to_tensor" : True,
-        "batch_size": args.batch_size,
-        "devices"   : device,
-        "shuffle"   : True,
-        "verbose"   : verbose,
-    }
-    datamodule: mon.DataModule = mon.DATAMODULES.build(config=data_args)
+    args.datamodule.transform = A.Compose(transforms=[
+        A.Resize(width=imgsz, height=imgsz),
+    ])
+    datamodule: mon.DataModule = mon.DATAMODULES.build(config=vars(args.datamodule))
     datamodule.setup(stage="train")
     train_dataloader = datamodule.train_dataloader
     val_dataloader   = datamodule.val_dataloader
@@ -128,11 +120,11 @@ def train(args: argparse.Namespace):
     model.train()
     
     # Optimizer
-    optimizer = optim.Adam(model.parameters(), lr=args.lr, weight_decay=1e-4)
+    optimizer = optim.Adam(model.parameters(), lr=args.optimizer.lr, weight_decay=args.optimizer.weight_decay)
     scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, 0.99)
     
     # Loss
-    criterion = Loss(*args.loss_weights).to(device)
+    criterion = Loss(*args.loss.loss_weights).to(device)
     
     # Logging
     writer = SummaryWriter(log_dir=str(save_dir))

@@ -1,16 +1,16 @@
 # Basic
 root        : ~                                                                 # Root directory of the current run.
-arch        : "llflow"                                                          # Model architecture or family (e.g., resnet).
-model       : &model "llflow"                                                   # Model name (e.g., resnet50).
-data        : &data "lol_v2_real"                                               # Dataset name (e.g., cifar10) or directory (e.g., data/cifar10).
-fullname    : &fullname "llflow_lol_v2_real"                                    # Full name of the current run (e.g., resnet50_cifar10_01). If not set, it will be this file's name.
+arch        : "pairlie"                                                         # Model architecture or family (e.g., resnet).
+model       : &model "pairlie"                                                  # Model name (e.g., resnet50).
+data        : &data "sice"                                                      # Dataset name (e.g., cifar10) or directory (e.g., data/cifar10).
+fullname    : &fullname "pairlie_sice"                                          # Full name of the current run (e.g., resnet50_cifar10_01). If not set, it will be this file's name.
 save_dir    : &save_dir ~                                                       # Saving directory. If not set, it will be `root/arch/model/data`.
-weights     : &weights "zoo/vision/enhance/llie/llflow/llflow/lol_v2_real/llflow_lol_v2_real.pth" # Path to the pretrained weights.
+weights     : &weights "zoo/vision/enhance/llie/pairlie/pairlie/sice/pairlie_sice.pth" # Path to the pretrained weights.
 device      : 0                                                                 # Running device (i.e., cuda:0 | cuda:0,1,2,3 | cpu).
-seed        : 0                                                                 # Random seed.
-imgsz       : &imgsz 256                                                        # Image size for the model.
+seed        : 123456789                                                         # Random seed.
+imgsz       : &imgsz 512                                                        # Image size for the model.
 resize      : False                                                             # Resize the input image to `imgsz`.
-epochs      : &epochs 1000                                                      # Training epochs.
+epochs      : &epochs 200                                                       # Training epochs.
 steps       : &steps ~                                                          # Training steps.
 benchmark   : False                                                             # Benchmark the model.
 save_image  : True                                                              # Save the output image.
@@ -20,5 +20,9 @@ use_fullpath: False                                                             
 exist_ok    : True                                                              # If ``False``, it will delete the save directory if it already exists.
 verbose     : &verbose True                                                     # Verbosity.
 
-# Model Specific
-opt_path: "lol_v2_real.yaml"
+# Optimizer
+optimizer: &optimizer                                                           # Optimizer(s).
+  lr: 1e-4
+  scheduler:
+    decay: 100
+    gamma: 0.5

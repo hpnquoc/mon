@@ -13,6 +13,7 @@ References:
 from __future__ import annotations
 
 import argparse
+from typing import Sequence
 
 import imageio
 import torch
@@ -29,36 +30,42 @@ current_dir  = current_file.parents[0]
 # region Predict
 
 def predict(args: argparse.Namespace):
-    # General config
-    opt_path     = str(current_dir / "model_config" / "test" / args.opt_path)
+    # Parse args
+    hostname     = args.hostname
+    root         = args.root
     data         = args.data
-    save_dir     = mon.Path(args.save_dir)
+    fullname     = args.fullname
+    save_dir     = args.save_dir
     weights      = args.weights
-    device       = mon.set_device(args.device)
+    device       = args.device
+    seed         = args.seed
     imgsz        = args.imgsz
-    imgsz        = imgsz[0] if isinstance(imgsz, list | tuple) else imgsz
+    imgsz        = imgsz[0] if isinstance(imgsz, Sequence) else imgsz
     resize       = args.resize
+    epochs       = args.epochs
+    steps        = args.steps
     benchmark    = args.benchmark
     save_image   = args.save_image
     save_debug   = args.save_debug
     use_fullpath = args.use_fullpath
+    verbose      = args.verbose
     
-    # Override options with args
+    opt_path       = str(current_dir / "options" / "test" / args.opt_path)
     opt            = parse(opt_path)
     opt            = dict_to_nonedict(opt)
     opt["dist"]    = False
     opt["device"]  = device
     opt["weights"] = weights
     
-    # Model
-    model = build_model(opt)
+    # Start
+    console.rule(f"[bold red] {fullname}")
+    console.log(f"Machine: {hostname}")
     
-    # Measure efficiency score
-    if benchmark:
-        flops, params, avg_time = model.measure_efficiency_score(image_size=imgsz)
-        console.log(f"FLOPs  = {flops:.4f}")
-        console.log(f"Params = {params:.4f}")
-        console.log(f"Time   = {avg_time:.17f}")
+    # Device
+    device = mon.set_device(device)
+    
+    # Seed
+    mon.set_random_seed(seed)
     
     # Data I/O
     console.log(f"[bold red]{data}")
@@ -70,6 +77,15 @@ def predict(args: argparse.Namespace):
         verbose     = False,
     )
     
+    # Model
+    model = build_model(opt)
+    
+    # Benchmark
+    if benchmark:
+        flops, params = model.measure_efficiency_score(image_size=imgsz)
+        console.log(f"FLOPs  = {flops:.4f}")
+        console.log(f"Params = {params:.4f}")
+    
     # Predicting
     timer = mon.Timer()
     with torch.no_grad():
@@ -80,19 +96,14 @@ def predict(args: argparse.Namespace):
                 description = f"[bright_yellow] Predicting"
             ):
                 # Input
-                image      = datapoint.get("image").to(device)
                 meta       = datapoint.get("meta")
                 image_path = mon.Path(meta["path"])
+                image      = datapoint.get("image").to(device)
                 h0, w0     = mon.get_image_size(image)
                 if resize:
                     image = mon.resize(image, imgsz)
                 else:
                     image = mon.resize(image, divisible_by=32)
-                
-                val_data = {
-                    "LQ": image,
-                    "GT": image,
-                }
                 
                 # Infer
                 timer.tick()
@@ -120,8 +131,8 @@ def predict(args: argparse.Namespace):
                     output_path.parent.mkdir(parents=True, exist_ok=True)
                     imageio.imwrite(str(output_path), (255.0 * sr_img).astype("uint8"))
         
-        avg_time = float(timer.avg_time)
-        console.log(f"Average time: {avg_time}")
+    # Finish
+    console.log(f"Average time: {timer.avg_time}")
         
 # endregion
 

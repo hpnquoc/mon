@@ -11,12 +11,10 @@ import mon.globals
 import mon.dataset
 import mon.nn
 import mon.vision
-import mon.config
 from mon.core import *
 from mon.globals import *
 from mon.dataset import *
 from mon.nn import *
 from mon.vision import *
-from mon.config import *
 
 __version__ = "2.6.0"

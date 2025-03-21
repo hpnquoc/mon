@@ -78,7 +78,7 @@ train_set = get_training_set(opt.data_train)
 training_data_loader = DataLoader(dataset=train_set, num_workers=opt.threads, batch_size=opt.batchSize, shuffle=True)
 
 print('===> Building model ')
-model= net().cuda()
+model = net().cuda()
 optimizer = optim.Adam(model.parameters(), lr=opt.lr, betas=(0.9, 0.999), eps=1e-8)
 
 milestones = []

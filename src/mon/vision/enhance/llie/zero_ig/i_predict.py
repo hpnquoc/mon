@@ -46,6 +46,7 @@ def calculate_model_flops(model, input_tensor):
 def predict(args: argparse.Namespace):
     # Parse args
     hostname     = args.hostname
+    root         = args.root
     data         = args.data
     fullname     = args.fullname
     save_dir     = args.save_dir
@@ -93,8 +94,10 @@ def predict(args: argparse.Namespace):
     # Benchmark
     if benchmark:
         model = Network()
-        mon.compute_efficiency_score(model=model, image_size=imgsz, channels=3, verbose=True)
-        total_params = calculate_model_parameters(model)
+        flops, params = mon.compute_efficiency_score(model=model, image_size=imgsz)
+        total_params  = calculate_model_parameters(model)
+        console.log(f"FLOPs : {flops:.4f}")
+        console.log(f"Params: {params:.4f}")
         console.log(f"Total Params = {total_params:.4f}")
         
     # Predicting
@@ -122,7 +125,7 @@ def predict(args: argparse.Namespace):
             model.enhance.out_conv.apply(model.enhance_weights_init)
             model = model.to(device)
             model.train()
-            optimizer = torch.optim.Adam(model.parameters(), lr=args.lr, weight_decay=3e-4)
+            optimizer = torch.optim.Adam(model.parameters(), lr=args.optimizer.lr, weight_decay=3e-4)
             input     = Variable(image, requires_grad=False).to(device)
             for _ in range(epochs):
                 optimizer.zero_grad()
@@ -163,7 +166,7 @@ def predict(args: argparse.Namespace):
                 cv2.imwrite(str(output_path), output)
     
     # Finish
-    console.log(f"Average time: {float(timer.avg_time)}")
+    console.log(f"Average time: {timer.avg_time}")
 
 # endregion
 

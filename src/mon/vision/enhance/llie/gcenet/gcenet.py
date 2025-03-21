@@ -557,8 +557,8 @@ class GCENet_Instance(GCENet):
         self.train()
         if reset_weights:
             self.load_state_dict(self.initial_state_dict)
-        if isinstance(self.optims, dict):
-            optimizer = self.optims.get("optimizer", None)
+        if isinstance(self.optimizer, dict):
+            optimizer = self.optimizer.get("optimizer", None)
         else:
             optimizer = nn.Adam(
                 self.parameters(),

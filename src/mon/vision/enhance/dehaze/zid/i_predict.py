@@ -283,7 +283,7 @@ def predict(args: argparse.Namespace):
                 timer.tock()
          
     # Finish
-    console.log(f"Average time: {float(timer.avg_time)}")
+    console.log(f"Average time: {timer.avg_time}")
 
 # endregion
 

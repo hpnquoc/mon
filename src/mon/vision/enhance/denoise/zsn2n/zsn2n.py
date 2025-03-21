@@ -44,26 +44,30 @@ class ZSN2N(base.ImageEnhancementModel):
         https://colab.research.google.com/drive/1i82nyizTdszyHkaHBuKPbWnTzao8HF9b?usp=sharing#scrollTo=Srf0GQTYrkxA
     """
     
-    model_dir: core.Path    = current_dir
     arch     : str          = "zsn2n"
+    name     : str          = "zsn2n"
     tasks    : list[Task]   = [Task.DENOISE]
     schemes  : list[Scheme] = [Scheme.ZERO_SHOT]
+    model_dir: core.Path    = current_dir
     zoo      : dict         = {}
     
     def __init__(
         self,
-        name        : str = "zsn2n",
         in_channels : int = 3,
         num_channels: int = 48,
+        iters       : int = 3000,
         *args, **kwargs
     ):
-        super().__init__(name=name, *args, **kwargs)
-    
+        super().__init__(*args, **kwargs)
+        self.iters = iters
+        
         # Network
         self.conv1 = nn.Conv2d(in_channels,  num_channels, kernel_size=3, padding=1)
         self.conv2 = nn.Conv2d(num_channels, num_channels, kernel_size=3, padding=1)
         self.conv3 = nn.Conv2d(num_channels, in_channels,  kernel_size=1)
         self.act   = nn.LeakyReLU(negative_slope=0.2, inplace=True)
+        
+        # Optimizer
         
         # Load weights
         if self.weights:
@@ -74,6 +78,9 @@ class ZSN2N(base.ImageEnhancementModel):
     
     def init_weights(self, m: nn.Module):
         pass
+    
+    def configure_optimizers(self):
+        return None
         
     def forward_loss(self, datapoint: dict, *args, **kwargs) -> dict:
         # Forward
@@ -115,10 +122,6 @@ class ZSN2N(base.ImageEnhancementModel):
         datapoint    : dict,
         image_size   : _size_2_t = 512,
         resize       : bool      = False,
-        epochs       : int       = 3000,
-        lr           : float     = 0.001,
-        step_size    : int       = 1000,
-        gamma        : float     = 0.5,
         reset_weights: bool      = True,
     ) -> dict:
         """Infer the model on a single datapoint. This method is different from
@@ -133,22 +136,16 @@ class ZSN2N(base.ImageEnhancementModel):
             datapoint: A :obj:`dict` containing the attributes of a datapoint.
             image_size: The input size. Default: ``512``.
             resize: Resize the input image to the model's input size. Default: ``False``.
-            epochs: Maximum number of epochs. Default: ``3000``.
-            lr: Learning rate. Default: ``0.001``.
-            step_size: Period of learning rate decay. Default: ``1000``.
-            gamma: A multiplicative factor of learning rate decay. Default: ``0.5``.
             reset_weights: Whether to reset the weights before training. Default: ``True``.
         """
         # Initialize training components
-        self.train()
         if reset_weights:
             self.load_state_dict(self.initial_state_dict)
-        if isinstance(self.optims, dict):
-            optimizer = self.optims.get("optimizer", None)
-            scheduler = self.optims.get("scheduler", None)
-        else:
-            optimizer = nn.Adam(self.parameters(), lr=lr)
-            scheduler = nn.StepLR(optimizer, step_size=step_size, gamma=gamma)
+        optimizer    = self.optimizer.get("optimizer",    None)
+        lr_scheduler = self.optimizer.get("lr_scheduler", {})
+        scheduler    =   lr_scheduler.get("scheduler",    None)
+        optimizer = optimizer or nn.Adam(self, lr=1e-3, weight_decay=0.0001)
+        scheduler = scheduler or nn.StepLR(optimizer, step_size=1000, gamma=0.5)
         
         # Input
         self.assert_datapoint(datapoint)
@@ -162,7 +159,8 @@ class ZSN2N(base.ImageEnhancementModel):
         # Optimize
         timer = core.Timer()
         timer.tick()
-        for _ in range(epochs):
+        self.train()
+        for _ in range(self.iters):
             outputs = self.forward_loss(datapoint={"image": image})
             optimizer.zero_grad()
             loss = outputs["loss"]

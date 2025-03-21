@@ -32,8 +32,8 @@ def predict(args: argparse.Namespace) -> str:
     seed         = args["seed"]
     imgsz        = args["imgsz"]
     resize       = args["resize"]
-    # epochs       = args["epochs"]
-    # steps        = args["steps"]
+    epochs       = args["epochs"]
+    steps        = args["steps"]
     benchmark    = args["benchmark"]
     save_image   = args["save_image"]
     save_debug   = args["save_debug"]
@@ -62,14 +62,14 @@ def predict(args: argparse.Namespace) -> str:
     
     # Model
     args["modelmodule"] |= {
-        "fullname"  : fullname,
-        "root"      : save_dir,
-        "weights"   : weights,
-        "optimizers": None,  # Skip initialization for efficiency
-        "loss"      : None,  # Skip initialization for efficiency
-        "metrics"   : None,  # Skip initialization for efficiency
-        "debug"     : save_debug,
-        "verbose"   : verbose,
+        "fullname" : fullname,
+        "root"     : save_dir,
+        "weights"  : weights,
+        "optimizer": None,  # Skip initialization for efficiency
+        "loss"     : None,  # Skip initialization for efficiency
+        "metrics"  : None,  # Skip initialization for efficiency
+        "debug"    : save_debug,
+        "verbose"  : verbose,
     }
     model: mon.Model = mon.MODELS.build(config=args["modelmodule"])
     model = model.to(device)

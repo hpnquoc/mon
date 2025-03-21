@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import copy
+from typing import Sequence
 
 import numpy as np
 import torch
@@ -23,40 +24,35 @@ current_dir  = current_file.parents[0]
 # region Predict
 
 def predict(args: argparse.Namespace):
-    # General config
+    # Parse args
+    hostname     = args.hostname
+    root         = args.root
     data         = args.data
+    fullname     = args.fullname
     save_dir     = args.save_dir
     weights      = args.weights
-    device       = mon.set_device(args.device)
+    device       = args.device
+    seed         = args.seed
     imgsz        = args.imgsz
-    imgsz        = imgsz[0] if isinstance(imgsz, (list, tuple)) else imgsz
+    imgsz        = imgsz[0] if isinstance(imgsz, Sequence) else imgsz
     resize       = args.resize
+    epochs       = args.epochs
+    steps        = args.steps
     benchmark    = args.benchmark
     save_image   = args.save_image
     save_debug   = args.save_debug
     use_fullpath = args.use_fullpath
+    verbose      = args.verbose
     
-    # Model
-    scale_factor = args.scale_factor
-    DCE_net      = model.enhance_net_nopool(scale_factor).to(device)
-    DCE_net.load_state_dict(torch.load(weights, weights_only=True))
-    DCE_net.eval()
+    # Start
+    console.rule(f"[bold red] {fullname}")
+    console.log(f"Machine: {hostname}")
     
-    # Benchmark
-    if benchmark:
-        h = (imgsz // scale_factor) * scale_factor
-        w = (imgsz // scale_factor) * scale_factor
-        flops, params, avg_time = mon.compute_efficiency_score(
-            model      = copy.deepcopy(DCE_net),
-            image_size = [h, w],
-            channels   = 3,
-            runs       = 1000,
-            use_cuda   = True,
-            verbose    = False,
-        )
-        console.log(f"FLOPs  = {flops:.4f}")
-        console.log(f"Params = {params:.4f}")
-        console.log(f"Time   = {avg_time:.17f}")
+    # Device
+    device = mon.set_device(device)
+    
+    # Seed
+    mon.set_random_seed(seed)
     
     # Data I/O
     console.log(f"[bold red]{data}")
@@ -67,6 +63,20 @@ def predict(args: argparse.Namespace):
         denormalize = True,
         verbose     = False,
     )
+    
+    # Model
+    scale_factor = args.scale_factor
+    dce_net      = model.enhance_net_nopool(scale_factor).to(device)
+    dce_net.load_state_dict(torch.load(weights, map_location=device, weights_only=True))
+    dce_net.eval()
+    
+    # Benchmark
+    if benchmark:
+        h = (imgsz // scale_factor) * scale_factor
+        w = (imgsz // scale_factor) * scale_factor
+        flops, params = mon.compute_efficiency_score( model=dce_net, image_size=[h, w])
+        console.log(f"FLOPs  = {flops:.4f}")
+        console.log(f"Params = {params:.4f}")
     
     # Predicting
     timer = mon.Timer()
@@ -92,7 +102,7 @@ def predict(args: argparse.Namespace):
                 
                 # Infer
                 timer.tick()
-                enhanced_image, params_maps = DCE_net(data_lowlight)
+                enhanced_image, params_maps = dce_net(data_lowlight)
                 timer.tock()
                 
                 # Predict
