@@ -26,30 +26,50 @@ current_dir  = current_file.parents[0]
 # region Train
 
 def train(args: argparse.Namespace):
-    # General config
-    fullname         = args.fullname
-    save_dir         = mon.Path(args.save_dir)
-    weights          = args.weights
-    device           = mon.parse_device(args.device)
-    device           = mon.to_int_list(device) if "auto" not in device else device
-    epochs           = args.epochs
-    steps            = args.steps
+    # Parse args
+    hostname     = args.hostname
+    root         = args.root
+    data         = args.data
+    fullname     = args.fullname
+    save_dir     = args.save_dir
+    weights      = args.weights
+    device       = args.device
+    seed         = args.seed
+    imgsz        = args.imgsz
+    resize       = args.resize
+    epochs       = args.epochs
+    steps        = args.steps
+    benchmark    = args.benchmark
+    save_image   = args.save_image
+    save_debug   = args.save_debug
+    use_fullpath = args.use_fullpath
+    verbose      = args.verbose
     
-    batch_size       = args.batch_size
-    num_workers      = args.num_workers
-    prefetch_factor  = args.prefetch_factor
-    learning_rate    = float(args.lr)
-    logger_freq      = args.logger_freq
-    sd_locked        = args.sd_locked
-    only_mid_control = args.only_mid_control
-    verbose          = args.verbose
+    config_path     = current_dir / args.config_path  # "./models/cldm_v15.yaml"
+    init_ckpt       = mon.ZOO_DIR / "vision/enhance/llie/quadprior/quadprior/coco/control_sd15_init.ckpt"
+    pretrained_ckpt = mon.ZOO_DIR / "vision/enhance/llie/quadprior/quadprior/coco/control_sd15_coco_final.ckpt"
     
-    config_path      = current_dir / args.config_path  # "./models/cldm_v15.yaml"
-    init_ckpt        = mon.ZOO_DIR / "vision/enhance/llie/quadprior/quadprior/coco/control_sd15_init.ckpt"
-    pretrained_ckpt  = mon.ZOO_DIR / "vision/enhance/llie/quadprior/quadprior/coco/control_sd15_coco_final.ckpt"
+    # Start
+    console.rule(f"[bold red] {fullname}")
+    console.log(f"Machine: {hostname}")
     
-    # Directory
-    save_dir.mkdir(parents=True, exist_ok=True)
+    # Device
+    device = mon.parse_device(device)
+    device = mon.to_int_list(device) if "auto" not in device else device
+    
+    # Seed
+    mon.set_random_seed(seed)
+
+    # Data I/O
+    data       = mon.DATA_DIR / args.datamodule.root
+    dataset    = create_webdataset(data_dir=str(data))
+    dataloader = wds.WebLoader(
+        dataset         = dataset,
+        batch_size      = args.datamodule.batch_size,
+        num_workers     = 2,
+        pin_memory      = False,
+        prefetch_factor = 2,
+    )
     
     # Model
     # First use cpu to load models. Pytorch Lightning will automatically move it to GPUs.
@@ -70,23 +90,12 @@ def train(args: argparse.Namespace):
             new_state_dict[sd_name.replace("_forward_module.control_model.", "")] = sd_param
     model.control_model.load_state_dict(new_state_dict)
     
-    model.learning_rate    = learning_rate
-    model.sd_locked        = sd_locked
-    model.only_mid_control = only_mid_control
-    
-    # Data I/O
-    data       = mon.DATA_DIR / args.data_dir
-    dataset    = create_webdataset(data_dir=str(data))
-    dataloader = wds.WebLoader(
-        dataset         = dataset,
-        batch_size      = batch_size,
-        num_workers     = num_workers,
-        pin_memory      = False,
-        prefetch_factor = prefetch_factor,
-    )
+    model.learning_rate    = args.optimizer.lr
+    model.sd_locked        = args.network.sd_locked
+    model.only_mid_control = args.network.only_mid_control
     
     # Callback
-    logger = ImageLogger(save_dir=str(save_dir), batch_frequency=logger_freq)
+    logger = ImageLogger(save_dir=str(save_dir), batch_frequency=args.logger_freq)
     checkpoint_callback = ModelCheckpoint(
         dirpath                 = str(save_dir),
         filename                = fullname + "-{epoch:02d}-{step}",

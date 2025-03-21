@@ -1,8 +1,8 @@
-from PIL import Image
 import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from PIL import Image
 
 from filter import FastGuidedFilter
 
@@ -13,7 +13,7 @@ def get_image(path):
     """
     image = torch.from_numpy(np.array(Image.open(path))).float()
     image = image / torch.max(image)
-    image = torch.movedim(image, -1, 0).unsqueeze(0).cuda()
+    image = torch.movedim(image, -1, 0).unsqueeze(0)
     return image
 
 

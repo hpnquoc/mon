@@ -16,22 +16,34 @@ current_dir  = current_file.parents[0]
 # region Predict
 
 def predict(args: argparse.Namespace):
-    # General config
+    # Parse args
+    hostname     = args.hostname
+    root         = args.root
     data         = args.data
+    fullname     = args.fullname
     save_dir     = args.save_dir
-    # weights    = args.weights
-    # weights    = weights[0] if isinstance(weights, list | tuple) and len(weights) == 1 else weights
-    weights      = mon.ZOO_DIR / "vision/enhance/llie/retinexnet/retinexnet/lol_v1"
-    device       = mon.set_device(args.device)
+    weights      = args.weights
+    device       = args.device
+    seed         = args.seed
     imgsz        = args.imgsz
     resize       = args.resize
+    epochs       = args.epochs
+    steps        = args.steps
     benchmark    = args.benchmark
     save_image   = args.save_image
     save_debug   = args.save_debug
     use_fullpath = args.use_fullpath
+    verbose      = args.verbose
     
-    # Model
-    model = RetinexNet(imgsz, benchmark).to(device)
+    # Start
+    console.rule(f"[bold red] {fullname}")
+    console.log(f"Machine: {hostname}")
+    
+    # Device
+    device = mon.set_device(device)
+    
+    # Seed
+    mon.set_random_seed(seed)
     
     # Data I/O
     console.log(f"[bold red]{data}")
@@ -42,8 +54,9 @@ def predict(args: argparse.Namespace):
         denormalize = True,
         verbose     = False,
     )
-    save_dir = save_dir / data_name
-    save_dir.mkdir(parents=True, exist_ok=True)
+    
+    # Model
+    model = RetinexNet(imgsz, benchmark).to(device)
     
     image_paths = []
     with mon.get_progress_bar() as pbar:
@@ -64,8 +77,9 @@ def predict(args: argparse.Namespace):
         ckpt_dir = str(weights),
     )
     timer.tock()
-    avg_time = float(timer.avg_time)
-    console.log(f"Average time: {avg_time}")
+    
+    # Finish
+    console.log(f"Average time: {imer.avg_time}")
 
 # endregion
 

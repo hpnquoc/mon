@@ -20,7 +20,7 @@ use_fullpath: False                                                             
 exist_ok    : True                                                              # If ``False``, it will delete the save directory if it already exists.
 verbose     : &verbose True                                                     # Verbosity.
 
-# Model Specific
+# Misc
 GENERAL:
   GPU_ID     : *device
   SEED       : *seed

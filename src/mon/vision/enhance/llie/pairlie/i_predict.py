@@ -67,8 +67,8 @@ def predict(args: argparse.Namespace):
     # Benchmark
     if benchmark:
         flops, params = mon.compute_efficiency_score(model=model, image_size=imgsz)
-        console.log(f"FLOPs  = {flops:.4f}")
-        console.log(f"Params = {params:.4f}")
+        console.log(f"FLOPs : {flops:.4f}")
+        console.log(f"Params: {params:.4f}")
     
     # Predicting
     timer = mon.Timer()
@@ -82,8 +82,7 @@ def predict(args: argparse.Namespace):
                 # Input
                 meta       = datapoint.get("meta")
                 image_path = mon.Path(meta["path"])
-                image      = datapoint.get("image")
-                image      = image.to(device)
+                image      = datapoint.get("image").to(device)
                 
                 # Infer
                 timer.tick()

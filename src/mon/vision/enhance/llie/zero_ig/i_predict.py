@@ -111,11 +111,8 @@ def predict(args: argparse.Namespace):
             # Input
             meta       = datapoint.get("meta")
             image_path = mon.Path(meta["path"])
-            image      = Image.open(image_path).convert("RGB")
-            image      = (np.asarray(image) / 255.0)
-            image      = torch.from_numpy(image).float()
-            image      = image.permute(2, 0, 1)
-            image      = image.unsqueeze(0).to(device)
+            image      = np.asarray(Image.open(image_path).convert("RGB"))
+            image      = torch.from_numpy(image).permute(2, 0, 1).float().div(255.0).unsqueeze(0).to(device)
             
             # Optimize
             timer.tick()

@@ -20,6 +20,15 @@ use_fullpath: False                                                             
 exist_ok    : True                                                              # If ``False``, it will delete the save directory if it already exists.
 verbose     : &verbose True                                                     # Verbosity.
 
+# Optimizer
+optimizer: &optimizer                                                           # Optimizer(s).
+  lr          : 0.00001
+  weight_decay: 1e-4
+
+# Loss
+loss:
+  loss_weights: [0.35, 0.10, 0.25, 0.30]
+
 # Datamodule
 datamodule:
   name      : *data                                                             # Data module name (e.g., cifar10).
@@ -30,12 +39,3 @@ datamodule:
   cache_data: False                                                             # If ``True``, cache the data.
   shuffle   : True                                                              # If ``True``, shuffle the data.
   verbose   : *verbose                                                          # Verbosity.
-
-# Optimizer
-optimizer: &optimizer                                                           # Optimizer(s).
-  lr          : 0.00001
-  weight_decay: 1e-4
-
-# Loss
-loss:
-  loss_weights: [0.35, 0.10, 0.25, 0.30]

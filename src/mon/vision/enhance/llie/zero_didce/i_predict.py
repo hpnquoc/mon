@@ -67,8 +67,8 @@ def predict(args: argparse.Namespace):
     # Benchmark
     if benchmark:
         flops, params = mon.compute_efficiency_score(model=didce_net, image_size=imgsz)
-        console.log(f"FLOPs  = {flops:.4f}")
-        console.log(f"Params = {params:.4f}")
+        console.log(f"FLOPs : {flops:.4f}")
+        console.log(f"Params: {params:.4f}")
     
     # Predicting
     timer = mon.Timer()

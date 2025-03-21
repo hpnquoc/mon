@@ -71,8 +71,8 @@ def predict(args: argparse.Namespace):
     if benchmark:
         model = INF(patch_dim=window**2, num_layers=4, hidden_dim=256, add_layer=2)
         flops, params = mon.compute_efficiency_score(model=model, image_size=imgsz)
-        console.log(f"FLOPs  = {flops:.4f}")
-        console.log(f"Params = {params:.4f}")
+        console.log(f"FLOPs : {flops:.4f}")
+        console.log(f"Params: {params:.4f}")
     
     # Predicting
     timer = mon.Timer()

@@ -67,8 +67,8 @@ class RelightNet(nn.Module):
         self.net2_output    = nn.Conv2d(channel, 1, kernel_size=3, padding=0)
 
     def forward(self, input_L=torch.rand(1, 1, 512, 512), input_R=torch.rand(1, 3, 512, 512)):
-        input_L    = input_L.cuda()
-        input_R    = input_R.cuda()
+        input_L    = input_L.to(self.device)
+        input_R    = input_R.to(self.device)
         input_img  = torch.cat((input_R, input_L), dim=1)
         out0       = self.net2_conv0_1(input_img)
         out1       = self.relu(self.net2_conv1_1(out0))
@@ -90,116 +90,41 @@ class RelightNet(nn.Module):
         return output
 
 
-def calculate_efficiency_score_decomnet(
-    model,
-    image_size: int | list[int] = 512,
-    channels  : int             = 3,
-    runs      : int             = 1000,
-    use_cuda  : bool            = True,
-    verbose   : bool            = False,
-):
+def calculate_efficiency_score_decomnet(model, image_size: int = 512):
     # Define input tensor
     h, w  = mon.get_image_size(image_size)
-    input = torch.rand(1, 3, h, w)
-    
-    # Deploy to cuda
-    if use_cuda:
-        input = input.cuda()
-        model = model.cuda()
-     
+    input = torch.rand(1, 3, h, w).to(model.device)
     # Get FLOPs and Params
-    flops, params = thop.profile(deepcopy(model), inputs=(input, ), verbose=verbose)
-    g_flops       = flops  * 1e-9
-    m_params      = params * 1e-6
-    
-    # Get time
-    start_time = time.time()
-    for i in range(runs):
-        _ = model(input)
-    runtime  = time.time() - start_time
-    avg_time = runtime / runs
-    
-    # Print
-    if verbose:
-        console.log(f"FLOPs (G)  = {flops:.4f}")
-        console.log(f"Params (M) = {params:.4f}")
-        console.log(f"Time (s)   = {avg_time:.17f}")
-    
-    return flops, params, avg_time
+    flops, params = thop.profile(deepcopy(model), inputs=(input, ), verbose=False)
+    return flops, params
 
 
-def calculate_efficiency_score_enhancenet(
-    model,
-    image_size: int | list[int] = 512,
-    channels  : int             = 3,
-    runs      : int             = 1000,
-    use_cuda  : bool            = True,
-    verbose   : bool            = False,
-):
+def calculate_efficiency_score_enhancenet(model, image_size: int = 512):
     # Define input tensor
     h, w  = mon.get_image_size(image_size)
-    input = torch.rand(1, 1, h, w)
-    mask  = torch.rand(1, 3, h, w)
-    
-    # Deploy to cuda
-    if use_cuda:
-        input = input.cuda()
-        mask  = mask.cuda()
-        model = model.cuda()
-     
+    input = torch.rand(1, 1, h, w).to(model.device)
+    mask  = torch.rand(1, 3, h, w).to(model.device)
     # Get FLOPs and Params
-    flops, params = thop.profile(deepcopy(model), inputs=(input, mask, ), verbose=verbose)
-    g_flops       = flops  * 1e-9
-    m_params      = params * 1e-6
-    
-    # Get time
-    start_time = time.time()
-    for i in range(runs):
-        _ = model(input)
-    runtime  = time.time() - start_time
-    avg_time = runtime / runs
-    
-    # Print
-    if verbose:
-        console.log(f"FLOPs (G)  = {flops:.4f}")
-        console.log(f"Params (M) = {params:.4f}")
-        console.log(f"Time (s)   = {avg_time:.17f}")
-    
-    return flops, params, avg_time
+    flops, params = thop.profile(deepcopy(model), inputs=(input, mask, ), verbose=False)
+    return flops, params
 
 
 class RetinexNet(nn.Module):
     
     def __init__(self, image_size=512, benchmark=False):
-        super(RetinexNet, self).__init__()
-
+        super().__init__()
         self.DecomNet   = DecomNet()
         self.RelightNet = RelightNet()
         if benchmark:
-            flops1, params1, avg_time1 = calculate_efficiency_score_decomnet(
-                model      = self.DecomNet,
-                image_size = image_size,
-                channels   = 3,
-                runs       = 1000,
-                use_cuda   = True,
-                verbose    = False,
-            )
-            flops2, params2, avg_time2 = calculate_efficiency_score_enhancenet(
-                model      = self.RelightNet,
-                image_size = image_size,
-                channels   = 3,
-                runs       = 1000,
-                use_cuda   = True,
-                verbose    = False,
-            )
-            console.log(f"FLOPs  = {flops1 + flops2:.4f}")
+            flops1, params1 = calculate_efficiency_score_decomnet(model=self.DecomNet, image_size=image_size)
+            flops2, params2 = calculate_efficiency_score_enhancenet(model=self.RelightNet,image_size=image_size)
+            console.log(f"FLOPs  = {flops1  + flops2:.4f}")
             console.log(f"Params = {params1 + params2:.4f}")
-            console.log(f"Time   = {avg_time1 + avg_time2:.17f}")
 
     def forward(self, input_low, input_high):
         # Forward DecompNet
-        input_low      = Variable(torch.FloatTensor(torch.from_numpy(input_low))).cuda()
-        input_high     = Variable(torch.FloatTensor(torch.from_numpy(input_high))).cuda()
+        input_low      = Variable(torch.FloatTensor(torch.from_numpy(input_low))).to(self.device)
+        input_high     = Variable(torch.FloatTensor(torch.from_numpy(input_high))).to(self.device)
         R_low, I_low   = self.DecomNet(input_low)
         R_high, I_high = self.DecomNet(input_high)
 
@@ -238,7 +163,7 @@ class RetinexNet(nn.Module):
         self.output_S       = R_low.detach().cpu() * I_delta_3.detach().cpu()
 
     def gradient(self, input_tensor, direction):
-        self.smooth_kernel_x = torch.FloatTensor([[0, 0], [-1, 1]]).view((1, 1, 2, 2)).cuda()
+        self.smooth_kernel_x = torch.FloatTensor([[0, 0], [-1, 1]]).view((1, 1, 2, 2)).to(self.device)
         self.smooth_kernel_y = torch.transpose(self.smooth_kernel_x, 2, 3)
 
         if direction == "x":

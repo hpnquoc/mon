@@ -1,14 +1,14 @@
 import logging
 import os
-import torch
 from collections import OrderedDict
 from copy import deepcopy
+
+import torch
 from torch.nn.parallel import DataParallel, DistributedDataParallel
 
+import mon
 from ..models import lr_scheduler as lr_scheduler
 from ..utils.dist_util import master_only
-
-import mon
 
 logger = logging.getLogger('basicsr')
 

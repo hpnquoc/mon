@@ -51,7 +51,7 @@ parser.add_argument('--gps', default='3', type=int,
                     help='model name')
 parser.add_argument('--blocks', default='5', type=int,
                     help='model name')
-# Model specifications
+# Miscations
 parser.add_argument('--model', default='FFA',
                     help='model name')
 

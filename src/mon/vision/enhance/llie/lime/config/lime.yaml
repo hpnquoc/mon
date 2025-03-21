@@ -20,7 +20,7 @@ use_fullpath: False                                                             
 exist_ok    : True                                                              # If ``False``, it will delete the save directory if it already exists.
 verbose     : &verbose True                                                     # Verbosity.
 
-# Model Specific
+# Misc
 gamma  : 0.6                                                                    # Gamma correction parameter
 lambda_: 0.15                                                                   # The weight for balancing the two terms in the illumination refinement optimization objective
 lime   : True                                                                   # Use the LIME method. By default, the DUAL method is used

@@ -69,8 +69,8 @@ def test(args):
             use_cuda   = True,
             verbose    = False,
         )
-        console.log(f"FLOPs  = {flops:.4f}")
-        console.log(f"Params = {params:.4f}")
+        console.log(f"FLOPs : {flops:.4f}")
+        console.log(f"Params: {params:.4f}")
         console.log(f"Time   = {avg_time:.17f}")
     
     # Prepare DataLoader

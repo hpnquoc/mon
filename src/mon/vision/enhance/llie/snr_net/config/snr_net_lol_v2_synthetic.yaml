@@ -27,5 +27,5 @@ use_fullname: True
 exist_ok    : True
 verbose     : True
 
-# Model Specific
+# Misc
 opt_path: "lol_v2_synthetic.yaml"

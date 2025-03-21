@@ -1,12 +1,14 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# https://github.com/KarelZhang/RUAS
+"""
+References:
+    https://github.com/KarelZhang/RUAS
+"""
 
 from __future__ import annotations
 
 import argparse
-import copy
 
 import numpy as np
 import torch
@@ -32,46 +34,36 @@ def save_images(tensor, path):
 
 
 def predict(args: argparse.Namespace):
-    # General config
+    # Parse args
+    hostname     = args.hostname
+    root         = args.root
     data         = args.data
+    fullname     = args.fullname
     save_dir     = args.save_dir
     weights      = args.weights
-    device       = mon.set_device(args.device)
+    device       = args.device
     seed         = args.seed
     imgsz        = args.imgsz
     resize       = args.resize
+    epochs       = args.epochs
+    steps        = args.steps
     benchmark    = args.benchmark
     save_image   = args.save_image
     save_debug   = args.save_debug
     use_fullpath = args.use_fullpath
+    verbose      = args.verbose
     
-    # Seed
-    mon.set_random_seed(seed)
+    # Start
+    console.rule(f"[bold red] {fullname}")
+    console.log(f"Machine: {hostname}")
     
     # Device
+    device = mon.set_device(device)
     cudnn.benchmark = True
     cudnn.enabled   = True
     
-    # Model
-    model = Network().to(device)
-    model.load_state_dict(torch.load(str(weights), weights_only=True))
-    for p in model.parameters():
-        p.requires_grad = False
-    model.eval()
-    
-    # Benchmark
-    if benchmark:
-        flops, params, avg_time = mon.compute_efficiency_score(
-            model      = copy.deepcopy(model),
-            image_size = imgsz,
-            channels   = 3,
-            runs       = 1000,
-            use_cuda   = True,
-            verbose    = False,
-        )
-        console.log(f"FLOPs  = {flops:.4f}")
-        console.log(f"Params = {params:.4f}")
-        console.log(f"Time   = {avg_time:.17f}")
+    # Seed
+    mon.set_random_seed(seed)
     
     # Data I/O
     console.log(f"[bold red]{data}")
@@ -83,6 +75,19 @@ def predict(args: argparse.Namespace):
         verbose     = False,
     )
     
+    # Model
+    model = Network().to(device)
+    model.load_state_dict(torch.load(str(weights), map_location=device, weights_only=True))
+    for p in model.parameters():
+        p.requires_grad = False
+    model.eval()
+    
+    # Benchmark
+    if benchmark:
+        flops, params = mon.compute_efficiency_score(model=model, image_size=imgsz)
+        console.log(f"FLOPs : {flops:.4f}")
+        console.log(f"Params: {params:.4f}")
+    
     # Predicting
     timer = mon.Timer()
     with torch.no_grad():
@@ -93,9 +98,9 @@ def predict(args: argparse.Namespace):
                 description = f"[bright_yellow] Predicting"
             ):
                 # Input
-                image      = datapoint.get("image").to(device)
                 meta       = datapoint.get("meta")
                 image_path = mon.Path(meta["path"])
+                image      = datapoint.get("image").to(device)
                 
                 # Infer
                 timer.tick()
@@ -119,9 +124,8 @@ def predict(args: argparse.Namespace):
                     elif args.model == "upe" or args.model == "dark":
                         save_images(u_list[-2], u_path)
                     """
-        
-        avg_time = float(timer.avg_time)
-        console.log(f"Average time: {avg_time}")
+    # Finish
+    console.log(f"Average time: {timer.avg_time}")
 
 # endregion
 

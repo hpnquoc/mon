@@ -16,7 +16,7 @@ __all__ = [
     "RRDNet",
 ]
 
-from typing import Any, Literal
+from typing import Literal
 
 import cv2
 import numpy as np
@@ -183,19 +183,20 @@ class Loss(nn.Loss):
 @MODELS.register(name="rrdnet", arch="rrdnet")
 class RRDNet(base.ImageEnhancementModel):
     
-    model_dir: core.Path    = current_dir
     arch     : str          = "rrdnet"
+    name     : str          = "rrdnet"
     tasks    : list[Task]   = [Task.LLIE]
     schemes  : list[Scheme] = [Scheme.ZERO_SHOT]
+    model_dir: core.Path    = current_dir
     zoo      : dict         = {}
     
     def __init__(
         self,
-        name          : str   = "rrdnet",
         gamma         : float = 0.4,
         illu_factor   : float = 1,
         reflect_factor: float = 1,
         noise_factor  : float = 5000,
+        iters         : int   = 1000,
         *args, **kwargs
     ):
         super().__init__(name=name, *args, **kwargs)
@@ -203,6 +204,7 @@ class RRDNet(base.ImageEnhancementModel):
         self.illu_factor    = illu_factor
         self.reflect_factor = reflect_factor
         self.noise_factor   = noise_factor
+        self.iters          = iters
         
         # Network
         self.illumination_net = nn.Sequential(
@@ -283,22 +285,13 @@ class RRDNet(base.ImageEnhancementModel):
             "noise"       : noise,
             "enhanced"    : enhanced
         }
-       
-    def infer(
-        self,
-        datapoint    : dict,
-        epochs       : int   = 1000,
-        lr           : float = 0.001,
-        reset_weights: bool  = True,
-        *args, **kwargs
-    ) -> dict:
+    
+    def infer(self, datapoint: dict, reset_weights: bool = True, *args, **kwargs) -> dict:
         # Initialize training components
         if reset_weights:
             self.load_state_dict(self.initial_state_dict)
-        if isinstance(self.optimizer, dict):
-            optimizer = self.optimizer.get("optimizer", None)
-        else:
-            optimizer = nn.Adam(self.parameters(), lr=lr)
+        optimizer = self.optimizer.get("optimizer", None)
+        optimizer = optimizer or nn.Adam(self.parameters(), lr=0.001)
             
         # Input
         self.assert_datapoint(datapoint)

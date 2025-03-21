@@ -27,7 +27,7 @@ use_fullname: False
 exist_ok    : True
 verbose     : True
 
-# Model Specific
+# Misc
 a2b         : 0        # 1 for a2b and 0 for b2a
 seed        : 1234     # random seed
 num_style   : 30       # number of styles to sample

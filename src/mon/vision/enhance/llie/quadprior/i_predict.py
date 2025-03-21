@@ -9,7 +9,6 @@ disable_verbosity()
 
 import random
 import argparse
-import copy
 
 import torch.optim
 import torch.utils
@@ -106,23 +105,48 @@ def process(
 
 
 def predict(args: argparse.Namespace):
-    # General config
+    # Parse args
+    hostname     = args.hostname
+    root         = args.root
     data         = args.data
+    fullname     = args.fullname
     save_dir     = args.save_dir
-    # weights    = args.weights or mon.ZOO_DIR / "vision/enhance/llie/quadprior/quadprior/coco/control_sd15_coco_final.ckpt"
-    weights      = mon.ZOO_DIR / args.weights
-    device       = mon.set_device(args.device)
-    imgsz        = args.imgsz[0]
+    weights      = args.weights
+    device       = args.device
+    seed         = args.seed
+    imgsz        = args.imgsz
     resize       = args.resize
+    epochs       = args.epochs
+    steps        = args.steps
     benchmark    = args.benchmark
     save_image   = args.save_image
     save_debug   = args.save_debug
     use_fullpath = args.use_fullpath
-    use_float16  = args.use_float16
+    verbose      = args.verbose
     
-    config_path = current_dir / args.config_path  # "./models/cldm_v15.yaml"
-    init_ckpt   = mon.ZOO_DIR / "vision/enhance/llie/quadprior/quadprior/coco/control_sd15_init.ckpt"
-    ae_ckpt     = mon.ZOO_DIR / "vision/enhance/llie/quadprior/quadprior/coco/ae_epoch=00_step=7000.ckpt"
+    config_path  = current_dir / args.config_path  # "./models/cldm_v15.yaml"
+    init_ckpt    = mon.ZOO_DIR / "vision/enhance/llie/quadprior/quadprior/coco/control_sd15_init.ckpt"
+    ae_ckpt      = mon.ZOO_DIR / "vision/enhance/llie/quadprior/quadprior/coco/ae_epoch=00_step=7000.ckpt"
+    
+    # Start
+    console.rule(f"[bold red] {fullname}")
+    console.log(f"Machine: {hostname}")
+    
+    # Device
+    device = mon.set_device(device)
+    
+    # Seed
+    mon.set_random_seed(seed)
+    
+    # Data I/O
+    console.log(f"[bold red]{data}")
+    data_name, data_loader, data_writer = mon.parse_io_worker(
+        src         = data,
+        dst         = save_dir,
+        to_tensor   = False,
+        denormalize = True,
+        verbose     = False,
+    )
     
     # Model
     model          = create_model(config_path=config_path).cpu()
@@ -144,37 +168,19 @@ def predict(args: argparse.Namespace):
     # Load bypass decoder
     model.change_first_stage(ae_ckpt)
     
-    if use_float16:
+    if args.use_float16:
         model = model.to(device).to(dtype=torch.float16)
     else:
         model = model.to(device)
     diffusion_sampler = DPMSolverSampler(model)
     
+    # Benchmark
     if benchmark:
-        # total_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
-        flops, params, avg_time = mon.compute_efficiency_score(
-            model      = copy.deepcopy(model),
-            image_size = imgsz,
-            channels   = 3,
-            runs       = 1000,
-            use_cuda   = True,
-            verbose    = False,
-        )
-        total_params = calculate_model_parameters(model)
+        flops, params = mon.compute_efficiency_score(model=model, image_size=imgsz)
+        total_params  = calculate_model_parameters(model)
         console.log(f"FLOPs        = {flops:.4f}")
         console.log(f"Params       = {params:.4f}")
-        console.log(f"Time         = {avg_time:.17f}")
         console.log(f"Total Params = {total_params:.4f}")
-    
-    # Data I/O
-    console.log(f"[bold red]{data}")
-    data_name, data_loader, data_writer = mon.parse_io_worker(
-        src         = data,
-        dst         = save_dir,
-        to_tensor   = False,
-        denormalize = True,
-        verbose     = False,
-    )
     
     # Predicting
     timer = mon.Timer()
@@ -186,21 +192,20 @@ def predict(args: argparse.Namespace):
                 description = f"[bright_yellow] Predicting"
             ):
                 # Input
-                image       = datapoint.get("image")
                 meta        = datapoint.get("meta")
                 image_path  = mon.Path(meta["path"])
-                input_image = image
-                h0, w0      = input_image.shape[0], input_image.shape[1]
+                image       = datapoint.get("image")
+                h0, w0      = image.shape[0], image.shape[1]
                 
                 # Infer
                 timer.tick()
                 # If you set num_samples > 1, process will return multiple results
                 output      = process(
                     model, diffusion_sampler,
-                    input_image      = input_image,
+                    input_image      = image,
                     num_samples      = 1,
                     image_resolution = imgsz,
-                    use_float16      = use_float16,
+                    use_float16      = args.use_float16,
                 )[0]
                 timer.tock()
                 
@@ -218,8 +223,8 @@ def predict(args: argparse.Namespace):
                     output_path.parent.mkdir(parents=True, exist_ok=True)
                     cv2.imwrite(str(output_path), output)
         
-        avg_time = float(timer.avg_time)
-        console.log(f"Average time: {avg_time}")
+    # Finish
+    console.log(f"Average time: {timer.avg_time}")
 
 # endregion
 

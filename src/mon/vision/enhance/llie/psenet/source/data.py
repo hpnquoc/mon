@@ -39,9 +39,9 @@ class PairedDataset(data.Dataset):
     
     def __init__(self, root_folder, pattern, get_label_fn, resize=None, return_name=False):
         super().__init__()
-        self.data_list = sorted(glob.glob(root_folder + pattern, recursive=True))
-        self.gt_list = [get_label_fn(p) for p in self.data_list]
-        self.resize = resize
+        self.data_list   = sorted(glob.glob(root_folder + pattern, recursive=True))
+        self.gt_list     = [get_label_fn(p) for p in self.data_list]
+        self.resize      = resize
         self.return_name = return_name
         print("Total data samples:", len(self.data_list))
 
@@ -57,7 +57,7 @@ class PairedDataset(data.Dataset):
 
     def __getitem__(self, index):
         input_path = self.data_list[index]
-        input_im = self.read_image(input_path)
+        input_im   = self.read_image(input_path)
         gt_im = self.read_image(self.gt_list[index])
         if self.return_name:
             return input_im, gt_im, os.path.join(*input_path.split("/")[-2:])

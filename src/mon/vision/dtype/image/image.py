@@ -873,6 +873,9 @@ def to_image_nparray(
 ) -> np.ndarray:
     """Convert an image to :obj:`numpy.ndarray`.
     
+    Recommend order:
+        image = (tensor.squeeze().detach().cpu().clamp(0, 1).permute(1, 2, 0).numpy() * 255).round().astype("uint8")
+    
     Args:
         image: An RGB image of type:
             - :obj:`torch.Tensor` in ``[B, C, H, W]`` format with data in
@@ -886,16 +889,25 @@ def to_image_nparray(
     Returns:
         An image of type :obj:`numpy.ndarray`.
     """
+    # Check shape
     if not 3 <= image.ndim <= 5:
         raise ValueError(f"`image`'s number of dimensions must be between "
                          f"``3`` and ``5``, but got {image.ndim}.")
-    if isinstance(image, torch.Tensor):
-        image = image.detach()
-        image = image.cpu().numpy()
-    image = denormalize_image(image).astype(np.uint8) if denormalize else image
-    image = to_channel_last_image(image)
+    # Remove batch dimension
     if not keepdim:
         image = to_3d_image(image)
+    # Detach
+    if isinstance(image, torch.Tensor):
+        image = image.detach().cpu()
+    # Clamp
+    image = image.clamp(0, 1)
+    # Rearrange
+    image = to_channel_last_image(image)
+    # Convert to numpy
+    image = image.numpy()
+    # Denormalize
+    if denormalize:
+        image = denormalize_image(image).round().astype(np.uint8)
     return image
 
 
@@ -908,6 +920,9 @@ def to_image_tensor(
     """Convert an image from :obj:`PIL.Image` or :obj:`numpy.ndarray` to
     :obj:`torch.Tensor`. Optionally, convert :obj:`image` to channel-first
     format and normalize it.
+    
+    Recommend order:
+        image = torch.from_numpy(image).permute(2, 0, 1).float().div(255.0).unsqueeze(0).to(device)
     
     Args:
         image: An RGB image of type:
@@ -925,18 +940,23 @@ def to_image_tensor(
     Returns:
         A image of type :obj:`torch.Tensor`.
     """
+    # Convert to tensor
     if isinstance(image, np.ndarray):
         image = torch.from_numpy(image).contiguous()
     elif isinstance(image, torch.Tensor):
         image = image.clone()
     else:
-        raise TypeError(f"`image` must be a `torch.Tensor` or `numpy.ndarray`, "
-                        f"but got {type(image)}.")
+        raise TypeError(f"`image` must be a `torch.Tensor` or `numpy.ndarray`, but got {type(image)}.")
+    # Rearrange before sending to GPU for better memory layout.
     image = to_channel_first_image(image)
+    # Ensure float32 for model input.
+    image = image.float()
+    # Normalize image
+    image = normalize_image(image) if normalize else image
+    # Add batch dimension
     if not keepdim:
         image = to_4d_image(image)
-    image = normalize_image(image) if normalize else image
-    # Place in memory
+    # Place on device
     image = image.contiguous()
     if device:
         image = image.to(device)

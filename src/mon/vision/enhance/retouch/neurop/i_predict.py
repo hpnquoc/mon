@@ -83,8 +83,8 @@ def predict(args: argparse.Namespace):
     # Benchmark
     if benchmark:
         flops, params = model.measure_efficiency_score(image_size=imgsz)
-        console.log(f"FLOPs  = {flops:.4f}")
-        console.log(f"Params = {params:.4f}")
+        console.log(f"FLOPs : {flops:.4f}")
+        console.log(f"Params: {params:.4f}")
     
     # Predicting
     timer = mon.Timer()

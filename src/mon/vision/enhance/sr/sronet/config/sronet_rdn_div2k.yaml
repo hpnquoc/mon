@@ -37,6 +37,6 @@ datamodule:
   shuffle   : True                                                              # If ``True``, shuffle the data.
   verbose   : *verbose
 
-# Model Specific
+# Misc
 scale       : 1
 scale_max   : 4

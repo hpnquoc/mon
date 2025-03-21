@@ -21,7 +21,8 @@ from basicsr.data.data_sampler import EnlargedSampler
 from basicsr.data.prefetch_dataloader import CPUPrefetcher, CUDAPrefetcher
 from basicsr.models import create_model
 from basicsr.utils import (
-    check_resume, get_env_info, get_root_logger, get_time_str, init_tb_logger, make_exp_dirs,
+    check_resume, get_env_info, get_root_logger, get_time_str, init_tb_logger,
+    make_exp_dirs,
     MessageLogger, set_random_seed,
 )
 from basicsr.utils.dist_util import get_dist_info, init_dist

@@ -26,7 +26,7 @@ use_fullname: True
 exist_ok    : True
 verbose     : True
 
-# Model Specific
+# Misc
 load_pretrain   : False
 train_batch_size: 32
 val_batch_size  : 4

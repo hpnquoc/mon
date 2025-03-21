@@ -48,8 +48,8 @@ def predict(args: argparse.Namespace):
     # Measure efficiency score
     if benchmark:
         flops, params, avg_time = model.measure_efficiency_score(image_size=imgsz)
-        console.log(f"FLOPs  = {flops:.4f}")
-        console.log(f"Params = {params:.4f}")
+        console.log(f"FLOPs : {flops:.4f}")
+        console.log(f"Params: {params:.4f}")
         console.log(f"Time   = {avg_time:.17f}")
     
     # Data I/O

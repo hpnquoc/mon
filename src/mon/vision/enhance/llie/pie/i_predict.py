@@ -26,6 +26,7 @@ current_dir  = current_file.parents[0]
 def predict(args: argparse.Namespace):
     # Parse args
     hostname     = args.hostname
+    root         = args.root
     data         = args.data
     fullname     = args.fullname
     save_dir     = args.save_dir

@@ -624,8 +624,8 @@ class ZeroLINR(base.ImageEnhancementModel):
 		params        = sum(list(params.values())) if isinstance(params, dict) else params
 		# Print
 		if self.verbose:
-			console.log(f"FLOPs  = {flops:.4f}")
-			console.log(f"Params = {params:.4f}")
+			console.log(f"FLOPs : {flops:.4f}")
+			console.log(f"Params: {params:.4f}")
 		# Return
 		return flops, params
 	

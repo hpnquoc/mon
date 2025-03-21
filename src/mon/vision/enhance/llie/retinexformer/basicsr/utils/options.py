@@ -59,8 +59,7 @@ def parse(opt_path, is_train=True):
 
     # paths
     for key, val in opt['path'].items():
-        if (val is not None) and ('resume_state' in key
-                                  or 'pretrain_network' in key):
+        if (val is not None) and ('resume_state' in key or 'pretrain_network' in key):
             opt['path'][key] = osp.expanduser(val)
     opt['path']['root'] = osp.abspath(
         osp.join(__file__, osp.pardir, osp.pardir, osp.pardir))
@@ -69,11 +68,9 @@ def parse(opt_path, is_train=True):
                                     opt['name'])
         opt['path']['experiments_root'] = experiments_root
         opt['path']['models'] = osp.join(experiments_root, 'models')
-        opt['path']['training_states'] = osp.join(experiments_root,
-                                                  'training_states')
+        opt['path']['training_states'] = osp.join(experiments_root, 'training_states')
         opt['path']['log'] = experiments_root
-        opt['path']['visualization'] = osp.join(experiments_root,
-                                                'visualization')
+        opt['path']['visualization'] = osp.join(experiments_root, 'visualization')
 
         # change some options for debug mode
         if 'debug' in opt['name']:

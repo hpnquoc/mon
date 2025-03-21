@@ -4,9 +4,7 @@
 from __future__ import annotations
 
 import argparse
-import copy
 
-import cv2
 import torch
 import torch.optim
 import torchvision
@@ -32,48 +30,57 @@ def read_pytorch_lightning_state_dict(ckpt):
 
 
 def predict(args: argparse.Namespace):
-    # General config
+    # Parse args
+    hostname     = args.hostname
+    root         = args.root
     data         = args.data
+    fullname     = args.fullname
     save_dir     = args.save_dir
     weights      = args.weights
-    device       = mon.set_device(args.device)
+    device       = args.device
+    seed         = args.seed
     imgsz        = args.imgsz
     resize       = args.resize
+    epochs       = args.epochs
+    steps        = args.steps
     benchmark    = args.benchmark
     save_image   = args.save_image
     save_debug   = args.save_debug
     use_fullpath = args.use_fullpath
+    verbose      = args.verbose
     
-    # Model
-    model      = UnetTMO()
-    state_dict = read_pytorch_lightning_state_dict(torch.load(str(weights), weights_only=False))
-    model.load_state_dict(state_dict)
-    model.eval()
-    model.to(device)
+    # Start
+    console.rule(f"[bold red] {fullname}")
+    console.log(f"Machine: {hostname}")
     
-    # Benchmark
-    if benchmark:
-        flops, params, avg_time = mon.compute_efficiency_score(
-            model      = copy.deepcopy(model),
-            image_size = imgsz,
-            channels   = 3,
-            runs       = 1000,
-            use_cuda   = True,
-            verbose    = False,
-        )
-        console.log(f"FLOPs  = {flops:.4f}")
-        console.log(f"Params = {params:.4f}")
-        console.log(f"Time   = {avg_time:.17f}")
+    # Device
+    device = mon.set_device(device)
+    
+    # Seed
+    mon.set_random_seed(seed)
     
     # Data I/O
     console.log(f"[bold red]{data}")
     data_name, data_loader, data_writer = mon.parse_io_worker(
         src         = data,
         dst         = save_dir,
-        to_tensor   = False,
+        to_tensor   = True,
         denormalize = True,
         verbose     = False,
     )
+    
+    # Model
+    model      = UnetTMO()
+    state_dict = read_pytorch_lightning_state_dict(torch.load(str(weights), weights_only=False))
+    model.load_state_dict(state_dict)
+    model.to(device)
+    model.eval()
+    
+    # Benchmark
+    if benchmark:
+        flops, params = mon.compute_efficiency_score(model=model, image_size=imgsz)
+        console.log(f"FLOPs : {flops:.4f}")
+        console.log(f"Params: {params:.4f}")
     
     # Predicting
     timer = mon.Timer()
@@ -87,10 +94,7 @@ def predict(args: argparse.Namespace):
                 # Input
                 meta       = datapoint.get("meta")
                 image_path = mon.Path(meta["path"])
-                image      = cv2.imread(str(image_path))[:, :, ::-1]
-                image      = image / 255.0
-                image      = torch.from_numpy(image).float().permute(2, 0, 1).unsqueeze(0)
-                image      = image.to(device)
+                image      = datapoint.get("image").to(device)
                 
                 # Infer
                 timer.tick()
@@ -106,9 +110,9 @@ def predict(args: argparse.Namespace):
                         output_path = save_dir / data_name / f"{image_path.stem}.jpg"
                     output_path.parent.mkdir(parents=True, exist_ok=True)
                     torchvision.utils.save_image(enhanced_image, str(output_path))
-        
-        avg_time = float(timer.avg_time)
-        console.log(f"Average time: {avg_time}")
+       
+    # Finish
+    console.log(f"Average time: {timer.avg_time}")
 
 # endregion
 

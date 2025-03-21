@@ -27,5 +27,5 @@ use_fullname: True
 exist_ok    : True
 verbose     : True
 
-# Model Specific
+# Misc
 opt_path: "lsrw_nikon.yaml"

@@ -27,7 +27,7 @@ use_fullname: True
 exist_ok    : True
 verbose     : True
 
-# Model Specific
+# Misc
 name       : hinet_lol_v1
 model_type : ImageRestorationModel
 scale      : 1
