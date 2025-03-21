@@ -51,11 +51,15 @@ class RESIDE_HSTS_Real(MultimodalDataset):
     has_test_annotations: bool = False
     
     def __init__(self, root: core.Path = default_root_dir, *args, **kwargs):
+        root = root / "reside" if root.name != "reside" else root
+        if not root.is_dir():
+            raise FileNotFoundError(f"Directory not found: {root}.")
+        # Initialize
         super().__init__(root=root, *args, **kwargs)
     
     def get_data(self):
         patterns = [
-            self.root / "reside" / "hsts" / "real" / self.split_str / "image",
+            self.root / "hsts" / "real" / self.split_str / "image",
         ]
         
         # Images
@@ -87,11 +91,15 @@ class RESIDE_HSTS_Synthetic(MultimodalDataset):
     has_test_annotations: bool = False
     
     def __init__(self, root: core.Path = default_root_dir, *args, **kwargs):
+        root = root / "reside" if root.name != "reside" else root
+        if not root.is_dir():
+            raise FileNotFoundError(f"Directory not found: {root}.")
+        # Initialize
         super().__init__(root=root, *args, **kwargs)
     
     def get_data(self):
         patterns = [
-            self.root / "reside" / "hsts" / "synthetic" / self.split_str / "image",
+            self.root / "hsts" / "synthetic" / self.split_str / "image",
         ]
         
         # Images
@@ -123,11 +131,15 @@ class RESIDE_ITS(MultimodalDataset):
     has_test_annotations: bool = False
     
     def __init__(self, root: core.Path = default_root_dir, *args, **kwargs):
+        root = root / "reside" if root.name != "reside" else root
+        if not root.is_dir():
+            raise FileNotFoundError(f"Directory not found: {root}.")
+        # Initialize
         super().__init__(root=root, *args, **kwargs)
     
     def get_data(self):
         patterns = [
-            self.root / "reside" / "its" / self.split_str / "image",
+            self.root / "its" / self.split_str / "image",
         ]
         
         # Images
@@ -172,11 +184,15 @@ class RESIDE_OTS(MultimodalDataset):
     has_test_annotations: bool = False
     
     def __init__(self, root: core.Path = default_root_dir, *args, **kwargs):
+        root = root / "reside" if root.name != "reside" else root
+        if not root.is_dir():
+            raise FileNotFoundError(f"Directory not found: {root}.")
+        # Initialize
         super().__init__(root=root, *args, **kwargs)
     
     def get_data(self):
         patterns = [
-            self.root / "reside" / "ots" / self.split_str / "image",
+            self.root / "ots" / self.split_str / "image",
         ]
         
         # Images
@@ -218,11 +234,15 @@ class RESIDE_RTTS(MultimodalDataset):
     has_test_annotations: bool = False
     
     def __init__(self, root: core.Path = default_root_dir, *args, **kwargs):
+        root = root / "reside" if root.name != "reside" else root
+        if not root.is_dir():
+            raise FileNotFoundError(f"Directory not found: {root}.")
+        # Initialize
         super().__init__(root=root, *args, **kwargs)
     
     def get_data(self):
         patterns = [
-            self.root / "reside" / "rtts" / self.split_str / "image",
+            self.root / "rtts" / self.split_str / "image",
         ]
         
         # Images
@@ -254,11 +274,15 @@ class RESIDE_SOTS_Indoor(MultimodalDataset):
     has_test_annotations: bool = True
     
     def __init__(self, root: core.Path = default_root_dir, *args, **kwargs):
+        root = root / "reside" if root.name != "reside" else root
+        if not root.is_dir():
+            raise FileNotFoundError(f"Directory not found: {root}.")
+        # Initialize
         super().__init__(root=root, *args, **kwargs)
     
     def get_data(self):
         patterns = [
-            self.root / "reside" / "sots" / "indoor" / self.split_str / "image",
+            self.root / "sots" / "indoor" / self.split_str / "image",
         ]
         
         # Images
@@ -303,11 +327,15 @@ class RESIDE_SOTS_Outdoor(MultimodalDataset):
     has_test_annotations: bool = True
     
     def __init__(self, root: core.Path = default_root_dir, *args, **kwargs):
+        root = root / "reside" if root.name != "reside" else root
+        if not root.is_dir():
+            raise FileNotFoundError(f"Directory not found: {root}.")
+        # Initialize
         super().__init__(root=root, *args, **kwargs)
     
     def get_data(self):
         patterns = [
-            self.root / "reside" / "sots" / "outdoor" / self.split_str / "image",
+            self.root / "sots" / "outdoor" / self.split_str / "image",
         ]
         
         # Images
@@ -349,11 +377,15 @@ class RESIDE_URHI(MultimodalDataset):
     has_test_annotations: bool = False
     
     def __init__(self, root: core.Path = default_root_dir, *args, **kwargs):
+        root = root / "reside" if root.name != "reside" else root
+        if not root.is_dir():
+            raise FileNotFoundError(f"Directory not found: {root}.")
+        # Initialize
         super().__init__(root=root, *args, **kwargs)
     
     def get_data(self):
         patterns = [
-            self.root / "reside" / "urhi" / self.split_str / "image"
+            self.root / "urhi" / self.split_str / "image"
         ]
         
         # Images

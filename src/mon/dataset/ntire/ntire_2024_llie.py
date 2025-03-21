@@ -49,20 +49,24 @@ class NTIRE2024LLIE(MultimodalDataset):
 	has_test_annotations: bool = False
 	
 	def __init__(self, root: core.Path = default_root_dir, *args, **kwargs):
+		root = root / "ntire_2024_llie" if root.name != "ntire_2024_llie" else root
+		if not root.is_dir():
+			raise FileNotFoundError(f"Directory not found: {root}.")
+		# Initialize
 		super().__init__(root=root, *args, **kwargs)
 	
 	def get_data(self):
 		if self.split in [Split.TRAIN]:
 			patterns = [
-				self.root / "ntire_2024_llie" / "train" / "image",
+				self.root / "train" / "image",
 			]
 		elif self.split in [Split.VAL]:
 			patterns = [
-				self.root / "ntire_2024_llie" / "val" / "image",
+				self.root / "val" / "image",
 			]
 		elif self.split in [Split.TEST]:
 			patterns = [
-				self.root / "ntire_2024_llie" / "test" / "image",
+				self.root / "test" / "image",
 			]
 		else:
 			raise ValueError

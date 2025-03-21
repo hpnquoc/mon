@@ -72,11 +72,14 @@ from mon.core import dtype as DT, factory, pathlib
 # region Directory
 
 current_file = pathlib.Path(__file__).absolute()
-ROOT_DIR      = current_file.parents[2]
-SRC_DIR       = current_file.parents[1]
-MON_DIR       = current_file.parents[0]
-MON_EXTRA_DIR = MON_DIR / "extra"
+ROOT_DIR      = current_file.parents[2]     # ./mon
+DATA_DIR      = ROOT_DIR / "data"           # ./mon/data
+SRC_DIR       = ROOT_DIR / "src"            # ./mon/src
+MON_DIR       = ROOT_DIR / "src/mon"        # ./mon/src/mon
+MON_EXTRA_DIR = ROOT_DIR / "src/mon/extra"  # ./mon/src/mon/extra
+ZOO_DIR       = ROOT_DIR / "zoo"            # ./mon/zoo
 
+'''
 ZOO_DIR = None
 for i, parent in enumerate(current_file.parents):
     if (parent / "zoo").is_dir():
@@ -93,6 +96,7 @@ DATA_DIR = DATA_DIR or pathlib.Path("/data")
 DATA_DIR = DATA_DIR if DATA_DIR.is_dir() else ROOT_DIR / "data"
 if not DATA_DIR.is_dir():
     raise Warning(f"Cannot locate the ``data`` directory.")
+'''
 
 # endregion
 

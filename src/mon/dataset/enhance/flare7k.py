@@ -43,11 +43,15 @@ class Flare7KPPReal(MultimodalDataset):
     has_test_annotations: bool = True
     
     def __init__(self, root: core.Path = default_root_dir, *args, **kwargs):
+        root = root / "flare7k++" if root.name != "flare7k++" else root
+        if not root.is_dir():
+            raise FileNotFoundError(f"Directory not found: {root}.")
+        # Initialize
         super().__init__(root=root, *args, **kwargs)
     
     def get_data(self):
         patterns = [
-            self.root / "flare7k++" / self.split_str / "real" / "image",
+            self.root / self.split_str / "real" / "image",
         ]
         
         # Images
@@ -77,11 +81,15 @@ class Flare7KPPSynthetic(MultimodalDataset):
     has_test_annotations: bool = True
     
     def __init__(self, root: core.Path = default_root_dir, *args, **kwargs):
+        root = root / "flare7k++" if root.name != "flare7k++" else root
+        if not root.is_dir():
+            raise FileNotFoundError(f"Directory not found: {root}.")
+        # Initialize
         super().__init__(root=root, *args, **kwargs)
     
     def get_data(self):
         patterns = [
-            self.root / "flare7k++" / self.split_str / "synthetic" / "image",
+            self.root / self.split_str / "synthetic" / "image",
         ]
         
         # Images
@@ -111,11 +119,15 @@ class Flare7KPPExtra(MultimodalDataset):
     has_test_annotations: bool = False
     
     def __init__(self, root: core.Path = default_root_dir, *args, **kwargs):
+        root = root / "flare7k++" if root.name != "flare7k++" else root
+        if not root.is_dir():
+            raise FileNotFoundError(f"Directory not found: {root}.")
+        # Initialize
         super().__init__(root=root, *args, **kwargs)
     
     def get_data(self):
         patterns = [
-            self.root / "flare7k++" / self.split_str / "extra" / "image",
+            self.root / self.split_str / "extra" / "image",
         ]
         
         # Images

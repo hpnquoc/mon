@@ -40,11 +40,15 @@ class DarkFace(MultimodalDataset):
     has_test_annotations: bool = False
     
     def __init__(self, root: core.Path = default_root_dir, *args, **kwargs):
+        root = root / "darkface" if root.name != "darkface" else root
+        if not root.is_dir():
+            raise FileNotFoundError(f"Directory not found: {root}.")
+        # Initialize
         super().__init__(root=root, *args, **kwargs)
         
     def get_data(self):
         patterns = [
-            self.root / "darkface" / self.split_str / "image",
+            self.root / self.split_str / "image",
         ]
         
         # Images
@@ -74,11 +78,15 @@ class DarkFaceFull(MultimodalDataset):
     has_test_annotations: bool = False
     
     def __init__(self, root: core.Path = default_root_dir, *args, **kwargs):
+        root = root / "darkface" if root.name != "darkface" else root
+        if not root.is_dir():
+            raise FileNotFoundError(f"Directory not found: {root}.")
+        # Initialize
         super().__init__(root=root, *args, **kwargs)
         
     def get_data(self):
         patterns = [
-            self.root / "darkface" / f"{self.split_str}_full" / "image",
+            self.root / f"{self.split_str}_full" / "image",
         ]
         
         # Images

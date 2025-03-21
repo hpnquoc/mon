@@ -31,36 +31,24 @@ class Rain13K(MultimodalDataset):
     """Rain13K dataset consists 13,000 pairs of rain/no-rain train images."""
     
     tasks : list[Task]  = [Task.DERAIN]
-    splits: list[Split] = [Split.TRAIN, Split.VAL, Split.TEST]
+    splits: list[Split] = [Split.TRAIN]
     datapoint_attrs     = DatapointAttributes({
         "image"    : ImageAnnotation,
         "ref_image": ImageAnnotation,
     })
-    has_test_annotations: bool = True
+    has_test_annotations: bool = False
     
     def __init__(self, root: core.Path = default_root_dir, *args, **kwargs):
+        root = root / "rain13k" if root.name != "rain13k" else root
+        if not root.is_dir():
+            raise FileNotFoundError(f"Directory not found: {root}.")
+        # Initialize
         super().__init__(root=root, *args, **kwargs)
     
     def get_data(self):
-        if self.split in [Split.TRAIN]:
-            patterns = [
-                self.root / "rain13k" / self.split_str / "image",
-            ]
-        elif self.split in [Split.VAL]:
-            patterns = [
-                self.root / "rain1200" / self.split_str / "image",
-                self.root / "rain800"  / self.split_str / "image",
-            ]
-        else:
-            patterns = [
-                self.root / "rain100"  / self.split_str / "image",
-                self.root / "rain100h" / self.split_str / "image",
-                self.root / "rain100l" / self.split_str / "image",
-                self.root / "rain1200" / self.split_str / "image",
-                self.root / "rain1400" / self.split_str / "image",
-                self.root / "rain2800" / self.split_str / "image",
-                self.root / "rain800"  / self.split_str / "image",
-            ]
+        patterns = [
+            self.root / self.split_str / "image",
+        ]
         
         # Images
         images: list[ImageAnnotation] = []

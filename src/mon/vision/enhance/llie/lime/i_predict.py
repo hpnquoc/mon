@@ -78,7 +78,7 @@ def predict(args: argparse.Namespace):
             
             # Infer
             timer.tick()
-            enhanced_image = enhance_image_exposure(
+            enhanced = enhance_image_exposure(
                 im      = image,
                 gamma   = args.gamma,
                 lambda_ = args.lambda_,
@@ -93,8 +93,8 @@ def predict(args: argparse.Namespace):
             
             # Post-processing
             if resize:
-                enhanced_image = cv2.resize(enhanced_image, (w0, h0))
-            enhanced_image = cv2.cvtColor(enhanced_image, cv2.COLOR_RGB2BGR)
+                enhanced = cv2.resize(enhanced, (w0, h0))
+            enhanced = cv2.cvtColor(enhanced, cv2.COLOR_RGB2BGR)
             
             # Save
             if save_image:
@@ -104,7 +104,7 @@ def predict(args: argparse.Namespace):
                 else:
                     output_path = save_dir / data_name / f"{image_path.stem}.jpg"
                 output_path.parent.mkdir(parents=True, exist_ok=True)
-                cv2.imwrite(str(output_path), enhanced_image)
+                cv2.imwrite(str(output_path), enhanced)
     
     # Finish
     console.log(f"Average time: {float(timer.avg_time)}")

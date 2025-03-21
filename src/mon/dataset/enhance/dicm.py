@@ -38,11 +38,15 @@ class DICM(MultimodalDataset):
     has_test_annotations: bool = False
     
     def __init__(self, root: core.Path = default_root_dir, *args, **kwargs):
+        root = root / "dicm" if root.name != "dicm" else root
+        if not root.is_dir():
+            raise FileNotFoundError(f"Directory not found: {root}.")
+        # Initialize
         super().__init__(root=root, *args, **kwargs)
     
     def get_data(self):
         patterns = [
-            self.root / "dicm" / self.split_str / "image",
+            self.root / self.split_str / "image",
         ]
         
         # Images

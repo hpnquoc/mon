@@ -95,16 +95,20 @@ class NightCity(MultimodalDataset):
     ])
     
     def __init__(self, root: core.Path = default_root_dir, *args, **kwargs):
+        root = root / "nightcity" if root.name != "nhhaze" else root
+        if not root.is_dir():
+            raise FileNotFoundError(f"Directory not found: {root}.")
+        # Initialize
         super().__init__(root=root, *args, **kwargs)
         
     def get_data(self):
         if self.split == Split.TEST:
             patterns = [
-                self.root / "nightcity" / "val" / "image",
+                self.root / "val" / "image",
             ]
         else:
             patterns = [
-                self.root / "nightcity" / self.split_str / "image",
+                self.root / self.split_str / "image",
             ]
         
         # Images

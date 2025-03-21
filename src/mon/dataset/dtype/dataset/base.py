@@ -54,7 +54,9 @@ class Dataset(dataset.Dataset, ABC):
             dataset supports. Default: ``None``.
         
     Args:
-        root: The root directory where the data is stored.
+        root: The root directory of the dataset. Under the root directory, there
+            should be subdirectories for each split (e.g., ``train``, ``val``,
+            ``test``). Default: ``None``.
         split: The data split to use. Default: ``'Split.TRAIN'``.
         transform: Transformations performed on both the input and target. We use
             `albumentations <https://albumentations.ai/docs/api_reference/full_reference>`__
@@ -343,7 +345,7 @@ class MultimodalDataset(Dataset, ABC):
             raise ValueError(f"`depth_source` must be one of "
                              f"{DEPTH_DATA_SOURCES}, but got {depth_source}.")
         self.depth_source = depth_source
-        
+        # Initialize
         super().__init__(*args, **kwargs)
     
     # region Magic Methods

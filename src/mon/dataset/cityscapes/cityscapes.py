@@ -100,8 +100,13 @@ class Cityscapes(MultimodalDataset):
         use_coarse : bool = False,
         *args, **kwargs
     ):
+        root = root / "cityscapes" if root.name != "cityscapes" else root
+        if not root.is_dir():
+            raise FileNotFoundError(f"Directory not found: {root}.")
+    
         self.use_blurred = use_blurred
         self.use_coarse  = use_coarse
+        # Initialize
         super().__init__(root=root, *args, **kwargs)
     
     def get_data(self):

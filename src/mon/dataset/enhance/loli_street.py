@@ -41,16 +41,20 @@ class LoLIStreet(MultimodalDataset):
     has_test_annotations: bool = False
     
     def __init__(self, root: core.Path = default_root_dir, *args, **kwargs):
+        root = root / "loli_street" if root.name != "loli_street" else root
+        if not root.is_dir():
+            raise FileNotFoundError(f"Directory not found: {root}.")
+        # Initialize
         super().__init__(root=root, *args, **kwargs)
     
     def get_data(self):
         if self.split == Split.TEST:
             patterns = [
-                self.root / "loli_street" / "val" / "image"
+                self.root / "val" / "image"
             ]
         else:
             patterns = [
-                self.root / "loli_street" / self.split_str / "image",
+                self.root / self.split_str / "image",
             ]
 
         # Images
@@ -81,11 +85,15 @@ class LoLIStreetVal(MultimodalDataset):
     has_test_annotations: bool = False
     
     def __init__(self, root: core.Path = default_root_dir, *args, **kwargs):
+        root = root / "loli_street" if root.name != "loli_street" else root
+        if not root.is_dir():
+            raise FileNotFoundError(f"Directory not found: {root}.")
+        # Initialize
         super().__init__(root=root, *args, **kwargs)
     
     def get_data(self):
         patterns = [
-            self.root / "loli_street" / "val" / "image",
+            self.root / "val" / "image",
         ]
         
         # Images
@@ -114,11 +122,15 @@ class LoLIStreetTest(MultimodalDataset):
     has_test_annotations: bool = False
     
     def __init__(self, root: core.Path = default_root_dir, *args, **kwargs):
+        root = root / "loli_street" if root.name != "loli_street" else root
+        if not root.is_dir():
+            raise FileNotFoundError(f"Directory not found: {root}.")
+        # Initialize
         super().__init__(root=root, *args, **kwargs)
     
     def get_data(self):
         patterns = [
-            self.root / "loli_street" / "test" / "image",
+            self.root / "test" / "image",
         ]
         
         # Images

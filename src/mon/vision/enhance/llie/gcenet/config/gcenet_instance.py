@@ -9,7 +9,6 @@ from mon.config import default
 
 current_file = mon.Path(__file__).absolute()
 
-
 # region Basic
 
 model_name   = "gcenet_instance"

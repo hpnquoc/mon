@@ -234,7 +234,7 @@ class NeRComodel(BaseModel):
 
         return loss_G + loss_D_A + loss_D_B + loss_D_A_edge + loss_D_B_edge
     
-    def measure_efficiency_score(self, image_size=512, channels=3, runs=1000):
+    def measure_efficiency_score(self, image_size: int = 512, channels: int = 3):
         from mon import get_image_size
         h, w  = get_image_size(image_size)
         input = torch.rand(1, channels, h, w)
@@ -246,11 +246,5 @@ class NeRComodel(BaseModel):
         }
         self.set_input(data)
         flops, params = profile(self, inputs=(), verbose=False)
-        g_flops       = flops  * 1e-9
-        m_params      = params * 1e-6
-        start_time    = time.time()
-        # for i in range(runs):
-        #    _ = self.get_sr(input)
-        runtime  = time.time() - start_time
-        avg_time = runtime / runs
-        return flops, params, avg_time
+        # Return
+        return flops, params

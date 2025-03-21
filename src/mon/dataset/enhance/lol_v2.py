@@ -6,8 +6,6 @@
 from __future__ import annotations
 
 __all__ = [
-    "LOLv2",
-    "LOLv2DataModule",
     "LOLv2Real",
     "LOLv2RealDataModule",
     "LOLv2Synthetic",
@@ -31,43 +29,6 @@ MultimodalDataset   = dtype.MultimodalDataset
 
 # region Dataset
 
-@DATASETS.register(name="lol_v2")
-class LOLv2(MultimodalDataset):
-    """LOL-v2 dataset combines the LOL-v2 Real and LOL-v2 Synthetic datasets."""
-    
-    tasks : list[Task]  = [Task.LLIE]
-    splits: list[Split] = [Split.TRAIN, Split.TEST]
-    datapoint_attrs     = DatapointAttributes({
-        "image"    : ImageAnnotation,
-        "depth"    : DepthMapAnnotation,
-        "ref_image": ImageAnnotation,
-        "ref_depth": DepthMapAnnotation,
-    })
-    has_test_annotations: bool = True
-    
-    def __init__(self, root: core.Path = default_root_dir, *args, **kwargs):
-        super().__init__(root=root, *args, **kwargs)
-    
-    def get_data(self):
-        patterns = [
-            self.root / "lol_v2_real"      / self.split_str / "image",
-            self.root / "lol_v2_synthetic" / self.split_str / "image",
-        ]
-        
-        # Images
-        images: list[ImageAnnotation] = []
-        with core.get_progress_bar(disable=self.disable_pbar) as pbar:
-            for pattern in patterns:
-                for path in pbar.track(
-                    sequence    = sorted(list(pattern.rglob("*"))),
-                    description = f"Listing {self.__class__.__name__} {self.split_str} images"
-                ):
-                    if path.is_image_file():
-                        images.append(ImageAnnotation(path=path, root=pattern))
-        
-        self.datapoints["image"] = images
-        
-
 @DATASETS.register(name="lol_v2_real")
 class LOLv2Real(MultimodalDataset):
     """LOL-v2 Real (VE-LOL) dataset consists of ``500`` low-light and
@@ -88,11 +49,15 @@ class LOLv2Real(MultimodalDataset):
     has_test_annotations: bool = True
     
     def __init__(self, root: core.Path = default_root_dir, *args, **kwargs):
+        root = root / "lol_v2_real" if root.name != "lol_v2_real" else root
+        if not root.is_dir():
+            raise FileNotFoundError(f"Directory not found: {root}.")
+        # Initialize
         super().__init__(root=root, *args, **kwargs)
     
     def get_data(self):
         patterns = [
-            self.root / "lol_v2_real" / self.split_str / "image",
+            self.root / self.split_str / "image",
         ]
         
         # Images
@@ -129,11 +94,15 @@ class LOLv2Synthetic(MultimodalDataset):
     has_test_annotations: bool = True
     
     def __init__(self, root: core.Path = default_root_dir, *args, **kwargs):
+        root = root / "lol_v2_synthetic" if root.name != "lol_v2_synthetic" else root
+        if not root.is_dir():
+            raise FileNotFoundError(f"Directory not found: {root}.")
+        # Initialize
         super().__init__(root=root, *args, **kwargs)
     
     def get_data(self):
         patterns = [
-            self.root / "lol_v2_synthetic" / self.split_str / "image",
+            self.root / self.split_str / "image",
         ]
         
         # Images
@@ -149,30 +118,7 @@ class LOLv2Synthetic(MultimodalDataset):
         
         self.datapoints["image"] = images
 
-
-@DATAMODULES.register(name="lol_v2")
-class LOLv2DataModule(DataModule):
     
-    tasks: list[Task] = [Task.LLIE]
-    
-    def prepare_data(self, *args, **kwargs):
-        pass
-    
-    def setup(self, stage: Literal["train", "test", "predict", None] = None):
-        if self.can_log:
-            console.log(f"Setup [red]{self.__class__.__name__}[/red].")
-       
-        if stage in [None, "train"]:
-            self.train = LOLv2(split=Split.TRAIN, **self.dataset_kwargs)
-            self.val   = LOLv2(split=Split.TEST, **self.dataset_kwargs)
-        if stage in [None, "test"]:
-            self.test  = LOLv2(split=Split.TEST, **self.dataset_kwargs)
-        
-        self.get_classlabels()
-        if self.can_log:
-            self.summarize()
-            
-            
 @DATAMODULES.register(name="lol_v2_real")
 class LOLv2RealDataModule(DataModule):
     

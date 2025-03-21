@@ -247,19 +247,19 @@ class Model(lightning.LightningModule, ABC):
     def __init__(
         self,
         # Basic
-        name        : str  = None,
-        fullname    : str  = None,
-        root        : core.Path = core.Path(),
+        name       : str  = None,
+        fullname   : str  = None,
+        root       : core.Path = core.Path(),
         # Network
-        num_classes : int  = None,
-        weights     : Any  = None,
+        num_classes: int  = None,
+        weights    : Any  = None,
         # Training
-        optimizers  : Any  = None,
-        loss        : Any  = None,
-        metrics     : Any  = None,
+        optimizers : Any  = None,
+        loss       : Any  = None,
+        metrics    : Any  = None,
         # Misc
-        debug       : bool = False,
-        verbose     : bool = True,
+        debug      : bool = False,
+        verbose    : bool = True,
         *args, **kwargs
     ):
         super().__init__(*args, **kwargs)
@@ -398,15 +398,13 @@ class Model(lightning.LightningModule, ABC):
             # Update the model's `num_classes` if necessary
             num_classes = weights.get("num_classes", None)
             if num_classes and num_classes != self.num_classes:
-                console.log(f"Overriding `num_classes` from {self.num_classes} "
-                            f"with {num_classes}.")
+                console.log(f"Overriding `num_classes` from {self.num_classes} with {num_classes}.")
                 self.num_classes = num_classes
         # Third, `weights` can be a path to a weight file.
         elif isinstance(weights, str | core.Path):
             weights: core.Path = core.Path(weights)
             if not weights.is_weights_file():
-                raise ValueError(f"`weights` must be a valid path to a weight "
-                                 f"file, but got {weights}.")
+                raise ValueError(f"`weights` must be a valid path to a weight file, but got {weights}.")
         # Fourth, `weights` can be a dictionary.
         elif isinstance(weights, dict):
             pass
@@ -1037,5 +1035,5 @@ class ExtraModel(Model, ABC):
             self.model.load_state_dict(state_dict=state_dict)
             if self.verbose:
                 console.log(f"Load model's weights from: {self.weights}!")
-                
+
 # endregion

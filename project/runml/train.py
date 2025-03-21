@@ -24,6 +24,7 @@ def train(args: argparse.Namespace) -> str:
     # Parse args
     args         = vars(args)
     hostname     = args["hostname"]
+    root         = args["root"]
     data         = args["data"]
     fullname     = args["fullname"]
     save_dir     = args["save_dir"]
@@ -52,25 +53,23 @@ def train(args: argparse.Namespace) -> str:
     mon.set_random_seed(seed)
     
     # Data I/O
-    datamodule: mon.DataModule = mon.DATAMODULES.build(config=args["mon"]["datamodule"])
+    data_dir = mon.parse_data_dir(root, args["datamodule"].get("root", ""))
+    args["datamodule"] |= {
+        "root": data_dir,
+    }
+    datamodule: mon.DataModule = mon.DATAMODULES.build(config=args["datamodule"])
     datamodule.prepare_data()
     datamodule.setup(stage="train")
-    num_classes = getattr(datamodule.classlabels, "num_trainable_classes", None)
-    num_classes = num_classes or args["mon"]["network"].get("num_classes", None)
     
     # Model
-    args["mon"]["network"] |= {
-        "num_classes": num_classes
+    args["modelmodule"] |= {
+        "fullname": fullname,
+        "root"    : save_dir,
+        "weights" : weights,
+        "debug"   : save_debug,
+        "verbose" : verbose,
     }
-    args["mon"]["model"] |= {
-        "fullname"   : fullname,
-        "root"       : save_dir,
-        "num_classes": num_classes,
-        "weights"    : weights,
-        "debug"      : save_debug,
-        "verbose"    : verbose,
-    }
-    model: mon.Model = mon.MODELS.build(config=args["mon"]["model"])
+    model: mon.Model = mon.MODELS.build(config=args["modelmodule"])
     if mon.is_rank_zero():
         mon.print_dict(args, title=fullname)
         console.log("[green]Done")
@@ -79,19 +78,19 @@ def train(args: argparse.Namespace) -> str:
     if mon.is_rank_zero():
         console.rule("[bold red] SETUP TRAINER")
     
-    callbacks = args["mon"]["trainer"]["callbacks"]
+    callbacks = args["trainer"]["callbacks"]
     for i, callback in enumerate(callbacks):
         if callback["name"] == "model_checkpoint":
             callbacks[i] |= {"filename": fullname}
-    callbacks = mon.CALLBACKS.build_instances(configs=args["mon"]["trainer"]["callbacks"])
+    callbacks = mon.CALLBACKS.build_instances(configs=args["trainer"]["callbacks"])
     ckpt      = mon.get_latest_checkpoint(dirpath=model.ckpt_dir)
     devices   = mon.to_int_list(device) if "auto" not in device else "auto"
-    if args["mon"]["trainer"]["logger"]:
+    if args["trainer"]["logger"]:
         logger = [mon.TensorBoardLogger(save_dir=save_dir)]
     else:
         logger = False
     
-    args["mon"]["trainer"] |= {
+    args["trainer"] |= {
         "callbacks"           : callbacks,
         "devices"             : devices,
         "default_root_dir"    : save_dir,
@@ -100,7 +99,7 @@ def train(args: argparse.Namespace) -> str:
         "max_steps"           : steps,
         "num_sanity_val_steps": 0,
     }
-    trainer               = mon.Trainer(**args["mon"]["trainer"])
+    trainer               = mon.Trainer(**args["trainer"])
     trainer.current_epoch = mon.get_epoch_from_checkpoint(ckpt=ckpt)
     trainer.global_step   = mon.get_global_step_from_checkpoint(ckpt=ckpt)
     if mon.is_rank_zero():

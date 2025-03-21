@@ -1,28 +1,21 @@
 # Basic
-hostname    : ~
-config      : ~
-arch        : "nerco"
-model       : "nerco"
-data        : "lol_v1"
-data_dir    : ~
-root        : ~
-project     : ~
-variant     : ~
-fullname    : "nerco_lol_v1"
-save_dir    : ~
-weights     : "zoo/vision/enhance/llie/nerco/nerco/lol_v1"
-device      : 0
-local_rank  : -1
-launcher    : ~
-epochs      : 200
-steps       : ~
-imgsz       : 512
-resize      : ~
-benchmark   : False
-save_image  : True
-save_debug  : True
-use_data_dir: False
-use_fullpath: False
-use_fullname: True
-exist_ok    : True
-verbose     : True
+root        : ~                                                                 # Root directory of the current run.
+arch        : "nerco"                                                           # Model architecture or family (e.g., resnet).
+model       : &model "nerco"                                                    # Model name (e.g., resnet50).
+data        : &data "lol_v1"                                                    # Dataset name (e.g., cifar10) or directory (e.g., data/cifar10).
+fullname    : &fullname "nerco_lol_v1"                                          # Full name of the current run (e.g., resnet50_cifar10_01). If not set, it will be this file's name.
+save_dir    : &save_dir ~                                                       # Saving directory. If not set, it will be `root/arch/model/data`.
+weights     : &weights "zoo/vision/enhance/llie/nerco/nerco/lol_v1"             # Path to the pretrained weights.
+device      : 0                                                                 # Running device (i.e., cuda:0 | cuda:0,1,2,3 | cpu).
+seed        : 100                                                               # Random seed.
+imgsz       : &imgsz 512                                                        # Image size for the model.
+resize      : False                                                             # Resize the input image to `imgsz`.
+epochs      : &epochs 200                                                       # Training epochs.
+steps       : &steps ~                                                          # Training steps.
+benchmark   : False                                                             # Benchmark the model.
+save_image  : True                                                              # Save the output image.
+save_debug  : &save_debug True                                                  # Save the debug information.
+use_fullname: True                                                              # Use the full name for the save_dir.
+use_fullpath: False                                                             # Use the full path for the input image.
+exist_ok    : True                                                              # If ``False``, it will delete the save directory if it already exists.
+verbose     : &verbose True                                                     # Verbosity.

@@ -45,11 +45,15 @@ class SICE(MultimodalDataset):
     has_test_annotations: bool = False
     
     def __init__(self, root: core.Path = default_root_dir, *args, **kwargs):
+        root = root / "sice" if root.name != "sice" else root
+        if not root.is_dir():
+            raise FileNotFoundError(f"Directory not found: {root}.")
+        # Initialize
         super().__init__(root=root, *args, **kwargs)
     
     def get_data(self):
         patterns = [
-            self.root / "sice" / self.split_str / "image"
+            self.root / self.split_str / "image"
         ]
         
         # Images
@@ -80,11 +84,15 @@ class SICEGrad(MultimodalDataset):
     has_test_annotations: bool = False
     
     def __init__(self, root: core.Path = default_root_dir, *args, **kwargs):
+        root = root / "sice_grad" if root.name != "sice_grad" else root
+        if not root.is_dir():
+            raise FileNotFoundError(f"Directory not found: {root}.")
+        # Initialize
         super().__init__(root=root, *args, **kwargs)
     
     def get_data(self):
         patterns = [
-            self.root / "sice_grad" / self.split_str / "image"
+            self.root / self.split_str / "image"
         ]
         
         # Images
@@ -113,11 +121,15 @@ class SICEME(MultimodalDataset):
     has_test_annotations: bool = False
     
     def __init__(self, root: core.Path = default_root_dir, *args, **kwargs):
+        root = root / "sice_me" if root.name != "sice_me" else root
+        if not root.is_dir():
+            raise FileNotFoundError(f"Directory not found: {root}.")
+        # Initialize
         super().__init__(root=root, *args, **kwargs)
     
     def get_data(self):
         patterns = [
-            self.root / "sice_me" / self.split_str / "image",
+            self.root / self.split_str / "image",
         ]
         
         # Images
@@ -148,11 +160,15 @@ class SICEMix(MultimodalDataset):
     has_test_annotations: bool = False
     
     def __init__(self, root: core.Path = default_root_dir, *args, **kwargs):
+        root = root / "sice_mix" if root.name != "sice_mix" else root
+        if not root.is_dir():
+            raise FileNotFoundError(f"Directory not found: {root}.")
+        # Initialize
         super().__init__(root=root, *args, **kwargs)
     
     def get_data(self):
         patterns = [
-            self.root / "sice_mix" / self.split_str / "image",
+            self.root / self.split_str / "image",
         ]
         
         # Images

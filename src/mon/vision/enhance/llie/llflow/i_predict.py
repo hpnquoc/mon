@@ -1,12 +1,14 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# https://github.com/wyf0912/LLFlow
+"""
+References:
+    https://github.com/wyf0912/LLFlow
+"""
 
 from __future__ import annotations
 
 import argparse
-import copy
 import os
 
 import cv2
@@ -83,35 +85,38 @@ def format_measurements(meas):
 
 def predict(args: argparse.Namespace):
     # General config
+    # Parse args
+    hostname     = args.hostname
     data         = args.data
-    save_dir     = mon.Path(args.save_dir)
+    fullname     = args.fullname
+    save_dir     = args.save_dir
     weights      = args.weights
-    device       = mon.set_device(args.device)
+    device       = args.device
+    seed         = args.seed
     imgsz        = args.imgsz
     resize       = args.resize
+    epochs       = args.epochs
+    steps        = args.steps
     benchmark    = args.benchmark
     save_image   = args.save_image
     save_debug   = args.save_debug
     use_fullpath = args.use_fullpath
-    opt_path     = str(current_dir / "model_config" / args.opt_path)
+    verbose      = args.verbose
     
-    # Override options with args
+    opt_path       = str(current_dir / "options" / args.opt_path)
     opt            = option.parse(opt_path, is_train=False)
     opt["gpu_ids"] = None
     opt            = option.dict_to_nonedict(opt)
     
-    # Model
-    model          = create_model(opt)
-    # model_path     = opt_get(opt, ["model_path"], None)
-    model.load_network(load_path=weights, network=model.netG)
-    model.netG     = model.netG.to(device)
+    # Start
+    console.rule(f"[bold red] {fullname}")
+    console.log(f"Machine: {hostname}")
     
-    # Benchmark
-    if benchmark:
-        flops, params, avg_time = copy.deepcopy(model).measure_efficiency_score(image_size=imgsz)
-        console.log(f"FLOPs  = {flops:.4f}")
-        console.log(f"Params = {params:.4f}")
-        console.log(f"Time   = {avg_time:.17f}")
+    # Device
+    device = mon.set_device(device)
+    
+    # Seed
+    mon.set_random_seed(seed)
     
     # Data I/O
     console.log(f"[bold red]{data}")
@@ -123,6 +128,17 @@ def predict(args: argparse.Namespace):
         verbose     = False,
     )
     
+    # Model
+    model      = create_model(opt)
+    model.load_network(load_path=weights, network=model.netG)
+    model.netG = model.netG.to(device)
+    
+    # Benchmark
+    if benchmark:
+        flops, params = model.measure_efficiency_score(image_size=imgsz)
+        console.log(f"FLOPs  = {flops:.4f}")
+        console.log(f"Params = {params:.4f}")
+    
     # Predicting
     timer = mon.Timer()
     with torch.no_grad():
@@ -133,19 +149,17 @@ def predict(args: argparse.Namespace):
                 description = f"[bright_yellow] Predicting"
             ):
                 # Input
-                image      = datapoint.get("image")
                 meta       = datapoint.get("meta")
                 image_path = mon.Path(meta["path"])
-                lr         = image  # imread(str(image_path))
-                raw_shape  = lr.shape
+                image      = datapoint.get("image")  # imread(str(image_path))
                 
                 # Infer
                 timer.tick()
-                lr, padding_params = auto_padding(lr)
-                his = hiseq_color_cv2_img(lr)
+                image, padding_params = auto_padding(image)
+                his = hiseq_color_cv2_img(image)
                 if opt.get("histeq_as_input", False):
-                    lr = his
-                lr_t = t(lr)
+                    image = his
+                lr_t = t(image)
                 if opt["datasets"]["train"].get("log_low", False):
                     lr_t = torch.log(torch.clamp(lr_t + 1e-3, min=1e-3))
                 if opt.get("concat_histeq", False):
@@ -174,9 +188,9 @@ def predict(args: argparse.Namespace):
                         output_path = save_dir / data_name / f"{image_path.stem}.jpg"
                     output_path.parent.mkdir(parents=True, exist_ok=True)
                     imwrite(str(output_path), sr)
-       
-        avg_time = float(timer.avg_time)
-        console.log(f"Average time: {avg_time}")
+    
+    # Finish
+    console.log(f"Average time: {float(timer.avg_time)}")
 
 # endregion
 

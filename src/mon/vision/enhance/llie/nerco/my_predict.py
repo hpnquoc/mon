@@ -4,7 +4,6 @@
 from __future__ import annotations
 
 import argparse
-import copy
 import random
 
 import torch.optim
@@ -24,21 +23,27 @@ current_dir  = current_file.parents[0]
 # region Predict
 
 def predict(args: argparse.Namespace):
-    # General config
+    # Parse args
+    hostname     = args.hostname
     data         = args.data
+    fullname     = args.fullname
     save_dir     = args.save_dir
     weights      = args.weights
-    device       = mon.set_device(args.device)
+    device       = args.device
+    seed         = args.seed
     imgsz        = args.imgsz
+    imgsz        = imgsz[0] if isinstance(imgsz, Sequence) else imgsz
     resize       = args.resize
+    epochs       = args.epochs
+    steps        = args.steps
     benchmark    = args.benchmark
     save_image   = args.save_image
     save_debug   = args.save_debug
     use_fullpath = args.use_fullpath
+    verbose      = args.verbose
     
     # Hard-code some parameters for test
     opt                = TestOptions().parse()  # get test options
-    # opt                = argparse.Namespace(**args.opt)
     opt.num_threads    = 0       # test code only supports num_threads = 0
     opt.batch_size     = 1       # test code only supports batch_size  = 1
     opt.serial_batches = True    # disable data shuffling; comment this line if results on randomly chosen images are needed.
@@ -46,19 +51,15 @@ def predict(args: argparse.Namespace):
     opt.display_id     = -1      # no visdom display; the test code saves the results to a HTML file.
     opt.device         = device
     
-    # Model
-    model = create_model(opt)    # create a model given opt.model and other options
-    model.setup(weights, opt)    # regular setup: load and print networks; create schedulers
-    model = model.to(device)
-    if opt.eval:
-        model.eval()
+    # Start
+    console.rule(f"[bold red] {fullname}")
+    console.log(f"Machine: {hostname}")
     
-    # Benchmark
-    if benchmark:
-        flops, params, avg_time = model.measure_efficiency_score()
-        console.log(f"FLOPs  = {flops:.4f}")
-        console.log(f"Params = {params:.4f}")
-        console.log(f"Time   = {avg_time:.17f}")
+    # Device
+    device = mon.set_device(device)
+    
+    # Seed
+    mon.set_random_seed(seed)
     
     # Data I/O
     console.log(f"[bold red]{data}")
@@ -74,6 +75,19 @@ def predict(args: argparse.Namespace):
     testB_size  = len(testB_files)
     transform_A = get_transform(opt)
     transform_B = get_transform(opt)
+    
+    # Model
+    model = create_model(opt)    # create a model given opt.model and other options
+    model.setup(weights, opt)    # regular setup: load and print networks; create schedulers
+    model = model.to(device)
+    if opt.eval:
+        model.eval()
+    
+    # Benchmark
+    if benchmark:
+        flops, params = model.measure_efficiency_score()
+        console.log(f"FLOPs  = {flops:.4f}")
+        console.log(f"Params = {params:.4f}")
     
     # Predicting
     timer = mon.Timer()

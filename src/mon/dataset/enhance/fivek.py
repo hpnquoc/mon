@@ -43,8 +43,7 @@ MultimodalDataset   = dtype.MultimodalDataset
 
 @DATASETS.register(name="fivek_init")
 class FiveKInit(MultimodalDataset):
-    """A special MIT-Adobe FiveK dataset used for initiliazing the model.
-    """
+    """A special MIT-Adobe FiveK dataset used for initiliazing the model."""
     
     tasks : list[Task]  = [Task.LLIE, Task.RETOUCH]
     splits: list[Split] = [Split.TRAIN]
@@ -59,10 +58,15 @@ class FiveKInit(MultimodalDataset):
     has_test_annotations: bool = False
     
     def __init__(self, root: core.Path = default_root_dir, *args, **kwargs):
+        root = root / "fivek" if root.name != "fivek" else root
+        if not root.is_dir():
+            raise FileNotFoundError(f"Directory not found: {root}.")
+        
         self.file_ex   = defaultdict(list)
         self.file_bc   = defaultdict(list)
         self.file_vb   = defaultdict(list)
         self.file_keys = []
+        # Initialize
         super().__init__(root=root, *args, **kwargs)
      
     def __getitem__(self, index: int) -> dict:
@@ -118,7 +122,7 @@ class FiveKInit(MultimodalDataset):
        
     def get_data(self):
         patterns = [
-            self.root / "fivek" / "retouch_init",
+            self.root / "retouch_init",
         ]
         
         # Exposure images
@@ -182,11 +186,15 @@ class FiveK(MultimodalDataset):
     has_test_annotations: bool = False
     
     def __init__(self, root: core.Path = default_root_dir, *args, **kwargs):
+        root = root / "fivek" if root.name != "fivek" else root
+        if not root.is_dir():
+            raise FileNotFoundError(f"Directory not found: {root}.")
+        # Initialize
         super().__init__(root=root, *args, **kwargs)
         
     def get_data(self):
         patterns = [
-            self.root / "fivek" / self.split_str / "image",
+            self.root / self.split_str / "image",
         ]
         
         # Images
@@ -220,11 +228,15 @@ class FiveKA(MultimodalDataset):
     has_test_annotations: bool = False
     
     def __init__(self, root: core.Path = default_root_dir, *args, **kwargs):
+        root = root / "fivek" if root.name != "fivek" else root
+        if not root.is_dir():
+            raise FileNotFoundError(f"Directory not found: {root}.")
+        # Initialize
         super().__init__(root=root, *args, **kwargs)
         
     def get_data(self):
         patterns = [
-            self.root / "fivek" / self.split_str / "image",
+            self.root / self.split_str / "image",
         ]
         
         # Images
@@ -275,11 +287,15 @@ class FiveKB(MultimodalDataset):
     has_test_annotations: bool = False
     
     def __init__(self, root: core.Path = default_root_dir, *args, **kwargs):
+        root = root / "fivek" if root.name != "fivek" else root
+        if not root.is_dir():
+            raise FileNotFoundError(f"Directory not found: {root}.")
+        # Initialize
         super().__init__(root=root, *args, **kwargs)
         
     def get_data(self):
         patterns = [
-            self.root / "fivek" / self.split_str / "image",
+            self.root / self.split_str / "image",
         ]
         
         # Images
@@ -330,11 +346,15 @@ class FiveKC(MultimodalDataset):
     has_test_annotations: bool = False
     
     def __init__(self, root: core.Path = default_root_dir, *args, **kwargs):
+        root = root / "fivek" if root.name != "fivek" else root
+        if not root.is_dir():
+            raise FileNotFoundError(f"Directory not found: {root}.")
+        # Initialize
         super().__init__(root=root, *args, **kwargs)
         
     def get_data(self):
         patterns = [
-            self.root / "fivek" / self.split_str / "image",
+            self.root / self.split_str / "image",
         ]
         
         # Images
@@ -385,11 +405,15 @@ class FiveKD(MultimodalDataset):
     has_test_annotations: bool = False
     
     def __init__(self, root: core.Path = default_root_dir, *args, **kwargs):
+        root = root / "fivek" if root.name != "fivek" else root
+        if not root.is_dir():
+            raise FileNotFoundError(f"Directory not found: {root}.")
+        # Initialize
         super().__init__(root=root, *args, **kwargs)
         
     def get_data(self):
         patterns = [
-            self.root / "fivek" / self.split_str / "image",
+            self.root / self.split_str / "image",
         ]
         
         # Images
@@ -440,11 +464,15 @@ class FiveKE(MultimodalDataset):
     has_test_annotations: bool = False
     
     def __init__(self, root: core.Path = default_root_dir, *args, **kwargs):
+        root = root / "fivek" if root.name != "fivek" else root
+        if not root.is_dir():
+            raise FileNotFoundError(f"Directory not found: {root}.")
+        # Initialize
         super().__init__(root=root, *args, **kwargs)
         
     def get_data(self):
         patterns = [
-            self.root / "fivek" / self.split_str / "image",
+            self.root / self.split_str / "image",
         ]
         
         # Images

@@ -23,6 +23,7 @@ def predict(args: argparse.Namespace) -> str:
     # Parse args
     args         = vars(args)
     hostname     = args["hostname"]
+    root         = args["root"]
     data         = args["data"]
     fullname     = args["fullname"]
     save_dir     = args["save_dir"]
@@ -60,13 +61,9 @@ def predict(args: argparse.Namespace) -> str:
     )
     
     # Model
-    args["mon"]["network"] |= {
-    
-    }
-    args["mon"]["model"] |= {
+    args["modelmodule"] |= {
         "fullname"  : fullname,
         "root"      : save_dir,
-        # "num_classes" : num_classes,,
         "weights"   : weights,
         "optimizers": None,  # Skip initialization for efficiency
         "loss"      : None,  # Skip initialization for efficiency
@@ -74,14 +71,16 @@ def predict(args: argparse.Namespace) -> str:
         "debug"     : save_debug,
         "verbose"   : verbose,
     }
-    model: mon.Model = mon.MODELS.build(config=args["mon"]["model"])
+    model: mon.Model = mon.MODELS.build(config=args["modelmodule"])
     model = model.to(device)
     model.eval()
     
     # Benchmark
     if benchmark and hasattr(model, "compute_efficiency_score"):
         flops, params = model.compute_efficiency_score(image_size=imgsz)
-      
+        console.log(f"FLOPs  = {flops:.4f}")
+        console.log(f"Params = {params:.4f}")
+        
     # Predicting
     run_time = []
     with mon.get_progress_bar() as pbar:

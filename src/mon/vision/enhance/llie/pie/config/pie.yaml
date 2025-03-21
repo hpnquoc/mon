@@ -14,8 +14,8 @@ epochs      : &epochs ~                                                         
 steps       : &steps ~                                                          # Training steps.
 benchmark   : False                                                             # Benchmark the model.
 save_image  : True                                                              # Save the output image.
-save_debug  : &save_debug False                                                 # Save the debug information.
-use_fullname: False                                                             # Use the full name for the save_dir.
+save_debug  : &save_debug True                                                  # Save the debug information.
+use_fullname: True                                                              # Use the full name for the save_dir.
 use_fullpath: False                                                             # Use the full path for the input image.
 exist_ok    : True                                                              # If ``False``, it will delete the save directory if it already exists.
 verbose     : &verbose True                                                     # Verbosity.

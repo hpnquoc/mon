@@ -33,6 +33,7 @@ __all__ = [
     "list_weights_files",
     "load_config",
     "parse_config_file",
+    "parse_data_dir",
     "parse_device",
     "parse_menu_string",
     "parse_model_dir",
@@ -55,6 +56,8 @@ from typing import Any, Collection, Sequence
 import numpy as np
 import psutil
 import torch
+
+import mon
 
 try:
     import pynvml
@@ -269,6 +272,27 @@ def list_datasets(
     ):
         datasets = [d for d in datasets if d in default_configs["DATASETS"]]
     return datasets
+
+
+def parse_data_dir(
+    root    : str | pathlib.Path,
+    data_dir: str | pathlib.Path
+) -> str | pathlib.Path | Sequence[str | pathlib.Path]:
+    """Parse absolute data directory path from given components.
+    
+    Args:
+        root: The root directory.
+        data_dir: The data directory.
+    """
+    from mon.globals import ROOT_DIR
+    root     = pathlib.Path(root)
+    data_dir = pathlib.Path(data_dir)
+    if not data_dir.is_dir():
+        if (mon.ROOT_DIR / data_dir).is_dir():
+            data_dir = ROOT_DIR / data_dir
+        elif (root / data_dir).is_dir():
+            data_dir = root / data_dir
+    return data_dir
 
 # endregion
 
@@ -849,15 +873,15 @@ def parse_weights_file(
         root: The root directory.
         weights: The weights file to parse.
     """
-    from mon.globals import ZOO_DIR
+    from mon.globals import ROOT_DIR
     root    = pathlib.Path(root)
     weights = dtype.to_list(weights)
     
     for i, w in enumerate(weights):
         w = pathlib.Path(w)
         if not w.is_weights_file(exist=True):
-            if w.parts[0] in ["zoo"]:
-                weights[i] = ZOO_DIR.parent / w
+            if (ROOT_DIR / w).is_weights_file(exist=True):
+                weights[i] = ROOT_DIR / w
             elif (root / w).is_weights_file(exist=True):
                 weights[i] = root / w
             

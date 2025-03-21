@@ -76,31 +76,34 @@ def val_epoch(val_loader, model, criterion, device):
 
 
 def train(args: argparse.Namespace):
-    # General config
-    save_dir = mon.Path(args.save_dir)
-    weights  = args.weights
-    device   = mon.set_device(args.device)
-    imgsz    = args.imgsz
-    epochs   = args.epochs
-    verbose  = args.verbose
+    # Parse args
+    hostname     = args.hostname
+    data         = args.data
+    fullname     = args.fullname
+    save_dir     = args.save_dir
+    weights      = args.weights
+    device       = args.device
+    seed         = args.seed
+    imgsz        = args.imgsz
+    resize       = args.resize
+    epochs       = args.epochs
+    steps        = args.steps
+    benchmark    = args.benchmark
+    save_image   = args.save_image
+    save_debug   = args.save_debug
+    use_fullpath = args.use_fullpath
+    verbose      = args.verbose
     
-    # Directory
-    weights_dir = save_dir
-    weights_dir.mkdir(parents=True, exist_ok=True)
+    # Start
+    console.rule(f"[bold red] {fullname}")
+    console.log(f"Machine: {hostname}")
     
     # Device
+    device = mon.set_device(device)
     cudnn.benchmark = True
     
-    # Model
-    model = NestedUNet().to(device)
-    model.train()
-    
-    # Loss
-    criterion = Loss(*args.loss_weights).to(device)
-    
-    # Optimizer
-    optimizer = optim.Adam(model.parameters(), lr=args.lr, weight_decay=1e-4)
-    scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, 0.99)
+    # Seed
+    mon.set_random_seed(seed)
     
     # Data I/O
     data_args = {
@@ -110,17 +113,26 @@ def train(args: argparse.Namespace):
             A.Resize(width=imgsz, height=imgsz),
         ]),
         "to_tensor" : True,
-        "cache_data": False,
         "batch_size": args.batch_size,
         "devices"   : device,
         "shuffle"   : True,
         "verbose"   : verbose,
     }
     datamodule: mon.DataModule = mon.DATAMODULES.build(config=data_args)
-    datamodule.prepare_data()
     datamodule.setup(stage="train")
     train_dataloader = datamodule.train_dataloader
     val_dataloader   = datamodule.val_dataloader
+    
+    # Model
+    model = NestedUNet().to(device)
+    model.train()
+    
+    # Optimizer
+    optimizer = optim.Adam(model.parameters(), lr=args.lr, weight_decay=1e-4)
+    scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, 0.99)
+    
+    # Loss
+    criterion = Loss(*args.loss_weights).to(device)
     
     # Logging
     writer = SummaryWriter(log_dir=str(save_dir))
@@ -174,15 +186,15 @@ def train(args: argparse.Namespace):
         
         # Save
         if val_loss < best_loss:
-            torch.save(model.state_dict(), str(weights_dir / "best.pt"))
+            torch.save(model.state_dict(), str(save_dir / "best.pt"))
             best_loss = val_loss
         if val_psnr > best_psnr:
-            torch.save(model.state_dict(), str(weights_dir / "best_psnr.pt"))
+            torch.save(model.state_dict(), str(save_dir / "best_psnr.pt"))
             best_psnr = val_psnr
         if val_ssim > best_ssim:
-            torch.save(model.state_dict(), str(weights_dir / "best_ssim.pt"))
+            torch.save(model.state_dict(), str(save_dir / "best_ssim.pt"))
             best_ssim = val_ssim
-        torch.save(model.state_dict(), str(weights_dir / "last.pt"))
+        torch.save(model.state_dict(), str(save_dir / "last.pt"))
         torch.cuda.empty_cache()
    
     writer.close()

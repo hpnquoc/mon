@@ -96,6 +96,7 @@ def dict2str(opt, indent_l=1):
 
 
 class NoneDict(dict):
+    
     def __missing__(self, key):
         return None
 

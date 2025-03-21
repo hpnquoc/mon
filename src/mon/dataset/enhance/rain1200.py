@@ -40,18 +40,22 @@ class Rain1200(MultimodalDataset):
     has_test_annotations: bool = True
     
     def __init__(self, root: core.Path = default_root_dir, *args, **kwargs):
+        root = root / "rain1200" if root.name != "rain1200" else root
+        if not root.is_dir():
+            raise FileNotFoundError(f"Directory not found: {root}.")
+        # Initialize
         super().__init__(root=root, *args, **kwargs)
     
     def get_data(self):
         if self.split in [Split.TRAIN]:
             patterns = [
-                self.root / "rain1200" / self.split_str / "light"  / "image",
-                self.root / "rain1200" / self.split_str / "medium" / "image",
-                self.root / "rain1200" / self.split_str / "heavy"  / "image",
+                self.root / self.split_str / "light"  / "image",
+                self.root / self.split_str / "medium" / "image",
+                self.root / self.split_str / "heavy"  / "image",
             ]
         else:
             patterns = [
-                self.root / "rain1200" / self.split_str / "image",
+                self.root / self.split_str / "image",
             ]
         
         # Images

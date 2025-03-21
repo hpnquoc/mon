@@ -375,15 +375,11 @@ class LLFlowModel(BaseModel):
     def forward(self, lq, heat=None, seed=None, z=None, epses=None):
         return self.get_sr(lq, heat, seed, z, epses)[0]
     
-    def measure_efficiency_score(self, image_size=512, channels=6, runs=100):
+    def measure_efficiency_score(self, image_size: int = 512, channels: int = 6, verbose: bool = False) -> tuple[float, float]:
         h, w          = mon.get_image_size(image_size)
-        input         = torch.rand(1, channels, h, w).cuda()
+        input         = torch.rand(1, channels, h, w).to(self.device)
         flops, params = profile(self, inputs=(input, ), verbose=False)
-        g_flops       = flops  * 1e-9
-        m_params      = params * 1e-6
-        start_time    = time.time()
-        for i in range(runs):
-            _ = self.get_sr(input)
-        runtime  = time.time() - start_time
-        avg_time = runtime / runs
-        return flops, params, avg_time
+        if verbose:
+            console.log(f"FLOPs : {flops:.4f}")
+            console.log(f"Params: {params:.4f}")
+        return flops, params

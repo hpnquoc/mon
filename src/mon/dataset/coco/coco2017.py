@@ -136,11 +136,7 @@ class COCO(MultimodalDataset):
         {"name": "hair brush"    , "id": 91, "supercategory": "indoor"    , "color": [149, 108,  73]}
     ])
     
-    def __init__(
-        self,
-        root: core.Path = default_root_dir,
-        *args, **kwargs
-    ):
+    def __init__(self, root: core.Path = default_root_dir, *args, **kwargs):
         super().__init__(root=root, *args, **kwargs)
     
     def get_data(self):

@@ -1,7 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# References: https://github.com/Ian0926/DCC-Net
+"""
+Reference:
+    https://github.com/Ian0926/DCC-Net
+"""
 
 from __future__ import annotations
 
@@ -23,17 +26,43 @@ current_dir  = current_file.parents[0]
 # region Predict
 
 def predict(args: argparse.Namespace):
-    # General config
+    # Parse args
+    hostname     = args.hostname
     data         = args.data
+    fullname     = args.fullname
     save_dir     = args.save_dir
     weights      = args.weights
-    device       = mon.set_device(args.device)
+    device       = args.device
+    seed         = args.seed
     imgsz        = args.imgsz
     resize       = args.resize
+    epochs       = args.epochs
+    steps        = args.steps
     benchmark    = args.benchmark
     save_image   = args.save_image
     save_debug   = args.save_debug
     use_fullpath = args.use_fullpath
+    verbose      = args.verbose
+    
+    # Start
+    console.rule(f"[bold red] {fullname}")
+    console.log(f"Machine: {hostname}")
+    
+    # Device
+    device = mon.set_device(device)
+    
+    # Seed
+    mon.set_random_seed(seed)
+    
+    # Data I/O
+    console.log(f"[bold red]{data}")
+    data_name, data_loader, data_writer = mon.parse_io_worker(
+        src         = data,
+        dst         = save_dir,
+        to_tensor   = True,
+        denormalize = True,
+        verbose     = False,
+    )
     
     # Model
     color_net  = mmodel.color_net().to(device)
@@ -48,28 +77,10 @@ def predict(args: argparse.Namespace):
     
     # Benchmark
     if benchmark:
-        flops, params, avg_time = mon.compute_efficiency_score(
-            model      = copy.deepcopy(color_net),
-            image_size = imgsz,
-            channels   = 3,
-            runs       = 1000,
-            use_cuda   = True,
-            verbose    = False,
-        )
+        flops, params = mon.compute_efficiency_score(model=copy.deepcopy(color_net), image_size=imgsz)
         console.log(f"FLOPs  = {flops:.4f}")
         console.log(f"Params = {params:.4f}")
-        console.log(f"Time   = {avg_time:.17f}")
-    
-    # Data I/O
-    console.log(f"[bold red]{data}")
-    data_name, data_loader, data_writer = mon.parse_io_worker(
-        src         = data,
-        dst         = save_dir,
-        to_tensor   = True,
-        denormalize = True,
-        verbose     = False,
-    )
-    
+        
     # Predicting
     timer = mon.Timer()
     with torch.no_grad():
@@ -80,24 +91,19 @@ def predict(args: argparse.Namespace):
                 description = f"[bright_yellow] Predicting"
             ):
                 # Input
-                image      = datapoint.get("image").to(device)
                 meta       = datapoint.get("meta")
                 image_path = mon.Path(meta["path"])
-                # data_lowlight = Image.open(image_path)
-                # data_lowlight = (np.asarray(data_lowlight) / 255.0)
-                # data_lowlight = torch.from_numpy(data_lowlight).float()
-                # data_lowlight = data_lowlight.permute(2, 0, 1)
-                # data_lowlight = data_lowlight.to(device).unsqueeze(0)
-                h, w  = mon.get_image_size(image)
-                image = mon.resize(image, divisible_by=32)
+                image      = datapoint.get("image").to(device)
+                h0, w0     = mon.get_image_size(image)
+                image      = mon.resize(image, divisible_by=32)
                 
                 # Infer
                 timer.tick()
-                gray, color_hist, enhanced_image = color_net(image)
+                gray, color_hist, enhanced = color_net(image)
                 timer.tock()
                 
                 # Post-processing
-                enhanced_image = mon.resize(enhanced_image, (h, w))
+                enhanced = mon.resize(enhanced, (h0, w0))
                 
                 # Save
                 if save_image:
@@ -107,10 +113,10 @@ def predict(args: argparse.Namespace):
                     else:
                         output_path = save_dir / data_name / f"{image_path.stem}.jpg"
                     output_path.parent.mkdir(parents=True, exist_ok=True)
-                    torchvision.utils.save_image(enhanced_image, str(output_path))
+                    torchvision.utils.save_image(enhanced, str(output_path))
         
-        avg_time = float(timer.avg_time)
-        console.log(f"Average time: {avg_time}")
+    # Finish
+    console.log(f"Average time: {float(timer.avg_time)}")
 
 # endregion
 

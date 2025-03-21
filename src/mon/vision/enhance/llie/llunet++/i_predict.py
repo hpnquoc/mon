@@ -9,7 +9,6 @@ References:
 from __future__ import annotations
 
 import argparse
-import copy
 
 import numpy as np
 import torch
@@ -29,37 +28,32 @@ current_dir  = current_file.parents[0]
 
 def predict(args: argparse.Namespace):
     # General config
+    hostname     = args.hostname
     data         = args.data
+    fullname     = args.fullname
     save_dir     = args.save_dir
     weights      = args.weights
-    device       = mon.set_device(args.device)
+    device       = args.device
+    seed         = args.seed
     imgsz        = args.imgsz
-    imgsz        = mon.get_image_size(imgsz)
     resize       = args.resize
+    epochs       = args.epochs
+    steps        = args.steps
     benchmark    = args.benchmark
     save_image   = args.save_image
     save_debug   = args.save_debug
     use_fullpath = args.use_fullpath
+    verbose      = args.verbose
     
-    # Model
-    model = NestedUNet()
-    model.load_state_dict(torch.load(weights, weights_only=True, map_location=device))
-    model = model.to(device)
-    model.eval()
+    # Start
+    console.rule(f"[bold red] {fullname}")
+    console.log(f"Machine: {hostname}")
     
-    # Benchmark
-    if benchmark:
-        flops, params, avg_time = mon.compute_efficiency_score(
-            model      = copy.deepcopy(model),
-            image_size = imgsz,
-            channels   = 3,
-            runs       = 1000,
-            use_cuda   = True,
-            verbose    = False,
-        )
-        console.log(f"FLOPs  = {flops:.4f}")
-        console.log(f"Params = {params:.4f}")
-        console.log(f"Time   = {avg_time:.17f}")
+    # Device
+    device = mon.set_device(device)
+    
+    # Seed
+    mon.set_random_seed(seed)
     
     # Data I/O
     console.log(f"[bold red]{data}")
@@ -70,6 +64,15 @@ def predict(args: argparse.Namespace):
         denormalize = True,
         verbose     = False,
     )
+    
+    # Model
+    model = NestedUNet().to(device)
+    model.load_state_dict(torch.load(weights, weights_only=True, map_location=device))
+    model.eval()
+    
+    # Benchmark
+    if benchmark:
+        mon.compute_efficiency_score(model=model, image_size=imgsz, verbose=True)
     
     # Predicting
     timer = mon.Timer()
@@ -85,9 +88,9 @@ def predict(args: argparse.Namespace):
                 image_path = mon.Path(meta["path"])
                 image      = Image.open(image_path).convert("RGB")
                 image      = (np.asarray(image) / 255.0)
-                image      = torch.from_numpy(image).float()
+                image      = torch.from_numpy(image).float().to(device)
                 image      = image.permute(2, 0, 1)
-                image      = image.to(device).unsqueeze(0)
+                image      = image.unsqueeze(0)
                 h0, w0     = mon.get_image_size(image)
                 if resize:
                     image = mon.resize(image, imgsz)
@@ -96,11 +99,11 @@ def predict(args: argparse.Namespace):
                 
                 # Infer
                 timer.tick()
-                enhanced_image = model(image)
+                enhanced = model(image)
                 timer.tock()
                 
                 # Post-processing
-                enhanced_image = mon.resize(enhanced_image, (h0, w0))
+                enhanced = mon.resize(enhanced, (h0, w0))
                 
                 # Save
                 if save_image:
@@ -110,10 +113,10 @@ def predict(args: argparse.Namespace):
                     else:
                         output_path = save_dir / data_name / f"{image_path.stem}.jpg"
                     output_path.parent.mkdir(parents=True, exist_ok=True)
-                    torchvision.utils.save_image(enhanced_image, str(output_path))
-            
-        avg_time = float(timer.avg_time)
-        console.log(f"Average time: {avg_time}")
+                    torchvision.utils.save_image(enhanced, str(output_path))
+    
+    # Finish
+    console.log(f"Average time: {float(timer.avg_time)}")
 
 # endregion
 
