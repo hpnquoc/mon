@@ -74,7 +74,7 @@ def predict(args: argparse.Namespace):
                 description = f"[bright_yellow] Predicting"
             ):
                 # Input
-                meta       = datapoint.get("meta")
+                meta       = datapoint["meta"]
                 image_path = mon.Path(meta["path"])
                 image      = dutil.read_img(None, str(image_path))
                 image      = image[:, :, ::-1]

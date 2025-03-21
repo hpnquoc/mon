@@ -38,5 +38,5 @@ datamodule:
   verbose   : *verbose
 
 # Misc
-scale       : 1
-scale_max   : 4
+scale    : 1
+scale_max: 4

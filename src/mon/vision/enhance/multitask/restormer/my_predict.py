@@ -134,7 +134,7 @@ def predict(args: argparse.Namespace):
                 description = f"[bright_yellow] Predicting"
             ):
                 # Input
-                meta       = datapoint.get("meta")
+                meta       = datapoint["meta"]
                 image_path = mon.Path(meta["path"])
                 if torch.cuda.is_available():
                     torch.cuda.ipc_collect()

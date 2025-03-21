@@ -19,9 +19,8 @@ current_dir  = current_file.parents[0]
 
 # region Predict
 
-def predict(args: argparse.Namespace) -> str:
+def predict(args: dict) -> str:
     # Parse args
-    args         = vars(args)
     hostname     = args["hostname"]
     root         = args["root"]
     data         = args["data"]

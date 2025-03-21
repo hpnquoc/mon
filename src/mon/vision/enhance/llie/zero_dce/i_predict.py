@@ -3,8 +3,6 @@
 
 from __future__ import annotations
 
-import argparse
-
 import torch
 import torch.optim
 import torchvision
@@ -19,25 +17,25 @@ current_dir  = current_file.parents[0]
 
 # region Predict
 
-def predict(args: argparse.Namespace):
+def predict(args: dict) -> str:
     # Parse args
-    hostname     = args.hostname
-    root         = args.root
-    data         = args.data
-    fullname     = args.fullname
-    save_dir     = args.save_dir
-    weights      = args.weights
-    device       = args.device
-    seed         = args.seed
-    imgsz        = args.imgsz
-    resize       = args.resize
-    epochs       = args.epochs
-    steps        = args.steps
-    benchmark    = args.benchmark
-    save_image   = args.save_image
-    save_debug   = args.save_debug
-    use_fullpath = args.use_fullpath
-    verbose      = args.verbose
+    hostname     = args["hostname"]
+    root         = args["root"]
+    data         = args["data"]
+    fullname     = args["fullname"]
+    save_dir     = args["save_dir"]
+    weights      = args["weights"]
+    device       = args["device"]
+    seed         = args["seed"]
+    imgsz        = args["imgsz"]
+    resize       = args["resize"]
+    epochs       = args["epochs"]
+    steps        = args["steps"]
+    benchmark    = args["benchmark"]
+    save_image   = args["save_image"]
+    save_debug   = args["save_debug"]
+    use_fullpath = args["use_fullpath"]
+    verbose      = args["verbose"]
     
     # Start
     console.rule(f"[bold red] {fullname}")
@@ -80,7 +78,7 @@ def predict(args: argparse.Namespace):
                 description = f"[bright_yellow] Predicting"
             ):
                 # Input
-                meta       = datapoint.get("meta")
+                meta       = datapoint["meta"]
                 image_path = mon.Path(meta["path"])
                 image      = datapoint.get("meta").to(device)
                

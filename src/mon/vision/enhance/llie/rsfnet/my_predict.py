@@ -80,8 +80,8 @@ def predict(args: argparse.Namespace):
                 description = f"[bright_yellow] Predicting"
             ):
                 # Input
-                image      = datapoint.get("image").to(device).type(torch.float32)
-                meta       = datapoint.get("meta")
+                image      = datapoint["image"].to(device).type(torch.float32)
+                meta       = datapoint["meta"]
                 image_path = mon.Path(meta["path"])
                 
                 # Infer

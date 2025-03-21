@@ -3,12 +3,9 @@
 
 from __future__ import annotations
 
-import argparse
-
 import torch
 import torch.optim
 
-import dataloader
 import model as mmodel
 import mon
 import myloss
@@ -30,25 +27,27 @@ def weights_init(m):
         m.bias.data.fill_(0)
 
 
-def train(args: argparse.Namespace):
+def train(args: dict) -> str:
     # Parse args
-    hostname     = args.hostname
-    root         = args.root
-    data         = args.data
-    fullname     = args.fullname
-    save_dir     = args.save_dir
-    weights      = args.weights
-    device       = args.device
-    seed         = args.seed
-    imgsz        = args.imgsz
-    resize       = args.resize
-    epochs       = args.epochs
-    steps        = args.steps
-    benchmark    = args.benchmark
-    save_image   = args.save_image
-    save_debug   = args.save_debug
-    use_fullpath = args.use_fullpath
-    verbose      = args.verbose
+    hostname     = args["hostname"]
+    root         = args["root"]
+    data         = args["data"]
+    fullname     = args["fullname"]
+    save_dir     = args["save_dir"]
+    weights      = args["weights"]
+    device       = args["device"]
+    seed         = args["seed"]
+    imgsz        = args["imgsz"]
+    resize       = args["resize"]
+    epochs       = args["epochs"]
+    steps        = args["steps"]
+    benchmark    = args["benchmark"]
+    save_image   = args["save_image"]
+    save_debug   = args["save_debug"]
+    use_fullpath = args["use_fullpath"]
+    verbose      = args["verbose"]
+    
+    scale_factor = args["network"]["scale_factor"]
     
     # Start
     console.rule(f"[bold red] {fullname}")
@@ -61,22 +60,28 @@ def train(args: argparse.Namespace):
     mon.set_random_seed(seed)
     
     # Data I/O
-    args.datamodule.transform = A.Compose(transforms=[
-        A.Resize(width=imgsz, height=imgsz),
-    ])
-    datamodule: mon.DataModule = mon.DATAMODULES.build(config=vars(args.datamodule))
+    args["datamodule"] |= {
+        "transform": A.Compose(transforms=[
+            A.Resize(width=imgsz, height=imgsz),
+        ])
+    }
+    datamodule: mon.DataModule = mon.DATAMODULES.build(config=vars(args["datamodule"]))
     datamodule.setup(stage="train")
     train_dataloader = datamodule.train_dataloader
     
     # Model
-    dce_net = mmodel.enhance_net_nopool(args.network.scale_factor).to(device)
+    dce_net = mmodel.enhance_net_nopool(scale_factor).to(device)
     dce_net.apply(weights_init)
     if weights and mon.Path(weights).is_weights_file():
         dce_net.load_state_dict(torch.load(weights, map_location=device, weights_only=True))
     dce_net.train()
     
     # Optimizer
-    optimizer = torch.optim.Adam(dce_net.parameters(), lr=args.optimizer.lr, weight_decay=args.optimizer.weight_decay)
+    optimizer = torch.optim.Adam(
+        dce_net.parameters(),
+        lr           = args["optimizer"]["lr"],
+        weight_decay = args["optimizer"]["weight_decay"]
+    )
     
     # Loss
     L_color = myloss.L_color()
@@ -104,15 +109,15 @@ def train(args: argparse.Namespace):
     
                 optimizer.zero_grad()
                 loss.backward()
-                torch.nn.utils.clip_grad_norm_(dce_net.parameters(), args.grad_clip_norm)
+                torch.nn.utils.clip_grad_norm_(dce_net.parameters(), args["trainer"]["grad_clip_norm"])
                 optimizer.step()
                 
                 # Log
-                if ((i + 1) % args.display_iter) == 0:
+                if ((i + 1) % args["trainer"]["display_iter"]) == 0:
                     print("Loss at iteration", i + 1, ":", loss.item())
                 
                 # Save
-                if ((i + 1) % args.checkpoints_iter) == 0:
+                if ((i + 1) % args["trainer"]["checkpoints_iter"]) == 0:
                     torch.save(dce_net.state_dict(), i / "best.pt")
 
 # endregion

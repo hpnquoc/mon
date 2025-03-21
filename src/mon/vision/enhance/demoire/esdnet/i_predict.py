@@ -11,22 +11,36 @@ current_file = mon.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
 
+# region Predict
+
 def predict(args: argparse.Namespace):
-    # General config
+    # Parse args
+    hostname     = args.hostname
+    root         = args.root
     data         = args.data
+    fullname     = args.fullname
     save_dir     = args.save_dir
-    weights      = mon.Path(args.weights)
-    device       = mon.set_device(args.device)
+    weights      = args.weights
+    device       = args.device
+    seed         = args.seed
     imgsz        = args.imgsz
     resize       = args.resize
+    epochs       = args.epochs
+    steps        = args.steps
     benchmark    = args.benchmark
     save_image   = args.save_image
     save_debug   = args.save_debug
     use_fullpath = args.use_fullpath
+    verbose      = args.verbose
+    
+    # Start
+    console.rule(f"[bold red] {fullname}")
+    console.log(f"Machine: {hostname}")
     
     # Device
+    device = mon.set_device(device)
     os.environ["CUDA_VISIBLE_DEVICES"] = "%d" % args.GENERAL["GPU_ID"]
-
+    
     # Seed
     random.seed(args.GENERAL["SEED"])
     np.random.seed(args.GENERAL["SEED"])
@@ -38,6 +52,16 @@ def predict(args: argparse.Namespace):
     else:
         torch.backends.cudnn.deterministic = False
         torch.backends.cudnn.benchmark     = True
+    
+    # Data I/O
+    console.log(f"[bold red]{data}")
+    data_name, data_loader, data_writer = mon.parse_io_worker(
+        src         = data,
+        dst         = save_dir,
+        to_tensor   = True,
+        denormalize = True,
+        verbose     = False,
+    )
     
     # Model
     model = my_model(
@@ -70,16 +94,6 @@ def predict(args: argparse.Namespace):
         console.log(f"Params: {params:.4f}")
         console.log(f"Time   = {avg_time:.17f}")
         
-    # Data I/O
-    console.log(f"[bold red]{data}")
-    data_name, data_loader, data_writer = mon.parse_io_worker(
-        src         = data,
-        dst         = save_dir,
-        to_tensor   = True,
-        denormalize = True,
-        verbose     = False,
-    )
-    
     # Predicting
     timer = mon.Timer()
     with torch.no_grad():
@@ -90,7 +104,7 @@ def predict(args: argparse.Namespace):
                 description = f"[bright_yellow] Predicting"
             ):
                 # Input
-                meta       = datapoint.get("meta")
+                meta       = datapoint["meta"]
                 image_path = mon.Path(meta["path"])
                 image      = datapoint["image"]
                 image      = image.to(device)
@@ -133,7 +147,8 @@ def predict(args: argparse.Namespace):
                         output_path = save_dir / data_name / f"{image_path.stem}.png"
                     output_path.parent.mkdir(parents=True, exist_ok=True)
                     torchvision.utils.save_image(enhanced, str(output_path))
-                
+
+# endregion
 
 # region Main
 

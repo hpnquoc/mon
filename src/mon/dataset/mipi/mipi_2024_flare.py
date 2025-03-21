@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""MIPI Challenges.
+"""MIPI 2024 Challenges.
 
 This module implements datasets and datamodules for MIPI challenges.
 
@@ -33,7 +33,7 @@ MultimodalDataset   = dtype.MultimodalDataset
 
 # region Dataset
 
-@DATASETS.register(name="mipi2024_flare")
+@DATASETS.register(name="mipi_2024_flare")
 class MIPI2024Flare(MultimodalDataset):
 	"""Nighttime Flare Removal dataset used in MIPI 2024 Challenge.
 	
@@ -50,20 +50,24 @@ class MIPI2024Flare(MultimodalDataset):
 	has_test_annotations: bool = False
 	
 	def __init__(self, root: core.Path = default_root_dir, *args, **kwargs):
+		root = root / "mipi_2024_flare" if root.name != "mipi_2024_flare" else root
+		if not root.is_dir():
+			raise FileNotFoundError(f"Directory not found: {root}.")
+		# Initialize
 		super().__init__(root=root, *args, **kwargs)
 	
 	def get_data(self):
 		if self.split in [Split.TRAIN]:
 			patterns = [
-				self.root / "mipi24_flare" / "train" / "image",
+				self.root / "train" / "image",
 			]
 		elif self.split in [Split.VAL]:
 			patterns = [
-				self.root / "mipi24_flare" / "val" / "image",
+				self.root / "val" / "image",
 			]
 		elif self.split in [Split.TEST]:
 			patterns = [
-				self.root / "mipi24_flare" / "test" / "image",
+				self.root / "test" / "image",
 			]
 		else:
 			raise ValueError
@@ -84,7 +88,7 @@ class MIPI2024Flare(MultimodalDataset):
 		
 # region DataModule
 
-@DATAMODULES.register(name="mipi2024_flare")
+@DATAMODULES.register(name="mipi_2024_flare")
 class MIPI2024FlareDataModule(DataModule):
 	"""Nighttime Flare Removal datamodule used in MIPI 2024 Challenge.
 	
@@ -103,9 +107,9 @@ class MIPI2024FlareDataModule(DataModule):
 		
 		if stage in [None, "train"]:
 			self.train = MIPI2024Flare(split=Split.TRAIN, **self.dataset_kwargs)
-			self.val   = MIPI2024Flare(split=Split.VAL, **self.dataset_kwargs)
+			self.val   = MIPI2024Flare(split=Split.VAL,   **self.dataset_kwargs)
 		if stage in [None, "test"]:
-			self.test  = MIPI2024Flare(split=Split.VAL, **self.dataset_kwargs)
+			self.test  = MIPI2024Flare(split=Split.TEST,  **self.dataset_kwargs)
 		
 		self.get_classlabels()
 		if self.can_log:

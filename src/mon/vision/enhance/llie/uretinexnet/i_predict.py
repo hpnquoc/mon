@@ -8,7 +8,6 @@ References:
 
 from __future__ import annotations
 
-import argparse
 import time
 
 import torchvision.transforms as transforms
@@ -37,11 +36,11 @@ class Inference(nn.Module):
         self.opts = opts
         # Loading decomposition model
         self.model_Decom_low = Decom()
-        self.model_Decom_low = load_initialize(self.model_Decom_low, self.opts.decom_model_low_weights)
+        self.model_Decom_low = load_initialize(self.model_Decom_low, self.opts["decom_model_low_weights"])
         # Loading R; old_model_opts; and L model
-        self.unfolding_opts, self.model_R, self.model_L = load_unfolding(self.opts.unfolding_model_weights)
+        self.unfolding_opts, self.model_R, self.model_L = load_unfolding(self.opts["unfolding_model_weights"])
         # Loading adjustment model
-        self.adjust_model    = load_adjustment(self.opts.adjust_model_weights)
+        self.adjust_model    = load_adjustment(self.opts["adjust_model_weights"])
         self.P = P()
         self.Q = Q()
         transform = [
@@ -78,7 +77,7 @@ class Inference(nn.Module):
         with torch.no_grad():
             start_time = time.time()
             R, L       = self.unfolding(input_low_img)
-            High_L     = self.illumination_adjust(L, self.opts.ratio)
+            High_L     = self.illumination_adjust(L, self.opts["ratio"])
             I_enhance  = High_L * R
             run_time   = (time.time() - start_time)
         return I_enhance, run_time
@@ -98,25 +97,29 @@ class Inference(nn.Module):
         return enhance, run_time
         
 
-def predict(args: argparse.Namespace):
+def predict(args: dict) -> str:
     # Parse args
-    hostname     = args.hostname
-    root         = args.root
-    data         = args.data
-    fullname     = args.fullname
-    save_dir     = args.save_dir
-    weights      = args.weights
-    device       = args.device
-    seed         = args.seed
-    imgsz        = args.imgsz
-    resize       = args.resize
-    epochs       = args.epochs
-    steps        = args.steps
-    benchmark    = args.benchmark
-    save_image   = args.save_image
-    save_debug   = args.save_debug
-    use_fullpath = args.use_fullpath
-    verbose      = args.verbose
+    hostname     = args["hostname"]
+    root         = args["root"]
+    data         = args["data"]
+    fullname     = args["fullname"]
+    save_dir     = args["save_dir"]
+    weights      = args["weights"]
+    device       = args["device"]
+    seed         = args["seed"]
+    imgsz        = args["imgsz"]
+    resize       = args["resize"]
+    epochs       = args["epochs"]
+    steps        = args["steps"]
+    benchmark    = args["benchmark"]
+    save_image   = args["save_image"]
+    save_debug   = args["save_debug"]
+    use_fullpath = args["use_fullpath"]
+    verbose      = args["verbose"]
+    
+    args["decom_model_low_weights"] = mon.ZOO_DIR / args["decom_model_low_weights"]
+    args["unfolding_model_weights"] = mon.ZOO_DIR / args["unfolding_model_weights"]
+    args["adjust_model_weights"]    = mon.ZOO_DIR / args["adjust_model_weights"]
     
     # Start
     console.rule(f"[bold red] {fullname}")
@@ -155,7 +158,7 @@ def predict(args: argparse.Namespace):
                 description = f"[bright_yellow] Predicting"
             ):
                 # Input
-                meta       = datapoint.get("meta")
+                meta       = datapoint["meta"]
                 image_path = meta["path"]
                 
                 # Infer
@@ -183,10 +186,6 @@ def predict(args: argparse.Namespace):
 
 def main() -> str:
     args = mon.parse_predict_args(model_root=current_dir)
-    args.decom_model_low_weights = mon.ZOO_DIR / "vision/enhance/llie/uretinexnet/uretinexnet/lol_v1/uretinexnet_lol_v1_init_low.pth"
-    args.unfolding_model_weights = mon.ZOO_DIR / "vision/enhance/llie/uretinexnet/uretinexnet/lol_v1/uretinexnet_lol_v1_unfolding.pth"
-    args.adjust_model_weights    = mon.ZOO_DIR / "vision/enhance/llie/uretinexnet/uretinexnet/lol_v1/uretinexnet_lol_v1_l_adjust.pth"
-    args.ratio = 5
     predict(args)
 
 

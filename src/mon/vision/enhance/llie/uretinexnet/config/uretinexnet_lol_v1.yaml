@@ -30,3 +30,9 @@ datamodule:
   cache_data: False                                                             # If ``True``, cache the data.
   shuffle   : True                                                              # If ``True``, shuffle the data.
   verbose   : *verbose                                                          # Verbosity.
+
+# Misc
+decom_model_low_weights: "vision/enhance/llie/uretinexnet/uretinexnet/lol_v1/uretinexnet_lol_v1_init_low.pth"
+unfolding_model_weights: "vision/enhance/llie/uretinexnet/uretinexnet/lol_v1/uretinexnet_lol_v1_unfolding.pth"
+adjust_model_weights   : "vision/enhance/llie/uretinexnet/uretinexnet/lol_v1/uretinexnet_lol_v1_l_adjust.pth"
+ratio: 5

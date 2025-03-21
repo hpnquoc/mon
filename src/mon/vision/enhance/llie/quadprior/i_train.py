@@ -6,7 +6,6 @@ from __future__ import annotations
 from cldm.hack import disable_verbosity
 
 disable_verbosity()
-import argparse
 
 import pytorch_lightning as pl
 import webdataset as wds
@@ -25,27 +24,27 @@ current_dir  = current_file.parents[0]
 
 # region Train
 
-def train(args: argparse.Namespace):
+def train(args: dict) -> str:
     # Parse args
-    hostname     = args.hostname
-    root         = args.root
-    data         = args.data
-    fullname     = args.fullname
-    save_dir     = args.save_dir
-    weights      = args.weights
-    device       = args.device
-    seed         = args.seed
-    imgsz        = args.imgsz
-    resize       = args.resize
-    epochs       = args.epochs
-    steps        = args.steps
-    benchmark    = args.benchmark
-    save_image   = args.save_image
-    save_debug   = args.save_debug
-    use_fullpath = args.use_fullpath
-    verbose      = args.verbose
+    hostname     = args["hostname"]
+    root         = args["root"]
+    data         = args["data"]
+    fullname     = args["fullname"]
+    save_dir     = args["save_dir"]
+    weights      = args["weights"]
+    device       = args["device"]
+    seed         = args["seed"]
+    imgsz        = args["imgsz"]
+    resize       = args["resize"]
+    epochs       = args["epochs"]
+    steps        = args["steps"]
+    benchmark    = args["benchmark"]
+    save_image   = args["save_image"]
+    save_debug   = args["save_debug"]
+    use_fullpath = args["use_fullpath"]
+    verbose      = args["verbose"]
     
-    config_path     = current_dir / args.config_path  # "./models/cldm_v15.yaml"
+    config_path     = current_dir / args["config_path"]  # "./models/cldm_v15.yaml"
     init_ckpt       = mon.ZOO_DIR / "vision/enhance/llie/quadprior/quadprior/coco/control_sd15_init.ckpt"
     pretrained_ckpt = mon.ZOO_DIR / "vision/enhance/llie/quadprior/quadprior/coco/control_sd15_coco_final.ckpt"
     
@@ -61,11 +60,11 @@ def train(args: argparse.Namespace):
     mon.set_random_seed(seed)
 
     # Data I/O
-    data       = mon.DATA_DIR / args.datamodule.root
+    data       = mon.DATA_DIR / args["datamodule"]["root"]
     dataset    = create_webdataset(data_dir=str(data))
     dataloader = wds.WebLoader(
         dataset         = dataset,
-        batch_size      = args.datamodule.batch_size,
+        batch_size      = args["datamodule"]["batch_size"],
         num_workers     = 2,
         pin_memory      = False,
         prefetch_factor = 2,
@@ -90,12 +89,12 @@ def train(args: argparse.Namespace):
             new_state_dict[sd_name.replace("_forward_module.control_model.", "")] = sd_param
     model.control_model.load_state_dict(new_state_dict)
     
-    model.learning_rate    = args.optimizer.lr
-    model.sd_locked        = args.network.sd_locked
-    model.only_mid_control = args.network.only_mid_control
+    model.learning_rate    = args["optimizer"]["lr"]
+    model.sd_locked        = args["network"]["sd_locked"]
+    model.only_mid_control = args["network"]["only_mid_control"]
     
     # Callback
-    logger = ImageLogger(save_dir=str(save_dir), batch_frequency=args.logger_freq)
+    logger = ImageLogger(save_dir=str(save_dir), batch_frequency=args["logger_freq"])
     checkpoint_callback = ModelCheckpoint(
         dirpath                 = str(save_dir),
         filename                = fullname + "-{epoch:02d}-{step}",

@@ -8,7 +8,6 @@ from cldm.hack import disable_verbosity
 disable_verbosity()
 
 import random
-import argparse
 
 import torch.optim
 import torch.utils
@@ -104,27 +103,27 @@ def process(
     return results
 
 
-def predict(args: argparse.Namespace):
+def predict(args: dict) -> str:
     # Parse args
-    hostname     = args.hostname
-    root         = args.root
-    data         = args.data
-    fullname     = args.fullname
-    save_dir     = args.save_dir
-    weights      = args.weights
-    device       = args.device
-    seed         = args.seed
-    imgsz        = args.imgsz
-    resize       = args.resize
-    epochs       = args.epochs
-    steps        = args.steps
-    benchmark    = args.benchmark
-    save_image   = args.save_image
-    save_debug   = args.save_debug
-    use_fullpath = args.use_fullpath
-    verbose      = args.verbose
+    hostname     = args["hostname"]
+    root         = args["root"]
+    data         = args["data"]
+    fullname     = args["fullname"]
+    save_dir     = args["save_dir"]
+    weights      = args["weights"]
+    device       = args["device"]
+    seed         = args["seed"]
+    imgsz        = args["imgsz"]
+    resize       = args["resize"]
+    epochs       = args["epochs"]
+    steps        = args["steps"]
+    benchmark    = args["benchmark"]
+    save_image   = args["save_image"]
+    save_debug   = args["save_debug"]
+    use_fullpath = args["use_fullpath"]
+    verbose      = args["verbose"]
     
-    config_path  = current_dir / args.config_path  # "./models/cldm_v15.yaml"
+    config_path  = current_dir / args["config_path"]  # "./models/cldm_v15.yaml"
     init_ckpt    = mon.ZOO_DIR / "vision/enhance/llie/quadprior/quadprior/coco/control_sd15_init.ckpt"
     ae_ckpt      = mon.ZOO_DIR / "vision/enhance/llie/quadprior/quadprior/coco/ae_epoch=00_step=7000.ckpt"
     
@@ -168,7 +167,7 @@ def predict(args: argparse.Namespace):
     # Load bypass decoder
     model.change_first_stage(ae_ckpt)
     
-    if args.use_float16:
+    if args["use_float16"]:
         model = model.to(device).to(dtype=torch.float16)
     else:
         model = model.to(device)
@@ -205,7 +204,7 @@ def predict(args: argparse.Namespace):
                     input_image      = image,
                     num_samples      = 1,
                     image_resolution = imgsz,
-                    use_float16      = args.use_float16,
+                    use_float16      = args["use_float16"],
                 )[0]
                 timer.tock()
                 

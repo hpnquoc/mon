@@ -20,10 +20,11 @@ use_fullpath: False                                                             
 exist_ok    : True                                                              # If ``False``, it will delete the save directory if it already exists.
 verbose     : &verbose True                                                     # Verbosity.
 
-# Misc
-window: 7
-L     : 0.3
-alpha : 1
-beta  : 20
-gamma : 8
-delta : 5
+# Network
+network: &network                                                               # Network architecture.
+  window: 7
+  L     : 0.3
+  alpha : 1
+  beta  : 20
+  gamma : 8
+  delta : 5

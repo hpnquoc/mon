@@ -165,7 +165,7 @@ def parse_train_args(model_root: str | pathlib.Path = None) -> dict | argparse.N
         pathlib.copy_file(src=config, dst=save_dir / f"{config.name}")
     
     # Return
-    args = argparse.Namespace(**args)
+    # args = argparse.Namespace(**args)
     return args
 
 
@@ -262,5 +262,5 @@ def parse_predict_args(model_root: str | pathlib.Path = None) -> dict | argparse
         pathlib.copy_file(src=config, dst=save_dir / f"{config.name}")
     
     # Return
-    args = argparse.Namespace(**args)
+    # args = argparse.Namespace(**args)
     return args

@@ -32,7 +32,7 @@ optimizer: &optimizer                                                           
 # Datamodule
 datamodule:
   name      : *data                                                             # Data module name (e.g., cifar10).
-  root      : "data/coco/coco2017/images/*/*.*"                                 # Root directory of the dataset.
+  root      : "data/coco/coco_2017/images/*/*.*"                                # Root directory of the dataset.
   transform : ~                                                                 # Data augmentation.
   to_tensor : True                                                              # If ``True``, convert the data to tensor.
   batch_size: 4                                                                 # Batch size.

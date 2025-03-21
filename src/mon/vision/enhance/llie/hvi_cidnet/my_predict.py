@@ -89,7 +89,7 @@ def predict(args: argparse.Namespace):
                 description = f"[bright_yellow] Predicting"
             ):
                 # Input
-                meta       = datapoint.get("meta")
+                meta       = datapoint["meta"]
                 image_path = mon.Path(meta["path"])
                 image      = Image.open(image_path).convert("RGB")
                 image      = (np.asarray(image) / 255.0)

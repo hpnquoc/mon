@@ -21,31 +21,33 @@ current_dir  = current_file.parents[0]
 
 # region Predict
 
-def predict(args: argparse.Namespace):
+def predict(args: dict) -> str:
     # Parse args
-    hostname     = args.hostname
-    data         = args.data
-    fullname     = args.fullname
-    save_dir     = args.save_dir
-    weights      = args.weights
-    device       = args.device
-    seed         = args.seed
-    imgsz        = args.imgsz
+    hostname     = args["hostname"]
+    root         = args["root"]
+    data         = args["data"]
+    fullname     = args["fullname"]
+    save_dir     = args["save_dir"]
+    weights      = args["weights"]
+    device       = args["device"]
+    seed         = args["seed"]
+    imgsz        = args["imgsz"]
     imgsz        = imgsz[0] if isinstance(imgsz, Sequence) else imgsz
-    resize       = args.resize
-    epochs       = args.epochs
-    steps        = args.steps
-    benchmark    = args.benchmark
-    save_image   = args.save_image
-    save_debug   = args.save_debug
-    use_fullpath = args.use_fullpath
-    verbose      = args.verbose
-    window       = args.window
-    L            = args.L
-    alpha        = args.alpha
-    beta         = args.beta
-    gamma        = args.gamma
-    delta        = args.delta
+    resize       = args["resize"]
+    epochs       = args["epochs"]
+    steps        = args["steps"]
+    benchmark    = args["benchmark"]
+    save_image   = args["save_image"]
+    save_debug   = args["save_debug"]
+    use_fullpath = args["use_fullpath"]
+    verbose      = args["verbose"]
+    
+    window       = args["network"]["window"]
+    L            = args["network"]["L"]
+    alpha        = args["network"]["alpha"]
+    beta         = args["network"]["beta"]
+    gamma        = args["network"]["gamma"]
+    delta        = args["network"]["delta"]
     
     # Start
     console.rule(f"[bold red] {fullname}")
@@ -83,7 +85,7 @@ def predict(args: argparse.Namespace):
             description = f"[bright_yellow] Predicting"
         ):
             # Input
-            meta       = datapoint.get("meta")
+            meta       = datapoint["meta"]
             image_path = mon.Path(meta["path"])
             img_rgb    = get_image(str(image_path))
             img_hsv    = rgb2hsv_torch(img_rgb)

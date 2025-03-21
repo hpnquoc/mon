@@ -20,12 +20,13 @@ use_fullpath: False                                                             
 exist_ok    : True                                                              # If ``False``, it will delete the save directory if it already exists.
 verbose     : &verbose True                                                     # Verbosity.
 
-# Misc
-gamma  : 0.6                                                                    # Gamma correction parameter
-lambda_: 0.15                                                                   # The weight for balancing the two terms in the illumination refinement optimization objective
-lime   : True                                                                   # Use the LIME method. By default, the DUAL method is used
-sigma  : 3                                                                      # Spatial standard deviation for spatial affinity based Gaussian weights
-bc     : 1                                                                      # Parameter for controlling the influence of Mertens's contrast measure
-bs     : 1                                                                      # Parameter for controlling the influence of Mertens's saturation measure
-be     : 1                                                                      # Parameter for controlling the influence of Mertens's well exposedness measure
-eps    : 1e-3                                                                   # Constant to avoid computation instability
+# Network
+network: &network                                                               # Network architecture.
+  gamma  : 0.6                                                                  # Gamma correction parameter
+  lambda_: 0.15                                                                 # The weight for balancing the two terms in the illumination refinement optimization objective
+  lime   : True                                                                 # Use the LIME method. By default, the DUAL method is used
+  sigma  : 3                                                                    # Spatial standard deviation for spatial affinity based Gaussian weights
+  bc     : 1                                                                    # Parameter for controlling the influence of Mertens's contrast measure
+  bs     : 1                                                                    # Parameter for controlling the influence of Mertens's saturation measure
+  be     : 1                                                                    # Parameter for controlling the influence of Mertens's well exposedness measure
+  eps    : 1e-3                                                                 # Constant to avoid computation instability

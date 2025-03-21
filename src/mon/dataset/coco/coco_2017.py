@@ -10,7 +10,7 @@ segmentation.
 from __future__ import annotations
 
 __all__ = [
-    "COCO",
+    "COCO2017",
     "COCODataModule",
 ]
 
@@ -30,9 +30,9 @@ ImageAnnotation     = dtype.ImageAnnotation
 MultimodalDataset   = dtype.MultimodalDataset
 
 
-@DATASETS.register(name="coco")
-class COCO(MultimodalDataset):
-    """COCO dataset."""
+@DATASETS.register(name="coco_2017")
+class COCO2017(MultimodalDataset):
+    """COCO 2017 dataset."""
     
     tasks : list[Task]  = [Task.DETECT]
     splits: list[Split] = [Split.TRAIN, Split.VAL, Split.TEST]
@@ -137,6 +137,10 @@ class COCO(MultimodalDataset):
     ])
     
     def __init__(self, root: core.Path = default_root_dir, *args, **kwargs):
+        root = root / "coco_2017" if root.name != "coco_2017" else root
+        if not root.is_dir():
+            raise FileNotFoundError(f"Directory not found: {root}.")
+        # Initialize
         super().__init__(root=root, *args, **kwargs)
     
     def get_data(self):
@@ -149,17 +153,16 @@ class COCO(MultimodalDataset):
         with core.get_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 for path in pbar.track(
-                    sorted(list(pattern.rglob("*"))),
-                    description=f"Listing {self.__class__.__name__} "
-                                f"{self.split_str} left images"
-                ):
+					sequence    = sorted(list(pattern.rglob("*"))),
+					description = f"Listing {self.__class__.__name__} {self.split_str} images"
+				):
                     if path.is_image_file():
                         images.append(ImageAnnotation(path=path))
         
         self.datapoints["image"] = images
 
 
-@DATAMODULES.register(name="coco")
+@DATAMODULES.register(name="coco_2017")
 class COCODataModule(DataModule):
     
     tasks: list[Task] = [Task.DETECT]
@@ -172,10 +175,10 @@ class COCODataModule(DataModule):
             console.log(f"Setup [red]{self.__class__.__name__}[/red].")
         
         if stage in [None, "train"]:
-            self.train = COCO(split=Split.TRAIN, **self.dataset_kwargs)
-            self.val   = COCO(split=Split.VAL,   **self.dataset_kwargs)
+            self.train = COCO2017(split=Split.TRAIN, **self.dataset_kwargs)
+            self.val   = COCO2017(split=Split.VAL,   **self.dataset_kwargs)
         if stage in [None, "test"]:
-            self.test  = COCO(split=Split.TEST,  **self.dataset_kwargs)
+            self.test  = COCO2017(split=Split.TEST,  **self.dataset_kwargs)
         
         self.get_classlabels()
         if self.can_log:

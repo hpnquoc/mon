@@ -8,7 +8,6 @@ Reference:
 
 from __future__ import annotations
 
-import argparse
 from typing import Sequence
 
 import cv2
@@ -23,26 +22,26 @@ current_dir  = current_file.parents[0]
 
 # region Predict
 
-def predict(args: argparse.Namespace):
-    # General config
-    hostname     = args.hostname
-    root         = args.root
-    data         = args.data
-    fullname     = args.fullname
-    save_dir     = args.save_dir
-    weights      = args.weights
-    device       = args.device
-    seed         = args.seed
-    imgsz        = args.imgsz
+def predict(args: dict) -> str:
+    # Parse args
+    hostname     = args["hostname"]
+    root         = args["root"]
+    data         = args["data"]
+    fullname     = args["fullname"]
+    save_dir     = args["save_dir"]
+    weights      = args["weights"]
+    device       = args["device"]
+    seed         = args["seed"]
+    imgsz        = args["imgsz"]
     imgsz        = imgsz[0] if isinstance(imgsz, Sequence) else imgsz
-    resize       = args.resize
-    epochs       = args.epochs
-    steps        = args.steps
-    benchmark    = args.benchmark
-    save_image   = args.save_image
-    save_debug   = args.save_debug
-    use_fullpath = args.use_fullpath
-    verbose      = args.verbose
+    resize       = args["resize"]
+    epochs       = args["epochs"]
+    steps        = args["steps"]
+    benchmark    = args["benchmark"]
+    save_image   = args["save_image"]
+    save_debug   = args["save_debug"]
+    use_fullpath = args["use_fullpath"]
+    verbose      = args["verbose"]
     
     # Start
     console.rule(f"[bold red] {fullname}")
@@ -73,9 +72,9 @@ def predict(args: argparse.Namespace):
             description = f"[bright_yellow] Predicting"
         ):
             # Input
-            meta       = datapoint.get("meta")
+            meta       = datapoint["meta"]
             image_path = mon.Path(meta["path"])
-            image      = datapoint.get("image")
+            image      = datapoint["image"]
             h0, w0     = mon.get_image_size(image)
             if resize:
                 image = cv2.resize(image, (imgsz, imgsz))
@@ -84,14 +83,14 @@ def predict(args: argparse.Namespace):
             timer.tick()
             enhanced = enhance_image_exposure(
                 im      = image,
-                gamma   = args.gamma,
-                lambda_ = args.lambda_,
-                dual    = not args.lime,
-                sigma   = args.sigma,
-                bc      = args.bc,
-                bs      = args.bs,
-                be      = args.be,
-                eps     = args.eps
+                gamma   = args["network"]["gamma"],
+                lambda_ = args["network"]["lambda_"],
+                dual    = not args["network"]["lime"],
+                sigma   = args["network"]["sigma"],
+                bc      = args["network"]["bc"],
+                bs      = args["network"]["bs"],
+                be      = args["network"]["be"],
+                eps     = args["network"]["eps"]
             )
             timer.tock()
             

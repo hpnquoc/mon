@@ -106,7 +106,7 @@ def train(args: argparse.Namespace):
                 description = f"[bright_yellow] Training"
             ):
                 optimizer.zero_grad()
-                image      = datapoint.get("image").to(device).type(torch.float32)
+                image      = datapoint["image"].to(device).type(torch.float32)
                 ref        = datapoint.get("ref_image").to(device).type(torch.float32)
                 pred, loss = model(image, epoch)
                 if args.f_OverExp:

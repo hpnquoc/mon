@@ -8,7 +8,6 @@ References:
 
 from __future__ import annotations
 
-import argparse
 from collections import OrderedDict
 
 import pandas as pd
@@ -75,25 +74,25 @@ def val_epoch(val_loader, model, criterion, device):
     return loss_meters.avg, psnr_meters.compute(), ssim_meters.compute()
 
 
-def train(args: argparse.Namespace):
+def train(args: dict) -> str:
     # Parse args
-    hostname     = args.hostname
-    root         = args.root
-    data         = args.data
-    fullname     = args.fullname
-    save_dir     = args.save_dir
-    weights      = args.weights
-    device       = args.device
-    seed         = args.seed
-    imgsz        = args.imgsz
-    resize       = args.resize
-    epochs       = args.epochs
-    steps        = args.steps
-    benchmark    = args.benchmark
-    save_image   = args.save_image
-    save_debug   = args.save_debug
-    use_fullpath = args.use_fullpath
-    verbose      = args.verbose
+    hostname     = args["hostname"]
+    root         = args["root"]
+    data         = args["data"]
+    fullname     = args["fullname"]
+    save_dir     = args["save_dir"]
+    weights      = args["weights"]
+    device       = args["device"]
+    seed         = args["seed"]
+    imgsz        = args["imgsz"]
+    resize       = args["resize"]
+    epochs       = args["epochs"]
+    steps        = args["steps"]
+    benchmark    = args["benchmark"]
+    save_image   = args["save_image"]
+    save_debug   = args["save_debug"]
+    use_fullpath = args["use_fullpath"]
+    verbose      = args["verbose"]
     
     # Start
     console.rule(f"[bold red] {fullname}")
@@ -107,10 +106,12 @@ def train(args: argparse.Namespace):
     mon.set_random_seed(seed)
     
     # Data I/O
-    args.datamodule.transform = A.Compose(transforms=[
-        A.Resize(width=imgsz, height=imgsz),
-    ])
-    datamodule: mon.DataModule = mon.DATAMODULES.build(config=vars(args.datamodule))
+    args["datamodule"] |= {
+        "transform": A.Compose(transforms=[
+            A.Resize(width=imgsz, height=imgsz),
+        ])
+    }
+    datamodule: mon.DataModule = mon.DATAMODULES.build(config=args["datamodule"])
     datamodule.setup(stage="train")
     train_dataloader = datamodule.train_dataloader
     val_dataloader   = datamodule.val_dataloader
@@ -120,11 +121,11 @@ def train(args: argparse.Namespace):
     model.train()
     
     # Optimizer
-    optimizer = optim.Adam(model.parameters(), lr=args.optimizer.lr, weight_decay=args.optimizer.weight_decay)
+    optimizer = optim.Adam(model.parameters(), lr=args["optimizer"]["lr"], weight_decay=args["optimizer"]["weight_decay"])
     scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, 0.99)
     
     # Loss
-    criterion = Loss(*args.loss.loss_weights).to(device)
+    criterion = Loss(*args["loss"]["loss_weights"]).to(device)
     
     # Logging
     writer = SummaryWriter(log_dir=str(save_dir))
@@ -155,7 +156,7 @@ def train(args: argparse.Namespace):
         
         # Log
         log["epoch"].append(epoch)
-        log["lr"].append(args.lr)
+        log["lr"].append(args["optimizer"]["lr"])
         log["train/loss"].append(train_loss)
         log["val/loss"].append(val_loss)
         log["val/psnr"].append(val_psnr)
