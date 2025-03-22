@@ -1,10 +1,11 @@
 #!/usr/bin/env python
 # Copyright (c) Megvii, Inc. and its affiliates. All Rights Reserved
 
-import re
-import setuptools
 import glob
+import re
 from os import path
+
+import setuptools
 import torch
 from torch.utils.cpp_extension import CppExtension
 

@@ -4,12 +4,11 @@
 @contact: sherlockliao01@gmail.com
 """
 
+from collections import OrderedDict
+
+import numpy as np
 import torch
 import torch.nn as nn
-from torch.autograd import Variable
-
-from collections import OrderedDict
-import numpy as np
 
 
 def summary(model, input_size, batch_size=-1, device="cuda"):

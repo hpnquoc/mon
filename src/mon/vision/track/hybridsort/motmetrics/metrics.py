@@ -9,18 +9,15 @@
 
 # pylint: disable=redefined-outer-name
 
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function
 
-from collections import OrderedDict
 import inspect
 import logging
 import time
+from collections import OrderedDict
 
 import numpy as np
 import pandas as pd
-
 from motmetrics import math_util
 from motmetrics.lap import linear_sum_assignment
 from motmetrics.mot import MOTAccumulator

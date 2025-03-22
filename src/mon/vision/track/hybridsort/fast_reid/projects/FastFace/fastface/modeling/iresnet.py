@@ -4,11 +4,9 @@
 @contact: sherlockliao01@gmail.com
 """
 
-import torch
-from torch import nn
-
 from fast_reid.fastreid.layers import get_norm
 from fast_reid.fastreid.modeling.backbones import BACKBONE_REGISTRY
+from torch import nn
 
 
 def conv3x3(in_planes, out_planes, stride=1, groups=1, dilation=1):

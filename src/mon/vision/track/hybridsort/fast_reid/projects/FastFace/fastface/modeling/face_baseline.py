@@ -5,8 +5,7 @@
 """
 
 import torch
-from fast_reid.fastreid.modeling.meta_arch import Baseline
-from fast_reid.fastreid.modeling.meta_arch import META_ARCH_REGISTRY
+from fast_reid.fastreid.modeling.meta_arch import Baseline, META_ARCH_REGISTRY
 
 
 @META_ARCH_REGISTRY.register()

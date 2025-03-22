@@ -1,8 +1,9 @@
-import numpy as np
-import os
 import glob
+import os
+import sys
+
 import motmetrics as mm
-import sys 
+import numpy as np
 from yolox.evaluators.evaluation import Evaluator
 
 

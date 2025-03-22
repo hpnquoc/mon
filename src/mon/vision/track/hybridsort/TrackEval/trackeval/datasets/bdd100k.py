@@ -1,12 +1,13 @@
 
-import os
 import json
+import os
+
 import numpy as np
 from scipy.optimize import linear_sum_assignment
-from ..utils import TrackEvalException
+
 from ._base_dataset import _BaseDataset
-from .. import utils
-from .. import _timing
+from .. import _timing, utils
+from ..utils import TrackEvalException
 
 
 class BDD100K(_BaseDataset):

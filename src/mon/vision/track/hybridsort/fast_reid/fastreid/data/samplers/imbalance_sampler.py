@@ -9,13 +9,12 @@
 
 
 import itertools
-from typing import Optional, List, Callable
+from typing import Callable, List, Optional
 
 import numpy as np
 import torch
-from torch.utils.data.sampler import Sampler
-
 from fast_reid.fastreid.utils import comm
+from torch.utils.data.sampler import Sampler
 
 
 class ImbalancedDatasetSampler(Sampler):

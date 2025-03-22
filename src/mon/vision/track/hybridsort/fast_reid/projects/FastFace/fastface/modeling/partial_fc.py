@@ -3,16 +3,14 @@
 # https://github.com/deepinsight/insightface/blob/master/recognition/arcface_torch/partial_fc.py
 
 import logging
-import math
 
 import torch
 import torch.distributed as dist
 import torch.nn.functional as F
-from torch import nn
-
 from fast_reid.fastreid.layers import any_softmax
 from fast_reid.fastreid.modeling.losses.utils import concat_all_gather
 from fast_reid.fastreid.utils import comm
+from torch import nn
 
 logger = logging.getLogger('fastreid.partial_fc')
 

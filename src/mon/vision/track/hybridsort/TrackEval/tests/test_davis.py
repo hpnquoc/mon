@@ -1,7 +1,8 @@
-import sys
 import os
-import numpy as np
+import sys
 from multiprocessing import freeze_support
+
+import numpy as np
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 import trackeval  # noqa: E402

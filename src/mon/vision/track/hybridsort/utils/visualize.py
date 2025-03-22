@@ -1,12 +1,11 @@
 '''
     The script to visualize 
 '''
-import cv2 
+import os
+
+import cv2
+import seaborn as sns
 import torch
-import os 
-import numpy as np
-import colorsys
-import seaborn as sns 
 
 platte = sns.color_palette("Spectral", 100, as_cmap=True) # doesn't work
 
@@ -14,7 +13,6 @@ from typing import Iterable, Tuple
 import colorsys
 import itertools
 from fractions import Fraction
-from pprint import pprint
 
 
 ######## The code to generate high-contrastive colors for visualization ##########

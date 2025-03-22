@@ -1,12 +1,16 @@
-import numpy as np
-import torch
-import cv2
 import os
 
-from .reid_model_motdt import load_reid_model, extract_reid_features
-from trackers.deepsort_tracker import kalman_filter, linear_assignment, iou_matching
+import cv2
+import numpy as np
+import torch
+from trackers.deepsort_tracker import (
+	iou_matching, kalman_filter,
+	linear_assignment,
+)
 from yolox.data.dataloading import get_yolox_datadir
+
 from .detection import Detection
+from .reid_model_motdt import extract_reid_features, load_reid_model
 from .track import Track
 
 

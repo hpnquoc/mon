@@ -7,25 +7,27 @@ import logging
 import os
 import time
 
-from torch.nn.parallel import DistributedDataParallel
-from torch.nn.utils import clip_grad_norm_
-
-from fast_reid.fastreid.data.build import _root, build_reid_test_loader, build_reid_train_loader
+from fast_reid.fastreid.data.build import (
+	_root, build_reid_test_loader,
+	build_reid_train_loader,
+)
 from fast_reid.fastreid.data.datasets import DATASET_REGISTRY
 from fast_reid.fastreid.data.transforms import build_transforms
 from fast_reid.fastreid.engine import hooks
 from fast_reid.fastreid.engine.defaults import DefaultTrainer, TrainerBase
-from fast_reid.fastreid.engine.train_loop import SimpleTrainer, AMPTrainer
+from fast_reid.fastreid.engine.train_loop import AMPTrainer, SimpleTrainer
 from fast_reid.fastreid.solver import build_optimizer
 from fast_reid.fastreid.utils import comm
 from fast_reid.fastreid.utils.checkpoint import Checkpointer
 from fast_reid.fastreid.utils.logger import setup_logger
 from fast_reid.fastreid.utils.params import ContiguousParams
-from .face_data import MXFaceDataset
-from .face_data import TestFaceDataset
+from torch.nn.parallel import DistributedDataParallel
+from torch.nn.utils import clip_grad_norm_
+
+from .face_data import MXFaceDataset, TestFaceDataset
 from .face_evaluator import FaceEvaluator
 from .modeling import PartialFC
-from .pfc_checkpointer import PfcPeriodicCheckpointer, PfcCheckpointer
+from .pfc_checkpointer import PfcCheckpointer, PfcPeriodicCheckpointer
 from .utils_amp import MaxClipGradScaler
 
 

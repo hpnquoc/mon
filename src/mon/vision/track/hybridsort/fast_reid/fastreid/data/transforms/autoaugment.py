@@ -22,9 +22,9 @@ import math
 import random
 import re
 
-import PIL
 import numpy as np
-from PIL import Image, ImageOps, ImageEnhance
+import PIL
+from PIL import Image, ImageEnhance, ImageOps
 
 _PIL_VER = tuple([int(x) for x in PIL.__version__.split('.')[:2]])
 

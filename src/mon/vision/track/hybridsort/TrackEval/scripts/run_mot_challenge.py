@@ -33,9 +33,9 @@ Command Line Arguments: Defaults, # Comments
         'METRICS': ['HOTA', 'CLEAR', 'Identity', 'VACE']
 """
 
-import sys
-import os
 import argparse
+import os
+import sys
 from multiprocessing import freeze_support
 
 # python TrackEval/scripts/run_mot_challenge.py --BENCHMARK MOT17 --SPLIT_TO_EVAL train --TRACKERS_TO_EVAL ByteTrack --METRICS HOTA CLEAR Identity VACE --TIME_PROGRESS False --USE_PARALLEL False --NUM_PARALLEL_CORES 1  --GT_FOLDER datasets/mot/ --TRACKERS_FOLDER YOLOX_outputs/yolox_s_mot17_half_repro1/track_results_ByteTrack/track_results --GT_LOC_FORMAT {gt_folder}/{seq}/gt/gt_val_half.txt

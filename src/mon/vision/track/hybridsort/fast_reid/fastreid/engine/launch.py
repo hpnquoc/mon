@@ -13,7 +13,6 @@ import logging
 import torch
 import torch.distributed as dist
 import torch.multiprocessing as mp
-
 from fast_reid.fastreid.utils import comm
 
 __all__ = ["launch"]

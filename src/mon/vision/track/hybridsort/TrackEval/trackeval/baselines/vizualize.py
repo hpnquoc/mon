@@ -6,8 +6,8 @@ Author: Jonathon Luiten
 
 import os
 import sys
-from multiprocessing.pool import Pool
 from multiprocessing import freeze_support
+from multiprocessing.pool import Pool
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 from trackeval.baselines import baseline_utils as butils

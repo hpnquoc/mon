@@ -7,7 +7,6 @@
 from typing import List
 
 import torch
-from torch.optim.lr_scheduler import *
 
 
 class WarmupLR(torch.optim.lr_scheduler._LRScheduler):

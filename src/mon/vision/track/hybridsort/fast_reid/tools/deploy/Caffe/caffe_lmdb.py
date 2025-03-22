@@ -1,6 +1,7 @@
 import lmdb
-from Caffe import caffe_pb2 as pb2
 import numpy as np
+from Caffe import caffe_pb2 as pb2
+
 
 class Read_Caffe_LMDB():
     def __init__(self,path,dtype=np.uint8):

@@ -1,8 +1,9 @@
-import numpy as np
-from ._base_metric import _BaseMetric
-from .. import _timing
 from functools import partial
-from .. import utils
+
+import numpy as np
+
+from ._base_metric import _BaseMetric
+from .. import _timing, utils
 from ..utils import TrackEvalException
 
 

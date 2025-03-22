@@ -4,9 +4,8 @@
 @contact: sherlockliao01@gmail.com
 """
 
-from torch.utils.data import Dataset
-
 from fast_reid.fastreid.data.data_utils import read_image
+from torch.utils.data import Dataset
 
 
 class ClasDataset(Dataset):

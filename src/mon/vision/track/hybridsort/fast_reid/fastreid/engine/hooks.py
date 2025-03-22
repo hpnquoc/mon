@@ -10,17 +10,24 @@ import time
 from collections import Counter
 
 import torch
-from torch import nn
-from torch.nn.parallel import DistributedDataParallel
-
 from fast_reid.fastreid.evaluation.testing import flatten_results_dict
 from fast_reid.fastreid.solver import optim
 from fast_reid.fastreid.utils import comm
-from fast_reid.fastreid.utils.checkpoint import PeriodicCheckpointer as _PeriodicCheckpointer
-from fast_reid.fastreid.utils.events import EventStorage, EventWriter, get_event_storage
+from fast_reid.fastreid.utils.checkpoint import \
+	PeriodicCheckpointer as _PeriodicCheckpointer
+from fast_reid.fastreid.utils.events import (
+	EventStorage, EventWriter,
+	get_event_storage,
+)
 from fast_reid.fastreid.utils.file_io import PathManager
-from fast_reid.fastreid.utils.precision_bn import update_bn_stats, get_bn_modules
+from fast_reid.fastreid.utils.precision_bn import (
+	get_bn_modules,
+	update_bn_stats,
+)
 from fast_reid.fastreid.utils.timer import Timer
+from torch import nn
+from torch.nn.parallel import DistributedDataParallel
+
 from .train_loop import HookBase
 
 __all__ = [

@@ -3,9 +3,9 @@
 # Copyright (c) Megvii, Inc. and its affiliates.
 
 import os
+
 import torch
 import torch.nn as nn
-
 from yolox.exp import Exp as MyExp
 
 

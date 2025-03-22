@@ -7,7 +7,7 @@
 import torch
 import torch.nn.functional as F
 
-from .utils import euclidean_dist, cosine_dist
+from .utils import cosine_dist, euclidean_dist
 
 
 def softmax_weights(dist, mask):

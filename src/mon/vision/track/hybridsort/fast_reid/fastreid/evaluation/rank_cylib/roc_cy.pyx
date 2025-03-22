@@ -6,6 +6,11 @@ import faiss
 import numpy as np
 cimport numpy as np
 
+cimport
+numpy as np
+import cython
+import faiss
+import numpy as np
 
 """
 Compiler directives:

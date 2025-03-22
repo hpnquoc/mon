@@ -8,7 +8,6 @@ import os
 from typing import Any, Dict
 
 import torch
-
 from fast_reid.fastreid.engine.hooks import PeriodicCheckpointer
 from fast_reid.fastreid.utils import comm
 from fast_reid.fastreid.utils.checkpoint import Checkpointer

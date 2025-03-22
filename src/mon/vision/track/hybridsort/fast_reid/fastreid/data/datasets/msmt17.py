@@ -4,12 +4,11 @@
 @contact: sherlockliao01@gmail.com
 """
 
-import sys
-import os
 import os.path as osp
 
 from .bases import ImageDataset
 from ..datasets import DATASET_REGISTRY
+
 ##### Log #####
 # 22.01.2019
 # - add v2

@@ -1,15 +1,14 @@
+import os
+import pickle
+
 import cv2
 import numpy as np
 import torch
-from torch.autograd import Variable
-import torch.nn.functional as F
 import torch.nn as nn
-import pickle
-import os
+import torch.nn.functional as F
+# from torch.legacy.nn import SpatialCrossMapLRN as SpatialCrossMapLRNOld
+from torch.autograd import Variable
 from torch.nn.modules import CrossMapLRN2d as SpatialCrossMapLRN
-#from torch.legacy.nn import SpatialCrossMapLRN as SpatialCrossMapLRNOld
-from torch.autograd import Function, Variable
-from torch.nn import Module
 
 
 def clip_boxes(boxes, im_shape):

@@ -1,14 +1,9 @@
 import numpy as np
-from collections import deque
-import os
-import os.path as osp
-import copy
-import torch
-import torch.nn.functional as F
-
-from .kalman_filter import KalmanFilter
 from trackers.byte_tracker import matching
+
 from .basetrack import BaseTrack, TrackState
+from .kalman_filter import KalmanFilter
+
 
 class STrack(BaseTrack):
     

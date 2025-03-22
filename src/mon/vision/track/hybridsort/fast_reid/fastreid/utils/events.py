@@ -6,7 +6,9 @@ import os
 import time
 from collections import defaultdict
 from contextlib import contextmanager
+
 import torch
+
 from .file_io import PathManager
 from .history_buffer import HistoryBuffer
 

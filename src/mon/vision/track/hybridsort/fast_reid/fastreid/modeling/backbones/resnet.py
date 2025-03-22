@@ -8,18 +8,15 @@ import logging
 import math
 
 import torch
+from fast_reid.fastreid.layers import (get_norm, IBN, Non_local, SELayer)
+from fast_reid.fastreid.utils import comm
+from fast_reid.fastreid.utils.checkpoint import (
+	get_missing_parameters_message,
+	get_unexpected_parameters_message,
+)
 from torch import nn
 
-from fast_reid.fastreid.layers import (
-    IBN,
-    SELayer,
-    Non_local,
-    get_norm,
-)
-from fast_reid.fastreid.utils.checkpoint import get_missing_parameters_message, get_unexpected_parameters_message
 from .build import BACKBONE_REGISTRY
-from fast_reid.fastreid.utils import comm
-
 
 logger = logging.getLogger(__name__)
 model_urls = {

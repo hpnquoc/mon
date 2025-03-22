@@ -1,8 +1,9 @@
 
-import os
 import csv
-import numpy as np
+import os
 from copy import deepcopy
+
+import numpy as np
 from PIL import Image
 from pycocotools import mask as mask_utils
 from scipy.optimize import linear_sum_assignment

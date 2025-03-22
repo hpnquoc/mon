@@ -1,10 +1,12 @@
 
-import numpy as np
 import math
+
+import numpy as np
 from scipy.optimize import linear_sum_assignment
-from ..utils import TrackEvalException
+
 from ._base_metric import _BaseMetric
 from .. import _timing
+from ..utils import TrackEvalException
 
 
 class JAndF(_BaseMetric):

@@ -1,20 +1,18 @@
-import numpy as np
-#from numba import jit
-from collections import OrderedDict, deque
 import itertools
 import os
+# from numba import jit
+from collections import deque
+
 import cv2
+import numpy as np
 import torch
-from torch._C import dtype
 import torchvision
-
 from trackers.motdt_tracker import matching
-from .kalman_filter import KalmanFilter
-
-from .reid_model import load_reid_model, extract_reid_features
 from yolox.data.dataloading import get_yolox_datadir
 
 from .basetrack import BaseTrack, TrackState
+from .kalman_filter import KalmanFilter
+from .reid_model import extract_reid_features, load_reid_model
 
 
 class STrack(BaseTrack):

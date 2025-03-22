@@ -9,9 +9,10 @@ detections. It is also able to match detections to tracks at more than one times
 
 import os
 import sys
-import numpy as np
-from multiprocessing.pool import Pool
 from multiprocessing import freeze_support
+from multiprocessing.pool import Pool
+
+import numpy as np
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 from trackeval.baselines import baseline_utils as butils
@@ -141,4 +142,3 @@ if __name__ == '__main__':
     else:
         for seq_todo in seqs_todo:
             track_sequence(seq_todo)
-

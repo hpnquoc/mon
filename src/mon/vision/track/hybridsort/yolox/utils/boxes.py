@@ -6,7 +6,6 @@ import numpy as np
 
 import torch
 import torchvision
-import torch.nn.functional as F
 
 __all__ = [
     "filter_box",

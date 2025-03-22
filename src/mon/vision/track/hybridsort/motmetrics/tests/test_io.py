@@ -7,15 +7,12 @@
 
 """Tests IO functions."""
 
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function
 
 import os
 
-import pandas as pd
-
 import motmetrics as mm
+import pandas as pd
 
 DATA_DIR = os.path.join(os.path.dirname(__file__), '../data')
 

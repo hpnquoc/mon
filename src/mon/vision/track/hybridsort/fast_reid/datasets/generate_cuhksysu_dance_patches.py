@@ -1,11 +1,11 @@
-import os
 import argparse
-import math
+import json
+import os
+
 import cv2
-import matplotlib.pyplot as plt
 import numpy as np
 from tqdm import tqdm
-import json
+
 
 def make_parser():
     parser = argparse.ArgumentParser("dancetrack reid dataset")

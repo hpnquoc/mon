@@ -13,7 +13,7 @@ from collections import deque
 import numpy as np
 import torch
 
-from .functional import to_tensor, augmentations
+from .functional import augmentations, to_tensor
 
 
 class ToTensor(object):

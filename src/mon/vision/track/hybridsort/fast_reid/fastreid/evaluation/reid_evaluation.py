@@ -4,18 +4,18 @@
 @contact: sherlockliao01@gmail.com
 """
 import copy
+import itertools
 import logging
 import time
-import itertools
 from collections import OrderedDict
 
 import numpy as np
 import torch
 import torch.nn.functional as F
-from sklearn import metrics
-
 from fast_reid.fastreid.utils import comm
 from fast_reid.fastreid.utils.compute_dist import build_dist
+from sklearn import metrics
+
 from .evaluator import DatasetEvaluator
 from .query_expansion import aqe
 from .rank_cylib import compile_helper

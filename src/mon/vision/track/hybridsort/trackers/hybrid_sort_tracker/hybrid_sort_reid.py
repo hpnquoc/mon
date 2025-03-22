@@ -3,10 +3,11 @@
 """
 from __future__ import print_function
 
-import numpy as np
 import copy
+from collections import deque  # [hgx0418] deque for reid feature
+
 from .association import *
-from collections import deque       # [hgx0418] deque for reid feature
+
 np.random.seed(0)
 
 def k_previous_obs(observations, cur_age, k):
@@ -626,5 +627,3 @@ class Hybrid_Sort_ReID(object):
         if(len(ret)>0):
             return np.concatenate(ret)
         return np.empty((0, 7))
-
-

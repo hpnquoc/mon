@@ -8,7 +8,6 @@ import logging
 from collections import OrderedDict
 
 import torch
-
 from fast_reid.fastreid.evaluation.evaluator import DatasetEvaluator
 from fast_reid.fastreid.utils import comm
 

@@ -1,11 +1,11 @@
+import os
+
 import cv2
 import numpy as np
 from pycocotools.coco import COCO
 
-import os
-
-from ..dataloading import get_yolox_datadir
 from .datasets_wrapper import Dataset
+from ..dataloading import get_yolox_datadir
 
 
 class MOTDataset(Dataset):
@@ -137,4 +137,3 @@ class MOTDataset(Dataset):
             return img, target, img_info, img_id        # [hgx 0427] do not return 'raw_image' when training
         else:
             return img, target, img_info, img_id, raw_image     # [hgx 0427] return 'raw_image' when tracking
-

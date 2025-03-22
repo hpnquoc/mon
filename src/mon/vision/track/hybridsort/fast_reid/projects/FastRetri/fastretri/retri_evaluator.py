@@ -7,13 +7,12 @@
 import copy
 import logging
 from collections import OrderedDict
-from typing import List, Optional, Dict
+from typing import Dict, List, Optional
 
 import faiss
 import numpy as np
 import torch
 import torch.nn.functional as F
-
 from fast_reid.fastreid.evaluation import DatasetEvaluator
 from fast_reid.fastreid.utils import comm
 

@@ -1,8 +1,9 @@
+import glob as gb
+import json
 import os
 import sys
-import json
+
 import cv2
-import glob as gb
 import numpy as np
 
 

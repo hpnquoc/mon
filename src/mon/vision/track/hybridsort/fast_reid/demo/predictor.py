@@ -11,7 +11,6 @@ from collections import deque
 import cv2
 import torch
 import torch.multiprocessing as mp
-
 from fast_reid.fastreid.engine import DefaultPredictor
 
 try:

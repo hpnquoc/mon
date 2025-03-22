@@ -4,12 +4,13 @@
 @contact: sherlockliao01@gmail.com
 """
 
-import caffe
-import tqdm
 import glob
 import os
+
+import caffe
 import cv2
 import numpy as np
+import tqdm
 
 caffe.set_mode_gpu()
 
@@ -92,4 +93,3 @@ if __name__ == "__main__":
             feat = net.forward()["output"]
             feat = normalize(feat[..., 0, 0], axis=1)
             np.save(os.path.join(args.output, os.path.basename(path).split('.')[0] + '.npy'), feat)
-

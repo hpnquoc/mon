@@ -7,12 +7,9 @@
 
 """Functions for populating event accumulators."""
 
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function
 
 import numpy as np
-
 from motmetrics.distances import iou_matrix, norm2squared_matrix
 from motmetrics.mot import MOTAccumulator
 from motmetrics.preprocess import preprocessResult

@@ -4,9 +4,12 @@
 @contact: sherlockliao01@gmail.com
 """
 
-from .triplet_sampler import BalancedIdentitySampler, NaiveIdentitySampler, SetReWeightSampler
-from .data_sampler import TrainingSampler, InferenceSampler
+from .data_sampler import InferenceSampler, TrainingSampler
 from .imbalance_sampler import ImbalancedDatasetSampler
+from .triplet_sampler import (
+	BalancedIdentitySampler, NaiveIdentitySampler,
+	SetReWeightSampler,
+)
 
 __all__ = [
     "BalancedIdentitySampler",

@@ -4,10 +4,10 @@
 @contact: sherlockliao01@gmail.com
 """
 
-import logging
-import os
 import argparse
 import io
+import logging
+import os
 import sys
 
 import onnx

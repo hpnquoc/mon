@@ -3,15 +3,14 @@
 @author:  liaoxingyu
 @contact: sherlockliao01@gmail.com
 """
-import torch
-import numpy as np
-from PIL import Image, ImageOps
+import queue
 import threading
 
-import queue
-from torch.utils.data import DataLoader
-
+import numpy as np
+import torch
 from fast_reid.fastreid.utils.file_io import PathManager
+from PIL import Image, ImageOps
+from torch.utils.data import DataLoader
 
 
 def read_image(file_name, format=None):

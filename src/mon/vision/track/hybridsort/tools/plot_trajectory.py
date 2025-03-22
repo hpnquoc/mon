@@ -2,11 +2,13 @@
     This script is to draw trajectory prediction as in Fig.6 of the paper
 """
 
-import matplotlib.pyplot as plt
-import matplotlib
-import sys
-import numpy as np 
 import os
+import sys
+
+import matplotlib
+import matplotlib.pyplot as plt
+import numpy as np
+
 
 def plot_traj(traj_file, name):
     trajs = np.loadtxt(traj_file, delimiter=",")

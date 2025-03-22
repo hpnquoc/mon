@@ -24,11 +24,7 @@ __all__ = [
     'MOTAccumulator',
 ]
 
-from motmetrics import distances
-from motmetrics import io
-from motmetrics import lap
-from motmetrics import metrics
-from motmetrics import utils
+from motmetrics import distances, io, lap, metrics, utils
 from motmetrics.mot import MOTAccumulator
 
 # Needs to be last line

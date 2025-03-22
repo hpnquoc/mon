@@ -1,7 +1,7 @@
-import unittest
-import numpy as np
 import os
-from glob import glob
+import unittest
+
+import numpy as np
 
 
 class TestFeatureAlign(unittest.TestCase):

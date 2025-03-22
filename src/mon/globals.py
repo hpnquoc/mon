@@ -63,11 +63,9 @@ __all__ = [
     "TrackState",
 ]
 
-import os
 from typing import Any
 
 from mon.core import dtype as DT, factory, pathlib
-
 
 # region Directory
 

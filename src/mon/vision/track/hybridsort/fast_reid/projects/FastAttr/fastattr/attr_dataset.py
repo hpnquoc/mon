@@ -5,9 +5,8 @@
 """
 
 import torch
-from torch.utils.data import Dataset
-
 from fast_reid.fastreid.data.data_utils import read_image
+from torch.utils.data import Dataset
 
 
 class AttrDataset(Dataset):

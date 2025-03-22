@@ -1,13 +1,13 @@
 # encoding: utf-8
 
+import argparse
+import struct
 import sys
 import time
-import struct
-import argparse
+
 sys.path.append('.')
 
 import torch
-import torchvision
 #from torchsummary import summary
 
 from fast_reid.fastreid.config import get_cfg
@@ -107,4 +107,3 @@ if __name__ == '__main__':
         print("--- %s seconds ---" % ((time.time() - start_time)/100.) )
     
     gen_wts(args)
-    

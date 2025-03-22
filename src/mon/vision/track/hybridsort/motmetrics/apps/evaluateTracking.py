@@ -7,18 +7,16 @@
 
 """Compute metrics for trackers using MOTChallenge ground-truth data."""
 
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function
 
 import argparse
-from collections import OrderedDict
 import io
 import logging
 import os
 import sys
-from tempfile import NamedTemporaryFile
 import time
+from collections import OrderedDict
+from tempfile import NamedTemporaryFile
 
 import motmetrics as mm
 

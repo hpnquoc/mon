@@ -1,22 +1,20 @@
-import argparse
+import copy
 import os
 import os.path as osp
 import time
+
 import cv2
 import torch
-
+from fast_reid.fast_reid_interfece import FastReIDInterface
 from loguru import logger
-
+from trackers.hybrid_sort_tracker.hybrid_sort import Hybrid_Sort
+from trackers.hybrid_sort_tracker.hybrid_sort_reid import Hybrid_Sort_ReID
+from trackers.ocsort_tracker.ocsort import OCSort
+from trackers.tracking_utils.timer import Timer
 from yolox.data.data_augment import preproc
 from yolox.exp import get_exp
 from yolox.utils import fuse_model, get_model_info, postprocess
 from yolox.utils.visualize import plot_tracking, plot_tracking_detection
-from trackers.ocsort_tracker.ocsort import OCSort
-from trackers.hybrid_sort_tracker.hybrid_sort import Hybrid_Sort
-from trackers.hybrid_sort_tracker.hybrid_sort_reid import Hybrid_Sort_ReID
-from trackers.tracking_utils.timer import Timer
-from fast_reid.fast_reid_interfece import FastReIDInterface
-import copy
 
 IMAGE_EXT = [".jpg", ".jpeg", ".webp", ".bmp", ".png"]
 

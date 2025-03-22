@@ -4,8 +4,7 @@
 
 import json 
 import os 
-import sys 
-import shutil
+import sys
 
 # def sanity_check(src, dst):
 #     for seq in os.listdir(src):
@@ -78,5 +77,3 @@ if __name__ == "__main__":
         json.dump(video_labels, open(save_path, 'w'))
     # out_dict["frames"] = frames_dict
     # json.dump(out_dict, open(out_path, "w"))
-            
-            

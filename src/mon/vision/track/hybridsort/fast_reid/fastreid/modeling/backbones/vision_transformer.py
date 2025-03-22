@@ -23,9 +23,12 @@ from functools import partial
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from fast_reid.fastreid.layers import DropPath, to_2tuple, trunc_normal_
+from fast_reid.fastreid.utils.checkpoint import (
+	get_missing_parameters_message,
+	get_unexpected_parameters_message,
+)
 
-from fast_reid.fastreid.layers import DropPath, trunc_normal_, to_2tuple
-from fast_reid.fastreid.utils.checkpoint import get_missing_parameters_message, get_unexpected_parameters_message
 from .build import BACKBONE_REGISTRY
 
 logger = logging.getLogger(__name__)

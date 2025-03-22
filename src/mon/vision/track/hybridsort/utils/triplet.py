@@ -2,14 +2,14 @@
     The implementation is modified from the Pytorch official implementation of TripletLoss:
     https://github.com/pytorch/pytorch/blob/master/torch/nn/modules/loss.py
 '''
+import random
+
 import torch
 import torch.nn as nn
-import torch.nn.functional as F 
 import torch.nn._reduction as _Reduction
-import warnings
+import torch.nn.functional as F
 from torch import Tensor
-from typing import Callable, Optional
-import random
+
 
 class _Loss(nn.Module):
     reduction: str

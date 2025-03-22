@@ -6,8 +6,8 @@
 
 import torchvision.transforms as T
 
-from .transforms import *
 from .autoaugment import AutoAugment
+from .transforms import *
 
 
 def build_transforms(cfg, is_train=True):

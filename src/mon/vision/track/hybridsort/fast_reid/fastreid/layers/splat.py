@@ -6,10 +6,10 @@
 
 import torch
 import torch.nn.functional as F
+from fast_reid.fastreid.layers import get_norm
 from torch import nn
 from torch.nn import Conv2d, ReLU
 from torch.nn.modules.utils import _pair
-from fast_reid.fastreid.layers import get_norm
 
 
 class SplAtConv2d(nn.Module):

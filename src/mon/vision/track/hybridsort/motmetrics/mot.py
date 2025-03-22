@@ -7,16 +7,13 @@
 
 """Accumulate tracking events frame by frame."""
 
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function
 
-from collections import OrderedDict
 import itertools
+from collections import OrderedDict
 
 import numpy as np
 import pandas as pd
-
 from motmetrics.lap import linear_sum_assignment
 
 _INDEX_FIELDS = ['FrameId', 'Event']

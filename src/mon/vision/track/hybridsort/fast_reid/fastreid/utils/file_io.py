@@ -7,14 +7,7 @@ import os
 import shutil
 from collections import OrderedDict
 from typing import (
-    IO,
-    Any,
-    Callable,
-    Dict,
-    List,
-    MutableMapping,
-    Optional,
-    Union,
+	Any, Callable, Dict, IO, List, MutableMapping, Optional, Union,
 )
 
 __all__ = ["PathManager", "get_cache_dir"]

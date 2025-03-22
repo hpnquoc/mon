@@ -1,14 +1,12 @@
-from loguru import logger
-
-import tensorrt as trt
-import torch
-from torch2trt import torch2trt
-
-from yolox.exp import get_exp
-
 import argparse
 import os
 import shutil
+
+import tensorrt as trt
+import torch
+from loguru import logger
+from torch2trt import torch2trt
+from yolox.exp import get_exp
 
 
 def make_parser():

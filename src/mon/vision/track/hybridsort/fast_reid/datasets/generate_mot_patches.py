@@ -1,10 +1,10 @@
-import os
 import argparse
-import math
+import os
+
 import cv2
-import matplotlib.pyplot as plt
 import numpy as np
 from tqdm import tqdm
+
 
 def generate_trajectories(file_path, GroundTrues):
     f = open(file_path, 'r')

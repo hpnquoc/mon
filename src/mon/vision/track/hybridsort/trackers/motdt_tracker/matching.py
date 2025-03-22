@@ -1,9 +1,7 @@
-import cv2
-import numpy as np
 import lap
-from scipy.spatial.distance import cdist
-
+import numpy as np
 from cython_bbox import bbox_overlaps as bbox_ious
+from scipy.spatial.distance import cdist
 from trackers.motdt_tracker import kalman_filter
 
 

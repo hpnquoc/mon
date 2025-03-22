@@ -16,24 +16,21 @@
     example: https://github.com/xingyizhou/CenterTrack/blob/d3d52145b71cb9797da2bfb78f0f1e88b286c871/src/lib/utils/tracker.py#L83
 '''
 
-from loguru import logger
-import time
-import torch.backends.cudnn as cudnn
-from torch.nn.parallel import DistributedDataParallel as DDP
-
-from yolox.core import launch
-from yolox.exp import get_exp
-from yolox.utils import configure_nccl, fuse_model, get_local_rank, get_model_info, setup_logger
-from yolox.evaluators import MOTEvaluator
-
-from utils.args import make_parser
 import os
-import motmetrics as mm
-from collections import OrderedDict
-from pathlib import Path
-import numpy as np
-from trackers.ocsort_tracker.ocsort import OCSort
+import time
 
+import motmetrics as mm
+import numpy as np
+from loguru import logger
+from trackers.ocsort_tracker.ocsort import OCSort
+from utils.args import make_parser
+from yolox.core import launch
+from yolox.evaluators import MOTEvaluator
+from yolox.exp import get_exp
+from yolox.utils import (
+	configure_nccl, fuse_model, get_local_rank,
+	get_model_info, setup_logger,
+)
 
 """
     BDD has not been supported yet. 

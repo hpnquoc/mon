@@ -7,17 +7,14 @@
 
 """Tests computation of metrics from accumulator."""
 
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function
 
 import os
 
+import motmetrics as mm
 import numpy as np
 import pandas as pd
 from pytest import approx
-
-import motmetrics as mm
 
 DATA_DIR = os.path.join(os.path.dirname(__file__), '../data')
 

@@ -12,7 +12,6 @@ from collections import defaultdict
 import numpy as np
 import torch
 import torch.nn.functional as F
-
 from fast_reid.fastreid.evaluation import ReidEvaluator
 from fast_reid.fastreid.evaluation.query_expansion import aqe
 from fast_reid.fastreid.utils import comm

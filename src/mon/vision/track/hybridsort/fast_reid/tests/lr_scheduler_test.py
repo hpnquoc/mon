@@ -1,7 +1,6 @@
 import sys
 import unittest
 
-import torch
 from torch import nn
 
 sys.path.append('.')

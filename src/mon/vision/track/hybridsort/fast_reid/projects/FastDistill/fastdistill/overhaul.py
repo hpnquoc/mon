@@ -9,10 +9,9 @@ import math
 
 import torch
 import torch.nn.functional as F
+from fast_reid.fastreid.modeling.meta_arch import Distiller, META_ARCH_REGISTRY
 from scipy.stats import norm
 from torch import nn
-
-from fast_reid.fastreid.modeling.meta_arch import META_ARCH_REGISTRY, Distiller
 
 logger = logging.getLogger("fastreid.meta_arch.overhaul_distiller")
 

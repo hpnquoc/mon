@@ -4,8 +4,9 @@
 @contact: sherlockliao01@gmail.com
 """
 
-import matplotlib.pyplot as plt
 import sys
+
+import matplotlib.pyplot as plt
 
 sys.path.append('.')
 from fast_reid.fastreid.utils.visualizer import Visualizer

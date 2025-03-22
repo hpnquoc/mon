@@ -9,6 +9,7 @@ import os.path as osp
 
 from fast_reid.fastreid.data.datasets import DATASET_REGISTRY
 from fast_reid.fastreid.utils.file_io import PathManager
+
 from .bases import ImageDataset
 
 

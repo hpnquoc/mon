@@ -4,10 +4,9 @@
     https://www.bdd100k.com. We haven't run OC-SORT on BDD100K yet. Will likely
     to update that later.
 """
-import json 
-import sys 
+import json
 import os
-
+import sys
 
 # Example: 0 1 Car -1 -1 -1 483.81 173.31 658.93 242.23 -1 -1 -1 -1000 -1000 -1000 -10 0.93
 KITTI_format = "%d %d %s -1 -1 -1 %f %f %f %f -1 -1 -1 -1000 -1000 -1000 -10 %f\n"

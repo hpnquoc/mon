@@ -7,12 +7,10 @@
 
 """Functions for loading data and writing summaries."""
 
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function
 
-from enum import Enum
 import io
+from enum import Enum
 
 import numpy as np
 import pandas as pd

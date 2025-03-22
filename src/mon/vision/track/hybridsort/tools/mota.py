@@ -1,19 +1,17 @@
-from loguru import logger
-
-import torch
-import torch.backends.cudnn as cudnn
-from torch.nn.parallel import DistributedDataParallel as DDP
-
-from yolox.core import launch
-from yolox.exp import get_exp
-from yolox.utils import configure_nccl, fuse_model, get_local_rank, get_model_info, setup_logger
-from yolox.evaluators import MOTEvaluator
-
-import os
 import glob
-import motmetrics as mm
+import os
 from collections import OrderedDict
 from pathlib import Path
+
+import motmetrics as mm
+from loguru import logger
+from yolox.core import launch
+from yolox.evaluators import MOTEvaluator
+from yolox.exp import get_exp
+from yolox.utils import (
+	configure_nccl, fuse_model, get_local_rank,
+	get_model_info, setup_logger,
+)
 
 
 def compare_dataframes(gts, ts):

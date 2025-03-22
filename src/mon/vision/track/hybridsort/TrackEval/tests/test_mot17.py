@@ -3,10 +3,11 @@ Runs all metrics on 14 trackers for the MOT Challenge MOT17 benchmark.
 """
 
 
-import sys
 import os
-import numpy as np
+import sys
 from multiprocessing import freeze_support
+
+import numpy as np
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 import trackeval  # noqa: E402
@@ -73,4 +74,3 @@ for tracker in trackers:
 
     print('Tracker %s tests passed' % tracker)
 print('All tests passed')
-

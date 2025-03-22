@@ -9,9 +9,9 @@ import glob
 import os
 import sys
 
-import torch.nn.functional as F
 import cv2
 import numpy as np
+import torch.nn.functional as F
 import tqdm
 from torch.backends import cudnn
 

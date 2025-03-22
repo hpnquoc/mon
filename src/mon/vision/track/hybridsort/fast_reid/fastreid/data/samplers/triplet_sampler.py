@@ -7,12 +7,11 @@
 import copy
 import itertools
 from collections import defaultdict
-from typing import Optional, List
+from typing import List, Optional
 
 import numpy as np
-from torch.utils.data.sampler import Sampler
-
 from fast_reid.fastreid.utils import comm
+from torch.utils.data.sampler import Sampler
 
 
 def no_index(a, b):

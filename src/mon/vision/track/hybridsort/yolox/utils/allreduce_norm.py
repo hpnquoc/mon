@@ -2,12 +2,11 @@
 # -*- coding:utf-8 -*-
 # Copyright (c) 2014-2021 Megvii Inc. All rights reserved.
 
-import torch
-from torch import distributed as dist
-from torch import nn
-
 import pickle
 from collections import OrderedDict
+
+import torch
+from torch import distributed as dist, nn
 
 from .dist import _get_global_gloo_group, get_world_size
 

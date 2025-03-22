@@ -1,5 +1,6 @@
-import unittest
 import sys
+import unittest
+
 sys.path.append('.')
 from fast_reid.fastreid.data.samplers import TrainingSampler
 

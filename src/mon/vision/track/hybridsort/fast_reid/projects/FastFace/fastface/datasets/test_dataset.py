@@ -8,7 +8,6 @@ import os
 
 import bcolz
 import numpy as np
-
 from fast_reid.fastreid.data.datasets import DATASET_REGISTRY
 from fast_reid.fastreid.data.datasets.bases import ImageDataset
 

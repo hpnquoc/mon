@@ -36,9 +36,9 @@ Command Line Arguments: Defaults, # Comments
         'METRICS': ['HOTA', 'CLEAR', 'Identity']
 """
 
-import sys
-import os
 import argparse
+import os
+import sys
 from multiprocessing import freeze_support
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))

@@ -1,6 +1,6 @@
-import os
-import numpy as np
 import json
+import os
+
 from PIL import Image
 
 DATA_PATH = 'datasets/crowdhuman/'

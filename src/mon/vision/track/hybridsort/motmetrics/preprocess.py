@@ -7,17 +7,14 @@
 
 """Preprocess data for CLEAR_MOT_M."""
 
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function
 
-from configparser import ConfigParser
 import logging
 import time
-
-import numpy as np
+from configparser import ConfigParser
 
 import motmetrics.distances as mmd
+import numpy as np
 from motmetrics.lap import linear_sum_assignment
 
 

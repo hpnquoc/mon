@@ -1,12 +1,12 @@
 # encoding: utf-8
 import os
-import random
-import torch
-import torch.nn as nn
-import torch.distributed as dist
 
-from yolox.exp import Exp as MyExp
+import torch
+import torch.distributed as dist
+import torch.nn as nn
 from yolox.data import get_yolox_datadir
+from yolox.exp import Exp as MyExp
+
 
 class Exp(MyExp):
     def __init__(self):

@@ -4,15 +4,14 @@
 @contact: sherlockliao01@gmail.com
 """
 
-from PIL import Image
 import io
 import logging
 import numbers
 
 import torch
-from torch.utils.data import Dataset
-
 from fast_reid.fastreid.data.common import CommDataset
+from PIL import Image
+from torch.utils.data import Dataset
 
 logger = logging.getLogger("fastreid.face_data")
 

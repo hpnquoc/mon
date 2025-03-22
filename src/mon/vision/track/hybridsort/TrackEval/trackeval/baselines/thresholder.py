@@ -8,8 +8,8 @@ Simply reads in a set of detection, thresholds them at a certain score threshold
 
 import os
 import sys
-from multiprocessing.pool import Pool
 from multiprocessing import freeze_support
+from multiprocessing.pool import Pool
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 from trackeval.baselines import baseline_utils as butils
@@ -89,4 +89,3 @@ if __name__ == '__main__':
     else:
         for seq_todo in seqs_todo:
             do_sequence(seq_todo)
-

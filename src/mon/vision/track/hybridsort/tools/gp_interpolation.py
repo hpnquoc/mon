@@ -1,12 +1,13 @@
+import glob
+import os
+import sys
+
+import numpy as np
+import scipy
+import scipy.spatial
+from sklearn import preprocessing
 from sklearn.gaussian_process import GaussianProcessRegressor
 from sklearn.gaussian_process.kernels import RBF
-import numpy as np 
-import os
-import glob
-from sklearn import preprocessing
-import scipy 
-import sys 
-import scipy.spatial
 
 
 def mkdir_if_missing(d):

@@ -1,9 +1,10 @@
+import logging
+
+import cv2
+import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-import numpy as np
-import cv2
-import logging
 import torchvision.transforms as transforms
 
 
@@ -143,5 +144,3 @@ class Extractor(object):
             im_batch = im_batch.to(self.device)
             features = self.net(im_batch)
         return features.cpu().numpy()
-
-

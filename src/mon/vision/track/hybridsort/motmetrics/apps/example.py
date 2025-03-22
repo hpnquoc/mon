@@ -7,13 +7,10 @@
 
 """Example usage."""
 
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-
-import numpy as np
+from __future__ import absolute_import, division, print_function
 
 import motmetrics as mm
+import numpy as np
 
 if __name__ == '__main__':
 

@@ -1,9 +1,12 @@
 
-import numpy as np
+import os
 from abc import ABC, abstractmethod
+
+import numpy as np
+
 from .. import _timing
 from ..utils import TrackEvalException
-import os
+
 
 class _BaseMetric(ABC):
     @abstractmethod

@@ -14,11 +14,9 @@ read_calibration_cache, write_calibration_cache.
 import os
 import sys
 
-import tensorrt as trt
-import pycuda.driver as cuda
-import pycuda.autoinit
-
 import numpy as np
+import pycuda.driver as cuda
+import tensorrt as trt
 import torchvision.transforms as T
 
 sys.path.append('../..')

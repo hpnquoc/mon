@@ -1,7 +1,8 @@
+import os.path as osp
 import sys
 import timeit
+
 import numpy as np
-import os.path as osp
 
 sys.path.insert(0, osp.dirname(osp.abspath(__file__)) + '/../../..')
 

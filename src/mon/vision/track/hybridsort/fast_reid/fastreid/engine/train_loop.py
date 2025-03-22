@@ -9,13 +9,12 @@ import time
 import weakref
 from typing import Dict
 
+import fast_reid.fastreid.utils.comm as comm
 import numpy as np
 import torch
-from torch.nn.parallel import DataParallel, DistributedDataParallel
-
-import fast_reid.fastreid.utils.comm as comm
 from fast_reid.fastreid.utils.events import EventStorage, get_event_storage
 from fast_reid.fastreid.utils.params import ContiguousParams
+from torch.nn.parallel import DataParallel, DistributedDataParallel
 
 __all__ = ["HookBase", "TrainerBase", "SimpleTrainer"]
 

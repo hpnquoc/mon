@@ -1,8 +1,8 @@
+import sys
 import unittest
 
 import torch
 
-import sys
 sys.path.append('.')
 from fast_reid.fastreid.config import cfg
 from fast_reid.fastreid.modeling.backbones import build_resnet_backbone

@@ -1,10 +1,9 @@
-import pdb
-import os 
-import cv2 
-from yolox.utils import vis 
-import numpy as np
 import argparse
-import sys
+import os
+
+import cv2
+import numpy as np
+from yolox.utils import vis
 
 '''
     MOT submission format:
@@ -425,4 +424,3 @@ if __name__ == "__main__":
         out_dir = os.path.join(out_src_dir, "GTs")
         os.makedirs(out_dir, exist_ok=True)
         visualize_gt(img_dir, out_dir)
-

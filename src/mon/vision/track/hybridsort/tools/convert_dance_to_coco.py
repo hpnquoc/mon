@@ -2,11 +2,11 @@
 https://github.com/xingyizhou/CenterTrack
 Modified by Peize Sun
 """
-import os
-import numpy as np
 import json
-import cv2
+import os
 
+import cv2
+import numpy as np
 
 DATA_PATH = 'datasets/dancetrack'
 OUT_PATH = os.path.join(DATA_PATH, 'annotations')

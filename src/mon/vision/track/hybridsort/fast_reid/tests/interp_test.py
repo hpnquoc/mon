@@ -1,9 +1,10 @@
+import sys
+
 import torch
-from fastai.vision import *
 from fastai.basic_data import *
 from fastai.layers import *
+from fastai.vision import *
 
-import sys
 sys.path.append('.')
 from engine.interpreter import ReidInterpretation
 

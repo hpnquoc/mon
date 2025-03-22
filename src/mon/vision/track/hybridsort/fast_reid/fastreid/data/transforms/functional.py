@@ -6,7 +6,7 @@
 
 import numpy as np
 import torch
-from PIL import Image, ImageOps, ImageEnhance
+from PIL import Image, ImageEnhance, ImageOps
 
 
 def to_tensor(pic):

@@ -5,16 +5,14 @@ import copy
 import logging
 import os
 from collections import defaultdict
-from typing import Any
-from typing import Optional, List, Dict, NamedTuple, Tuple, Iterable
+from typing import Any, Dict, Iterable, List, NamedTuple, Optional, Tuple
 
 import numpy as np
 import torch
 import torch.nn as nn
-from termcolor import colored
-from torch.nn.parallel import DistributedDataParallel, DataParallel
-
 from fast_reid.fastreid.utils.file_io import PathManager
+from termcolor import colored
+from torch.nn.parallel import DataParallel, DistributedDataParallel
 
 
 class _IncompatibleKeys(

@@ -1,6 +1,7 @@
-import os
-import numpy as np
 import json
+import os
+
+import numpy as np
 from PIL import Image
 
 DATA_PATH = 'datasets/ETHZ/'

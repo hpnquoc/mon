@@ -6,8 +6,8 @@
 
 import torch
 from torch import nn
+from torch.nn import LeakyReLU, ReLU
 from torch.nn.modules.batchnorm import BatchNorm2d
-from torch.nn import ReLU, LeakyReLU
 from torch.nn.parameter import Parameter
 
 

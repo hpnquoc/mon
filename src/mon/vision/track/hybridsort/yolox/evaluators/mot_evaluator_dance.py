@@ -1,41 +1,40 @@
-from collections import defaultdict
-from loguru import logger
-from tqdm import tqdm
-import copy
-
-import torch
-
-from yolox.utils import (
-    gather,
-    is_main_process,
-    postprocess,
-    synchronize,
-    time_synchronized,
-    xyxy2xywh
-)
-from trackers.byte_tracker.byte_tracker import BYTETracker
-from trackers.byte_tracker.byte_tracker_score import BYTETracker_score
-from trackers.ocsort_tracker.ocsort import OCSort
-from trackers.hybrid_sort_tracker.hybrid_sort import Hybrid_Sort
-from trackers.hybrid_sort_tracker.hybrid_sort_reid import Hybrid_Sort_ReID
-from trackers.sort_tracker.sort import Sort
-from trackers.sort_tracker.sort_score import Sort_score
-from trackers.deepsort_tracker.deepsort import DeepSort
-from trackers.deepsort_tracker.deepsort_score import DeepSort_score
-from trackers.motdt_tracker.motdt_tracker import OnlineTracker
-from trackers.motdt_tracker.motdt_tracker_score import OnlineTracker_score
-
 import contextlib
+import copy
 import io
-import os
 import itertools
 import json
+import os
 import tempfile
 import time
+from collections import defaultdict
+
 import cv2
 import numpy as np
-from utils.utils import write_results, write_results_no_score
+import torch
 from fast_reid.fast_reid_interfece import FastReIDInterface
+from loguru import logger
+from tqdm import tqdm
+from trackers.byte_tracker.byte_tracker import BYTETracker
+from trackers.byte_tracker.byte_tracker_score import BYTETracker_score
+from trackers.deepsort_tracker.deepsort import DeepSort
+from trackers.deepsort_tracker.deepsort_score import DeepSort_score
+from trackers.hybrid_sort_tracker.hybrid_sort import Hybrid_Sort
+from trackers.hybrid_sort_tracker.hybrid_sort_reid import Hybrid_Sort_ReID
+from trackers.motdt_tracker.motdt_tracker import OnlineTracker
+from trackers.motdt_tracker.motdt_tracker_score import OnlineTracker_score
+from trackers.ocsort_tracker.ocsort import OCSort
+from trackers.sort_tracker.sort import Sort
+from trackers.sort_tracker.sort_score import Sort_score
+from utils.utils import write_results, write_results_no_score
+from yolox.utils import (
+	gather,
+	is_main_process,
+	postprocess,
+	synchronize,
+	time_synchronized,
+	xyxy2xywh,
+)
+
 
 class MOTEvaluator:
     """

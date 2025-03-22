@@ -5,8 +5,7 @@
 """
 
 import torch.nn.functional as F
-
-from fast_reid.fastreid.modeling.heads import REID_HEADS_REGISTRY, EmbeddingHead
+from fast_reid.fastreid.modeling.heads import EmbeddingHead, REID_HEADS_REGISTRY
 
 
 @REID_HEADS_REGISTRY.register()

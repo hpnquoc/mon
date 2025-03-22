@@ -5,12 +5,12 @@
 """
 
 import torch
-from torch import nn
-
 from fast_reid.fastreid.config import configurable
 from fast_reid.fastreid.modeling.backbones import build_backbone
 from fast_reid.fastreid.modeling.heads import build_heads
 from fast_reid.fastreid.modeling.losses import *
+from torch import nn
+
 from .build import META_ARCH_REGISTRY
 
 

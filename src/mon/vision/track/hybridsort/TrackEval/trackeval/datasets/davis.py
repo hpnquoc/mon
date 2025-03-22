@@ -1,10 +1,11 @@
-import os
 import csv
+import os
+
 import numpy as np
+
 from ._base_dataset import _BaseDataset
+from .. import _timing, utils
 from ..utils import TrackEvalException
-from .. import utils
-from .. import _timing
 
 
 class DAVIS(_BaseDataset):

@@ -1,17 +1,15 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import torch
-import torch.nn as nn
 import traceback
-from Caffe import caffe_net
+
+import numpy as np
+import torch
 import torch.nn.functional as F
 from torch.autograd import Variable
-from Caffe import layer_param
-from torch.nn.modules.utils import _pair
-import numpy as np
-import math
-from torch.nn.modules.utils import _list_with_default
+from torch.nn.modules.utils import _list_with_default, _pair
+
+from Caffe import caffe_net
 
 """
 How to support a new layer type:

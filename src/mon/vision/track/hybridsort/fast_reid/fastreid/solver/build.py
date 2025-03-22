@@ -11,12 +11,15 @@ import itertools
 import math
 import re
 from enum import Enum
-from typing import Any, Callable, Dict, Iterable, List, Optional, Set, Type, Union
+from typing import (
+	Any, Callable, Dict, Iterable, List, Optional, Set, Type,
+	Union,
+)
 
 import torch
-
 from fast_reid.fastreid.config import CfgNode
 from fast_reid.fastreid.utils.params import ContiguousParams
+
 from . import lr_scheduler
 
 _GradientClipperInput = Union[torch.Tensor, Iterable[torch.Tensor]]

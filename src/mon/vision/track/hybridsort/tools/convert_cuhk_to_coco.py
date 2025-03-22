@@ -1,7 +1,8 @@
 """convert cuhk from label_with_ids in JDE to coco"""
-import os
-import numpy as np
 import json
+import os
+
+import numpy as np
 from PIL import Image
 
 input_root_dataset_folder = "datasets/"

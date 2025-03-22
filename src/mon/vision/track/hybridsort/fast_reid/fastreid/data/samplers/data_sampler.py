@@ -7,9 +7,8 @@ import itertools
 from typing import Optional
 
 import numpy as np
-from torch.utils.data import Sampler
-
 from fast_reid.fastreid.utils import comm
+from torch.utils.data import Sampler
 
 
 class TrainingSampler(Sampler):
