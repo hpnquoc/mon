@@ -3,8 +3,6 @@
 
 from __future__ import annotations
 
-import argparse
-
 import mon
 from model import RetinexNet
 

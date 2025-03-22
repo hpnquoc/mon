@@ -23,8 +23,8 @@ from torch.autograd import Variable
 from data import ImageFolder
 from trainer import MUNIT_Trainer, UNIT_Trainer
 from utils import (
-    get_config, get_data_loader_folder, load_inception,
-    pytorch03_to_pytorch04,
+	get_config, get_data_loader_folder, load_inception,
+	pytorch03_to_pytorch04,
 )
 
 parser = argparse.ArgumentParser()

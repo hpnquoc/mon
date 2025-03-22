@@ -1,14 +1,16 @@
-import torch
-import os
-import math
-import torch.nn as nn
-from torch.nn import init
 import functools
-from torch.autograd import Variable
-import torch.nn.functional as F
+import os
+
 import numpy as np
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
 # from torch.utils.serialization import load_lua
 from lib.nn import SynchronizedBatchNorm2d as SynBN2d
+from torch.autograd import Variable
+from torch.nn import init
+
+
 ###############################################################################
 # Functions
 ###############################################################################

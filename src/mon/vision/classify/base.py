@@ -15,7 +15,7 @@ __all__ = [
 from abc import ABC
 
 from mon import core, nn
-from mon.globals import Scheme, Task
+from mon.globals import Task
 from mon.vision.model import VisionModel
 
 console = core.console
@@ -27,6 +27,11 @@ class ImageClassificationModel(VisionModel, ABC):
     """The base class for all image classification models."""
     
     tasks: list[Task] = [Task.CLASSIFY]
+    
+    def parse_num_classes(self, num_classes: int) -> int:
+        """Update the model's `num_classes` from pretrained weights if necessary.
+        """
+        return num_classes
     
     def forward_loss(self, datapoint: dict, *args, **kwargs) -> dict:
         # Forward

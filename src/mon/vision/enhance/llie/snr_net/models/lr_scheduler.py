@@ -1,7 +1,6 @@
 import math
-from collections import Counter
-from collections import defaultdict
-import torch
+from collections import Counter, defaultdict
+
 from torch.optim.lr_scheduler import _LRScheduler
 
 

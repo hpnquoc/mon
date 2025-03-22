@@ -1,8 +1,6 @@
 import os
 os.environ['CUDA_VISIBLE_DEVICES'] = '3'
-import time
 import argparse
-from thop import profile
 from net.net import net
 from data import get_eval_set
 from torchvision import transforms
@@ -74,5 +72,3 @@ def eval():
     torch.set_grad_enabled(True)
 
 eval()
-
-

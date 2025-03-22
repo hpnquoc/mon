@@ -1,24 +1,19 @@
 import glob
-import os
-import sys
-import time
-import math
-from datetime import datetime
-import random
 import logging
+import math
+import os
+import random
 from collections import OrderedDict
+from datetime import datetime
+from math import exp
 
+import cv2
 import natsort
 import numpy as np
-import cv2
-import torch
-from torchvision.utils import make_grid
-from shutil import get_terminal_size
 import torch
 import torch.nn.functional as F
 from torch.autograd import Variable
-import numpy as np
-from math import exp
+from torchvision.utils import make_grid
 
 
 def gaussian(window_size, sigma):

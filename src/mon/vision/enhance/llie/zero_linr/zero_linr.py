@@ -21,7 +21,6 @@ import numpy as np
 import torch
 from fvcore.nn import parameter_count
 from torch.nn import functional as F
-from torch.nn.common_types import _size_2_t
 
 from mon import core, nn
 from mon.globals import MODELS, Scheme, Task

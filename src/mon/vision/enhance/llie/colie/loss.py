@@ -1,6 +1,5 @@
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 
 
 class L_exp(nn.Module):
@@ -28,4 +27,3 @@ class L_TV(nn.Module):
         h_tv = torch.pow((x[:,:,1:,:]-x[:,:,:h_x-1,:]),2).sum()
         w_tv = torch.pow((x[:,:,:,1:]-x[:,:,:,:w_x-1]),2).sum()
         return 2*(h_tv/count_h+w_tv/count_w)/batch_size
-

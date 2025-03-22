@@ -1,10 +1,11 @@
 # 3p
-import numpy as np
 import cv2
-from scipy.spatial import distance
+import numpy as np
 from scipy.ndimage.filters import convolve
-from scipy.sparse import diags, csr_matrix
+from scipy.sparse import csr_matrix, diags
 from scipy.sparse.linalg import spsolve
+from scipy.spatial import distance
+
 # project
 from utils import get_sparse_neighbor
 

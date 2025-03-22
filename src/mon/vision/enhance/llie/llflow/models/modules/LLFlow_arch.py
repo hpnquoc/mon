@@ -4,19 +4,19 @@
 import math
 import random
 
+import models.modules.flow as flow
+import models.modules.thops as thops
+import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-import numpy as np
-from models.modules.RRDBNet_arch import RRDBNet
-from models.modules.ConditionEncoder import ConEncoder1, NoEncoder
-from models.modules.FlowUpsamplerNet import FlowUpsamplerNet
-import models.modules.thops as thops
-import models.modules.flow as flow
 from models.modules.color_encoder import ColorEncoder
-from utils.util import opt_get
-from models.modules.flow import unsqueeze2d, squeeze2d
+from models.modules.ConditionEncoder import ConEncoder1, NoEncoder
+from models.modules.flow import squeeze2d, unsqueeze2d
+from models.modules.FlowUpsamplerNet import FlowUpsamplerNet
+from models.modules.RRDBNet_arch import RRDBNet
 from torch.cuda.amp import autocast
+from utils.util import opt_get
 
 
 class LLFlow(nn.Module):

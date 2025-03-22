@@ -4,7 +4,6 @@
 from __future__ import annotations
 
 import logging
-import time
 from collections import OrderedDict
 
 import models.lr_scheduler as lr_scheduler

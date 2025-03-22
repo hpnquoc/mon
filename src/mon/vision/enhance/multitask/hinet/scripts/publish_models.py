@@ -6,8 +6,9 @@
 # ------------------------------------------------------------------------
 import glob
 import subprocess
-import torch
 from os import path as osp
+
+import torch
 from torch.serialization import _is_zipfile, _open_file_like
 
 

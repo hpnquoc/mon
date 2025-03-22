@@ -5,15 +5,15 @@ from __future__ import annotations
 
 import argparse
 
+import config.options as option
 import cv2
+import data.util as dutil
 import numpy as np
 import torch
-
-import config.options as option
-import data.util as dutil
-import mon
 import utils.util as util
 from models import create_model
+
+import mon
 
 console      = mon.console
 current_file = mon.Path(__file__).absolute()

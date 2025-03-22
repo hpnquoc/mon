@@ -1,10 +1,11 @@
-from asyncio.log import logger
-import numpy as np
 import os
 import random
 import time
-import torch
+from asyncio.log import logger
 from os import path as osp
+
+import numpy as np
+import torch
 
 from .dist_util import master_only
 from .logger import get_root_logger

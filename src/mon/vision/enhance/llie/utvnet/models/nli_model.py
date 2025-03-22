@@ -18,9 +18,10 @@ Tested with Pytorch 1.7.1, Python 3.6
 Author: Chuanjun Zheng (chuanjunzhengcs@gmail.com)
 
 '''
+import math
+
 import torch
 import torch.nn as nn
-import math
 import torch.nn.functional as F
 from models import basicblock as B
 

@@ -1,14 +1,15 @@
-import click
-import torch
-import numpy as np
-import cv2
 import tempfile
+
+import click
+import cv2
 import matplotlib.pyplot as plt
-from cog import BasePredictor, Path, Input, BaseModel
+import numpy as np
+import torch
+from cog import BaseModel, BasePredictor, Input, Path
 
 import mon
 from basicsr.models import create_model
-from basicsr.utils import img2tensor as _img2tensor, tensor2img, imwrite
+from basicsr.utils import img2tensor as _img2tensor, imwrite, tensor2img
 from basicsr.utils.options import parse
 
 

@@ -1,8 +1,8 @@
 import torch.nn.functional as F
-from operations import *
 from torch.autograd import Variable
-from genotypes import PRIMITIVES
-from genotypes import Genotype
+
+from genotypes import Genotype, PRIMITIVES
+from operations import *
 
 
 def conv_layer(in_channels, out_channels, kernel_size, stride=1, dilation=1, groups=1):

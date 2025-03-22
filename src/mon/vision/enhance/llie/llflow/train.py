@@ -20,7 +20,7 @@ from data import create_dataloader
 from data.LoL_dataset import LoL_Dataset, LoL_Dataset_v2
 from models import create_model
 from utils import util
-from utils.timer import Timer, TickTock
+from utils.timer import TickTock, Timer
 from utils.util import get_resume_paths
 
 to_tensor    = T.ToTensor()

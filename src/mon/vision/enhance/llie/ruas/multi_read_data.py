@@ -1,15 +1,14 @@
 import random
-import glob
 
-import cv2
 import numpy as np
 import torch
 import torch.utils.data
 import torchvision.transforms as transforms
 from PIL import Image
 from PIL.ImageFile import ImageFile
-import mon
+
 import config
+import mon
 
 ImageFile.LOAD_TRUNCATED_IMAGES = True
 

@@ -1,11 +1,13 @@
-import numpy as np
+import ntpath
 import os
 import sys
-import ntpath
 import time
-from . import util, html
-from subprocess import Popen, PIPE
+from subprocess import PIPE, Popen
+
+import numpy as np
 from torchvision.transforms import Resize
+
+from . import html, util
 
 torch_resize = Resize([720,960])
 if sys.version_info[0] == 2:

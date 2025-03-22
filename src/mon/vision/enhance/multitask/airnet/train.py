@@ -10,7 +10,6 @@ from net.model import AirNet
 from option import options as opt
 from utils.dataset_utils import TrainDataset
 
-
 if __name__ == "__main__":
     torch.cuda.set_device(opt.cuda)
     subprocess.check_output(["mkdir", "-p", opt.ckpt_path])

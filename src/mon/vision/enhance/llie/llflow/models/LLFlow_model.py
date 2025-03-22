@@ -4,20 +4,18 @@
 from __future__ import annotations
 
 import logging
-import time
+from collections import OrderedDict
 
 import models.lr_scheduler as lr_scheduler
 import models.networks as networks
-from thop import profile
-
-import mon
 import torch
 import torch.nn as nn
-from collections import OrderedDict
-from torch.cuda.amp import autocast, GradScaler
+from thop import profile
+from torch.cuda.amp import GradScaler
 from torch.nn.parallel import DataParallel, DistributedDataParallel
 from utils.util import get_resume_paths, opt_get
 
+import mon
 from .base_model import BaseModel
 
 console = mon.console

@@ -1,4 +1,2 @@
-from .models import register, make
-from . import edsr, rdn
-
-from . import sronet,galerkin
+from . import edsr, galerkin, rdn, sronet
+from .models import make, register

@@ -1,12 +1,10 @@
-import cv2
-import torch
-import numpy as np
-from glob import glob
-from natsort import natsorted
 import os
-from tqdm import tqdm
-from pdb import set_trace as stx
+from glob import glob
 
+import cv2
+import numpy as np
+from natsort import natsorted
+from tqdm import tqdm
 
 src = 'datasets/Downloads/SIDD'
 tar = 'Datasets/train/SIDD'
@@ -66,6 +64,6 @@ def save_files(file_):
         cv2.imwrite(hr_savename, hr_img)
 
 from joblib import Parallel, delayed
-import multiprocessing
+
 num_cores = 10
 Parallel(n_jobs=num_cores)(delayed(save_files)(file_) for file_ in tqdm(files))

@@ -1,4 +1,3 @@
-import torch
 import torch.nn as nn
 
 OPS = {
@@ -50,5 +49,3 @@ class Identity(nn.Module):
 
     def forward(self, x):
         return x
-
-

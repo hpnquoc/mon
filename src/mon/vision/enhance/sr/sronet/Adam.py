@@ -1,7 +1,8 @@
 import math
+from typing import List
+
 import torch
 from torch import Tensor
-from typing import List, Optional
 from torch.optim.optimizer import Optimizer
 
 

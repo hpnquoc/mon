@@ -83,7 +83,6 @@ import torchmetrics
 
 from mon.globals import METRICS
 
-
 # region Classification
 
 AUROC                    = torchmetrics.classification.AUROC

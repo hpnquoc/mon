@@ -1,17 +1,13 @@
-import numpy as np
-import torch
-import os
-from collections import OrderedDict
-from torch.autograd import Variable
-import util.util as util
-from collections import OrderedDict
-from torch.autograd import Variable
 import itertools
+from collections import OrderedDict
+
+import torch
 import util.util as util
+from torch.autograd import Variable
 from util.image_pool import ImagePool
-from .base_model import BaseModel
+
 from . import networks
-import sys
+from .base_model import BaseModel
 
 
 class CycleGANModel(BaseModel):

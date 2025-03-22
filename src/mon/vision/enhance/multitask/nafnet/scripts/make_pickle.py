@@ -1,6 +1,7 @@
-import numpy as np
 import os
+
 import cv2
+import numpy as np
 
 PATH = './datasets/SR/NTIRE22-StereoSR/Train'
 
@@ -51,5 +52,3 @@ with open('./datasets/ntire-stereo-sr.train.hr.pickle', 'wb') as f:
 
 # np.save('./datasets/ntire-stereo-sr.train.lr.npy', lr_all_np)
 # np.save('./datasets/ntire-stereo-sr.train.hr.npy', hr_all_np)
-
-

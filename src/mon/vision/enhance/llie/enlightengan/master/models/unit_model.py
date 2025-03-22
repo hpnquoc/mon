@@ -1,16 +1,23 @@
-import numpy as np
-import torch
-import os
 from collections import OrderedDict
-from torch.autograd import Variable
-import itertools
 import util.util as util
 from util.util import weights_init, get_model_list, vgg_preprocess, load_vgg16, get_scheduler
 from util.image_pool import ImagePool
 from .base_model import BaseModel
 from . import networks
 from .unit_network import *
-import sys
+from collections import OrderedDict
+
+import util.util as util
+from util.image_pool import ImagePool
+from util.util import (
+	get_model_list, get_scheduler, load_vgg16, vgg_preprocess,
+	weights_init,
+)
+
+from . import networks
+from .base_model import BaseModel
+from .unit_network import *
+
 
 def get_config(config):
     import yaml

@@ -1,10 +1,7 @@
-import torch
-from torchvision.transforms import ToPILImage, Compose, RandomCrop, ToTensor, Grayscale
-
-from PIL import Image
 import random
-import numpy as np
 
+import numpy as np
+from torchvision.transforms import Compose, RandomCrop, ToPILImage, ToTensor
 from utils.image_utils import crop_img
 
 

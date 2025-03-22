@@ -1,12 +1,11 @@
 
 
 
-import torch
-from torch import nn as nn
-
 import models.modules
 import models.modules.Permutations
-from models.modules import flow, thops, FlowAffineCouplingsAblation
+import torch
+from models.modules import flow, FlowAffineCouplingsAblation, thops
+from torch import nn as nn
 from utils.util import opt_get
 
 

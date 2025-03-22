@@ -1,8 +1,10 @@
-from torchvision.transforms import Compose, RandomCrop, RandomHorizontalFlip, RandomVerticalFlip, ToTensor
-
 from data.eval_sets import *
 from data.lol_dataset import *
 from data.sice_blur_sid import *
+from torchvision.transforms import (
+	Compose, RandomCrop, RandomHorizontalFlip,
+	RandomVerticalFlip, ToTensor,
+)
 
 
 def transform1(size: int = 256) -> Compose:

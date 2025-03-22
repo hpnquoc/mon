@@ -10,10 +10,10 @@ import torchvision.transforms.functional as TF
 from PIL import Image
 # from utils.common import print_network
 from skimage import img_as_ubyte
-from spikingjelly.activation_based import functional
 from tqdm import tqdm
 
 from model import model
+from spikingjelly.activation_based import functional
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--preprocess',   type=str, default='crop')

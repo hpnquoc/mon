@@ -9,7 +9,6 @@ from data import build_train_loader
 from models import build_model
 from utils import *
 
-
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('-config', type=str, default='./configs/init_neurop.yaml')

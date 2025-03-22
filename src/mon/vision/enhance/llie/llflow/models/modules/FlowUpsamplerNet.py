@@ -1,15 +1,14 @@
 
 
 
+import models.modules.Split
 import numpy as np
 import torch
-from torch import nn as nn
-
-import models.modules.Split
 from models.modules import flow, thops
-from models.modules.Split import Split2d
-from models.modules.glow_arch import f_conv2d_bias
 from models.modules.FlowStep import FlowStep
+from models.modules.glow_arch import f_conv2d_bias
+from models.modules.Split import Split2d
+from torch import nn as nn
 from utils.util import opt_get
 
 

@@ -5,12 +5,12 @@
 # Copyright 2018-2020 BasicSR Authors
 # ------------------------------------------------------------------------
 import random
-import torch
 from pathlib import Path
-from torch.utils import data as data
 
+import torch
 from basicsr.data.transforms import augment, paired_random_crop
 from basicsr.utils import FileClient, get_root_logger, imfrombytes, img2tensor
+from torch.utils import data as data
 
 
 class Vimeo90KDataset(data.Dataset):

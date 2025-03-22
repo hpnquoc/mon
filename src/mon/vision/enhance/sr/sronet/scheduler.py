@@ -1,5 +1,6 @@
 from torch.optim.lr_scheduler import _LRScheduler
-import torch
+
+
 #import matplotlib.pyplot as plt
 
 class GradualWarmupScheduler(_LRScheduler):

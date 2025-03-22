@@ -1,5 +1,6 @@
-from torchvision.transforms import Compose, ToTensor, RandomCrop
-from dataset import DatasetFromFolderEval, DatasetFromFolder
+from torchvision.transforms import Compose, RandomCrop, ToTensor
+
+from dataset import DatasetFromFolder, DatasetFromFolderEval
 
 
 def transform1():

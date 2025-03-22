@@ -5,15 +5,15 @@
 # Copyright 2018-2020 BasicSR Authors
 # ------------------------------------------------------------------------
 import importlib
-import torch
 from collections import OrderedDict
 from copy import deepcopy
 from os import path as osp
-from tqdm import tqdm
 
+import torch
 from basicsr.models.archs import define_network
 from basicsr.models.base_model import BaseModel
 from basicsr.utils import get_root_logger, imwrite, tensor2img
+from tqdm import tqdm
 
 loss_module   = importlib.import_module('basicsr.models.losses')
 metric_module = importlib.import_module('basicsr.metrics')

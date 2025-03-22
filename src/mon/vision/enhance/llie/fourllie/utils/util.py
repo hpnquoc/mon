@@ -1,19 +1,20 @@
+import logging
+import math
 import os
+import random
 import sys
 import time
-import math
-import torch.nn.functional as F
-from datetime import datetime
-import random
-import logging
 from collections import OrderedDict
-import numpy as np
-import cv2
-import torch
-from torchvision.utils import make_grid
+from datetime import datetime
 from shutil import get_terminal_size
 
+import cv2
+import numpy as np
+import torch
+import torch.nn.functional as F
 import yaml
+from torchvision.utils import make_grid
+
 try:
     from yaml import CLoader as Loader, CDumper as Dumper
 except ImportError:

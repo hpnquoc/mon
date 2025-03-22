@@ -638,12 +638,7 @@ class Model(lightning.LightningModule, ABC):
         """Called at the beginning of fit."""
         self.create_dir()
 
-    def training_step(
-        self,
-        batch    : dict,
-        batch_idx: int,
-        *args, **kwargs
-    ) -> StepOutput | None:
+    def training_step(self, batch: dict, batch_idx: int, *args, **kwargs) -> StepOutput:
         """Here you compute and return the training loss, and some additional
         metrics for e.g., the progress bar or logger.
         
@@ -691,12 +686,7 @@ class Model(lightning.LightningModule, ABC):
             for i, metric in enumerate(self.train_metrics):
                 metric.reset()
 
-    def validation_step(
-        self,
-        batch    : Any,
-        batch_idx: int,
-        *args, **kwargs
-    ) -> StepOutput | None:
+    def validation_step(self, batch: Any, batch_idx: int, *args, **kwargs) -> StepOutput:
         """Operates on a single batch of data from the validation set. In this
         step, you might generate examples or calculate anything of interest like
         accuracy.
@@ -757,12 +747,7 @@ class Model(lightning.LightningModule, ABC):
         """Called at the very beginning of testing."""
         self.create_dir()
 
-    def test_step(
-        self,
-        batch    : Any,
-        batch_idx: int,
-        *args, **kwargs
-    ) -> StepOutput | None:
+    def test_step(self, batch: Any, batch_idx: int, *args, **kwargs) -> StepOutput:
         """Operates on a single batch of data from the test set. In this step
         you'd normally generate examples or calculate anything of interest such
         as accuracy.

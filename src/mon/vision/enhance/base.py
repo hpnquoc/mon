@@ -17,7 +17,6 @@ from abc import ABC
 import cv2
 
 from mon import core, nn
-from mon.globals import Scheme
 from mon.vision import dtype
 from mon.vision.model import VisionModel
 

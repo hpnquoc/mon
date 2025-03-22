@@ -1,11 +1,13 @@
+import argparse
 import sys
+
 import numpy as np
 import torch
-import argparse
-import torch.utils
 import torch.backends.cudnn as cudnn
+import torch.utils
 from PIL import Image
 from torch.autograd import Variable
+
 from model import Network
 from multi_read_data import MemoryFriendlyLoader
 

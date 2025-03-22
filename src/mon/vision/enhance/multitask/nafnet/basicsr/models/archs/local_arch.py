@@ -2,7 +2,6 @@
 # Copyright (c) 2022 megvii-model. All Rights Reserved.
 # ------------------------------------------------------------------------
 
-import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F

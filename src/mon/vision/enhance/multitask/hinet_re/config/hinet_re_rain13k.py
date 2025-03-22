@@ -5,9 +5,10 @@
 
 from __future__ import annotations
 
+from mon.config import default
+
 import mon
 from mon import albumentation as A
-from mon.config import default
 
 current_file = mon.Path(__file__).absolute()
 

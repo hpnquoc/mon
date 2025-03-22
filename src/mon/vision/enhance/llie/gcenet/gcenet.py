@@ -15,11 +15,10 @@ __all__ = [
 ]
 
 from copy import deepcopy
-from typing import Any, Literal
+from typing import Literal
 
 import torch
 from fvcore.nn import parameter_count
-from torch.nn.common_types import _size_2_t
 
 from mon import core, nn
 from mon.globals import MODELS, Scheme, Task

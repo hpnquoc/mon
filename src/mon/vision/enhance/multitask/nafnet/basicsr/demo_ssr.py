@@ -4,16 +4,19 @@
 # Modified from BasicSR (https://github.com/xinntao/BasicSR)
 # Copyright 2018-2020 BasicSR Authors
 # ------------------------------------------------------------------------
-import torch
+import argparse
+import random
 
+import torch
 # from basicsr.data import create_dataloader, create_dataset
 from basicsr.models import create_model
-from basicsr.utils import FileClient, imfrombytes, img2tensor, padding, tensor2img, imwrite, set_random_seed
-
-import argparse
-from basicsr.utils.options import dict2str, parse
+from basicsr.utils import (
+	FileClient, imfrombytes, img2tensor, imwrite, padding,
+	set_random_seed, tensor2img,
+)
 from basicsr.utils.dist_util import get_dist_info, init_dist
-import random
+from basicsr.utils.options import dict2str, parse
+
 
 def parse_options(is_train=True):
     parser = argparse.ArgumentParser()
@@ -116,4 +119,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-

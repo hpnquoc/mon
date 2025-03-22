@@ -1,13 +1,12 @@
-from inspect import isfunction
 import math
+from inspect import isfunction
+from typing import Any, Optional
+
 import torch
 import torch.nn.functional as F
-from torch import nn, einsum
 from einops import rearrange, repeat
-from typing import Optional, Any
-
 from ldm.modules.diffusionmodules.util import checkpoint
-
+from torch import einsum, nn
 
 try:
     import xformers
@@ -338,4 +337,3 @@ class SpatialTransformer(nn.Module):
         if not self.use_linear:
             x = self.proj_out(x)
         return x + x_in
-

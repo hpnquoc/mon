@@ -1,12 +1,12 @@
-import os
 import json
-from PIL import Image
+import os
 
-import numpy as np
+from PIL import Image
 from torch.utils.data import Dataset
 from torchvision import transforms
 
 from datasets import register
+
 
 @register('image-folder')
 class ImageFolder(Dataset):
@@ -35,5 +35,3 @@ class ImageFolder(Dataset):
     def __getitem__(self, idx):
         x = self.files[idx % len(self.files)]
         return x
-
-

@@ -10,7 +10,6 @@ from net.model import AirNet
 from utils.dataset_utils import TestSpecificDataset
 from utils.image_io import save_image_tensor
 
-
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     # Input Parameters

@@ -1,6 +1,4 @@
-import torch
 import torch.nn as nn
-from torchvision.transforms import Grayscale
 
 
 class P(nn.Module):
@@ -35,4 +33,3 @@ class Q(nn.Module):
         PB = P[:, 2:3, :, :]
 
         return (IR*PR + IG*PG + IB*PB + lamda*L) / ((PR*PR + PG*PG + PB*PB) + lamda)
-        

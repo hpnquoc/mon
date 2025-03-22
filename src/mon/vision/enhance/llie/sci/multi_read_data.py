@@ -1,11 +1,11 @@
+import os
+import random
+
 import numpy as np
 import torch
 import torch.utils.data
-import random
-from PIL import Image
-from glob import glob
 import torchvision.transforms as transforms
-import os
+from PIL import Image
 
 batch_w = 600
 batch_h = 400

@@ -1,9 +1,10 @@
-import torch
-from torchvision import transforms
+import types
+
 import cv2
 import numpy as np
-import types
+import torch
 from numpy import random
+from torchvision import transforms
 
 
 def intersect(box_a, box_b):

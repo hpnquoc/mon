@@ -1,8 +1,7 @@
 """SAMPLING ONLY."""
 import torch
 
-from .dpm_solver import NoiseScheduleVP, model_wrapper, DPM_Solver
-
+from .dpm_solver import DPM_Solver, model_wrapper, NoiseScheduleVP
 
 MODEL_TYPES = {
     "eps": "noise",

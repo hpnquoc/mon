@@ -1,8 +1,6 @@
-from typing import Any, Dict, Iterable, Optional, Union
-
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
+
 
 class EMAModel(nn.Module):
     def __init__(self, model, decay=0.9999, use_num_updates=True):

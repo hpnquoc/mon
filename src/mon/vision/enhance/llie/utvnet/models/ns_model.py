@@ -18,8 +18,8 @@ Tested with Pytorch 1.7.1, Python 3.6
 Author: Chuanjun Zheng (chuanjunzhengcs@gmail.com)
 
 '''
-import torch.nn as nn
 import torch
+import torch.nn as nn
 import torch.nn.functional as F
 
 

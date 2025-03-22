@@ -1,20 +1,20 @@
+import argparse
+import logging
 import os
 import sys
+
 import numpy as np
 import torch
-import utils
-import logging
-import argparse
-import torch.nn as nn
-import torch.utils
-import torch.nn.functional as F
 import torch.backends.cudnn as cudnn
-
-from PIL import Image
+import torch.nn as nn
+import torch.nn.functional as F
+import torch.utils
 from torch.autograd import Variable
-from model_search import Network
-from architect_enhance import Architect as Enhence_Architect
+
+import utils
 from architect_denoise import Architect as Denoise_Architect
+from architect_enhance import Architect as Enhence_Architect
+from model_search import Network
 from multi_read_data import MemoryFriendlyLoader
 
 parser = argparse.ArgumentParser("ruas")

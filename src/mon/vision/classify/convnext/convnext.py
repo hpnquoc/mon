@@ -16,10 +16,9 @@ __all__ = [
 ]
 
 from abc import ABC
-from typing import Any
 
 from torchvision.models import (
-	convnext_base, convnext_large, convnext_small, convnext_tiny,
+    convnext_base, convnext_large, convnext_small, convnext_tiny,
 )
 
 from mon import core, nn
@@ -66,12 +65,9 @@ class ConvNeXtBase(ConvNeXt):
         },
     }
     
-    def __init__(
-        self,
-        num_classes: int = 1000,
-        *args, **kwargs
-    ):
+    def __init__(self, num_classes: int = 1000, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        num_classes = self.parse_num_classes(num_classes)
         
         # Network
         self.model = convnext_base(num_classes=num_classes)
@@ -85,7 +81,8 @@ class ConvNeXtBase(ConvNeXt):
 @MODELS.register(name="convnext_tiny", arch="convnext")
 class ConvNeXtTiny(ConvNeXt):
     
-    zoo: dict = {
+    name: str = "convnext_tiny"
+    zoo : dict = {
         "imagenet1k_v1": {
             "url"        : "https://download.pytorch.org/models/convnext_tiny-983f1562.pth",
             "path"       : ZOO_DIR / "vision/classify/convnext/convnext_tiny/imagenet1k_v1/convnext_tiny_imagenet1k_v1.pth",
@@ -93,30 +90,14 @@ class ConvNeXtTiny(ConvNeXt):
         },
     }
     
-    def __init__(
-        self,
-        name       : str = "convnext_tiny",
-        in_channels: int = 3,
-        num_classes: int = 1000,
-        weights    : Any = None,
-        *args, **kwargs
-    ):
-        super().__init__(
-            name        = name,
-            in_channels = in_channels,
-            num_classes = num_classes,
-            weights     = weights,
-            *args, **kwargs
-        )
+    def __init__(self, num_classes: int = 1000, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        num_classes = self.parse_num_classes(num_classes)
         
-        if isinstance(self.weights, dict):
-            in_channels = self.weights.get("in_channels", in_channels)
-            num_classes = self.weights.get("num_classes", num_classes)
-        self.in_channels  = in_channels or self.in_channels
-        self.out_channels = num_classes or self.out_channels
+        # Network
+        self.model = convnext_tiny(num_classes=num_classes)
         
-        self.model = convnext_tiny(num_classes=self.out_channels)
-        
+        # Load weights
         if self.weights:
             self.load_weights()
         else:
@@ -126,7 +107,8 @@ class ConvNeXtTiny(ConvNeXt):
 @MODELS.register(name="convnext_small", arch="convnext")
 class ConvNeXtSmall(ConvNeXt):
     
-    zoo: dict = {
+    name: str  = "convnext_small"
+    zoo : dict = {
         "imagenet1k_v1": {
             "url"        : "https://download.pytorch.org/models/convnext_small-0c510722.pth",
             "path"       : ZOO_DIR / "vision/classify/convnext/convnext_small/imagenet1k_v1/convnext_small_imagenet1k_v1.pth",
@@ -134,30 +116,14 @@ class ConvNeXtSmall(ConvNeXt):
         },
     }
     
-    def __init__(
-        self,
-        name       : str = "convnext_small",
-        in_channels: int = 3,
-        num_classes: int = 1000,
-        weights    : Any = None,
-        *args, **kwargs
-    ):
-        super().__init__(
-            name        = name,
-            in_channels = in_channels,
-            num_classes = num_classes,
-            weights     = weights,
-            *args, **kwargs
-        )
+    def __init__(self, num_classes: int = 1000, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        num_classes = self.parse_num_classes(num_classes)
         
-        if isinstance(self.weights, dict):
-            in_channels = self.weights.get("in_channels", in_channels)
-            num_classes = self.weights.get("num_classes", num_classes)
-        self.in_channels  = in_channels or self.in_channels
-        self.out_channels = num_classes or self.out_channels
+        # Network
+        self.model = convnext_small(num_classes=num_classes)
         
-        self.model = convnext_small(num_classes=self.out_channels)
-        
+        # Load weights
         if self.weights:
             self.load_weights()
         else:
@@ -167,7 +133,8 @@ class ConvNeXtSmall(ConvNeXt):
 @MODELS.register(name="convnext_large", arch="convnext")
 class ConvNeXtLarge(ConvNeXt):
     
-    zoo: dict = {
+    name: str  = "convnext_large"
+    zoo : dict = {
         "imagenet1k_v1": {
             "url"        : "https://download.pytorch.org/models/convnext_large-ea097f82.pth",
             "path"       : ZOO_DIR / "vision/classify/convnext/convnext_large/imagenet1k_v1/convnext_large_imagenet1k_v1.pth",
@@ -175,30 +142,14 @@ class ConvNeXtLarge(ConvNeXt):
         },
     }
     
-    def __init__(
-        self,
-        name       : str = "convnext_large",
-        in_channels: int = 3,
-        num_classes: int = 1000,
-        weights    : Any = None,
-        *args, **kwargs
-    ):
-        super().__init__(
-            name        = name,
-            in_channels = in_channels,
-            num_classes = num_classes,
-            weights     = weights,
-            *args, **kwargs
-        )
+    def __init__(self, num_classes: int = 1000, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        num_classes = self.parse_num_classes(num_classes)
         
-        if isinstance(self.weights, dict):
-            in_channels = self.weights.get("in_channels", in_channels)
-            num_classes = self.weights.get("num_classes", num_classes)
-        self.in_channels  = in_channels or self.in_channels
-        self.out_channels = num_classes or self.out_channels
+        # Network
+        self.model = convnext_large(num_classes=num_classes)
         
-        self.model = convnext_large(num_classes=self.out_channels)
-        
+        # Load weights
         if self.weights:
             self.load_weights()
         else:

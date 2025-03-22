@@ -1,7 +1,7 @@
-from modeling.resnet import resnet50
+import torch
 import torch.nn as nn
 import torch.nn.functional as F
-import torch
+from modeling.resnet import resnet50
 
 
 class fpn_module(nn.Module):

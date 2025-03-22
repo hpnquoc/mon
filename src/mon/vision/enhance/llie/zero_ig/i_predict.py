@@ -92,10 +92,10 @@ def predict(args: dict) -> str:
     # Benchmark
     if benchmark:
         model = Network()
-        flops, params = mon.compute_efficiency_score(model=model, image_size=512)
+        # flops, params = mon.compute_efficiency_score(model=model, image_size=512)
         total_params  = calculate_model_parameters(model)
-        console.log(f"FLOPs : {flops:.4f}")
-        console.log(f"Params: {params:.4f}")
+        # console.log(f"FLOPs : {flops:.4f}")
+        # console.log(f"Params: {params:.4f}")
         console.log(f"Total Params = {total_params:.4f}")
         
     # Predicting
@@ -129,7 +129,7 @@ def predict(args: dict) -> str:
                 nn.utils.clip_grad_norm_(model.parameters(), 5)
                 optimizer.step()
             model = Finetunemodel(model.state_dict())
-            input = Variable(image, volatile=True).to(device)
+            input = Variable(image).to(device)
             enhance, output = model(input)
             timer.tock()
             

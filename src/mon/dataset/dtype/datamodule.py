@@ -19,7 +19,7 @@ import lightning
 from torch.utils import data
 
 from mon.core import dtype, rich
-from mon.dataset.dtype import dataset, annotation
+from mon.dataset.dtype import annotation, dataset
 from mon.globals import Task
 
 

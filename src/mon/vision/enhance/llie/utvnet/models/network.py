@@ -19,14 +19,10 @@ Tested with Pytorch 1.7.1, Python 3.6
 Author: Chuanjun Zheng (chuanjunzhengcs@gmail.com)
 
 '''
-import torch.fft
 import torch
+import torch.fft
 import torch.nn as nn
-from models import basicblock as B
-from models import ns_model
-from models import utv_model
-from models import nli_model
-from models import lc_model
+from models import basicblock as B, lc_model, nli_model, ns_model, utv_model
 
 
 class UTVNet(nn.Module):

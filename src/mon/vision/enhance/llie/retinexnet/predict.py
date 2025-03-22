@@ -9,7 +9,7 @@ import time
 
 import mon
 from model import RetinexNet
-from mon import ZOO_DIR, RUN_DIR
+from mon import RUN_DIR, ZOO_DIR
 
 console = mon.console
 

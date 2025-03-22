@@ -1,8 +1,7 @@
 import torch
-import numpy as np
 import torch.nn as nn
 from network.architecture import get_conv2d_layer
-import torch.nn.functional as F
+
 
 class Adjust_naive(nn.Module):
     def __init__(self, opt):
@@ -21,4 +20,3 @@ class Adjust_naive(nn.Module):
         x = self.conv4(self.leaky_relu(x))
         x = self.relu(x) 
         return x
-

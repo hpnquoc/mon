@@ -12,7 +12,6 @@ References:
 
 from __future__ import annotations
 
-import argparse
 from typing import Sequence
 
 import imageio

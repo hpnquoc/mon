@@ -2,11 +2,10 @@ import torch
 import torch.nn as nn
 
 from .vit import (
-    _make_pretrained_vitb_rn50_384,
-    _make_pretrained_vitl16_384,
-    _make_pretrained_vitb16_384,
-    forward_vit,
+	_make_pretrained_vitb16_384, _make_pretrained_vitb_rn50_384,
+	_make_pretrained_vitl16_384,
 )
+
 
 def _make_encoder(backbone, features, use_pretrained, groups=1, expand=False, exportable=True, hooks=None, use_vit_only=False, use_readout="ignore",):
     if backbone == "vitl16_384":
@@ -339,4 +338,3 @@ class FeatureFusionBlock_custom(nn.Module):
         output = self.out_conv(output)
 
         return output
-

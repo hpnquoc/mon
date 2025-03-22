@@ -1,6 +1,7 @@
-import yaml
 from collections import OrderedDict
 from os import path as osp
+
+import yaml
 
 
 def ordered_yaml():

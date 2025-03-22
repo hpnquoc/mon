@@ -12,7 +12,6 @@ __all__ = [
 	"compute_efficiency_score",
 ]
 
-from copy import deepcopy
 from typing import Sequence
 
 import torch
@@ -37,7 +36,7 @@ def compute_efficiency_score(
 	input = torch.rand(1, channels, h, w)
 	input = input.to(core.get_model_device(model))
 	# Get FLOPs and Params
-	flops, params = core.profile(deepcopy(model), inputs=(input, ), verbose=False)
+	flops, params = core.profile(model, inputs=(input, ), verbose=False)
 	flops         = FlopCountAnalysis(model, input).total() if flops == 0 else flops
 	params        = model.params               if hasattr(model, "params") and params == 0 else params
 	params        = parameter_count(model)     if hasattr(model, "params") else params

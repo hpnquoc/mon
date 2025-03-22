@@ -1,6 +1,5 @@
 import os
 os.environ['CUDA_VISIBLE_DEVICES'] = "3"
-import torch
 import glob
 import cv2
 import lpips

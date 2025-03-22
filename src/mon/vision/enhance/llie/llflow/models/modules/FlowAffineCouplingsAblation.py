@@ -1,9 +1,8 @@
 
 import torch
-from torch import nn as nn
-
 from models.modules import thops
 from models.modules.flow import Conv2d, Conv2dZeros
+from torch import nn as nn
 from utils.util import opt_get
 
 

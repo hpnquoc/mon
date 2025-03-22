@@ -12,8 +12,6 @@ __all__ = [
     "Inception3",
 ]
 
-from typing import Any
-
 from torchvision.models import inception_v3
 
 from mon import core, nn
@@ -39,9 +37,10 @@ class Inception3(nn.ExtraModel, base.ImageClassificationModel):
     
     """
     
-    model_dir: core.Path    = current_dir
     arch     : str          = "inception"
+    name     : str          = "inception_v3"
     schemes  : list[Scheme] = [Scheme.SUPERVISED]
+    model_dir: core.Path    = current_dir
     zoo      : dict         = {
         "imagenet1k_v1": {
             "url"        : "https://download.pytorch.org/models/inception_v3_google-0cc3c7bd.pth",
@@ -52,38 +51,22 @@ class Inception3(nn.ExtraModel, base.ImageClassificationModel):
     
     def __init__(
         self,
-        name       : str   = "inception_v3",
-        in_channels: int   = 3,
         num_classes: int   = 1000,
         aux_logits : bool  = True,
         dropout    : float = 0.5,
-        weights    : Any   = None,
         *args, **kwargs
     ):
-        super().__init__(
-            name        = name,
-            in_channels = in_channels,
-            num_classes = num_classes,
-            weights     = weights,
-            *args, **kwargs
-        )
+        super().__init__(*args, **kwargs)
+        num_classes = self.parse_num_classes(num_classes)
         
-        if isinstance(self.weights, dict):
-            in_channels = self.weights.get("in_channels", in_channels)
-            num_classes = self.weights.get("num_classes", num_classes)
-            aux_logits  = self.weights.get("aux_logits" , aux_logits)
-            dropout     = self.weights.get("dropout"    , dropout)
-        self.in_channels  = in_channels or self.in_channels
-        self.out_channels = num_classes or self.out_channels
-        self.aux_logits   = aux_logits
-        self.dropout      = dropout
-        
+        # Network
         self.model = inception_v3(
-            num_classes = self.out_channels,
-            aux_logits  = self.aux_logits,
-            dropout     = self.dropout,
+            num_classes = num_classes,
+            aux_logits  = aux_logits,
+            dropout     = dropout,
         )
         
+        # Load weights
         if self.weights:
             self.load_weights()
         else:

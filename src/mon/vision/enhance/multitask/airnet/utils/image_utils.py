@@ -4,12 +4,14 @@ Created on 2020/9/8
 @author: Boyun Li
 """
 import os
+import random
+
 import numpy as np
 import torch
-import random
 import torch.nn as nn
-from torch.nn import init
 from PIL import Image
+from torch.nn import init
+
 
 class EdgeComputation(nn.Module):
     def __init__(self, test=False):

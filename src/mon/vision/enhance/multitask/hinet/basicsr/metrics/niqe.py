@@ -4,13 +4,13 @@
 # Modified from BasicSR (https://github.com/xinntao/BasicSR)
 # Copyright 2018-2020 BasicSR Authors
 # ------------------------------------------------------------------------
-import cv2
 import math
+
+import cv2
 import numpy as np
+from basicsr.metrics.metric_util import reorder_image, to_y_channel
 from scipy.ndimage.filters import convolve
 from scipy.special import gamma
-
-from basicsr.metrics.metric_util import reorder_image, to_y_channel
 
 
 def estimate_aggd_param(block):

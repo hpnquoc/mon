@@ -1,14 +1,10 @@
 import os.path as osp
+import random
+
+import cv2
+import data.util as util
 import torch
 import torch.utils.data as data
-import data.util as util
-import torch.nn.functional as F
-import random
-import cv2
-import numpy as np
-import glob
-import os
-
 
 
 class VideoSameSizeDataset(data.Dataset):

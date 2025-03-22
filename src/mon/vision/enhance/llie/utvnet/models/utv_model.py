@@ -20,8 +20,8 @@ Author: Chuanjun Zheng (chuanjunzhengcs@gmail.com)
 
 '''
 
-import torch.fft
 import torch
+import torch.fft
 import torch.nn as nn
 from models import basicblock as B
 

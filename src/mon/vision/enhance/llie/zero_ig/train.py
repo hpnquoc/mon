@@ -1,18 +1,19 @@
+import argparse
+import glob
+import logging
 import os
 import sys
 import time
-import glob
+
 import numpy as np
-import utils
-from PIL import Image
-import logging
-import argparse
-import torch.utils
 import torch.backends.cudnn as cudnn
+import torch.utils
+from PIL import Image
 from torch.autograd import Variable
+
+import utils
 from model import *
 from multi_read_data import DataLoader
-
 
 parser = argparse.ArgumentParser("ZERO-IG")
 parser.add_argument('--batch_size', type=int, default=1, help='batch size')

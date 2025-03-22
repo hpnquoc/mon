@@ -1,18 +1,7 @@
-from collections import OrderedDict
-
-import torch
-import torch.nn as nn
 import torch.nn.functional as F
 
 import mon
 from operations import *
-from torch.autograd import Variable
-from genotypes import PRIMITIVES
-from genotypes import Genotype
-import itertools
-import numpy as np
-import genotypes
-from collections import OrderedDict
 
 
 def conv_layer(in_channels, out_channels, kernel_size, stride=1, dilation=1, groups=1):

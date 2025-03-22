@@ -1,11 +1,12 @@
+import argparse
+import logging
 import os
 import sys
+
 import numpy as np
-from PIL import Image
-import logging
-import argparse
-import torch.utils
 import torch.backends.cudnn as cudnn
+import torch.utils
+from PIL import Image
 from torch.autograd import Variable
 
 from model import *

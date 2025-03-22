@@ -1,14 +1,14 @@
-from utils import *
-from loss import *
-from siren import INF
-from color import rgb2hsv_torch, hsv2rgb_torch
-
-import os
 import argparse
+import os
+
 import numpy as np
 from PIL import Image
 from tqdm import tqdm
 
+from color import hsv2rgb_torch, rgb2hsv_torch
+from loss import *
+from siren import INF
+from utils import *
 
 parser = argparse.ArgumentParser(description='CoLIE')
 parser.add_argument('--input_folder', type=str, default='input/')

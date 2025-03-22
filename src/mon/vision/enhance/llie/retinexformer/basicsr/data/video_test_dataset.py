@@ -5,8 +5,8 @@ import torch
 from torch.utils import data as data
 
 from .data_util import (
-    duf_downsample, generate_frame_indices,
-    read_img_seq,
+	duf_downsample, generate_frame_indices,
+	read_img_seq,
 )
 from ..utils import get_root_logger, scandir
 

@@ -1,6 +1,4 @@
 import torch.nn as nn
-import torch
-import math
 from network.architecture import get_batchnorm_layer, get_conv2d_layer
 
 class Illumination_Alone(nn.Module):
@@ -28,4 +26,3 @@ class Illumination_Alone(nn.Module):
         x4 = self.leaky_relu_4(self.conv4(x3))
         x5 = self.relu(self.conv5(x4))
         return x5
-

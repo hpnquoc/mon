@@ -1,4 +1,5 @@
 from collections import OrderedDict
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -537,7 +538,3 @@ class PixelUnShuffle(nn.Module):
 
     def extra_repr(self):
         return 'upscale_factor={}'.format(self.upscale_factor)
-
-
-
-

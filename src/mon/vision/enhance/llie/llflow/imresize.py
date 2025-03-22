@@ -24,8 +24,10 @@
 
 
 from __future__ import print_function
+
+from math import ceil
+
 import numpy as np
-from math import ceil, floor
 
 
 def deriveSizeFromScale(img_shape, scale):

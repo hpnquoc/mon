@@ -1,20 +1,21 @@
-import os
-import math
 import argparse
-import random
 import logging
+import math
+import os
+import random
 
+import cv2
+import numpy as np
 import torch
 import torch.distributed as dist
 import torch.multiprocessing as mp
-from data.data_sampler import DistIterSampler
 
 import options.options as option
-from utils import util
 from data import create_dataloader, create_dataset
+from data.data_sampler import DistIterSampler
 from models import create_model
-import numpy as np
-import cv2
+from utils import util
+
 
 def init_dist(backend='nccl', **kwargs):
     """initialization for distributed training"""

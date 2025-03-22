@@ -5,6 +5,7 @@
 # Copyright 2018-2020 BasicSR Authors
 # ------------------------------------------------------------------------
 import math
+
 import numpy as np
 import torch
 

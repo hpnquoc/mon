@@ -1,13 +1,10 @@
-import os
-import sys
-
-import torch
-import torch.utils.data as data
-
-import numpy as np
-from PIL import Image
 import glob
 import random
+
+import numpy as np
+import torch
+import torch.utils.data as data
+from PIL import Image
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -57,4 +54,3 @@ class lowlight_loader(data.Dataset):
 
 	def __len__(self):
 		return len(self.data_list)
-

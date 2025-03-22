@@ -1,17 +1,18 @@
+import argparse
 import glob
 import os
 import time
 from collections import OrderedDict
 
+import cv2
+import lpips
 import numpy as np
 import torch
-import cv2
-import argparse
-
 from natsort import natsort
-from skimage.metrics import structural_similarity as ssim
-from skimage.metrics import peak_signal_noise_ratio as psnr
-import lpips
+from skimage.metrics import (
+	peak_signal_noise_ratio as psnr,
+	structural_similarity as ssim,
+)
 
 
 class Measure:

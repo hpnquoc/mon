@@ -13,8 +13,8 @@ __all__ = [
 from typing import Literal
 
 from mon import core
-from mon.globals import DATA_DIR, DATAMODULES, DATASETS, Split, Task
 from mon.dataset import dtype
+from mon.globals import DATA_DIR, DATAMODULES, DATASETS, Split, Task
 
 console             = core.console
 default_root_dir    = DATA_DIR / "enhance"

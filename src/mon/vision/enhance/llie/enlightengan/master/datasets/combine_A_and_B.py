@@ -1,8 +1,8 @@
-from pdb import set_trace as st
-import os
-import numpy as np
-import cv2
 import argparse
+import os
+
+import cv2
+import numpy as np
 
 parser = argparse.ArgumentParser('create image pairs')
 parser.add_argument('--fold_A', dest='fold_A', help='input directory for image A', type=str, default='../dataset/50kshoes_edges')

@@ -1,9 +1,6 @@
-import torch.nn as nn
 import torch
-from torch.nn.modules.linear import Identity
+import torch.nn as nn
 from network.architecture import *
-import math
-import torch.nn.functional as F
 
 
 class HalfDnCNNSE(nn.Module):

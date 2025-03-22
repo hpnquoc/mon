@@ -2,9 +2,8 @@ import math
 
 import torch
 import torch.nn as nn
-from torch.nn.modules.utils import _pair
-
 from mmcv.ops import modulated_deform_conv2d
+from torch.nn.modules.utils import _pair
 
 
 class DCN_layer(nn.Module):

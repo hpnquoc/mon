@@ -6,10 +6,8 @@
 # ------------------------------------------------------------------------
 import cv2
 import numpy as np
-
-from basicsr.metrics.metric_util import reorder_image, to_y_channel
-import skimage.metrics
 import torch
+from basicsr.metrics.metric_util import reorder_image, to_y_channel
 
 
 def calculate_psnr(img1,

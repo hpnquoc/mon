@@ -1,10 +1,10 @@
 import glob
 
-import torch
-import torchvision
 import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
+import torch
+import torchvision
 from PIL import Image
 
 # import skvideo.io

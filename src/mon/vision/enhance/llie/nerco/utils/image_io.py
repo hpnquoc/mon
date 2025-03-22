@@ -1,12 +1,12 @@
 import glob
 
-import torch
-import torchvision
 import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
-from PIL import Image
 import skvideo.io
+import torch
+import torchvision
+from PIL import Image
 
 matplotlib.use('agg')
 

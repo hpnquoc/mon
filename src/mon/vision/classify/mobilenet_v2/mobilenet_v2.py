@@ -12,8 +12,6 @@ __all__ = [
     "MobileNetV2",
 ]
 
-from typing import Any
-
 from torchvision.models import mobilenet_v2
 
 from mon import core, nn
@@ -36,9 +34,10 @@ class MobileNetV2(nn.ExtraModel, base.ImageClassificationModel):
         https://arxiv.org/abs/1801.04381
     """
     
-    model_dir: core.Path    = current_dir
     arch     : str          = "mobilenet"
+    name     : str          = "mobilenet_v2"
     schemes  : list[Scheme] = [Scheme.SUPERVISED]
+    model_dir: core.Path    = current_dir
     zoo      : dict         = {
         "imagenet1k_v1": {
             "url"        : "https://download.pytorch.org/models/mobilenet_v2-b0353104.pth",
@@ -54,38 +53,22 @@ class MobileNetV2(nn.ExtraModel, base.ImageClassificationModel):
     
     def __init__(
         self,
-        name       : str   = "mobilenet_v2",
-        in_channels: int   = 3,
         num_classes: int   = 1000,
         width_mult : float = 1.0,
         dropout    : float = 0.2,
-        weights    : Any   = None,
         *args, **kwargs
     ):
-        super().__init__(
-            name        = name,
-            in_channels = in_channels,
-            num_classes = num_classes,
-            weights     = weights,
-            *args, **kwargs
-        )
+        super().__init__(*args, **kwargs)
+        num_classes = self.parse_num_classes(num_classes)
         
-        if isinstance(self.weights, dict):
-            in_channels = self.weights.get("in_channels", in_channels)
-            num_classes = self.weights.get("num_classes", num_classes)
-            width_mult  = self.weights.get("width_mult" , width_mult )
-            dropout     = self.weights.get("dropout"    , dropout)
-        self.in_channels  = in_channels or self.in_channels
-        self.out_channels = num_classes or self.out_channels
-        self.width_mult   = width_mult
-        self.dropout      = dropout
-        
+        # Network
         self.model = mobilenet_v2(
-            num_classes = self.out_channels,
-            width_mult  = self.width_mult,
-            dropout     = self.dropout,
+            num_classes = num_classes,
+            width_mult  = width_mult,
+            dropout     = dropout,
         )
         
+        # Load weights
         if self.weights:
             self.load_weights()
         else:

@@ -13,7 +13,7 @@ import torch
 import torchvision.transforms.functional as TF
 from PIL import Image
 from torch.utils.data import Dataset
-from utils import is_png_file, load_img, Augment_RGB_torch
+from utils import Augment_RGB_torch, is_png_file, load_img
 
 import mon
 

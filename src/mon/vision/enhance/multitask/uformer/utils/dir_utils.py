@@ -1,6 +1,8 @@
 import os
-from natsort import natsorted
 from glob import glob
+
+from natsort import natsorted
+
 
 def mkdirs(paths):
     if isinstance(paths, list) and not isinstance(paths, str):

@@ -1,12 +1,11 @@
 import os.path
+import random
+
+import torch
 import torchvision.transforms as transforms
 from data.base_dataset import BaseDataset, get_transform
 from data.image_folder import make_dataset
 from PIL import Image
-import PIL
-import random
-import torch
-from pdb import set_trace as st
 
 
 class PairDataset(BaseDataset):

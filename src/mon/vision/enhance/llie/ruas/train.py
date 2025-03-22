@@ -1,15 +1,15 @@
+import argparse
+import logging
 import os
 import sys
+
 import numpy as np
 import torch
-import utils
-import logging
-import argparse
-import torch.utils
 import torch.backends.cudnn as cudnn
-
-from PIL import Image
+import torch.utils
 from torch.autograd import Variable
+
+import utils
 from model import Network
 from multi_read_data import MemoryFriendlyLoader
 

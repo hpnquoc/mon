@@ -1,6 +1,7 @@
-import numpy as np
-from scipy.ndimage import filters, measurements, interpolation
 from math import pi
+
+import numpy as np
+from scipy.ndimage import filters, interpolation, measurements
 
 
 def imresize(im, scale_factor=None, output_shape=None, kernel=None, antialiasing=True, kernel_shift_flag=False):

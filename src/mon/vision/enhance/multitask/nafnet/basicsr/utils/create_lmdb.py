@@ -4,8 +4,6 @@
 # Modified from BasicSR (https://github.com/xinntao/BasicSR)
 # Copyright 2018-2020 BasicSR Authors
 # ------------------------------------------------------------------------
-import argparse
-from os import path as osp
 
 from basicsr.utils import scandir
 from basicsr.utils.lmdb_util import make_lmdb_from_imgs

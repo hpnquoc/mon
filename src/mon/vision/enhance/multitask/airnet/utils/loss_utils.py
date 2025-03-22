@@ -1,6 +1,5 @@
 import torch
 import torch.nn as nn
-from torch.nn.functional import mse_loss
 
 
 class GANLoss(nn.Module):
@@ -43,4 +42,3 @@ class GANLoss(nn.Module):
         target_tensor = self.get_target_tensor(input, target_is_real)
         # pdb.set_trace()
         return self.loss(input, target_tensor)
-

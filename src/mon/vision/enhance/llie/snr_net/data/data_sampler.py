@@ -4,9 +4,10 @@ Support enlarging the dataset for *iteration-oriented* training, for saving time
 dataloader after each epoch
 """
 import math
+
 import torch
-from torch.utils.data.sampler import Sampler
 import torch.distributed as dist
+from torch.utils.data.sampler import Sampler
 
 
 class DistIterSampler(Sampler):

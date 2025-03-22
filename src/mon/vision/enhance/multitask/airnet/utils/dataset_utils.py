@@ -1,14 +1,13 @@
+import copy
 import os
 import random
-import copy
-from PIL import Image
+
 import numpy as np
-
+from PIL import Image
 from torch.utils.data import Dataset
-from torchvision.transforms import ToPILImage, Compose, RandomCrop, ToTensor
-
-from utils.image_utils import random_augmentation, crop_img
+from torchvision.transforms import Compose, RandomCrop, ToPILImage, ToTensor
 from utils.degradation_utils import Degradation
+from utils.image_utils import crop_img, random_augmentation
 
 
 class TrainDataset(Dataset):

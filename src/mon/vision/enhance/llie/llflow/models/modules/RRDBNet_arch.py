@@ -2,10 +2,11 @@
 
 
 import functools
+
+import models.modules.module_util as mutil
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-import models.modules.module_util as mutil
 from utils.util import opt_get
 
 

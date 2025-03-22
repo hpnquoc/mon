@@ -6,9 +6,8 @@ from os.path import join
 import numpy as np
 import torch
 import torch.utils.data as data
-from torchvision import transforms as t
-
 from data.util import *
+from torchvision import transforms as t
 
 
 class LOLDatasetFromFolder(data.Dataset):

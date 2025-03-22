@@ -1,17 +1,20 @@
-import torch
-import torch.multiprocessing as multiprocessing
-from torch._C import _set_worker_signal_handlers, _update_worker_pids, \
-    _remove_worker_pids, _error_if_any_worker_fails
-from .sampler import SequentialSampler, RandomSampler, BatchSampler
-import signal
-import functools
 import collections
 import re
+import signal
 import sys
 import threading
 import traceback
-from torch._six import string_classes, int_classes
+
 import numpy as np
+import torch
+import torch.multiprocessing as multiprocessing
+from torch._C import (
+	_error_if_any_worker_fails, _remove_worker_pids,
+	_set_worker_signal_handlers, _update_worker_pids,
+)
+from torch._six import int_classes, string_classes
+
+from .sampler import BatchSampler, RandomSampler, SequentialSampler
 
 if sys.version_info[0] == 2:
     import Queue as queue

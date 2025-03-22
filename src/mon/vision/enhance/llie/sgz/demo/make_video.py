@@ -1,6 +1,8 @@
-import cv2
-import os
 import argparse
+import os
+
+import cv2
+
 
 # References: https://blog.csdn.net/bryant_meng/article/details/110079285
 # Check test_video.sh in the main directory
@@ -82,5 +84,3 @@ def main(args):
 if __name__ == "__main__":
     args = parse_args()
     main(args)
-
-

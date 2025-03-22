@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 import itertools
-import time
 
 import clip
 import numpy as np

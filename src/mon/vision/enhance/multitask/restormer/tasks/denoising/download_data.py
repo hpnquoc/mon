@@ -5,11 +5,10 @@
 ## Download training and testing data for Image Denoising task
 
 
+import argparse
 import os
 # import gdown
 import shutil
-
-import argparse
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--data', type=str, required=True, help='train, test or train-test')

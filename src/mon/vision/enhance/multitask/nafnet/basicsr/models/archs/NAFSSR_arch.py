@@ -17,10 +17,10 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-
-from basicsr.models.archs.NAFNet_arch import LayerNorm2d, NAFBlock
 from basicsr.models.archs.arch_util import MySequential
 from basicsr.models.archs.local_arch import Local_Base
+from basicsr.models.archs.NAFNet_arch import LayerNorm2d, NAFBlock
+
 
 class SCAM(nn.Module):
     '''
@@ -164,7 +164,3 @@ if __name__ == '__main__':
     # net = net.cuda()
     # data = torch.randn((1, 6, 128, 128)).cuda()
     # measure_inference_speed(net, (data,))
-
-
-
-

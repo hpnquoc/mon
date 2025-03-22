@@ -1,13 +1,12 @@
-import torch
-import pytorch_lightning as pl
-import torch.nn.functional as F
 from contextlib import contextmanager
 
-from ldm.modules.diffusionmodules.model import Encoder, Decoder
+import pytorch_lightning as pl
+import torch
+import torch.nn.functional as F
+from ldm.modules.diffusionmodules.model import Decoder, Encoder
 from ldm.modules.distributions.distributions import DiagonalGaussianDistribution
-
-from ldm.util import instantiate_from_config
 from ldm.modules.ema import LitEma
+from ldm.util import instantiate_from_config
 
 
 class AutoencoderKL(pl.LightningModule):
@@ -216,4 +215,3 @@ class IdentityFirstStage(torch.nn.Module):
 
     def forward(self, x, *args, **kwargs):
         return x
-

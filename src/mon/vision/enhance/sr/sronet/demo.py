@@ -1,14 +1,12 @@
 import argparse
 import os
-from PIL import Image
 
 import torch
+from PIL import Image
 from torchvision import transforms
 
 import models
 from utils import make_coord
-from test import batched_predict
-
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()

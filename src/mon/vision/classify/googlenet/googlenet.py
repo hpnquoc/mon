@@ -12,8 +12,6 @@ __all__ = [
     "GoogleNet",
 ]
 
-from typing import Any
-
 from torchvision.models import googlenet
 
 from mon import core, nn
@@ -36,9 +34,10 @@ class GoogleNet(nn.ExtraModel, base.ImageClassificationModel):
         https://arxiv.org/abs/1409.4842
     """
     
-    model_dir: core.Path    = current_dir
     arch     : str          = "googlenet"
+    name     : str          = "googlenet"
     schemes  : list[Scheme] = [Scheme.SUPERVISED]
+    model_dir: core.Path    = current_dir
     zoo      : dict         = {
         "imagenet1k_v1": {
             "url"        : "https://download.pytorch.org/models/googlenet-1378be20.pth",
@@ -49,42 +48,24 @@ class GoogleNet(nn.ExtraModel, base.ImageClassificationModel):
     
     def __init__(
         self,
-        name       : str = "googlenet",
-        in_channels: int   = 3,
         num_classes: int   = 1000,
         aux_logits : bool  = True,
         dropout    : float = 0.2,
         dropout_aux: float = 0.7,
-        weights    : Any   = None,
         *args, **kwargs
     ):
-        super().__init__(
-            name        = name,
-            in_channels = in_channels,
-            num_classes = num_classes,
-            weights     = weights,
-            *args, **kwargs
-        )
+        super().__init__(*args, **kwargs)
+        num_classes = self.parse_num_classes(num_classes)
         
-        if isinstance(self.weights, dict):
-            in_channels = self.weights.get("in_channels", in_channels)
-            num_classes = self.weights.get("num_classes", num_classes)
-            aux_logits  = self.weights.get("aux_logits" , aux_logits)
-            dropout     = self.weights.get("dropout"    , dropout)
-            dropout_aux = self.weights.get("dropout_aux", dropout_aux)
-        self.in_channels  = in_channels or self.in_channels
-        self.out_channels = num_classes or self.out_channels
-        self.aux_logits   = aux_logits
-        self.dropout      = dropout
-        self.dropout_aux  = dropout_aux
-        
+        # Network
         self.model = googlenet(
-            num_classes = self.out_channels,
-            aux_logits  = self.aux_logits,
-            dropout     = self.dropout,
-            dropout_aux = self.dropout_aux,
+            num_classes = num_classes,
+            aux_logits  = aux_logits,
+            dropout     = dropout,
+            dropout_aux = dropout_aux,
         )
         
+        # Load weights
         if self.weights:
             self.load_weights()
         else:

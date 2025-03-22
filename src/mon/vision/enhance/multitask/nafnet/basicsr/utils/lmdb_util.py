@@ -4,11 +4,12 @@
 # Modified from BasicSR (https://github.com/xinntao/BasicSR)
 # Copyright 2018-2020 BasicSR Authors
 # ------------------------------------------------------------------------
-import cv2
-import lmdb
 import sys
 from multiprocessing import Pool
 from os import path as osp
+
+import cv2
+import lmdb
 from tqdm import tqdm
 
 

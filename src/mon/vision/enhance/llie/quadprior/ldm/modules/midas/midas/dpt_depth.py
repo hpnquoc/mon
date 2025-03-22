@@ -1,14 +1,9 @@
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 
 from .base_model import BaseModel
 from .blocks import (
-    FeatureFusionBlock,
-    FeatureFusionBlock_custom,
-    Interpolate,
-    _make_encoder,
-    forward_vit,
+	_make_encoder, FeatureFusionBlock_custom, forward_vit, Interpolate,
 )
 
 
@@ -106,4 +101,3 @@ class DPTDepthModel(DPT):
 
     def forward(self, x):
         return super().forward(x).squeeze(dim=1)
-

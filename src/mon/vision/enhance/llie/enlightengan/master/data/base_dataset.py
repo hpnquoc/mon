@@ -1,7 +1,7 @@
 import torch.utils.data as data
-from PIL import Image
 import torchvision.transforms as transforms
-import random
+from PIL import Image
+
 
 class BaseDataset(data.Dataset):
     def __init__(self):

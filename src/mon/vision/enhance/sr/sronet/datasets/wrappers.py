@@ -1,14 +1,15 @@
-import random
 import math
-from torchvision.transforms import InterpolationMode
+import random
 
 import numpy as np
 import torch
 from torch.utils.data import Dataset
 from torchvision import transforms
+from torchvision.transforms import InterpolationMode
+from utils import make_coord
 
 from datasets import register
-from utils import make_coord
+
 
 def resize_fn(img, size):
     return transforms.ToTensor()(

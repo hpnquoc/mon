@@ -1,7 +1,6 @@
-from torch import nn
-
-from net.encoder import CBDE
 from net.DGRN import DGRN
+from net.encoder import CBDE
+from torch import nn
 
 
 class AirNet(nn.Module):

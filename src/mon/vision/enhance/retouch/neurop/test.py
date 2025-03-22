@@ -7,7 +7,6 @@ from data import build_val_loader
 from models import build_model
 from utils import *
 
-
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('-config', type=str, help='path of the yaml configuration file')

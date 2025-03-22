@@ -1,17 +1,12 @@
-import numpy as np
+from collections import OrderedDict
+
 import torch
-import os
-from collections import OrderedDict
-from torch.autograd import Variable
 import util.util as util
-from collections import OrderedDict
 from torch.autograd import Variable
-import itertools
-import util.util as util
 from util.image_pool import ImagePool
-from .base_model import BaseModel
+
 from . import networks
-import sys
+from .base_model import BaseModel
 
 
 class PairModel(BaseModel):

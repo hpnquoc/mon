@@ -1,13 +1,14 @@
 # from __future__ import print_function
-import numpy as np
-from PIL import Image
-import inspect, re
+import collections
+import inspect
+import os
+import re
+
 import numpy as np
 import torch
-import os
-import collections
-from torch.optim import lr_scheduler
 import torch.nn.init as init
+from PIL import Image
+from torch.optim import lr_scheduler
 
 
 # Converts a Tensor into a Numpy array

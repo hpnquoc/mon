@@ -3,8 +3,9 @@
 
 from __future__ import annotations
 
-import mon
 from mon.config import default
+
+import mon
 
 current_file = mon.Path(__file__).absolute()
 

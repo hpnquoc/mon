@@ -1,13 +1,14 @@
 
 
 
+import glob
 import os
 from collections import OrderedDict
+
+import natsort
 import torch
 import torch.nn as nn
 from torch.nn.parallel import DistributedDataParallel
-import natsort
-import glob
 
 
 class BaseModel(nn.Module):

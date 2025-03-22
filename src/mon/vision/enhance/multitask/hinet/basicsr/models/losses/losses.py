@@ -4,12 +4,11 @@
 # Modified from BasicSR (https://github.com/xinntao/BasicSR)
 # Copyright 2018-2020 BasicSR Authors
 # ------------------------------------------------------------------------
+import numpy as np
 import torch
+from basicsr.models.losses.loss_util import weighted_loss
 from torch import nn as nn
 from torch.nn import functional as F
-import numpy as np
-
-from basicsr.models.losses.loss_util import weighted_loss
 
 _reduction_modes = ['none', 'mean', 'sum']
 

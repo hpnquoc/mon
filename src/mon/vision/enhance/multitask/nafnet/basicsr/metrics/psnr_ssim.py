@@ -8,10 +8,10 @@
 # ------------------------------------------------------------------------
 import cv2
 import numpy as np
-
+import torch
 from basicsr.metrics.metric_util import reorder_image, to_y_channel
 from skimage.metrics import structural_similarity
-import torch
+
 
 def calculate_psnr(img1,
                    img2,

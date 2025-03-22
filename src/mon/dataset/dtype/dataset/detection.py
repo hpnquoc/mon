@@ -18,9 +18,10 @@ from abc import ABC
 import albumentations as A
 import torch
 from albumentations.core import bbox_utils
-from mon import core
 from mon.dataset.datastruct import annotation
 from mon.dataset.datastruct.dataset import image as I
+
+from mon import core
 from mon.globals import BBoxFormat
 
 console             = core.console

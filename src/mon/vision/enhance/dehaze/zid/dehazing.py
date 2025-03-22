@@ -9,7 +9,7 @@ from collections import namedtuple
 
 import torch.nn as nn
 from cv2.ximgproc import guidedFilter
-from skimage.metrics import peak_signal_noise_ratio, structural_similarity
+from skimage.metrics import peak_signal_noise_ratio
 
 from net import *
 from net.losses import StdLoss

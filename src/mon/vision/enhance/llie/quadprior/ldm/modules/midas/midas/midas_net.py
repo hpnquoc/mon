@@ -6,7 +6,7 @@ import torch
 import torch.nn as nn
 
 from .base_model import BaseModel
-from .blocks import FeatureFusionBlock, Interpolate, _make_encoder
+from .blocks import _make_encoder, FeatureFusionBlock, Interpolate
 
 
 class MidasNet(BaseModel):

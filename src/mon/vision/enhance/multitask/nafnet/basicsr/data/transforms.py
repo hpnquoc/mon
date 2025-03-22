@@ -4,10 +4,9 @@
 # Modified from BasicSR (https://github.com/xinntao/BasicSR)
 # Copyright 2018-2020 BasicSR Authors
 # ------------------------------------------------------------------------
-import cv2
 import random
-from cv2 import rotate
-import numpy as np
+
+import cv2
 
 
 def mod_crop(img, scale):
@@ -243,5 +242,3 @@ def img_rotate(img, angle, center=None, scale=1.0):
     matrix = cv2.getRotationMatrix2D(center, angle, scale)
     rotated_img = cv2.warpAffine(img, matrix, (w, h))
     return rotated_img
-
-

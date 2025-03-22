@@ -1,6 +1,4 @@
-import torch
 import torch.nn as nn
-import torchvision
 
 
 def get_batchnorm_layer(opts):

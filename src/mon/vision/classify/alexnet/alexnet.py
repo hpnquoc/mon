@@ -12,8 +12,6 @@ __all__ = [
     "AlexNet",
 ]
 
-from typing import Any
-
 from torchvision.models import alexnet
 
 from mon import core, nn
@@ -44,6 +42,7 @@ class AlexNet(nn.ExtraModel, base.ImageClassificationModel):
     
     def __init__(self, num_classes: int = 1000, dropout: float = 0.5, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        num_classes = self.parse_num_classes(num_classes)
         
         # Network
         self.model = alexnet(num_classes=num_classes, dropout=dropout)

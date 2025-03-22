@@ -2,9 +2,8 @@
 
 
 import torch
-from torch import nn as nn
-
 from models.modules import thops
+from torch import nn as nn
 
 
 class _ActNorm(nn.Module):
@@ -125,4 +124,3 @@ class MaskedActNorm2d(ActNorm2d):
         logdet[mask] = logdet_out[mask]
 
         return input, logdet
-

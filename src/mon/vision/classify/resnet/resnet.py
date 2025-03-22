@@ -22,12 +22,11 @@ __all__ = [
 ]
 
 from abc import ABC
-from typing import Any
 
 from torchvision.models import (
-	resnet101, resnet152, resnet18, resnet34,
-	resnet50, resnext101_32x8d, resnext101_64x4d, resnext50_32x4d,
-	wide_resnet101_2, wide_resnet50_2,
+    resnet101, resnet152, resnet18, resnet34,
+    resnet50, resnext101_32x8d, resnext101_64x4d, resnext50_32x4d,
+    wide_resnet101_2, wide_resnet50_2,
 )
 
 from mon import core, nn
@@ -49,9 +48,9 @@ class ResNet(nn.ExtraModel, base.ImageClassificationModel, ABC):
         https://arxiv.org/abs/1512.03385
     """
     
-    model_dir: core.Path    = current_dir
     arch     : str          = "resnet"
     schemes  : list[Scheme] = [Scheme.SUPERVISED]
+    model_dir: core.Path    = current_dir
     zoo      : dict         = {}
     
     def init_weights(self, m: nn.Module):
@@ -65,8 +64,9 @@ class ResNet(nn.ExtraModel, base.ImageClassificationModel, ABC):
 
 @MODELS.register(name="resnet18", arch="resnet")
 class ResNet18(ResNet):
-
-    zoo: dict = {
+    
+    name: str  = "resnet18"
+    zoo : dict = {
         "imagenet1k_v1": {
             "url"        : "https://download.pytorch.org/models/resnet18-f37072fd.pth",
             "path"       : ZOO_DIR / "vision/classify/resnet/resnet18/imagenet1k_v1/resnet18_imagenet1k_v1.pth",
@@ -74,30 +74,14 @@ class ResNet18(ResNet):
         },
     }
     
-    def __init__(
-        self,
-        name       : str = "resnet18",
-        in_channels: int = 3,
-        num_classes: int = 1000,
-        weights    : Any = None,
-        *args, **kwargs
-    ):
-        super().__init__(
-            name        = name,
-            in_channels = in_channels,
-            num_classes = num_classes,
-            weights     = weights,
-            *args, **kwargs
-        )
+    def __init__(self, num_classes: int = 1000, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        num_classes = self.parse_num_classes(num_classes)
         
-        if isinstance(self.weights, dict):
-            in_channels = self.weights.get("in_channels", in_channels)
-            num_classes = self.weights.get("num_classes", num_classes)
-        self.in_channels  = in_channels or self.in_channels
-        self.out_channels = num_classes or self.out_channels
-
-        self.model = resnet18(num_classes=self.out_channels)
+        # Network
+        self.model = resnet18(num_classes=num_classes)
         
+        # Load weights
         if self.weights:
             self.load_weights()
         else:
@@ -107,7 +91,8 @@ class ResNet18(ResNet):
 @MODELS.register(name="resnet34", arch="resnet")
 class ResNet34(ResNet):
     
-    zoo: dict = {
+    name: str  = "resnet34"
+    zoo : dict = {
         "imagenet1k_v1": {
             "url"        : "https://download.pytorch.org/models/resnet34-b627a593.pth",
             "path"       : ZOO_DIR / "vision/classify/resnet/resnet34/imagenet1k_v1/resnet34_imagenet1k_v1.pth",
@@ -115,30 +100,14 @@ class ResNet34(ResNet):
         },
     }
     
-    def __init__(
-        self,
-        name       : str = "resnet34",
-        in_channels: int = 3,
-        num_classes: int = 1000,
-        weights    : Any = None,
-        *args, **kwargs
-    ):
-        super().__init__(
-            name        = name,
-            in_channels = in_channels,
-            num_classes = num_classes,
-            weights     = weights,
-            *args, **kwargs
-        )
+    def __init__(self, num_classes: int = 1000, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        num_classes = self.parse_num_classes(num_classes)
         
-        if isinstance(self.weights, dict):
-            in_channels = self.weights.get("in_channels", in_channels)
-            num_classes = self.weights.get("num_classes", num_classes)
-        self.in_channels  = in_channels or self.in_channels
-        self.out_channels = num_classes or self.out_channels
-
-        self.model = resnet34(num_classes=self.out_channels)
+        # Network
+        self.model = resnet34(num_classes=num_classes)
         
+        # Load weights
         if self.weights:
             self.load_weights()
         else:
@@ -148,7 +117,8 @@ class ResNet34(ResNet):
 @MODELS.register(name="resnet50", arch="resnet")
 class ResNet50(ResNet):
     
-    zoo: dict = {
+    name: str  = "resnet50"
+    zoo : dict = {
         "imagenet1k_v1": {
             "url"        : "https://download.pytorch.org/models/resnet50-11ad3fa6.pth",
             "path"       : ZOO_DIR / "vision/classify/resnet/resnet50/imagenet1k_v1/resnet50_imagenet1k_v1.pth",
@@ -161,30 +131,14 @@ class ResNet50(ResNet):
         },
     }
     
-    def __init__(
-        self,
-        name       : str = "resnet50",
-        in_channels: int = 3,
-        num_classes: int = 1000,
-        weights    : Any = None,
-        *args, **kwargs
-    ):
-        super().__init__(
-            name        = name,
-            in_channels = in_channels,
-            num_classes = num_classes,
-            weights     = weights,
-            *args, **kwargs
-        )
+    def __init__(self, num_classes: int = 1000, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        num_classes = self.parse_num_classes(num_classes)
         
-        if isinstance(self.weights, dict):
-            in_channels = self.weights.get("in_channels", in_channels)
-            num_classes = self.weights.get("num_classes", num_classes)
-        self.in_channels  = in_channels or self.in_channels
-        self.out_channels = num_classes or self.out_channels
-
-        self.model = resnet50(num_classes=self.out_channels)
+        # Network
+        self.model = resnet50(num_classes=num_classes)
         
+        # Load weights
         if self.weights:
             self.load_weights()
         else:
@@ -194,7 +148,8 @@ class ResNet50(ResNet):
 @MODELS.register(name="resnet101", arch="resnet")
 class ResNet101(ResNet):
     
-    zoo: dict = {
+    name: str  = "resnet101"
+    zoo : dict = {
         "imagenet1k_v1": {
             "url"        : "https://download.pytorch.org/models/resnet101-63fe2227.pth",
             "path"       : ZOO_DIR / "vision/classify/resnet/resnet101/imagenet1k_v1/resnet101_imagenet1k_v1.pth",
@@ -207,30 +162,14 @@ class ResNet101(ResNet):
         },
     }
     
-    def __init__(
-        self,
-        name       : str = "resnet101",
-        in_channels: int = 3,
-        num_classes: int = 1000,
-        weights    : Any = None,
-        *args, **kwargs
-    ):
-        super().__init__(
-            name        = name,
-            in_channels = in_channels,
-            num_classes = num_classes,
-            weights     = weights,
-            *args, **kwargs
-        )
+    def __init__(self, num_classes: int = 1000, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        num_classes = self.parse_num_classes(num_classes)
         
-        if isinstance(self.weights, dict):
-            in_channels = self.weights.get("in_channels", in_channels)
-            num_classes = self.weights.get("num_classes", num_classes)
-        self.in_channels  = in_channels or self.in_channels
-        self.out_channels = num_classes or self.out_channels
-
-        self.model = resnet101(num_classes=self.out_channels)
+        # Network
+        self.model = resnet101(num_classes=num_classes)
         
+        # Load weights
         if self.weights:
             self.load_weights()
         else:
@@ -240,7 +179,8 @@ class ResNet101(ResNet):
 @MODELS.register(name="resnet152", arch="resnet")
 class ResNet152(ResNet):
     
-    zoo: dict = {
+    name: str  = "resnet152"
+    zoo : dict = {
         "imagenet1k_v1": {
             "url"        : "https://download.pytorch.org/models/resnet152-394f9c45.pth",
             "path"       : ZOO_DIR / "vision/classify/resnet/resnet152/imagenet1k_v1/resnet152_imagenet1k_v1.pth",
@@ -253,30 +193,14 @@ class ResNet152(ResNet):
         },
     }
     
-    def __init__(
-        self,
-        name       : str = "resnet152",
-        in_channels: int = 3,
-        num_classes: int = 1000,
-        weights    : Any = None,
-        *args, **kwargs
-    ):
-        super().__init__(
-            name        = name,
-            in_channels = in_channels,
-            num_classes = num_classes,
-            weights     = weights,
-            *args, **kwargs
-        )
+    def __init__(self, num_classes: int = 1000, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        num_classes = self.parse_num_classes(num_classes)
         
-        if isinstance(self.weights, dict):
-            in_channels = self.weights.get("in_channels", in_channels)
-            num_classes = self.weights.get("num_classes", num_classes)
-        self.in_channels  = in_channels or self.in_channels
-        self.out_channels = num_classes or self.out_channels
-
-        self.model = resnet152(num_classes=self.out_channels)
+        # Network
+        self.model = resnet152(num_classes=num_classes)
         
+        # Load weights
         if self.weights:
             self.load_weights()
         else:
@@ -290,7 +214,8 @@ class ResNet152(ResNet):
 @MODELS.register(name="resnext50_32x4d", arch="resnet")
 class ResNeXt50_32X4D(ResNet):
     
-    zoo: dict = {
+    name: str  = "resnext50_32x4d"
+    zoo : dict = {
         "imagenet1k_v1": {
             "url"        : "https://download.pytorch.org/models/resnext50_32x4d-7cdf4587.pth",
             "path"       : ZOO_DIR / "vision/classify/resnet/resnext50_32x4d/imagenet1k_v1/resnext50_32x4d_imagenet1k_v1.pth",
@@ -303,30 +228,14 @@ class ResNeXt50_32X4D(ResNet):
         },
     }
     
-    def __init__(
-        self,
-        name       : str = "resnext50_32x4d",
-        in_channels: int = 3,
-        num_classes: int = 1000,
-        weights    : Any = None,
-        *args, **kwargs
-    ):
-        super().__init__(
-            name        = name,
-            in_channels = in_channels,
-            num_classes = num_classes,
-            weights     = weights,
-            *args, **kwargs
-        )
+    def __init__(self, num_classes: int = 1000, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        num_classes = self.parse_num_classes(num_classes)
         
-        if isinstance(self.weights, dict):
-            in_channels = self.weights.get("in_channels", in_channels)
-            num_classes = self.weights.get("num_classes", num_classes)
-        self.in_channels  = in_channels or self.in_channels
-        self.out_channels = num_classes or self.out_channels
-
-        self.model = resnext50_32x4d(num_classes=self.out_channels)
+        # Network
+        self.model = resnext50_32x4d(num_classes=num_classes)
         
+        # Load weights
         if self.weights:
             self.load_weights()
         else:
@@ -335,8 +244,9 @@ class ResNeXt50_32X4D(ResNet):
 
 @MODELS.register(name="resnext101_32x8d", arch="resnet")
 class ResNeXt101_32X8D(ResNet):
-
-    zoo: dict = {
+    
+    name: str  = "resnext101_32x8d"
+    zoo : dict = {
         "imagenet1k_v1": {
             "url"        : "https://download.pytorch.org/models/resnext101_32x8d-8ba56ff5.pth",
             "path"       : ZOO_DIR / "vision/classify/resnet/resnext101_32x8d/imagenet1k_v1/resnext101_32x8d_imagenet1k_v1.pth",
@@ -349,30 +259,14 @@ class ResNeXt101_32X8D(ResNet):
         },
     }
     
-    def __init__(
-        self,
-        name       : str = "resnext101_32x8d",
-        in_channels: int = 3,
-        num_classes: int = 1000,
-        weights    : Any = None,
-        *args, **kwargs
-    ):
-        super().__init__(
-            name        = name,
-            in_channels = in_channels,
-            num_classes = num_classes,
-            weights     = weights,
-            *args, **kwargs
-        )
+    def __init__(self, num_classes: int = 1000, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        num_classes = self.parse_num_classes(num_classes)
         
-        if isinstance(self.weights, dict):
-            in_channels = self.weights.get("in_channels", in_channels)
-            num_classes = self.weights.get("num_classes", num_classes)
-        self.in_channels  = in_channels or self.in_channels
-        self.out_channels = num_classes or self.out_channels
-
-        self.model = resnext101_32x8d(num_classes=self.out_channels)
+        # Network
+        self.model = resnext101_32x8d(num_classes=num_classes)
         
+        # Load weights
         if self.weights:
             self.load_weights()
         else:
@@ -381,8 +275,9 @@ class ResNeXt101_32X8D(ResNet):
 
 @MODELS.register(name="resnext101_64x4d", arch="resnet")
 class ResNeXt101_64X4D(ResNet):
-
-    zoo: dict = {
+    
+    name: str  = "resnext101_64x4d"
+    zoo : dict = {
         "imagenet1k_v1": {
             "url"        : "https://download.pytorch.org/models/resnext101_64x4d-173b62eb.pth",
             "path"       : ZOO_DIR / "vision/classify/resnet/resnext101_64x4d/imagenet1k_v1/resnext101_64x4d_imagenet1k_v1.pth",
@@ -390,30 +285,14 @@ class ResNeXt101_64X4D(ResNet):
         },
     }
     
-    def __init__(
-        self,
-        name       : str = "resnext101_64x4d",
-        in_channels: int = 3,
-        num_classes: int = 1000,
-        weights    : Any = None,
-        *args, **kwargs
-    ):
-        super().__init__(
-            name        = name,
-            in_channels = in_channels,
-            num_classes = num_classes,
-            weights     = weights,
-            *args, **kwargs
-        )
+    def __init__(self, num_classes: int = 1000, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        num_classes = self.parse_num_classes(num_classes)
         
-        if isinstance(self.weights, dict):
-            in_channels = self.weights.get("in_channels", in_channels)
-            num_classes = self.weights.get("num_classes", num_classes)
-        self.in_channels  = in_channels or self.in_channels
-        self.out_channels = num_classes or self.out_channels
-
-        self.model = resnext101_64x4d(num_classes=self.out_channels)
+        # Network
+        self.model = resnext101_64x4d(num_classes=num_classes)
         
+        # Load weights
         if self.weights:
             self.load_weights()
         else:
@@ -426,8 +305,9 @@ class ResNeXt101_64X4D(ResNet):
 
 @MODELS.register(name="wide_resnet50_2", arch="resnet")
 class WideResNet50_2(ResNet):
-
-    zoo: dict = {
+    
+    name: str  = "wide_resnet50_2"
+    zoo : dict = {
         "imagenet1k_v1": {
             "url"        : "https://download.pytorch.org/models/wide_resnet50_2-95faca4d.pth",
             "path"       : ZOO_DIR / "vision/classify/resnet/wide_resnet50/imagenet1k_v1/wide_resnet50_imagenet1k_v1.pth",
@@ -440,30 +320,14 @@ class WideResNet50_2(ResNet):
         },
     }
     
-    def __init__(
-        self,
-        name       : str = "wide_resnet50_2",
-        in_channels: int = 3,
-        num_classes: int = 1000,
-        weights    : Any = None,
-        *args, **kwargs
-    ):
-        super().__init__(
-            name        = name,
-            in_channels = in_channels,
-            num_classes = num_classes,
-            weights     = weights,
-            *args, **kwargs
-        )
+    def __init__(self, num_classes: int = 1000, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        num_classes = self.parse_num_classes(num_classes)
         
-        if isinstance(self.weights, dict):
-            in_channels = self.weights.get("in_channels", in_channels)
-            num_classes = self.weights.get("num_classes", num_classes)
-        self.in_channels  = in_channels or self.in_channels
-        self.out_channels = num_classes or self.out_channels
-
-        self.model = wide_resnet50_2(num_classes=self.out_channels)
+        # Network
+        self.model = wide_resnet50_2(num_classes=num_classes)
         
+        # Load weights
         if self.weights:
             self.load_weights()
         else:
@@ -472,8 +336,9 @@ class WideResNet50_2(ResNet):
 
 @MODELS.register(name="wide_resnet101_2", arch="resnet")
 class WideResNet101_2(ResNet):
-
-    zoo: dict = {
+    
+    name: str  = "wide_resnet101_2"
+    zoo : dict = {
         "imagenet1k_v1": {
             "url"        : "https://download.pytorch.org/models/wide_resnet101_2-32ee1156.pth",
             "path"       : ZOO_DIR / "vision/classify/resnet/wide_resnet101/imagenet1k_v1/wide_resnet101_imagenet1k_v1.pth",
@@ -486,30 +351,14 @@ class WideResNet101_2(ResNet):
         },
     }
     
-    def __init__(
-        self,
-        name       : str = "wide_resnet101_2",
-        in_channels: int = 3,
-        num_classes: int = 1000,
-        weights    : Any = None,
-        *args, **kwargs
-    ):
-        super().__init__(
-            name        = name,
-            in_channels = in_channels,
-            num_classes = num_classes,
-            weights     = weights,
-            *args, **kwargs
-        )
+    def __init__(self, num_classes: int = 1000, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        num_classes = self.parse_num_classes(num_classes)
         
-        if isinstance(self.weights, dict):
-            in_channels = self.weights.get("in_channels", in_channels)
-            num_classes = self.weights.get("num_classes", num_classes)
-        self.in_channels  = in_channels or self.in_channels
-        self.out_channels = num_classes or self.out_channels
-
-        self.model = wide_resnet101_2(num_classes=self.out_channels)
+        # Network
+        self.model = wide_resnet101_2(num_classes=num_classes)
         
+        # Load weights
         if self.weights:
             self.load_weights()
         else:

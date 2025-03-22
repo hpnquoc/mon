@@ -77,8 +77,8 @@ def predict(args: dict) -> str:
     # Benchmark
     if benchmark and hasattr(model, "compute_efficiency_score"):
         flops, params = model.compute_efficiency_score(image_size=imgsz)
-        console.log(f"FLOPs  = {flops:.4f}")
-        console.log(f"Params = {params:.4f}")
+        console.log(f"FLOPs : {flops:.4f}")
+        console.log(f"Params: {params:.4f}")
         
     # Predicting
     run_time = []
@@ -89,7 +89,7 @@ def predict(args: dict) -> str:
             description = f"[bright_yellow] Predicting"
         ):
             # Input
-            meta       = datapoint.get("meta")
+            meta       = datapoint["meta"]
             image_path = mon.Path(meta["path"])
             
             # Infer

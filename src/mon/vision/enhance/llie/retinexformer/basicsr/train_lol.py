@@ -4,27 +4,25 @@ import datetime
 import logging
 import math
 import os
-
 import random
 import time
-import torch
 from os import path as osp
+
+import numpy as np
+import torch
 
 from data import create_dataloader, create_dataset
 from data.data_sampler import EnlargedSampler
 from data.prefetch_dataloader import CPUPrefetcher, CUDAPrefetcher
 from models import create_model
-from utils import (MessageLogger, check_resume, get_env_info,
-                           get_root_logger, get_time_str, init_tb_logger,
-                           init_wandb_logger, make_exp_dirs, mkdir_and_rename,
-                           set_random_seed)
+from utils import (
+	check_resume, get_env_info, get_root_logger, get_time_str, init_tb_logger,
+	init_wandb_logger, make_exp_dirs, MessageLogger, set_random_seed,
+)
 from utils.dist_util import get_dist_info, init_dist
 from utils.misc import mkdir_and_rename2
 from utils.options import dict2str, parse
 
-import numpy as np
-
-from pdb import set_trace as stx
 
 def parse_options(is_train=True):
     parser = argparse.ArgumentParser()
@@ -45,7 +43,6 @@ def parse_options(is_train=True):
     gpu_list = ','.join(str(x) for x in args.gpus)
     os.environ['CUDA_VISIBLE_DEVICES'] = gpu_list
     print('export CUDA_VISIBLE_DEVICES=' + gpu_list)
-    import torch
     # distributed settings
     if args.launcher == 'none':
         opt['dist'] = False

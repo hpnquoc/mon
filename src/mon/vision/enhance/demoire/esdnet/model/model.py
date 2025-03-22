@@ -2,7 +2,6 @@ import math
 import time
 
 import torch
-import torchvision
 from utils.common import *
 from utils.loss_util import *
 

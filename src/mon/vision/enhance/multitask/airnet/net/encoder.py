@@ -1,5 +1,5 @@
-from torch import nn
 from net.moco import MoCo
+from torch import nn
 
 
 class ResBlock(nn.Module):

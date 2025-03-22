@@ -1,8 +1,6 @@
 import importlib
 
-import torch
 import logging
-import models.modules.RRDBNet_arch as RRDBNet_arch
 
 logger = logging.getLogger('base')
 
@@ -34,4 +32,3 @@ def define_Flow(opt, step):
                 nf=opt_net['nf'], nb=opt_net['nb'], scale=opt['scale'], K=opt_net['flow']['K'], opt=opt, step=step)
 
     return netG
-

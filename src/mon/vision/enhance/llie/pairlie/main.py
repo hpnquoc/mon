@@ -1,15 +1,13 @@
 import os
 os.environ['CUDA_VISIBLE_DEVICES'] = '0'
-import torch
 import argparse
 import random
-import shutil
 import torch.optim as optim
 import torch.backends.cudnn as cudnn
 import torch.optim.lr_scheduler as lrs
 from torch.utils.data import DataLoader
 from net.net import net
-from data import get_training_set, get_eval_set
+from data import get_training_set
 from utils import *
 
 # Training settings

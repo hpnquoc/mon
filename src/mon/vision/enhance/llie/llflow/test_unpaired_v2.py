@@ -18,7 +18,7 @@ from natsort import natsort
 import mon
 import options.options as option
 from models import create_model
-from mon import ZOO_DIR, RUN_DIR
+from mon import RUN_DIR, ZOO_DIR
 
 console = mon.console
 

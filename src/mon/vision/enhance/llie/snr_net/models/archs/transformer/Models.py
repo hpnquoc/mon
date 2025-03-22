@@ -1,9 +1,8 @@
 ''' Define the Transformer model '''
+import numpy as np
 import torch
 import torch.nn as nn
-import numpy as np
 from models.archs.transformer.Layers import EncoderLayer3
-import torch.nn.functional as F
 
 __author__ = "Yu-Hsiang Huang"
 

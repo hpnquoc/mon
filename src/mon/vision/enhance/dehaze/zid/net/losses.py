@@ -5,10 +5,9 @@
 
 from __future__ import annotations
 
-from torch.nn import functional
-
-from net.layers import CovarianceLayer, GrayscaleLayer, VarianceLayer
 from net.downsampler import *
+from net.layers import CovarianceLayer, GrayscaleLayer, VarianceLayer
+from torch.nn import functional
 
 
 class StdLoss(nn.Module):

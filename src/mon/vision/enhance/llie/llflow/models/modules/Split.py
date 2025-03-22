@@ -2,11 +2,10 @@
 
 
 import torch
-from torch import nn as nn
-
 from models.modules import thops
-from models.modules.FlowStep import FlowStep
 from models.modules.flow import Conv2dZeros, GaussianDiag
+from models.modules.FlowStep import FlowStep
+from torch import nn as nn
 from utils.util import opt_get
 
 

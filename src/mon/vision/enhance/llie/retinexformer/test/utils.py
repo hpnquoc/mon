@@ -4,11 +4,10 @@
 # https://arxiv.org/abs/2303.06705
 # https://github.com/caiyuanhao1998/Retinexformer
 
-import numpy as np
-import os
-import cv2
 import math
-from pdb import set_trace as stx
+
+import cv2
+import numpy as np
 
 
 def calculate_psnr(img1, img2, border=0):

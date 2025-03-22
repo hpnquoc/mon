@@ -1,7 +1,9 @@
-import torch
-import numpy as np
 import pickle
+
 import cv2
+import numpy as np
+import torch
+
 
 def is_numpy_file(filename):
     return any(filename.endswith(extension) for extension in [".npy"])
@@ -49,4 +51,3 @@ def batch_PSNR(img1, img2, average=True):
         psnr = myPSNR(im1, im2)
         PSNR.append(psnr)
     return sum(PSNR)/len(PSNR) if average else sum(PSNR)
-
