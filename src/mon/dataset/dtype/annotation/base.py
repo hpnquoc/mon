@@ -34,7 +34,7 @@ class Annotation(ABC):
     
     @property
     def nparray(self) -> np.ndarray | None:
-        """The annotation's data as a :obj:`numpy.ndarray`."""
+        """The annotation's data as a `numpy.ndarray`."""
         data = self.data
         if isinstance(data, list):
             data = np.array([i for i in data if isinstance(i, int | float)])
@@ -42,7 +42,7 @@ class Annotation(ABC):
     
     @property
     def tensor(self) -> torch.Tensor | None:
-        """The annotation's data as a :obj:`torch.Tensor`."""
+        """The annotation's data as a `torch.Tensor`."""
         data = self.data
         if isinstance(data, list):
             data = torch.Tensor([i for i in data if isinstance(i, int | float)])
@@ -51,7 +51,7 @@ class Annotation(ABC):
     @staticmethod
     @abstractmethod
     def to_tensor(data: torch.Tensor | np.ndarray, *args, **kwargs) -> torch.Tensor:
-        """Converts the input data to a :obj:`torch.Tensor`.
+        """Converts the input data to a `torch.Tensor`.
         
         Args:
             data: The input data.
@@ -62,11 +62,11 @@ class Annotation(ABC):
     @abstractmethod
     def collate_fn(batch: list[Any]) -> Any:
         """Collate function used to fused input items together when using
-		:obj:`batch_size` > 1. This is used in :obj:`torch.utils.data.DataLoader`
+		`batch_size` > 1. This is used in `torch.utils.data.DataLoader`
 		wrapper.
 		
 		Args:
-			batch: A :obj:`list` of objects.
+			batch: A `list` of objects.
 		"""
         pass
     

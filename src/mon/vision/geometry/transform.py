@@ -113,9 +113,9 @@ def resize(
     
     Args:
         image: An RGB image of type:
-            - :obj:`torch.Tensor` in ``[B, C, H, W]`` format with data in
+            - `torch.Tensor` in ``[B, C, H, W]`` format with data in
                 the range ``[0.0, 1.0]``.
-            - :obj:`numpy.ndarray` in ``[H, W, C]`` format with data in the
+            - `numpy.ndarray` in ``[H, W, C]`` format with data in the
                 range ``[0, 255]``.
         size: The target size.
         divisible_by: If not ``None``, then the image will be resized to a size
@@ -127,7 +127,7 @@ def resize(
             - ``'horz'``: Resize based on the horizontal dimension.
             Defaults: ``'short'``.
         interpolation: Algorithm used for upsampling.
-            - For :obj:`kornia`:
+            - For `kornia`:
                 - ``'nearest'``
                 - ``'linear'``
                 - ``'bilinear'``
@@ -135,7 +135,7 @@ def resize(
                 - ``'trilinear'``
                 -  ``'area'``
                 Defaults: ``'bilinear'``.
-            - For :obj:`cv2`:
+            - For `cv2`:
                 - cv2.INTER_AREA: This is used when we need to shrink an image.
                 - cv2.INTER_CUBIC: This is slow but more efficient.
                 - cv2.INTER_LINEAR: This is primarily used when zooming is

@@ -20,10 +20,10 @@ console = core.console
 # region ClassLabel
 
 class ClassLabels(list[dict]):
-	"""A :obj:`list` of all the class-labels defined in a dataset.
+	"""A `list` of all the class-labels defined in a dataset.
 	
 	Notes:
-		We inherit the standard Python :obj:`list` to take advantage of the
+		We inherit the standard Python `list` to take advantage of the
 		built-in functions.
 	"""
 	
@@ -54,17 +54,17 @@ class ClassLabels(list[dict]):
 	
 	@property
 	def id2class(self) -> dict[int, dict]:
-		"""A :obj:`dict` mapping items' IDs (keys) to items (values)."""
+		"""A `dict` mapping items' IDs (keys) to items (values)."""
 		return {int(item["id"]): item for item in self}
 	
 	@property
 	def id2name(self) -> dict[int, str]:
-		"""A :obj:`dict` mapping items' IDs (keys) to items (values)."""
+		"""A `dict` mapping items' IDs (keys) to items (values)."""
 		return {int(item["id"]): item["name"] for item in self}
 	
 	@property
 	def id2train_id(self) -> dict[int, int]:
-		"""A :obj:`dict` mapping items' IDs (keys) to items (values)."""
+		"""A `dict` mapping items' IDs (keys) to items (values)."""
 		return {
 			int(item["id"]): item["train_id"] for item in self
 			if 0 <= item["id"] < 255 and 0 <= item["train_id"] < 255
@@ -72,7 +72,7 @@ class ClassLabels(list[dict]):
 	
 	@property
 	def id2color(self) -> dict[int, list[int] | tuple[int, int, int]]:
-		"""A :obj:`dict` mapping items' IDs (keys) to items (values)."""
+		"""A `dict` mapping items' IDs (keys) to items (values)."""
 		return {int(item["id"]): item["color"] for item in self}
 	
 	@property

@@ -55,7 +55,7 @@ class Downsample(nn.Module):
     bilinear, bicubic and trilinear for 3D, 4D and 5D input tensor,
     respectively.
 
-    One can either give a :obj:`scale_factor` or the target output :obj:`size`
+    One can either give a `scale_factor` or the target output `size`
     to calculate the output size. (You cannot give both, as it is ambiguous)
 
     Args:
@@ -67,19 +67,19 @@ class Downsample(nn.Module):
             ``'nearest'``.
         align_corners: If ``True``, the corner pixels of the input and output
             tensors are aligned, and thus preserving the values of those pixels.
-            This only has effect when :obj:`mode` is ``'linear'``,
+            This only has effect when `mode` is ``'linear'``,
             ``'bilinear'``, ``'bicubic'``, or ``'trilinear'``. Default:
             ``False``.
-        recompute_scale_factor: Recompute the :obj:`scale_factor` for use in
+        recompute_scale_factor: Recompute the `scale_factor` for use in
             the interpolation calculation.
-            - If ``True``, then :obj:`scale_factor` must be passed in and
-                :obj:`scale_factor` is used to compute the output
-                :obj:`size`. The computed output :obj:`size` will be used
+            - If ``True``, then `scale_factor` must be passed in and
+                `scale_factor` is used to compute the output
+                `size`. The computed output `size` will be used
                 to infer new scales for the interpolation. Note that when
-                :obj:`scale_factor` is floating-point, it may differ from the
-                recomputed :obj:`scale_factor` due to rounding and precision
+                `scale_factor` is floating-point, it may differ from the
+                recomputed `scale_factor` due to rounding and precision
                 issues.
-            - If ``False``, then :obj:`size` or :obj:`scale_factor` will be
+            - If ``False``, then `size` or `scale_factor` will be
                 used directly for interpolation.
             - Default: ``False``.
     """

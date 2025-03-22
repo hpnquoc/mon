@@ -249,7 +249,7 @@ class SORTScore(base.Tracker):
         empty detections (use np.empty((0, 5)) for frames without detections).
         
         Args:
-            det_results: A :obj:`torch.Tensor` or :obj:`numpy.ndarray` of
+            det_results: A `torch.Tensor` or `numpy.ndarray` of
                 detections in the format of ``[[x1, y1, x2, y2, score, class], ...]``.
             input_size: The size of the input image in the format `[H, W]`.
             image_size: The size of the original image in the format `[H, W]`.

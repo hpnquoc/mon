@@ -39,20 +39,20 @@ def read_video_ffmpeg(
 	normalize: bool = False,
 ) -> torch.Tensor | np.ndarray:
 	"""Read raw bytes from a video stream using :mod`ffmpeg`. Optionally,
-	convert it to :obj:`torch.Tensor` type of shape ``[1, C, H, W]``.
+	convert it to `torch.Tensor` type of shape ``[1, C, H, W]``.
 	
 	Args:
-		process: The subprocess that manages :obj:`ffmpeg` instance.
+		process: The subprocess that manages `ffmpeg` instance.
 		height: The height of the video frame.
 		width: The width of the video.
-		to_tensor: If ``True`` convert the image from :obj:`numpy.ndarray` to
-			:obj:`torch.Tensor`. Default: ``False``.
+		to_tensor: If ``True`` convert the image from `numpy.ndarray` to
+			`torch.Tensor`. Default: ``False``.
 		normalize: If ``True``, normalize the image to ``[0.0, 1.0]``.
 			Default: ``False``.
 	
 	Return:
-		A :obj:`numpy.ndarray` image of shape ``[H, W, C]`` with value in
-		range ``[0, 255]`` or a :obj:`torch.Tensor` image of shape
+		A `numpy.ndarray` image of shape ``[H, W, C]`` with value in
+		range ``[0, 255]`` or a `torch.Tensor` image of shape
 		``[1, C, H, W]`` with value in range ``[0.0, 1.0]``.
 	"""
 	# RGB24 == 3 bytes per pixel.
@@ -82,10 +82,10 @@ def write_video_ffmpeg(
 	frame      : torch.Tensor | np.ndarray,
 	denormalize: bool = False
 ):
-	"""Write an image to a video file using :obj:`ffmpeg`.
+	"""Write an image to a video file using `ffmpeg`.
 
 	Args:
-		process: A subprocess that manages :obj:``ffmpeg``.
+		process: A subprocess that manages ``ffmpeg``.
 		frame: A frame/image of shape ``[1, C, H, W]``.
 		denormalize: If ``True``, convert image to ``[0, 255]``.
 			Default: ``False``.
@@ -165,7 +165,7 @@ class VideoWriter(abc.ABC):
 		path       : core.Path = None,
 		denormalize: bool 		  = False
 	):
-		"""Write an image to :obj:`dst`.
+		"""Write an image to `dst`.
 
 		Args:
 			frame: A video frame.
@@ -182,11 +182,11 @@ class VideoWriter(abc.ABC):
 		paths      : list[core.Path] = None,
 		denormalize: bool			 	= False
 	):
-		"""Write a batch of images to :obj:`dst`.
+		"""Write a batch of images to `dst`.
 
 		Args:
-			frames: A :obj:`list` of video frames.
-			paths: A :obj:`list` of image file paths with extensions.
+			frames: A `list` of video frames.
+			paths: A `list` of image file paths with extensions.
 				Default: ``None``.
 			denormalize: If ``True``, convert image to ``[0, 255]``.
 				Default: ``False``.
@@ -195,7 +195,7 @@ class VideoWriter(abc.ABC):
 	
 
 class VideoWriterCV(VideoWriter):
-	"""A video writer that writes images to a video file using :obj:`cv2`.
+	"""A video writer that writes images to a video file using `cv2`.
 
 	Args:
 		dst: A destination directory to save images.
@@ -258,7 +258,7 @@ class VideoWriterCV(VideoWriter):
 			raise FileNotFoundError(f"Cannot create video file at {video_file}.")
 	
 	def close(self):
-		"""Close the :obj:`video_writer`."""
+		"""Close the `video_writer`."""
 		if self.video_writer:
 			self.video_writer.release()
 	
@@ -268,7 +268,7 @@ class VideoWriterCV(VideoWriter):
 		path       : core.Path = None,
 		denormalize: bool 		  = False
 	):
-		"""Write an image to :obj:`dst`.
+		"""Write an image to `dst`.
 
 		Args:
 			frame: An image.
@@ -300,11 +300,11 @@ class VideoWriterCV(VideoWriter):
 		paths      : list[core.Path] = None,
 		denormalize: bool 				= False
 	):
-		"""Write a batch of images to :obj:`dst`.
+		"""Write a batch of images to `dst`.
 
 		Args:
-			frames: A :obj:`list` of images.
-			paths: A :obj:`list` of image file paths with extensions.
+			frames: A `list` of images.
+			paths: A `list` of image file paths with extensions.
 				Default: ``None``.
 			denormalize: If ``True``, convert image to ``[0, 255]``.
 				Default: ``False``.
@@ -316,7 +316,7 @@ class VideoWriterCV(VideoWriter):
 
 
 class VideoWriterFFmpeg(VideoWriter):
-	"""A video writer that writes images to a video file using :obj:`ffmpeg`.
+	"""A video writer that writes images to a video file using `ffmpeg`.
 
 	Args:
 		dst: A destination directory to save images.
@@ -328,7 +328,7 @@ class VideoWriterFFmpeg(VideoWriter):
 		denormalize: If ``True``, convert image to ``[0, 255]``.
 			Default: ``False``.
 		verbose: Verbosity. Default: ``False``.
-		kwargs: Any supplied kwargs are passed to :obj:`ffmpeg` verbatim.
+		kwargs: Any supplied kwargs are passed to `ffmpeg` verbatim.
 	"""
 	
 	def __init__(
@@ -402,7 +402,7 @@ class VideoWriterFFmpeg(VideoWriter):
 			)
 	
 	def close(self):
-		"""Stop and release the current :obj:`ffmpeg_process`."""
+		"""Stop and release the current `ffmpeg_process`."""
 		if self.ffmpeg_process:
 			self.ffmpeg_process.stdin.close()
 			self.ffmpeg_process.terminate()
@@ -415,7 +415,7 @@ class VideoWriterFFmpeg(VideoWriter):
 		path       : core.Path = None,
 		denormalize: bool 		  = False
 	):
-		"""Write an image to :obj:`dst`.
+		"""Write an image to `dst`.
 
 		Args:
 			frame: An image.
@@ -444,11 +444,11 @@ class VideoWriterFFmpeg(VideoWriter):
 		paths      : list[core.Path] = None,
 		denormalize: bool 			    = False,
 	):
-		"""Write a batch of images to :obj:`dst`.
+		"""Write a batch of images to `dst`.
 
 		Args:
-			frames: A :obj:`list` of images.
-			paths: A :obj:`list` of image file paths with extensions.
+			frames: A `list` of images.
+			paths: A `list` of image file paths with extensions.
 				Default: ``None``.
 			denormalize: If ``True``, convert image to ``[0, 255]``.
 				Default: ``False``.

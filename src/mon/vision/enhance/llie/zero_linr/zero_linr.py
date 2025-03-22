@@ -23,7 +23,7 @@ from fvcore.nn import parameter_count
 from torch.nn import functional as F
 
 from mon import core, nn
-from mon.globals import MODELS, Scheme, Task
+from mon.globals import MODELS, LType, Task
 from mon.vision import dtype, filtering
 from mon.vision.dtype import image as I
 from mon.vision.enhance import base
@@ -497,7 +497,7 @@ class ZeroLINR(base.ImageEnhancementModel):
 	model_dir: core.Path    = current_dir
 	arch     : str          = "zero_linr"
 	tasks    : list[Task]   = [Task.LLIE]
-	schemes  : list[Scheme] = [Scheme.ZERO_SHOT]
+	ltypes   : list[LType]  = [LType.ZERO_SHOT]
 	zoo      : dict         = {}
 	
 	def __init__(

@@ -44,13 +44,13 @@ class Dataset(dataset.Dataset, ABC):
     """The base class of all datasets.
     
     Attributes:
-        tasks: A :obj:`list` of tasks that the dataset supports.
-        splits: A :obj:`list` of splits that the dataset supports.
+        tasks: A `list` of tasks that the dataset supports.
+        splits: A `list` of splits that the dataset supports.
         has_test_annotations: If ``True``, the test set has ground-truth labels.
             Default: ``False``.
-        datapoint_attrs: A :obj:`dict` of datapoint attributes with the keys
+        datapoint_attrs: A `dict` of datapoint attributes with the keys
             are the attribute names and the values are the attribute types.
-        classlabels: A :obj:`ClassLabels`, i.e., a list of class labels that the
+        classlabels: A `ClassLabels`, i.e., a list of class labels that the
             dataset supports. Default: ``None``.
         
     Args:
@@ -60,7 +60,7 @@ class Dataset(dataset.Dataset, ABC):
         split: The data split to use. Default: ``'Split.TRAIN'``.
         transform: Transformations performed on both the input and target. We use
             `albumentations <https://albumentations.ai/docs/api_reference/full_reference>`__
-        to_tensor: If ``True``, convert input and target to :obj:`torch.Tensor`.
+        to_tensor: If ``True``, convert input and target to `torch.Tensor`.
             Default: ``False``.
         cache_data: If ``True``, cache data to disk for faster loading next
             time. Default: ``False``.
@@ -89,7 +89,7 @@ class Dataset(dataset.Dataset, ABC):
         self.transform  = transform
         self.to_tensor  = to_tensor
         self.verbose    = verbose
-        self.index		= 0  # Use with :obj:`__iter__` and :meth`__next__`
+        self.index		= 0  # Use with `__iter__` and :meth`__next__`
         self.datapoints = {}
         self.init_transform()
         self.init_datapoints()
@@ -103,7 +103,7 @@ class Dataset(dataset.Dataset, ABC):
     @abstractmethod
     def __getitem__(self, index: int) -> dict:
         """Returns a dictionary containing the datapoint and metadata at the
-        given :obj:`index`.
+        given `index`.
         """
         pass
     
@@ -118,7 +118,7 @@ class Dataset(dataset.Dataset, ABC):
         pass
     
     def __next__(self) -> dict:
-        """Returns the next datapoint and metadata when using :obj:`__iter__`.
+        """Returns the next datapoint and metadata when using `__iter__`.
         """
         if self.index >= self.__len__():
             raise StopIteration
@@ -174,7 +174,7 @@ class Dataset(dataset.Dataset, ABC):
     @property
     def main_attribute(self) -> str:
         """Return the main attribute of the dataset as the first key in
-        :obj:`datapoint_attrs`.
+        `datapoint_attrs`.
         """
         return next(iter(self.datapoint_attrs.keys()))
     
@@ -239,7 +239,7 @@ class Dataset(dataset.Dataset, ABC):
         pass
     
     def cache_data(self, path: core.Path):
-        """Cache data to :obj:`path`."""
+        """Cache data to `path`."""
         hash_ = 0
         if path.is_cache_file():
             cache = torch.load(path)
@@ -252,7 +252,7 @@ class Dataset(dataset.Dataset, ABC):
                 console.log(f"Cached data to: {path}")
     
     def load_cache(self, path: core.Path):
-        """Load cache data from :obj:`path`."""
+        """Load cache data from `path`."""
         self.datapoints = torch.load(path)
         self.datapoints.pop("hash", None)
     
@@ -282,22 +282,22 @@ class Dataset(dataset.Dataset, ABC):
     
     @abstractmethod
     def get_datapoint(self, index: int) -> dict:
-        """Get a datapoint at the given :obj:`index`."""
+        """Get a datapoint at the given `index`."""
         pass
     
     @abstractmethod
     def get_meta(self, index: int) -> dict:
-        """Get metadata at the given :obj:`index`."""
+        """Get metadata at the given `index`."""
         pass
     
     @classmethod
     def collate_fn(cls, batch: list[dict]) -> dict:
         """Collate function used to fused input items together when using
-		:obj:`batch_size` > ``1``. This is used in
-		:obj:`torch.utils.data.DataLoader` wrapper.
+		`batch_size` > ``1``. This is used in
+		`torch.utils.data.DataLoader` wrapper.
 
 		Args:
-			batch: A :obj:`list` of :obj:`dict`.
+			batch: A `list` of `dict`.
 		"""
         zipped = {
             k: list(v)
@@ -322,15 +322,15 @@ class MultimodalDataset(Dataset, ABC):
     types of datasets.
     
     Attributes:
-        datapoint_attrs: A :obj:`dict` of datapoint attributes with the keys
+        datapoint_attrs: A `dict` of datapoint attributes with the keys
             are the attribute names and the values are the attribute types.
-            Must contain: {``'image'``: :obj:`ImageAnnotation`}. Note that to
-            comply with :obj:`albumentations.Compose`, we will treat the first
+            Must contain: {``'image'``: `ImageAnnotation`}. Note that to
+            comply with `albumentations.Compose`, we will treat the first
             key as the main image attribute. Here are some common attributes:
-                - ``'image'``    : :obj:`ImageAnnotation` (main attribute)
-                - ``'depth'``    : :obj:`DepthMapAnnotation`
-                - ``'ref_image'``: :obj:`ImageAnnotation`
-                - ``'ref_depth'``: :obj:`DepthMapAnnotation`
+                - ``'image'``    : `ImageAnnotation` (main attribute)
+                - ``'depth'``    : `DepthMapAnnotation`
+                - ``'ref_image'``: `ImageAnnotation`
+                - ``'ref_depth'``: `DepthMapAnnotation`
     
     Args:
         depth_source: The source of the depth data. Default: ``None``.
@@ -352,7 +352,7 @@ class MultimodalDataset(Dataset, ABC):
     
     def __getitem__(self, index: int) -> dict:
         """Returns a dictionary containing the datapoint and metadata at the
-        given :obj:`index`.
+        given `index`.
         """
         # Get datapoint at the given index
         datapoint = self.get_datapoint(index=index)
@@ -524,7 +524,7 @@ class MultimodalDataset(Dataset, ABC):
     # region Retrieve Data
     
     def get_datapoint(self, index: int) -> dict:
-        """Get a datapoint at the given :obj:`index`."""
+        """Get a datapoint at the given `index`."""
         datapoint = self.new_datapoint
         for k, v in self.datapoints.items():
             if v is not None and v[index] and hasattr(v[index], "data"):
@@ -532,8 +532,8 @@ class MultimodalDataset(Dataset, ABC):
         return datapoint
     
     def get_meta(self, index: int) -> dict:
-        """Get metadata at the given :obj:`index`. By default, we will use the
-        first attribute in :obj:`datapoint_attrs` as the main image attribute.
+        """Get metadata at the given `index`. By default, we will use the
+        first attribute in `datapoint_attrs` as the main image attribute.
         """
         return self.datapoints[self.main_attribute][index].meta
     

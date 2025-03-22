@@ -132,7 +132,7 @@ class Chuncat(nn.Module):
 
 
 class InterpolateConcat(nn.Module):
-	"""Concatenate a :obj:`list` of tensors along dimension.
+	"""Concatenate a `list` of tensors along dimension.
 	
 	Args:
 		dim: Dimension to concat to. Default: ``1``.
@@ -164,7 +164,7 @@ class InterpolateConcat(nn.Module):
 # region Extract
 
 class ExtractFeature(nn.Module):
-	"""Extract a feature at :obj:`index` in a tensor.
+	"""Extract a feature at `index` in a tensor.
 	
 	Args:
 		index: The index of the feature to extract.
@@ -190,7 +190,7 @@ class ExtractFeature(nn.Module):
 
 
 class ExtractFeatures(nn.Module):
-	"""Extract features between :obj:`start` index and :obj:`end` index in a
+	"""Extract features between `start` index and `end` index in a
 	tensor.
 	
 	Args:
@@ -219,7 +219,7 @@ class ExtractFeatures(nn.Module):
 
 
 class ExtractItem(nn.Module):
-	"""Extract an item (feature) at :obj:`index` in a sequence of tensors.
+	"""Extract an item (feature) at `index` in a sequence of tensors.
 	
 	Args:
 		index: The index of the item to extract.
@@ -241,7 +241,7 @@ class ExtractItem(nn.Module):
 
 
 class ExtractItems(nn.Module):
-	"""Extract a :obj:`list` of items (features) at `indexes` in a sequence of
+	"""Extract a `list` of items (features) at `indexes` in a sequence of
 	tensors.
 	
 	Args:
@@ -321,7 +321,7 @@ class Foldcut(nn.Module):
 	
 	
 class Join(nn.Module):
-	"""Join multiple features and return a :obj:`list` tensors."""
+	"""Join multiple features and return a `list` tensors."""
 	
 	def forward(self, input: Sequence[torch.Tensor]) -> list[torch.Tensor]:
 		x = input
@@ -396,7 +396,7 @@ class PatchMerging(nn.Module):
 	
 	Args:
 		dim: Number of input channels.
-		norm: Normalization layer. Default: :obj:`nn.LayerNorm`.
+		norm: Normalization layer. Default: `nn.LayerNorm`.
 	"""
 	
 	def __init__(
@@ -441,7 +441,7 @@ class PatchMergingV2(nn.Module):
 	
 	Args:
 		dim: Number of input channels.
-		norm: Normalization layer. Default: :obj:`nn.LayerNorm`.
+		norm: Normalization layer. Default: `nn.LayerNorm`.
 	"""
 	
 	def __init__(

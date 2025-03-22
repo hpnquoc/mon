@@ -3,7 +3,7 @@
 
 """THOP: PyTorch-OpCounter.
 
-This module extend :obj:`thop.profile`.
+This module extend `thop.profile`.
 """
 
 from __future__ import annotations
@@ -25,7 +25,7 @@ def custom_profile(
 	ret_layer_info: bool = False,
 	report_missing: bool = False,
 ):
-	"""Extend :obj:`thop.profile` to work with :obj:`mon.nn.model.Model` custom
+	"""Extend ``thop.profile`` to work with ``mon.nn.model.Model`` custom
 	forward pass.
 	
 	Args:

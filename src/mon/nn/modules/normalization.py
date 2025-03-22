@@ -155,7 +155,7 @@ class BatchNorm2dReLU(BatchNorm2dAct):
 # region Instance Normalization
 
 class AdaptiveInstanceNorm2d(nn.Module):
-    """Adaptive Instance Normalization adopted from :obj:`AdaptiveBatchNorm2d`.
+    """Adaptive Instance Normalization adopted from `AdaptiveBatchNorm2d`.
     """
     
     def __init__(

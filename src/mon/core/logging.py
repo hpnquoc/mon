@@ -3,7 +3,7 @@
 
 """Logging Module.
 
-This module extends Python's :obj:`logging` module.
+This module extends Python's `logging` module.
 """
 
 from __future__ import annotations
@@ -15,6 +15,7 @@ __all__ = [
     "logger",
 ]
 
+import contextlib
 import logging
 import os
 import sys
@@ -31,26 +32,29 @@ os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"  # Disable TensorFlow logging
 logging.basicConfig(
     level    = logging.INFO,
     format   = "%(message)s",
-    handlers = [r_logging.RichHandler(rich_tracebacks = True)]
+    handlers = [r_logging.RichHandler(rich_tracebacks=True)]
 )
 logger = logging.getLogger("rich")
-logger.setLevel(logging.INFO)
+# logger.setLevel(logging.INFO)
 
 
 def get_logger(path: pathlib.Path = None) -> logging.Logger:
-    """Get access the global :obj:`logging.Logger` object that uses :obj:`rich`.
+    """Get access to the global `logging.Logger` object that uses `rich`.
     Create a new one if it doesn't exist.
-    
+
     Args:
         path: The path to store the log info. Default: ``None``.
+
+    Returns:
+        logging.Logger: The global logger instance.
     """
     if path:
-        path = logging.FileHandler(path)
-        path.setLevel(logging.INFO)
-        path.setFormatter(logging.Formatter(
+        file_handler = logging.FileHandler(path)
+        file_handler.setLevel(logging.INFO)
+        file_handler.setFormatter(logging.Formatter(
             " %(asctime)s [%(file_name)s %(lineno)s] %(levelname)s: %(message)s"
         ))
-        logger.addHandler(path)
+        logger.addHandler(file_handler)
     
     return logger
 
@@ -60,11 +64,15 @@ def get_logger(path: pathlib.Path = None) -> logging.Logger:
 # region Print
 
 def disable_print():
-    sys.stdout = open(os.devnull, "w")
+    """Temporarily disable printing to stdout by redirecting it to os.devnull."""
+    # sys.stdout = open(os.devnull, "w")
+    with contextlib.redirect_stdout(open(os.devnull, "w")):
+        yield
 
 
 # Restore
 def enable_print():
+    """Restore printing to stdout."""
     sys.stdout = sys.__stdout__
 
 # endregion

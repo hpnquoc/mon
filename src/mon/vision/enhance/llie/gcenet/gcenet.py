@@ -21,7 +21,7 @@ import torch
 from fvcore.nn import parameter_count
 
 from mon import core, nn
-from mon.globals import MODELS, Scheme, Task
+from mon.globals import MODELS, LType, Task
 from mon.nn import init
 from mon.vision import dtype, filtering, geometry
 from mon.vision.dtype import image as I
@@ -339,7 +339,7 @@ class GCENet(base.ImageEnhancementModel):
     arch     : str          = "gcenet"
     name     : str          = "gcenet"
     tasks    : list[Task]   = [Task.LLIE]
-    schemes  : list[Scheme] = [Scheme.UNSUPERVISED]
+    ltypes   : list[LType]  = [LType.UNSUPERVISED]
     model_dir: core.Path    = current_dir
     zoo      : dict         = {}
     

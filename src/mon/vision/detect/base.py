@@ -113,7 +113,7 @@ class Detector(ABC):
                 process.
                 
         Returns:
-            A 2D :obj:`numpy.ndarray` or :obj:`torch.Tensor` of detections.
+            A 2D `numpy.ndarray` or `torch.Tensor` of detections.
             The most common format is `[B, N, 6]` where `B` is the
             batch size, `N` is the number of detections, and `[6]`
             usually contains `[x1, y1, x2, y2, conf, class_id]`. Notice
@@ -130,7 +130,7 @@ class Detector1(ABC):
     Args:
         config: A detector model's config.
         weights: A path to a pretrained weights file.
-        classlabels: A :obj:`list` of all the class-labels defined in a
+        classlabels: A `list` of all the class-labels defined in a
             dataset.
         image_size: The desired model's input size in ``[H, W]`` format.
             Default: ``640``.
@@ -139,8 +139,8 @@ class Detector1(ABC):
         max_detections: Maximum number of detections/image. Default: ``300``.
         device: Cuda device, i.e. ``'0'`` or ``'0,1,2,3'`` or ``'cpu'``.
             Default: ``'cpu'``.
-        to_instance: If ``True``, wrap the predictions to a :obj:`list` of
-            :obj:`supr.data.instance.Instance` object. Else, return raw
+        to_instance: If ``True``, wrap the predictions to a `list` of
+            `supr.data.instance.Instance` object. Else, return raw
             predictions. Default: ``True``.
     """
     
@@ -206,12 +206,12 @@ class Detector1(ABC):
         """Detect objects in the images.
 
         Args:
-            indexes: A :obj:`list` of image indexes.
+            indexes: A `list` of image indexes.
             images: Images of shape `[B, H, W, C]`.
 
         Returns:
-            A 2D :obj:`list` of :obj:`supr.data.Instance` objects. The
-            outer :obj:`list` has ``B`` items.
+            A 2D `list` of `supr.data.Instance` objects. The
+            outer `list` has ``B`` items.
         """
         if self.model is None:
             raise ValueError(f"Model has not been defined yet!")
@@ -261,14 +261,14 @@ class Detector1(ABC):
         """Postprocessing step.
 
         Args:
-            indexes: A :obj:`list` of image indexes.
+            indexes: A `list` of image indexes.
             images: Images of shape `[B, H, W, C]`.
             input: Input tensor of shape `[B, H, W, C]`.
             pred: Prediction tensor of shape `[B, H, W, C]`.
 
         Returns:
-            A 2D :obj:`list` of :obj:`data.Instance` objects. The outer
-            :obj:`list` has ``B`` items.
+            A 2D `list` of `data.Instance` objects. The outer
+            `list` has ``B`` items.
         """
         pass
     

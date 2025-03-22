@@ -74,7 +74,7 @@ class YOLOv8Detector(base.Detector):
                 process.
         
         Returns:
-            A 2D :obj:`numpy.ndarray` or :obj:`torch.Tensor` of detections.
+            A 2D `numpy.ndarray` or `torch.Tensor` of detections.
             The most common format is `[B, N, 6]` where `B` is the
             batch size, `N` is the number of detections, and `[6]`
             usually contains `[x1, y1, x2, y2, conf, class_id]`. Notice
@@ -180,14 +180,14 @@ class YOLOv8(base.Detector1):
         """Postprocessing step.
 
         Args:
-            indexes: A :obj:`list` of image indexes.
+            indexes: A `list` of image indexes.
             images: Images of shape `[B, C, H, W]`.
             input: Input tensor of shape `[B, C, H, W]`.
             pred: Prediction tensor of shape `[B, C, H, W]`.
 
         Returns:
-            A 2D :obj:`list` of :obj:`data.Instance` objects. The outer
-            :obj:`list` has ``B`` items.
+            A 2D `list` of `data.Instance` objects. The outer
+            `list` has ``B`` items.
         """
         pred = ops.non_max_suppression(
             prediction = pred,

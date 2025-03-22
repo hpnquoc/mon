@@ -20,7 +20,7 @@ import torch
 from torch.nn.common_types import _size_2_t
 
 from mon import core, nn
-from mon.globals import MODELS, Scheme, Task
+from mon.globals import MODELS, LType, Task
 from mon.vision import dtype, geometry
 from mon.vision.enhance import base
 
@@ -47,7 +47,7 @@ class ZSN2N(base.ImageEnhancementModel):
     arch     : str          = "zsn2n"
     name     : str          = "zsn2n"
     tasks    : list[Task]   = [Task.DENOISE]
-    schemes  : list[Scheme] = [Scheme.ZERO_SHOT]
+    ltypes   : list[LType]  = [LType.ZERO_SHOT]
     model_dir: core.Path    = current_dir
     zoo      : dict         = {}
     
@@ -66,8 +66,6 @@ class ZSN2N(base.ImageEnhancementModel):
         self.conv2 = nn.Conv2d(num_channels, num_channels, kernel_size=3, padding=1)
         self.conv3 = nn.Conv2d(num_channels, in_channels,  kernel_size=1)
         self.act   = nn.LeakyReLU(negative_slope=0.2, inplace=True)
-        
-        # Optimizer
         
         # Load weights
         if self.weights:
@@ -122,7 +120,7 @@ class ZSN2N(base.ImageEnhancementModel):
         reset_weights: bool      = True,
     ) -> dict:
         """Infer the model on a single datapoint. This method is different from
-        :obj:`forward()` in term that you may want to perform additional
+        `forward()` in term that you may want to perform additional
         pre-processing or post-processing steps.
         
         Notes:
@@ -130,7 +128,7 @@ class ZSN2N(base.ImageEnhancementModel):
             steps, you should override this method.
         
         Args:
-            datapoint: A :obj:`dict` containing the attributes of a datapoint.
+            datapoint: A `dict` containing the attributes of a datapoint.
             image_size: The input size. Default: ``512``.
             resize: Resize the input image to the model's input size. Default: ``False``.
             reset_weights: Whether to reset the weights before training. Default: ``True``.

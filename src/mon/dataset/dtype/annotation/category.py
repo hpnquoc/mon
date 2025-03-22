@@ -26,11 +26,11 @@ def logits_to_class_id(logits: np.ndarray) -> np.ndarray:
     """Convert logits to class IDs.
 
     Args:
-        logits: A :obj:`numpy.ndarray` of logits where each row corresponds
+        logits: A `numpy.ndarray` of logits where each row corresponds
             to a set of logits for a sample.
 
     Returns:
-        A :obj:`numpy.ndarray` of class IDs corresponding to the highest logit
+        A `numpy.ndarray` of class IDs corresponding to the highest logit
         values for each sample.
     """
     # Use np.argmax to get the index of the maximum value along the last axis (axis=1)
@@ -53,7 +53,7 @@ def class_id_to_logits(
         low_value: The logit value for non-target classes. Default: ``0.0``.
 
     Returns:
-        A :obj:`numpy.ndarray` represents the logits for the given class ID.
+        A `numpy.ndarray` represents the logits for the given class ID.
     """
     # Initialize logits with low_value
     logits = np.full(num_classes, low_value)
@@ -110,7 +110,7 @@ class ClassificationAnnotation(base.Annotation):
         data: torch.Tensor | np.ndarray,
         *args, **kwargs
     ) -> torch.Tensor:
-        """Converts the input data to a :obj:`torch.Tensor`.
+        """Converts the input data to a `torch.Tensor`.
         
         Args:
             data: The input data.
@@ -122,11 +122,11 @@ class ClassificationAnnotation(base.Annotation):
         batch: list[torch.Tensor | np.ndarray]
     ) -> torch.Tensor | np.ndarray | None:
         """Collate function used to fused input items together when using
-        :obj:`batch_size` > ``1``. This is used in
-        :obj:`torch.utils.data.DataLoader` wrapper.
+        `batch_size` > ``1``. This is used in
+        `torch.utils.data.DataLoader` wrapper.
         
         Args:
-            batch: A :obj:`list` of class ids.
+            batch: A `list` of class ids.
         """
         if all(isinstance(b, torch.Tensor) for b in batch):
             return torch.cat(batch, dim=0)

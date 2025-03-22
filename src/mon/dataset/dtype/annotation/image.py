@@ -103,7 +103,7 @@ class ImageAnnotation(base.Annotation):
     
     @property
     def meta(self) -> dict:
-        """Return a :obj:`dict` of metadata about the object. The dictionary
+        """Return a `dict` of metadata about the object. The dictionary
         includes ID, name, path, and shape of the image.
         """
         return {
@@ -129,7 +129,7 @@ class ImageAnnotation(base.Annotation):
                 there. Default: ``False``.
             
         Return:
-            An RGB or grayscale image of type :obj:`numpy.ndarray` in
+            An RGB or grayscale image of type `numpy.ndarray` in
             ``[H, W, C]`` format with data in the range ``[0, 255]``.
         """
         # Return the image if it is already loaded
@@ -157,7 +157,7 @@ class ImageAnnotation(base.Annotation):
         keepdim  : bool = False,
         normalize: bool = True
     ) -> torch.Tensor:
-        """Converts the input data to a :obj:`torch.Tensor`.
+        """Converts the input data to a `torch.Tensor`.
         
         Args:
             data: The input data.
@@ -172,11 +172,11 @@ class ImageAnnotation(base.Annotation):
         batch: list[torch.Tensor | np.ndarray]
     ) -> torch.Tensor | np.ndarray | None:
         """Collate function used to fused input items together when using
-		:obj:`batch_size` > ``1``. This is used in
-		:obj:`torch.utils.data.DataLoader` wrapper.
+		`batch_size` > ``1``. This is used in
+		`torch.utils.data.DataLoader` wrapper.
 		
 		Args:
-			batch: A :obj:`list` of images.
+			batch: A `list` of images.
 		"""
         return vision.to_4d_image(batch)
     
@@ -231,7 +231,7 @@ class FrameAnnotation(base.Annotation):
     
     @property
     def meta(self) -> dict:
-        """Return a :obj:`dict` of metadata about the object. The dictionary
+        """Return a `dict` of metadata about the object. The dictionary
         includes ID, name, path, and shape of the image.
         """
         return {
@@ -249,7 +249,7 @@ class FrameAnnotation(base.Annotation):
         keepdim  : bool = False,
         normalize: bool = True
     ) -> torch.Tensor:
-        """Converts the input data to a :obj:`torch.Tensor`.
+        """Converts the input data to a `torch.Tensor`.
         
         Args:
             data: The input data.
@@ -264,11 +264,11 @@ class FrameAnnotation(base.Annotation):
         batch: list[torch.Tensor | np.ndarray]
     ) -> torch.Tensor | np.ndarray | None:
         """Collate function used to fused input items together when using
-		:obj:`batch_size` > ``1. This is used in
-		:obj:`torch.utils.data.DataLoader` wrapper.
+		`batch_size` > ``1. This is used in
+		`torch.utils.data.DataLoader` wrapper.
 		
 		Args:
-			batch: A :obj:`list` of images.
+			batch: A `list` of images.
 		"""
         return vision.to_4d_image(batch)
     
@@ -369,7 +369,7 @@ class SemanticSegmentationAnnotation(base.Annotation):
     
     @property
     def meta(self) -> dict:
-        """Return a :obj:`dict` of metadata about the object. The dictionary
+        """Return a `dict` of metadata about the object. The dictionary
         includes ID, name, path, and shape of the image.
         """
         return {
@@ -395,7 +395,7 @@ class SemanticSegmentationAnnotation(base.Annotation):
                 there. Default: ``False``.
             
         Return:
-            An RGB or grayscale image of type :obj:`numpy.ndarray` in
+            An RGB or grayscale image of type `numpy.ndarray` in
             ``[H, W, C]`` format with data in the range ``[0, 255]``.
         """
         if self.mask is not None:
@@ -418,7 +418,7 @@ class SemanticSegmentationAnnotation(base.Annotation):
         keepdim  : bool = False,
         normalize: bool = True
     ) -> torch.Tensor:
-        """Converts the input data to a :obj:`torch.Tensor`.
+        """Converts the input data to a `torch.Tensor`.
         
         Args:
             data: The input data.
@@ -433,11 +433,11 @@ class SemanticSegmentationAnnotation(base.Annotation):
         batch: list[torch.Tensor | np.ndarray]
     ) -> torch.Tensor | np.ndarray | None:
         """Collate function used to fused input items together when using
-		:obj:`batch_size` > ``1``. This is used in
-		:obj:`torch.utils.data.DataLoader` wrapper.
+		`batch_size` > ``1``. This is used in
+		`torch.utils.data.DataLoader` wrapper.
 		
 		Args:
-			batch: A :obj:`list` of images.
+			batch: A `list` of images.
 		"""
         return vision.to_4d_image(batch)
 

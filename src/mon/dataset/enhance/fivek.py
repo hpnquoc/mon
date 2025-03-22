@@ -71,7 +71,7 @@ class FiveKInit(MultimodalDataset):
      
     def __getitem__(self, index: int) -> dict:
         """Returns a dictionary containing the datapoint and metadata at the
-        given :obj:`index`.
+        given `index`.
         """
         key = self.file_keys[index]
         A_ex, B_ex = np.random.choice(self.file_ex[key], 2, replace=False)

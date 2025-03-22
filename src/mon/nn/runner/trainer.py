@@ -25,7 +25,7 @@ console = core.console
 # region Trainer
 
 class Trainer(lightning.Trainer):
-    """The trainer class extends the :obj:`lightning.Trainer` with several
+    """The trainer class extends the `lightning.Trainer` with several
     methods and properties.
     
     Args:

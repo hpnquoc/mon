@@ -23,9 +23,9 @@ def sobel_filter(image: np.ndarray, kernel_size: int = 3) -> np.ndarray:
     
     Args:
         image: An RGB image of type:
-            - :obj:`torch.Tensor` in ``[B, C, H, W]`` format with data in
+            - `torch.Tensor` in ``[B, C, H, W]`` format with data in
                 the range ``[0.0, 1.0]``.
-            - :obj:`numpy.ndarray` in ``[H, W, C]`` format with data in the
+            - `numpy.ndarray` in ``[H, W, C]`` format with data in the
                 range ``[0, 255]``.
         kernel_size: Size of the Sobel kernel. Default: ``3``.
     """

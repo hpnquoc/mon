@@ -131,7 +131,7 @@ def ssim(
     k                : tuple[float, float] = (0.01, 0.03),
     non_negative_ssim: bool = False,
 ) -> torch.Tensor:
-    """Interface of :obj:`_custom_ssim`.
+    """Interface of `_custom_ssim`.
     
     References:
         `<https://github.com/VainF/pytorch-msssim/blob/master/pytorch_msssim/ssim.py>`__

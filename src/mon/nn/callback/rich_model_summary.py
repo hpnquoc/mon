@@ -28,10 +28,10 @@ console = core.console
 @CALLBACKS.register(name="rich_model_summary")
 class RichModelSummary(callbacks.RichModelSummary):
     """Generates a summary of all layers in a
-    :obj:`~lightning.pytorch.core.module.LightningModule` with `rich text
+    `~lightning.pytorch.core.module.LightningModule` with `rich text
     formatting <https://github.com/Textualize/rich>`_.
     
-    :obj:`lightning.pytorch.callbacks.rich_model_summary.RichModelSummary`.
+    `lightning.pytorch.callbacks.rich_model_summary.RichModelSummary`.
     """
     
     @staticmethod

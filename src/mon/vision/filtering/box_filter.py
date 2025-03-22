@@ -29,7 +29,7 @@ def diff_x(image: torch.Tensor, radius: int) -> torch.Tensor:
     """Compute the difference of the input along the x-axis.
     
     Args:
-        image: An image of type :obj:`torch.Tensor` in ``[B, C, H, W]`` format
+        image: An image of type `torch.Tensor` in ``[B, C, H, W]`` format
             with data in the range ``[0.0, 1.0]``.
         radius: Radius of the kernel.
         
@@ -49,7 +49,7 @@ def diff_y(image: torch.Tensor, radius: int) -> torch.Tensor:
     """Compute the difference of the image along the y-axis.
     
     Args:
-        image: An image of type :obj:`torch.Tensor` in ``[B, C, H, W]`` format
+        image: An image of type `torch.Tensor` in ``[B, C, H, W]`` format
             with data in the range ``[0.0, 1.0]``.
         radius: Radius of the kernel.
     
@@ -78,16 +78,16 @@ def box_filter(
     """Perform box filer on the image.
     
     Args:
-        image: An image of type :obj:`torch.Tensor` in ``[B, C, H, W]`` format
+        image: An image of type `torch.Tensor` in ``[B, C, H, W]`` format
             with data in the range ``[0.0, 1.0]``.
         kernel_size: Size of the kernel. Commonly be ``3``, ``5``, ``7``, or
             ``9``.
         radius: Radius of the kernel (kernel_size = radius * 2 + 1).
             Commonly be ``1``, ``2``, ``3``, or ``4``.
     
-        kwargs (:obj:`cv2.boxFilter`) includes:
+        kwargs (`cv2.boxFilter`) includes:
             ddepth: The output image depth. Default: ``-1`` means the same as
-                the depth as :obj:`image`.
+                the depth as `image`.
             anchor: The anchor of the kernel. Default: ``(-1, -1)`` means at
                 the center.
             normalize: Whether to normalize the kernel. Default: ``False``.

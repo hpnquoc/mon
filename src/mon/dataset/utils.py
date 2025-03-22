@@ -27,7 +27,7 @@ def parse_io_worker(
 	data_root  : core.Path | str = None,
 	verbose    : bool            = False,
 ) -> tuple[str, dtype.Dataset, vision.VideoWriterCV]:
-	"""Parse the :obj:`src` and :obj:`dst` to get the correct I/O worker.
+	"""Parse the `src` and `dst` to get the correct I/O worker.
 	
 	Args:
 		src: The source of the input data.

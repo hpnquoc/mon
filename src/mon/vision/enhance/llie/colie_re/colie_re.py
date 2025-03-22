@@ -24,7 +24,7 @@ from fvcore.nn import parameter_count
 from torch.nn import functional as F
 
 from mon import core, nn
-from mon.globals import MODELS, Scheme, Task
+from mon.globals import MODELS, LType, Task
 from mon.vision import dtype, filtering
 from mon.vision.enhance import base
 
@@ -87,7 +87,7 @@ class CoLIE_RE(base.ImageEnhancementModel):
     Args:
         window_size: Context window size. Default: ``1``.
         down_size  : Downsampling size. Default: ``256``.
-        add_layer: Should be in range of ``[1, :obj:`num_layers` - 2]``.
+        add_layer: Should be in range of ``[1, `num_layers` - 2]``.
         L: The "optimally-intense threshold", lower values produce brighter
             images. Default: ``0.3``.
         alpha: Fidelity control. Default: ``1``.
@@ -102,7 +102,7 @@ class CoLIE_RE(base.ImageEnhancementModel):
     arch     : str          = "colie"
     name     : str          = "colie_re"
     tasks    : list[Task]   = [Task.LLIE]
-    schemes  : list[Scheme] = [Scheme.ZERO_SHOT]
+    ltypes   : list[LType]  = [LType.ZERO_SHOT]
     model_dir: core.Path    = current_dir
     zoo      : dict         = {}
     

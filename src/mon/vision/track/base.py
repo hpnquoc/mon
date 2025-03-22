@@ -59,7 +59,7 @@ class Detection:
     
     @classmethod
     def from_value(cls, value: Detection | dict) -> Detection:
-        """Create a :obj:`BBoxAnnotation` object from an arbitrary :obj:`value`.
+        """Create a `BBoxAnnotation` object from an arbitrary `value`.
         """
         if isinstance(value, dict):
             return Detection(**value)
@@ -119,7 +119,7 @@ class Track(ABC):
     
     Args:
         id_: The unique ID of the track. Default: ``None``.
-        state: The state of the track. Default: :obj:`TrackState.NEW`.
+        state: The state of the track. Default: `TrackState.NEW`.
         detections: The list of detections associated with the track. Default: ``[]``.
     """
     

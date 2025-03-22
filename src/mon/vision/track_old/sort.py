@@ -43,7 +43,7 @@ def linear_assignment(cost_matrix):
 class SORT(base.Tracker):
     """SORT (Simple Online Realtime Tracker).
     
-    See more: :obj:`mon.vision.model.track.base.Tracker`.
+    See more: `mon.vision.model.track.base.Tracker`.
     """
     
     def __init__(self, *args, **kwargs):
@@ -84,19 +84,19 @@ class SORT(base.Tracker):
 class SORTBBox(base.Tracker):
     """SORT (Simple Online Realtime Tracker) for bounding box.
     
-    See more: :obj:`mon.vision.model.track.base.Tracker`.
+    See more: `mon.vision.model.track.base.Tracker`.
     """
     
     def update(self, instances: list | np.ndarray = ()):
-        """Update :obj:`tracks` with new detections. This method will call the
+        """Update `tracks` with new detections. This method will call the
         following methods:
-            - :obj:`assign_instances_to_tracks`
-            - :obj:`update_matched_tracks`
-            - :obj:`create_new_tracks`
-            - :obj:`delete_dead_tracks`
+            - `assign_instances_to_tracks`
+            - `update_matched_tracks`
+            - `create_new_tracks`
+            - `delete_dead_tracks`
         
         Args:
-            instances: A :obj:`list` of new instances. Default: ``()``.
+            instances: A `list` of new instances. Default: ``()``.
         """
         self.frame_count += 1  # Should be the same with VideoReader.index
 
@@ -150,18 +150,18 @@ class SORTBBox(base.Tracker):
         list | np.ndarray,
         list | np.ndarray
     ]:
-        """Assigns new :obj:`instances` to :obj:`tracks`.
+        """Assigns new `instances` to `tracks`.
 
         Args:
-            instances: A :obj:`list` of new instances
-            tracks: A :obj:`list` of existing tracks.
+            instances: A `list` of new instances
+            tracks: A `list` of existing tracks.
 
         Returns:
-            A :obj:`list` of tracks' indexes that have been matched with new
+            A `list` of tracks' indexes that have been matched with new
                 instances.
-            A :obj:`list` of new instances' indexes of that have NOT been
+            A `list` of new instances' indexes of that have NOT been
                 matched with any tracks.
-            A :obj:`list` of tracks' indexes that have NOT been matched with
+            A `list` of tracks' indexes that have NOT been matched with
                 new instances.
         """
         if len(tracks) == 0:
@@ -217,9 +217,9 @@ class SORTBBox(base.Tracker):
         """Update existing tracks that have been matched with new instances.
 
         Args:
-            matched_indexes: A :obj:`list` of tracks' indexes that have been
+            matched_indexes: A `list` of tracks' indexes that have been
                 matched with new instances.
-            instances: A :obj:`list` of new instances.
+            instances: A `list` of new instances.
         """
         for m in matched_indexes:
             track_idx    = m[1]

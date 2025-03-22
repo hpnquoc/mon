@@ -37,15 +37,15 @@ class ImageDetectionDataset(I.ImageDataset, ABC):
 	"""The base class for all object detection datasets.
 	
 	Attributes:
-		datapoint_attrs: A :obj:`dict` of datapoint attributes with the keys
+		datapoint_attrs: A `dict` of datapoint attributes with the keys
 			are the attribute names and the values are the attribute types.
-			Must contain: {``'image'``: :obj:`ImageAnnotation`,
-			``'bboxes'``: :obj:`BBoxesLabel`}. Note that to comply with
-			:obj:`albumentations.Compose`, we will treat the first key as the
+			Must contain: {``'image'``: `ImageAnnotation`,
+			``'bboxes'``: `BBoxesLabel`}. Note that to comply with
+			`albumentations.Compose`, we will treat the first key as the
 			main image attribute.
 			
 	Args:
-		bbox_format: A bounding box format specified in :obj:`BBoxFormat`.
+		bbox_format: A bounding box format specified in `BBoxFormat`.
 	
 	"""
 	
@@ -64,7 +64,7 @@ class ImageDetectionDataset(I.ImageDataset, ABC):
 	
 	def __getitem__(self, index: int) -> dict:
 		"""Returns a dictionary containing the datapoint and metadata at the
-		given :obj:`index`. The dictionary must contain the following keys:
+		given `index`. The dictionary must contain the following keys:
 		{'input', 'target', 'meta'}.
 		"""
 		image  = self.images[index].data
@@ -107,10 +107,10 @@ class ImageDetectionDataset(I.ImageDataset, ABC):
 	@classmethod
 	def collate_fn(cls, batch: list[dict]) -> dict:
 		"""Collate function used to fused input items together when using
-		:obj:`batch_size` > 1. This is used in :obj:`torch.utils.data.DataLoader` wrapper.
+		`batch_size` > 1. This is used in `torch.utils.data.DataLoader` wrapper.
 
 		Args:
-			batch: A :obj:`list` of :obj:`dict`.
+			batch: A `list` of `dict`.
 		"""
 		zipped = super().collate_fn(batch=batch)
 		bboxes = zipped["bboxes"]

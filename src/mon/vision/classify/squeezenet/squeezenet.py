@@ -18,7 +18,7 @@ from abc import ABC
 from torchvision.models import squeezenet1_0, squeezenet1_1
 
 from mon import core, nn
-from mon.globals import MODELS, Scheme, ZOO_DIR
+from mon.globals import MODELS, LType, ZOO_DIR
 from mon.vision.classify import base
 
 console      = core.console
@@ -37,7 +37,7 @@ class SqueezeNet(nn.ExtraModel, base.ImageClassificationModel, ABC):
     """
     
     arch     : str          = "squeezenet"
-    schemes  : list[Scheme] = [Scheme.SUPERVISED]
+    ltypes   : list[LType]  = [LType.SUPERVISED]
     model_dir: core.Path    = current_dir
     zoo      : dict         = {}
 

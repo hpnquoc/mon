@@ -4,7 +4,7 @@
 """Bounding Box Geometry.
 
 This module implements geometry functions for bounding boxes. For handling
-geometry, :obj:`numpy.ndarray` is used as the primary data structure.
+geometry, `numpy.ndarray` is used as the primary data structure.
 """
 
 from __future__ import annotations
@@ -53,11 +53,11 @@ def bbox_area(bbox: np.ndarray) -> np.ndarray:
     """Compute the area(s) of bounding box(es).
     
     Args:
-        bbox: Bounding box(es) of type of :obj:`numpy.ndarray` in
+        bbox: Bounding box(es) of type of `numpy.ndarray` in
             ``[4]``/``[N, 4]`` and ``XYXY`` format.
     
     Returns:
-        A ``[1]``/``[N]`` :obj:`numpy.ndarray` containing the area value(s).
+        A ``[1]``/``[N]`` `numpy.ndarray` containing the area value(s).
     """
     if bbox.ndim == 1:
         bbox = np.expand_dims(bbox, 0)
@@ -75,11 +75,11 @@ def bbox_center(bbox: np.ndarray) -> np.ndarray:
     """Compute the center(s) of bounding box(es).
     
     Args:
-        bbox: Bounding box(es) of type of :obj:`numpy.ndarray` in
+        bbox: Bounding box(es) of type of `numpy.ndarray` in
             ``[4]``/``[N, 4]`` and ``XYXY`` format.
     
     Returns:
-        An ``[1, 2]``/``[N, 2]`` :obj:`numpy.ndarray` containing the center(s)
+        An ``[1, 2]``/``[N, 2]`` `numpy.ndarray` containing the center(s)
         of bounding box(es) in ``[cx, cy]`` format.
     """
     if bbox.ndim == 1:
@@ -100,11 +100,11 @@ def bbox_corners(bbox: np.ndarray) -> np.ndarray:
     """Get corner(s) of bounding box(es) in an array.
     
     Args:
-        bbox: Bounding box(es) of type of :obj:`numpy.ndarray` in
+        bbox: Bounding box(es) of type of `numpy.ndarray` in
             ``[4]``/``[N, 4]`` and ``XYXY`` format.
     
     Returns:
-        An ``[1, 8]``/``[N, 8]``  :obj:`numpy.ndarray` containing corners of
+        An ``[1, 8]``/``[N, 8]``  `numpy.ndarray` containing corners of
         bounding box(es) in ``[x1, y1, x2, y2, x3, y3, x4, y4]`` format.
     """
     if bbox.ndim == 1:
@@ -133,11 +133,11 @@ def bbox_corners_points(bbox: np.ndarray) -> np.ndarray:
     """Get corner(s) of bounding box(es) as points.
     
     Args:
-        bbox: Bounding box(es) of type of :obj:`numpy.ndarray` in
+        bbox: Bounding box(es) of type of `numpy.ndarray` in
             ``[4]``/``[N, 4]`` and ``XYXY`` format.
     
     Returns:
-        An ``[1, 4, 2]``/``[N, 4, 2]`` :obj:`numpy.ndarray` containing corners
+        An ``[1, 4, 2]``/``[N, 4, 2]`` `numpy.ndarray` containing corners
         of bounding box(es) in ``[[x1, y1], [x2, y2], [x3, y3], [x4, y4]]``
         format.
     """
@@ -170,12 +170,12 @@ def get_enclosing_bbox(bbox: np.ndarray) -> np.ndarray:
     """Get the enclosing bounding box(es) for rotated corners.
     
     Args:
-        bbox: Bounding box(es) of type of :obj:`numpy.ndarray` in ``[..., 8]``,
+        bbox: Bounding box(es) of type of `numpy.ndarray` in ``[..., 8]``,
             containing `N` bounding boxes each described by their corner
             coordinates ``[x1, y1, x2, y2, x3, y3, x4, y4]``.
 
     Returns:
-        Bounding box(es) of type of :obj:`numpy.ndarray` in ``[..., 4]`` and
+        Bounding box(es) of type of `numpy.ndarray` in ``[..., 4]`` and
         ``XYXY`` format.
     """
     x_ = bbox[:, [0, 2, 4, 6]]
@@ -196,13 +196,13 @@ def bbox_iou(bbox1: np.ndarray, bbox2: np.ndarray) -> np.ndarray:
     bounding box(es).
     
     Args:
-        bbox1: Bounding box(es) of type of :obj:`numpy.ndarray` in
+        bbox1: Bounding box(es) of type of `numpy.ndarray` in
             ``[4]``/``[N, 4]`` and ``XYXY`` format.
-        bbox2: Bounding box(es) of type of :obj:`numpy.ndarray` in
+        bbox2: Bounding box(es) of type of `numpy.ndarray` in
             ``[4]``/``[M, 4]`` and ``XYXY`` format.
     
     Returns:
-        An :obj:`numpy.ndarray` in ``[N, M]`` containing the pairwise IoU values.
+        An `numpy.ndarray` in ``[N, M]`` containing the pairwise IoU values.
     """
     # Make sure the bboxes are in 2D arrays.
     if bbox1.ndim == 1:
@@ -235,13 +235,13 @@ def bbox_giou(bbox1: np.ndarray, bbox2: np.ndarray) -> np.ndarray:
     two (sets) of bounding box(es).
     
     Args:
-        bbox1: Bounding box(es) of type of :obj:`numpy.ndarray` in
+        bbox1: Bounding box(es) of type of `numpy.ndarray` in
             ``[4]``/``[N, 4]`` and ``XYXY`` format.
-        bbox2: Bounding box(es) of type of :obj:`numpy.ndarray` in
+        bbox2: Bounding box(es) of type of `numpy.ndarray` in
             ``[4]``/``[M, 4]`` and ``XYXY`` format.
     
     Returns:
-        An :obj:`numpy.ndarray` in ``[N, M]`` containing the pairwise IoU values.
+        An `numpy.ndarray` in ``[N, M]`` containing the pairwise IoU values.
     
     References:
         https://arxiv.org/pdf/1902.09630.pdf
@@ -288,13 +288,13 @@ def bbox_diou(bbox1: np.ndarray, bbox2: np.ndarray) -> np.ndarray:
     two (sets) of bounding box(es).
     
     Args:
-        bbox1: Bounding box(es) of type of :obj:`numpy.ndarray` in
+        bbox1: Bounding box(es) of type of `numpy.ndarray` in
             ``[4]``/``[N, 4]`` and ``XYXY`` format.
-        bbox2: Bounding box(es) of type of :obj:`numpy.ndarray` in
+        bbox2: Bounding box(es) of type of `numpy.ndarray` in
             ``[4]``/``[M, 4]`` and ``XYXY`` format.
     
     Returns:
-        An :obj:`numpy.ndarray` in ``[N, M]`` containing the pairwise IoU values.
+        An `numpy.ndarray` in ``[N, M]`` containing the pairwise IoU values.
     
     References:
         https://arxiv.org/pdf/1902.09630.pdf
@@ -344,13 +344,13 @@ def bbox_ciou(bbox1: np.ndarray, bbox2: np.ndarray) -> np.ndarray:
     two (sets) of bounding box(es).
     
     Args:
-        bbox1: Bounding box(es) of type of :obj:`numpy.ndarray` in
+        bbox1: Bounding box(es) of type of `numpy.ndarray` in
             ``[4]``/``[N, 4]`` and ``XYXY`` format.
-        bbox2: Bounding box(es) of type of :obj:`numpy.ndarray` in
+        bbox2: Bounding box(es) of type of `numpy.ndarray` in
             ``[4]``/``[M, 4]`` and ``XYXY`` format.
     
     Returns:
-        An :obj:`numpy.ndarray` in ``[N, M]`` containing the pairwise IoU values.
+        An `numpy.ndarray` in ``[N, M]`` containing the pairwise IoU values.
     
     References:
         https://arxiv.org/pdf/1902.09630.pdf
@@ -414,13 +414,13 @@ def bbox_center_distance(bbox1: np.ndarray, bbox2: np.ndarray) -> np.ndarray:
     speed.
     
     Args:
-        bbox1: Bounding box(es) of type of :obj:`numpy.ndarray` in
+        bbox1: Bounding box(es) of type of `numpy.ndarray` in
             ``[4]``/``[N, 4]`` and ``XYXY`` format.
-        bbox2: Bounding box(es) of type of :obj:`numpy.ndarray` in
+        bbox2: Bounding box(es) of type of `numpy.ndarray` in
             ``[4]``/``[M, 4]`` and ``XYXY`` format.
     
     Returns:
-        An :obj:`numpy.ndarray` in ``[N, M]`` containing the pairwise center
+        An `numpy.ndarray` in ``[N, M]`` containing the pairwise center
         distance value(s).
     """
     # Make sure the bboxes are in 2D arrays.

@@ -88,7 +88,7 @@ class BBoxAnnotation(base.Annotation):
     
     @staticmethod
     def to_tensor(data: torch.Tensor | np.ndarray) -> torch.Tensor:
-        """Converts the input data to a :obj:`torch.Tensor`.
+        """Converts the input data to a `torch.Tensor`.
         
         Args:
             data: The input data.
@@ -98,11 +98,11 @@ class BBoxAnnotation(base.Annotation):
     @staticmethod
     def collate_fn(batch: list[torch.Tensor | np.ndarray]) -> torch.Tensor | np.ndarray | None:
         """Collate function used to fused input items together when using
-        :obj:`batch_size` > 1. This is used in :obj:`torch.utils.data.DataLoader`
+        `batch_size` > 1. This is used in `torch.utils.data.DataLoader`
         wrapper.
         
         Args:
-            batch: A :obj:`list` of images.
+            batch: A `list` of images.
         """
         if all(isinstance(b, torch.Tensor) for b in batch):
             return torch.cat(batch, dim=0)

@@ -45,7 +45,7 @@ def get_grid_size(n: int, nrow: int = 4) -> list[int]:
             row. Default: ``4``.
     
     Returns:
-        A :obj:`tuple` of `(nrows, ncols)`, where nrows is the number of
+        A `tuple` of `(nrows, ncols)`, where nrows is the number of
         rows and ncols is the number of columns.
     """
     if isinstance(nrow, int) and nrow > 0:

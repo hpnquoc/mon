@@ -3,7 +3,7 @@
 
 """Metric Package.
 
-This package implements evaluation metrics by extending the :obj:`torchmetrics`
+This package implements evaluation metrics by extending the `torchmetrics`
 package.
 """
 

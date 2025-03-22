@@ -41,9 +41,9 @@ class FourierUnit(nn.Module):
     <https://github.com/pkumivision/FFC>`__".
     
     Args:
-        ffc3d: called by :obj:`FourierUnit3d`.
+        ffc3d: called by `FourierUnit3d`.
         fft_norm: Normalization mode. For the backward transform
-            (:obj:`~torch.fft.irfft`), these correspond to:
+            (`~torch.fft.irfft`), these correspond to:
             - ``'forward'``  - no normalization
             - ``'backward'`` - normalize by ``1/n``
             - ``'ortho'``    - normalize by ``1/sqrt(n)`` (making the real IFFT orthonormal)
@@ -137,7 +137,7 @@ class SpectralTransform2d(nn.Module):
     
     Args:
         fft_norm: Normalization mode. For the backward transform
-            (:obj:`~torch.fft.irfft`), these correspond to:
+            (`~torch.fft.irfft`), these correspond to:
             - ``'forward'``  - no normalization
             - ``'backward'`` - normalize by ``1/n``
             - ``'ortho'``    - normalize by ``1/sqrt(n)`` (making the real IFFT orthonormal)
@@ -224,7 +224,7 @@ class FastFourierConv2d(nn.Module):
     
     Args:
         fft_norm: Normalization mode. For the backward transform
-            (:obj:`~torch.fft.irfft`), these correspond to:
+            (`~torch.fft.irfft`), these correspond to:
             
             - ``'forward'``  - no normalization
             - ``'backward'`` - normalize by ``1/n``
@@ -322,7 +322,7 @@ class FastFourierConv2dNormAct(nn.Module):
     
     Args:
         fft_norm: Normalization mode. For the backward transform
-            (:obj:`~torch.fft.irfft`), these correspond to:
+            (`~torch.fft.irfft`), these correspond to:
             
             - ``'forward'``  - no normalization
             - ``'backward'`` - normalize by ``1/n``

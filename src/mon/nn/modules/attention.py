@@ -1039,7 +1039,7 @@ class WindowAttention(nn.Module):
 
 class SqueezeExciteC(nn.Module):
     """Squeeze and Excite layer from the paper: "Squeeze and Excitation".
-    This implementation uses :obj:`torch.nn.Conv2d` layer.
+    This implementation uses `torch.nn.Conv2d` layer.
     
     References:
         - https://amaarora.github.io/2020/07/24/SeNet.html#squeeze-and-excitation-block-in-pytorch
@@ -1096,7 +1096,7 @@ class SqueezeExciteC(nn.Module):
 class SqueezeExciteL(nn.Module):
     """Squeeze and Excite layer from the paper: "Squeeze and Excitation"
     
-    This implementation uses :obj:`torch.nn.Linear` layer.
+    This implementation uses `torch.nn.Linear` layer.
     
     References:
         - https://amaarora.github.io/2020/07/24/SeNet.html#squeeze-and-excitation-block-in-pytorch

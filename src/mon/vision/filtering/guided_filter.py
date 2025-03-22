@@ -43,11 +43,11 @@ def guided_filter(
     
     Args:
         image: An RGB image of type:
-            - :obj:`torch.Tensor` in ``[B, C, H, W]`` format with data in
+            - `torch.Tensor` in ``[B, C, H, W]`` format with data in
                 the range ``[0.0, 1.0]``.
-            - :obj:`numpy.ndarray` in ``[H, W, C]`` format with data in the
+            - `numpy.ndarray` in ``[H, W, C]`` format with data in the
                 range ``[0, 255]``.
-        guide: A guidance image with the same shape with :obj:`image`.
+        guide: A guidance image with the same shape with `image`.
         radius: Radius of filter a.k.a. kernel_size = radius * 2 + 1.
             Commonly be ``1``, ``2``, ``4``, or ``8``.
         eps: Value controlling sharpness. Default: ``1e-8``.
@@ -223,7 +223,7 @@ class ConvGuidedFilter(nn.Module):
     Args:
         radius: Radius of filter a.k.a. kernel_size = radius * 2 + 1.
             Commonly be ``1``, ``2``, ``4``, or ``8``.
-        norm: Normalization layer. Default: :obj:`nn.BatchNorm2d`.
+        norm: Normalization layer. Default: `nn.BatchNorm2d`.
         downscale: Downscale factor. Default: ``8``.
         
     References:
@@ -322,7 +322,7 @@ def build_lr_net(
         mid_channels: Number of middle channels. Default: ``24``.
         layers: Number of layers. Default: ``5``.
         relu_slope: Slope of the LeakyReLU. Default: ``0.2``.
-        norm: Normalization layer. Default: :obj:`nn.AdaptiveNorm2d`.
+        norm: Normalization layer. Default: `nn.AdaptiveNorm2d`.
     """
     net = [
         nn.Conv2d(in_channels, mid_channels, 3, 1, 1, 1, bias=False),
@@ -360,7 +360,7 @@ class DeepGuidedFilter(nn.Module):
         lr_relu_slope: Slope of the LeakyReLU for the low-resolution network.
             Default: ``0.2``.
         lr_norm: Normalization layer for the low-resolution network.
-            Default: :obj:`nn.AdaptiveNorm2d`.
+            Default: `nn.AdaptiveNorm2d`.
         
     References:
         https://github.com/wuhuikai/DeepGuidedFilter/blob/master/GuidedFilteringLayer/GuidedFilter_PyTorch/guided_filter_pytorch/guided_filter.py
@@ -406,7 +406,7 @@ class DeepGuidedFilterAdvanced(DeepGuidedFilter):
         lr_relu_slope: Slope of the LeakyReLU for the low-resolution network.
             Default: ``0.2``.
         lr_norm: Normalization layer for the low-resolution network.
-            Default: :obj:`nn.AdaptiveNorm2d`.
+            Default: `nn.AdaptiveNorm2d`.
         
     References:
         https://github.com/wuhuikai/DeepGuidedFilter/blob/master/GuidedFilteringLayer/GuidedFilter_PyTorch/guided_filter_pytorch/guided_filter.py
@@ -455,7 +455,7 @@ class DeepGuidedFilterConvGF(nn.Module):
         lr_relu_slope: Slope of the LeakyReLU for the low-resolution network.
             Default: ``0.2``.
         lr_norm: Normalization layer for the low-resolution network.
-            Default: :obj:`nn.AdaptiveNorm2d`.
+            Default: `nn.AdaptiveNorm2d`.
         
     References:
         https://github.com/wuhuikai/DeepGuidedFilter/blob/master/GuidedFilteringLayer/GuidedFilter_PyTorch/guided_filter_pytorch/guided_filter.py

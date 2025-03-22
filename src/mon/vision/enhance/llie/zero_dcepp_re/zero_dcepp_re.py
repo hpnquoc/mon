@@ -21,7 +21,7 @@ from typing import Literal
 import torch
 
 from mon import core, nn
-from mon.globals import MODELS, Scheme, Task
+from mon.globals import MODELS, LType, Task
 from mon.nn import functional as F
 from mon.vision.enhance import base
 
@@ -105,7 +105,7 @@ class ZeroDCEpp_RE(base.ImageEnhancementModel):
     arch     : str          = "zero_dce++"
     name     : str          = "zero_dce++_re"
     tasks    : list[Task]   = [Task.LLIE]
-    schemes  : list[Scheme] = [Scheme.UNSUPERVISED]
+    ltypes   : list[LType]  = [LType.UNSUPERVISED]
     model_dir: core.Path    = current_dir
     zoo      : dict         = {}
 

@@ -3,7 +3,7 @@
 
 """Humps Module.
 
-This module extends :obj:`humps`.
+This module extends ``humps``.
 """
 
 from __future__ import annotations
@@ -26,7 +26,14 @@ from humps import *
 
 
 def snakecase(x: str) -> str:
-	"""Convert a string to snakecase."""
-	x = x.replace(" ", "_")
-	x = x.replace("-", "_")
+	"""Convert a string to snake_case by replacing spaces and hyphens with
+	underscores.
+
+	Args:
+	    x: The input string to be converted.
+
+	Returns:
+	    str: The converted snake_case string.
+	"""
+	x = x.replace(" ", "_").replace("-", "_")
 	return x

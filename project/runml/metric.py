@@ -26,13 +26,13 @@ _METRICS = pyiqa.default_model_configs.DEFAULT_CONFIGS
 
 def measure_metric_pyiqa(
     input_dir  : mon.Path,
-    target_dir : mon.Path | None,
+    target_dir : mon.Path,
     result_file: mon.Path | str,
     arch       : str,
     model      : str,
     data       : str,
-    imgsz      : int,
     device     : int | list[int] | str,
+    imgsz      : int,
     resize     : bool,
     metric     : list[str],
     use_gt_mean: bool,
@@ -97,7 +97,7 @@ def measure_metric_pyiqa(
             description = description
         ):
             # Image
-            image  = mon.read_image(path=image_file, to_tensor=True, normalize=True).to(device=device)
+            image  = mon.read_image(path=image_file, to_tensor=True, normalize=True)
             h0, w0 = mon.get_image_size(image)
             if torch.any(image.isnan()):
                 continue
@@ -112,7 +112,7 @@ def measure_metric_pyiqa(
                 if temp.exists():
                     target_file = temp
             if target_file and target_file.exists():  # Has target file
-                target = mon.read_image(path=target_file, to_tensor=True, normalize=True).to(device=device)
+                target = mon.read_image(path=target_file, to_tensor=True, normalize=True)
                 h1, w1 = mon.get_image_size(target)
                 if resize:  # Force resize
                     target = mon.resize(target, (h, w))
@@ -126,6 +126,8 @@ def measure_metric_pyiqa(
                 image = mon.scale_gt_mean(image, target)
             
             # Measure metric
+            image  = image.to(device=device)
+            target = target.to(device=device)
             for m in metric:
                 if m not in _METRICS:
                     continue

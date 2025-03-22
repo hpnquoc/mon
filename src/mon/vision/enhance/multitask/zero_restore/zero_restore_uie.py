@@ -21,7 +21,7 @@ import random
 import torch
 
 from mon import core, nn
-from mon.globals import MODELS, Scheme, Task
+from mon.globals import MODELS, LType, Task
 from mon.vision import dtype, geometry
 from mon.vision.enhance import base
 
@@ -199,7 +199,7 @@ class ZeroRestoreUIE(base.ImageEnhancementModel):
     arch     : str          = "zero_restore"
     name     : str          = "zero_restore_uie"
     tasks    : list[Task]   = [Task.UIE]
-    schemes  : list[Scheme] = [Scheme.ZERO_SHOT]
+    ltypes   : list[LType]  = [LType.ZERO_SHOT]
     zoo      : dict         = {}
     
     def __init__(

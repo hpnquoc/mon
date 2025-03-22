@@ -46,8 +46,8 @@ class OptimizerFactory(factory.Factory):
             config: The optimizer's arguments.
             network_params_only: If ``True``, only the network's parameters are
                 used.
-            to_dict: If ``True``, return a :obj:`dict` of
-                ``{:obj:`name`: attr:`instance`}``. Default: ``False``.
+            to_dict: If ``True``, return a `dict` of
+                ``{`name`: attr:`instance`}``. Default: ``False``.
             **kwargs: Additional arguments that may be needed for the optimizer.
         
         Returns:
@@ -101,16 +101,16 @@ class OptimizerFactory(factory.Factory):
         
         Args:
             network: A neural network.
-            configs: A :obj:`list` of optimizers' arguments. Each item can be:
-                - A name (:obj:`str`).
-                - A :obj:`dict` of arguments containing the ``'name'`` key.
+            configs: A `list` of optimizers' arguments. Each item can be:
+                - A name (`str`).
+                - A `dict` of arguments containing the ``'name'`` key.
             network_params_only: If ``True``, only the network's parameters are
                 used.
-            to_dict: If ``True``, return a :obj:`dict` of
-                ``{:obj:`name`: attr:`instance`}``. Default: ``False``.
+            to_dict: If ``True``, return a `dict` of
+                ``{`name`: attr:`instance`}``. Default: ``False``.
                 
         Returns:
-            A :obj:`list`, or :obj:`dict` of optimizers.
+            A `list`, or `dict` of optimizers.
         """
         if configs is None:
             return None
@@ -202,12 +202,12 @@ class LRSchedulerFactory(factory.Factory):
         
         Args:
             optimizer: An optimizer.
-            configs: A :obj:`list` of schedulers' arguments. Each item can be:
-                - A name (:obj:`str`)
-                - A :obj:`dict` of arguments containing the ''`name`'' key.
+            configs: A `list` of schedulers' arguments. Each item can be:
+                - A name (`str`)
+                - A `dict` of arguments containing the ''`name`'' key.
         
         Returns:
-            A :obj:`list` of learning rate schedulers
+            A `list` of learning rate schedulers
         """
         if configs is None:
             return None

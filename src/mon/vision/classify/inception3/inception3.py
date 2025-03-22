@@ -15,7 +15,7 @@ __all__ = [
 from torchvision.models import inception_v3
 
 from mon import core, nn
-from mon.globals import MODELS, Scheme, ZOO_DIR
+from mon.globals import MODELS, LType, ZOO_DIR
 from mon.vision.classify import base
 
 console      = core.console
@@ -39,7 +39,7 @@ class Inception3(nn.ExtraModel, base.ImageClassificationModel):
     
     arch     : str          = "inception"
     name     : str          = "inception_v3"
-    schemes  : list[Scheme] = [Scheme.SUPERVISED]
+    ltypes   : list[LType]  = [LType.SUPERVISED]
     model_dir: core.Path    = current_dir
     zoo      : dict         = {
         "imagenet1k_v1": {

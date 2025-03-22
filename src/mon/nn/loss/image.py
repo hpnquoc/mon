@@ -293,7 +293,7 @@ class ExposureControlLoss(base.Loss):
 @LOSSES.register(name="exposure_value_control_loss")
 class ExposureValueControlLoss(base.Loss):
     """Exposure Value Control Loss measures the absolute value of
-    :obj:`ExposureControlLoss`.
+    `ExposureControlLoss`.
 
     Args:
         patch_size: Kernel size for pooling layer.

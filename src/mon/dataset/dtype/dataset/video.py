@@ -36,10 +36,10 @@ class VideoLoader(base.Dataset, ABC):
 	"""The base class for all video loaders.
 	
 	Attributes:
-		datapoint_attrs: A :obj:`dict` of datapoint attributes with the keys
+		datapoint_attrs: A `dict` of datapoint attributes with the keys
 			are the attribute names and the values are the attribute types.
-			Must contain: {``'frame'``: :obj:`FrameAnnotation`}. Note that to
-			comply with :obj:`albumentations.Compose`, we will treat the first
+			Must contain: {``'frame'``: `FrameAnnotation`}. Note that to
+			comply with `albumentations.Compose`, we will treat the first
 			key as the main image attribute.
 			
 	Args:
@@ -47,7 +47,7 @@ class VideoLoader(base.Dataset, ABC):
 		split: The data split to use. Default: ``'Split.PREDICT'``.
 		transform: Transformations performed on both the input and target. We use
 			`albumentations <https://albumentations.ai/docs/api_reference/full_reference>`__
-		to_tensor: If ``True``, convert input and target to :obj:`torch.Tensor`.
+		to_tensor: If ``True``, convert input and target to `torch.Tensor`.
             Default: ``False``.
         cache_data: If ``True``, cache data to disk for faster loading next
             time. Default: ``False``.
@@ -83,7 +83,7 @@ class VideoLoader(base.Dataset, ABC):
 	
 	def __getitem__(self, index: int) -> dict:
 		"""Returns a dictionary containing the datapoint and metadata at the
-		given :obj:`index`.
+		given `index`.
 		"""
 		# Get datapoint at the given index
 		datapoint = self.get_datapoint(index=index)
@@ -137,7 +137,7 @@ class VideoLoader(base.Dataset, ABC):
 
 class VideoLoaderCV(VideoLoader):
 	"""A video loader that retrieves and loads frame(s) from a video or a stream
-	using :obj:`cv2`.
+	using `cv2`.
 	"""
 	
 	def __init__(
@@ -261,7 +261,7 @@ class VideoLoaderCV(VideoLoader):
 	# endregion
 	
 	def get_datapoint(self, index: int) -> dict:
-		"""Get a datapoint at the given :obj:`index`."""
+		"""Get a datapoint at the given `index`."""
 		if not self.is_stream and self.index >= self.num_frames:
 			self.close()
 			raise StopIteration
@@ -286,8 +286,8 @@ class VideoLoaderCV(VideoLoader):
 			return datapoint
 	
 	def get_meta(self, index: int = 0) -> dict:
-		"""Get metadata at the given :obj:`index`. By default, we will use
-		the first attribute in :obj:`datapoint_attrs` as the main image
+		"""Get metadata at the given `index`. By default, we will use
+		the first attribute in `datapoint_attrs` as the main image
 		attribute.
 		"""
 		return {

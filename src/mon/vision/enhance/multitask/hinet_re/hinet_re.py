@@ -21,7 +21,7 @@ import torch
 from torch.nn.common_types import _size_2_t
 
 from mon import core, nn
-from mon.globals import MODELS, Scheme, Task
+from mon.globals import MODELS, LType, Task
 from mon.vision.enhance import base
 
 console      = core.console
@@ -221,7 +221,7 @@ class HINet_RE(base.ImageEnhancementModel):
     model_dir: core.Path    = current_dir
     arch     : str          = "hinet"
     tasks    : list[Task]   = [Task.DEBLUR, Task.DENOISE, Task.DERAIN, Task.DESNOW, Task.LLIE]
-    schemes  : list[Scheme] = [Scheme.SUPERVISED]
+    ltypes   : list[LType]  = [LType.SUPERVISED]
     zoo      : dict         = {}
     
     def __init__(

@@ -3,7 +3,7 @@
 
 """JSON File Handler.
 
-This module implements the JSON file handler by extending the :obj:`json`
+This module implements the JSON file handler by extending the `json`
 package.
 """
 
@@ -27,38 +27,25 @@ class JSONHandler(base.FileHandler):
     
     @staticmethod
     def set_default(obj: Any):
-        """If an object is a :obj:`set`, :obj:`range`, numpy array, or numpy
-        generic, convert it to a :obj:`list`.
+        """If an object is a ``set``, ``range``, ``numpy array``, or numpy generic,
+        convert it to a ``list``.
         
         Args:
             obj: A serializable object.
         """
-        if isinstance(obj, set | range):
-            return list(obj)
-        elif isinstance(obj, np.ndarray):
-            return obj.tolist()
-        elif isinstance(obj, np.generic):
-            return obj.item()
+        if isinstance(obj, (set, range, np.ndarray, np.generic)):
+            return list(obj) if isinstance(obj, (set, range, np.ndarray)) else obj.item()
         raise TypeError(f"{type(obj)} is not supported for json dump.")
     
     # noinspection PyTypeChecker
-    def read_from_fileobj(
-        self,
-        path: pathlib.Path | str | TextIO,
-        **kwargs
-    ) -> Any:
+    def read_from_fileobj(self, path: pathlib.Path | str | TextIO, **kwargs) -> Any:
         return load(path)
     
     # noinspection PyTypeChecker
-    def write_to_fileobj(
-        self,
-        obj : Any,
-        path: pathlib.Path | str | TextIO,
-        **kwargs
-    ):
+    def write_to_fileobj(self, obj : Any, path: pathlib.Path | str | TextIO, **kwargs):
         path = pathlib.Path(path)
         kwargs.setdefault("default", self.set_default)
-        dump(obj=obj, fp=path, **kwargs)
+        dump(obj, path, **kwargs)
     
     def write_to_string(self, obj: Any, **kwargs) -> str:
         kwargs.setdefault("default", self.set_default)

@@ -21,7 +21,7 @@ from abc import ABC
 from torchvision.models import vit_b_16, vit_b_32, vit_h_14, vit_l_16, vit_l_32
 
 from mon import core, nn
-from mon.globals import MODELS, Scheme, ZOO_DIR
+from mon.globals import MODELS, LType, ZOO_DIR
 from mon.vision.classify import base
 
 console      = core.console
@@ -40,7 +40,7 @@ class VisionTransformer(base.ImageClassificationModel, ABC):
     """
     
     arch     : str          = "vit"
-    schemes  : list[Scheme] = [Scheme.SUPERVISED]
+    ltypes   : list[LType]  = [LType.SUPERVISED]
     model_dir: core.Path    = current_dir
     zoo      : dict         = {}
     

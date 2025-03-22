@@ -16,6 +16,7 @@ _gsdata_/
 archive/
 build/
 data/*/
+db/
 dist/
 env/anaconda3.sh
 env/anaconda3_arm64.sh

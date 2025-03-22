@@ -104,13 +104,13 @@ def adjust_gamma(
     
     Args:
         image: An RGB image of type:
-            - :obj:`torch.Tensor` in ``[B, C, H, W]`` format with data in
+            - `torch.Tensor` in ``[B, C, H, W]`` format with data in
                 the range ``[0.0, 1.0]``.
-            - :obj:`numpy.ndarray` in ``[H, W, C]`` format with data in the
+            - `numpy.ndarray` in ``[H, W, C]`` format with data in the
                 range ``[0, 255]``.
         gamma: Non-negative real number, same as `gamma` in the equation.
-            - :obj:`gamma` larger than ``1`` makes the shadows darker, while
-            - :obj:`gamma` smaller than ``1`` makes dark regions lighter.
+            - `gamma` larger than ``1`` makes the shadows darker, while
+            - `gamma` smaller than ``1`` makes dark regions lighter.
         gain: The constant multiplier.
         
     Returns:
@@ -139,9 +139,9 @@ def add_noise(
     
     Args:
         image: An RGB image of type:
-            - :obj:`torch.Tensor` in ``[B, C, H, W]`` format with data in
+            - `torch.Tensor` in ``[B, C, H, W]`` format with data in
                 the range ``[0.0, 1.0]``.
-            - :obj:`numpy.ndarray` in ``[H, W, C]`` format with data in the
+            - `numpy.ndarray` in ``[H, W, C]`` format with data in the
                 range ``[0, 255]``.
         noise_level: The noise level.
         noise_type: The type of noise to add. One of:
@@ -224,17 +224,17 @@ def is_color_or_image(image: torch.Tensor | np.ndarray) -> bool:
 
 def is_image(image: torch.Tensor, bits: int = 8) -> bool:
     """Check whether an image tensor is ranged properly ``[0.0, 1.0]`` for
-    :obj:`float` or ``[0, 2 ** bits]`` for :obj:`int`.
+    `float` or ``[0, 2 ** bits]`` for `int`.
 
     Args:
         image: Image tensor to evaluate.
-        bits: The image bits. The default checks if given :obj:`int` input
+        bits: The image bits. The default checks if given `int` input
             image is an 8-bit image `[0-255]` or not.
 
     Raises:
         TypeException: if all the input tensor has not
-        1) a shape `[3, H, W]`,
-        2) ``[0.0, 1.0]`` for :obj:`float` or ``[0, 255]`` for :obj:`int`,
+        1) a shape ``[3, H, W]``,
+        2) ``[0.0, 1.0]`` for `float` or ``[0, 255]`` for `int`,
         3) and raises is ``True``.
     
     Example:
@@ -291,9 +291,9 @@ def get_image_channel(
 
     Args:
         image: An RGB image of type:
-            - :obj:`torch.Tensor` in ``[B, C, H, W]`` format with data in
+            - `torch.Tensor` in ``[B, C, H, W]`` format with data in
                 the range ``[0.0, 1.0]``.
-            - :obj:`numpy.ndarray` in ``[H, W, C]`` format with data in the
+            - `numpy.ndarray` in ``[H, W, C]`` format with data in the
                 range ``[0, 255]``.
         index: The channel's index.
         keep_dim: If ``True``, keep the dimensions of the return output.
@@ -351,9 +351,9 @@ def get_image_num_channels(image: torch.Tensor | np.ndarray) -> int:
 
     Args:
         image: An RGB image of type:
-            - :obj:`torch.Tensor` in ``[B, C, H, W]`` format with data in
+            - `torch.Tensor` in ``[B, C, H, W]`` format with data in
                 the range ``[0.0, 1.0]``.
-            - :obj:`numpy.ndarray` in ``[H, W, C]`` format with data in the
+            - `numpy.ndarray` in ``[H, W, C]`` format with data in the
                 range ``[0, 255]``.
     """
     if image.ndim == 4:
@@ -370,7 +370,7 @@ def get_image_num_channels(image: torch.Tensor | np.ndarray) -> int:
         c = 1
     else:
         # error_console.log(
-        #     f":obj:`image`'s number of dimensions must be between ``2`` and ``4``, "
+        #     f"`image`'s number of dimensions must be between ``2`` and ``4``, "
         #     f"but got {input.ndim}."
         # )
         c = 0
@@ -382,9 +382,9 @@ def get_image_center(image: torch.Tensor | np.ndarray) -> torch.Tensor | np.ndar
     
     Args:
         image: An RGB image of type:
-            - :obj:`torch.Tensor` in ``[B, C, H, W]`` format with data in
+            - `torch.Tensor` in ``[B, C, H, W]`` format with data in
                 the range ``[0.0, 1.0]``.
-            - :obj:`numpy.ndarray` in ``[H, W, C]`` format with data in the
+            - `numpy.ndarray` in ``[H, W, C]`` format with data in the
                 range ``[0, 255]``.
     """
     h, w = get_image_size(image)
@@ -403,9 +403,9 @@ def get_image_center4(image: torch.Tensor | np.ndarray) -> torch.Tensor | np.nda
     
     Args:
         image: An RGB image of type:
-            - :obj:`torch.Tensor` in ``[B, C, H, W]`` format with data in
+            - `torch.Tensor` in ``[B, C, H, W]`` format with data in
                 the range ``[0.0, 1.0]``.
-            - :obj:`numpy.ndarray` in ``[H, W, C]`` format with data in the
+            - `numpy.ndarray` in ``[H, W, C]`` format with data in the
                 range ``[0, 255]``.
     """
     h, w = get_image_size(image)
@@ -423,9 +423,9 @@ def get_image_shape(image: torch.Tensor | np.ndarray) -> list[int]:
     
     Args:
         image: An RGB image of type:
-            - :obj:`torch.Tensor` in ``[B, C, H, W]`` format with data in
+            - `torch.Tensor` in ``[B, C, H, W]`` format with data in
                 the range ``[0.0, 1.0]``.
-            - :obj:`numpy.ndarray` in ``[H, W, C]`` format with data in the
+            - `numpy.ndarray` in ``[H, W, C]`` format with data in the
                 range ``[0, 255]``.
     """
     if is_channel_first_image(image):
@@ -442,9 +442,9 @@ def get_image_size(
     
     Args:
         input: An RGB image of type:
-            - :obj:`torch.Tensor` in ``[B, C, H, W]`` format with data in
+            - `torch.Tensor` in ``[B, C, H, W]`` format with data in
                 the range ``[0.0, 1.0]``.
-            - :obj:`numpy.ndarray` in ``[H, W, C]`` format with data in the
+            - `numpy.ndarray` in ``[H, W, C]`` format with data in the
                 range ``[0, 255]``.
             - A size of an image, windows, or kernels, etc.
         divisor: The divisor. Default: ``None``.
@@ -504,13 +504,13 @@ def add_weighted(
 
     Args:
         image1: The first image of type:
-            - :obj:`torch.Tensor` in ``[B, C, H, W]`` format with data in the
+            - `torch.Tensor` in ``[B, C, H, W]`` format with data in the
                 range ``[0.0, 1.0]``.
-            - :obj:`numpy.ndarray` in ``[H, W, C]`` format with data in the
+            - `numpy.ndarray` in ``[H, W, C]`` format with data in the
                 range ``[0, 255]``.
-        image2: The same as :obj:`image1`.
-        alpha: The weight of the :obj:`image1` elements.
-        beta: The weight of the :obj:`image2` elements.
+        image2: The same as `image1`.
+        alpha: The weight of the `image1` elements.
+        beta: The weight of the `image2` elements.
         gamma: A scalar added to each sum. Default: ``0.0``.
 
     Returns:
@@ -543,15 +543,15 @@ def blend_images(
     gamma : float = 0.0
 ) -> torch.Tensor | np.ndarray:
     """Blend 2 images together using the formula:
-        output = :obj:`image1` * alpha + :obj:`image2` * beta + gamma
+        output = `image1` * alpha + `image2` * beta + gamma
 
     Args:
         image1: A source image of type:
-            - :obj:`torch.Tensor` in ``[B, C, H, W]`` format with data in
+            - `torch.Tensor` in ``[B, C, H, W]`` format with data in
                 the range ``[0.0, 1.0]``.
-            - :obj:`numpy.ndarray` in ``[H, W, C]`` format with data in the
+            - `numpy.ndarray` in ``[H, W, C]`` format with data in the
                 range ``[0, 255]``.
-        image2: An overlay image that we want to blend on top of :obj:`image1`.
+        image2: An overlay image that we want to blend on top of `image1`.
         alpha: An alpha transparency of the overlay.
         gamma: A scalar added to each sum. Default: ``0.0``.
     
@@ -579,7 +579,7 @@ def depth_map_to_color(
     """Convert depth map to color-coded images.
     
     Args:
-        depth_map: A depth map of type :obj:`numpy.ndarray` in ``[H, W, 1]``
+        depth_map: A depth map of type `numpy.ndarray` in ``[H, W, 1]``
             format.
         color_map: A color map for the depth map. Default: ``cv2.COLORMAP_JET``.
         use_rgb: If ``True``, convert the heatmap to RGB format.
@@ -600,7 +600,7 @@ def label_map_id_to_train_id(
     """Convert label map from IDs to train IDs.
     
     Args:
-        label_map: An IDs label map of type :obj:`numpy.ndarray` in
+        label_map: An IDs label map of type `numpy.ndarray` in
             ``[H, W, C]`` format.
         classlabels: A list of class-labels.
     """
@@ -621,7 +621,7 @@ def label_map_id_to_color(
     """Convert label map from label IDs to color-coded.
     
     Args:
-        label_map: An IDs label map of type :obj:`numpy.ndarray` in
+        label_map: An IDs label map of type `numpy.ndarray` in
             ``[H, W, C]`` format.
         classlabels: A list of class-labels, each has predefined color.
     """
@@ -641,7 +641,7 @@ def label_map_color_to_id(
     """Convert label map from color-coded to label IDS.
 
     Args:
-        label_map: A color-coded label map of type :obj:`numpy.ndarray` in
+        label_map: A color-coded label map of type `numpy.ndarray` in
             ``[H, W, C]`` format.
         classlabels: A list of class-labels, each has predefined color.
     """
@@ -663,8 +663,8 @@ def label_map_id_to_one_hot(
     
     Args:
         label_map: An IDs label map of type:
-            - :obj:`torch.Tensor` in ``[B, 1, H, W]`` format.
-            - :obj:`numpy.ndarray` in ``[H, W, 1]`` format.
+            - `torch.Tensor` in ``[B, 1, H, W]`` format.
+            - `numpy.ndarray` in ``[H, W, 1]`` format.
         num_classes: The number of classes in the label map.
         classlabels: A list of class-labels.
     """
@@ -693,8 +693,8 @@ def label_map_one_hot_to_id(
     
     Args:
         label_map: A one-hot encoded label map of type:
-            - :obj:`torch.Tensor` in ``[B, num_classes, H, W]`` format.
-            - :obj:`numpy.ndarray` in ``[H, W, num_classes]`` format.
+            - `torch.Tensor` in ``[B, num_classes, H, W]`` format.
+            - `numpy.ndarray` in ``[H, W, num_classes]`` format.
     """
     if isinstance(label_map, torch.Tensor):
         label_map = torch.argmax(label_map, dim=-1, keepdim=True)
@@ -753,7 +753,7 @@ def to_3d_image(image: Any) -> torch.Tensor | np.ndarray:
 
 
 def to_list_of_3d_image(image: Any) -> list[torch.Tensor | np.ndarray]:
-    """Convert arbitrary input to a :obj:`list` of 3D images."""
+    """Convert arbitrary input to a `list` of 3D images."""
     if isinstance(image, (torch.Tensor, np.ndarray)):
         if image.ndim == 3:
             image = [image]
@@ -871,23 +871,23 @@ def to_image_nparray(
     keepdim    : bool = False,
     denormalize: bool = False,
 ) -> np.ndarray:
-    """Convert an image to :obj:`numpy.ndarray`.
+    """Convert an image to `numpy.ndarray`.
     
     Recommend order:
         image = (tensor.squeeze().detach().cpu().clamp(0, 1).permute(1, 2, 0).numpy() * 255).round().astype("uint8")
     
     Args:
         image: An RGB image of type:
-            - :obj:`torch.Tensor` in ``[B, C, H, W]`` format with data in
+            - `torch.Tensor` in ``[B, C, H, W]`` format with data in
                 the range ``[0.0, 1.0]``.
-            - :obj:`numpy.ndarray` in ``[H, W, C]`` format with data in the
+            - `numpy.ndarray` in ``[H, W, C]`` format with data in the
                 range ``[0, 255]``.
         keepdim: If `True`, keep the original shape. If ``False``, convert it to
             a 3D shape. Default: ``True``.
         denormalize: If ``True``, convert image to ``[0, 255]``. Default: ``True``.
 
     Returns:
-        An image of type :obj:`numpy.ndarray`.
+        An image of type `numpy.ndarray`.
     """
     # Check shape
     if not 3 <= image.ndim <= 5:
@@ -917,8 +917,8 @@ def to_image_tensor(
     normalize: bool = False,
     device   : Any  = None,
 ) -> torch.Tensor:
-    """Convert an image from :obj:`PIL.Image` or :obj:`numpy.ndarray` to
-    :obj:`torch.Tensor`. Optionally, convert :obj:`image` to channel-first
+    """Convert an image from `PIL.Image` or `numpy.ndarray` to
+    `torch.Tensor`. Optionally, convert `image` to channel-first
     format and normalize it.
     
     Recommend order:
@@ -926,9 +926,9 @@ def to_image_tensor(
     
     Args:
         image: An RGB image of type:
-            - :obj:`torch.Tensor` in ``[B, C, H, W]`` format with data in
+            - `torch.Tensor` in ``[B, C, H, W]`` format with data in
                 the range ``[0.0, 1.0]``.
-            - :obj:`numpy.ndarray` in ``[H, W, C]`` format with data in the
+            - `numpy.ndarray` in ``[H, W, C]`` format with data in the
                 range ``[0, 255]``.
         keepdim: If ``True``, keep the original shape. If ``False``, convert it
             to a 4D shape. Default: ``True``.
@@ -938,7 +938,7 @@ def to_image_tensor(
             ``'cpu'`` device is used.
         
     Returns:
-        A image of type :obj:`torch.Tensor`.
+        A image of type `torch.Tensor`.
     """
     # Convert to tensor
     if isinstance(image, np.ndarray):
@@ -973,8 +973,8 @@ def read_image(
     to_tensor: bool = False,
     normalize: bool = False,
 ) -> torch.Tensor | np.ndarray:
-    """Read an image from a file path using :obj:`cv2`. Optionally, convert it
-    to RGB format, and :obj:`torch.Tensor` type of shape ``[1, C, H, W]``.
+    """Read an image from a file path using `cv2`. Optionally, convert it
+    to RGB format, and `torch.Tensor` type of shape ``[1, C, H, W]``.
 
     Args:
         path: An image's file path.
@@ -995,16 +995,16 @@ def read_image(
             - cv2.IMREAD_IGNORE_ORIENTATION
             - cv2.IMREAD_COLOR_RGB
             Default: ``cv2.IMREAD_COLOR``.
-        to_tensor: If ``True``, convert the image from :obj:`numpy.ndarray`
-            to :obj:`torch.Tensor`. Default: ``False``.
+        to_tensor: If ``True``, convert the image from `numpy.ndarray`
+            to `torch.Tensor`. Default: ``False``.
         normalize: If ``True``, normalize the image to ``[0.0, 1.0]``.
             Default: ``False``.
         
     Return:
         An RGB or grayscale image of type:
-            - :obj:`torch.Tensor` in ``[B, C, H, W]`` format with data in
+            - `torch.Tensor` in ``[B, C, H, W]`` format with data in
                 the range ``[0.0, 1.0]``.
-            - :obj:`numpy.ndarray` in ``[H, W, C]`` format with data in the
+            - `numpy.ndarray` in ``[H, W, C]`` format with data in the
                 range ``[0, 255]``.
     """
     path = core.Path(path)
@@ -1026,8 +1026,8 @@ def read_image(
 
 
 def read_image_shape(path: core.Path) -> tuple[int, int, int]:
-    """Read an image from a file path using :obj:`PIL` and get its shape in
-    ``[H, W, C]`` format. Using :obj:`PIL` is faster than using OpenCV.
+    """Read an image from a file path using `PIL` and get its shape in
+    ``[H, W, C]`` format. Using `PIL` is faster than using OpenCV.
     
     Args:
         path: An image file path.
@@ -1061,9 +1061,9 @@ def write_image(path: core.Path, image: torch.Tensor | np.ndarray):
     Args:
         path: A path to write the image to.
         image: An RGB image of type:
-            - :obj:`torch.Tensor` in ``[B, C, H, W]`` format with data in
+            - `torch.Tensor` in ``[B, C, H, W]`` format with data in
                 the range ``[0.0, 1.0]``.
-            - :obj:`numpy.ndarray` in ``[H, W, C]`` format with data in the
+            - `numpy.ndarray` in ``[H, W, C]`` format with data in the
                 range ``[0, 255]``.
     """
     path = core.Path(path)
@@ -1085,17 +1085,17 @@ def write_image_cv(
     extension  : str  = ".jpg",
     denormalize: bool = False
 ):
-    """Write an image to a directory using :obj:`cv2`.
+    """Write an image to a directory using `cv2`.
     
     Args:
         image: An RGB image of type:
-            - :obj:`torch.Tensor` in ``[B, C, H, W]`` format with data in
+            - `torch.Tensor` in ``[B, C, H, W]`` format with data in
                 the range ``[0.0, 1.0]``.
-            - :obj:`numpy.ndarray` in ``[H, W, C]`` format with data in the
+            - `numpy.ndarray` in ``[H, W, C]`` format with data in the
                 range ``[0, 255]``.
         dir_path: A directory to write the image to.
         name: An image's name.
-        prefix: A prefix to add to the :obj:`name`. Default: ``''``.
+        prefix: A prefix to add to the `name`. Default: ``''``.
         extension: An extension of the image file. Default: ``'.png'``.
         denormalize: If ``True``, convert the image to ``[0, 255]``.
             Default: ``False``.
@@ -1133,13 +1133,13 @@ def write_image_torch(
     
     Args:
         image: An RGB image of type:
-            - :obj:`torch.Tensor` in ``[B, C, H, W]`` format with data in
+            - `torch.Tensor` in ``[B, C, H, W]`` format with data in
                 the range ``[0.0, 1.0]``.
-            - :obj:`numpy.ndarray` in ``[H, W, C]`` format with data in the
+            - `numpy.ndarray` in ``[H, W, C]`` format with data in the
                 range ``[0, 255]``.
         dir_path: A directory to write the image to.
         name: An image's name.
-        prefix: A prefix to add to the :obj:`name`. Default: ``''``.
+        prefix: A prefix to add to the `name`. Default: ``''``.
         extension: An extension of the image file. Default: ``'.png'``.
         denormalize: If ``True``, convert the image to ``[0, 255]``.
             Default: ``False``.
@@ -1179,13 +1179,13 @@ def write_images_cv(
     extension  : str       = ".jpg",
     denormalize: bool      = False
 ):
-    """Write a :obj:`list` of images to a directory using :obj:`cv2`.
+    """Write a `list` of images to a directory using `cv2`.
    
     Args:
-        images: A :obj:`list` of images.
+        images: A `list` of images.
         dir_path: A directory to write the images to.
-        names: A :obj:`list` of images' names.
-        prefixes: A prefix to add to the :obj:`names`. Default: ``''``.
+        names: A `list` of images' names.
+        prefixes: A prefix to add to the `names`. Default: ``''``.
         extension: An extension of image files. Default: ``'.png'``.
         denormalize: If ``True``, convert image to ``[0, 255]``.
             Default: ``False``.
@@ -1217,13 +1217,13 @@ def write_images_torch(
     extension  : str       = ".jpg",
     denormalize: bool      = False
 ):
-    """Write a :obj:`list` of images to a directory using :obj:`torchvision`.
+    """Write a `list` of images to a directory using `torchvision`.
    
     Args:
-        images: A :obj:`list` of images.
+        images: A `list` of images.
         dir_path: A directory to write the images to.
-        names: A :obj:`list` of images' names.
-        prefixes: A prefix to add to the :obj:`names`. Default: ``''``.
+        names: A `list` of images' names.
+        prefixes: A prefix to add to the `names`. Default: ``''``.
         extension: An extension of image files. Default: ``'.png'``.
         denormalize: If ``True``, convert image to ``[0, 255]``.
             Default: ``False``.
@@ -1263,7 +1263,7 @@ def denormalize_image_mean_std(
     where `mean` is [M_1, ..., M_n] and `std` [S_1, ..., S_n] for `n` channels.
 
     Args:
-        image: An image of type :obj:`torch.Tensor` in ``[B, C, H, W]`` format
+        image: An image of type `torch.Tensor` in ``[B, C, H, W]`` format
             with data in the range ``[0.0, 1.0]``.
         mean: A sequence of means for each channel.
             Default: ``[0.485, 0.456, 0.406]``.
@@ -1320,11 +1320,11 @@ def normalize_image_mean_std(
     """Normalize an image with mean and standard deviation.
     
     image[channel] = (image[channel] * std[channel]) + mean[channel]
-    where :obj:`mean` is [M_1, ..., M_n] and `std` [S_1, ..., S_n] for ``n``
+    where `mean` is [M_1, ..., M_n] and `std` [S_1, ..., S_n] for ``n``
     channels.
 
     Args:
-        image: An image of type :obj:`torch.Tensor` in ``[B, C, H, W]`` format
+        image: An image of type `torch.Tensor` in ``[B, C, H, W]`` format
             with data in the range ``[0, 255]``.
         mean: A sequence of means for each channel.
             Default: ``[0.485, 0.456, 0.406]``.
@@ -1378,11 +1378,11 @@ def normalize_image_by_range(
     new_min: float = 0.0,
     new_max: float = 1.0,
 ) -> torch.Tensor | np.ndarray:
-    """Normalize an image from the range ``[:obj:`min`, :obj:`max`]`` to the
-    ``[:obj:`new_min`, :obj:`new_max`]``.
+    """Normalize an image from the range ``[`min`, `max`]`` to the
+    ``[`new_min`, `new_max`]``.
     
     Args:
-        image: An image of type :obj:`torch.Tensor` in ``[B, C, H, W]`` format
+        image: An image of type `torch.Tensor` in ``[B, C, H, W]`` format
             with data in the range ``[0, 255]``.
         min: The current minimum pixel value of the image. Default: ``0.0``.
         max: The current maximum pixel value of the image. Default: ``255.0``.
@@ -1446,9 +1446,9 @@ def atmospheric_point_spread_function(
     
     Args:
         image: An RGB image of type:
-            - :obj:`torch.Tensor` in ``[B, C, H, W]`` format with data in
+            - `torch.Tensor` in ``[B, C, H, W]`` format with data in
                 the range ``[0.0, 1.0]``.
-            - :obj:`numpy.ndarray` in ``[H, W, C]`` format with data in the
+            - `numpy.ndarray` in ``[H, W, C]`` format with data in the
                 range ``[0, 255]``.
         q: The forward scattering parameter.
             - ``0.00-0.20``: air
@@ -1516,7 +1516,7 @@ def atmospheric_prior(
     """Get the atmosphere light in RGB image.
 
     Args:
-        image: An RGB image of type :obj:`numpy.ndarray` in ``[H, W, C]``
+        image: An RGB image of type `numpy.ndarray` in ``[H, W, C]``
             format with data in the range ``[0, 255]``.
         kernel_size: Window for the dark channel. Default: ``15``.
         p: Percentage of pixels for estimating the atmosphere light.
@@ -1561,9 +1561,9 @@ def boundary_aware_prior(
     
     Args:
         image: An RGB image of type:
-            - :obj:`torch.Tensor` in ``[B, C, H, W]`` format with data in
+            - `torch.Tensor` in ``[B, C, H, W]`` format with data in
                 the range ``[0.0, 1.0]``.
-            - :obj:`numpy.ndarray` in ``[H, W, C]`` format with data in the
+            - `numpy.ndarray` in ``[H, W, C]`` format with data in the
                 range ``[0, 255]``.
         eps: Threshold to remove weak edges. Default: ``0.05``.
         as_gradient: If ``True``, return the gradient image. Default: ``False``.
@@ -1617,9 +1617,9 @@ def bright_channel_prior(
     
     Args:
         image: An RGB image of type:
-            - :obj:`torch.Tensor` in ``[B, C, H, W]`` format with data in
+            - `torch.Tensor` in ``[B, C, H, W]`` format with data in
                 the range ``[0.0, 1.0]``.
-            - :obj:`numpy.ndarray` in ``[H, W, C]`` format with data in the
+            - `numpy.ndarray` in ``[H, W, C]`` format with data in the
                 range ``[0, 255]``.
         kernel_size: Window size.
 
@@ -1659,15 +1659,15 @@ def brightness_attention_map(
     
     Args:
         image: An RGB image of type:
-            - :obj:`torch.Tensor` in ``[B, C, H, W]`` format with data in
+            - `torch.Tensor` in ``[B, C, H, W]`` format with data in
                 the range ``[0.0, 1.0]``.
-            - :obj:`numpy.ndarray` in ``[H, W, C]`` format with data in the
+            - `numpy.ndarray` in ``[H, W, C]`` format with data in the
                 range ``[0, 255]``.
         gamma: A parameter controls the curvature of the map.
         denoise_ksize: Window size for de-noising operation. Default: ``None``.
         
     Returns:
-        An :obj:`numpy.ndarray` brightness enhancement map as prior.
+        An `numpy.ndarray` brightness enhancement map as prior.
     """
     if isinstance(image, torch.Tensor):
         if denoise_ksize:
@@ -1698,9 +1698,9 @@ def dark_channel_prior(
     
     Args:
         image: An RGB image of type:
-            - :obj:`torch.Tensor` in ``[B, C, H, W]`` format with data in
+            - `torch.Tensor` in ``[B, C, H, W]`` format with data in
                 the range ``[0.0, 1.0]``.
-            - :obj:`numpy.ndarray` in ``[H, W, C]`` format with data in the
+            - `numpy.ndarray` in ``[H, W, C]`` format with data in the
                 range ``[0, 255]``.
         kernel_size: Window size.
         
@@ -1730,9 +1730,9 @@ def dark_channel_prior_02(
 
     Args:
         image: An RGB image of type:
-            - :obj:`torch.Tensor` in ``[B, C, H, W]`` format with data in
+            - `torch.Tensor` in ``[B, C, H, W]`` format with data in
                 the range ``[0.0, 1.0]``.
-            - :obj:`numpy.ndarray` in ``[H, W, C]`` format with data in the
+            - `numpy.ndarray` in ``[H, W, C]`` format with data in the
                 range ``[0, 255]``.
         kernel_size: Window size.
 

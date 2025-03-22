@@ -3,7 +3,7 @@
 
 """YAML File Handler.
 
-This module implements the YAML file handler by extending the :obj:`yaml` module.
+This module implements the YAML file handler by extending the ``yaml`` module.
 """
 
 from __future__ import annotations
@@ -24,23 +24,13 @@ from mon.globals import FILE_HANDLERS
 class YAMLHandler(base.FileHandler):
     """YAML file handler."""
     
-    def read_from_fileobj(
-        self,
-        path: pathlib.Path | str | TextIO,
-        **kwargs
-    ) -> Any:
+    def read_from_fileobj(self, path: pathlib.Path | str | TextIO, **kwargs) -> Any:
         kwargs.setdefault("Loader", FullLoader)
         return load(stream=path, **kwargs)
     
-    def write_to_fileobj(
-        self,
-        obj : Any,
-        path: pathlib.Path | str | TextIO,
-        **kwargs
-    ):
-        path = pathlib.Path(path)
+    def write_to_fileobj(self, obj : Any, path: pathlib.Path | str | TextIO, **kwargs):
         kwargs.setdefault("Dumper", Dumper)
-        dump(data=obj, stream=path, **kwargs)
+        dump(data=obj, stream=pathlib.Path(path), **kwargs)
     
     def write_to_string(self, obj: Any, **kwargs) -> str:
         kwargs.setdefault("Dumper", Dumper)

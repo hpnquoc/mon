@@ -29,7 +29,7 @@ class DataModule(lightning.LightningDataModule, ABC):
     """The base class for all datamodules.
     
     Attributes:
-        dataset_kwargs: A :obj:`dict` containing datasets' default arguments.
+        dataset_kwargs: A `dict` containing datasets' default arguments.
             Example usage: train = Dataset(split='train', **self.dataset_kwargs)
         
     Args:
@@ -38,7 +38,7 @@ class DataModule(lightning.LightningDataModule, ABC):
         shuffle: If ``True``, reshuffle the datapoints at the beginning of every
             epoch. Default: ``True``.
         collate_fn: The function used to fused datapoint together when using
-            :obj:`batch_size`> `1``.
+            `batch_size`> `1``.
         verbose: Verbosity. Default: ``True``.
     """
     
@@ -84,14 +84,14 @@ class DataModule(lightning.LightningDataModule, ABC):
     @property
     def num_workers(self) -> int:
         """The number of workers used in the data loading pipeline.
-        Set to: 4 * the number of :obj:`devices` to avoid a bottleneck.
+        Set to: 4 * the number of `devices` to avoid a bottleneck.
         """
         return 4 * len(self.devices)
         # return 4  # os.cpu_count()
     
     @property
     def train_dataloader(self) -> data.DataLoader | None:
-        """Returns a :obj:`torch.utils.data.DataLoader` object if :obj:`train`
+        """Returns a `torch.utils.data.DataLoader` object if `train`
         exists. Otherwise, returns ``None``.
         """
         if self.train:
@@ -111,7 +111,7 @@ class DataModule(lightning.LightningDataModule, ABC):
     
     @property
     def val_dataloader(self) -> data.DataLoader | None:
-        """Returns a :obj:`torch.utils.data.DataLoader` object if :obj:`val`
+        """Returns a `torch.utils.data.DataLoader` object if `val`
         exists. Otherwise, returns ``None``.
         """
         if self.val:
@@ -131,7 +131,7 @@ class DataModule(lightning.LightningDataModule, ABC):
     
     @property
     def test_dataloader(self) -> data.DataLoader | None:
-        """Returns a :obj:`torch.utils.data.DataLoader` object if :obj:`test`
+        """Returns a `torch.utils.data.DataLoader` object if `test`
         exists. Otherwise, returns ``None``.
         """
         if self.test:
@@ -151,7 +151,7 @@ class DataModule(lightning.LightningDataModule, ABC):
     
     @property
     def predict_dataloader(self):
-        """Returns a :obj:`torch.utils.data.DataLoader` object if :obj:`predict`
+        """Returns a `torch.utils.data.DataLoader` object if `predict`
         exists. Otherwise, returns ``None``.
         """
         if self.predict:
@@ -193,13 +193,13 @@ class DataModule(lightning.LightningDataModule, ABC):
             - Build classlabels vocabulary.
             - Prepare train/val/test/predict splits.
             - Apply transformations.
-            - Define :obj:`collate_fn` for your custom dataset.
+            - Define `collate_fn` for your custom dataset.
 
         Args:
             stage: The running stage. One of:
-                - ``'train'``  : prepares :obj:`train` and :obj:`val`.
-                - ``'test'``   : prepares :obj:`test`.
-                - ``'predict'``: prepares :obj:`predict`.
+                - ``'train'``  : prepares `train` and `val`.
+                - ``'test'``   : prepares `test`.
+                - ``'predict'``: prepares `predict`.
                 - ``None``     : prepares all.
                 - Default: ``None``.
         """

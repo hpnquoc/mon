@@ -87,7 +87,7 @@ class KFBBoxMotion(base.Motion):
         time_since_update: A number of consecutive frames having that track
             disappear. Default: ``0``.
     
-    See more: :obj:`mon.vision.tracking.motion.base.Motion`.
+    See more: `mon.vision.tracking.motion.base.Motion`.
     """
 
     def __init__(

@@ -3,7 +3,7 @@
 
 """File.
 
-This package implements file I/O functionality for the :obj:`mon` package.
+This package implements file I/O functionality for the `mon` package.
 """
 
 from __future__ import annotations

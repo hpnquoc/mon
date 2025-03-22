@@ -4,7 +4,7 @@
 """Optimizer and Learning Rate Scheduler.
 
 This module implements optimizers and learning rate schedulers using the
-:obj:`torch` package.
+`torch` package.
 """
 
 from __future__ import annotations

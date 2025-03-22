@@ -15,7 +15,7 @@ __all__ = [
 from torchvision.models import mobilenet_v2
 
 from mon import core, nn
-from mon.globals import MODELS, Scheme, ZOO_DIR
+from mon.globals import MODELS, LType, ZOO_DIR
 from mon.vision.classify import base
 
 console      = core.console
@@ -36,7 +36,7 @@ class MobileNetV2(nn.ExtraModel, base.ImageClassificationModel):
     
     arch     : str          = "mobilenet"
     name     : str          = "mobilenet_v2"
-    schemes  : list[Scheme] = [Scheme.SUPERVISED]
+    ltypes   : list[LType]  = [LType.SUPERVISED]
     model_dir: core.Path    = current_dir
     zoo      : dict         = {
         "imagenet1k_v1": {

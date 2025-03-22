@@ -3,8 +3,8 @@
 
 """Colorspace Conversion.
 
-This module implements basic color space conversion functions. We use :obj:`cv2`
-to handle :obj:`numpy.ndarray` and :obj:`kornia` to handle :obj:`torch.Tensor`.
+This module implements basic color space conversion functions. We use `cv2`
+to handle `numpy.ndarray` and `kornia` to handle `torch.Tensor`.
 """
 
 from __future__ import annotations
@@ -64,9 +64,9 @@ def grayscale_to_rgb(
     
     Args:
         image: A grayscale image of type:
-            - :obj:`torch.Tensor` in ``[*, 1, H, W]`` format with data in the
+            - `torch.Tensor` in ``[*, 1, H, W]`` format with data in the
                 range ``[0.0, 1.0]``.
-            - :obj:`numpy.ndarray` in ``[H, W]`` format with data in the
+            - `numpy.ndarray` in ``[H, W]`` format with data in the
                 range ``[0, 255]``.
     """
     if isinstance(image, torch.Tensor):
@@ -86,9 +86,9 @@ def rgb_to_grayscale(
 
     Args:
         image: An RGB image of type:
-            - :obj:`torch.Tensor` in ``[*, 3, H, W]`` format with data in the
+            - `torch.Tensor` in ``[*, 3, H, W]`` format with data in the
                 range ``[0.0, 1.0]``.
-            - :obj:`numpy.ndarray` in ``[H, W, 3]`` format with data in the
+            - `numpy.ndarray` in ``[H, W, 3]`` format with data in the
                 range ``[0, 255]``.
         rgb_weights: Weights that will be applied on each channel (RGB). The
             sum of the weights should add up to one. Defaults: ``None``.
@@ -109,9 +109,9 @@ def bgr_to_grayscale(
     
     Args:
         image: A BGR image of type:
-            - :obj:`torch.Tensor` in ``[*, 3, H, W]`` format with data in the
+            - `torch.Tensor` in ``[*, 3, H, W]`` format with data in the
                 range ``[0.0, 1.0]``.
-            - :obj:`numpy.ndarray` in ``[H, W, 3]`` format with data in the
+            - `numpy.ndarray` in ``[H, W, 3]`` format with data in the
                 range ``[0, 255]``.
     """
     rgb = bgr_to_rgb(image)
@@ -130,9 +130,9 @@ def rgb_to_hls(
     
     Args:
         image: An RGB image of type:
-            - :obj:`torch.Tensor` in ``[*, 3, H, W]`` format with data in the
+            - `torch.Tensor` in ``[*, 3, H, W]`` format with data in the
                 range ``[0.0, 1.0]``.
-            - :obj:`numpy.ndarray` in ``[H, W, 3]`` format with data in the
+            - `numpy.ndarray` in ``[H, W, 3]`` format with data in the
                 range ``[0, 255]``.
         eps: Epsilon value to avoid division by zero. Defaults: ``1e-8``.
     """
@@ -150,9 +150,9 @@ def hls_to_rgb(image: torch.Tensor | np.ndarray) -> torch.Tensor | np.ndarray:
 
     Args:
         image: An HLS image of type:
-            - :obj:`torch.Tensor` in ``[*, 3, H, W]`` format with data in the
+            - `torch.Tensor` in ``[*, 3, H, W]`` format with data in the
                 range ``[0.0, 1.0]``.
-            - :obj:`numpy.ndarray` in ``[H, W, 3]`` format with data in the
+            - `numpy.ndarray` in ``[H, W, 3]`` format with data in the
                 range ``[0, 255]``.
     """
     if isinstance(image, torch.Tensor):
@@ -176,9 +176,9 @@ def rgb_to_hsv(
 
     Args:
         image: An RGB image of type:
-            - :obj:`torch.Tensor` in ``[*, 3, H, W]`` format with data in the
+            - `torch.Tensor` in ``[*, 3, H, W]`` format with data in the
                 range ``[0.0, 1.0]``.
-            - :obj:`numpy.ndarray` in ``[H, W, 3]`` format with data in the
+            - `numpy.ndarray` in ``[H, W, 3]`` format with data in the
                 range ``[0, 255]``.
         eps: Scalar to enforce numerical stability. Defaults: ``1e-8``.
     
@@ -203,9 +203,9 @@ def rgb_to_v(
 
     Args:
         image: An RGB image of type:
-            - :obj:`torch.Tensor` in ``[*, 3, H, W]`` format with data in the
+            - `torch.Tensor` in ``[*, 3, H, W]`` format with data in the
                 range ``[0.0, 1.0]``.
-            - :obj:`numpy.ndarray` in ``[H, W, 3]`` format with data in the
+            - `numpy.ndarray` in ``[H, W, 3]`` format with data in the
                 range ``[0, 255]``.
         eps: Scalar to enforce numerical stability. Defaults: ``1e-8``.
     
@@ -230,9 +230,9 @@ def bgr_to_hsv(
 
     Args:
         image: An BGR image of type:
-            - :obj:`torch.Tensor` in ``[*, 3, H, W]`` format with data in the
+            - `torch.Tensor` in ``[*, 3, H, W]`` format with data in the
                 range ``[0.0, 1.0]``.
-            - :obj:`numpy.ndarray` in ``[H, W, 3]`` format with data in the
+            - `numpy.ndarray` in ``[H, W, 3]`` format with data in the
                 range ``[0, 255]``.
         eps: Scalar to enforce numerical stability. Defaults: ``1e-8``.
     
@@ -252,9 +252,9 @@ def bgr_to_v(
 
     Args:
         image: An BGR image of type:
-            - :obj:`torch.Tensor` in ``[*, 3, H, W]`` format with data in the
+            - `torch.Tensor` in ``[*, 3, H, W]`` format with data in the
                 range ``[0.0, 1.0]``.
-            - :obj:`numpy.ndarray` in ``[H, W, 3]`` format with data in the
+            - `numpy.ndarray` in ``[H, W, 3]`` format with data in the
                 range ``[0, 255]``.
         eps: Scalar to enforce numerical stability. Defaults: ``1e-8``.
     
@@ -276,10 +276,10 @@ def hsv_to_rgb(image: torch.Tensor | np.ndarray) -> torch.Tensor | np.ndarray:
     
     Args:
         image: An HSV image of type:
-            - :obj:`torch.Tensor` in ``[*, 3, H, W]`` format. The `H` channel
+            - `torch.Tensor` in ``[*, 3, H, W]`` format. The `H` channel
                 values are in the range ``[0, 2pi]``. The `S` and `V` channels
                 are in the range ``[0.0, 1.0]``.
-            - :obj:`numpy.ndarray` in ``[H, W, 3]`` format with data in the
+            - `numpy.ndarray` in ``[H, W, 3]`` format with data in the
                 range ``[0, 255]``.
     """
     if isinstance(image, torch.Tensor):
@@ -296,10 +296,10 @@ def hsv_to_bgr(image: torch.Tensor | np.ndarray) -> torch.Tensor | np.ndarray:
     
     Args:
         image: An HSV image of type:
-            - :obj:`torch.Tensor` in ``[*, 3, H, W]`` format. The `H` channel
+            - `torch.Tensor` in ``[*, 3, H, W]`` format. The `H` channel
                 values are in the range ``[0, 2pi]``. The `S` and `V` channels
                 are in the range ``[0.0, 1.0]``.
-            - :obj:`numpy.ndarray` in ``[H, W, 3]`` format with data in the
+            - `numpy.ndarray` in ``[H, W, 3]`` format with data in the
                 range ``[0, 255]``.
     """
     rgb = hsv_to_rgb(image)
@@ -445,9 +445,9 @@ def rgb_to_lab(image: torch.Tensor | np.ndarray) -> torch.Tensor | np.ndarray:
 
     Args:
         image: An RGB image of type:
-            - :obj:`torch.Tensor` in ``[*, 3, H, W]`` format with data in the
+            - `torch.Tensor` in ``[*, 3, H, W]`` format with data in the
                 range ``[0.0, 1.0]``.
-            - :obj:`numpy.ndarray` in ``[H, W, 3]`` format with data in the
+            - `numpy.ndarray` in ``[H, W, 3]`` format with data in the
                 range ``[0, 255]``.
     
     Returns:
@@ -471,11 +471,11 @@ def lab_to_rgb(
     
     Args:
         image: A Lab image of type:
-            - :obj:`torch.Tensor` in ``[*, 3, H, W]`` format with data in the
+            - `torch.Tensor` in ``[*, 3, H, W]`` format with data in the
                 range ``[0.0, 1.0]``. The `L` channel values are in the range
                 ``[0, 100]``. The `a` and `b` channels are in the range
                 ``[-128, 127]``.
-            - :obj:`numpy.ndarray` in ``[H, W, 3]`` format with data in the
+            - `numpy.ndarray` in ``[H, W, 3]`` format with data in the
                 range ``[0, 255]``.
         clip: Whether to apply clipping to insure output RGB values in range
             ``[0.0, 1.0]``.
@@ -502,9 +502,9 @@ def rgb_to_luv(
 
     Args:
         image: An RGB image of type:
-            - :obj:`torch.Tensor` in ``[*, 3, H, W]`` format with data in the
+            - `torch.Tensor` in ``[*, 3, H, W]`` format with data in the
                 range ``[0.0, 1.0]``.
-            - :obj:`numpy.ndarray` in ``[H, W, 3]`` format with data in the
+            - `numpy.ndarray` in ``[H, W, 3]`` format with data in the
                 range ``[0, 255]``.
         eps: Epsilon value to avoid division by zero. Defaults: ``1e-12``.
     """
@@ -525,9 +525,9 @@ def luv_to_rgb(
     
     Args:
         image: A Luv image of type:
-            - :obj:`torch.Tensor` in ``[*, 3, H, W]`` format with data in the
+            - `torch.Tensor` in ``[*, 3, H, W]`` format with data in the
                 range ``[0.0, 1.0]``.
-            - :obj:`numpy.ndarray` in ``[H, W, 3]`` format with data in the
+            - `numpy.ndarray` in ``[H, W, 3]`` format with data in the
                 range ``[0, 255]``.
         eps: Epsilon value to avoid division by zero. Defaults: ``1e-12``.
     """
@@ -549,9 +549,9 @@ def rgb_to_bgr(image: torch.Tensor | np.ndarray) -> torch.Tensor | np.ndarray:
     
     Args:
         image: An RGB image of type:
-            - :obj:`torch.Tensor` in ``[*, 3, H, W]`` format with data in the
+            - `torch.Tensor` in ``[*, 3, H, W]`` format with data in the
                 range ``[0.0, 1.0]``.
-            - :obj:`numpy.ndarray` in ``[H, W, 3]`` format with data in the
+            - `numpy.ndarray` in ``[H, W, 3]`` format with data in the
                 range ``[0, 255]``.
     """
     return bgr_to_rgb(image)
@@ -562,9 +562,9 @@ def bgr_to_rgb(image: torch.Tensor | np.ndarray) -> torch.Tensor | np.ndarray:
 
     Args:
         image: A BGR image of type:
-            - :obj:`torch.Tensor` in ``[*, 3, H, W]`` format with data in the
+            - `torch.Tensor` in ``[*, 3, H, W]`` format with data in the
                 range ``[0.0, 1.0]``.
-            - :obj:`numpy.ndarray` in ``[H, W, 3]`` format with data in the
+            - `numpy.ndarray` in ``[H, W, 3]`` format with data in the
                 range ``[0, 255]``.
     """
     if isinstance(image, torch.Tensor):
@@ -584,12 +584,12 @@ def rgb_to_rgba(
 
     Args:
         image: An RGB image of type:
-            - :obj:`torch.Tensor` in ``[*, 3, H, W]`` format with data in the
+            - `torch.Tensor` in ``[*, 3, H, W]`` format with data in the
                 range ``[0.0, 1.0]``.
-            - :obj:`numpy.ndarray` in ``[H, W, 3]`` format with data in the
+            - `numpy.ndarray` in ``[H, W, 3]`` format with data in the
                 range ``[0, 255]``.
-        alpha_val: A :obj:`float` number for the alpha value, or a
-            :obj:`torch.Tensor` of shape ``[*, 1, H, W]``.
+        alpha_val: A `float` number for the alpha value, or a
+            `torch.Tensor` of shape ``[*, 1, H, W]``.
     """
     if isinstance(image, torch.Tensor):
         return kornia.color.rgb_to_rgba(image, alpha_val)
@@ -608,12 +608,12 @@ def bgr_to_rgba(
 
     Args:
         image: A BGR image of type:
-            - :obj:`torch.Tensor` in ``[*, 3, H, W]`` format with data in the
+            - `torch.Tensor` in ``[*, 3, H, W]`` format with data in the
                 range ``[0.0, 1.0]``.
-            - :obj:`numpy.ndarray` in ``[H, W, 3]`` format with data in the
+            - `numpy.ndarray` in ``[H, W, 3]`` format with data in the
                 range ``[0, 255]``.
-        alpha_val: A :obj:`float` number for the alpha value, or a
-            :obj:`torch.Tensor` of shape ``[*, 1, H, W]``.
+        alpha_val: A `float` number for the alpha value, or a
+            `torch.Tensor` of shape ``[*, 1, H, W]``.
     """
     rgb = bgr_to_rgb(image)
     return rgb_to_rgba(rgb, alpha_val)
@@ -624,9 +624,9 @@ def rgba_to_rgb(image: torch.Tensor | np.ndarray) -> torch.Tensor | np.ndarray:
 
     Args:
         image: An RGBA image of type:
-            - :obj:`torch.Tensor` in ``[*, 4, H, W]`` format with data in the
+            - `torch.Tensor` in ``[*, 4, H, W]`` format with data in the
                 range ``[0.0, 1.0]``.
-            - :obj:`numpy.ndarray` in ``[H, W, 4]`` format with data in the
+            - `numpy.ndarray` in ``[H, W, 4]`` format with data in the
                 range ``[0, 255]``.
     """
     if isinstance(image, torch.Tensor):
@@ -643,9 +643,9 @@ def rgba_to_bgr(image: torch.Tensor | np.ndarray) -> torch.Tensor | np.ndarray:
 
     Args:
         image: An RGBA image of type:
-            - :obj:`torch.Tensor` in ``[*, 4, H, W]`` format with data in the
+            - `torch.Tensor` in ``[*, 4, H, W]`` format with data in the
                 range ``[0.0, 1.0]``.
-            - :obj:`numpy.ndarray` in ``[H, W, 4]`` format with data in the
+            - `numpy.ndarray` in ``[H, W, 4]`` format with data in the
                 range ``[0, 255]``.
     """
     rgb = rgba_to_rgb(image)
@@ -659,9 +659,9 @@ def rgb_to_linear_rgb(
 
     Args:
         image: An RGB image of type:
-            - :obj:`torch.Tensor` in ``[*, 3, H, W]`` format with data in the
+            - `torch.Tensor` in ``[*, 3, H, W]`` format with data in the
                 range ``[0.0, 1.0]``.
-            - :obj:`numpy.ndarray` in ``[H, W, 3]`` format with data in the
+            - `numpy.ndarray` in ``[H, W, 3]`` format with data in the
                 range ``[0, 255]``.
     """
     if isinstance(image, torch.Tensor):
@@ -678,9 +678,9 @@ def linear_rgb_to_rgb(
 
     Args:
         image: A linear RGB image of type:
-            - :obj:`torch.Tensor` in ``[*, 3, H, W]`` format with data in the
+            - `torch.Tensor` in ``[*, 3, H, W]`` format with data in the
                 range ``[0.0, 1.0]``.
-            - :obj:`numpy.ndarray` in ``[H, W, 3]`` format with data in the
+            - `numpy.ndarray` in ``[H, W, 3]`` format with data in the
                 range ``[0, 255]``.
     """
     if isinstance(image, torch.Tensor):
@@ -703,9 +703,9 @@ def rgb_to_sepia(
 
     Args:
         image: An RGB image of type:
-            - :obj:`torch.Tensor` in ``[*, 3, H, W]`` format with data in the
+            - `torch.Tensor` in ``[*, 3, H, W]`` format with data in the
                 range ``[0.0, 1.0]``.
-            - :obj:`numpy.ndarray` in ``[H, W, 3]`` format with data in the
+            - `numpy.ndarray` in ``[H, W, 3]`` format with data in the
                 range ``[0, 255]``.
         rescale: If ``True``, the output tensor will be rescaled (max values be
             ``1.0`` or ``255``).
@@ -727,9 +727,9 @@ def rgb_to_xyz(image: torch.Tensor | np.ndarray) -> torch.Tensor | np.ndarray:
 
     Args:
         image: An RGB image of type:
-            - :obj:`torch.Tensor` in ``[*, 3, H, W]`` format with data in the
+            - `torch.Tensor` in ``[*, 3, H, W]`` format with data in the
                 range ``[0.0, 1.0]``.
-            - :obj:`numpy.ndarray` in ``[H, W, 3]`` format with data in the
+            - `numpy.ndarray` in ``[H, W, 3]`` format with data in the
                 range ``[0, 255]``.
     """
     if isinstance(image, torch.Tensor):
@@ -746,9 +746,9 @@ def xyz_to_rgb(image: torch.Tensor | np.ndarray) -> torch.Tensor | np.ndarray:
 
     Args:
         image: An XYZ image of type:
-            - :obj:`torch.Tensor` in ``[*, 3, H, W]`` format with data in the
+            - `torch.Tensor` in ``[*, 3, H, W]`` format with data in the
                 range ``[0.0, 1.0]``.
-            - :obj:`numpy.ndarray` in ``[H, W, 3]`` format with data in the
+            - `numpy.ndarray` in ``[H, W, 3]`` format with data in the
                 range ``[0, 255]``.
     """
     if isinstance(image, torch.Tensor):
@@ -765,9 +765,9 @@ def bgr_to_xyz(image: torch.Tensor | np.ndarray) -> torch.Tensor | np.ndarray:
 
     Args:
         image: A BGR image of type:
-            - :obj:`torch.Tensor` in ``[*, 3, H, W]`` format with data in the
+            - `torch.Tensor` in ``[*, 3, H, W]`` format with data in the
                 range ``[0.0, 1.0]``.
-            - :obj:`numpy.ndarray` in ``[H, W, 3]`` format with data in the
+            - `numpy.ndarray` in ``[H, W, 3]`` format with data in the
                 range ``[0, 255]``.
     """
     rgb = bgr_to_rgb(image)
@@ -779,9 +779,9 @@ def xyz_to_bgr(image: torch.Tensor | np.ndarray) -> torch.Tensor | np.ndarray:
 
     Args:
         image: An XYZ image of type:
-            - :obj:`torch.Tensor` in ``[*, 3, H, W]`` format with data in the
+            - `torch.Tensor` in ``[*, 3, H, W]`` format with data in the
                 range ``[0.0, 1.0]``.
-            - :obj:`numpy.ndarray` in ``[H, W, 3]`` format with data in the
+            - `numpy.ndarray` in ``[H, W, 3]`` format with data in the
                 range ``[0, 255]``.
     """
     rgb = xyz_to_rgb(image)
@@ -797,9 +797,9 @@ def rgb_to_ycbcr(image: torch.Tensor | np.ndarray) -> torch.Tensor | np.ndarray:
     
     Args:
         image: An RGB image of type:
-            - :obj:`torch.Tensor` in ``[*, 3, H, W]`` format with data in the
+            - `torch.Tensor` in ``[*, 3, H, W]`` format with data in the
                 range ``[0.0, 1.0]``.
-            - :obj:`numpy.ndarray` in ``[H, W, 3]`` format with data in the
+            - `numpy.ndarray` in ``[H, W, 3]`` format with data in the
                 range ``[0, 255]``.
     """
     if isinstance(image, torch.Tensor):
@@ -816,9 +816,9 @@ def bgr_to_ycbcr(image: torch.Tensor | np.ndarray) -> torch.Tensor | np.ndarray:
     
     Args:
         image: A BGR image of type:
-            - :obj:`torch.Tensor` in ``[*, 3, H, W]`` format with data in the
+            - `torch.Tensor` in ``[*, 3, H, W]`` format with data in the
                 range ``[0.0, 1.0]``.
-            - :obj:`numpy.ndarray` in ``[H, W, 3]`` format with data in the
+            - `numpy.ndarray` in ``[H, W, 3]`` format with data in the
                 range ``[0, 255]``.
     """
     rgb = bgr_to_rgb(image)
@@ -830,9 +830,9 @@ def rgb_to_y(image: torch.Tensor | np.ndarray) -> torch.Tensor | np.ndarray:
     
     Args:
         image: An RGB image of type:
-            - :obj:`torch.Tensor` in ``[*, 3, H, W]`` format with data in the
+            - `torch.Tensor` in ``[*, 3, H, W]`` format with data in the
                 range ``[0.0, 1.0]``.
-            - :obj:`numpy.ndarray` in ``[H, W, 3]`` format with data in the
+            - `numpy.ndarray` in ``[H, W, 3]`` format with data in the
                 range ``[0, 255]``.
     """
     if isinstance(image, torch.Tensor):
@@ -851,9 +851,9 @@ def bgr_to_y(image: torch.Tensor | np.ndarray) -> torch.Tensor | np.ndarray:
     
     Args:
         image: A BGR image of type:
-            - :obj:`torch.Tensor` in ``[*, 3, H, W]`` format with data in the
+            - `torch.Tensor` in ``[*, 3, H, W]`` format with data in the
                 range ``[0.0, 1.0]``.
-            - :obj:`numpy.ndarray` in ``[H, W, 3]`` format with data in the
+            - `numpy.ndarray` in ``[H, W, 3]`` format with data in the
                 range ``[0, 255]``.
     """
     rgb = bgr_to_rgb(image)
@@ -865,9 +865,9 @@ def ycbcr_to_rgb(image: torch.Tensor | np.ndarray) -> torch.Tensor | np.ndarray:
     
     Args:
         image: An YCbCr image of type:
-            - :obj:`torch.Tensor` in ``[*, 3, H, W]`` format with data in the
+            - `torch.Tensor` in ``[*, 3, H, W]`` format with data in the
                 range ``[0.0, 1.0]``.
-            - :obj:`numpy.ndarray` in ``[H, W, 3]`` format with data in the
+            - `numpy.ndarray` in ``[H, W, 3]`` format with data in the
                 range ``[0, 255]``.
     """
     if isinstance(image, torch.Tensor):
@@ -884,9 +884,9 @@ def ycbcr_to_bgr(image: torch.Tensor | np.ndarray) -> torch.Tensor | np.ndarray:
     
     Args:
         image: An YCbCr image of type:
-            - :obj:`torch.Tensor` in ``[*, 3, H, W]`` format with data in the
+            - `torch.Tensor` in ``[*, 3, H, W]`` format with data in the
                 range ``[0.0, 1.0]``.
-            - :obj:`numpy.ndarray` in ``[H, W, 3]`` format with data in the
+            - `numpy.ndarray` in ``[H, W, 3]`` format with data in the
                 range ``[0, 255]``.
     """
     rgb = ycbcr_to_rgb(image)
@@ -902,9 +902,9 @@ def rgb_to_yuv(image: torch.Tensor | np.ndarray) -> torch.Tensor | np.ndarray:
 
     Args:
         image: An RGB image of type:
-            - :obj:`torch.Tensor` in ``[*, 3, H, W]`` format with data in the
+            - `torch.Tensor` in ``[*, 3, H, W]`` format with data in the
                 range ``[0.0, 1.0]``.
-            - :obj:`numpy.ndarray` in ``[H, W, 3]`` format with data in the
+            - `numpy.ndarray` in ``[H, W, 3]`` format with data in the
                 range ``[0, 255]``.
     """
     if isinstance(image, torch.Tensor):
@@ -921,9 +921,9 @@ def bgr_to_yuv(image: torch.Tensor | np.ndarray) -> torch.Tensor | np.ndarray:
 
     Args:
         image: A BGR image of type:
-            - :obj:`torch.Tensor` in ``[*, 3, H, W]`` format with data in the
+            - `torch.Tensor` in ``[*, 3, H, W]`` format with data in the
                 range ``[0.0, 1.0]``.
-            - :obj:`numpy.ndarray` in ``[H, W, 3]`` format with data in the
+            - `numpy.ndarray` in ``[H, W, 3]`` format with data in the
                 range ``[0, 255]``.
     """
     rgb = bgr_to_rgb(image)
@@ -935,9 +935,9 @@ def yuv_to_rgb(image: torch.Tensor | np.ndarray) -> torch.Tensor | np.ndarray:
 
     Args:
         image: An RGB image of type:
-            - :obj:`torch.Tensor` in ``[*, 3, H, W]`` format with data in the
+            - `torch.Tensor` in ``[*, 3, H, W]`` format with data in the
                 range ``[0.0, 1.0]``.
-            - :obj:`numpy.ndarray` in ``[H, W, 3]`` format with data in the
+            - `numpy.ndarray` in ``[H, W, 3]`` format with data in the
                 range ``[0, 255]``.
     """
     if isinstance(image, torch.Tensor):
@@ -954,9 +954,9 @@ def yuv_to_bgr(image: torch.Tensor | np.ndarray) -> torch.Tensor | np.ndarray:
 
     Args:
         image: A BGR image of type:
-            - :obj:`torch.Tensor` in ``[*, 3, H, W]`` format with data in the
+            - `torch.Tensor` in ``[*, 3, H, W]`` format with data in the
                 range ``[0.0, 1.0]``.
-            - :obj:`numpy.ndarray` in ``[H, W, 3]`` format with data in the
+            - `numpy.ndarray` in ``[H, W, 3]`` format with data in the
                 range ``[0, 255]``.
     """
     rgb = yuv_to_rgb(image)

@@ -36,7 +36,7 @@ def draw_bbox(
     """Draw a bounding box on an image.
     
     Args:
-        image: An image of type :obj:`numpy.ndarray` in ``[H, W, C]`` format
+        image: An image of type `numpy.ndarray` in ``[H, W, C]`` format
             with data in the range ``[0, 255]``.
         bbox: A bounding box in ``XYXY`` format.
         label: A label for the bounding box.
@@ -56,7 +56,7 @@ def draw_bbox(
         fill: Fill the region inside the bounding box with transparent color.
             A float value ``[0.0-1.0]`` indicates the transparency ratio.
             A ``True`` value means ``0.5``. A value of ``1.0`` equals to
-            :obj:`thickness`=-1. Default: ``False``.
+            `thickness`=-1. Default: ``False``.
     """
     drawing = image.copy()
     color   = color or [255, 255, 255]
@@ -96,7 +96,7 @@ def draw_heatmap(
     BGR format.
     
     Args:
-        image: An RGB or BGR image of type :obj:`numpy.ndarray` in ``[H, W, C]``
+        image: An RGB or BGR image of type `numpy.ndarray` in ``[H, W, C]``
             format with data in the range ``[0.0, 1.0]``.
         heatmap: A heatmap mask.
         color_map: A color map for the heatmap. Default: ``cv2.COLORMAP_JET``.
@@ -133,9 +133,9 @@ def draw_semantic(
     """Overlay a semantic mask on the image.
     
     Args:
-        image: An RGB image of type :obj:`numpy.ndarray` in ``[H, W, C]``
+        image: An RGB image of type `numpy.ndarray` in ``[H, W, C]``
             format with data in the range ``[0, 255]``.
-        semantic: A semantic mask of type :obj:`numpy.ndarray` in ``[H, W, 1]``
+        semantic: A semantic mask of type `numpy.ndarray` in ``[H, W, 1]``
             format.
         classlabels: A list of class-labels.
         alpha: The transparency ratio of the image. The final result is:
@@ -159,7 +159,7 @@ def draw_trajectory(
     """Draw a trajectory path on an image.
     
     Args:
-        image: An RGB image of type :obj:`numpy.ndarray` in ``[H, W, C]``
+        image: An RGB image of type `numpy.ndarray` in ``[H, W, C]``
             format with data in the range ``[0, 255]``.
         trajectory: A 2D array or list of points in ``[(x1, y1), ...]`` format.
         color: A color of the bounding box.

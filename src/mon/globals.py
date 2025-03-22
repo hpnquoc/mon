@@ -3,7 +3,7 @@
 
 """Globals.
 
-This module defines all global constants used across :obj:`mon` package.
+This module defines all global constants used across `mon` package.
 
 Notes:
     * To avoid circular dependency, only define constants of basic/atomic types.
@@ -54,9 +54,9 @@ __all__ = [
     "AppleRGB",
     "BBoxFormat",
     "BasicRGB",
+    "LType",
     "MemoryUnit",
     "MovingState",
-    "Scheme",
     "ShapeCode",
     "Split",
     "Task",
@@ -334,7 +334,7 @@ class BBoxFormat(DT.Enum):
     
     @classmethod
     def str_mapping(cls) -> dict[str, BBoxFormat]:
-        """Returns a :obj:`dict` mapping :obj:`str` to enum."""
+        """Returns a `dict` mapping `str` to enum."""
         return {
             "xyxy"          : cls.XYXY,
             "xywh"          : cls.XYWH,
@@ -347,7 +347,7 @@ class BBoxFormat(DT.Enum):
     
     @classmethod
     def int_mapping(cls) -> dict[int, BBoxFormat]:
-        """Returns a :obj:`dict` mapping :obj:`int` to enum."""
+        """Returns a `dict` mapping `int` to enum."""
         return {
             0: cls.XYXY,
             1: cls.XYWH,
@@ -360,14 +360,14 @@ class BBoxFormat(DT.Enum):
     
     @classmethod
     def from_str(cls, value: str) -> BBoxFormat:
-        """Converts a :obj:`str` to an enum."""
+        """Converts a `str` to an enum."""
         if value.lower() not in cls.str_mapping():
             raise ValueError(f"`value` must be a valid enum key, but got {value.lower()}.")
         return cls.str_mapping()[value]
     
     @classmethod
     def from_int(cls, value: int) -> BBoxFormat:
-        """Convert an :obj:`int` to an enum."""
+        """Convert an `int` to an enum."""
         if value not in cls.int_mapping():
             raise ValueError(f"`value` must be a valid enum key, but got {value}.")
         return cls.int_mapping()[value]
@@ -404,7 +404,7 @@ class ShapeCode(DT.Enum):
     
     @classmethod
     def str_mapping(cls) -> dict[str, ShapeCode]:
-        """Returns a :obj:`dict` mapping :obj:`str` to enum."""
+        """Returns a `dict` mapping `str` to enum."""
         return {
             "same"         : cls.SAME,
             "xyxy_to_xywh" : cls.XYXY2XYWH,
@@ -423,7 +423,7 @@ class ShapeCode(DT.Enum):
     
     @classmethod
     def int_mapping(cls) -> dict[int, ShapeCode]:
-        """Returns a :obj:`dict` mapping :obj:`int` to enum."""
+        """Returns a `dict` mapping `int` to enum."""
         return {
             0 : cls.SAME,
             1 : cls.XYXY2XYWH,
@@ -442,7 +442,7 @@ class ShapeCode(DT.Enum):
     
     @classmethod
     def from_str(cls, value: str) -> ShapeCode:
-        """Converts a :obj:`str` to an enum."""
+        """Converts a `str` to an enum."""
         if value.lower() not in cls.str_mapping():
             parts = value.split("_to_")
             if parts[0] == parts[1]:
@@ -453,7 +453,7 @@ class ShapeCode(DT.Enum):
     
     @classmethod
     def from_int(cls, value: int) -> ShapeCode:
-        """Convert an :obj:`int` to an enum."""
+        """Convert an `int` to an enum."""
         if value not in cls.int_mapping():
             raise ValueError(f"`value` must be a valid enum key, but got {value}.")
         return cls.int_mapping()[value]
@@ -492,7 +492,7 @@ class TrackState(DT.Enum):
     
     @classmethod
     def str_mapping(cls) -> dict:
-        """Return a :obj:`dict` mapping :obj:`str` to enums."""
+        """Return a `dict` mapping `str` to enums."""
         return {
             "new"     : cls.NEW,
             "tracked" : cls.TRACKED,
@@ -504,7 +504,7 @@ class TrackState(DT.Enum):
     
     @classmethod
     def int_mapping(cls) -> dict:
-        """Return a :obj:`dict` mapping :obj:`int` to enums."""
+        """Return a `dict` mapping `int` to enums."""
         return {
             0: cls.NEW,
             1: cls.TRACKED,
@@ -516,14 +516,14 @@ class TrackState(DT.Enum):
     
     @classmethod
     def from_str(cls, value: str) -> MovingState:
-        """Convert a :obj:`str` to an enum."""
+        """Convert a `str` to an enum."""
         if value.lower() not in cls.str_mapping():
             raise ValueError(f"`value` must be a valid enum key, but got {value.lower()}.")
         return cls.str_mapping()[value]
     
     @classmethod
     def from_int(cls, value: int) -> MovingState:
-        """Convert an :obj:`int` to an enum."""
+        """Convert an `int` to an enum."""
         if value not in cls.int_mapping():
             raise ValueError(f"`value` must be a valid enum key, but got {value}.")
         return cls.int_mapping()[value]
@@ -552,7 +552,7 @@ class MovingState(DT.Enum):
     
     @classmethod
     def str_mapping(cls) -> dict:
-        """Return a :obj:`dict` mapping :obj:`str` to enums."""
+        """Return a `dict` mapping `str` to enums."""
         return {
             "candidate"    : cls.CANDIDATE,
             "confirmed"    : cls.CONFIRMED,
@@ -564,7 +564,7 @@ class MovingState(DT.Enum):
     
     @classmethod
     def int_mapping(cls) -> dict:
-        """Return a :obj:`dict` mapping :obj:`int` to enums."""
+        """Return a `dict` mapping `int` to enums."""
         return {
             0: cls.CANDIDATE,
             1: cls.CONFIRMED,
@@ -576,14 +576,14 @@ class MovingState(DT.Enum):
     
     @classmethod
     def from_str(cls, value: str) -> MovingState:
-        """Convert a :obj:`str` to an enum."""
+        """Convert a `str` to an enum."""
         if value.lower() not in cls.str_mapping():
             raise ValueError(f"`value` must be a valid enum key, but got {value.lower()}.")
         return cls.str_mapping()[value]
     
     @classmethod
     def from_int(cls, value: int) -> MovingState:
-        """Convert an :obj:`int` to an enum."""
+        """Convert an `int` to an enum."""
         if value not in cls.int_mapping():
             raise ValueError(f"`value` must be a valid enum key, but got {value}.")
         return cls.int_mapping()[value]
@@ -614,7 +614,7 @@ class MemoryUnit(DT.Enum):
     
     @classmethod
     def str_mapping(cls) -> dict[str, MemoryUnit]:
-        """Return a :obj:`dict` mapping :obj:`str` to enums."""
+        """Return a `dict` mapping `str` to enums."""
         return {
             "b" : cls.B,
             "kb": cls.KB,
@@ -626,7 +626,7 @@ class MemoryUnit(DT.Enum):
     
     @classmethod
     def int_mapping(cls) -> dict[int, MemoryUnit]:
-        """Return a :obj:`dict` mapping :obj:`int` to enums."""
+        """Return a `dict` mapping `int` to enums."""
         return {
             0: cls.B,
             1: cls.KB,
@@ -638,7 +638,7 @@ class MemoryUnit(DT.Enum):
     
     @classmethod
     def byte_conversion_mapping(cls) -> dict[MemoryUnit, int]:
-        """Return a :obj:`dict` mapping number of bytes to enums."""
+        """Return a `dict` mapping number of bytes to enums."""
         return {
             cls.B : 1024 ** 0,
             cls.KB: 1024 ** 1,
@@ -650,14 +650,14 @@ class MemoryUnit(DT.Enum):
     
     @classmethod
     def from_str(cls, value: str) -> MemoryUnit:
-        """Convert a :obj:`str` to an enum."""
+        """Convert a `str` to an enum."""
         if value.lower() not in cls.str_mapping():
             raise ValueError(f"`value` must be a valid enum key, but got {value.lower()}.")
         return cls.str_mapping()[value.lower()]
     
     @classmethod
     def from_int(cls, value: int) -> MemoryUnit:
-        """Convert an :obj:`int` to an enum."""
+        """Convert an `int` to an enum."""
         if value not in cls.int_mapping():
             raise ValueError(f"`value` must be a valid enum key, but got {value}.")
         return cls.int_mapping()[value]
@@ -705,15 +705,19 @@ class RunMode(DT.Enum):
     METRIC  = "metric"
 
 
-class Scheme(DT.Enum):
-    """Learning schemes."""
+class LType(DT.Enum):
+    """Learning types."""
     
     INFERENCE    = "inference"          # Inference Only: we don't have training code.
-    SUPERVISED   = "supervised"         # Supervised Learning.
     TRADITIONAL  = "traditional"        # Traditional Method (non-learning)
+    SUPERVISED   = "supervised"         # Supervised Learning.
     UNSUPERVISED = "unsupervised"       # Unsupervised Learning.
     ZERO_SHOT    = "zero_shot"          # Zero-Shot Learning.
-
+    
+    @classmethod
+    def trainable(cls) -> list[LType]:
+        return [cls.SUPERVISED, cls.UNSUPERVISED]
+    
 
 class Split(DT.Enum):
     """Dataset split types."""
@@ -744,29 +748,29 @@ EXTRA_MODELS      = {                   # architecture/model (+ variant)
     "depth_anything_v2": {
         "depth_anything_v2_vitb": {
             "tasks"    : [Task.DEPTH],
-            "schemes"  : [Scheme.SUPERVISED],
+            "ltypes"   : [LType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "dtype" / "depth" / "depth_anything_v2",
         },
         "depth_anything_v2_vits": {
             "tasks"    : [Task.DEPTH],
-            "schemes"  : [Scheme.SUPERVISED],
+            "ltypes"   : [LType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "dtype" / "depth" / "depth_anything_v2",
         },
         "depth_anything_v2_vitl": {
             "tasks"    : [Task.DEPTH],
-            "schemes"  : [Scheme.SUPERVISED],
+            "ltypes"   : [LType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "dtype" / "depth" / "depth_anything_v2",
         },
         "depth_anything_v2_vitg": {
             "tasks"    : [Task.DEPTH],
-            "schemes"  : [Scheme.SUPERVISED],
+            "ltypes"   : [LType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "dtype" / "depth" / "depth_anything_v2",
         },
     },
     "depth_pro"        : {
         "depth_pro": {
             "tasks"    : [Task.DEPTH],
-            "schemes"  : [Scheme.ZERO_SHOT],
+            "ltypes"   : [LType.ZERO_SHOT],
             "model_dir": MON_DIR / "vision" / "dtype" / "depth" / "depth_pro",
         },
     },
@@ -775,66 +779,66 @@ EXTRA_MODELS      = {                   # architecture/model (+ variant)
     "yolor" : {
         "yolor_d6": {
             "tasks"    : [Task.DETECT],
-            "schemes"  : [Scheme.SUPERVISED],
+            "ltypes"   : [LType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "detect" / "yolor",
         },
         "yolor_e6": {
             "tasks"    : [Task.DETECT],
-            "schemes"  : [Scheme.SUPERVISED],
+            "ltypes"   : [LType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "detect" / "yolor",
         },
         "yolor_p6": {
             "tasks"    : [Task.DETECT],
-            "schemes"  : [Scheme.SUPERVISED],
+            "ltypes"   : [LType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "detect" / "yolor",
         },
         "yolor_w6": {
             "tasks"    : [Task.DETECT],
-            "schemes"  : [Scheme.SUPERVISED],
+            "ltypes"   : [LType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "detect" / "yolor",
         },
     },
     "yolov7": {
         "yolov7"    : {
             "tasks"    : [Task.DETECT],
-            "schemes"  : [Scheme.SUPERVISED],
+            "ltypes"   : [LType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "detect" / "yolov7",
         },
         "yolov7_d6" : {
             "tasks"    : [Task.DETECT],
-            "schemes"  : [Scheme.SUPERVISED],
+            "ltypes"   : [LType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "detect" / "yolov7",
         },
         "yolov7_e6" : {
             "tasks"    : [Task.DETECT],
-            "schemes"  : [Scheme.SUPERVISED],
+            "ltypes"   : [LType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "detect" / "yolov7",
         },
         "yolov7_e6e": {
             "tasks"    : [Task.DETECT],
-            "schemes"  : [Scheme.SUPERVISED],
+            "ltypes"   : [LType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "detect" / "yolov7",
         },
         "yolov7_w6" : {
             "tasks"    : [Task.DETECT],
-            "schemes"  : [Scheme.SUPERVISED],
+            "ltypes"   : [LType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "detect" / "yolov7",
         },
         "yolov7x"   : {
             "tasks"    : [Task.DETECT],
-            "schemes"  : [Scheme.SUPERVISED],
+            "ltypes"   : [LType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "detect" / "yolov7",
         },
     },
     "yolov8": {
         "yolov8n": {
             "tasks"    : [Task.DETECT],
-            "schemes"  : [Scheme.SUPERVISED],
+            "ltypes"   : [LType.SUPERVISED],
             "model_dir": MON_EXTRA_DIR / "vision" / "ultralytics",
         },
         "yolov8s": {
             "tasks"    : [Task.DETECT],
-            "schemes"  : [Scheme.SUPERVISED],
+            "ltypes"   : [LType.SUPERVISED],
             "model_dir": MON_EXTRA_DIR / "vision" / "ultralytics",
         },
         "yolov8m": {
@@ -843,34 +847,34 @@ EXTRA_MODELS      = {                   # architecture/model (+ variant)
         },
         "yolov8l": {
             "tasks"    : [Task.DETECT],
-            "schemes"  : [Scheme.SUPERVISED],
+            "ltypes"   : [LType.SUPERVISED],
             "model_dir": MON_EXTRA_DIR / "vision" / "ultralytics",
         },
         "yolov8x": {
             "tasks"    : [Task.DETECT],
-            "schemes"  : [Scheme.SUPERVISED],
+            "ltypes"   : [LType.SUPERVISED],
             "model_dir": MON_EXTRA_DIR / "vision" / "ultralytics",
         },
     },
     "yolov9": {
         "gelan_c" : {
             "tasks"    : [Task.DETECT],
-            "schemes"  : [Scheme.SUPERVISED],
+            "ltypes"   : [LType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "detect" / "yolov9",
         },
         "gelan_e" : {
             "tasks"    : [Task.DETECT],
-            "schemes"  : [Scheme.SUPERVISED],
+            "ltypes"   : [LType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "detect" / "yolov9",
         },
         "yolov9_c": {
             "tasks"    : [Task.DETECT],
-            "schemes"  : [Scheme.SUPERVISED],
+            "ltypes"   : [LType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "detect" / "yolov9",
         },
         "yolov9_e": {
             "tasks"    : [Task.DETECT],
-            "schemes"  : [Scheme.SUPERVISED],
+            "ltypes"   : [LType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "detect" / "yolov9",
         },
     },
@@ -879,7 +883,7 @@ EXTRA_MODELS      = {                   # architecture/model (+ variant)
     "zid"   : {
         "zid": {
             "tasks"    : [Task.DEHAZE],
-            "schemes"  : [Scheme.ZERO_SHOT],
+            "ltypes"   : [LType.ZERO_SHOT],
             "model_dir": MON_DIR / "vision" / "enhance" / "dehaze" / "zid",
         },
     },
@@ -888,12 +892,12 @@ EXTRA_MODELS      = {                   # architecture/model (+ variant)
     "esdnet": {
         "esdnet": {
             "tasks"    : [Task.DEMOIRE, Task.LLIE],
-            "schemes"  : [Scheme.SUPERVISED],
+            "ltypes"   : [LType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "enhance" / "demoire" / "esdnet",
         },
         "esdnet_l": {
             "tasks"    : [Task.DEMOIRE, Task.LLIE],
-            "schemes"  : [Scheme.SUPERVISED],
+            "ltypes"   : [LType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "enhance" / "demoire" / "esdnet",
         },
     },
@@ -902,7 +906,7 @@ EXTRA_MODELS      = {                   # architecture/model (+ variant)
     "esdnet_snn": {
         "esdnet_snn": {
             "tasks"    : [Task.DERAIN, Task.LLIE],
-            "schemes"  : [Scheme.SUPERVISED],
+            "ltypes"   : [LType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "enhance" / "derain" / "esdnet_snn",
         },
     },
@@ -911,182 +915,182 @@ EXTRA_MODELS      = {                   # architecture/model (+ variant)
     "colie"        : {
         "colie": {
             "tasks"    : [Task.LLIE],
-            "schemes"  : [Scheme.ZERO_SHOT],
+            "ltypes"   : [LType.ZERO_SHOT],
             "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "colie",
         },
     },
     "dccnet"       : {
         "dccnet": {
             "tasks"    : [Task.LLIE],
-            "schemes"  : [Scheme.SUPERVISED],
+            "ltypes"   : [LType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "dccnet",
         },
     },
     "enlightengan" : {
         "enlightengan": {
             "tasks"    : [Task.LLIE],
-            "schemes"  : [Scheme.UNSUPERVISED],
+            "ltypes"   : [LType.UNSUPERVISED],
             "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "enlightengan",
         },
     },
     "fourllie"     : {
         "fourllie": {
             "tasks"    : [Task.LLIE],
-            "schemes"  : [Scheme.SUPERVISED],
+            "ltypes"   : [LType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "fourllie",
         },
     },
     "hvi_cidnet"   : {
         "hvi_cidnet": {
             "tasks"    : [Task.LLIE],
-            "schemes"  : [Scheme.SUPERVISED],
+            "ltypes"   : [LType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "hvi_cidnet",
         },
     },
     "lime"         : {
         "lime": {
             "tasks"    : [Task.LLIE],
-            "schemes"  : [Scheme.TRADITIONAL],
+            "ltypes"   : [LType.TRADITIONAL],
             "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "lime",
         },
     },
     "llflow"       : {
         "llflow": {
             "tasks"    : [Task.LLIE],
-            "schemes"  : [Scheme.SUPERVISED],
+            "ltypes"   : [LType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "llflow",
         },
     },
     "llunet++"     : {
         "llunet++": {
             "tasks"    : [Task.LLIE],
-            "schemes"  : [Scheme.SUPERVISED],
+            "ltypes"   : [LType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "llunetpp",
         },
     },
     "nerco"        : {
         "nerco": {
             "tasks"    : [Task.LLIE],
-            "schemes"  : [Scheme.UNSUPERVISED],
+            "ltypes"   : [LType.UNSUPERVISED],
             "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "nerco",
         },
     },
     "pairlie"      : {
         "pairlie": {
             "tasks"    : [Task.LLIE],
-            "schemes"  : [Scheme.UNSUPERVISED],
+            "ltypes"   : [LType.UNSUPERVISED],
             "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "pairlie",
         },
     },
     "pie"          : {
         "pie": {
             "tasks"    : [Task.LLIE],
-            "schemes"  : [Scheme.TRADITIONAL],
+            "ltypes"   : [LType.TRADITIONAL],
             "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "pie",
         },
     },
     "psenet"       : {
         "psenet": {
             "tasks"    : [Task.LLIE],
-            "schemes"  : [Scheme.SUPERVISED],
+            "ltypes"   : [LType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "psenet",
         },
     },
     "quadprior"    : {
         "quadprior": {
             "tasks"    : [Task.LLIE],
-            "schemes"  : [Scheme.ZERO_SHOT],
+            "ltypes"   : [LType.ZERO_SHOT],
             "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "quadprior",
         }
     },
     "retinexformer": {
         "retinexformer": {
             "tasks"    : [Task.LLIE],
-            "schemes"  : [Scheme.SUPERVISED],
+            "ltypes"   : [LType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "retinexformer",
         },
     },
     "retinexnet"   : {
         "retinexnet": {
             "tasks"    : [Task.LLIE],
-            "schemes"  : [Scheme.SUPERVISED],
+            "ltypes"   : [LType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "retinexnet",
         },
     },
     "rsfnet"       : {
         "rsfnet": {
             "tasks"    : [Task.LLIE],
-            "schemes"  : [Scheme.UNSUPERVISED],
+            "ltypes"   : [LType.UNSUPERVISED],
             "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "rsfnet",
         },
     },
     "ruas"         : {
         "ruas": {
             "tasks"    : [Task.LLIE],
-            "schemes"  : [Scheme.UNSUPERVISED],
+            "ltypes"   : [LType.UNSUPERVISED],
             "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "ruas",
         },
     },
     "sci"          : {
         "sci": {
             "tasks"    : [Task.LLIE],
-            "schemes"  : [Scheme.UNSUPERVISED],
+            "ltypes"   : [LType.UNSUPERVISED],
             "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "sci",
         },
     },
     "sgz"          : {
         "sgz": {
             "tasks"    : [Task.LLIE],
-            "schemes"  : [Scheme.UNSUPERVISED],
+            "ltypes"   : [LType.UNSUPERVISED],
             "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "sgz",
         },
     },
     "snr_net"      : {
         "snr_net": {
             "tasks"    : [Task.LLIE],
-            "schemes"  : [Scheme.SUPERVISED],
+            "ltypes"   : [LType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "snr_net",
         },
     },
     "uretinexnet"  : {
         "uretinexnet": {
             "tasks"    : [Task.LLIE],
-            "schemes"  : [Scheme.SUPERVISED],
+            "ltypes"   : [LType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "uretinexnet",
         },
     },
     "utvnet"       : {
         "utvnet": {
             "tasks"    : [Task.LLIE],
-            "schemes"  : [Scheme.SUPERVISED],
+            "ltypes"   : [LType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "utvnet",
         },
     },
     "zero_dce"     : {
         "zero_dce"  : {
             "tasks"    : [Task.LLIE],
-            "schemes"  : [Scheme.UNSUPERVISED],
+            "ltypes"   : [LType.UNSUPERVISED],
             "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "zero_dce",
         },
     },
     "zero_dce++"   : {
         "zero_dce++": {
             "tasks"    : [Task.LLIE],
-            "schemes"  : [Scheme.UNSUPERVISED],
+            "ltypes"   : [LType.UNSUPERVISED],
             "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "zero_dce++",
         },
     },
     "zero_didce"   : {
         "zero_didce": {
             "tasks"    : [Task.LLIE],
-            "schemes"  : [Scheme.UNSUPERVISED],
+            "ltypes"   : [LType.UNSUPERVISED],
             "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "zero_didce",
         },
     },
     "zero_ig"      : {
         "zero_ig": {
             "tasks"    : [Task.LLIE],
-            "schemes"  : [ Scheme.ZERO_SHOT],
+            "ltypes"   : [LType.ZERO_SHOT],
             "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "zero_ig",
         },
     },
@@ -1095,14 +1099,14 @@ EXTRA_MODELS      = {                   # architecture/model (+ variant)
     "airnet"   : {
         "airnet": {
             "tasks"    : [Task.DENOISE, Task.DERAIN, Task.DEHAZE],
-            "schemes"  : [Scheme.SUPERVISED],
+            "ltypes"   : [LType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "enhance" / "multitask" / "airnet",
         },
     },
     "restormer": {
         "restormer": {
             "tasks"    : [Task.DEBLUR, Task.DENOISE, Task.DERAIN, Task.DESNOW, Task.LLIE],
-            "schemes"  : [Scheme.SUPERVISED],
+            "ltypes"   : [LType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "enhance" / "multitask" / "restormer",
         },
     },
@@ -1111,7 +1115,7 @@ EXTRA_MODELS      = {                   # architecture/model (+ variant)
     "neurop": {
         "neurop": {
             "tasks"    : [Task.RETOUCH, Task.LLIE],
-            "schemes"  : [Scheme.SUPERVISED],
+            "ltypes"   : [LType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "enhance" / "retouch" / "neurop",
         },
     },
@@ -1120,7 +1124,7 @@ EXTRA_MODELS      = {                   # architecture/model (+ variant)
     "sronet": {
         "sronet": {
             "tasks"    : [Task.SR],
-            "schemes"  : [Scheme.SUPERVISED],
+            "ltypes"   : [LType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "enhance" / "sr" / "sronet",
         },
     },
@@ -1129,39 +1133,39 @@ EXTRA_MODELS      = {                   # architecture/model (+ variant)
     "sam" : {
         "sam_vit_b": {
             "tasks"    : [Task.SEGMENT],
-            "schemes"  : [Scheme.SUPERVISED],
+            "ltypes"   : [LType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "segment" / "sam",
         },
         "sam_vit_h": {
             "tasks"    : [Task.SEGMENT],
-            "schemes"  : [Scheme.SUPERVISED],
+            "ltypes"   : [LType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "segment" / "sam",
         },
         "sam_vit_l": {
             "tasks"    : [Task.SEGMENT],
-            "schemes"  : [Scheme.SUPERVISED],
+            "ltypes"   : [LType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "segment" / "sam",
         },
     },
     "sam2": {
         "sam2_hiera_b+": {
             "tasks"    : [Task.SEGMENT],
-            "schemes"  : [Scheme.SUPERVISED],
+            "ltypes"   : [LType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "segment" / "sam2",
         },
         "sam2_hiera_l" : {
             "tasks"    : [Task.SEGMENT],
-            "schemes"  : [Scheme.SUPERVISED],
+            "ltypes"   : [LType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "segment" / "sam2",
         },
         "sam2_hiera_s" : {
             "tasks"    : [Task.SEGMENT],
-            "schemes"  : [Scheme.SUPERVISED],
+            "ltypes"   : [LType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "segment" / "sam2",
         },
         "sam2_hiera_t" : {
             "tasks"    : [Task.SEGMENT],
-            "schemes"  : [Scheme.SUPERVISED],
+            "ltypes"   : [LType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "segment" / "sam2",
         },
     },

@@ -24,7 +24,7 @@ import torch
 from torch.nn import functional as F
 
 from mon import core, nn
-from mon.globals import MODELS, Scheme, Task
+from mon.globals import MODELS, LType, Task
 from mon.vision.enhance import base
 
 console      = core.console
@@ -186,7 +186,7 @@ class RRDNet(base.ImageEnhancementModel):
     arch     : str          = "rrdnet"
     name     : str          = "rrdnet"
     tasks    : list[Task]   = [Task.LLIE]
-    schemes  : list[Scheme] = [Scheme.ZERO_SHOT]
+    ltypes   : list[LType]  = [LType.ZERO_SHOT]
     model_dir: core.Path    = current_dir
     zoo      : dict         = {}
     

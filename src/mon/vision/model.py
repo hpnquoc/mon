@@ -65,7 +65,7 @@ class VisionModel(nn.Model, ABC):
         *args, **kwargs
     ) -> dict:
         """Infer the model on a single datapoint. This method is different from
-        :obj:`forward()` in term that you may want to perform additional
+        `forward()` in term that you may want to perform additional
         pre-processing or post-processing steps.
         
         Notes:
@@ -73,7 +73,7 @@ class VisionModel(nn.Model, ABC):
             steps, you should override this method.
         
         Args:
-            datapoint: A :obj:`dict` containing the attributes of a datapoint.
+            datapoint: A `dict` containing the attributes of a datapoint.
             image_size: The input size. Default: ``512``.
             resize: Resize the input image to the model's input size.
                 Default: ``False``.
