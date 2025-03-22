@@ -11,7 +11,11 @@ from __future__ import annotations
 __all__ = [
     "Timer",
     "check_installed_package",
+    "download_weights_from_url",
+    "get_epoch_from_checkpoint",
+    "get_global_step_from_checkpoint",
     "get_gpu_device_memory",
+    "get_latest_checkpoint",
     "get_machine_memory",
     "get_model_device",
     "get_project_default_config",
@@ -69,6 +73,64 @@ except ImportError:
 
 from mon.globals import MemoryUnit
 from mon.core import pathlib, dtype, file, humps, rich
+
+
+# region Checkpoint
+
+def get_epoch_from_checkpoint(ckpt: pathlib.Path) -> int:
+    """Get an epoch value stored in a checkpoint file.
+
+	Args:
+		ckpt: A checkpoint file path.
+	"""
+    if ckpt is None:
+        return 0
+    else:
+        epoch = 0
+        ckpt  = pathlib.Path(ckpt)
+        if ckpt.is_torch_file():
+            ckpt  = torch.load(ckpt)
+            epoch = ckpt.get("epoch", 0)
+        return epoch
+
+
+def get_global_step_from_checkpoint(ckpt: pathlib.Path) -> int:
+    """Get a global step stored in a checkpoint file.
+	
+	Args:
+		ckpt: A checkpoint file path.
+	"""
+    if ckpt is None:
+        return 0
+    else:
+        global_step = 0
+        ckpt        = pathlib.Path(ckpt)
+        if ckpt.is_torch_file():
+            ckpt        = torch.load(ckpt)
+            global_step = ckpt.get("global_step", 0)
+        return global_step
+
+
+def get_latest_checkpoint(dirpath: pathlib.Path) -> str | None:
+    """Get the latest checkpoint (last saved) file path in a directory.
+
+	Args:
+		dirpath: The directory that contains the checkpoints.
+	"""
+    if dirpath is None:
+        ckpt    = None
+    else:
+        dirpath = pathlib.Path(dirpath)
+        ckpts   = dirpath.files(recursive=True)
+        ckpts   = [ckpt for ckpt in ckpts if ckpt.is_torch_file()]
+        ckpts   = sorted(ckpts, key=lambda x: x.stat().st_mtime, reverse=True)
+        ckpt    = ckpts[0] if ckpts else None
+    
+    if ckpt is None:
+        rich.error_console.log(f"[red]Cannot find checkpoint file {dirpath}.")
+    return ckpt
+
+# endregion
 
 
 # region Config
@@ -838,6 +900,25 @@ class Timer:
 
 
 # region Weights
+
+def download_weights_from_url(url: str, path: pathlib.Path, overwrite: bool = False) -> pathlib.Path:
+    """Download weights from the given `url` to the given `path`.
+    
+    Args:
+        url: The URL to download the weights.
+        path: The full path to save the weights.
+        overwrite: Whether to overwrite the existing file. Defaults: ``False``.
+    """
+    if not pathlib.is_url(url) and path is not None:
+        raise ValueError(f"Both `url` and `path` must be given.")
+    
+    path = pathlib.Path(path)
+    if not path.exists() or overwrite:
+        pathlib.delete_files(path=path.parent, regex=path.name)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        torch.hub.download_url_to_file(url, path, None, progress=True)
+    return path
+
 
 def list_weights_files(
     model       : str,

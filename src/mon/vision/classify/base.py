@@ -31,6 +31,11 @@ class ImageClassificationModel(VisionModel, ABC):
     def parse_num_classes(self, num_classes: int) -> int:
         """Update the model's `num_classes` from pretrained weights if necessary.
         """
+        if isinstance(self.weights, dict):
+            num_classes_ = self.weights.get("num_classes", None)
+            if num_classes_ and num_classes_ != num_classes:
+                num_classes = num_classes_
+                console.log(f"Overriding `num_classes` from {num_classes} with {num_classes_}.")
         return num_classes
     
     def forward_loss(self, datapoint: dict, *args, **kwargs) -> dict:

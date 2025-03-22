@@ -11,11 +11,6 @@ from __future__ import annotations
 __all__ = [
     "ExtraModel",
     "Model",
-    "download_weights_from_url",
-    "get_epoch_from_checkpoint",
-    "get_global_step_from_checkpoint",
-    "get_latest_checkpoint",
-    "load_state_dict",
     "load_weights",
 ]
 
@@ -49,133 +44,41 @@ def is_image(image: torch.Tensor) -> bool:
 # endregion
 
 
-# region Checkpoint
-
-def get_epoch_from_checkpoint(ckpt: core.Path) -> int:
-    """Get an epoch value stored in a checkpoint file.
-
-	Args:
-		ckpt: A checkpoint file path.
-	"""
-    if ckpt is None:
-        return 0
-    else:
-        epoch = 0
-        ckpt  = core.Path(ckpt)
-        if ckpt.is_torch_file():
-            ckpt  = torch.load(ckpt)
-            epoch = ckpt.get("epoch", 0)
-        return epoch
-
-
-def get_global_step_from_checkpoint(ckpt: core.Path) -> int:
-    """Get a global step stored in a checkpoint file.
-	
-	Args:
-		ckpt: A checkpoint file path.
-	"""
-    if ckpt is None:
-        return 0
-    else:
-        global_step = 0
-        ckpt        = core.Path(ckpt)
-        if ckpt.is_torch_file():
-            ckpt        = torch.load(ckpt)
-            global_step = ckpt.get("global_step", 0)
-        return global_step
-
-
-def get_latest_checkpoint(dirpath: core.Path) -> str | None:
-    """Get the latest checkpoint (last saved) file path in a directory.
-
-	Args:
-		dirpath: The directory that contains the checkpoints.
-	"""
-    if dirpath is None:
-        ckpt    = None
-    else:
-        dirpath = core.Path(dirpath)
-        ckpts   = dirpath.files(recursive=True)
-        ckpts   = [ckpt for ckpt in ckpts if ckpt.is_torch_file()]
-        ckpts   = sorted(ckpts, key=lambda x: x.stat().st_mtime, reverse=True)
-        ckpt    = ckpts[0] if ckpts else None
-    
-    if ckpt is None:
-        error_console.log(f"[red]Cannot find checkpoint file {dirpath}.")
-    return ckpt
-
-# endregion
-
-
 # region Weights
-
-def load_state_dict(
-    model       : nn.Module,
-    weights     : dict | str | core.Path,
-    weights_only: bool = False,
-) -> dict:
-    """Load state dict from the given :obj:`weights`."""
-    path       = None
-    state_dict = None
-    # First, `weights` can be a dictionary.
-    if isinstance(weights, dict) and "path" in weights:
-        if "path" in weights:
-            path = core.Path(weights["path"])
-        else:
-            state_dict = weights
-    # Second, `weights` can be a path to a weight file.
-    elif isinstance(weights, str | core.Path):
-        if core.Path(weights).is_weights_file():
-            path = core.Path(weights)
-    # Load state dict from path
-    if path is not None:
-        if path.is_weights_file():
-            state_dict = torch.load(
-                str(path),
-                weights_only = weights_only,
-                map_location = model.device
-            )
-        else:
-            error_console.log(f"[yellow]Cannot load from weights from: "
-                              f"{weights}!")
-    # Check if the state_dict is nested
-    if "state_dict" in state_dict:
-        state_dict = state_dict["state_dict"]
-    return state_dict
-
 
 def load_weights(
     model       : nn.Module,
     weights     : dict | str | core.Path,
-    weights_only: bool = True,
-) -> nn.Module:
-    """Load weights to model."""
-    model_state_dict = load_state_dict(model, weights, weights_only)
-    model.load_state_dict(model_state_dict)
-    return model
-
-
-def download_weights_from_url(
-    url      : str,
-    path     : core.Path,
-    overwrite: bool = False
-) -> core.Path:
-    """Download weights from the given `url` to the given `path`.
+    weights_only: bool = False,
+) -> dict | None:
+    """Load state dict from the given :obj:`weights`."""
+    path       = None
+    state_dict = None
     
-    Args:
-        url: The URL to download the weights.
-        path: The full path to save the weights.
-        overwrite: Whether to overwrite the existing file. Defaults: ``False``.
-    """
-    if not core.is_url(url) and path is not None:
-        raise ValueError(f"Both `url` and `path` must be given.")
+    # First, check for ``None``.
+    if weights is None:
+        return None
+    # Second, `weights` can be a dictionary.
+    elif isinstance(weights, dict):
+        if "path" in weights:
+            path = core.Path(weights["path"])
+        else:
+            state_dict = weights
+    # Third, `weights` can be a path to a weight file.
+    elif isinstance(weights, str | core.Path):
+        if core.Path(weights).is_weights_file():
+            path = core.Path(weights)
     
-    path = core.Path(path)
-    if not path.exists() or overwrite:
-        core.delete_files(path=path.parent, regex=path.name)
-        path.parent.mkdir(parents=True, exist_ok=True)
-        torch.hub.download_url_to_file(url, path, None, progress=True)
-    return path
+    # Load state dict from path
+    if path and path.is_weights_file():
+        state_dict = torch.load(str(path), map_location=model.device, weights_only=weights_only)
+    else:
+        error_console.log(f"[yellow]Cannot load from weights from: {weights}!")
+    
+    # Check if the state_dict is nested
+    if "state_dict" in state_dict:
+        state_dict = state_dict["state_dict"]
+    return state_dict
 
 # endregion
 
@@ -201,7 +104,6 @@ class Model(lightning.LightningModule, ABC):
         fullname: The model's fullname to save the checkpoint or weights. It
             should have the following format: {name}-{dataset}-{suffix}.
             Default: ``None`` mean it will be the same as :obj:`name`.
-        num_classes: Alias to :obj:`out_channels`, for classification tasks.
         weights: The model's weights. Any of:
             - A state :obj:`dict`.
             - A key in the :obj:`zoo`. Ex: ``'yolov8x_det_coco'``.
@@ -251,7 +153,6 @@ class Model(lightning.LightningModule, ABC):
         root       : core.Path = core.Path(),
         fullname   : str  = None,
         # Network
-        num_classes: int  = None,
         weights    : Any  = None,
         # Training
         optimizer  : Any  = None,
@@ -271,7 +172,6 @@ class Model(lightning.LightningModule, ABC):
         self.root          = root
         self.fullname      = fullname
         # Network
-        self.num_classes   = num_classes
         self.weights       = None
         self.assign_weights(weights)
         # Training
@@ -380,27 +280,29 @@ class Model(lightning.LightningModule, ABC):
         # First thing first, check if the `weights` is ``None``
         if weights is None:
             pass
-        # Second, `weights` can be a key in the `zoo` dictionary.
+        # Second, `weights` can be a `state_dict`.
+        elif isinstance(weights, dict):
+            pass
+        # Third, `weights` can be a key in the `zoo` dictionary.
         elif isinstance(weights, str) and weights in self.zoo:
             weights: dict = self.zoo[weights]
             # Check if the weights' path exists and download if necessary.
             url  = weights.get("url",  None)
             path = weights.get("path", None)
             if url and path:
-                download_weights_from_url(url, path, overwrite)
-            # Update the model's `num_classes` if necessary
-            num_classes = weights.get("num_classes", None)
-            if num_classes and num_classes != self.num_classes:
-                console.log(f"Overriding `num_classes` from {self.num_classes} with {num_classes}.")
-                self.num_classes = num_classes
-        # Third, `weights` can be a path to a weight file.
+                core.download_weights_from_url(url, path, overwrite)
+        # Fourth, `weights` can be a path to a weight file.
         elif isinstance(weights, str | core.Path):
             weights: core.Path = core.Path(weights)
             if not weights.is_weights_file():
                 raise ValueError(f"`weights` must be a valid path to a weight file, but got {weights}.")
-        # Fourth, `weights` can be a dictionary.
-        elif isinstance(weights, dict):
-            pass
+            # Load weights and check for `num_classes`.
+            state_dict = torch.load(str(weights))
+            weights    = {
+                "url"        : None,
+                "path"       : weights,
+                "num_classes": state_dict.get("num_classes", None),
+            }
         # OK! Done.
         self.weights = weights or self.weights
         
@@ -410,11 +312,8 @@ class Model(lightning.LightningModule, ABC):
         """
         # First assign new weights if it is valid.
         self.assign_weights(weights, overwrite)
-        # Second, get the state_dict
-        state_dict = None
-        if self.weights:
-            state_dict = load_state_dict(self, self.weights, True)
-        # Third, load the state_dict to the model
+        # Second, load state_dict
+        state_dict = load_weights(self, self.weights, True)
         if state_dict:
             self.load_state_dict(state_dict)
             if self.verbose:
@@ -949,11 +848,8 @@ class ExtraModel(Model, ABC):
         """
         # First assign new weights if it is valid.
         self.assign_weights(weights, overwrite)
-        # Second, get the state_dict
-        state_dict = None
-        if self.weights:
-            state_dict = load_state_dict(self, self.weights, False)
-        # Third, load the state_dict to the model
+        # Second, load state_dict
+        state_dict = load_weights(self, self.weights, False)
         if state_dict:
             self.model.load_state_dict(state_dict=state_dict)
             if self.verbose:

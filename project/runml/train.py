@@ -8,8 +8,6 @@ This script trains a model on a given dataset.
 
 from __future__ import annotations
 
-import argparse
-
 import mon
 import mon.core.utils
 
