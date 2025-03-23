@@ -41,34 +41,29 @@ def get_grid_size(n: int, nrow: int = 4) -> list[int]:
     Args:
         n: The number of items.
         nrow: The number of items in a row. The final grid size is
-            `(n / nrow, nrow)`. If ``None``, put all items in a single
+            ``(n / nrow, nrow)``. If ``None``, put all items in a single
             row. Default: ``4``.
     
     Returns:
-        A `tuple` of `(nrows, ncols)`, where nrows is the number of
+        A ``tuple`` of ``(nrows, ncols)``, where nrows is the number of
         rows and ncols is the number of columns.
     """
-    if isinstance(nrow, int) and nrow > 0:
-        ncols = nrow
-    else:
-        ncols = n
+    ncols = nrow if nrow > 0 else n
     nrows = math.ceil(n / ncols)
     return [nrows, ncols]
 
 
 def move_figure(x: int, y: int):
     """Move the matplotlib figure around the window. The upper-left corner to
-    the location specified by `(x, y)`.
+    the location specified by ``(x, y)``.
     """
-    mngr = plt.get_current_fig_manager()
-    fig  = plt.gcf()
+    mngr    = plt.get_current_fig_manager()
     backend = matplotlib.get_backend()
     if backend == "TkAgg":
-        mngr.window.wm_geometry("+%d+%d" % (x, y))
+        mngr.window.wm_geometry(f"+{x}+{y}")
     elif backend == "WXAgg":
         mngr.window.SetPosition((x, y))
     else:  # This works for QT and GTK. You can use window.setGeometry
         mngr.window.move(x, y)
-
 
 # endregion

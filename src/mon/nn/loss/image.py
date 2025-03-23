@@ -10,9 +10,8 @@ from __future__ import annotations
 
 __all__ = [
     "ColorConstancyLoss",
-    "DepthWeightedSmoothnessLoss",
-    "EdgeAwareDepthConsistencyLoss",
-    "EdgeAwareLoss",
+    "DepthAwareIlluminationLoss",
+    "EdgeAwareIlluminationLoss",
     "EdgeLoss",
     "ExposureControlLoss",
     "ExposureValueControlLoss",
@@ -59,27 +58,20 @@ class ColorConstancyLoss(base.Loss):
     def forward(self, input: torch.Tensor) -> torch.Tensor:
         mean_rgb   = torch.mean(input, [2, 3], keepdim=True)
         mr, mg, mb = torch.split(mean_rgb, 1, dim=1)
-        d_rg       = torch.pow(mr - mg, 2)
-        d_rb       = torch.pow(mr - mb, 2)
-        d_gb       = torch.pow(mb - mg, 2)
-        loss       = torch.pow(torch.pow(d_rg, 2) + torch.pow(d_rb, 2) + torch.pow(d_gb, 2), 0.5)
+        loss       = torch.pow(torch.pow(mr - mg, 2) + torch.pow(mr - mb, 2) + torch.pow(mb - mg, 2), 0.5)
         loss       = base.reduce_loss(loss=loss, reduction=self.reduction)
-        loss       = self.loss_weight * loss
-        return loss
+        return self.loss_weight * loss
 
 # endregion
 
 
-# region Depth
+# region Illumination
 
-@LOSSES.register(name="depth_weighted_smoothness_loss")
-class DepthWeightedSmoothnessLoss(base.Loss):
-    """
-    Calculate the depth-weighted smoothness loss for 4D tensors.
+@LOSSES.register(name="depth_aware_illumination_loss")
+class DepthAwareIlluminationLoss(base.Loss):
+    """Calculate the depth-weighted smoothness loss for 4D tensors.
     
     Args:
-        input: Predicted illumination map.
-        depth: Depth map.
         alpha: Weighting factor for depth influence.
     """
     
@@ -111,16 +103,11 @@ class DepthWeightedSmoothnessLoss(base.Loss):
         
         # Sum the losses from both directions
         loss = loss_dx + loss_dy
-        loss = self.loss_weight * loss
-        return loss
-
-# endregion
+        return self.loss_weight * loss
 
 
-# region Edge
-
-@LOSSES.register(name="edge_aware_loss")
-class EdgeAwareLoss(base.Loss):
+@LOSSES.register(name="edge_aware_illumination_loss")
+class EdgeAwareIlluminationLoss(base.Loss):
     
     def __init__(
         self,
@@ -152,69 +139,18 @@ class EdgeAwareLoss(base.Loss):
         
         # Sum the losses from both directions
         loss = loss_dx + loss_dy
-        loss = self.loss_weight * loss
-        return loss
+        return self.loss_weight * loss
       
-    
-@LOSSES.register(name="edge_aware_depth_consistency_loss")
-class EdgeAwareDepthConsistencyLoss(base.Loss):
-    
-    def __init__(
-        self,
-        tau        : float = 0.1,
-        loss_weight: float = 1.0,
-        reduction  : Literal["none", "mean", "sum"] = "mean"
-    ):
-        super().__init__(loss_weight=loss_weight, reduction=reduction)
-        self.tau = tau
-    
-    def forward(self, input: torch.Tensor, depth: torch.Tensor) -> torch.Tensor:
-        # Compute depth edges
-        depth_edges = self.compute_depth_edges(depth)
-        # Apply a threshold to get edge-aware mask
-        edge_mask   = (depth_edges > self.tau).float()  # Binary mask where edges are significant
-        # Compute image gradients
-        grad_pred_x, grad_pred_y = self.apply_sobel_filter_to_rgb(input)
-        # Depth consistency loss between neighboring pixels
-        loss = (edge_mask * (grad_pred_x ** 2 + grad_pred_y ** 2)).mean()
-        loss = self.loss_weight * loss
-        return loss
-    
-    # noinspection PyMethodMayBeStatic
-    def compute_depth_edges(self, depth_map: torch.Tensor) -> torch.Tensor:
-        sobel_kernel_x = torch.tensor([[1, 0, -1], [2, 0, -2], [ 1,  0, -1]], dtype=torch.float32).unsqueeze(0).unsqueeze(0)
-        sobel_kernel_y = torch.tensor([[1, 2,  1], [0, 0,  0], [-1, -2, -1]], dtype=torch.float32).unsqueeze(0).unsqueeze(0)
-        sobel_kernel_x = sobel_kernel_x.to(depth_map.device)
-        sobel_kernel_y = sobel_kernel_y.to(depth_map.device)
-        grad_x         = F.conv2d(depth_map, sobel_kernel_x, padding=1)
-        grad_y         = F.conv2d(depth_map, sobel_kernel_y, padding=1)
-        # Compute magnitude of gradients
-        grad_magnitude = torch.sqrt(grad_x ** 2 + grad_y ** 2)
-        return grad_magnitude
-    
-    # noinspection PyMethodMayBeStatic
-    def apply_sobel_filter_to_rgb(self, image: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
-        sobel_kernel_x = torch.tensor([[1, 0, -1], [2, 0, -2], [1, 0, -1]], dtype=torch.float32).unsqueeze(0).unsqueeze(0)
-        sobel_kernel_y = torch.tensor([[1, 2, 1], [0, 0, 0], [-1, -2, -1]], dtype=torch.float32).unsqueeze(0).unsqueeze(0)
-        sobel_kernel_x = sobel_kernel_x.to(image.device)
-        sobel_kernel_y = sobel_kernel_y.to(image.device)
-        # Split the image into R, G, B channels
-        channels = torch.chunk(image, chunks=3, dim=1)  # image shape [B, 3, H, W]
-        # Apply Sobel filter to each channel
-        grad_x_channels = [F.conv2d(channel, sobel_kernel_x, padding=1) for channel in channels]
-        grad_y_channels = [F.conv2d(channel, sobel_kernel_y, padding=1) for channel in channels]
-        # Stack the gradients back along the channel dimension
-        grad_x = torch.cat(grad_x_channels, dim=1)
-        grad_y = torch.cat(grad_y_channels, dim=1)
-        return grad_x, grad_y
+# endregion
 
+
+# region Edge
 
 @LOSSES.register(name="edge_loss")
 class EdgeLoss(base.Loss):
     
     def __init__(
         self,
-        eps        : float = 1e-3,
         loss_weight: float = 1.0,
         reduction  : Literal["none", "mean", "sum"] = "mean"
     ):
@@ -245,8 +181,7 @@ class EdgeLoss(base.Loss):
         diff  = edge1 - edge2
         loss  = torch.mean(torch.sqrt((diff * diff) + (self.eps * self.eps)))
         loss  = base.reduce_loss(loss=loss, reduction=self.reduction)
-        loss  = self.loss_weight * loss
-        return loss
+        return self.loss_weight * loss
 
 # endregion
 
@@ -281,13 +216,11 @@ class ExposureControlLoss(base.Loss):
         self.pool       = nn.AvgPool2d(self.patch_size)
     
     def forward(self, input: torch.Tensor) -> torch.Tensor:
-        x    = input
-        x    = torch.mean(x, 1, keepdim=True)
+        x    = torch.mean(input, 1, keepdim=True)
         mean = self.pool(x)
         loss = torch.pow(mean - torch.FloatTensor([self.mean_val]).to(input.device), 2)
         loss = base.reduce_loss(loss=loss, reduction=self.reduction)
-        loss = self.loss_weight * loss
-        return loss
+        return self.loss_weight * loss
 
 
 @LOSSES.register(name="exposure_value_control_loss")
@@ -323,8 +256,7 @@ class ExposureValueControlLoss(base.Loss):
         mean = self.pool(x) ** 0.5
         loss = torch.pow(mean - torch.FloatTensor([self.mean_val]).to(input.device), 2)
         loss = torch.abs(torch.mean(loss))
-        loss = self.loss_weight * loss
-        return loss
+        return self.loss_weight * loss
 
 # endregion
 
@@ -376,8 +308,7 @@ class PerceptualLoss(base.Loss):
         for xf, yf in zip(input_feats, target_feats):
             loss += self.l1_loss(xf, yf)
         loss = loss / len(input_feats)
-        loss = self.loss_weight * loss
-        return loss
+        return self.loss_weight * loss
     
     @staticmethod
     def run_preprocess(input: torch.Tensor) -> torch.Tensor:
@@ -429,8 +360,7 @@ class PSNRLoss(base.Loss):
         
         psnr = torch.log(((input - target) ** 2).mean(dim=(1, 2, 3)) + 1e-8).mean()
         # loss = reduce_loss(loss=loss, reduction=self.reduction)
-        loss = self.loss_weight * self.scale * psnr
-        return loss
+        return self.loss_weight * self.scale * psnr
 
 
 @LOSSES.register(name="ssim_loss")
@@ -464,8 +394,7 @@ class SSIMLoss(base.Loss):
     
     def forward(self, input: torch.Tensor, target: torch.Tensor) -> torch.Tensor:
         loss = 1.0 - self.ssim(input, target)
-        loss = base.reduce_loss(loss=loss, reduction=self.reduction)
-        return loss
+        return base.reduce_loss(loss=loss, reduction=self.reduction)
 
 
 @LOSSES.register(name="ms_ssim_loss")
@@ -499,8 +428,7 @@ class MSSSIMLoss(base.Loss):
     
     def forward(self, input: torch.Tensor, target: torch.Tensor) -> torch.Tensor:
         loss = 1.0 - self.ms_ssim(input, target)
-        loss = base.reduce_loss(loss=loss, reduction=self.reduction)
-        return loss
+        return base.reduce_loss(loss=loss, reduction=self.reduction)
 
 
 @LOSSES.register(name="total_variation_loss")
@@ -511,7 +439,7 @@ class TotalVariationLoss(base.Loss):
     neighboring pixels.
     
     References:
-        `<https://github.com/Li-Chongyi/Zero-DCE/blob/master/Zero-DCE_code/Myloss.py>`__
+        https://github.com/Li-Chongyi/Zero-DCE/blob/master/Zero-DCE_code/Myloss.py
     """
     
     def __init__(
@@ -522,20 +450,14 @@ class TotalVariationLoss(base.Loss):
         super().__init__(loss_weight=loss_weight, reduction=reduction)
     
     def forward(self, input : torch.Tensor) -> torch.Tensor:
-        x       = input
-        b       = x.size()[0]
-        h_x     = x.size()[2]
-        w_x     = x.size()[3]
-        # count_h = (x.size()[2] - 1) * x.size()[3]
-        # count_w = x.size()[2] * (x.size()[3] - 1)
+        x = input
+        b, _, h_x, w_x = input.size()
         count_h = self._tensor_size(x[:, :, 1:, :])  # (x.size()[2]-1) * x.size()[3]
         count_w = self._tensor_size(x[:, :, :, 1:])  # x.size()[2] * (x.size()[3] - 1)
         h_tv    = torch.pow((x[:, :, 1:,  :] - x[:, :, :h_x - 1, :]), 2).sum()
         w_tv    = torch.pow((x[:, :,  :, 1:] - x[:, :, :, :w_x - 1]), 2).sum()
         loss    = 2 * (h_tv / count_h + w_tv / count_w) / b
-        # loss    = base.reduce_loss(loss=loss, reduction=self.reduction)
-        loss    = self.loss_weight * loss
-        return loss
+        return self.loss_weight * loss
     
     @staticmethod
     def _tensor_size(t: torch.Tensor) -> int:
@@ -911,7 +833,6 @@ class SpatialConsistencyLoss(base.Loss):
                      d_down2left1 + d_down2right1 + d_down1left2 + d_down1right2)
         
         loss = base.reduce_loss(loss=loss, reduction=self.reduction)
-        loss = self.loss_weight * loss
-        return loss
+        return self.loss_weight * loss
 
 # endregion

@@ -144,7 +144,7 @@ class Factory(dict):
             return None
         if config:
             config_ = copy.deepcopy(config)
-            name = name or config_.pop("name", None)
+            name    = name or config_.pop("name", None)
             kwargs |= config_
             
         # Loop through all possible naming conventions
@@ -321,7 +321,7 @@ class ModelFactory(Factory):
             return None
         if config:
             config_ = copy.deepcopy(config)
-            name = name or config_.pop("name", None)
+            name    = name or config_.pop("name", None)
             kwargs |= config_
         arch = arch or name
         

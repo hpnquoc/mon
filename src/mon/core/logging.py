@@ -39,14 +39,14 @@ logger = logging.getLogger("rich")
 
 
 def get_logger(path: pathlib.Path = None) -> logging.Logger:
-    """Get access to the global `logging.Logger` object that uses `rich`.
+    """Get access to the global ``logging.Logger`` object that uses ``rich``.
     Create a new one if it doesn't exist.
 
     Args:
         path: The path to store the log info. Default: ``None``.
 
     Returns:
-        logging.Logger: The global logger instance.
+        The global logger instance.
     """
     if path:
         file_handler = logging.FileHandler(path)

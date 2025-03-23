@@ -19,7 +19,7 @@ import lightning
 from torch.utils import data
 
 from mon.core import dtype, rich
-from mon.dataset.dtype import annotation, dataset
+from mon.dataset.dtype import dataset
 from mon.globals import Task
 
 
@@ -62,120 +62,165 @@ class DataModule(lightning.LightningDataModule, ABC):
         self.verbose        = verbose
         self.dataset_kwargs = kwargs | {"verbose": verbose}
 
-        train, val, test, predict = None, None, None, None
         if isinstance(datasets, dict):
-            train   = datasets.pop("train")   if "train"   in datasets else None
-            val     = datasets.pop("val")     if "val"     in datasets else None
-            test    = datasets.pop("test")    if "test"    in datasets else None
-            predict = datasets.pop("predict") if "predict" in datasets else None
-            self.dataset_kwargs = kwargs | datasets
+            self.train   = datasets.pop("train")   if "train"   in datasets else None
+            self.val     = datasets.pop("val")     if "val"     in datasets else None
+            self.test    = datasets.pop("test")    if "test"    in datasets else None
+            self.predict = datasets.pop("predict") if "predict" in datasets else None
+            self.dataset_kwargs.update(datasets)
         elif isinstance(datasets, dataset.Dataset):
-            train   = datasets
-            val     = datasets
-            test    = datasets
-            predict = datasets
+            self.train = self.val = self.test = self.predict = datasets
+        else:
+            self.train = self.val = self.test = self.predict = None
         
-        self.train       = train
-        self.val         = val
-        self.test        = test
-        self.predict     = predict
         self.classlabels = None
     
     @property
     def num_workers(self) -> int:
         """The number of workers used in the data loading pipeline.
-        Set to: 4 * the number of `devices` to avoid a bottleneck.
+    
+        This property calculates the number of workers to be used in the data
+        loading pipeline. It is set to ``4`` times the number of devices to avoid
+        a bottleneck.
+    
+        Returns:
+            The number of workers.
         """
         return 4 * len(self.devices)
         # return 4  # os.cpu_count()
     
     @property
     def train_dataloader(self) -> data.DataLoader | None:
-        """Returns a `torch.utils.data.DataLoader` object if `train`
-        exists. Otherwise, returns ``None``.
+        """Returns a ``torch.utils.data.DataLoader`` object if ``train`` exists.
+        Otherwise, returns ``None``.
+    
+        This property method checks if the ``train`` dataset is available. If it
+        is, it sets the ``classlabels`` attribute and returns a ``DataLoader``
+        object for the ``train`` dataset. If the ``train`` dataset is not available,
+        it returns ``None``.
+    
+        Returns:
+            A ``DataLoader`` object for the ``train`` dataset or ``None`` if
+            the ``train`` dataset is not available.
         """
-        if self.train:
-            self.classlabels = getattr(self.train, "classlabels", self.classlabels)
-            return data.DataLoader(
-                dataset     = self.train,
-                batch_size  = self.batch_size,
-                shuffle     = self.shuffle,
-                num_workers = self.num_workers,
-                pin_memory  = True,
-                drop_last   = False,
-                collate_fn  = getattr(self.train, "collate_fn", self.collate_fn),
-                # prefetch_factor  = 4,
-                persistent_workers = True,
-            )
-        return None
+        if not self.train:
+            return None
+            
+        self.classlabels = getattr(self.train, "classlabels", self.classlabels)
+        return data.DataLoader(
+            dataset     = self.train,
+            batch_size  = self.batch_size,
+            shuffle     = self.shuffle,
+            num_workers = self.num_workers,
+            pin_memory  = True,
+            drop_last   = False,
+            collate_fn  = getattr(self.train, "collate_fn", self.collate_fn),
+            # prefetch_factor  = 4,
+            persistent_workers = True,
+        )
     
     @property
     def val_dataloader(self) -> data.DataLoader | None:
-        """Returns a `torch.utils.data.DataLoader` object if `val`
-        exists. Otherwise, returns ``None``.
+        """Returns a ``torch.utils.data.DataLoader`` object if ``val`` exists.
+        Otherwise, returns ``None``.
+    
+        This property method checks if the ``val`` dataset is available. If it
+        is, it sets the ``classlabels`` attribute and returns a ``DataLoader``
+        object for the ``val`` dataset. If the ``val`` dataset is not available,
+        it returns ``None``.
+    
+        Returns:
+            A ``DataLoader`` object for the ``val`` dataset or ``None`` if
+            the ``val`` dataset is not available.
         """
-        if self.val:
-            # self.classlabels = getattr(self.val, "classlabels", self.classlabels)
-            return data.DataLoader(
-                dataset     = self.val,
-                batch_size  = self.batch_size,
-                shuffle     = False,
-                num_workers = self.num_workers,
-                pin_memory  = True,
-                drop_last   = False,
-                collate_fn  = getattr(self.val, "collate_fn", self.collate_fn),
-                # prefetch_factor  = 4,
-                persistent_workers = True,
-            )
-        return None
+        if not self.val:
+            return None
+        
+        # self.classlabels = getattr(self.val, "classlabels", self.classlabels)
+        return data.DataLoader(
+            dataset     = self.val,
+            batch_size  = self.batch_size,
+            shuffle     = False,
+            num_workers = self.num_workers,
+            pin_memory  = True,
+            drop_last   = False,
+            collate_fn  = getattr(self.val, "collate_fn", self.collate_fn),
+            # prefetch_factor  = 4,
+            persistent_workers = True,
+        )
     
     @property
     def test_dataloader(self) -> data.DataLoader | None:
-        """Returns a `torch.utils.data.DataLoader` object if `test`
-        exists. Otherwise, returns ``None``.
+        """Returns a ``torch.utils.data.DataLoader`` object if ``test`` exists.
+        Otherwise, returns ``None``.
+    
+        This property method checks if the ``test`` dataset is available. If it
+        is, it sets the ``classlabels`` attribute and returns a ``DataLoader``
+        object for the ``test`` dataset. If the ``test`` dataset is not available,
+        it returns ``None``.
+    
+        Returns:
+            A ``DataLoader`` object for the ``test`` dataset or ``None`` if
+            the ``test`` dataset is not available.
         """
-        if self.test:
-            # self.classlabels = getattr(self.test, "classlabels", self.classlabels)
-            return data.DataLoader(
-                dataset     = self.test,
-                batch_size  = 1,  # self.batch_size,
-                shuffle     = False,
-                num_workers = self.num_workers,
-                pin_memory  = True,
-                drop_last   = False,
-                collate_fn  = getattr(self.test, "collate_fn", self.collate_fn),
-                # prefetch_factor    = 4,
-                persistent_workers = True,
-            )
-        return None
+        if not self.test:
+            return None
+        
+        # self.classlabels = getattr(self.test, "classlabels", self.classlabels)
+        return data.DataLoader(
+            dataset     = self.test,
+            batch_size  = 1,  # self.batch_size,
+            shuffle     = False,
+            num_workers = self.num_workers,
+            pin_memory  = True,
+            drop_last   = False,
+            collate_fn  = getattr(self.test, "collate_fn", self.collate_fn),
+            # prefetch_factor    = 4,
+            persistent_workers = True,
+        )
     
     @property
     def predict_dataloader(self):
-        """Returns a `torch.utils.data.DataLoader` object if `predict`
-        exists. Otherwise, returns ``None``.
+        """Returns a ``torch.utils.data.DataLoader`` object if ``predict`` exists.
+        Otherwise, returns ``None``.
+    
+        This property method checks if the ``predict`` dataset is available. If it
+        is, it sets the ``classlabels`` attribute and returns a ``DataLoader``
+        object for the ``predict`` dataset. If the ``predict`` dataset is not available,
+        it returns ``None``.
+    
+        Returns:
+            A ``DataLoader`` object for the ``predict`` dataset or ``None`` if
+            the ``predict`` dataset is not available.
         """
-        if self.predict:
-            return data.DataLoader(
-                dataset     = self.predict,
-                batch_size  = self.batch_size,
-                shuffle     = False,
-                num_workers = self.num_workers,
-                pin_memory  = True,
-                drop_last   = True,
-                collate_fn  = self.collate_fn,
-                # prefetch_factor  = 4,
-                persistent_workers = True,
-            )
-        return None
+        if not self.predict:
+            return None
+            
+        return data.DataLoader(
+            dataset     = self.predict,
+            batch_size  = self.batch_size,
+            shuffle     = False,
+            num_workers = self.num_workers,
+            pin_memory  = True,
+            drop_last   = True,
+            collate_fn  = self.collate_fn,
+            # prefetch_factor  = 4,
+            persistent_workers = True,
+        )
     
     @property
     def can_log(self) -> bool:
-        if self.verbose:
-            if self.trainer is None:
-                return True
-            elif self.trainer and self.trainer.global_rank == 0:
-                return True
-        return False
+        """Determines if logging is enabled.
+    
+        This property checks if logging is enabled based on the ``verbose`` attribute
+        and the ``trainer``'s global rank. Logging is enabled if ``verbose`` is
+        ``True`` and either ``trainer`` is ``None`` or ``trainer.global_rank``
+        is ``0``.
+    
+        Returns:
+            ``True`` if logging is enabled, otherwise ``False``.
+        """
+        return self.verbose and (self.trainer is None or self.trainer.global_rank == 0)
     
     @abstractmethod
     def prepare_data(self, *args, **kwargs):
@@ -206,19 +251,18 @@ class DataModule(lightning.LightningDataModule, ABC):
         pass
     
     def get_classlabels(self):
-        """Load all the class-labels of the dataset."""
-        if isinstance(self.classlabels, annotation.ClassLabels):
-            return
-        elif self.train is not None:
-            self.classlabels = getattr(self.train, "classlabels", None)
-        elif self.val is not None:
-            self.classlabels = getattr(self.val, "classlabels", None)
-        elif self.test is not None:
-            self.classlabels = getattr(self.test, "classlabels", None)
-        elif self.predict is not None:
-            self.classlabels = getattr(self.predict, "classlabels", None)
-        else:
-            rich.console.log("[yellow]No classlabels found.")
+        """Load all the class-labels of the dataset.
+    
+        This method iterates through the datasets (train, val, test, predict) and
+        sets the ``classlabels`` attribute if any dataset contains class labels.
+    
+        If no class labels are found in any dataset, it logs a warning message.
+        """
+        for dataset in [self.train, self.val, self.test, self.predict]:
+            if dataset is not None:
+                self.classlabels = getattr(dataset, "classlabels", None)
+                return
+        rich.console.log("[yellow]No classlabels found.")
         
     def split_train_val(
         self,
@@ -226,6 +270,19 @@ class DataModule(lightning.LightningDataModule, ABC):
         split_ratio: float = 0.8,
         full_train : bool  = True
     ):
+        """Splits a dataset into training and validation sets.
+    
+        This method splits the given dataset into training and validation sets
+        based on the specified split ratio. It also sets the class labels and
+        collate function attributes.
+    
+        Args:
+            dataset: The dataset to be split.
+            split_ratio: The ratio of the training set size to the total dataset
+                size. Default: ``0.8``.
+            full_train: If ``True``, the entire dataset is used as the training
+                set. Default is ``True``.
+        """
         train_size       = int(split_ratio * len(dataset))
         val_size         = len(dataset) - train_size
         train, self.val  = data.random_split(dataset, [train_size, val_size])

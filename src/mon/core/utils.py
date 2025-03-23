@@ -77,7 +77,15 @@ except ImportError:
 # region Checkpoint
 
 def get_epoch_from_checkpoint(ckpt: pathlib.Path) -> int:
-    """Get an epoch value stored in a checkpoint file."""
+    """Get an epoch value stored in a checkpoint file.
+
+    Args:
+        ckpt: The path to the checkpoint file.
+
+    Returns:
+        The epoch value stored in the checkpoint file. Returns ``0`` if the
+        checkpoint file is not found or does not contain an epoch value.
+    """
     if ckpt is None:
         return 0
     
@@ -89,7 +97,16 @@ def get_epoch_from_checkpoint(ckpt: pathlib.Path) -> int:
  
 
 def get_global_step_from_checkpoint(ckpt: pathlib.Path) -> int:
-    """Get a global step stored in a checkpoint file."""
+    """Get a global step stored in a checkpoint file.
+
+    Args:
+        ckpt: The path to the checkpoint file.
+
+    Returns:
+        The global step value stored in the checkpoint file. Returns ``0``
+        if the checkpoint file is not found or does not contain a global step
+        value.
+    """
     if ckpt is None:
         return 0
     
@@ -101,7 +118,14 @@ def get_global_step_from_checkpoint(ckpt: pathlib.Path) -> int:
 
 
 def get_latest_checkpoint(dirpath: pathlib.Path) -> str | None:
-    """Get the latest checkpoint (last saved) file path in a directory."""
+    """Get the latest checkpoint (last saved) file path in a directory.
+
+    Args:
+        dirpath: The path to the directory containing checkpoint files.
+
+    Returns:
+        The path to the latest checkpoint file if found, otherwise ``None``.
+    """
     dirpath = pathlib.Path(dirpath)
     ckpts   = sorted(
         (ckpt for ckpt in dirpath.files(recursive=True) if ckpt.is_torch_file()),
@@ -121,7 +145,16 @@ def get_latest_checkpoint(dirpath: pathlib.Path) -> str | None:
 # region Config
 
 def get_project_default_config(project_root: str | pathlib.Path) -> dict:
-    """Get the default configuration of the project."""
+    """Get the default configuration of the project.
+
+    Args:
+        project_root: The root directory of the project.
+
+    Returns:
+        A dictionary containing the default configuration of the project.
+        Returns an empty dictionary if the project root is invalid or the
+       configuration file does not exist.
+    """
     if project_root in [None, "None", ""]:
         from mon.core.rich import error_console
         error_console.log(f"{project_root} is not a valid project directory.")
@@ -149,6 +182,14 @@ def list_config_files(
 ) -> list[pathlib.Path]:
     """List configuration files (absolute paths) in the given project and/or
     model directory.
+
+    Args:
+        project_root: The root directory of the project.
+        model_root: The root directory of the model. Default: ``None``.
+        model: The name of the model to filter configuration files. Default: ``None``.
+
+    Returns:
+        A sorted list of configuration file paths.
     """
     
     def is_valid(x) -> bool:
@@ -181,7 +222,16 @@ def list_configs(
     model_root  : str | pathlib.Path = None,
     model       : str                = None
 ) -> list[str]:
-    """List configuration files in the given project and/or model directory."""
+    """List configuration files in the given project and/or model directory.
+
+    Args:
+        project_root: The root directory of the project.
+        model_root: The root directory of the model. Default: ``None``.
+        model: The name of the model to filter configuration files. Default: ``None``.
+
+    Returns:
+       A sorted list of configuration file names.
+    """
     # List model's configuration files (absolute paths)
     config_files = list_config_files(project_root, model_root, model)
     
@@ -198,6 +248,17 @@ def parse_config_file(
     model_root  : str | pathlib.Path = None,
     weights_path: str | pathlib.Path = None,
 ) -> pathlib.Path | None:
+    """Parse the configuration file from the given paths.
+
+    Args:
+        config: The configuration file path.
+        project_root: The root directory of the project.
+        model_root: The root directory of the model. Default: ``None``.
+        weights_path: The path to the weights file. Default: ``None``.
+
+    Returns:
+        The path to the configuration file if found, otherwise ``None``.
+    """
     from mon.core.rich import error_console
     
     def find_config_in_dirs(config, dirs):
@@ -248,6 +309,16 @@ def parse_config_file(
 
 
 def load_config(config: Any) -> dict:
+    """Load the configuration from the given source.
+
+    Args:
+        config: The configuration source, which can be a dictionary, a file path,
+            or a string.
+
+    Returns:
+        A dictionary containing the loaded configuration. If the configuration
+        cannot be loaded, an empty dictionary is returned.
+    """
     from mon.core.rich import error_console, console
     
     if isinstance(config, dict):
@@ -278,7 +349,15 @@ def load_config(config: Any) -> dict:
 # region Datasets
 
 def list_mon_datasets(task: str, mode: str) -> list[str]:
-    """List all available datasets in ``mon`` framework."""
+    """List all available datasets in ``mon`` framework.
+
+    Args:
+        task: The task for which datasets are to be listed.
+        mode: The mode of the datasets, either ``train`` or ``test``.
+
+    Returns:
+        A sorted list of dataset names that match the given task and mode.
+    """
     from mon.globals import Task, Split, DATASETS
 
     split    = Split("train" if mode == "train" else "test")
@@ -292,7 +371,15 @@ def list_mon_datasets(task: str, mode: str) -> list[str]:
 
 
 def list_extra_datasets(task: str, mode: str) -> list[str]:
-    """List all available datasets in ``extra`` framework."""
+    """List all available datasets in ``extra`` framework.
+
+    Args:
+        task: The task for which datasets are to be listed.
+        mode: The mode of the datasets, either ``train`` or ``test``.
+
+    Returns:
+        A sorted list of dataset names that match the given task and mode.
+    """
     from mon.globals import Task, Split, EXTRA_DATASETS
 
     split    = Split("train" if mode == "train" else "test")
@@ -310,7 +397,16 @@ def list_datasets(
     mode        : str,
     project_root: str | pathlib.Path = None
 ) -> list[str]:
-    """List all available datasets."""
+    """List all available datasets.
+
+    Args:
+        task: The task for which datasets are to be listed.
+        mode: The mode of the datasets, either ``train`` or ``test``.
+        project_root: The root directory of the project. Default: ``None``.
+
+    Returns:
+        A sorted list of dataset names that match the given task and mode.
+    """
     datasets        = sorted(list_mon_datasets(task, mode) + list_extra_datasets(task, mode))
     default_configs = get_project_default_config(project_root)
     if default_configs.get("DATASETS"):
@@ -353,7 +449,12 @@ def is_rank_zero() -> bool:
 
 
 def list_cuda_devices() -> str | None:
-    """List all available cuda devices in the current machine."""
+    """List all available cuda devices in the current machine.
+
+    Returns:
+        A string representing the available cuda devices in the format
+        "cuda:0,1,2,...", or None if no cuda devices are available.
+    """
     if torch.cuda.is_available():
         num_devices = torch.cuda.device_count()
         cuda_str = "cuda:" + ",".join(str(i) for i in range(num_devices))
@@ -362,7 +463,13 @@ def list_cuda_devices() -> str | None:
 
 
 def list_devices() -> list[str]:
-    """List all available devices in the current machine."""
+    """List all available devices in the current machine.
+
+    Returns:
+        A list of strings representing the available devices. The list
+        includes "auto" and "cpu" by default, and any available CUDA devices
+        in the format "cuda:0,1,2,...".
+    """
     # Default devices: CPU and auto (for `pytorch.lighting`)
     devices = ["auto", "cpu"]
     
@@ -382,7 +489,7 @@ def set_device(device: Any, use_single_device: bool = True) -> torch.device:
     
     Args:
         device: Cuda devices to set.
-        use_single_device: If `True`, set a single-device cuda device in the list.
+        use_single_device: If ``True``, set a single-device cuda device in the list.
     
     Returns:
         A cuda device in the current machine.
@@ -396,10 +503,10 @@ def set_device(device: Any, use_single_device: bool = True) -> torch.device:
 
 
 def get_machine_memory(unit: MemoryUnit = MemoryUnit.GB) -> list[int]:
-    """Return the RAM status as a `list` of `[total, used, free]`.
+    """Return the RAM status as a ``list`` of ``[total, used, free]``.
     
     Args:
-        unit: The memory unit. Default: `'GB'`.
+        unit: The memory unit. Default: ``'GB'``.
     """
     memory = psutil.virtual_memory()
     ratio  = MemoryUnit.byte_conversion_mapping()[MemoryUnit.from_value(unit)]
@@ -411,11 +518,11 @@ def get_machine_memory(unit: MemoryUnit = MemoryUnit.GB) -> list[int]:
 
 
 def get_gpu_device_memory(device: int = 0, unit: MemoryUnit = MemoryUnit.GB) -> list[int]:
-    """Return the GPU memory status as a `list` of `[total, used, free]`.
+    """Return the GPU memory status as a ``list`` of ``[total, used, free]``.
     
     Args:
-        device: The index of the GPU device. Default: `0`.
-        unit: The memory unit. Default: `'GB'`.
+        device: The index of the GPU device. Default: ``0``.
+        unit: The memory unit. Default: ``'GB'``.
     """
     pynvml.nvmlInit()
     unit  = MemoryUnit.from_value(unit)
@@ -429,6 +536,17 @@ def get_gpu_device_memory(device: int = 0, unit: MemoryUnit = MemoryUnit.GB) -> 
 
 
 def parse_device(device: Any) -> list[int] | int | str:
+    """Parse the given device into a list of integers, a single integer, or a string.
+
+    Args:
+        device: The device to parse. It can be a ``torch.device``, an integer,
+            a string, or ``None``.
+
+    Returns:
+        A list of integers if the device is a string representing multiple devices,
+        a single integer if the device is an integer, or a string if the device
+        is "cpu" or "mps".
+    """
     if isinstance(device, torch.device):
         return device
     
@@ -450,6 +568,12 @@ def parse_device(device: Any) -> list[int] | int | str:
 def get_model_device(model: nn.Module) -> torch.device:
     """Get the device of the given model since nn.Module doesn't directly store
     a .device attribute.
+
+    Args:
+        model: The model for which to get the device.
+
+    Returns:
+        The device on which the model's parameters are located.
     """
     return next(model.parameters()).device
     
@@ -471,7 +595,14 @@ def parse_menu_string(items: Sequence | Collection, num_columns: int = 4) -> str
 # region Models
 
 def is_extra_model(model: str) -> bool:
-    """Check if the given model is an extra model."""
+    """Check if the given model is an extra model.
+
+    Args:
+        model: The name of the model to check.
+
+    Returns:
+        ``True`` if the model is an extra model, ``False`` otherwise.
+    """
     from mon.globals import MODELS, EXTRA_MODELS, EXTRA_MODEL_STR
     model        = model.replace(f" {EXTRA_MODEL_STR}", "").strip()
     mon_models   = dtype.flatten_models_dict(MODELS)
@@ -483,6 +614,16 @@ def is_extra_model(model: str) -> bool:
 
 
 def list_mon_models(task: str = None, mode: str = None, arch: str = None) -> list[str]:
+    """List all available models in the ``mon`` framework.
+
+    Args:
+        task: The task for which models are to be listed. Default: ``None``.
+        mode: The mode of the models, either ``train`` or ``None``. Default: ``None``.
+        arch: The architecture of the models to filter. Default: ``None``.
+
+    Returns:
+        A sorted list of model names that match the given task, mode, and architecture.
+    """
     from mon.globals import Task, MODELS, LType
     flatten_models = dtype.flatten_models_dict(MODELS)
     models         = list(flatten_models.keys())
@@ -505,6 +646,16 @@ def list_mon_models(task: str = None, mode: str = None, arch: str = None) -> lis
 
 
 def list_extra_models(task: str = None, mode: str = None, arch: str = None) -> list[str]:
+    """List all available models in the ``extra`` framework.
+
+    Args:
+        task: The task for which models are to be listed. Default: ``None``.
+        mode: The mode of the models, either ``train`` or ``None``. Default: ``None``.
+        arch: The architecture of the models to filter. Default: ``None``.
+
+    Returns:
+        A sorted list of model names that match the given task, mode, and architecture.
+    """
     from mon.globals import Task, EXTRA_MODELS, LType
     flatten_models = dtype.flatten_models_dict(EXTRA_MODELS)
     models         = list(flatten_models.keys())
@@ -532,6 +683,17 @@ def list_models(
     arch        : str = None,
     project_root: str | pathlib.Path = None
 ) -> list[str]:
+    """List all available models in the ``mon`` and ``extra`` frameworks.
+
+    Args:
+        task: The task for which models are to be listed. Default: ``None``.
+        mode: The mode of the models, either ``train`` or ``None``. Default: ``None``.
+        arch: The architecture of the models to filter. Default: ``None``.
+        project_root: The root directory of the project. Default: ``None``.
+
+    Returns:
+        A sorted list of model names that match the given task, mode, and architecture.
+    """
     from mon.globals import EXTRA_MODEL_STR
     models       =   list_mon_models(task, mode, arch)
     extra_models = list_extra_models(task, mode, arch)
@@ -553,6 +715,15 @@ def list_models(
 
 
 def list_mon_archs(task: str = None, mode: str = None) -> list[str]:
+    """List all available architectures in the ``mon`` framework.
+
+    Args:
+        task: The task for which architectures are to be listed. Default: ``None``.
+        mode: The mode of the architectures, either ``train`` or ``None``. Default: ``None``.
+
+    Returns:
+        A sorted list of unique architecture names that match the given task and mode.
+    """
     from mon.globals import Task, MODELS, LType
     flatten_models = dtype.flatten_models_dict(MODELS)
     models         = list(flatten_models.keys())
@@ -574,6 +745,15 @@ def list_mon_archs(task: str = None, mode: str = None) -> list[str]:
 
 
 def list_extra_archs(task: str = None, mode: str = None) -> list[str]:
+    """List all available architectures in the ``extra`` framework.
+
+    Args:
+        task: The task for which architectures are to be listed. Default: ``None``.
+        mode: The mode of the architectures, either ``train`` or ``None``. Default: ``None``.
+
+    Returns:
+        A sorted list of unique architecture names that match the given task and mode.
+    """
     from mon.globals import Task, EXTRA_MODELS, LType
     flatten_models = dtype.flatten_models_dict(EXTRA_MODELS)
     models         = list(flatten_models.keys())
@@ -599,6 +779,16 @@ def list_archs(
     mode        : str = None,
     project_root: str | pathlib.Path = None
 ) -> list[str]:
+    """List all available architectures in the ``mon`` and ``extra`` frameworks.
+
+    Args:
+        task: The task for which architectures are to be listed. Default: ``None``.
+        mode: The mode of the architectures, either ``train`` or ``None``. Default: ``None``.
+        project_root: The root directory of the project. Default: ``None``.
+
+    Returns:
+        A sorted list of unique architecture names that match the given task and mode.
+    """
     from mon.globals import MODELS, EXTRA_MODELS
     models       =   list_mon_models(task, mode)
     extra_models = list_extra_models(task, mode)
@@ -622,7 +812,15 @@ def list_archs(
 
 
 def parse_model_dir(arch: str, model: str) -> pathlib.Path | None:
-    """Parse model's directory from given components."""
+    """Parse model's directory from given components.
+
+    Args:
+        arch: The architecture of the model.
+        model: The name of the model.
+
+    Returns:
+        The path to the model's directory if found, otherwise ``None``.
+    """
     from mon.globals import EXTRA_MODELS, MODELS
     model_name = parse_model_name(model)
     model_dir  = EXTRA_MODELS[arch][model_name].get("model_dir") \
@@ -644,6 +842,9 @@ def parse_model_fullname(name: str, data: str, suffix: str = None) -> str:
         name: The model's name.
         data: The dataset's name.
         suffix: The suffix of the model's name.
+        
+    Returns:
+        The parsed model's fullname.
     """
     if not name:
         rich.error_console.log("Model's `name` must be given.")
@@ -664,6 +865,15 @@ def parse_model_fullname(name: str, data: str, suffix: str = None) -> str:
 # region Package
 
 def check_installed_package(package_name: str, verbose: bool = False) -> bool:
+    """Check if a package is installed.
+
+    Args:
+        package_name: The name of the package to check.
+        verbose: If ``True``, print whether the package is installed. Default: ``False``.
+
+    Returns:
+        bool: ``True`` if the package is installed, ``False`` otherwise.
+    """
     try:
         importlib.import_module(package_name)
         if verbose:
@@ -680,7 +890,14 @@ def check_installed_package(package_name: str, verbose: bool = False) -> bool:
 # region Save Dir
 
 def list_train_save_dirs(root: str | pathlib.Path) -> list[pathlib.Path]:
-    """List all training save directories in the given project"""
+    """List all training save directories in the given project.
+
+    Args:
+        root: The root directory of the project.
+
+    Returns:
+        A sorted list of training save directories.
+    """
     root = pathlib.Path(root)
     return sorted((root / "run" / "train").dirs())
 
@@ -702,6 +919,9 @@ def parse_save_dir(
         arch: The model's architecture.
         model: The model's name.
         data: The dataset's name.
+    
+    Returns:
+        The parsed save directory path.
     """
     save_dir = pathlib.Path(root)
     if arch:
@@ -718,7 +938,13 @@ def parse_save_dir(
 # region Seed
 
 def set_random_seed(seed: int | list[int] | tuple[int, int]):
-    """Set random seeds."""
+    """Set random seeds.
+
+    Args:
+        seed: An integer, list of integers, or a tuple of two integers. If a
+            list or tuple is provided, a random seed will be selected within
+            the range specified by the list or tuple.
+    """
     if isinstance(seed, (list, tuple)):
         seed = random.randint(seed[0], seed[1]) if len(seed) == 2 else seed[-1]
     random.seed(seed)
@@ -734,6 +960,14 @@ def set_random_seed(seed: int | list[int] | tuple[int, int]):
 # region Tasks
 
 def list_tasks(project_root: str | pathlib.Path) -> list[str]:
+    """List all available tasks in the project.
+
+    Args:
+        project_root: The root directory of the project.
+
+    Returns:
+        A sorted list of task names.
+    """
     from mon.globals import Task
     tasks = Task.keys()
     
@@ -835,7 +1069,16 @@ class Timer:
 # region Weights
 
 def download_weights_from_url(url: str, path: pathlib.Path, overwrite: bool = False) -> pathlib.Path:
-    """Download weights from the given `url` to the given `path`."""
+    """Download weights from the given ``url`` to the given ``path``.
+
+    Args:
+        url: The URL from which to download the weights.
+        path: The local file path where the weights will be saved.
+        overwrite: If ``True``, overwrite the existing file if it exists. Default: ``False``.
+
+    Returns:
+        The path to the downloaded weights file.
+    """
     if not pathlib.is_url(url):
         raise ValueError("Both `url` and `path` must be given.")
     
@@ -848,6 +1091,15 @@ def download_weights_from_url(url: str, path: pathlib.Path, overwrite: bool = Fa
 
 
 def list_weights_files(model: str, project_root: str | pathlib.Path = None) -> list[pathlib.Path]:
+    """List all weights files for the given model in the project and ``zoo`` directories.
+
+    Args:
+        model: The name of the model to filter weights files.
+        project_root: The root directory of the project. Default: ``None``.
+
+    Returns:
+        A sorted list of weights file paths.
+    """
     from mon.globals import ZOO_DIR
     
     def collect_weights_files(root: pathlib.Path) -> list[pathlib.Path]:
@@ -870,14 +1122,18 @@ def parse_weights_file(
     root   : str | pathlib.Path,
     weights: str | pathlib.Path | Sequence[str | pathlib.Path]
 ) -> str | pathlib.Path | Sequence[str | pathlib.Path]:
-    """Parse weights file. If the weights file is a relative path in the `zoo`
+    """Parse weights file. If the weights file is a relative path in the ``zoo``
     directory, then it will be converted to the absolute path. If the weights
     file is a list with a single weights files, then it will be converted to a
     single weights.
     
     Args:
         root: The root directory.
-        weights: The weights file to parse.
+        weights: The weights file to parse. It can be a string, a ``pathlib.Path``,
+            or a sequence of strings or ``pathlib.Path`` objects.
+
+    Returns:
+        The parsed weights file path(s).
     """
     from mon.globals import ROOT_DIR
     root    = pathlib.Path(root)

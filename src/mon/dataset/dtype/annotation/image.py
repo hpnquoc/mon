@@ -76,19 +76,18 @@ class ImageAnnotation(base.Annotation):
     
     @path.setter
     def path(self, path: core.Path | str):
-        if path is None or not core.Path(path).is_image_file():
-            raise ValueError(f"`path` must be a valid path to an image file, "
-                             f"but got {path}.")
+        if not path or not core.Path(path).is_image_file():
+            raise ValueError(f"`path` must be a valid path to an image file, but got {path}.")
         self._path  = core.Path(path)
         self._shape = vision.read_image_shape(path=self._path)
     
     @property
     def name(self) -> str:
-        return str(self.path.name)
+        return self.path.name
     
     @property
     def stem(self) -> str:
-        return str(self.path.stem)
+        return self.path.stem
     
     @property
     def shape(self) -> tuple[int, int, int]:
@@ -103,7 +102,7 @@ class ImageAnnotation(base.Annotation):
     
     @property
     def meta(self) -> dict:
-        """Return a `dict` of metadata about the object. The dictionary
+        """Return a ``dict`` of metadata about the object. The dictionary
         includes ID, name, path, and shape of the image.
         """
         return {
@@ -114,12 +113,7 @@ class ImageAnnotation(base.Annotation):
             "hash" : self.path.stat().st_size if isinstance(self.path, core.Path) else None,
         }
     
-    def load(
-        self,
-        path : core.Path | str = None,
-        flags: int  = None,
-        cache: bool = False,
-    ) -> np.ndarray:
+    def load(self, path : core.Path | str = None, flags: int = None, cache: bool = False) -> np.ndarray:
         """Loads image into memory.
         
         Args:
@@ -129,24 +123,22 @@ class ImageAnnotation(base.Annotation):
                 there. Default: ``False``.
             
         Return:
-            An RGB or grayscale image of type `numpy.ndarray` in
-            ``[H, W, C]`` format with data in the range ``[0, 255]``.
+            An RGB or grayscale image of type ``numpy.ndarray`` in ``[H, W, C]``
+            format with data in the range ``[0, 255]``.
         """
         # Return the image if it is already loaded
         if self.image is not None:
             return self.image
+        
         # Load the image
-        self.path  = path  if path  else self.path
-        self.flags = flags if flags else self.flags
-        image = vision.read_image(
-            path      = self.path,
-            flags     = self.flags,
-            to_tensor = False,
-            normalize = False
-        )
+        self.path  = path  or self.path
+        self.flags = flags or self.flags
+        image      = vision.read_image(self.path, self.flags, to_tensor=False, normalize=False)
+        
         # Update the shape of the image
         if self._shape != image.shape:
             self._shape = image.shape
+            
         # Cache the image if needed
         self.image = image if cache else None
         return image
@@ -168,15 +160,12 @@ class ImageAnnotation(base.Annotation):
         return vision.to_image_tensor(data, keepdim, normalize)
     
     @staticmethod
-    def collate_fn(
-        batch: list[torch.Tensor | np.ndarray]
-    ) -> torch.Tensor | np.ndarray | None:
+    def collate_fn(batch: list[torch.Tensor | np.ndarray]) -> torch.Tensor | np.ndarray | None:
         """Collate function used to fused input items together when using
-		`batch_size` > ``1``. This is used in
-		`torch.utils.data.DataLoader` wrapper.
+		``batch_size`` > ``1``. This is used in ``torch.utils.data.DataLoader`` wrapper.
 		
 		Args:
-			batch: A `list` of images.
+			batch: A ``list`` of images.
 		"""
         return vision.to_4d_image(batch)
     
@@ -213,8 +202,7 @@ class FrameAnnotation(base.Annotation):
     @path.setter
     def path(self, path: core.Path | str):
         if path is None or not core.Path(path).is_video_file():
-            raise ValueError(f"`path` must be a valid path to a video file, "
-                             f"but got {path}.")
+            raise ValueError(f"`path` must be a valid path to a video file, but got {path}.")
         self._path = core.Path(path)
     
     @property

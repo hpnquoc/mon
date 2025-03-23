@@ -25,7 +25,7 @@ from torch import nn
 
 from mon import core
 from mon.globals import (
-    LOSSES, LR_SCHEDULERS, METRICS, OPTIMIZERS, LType, Task,
+    LOSSES, LR_SCHEDULERS, LType, METRICS, OPTIMIZERS, Task,
 )
 from mon.nn import loss as L, metric as M
 
@@ -51,23 +51,28 @@ def load_weights(
     weights     : dict | str | core.Path,
     weights_only: bool = False,
 ) -> dict | None:
-    """Load state dict from the given `weights`."""
-    path       = None
-    state_dict = None
-    
+    """Load state dict from the given ``weights``.
+
+    Args:
+        model: The model to load the weights into.
+        weights: The weights to load. Can be a dictionary, a string path, or a
+            ``core.Path`` object.
+        weights_only: If ``True``, only load the weights. Default: ``False``.
+
+    Returns:
+        The state dictionary if loaded successfully, otherwise ``None``.
+    """
     # First, check for ``None``.
     if weights is None:
         return None
+    
     # Second, `weights` can be a dictionary.
-    elif isinstance(weights, dict):
-        if "path" in weights:
-            path = core.Path(weights["path"])
-        else:
-            state_dict = weights
+    path       = core.Path(weights["path"]) if isinstance(weights, dict) and "path"     in weights else None
+    state_dict = weights                    if isinstance(weights, dict) and "path" not in weights else None
+    
     # Third, `weights` can be a path to a weight file.
-    elif isinstance(weights, str | core.Path):
-        if core.Path(weights).is_weights_file():
-            path = core.Path(weights)
+    if isinstance(weights, (str, core.Path)) and core.Path(weights).is_weights_file():
+        path = core.Path(weights)
     
     # Load state dict from path
     if path and path.is_weights_file():
@@ -140,27 +145,27 @@ class Model(lightning.LightningModule, ABC):
             >>> )
     """
     
-    arch     : str          = ""  # The model's architecture.
-    name     : str          = ""  # The model's name.
-    tasks    : list[Task]   = []  # A list of tasks that the model can perform.
-    ltypes   : list[LType]  = []  # A list of learning types that the model can perform.
-    model_dir: core.Path    = None
-    zoo      : dict         = {}  # A dictionary containing all pretrained weights of the model.
+    arch     : str         = ""         # The model's architecture.
+    name     : str         = ""         # The model's name.
+    tasks    : list[Task]  = []         # A list of tasks that the model can perform.
+    ltypes   : list[LType] = []         # A list of learning types that the model can perform.
+    model_dir: core.Path   = None       
+    zoo      : dict        = {}         # A dictionary containing all pretrained weights of the model.
     
     def __init__(
         self,
         # Basic
-        root       : core.Path = core.Path(),
-        fullname   : str  = None,
+        root     : core.Path = core.Path(),
+        fullname : str  = None,
         # Network
-        weights    : Any  = None,
+        weights  : Any  = None,
         # Training
-        optimizer  : Any  = None,
-        loss       : Any  = None,
-        metrics    : Any  = None,
+        optimizer: Any  = None,
+        loss     : Any  = None,
+        metrics  : Any  = None,
         # Misc
-        debug      : bool = False,
-        verbose    : bool = True,
+        debug    : bool = False,
+        verbose  : bool = True,
         *args, **kwargs
     ):
         super().__init__(*args, **kwargs)
@@ -201,10 +206,9 @@ class Model(lightning.LightningModule, ABC):
     
     @root.setter
     def root(self, root: Any):
-        root = core.Path(root)
-        self._root      = root
-        self._debug_dir = root / "debug"
-        self._ckpt_dir  = root
+        self._root      = core.Path(root)
+        self._debug_dir = self.root / "debug"
+        self._ckpt_dir  = self.root
     
     @property
     def ckpt_dir(self) -> core.Path:
@@ -219,37 +223,33 @@ class Model(lightning.LightningModule, ABC):
         return self._debug_dir
     
     @property
-    def num_classes(self) -> int:
-        """Just an alias to `out_channels`."""
-        return self.out_channels
-    
-    @num_classes.setter
-    def num_classes(self, num_classes: int):
-        """Just an alias to `out_channels`."""
-        self.out_channels = num_classes
-    
-    @property
     def predicting(self) -> bool:
         """Return ``True`` if the model is in predicting mode (not eval).
         
         This property is needed because, while in ``'validation'`` mode,
-        `training` is also set to ``False``, so using
+        ``training`` is also set to ``False``, so using
         ``self.training == False`` does not work.
         
-        True ``'predicting'`` mode happens when `_trainer` is ``None``,
-        i.e., not being handled by `lightning.Trainer`.
+        True ``'predicting'`` mode happens when ``_trainer`` is ``None``,
+        i.e., not being handled by ``lightning.Trainer``.
+        
+        Returns:
+            bool: ``True`` if the model is in predicting mode, ``False`` otherwise.
         """
-        return True \
-            if (not self.training and getattr(self, "_trainer", None) is None) \
-            else False
+        return not self.training and getattr(self, "_trainer", None) is None
     
     @property
     def debug(self) -> bool:
-        """Return ``True`` if the model is in debug mode."""
-        if self.predicting:
-            return self._debug
-        else:
-            return True
+        """Return ``True`` if the model is in debug mode.
+    
+        This property checks if the model is in predicting mode. If it is,
+        it returns the value of the ``_debug`` attribute. Otherwise, it always
+        returns ``True``.
+    
+        Returns:
+            bool: ``True`` if the model is in debug mode, ``False`` otherwise.
+        """
+        return self._debug if self.predicting else True
     
     @debug.setter
     def debug(self, debug: bool):
@@ -262,7 +262,7 @@ class Model(lightning.LightningModule, ABC):
     
     def init_name(self):
         """Specify the model's name. This value should only be defined once."""
-        if self.name in [None, "None", ""]:
+        if not self.name:
             self.name = humps.kebabize(self.__class__.__name__).lower()
     
     def create_dir(self):
@@ -292,7 +292,7 @@ class Model(lightning.LightningModule, ABC):
             if url and path:
                 core.download_weights_from_url(url, path, overwrite)
         # Fourth, `weights` can be a path to a weight file.
-        elif isinstance(weights, str | core.Path):
+        elif isinstance(weights, (str, core.Path)):
             weights: core.Path = core.Path(weights)
             if not weights.is_weights_file():
                 raise ValueError(f"`weights` must be a valid path to a weight file, but got {weights}.")
@@ -348,32 +348,27 @@ class Model(lightning.LightningModule, ABC):
                         'test':  None,
                     }
         """
-        # Train
-        train_metrics = metrics.get("train") if isinstance(metrics, dict) else metrics
-        self.train_metrics = self.create_metrics(metrics=train_metrics)
         # This is a simple hack since LightningModule needs the metric to be
         # defined with self.<metric>. So, here we dynamically add the metric
         # attribute to the class.
+        
+        # Train
+        self.train_metrics = self.create_metrics(metrics.get("train") if isinstance(metrics, dict) else metrics)
         if self.train_metrics:
             for metric in self.train_metrics:
-                name = f"train/{metric.name}"
-                setattr(self, name, metric)
+                setattr(self, f"train/{metric.name}", metric)
         
         # Val
-        val_metrics = metrics.get("val") if isinstance(metrics, dict) else metrics
-        self.val_metrics = self.create_metrics(val_metrics)
+        self.val_metrics = self.create_metrics(metrics.get("val") if isinstance(metrics, dict) else metrics)
         if self.val_metrics:
             for metric in self.val_metrics:
-                name = f"val/{metric.name}"
-                setattr(self, name, metric)
+                setattr(self, f"val/{metric.name}", metric)
         
         # Test
-        test_metrics = metrics.get("test") if isinstance(metrics, dict) else metrics
-        self.test_metrics = self.create_metrics(test_metrics)
+        self.test_metrics = self.create_metrics(metrics.get("test") if isinstance(metrics, dict) else metrics)
         if self.test_metrics:
             for metric in self.test_metrics:
-                name = f"test/{metric.name}"
-                setattr(self, name, metric)
+                setattr(self, f"test/{metric.name}", metric)
     
     @staticmethod
     def create_metrics(metrics: Any):
@@ -382,12 +377,11 @@ class Model(lightning.LightningModule, ABC):
             if getattr(metrics, "name", None) is None:
                 metrics.name = humps.depascalize(humps.pascalize(metrics.__class__.__name__))
             return [metrics]
-        elif isinstance(metrics, dict):
+        if isinstance(metrics, dict):
             return [METRICS.build(config=metrics)]
-        elif isinstance(metrics, list | tuple):
+        if isinstance(metrics, (list, tuple)):
             return [METRICS.build(config=m) if isinstance(m, dict) else m for m in metrics]
-        else:
-            return None
+        return None
     
     def configure_optimizers(self):
         """Choose what optimizers and learning-rate schedulers to use in your
@@ -441,26 +435,25 @@ class Model(lightning.LightningModule, ABC):
         """
         if self.optimizer is None:
             return None
-        elif not isinstance(self.optimizer, dict):
-            raise ValueError(f"`optimizer` must be a `dict`.")
+        if not isinstance(self.optimizer, dict):
+            raise ValueError("`optimizer` must be a `dict`.")
         
-        optimizer           = self.optimizer.get("optimizer",           None)
-        lr_scheduler        = self.optimizer.get("lr_scheduler",        None)
+        optimizer           = self.optimizer.get("optimizer")
+        lr_scheduler        = self.optimizer.get("lr_scheduler")
         network_params_only = self.optimizer.get("network_params_only", True)
         
         # Define optimizer
         if optimizer is None:
             raise ValueError(f"`optimizer` must be a `dict`.")
-        elif isinstance(optimizer, dict):
-            optimizer = OPTIMIZERS.build(
-                network             = self,
-                config              = optimizer,
-                network_params_only = network_params_only
-            )
+        optimizer = OPTIMIZERS.build(
+            network             = self,
+            config              = optimizer,
+            network_params_only = network_params_only
+        )
         
         # Define learning rate scheduler
-        if lr_scheduler and isinstance(lr_scheduler, dict):
-            scheduler = lr_scheduler.get("scheduler", None)
+        if lr_scheduler:
+            scheduler = lr_scheduler.get("scheduler")
             if scheduler is None:
                 raise ValueError(f"`scheduler` must be defined.")
             else:
@@ -500,12 +493,7 @@ class Model(lightning.LightningModule, ABC):
         pass
     
     @abstractmethod
-    def compute_metrics(
-        self,
-        datapoint: dict,
-        outputs  : dict,
-        metrics  : list[M.Metric] = None
-    ) -> dict:
+    def compute_metrics(self, datapoint: dict, outputs: dict, metrics: list[M.Metric] = None) -> dict:
         """Compute metrics.
 
         Args:
@@ -582,7 +570,7 @@ class Model(lightning.LightningModule, ABC):
     def on_train_epoch_end(self):
         """Called in the training loop at the very end of the epoch."""
         if self.train_metrics:
-            for i, metric in enumerate(self.train_metrics):
+            for metric in self.train_metrics:
                 metric.reset()
 
     def validation_step(self, batch: Any, batch_idx: int, *args, **kwargs) -> StepOutput:
@@ -639,7 +627,7 @@ class Model(lightning.LightningModule, ABC):
     def on_validation_epoch_end(self):
         """Called in the validation loop at the very end of the epoch."""
         if self.val_metrics:
-            for i, metric in enumerate(self.val_metrics):
+            for metric in self.val_metrics:
                 metric.reset()
 
     def on_test_start(self) -> None:
@@ -700,7 +688,7 @@ class Model(lightning.LightningModule, ABC):
     def on_test_epoch_end(self):
         """Called in the test loop at the very end of the epoch."""
         if self.test_metrics:
-            for i, metric in enumerate(self.test_metrics):
+            for metric in self.test_metrics:
                 metric.reset()
     
     # endregion
@@ -740,17 +728,15 @@ class Model(lightning.LightningModule, ABC):
                 to `root`. Default: ``None``.
             export_params: Should export parameters? Default: ``True``.
         """
-        # Check file_path
-        if file_path in [None, ""]:
+        if not file_path:
             file_path = self.root / f"{self.fullname}.onnx"
         if ".onnx" not in str(file_path):
             file_path = core.Path(str(file_path) + ".onnx")
         
-        if input_dims:
-            input_sample = torch.randn(input_dims)
-        else:
-            raise ValueError(f"`input_dims` must be defined.")
+        if not input_dims:
+            raise ValueError("`input_dims` must be defined.")
         
+        input_sample = torch.randn(input_dims)
         self.to_onnx(
             file_path     = file_path,
             input_sample  = input_sample,
@@ -772,18 +758,16 @@ class Model(lightning.LightningModule, ABC):
             method: Whether to use TorchScript's `''script''` or ``'trace'``
                 method. Default: ``'script'``.
         """
-        # Check filepath
-        if file_path in [None, ""]:
+        if not file_path:
             file_path = self.root / f"{self.fullname}.pt"
         if ".pt" not in str(file_path):
             file_path = core.Path(str(file_path) + ".pt")
         
-        if input_dims:
-            input_sample = torch.randn(input_dims)
-        else:
-            raise ValueError(f"`input_dims` must be defined.")
+        if not input_dims:
+            raise ValueError("`input_dims` must be defined.")
         
-        script = self.to_torchscript(method=method, example_inputs=input_sample)
+        input_sample = torch.randn(input_dims)
+        script       = self.to_torchscript(method=method, example_inputs=input_sample)
         torch.jit.save(script, file_path)
     
     # endregion

@@ -170,8 +170,7 @@ class TensorBoardLogger(loggers.TensorBoardLogger):
         if self._experiment:
             return self._experiment
         if not rank_zero_only.rank == 0:
-            raise ValueError(f"Tried to initialize log dirs in non "
-                             f"`global_rank=0`.")
+            raise ValueError(f"Tried to initialize log dirs in non `global_rank=0`.")
         if self.root_dir:
             self._fs.makedirs(self.root_dir, exist_ok=True)
         self._experiment = SummaryWriter(log_dir=self.log_dir, **self._kwargs)

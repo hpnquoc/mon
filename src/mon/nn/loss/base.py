@@ -58,7 +58,7 @@ from mon.globals import LOSSES
 
 def reduce_loss(
     loss     : torch.Tensor,
-    reduction: Literal["mean", "sum", "none"] = "mean",
+    reduction: Literal["mean", "sum", "none"] = "mean"
 ) -> torch.Tensor:
     """Reduces the loss tensor.
 
@@ -69,12 +69,7 @@ def reduce_loss(
     Returns:
         Reduced loss.
     """
-    if reduction == "mean":
-        return torch.mean(loss)
-    elif reduction == "sum":
-        return torch.sum(loss)
-    else:
-        return loss
+    return {"mean": torch.mean, "sum": torch.sum, "none": lambda x: x}[reduction](loss)
 
 
 class Loss(_Loss, ABC):
@@ -98,10 +93,7 @@ class Loss(_Loss, ABC):
     ):
         super().__init__(reduction=reduction)
         if self.reduction not in self.reductions:
-            raise ValueError(
-                f"`reduction` must be one of: {self.reductions}, "
-                f"but got {reduction}."
-            )
+            raise ValueError(f"`reduction` must be one of: {self.reductions}, but got {reduction}.")
         self.loss_weight = loss_weight
         
     def __str__(self):
@@ -133,8 +125,7 @@ class CharbonnierLoss(Loss):
         diff = input - target
         loss = torch.mean(torch.sqrt((diff * diff) + (self.eps * self.eps)))
         loss = reduce_loss(loss=loss, reduction=self.reduction)
-        loss = self.loss_weight * loss
-        return loss
+        return self.loss_weight * loss
 
 
 @LOSSES.register(name="cosine_similarity_loss")
@@ -155,13 +146,11 @@ class CosineSimilarityLoss(Loss):
         x    = input.permute(0, 2, 3, 1).view(-1, c)
         y    = target.permute(0, 2, 3, 1).view(-1, c)
         loss = 1.0 - self.cos(x, y).sum() / (1.0 * b * h * w)
-        loss = self.loss_weight * loss
-        return loss
+        return self.loss_weight * loss
     
 
 @LOSSES.register(name="l1_loss")
 class L1Loss(Loss):
-    """L1 Loss or Mean Absolute Error."""
     
     def __init__(
         self,
@@ -172,13 +161,11 @@ class L1Loss(Loss):
     
     def forward(self, input: torch.Tensor, target: torch.Tensor) -> torch.Tensor:
         loss = F.l1_loss(input=input, target=target, reduction=self.reduction)
-        loss = self.loss_weight * loss
-        return loss
+        return self.loss_weight * loss
 
 
 @LOSSES.register(name="l2_loss")
 class L2Loss(Loss):
-    """L2 Loss or Mean Squared Error."""
     
     def __init__(
         self,
@@ -189,8 +176,7 @@ class L2Loss(Loss):
     
     def forward(self, input: torch.Tensor, target: torch.Tensor) -> torch.Tensor:
         loss = F.mse_loss(input=input, target=target, reduction=self.reduction)
-        loss = self.loss_weight * loss
-        return loss
+        return self.loss_weight * loss
 
 
 @LOSSES.register(name="extended_l1_loss")
@@ -203,20 +189,14 @@ class ExtendedL1Loss(Loss):
         reduction  : Literal["none", "mean", "sum"] = "mean",
     ):
         super().__init__(loss_weight=loss_weight, reduction=reduction)
-        self._l1_loss = L1Loss()
+        self.loss_l1 = L1Loss()
     
     # noinspection PyMethodOverriding
-    def forward(
-        self,
-        input : torch.Tensor,
-        target: torch.Tensor,
-        mask  : torch.Tensor,
-    ) -> torch.Tensor:
-        norm = self._l1_loss(mask, torch.zeros(mask.shape).to(mask.device))
-        loss = self._l1_loss(mask * input, mask * target) / norm
+    def forward(self, input: torch.Tensor, target: torch.Tensor, mask: torch.Tensor) -> torch.Tensor:
+        norm = self.loss_l1(mask, torch.zeros_like(mask))
+        loss = self.loss_l1(mask * input, mask * target) / norm
         loss = reduce_loss(loss=loss, reduction=self.reduction)
-        loss = self.loss_weight * loss
-        return loss
+        return self.loss_weight * loss
     
 
 BCELoss                       = nn.BCELoss

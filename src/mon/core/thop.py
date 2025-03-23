@@ -3,7 +3,7 @@
 
 """THOP: PyTorch-OpCounter.
 
-This module extend `thop.profile`.
+This module extend ``thop.profile``.
 """
 
 from __future__ import annotations
@@ -32,14 +32,10 @@ def custom_profile(
 		model: The PyTorch model to profile.
 		inputs: The input data to profile.
 		custom_ops: A dictionary that maps a PyTorch module type to a function
-			that computes the number of operations for that module.
-			Defaults: ``None``.
-		verbose: Whether to print information about the registered hooks.
-			Defaults: ``True``.
-		ret_layer_info: Whether to return the layer information.
-			Defaults: ``False``.
-		report_missing: Whether to report missing rules for the PyTorch module.
-			Defaults: ``False``.
+			that computes the number of operations for that module. Defaults: ``None``.
+		verbose: Whether to print information about the registered hooks. Defaults: ``True``.
+		ret_layer_info: Whether to return the layer information. Defaults: ``False``.
+		report_missing: Whether to report missing rules for the PyTorch module. Defaults: ``False``.
 
 	Returns:
 		The total number of operations and parameters of the given PyTorch model.

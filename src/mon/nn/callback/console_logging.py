@@ -76,12 +76,7 @@ class LogTrainingProgress(callbacks.Callback):
         self._last_time_checked      = None
         self._init_triggers(every_n_epochs, every_n_train_steps, train_time_interval)
     
-    def setup(
-        self,
-        trainer  : "pl.Trainer",
-        pl_module: "pl.LightningModule",
-        stage    : str
-    ):
+    def setup(self, trainer: "pl.Trainer", pl_module: "pl.LightningModule", stage: str):
         """Called when fit, validate, test, predict, or tune begins."""
         dirpath = self._dirpath or core.Path(trainer.default_root_dir)
         # if str(dirpath.stem) != "log":
@@ -89,11 +84,7 @@ class LogTrainingProgress(callbacks.Callback):
         dirpath = trainer.strategy.broadcast(dirpath)
         self._dirpath = core.Path(dirpath)
     
-    def on_train_start(
-        self,
-        trainer  : "pl.Trainer",
-        pl_module: "pl.LightningModule"
-    ):
+    def on_train_start(self, trainer: "pl.Trainer", pl_module: "pl.LightningModule"):
         """Called when the train begins."""
         self._candidates  = self._init_candidates(trainer, pl_module)
         self._start_epoch = int(trainer.current_epoch)
@@ -114,11 +105,7 @@ class LogTrainingProgress(callbacks.Callback):
             self._logger.write(f"\n{headers}\n")
             self._logger.flush()
     
-    def on_train_end(
-        self,
-        trainer  : "pl.Trainer",
-        pl_module: "pl.LightningModule"
-    ):
+    def on_train_end(self,  trainer: "pl.Trainer", pl_module: "pl.LightningModule"):
         """Called when the train ends."""
         end_time      = timer()
         elapsed_epoch = int(trainer.current_epoch) - self._start_epoch
@@ -182,11 +169,7 @@ class LogTrainingProgress(callbacks.Callback):
             candidates         = self._update_candidates(monitor_candidates)
             self._log(candidates)
     
-    def on_train_epoch_end(
-        self,
-        trainer  : "pl.Trainer",
-        pl_module: "pl.LightningModule"
-    ):
+    def on_train_epoch_end(self, trainer: "pl.Trainer", pl_module: "pl.LightningModule"):
         """Called when the train epoch ends."""
         if (
             not self._should_skip_logging(trainer)
@@ -201,11 +184,7 @@ class LogTrainingProgress(callbacks.Callback):
                     candidates         = self._update_candidates(monitor_candidates)
                     self._log(candidates)
     
-    def on_validation_end(
-        self,
-        trainer  : "pl.Trainer",
-        pl_module: "pl.LightningModule"
-    ):
+    def on_validation_end(self, trainer: "pl.Trainer", pl_module: "pl.LightningModule"):
         """Called when the validation loop ends."""
         if (
             not self._should_skip_logging(trainer)

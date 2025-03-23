@@ -72,22 +72,38 @@ class Enum(enum.Enum):
     
     @classmethod
     def random(cls):
-        """Return a random enum."""
+        """Return a random enum.
+    
+        Returns:
+            Enum: A random enum member from the class.
+        """
         return random.choice(list(cls))
 
     @classmethod
     def random_value(cls):
-        """Return a random enum value."""
+        """Return a random enum value.
+    
+        Returns:
+            Any: A random value from the enum.
+        """
         return cls.random().value
 
     @classmethod
     def keys(cls) -> list:
-        """Return a list of all enums."""
+        """Return a list of all enums.
+    
+        Returns:
+            list: A list of all enum members.
+        """
         return list(cls)
 
     @classmethod
     def values(cls) -> list:
-        """Return a list of all enums' values."""
+        """Return a list of all enums' values.
+    
+        Returns:
+            list: A list of all enum values.
+        """
         return [e.value for e in cls]
 
 # endregion
@@ -101,10 +117,11 @@ def intersect_dicts(x: dict, y: dict, exclude: list = []) -> dict:
     Args:
         x: The first dict.
         y: The second dict.
-        exclude: A list of excluding keys. Default: [].
+        exclude: A list of excluding keys. Default: ``[]``.
 
     Returns:
-        A dict that contains only the keys that are in both x and y, and whose values are equal.
+        A dict that contains only the keys that are in both ``x`` and ``y``, and
+        whose values are equal.
     """
     return {k: v for k, v in x.items() if k in y and k not in exclude and v == y[k]}
 
@@ -115,25 +132,40 @@ def intersect_ordered_dicts(x: OrderedDict, y: OrderedDict, exclude: list = []) 
     Args:
         x: The first ordered dict.
         y: The second ordered dict.
-        exclude: A list of excluding keys. Default: [].
+        exclude: A list of excluding keys. Default: ``[]``.
 
     Returns:
-        An OrderedDict that contains only the keys that are in both x and y, and whose values are equal.
+        An ``OrderedDict`` that contains only the keys that are in both ``x``
+        and ``y``, and whose values are equal.
     """
-    return OrderedDict(
-        (k, v) for k, v in x.items() if k in y and k not in exclude and v == y[k]
-    )
+    return OrderedDict((k, v) for k, v in x.items() if k in y and k not in exclude and v == y[k])
 
 
 def shuffle_dict(x: dict) -> dict:
-    """Shuffle a `dict` randomly."""
+    """Shuffle a ``dict`` randomly.
+
+    Args:
+        x: The dictionary to shuffle.
+
+    Returns:
+        A new dictionary with the keys shuffled.
+    """
     keys = list(x.keys())
     random.shuffle(keys)
     return {key: x[key] for key in keys}
 
 
 def flatten_models_dict(x: dict) -> dict:
-    """Flatten a nested dictionary of models into a single dictionary."""
+    """Flatten a nested dictionary of models into a single dictionary.
+
+    Args:
+        x: A nested dictionary of models.
+
+    Returns:
+        A flattened dictionary where each key is from the nested dictionaries,
+        and each value is either the original value or a dictionary with an
+        added ``"arch"`` key.
+    """
     return {k2: {**v2, "arch": k1} if isinstance(v2, dict) else v2
             for k1, v1 in x.items() for k2, v2 in v1.items()}
 
@@ -143,7 +175,14 @@ def flatten_models_dict(x: dict) -> dict:
 # region Module
 
 def get_module_vars(module: ModuleType) -> dict:
-    """Return all public variables of a module in a `dict`."""
+    """Return all public variables of a module in a ``dict``.
+
+    Args:
+        module: The module from which to retrieve public variables.
+
+    Returns:
+        A dictionary containing the public variables of the module.
+    """
     return {
         k: v for k, v in vars(module).items()
         if not (
@@ -160,13 +199,13 @@ def get_module_vars(module: ModuleType) -> dict:
 # region Numeric
 
 def is_int(x: Any) -> bool:
-    """Check if a value can be converted to a float.
+    """Check if a value can be converted to an integer.
 
     Args:
         x: The value to check.
 
     Returns:
-        bool: True if the value can be converted to a float, False otherwise.
+        ``True`` if the value can be converted to an integer, ``False`` otherwise.
     """
     try:
         int(x)
@@ -182,7 +221,7 @@ def is_float(x: Any) -> bool:
         x: The value to check.
 
     Returns:
-        bool: True if the value can be converted to a float, False otherwise.
+        ``True`` if the value can be converted to a float, ``False`` otherwise.
     """
     try:
         float(x)
@@ -198,7 +237,7 @@ def to_int(x: Any) -> int | None:
         x: The value to convert.
 
     Returns:
-        int | None: The converted integer, or None if the input is None.
+        The converted integer, or ``None`` if the input is ``None``.
 
     Raises:
         ValueError: If the input is a string that cannot be converted to an integer.
@@ -217,7 +256,7 @@ def to_float(x: Any) -> float | None:
         x: The value to convert.
 
     Returns:
-        float | None: The converted float, or None if the input is None.
+        The converted float, or ``None`` if the input is ``None``.
 
     Raises:
         ValueError: If the input is a string that cannot be converted to a float.
@@ -236,13 +275,13 @@ def to_float(x: Any) -> float | None:
 def upcast(x: torch.Tensor | np.ndarray, keep_type: bool = False) -> torch.Tensor | np.ndarray:
     """Protect from numerical overflows in multiplications by upcasting to the
     equivalent higher type.
-    
+
     Args:
-        x: An input of type `numpy.ndarray` or `torch.Tensor`.
+        x: An input of type ``numpy.ndarray`` or ``torch.Tensor``.
         keep_type: If ``True``, keep the same type (int32  -> int64). Else
             upcast to a higher type (int32 -> float32).
             
-    Return:
+    Returns:
         A variable of higher type.
     """
     if x.dtype in {torch.float16, np.float16}:
@@ -263,22 +302,28 @@ def upcast(x: torch.Tensor | np.ndarray, keep_type: bool = False) -> torch.Tenso
 # region Sequence
 
 def concat_lists(x: list[list]) -> list:
-    """Concatenate a list of lists into a flattened list."""
+    """Concatenate a list of lists into a flattened list.
+
+    Args:
+        x: A list of lists to concatenate.
+
+    Returns:
+        A single flattened list containing all elements from the input lists.
+    """
     return list(itertools.chain.from_iterable(x))
 
 
 def iter_to_iter(x: Iterable, item_type: type, return_type: type = None):
-    """Convert an `Iterable` object to a desired sequence type specified
-    by the `return_type`. Also, cast each item into the desired
-    `item_type`.
-    
+    """Convert an ``Iterable`` object to a desired sequence type specified
+    by the ``return_type``. Also, cast each item into the desired ``item_type``.
+
     Args:
-        x: An `Iterable` object.
+        x: An ``Iterable`` object.
         item_type: The item type.
         return_type: The desired iterable type. Default: ``None``.
-    
+
     Returns:
-        An `Iterable` object cast to the desired type.
+        An ``Iterable`` object cast to the desired type.
     """
     if not isinstance(x, (list, tuple, dict)):
         raise TypeError(f"`x` must be a `list`, `tuple`, or `dict`, but got {type(x)}.")
@@ -287,25 +332,41 @@ def iter_to_iter(x: Iterable, item_type: type, return_type: type = None):
 
 
 def iter_to_list(x: Iterable, item_type: type) -> list:
-    """Convert an arbitrary `Iterable` object to a `list`."""
+    """Convert an arbitrary ``Iterable`` object to a ``list``.
+
+    Args:
+        x: An ``Iterable`` object to convert.
+        item_type: The type to which each item in the iterable should be cast.
+
+    Returns:
+        A list containing the items from the iterable, cast to the specified type.
+    """
     return list(map(item_type, x))
 
 
 def iter_to_tuple(x: Iterable, item_type: type) -> tuple:
-    """Convert an arbitrary `Iterable` object to a `tuple`."""
+    """Convert an arbitrary ``Iterable`` object to a ``tuple``.
+
+    Args:
+        x: An ``Iterable`` object to convert.
+        item_type: The type to which each item in the iterable should be cast.
+
+    Returns:
+        A tuple containing the items from the iterable, cast to the specified type.
+    """
     return tuple(map(item_type, x))
 
 
 def split_list(x: list, n: int | list[int]) -> list[list]:
     """Slice a single `list` into a list of lists.
-    
+
     Args:
-        x: A `list` object.
-        n: A number of sub-lists, or a `list` of integers to specify the
+        x: A ``list`` object.
+        n: A number of sub-lists, or a ``list`` of integers to specify the
             length of each sub-list.
         
     Returns:
-        A `list` of lists.
+        A ``list`` of lists.
     
     Examples:
         >>> x = [1, 2, 3, 4, 5, 6]
@@ -327,11 +388,14 @@ def split_list(x: list, n: int | list[int]) -> list[list]:
 
 
 def to_list(x: Any, sep: list[str] = [",", ";", ":"]) -> list:
-    """Convert an arbitrary value into a `list`.
-    
+    """Convert an arbitrary value into a ``list``.
+
     Args:
         x: An arbitrary value.
-        sep: A `list` of delimiters to split a string.
+        sep: A ``list`` of delimiters to split a string.
+
+    Returns:
+        A list representation of the input value.
     """
     if isinstance(x, list):
         return x
@@ -348,17 +412,40 @@ def to_list(x: Any, sep: list[str] = [",", ";", ":"]) -> list:
 
 
 def to_int_list(x: Any, sep: list[str] = [",", ";", ":"]) -> list[int]:
-    """Convert a string into a `list` of `int`."""
+    """Convert a string into a ``list`` of ``int``.
+
+    Args:
+        x: The input value to convert, which can be of any type.
+        sep: A list of delimiters to split the string. Default: [",", ";", ":"].
+
+    Returns:
+        A list of integers obtained by splitting the input string.
+    """
     return [int(i) for i in to_list(x, sep=sep)]
 
 
 def to_float_list(x: Any, sep: list[str] = [",", ";", ":"]) -> list[float]:
-    """Convert a string into a `list` of `float`."""
+    """Convert a string into a `list` of `float`.
+
+    Args:
+        x: The input value to convert, which can be of any type.
+        sep: A list of delimiters to split the string. Default: [",", ";", ":"].
+
+    Returns:
+        A list of floats obtained by splitting the input string.
+    """
     return [float(i) for i in to_list(x, sep=sep)]
 
 
 def to_nlist(n: int) -> Callable[[Any], list]:
-    """Return a function that converts an input to a list of length `n`."""
+    """Return a function that converts an input to a list of length ``n``.
+
+    Args:
+        n: The desired length of the list.
+
+    Returns:
+        A function that takes an input and converts it to a list of length ``n``.
+    """
     def parse(x) -> list:
         x = list(x) if isinstance(x, Iterable) else [x]
         return x * n if len(x) == 1 else x
@@ -374,7 +461,14 @@ to_6list = to_nlist(6)
 
 
 def to_tuple(x: Any) -> tuple:
-    """Convert an arbitrary value into a tuple."""
+    """Convert an arbitrary value into a tuple.
+
+    Args:
+        x: The value to convert, which can be of any type.
+
+    Returns:
+        A tuple representation of the input value.
+    """
     if isinstance(x, list):
         return tuple(x)
     if isinstance(x, dict):
@@ -383,15 +477,15 @@ def to_tuple(x: Any) -> tuple:
 
 
 def to_ntuple(n: int) -> Callable[[Any], tuple]:
-    """Take an integer `n` and return a function that takes an
-    `Iterable` object and returns a `tuple` of length `n`.
-    
+    """Take an integer ``n`` and return a function that takes an ``Iterable``
+    object and returns a `tuple` of length ``n``.
+
     Args:
-        n: The number of elements in the `tuple`.
-    
+        n: The number of elements in the ``tuple``.
+
     Returns:
-        A function that takes an integer `n`n and returns a `tuple`
-        of that integer repeated `n` times.
+        A function that takes an input and returns a ``tuple`` of that input
+        repeated ``n`` times.
     """
     def parse(x) -> tuple:
         if isinstance(x, Iterable):
@@ -418,7 +512,14 @@ to_quadruple = to_ntuple(4)
 
 
 def unique(x: list | tuple) -> list | tuple:
-    """Get unique items from a `list` or `tuple`."""
+    """Get unique items from a ``list`` or ``tuple``.
+
+    Args:
+        x: A ``list`` or ``tuple`` from which to get unique items.
+
+    Returns:
+        A ``list`` or ``tuple`` containing unique items from the input.
+    """
     return type(x)(set(x))
 
 # endregion
@@ -427,6 +528,16 @@ def unique(x: list | tuple) -> list | tuple:
 # region String
 
 def to_str(x: Any, sep: str = ",") -> str:
+    """Convert an arbitrary value into a string, with elements separated by a delimiter.
+
+    Args:
+        x: The value to convert, which can be of any type.
+        sep: The delimiter to use for separating elements. Default: ",".
+
+    Returns:
+        A string representation of the input value, with elements separated by
+        the delimiter.
+    """
     if isinstance(x, dict):
         x = x.values()
     if not isinstance(x, (list, tuple)):

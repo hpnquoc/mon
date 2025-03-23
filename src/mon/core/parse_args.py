@@ -24,21 +24,15 @@ from mon.core import pathlib, utils
 # region Utils
 
 def _str_or_none(value) -> str | None:
-    if value == "None":
-        return None
-    return value
+    return None if value == "None" else value
 
 
 def _int_or_none(value) -> int | None:
-    if value == "None":
-        return None
-    return int(value)
+    return None if value == "None" else int(value)
 
 
 def _float_or_none(value) -> float | None:
-    if value == "None":
-        return None
-    return float(value)
+    return None if value == "None" else float(value)
 
 
 def get_image_size(input: Any) -> tuple[int, int]:

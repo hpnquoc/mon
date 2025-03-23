@@ -25,14 +25,40 @@ class YAMLHandler(base.FileHandler):
     """YAML file handler."""
     
     def read_from_fileobj(self, path: pathlib.Path | str | TextIO, **kwargs) -> Any:
+        """Convert a dictionary to an XML string.
+    
+        Args:
+            obj: The dictionary to convert to an XML string.
+            **kwargs: Additional keyword arguments to pass to the ``xmltodict.unparse`` function.
+    
+        Returns:
+            The XML string representation of the dictionary.
+        """
         kwargs.setdefault("Loader", FullLoader)
         return load(stream=path, **kwargs)
     
     def write_to_fileobj(self, obj : Any, path: pathlib.Path | str | TextIO, **kwargs):
+        """Write data to a YAML file object.
+    
+        Args:
+            obj: The data to write to the file.
+            path: The path to the file. It can be a ``pathlib.Path``, ``str``, or `
+                `TextIO`` object.
+            **kwargs: Additional keyword arguments to pass to the ``yaml.dump`` function.
+        """
         kwargs.setdefault("Dumper", Dumper)
         dump(data=obj, stream=pathlib.Path(path), **kwargs)
     
     def write_to_string(self, obj: Any, **kwargs) -> str:
+        """Convert a dictionary to a YAML string.
+    
+        Args:
+            obj: The dictionary to convert to a YAML string.
+            **kwargs: Additional keyword arguments to pass to the ``yaml.dump`` function.
+    
+        Returns:
+            The YAML string representation of the dictionary.
+        """
         kwargs.setdefault("Dumper", Dumper)
         return dump(data=obj, **kwargs)
 

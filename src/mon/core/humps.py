@@ -33,7 +33,7 @@ def snakecase(x: str) -> str:
 	    x: The input string to be converted.
 
 	Returns:
-	    str: The converted snake_case string.
+	    The converted snake_case string.
 	"""
 	x = x.replace(" ", "_").replace("-", "_")
 	return x

@@ -153,8 +153,8 @@ class Loss(nn.Loss):
 		
 		self.loss_e     = nn.ExposureValueControlLoss(16, loss_e_mean, reduction=reduction)
 		self.loss_tv    = nn.TotalVariationLoss(reduction=reduction)
-		self.loss_depth = nn.DepthWeightedSmoothnessLoss(reduction=reduction)
-		self.loss_edge  = nn.EdgeAwareLoss(reduction=reduction)
+		self.loss_depth = nn.DepthAwareIlluminationLoss(reduction=reduction)
+		self.loss_edge  = nn.EdgeAwareIlluminationLoss(reduction=reduction)
 		self.loss_c     = nn.ColorConstancyLoss(reduction=reduction)
 		
 	def forward(
@@ -175,7 +175,7 @@ class Loss(nn.Loss):
 		loss_de = 0.0
 		if d_lr is not None:
 			loss_de += self.loss_depth(x_lr, d_lr)
-		if  e_lr is not None:
+		if e_lr is not None:
 			loss_de += self.loss_edge(x_lr, e_lr)
 		loss_de = self.loss_w_de * loss_de
 		loss = loss_f + loss_s + loss_e + loss_tv + loss_de + loss_c
