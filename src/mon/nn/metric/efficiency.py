@@ -12,11 +12,10 @@ __all__ = [
 	"compute_efficiency_score",
 ]
 
-from typing import Sequence
-
 import torch
 from fvcore.nn import FlopCountAnalysis, parameter_count
 from torch import nn
+from torch.nn.common_types import _size_2_t
 
 from mon import core
 
@@ -25,23 +24,28 @@ console = core.console
 
 # region Efficiency Metric
 
-def compute_efficiency_score(
-	model     : nn.Module,
-	image_size: int | Sequence[int] = 512,
-	channels  : int  = 3,
-) -> tuple[float, float]:
-	from mon.vision.dtype import image as I
-	# Define input tensor
-	h, w  = I.get_image_size(image_size)
-	input = torch.rand(1, channels, h, w)
-	input = input.to(core.get_model_device(model))
-	# Get FLOPs and Params
-	flops, params = core.profile(model, inputs=(input, ), verbose=False)
-	flops         = FlopCountAnalysis(model, input).total() if flops == 0 else flops
-	params        = model.params               if hasattr(model, "params") and params == 0 else params
-	params        = parameter_count(model)     if hasattr(model, "params") else params
-	params        = sum(list(params.values())) if isinstance(params, dict) else params
-	# Return
-	return flops, params
+def compute_efficiency_score(model: nn.Module, image_size: _size_2_t = 512, channels: int = 3) -> tuple[float, float]:
+    """Computes FLOPs and parameters for a model.
+
+    Args:
+        model: PyTorch model to profile.
+        image_size: Input image size (H, W) or single int. Default is ``512``.
+        channels: Number of input channels. Default is ``3``.
+
+    Returns:
+        Tuple of (FLOPs, parameters) as floats.
+    """
+    from mon.vision.dtype import image as I
+
+    h, w  = I.get_image_size(image_size)
+    input = torch.rand(1, channels, h, w).to(core.get_model_device(model))
+    flops, params = core.profile(model, inputs=(input,), verbose=False)
+
+    flops  = FlopCountAnalysis(model, input).total() if flops == 0 else flops
+    params = model.params if hasattr(model, "params") and params == 0 else params
+    params = parameter_count(model) if hasattr(model, "params") else params
+    params = sum(params.values()) if isinstance(params, dict) else params
+
+    return flops, params
 
 # endregion

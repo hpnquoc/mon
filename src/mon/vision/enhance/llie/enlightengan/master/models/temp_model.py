@@ -276,11 +276,11 @@ class TempModel(BaseModel):
                    w_offset_2:w_offset_2 + self.opt.patchSize]
 
     def backward_G(self, epoch):
-        pred_fake = self.netD_A.forward(self.fake_B)
+        pred_fake = self.netD_A.forward(self.fake_B, )
         if self.opt.use_wgan:
             self.loss_G_A = -pred_fake.mean()
         elif self.opt.use_ragan:
-            pred_real = self.netD_A.forward(self.real_B)
+            pred_real = self.netD_A.forward(self.real_B, )
 
             self.loss_G_A = (self.criterionGAN(pred_real - torch.mean(pred_fake), False) +
                                       self.criterionGAN(pred_fake - torch.mean(pred_real), True)) / 2
@@ -290,22 +290,22 @@ class TempModel(BaseModel):
         
         loss_G_A = 0
         if self.opt.patchD:
-            pred_fake_patch = self.netD_P.forward(self.fake_patch)
+            pred_fake_patch = self.netD_P.forward(self.fake_patch, )
             if self.opt.hybrid_loss:
                 loss_G_A += self.criterionGAN(pred_fake_patch, True)
             else:
-                pred_real_patch = self.netD_P.forward(self.real_patch)
+                pred_real_patch = self.netD_P.forward(self.real_patch, )
                 
                 loss_G_A += (self.criterionGAN(pred_real_patch - torch.mean(pred_fake_patch), False) +
                                       self.criterionGAN(pred_fake_patch - torch.mean(pred_real_patch), True)) / 2
             self.loss_G_A += loss_G_A
         if self.opt.patchD_3 > 0:   
             for i in range(self.opt.patchD_3):
-                pred_fake_patch_1 = self.netD_P.forward(self.fake_patch_1[i])
+                pred_fake_patch_1 = self.netD_P.forward(self.fake_patch_1[i], )
                 if self.opt.hybrid_loss:
                     loss_G_A += self.criterionGAN(pred_fake_patch_1, True)
                 else:
-                    pred_real_patch_1 = self.netD_P.forward(self.real_patch_1[i])
+                    pred_real_patch_1 = self.netD_P.forward(self.real_patch_1[i], )
                     
                     loss_G_A += (self.criterionGAN(pred_real_patch_1 - torch.mean(pred_fake_patch_1), False) +
                                         self.criterionGAN(pred_fake_patch_1 - torch.mean(pred_real_patch_1), True)) / 2

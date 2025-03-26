@@ -25,7 +25,7 @@ class FaceHead(EmbeddingHead):
         then compute logits and get the grad of features.
         """
         if not self.pfc_enabled:
-            return super().forward(features, targets)
+            return super().forward(features)
         else:
             pool_feat = self.pool_layer(features)
             neck_feat = self.bottleneck(pool_feat)

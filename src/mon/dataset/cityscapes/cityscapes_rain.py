@@ -38,7 +38,14 @@ SemanticSegmentationAnnotation = dtype.SemanticSegmentationAnnotation
 
 @DATASETS.register(name="cityscapes_rain")
 class CityscapesRain(Cityscapes):
+    """Loads and processes the CityscapesRain dataset for deraining tasks.
 
+    Args:
+        ``root``: Root directory path. Default is ``default_root_dir``.
+    Raises:
+        FileNotFoundError: If ``root``/cityscapes directory does not exist.
+    """
+    
     tasks : list[Task]  = [Task.DERAIN]
     splits: list[Split] = [Split.TRAIN, Split.VAL]
     datapoint_attrs     = DatapointAttributes({
@@ -51,53 +58,41 @@ class CityscapesRain(Cityscapes):
     def __init__(self, root: core.Path = default_root_dir, *args, **kwargs):
         root = root / "cityscapes" if root.name != "cityscapes" else root
         if not root.is_dir():
-            raise FileNotFoundError(f"Directory not found: {root}.")
-        # Initialize
+            raise FileNotFoundError(f"[root] must be a directory, but got [{root}]")
         super().__init__(root=root, *args, **kwargs)
     
     def get_data(self):
-        patterns = [
-            self.root / self.split_str /  "leftImg8bit_rain",
-        ]
-        
-        # Images
+        """Loads rainy images, reference images, and semantic maps."""
+        patterns = [self.root / self.split_str / "leftImg8bit_rain"]
+
         images: list[ImageAnnotation] = []
         with core.get_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
-                for path in pbar.track(
-                    sequence    = sorted(list(pattern.rglob("*"))),
-                    description = f"Listing {self.__class__.__name__} {self.split_str} images"
-                ):
+                paths = sorted(pattern.rglob("*"))
+                desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
+                for path in pbar.track(sequence=paths, description=desc):
                     if path.is_image_file():
                         images.append(ImageAnnotation(path=path, root=pattern))
-        
-        # Reference images
+                        
         ref_images: list[ImageAnnotation] = []
         with core.get_progress_bar(disable=self.disable_pbar) as pbar:
-            for img in pbar.track(
-                sequence    = images,
-                description = f"Listing {self.__class__.__name__} {self.split_str} reference images"
-            ):
+            desc = f"Listing {self.__class__.__name__} {self.split_str} reference images"
+            for img in pbar.track(sequence=images, description=desc):
                 path = img.path.replace("/leftImg8bit_rain/", "/leftImg8bit/")
-                stem = path.stem
-                path = path.parent / f"{stem.split("leftImg8bit")[0]}leftImg8bit{path.suffix}"
+                stem = path.stem.split("leftImg8bit")[0]
+                path = path.parent / f"{stem}leftImg8bit{path.suffix}"
                 ref_images.append(ImageAnnotation(path=path.image_file(), root=img.root))
         
-        # Semantic segmentation maps
         semantic: list[SemanticSegmentationAnnotation] = []
         with core.get_progress_bar(disable=self.disable_pbar) as pbar:
-            for img in pbar.track(
-                sequence    = images,
-                description = f"Listing {self.__class__.__name__} {self.split_str} semantic maps"
-            ):
-                path = img.path.replace("/leftImg8bit/", "/gtFine/")
-                semantic.append(
-                    SemanticSegmentationAnnotation(
-                        path  = path.image_file(),
-                        root  = img.root,
-                        flags = cv2.IMREAD_GRAYSCALE
-                    )
-                )
+            desc = f"Listing {self.__class__.__name__} {self.split_str} semantic maps"
+            for img in pbar.track(sequence=images, description=desc):
+                path = img.path.replace("/leftImg8bit_rain/", "/gtFine/")
+                semantic.append(SemanticSegmentationAnnotation(
+                    path  = path.image_file(),
+                    root  = img.root,
+                    flags = cv2.IMREAD_GRAYSCALE
+                ))
         
         self.datapoints["image"]     = images
         self.datapoints["ref_image"] = ref_images
@@ -106,22 +101,33 @@ class CityscapesRain(Cityscapes):
 
 @DATAMODULES.register(name="cityscapes_rain")
 class CityscapesRainDataModule(DataModule):
-    
+    """Manages CityscapesRain dataset for training, validation, and testing.
+
+    Args:
+        ``stage``: Setup stage, one of "train", "test", "predict", or ``None``. Default is ``None``.
+    """
+
     tasks: list[Task] = [Task.DERAIN]
-    
+
     def prepare_data(self, *args, **kwargs):
+        """Prepares data for the CityscapesRain dataset (currently a no-op)."""
         pass
 
     def setup(self, stage: Literal["train", "test", "predict", None] = None):
+        """Sets up datasets for specified stage.
+
+        Args:
+            ``stage``: Stage to setup, one of "train", "test", "predict", or ``None``. Default is ``None``.
+        """
         if self.can_log:
             console.log(f"Setup [red]{self.__class__.__name__}[/red].")
-        
+
         if stage in [None, "train"]:
             self.train = CityscapesRain(split=Split.TRAIN, **self.dataset_kwargs)
             self.val   = CityscapesRain(split=Split.VAL,   **self.dataset_kwargs)
         if stage in [None, "test"]:
             self.test  = CityscapesRain(split=Split.VAL,   **self.dataset_kwargs)
-        
+
         self.get_classlabels()
         if self.can_log:
             self.summarize()

@@ -34,22 +34,33 @@ current_dir  = current_file.parents[0]
 # region Model
 
 class ShuffleNetV2(nn.ExtraModel, base.ImageClassificationModel, ABC):
-    """ShuffleNetV2 models from the paper: "ShuffleNet V2: Practical Guidelines
-    for Efficient CNN Architecture Design"
-    
+    """ShuffleNetV2 model for image classification.
+
     References:
-        https://arxiv.org/abs/1807.11164
+        - https://arxiv.org/abs/1807.11164
     """
     
-    arch     : str          = "shufflenet"
-    ltypes   : list[LType]  = [LType.SUPERVISED]
-    model_dir: core.Path    = current_dir
-    zoo      : dict         = {}
+    arch     : str         = "shufflenet"
+    ltypes   : list[LType] = [LType.SUPERVISED]
+    model_dir: core.Path   = current_dir
+    zoo      : dict        = {}
     
     def init_weights(self, m: nn.Module):
+        """Initializes weights for the model.
+
+        Args:
+            m: Module to initialize weights for.
+        """
         pass
-    
+
     def forward(self, datapoint: dict, *args, **kwargs) -> dict:
+        """Performs forward pass on the model.
+
+        Args:
+            datapoint: Dict with image data.
+        Returns:
+            Dict with logits from the model.
+        """
         x = datapoint["image"]
         y = self.model(x)
         return {"logits": y}
@@ -57,6 +68,11 @@ class ShuffleNetV2(nn.ExtraModel, base.ImageClassificationModel, ABC):
 
 @MODELS.register(name="shufflenet_v2_x0_5", arch="shufflenet")
 class ShuffleNetV2_x0_5(ShuffleNetV2):
+    """ShuffleNetV2-x0.5 model for image classification.
+
+    Args:
+        num_classes: Number of output classes. Default is ``1000``.
+    """
     
     name: str  = "shufflenet_v2_x0_5"
     zoo : dict = {
@@ -83,6 +99,11 @@ class ShuffleNetV2_x0_5(ShuffleNetV2):
 
 @MODELS.register(name="shufflenet_v2_x1_0", arch="shufflenet")
 class ShuffleNetV2_X1_0(ShuffleNetV2):
+    """ShuffleNetV2-x1.0 model for image classification.
+
+    Args:
+        num_classes: Number of output classes. Default is ``1000``.
+    """
     
     name: str  = "shufflenet_v2_x1_0"
     zoo : dict = {
@@ -109,6 +130,11 @@ class ShuffleNetV2_X1_0(ShuffleNetV2):
 
 @MODELS.register(name="shufflenet_v2_x1_5", arch="shufflenet")
 class ShuffleNetV2_X1_5(ShuffleNetV2):
+    """ShuffleNetV2-x1.5 model for image classification.
+
+    Args:
+        num_classes: Number of output classes. Default is ``1000``.
+    """
     
     name: str  = "shufflenet_v2_x1_5"
     zoo : dict = {
@@ -135,6 +161,11 @@ class ShuffleNetV2_X1_5(ShuffleNetV2):
 
 @MODELS.register(name="shufflenet_v2_x2_0", arch="shufflenet")
 class ShuffleNetV2_X2_0(ShuffleNetV2):
+    """ShuffleNetV2-x2.0 model for image classification.
+
+    Args:
+        num_classes: Number of output classes. Default is ``1000``.
+    """
     
     name: str  = "shufflenet_v2_x2_0"
     zoo : dict = {

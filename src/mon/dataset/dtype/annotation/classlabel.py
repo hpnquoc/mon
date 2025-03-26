@@ -9,7 +9,7 @@ This module implements classlabels in a dataset.
 from __future__ import annotations
 
 __all__ = [
-	"ClassLabels",
+    "ClassLabels",
 ]
 
 from mon import core
@@ -20,77 +20,114 @@ console = core.console
 # region ClassLabel
 
 class ClassLabels(list[dict]):
-	"""A `list` of all the class-labels defined in a dataset.
-	
-	Notes:
-		We inherit the standard Python `list` to take advantage of the
-		built-in functions.
-	"""
-	
-	@property
-	def trainable_classes(self) -> ClassLabels:
-		"""Return all the trainable classes."""
-		# classes = copy.deepcopy(self)
-		# for i, item in enumerate(classes):
-		# 	if "train_id" in item:
-		#		classes[i]["id"] = item["train_id"]
-		# return ClassLabels([item for item in classes if 0 <= item["id"] < 255])
-		return ClassLabels([item for item in self if 0 <= item["id"] < 255])
-		
-	@property
-	def keys(self) -> list[str]:
-		"""Return all the keys in the class-labels."""
-		return list(self[0].keys())
-	
-	@property
-	def names(self) -> list[str]:
-		"""Return all the names in the class-labels."""
-		return [item["name"] for item in self]
-	
-	@property
-	def ids(self) -> list[int]:
-		"""Return all the IDs in the class-labels."""
-		return [item["id"] for item in self]
-	
-	@property
-	def id2class(self) -> dict[int, dict]:
-		"""A `dict` mapping items' IDs (keys) to items (values)."""
-		return {int(item["id"]): item for item in self}
-	
-	@property
-	def id2name(self) -> dict[int, str]:
-		"""A `dict` mapping items' IDs (keys) to items (values)."""
-		return {int(item["id"]): item["name"] for item in self}
-	
-	@property
-	def id2train_id(self) -> dict[int, int]:
-		"""A `dict` mapping items' IDs (keys) to items (values)."""
-		return {
-			int(item["id"]): item["train_id"] for item in self
-			if 0 <= item["id"] < 255 and 0 <= item["train_id"] < 255
-		}
-	
-	@property
-	def id2color(self) -> dict[int, list[int] | tuple[int, int, int]]:
-		"""A `dict` mapping items' IDs (keys) to items (values)."""
-		return {int(item["id"]): item["color"] for item in self}
-	
-	@property
-	def num_classes(self) -> int:
-		"""Return the number of classes in the dataset."""
-		return len(self)
-	
-	@property
-	def num_trainable_classes(self) -> int:
-		"""Return the number of trainable classes in the dataset."""
-		return len(self.trainable_classes)
-	
-	def print(self):
-		"""Print all items (class-labels) in a rich format."""
-		if len(self) <= 0:
-			console.log("[yellow]No class is available.")
-			return
-		console.log("Classlabels:")
-		core.print_table(self)
+    """List of class labels defined in a dataset.
+
+    Notes:
+        Inherits from Python ``list`` for built-in functionality.
+    """
+    
+    @property
+    def trainable_classes(self) -> 'ClassLabels':
+        """Returns all trainable classes.
+
+        Filters class labels to include only those with ``id`` in ``[0, 254]``.
+
+        Returns:
+            New ``ClassLabels`` instance with trainable classes.
+        """
+        return ClassLabels([item for item in self if 0 <= item["id"] < 255])
+    
+    @property
+    def keys(self) -> list[str]:
+        """Returns all keys in the class labels.
+
+        Returns:
+            List of keys from the first class label.
+        """
+        return list(self[0].keys()) if self else []
+    
+    @property
+    def names(self) -> list[str]:
+        """Returns all names in the class labels.
+
+        Returns:
+            List of ``name`` values from the class labels.
+        """
+        return [item["name"] for item in self]
+    
+    @property
+    def ids(self) -> list[int]:
+        """Returns all IDs in the class labels.
+
+        Returns:
+            List of ``id`` values from the class labels.
+        """
+        return [item["id"] for item in self]
+    
+    @property
+    def id2class(self) -> dict[int, dict]:
+        """Maps IDs to class label dictionaries.
+
+        Returns:
+            Dict mapping ``id`` to class label items.
+        """
+        return {item["id"]: item for item in self}
+    
+    @property
+    def id2name(self) -> dict[int, str]:
+        """Maps IDs to class names.
+
+        Returns:
+            Dict mapping ``id`` to ``name``.
+        """
+        return {item["id"]: item["name"] for item in self}
+    
+    @property
+    def id2train_id(self) -> dict[int, int]:
+        """Maps IDs to trainable IDs.
+
+        Returns:
+            Dict mapping ``id`` to ``train_id`` for IDs and train IDs in ``[0, 254]``.
+        """
+        return {
+            item["id"]: item["train_id"]
+            for item in self
+            if "train_id" in item and 0 <= item["id"] < 255 and 0 <= item["train_id"] < 255
+        }
+    
+    @property
+    def id2color(self) -> dict[int, list[int] | tuple[int, int, int]]:
+        """Maps IDs to RGB colors.
+
+        Returns:
+            Dict mapping ``id`` to ``color`` values.
+        """
+        return {item["id"]: item["color"] for item in self}
+    
+    @property
+    def num_classes(self) -> int:
+        """Returns the total number of classes.
+
+        Returns:
+            Integer count of class labels.
+        """
+        return len(self)
+    
+    @property
+    def num_trainable_classes(self) -> int:
+        """Returns the number of trainable classes.
+
+        Returns:
+            Integer count of trainable class labels.
+        """
+        return len(self.trainable_classes)
+    
+    def print(self):
+        """Prints class labels in a formatted table."""
+        if not self:
+            console.log("[yellow]No class is available.")
+        else:
+            console.log("Classlabels:")
+            core.print_table(self)
 
 # endregion

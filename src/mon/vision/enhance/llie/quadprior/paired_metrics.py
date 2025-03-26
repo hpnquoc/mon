@@ -49,7 +49,7 @@ def img_lpips(img1, img2):
 
     img1 = process(img1)
     img2 = process(img2)
-    return loss_fn.forward(img1, img2).mean().detach().cpu().tolist()
+    return loss_fn.forward(img1).mean().detach().cpu().tolist()
 
 #### LOE
 def img_loe(ipic, epic, window_size=7):

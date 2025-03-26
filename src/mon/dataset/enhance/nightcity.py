@@ -37,15 +37,17 @@ MultimodalDataset              = dtype.MultimodalDataset
 SemanticSegmentationAnnotation = dtype.SemanticSegmentationAnnotation
 
 
-# region Dataset
-
 @DATASETS.register(name="nightcity")
 class NightCity(MultimodalDataset):
-    """NightCity dataset consists of 4,297 real night-time images with ground
-    truth pixel-level semantic annotations.
-    
-    References:
-    	https://dmcv.sjtu.edu.cn/people/phd/tanxin/NightCity/index.html
+    """Loads NightCity dataset from ``root`` dir.
+
+    Args:
+        root: Directory path to dataset. Default is ``default_root_dir``.
+        *args: Additional args for parent class.
+        **kwargs: Additional kwargs for parent class.
+
+    Raises:
+        FileNotFoundError: If ``root`` directory does not exist.
     """
     
     tasks : list[Task]  = [Task.LLIE, Task.NIGHTTIME, Task.SEGMENT]
@@ -93,73 +95,71 @@ class NightCity(MultimodalDataset):
         {"name": "bicycle"             , "id": 33, "train_id": 18 , "category": "vehicle"     , "category_id": 7, "ignore_in_eval": False, "color": [119, 11 ,  32]},
         {"name": "license plate"       , "id": -1, "train_id": -1 , "category": "vehicle"     , "category_id": 7, "ignore_in_eval": True , "color": [0  , 0  , 142]},
     ])
-    
+
     def __init__(self, root: core.Path = default_root_dir, *args, **kwargs):
-        root = root / "nightcity" if root.name != "nhhaze" else root
+        """Initializes dataset with ``root`` path and parent args."""
+        root = root / "nightcity" if root.name != "nightcity" else root
         if not root.is_dir():
-            raise FileNotFoundError(f"Directory not found: {root}.")
-        # Initialize
+            raise FileNotFoundError(f"[root] directory not found: [{root}]")
         super().__init__(root=root, *args, **kwargs)
-        
+
     def get_data(self):
+        """Populates ``datapoints`` with image and semantic annotations."""
         if self.split == Split.TEST:
-            patterns = [
-                self.root / "val" / "image",
-            ]
+            patterns = [self.root / "val" / "image"]
         else:
-            patterns = [
-                self.root / self.split_str / "image",
-            ]
-        
-        # Images
+            patterns = [self.root / self.split_str / "image"]
+
         images: list[ImageAnnotation] = []
         with core.get_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
-                for path in pbar.track(
-                    sequence    = sorted(list(pattern.rglob("*"))),
-                    description = f"Listing {self.__class__.__name__} {self.split_str} images"
-                ):
+                paths = sorted(pattern.rglob("*"))
+                desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
+                for path in pbar.track(sequence=paths, description=desc):
                     if path.is_image_file():
                         images.append(ImageAnnotation(path=path, root=pattern))
-        
-        # Semantic segmentation maps
+
         semantic: list[SemanticSegmentationAnnotation] = []
         with core.get_progress_bar(disable=self.disable_pbar) as pbar:
-            for img in pbar.track(
-                sequence    = images,
-                description = f"Listing {self.__class__.__name__} {self.split_str} semantic maps"
-            ):
+            desc = f"Listing {self.__class__.__name__} {self.split_str} semantic maps"
+            for img in pbar.track(sequence=images, description=desc):
                 path = img.path.replace("/lq/", "/labelIds/")
                 semantic.append(SemanticSegmentationAnnotation(path=path.image_file(), flags=cv2.IMREAD_GRAYSCALE))
-        
+
         self.datapoints["image"]    = images
         self.datapoints["semantic"] = semantic
-        
-# endregion
 
-
-# region Datamodule
 
 @DATAMODULES.register(name="nightcity")
 class NightCityDataModule(DataModule):
+    """Configures NightCity datasets for training/testing.
+
+    Args:
+        *args: Additional args for parent class.
+        **kwargs: Additional kwargs for parent class.
+    """
     
     tasks: list[Task] = [Task.LLIE, Task.NIGHTTIME, Task.SEGMENT]
-    
+
     def prepare_data(self, *args, **kwargs):
+        """Prepares data (placeholder, no action taken)."""
         pass
-    
+
     def setup(self, stage: Literal["train", "test", "predict", None] = None):
+        """Sets up datasets for given ``stage``.
+
+        Args:
+            stage: Stage to configure. Default is ``None``.
+        """
         if self.can_log:
             console.log(f"Setup [red]{self.__class__.__name__}[/red].")
-        
+
         if stage in [None, "train"]:
             self.train = NightCity(split=Split.TRAIN, **self.dataset_kwargs)
             self.val   = NightCity(split=Split.VAL,   **self.dataset_kwargs)
         if stage in [None, "test"]:
             self.test  = NightCity(split=Split.TEST,  **self.dataset_kwargs)
-        
+
         self.get_classlabels()
         if self.can_log:
             self.summarize()
-    
-# endregion

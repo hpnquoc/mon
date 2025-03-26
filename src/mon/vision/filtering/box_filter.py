@@ -26,18 +26,23 @@ from mon.vision import dtype
 # region Utils
 
 def diff_x(image: torch.Tensor, radius: int) -> torch.Tensor:
-    """Compute the difference of the input along the x-axis.
-    
+    """Computes difference along the x-axis of an image.
+
     Args:
-        image: An image of type `torch.Tensor` in ``[B, C, H, W]`` format
-            with data in the range ``[0.0, 1.0]``.
+        image: Image as torch.Tensor in [B, C, H, W], range [0.0, 1.0].
         radius: Radius of the kernel.
-        
+    
+    Returns:
+        Tensor with x-axis differences.
+    
+    Raises:
+        ValueError: If image does not have 4 dimensions.
+    
     References:
-        https://github.com/wuhuikai/DeepGuidedFilter/blob/master/GuidedFilteringLayer/GuidedFilter_PyTorch/guided_filter_pytorch/box_filter.py
+        - https://github.com/wuhuikai/DeepGuidedFilter/blob/master/GuidedFilteringLayer/GuidedFilter_PyTorch/guided_filter_pytorch/box_filter.py
     """
     if image.ndim != 4:
-        raise ValueError(f"`image` must have 4 dimensions.")
+        raise ValueError("[image] must have 4 dimensions")
     left   = image[:, :, radius        : 2 * radius + 1]
     middle = image[:, :, 2 * radius + 1:               ] - image[: , : ,                : -2 * radius - 1]
     right  = image[:, :, -1            :               ] - image[: , : , -2 * radius - 1:     -radius - 1]
@@ -46,18 +51,23 @@ def diff_x(image: torch.Tensor, radius: int) -> torch.Tensor:
 
 
 def diff_y(image: torch.Tensor, radius: int) -> torch.Tensor:
-    """Compute the difference of the image along the y-axis.
-    
+    """Computes difference along the y-axis of an image.
+
     Args:
-        image: An image of type `torch.Tensor` in ``[B, C, H, W]`` format
-            with data in the range ``[0.0, 1.0]``.
+        image: Image as torch.Tensor in [B, C, H, W], range [0.0, 1.0].
         radius: Radius of the kernel.
     
+    Returns:
+        Tensor with y-axis differences.
+    
+    Raises:
+        ValueError: If image does not have 4 dimensions.
+    
     References:
-        https://github.com/wuhuikai/DeepGuidedFilter/blob/master/GuidedFilteringLayer/GuidedFilter_PyTorch/guided_filter_pytorch/box_filter.py
+        - https://github.com/wuhuikai/DeepGuidedFilter/blob/master/GuidedFilteringLayer/GuidedFilter_PyTorch/guided_filter_pytorch/box_filter.py
     """
     if image.ndim != 4:
-        raise ValueError(f"`image` must have 4 dimensions.")
+        raise ValueError("[image] must have 4 dimensions")
     left   = image[:, :, :,         radius:2 * radius + 1]
     middle = image[:, :, :, 2 * radius + 1:              ] - image[:, :, :,                :-2 * radius - 1]
     right  = image[:, :, :,             -1:              ] - image[:, :, :, -2 * radius - 1:    -radius - 1]
@@ -75,36 +85,36 @@ def box_filter(
     radius     : int = None,
     **kwargs
 ) -> torch.Tensor:
-    """Perform box filer on the image.
-    
+    """Performs box filtering on an image.
+
     Args:
-        image: An image of type `torch.Tensor` in ``[B, C, H, W]`` format
-            with data in the range ``[0.0, 1.0]``.
-        kernel_size: Size of the kernel. Commonly be ``3``, ``5``, ``7``, or
-            ``9``.
+        image: Image as torch.Tensor in [B, C, H, W], range [0.0, 1.0].
+        kernel_size: Size of the kernel (e.g., 3, 5, 7, 9).
         radius: Radius of the kernel (kernel_size = radius * 2 + 1).
-            Commonly be ``1``, ``2``, ``3``, or ``4``.
     
-        kwargs (`cv2.boxFilter`) includes:
-            ddepth: The output image depth. Default: ``-1`` means the same as
-                the depth as `image`.
-            anchor: The anchor of the kernel. Default: ``(-1, -1)`` means at
-                the center.
-            normalize: Whether to normalize the kernel. Default: ``False``.
-            borderType: Border mode used to extrapolate pixels outside of the
-                image. Default: `cv2.BORDER_DEFAULT`.
-                
     Returns:
-        A filtered image.
+        Filtered image.
+    
+    Raises:
+        ValueError: If neither ``kernel_size`` nor ``radius`` is provided, or image dimensions are invalid.
+        TypeError: If image type is neither ``torch.Tensor`` nor ``numpy.ndarray``.
+    
+    Notes:
+        For ``torch.Tensor``, kwargs are ignored, and filtering uses diff_x/diff_y.
+        For ``numpy.ndarray``, kwargs include:
+            - ddepth: Output image depth. Default is ``-1`` (same as input).
+            - anchor: Kernel anchor point. Default is ``(-1, -1)`` (center).
+            - normalize: Normalize kernel if True. Default is ``False``.
+            - borderType: Border mode (e.g., cv2.BORDER_DEFAULT). Default is ``cv2.BORDER_DEFAULT``.
     
     References:
-        https://github.com/wuhuikai/DeepGuidedFilter/blob/master/GuidedFilteringLayer/GuidedFilter_PyTorch/guided_filter_pytorch/box_filter.py
+        - https://github.com/wuhuikai/DeepGuidedFilter/blob/master/GuidedFilteringLayer/GuidedFilter_PyTorch/guided_filter_pytorch/box_filter.py
     """
     if kernel_size is None and radius is None:
-        raise ValueError("Either `kernel_size` or `radius` must be provided.")
+        raise ValueError("Either [kernel_size] or [radius] must be provided")
     if isinstance(image, torch.Tensor):
         if image.ndim != 4:
-            raise ValueError(f"`image` must have 4 dimensions.")
+            raise ValueError("[image] must have 4 dimensions")
         radius = radius or int((kernel_size - 1) / 2)
         return diff_y(diff_x(image.cumsum(dim=2), radius).cumsum(dim=3), radius)
     elif isinstance(image, np.ndarray):
@@ -120,59 +130,69 @@ def box_filter(
             ksize      = kernel_size,
             anchor     = anchor,
             normalize  = normalize,
-            borderType = borderType,
+            borderType = borderType
         )
     else:
-        raise TypeError(f"`image` must be a `torch.Tensor` or `numpy.ndarray`, "
-                        f"but got {type(image)}.")
+        raise TypeError(f"[image] must be torch.Tensor or numpy.ndarray, but got {type(image)}")
     
 
 def box_filter_conv(
     image      : torch.Tensor,
     kernel_size: int = None,
-    radius     : int = None,
+    radius     : int = None
 ) -> torch.Tensor:
-    """Perform box filer on the image.
-    
+    """Performs box filtering on an image using convolution.
+
     Args:
-        image: An image in `[B, C, H, W]` format.
-        kernel_size: Size of the kernel. Commonly be ``3``, ``5``, ``7``, or ``9``.
-        radius: Radius of the kernel (kernel_size = radius * 2 + 1).
-            Commonly be ``1``, ``2``, ``3``, or ``4``.
-        
+        image: Image as torch.Tensor in [B, C, H, W] format.
+        kernel_size: Size of the kernel (e.g., 3, 5, 7, 9).
+        radius: Radius of the kernel (kernel_size = radius * 2 + 1, e.g., 1, 2, 3, 4).
+    
     Returns:
-        A filtered image.
+        Filtered image.
+    
+    Raises:
+        ValueError: If neither ``kernel_size`` nor ``radius`` is provided.
     """
     if kernel_size is None and radius is None:
-        raise ValueError("Either `kernel_size` or `radius` must be provided.")
+        raise ValueError("Either [kernel_size] or [radius] must be provided")
     kernel_size = kernel_size or 2 * radius + 1
     b, c, h, w  = image.shape
-    # Create a 2D box kernel with all values as 1
-    kernel  = torch.ones(b, 1, kernel_size, kernel_size, device=image.device)
-    # Normalize the kernel
-    kernel /= kernel_size ** 2
-    # Apply 2D convolution separately to each channel
-    output  = [F.conv2d(image[:, i:i + 1, :, :], kernel, padding=kernel_size // 2)
-               for i in range(image.size(1))]
-    # Concatenate the filtered channels along the channel dimension
-    output  = torch.cat(output, dim=1)
+    kernel      = torch.ones(b, 1, kernel_size, kernel_size, device=image.device)
+    kernel     /= kernel_size ** 2
+    output      = [F.conv2d(image[:, i:i + 1, :, :], kernel, padding=kernel_size // 2)
+                   for i in range(image.size(1))]
+    output      = torch.cat(output, dim=1)
     return output
 
 
 class BoxFilter(nn.Module):
+    """Applies box filtering to an image.
+
+    Args:
+        kernel_size: Size of the kernel (e.g., 3, 5, 7, 9).
+        radius: Radius of the kernel (kernel_size = radius * 2 + 1, e.g., 1, 2, 3, 4).
     
-    def __init__(
-        self,
-        kernel_size: int = None,
-        radius     : int = None,
-    ):
+    Raises:
+        ValueError: If neither ``kernel_size`` nor ``radius`` is provided.
+    """
+    
+    def __init__(self, kernel_size: int = None, radius: int = None):
         super().__init__()
         if kernel_size is None and radius is None:
-            raise ValueError("Either `kernel_size` or `radius` must be provided.")
+            raise ValueError("Either [kernel_size] or [radius] must be provided")
         self.kernel_size = kernel_size or 2 * radius + 1
         self.radius      = int((self.kernel_size - 1) / 2)
-        
+
     def forward(self, image: torch.Tensor) -> torch.Tensor:
+        """Filters the image using box filtering.
+
+        Args:
+            image: Image as torch.Tensor in [B, C, H, W] format.
+        
+        Returns:
+            Filtered image.
+        """
         return box_filter(image, self.kernel_size, self.radius)
     
 # endregion

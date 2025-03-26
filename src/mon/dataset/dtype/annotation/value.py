@@ -22,12 +22,11 @@ from mon.dataset.dtype.annotation import base
 # region Regression
 
 class RegressionAnnotation(base.Annotation):
-    """A single regression value.
-    
+    """Single regression value annotation.
+
     Args:
-        value: The regression value.
-        confidence: A confidence in ``[0.0, 1.0]`` for the regression.
-            Default: ``1.0``.
+        value: Regression value as a ``float``.
+        confidence: Confidence score in ``[0.0, 1.0]``. Default is ``1.0``.
     """
     
     def __init__(
@@ -42,45 +41,64 @@ class RegressionAnnotation(base.Annotation):
     
     @property
     def confidence(self) -> float:
-        """The confidence of the bounding box."""
+        """Returns the confidence score.
+
+        Returns:
+            ``float`` representing the confidence in ``[0.0, 1.0]``.
+        """
         return self._confidence
     
     @confidence.setter
     def confidence(self, confidence: float):
+        """Sets the confidence score.
+
+        Args:
+            confidence: Confidence value as a ``float``.
+
+        Raises:
+            ValueError: If ``[confidence]`` is not in ``[0.0, 1.0]``.
+        """
         if not 0.0 <= confidence <= 1.0:
-            raise ValueError(f"`confidence` must be between ``0.0`` and ``1.0``, "
-                             f"but got {confidence}.")
+            raise ValueError(f"[confidence] must be in [0.0, 1.0], but got [{confidence}].")
         self._confidence = confidence
     
     @property
-    def data(self) -> list | None:
+    def data(self) -> list[float]:
+        """Returns the regression value as a list.
+
+        Returns:
+            List containing the regression ``value``.
+        """
         return [self.value]
     
     @staticmethod
     def to_tensor(data: torch.Tensor | np.ndarray, *args, **kwargs) -> torch.Tensor:
-        """Converts the input data to a `torch.Tensor`.
-        
+        """Converts input data to a tensor.
+
         Args:
-            data: The input data.
+            data: Input data as a ``torch.Tensor`` or ``numpy.ndarray``.
+
+        Returns:
+            ``torch.Tensor`` of the input data.
         """
-        return torch.Tensor(data)
+        return torch.as_tensor(data)
     
     @staticmethod
-    def collate_fn(
-        batch: list[torch.Tensor | np.ndarray]
-    ) -> torch.Tensor | np.ndarray | None:
-        """Collate function used to fused input items together when using
-        `batch_size` > ``1``. This is used in
-        `torch.utils.data.DataLoader` wrapper.
-        
+    def collate_fn(batch: list[torch.Tensor | np.ndarray]) -> torch.Tensor | np.ndarray | None:
+        """Collates batch data for ``torch.utils.data.DataLoader``.
+
         Args:
-            batch: A `list` of values.
+            batch: List of values as ``torch.Tensor`` or ``numpy.ndarray``.
+
+        Returns:
+            Collated ``torch.Tensor``, ``numpy.ndarray``, or ``None`` if types are mixed.
         """
-        if all(isinstance(b, torch.Tensor) for b in batch):
-            return torch.cat(batch, dim=0)
-        elif all(isinstance(b, np.ndarray) for b in batch):
-            return np.concatenate(batch, axis=0)
-        else:
+        if not batch:
             return None
+        if isinstance(batch[0], torch.Tensor):
+            return torch.stack(batch, dim=0)
+        if isinstance(batch[0], np.ndarray):
+            return np.stack(batch, axis=0)
+        return None
         
 # endregion

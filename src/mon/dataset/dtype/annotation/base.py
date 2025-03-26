@@ -22,71 +22,61 @@ import torch
 # region Base
 
 class Annotation(ABC):
-    """The base class for all annotation classes. An annotation instance
-    represents a logical collection of data associated with a particular task.
-    """
+    """Base class for all annotation classes, representing task-specific data collections."""
     
     @property
     @abstractmethod
     def data(self) -> list | None:
-        """The annotation's data."""
-        pass
+        """Returns the annotation's data.
+
+        Returns:
+            List of annotation data or ``None`` if unavailable.
+        """
     
     @property
     def nparray(self) -> np.ndarray | None:
-        """The annotation's data as a ``numpy.ndarray``.
-    
-        This property converts the annotation's data to a ``numpy.ndarray`` if
-        the data is a list containing integers or floats. If the data is not a
-        list, it returns the data as is.
-    
+        """Returns the annotation's data as a NumPy array.
+
+        Converts ``data`` to a ``numpy.ndarray`` if it’s a list of integers or floats; otherwise, returns ``data`` as is.
+
         Returns:
-            The annotation's data as a ``numpy.ndarray`` if the data is a list,
-            otherwise returns the data as is.
+            ``numpy.ndarray`` of numeric data or original ``data`` if not convertible.
         """
-        if isinstance(self.data, list):
-            return np.array([i for i in self.data if isinstance(i, (int, float))])
-        return self.data
+        return np.asarray([x for x in self.data if isinstance(x, (int, float))], dtype=np.float32) if isinstance(self.data, list) else self.data
     
     @property
     def tensor(self) -> torch.Tensor | None:
-        """The annotation's data as a ``torch.Tensor``.
-    
-        This property converts the annotation's data to a ``torch.Tensor`` if
-        the data is a list containing integers or floats. If the data is not a
-        list, it returns the data as is.
-    
+        """Returns the annotation's data as a PyTorch tensor.
+
+        Converts ``data`` to a ``torch.Tensor`` if it’s a list of integers or floats; otherwise, returns ``data`` as is.
+
         Returns:
-            The annotation's data as a ``torch.Tensor`` if the data is a list,
-            otherwise returns the data as is.
+            ``torch.Tensor`` of numeric data or original ``data`` if not convertible.
         """
-        if isinstance(self.data, list):
-            return torch.Tensor([i for i in self.data if isinstance(i, (int, float))])
-        return self.data
+        return torch.as_tensor([x for x in self.data if isinstance(x, (int, float))]) if isinstance(self.data, list) else self.data
     
     @staticmethod
     @abstractmethod
     def to_tensor(data: torch.Tensor | np.ndarray, *args, **kwargs) -> torch.Tensor:
-        """Converts the input data to a ``torch.Tensor``.
-        
+        """Converts input data to a tensor.
+
         Args:
-            data: The input data.
-        
+            data: Input data as a ``torch.Tensor`` or ``numpy.ndarray``.
+
         Returns:
-            The converted ``torch.Tensor``.
+            ``torch.Tensor`` of the converted data.
         """
-        pass
     
     @staticmethod
     @abstractmethod
     def collate_fn(batch: list[Any]) -> Any:
-        """Collate function used to fused input items together when using
-		``batch_size`` > 1. This is used in ``torch.utils.data.DataLoader``
-		wrapper.
-		
-		Args:
-			batch: A ``list`` of objects.
-		"""
-        pass
-    
+        """Collates batch data for ``torch.utils.data.DataLoader``.
+
+        Args:
+            batch: List of annotation objects.
+
+        Returns:
+            Collated data in a suitable format.
+        """
+
 # endregion

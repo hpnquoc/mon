@@ -13,19 +13,15 @@ __all__ = [
     "AdaptiveInstanceNorm2d",
     "BatchNorm1d",
     "BatchNorm2d",
-    "BatchNorm2dAct",
-    "BatchNorm2dReLU",
     "BatchNorm3d",
     "CrossMapLRN2d",
     "GroupNorm",
-    "GroupNormAct",
     "HalfInstanceNorm2d",
     "InstanceNorm1d",
     "InstanceNorm2d",
     "InstanceNorm3d",
     "LayerNorm",
     "LayerNorm2d",
-    "LayerNormCustom2d",
     "LazyBatchNorm1d",
     "LazyBatchNorm2d",
     "LazyBatchNorm3d",
@@ -38,7 +34,7 @@ __all__ = [
 ]
 
 import math
-from typing import Any, Callable
+from typing import Any
 
 import torch
 from torch import nn
@@ -47,54 +43,102 @@ from torch.nn.modules.batchnorm import *
 from torch.nn.modules.instancenorm import *
 from torch.nn.modules.normalization import *
 
-from mon.nn.modules import activation as act
-
 
 # region Batch Normalization
 
 class AdaptiveBatchNorm2d(nn.Module):
-    """Adaptive Batch Normalization.
+    """Applies adaptive batch normalization to 2D data.
+
+    Args:
+        num_features: Number of input channels.
+        eps: Smoothing factor for stability. Default is ``0.999``.
+        momentum: Momentum for moving averages. Default is ``0.001``.
     
     References:
         - https://arxiv.org/abs/1709.00643
         - https://github.com/nrupatunga/Fast-Image-Filters
     """
-    
+
+    def __init__(self, num_features: int, eps: float = 0.999, momentum: float = 0.001):
+        super().__init__()
+        self.w0   = nn.Parameter(torch.tensor(1.0))
+        self.w1   = nn.Parameter(torch.tensor(0.0))
+        self.norm = nn.BatchNorm2d(num_features, eps, momentum)
+
+    def forward(self, input: torch.Tensor) -> torch.Tensor:
+        """Normalizes input with learned weights.
+
+        Args:
+            input: Tensor to normalize.
+            
+        Returns:
+            Normalized tensor.
+        """
+        return self.w0 * input + self.w1 * self.norm(input)
+
+# endregion
+
+
+# region Instance Normalization
+
+class AdaptiveInstanceNorm2d(nn.Module):
+    """Applies adaptive instance normalization to 2D data.
+
+    Args:
+        num_features: Number of input channels.
+        eps: Smoothing factor for stability. Default is ``0.999``.
+        momentum: Momentum for moving averages. Default is ``0.001``.
+        affine: Enable learnable affine parameters if ``True``. Default is ``False``.
+    """
+
     def __init__(
         self,
         num_features: int,
         eps         : float = 0.999,
         momentum    : float = 0.001,
+        affine      : bool  = False
     ):
         super().__init__()
-        self.w_0 = nn.Parameter(torch.Tensor([1.0]))
-        self.w_1 = nn.Parameter(torch.Tensor([0.0]))
-        self.bn  = nn.BatchNorm2d(num_features, eps, momentum)
-    
+        self.w0   = nn.Parameter(torch.tensor(1.0))
+        self.w1   = nn.Parameter(torch.tensor(0.0))
+        self.norm = nn.InstanceNorm2d(num_features, eps, momentum, affine)
+
     def forward(self, input: torch.Tensor) -> torch.Tensor:
-        return self.w_0 * input + self.w_1 * self.bn(input)
+        """Normalizes input with learned weights.
+
+        Args:
+            input: Tensor to normalize.
+        
+        Returns:
+            Normalized tensor.
+        """
+        return self.w0 * input + self.w1 * self.norm(input)
     
 
-class BatchNorm2dAct(nn.BatchNorm2d):
-    """BatchNorm2d + Activation.
-    
-    This module performs BatchNorm2d + Activation in a manner that will remain
-    backwards compatible with weights trained with separate bn, norm. This is why
-    we inherit from BN instead of composing it as a .bn member.
+class LearnableInstanceNorm2d(nn.InstanceNorm2d):
+    """Normalizes a learnable fraction of 2D input features.
+
+    Args:
+        num_features: Number of input channels.
+        r: Initial fraction to normalize. Default is ``0.5``.
+        eps: Smoothing factor for stability. Default is ``1e-5``.
+        momentum: Momentum for running stats. Default is ``0.1``.
+        affine: Enable learnable affine params if ``True``. Default is ``True``.
+        track_running_stats: Track stats if ``True``. Default is ``False``.
+        device: Target device. Default is ``None``.
+        dtype: Data type. Default is ``None``.
     """
-    
+
     def __init__(
         self,
         num_features       : int,
-        eps                : float    = 1e-5,
-        momentum           : float    = 0.1,
-        affine             : bool     = True,
-        track_running_stats: bool     = True,
-        device             : Any      = None,
-        dtype              : Any      = None,
-        act_layer          : Callable = act.ReLU(),
-        inplace            : bool     = True,
-        *args, **kwargs
+        r                  : float = 0.5,
+        eps                : float = 1e-5,
+        momentum           : float = 0.1,
+        affine             : bool  = True,
+        track_running_stats: bool  = False,
+        device             : Any   = None,
+        dtype              : Any   = None
     ):
         super().__init__(
             num_features        = num_features,
@@ -105,112 +149,21 @@ class BatchNorm2dAct(nn.BatchNorm2d):
             device              = device,
             dtype               = dtype
         )
-        self.act = act.to_act_layer(act_layer, inplace)
-    
-    def forward(self, input: torch.Tensor) -> torch.Tensor:
-        x = input
-        y = super().forward(x)
-        if self.act:
-            y = self.act(y)
-        return y
-
-
-class BatchNorm2dReLU(BatchNorm2dAct):
-    """BatchNorm2d + ReLU.
-
-    This module performs BatchNorm2d + ReLU in a manner that will remain
-    backwards compatible with weights trained with separate bn, norm. This is
-    why we inherit from BN instead of composing it as a .bn member.
-    """
-    
-    def __init__(
-        self,
-        num_features       : int,
-        eps                : float    = 1e-5,
-        momentum           : float    = 0.1,
-        affine             : bool     = True,
-        track_running_stats: bool     = True,
-        device             : Any      = None,
-        dtype              : Any      = None,
-        inplace            : bool     = True,
-        drop_block         : Callable = None,
-        *args, **kwargs
-    ):
-        super().__init__(
-            num_features        = num_features,
-            eps                 = eps,
-            momentum            = momentum,
-            affine              = affine,
-            track_running_stats = track_running_stats,
-            device              = device,
-            dtype               = dtype,
-            act_layer           = act.ReLU(),
-            inplace             = inplace,
-            drop_block          = drop_block
-        )
-
-# endregion
-
-
-# region Instance Normalization
-
-class AdaptiveInstanceNorm2d(nn.Module):
-    """Adaptive Instance Normalization adopted from `AdaptiveBatchNorm2d`.
-    """
-    
-    def __init__(
-        self,
-        num_features: int,
-        eps         : float = 0.999,
-        momentum    : float = 0.001,
-        affine      : bool  = False,
-    ):
-        super().__init__()
-        self.w_0  = nn.Parameter(torch.Tensor([1.0]))
-        self.w_1  = nn.Parameter(torch.Tensor([0.0]))
-        self.norm = nn.InstanceNorm2d(num_features, eps, momentum, affine)
-    
-    def forward(self, input: torch.Tensor) -> torch.Tensor:
-        return self.w_0 * input + self.w_1 * self.bn(input)
-    
-
-class LearnableInstanceNorm2d(nn.InstanceNorm2d):
-    """Apply Instance Normalization on a fraction of the input tensor.
-    The number of normalized features is learnable during training.
-    
-    Args:
-        num_features: Number of features of the input tensor.
-        r: Fraction of the input tensor to be normalized. Default: ``0.5``.
-    """
-   
-    def __init__(
-        self,
-        num_features       : int,
-        r                  : float = 0.5,
-        eps                : float = 1e-5,
-        momentum           : float = 0.1,
-        affine             : bool  = True,
-        track_running_stats: bool  = False,
-        device             : Any   = None,
-        dtype              : Any   = None,
-    ):
-        super().__init__(
-            num_features        = num_features,
-            eps                 = eps,
-            momentum            = momentum,
-            affine              = affine,
-            track_running_stats = track_running_stats,
-            device              = device,
-            dtype               = dtype,
-        )
         self.r = nn.Parameter(torch.full([num_features], r), requires_grad=True)
-        
+
     def forward(self, input: torch.Tensor) -> torch.Tensor:
+        """Applies learnable partial instance normalization.
+
+        Args:
+            input: Tensor of shape ``(B, C, H, W)`` to normalize.
+            
+        Returns:
+            Partially normalized tensor.
+        """
         self._check_input_dim(input)
-        x          = input
-        b, c, h, w = x.shape
+        b, c, h, w = input.shape
         x_norm     = F.instance_norm(
-            input           = x,
+            input           = input,
             running_mean    = self.running_mean,
             running_var     = self.running_var,
             weight          = self.weight,
@@ -220,19 +173,22 @@ class LearnableInstanceNorm2d(nn.InstanceNorm2d):
             eps             = self.eps
         )
         r = self.r.reshape(-1, c, 1, 1)
-        y = (x_norm * r) + (x * (1 - r))
-        return y
+        return x_norm * r + input * (1 - r)
 
 
 class HalfInstanceNorm2d(nn.InstanceNorm2d):
-    """Apply Instance Normalization on the first half of the input tensor.
-    
+    """Normalizes the first half of 2D input features.
+
     Args:
-        num_features: Number of features of the input tensor.
-        eps: Small constant for numerical stability. Default: ``1e-5``.
-        momentum: Momentum for moving average. Default: ``0.1``.
+        num_features: Number of input channels.
+        eps: Smoothing factor for stability. Default is ``1e-5``.
+        momentum: Momentum for running stats. Default is ``0.1``.
+        affine: Enable learnable affine params if ``True``. Default is ``True``.
+        track_running_stats: Track stats if ``True``. Default is ``False``.
+        device: Target device. Default is ``None``.
+        dtype: Data type. Default is ``None``.
     """
-    
+
     def __init__(
         self,
         num_features       : int,
@@ -241,7 +197,7 @@ class HalfInstanceNorm2d(nn.InstanceNorm2d):
         affine             : bool  = True,
         track_running_stats: bool  = False,
         device             : Any   = None,
-        dtype              : Any   = None,
+        dtype              : Any   = None
     ):
         super().__init__(
             num_features        = math.ceil(num_features / 2),
@@ -250,18 +206,28 @@ class HalfInstanceNorm2d(nn.InstanceNorm2d):
             affine              = affine,
             track_running_stats = track_running_stats,
             device              = device,
-            dtype               = dtype,
+            dtype               = dtype
         )
-    
+
     def forward(self, input: torch.Tensor) -> torch.Tensor:
-        x = input
-        self._check_input_dim(x)
-        if x.dim() == 3:
-            y1, y2 = torch.chunk(x, 2, dim=0)
-        elif x.dim() == 4:
-            y1, y2 = torch.chunk(x, 2, dim=1)
+        """Normalizes first half of input tensor.
+
+        Args:
+            input: Tensor of shape ``(B, C, H, W)`` or ``(L, C, T)``.
+        
+        Returns:
+            Tensor with first half normalized.
+       
+        Raises:
+            ValueError: If input is not 3D or 4D.
+        """
+        self._check_input_dim(input)
+        if input.dim() == 3:
+            y1, y2 = torch.chunk(input, 2, dim=0)
+        elif input.dim() == 4:
+            y1, y2 = torch.chunk(input, 2, dim=1)
         else:
-            raise ValueError
+            raise ValueError(f"[input] must be 3D or 4D, but got [{input.dim()}]D")
         y1 = F.instance_norm(
             input           = y1,
             running_mean    = self.running_mean,
@@ -272,69 +238,31 @@ class HalfInstanceNorm2d(nn.InstanceNorm2d):
             momentum        = self.momentum,
             eps             = self.eps
         )
-        return torch.cat([y1, y2], dim=1)
+        return torch.cat([y1, y2], dim=1 if input.dim() == 4 else 0)
  
-# endregion
-
-
-# region Group Normalization
-
-class GroupNormAct(GroupNorm):
-    """GroupNorm + Activation.
-
-    This module performs GroupNorm + Activation in a manner that will remain
-    backwards compatible with weights trained with separate gn, norm. This is
-    why we inherit from GN instead of composing it as a .gn member.
-    """
-    
-    def __init__(
-        self,
-        num_groups  : int,
-        num_channels: int,
-        eps         : float    = 1e-5,
-        affine      : bool     = True,
-        device      : Any      = None,
-        dtype       : Any      = None,
-        act_layer   : Callable = act.ReLU,
-        inplace     : bool     = True,
-    ):
-        super().__init__(
-            num_groups   = num_groups,
-            num_channels = num_channels,
-            eps          = eps,
-            affine       = affine,
-            device       = device,
-            dtype        = dtype
-        )
-        self.act = act.to_act_layer(act_layer, inplace)
-    
-    def forward(self, input: torch.Tensor) -> torch.Tensor:
-        x = input
-        y = F.group_norm(
-            input      = x,
-            num_groups = self.num_groups,
-            weight     = self.weight,
-            bias       = self.bias,
-            eps        = self.eps
-        )
-        y = self.act(y)
-        return y
-
 # endregion
 
 
 # region Layer Normalization
 
 class LayerNorm2d(nn.LayerNorm):
-    """LayerNorm for channels of 2D spatial ``[B, C, H, W]`` tensors."""
-    
+    """Normalizes channels of 2D spatial tensors ``(B, C, H, W)``.
+
+    Args:
+        normalized_shape: Shape to normalize (typically ``C``).
+        eps: Smoothing factor for stability. Default is ``1e-5``.
+        elementwise_affine: Enable affine params if ``True``. Default is ``True``.
+        device: Target device. Default is ``None``.
+        dtype: Data type. Default is ``None``.
+    """
+
     def __init__(
         self,
-        normalized_shape  : Any,
-        eps               : float = 1e-5,
-        elementwise_affine: bool  = True,
-        device            : Any   = None,
-        dtype             : Any   = None,
+        normalized_shape   : Any,
+        eps                : float = 1e-5,
+        elementwise_affine : bool  = True,
+        device             : Any   = None,
+        dtype              : Any   = None
     ):
         super().__init__(
             normalized_shape   = normalized_shape,
@@ -343,36 +271,22 @@ class LayerNorm2d(nn.LayerNorm):
             device             = device,
             dtype              = dtype
         )
-    
+
     def forward(self, input: torch.Tensor) -> torch.Tensor:
-        x = input
-        y = F.layer_norm(
-            input            = x.permute(0, 2, 3, 1),
-            normalized_shape = self.normalized_shape,
-            weight           = self.weight,
-            bias             = self.bias,
-            eps              = self.eps
+        """Applies layer normalization to 2D tensor.
+
+        Args:
+            input: Tensor of shape ``(B, C, H, W)``.
+        
+        Returns:
+            Normalized tensor of shape ``(B, C, H, W)``.
+        """
+        return F.layer_norm(
+            input.permute(0, 2, 3, 1),
+            normalized_shape   = self.normalized_shape,
+            weight             = self.weight,
+            bias               = self.bias,
+            eps                = self.eps
         ).permute(0, 3, 1, 2)
-        return y
-
-
-class LayerNormCustom2d(nn.Module):
-    """My implementation for LayerNorm for channels of 2D spatial
-    ``[B, C, H, W]`` tensors.
-    """
-    
-    def __init__(self, normalized_shape: Any, eps: float = 1e-5):
-        super().__init__()
-        self.weight = nn.Parameter(torch.ones(normalized_shape))
-        self.bias   = nn.Parameter(torch.zeros(normalized_shape))
-        self.eps    = eps
-    
-    def forward(self, input: torch.Tensor) -> torch.Tensor:
-        x    = input
-        mean = x.mean(-1, keepdim=True)
-        std  = x.std(-1, keepdim=True)
-        y    = (x - mean) / (std + self.eps)
-        y    = self.weight * y + self.bias
-        return y
 
 # endregion

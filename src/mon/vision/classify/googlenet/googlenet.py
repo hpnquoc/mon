@@ -27,18 +27,23 @@ current_dir  = current_file.parents[0]
 
 @MODELS.register(name="googlenet", arch="googlenet")
 class GoogleNet(nn.ExtraModel, base.ImageClassificationModel):
-    """GoogLeNet (Inception v1) models from the paper: "Going Deeper with
-    Convolutions".
+    """GoogLeNet (Inception v1) model for image classification.
+
+    Args:
+        num_classes: Number of output classes. Default is ``1000``.
+        aux_logits: Use auxiliary logits if True. Default is ``True``.
+        dropout: Dropout rate for main path. Default is ``0.2``.
+        dropout_aux: Dropout rate for auxiliary path. Default is ``0.7``.
     
     References:
-        https://arxiv.org/abs/1409.4842
+        - https://arxiv.org/abs/1409.4842
     """
     
-    arch     : str          = "googlenet"
-    name     : str          = "googlenet"
-    ltypes   : list[LType]  = [LType.SUPERVISED]
-    model_dir: core.Path    = current_dir
-    zoo      : dict         = {
+    arch     : str         = "googlenet"
+    name     : str         = "googlenet"
+    ltypes   : list[LType] = [LType.SUPERVISED]
+    model_dir: core.Path   = current_dir
+    zoo      : dict        = {
         "imagenet1k_v1": {
             "url"        : "https://download.pytorch.org/models/googlenet-1378be20.pth",
             "path"       : ZOO_DIR / "vision/classify/googlenet/googlenet/imagenet1k_v1/googlenet_imagenet1k_v1.pth",
@@ -72,9 +77,22 @@ class GoogleNet(nn.ExtraModel, base.ImageClassificationModel):
             self.apply(self.init_weights)
             
     def init_weights(self, m: nn.Module):
+        """Initializes weights for the model.
+
+        Args:
+            m: Module to initialize weights for.
+        """
         pass
-    
+
     def forward(self, datapoint: dict, *args, **kwargs) -> dict:
+        """Performs forward pass on the model.
+
+        Args:
+            datapoint: Dict with image data.
+        
+        Returns:
+            Dict with logits from the model.
+        """
         x = datapoint["image"]
         y = self.model(x)
         return {"logits": y}

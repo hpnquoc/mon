@@ -26,59 +26,59 @@ from mon.globals import FILE_HANDLERS
 # region File Handler
 
 class FileHandler(ABC):
-    """The base class for reading and writing data from/to different file formats."""
+    """Base class for reading and writing data in various file formats."""
     
     @abstractmethod
     def read_from_fileobj(self, path: pathlib.Path | str | TextIO, **kwargs) -> Any:
-        """Load content from a file.
-        
+        """Loads content from a file object.
+
         Args:
-            path: A file path or an input stream object.
-        
+            path: File path as ``pathlib.Path`` or ``str``, or input stream as ``TextIO``.
+
         Returns:
-            File's content.
+            Content from the file.
         """
-        pass
     
     @abstractmethod
     def write_to_fileobj(self, obj: Any, path: pathlib.Path | str | TextIO, **kwargs):
-        """Write content from a serializable object to a file.
-        
+        """Writes a serializable object to a file object.
+
         Args:
-            obj: A serializable object.
-            path: The file path to Write ``obj`` content.
+            obj: Serializable object to write.
+            path: File path as ``pathlib.Path`` or ``str``, or output stream as ``TextIO``.
         """
-        pass
     
     @abstractmethod
     def write_to_string(self, obj: Any, **kwargs) -> str:
-        """Write content from a serializable object to a string.
-        
+        """Converts a serializable object to a string.
+
         Args:
-            obj: A serializable object.
+            obj: Serializable object to convert.
+
+        Returns:
+            String representation of the object.
         """
-        pass
     
     def read_from_file(self, path: pathlib.Path | str, mode: str = "r", **kwargs) -> Any:
-        """Load content from a file.
-        
+        """Loads content from a file.
+
         Args:
-            path: A file path.
-            mode: The mode to open the file. Default: ``'r'`` means read.
-        
+            path: File path as ``pathlib.Path`` or ``str``.
+            mode: File open mode. Default is ``r`` for read-only.
+
         Returns:
-            File's content.
+            Content from the file.
         """
         with open(path, mode) as f:
             return self.read_from_fileobj(path=f, **kwargs)
     
     def write_to_file(self, obj: Any, path: pathlib.Path | str, mode: str = "w", **kwargs):
-        """Write content from a serializable object to a file.
-        
+        """Writes a serializable object to a file.
+
         Args:
-            obj: A serializable object.
-            path: A file path.
-            mode: The mode to open the file. Default: ``'w'`` means write.
+            obj: Serializable object to write.
+            path: File path as ``pathlib.Path`` or ``str``.
+            mode: File open mode. Default is ``w`` for write-only.
         """
         with open(path, mode) as f:
             self.write_to_fileobj(obj=obj, path=f, **kwargs)
@@ -90,49 +90,50 @@ def write_to_file(
     file_format: str = None,
     **kwargs
 ):
-    """Write content from a serializable object to a file.
-    
+    """Writes a serializable object to a file.
+
     Args:
-        obj: A serializable object.
-        path: A file path.
-        file_format: The file format. If not specified, it is inferred from the
-            ``path``'s extension. Default: ``None``.
+        obj: Object to serialize.
+        path: Output file path as ``pathlib.Path`` or ``str``, or stream as ``TextIO``.
+        file_format: File format, inferred from ``path`` extension if ``None``. Default is ``None``.
+
+    Raises:
+        ValueError: If ``[file_format]`` is not supported.
     """
-    path        = pathlib.Path(path)
-    file_format = file_format or path.suffix
+    path_obj    = pathlib.Path(path) if isinstance(path, (pathlib.Path, str)) else path
+    file_format = file_format or (path_obj.suffix if isinstance(path_obj, pathlib.Path) else "")
     if file_format not in FILE_HANDLERS:
-        raise ValueError(f"`file_format` must be a valid key in {FILE_HANDLERS.keys()}, but got {file_format}.")
+        raise ValueError(f"[file_format] must be one of {list(FILE_HANDLERS.keys())}, got [{file_format}]")
     
     handler: FileHandler = FILE_HANDLERS.build(name=file_format)
-    if isinstance(path, str):
-        handler.write_to_file(obj=obj, path=path, **kwargs)
-    elif hasattr(path, "write"):
+    if hasattr(path, "write"):
         handler.write_to_fileobj(obj=obj, path=path, **kwargs)
     else:
-        handler.write_to_string(obj=obj, **kwargs)
+        handler.write_to_file(obj=obj, path=path_obj, **kwargs)
 
 
 def read_from_file(path: pathlib.Path | str | TextIO, file_format: str = None, **kwargs) -> Any:
-    """Load content from a file.
-    
+    """Loads content from a file.
+
     Args:
-        path: A file path.
-        file_format: The file format. If not specified, it is inferred from the
-            ``path``'s extension. Default: ``None``.
-    
+        path: File path as ``pathlib.Path`` or ``str``, or stream as ``TextIO``.
+        file_format: File format, inferred from ``path`` extension if ``None``. Default is ``None``.
+
     Returns:
-        File's content.
+        File content.
+
+    Raises:
+        TypeError: If ``[path]`` is not a valid type.
     """
-    path        = pathlib.Path(path)
-    file_format = file_format or path.suffix
+    path_obj    = pathlib.Path(path) if isinstance(path, (pathlib.Path, str)) else path
+    file_format = file_format or (path_obj.suffix if isinstance(path_obj, pathlib.Path) else "")
     
     handler: FileHandler = FILE_HANDLERS.build(name=file_format)
-    if isinstance(path, (pathlib.Path, str)):
-        return handler.read_from_file(path=path, **kwargs)
-    elif hasattr(path, "read"):
+    if hasattr(path, "read"):
         return handler.read_from_fileobj(path=path, **kwargs)
-    else:
-        raise TypeError(f"`path` must be a `pathlib.Path`, a `str` or a file-object, but got: {type(path)}.")
+    if isinstance(path_obj, (pathlib.Path, str)):
+        return handler.read_from_file(path=path_obj, **kwargs)
+    raise TypeError(f"[path] must be str, pathlib.Path, or file-like, got [{type(path).__name__}]")
 
 
 def merge_files(
@@ -140,27 +141,28 @@ def merge_files(
     out_path   : pathlib.Path | str | TextIO,
     file_format: str = None,
 ):
-    """Merge content from multiple files to a single file.
-    
+    """Merges content from multiple files into a single file.
+
     Args:
-        in_paths: Merging file paths.
-        out_path: The output file.
-        file_format: The file format. If not specified, it is inferred from the
-            ``path``'s extension. Default: ``None``.
+        in_paths: List of input file paths or streams.
+        out_path: Output file path as ``pathlib.Path`` or ``str``, or stream as ``TextIO``.
+        file_format: File format, inferred from ``out_path`` extension if ``None``. Default is ``None``.
+
+    Raises:
+        TypeError: If content from ``[in_paths]`` is neither list nor dict.
     """
     in_paths = [pathlib.Path(p) for p in dtype.to_list(in_paths)]
-    
     data = None
-    for p in in_paths:
-        d = read_from_file(path=p)
-        if isinstance(d, list):
+    for input_path in in_paths:
+        content = read_from_file(path=input_path)
+        if isinstance(content, list):
             data = data or []
-            data += d
-        elif isinstance(d, dict):
+            data.extend(content)
+        elif isinstance(content, dict):
             data = data or {}
-            data |= d
+            data.update(content)
         else:
-            raise TypeError(f"`in_paths` must be a `list` or `dict`, but got {type(d)}.")
+            raise TypeError(f"[in_paths] content must be list or dict, got [{type(content).__name__}]")
     
     write_to_file(obj=data, path=out_path, file_format=file_format)
 

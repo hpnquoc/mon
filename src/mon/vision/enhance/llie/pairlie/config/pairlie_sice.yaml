@@ -22,7 +22,7 @@ verbose     : &verbose True                                                     
 
 # Optimizer
 optimizer: &optimizer                                                           # Optimizer(s).
-  lr: 1e-4
+  lr: 0.0001
   scheduler:
     decay: 100
     gamma: 0.5

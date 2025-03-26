@@ -130,18 +130,18 @@ class CoLIE_RE(base.ImageEnhancementModel):
         self.iters       = iters
         
         # Network
-        patch_layers   = [nn.INRLayer(self.patch_dim, hidden_dim, "sine", omega_0=self.omega_0, is_first=True)]
-        spatial_layers = [nn.INRLayer(2,   hidden_dim, "sine", omega_0=self.omega_0, is_first=True)]
+        patch_layers   = [nn.INRLayer(self.patch_dim, hidden_dim, "sine", w0=self.omega_0, is_first=True)]
+        spatial_layers = [nn.INRLayer(2, hidden_dim, "sine", w0=self.omega_0, is_first=True)]
         for _ in range(1, add_layer - 2):
-            patch_layers.append(  nn.INRLayer(hidden_dim, hidden_dim, "sine", omega_0=self.omega_0))
-            spatial_layers.append(nn.INRLayer(hidden_dim, hidden_dim, "sine", omega_0=self.omega_0))
-        patch_layers.append(  nn.INRLayer(hidden_dim, hidden_dim // 2, "sine", omega_0=self.omega_0))
-        spatial_layers.append(nn.INRLayer(hidden_dim, hidden_dim // 2, "sine", omega_0=self.omega_0))
+            patch_layers.append(nn.INRLayer(hidden_dim, hidden_dim, "sine", w0=self.omega_0))
+            spatial_layers.append(nn.INRLayer(hidden_dim, hidden_dim, "sine", w0=self.omega_0))
+        patch_layers.append(nn.INRLayer(hidden_dim, hidden_dim // 2, "sine", w0=self.omega_0))
+        spatial_layers.append(nn.INRLayer(hidden_dim, hidden_dim // 2, "sine", w0=self.omega_0))
         
         output_layers  = []
         for _ in range(add_layer, num_layers - 1):
-            output_layers.append(nn.INRLayer(hidden_dim, hidden_dim, "sine", omega_0=self.omega_0))
-        output_layers.append(nn.INRLayer(hidden_dim, 1, "sine", omega_0=self.omega_0, is_last=True))
+            output_layers.append(nn.INRLayer(hidden_dim, hidden_dim, "sine", w0=self.omega_0))
+        output_layers.append(nn.INRLayer(hidden_dim, 1, "sine", w0=self.omega_0, is_last=True))
         
         self.patch_net   = nn.Sequential(*patch_layers)
         self.spatial_net = nn.Sequential(*spatial_layers)

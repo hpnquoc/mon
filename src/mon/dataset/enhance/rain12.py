@@ -27,8 +27,17 @@ MultimodalDataset   = dtype.MultimodalDataset
 
 @DATASETS.register(name="rain12")
 class Rain12(MultimodalDataset):
-    """Rain12 dataset consists 12 pairs of rain/no-rain images."""
-    
+    """Loads Rain12 dataset from ``root`` dir.
+
+    Args:
+        root: Directory path to dataset. Default is ``default_root_dir``.
+        *args: Additional args for parent class.
+        **kwargs: Additional kwargs for parent class.
+
+    Raises:
+        FileNotFoundError: If ``root`` directory does not exist.
+    """
+
     tasks : list[Task]  = [Task.DERAIN]
     splits: list[Split] = [Split.TRAIN]
     datapoint_attrs     = DatapointAttributes({
@@ -38,25 +47,24 @@ class Rain12(MultimodalDataset):
     has_test_annotations: bool = False
     
     def __init__(self, root: core.Path = default_root_dir, *args, **kwargs):
+        """Initializes dataset with ``root`` path and parent args."""
         root = root / "rain12" if root.name != "rain12" else root
         if not root.is_dir():
-            raise FileNotFoundError(f"Directory not found: {root}.")
-        # Initialize
+            raise FileNotFoundError(f"[root] directory not found: [{root}]")
         super().__init__(root=root, *args, **kwargs)
     
     def get_data(self):
+        """Populates ``datapoints`` with image annotations for split."""
         patterns = [
             self.root / self.split_str / "image",
         ]
         
-        # Images
         images: list[ImageAnnotation] = []
         with core.get_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
-                for path in pbar.track(
-                    sequence    = sorted(list(pattern.rglob("*"))),
-                    description = f"Listing {self.__class__.__name__} {self.split_str} images"
-                ):
+                paths = sorted(pattern.rglob("*"))
+                desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
+                for path in pbar.track(sequence=paths, description=desc):
                     if path.is_image_file():
                         images.append(ImageAnnotation(path=path, root=pattern))
 
@@ -65,13 +73,25 @@ class Rain12(MultimodalDataset):
 
 @DATAMODULES.register(name="rain12")
 class Rain12DataModule(DataModule):
+    """Configures Rain12 datasets for training/testing.
+
+    Args:
+        *args: Additional args for parent class.
+        **kwargs: Additional kwargs for parent class.
+    """
 
     tasks: list[Task] = [Task.DERAIN]
     
     def prepare_data(self, *args, **kwargs):
+        """Prepares data (placeholder, no action taken)."""
         pass
     
     def setup(self, stage: Literal["train", "test", "predict", None] = None):
+        """Sets up datasets for given ``stage``.
+
+        Args:
+            stage: Stage to configure. Default is ``None``.
+        """
         if self.can_log:
             console.log(f"Setup [red]{self.__class__.__name__}[/red].")
         

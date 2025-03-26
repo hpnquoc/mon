@@ -398,9 +398,7 @@ class GCENet(base.ImageEnhancementModel):
         self,
         image_size: int  = 512,
         channels  : int  = 3,
-        runs      : int  = 1000,
-        verbose   : bool = False,
-    ) -> tuple[float, float, float]:
+    ) -> tuple[float, float]:
         """Compute the efficiency score of the model, including FLOPs, number
         of parameters, and runtime.
         """
@@ -412,27 +410,12 @@ class GCENet(base.ImageEnhancementModel):
         }
         
         # Get FLOPs and Params
-        flops, params = core.custom_profile(deepcopy(self), inputs=datapoint, verbose=verbose)
-        # flops         = FlopCountAnalysis(self, datapoint).total() if flops == 0 else flops
+        flops, params = core.custom_profile(deepcopy(self), inputs=datapoint, verbose=False)
         params        = self.params                if hasattr(self, "params") and params == 0 else params
         params        = parameter_count(self)      if hasattr(self, "params")  else params
         params        = sum(list(params.values())) if isinstance(params, dict) else params
-        
-        # Get time
-        timer = core.Timer()
-        for i in range(runs):
-            timer.tick()
-            _ = self(datapoint)
-            timer.tock()
-        avg_time = timer.avg_time
-        
-        # Print
-        if verbose:
-            console.log(f"FLOPs (G) : {flops:.4f}")
-            console.log(f"Params (M): {params:.4f}")
-            console.log(f"Time (s)  : {avg_time:.17f}")
-        
-        return flops, params, avg_time
+
+        return flops, params
     
     def forward_loss(self, datapoint: dict, *args, **kwargs) -> dict:
         # Forward

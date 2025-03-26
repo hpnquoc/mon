@@ -56,7 +56,6 @@ __all__ = [
     "BasicRGB",
     "LType",
     "MemoryUnit",
-    "MovingState",
     "ShapeCode",
     "Split",
     "Task",
@@ -464,11 +463,11 @@ class ShapeCode(DT.Enum):
     @classmethod
     def str_mapping(cls) -> dict[str, ShapeCode]:
         """Returns a dictionary mapping string keys to ``ShapeCode`` enum values.
-
+    
         This method provides a mapping from string representations of shape codes
         to their corresponding ``ShapeCode`` enum values. This is useful for converting
         string inputs to enum values in a consistent manner.
-
+    
         Returns:
             A dictionary where the keys are string representations of shape
             codes and the values are the corresponding ``ShapeCode`` enum values.
@@ -488,15 +487,15 @@ class ShapeCode(DT.Enum):
             "yolo_to_voc"  : cls.YOLO2VOC,
             "yolo_to_coco" : cls.YOLO2COCO,
         }
-    
+
     @classmethod
     def int_mapping(cls) -> dict[int, ShapeCode]:
         """Returns a dictionary mapping integer keys to ``ShapeCode`` enum values.
-
+    
         This method provides a mapping from integer representations of shape codes
         to their corresponding ``ShapeCode`` enum values. This is useful for converting
         integer inputs to enum values in a consistent manner.
-
+    
         Returns:
             A dictionary where the keys are integer representations of shape
             codes and the values are the corresponding ``ShapeCode`` enum values.
@@ -520,7 +519,7 @@ class ShapeCode(DT.Enum):
     @classmethod
     def from_str(cls, value: str) -> ShapeCode:
         """Converts a string to a ``ShapeCode`` enum.
-
+    
         This method takes a string representation of a shape code and converts it
         to the corresponding ``ShapeCode`` enum value. If the string is not a valid key
         in the mapping, a ValueError is raised.
@@ -541,21 +540,21 @@ class ShapeCode(DT.Enum):
                 return cls.SAME
             raise ValueError(f"`value` must be a valid enum key, but got {value_lower}.")
         return cls.str_mapping()[value_lower]
-    
+
     @classmethod
     def from_int(cls, value: int) -> ShapeCode:
         """Convert an integer to a ``ShapeCode`` enum.
-
+    
         This method takes an integer representation of a shape code and converts it
         to the corresponding ``ShapeCode`` enum value. If the integer is not a valid key
         in the mapping, a ValueError is raised.
-
+    
         Args:
             value: The integer representation of the shape code.
-
+    
         Returns:
             The corresponding ``ShapeCode`` enum value.
-
+    
         Raises:
             ValueError: If the integer is not a valid enum key.
         """
@@ -566,14 +565,14 @@ class ShapeCode(DT.Enum):
     @classmethod
     def from_value(cls, value: Any) -> ShapeCode | None:
         """Convert an arbitrary value to a ``ShapeCode`` enum.
-
+    
         This method takes an arbitrary value and attempts to convert it to a
         ``ShapeCode`` enum. It supports conversion from ``ShapeCode``, ``str``,
         and ``int`` types. If the value is not of a supported type, ``None`` is returned.
-
+    
         Args:
             value: The value to convert to a ``ShapeCode`` enum.
-
+    
         Returns:
             The corresponding ``ShapeCode`` enum value, or ``None`` if the value
             is not of a supported type.
@@ -599,6 +598,7 @@ class TrackState(DT.Enum):
     longer alive are classified as ``REMOVED`` to mark them for removal from the
     set of active tracks.
     """
+    
     NEW      = 0
     TRACKED  = 1
     LOST     = 2
@@ -649,18 +649,18 @@ class TrackState(DT.Enum):
         }
     
     @classmethod
-    def from_str(cls, value: str) -> MovingState:
-        """Convert a string to a ``MovingState`` enum.
+    def from_str(cls, value: str) -> "TrackState":
+        """Convert a string to a ``TrackState`` enum.
         
-        This method takes a string representation of a moving state and converts
-        it to the corresponding ``MovingState`` enum value. If the string is not
+        This method takes a string representation of a track state and converts
+        it to the corresponding ``TrackState`` enum value. If the string is not
         a valid key in the mapping, a ValueError is raised.
     
         Args:
-            value: The string representation of the moving state.
+            value: The string representation of the track state.
     
         Returns:
-            The corresponding ``MovingState`` enum value.
+            The corresponding ``TrackState`` enum value.
     
         Raises:
             ValueError: If the string is not a valid enum key.
@@ -671,18 +671,18 @@ class TrackState(DT.Enum):
         return cls.str_mapping()[value_lower]
     
     @classmethod
-    def from_int(cls, value: int) -> MovingState:
-        """Convert an integer to a ``MovingState`` enum.
+    def from_int(cls, value: int) -> "TrackState":
+        """Convert an integer to a ``TrackState`` enum.
     
-        This method takes an integer representation of a moving state and converts
-        it to the corresponding ``MovingState`` enum value. If the integer is not
+        This method takes an integer representation of a track state and converts
+        it to the corresponding ``TrackState`` enum value. If the integer is not
         a valid key in the mapping, a ValueError is raised.
     
         Args:
-            value: The integer representation of the moving state.
+            value: The integer representation of the track state.
     
         Returns:
-            The corresponding ``MovingState`` enum value.
+            The corresponding ``TrackState`` enum value.
     
         Raises:
             ValueError: If the integer is not a valid enum key.
@@ -692,83 +692,22 @@ class TrackState(DT.Enum):
         return cls.int_mapping()[value]
     
     @classmethod
-    def from_value(cls, value: MovingState | str | int) -> MovingState | None:
-        """Convert an arbitrary value to a ``MovingState`` enum.
+    def from_value(cls, value: "TrackState" | str | int) -> "TrackState" | None:
+        """Convert an arbitrary value to a ``TrackState`` enum.
     
         This method takes an arbitrary value and attempts to convert it to a
-        ``MovingState`` enum. It supports conversion from ``MovingState``,
+        ``TrackState`` enum. It supports conversion from ``TrackState``,
         ``str``, and ``int`` types. If the value is not of a supported type,
         ``None`` is returned.
     
         Args:
-            value: The value to convert to a ``MovingState`` enum.
+            value: The value to convert to a ``TrackState`` enum.
     
         Returns:
-            The corresponding ``MovingState`` enum value, or ``None`` if the value
+            The corresponding ``TrackState`` enum value, or ``None`` if the value
             is not of a supported type.
         """
-        if isinstance(value, MovingState):
-            return value
-        if isinstance(value, str):
-            return cls.from_str(value)
-        if isinstance(value, int):
-            return cls.from_int(value)
-        return None
-
-
-class MovingState(DT.Enum):
-    """The tracking state of an object when moving through the camera."""
-    
-    CANDIDATE     = 1  # Preliminary state.
-    CONFIRMED     = 2  # Confirmed the Detection is a road_objects eligible for counting.
-    COUNTING      = 3  # Object is in the counting zone/counting state.
-    TO_BE_COUNTED = 4  # Mark object to be counted somewhere in this loop iteration.
-    COUNTED       = 5  # Mark object has been counted.
-    EXITING       = 6  # Mark object for exiting the ROI or image frame. Let's it die by itself.
-    
-    @classmethod
-    def str_mapping(cls) -> dict:
-        """Return a `dict` mapping `str` to enums."""
-        return {
-            "candidate"    : cls.CANDIDATE,
-            "confirmed"    : cls.CONFIRMED,
-            "counting"     : cls.COUNTING,
-            "to_be_counted": cls.TO_BE_COUNTED,
-            "counted"      : cls.COUNTED,
-            "existing"     : cls.EXITING,
-        }
-    
-    @classmethod
-    def int_mapping(cls) -> dict:
-        """Return a `dict` mapping `int` to enums."""
-        return {
-            0: cls.CANDIDATE,
-            1: cls.CONFIRMED,
-            2: cls.COUNTING,
-            3: cls.TO_BE_COUNTED,
-            4: cls.COUNTED,
-            5: cls.EXITING,
-        }
-    
-    @classmethod
-    def from_str(cls, value: str) -> MovingState:
-        """Convert a string to an enum."""
-        value_lower = value.lower()
-        if value_lower not in cls.str_mapping():
-            raise ValueError(f"`value` must be a valid enum key, but got {value_lower}.")
-        return cls.str_mapping()[value_lower]
-    
-    @classmethod
-    def from_int(cls, value: int) -> MovingState:
-        """Convert an integer to an enum."""
-        if value not in cls.int_mapping():
-            raise ValueError(f"`value` must be a valid enum key, but got {value}.")
-        return cls.int_mapping()[value]
-    
-    @classmethod
-    def from_value(cls, value: MovingState | str | int) -> MovingState | None:
-        """Convert an arbitrary value to an enum."""
-        if isinstance(value, MovingState):
+        if isinstance(value, TrackState):
             return value
         if isinstance(value, str):
             return cls.from_str(value)

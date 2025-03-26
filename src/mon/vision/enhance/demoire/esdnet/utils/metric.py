@@ -44,7 +44,7 @@ class create_metrics:
         tar = torch.clamp(gt, min=0, max=1)
 
         # calculate LPIPS
-        res_lpips = self.lpips_fn.forward(pre, tar, normalize=True).item()
+        res_lpips = self.lpips_fn.forward(pre).item()
         return res_lpips, res_psnr, res_ssim
 
     def fast_psnr_ssim(self, out_img, gt):

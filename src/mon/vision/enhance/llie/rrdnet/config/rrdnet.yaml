@@ -51,7 +51,7 @@ metrics: &metrics                                                               
     - {name: "ssim"}                                                            
 
 # Model
-model:                                                                          
+modelmodule:
   name     : *model                                                             # Model name (e.g., resnet50).
   fullname : *fullname                                                          # Full name of the current run (e.g., resnet50_cifar10_01).
   root     : *save_dir                                                          # Root directory of the current run.

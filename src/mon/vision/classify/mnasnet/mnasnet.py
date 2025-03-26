@@ -31,22 +31,34 @@ current_dir  = current_file.parents[0]
 # region Model
 
 class MNASNet(nn.ExtraModel, base.ImageClassificationModel, ABC):
-    """MNASNet models from the paper: "MnasNet: Platform-Aware Neural
-    Architecture Search for Mobile"
-    
+    """MNASNet model for image classification.
+
     References:
-        https://arxiv.org/abs/1807.11626
+        - https://arxiv.org/abs/1807.11626
     """
     
-    arch     : str          = "mnasnet"
-    ltypes   : list[LType]  = [LType.SUPERVISED]
-    model_dir: core.Path    = current_dir
-    zoo      : dict         = {}
+    arch     : str         = "mnasnet"
+    ltypes   : list[LType] = [LType.SUPERVISED]
+    model_dir: core.Path   = current_dir
+    zoo      : dict        = {}
     
     def init_weights(self, m: nn.Module):
+        """Initializes weights for the model.
+
+        Args:
+            m: Module to initialize weights for.
+        """
         pass
-    
+
     def forward(self, datapoint: dict, *args, **kwargs) -> dict:
+        """Performs forward pass on the model.
+
+        Args:
+            datapoint: Dict with image data.
+            
+        Returns:
+            Dict with logits from the model.
+        """
         x = datapoint["image"]
         y = self.model(x)
         return {"logits": y}
@@ -54,6 +66,12 @@ class MNASNet(nn.ExtraModel, base.ImageClassificationModel, ABC):
 
 @MODELS.register(name="mnasnet0_5", arch="mnasnet")
 class MNASNet0_5(MNASNet):
+    """MNASNet-0.5 model for image classification.
+
+    Args:
+        num_classes: Number of output classes. Default is ``1000``.
+        dropout: Dropout rate for the model. Default is ``0.2``.
+    """
     
     name: str  = "mnasnet0_5"
     zoo : dict = {
@@ -80,6 +98,12 @@ class MNASNet0_5(MNASNet):
 
 @MODELS.register(name="mnasnet0_75", arch="mnasnet")
 class MNASNet0_75(MNASNet):
+    """MNASNet-0.75 model for image classification.
+
+    Args:
+        num_classes: Number of output classes. Default is ``1000``.
+        dropout: Dropout rate for the model. Default is ``0.2``.
+    """
     
     name: str  = "mnasnet0_75"
     zoo : dict = {
@@ -106,6 +130,12 @@ class MNASNet0_75(MNASNet):
         
 @MODELS.register(name="mnasnet1_0", arch="mnasnet")
 class MNASNet1_0(MNASNet):
+    """MNASNet-1.0 model for image classification.
+
+    Args:
+        num_classes: Number of output classes. Default is ``1000``.
+        dropout: Dropout rate for the model. Default is ``0.2``.
+    """
     
     name: str  = "mnasnet1_0"
     zoo : dict = {
@@ -132,6 +162,12 @@ class MNASNet1_0(MNASNet):
         
 @MODELS.register(name="mnasnet1_3", arch="mnasnet")
 class MNASNet1_3(MNASNet):
+    """MNASNet-1.3 model for image classification.
+
+    Args:
+        num_classes: Number of output classes. Default is ``1000``.
+        dropout: Dropout rate for the model. Default is ``0.2``.
+    """
     
     name: str  = "mnasnet1_3"
     zoo : dict = {

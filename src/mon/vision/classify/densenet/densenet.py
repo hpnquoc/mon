@@ -33,22 +33,34 @@ current_dir  = current_file.parents[0]
 # region Model
 
 class DenseNet(nn.ExtraModel, base.ImageClassificationModel, ABC):
-    """DenseNet models from the paper: "Densely Connected Convolutional
-    Networks".
-    
+    """DenseNet model for image classification.
+
     References:
-        https://arxiv.org/pdf/1608.06993.pdf
+        - https://arxiv.org/pdf/1608.06993.pdf
     """
     
-    arch     : str          = "densenet"
-    ltypes   : list[LType]  = [LType.SUPERVISED]
-    model_dir: core.Path    = current_dir
-    zoo      : dict         = {}
+    arch     : str         = "densenet"
+    ltypes   : list[LType] = [LType.SUPERVISED]
+    model_dir: core.Path   = current_dir
+    zoo      : dict        = {}
     
     def init_weights(self, m: nn.Module):
+        """Initializes weights for the model.
+
+        Args:
+            m: Module to initialize weights for.
+        """
         pass
     
     def forward(self, datapoint: dict, *args, **kwargs) -> dict:
+        """Performs forward pass on the model.
+
+        Args:
+            datapoint: Dict with image data.
+            
+        Returns:
+            Dict with logits from the model.
+        """
         x = datapoint["image"]
         y = self.model(x)
         return {"logits": y}
@@ -56,6 +68,11 @@ class DenseNet(nn.ExtraModel, base.ImageClassificationModel, ABC):
 
 @MODELS.register(name="densenet121", arch="densenet")
 class DenseNet121(DenseNet):
+    """DenseNet-121 model for image classification.
+
+    Args:
+        num_classes: Number of output classes. Default is ``1000``.
+    """
     
     name: str  = "densenet121"
     zoo : dict = {
@@ -82,6 +99,11 @@ class DenseNet121(DenseNet):
 
 @MODELS.register(name="densenet161", arch="densenet")
 class DenseNet161(DenseNet):
+    """DenseNet-161 model for image classification.
+
+    Args:
+        num_classes: Number of output classes. Default is ``1000``.
+    """
     
     name: str  = "densenet161"
     zoo : dict = {
@@ -108,6 +130,11 @@ class DenseNet161(DenseNet):
 
 @MODELS.register(name="densenet169", arch="densenet")
 class DenseNet169(DenseNet):
+    """DenseNet-169 model for image classification.
+
+    Args:
+        num_classes: Number of output classes. Default is ``1000``.
+    """
     
     name: str  = "densenet169"
     zoo : dict = {
@@ -135,7 +162,12 @@ class DenseNet169(DenseNet):
 
 @MODELS.register(name="densenet201", arch="densenet")
 class DenseNet201(DenseNet):
+    """DenseNet-201 model for image classification.
 
+    Args:
+        num_classes: Number of output classes. Default is ``1000``.
+    """
+    
     name: str  = "densenet201"
     zoo : dict = {
         "imagenet1k_v1": {

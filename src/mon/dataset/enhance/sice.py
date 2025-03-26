@@ -177,7 +177,7 @@ class SICEMix(MultimodalDataset):
             for pattern in patterns:
                 for path in pbar.track(
                     sequence    = sorted(list(pattern.rglob("*"))),
-                    description = f"Listing {self.__class__.__name__} {self.split_str} lq images"
+                    description = f"Listing {self.__class__.__name__} {self.split_str} images"
                 ):
                     if path.is_image_file():
                         images.append(ImageAnnotation(path=path, root=pattern))

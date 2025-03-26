@@ -26,14 +26,12 @@ from humps import *
 
 
 def snakecase(x: str) -> str:
-	"""Convert a string to snake_case by replacing spaces and hyphens with
-	underscores.
+	"""Converts a string to snake_case by replacing spaces and hyphens with underscores.
 
 	Args:
-	    x: The input string to be converted.
+		x: Input string to convert.
 
 	Returns:
-	    The converted snake_case string.
+		Converted string in ``snake_case``.
 	"""
-	x = x.replace(" ", "_").replace("-", "_")
-	return x
+	return x.replace(" ", "_").replace("-", "_")

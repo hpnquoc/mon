@@ -32,8 +32,8 @@ optimizer: &optimizer                                                           
   optimizer:
     name        : "adam"
     lr          : 0.0001
-    weight_decay: 1e-2
-  lr_scheduler       :                                                          # Learning rate scheduler.
+    weight_decay: 0.01
+  lr_scheduler:                                                                 # Learning rate scheduler.
     scheduler:
       name     : "step_lr"
       step_size: 1000

@@ -30,8 +30,18 @@ ImageAnnotation     = annotation.ImageAnnotation
 # region Image Loader
 
 class ImageLoader(base.MultimodalDataset):
-    """A general image loader that retrieves and loads image(s) from a file
-    path, file path pattern, or directory.
+    """Loads images from a file path, pattern, or directory.
+    
+    Attributes:
+        datapoint_attrs: Dict of attribute names and types, must include ``'image'``: ``ImageAnnotation``.
+        
+    Args:
+        root: Root path or directory of images.
+        split: Data split to use. Default is ``Split.PREDICT``.
+        transform : Transformations to apply. Default is ``None``.
+        to_tensor : If ``True``, converts to ``torch.Tensor``. Default is ``False``.
+        cache_data: If ``True``, caches data to disk. Default is ``False``.
+        verbose: If ``True``, enables verbose output. Default is ``True``.
     """
     
     datapoint_attrs = DatapointAttributes({
@@ -50,26 +60,28 @@ class ImageLoader(base.MultimodalDataset):
     ):
         super().__init__(
             root        = root,
-            split		= split,
+            split       = split,
             transform   = transform,
             to_tensor   = to_tensor,
-            cache_data	= cache_data,
+            cache_data  = cache_data,
             verbose     = verbose,
             *args, **kwargs
         )
     
     def get_data(self):
-        # A single image
+        """Gets image data from the root path.
+
+        Raises:
+            IOError: If root path is invalid or no images are found.
+        """
         if self.root.is_image_file():
             paths = [self.root]
-        # A directory of images
         elif self.root.is_dir() and self.root.exists():
             paths = list(self.root.rglob("*"))
-        # A file path pattern
         elif "*" in str(self.root):
             paths = [core.Path(i) for i in glob.glob(str(self.root))]
         else:
-            raise IOError(f"Error when listing image files.")
+            raise IOError(f"Invalid root path: {self.root}")
         
         images: list[ImageAnnotation] = []
         with core.get_progress_bar() as pbar:

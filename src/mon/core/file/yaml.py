@@ -12,7 +12,6 @@ from typing import Any, TextIO
 
 from yaml import *
 
-from mon.core import pathlib
 from mon.core.file import base
 from mon.globals import FILE_HANDLERS
 
@@ -22,44 +21,43 @@ from mon.globals import FILE_HANDLERS
 @FILE_HANDLERS.register(name=".yaml")
 @FILE_HANDLERS.register(name=".yml")
 class YAMLHandler(base.FileHandler):
-    """YAML file handler."""
+    """Handler for YAML file operations."""
     
-    def read_from_fileobj(self, path: pathlib.Path | str | TextIO, **kwargs) -> Any:
-        """Convert a dictionary to an XML string.
-    
+    def read_from_fileobj(self, path: TextIO, **kwargs) -> Any:
+        """Loads data from a file object.
+
         Args:
-            obj: The dictionary to convert to an XML string.
-            **kwargs: Additional keyword arguments to pass to the ``xmltodict.unparse`` function.
-    
+            path: File stream as ``TextIO`` (text file-like object).
+            **kwargs: Additional arguments for ``yaml.load``.
+
         Returns:
-            The XML string representation of the dictionary.
+            Parsed YAML data.
         """
         kwargs.setdefault("Loader", FullLoader)
-        return load(stream=path, **kwargs)
+        return load(path, **kwargs)
     
-    def write_to_fileobj(self, obj : Any, path: pathlib.Path | str | TextIO, **kwargs):
-        """Write data to a YAML file object.
-    
+    def write_to_fileobj(self, obj: Any, path: TextIO, **kwargs):
+        """Writes data to a file object.
+
         Args:
-            obj: The data to write to the file.
-            path: The path to the file. It can be a ``pathlib.Path``, ``str``, or `
-                `TextIO`` object.
-            **kwargs: Additional keyword arguments to pass to the ``yaml.dump`` function.
+            obj: Data to serialize as YAML.
+            path: File stream as ``TextIO`` (text file-like object).
+            **kwargs: Additional arguments for ``yaml.dump``.
         """
         kwargs.setdefault("Dumper", Dumper)
-        dump(data=obj, stream=pathlib.Path(path), **kwargs)
+        dump(data=obj, stream=path, **kwargs)
     
     def write_to_string(self, obj: Any, **kwargs) -> str:
-        """Convert a dictionary to a YAML string.
-    
+        """Converts data to a YAML string.
+
         Args:
-            obj: The dictionary to convert to a YAML string.
-            **kwargs: Additional keyword arguments to pass to the ``yaml.dump`` function.
-    
+            obj: Data to serialize as YAML.
+            **kwargs: Additional arguments for ``yaml.dump``.
+
         Returns:
-            The YAML string representation of the dictionary.
+            YAML string representation of ``obj``.
         """
         kwargs.setdefault("Dumper", Dumper)
-        return dump(data=obj, **kwargs)
+        return dump(data=obj, stream=None, **kwargs)
 
 # endregion

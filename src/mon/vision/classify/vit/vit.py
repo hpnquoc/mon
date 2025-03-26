@@ -32,22 +32,33 @@ current_dir  = current_file.parents[0]
 # region Model
 
 class VisionTransformer(base.ImageClassificationModel, ABC):
-    """Vision Transformer models from "An Image is Worth 16x16 Words:
-    Transformers for Image Recognition at Scale"
-    
+    """Vision Transformer model for image classification.
+
     References:
-        https://arxiv.org/abs/2010.11929
+        - https://arxiv.org/abs/2010.11929
     """
     
-    arch     : str          = "vit"
-    ltypes   : list[LType]  = [LType.SUPERVISED]
-    model_dir: core.Path    = current_dir
-    zoo      : dict         = {}
+    arch     : str         = "vit"
+    ltypes   : list[LType] = [LType.SUPERVISED]
+    model_dir: core.Path   = current_dir
+    zoo      : dict        = {}
     
     def init_weights(self, m: nn.Module):
+        """Initializes weights for the model.
+
+        Args:
+            m: Module to initialize weights for.
+        """
         pass
 
     def forward(self, datapoint: dict, *args, **kwargs) -> dict:
+        """Performs forward pass on the model.
+
+        Args:
+            datapoint: Dict with image data.
+        Returns:
+            Dict with logits from the model.
+        """
         x = datapoint["image"]
         y = self.model(x)
         return {"logits": y}
@@ -55,6 +66,13 @@ class VisionTransformer(base.ImageClassificationModel, ABC):
 
 @MODELS.register(name="vit_b_16", arch="vit")
 class ViT_B_16(VisionTransformer):
+    """ViT-B/16 model for image classification.
+
+    Args:
+        num_classes: Number of output classes. Default is ``1000``.
+        dropout: Dropout rate for the model. Default is ``0.0``.
+        attention_dropout: Attention dropout rate. Default is ``0.0``.
+    """
     
     name: str  = "vit_b_16"
     zoo : dict = {
@@ -101,6 +119,13 @@ class ViT_B_16(VisionTransformer):
 
 @MODELS.register(name="vit_b_32", arch="vit")
 class ViT_B_32(VisionTransformer):
+    """ViT-B/32 model for image classification.
+
+    Args:
+        num_classes: Number of output classes. Default is ``1000``.
+        dropout: Dropout rate for the model. Default is ``0.0``.
+        attention_dropout: Attention dropout rate. Default is ``0.0``.
+    """
     
     name: str  = "vit_b_32"
     zoo : dict = {
@@ -137,6 +162,13 @@ class ViT_B_32(VisionTransformer):
 
 @MODELS.register(name="vit_l_16", arch="vit")
 class ViT_L_16(VisionTransformer):
+    """ViT-L/16 model for image classification.
+
+    Args:
+        num_classes: Number of output classes. Default is ``1000``.
+        dropout: Dropout rate for the model. Default is ``0.0``.
+        attention_dropout: Attention dropout rate. Default is ``0.0``.
+    """
     
     name: str  = "vit_l_16"
     zoo : dict = {
@@ -183,6 +215,13 @@ class ViT_L_16(VisionTransformer):
 
 @MODELS.register(name="vit_l_32", arch="vit")
 class ViT_L_32(VisionTransformer):
+    """ViT-L/32 model for image classification.
+
+    Args:
+        num_classes: Number of output classes. Default is ``1000``.
+        dropout: Dropout rate for the model. Default is ``0.0``.
+        attention_dropout: Attention dropout rate. Default is ``0.0``.
+    """
     
     name: str  = "vit_l_32"
     zoo : dict = {
@@ -219,6 +258,13 @@ class ViT_L_32(VisionTransformer):
 
 @MODELS.register(name="vit_h_14", arch="vit")
 class ViT_H_14(VisionTransformer):
+    """ViT-H/14 model for image classification.
+
+    Args:
+        num_classes: Number of output classes. Default is ``1000``.
+        dropout: Dropout rate for the model. Default is ``0.0``.
+        attention_dropout: Attention dropout rate. Default is ``0.0``.
+    """
     
     name: str  = "vit_h_14"
     zoo : dict = {

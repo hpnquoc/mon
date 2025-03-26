@@ -104,26 +104,26 @@ class CycleGANModel(BaseModel):
         self.real_A = Variable(self.input_A, volatile=True)
         # print(np.transpose(self.real_A.data[0].cpu().float().numpy(),(1,2,0))[:2][:2][:])
         if self.opt.skip == 1:
-            self.fake_B, self.latent_real_A = self.netG_A.forward(self.real_A)
+            self.fake_B, self.latent_real_A = self.netG_A.forward(self.real_A, )
         else:
-            self.fake_B = self.netG_A.forward(self.real_A)
-        self.rec_A = self.netG_B.forward(self.fake_B)
+            self.fake_B = self.netG_A.forward(self.real_A, )
+        self.rec_A = self.netG_B.forward(self.fake_B, )
 
         self.real_B = Variable(self.input_B, volatile=True)
-        self.fake_A = self.netG_B.forward(self.real_B)
+        self.fake_A = self.netG_B.forward(self.real_B, )
         if self.opt.skip == 1:
-            self.rec_B, self.latent_fake_A = self.netG_A.forward(self.fake_A)
+            self.rec_B, self.latent_fake_A = self.netG_A.forward(self.fake_A, )
         else:
-            self.rec_B = self.netG_A.forward(self.fake_A)
+            self.rec_B = self.netG_A.forward(self.fake_A, )
 
     def predict(self):
         self.real_A = Variable(self.input_A, volatile=True)
         # print(np.transpose(self.real_A.data[0].cpu().float().numpy(),(1,2,0))[:2][:2][:])
         if self.opt.skip == 1:
-            self.fake_B, self.latent_real_A = self.netG_A.forward(self.real_A)
+            self.fake_B, self.latent_real_A = self.netG_A.forward(self.real_A, )
         else:
-            self.fake_B = self.netG_A.forward(self.real_A)
-        self.rec_A = self.netG_B.forward(self.fake_B)
+            self.fake_B = self.netG_A.forward(self.real_A, )
+        self.rec_A = self.netG_B.forward(self.fake_B, )
 
         real_A = util.tensor2im(self.real_A.data)
         fake_B = util.tensor2im(self.fake_B.data)
@@ -175,10 +175,10 @@ class CycleGANModel(BaseModel):
         # Identity loss
         if lambda_idt > 0:
             # G_A should be identity if real_B is fed.
-            self.idt_A = self.netG_A.forward(self.real_B)
+            self.idt_A = self.netG_A.forward(self.real_B, )
             self.loss_idt_A = self.criterionIdt(self.idt_A, self.real_B) * lambda_B * lambda_idt
             # G_B should be identity if real_A is fed.
-            self.idt_B = self.netG_B.forward(self.real_A)
+            self.idt_B = self.netG_B.forward(self.real_A, )
             self.loss_idt_B = self.criterionIdt(self.idt_B, self.real_A) * lambda_A * lambda_idt
         else:
             self.loss_idt_A = 0
@@ -187,11 +187,11 @@ class CycleGANModel(BaseModel):
         # GAN loss
         # D_A(G_A(A))
         if self.opt.skip == 1:
-            self.fake_B, self.latent_real_A = self.netG_A.forward(self.real_A)
+            self.fake_B, self.latent_real_A = self.netG_A.forward(self.real_A, )
         else:
-            self.fake_B = self.netG_A.forward(self.real_A)
+            self.fake_B = self.netG_A.forward(self.real_A, )
          # = self.latent_real_A + self.opt.skip * self.real_A
-        pred_fake = self.netD_A.forward(self.fake_B)
+        pred_fake = self.netD_A.forward(self.fake_B, )
         if self.opt.use_wgan:
             self.loss_G_A = -pred_fake.mean()
         else:
@@ -201,8 +201,8 @@ class CycleGANModel(BaseModel):
         else:
             self.L1_AB = 0
         # D_B(G_B(B))
-        self.fake_A = self.netG_B.forward(self.real_B)
-        pred_fake = self.netD_B.forward(self.fake_A)
+        self.fake_A = self.netG_B.forward(self.real_B, )
+        pred_fake = self.netD_B.forward(self.fake_A, )
         if self.opt.l1 > 0:
             self.L1_BA = self.criterionL1(self.fake_A, self.real_A) * self.opt.l1
         else:
@@ -214,7 +214,7 @@ class CycleGANModel(BaseModel):
         # Forward cycle loss
         
         if lambda_A > 0:
-            self.rec_A = self.netG_B.forward(self.fake_B)
+            self.rec_A = self.netG_B.forward(self.fake_B, )
             self.loss_cycle_A = self.criterionCycle(self.rec_A, self.real_A) * lambda_A
         else:
             self.loss_cycle_A = 0
@@ -223,9 +223,9 @@ class CycleGANModel(BaseModel):
          # = self.latent_fake_A + self.opt.skip * self.fake_A
         if lambda_B > 0:
             if self.opt.skip == 1:
-                self.rec_B, self.latent_fake_A = self.netG_A.forward(self.fake_A)
+                self.rec_B, self.latent_fake_A = self.netG_A.forward(self.fake_A, )
             else:
-                self.rec_B = self.netG_A.forward(self.fake_A)
+                self.rec_B = self.netG_A.forward(self.fake_A, )
             self.loss_cycle_B = self.criterionCycle(self.rec_B, self.real_B) * lambda_B
         else:
             self.loss_cycle_B = 0

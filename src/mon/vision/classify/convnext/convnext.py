@@ -33,21 +33,34 @@ current_dir  = current_file.parents[0]
 # region Model
 
 class ConvNeXt(nn.ExtraModel, base.ImageClassificationModel, ABC):
-    """ConvNeXt models from the paper: "A ConvNet for the 2020s".
-    
+    """ConvNeXt model for image classification.
+
     References:
-        https://arxiv.org/abs/2201.03545
+        - https://arxiv.org/abs/2201.03545
     """
     
-    arch     : str          = "convnext"
-    ltypes   : list[LType]  = [LType.SUPERVISED]
-    model_dir: core.Path    = current_dir
-    zoo      : dict         = {}
+    arch     : str         = "convnext"
+    ltypes   : list[LType] = [LType.SUPERVISED]
+    model_dir: core.Path   = current_dir
+    zoo      : dict        = {}
     
     def init_weights(self, m: nn.Module):
+        """Initializes weights for the model.
+
+        Args:
+            m: Module to initialize weights for.
+        """
         pass
     
     def forward(self, datapoint: dict, *args, **kwargs) -> dict:
+        """Performs forward pass on the model.
+
+        Args:
+            datapoint: Dict with image data.
+        
+        Returns:
+            Dict with logits from the model.
+        """
         x = datapoint["image"]
         y = self.model(x)
         return {"logits": y}
@@ -55,6 +68,11 @@ class ConvNeXt(nn.ExtraModel, base.ImageClassificationModel, ABC):
 
 @MODELS.register(name="convnext_base", arch="convnext")
 class ConvNeXtBase(ConvNeXt):
+    """ConvNeXt Base model for image classification.
+    
+    Args:
+        num_classes: Number of output classes. Default is ``1000``.
+    """
     
     name: str = "convnext_base"
     zoo : dict = {
@@ -80,6 +98,11 @@ class ConvNeXtBase(ConvNeXt):
 
 @MODELS.register(name="convnext_tiny", arch="convnext")
 class ConvNeXtTiny(ConvNeXt):
+    """ConvNeXt Tiny model for image classification.
+
+    Args:
+        num_classes: Number of output classes. Default is 1000.
+    """
     
     name: str = "convnext_tiny"
     zoo : dict = {
@@ -132,6 +155,11 @@ class ConvNeXtSmall(ConvNeXt):
 
 @MODELS.register(name="convnext_large", arch="convnext")
 class ConvNeXtLarge(ConvNeXt):
+    """ConvNeXt Large model for image classification.
+
+    Args:
+        num_classes: Number of output classes. Default is ``1000``.
+    """
     
     name: str  = "convnext_large"
     zoo : dict = {

@@ -48,21 +48,34 @@ current_dir  = current_file.parents[0]
 # region Model
 
 class RegNet(nn.ExtraModel, base.ImageClassificationModel, ABC):
-    """RegNet models from the paper: "Designing Network Design Spaces"
-    
+    """RegNet model for image classification.
+
     References:
-        https://arxiv.org/abs/2003.13678
+        - https://arxiv.org/abs/2003.13678
     """
     
-    arch     : str          = "regnet"
-    ltypes   : list[LType]  = [LType.SUPERVISED]
-    model_dir: core.Path    = current_dir
-    zoo      : dict         = {}
+    arch     : str         = "regnet"
+    ltypes   : list[LType] = [LType.SUPERVISED]
+    model_dir: core.Path   = current_dir
+    zoo      : dict        = {}
     
     def init_weights(self, m: nn.Module):
+        """Initializes weights for the model.
+
+        Args:
+            m: Module to initialize weights for.
+        """
         pass
-    
+
     def forward(self, datapoint: dict, *args, **kwargs) -> dict:
+        """Performs forward pass on the model.
+
+        Args:
+            datapoint: Dict with image data.
+       
+        Returns:
+            Dict with logits from the model.
+        """
         x = datapoint["image"]
         y = self.model(x)
         return {"logits": y}
@@ -70,6 +83,11 @@ class RegNet(nn.ExtraModel, base.ImageClassificationModel, ABC):
 
 @MODELS.register(name="regnet_y_400mf", arch="regnet")
 class RegNet_Y_400MF(RegNet):
+    """RegNet-Y-400MF model for image classification.
+
+    Args:
+        num_classes: Number of output classes. Default is ``1000``.
+    """
     
     name: str  = "regnet_y_400mf"
     zoo : dict = {
@@ -101,6 +119,11 @@ class RegNet_Y_400MF(RegNet):
 
 @MODELS.register(name="regnet_y_800mf", arch="regnet")
 class RegNet_Y_800MF(RegNet):
+    """RegNet-Y-800MF model for image classification.
+
+    Args:
+        num_classes: Number of output classes. Default is ``1000``.
+    """
     
     name: str  = "regnet_y_800mf"
     zoo : dict = {
@@ -132,6 +155,11 @@ class RegNet_Y_800MF(RegNet):
 
 @MODELS.register(name="regnet_y_1_6gf", arch="regnet")
 class RegNet_Y_1_6GF(RegNet):
+    """RegNet-Y-1.6GF model for image classification.
+
+    Args:
+        num_classes: Number of output classes. Default is ``1000``.
+    """
     
     name: str  = "regnet_y_1_6gf"
     zoo : dict = {
@@ -163,6 +191,11 @@ class RegNet_Y_1_6GF(RegNet):
 
 @MODELS.register(name="regnet_y_3_2gf", arch="regnet")
 class RegNet_Y_3_2GF(RegNet):
+    """RegNet-Y-3.2GF model for image classification.
+
+    Args:
+        num_classes: Number of output classes. Default is ``1000``.
+    """
     
     name: str  = "regnet_y_3_2gf"
     zoo : dict = {
@@ -194,6 +227,11 @@ class RegNet_Y_3_2GF(RegNet):
 
 @MODELS.register(name="regnet_y_8gf", arch="regnet")
 class RegNet_Y_8GF(RegNet):
+    """RegNet-Y-8GF model for image classification.
+
+    Args:
+        num_classes: Number of output classes. Default is ``1000``.
+    """
     
     name: str  = "regnet_y_8gf"
     zoo : dict = {
@@ -225,6 +263,11 @@ class RegNet_Y_8GF(RegNet):
 
 @MODELS.register(name="regnet_y_16gf", arch="regnet")
 class RegNet_Y_16GF(RegNet):
+    """RegNet-Y-16GF model for image classification.
+
+    Args:
+        num_classes: Number of output classes. Default is ``1000``.
+    """
     
     name: str  = "regnet_y_16gf"
     zoo : dict = {
@@ -266,6 +309,11 @@ class RegNet_Y_16GF(RegNet):
 
 @MODELS.register(name="regnet_y_32gf", arch="regnet")
 class RegNet_Y_32GF(RegNet):
+    """RegNet-Y-32GF model for image classification.
+
+    Args:
+        num_classes: Number of output classes. Default is ``1000``.
+    """
     
     name: str  = "regnet_y_32gf"
     zoo : dict = {
@@ -307,6 +355,11 @@ class RegNet_Y_32GF(RegNet):
 
 @MODELS.register(name="regnet_y_128gf", arch="regnet")
 class RegNet_Y_128GF(RegNet):
+    """RegNet-Y-128GF model for image classification.
+
+    Args:
+        num_classes: Number of output classes. Default is ``1000``.
+    """
     
     name: str  = "regnet_y_128gf"
     zoo : dict = {
@@ -338,6 +391,11 @@ class RegNet_Y_128GF(RegNet):
  
 @MODELS.register(name="regnet_x_400mf", arch="regnet")
 class RegNet_X_400MF(RegNet):
+    """RegNet-X-400MF model for image classification.
+
+    Args:
+        num_classes: Number of output classes. Default is ``1000``.
+    """
     
     name: str  = "regnet_x_400mf"
     zoo : dict = {
@@ -369,6 +427,11 @@ class RegNet_X_400MF(RegNet):
 
 @MODELS.register(name="regnet_x_800mf", arch="regnet")
 class RegNet_X_800MF(RegNet):
+    """RegNet-X-800MF model for image classification.
+
+    Args:
+        num_classes: Number of output classes. Default is ``1000``.
+    """
     
     name: str  = "regnet_x_800mf"
     zoo : dict = {
@@ -400,6 +463,11 @@ class RegNet_X_800MF(RegNet):
 
 @MODELS.register(name="regnet_x_1_6gf", arch="regnet")
 class RegNet_X_1_6GF(RegNet):
+    """RegNet-X-1.6GF model for image classification.
+
+    Args:
+        num_classes: Number of output classes. Default is ``1000``.
+    """
     
     name: str  = "regnet_x_1_6gf"
     zoo : dict = {
@@ -431,6 +499,11 @@ class RegNet_X_1_6GF(RegNet):
       
 @MODELS.register(name="regnet_x_3_2gf", arch="regnet")
 class RegNet_X_3_2GF(RegNet):
+    """RegNet-X-3.2GF model for image classification.
+
+    Args:
+        num_classes: Number of output classes. Default is ``1000``.
+    """
     
     name: str  = "regnet_x_3_2gf"
     zoo : dict = {
@@ -478,6 +551,11 @@ class RegNet_X_3_2GF(RegNet):
 
 @MODELS.register(name="regnet_x_8gf", arch="regnet")
 class RegNet_X_8GF(RegNet):
+    """RegNet-X-8GF model for image classification.
+
+    Args:
+        num_classes: Number of output classes. Default is ``1000``.
+    """
     
     name: str  = "regnet_x_8gf"
     zoo : dict = {
@@ -509,6 +587,11 @@ class RegNet_X_8GF(RegNet):
 
 @MODELS.register(name="regnet_x_16gf", arch="regnet")
 class RegNet_X_16GF(RegNet):
+    """RegNet-X-16GF model for image classification.
+
+    Args:
+        num_classes: Number of output classes. Default is ``1000``.
+    """
     
     name: str  = "regnet_x_16gf"
     zoo : dict = {
@@ -540,6 +623,11 @@ class RegNet_X_16GF(RegNet):
 
 @MODELS.register(name="regnet_x_32gf", arch="regnet")
 class RegNetX_32GF(RegNet):
+    """RegNet-X-32GF model for image classification.
+
+    Args:
+        num_classes: Number of output classes. Default is ``1000``.
+    """
     
     name: str  = "regnet_x32gf"
     zoo : dict = {

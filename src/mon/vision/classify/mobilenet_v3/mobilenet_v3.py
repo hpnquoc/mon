@@ -29,21 +29,34 @@ current_dir  = current_file.parents[0]
 # region Model
 
 class MobileNetV3(nn.ExtraModel, base.ImageClassificationModel, ABC):
-    """MobileNetV3 models from the paper: "Searching for MobileNetV3".
-    
+    """MobileNetV3 model for image classification.
+
     References:
-        https://arxiv.org/abs/1905.02244
+        - https://arxiv.org/abs/1905.02244
     """
     
-    arch     : str          = "mobilenet"
-    ltypes   : list[LType]  = [LType.SUPERVISED]
-    model_dir: core.Path    = current_dir
-    zoo      : dict         = {}
+    arch     : str         = "mobilenet"
+    ltypes   : list[LType] = [LType.SUPERVISED]
+    model_dir: core.Path   = current_dir
+    zoo      : dict        = {}
     
     def init_weights(self, m: nn.Module):
+        """Initializes weights for the model.
+
+        Args:
+            m: Module to initialize weights for.
+        """
         pass
-    
+
     def forward(self, datapoint: dict, *args, **kwargs) -> dict:
+        """Performs forward pass on the model.
+
+        Args:
+            datapoint: Dict with image data.
+            
+        Returns:
+            Dict with logits from the model.
+        """
         x = datapoint["image"]
         y = self.model(x)
         return {"logits": y}
@@ -51,6 +64,12 @@ class MobileNetV3(nn.ExtraModel, base.ImageClassificationModel, ABC):
 
 @MODELS.register(name="mobilenet_v3_large", arch="mobilenet")
 class MobileNetV3Large(MobileNetV3):
+    """MobileNetV3-Large model for image classification.
+
+    Args:
+        num_classes: Number of output classes. Default is ``1000``.
+        dropout: Dropout rate for the model. Default is ``0.2``.
+    """
     
     name: str  = "mobilenet_v3_large"
     zoo : dict = {
@@ -82,6 +101,12 @@ class MobileNetV3Large(MobileNetV3):
 
 @MODELS.register(name="mobilenet_v3_small", arch="mobilenet")
 class MobileNetV3Small(MobileNetV3):
+    """MobileNetV3-Small model for image classification.
+
+    Args:
+        num_classes: Number of output classes. Default is ``1000``.
+        dropout: Dropout rate for the model. Default is ``0.2``.
+    """
     
     name: str  = "mobilenet_v3_small"
     zoo : dict = {

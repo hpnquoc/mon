@@ -23,19 +23,51 @@ from mon.core import pathlib, utils
 
 # region Utils
 
-def _str_or_none(value) -> str | None:
-    return None if value == "None" else value
+def _str_or_none(value: Any) -> str | None:
+    """Converts a value to a string or returns ``None`` if the value is the string ``"None"``.
+
+    Args:
+        value: Value to convert.
+
+    Returns:
+        String representation of ``value``, or ``None`` if ``value`` is ``"None"``.
+    """
+    return None if value == "None" else str(value)
 
 
-def _int_or_none(value) -> int | None:
+def _int_or_none(value: Any) -> int | None:
+    """Converts a value to an integer or returns ``None`` if the value is the string ``"None"``.
+
+    Args:
+        value: Value to convert.
+
+    Returns:
+        Integer representation of ``value``, or ``None`` if ``value`` is ``"None"``.
+    """
     return None if value == "None" else int(value)
 
 
-def _float_or_none(value) -> float | None:
+def _float_or_none(value: Any) -> float | None:
+    """Converts a value to a float or returns ``None`` if the value is the string ``"None"``.
+
+    Args:
+        value: Value to convert.
+
+    Returns:
+        Float representation of ``value``, or ``None`` if ``value`` is ``"None"``
+    """
     return None if value == "None" else float(value)
 
 
 def get_image_size(input: Any) -> tuple[int, int]:
+    """Retrieves the size of an image as a width-height tuple.
+
+    Args:
+        input: Image input to measure.
+
+    Returns:
+        Tuple of ``(width, height)`` in integers.
+    """
     from mon.vision.dtype import image as I
     return I.get_image_size(input)
 

@@ -40,15 +40,19 @@ import torchmetrics
 # region Base
 
 class Metric(torchmetrics.Metric, ABC):
-    """The base class for all metrics.
+    """Base class for all metrics.
 
-    Attributes:
-        mode: One of: ``'FR'`` or ``'NR'``. Default: ``'FR'``.
-        higher_is_better: Default: ``False``.
-    """
+    Args:
+        *args: Arguments passed to torchmetrics.Metric.
+        **kwargs: Keyword arguments passed to torchmetrics.Metric.
     
+    Attributes:
+        mode: One of "FR" or "NR". Default is ``"FR"``.
+        higher_is_better: True if higher values are better. Default is ``True``.
+    """
+
     mode            : Literal["FR", "NR"] = "FR"
-    higher_is_better: bool = True
+    higher_is_better: bool                = True
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -89,32 +93,34 @@ def scale_gt_mean(
     image : torch.Tensor | np.ndarray,
     target: torch.Tensor | np.ndarray
 ) -> torch.Tensor | np.ndarray:
-    """Scale the image to match the mean of the target image.
-    
+    """Scales image to match target's mean intensity.
+
     Args:
-        image: An RGB image of type:
-            - `torch.Tensor` in ``[B, C, H, W]`` format with data in
-                the range ``[0.0, 1.0]``.
-            - `numpy.ndarray` in ``[H, W, C]`` format with data in the
-                range ``[0, 255]``.
-        target: The target image of the same type as `image`.
+        image: RGB image as torch.Tensor [B, C, H, W] in ``[0.0, 1.0]`` or
+            np.ndarray ``[H, W, C]`` in ``[0, 255]``.
+        target: Target image of same type as image.
+    
+    Returns:
+        Scaled image matching target's mean.
+    
+    Raises:
+        TypeError: If image and target types differ.
     
     References:
         https://github.com/Fediory/HVI-CIDNet/blob/master/measure.py
     """
     from mon.vision.dtype import color_space
-    
+
     if isinstance(image, torch.Tensor) and isinstance(target, torch.Tensor):
         mean_image  = color_space.rgb_to_grayscale(image).mean()
         mean_target = color_space.rgb_to_grayscale(target).mean()
         image       = torch.clip(image * (mean_target / mean_image), 0, 1)
     elif isinstance(image, np.ndarray) and isinstance(target, np.ndarray):
-        mean_restored = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY).mean()
-        mean_target   = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY).mean()
-        image         = np.clip(image * (mean_target/mean_restored), 0, 255)
+        mean_image  = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY).mean()
+        mean_target = cv2.cvtColor(target, cv2.COLOR_RGB2GRAY).mean()
+        image       = np.clip(image * (mean_target / mean_image), 0, 255)
     else:
-        raise TypeError(f"Both `image` and `target` must be of the same type, "
-                        f"but got {type(image)} and {type(target)}.")
+        raise TypeError(f"[image] and [target] must be same type, but got [{type(image).__name__}] and [{type(target).__name__}]")
     return image
     
 # endregion

@@ -41,22 +41,34 @@ current_dir  = current_file.parents[0]
 # region ResNet
 
 class ResNet(nn.ExtraModel, base.ImageClassificationModel, ABC):
-    """ResNet models from the paper: "Deep Residual Learning for Image
-    Recognition".
-    
+    """ResNet model for image classification.
+
     References:
-        https://arxiv.org/abs/1512.03385
+        - https://arxiv.org/abs/1512.03385
     """
     
-    arch     : str          = "resnet"
-    ltypes   : list[LType]  = [LType.SUPERVISED]
-    model_dir: core.Path    = current_dir
-    zoo      : dict         = {}
+    arch     : str         = "resnet"
+    ltypes   : list[LType] = [LType.SUPERVISED]
+    model_dir: core.Path   = current_dir
+    zoo      : dict        = {}
     
     def init_weights(self, m: nn.Module):
+        """Initializes weights for the model.
+
+        Args:
+            m: Module to initialize weights for.
+        """
         pass
-    
+
     def forward(self, datapoint: dict, *args, **kwargs) -> dict:
+        """Performs forward pass on the model.
+
+        Args:
+            datapoint: Dict with image data.
+        
+        Returns:
+            Dict with logits from the model.
+        """
         x = datapoint["image"]
         y = self.model(x)
         return {"logits": y}
@@ -64,6 +76,11 @@ class ResNet(nn.ExtraModel, base.ImageClassificationModel, ABC):
 
 @MODELS.register(name="resnet18", arch="resnet")
 class ResNet18(ResNet):
+    """ResNet-18 model for image classification.
+
+    Args:
+        num_classes: Number of output classes. Default is ``1000``.
+    """
     
     name: str  = "resnet18"
     zoo : dict = {
@@ -90,6 +107,11 @@ class ResNet18(ResNet):
 
 @MODELS.register(name="resnet34", arch="resnet")
 class ResNet34(ResNet):
+    """ResNet-34 model for image classification.
+
+    Args:
+        num_classes: Number of output classes. Default is ``1000``.
+    """
     
     name: str  = "resnet34"
     zoo : dict = {
@@ -116,6 +138,11 @@ class ResNet34(ResNet):
 
 @MODELS.register(name="resnet50", arch="resnet")
 class ResNet50(ResNet):
+    """ResNet-50 model for image classification.
+
+    Args:
+        num_classes: Number of output classes. Default is ``1000``.
+    """
     
     name: str  = "resnet50"
     zoo : dict = {
@@ -147,6 +174,11 @@ class ResNet50(ResNet):
 
 @MODELS.register(name="resnet101", arch="resnet")
 class ResNet101(ResNet):
+    """ResNet-101 model for image classification.
+
+    Args:
+        num_classes: Number of output classes. Default is ``1000``.
+    """
     
     name: str  = "resnet101"
     zoo : dict = {
@@ -178,6 +210,11 @@ class ResNet101(ResNet):
 
 @MODELS.register(name="resnet152", arch="resnet")
 class ResNet152(ResNet):
+    """ResNet-152 model for image classification.
+
+    Args:
+        num_classes: Number of output classes. Default is ``1000``.
+    """
     
     name: str  = "resnet152"
     zoo : dict = {
@@ -213,6 +250,11 @@ class ResNet152(ResNet):
 
 @MODELS.register(name="resnext50_32x4d", arch="resnet")
 class ResNeXt50_32X4D(ResNet):
+    """ResNeXt-50-32x4d model for image classification.
+
+    Args:
+        num_classes: Number of output classes. Default is ``1000``.
+    """
     
     name: str  = "resnext50_32x4d"
     zoo : dict = {
@@ -244,6 +286,11 @@ class ResNeXt50_32X4D(ResNet):
 
 @MODELS.register(name="resnext101_32x8d", arch="resnet")
 class ResNeXt101_32X8D(ResNet):
+    """ResNeXt-101-32x8d model for image classification.
+
+    Args:
+        num_classes: Number of output classes. Default is ``1000``.
+    """
     
     name: str  = "resnext101_32x8d"
     zoo : dict = {
@@ -275,6 +322,11 @@ class ResNeXt101_32X8D(ResNet):
 
 @MODELS.register(name="resnext101_64x4d", arch="resnet")
 class ResNeXt101_64X4D(ResNet):
+    """ResNeXt-101-64x4d model for image classification.
+
+    Args:
+        num_classes: Number of output classes. Default is ``1000``.
+    """
     
     name: str  = "resnext101_64x4d"
     zoo : dict = {
@@ -305,6 +357,11 @@ class ResNeXt101_64X4D(ResNet):
 
 @MODELS.register(name="wide_resnet50_2", arch="resnet")
 class WideResNet50_2(ResNet):
+    """WideResNet-50-2 model for image classification.
+
+    Args:
+        num_classes: Number of output classes. Default is ``1000``.
+    """
     
     name: str  = "wide_resnet50_2"
     zoo : dict = {
@@ -336,6 +393,11 @@ class WideResNet50_2(ResNet):
 
 @MODELS.register(name="wide_resnet101_2", arch="resnet")
 class WideResNet101_2(ResNet):
+    """WideResNet-101-2 model for image classification.
+
+    Args:
+        num_classes: Number of output classes. Default is ``1000``.
+    """
     
     name: str  = "wide_resnet101_2"
     zoo : dict = {

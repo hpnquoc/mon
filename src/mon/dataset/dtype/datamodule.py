@@ -26,32 +26,30 @@ from mon.globals import Task
 # region DataModule
 
 class DataModule(lightning.LightningDataModule, ABC):
-    """The base class for all datamodules.
-    
+    """Base class for all datamodules.
+
     Attributes:
-        dataset_kwargs: A `dict` containing datasets' default arguments.
-            Example usage: train = Dataset(split='train', **self.dataset_kwargs)
-        
+        dataset_kwargs: Dict of default args for datasets, e.g., train = Dataset(split='train', **self.dataset_kwargs).
+
     Args:
-        batch_size: The number of samples in one forward pass. Default: ``1``.
-        devices: A list of devices to use. Default: ``0``.
-        shuffle: If ``True``, reshuffle the datapoints at the beginning of every
-            epoch. Default: ``True``.
-        collate_fn: The function used to fused datapoint together when using
-            `batch_size`> `1``.
-        verbose: Verbosity. Default: ``True``.
+        datasets: Dataset(s) to use.
+        batch_size: Samples per forward pass. Default is ``1``.
+        devices: Devices to use. Default is ``0``.
+        shuffle: If ``True``, reshuffles data each epoch. Default is ``True``.
+        collate_fn: Function to fuse datapoints for ``batch_size`` > ``1``.
+        verbose: If ``True``, enables verbose output. Default is ``True``.
     """
     
     tasks: list[Task] = []
     
     def __init__(
         self,
-        datasets  : Any      = None,
-        batch_size: int      = 1,
-        devices   : int | str | list[int | str] = 0,
-        shuffle   : bool     = True,
-        collate_fn: Callable = None,
-        verbose   : bool     = True,
+        datasets   : Any      = None,
+        batch_size : int      = 1,
+        devices    : int | str | list[int | str] = 0,
+        shuffle    : bool     = True,
+        collate_fn : Callable = None,
+        verbose    : bool     = True,
         *args, **kwargs
     ):
         super().__init__()
@@ -75,37 +73,27 @@ class DataModule(lightning.LightningDataModule, ABC):
         
         self.classlabels = None
     
+    # region Properties
+    
     @property
     def num_workers(self) -> int:
-        """The number of workers used in the data loading pipeline.
-    
-        This property calculates the number of workers to be used in the data
-        loading pipeline. It is set to ``4`` times the number of devices to avoid
-        a bottleneck.
+        """Gets the number of workers for data loading.
     
         Returns:
-            The number of workers.
+            Number of workers (4 times the device count).
         """
         return 4 * len(self.devices)
-        # return 4  # os.cpu_count()
     
     @property
     def train_dataloader(self) -> data.DataLoader | None:
-        """Returns a ``torch.utils.data.DataLoader`` object if ``train`` exists.
-        Otherwise, returns ``None``.
-    
-        This property method checks if the ``train`` dataset is available. If it
-        is, it sets the ``classlabels`` attribute and returns a ``DataLoader``
-        object for the ``train`` dataset. If the ``train`` dataset is not available,
-        it returns ``None``.
+        """Gets a DataLoader for the train dataset.
     
         Returns:
-            A ``DataLoader`` object for the ``train`` dataset or ``None`` if
-            the ``train`` dataset is not available.
+            ``DataLoader`` for train data or ``None`` if unavailable.
         """
         if not self.train:
             return None
-            
+        
         self.classlabels = getattr(self.train, "classlabels", self.classlabels)
         return data.DataLoader(
             dataset     = self.train,
@@ -115,28 +103,19 @@ class DataModule(lightning.LightningDataModule, ABC):
             pin_memory  = True,
             drop_last   = False,
             collate_fn  = getattr(self.train, "collate_fn", self.collate_fn),
-            # prefetch_factor  = 4,
-            persistent_workers = True,
+            persistent_workers = True
         )
     
     @property
     def val_dataloader(self) -> data.DataLoader | None:
-        """Returns a ``torch.utils.data.DataLoader`` object if ``val`` exists.
-        Otherwise, returns ``None``.
-    
-        This property method checks if the ``val`` dataset is available. If it
-        is, it sets the ``classlabels`` attribute and returns a ``DataLoader``
-        object for the ``val`` dataset. If the ``val`` dataset is not available,
-        it returns ``None``.
+        """Gets a DataLoader for the val dataset.
     
         Returns:
-            A ``DataLoader`` object for the ``val`` dataset or ``None`` if
-            the ``val`` dataset is not available.
+            ``DataLoader`` for val data or ``None`` if unavailable.
         """
         if not self.val:
             return None
         
-        # self.classlabels = getattr(self.val, "classlabels", self.classlabels)
         return data.DataLoader(
             dataset     = self.val,
             batch_size  = self.batch_size,
@@ -145,57 +124,40 @@ class DataModule(lightning.LightningDataModule, ABC):
             pin_memory  = True,
             drop_last   = False,
             collate_fn  = getattr(self.val, "collate_fn", self.collate_fn),
-            # prefetch_factor  = 4,
-            persistent_workers = True,
+            persistent_workers = True
         )
     
     @property
     def test_dataloader(self) -> data.DataLoader | None:
-        """Returns a ``torch.utils.data.DataLoader`` object if ``test`` exists.
-        Otherwise, returns ``None``.
-    
-        This property method checks if the ``test`` dataset is available. If it
-        is, it sets the ``classlabels`` attribute and returns a ``DataLoader``
-        object for the ``test`` dataset. If the ``test`` dataset is not available,
-        it returns ``None``.
+        """Gets a DataLoader for the test dataset.
     
         Returns:
-            A ``DataLoader`` object for the ``test`` dataset or ``None`` if
-            the ``test`` dataset is not available.
+            ``DataLoader`` for test data or ``None`` if unavailable.
         """
         if not self.test:
             return None
         
-        # self.classlabels = getattr(self.test, "classlabels", self.classlabels)
         return data.DataLoader(
             dataset     = self.test,
-            batch_size  = 1,  # self.batch_size,
+            batch_size  = 1,
             shuffle     = False,
             num_workers = self.num_workers,
             pin_memory  = True,
             drop_last   = False,
             collate_fn  = getattr(self.test, "collate_fn", self.collate_fn),
-            # prefetch_factor    = 4,
-            persistent_workers = True,
+            persistent_workers = True
         )
     
     @property
-    def predict_dataloader(self):
-        """Returns a ``torch.utils.data.DataLoader`` object if ``predict`` exists.
-        Otherwise, returns ``None``.
-    
-        This property method checks if the ``predict`` dataset is available. If it
-        is, it sets the ``classlabels`` attribute and returns a ``DataLoader``
-        object for the ``predict`` dataset. If the ``predict`` dataset is not available,
-        it returns ``None``.
+    def predict_dataloader(self) -> data.DataLoader | None:
+        """Gets a DataLoader for the predict dataset.
     
         Returns:
-            A ``DataLoader`` object for the ``predict`` dataset or ``None`` if
-            the ``predict`` dataset is not available.
+            ``DataLoader`` for predict data or ``None`` if unavailable.
         """
         if not self.predict:
             return None
-            
+        
         return data.DataLoader(
             dataset     = self.predict,
             batch_size  = self.batch_size,
@@ -204,94 +166,65 @@ class DataModule(lightning.LightningDataModule, ABC):
             pin_memory  = True,
             drop_last   = True,
             collate_fn  = self.collate_fn,
-            # prefetch_factor  = 4,
-            persistent_workers = True,
+            persistent_workers = True
         )
     
     @property
     def can_log(self) -> bool:
-        """Determines if logging is enabled.
-    
-        This property checks if logging is enabled based on the ``verbose`` attribute
-        and the ``trainer``'s global rank. Logging is enabled if ``verbose`` is
-        ``True`` and either ``trainer`` is ``None`` or ``trainer.global_rank``
-        is ``0``.
+        """Checks if logging is enabled.
     
         Returns:
-            ``True`` if logging is enabled, otherwise ``False``.
+            ``True`` if logging is enabled, ``False`` otherwise.
         """
         return self.verbose and (self.trainer is None or self.trainer.global_rank == 0)
     
+    # endregion
+    
+    # region Initialization
+    
     @abstractmethod
     def prepare_data(self, *args, **kwargs):
-        """Use this method to do things that might write to disk, or that need
-        to be done only from a single GPU in distributed settings:
-            - Download.
-            - Tokenize.
+        """Prepares data for disk or single-GPU tasks.
+    
+        Args:
+            *args: Variable positional arguments.
+            **kwargs: Variable keyword arguments.
         """
         pass
     
     @abstractmethod
     def setup(self, stage: Literal["train", "test", "predict", None] = None):
-        """Use this method to do things on every device:
-            - Count number of classes.
-            - Build classlabels vocabulary.
-            - Prepare train/val/test/predict splits.
-            - Apply transformations.
-            - Define `collate_fn` for your custom dataset.
-
+        """Sets up data for every device.
+    
         Args:
-            stage: The running stage. One of:
-                - ``'train'``  : prepares `train` and `val`.
-                - ``'test'``   : prepares `test`.
-                - ``'predict'``: prepares `predict`.
-                - ``None``     : prepares all.
-                - Default: ``None``.
+            stage: Running stage: ``train``, ``test``, ``predict``, or ``None``. Default is ``None``.
         """
-        pass
     
     def get_classlabels(self):
-        """Load all the class-labels of the dataset.
-    
-        This method iterates through the datasets (train, val, test, predict) and
-        sets the ``classlabels`` attribute if any dataset contains class labels.
-    
-        If no class labels are found in any dataset, it logs a warning message.
-        """
+        """Loads class labels from datasets."""
         for dataset in [self.train, self.val, self.test, self.predict]:
             if dataset is not None:
                 self.classlabels = getattr(dataset, "classlabels", None)
                 return
-        rich.console.log("[yellow]No classlabels found.")
-        
-    def split_train_val(
-        self,
-        dataset    : dataset.Dataset,
-        split_ratio: float = 0.8,
-        full_train : bool  = True
-    ):
-        """Splits a dataset into training and validation sets.
+        rich.console.log("[yellow]No classlabels found")
     
-        This method splits the given dataset into training and validation sets
-        based on the specified split ratio. It also sets the class labels and
-        collate function attributes.
+    def split_train_val(self, dataset: dataset.Dataset, split_ratio: float = 0.8, full_train: bool = True):
+        """Splits dataset into train and val sets.
     
         Args:
-            dataset: The dataset to be split.
-            split_ratio: The ratio of the training set size to the total dataset
-                size. Default: ``0.8``.
-            full_train: If ``True``, the entire dataset is used as the training
-                set. Default is ``True``.
+            dataset: Dataset to split.
+            split_ratio: Train set ratio. Default is ``0.8``.
+            full_train: If ``True``, uses full dataset for train. Default is ``True``.
         """
         train_size       = int(split_ratio * len(dataset))
         val_size         = len(dataset) - train_size
         train, self.val  = data.random_split(dataset, [train_size, val_size])
         self.train       = dataset if full_train else train
         self.classlabels = getattr(dataset, "classlabels", None)
-        self.collate_fn  = getattr(dataset, "collate_fn",  None)
+        self.collate_fn  = getattr(dataset, "collate_fn", None)
     
     def summarize(self):
-        """Print a summary."""
+        """Prints a dataset summary."""
         table = rich.table.Table(header_style="bold magenta")
         table.add_column(" ", style="dim")
         table.add_column("Name", justify="left", no_wrap=True)

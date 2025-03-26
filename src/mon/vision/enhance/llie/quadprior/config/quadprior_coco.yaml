@@ -23,11 +23,11 @@ verbose     : &verbose True                                                     
 # Network
 network: &network                                                               # Network architecture.
   sd_locked       : True
-  only_mid_control: False                                                               # Number of classes (for classification task).
+  only_mid_control: False                                                      # Number of classes (for classification task).
   
 # Optimizer
 optimizer: &optimizer                                                           # Optimizer(s).
-  lr: 1e-4
+  lr: 0.0001
 
 # Datamodule
 datamodule:

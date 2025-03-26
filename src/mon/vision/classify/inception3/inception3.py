@@ -27,21 +27,24 @@ current_dir  = current_file.parents[0]
 
 @MODELS.register(name="inception_v3", arch="inception")
 class Inception3(nn.ExtraModel, base.ImageClassificationModel):
-    """Inception v3 model architecture from
-    `Rethinking the Inception Architecture for Computer Vision <http://arxiv.org/abs/1512.00567>`_.
+    """Inception v3 model for image classification.
 
+    Args:
+        num_classes: Number of output classes. Default is ``1000``.
+        aux_logits: Use auxiliary logits if True. Default is ``True``.
+        dropout: Dropout rate for the model. Default is ``0.5``
     Notes:
-        **Important**: In contrast to the other models, the ``inception_v3``
-        expects tensors with a size of `N x 3 x 299 x 299`, so ensure
-        your images are sized accordingly.
-    
+        Expects input tensors of size ``N x 3 x 299 x 299``.
+   
+    References:
+        - https://arxiv.org/abs/1512.00567
     """
     
-    arch     : str          = "inception"
-    name     : str          = "inception_v3"
-    ltypes   : list[LType]  = [LType.SUPERVISED]
-    model_dir: core.Path    = current_dir
-    zoo      : dict         = {
+    arch     : str         = "inception"
+    name     : str         = "inception_v3"
+    ltypes   : list[LType] = [LType.SUPERVISED]
+    model_dir: core.Path   = current_dir
+    zoo      : dict        = {
         "imagenet1k_v1": {
             "url"        : "https://download.pytorch.org/models/inception_v3_google-0cc3c7bd.pth",
             "path"       : ZOO_DIR / "vision/classify/inception/inception_v3/imagenet1k_v1/inception_v3_imagenet1k_v1.pth",
@@ -73,9 +76,22 @@ class Inception3(nn.ExtraModel, base.ImageClassificationModel):
             self.apply(self.init_weights)
             
     def init_weights(self, m: nn.Module):
+        """Initializes weights for the model.
+
+        Args:
+            m: Module to initialize weights for.
+        """
         pass
-    
+
     def forward(self, datapoint: dict, *args, **kwargs) -> dict:
+        """Performs forward pass on the model.
+
+        Args:
+            datapoint: Dict with image data.
+        
+        Returns:
+            Dict with logits from the model.
+        """
         x = datapoint["image"]
         y = self.model(x)
         return {"logits": y}

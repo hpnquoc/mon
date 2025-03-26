@@ -113,7 +113,7 @@ def resize(
     
     Args:
         image: An RGB image of type:
-            - `torch.Tensor` in ``[B, C, H, W]`` format with data in
+            - `torch.Tensor` in [B, C, H, W] format with data in
                 the range ``[0.0, 1.0]``.
             - `numpy.ndarray` in ``[H, W, C]`` format with data in the
                 range ``[0, 255]``.

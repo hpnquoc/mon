@@ -3,7 +3,7 @@
 
 """Logging Module.
 
-This module extends Python's `logging` module.
+This module extends Python's ``logging`` module.
 """
 
 from __future__ import annotations
@@ -19,6 +19,7 @@ import contextlib
 import logging
 import os
 import sys
+from typing import Iterator
 
 from rich import logging as r_logging
 
@@ -39,23 +40,22 @@ logger = logging.getLogger("rich")
 
 
 def get_logger(path: pathlib.Path = None) -> logging.Logger:
-    """Get access to the global ``logging.Logger`` object that uses ``rich``.
-    Create a new one if it doesn't exist.
+    """Retrieves or creates a global ``logging.Logger`` with ``rich`` support.
 
     Args:
-        path: The path to store the log info. Default: ``None``.
+        path: Path for log file output, adds a file handler if provided. Default is ``None``.
 
     Returns:
-        The global logger instance.
+        Global logger instance.
     """
+    logger = logging.getLogger("global_logger")
     if path:
         file_handler = logging.FileHandler(path)
         file_handler.setLevel(logging.INFO)
-        file_handler.setFormatter(logging.Formatter(
-            " %(asctime)s [%(file_name)s %(lineno)s] %(levelname)s: %(message)s"
-        ))
+        file_handler.setFormatter(
+            logging.Formatter("%(asctime)s [%(filename)s:%(lineno)s] %(levelname)s: %(message)s")
+        )
         logger.addHandler(file_handler)
-    
     return logger
 
 # endregion
@@ -63,16 +63,29 @@ def get_logger(path: pathlib.Path = None) -> logging.Logger:
 
 # region Print
 
-def disable_print():
-    """Temporarily disable printing to stdout by redirecting it to os.devnull."""
-    # sys.stdout = open(os.devnull, "w")
-    with contextlib.redirect_stdout(open(os.devnull, "w")):
-        yield
+@contextlib.contextmanager
+def disable_print() -> Iterator[None]:
+    """Temporarily disables printing to stdout by redirecting it to ``os.devnull``.
+
+    Yields:
+        None, allowing use in a ``with`` statement to suppress output.
+
+    Example:
+        >>> with disable_print():
+        >>>     print("This won't appear")
+        >>> print("This will appear")
+    """
+    with open(os.devnull, "w") as devnull:
+        with contextlib.redirect_stdout(devnull):
+            yield
 
 
-# Restore
 def enable_print():
-    """Restore printing to stdout."""
+    """Restores printing to stdout by resetting it to the original stream.
+
+    Notes:
+        Use this to undo manual redirection of ``sys.stdout`` (e.g., to ``os.devnull``).
+    """
     sys.stdout = sys.__stdout__
 
 # endregion

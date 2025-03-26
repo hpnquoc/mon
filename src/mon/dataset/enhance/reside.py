@@ -41,8 +41,17 @@ MultimodalDataset   = dtype.MultimodalDataset
 
 @DATASETS.register(name="reside_hsts_real")
 class RESIDE_HSTS_Real(MultimodalDataset):
-    """RESIDE-HSTS-Real dataset consists of 10 real hazy images."""
-    
+    """Loads RESIDE-HSTS-Real dataset from ``root`` dir.
+
+    Args:
+        root: Directory path to dataset. Default is ``default_root_dir``.
+        *args: Additional args for parent class.
+        **kwargs: Additional kwargs for parent class.
+
+    Raises:
+        FileNotFoundError: If ``root`` directory does not exist.
+    """
+
     tasks : list[Task]  = [Task.DEHAZE]
     splits: list[Split] = [Split.TEST]
     datapoint_attrs     = DatapointAttributes({
@@ -51,25 +60,22 @@ class RESIDE_HSTS_Real(MultimodalDataset):
     has_test_annotations: bool = False
     
     def __init__(self, root: core.Path = default_root_dir, *args, **kwargs):
+        """Initializes dataset with ``root`` path and parent args."""
         root = root / "reside" if root.name != "reside" else root
         if not root.is_dir():
-            raise FileNotFoundError(f"Directory not found: {root}.")
-        # Initialize
+            raise FileNotFoundError(f"[root] directory not found: [{root}]")
         super().__init__(root=root, *args, **kwargs)
     
     def get_data(self):
-        patterns = [
-            self.root / "hsts" / "real" / self.split_str / "image",
-        ]
+        """Populates ``datapoints`` with image annotations for split."""
+        patterns = [self.root / "hsts" / "real" / self.split_str / "image"]
         
-        # Images
         images: list[ImageAnnotation] = []
         with core.get_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
-                for path in pbar.track(
-                    sequence    = sorted(list(pattern.rglob("*"))),
-                    description = f"Listing {self.__class__.__name__} {self.split_str} images"
-                ):
+                paths = sorted(pattern.rglob("*"))
+                desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
+                for path in pbar.track(sequence=paths, description=desc):
                     if path.is_image_file():
                         images.append(ImageAnnotation(path=path, root=pattern))
         
@@ -78,10 +84,17 @@ class RESIDE_HSTS_Real(MultimodalDataset):
         
 @DATASETS.register(name="reside_hsts_synthetic")
 class RESIDE_HSTS_Synthetic(MultimodalDataset):
-    """RESIDE-HSTS-Synthetic dataset consists of ``10`` pairs of hazy and
-    corresponding haze-free images.
+    """Loads RESIDE-HSTS-Synthetic dataset from ``root`` dir.
+
+    Args:
+        root: Directory path to dataset. Default is ``default_root_dir``.
+        *args: Additional args for parent class.
+        **kwargs: Additional kwargs for parent class.
+
+    Raises:
+        FileNotFoundError: If ``root`` directory does not exist.
     """
-    
+
     tasks : list[Task]  = [Task.DEHAZE]
     splits: list[Split] = [Split.TEST]
     datapoint_attrs     = DatapointAttributes({
@@ -91,25 +104,22 @@ class RESIDE_HSTS_Synthetic(MultimodalDataset):
     has_test_annotations: bool = False
     
     def __init__(self, root: core.Path = default_root_dir, *args, **kwargs):
+        """Initializes dataset with ``root`` path and parent args."""
         root = root / "reside" if root.name != "reside" else root
         if not root.is_dir():
-            raise FileNotFoundError(f"Directory not found: {root}.")
-        # Initialize
+            raise FileNotFoundError(f"[root] directory not found: [{root}]")
         super().__init__(root=root, *args, **kwargs)
     
     def get_data(self):
-        patterns = [
-            self.root / "hsts" / "synthetic" / self.split_str / "image",
-        ]
+        """Populates ``datapoints`` with image annotations for split."""
+        patterns = [self.root / "hsts" / "synthetic" / self.split_str / "image"]
         
-        # Images
         images: list[ImageAnnotation] = []
         with core.get_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
-                for path in pbar.track(
-                    sequence    = sorted(list(pattern.rglob("*"))),
-                    description = f"Listing {self.__class__.__name__} {self.split_str} images"
-                ):
+                paths = sorted(pattern.rglob("*"))
+                desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
+                for path in pbar.track(sequence=paths, description=desc):
                     if path.is_image_file():
                         images.append(ImageAnnotation(path=path, root=pattern))
         
@@ -118,10 +128,17 @@ class RESIDE_HSTS_Synthetic(MultimodalDataset):
 
 @DATASETS.register(name="reside_its")
 class RESIDE_ITS(MultimodalDataset):
-    """RESIDE-ITS dataset consists of ``13,990`` pairs of hazy and corresponding
-    haze-free images.
+    """Loads RESIDE-ITS dataset from ``root`` dir.
+
+    Args:
+        root: Directory path to dataset. Default is ``default_root_dir``.
+        *args: Additional args for parent class.
+        **kwargs: Additional kwargs for parent class.
+
+    Raises:
+        FileNotFoundError: If ``root`` directory does not exist.
     """
-    
+
     tasks : list[Task]  = [Task.DEHAZE]
     splits: list[Split] = [Split.TRAIN, Split.VAL]
     datapoint_attrs     = DatapointAttributes({
@@ -131,34 +148,30 @@ class RESIDE_ITS(MultimodalDataset):
     has_test_annotations: bool = False
     
     def __init__(self, root: core.Path = default_root_dir, *args, **kwargs):
+        """Initializes dataset with ``root`` path and parent args."""
         root = root / "reside" if root.name != "reside" else root
         if not root.is_dir():
-            raise FileNotFoundError(f"Directory not found: {root}.")
-        # Initialize
+            raise FileNotFoundError(f"[root] directory not found: [{root}]")
         super().__init__(root=root, *args, **kwargs)
     
     def get_data(self):
-        patterns = [
-            self.root / "its" / self.split_str / "image",
-        ]
+        """Populates ``datapoints`` with image and ref annotations."""
+        patterns = [self.root / "its" / self.split_str / "image"]
         
-        # Images
         images: list[ImageAnnotation] = []
         with core.get_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
-                for path in pbar.track(
-                    sequence    = (list(pattern.rglob("*"))),
-                    description = f"Listing {self.__class__.__name__} {self.split_str} images"
-                ):
+                paths = sorted(pattern.rglob("*"))
+                desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
+                for path in pbar.track(sequence=paths, description=desc):
                     if path.is_image_file():
                         images.append(ImageAnnotation(path=path, root=pattern))
         
-        # Reference images
         ref_images: list[ImageAnnotation] = []
         with core.get_progress_bar(disable=self.disable_pbar) as pbar:
             for img in pbar.track(
-                sequence    = images,
-                description = f"Listing {self.__class__.__name__} {self.split_str} reference images"
+                sequence=images,
+                description=f"Listing {self.__class__.__name__} {self.split_str} reference images"
             ):
                 stem = str(img.path.stem).split("_")[0]
                 path = img.path.replace("/image/", "/ref/")
@@ -171,10 +184,17 @@ class RESIDE_ITS(MultimodalDataset):
 
 @DATASETS.register(name="reside_ots")
 class RESIDE_OTS(MultimodalDataset):
-    """RESIDE-OTS dataset consists of ``73,135`` pairs of hazy and corresponding
-    haze-free images.
+    """Loads RESIDE-OTS dataset from ``root`` dir.
+
+    Args:
+        root: Directory path to dataset. Default is ``default_root_dir``.
+        *args: Additional args for parent class.
+        **kwargs: Additional kwargs for parent class.
+
+    Raises:
+        FileNotFoundError: If ``root`` directory does not exist.
     """
-    
+
     tasks : list[Task]  = [Task.DEHAZE]
     splits: list[Split] = [Split.TRAIN]
     datapoint_attrs     = DatapointAttributes({
@@ -184,29 +204,124 @@ class RESIDE_OTS(MultimodalDataset):
     has_test_annotations: bool = False
     
     def __init__(self, root: core.Path = default_root_dir, *args, **kwargs):
+        """Initializes dataset with ``root`` path and parent args."""
         root = root / "reside" if root.name != "reside" else root
         if not root.is_dir():
-            raise FileNotFoundError(f"Directory not found: {root}.")
-        # Initialize
+            raise FileNotFoundError(f"[root] directory not found: [{root}]")
         super().__init__(root=root, *args, **kwargs)
     
     def get_data(self):
-        patterns = [
-            self.root / "ots" / self.split_str / "image",
-        ]
+        """Populates ``datapoints`` with image and ref annotations."""
+        patterns = [self.root / "ots" / self.split_str / "image"]
         
-        # Images
         images: list[ImageAnnotation] = []
         with core.get_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
-                for path in pbar.track(
-                    sequence    = sorted(list(pattern.rglob("*"))),
-                    description = f"Listing {self.__class__.__name__} {self.split_str} images"
-                ):
+                paths = sorted(pattern.rglob("*"))
+                desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
+                for path in pbar.track(sequence=paths, description=desc):
                     if path.is_image_file():
                         images.append(ImageAnnotation(path=path, root=pattern))
         
-        # Reference images
+        ref_images: list[ImageAnnotation] = []
+        with core.get_progress_bar(disable=self.disable_pbar) as pbar:
+            for img in pbar.track(
+                sequence=images,
+                description=f"Listing {self.__class__.__name__} {self.split_str} reference images"
+            ):
+                stem = str(img.path.stem).split("_")[0]
+                path = img.path.replace("/image/", "/ref/")
+                path = path.parent / f"{stem}.{img.path.suffix}"
+                ref_images.append(ImageAnnotation(path=path.image_file(), root=pattern))
+        
+        self.datapoints["image"]     = images
+        self.datapoints["ref_image"] = ref_images
+        
+
+@DATASETS.register(name="reside_rtts")
+class RESIDE_RTTS(MultimodalDataset):
+    """Loads RESIDE-RTTS dataset from ``root`` dir.
+
+    Args:
+        root: Directory path to dataset. Default is ``default_root_dir``.
+        *args: Additional args for parent class.
+        **kwargs: Additional kwargs for parent class.
+
+    Raises:
+        FileNotFoundError: If ``root`` directory does not exist.
+    """
+
+    tasks : list[Task]  = [Task.DEHAZE]
+    splits: list[Split] = [Split.TEST]
+    datapoint_attrs     = DatapointAttributes({
+        "image": ImageAnnotation,
+    })
+    has_test_annotations: bool = False
+    
+    def __init__(self, root: core.Path = default_root_dir, *args, **kwargs):
+        """Initializes dataset with ``root`` path and parent args."""
+        root = root / "reside" if root.name != "reside" else root
+        if not root.is_dir():
+            raise FileNotFoundError(f"[root] directory not found: [{root}]")
+        super().__init__(root=root, *args, **kwargs)
+    
+    def get_data(self):
+        """Populates ``datapoints`` with image annotations for split."""
+        patterns = [self.root / "rtts" / self.split_str / "image"]
+        
+        images: list[ImageAnnotation] = []
+        with core.get_progress_bar(disable=self.disable_pbar) as pbar:
+            for pattern in patterns:
+                paths = sorted(pattern.rglob("*"))
+                desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
+                for path in pbar.track(sequence=paths, description=desc):
+                    if path.is_image_file():
+                        images.append(ImageAnnotation(path=path, root=pattern))
+        
+        self.datapoints["image"] = images
+        
+
+@DATASETS.register(name="reside_sots_indoor")
+class RESIDE_SOTS_Indoor(MultimodalDataset):
+    """Loads RESIDE-SOTS-Indoor dataset from ``root`` dir.
+
+    Args:
+        root: Directory path to dataset. Default is ``default_root_dir``.
+        *args: Additional args for parent class.
+        **kwargs: Additional kwargs for parent class.
+
+    Raises:
+        FileNotFoundError: If ``root`` directory does not exist.
+    """
+
+    tasks : list[Task]  = [Task.DEHAZE]
+    splits: list[Split] = [Split.TEST]
+    datapoint_attrs     = DatapointAttributes({
+        "image"    : ImageAnnotation,
+        "ref_image": ImageAnnotation,
+    })
+    has_test_annotations: bool = True
+    
+    def __init__(self, root: core.Path = default_root_dir, *args, **kwargs):
+        """Initializes dataset with ``root`` path and parent args."""
+        root = root / "reside" if root.name != "reside" else root
+        if not root.is_dir():
+            raise FileNotFoundError(f"[root] directory not found: [{root}]")
+        super().__init__(root=root, *args, **kwargs)
+    
+    def get_data(self):
+        """Populates ``datapoints`` with image and ref annotations."""
+        patterns = [self.root / "sots" / "indoor" / self.split_str / "image"]
+        
+        images: list[ImageAnnotation] = []
+        with core.get_progress_bar(disable=self.disable_pbar) as pbar:
+            for pattern in patterns:
+                paths = sorted(pattern.rglob("*"))
+                desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
+                for path in pbar.track(sequence=paths, description=desc):
+                    if path.is_image_file():
+                        images.append(ImageAnnotation(path=path, root=pattern))
+        
         ref_images: list[ImageAnnotation] = []
         with core.get_progress_bar(disable=self.disable_pbar) as pbar:
             for img in pbar.track(
@@ -222,102 +337,19 @@ class RESIDE_OTS(MultimodalDataset):
         self.datapoints["ref_image"] = ref_images
         
 
-@DATASETS.register(name="reside_rtts")
-class RESIDE_RTTS(MultimodalDataset):
-    """RESIDE-RTTS dataset consists of ``4,322`` real hazy images."""
-    
-    tasks : list[Task]  = [Task.DEHAZE]
-    splits: list[Split] = [Split.TEST]
-    datapoint_attrs     = DatapointAttributes({
-        "image": ImageAnnotation,
-    })
-    has_test_annotations: bool = False
-    
-    def __init__(self, root: core.Path = default_root_dir, *args, **kwargs):
-        root = root / "reside" if root.name != "reside" else root
-        if not root.is_dir():
-            raise FileNotFoundError(f"Directory not found: {root}.")
-        # Initialize
-        super().__init__(root=root, *args, **kwargs)
-    
-    def get_data(self):
-        patterns = [
-            self.root / "rtts" / self.split_str / "image",
-        ]
-        
-        # Images
-        images: list[ImageAnnotation] = []
-        with core.get_progress_bar(disable=self.disable_pbar) as pbar:
-            for pattern in patterns:
-                for path in pbar.track(
-                    sequence    = sorted(list(pattern.rglob("*"))),
-                    description = f"Listing {self.__class__.__name__} {self.split_str} images"
-                ):
-                    if path.is_image_file():
-                        images.append(ImageAnnotation(path=path, root=pattern))
-        
-        self.datapoints["image"] = images
-        
-
-@DATASETS.register(name="reside_sots_indoor")
-class RESIDE_SOTS_Indoor(MultimodalDataset):
-    """RESIDE-SOTS-Indoor dataset consists of ``500`` pairs of hazy and
-    corresponding haze-free images.
-    """
-    
-    tasks : list[Task]  = [Task.DEHAZE]
-    splits: list[Split] = [Split.TEST]
-    datapoint_attrs     = DatapointAttributes({
-        "image"    : ImageAnnotation,
-        "ref_image": ImageAnnotation,
-    })
-    has_test_annotations: bool = True
-    
-    def __init__(self, root: core.Path = default_root_dir, *args, **kwargs):
-        root = root / "reside" if root.name != "reside" else root
-        if not root.is_dir():
-            raise FileNotFoundError(f"Directory not found: {root}.")
-        # Initialize
-        super().__init__(root=root, *args, **kwargs)
-    
-    def get_data(self):
-        patterns = [
-            self.root / "sots" / "indoor" / self.split_str / "image",
-        ]
-        
-        # Images
-        images: list[ImageAnnotation] = []
-        with core.get_progress_bar(disable=self.disable_pbar) as pbar:
-            for pattern in patterns:
-                for path in pbar.track(
-                    sequence    = sorted(list(pattern.rglob("*"))),
-                    description = f"Listing {self.__class__.__name__} {self.split_str} images"
-                ):
-                    if path.is_image_file():
-                        images.append(ImageAnnotation(path=path, root=pattern))
-        
-        # Reference images
-        ref_images: list[ImageAnnotation] = []
-        with core.get_progress_bar(disable=self.disable_pbar) as pbar:
-            for img in pbar.track(
-                sequence    = images,
-                description = f"Listing {self.__class__.__name__} {self.split_str} hq images"
-            ):
-                stem = str(img.path.stem).split("_")[0]
-                path = img.path.replace("/image/", "/ref/")
-                path = path.parent / f"{stem}.{img.path.suffix}"
-                ref_images.append(ImageAnnotation(path=path.image_file(), root=pattern))
-        
-        self.datapoints["image"]     = images
-        self.datapoints["ref_image"] = ref_images
-        
-
 @DATASETS.register(name="reside_sots_outdoor")
 class RESIDE_SOTS_Outdoor(MultimodalDataset):
-    """RESIDE-SOTS-Outdoor dataset consists of ``500`` pairs of hazy and
-    corresponding haze-free images.
+    """Loads RESIDE-SOTS-Outdoor dataset from ``root`` dir.
+
+    Args:
+        root: Directory path to dataset. Default is ``default_root_dir``.
+        *args: Additional args for parent class.
+        **kwargs: Additional kwargs for parent class.
+
+    Raises:
+        FileNotFoundError: If ``root`` directory does not exist.
     """
-    
+
     tasks : list[Task]  = [Task.DEHAZE]
     splits: list[Split] = [Split.TEST]
     datapoint_attrs     = DatapointAttributes({
@@ -327,29 +359,25 @@ class RESIDE_SOTS_Outdoor(MultimodalDataset):
     has_test_annotations: bool = True
     
     def __init__(self, root: core.Path = default_root_dir, *args, **kwargs):
+        """Initializes dataset with ``root`` path and parent args."""
         root = root / "reside" if root.name != "reside" else root
         if not root.is_dir():
-            raise FileNotFoundError(f"Directory not found: {root}.")
-        # Initialize
+            raise FileNotFoundError(f"[root] directory not found: [{root}]")
         super().__init__(root=root, *args, **kwargs)
     
     def get_data(self):
-        patterns = [
-            self.root / "sots" / "outdoor" / self.split_str / "image",
-        ]
+        """Populates ``datapoints`` with image and ref annotations."""
+        patterns = [self.root / "sots" / "outdoor" / self.split_str / "image"]
         
-        # Images
         images: list[ImageAnnotation] = []
         with core.get_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
-                for path in pbar.track(
-                    sequence    = sorted(list(pattern.rglob("*"))),
-                    description = f"Listing {self.__class__.__name__} {self.split_str} images"
-                ):
+                paths = sorted(pattern.rglob("*"))
+                desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
+                for path in pbar.track(sequence=paths, description=desc):
                     if path.is_image_file():
                         images.append(ImageAnnotation(path=path, root=pattern))
-
-        # Reference images
+        
         ref_images: list[ImageAnnotation] = []
         with core.get_progress_bar(disable=self.disable_pbar) as pbar:
             for img in pbar.track(
@@ -367,8 +395,17 @@ class RESIDE_SOTS_Outdoor(MultimodalDataset):
 
 @DATASETS.register(name="reside_urhi")
 class RESIDE_URHI(MultimodalDataset):
-    """RESIDE-UHI dataset consists of ``4,809`` real hazy images."""
-    
+    """Loads RESIDE-URHI dataset from ``root`` dir.
+
+    Args:
+        root: Directory path to dataset. Default is ``default_root_dir``.
+        *args: Additional args for parent class.
+        **kwargs: Additional kwargs for parent class.
+
+    Raises:
+        FileNotFoundError: If ``root`` directory does not exist.
+    """
+
     tasks : list[Task]  = [Task.DEHAZE]
     splits: list[Split] = [Split.TEST]
     datapoint_attrs     = DatapointAttributes({
@@ -377,25 +414,22 @@ class RESIDE_URHI(MultimodalDataset):
     has_test_annotations: bool = False
     
     def __init__(self, root: core.Path = default_root_dir, *args, **kwargs):
+        """Initializes dataset with ``root`` path and parent args."""
         root = root / "reside" if root.name != "reside" else root
         if not root.is_dir():
-            raise FileNotFoundError(f"Directory not found: {root}.")
-        # Initialize
+            raise FileNotFoundError(f"[root] directory not found: [{root}]")
         super().__init__(root=root, *args, **kwargs)
     
     def get_data(self):
-        patterns = [
-            self.root / "urhi" / self.split_str / "image"
-        ]
+        """Populates ``datapoints`` with image annotations for split."""
+        patterns = [self.root / "urhi" / self.split_str / "image"]
         
-        # Images
         images: list[ImageAnnotation] = []
         with core.get_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
-                for path in pbar.track(
-                    sequence    = sorted(list(pattern.rglob("*"))),
-                    description = f"Listing {self.__class__.__name__} {self.split_str} images"
-                ):
+                paths = sorted(pattern.rglob("*"))
+                desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
+                for path in pbar.track(sequence=paths, description=desc):
                     if path.is_image_file():
                         images.append(ImageAnnotation(path=path, root=pattern))
         
@@ -404,13 +438,25 @@ class RESIDE_URHI(MultimodalDataset):
 
 @DATAMODULES.register(name="reside_hsts_real")
 class RESIDE_HSTS_Real_DataModule(DataModule):
+    """Configures RESIDE_HSTS_Real datasets for training/testing.
+
+    Args:
+        *args: Additional args for parent class.
+        **kwargs: Additional kwargs for parent class.
+    """
 
     tasks: list[Task] = [Task.DEHAZE]
     
     def prepare_data(self, *args, **kwargs):
+        """Prepares data (placeholder, no action taken)."""
         pass
-
+    
     def setup(self, stage: Literal["train", "test", "predict", None] = None):
+        """Sets up datasets for given ``stage``.
+
+        Args:
+            stage: Stage to configure. Default is ``None``.
+        """
         if self.can_log:
             console.log(f"Setup [red]{self.__class__.__name__}[/red].")
         
@@ -419,7 +465,7 @@ class RESIDE_HSTS_Real_DataModule(DataModule):
             self.val   = RESIDE_HSTS_Real(split=Split.TEST, **self.dataset_kwargs)
         if stage in [None, "test"]:
             self.test  = RESIDE_HSTS_Real(split=Split.TEST, **self.dataset_kwargs)
-
+        
         self.get_classlabels()
         if self.can_log:
             self.summarize()
@@ -427,13 +473,25 @@ class RESIDE_HSTS_Real_DataModule(DataModule):
 
 @DATAMODULES.register(name="reside_hsts_synthetic")
 class RESIDE_HSTS_Synthetic_DataModule(DataModule):
+    """Configures RESIDE_HSTS_Synthetic datasets for training/testing.
+
+    Args:
+        *args: Additional args for parent class.
+        **kwargs: Additional kwargs for parent class.
+    """
 
     tasks: list[Task] = [Task.DEHAZE]
     
     def prepare_data(self, *args, **kwargs):
+        """Prepares data (placeholder, no action taken)."""
         pass
-
+    
     def setup(self, stage: Literal["train", "test", "predict", None] = None):
+        """Sets up datasets for given ``stage``.
+
+        Args:
+            stage: Stage to configure. Default is ``None``.
+        """
         if self.can_log:
             console.log(f"Setup [red]{self.__class__.__name__}[/red].")
         
@@ -441,8 +499,8 @@ class RESIDE_HSTS_Synthetic_DataModule(DataModule):
             self.train = RESIDE_HSTS_Synthetic(split=Split.TEST, **self.dataset_kwargs)
             self.val   = RESIDE_HSTS_Synthetic(split=Split.TEST, **self.dataset_kwargs)
         if stage in [None, "test"]:
-            self.test = RESIDE_HSTS_Synthetic(split=Split.TEST, **self.dataset_kwargs)
-
+            self.test  = RESIDE_HSTS_Synthetic(split=Split.TEST, **self.dataset_kwargs)
+        
         self.get_classlabels()
         if self.can_log:
             self.summarize()
@@ -450,13 +508,25 @@ class RESIDE_HSTS_Synthetic_DataModule(DataModule):
 
 @DATAMODULES.register(name="reside_its")
 class RESIDE_ITS_DataModule(DataModule):
+    """Configures RESIDE_ITS datasets for training/testing.
+
+    Args:
+        *args: Additional args for parent class.
+        **kwargs: Additional kwargs for parent class.
+    """
 
     tasks: list[Task] = [Task.DEHAZE]
     
     def prepare_data(self, *args, **kwargs):
+        """Prepares data (placeholder, no action taken)."""
         pass
-
+    
     def setup(self, stage: Literal["train", "test", "predict", None] = None):
+        """Sets up datasets for given ``stage``.
+
+        Args:
+            stage: Stage to configure. Default is ``None``.
+        """
         if self.can_log:
             console.log(f"Setup [red]{self.__class__.__name__}[/red].")
         
@@ -465,7 +535,7 @@ class RESIDE_ITS_DataModule(DataModule):
             self.val   = RESIDE_ITS(split=Split.VAL, **self.dataset_kwargs)
         if stage in [None, "test"]:
             self.test  = RESIDE_ITS(split=Split.TEST, **self.dataset_kwargs)
-
+        
         self.get_classlabels()
         if self.can_log:
             self.summarize()
@@ -473,13 +543,25 @@ class RESIDE_ITS_DataModule(DataModule):
 
 @DATAMODULES.register(name="reside_ots")
 class RESIDE_OTS_DataModule(DataModule):
+    """Configures RESIDE_OTS datasets for training/testing.
+
+    Args:
+        *args: Additional args for parent class.
+        **kwargs: Additional kwargs for parent class.
+    """
 
     tasks: list[Task] = [Task.DEHAZE]
     
     def prepare_data(self, *args, **kwargs):
+        """Prepares data (placeholder, no action taken)."""
         pass
-
+    
     def setup(self, stage: Literal["train", "test", "predict", None] = None):
+        """Sets up datasets for given ``stage``.
+
+        Args:
+            stage: Stage to configure. Default is ``None``.
+        """
         if self.can_log:
             console.log(f"Setup [red]{self.__class__.__name__}[/red].")
         
@@ -488,7 +570,7 @@ class RESIDE_OTS_DataModule(DataModule):
             self.val   = RESIDE_ITS(split=Split.VAL, **self.dataset_kwargs)
         if stage in [None, "test"]:
             self.test  = RESIDE_ITS(split=Split.TEST, **self.dataset_kwargs)
-
+        
         self.get_classlabels()
         if self.can_log:
             self.summarize()
@@ -496,13 +578,25 @@ class RESIDE_OTS_DataModule(DataModule):
 
 @DATAMODULES.register(name="reside_rtts")
 class RESIDE_RTTS_DataModule(DataModule):
+    """Configures RESIDE_RTTS datasets for training/testing.
+
+    Args:
+        *args: Additional args for parent class.
+        **kwargs: Additional kwargs for parent class.
+    """
 
     tasks: list[Task] = [Task.DEHAZE]
     
     def prepare_data(self, *args, **kwargs):
+        """Prepares data (placeholder, no action taken)."""
         pass
-
+    
     def setup(self, stage: Literal["train", "test", "predict", None] = None):
+        """Sets up datasets for given ``stage``.
+
+        Args:
+            stage: Stage to configure. Default is ``None``.
+        """
         if self.can_log:
             console.log(f"Setup [red]{self.__class__.__name__}[/red].")
         
@@ -510,8 +604,8 @@ class RESIDE_RTTS_DataModule(DataModule):
             self.train = RESIDE_RTTS(split=Split.TEST, **self.dataset_kwargs)
             self.val   = RESIDE_RTTS(split=Split.TEST, **self.dataset_kwargs)
         if stage in [None, "test"]:
-            self.test = RESIDE_RTTS(split=Split.TEST, **self.dataset_kwargs)
-
+            self.test  = RESIDE_RTTS(split=Split.TEST, **self.dataset_kwargs)
+        
         self.get_classlabels()
         if self.can_log:
             self.summarize()
@@ -519,13 +613,25 @@ class RESIDE_RTTS_DataModule(DataModule):
 
 @DATAMODULES.register(name="reside_sots_indoor")
 class RESIDE_SOTS_Indoor_DataModule(DataModule):
+    """Configures RESIDE_SOTS_Indoor datasets for training/testing.
+
+    Args:
+        *args: Additional args for parent class.
+        **kwargs: Additional kwargs for parent class.
+    """
 
     tasks: list[Task] = [Task.DEHAZE]
     
     def prepare_data(self, *args, **kwargs):
+        """Prepares data (placeholder, no action taken)."""
         pass
-
+    
     def setup(self, stage: Literal["train", "test", "predict", None] = None):
+        """Sets up datasets for given ``stage``.
+
+        Args:
+            stage: Stage to configure. Default is ``None``.
+        """
         if self.can_log:
             console.log(f"Setup [red]{self.__class__.__name__}[/red].")
         
@@ -533,8 +639,8 @@ class RESIDE_SOTS_Indoor_DataModule(DataModule):
             self.train = RESIDE_SOTS_Indoor(split=Split.TEST, **self.dataset_kwargs)
             self.val   = RESIDE_SOTS_Indoor(split=Split.TEST, **self.dataset_kwargs)
         if stage in [None, "test"]:
-            self.test = RESIDE_SOTS_Indoor(split=Split.TEST, **self.dataset_kwargs)
-
+            self.test  = RESIDE_SOTS_Indoor(split=Split.TEST, **self.dataset_kwargs)
+        
         self.get_classlabels()
         if self.can_log:
             self.summarize()
@@ -542,13 +648,25 @@ class RESIDE_SOTS_Indoor_DataModule(DataModule):
 
 @DATAMODULES.register(name="reside_sots_outdoor")
 class RESIDE_SOTS_Outdoor_DataModule(DataModule):
+    """Configures RESIDE_SOTS_Outdoor datasets for training/testing.
+
+    Args:
+        *args: Additional args for parent class.
+        **kwargs: Additional kwargs for parent class.
+    """
 
     tasks: list[Task] = [Task.DEHAZE]
     
     def prepare_data(self, *args, **kwargs):
+        """Prepares data (placeholder, no action taken)."""
         pass
-
+    
     def setup(self, stage: Literal["train", "test", "predict", None] = None):
+        """Sets up datasets for given ``stage``.
+
+        Args:
+            stage: Stage to configure. Default is ``None``.
+        """
         if self.can_log:
             console.log(f"Setup [red]{self.__class__.__name__}[/red].")
         
@@ -557,7 +675,7 @@ class RESIDE_SOTS_Outdoor_DataModule(DataModule):
             self.val   = RESIDE_SOTS_Outdoor(split=Split.TEST, **self.dataset_kwargs)
         if stage in [None, "test"]:
             self.test  = RESIDE_SOTS_Outdoor(split=Split.TEST, **self.dataset_kwargs)
-
+        
         self.get_classlabels()
         if self.can_log:
             self.summarize()
@@ -565,13 +683,25 @@ class RESIDE_SOTS_Outdoor_DataModule(DataModule):
 
 @DATAMODULES.register(name="reside_urhi")
 class RESIDE_URHI_DataModule(DataModule):
+    """Configures RESIDE_URHI datasets for training/testing.
+
+    Args:
+        *args: Additional args for parent class.
+        **kwargs: Additional kwargs for parent class.
+    """
 
     tasks: list[Task] = [Task.DEHAZE]
     
     def prepare_data(self, *args, **kwargs):
+        """Prepares data (placeholder, no action taken)."""
         pass
     
     def setup(self, stage: Literal["train", "test", "predict", None] = None):
+        """Sets up datasets for given ``stage``.
+
+        Args:
+            stage: Stage to configure. Default is ``None``.
+        """
         if self.can_log:
             console.log(f"Setup [red]{self.__class__.__name__}[/red].")
         

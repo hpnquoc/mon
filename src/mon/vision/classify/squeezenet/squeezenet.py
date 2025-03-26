@@ -29,22 +29,33 @@ current_dir  = current_file.parents[0]
 # region Model
 
 class SqueezeNet(nn.ExtraModel, base.ImageClassificationModel, ABC):
-    """SqueezeNet models from the paper: "SqueezeNet: AlexNet-level accuracy
-    with 50x fewer parameters and <0.5MB model size".
-    
+    """SqueezeNet model for image classification.
+
     References:
-        https://arxiv.org/abs/1602.07360
+        - https://arxiv.org/abs/1602.07360
     """
     
-    arch     : str          = "squeezenet"
-    ltypes   : list[LType]  = [LType.SUPERVISED]
-    model_dir: core.Path    = current_dir
-    zoo      : dict         = {}
+    arch     : str         = "squeezenet"
+    ltypes   : list[LType] = [LType.SUPERVISED]
+    model_dir: core.Path   = current_dir
+    zoo      : dict        = {}
 
     def init_weights(self, m: nn.Module):
+        """Initializes weights for the model.
+
+        Args:
+            m: Module to initialize weights for.
+        """
         pass
-    
+
     def forward(self, datapoint: dict, *args, **kwargs) -> dict:
+        """Performs forward pass on the model.
+
+        Args:
+            datapoint: Dict with image data.
+        Returns:
+            Dict with logits from the model.
+        """
         x = datapoint["image"]
         y = self.model(x)
         return {"logits": y}
@@ -52,6 +63,12 @@ class SqueezeNet(nn.ExtraModel, base.ImageClassificationModel, ABC):
 
 @MODELS.register(name="squeezenet1_0", arch="squeezenet")
 class SqueezeNet1_0(SqueezeNet):
+    """SqueezeNet-1.0 model for image classification.
+
+    Args:
+        num_classes: Number of output classes. Default is ``1000``.
+        dropout: Dropout rate for the model. Default is ``0.5``.
+    """
     
     name: str  = "squeezenet1_0"
     zoo : dict = {
@@ -78,6 +95,12 @@ class SqueezeNet1_0(SqueezeNet):
 
 @MODELS.register(name="squeezenet1_1", arch="squeezenet")
 class SqueezeNet1_1(SqueezeNet):
+    """SqueezeNet-1.1 model for image classification.
+
+    Args:
+        num_classes: Number of output classes. Default is ``1000``.
+        dropout: Dropout rate for the model. Default is ``0.5``.
+    """
     
     name: str  = "squeezenet1_1"
     zoo : dict = {

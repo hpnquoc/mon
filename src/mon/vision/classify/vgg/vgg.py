@@ -37,22 +37,33 @@ current_dir  = current_file.parents[0]
 # region Model
 
 class VGG(nn.ExtraModel, base.ImageClassificationModel, ABC):
-    """VGG models from the paper: "Very Deep Convolutional Networks for
-    Large-Scale Image Recognition"
-    
+    """VGG model for image classification.
+
     References:
-        https://arxiv.org/abs/1409.1556
+        - https://arxiv.org/abs/1409.1556
     """
     
-    arch     : str          = "vgg"
-    ltypes   : list[LType]  = [LType.SUPERVISED]
-    model_dir: core.Path    = current_dir
-    zoo      : dict         = {}
+    arch     : str         = "vgg"
+    ltypes   : list[LType] = [LType.SUPERVISED]
+    model_dir: core.Path   = current_dir
+    zoo      : dict        = {}
     
     def init_weights(self, m: nn.Module):
+        """Initializes weights for the model.
+
+        Args:
+            m: Module to initialize weights for.
+        """
         pass
-    
+
     def forward(self, datapoint: dict, *args, **kwargs) -> dict:
+        """Performs forward pass on the model.
+
+        Args:
+            datapoint: Dict with image data.
+        Returns:
+            Dict with logits from the model.
+        """
         x = datapoint["image"]
         y = self.model(x)
         return {"logits": y}
@@ -60,6 +71,12 @@ class VGG(nn.ExtraModel, base.ImageClassificationModel, ABC):
 
 @MODELS.register(name="vgg11", arch="vgg")
 class VGG11(VGG):
+    """VGG-11 model for image classification.
+
+    Args:
+        num_classes: Number of output classes. Default is ``1000``.
+        dropout: Dropout rate for the model. Default is ``0.5``.
+    """
     
     name: str  = "vgg11"
     zoo : dict = {
@@ -86,6 +103,12 @@ class VGG11(VGG):
 
 @MODELS.register(name="vgg11_bn", arch="vgg")
 class VGG11_BN(VGG):
+    """VGG-11-BN model for image classification.
+
+    Args:
+        num_classes: Number of output classes. Default is ``1000``.
+        dropout: Dropout rate for the model. Default is ``0.5``.
+    """
     
     name: str  = "vgg11_bn"
     zoo : dict = {
@@ -112,6 +135,12 @@ class VGG11_BN(VGG):
 
 @MODELS.register(name="vgg13", arch="vgg")
 class VGG13(VGG):
+    """VGG-13 model for image classification.
+
+    Args:
+        num_classes: Number of output classes. Default is ``1000``.
+        dropout: Dropout rate for the model. Default is ``0.5``.
+    """
     
     name: str  = "vgg13"
     zoo : dict = {
@@ -138,6 +167,12 @@ class VGG13(VGG):
 
 @MODELS.register(name="vgg13_bn", arch="vgg")
 class VGG13_BN(VGG):
+    """VGG-13-BN model for image classification.
+
+    Args:
+        num_classes: Number of output classes. Default is ``1000``.
+        dropout: Dropout rate for the model. Default is ``0.5``.
+    """
     
     name: str  = "vgg13_bn"
     zoo : dict = {
@@ -164,6 +199,12 @@ class VGG13_BN(VGG):
 
 @MODELS.register(name="vgg16", arch="vgg")
 class VGG16(VGG):
+    """VGG-16 model for image classification.
+
+    Args:
+        num_classes: Number of output classes. Default is ``1000``.
+        dropout: Dropout rate for the model. Default is ``0.5``.
+    """
     
     name: str  = "vgg16"
     zoo : dict = {
@@ -190,6 +231,12 @@ class VGG16(VGG):
 
 @MODELS.register(name="vgg16_bn", arch="vgg")
 class VGG16_BN(VGG):
+    """VGG-16-BN model for image classification.
+
+    Args:
+        num_classes: Number of output classes. Default is ``1000``.
+        dropout: Dropout rate for the model. Default is ``0.5``.
+    """
     
     name: str  = "vgg16_bn"
     zoo : dict = {
@@ -216,6 +263,12 @@ class VGG16_BN(VGG):
 
 @MODELS.register(name="vgg19", arch="vgg")
 class VGG19(VGG):
+    """VGG-19 model for image classification.
+
+    Args:
+        num_classes: Number of output classes. Default is ``1000``.
+        dropout: Dropout rate for the model. Default is ``0.5``.
+    """
     
     name: str  = "vgg19"
     zoo : dict = {
@@ -242,6 +295,12 @@ class VGG19(VGG):
 
 @MODELS.register(name="vgg19_bn", arch="vgg")
 class VGG19_BN(VGG):
+    """VGG-19-BN model for image classification.
+
+    Args:
+        num_classes: Number of output classes. Default is ``1000``.
+        dropout: Dropout rate for the model. Default is ``0.5``.
+    """
     
     name: str  = "vgg19_bn"
     zoo : dict = {

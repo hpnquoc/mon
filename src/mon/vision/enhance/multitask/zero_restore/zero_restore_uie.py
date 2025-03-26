@@ -217,6 +217,9 @@ class ZeroRestoreUIE(base.ImageEnhancementModel):
         # Network
         self.estimation = Estimation(self.num_channels)
         
+        # Optimizer
+        self.configure_optimizers()
+        
         # Load weights
         if self.weights:
             self.load_weights()

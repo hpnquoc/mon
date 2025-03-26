@@ -30,33 +30,25 @@ def draw_bbox(
     line_type : int          = cv2.LINE_8,
     shift     : int          = 0,
     font_face : int          = cv2.FONT_HERSHEY_DUPLEX,
-    font_scale: int          = 0.8,
-    fill      : bool | float = False,
+    font_scale: float        = 0.8,
+    fill      : bool | float = False
 ) -> np.ndarray:
-    """Draw a bounding box on an image.
-    
+    """Draws a bounding box on an image.
+
     Args:
-        image: An image of type `numpy.ndarray` in ``[H, W, C]`` format
-            with data in the range ``[0, 255]``.
-        bbox: A bounding box in ``XYXY`` format.
-        label: A label for the bounding box.
-        color: A color of the bounding box.
-        thickness: The thickness of the rectangle borderline in px. Thickness
-            of ``-1`` px will fill the rectangle shape by the specified color.
-            Default: ``1``.
-        line_type: The type of the line. One of:
-            - ``cv2.LINE_4``  - 4-connected line.
-            - ``cv2.LINE_8``  - 8-connected line (default).
-            - ``cv2.LINE_AA`` - antialiased line.
-            Default: ``cv2.LINE_8``.
-        font_face: The font of the label's text. Default: ``cv2.FONT_HERSHEY_DUPLEX``.
-        font_scale: The scale of the label's text. Default: ``0.8``.
-        shift: The number of fractional bits in the point coordinates.
-            Default: ``0``.
-        fill: Fill the region inside the bounding box with transparent color.
-            A float value ``[0.0-1.0]`` indicates the transparency ratio.
-            A ``True`` value means ``0.5``. A value of ``1.0`` equals to
-            `thickness`=-1. Default: ``False``.
+        image: Image as numpy.ndarray in ``[H, W, C]`` format, range ``[0, 255]``.
+        bbox: Bounding box in XYXY format.
+        label: Label for the bounding box. Default is ``None``.
+        color: Color of the bounding box. Default is ``[255, 255, 255]``.
+        thickness: Thickness of the rectangle borderline in px. Default is ``1``.
+        line_type: Type of line (e.g., ``cv2.LINE_8``). Default is ``cv2.LINE_8``.
+        shift: Fractional bits in point coordinates. Default is ``0``.
+        font_face: Font of label text. Default is ``cv2.FONT_HERSHEY_DUPLEX``.
+        font_scale: Scale of label text. Default is ``0.8``.
+        fill: Fill inside with transparency (0.0-1.0, True=0.5). Default is ``False``.
+        
+    Returns:
+        Image with drawn bounding box.
     """
     drawing = image.copy()
     color   = color or [255, 255, 255]
@@ -64,24 +56,27 @@ def draw_bbox(
     pt1     = (int(bbox[0]), int(bbox[1]))
     pt2     = (int(bbox[2]), int(bbox[3]))
     cv2.rectangle(drawing, pt1, pt2, color, thickness, line_type, shift)
+
     if label not in [None, "None", ""]:
         label  = f"{label}"
         offset = int(thickness / 2)
         text_size, baseline = cv2.getTextSize(label, font_face, font_scale, 1)
         cv2.rectangle(
-            img       = image,
+            img       = drawing,  # Changed from 'image' to 'drawing' for consistency
             pt1       = (pt1[0] - offset, pt1[1] - text_size[1] - offset),
             pt2       = (pt1[0] + text_size[0], pt1[1]),
             color     = color,
-            thickness = cv2.FILLED,
+            thickness = cv2.FILLED
         )
         text_org = (pt1[0] - offset, pt1[1] - offset)
-        cv2.putText(image, label, text_org, font_face, font_scale, white, 1)
+        cv2.putText(drawing, label, text_org, font_face, font_scale, white, 1)
+
     if fill is True or fill > 0.0:
         alpha   = 0.5 if fill is True else fill
-        overlay = image.copy()
+        overlay = drawing.copy()
         cv2.rectangle(overlay, pt1, pt2, color, -1)
         cv2.addWeighted(overlay, alpha, drawing, 1 - alpha, 0, drawing)
+
     return drawing
 
 
@@ -90,35 +85,32 @@ def draw_heatmap(
     heatmap   : np.ndarray,
     color_map : int   = cv2.COLORMAP_JET,
     alpha     : float = 0.5,
-    use_rgb   : bool  = False,
+    use_rgb   : bool  = False
 ) -> np.ndarray:
-    """Overlay a mask on the image as a heatmap. By default, the heatmap is in
-    BGR format.
-    
+    """Overlays a heatmap on an image.
+
     Args:
-        image: An RGB or BGR image of type `numpy.ndarray` in ``[H, W, C]``
-            format with data in the range ``[0.0, 1.0]``.
-        heatmap: A heatmap mask.
-        color_map: A color map for the heatmap. Default: ``cv2.COLORMAP_JET``.
-        alpha: The transparency ratio of the image. The final result is:
-            `alpha * image + (1 - alpha) * mask`. Default: ``0.5``.
-        use_rgb: If ``True``, convert the heatmap to RGB format.
-            Default: ``False``.
+        image: RGB/BGR image as numpy.ndarray in ``[H, W, C]``, range ``[0.0, 1.0]``.
+        heatmap: Heatmap mask to overlay.
+        color_map: Color map for heatmap. Default is ``cv2.COLORMAP_JET``.
+        alpha: Transparency ratio (0.0-1.0) for blending. Default is ``0.5``.
+        use_rgb: Convert heatmap to RGB if True. Default is ``False``.
     
     Returns:
-        An image with the heatmap overlay.
+        Image with heatmap overlay.
+    
+    Raises:
+        ValueError: If image exceeds range [0.0, 1.0] or alpha is invalid.
     """
+    
     if np.max(image) > 1:
-        raise ValueError(f"`image` should be an `np.float32` in the range "
-                         f"``[0.0, 1.0]``, but got {np.max(image)}.")
+        raise ValueError(f"[image] should be np.float32 in range [0.0, 1.0], but got {np.max(image)}")
     if not 0.0 <= alpha <= 1.0:
-        raise ValueError(f"`alpha` should be in the range ``[0.0, 1.0]``, "
-                         f"but got: {alpha}.")
+        raise ValueError(f"[alpha] should be in range [0.0, 1.0], but got {alpha}")
 
     heatmap = I.depth_map_to_color(heatmap, color_map, use_rgb)
     heatmap = np.float32(heatmap) / 255
     drawing = I.blend_images(image, heatmap, alpha)
-    # drawing = (1 - alpha) * heatmap + alpha * image
     drawing = drawing / np.max(drawing)
     drawing = np.uint8(255 * drawing)
     return drawing
@@ -128,18 +120,18 @@ def draw_semantic(
     image      : np.ndarray,
     semantic   : np.ndarray,
     classlabels: "ClassLabels",
-    alpha      : float = 0.5,
+    alpha      : float = 0.5
 ) -> np.ndarray:
-    """Overlay a semantic mask on the image.
-    
+    """Overlays a semantic mask on an image.
+
     Args:
-        image: An RGB image of type `numpy.ndarray` in ``[H, W, C]``
-            format with data in the range ``[0, 255]``.
-        semantic: A semantic mask of type `numpy.ndarray` in ``[H, W, 1]``
-            format.
-        classlabels: A list of class-labels.
-        alpha: The transparency ratio of the image. The final result is:
-            `alpha * image + (1 - alpha) * mask`. Default: ``0.5``.
+        image: RGB image as numpy.ndarray in ``[H, W, C]``, range ``[0, 255]``.
+        semantic: Semantic mask as numpy.ndarray in ``[H, W, 1]``.
+        classlabels: List of class labels.
+        alpha: Transparency ratio (0.0-1.0) for blending. Default is ``0.5``.
+    
+    Returns:
+        Image with semantic mask overlay.
     """
     color_map = I.label_map_id_to_color(semantic, classlabels)
     drawing   = I.blend_images(image, color_map, alpha)
@@ -154,36 +146,36 @@ def draw_trajectory(
     thickness : int       = 1,
     line_type : int       = cv2.LINE_8,
     point     : bool      = False,
-    radius    : int       = 3,
+    radius    : int       = 3
 ) -> np.ndarray:
-    """Draw a trajectory path on an image.
-    
+    """Draws a trajectory path on an image.
+
     Args:
-        image: An RGB image of type `numpy.ndarray` in ``[H, W, C]``
-            format with data in the range ``[0, 255]``.
-        trajectory: A 2D array or list of points in ``[(x1, y1), ...]`` format.
-        color: A color of the bounding box.
-        thickness: The thickness of the path in px. Default: 1.
-        line_type: The type of the line. One of:
-            - ``'cv2.LINE_4'``  - 4-connected line.
-            - ``'cv2.LINE_8'``  - 8-connected line (default).
-            - ``'cv2.LINE_AA'`` - antialiased line.
-            Default:``' cv2.LINE_8'``.
-        point: If ``True``, draw each point along the trajectory path.
-            Default: ``False``.
-        radius: The radius value of the point. Default: ``3``.
+        image: RGB image as numpy.ndarray in ``[H, W, C]``, range ``[0, 255]``.
+        trajectory: 2D points as array or list in [(x1, y1), ...] format.
+        color: Color of the trajectory. Default is ``[255, 255, 255]``.
+        thickness: Thickness of the path in px. Default is ``1``.
+        line_type: Type of line (e.g., ``cv2.LINE_8``). Default is ``cv2.LINE_8``.
+        point: Draw points along the path if True. Default is ``False``.
+        radius: Radius of points in px. Default is ``3``.
+    
+    Returns:
+        Image with drawn trajectory.
+    
+    Raises:
+        TypeError: If trajectory format is invalid.
     """
     drawing = image.copy()
-    
+
     if isinstance(trajectory, list):
         if not all(len(t) == 2 for t in trajectory):
-            raise TypeError(f"`trajectory` must be a list of points in "
-                            f"``[(x1, y1), ...]`` format.")
+            raise TypeError("[trajectory] must be a list of points in [(x1, y1), ...] format")
         trajectory = np.array(trajectory)
     trajectory = np.array(trajectory).reshape((-1, 1, 2)).astype(int)
     color      = color or [255, 255, 255]
     cv2.polylines(drawing, [trajectory], False, color, thickness, line_type)
     if point:
         for p in trajectory:
-            cv2.circle(drawing, p[0], radius, -1, color)
+            cv2.circle(drawing, tuple(p[0]), radius, color, -1)  # Fixed syntax and type
+
     return drawing

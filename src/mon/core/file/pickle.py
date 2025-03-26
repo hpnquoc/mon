@@ -21,72 +21,66 @@ from mon.globals import FILE_HANDLERS
 @FILE_HANDLERS.register(name=".pickle")
 @FILE_HANDLERS.register(name=".pkl")
 class PickleHandler(base.FileHandler):
-    """Pickle file handler."""
+    """Handler for Pickle file operations."""
     
-    def read_from_fileobj(self, path: pathlib.Path | str | TextIO, **kwargs) -> Any:
-        """Read data from a file object.
-    
+    def read_from_fileobj(self, path: TextIO, **kwargs) -> Any:
+        """Loads data from a file object.
+
         Args:
-            path: The path to the file. It can be a ``pathlib.Path``, ``str``,
-                or ``TextIO`` object.
-            **kwargs: Additional keyword arguments to pass to the ``pickle.load`` function.
-    
+            path: File stream as ``TextIO`` (binary file-like object).
+            **kwargs: Additional arguments for ``pickle.load``.
+
         Returns:
-            The data read from the file.
+            Deserialized Pickle data.
         """
-        return load(pathlib.Path(path), **kwargs)
+        return load(path, **kwargs)
     
-    def write_to_fileobj(self, obj: Any, path: pathlib.Path | str | TextIO, **kwargs):
-        """Write data to a file object.
-    
+    def write_to_fileobj(self, obj: Any, path: TextIO, **kwargs):
+        """Writes data to a file object.
+
         Args:
-            obj: The data to write to the file.
-            path: The path to the file. It can be a ``pathlib.Path``, ``str``,
-                or ``TextIO`` object.
-            **kwargs: Additional keyword arguments to pass to the ``pickle.dump`` function.
+            obj: Data to serialize.
+            path: File stream as ``TextIO`` (binary file-like object).
+            **kwargs: Additional arguments for ``pickle.dump``.
         """
         kwargs.setdefault("protocol", 4)
-        dump(obj, pathlib.Path(path), **kwargs)
+        dump(obj, path, **kwargs)
     
-    def write_to_string(self, obj: Any, **kwargs) -> str:
-        """Write data to a JSON string.
-    
+    def write_to_string(self, obj: Any, **kwargs) -> bytes:
+        """Converts data to a Pickle byte string.
+
         Args:
-            obj: The data to convert to a JSON string.
-            **kwargs: Additional keyword arguments to pass to the ``pickle.dumps`` function.
-    
+            obj: Data to serialize.
+            **kwargs: Additional arguments for ``pickle.dumps``.
+
         Returns:
-            The JSON string representation of the data.
+            Pickle byte string representation of ``obj``.
         """
-        kwargs.setdefault("protocol", 2)
+        kwargs.setdefault("protocol", 4)
         return dumps(obj, **kwargs)
     
     def read_from_file(self, path: pathlib.Path | str, mode: str = "rb", **kwargs) -> Any:
-        """Read data from a file.
-    
+        """Loads data from a file.
+
         Args:
-            path: The path to the file. It can be a ``pathlib.Path`` or ``str``.
-            mode: The mode in which to open the file. Default: ``rb`` (read binary).
-            **kwargs: Additional keyword arguments to pass to the parent class's
-                ``read_from_file`` method.
-    
+            path: File path as ``pathlib.Path`` or ``str``.
+            mode: File open mode. Default is ``rb`` for read binary.
+            **kwargs: Additional arguments for ``read_from_fileobj``.
+
         Returns:
-            The data read from the file.
+            Deserialized Pickle data.
         """
-        path = pathlib.Path(path)
-        return super().read_from_file(path=path, mode=mode, **kwargs)
+        return super().read_from_file(path=pathlib.Path(path), mode=mode, **kwargs)
     
-    def write_to_file(self, obj : Any, path: pathlib.Path | str, mode: str = "wb", **kwargs):
-        """Write data to a file.
-    
+    def write_to_file(self, obj: Any, path: pathlib.Path | str, mode: str = "wb", **kwargs):
+        """Writes data to a file.
+
         Args:
-            obj: The data to write to the file.
-            path: The path to the file. It can be a ``pathlib.Path`` or ``str``.
-            mode: The mode in which to open the file. Default: ``wb`` (write binary).
-            **kwargs: Additional keyword arguments to pass to the parent class's
-                ``write_to_file`` method.
+            obj: Data to serialize.
+            path: File path as ``pathlib.Path`` or ``str``.
+            mode: File open mode. Default is ``wb`` for write binary.
+            **kwargs: Additional arguments for ``write_to_fileobj``.
         """
-        path = pathlib.Path(path)
-        super().write_to_file(obj=obj, path=path, mode=mode, **kwargs)
+        super().write_to_file(obj=obj, path=pathlib.Path(path), mode=mode, **kwargs)
 
 # endregion

@@ -41,37 +41,29 @@ ImageAnnotation     = annotation.ImageAnnotation
 # region Base Dataset
 
 class Dataset(dataset.Dataset, ABC):
-    """The base class of all datasets.
-    
+    """Base class for all datasets.
+
     Attributes:
-        tasks: A `list` of tasks that the dataset supports.
-        splits: A `list` of splits that the dataset supports.
-        has_test_annotations: If ``True``, the test set has ground-truth labels.
-            Default: ``False``.
-        datapoint_attrs: A `dict` of datapoint attributes with the keys
-            are the attribute names and the values are the attribute types.
-        classlabels: A `ClassLabels`, i.e., a list of class labels that the
-            dataset supports. Default: ``None``.
-        
+        tasks: List of supported tasks.
+        splits: List of supported splits.
+        has_test_annotations: If ``True``, test set has labels. Default is ``False``.
+        datapoint_attrs: Dict of datapoint attributes (keys: names, values: types).
+        classlabels: ``ClassLabels`` with supported labels. Default is ``None``.
+
     Args:
-        root: The root directory of the dataset. Under the root directory, there
-            should be subdirectories for each split (e.g., ``train``, ``val``,
-            ``test``). Default: ``None``.
-        split: The data split to use. Default: ``'Split.TRAIN'``.
-        transform: Transformations performed on both the input and target. We use
-            `albumentations <https://albumentations.ai/docs/api_reference/full_reference>`__
-        to_tensor: If ``True``, convert input and target to `torch.Tensor`.
-            Default: ``False``.
-        cache_data: If ``True``, cache data to disk for faster loading next
-            time. Default: ``False``.
-        verbose: Verbosity. Default: ``True``.
+        root: Root dir with split subdirs (e.g., ``train``). Default is ``None``.
+        split: Data split to use. Default is ``Split.TRAIN``.
+        transform: Transformations for input/target. Default is ``None``.
+        to_tensor: If ``True``, converts to ``torch.Tensor``. Default is ``False``.
+        cache_data: If ``True``, caches data to disk. Default is ``False``.
+        verbose: If ``True``, enables verbose output. Default is ``False``.
     """
     
-    tasks : list[Task]  = []
-    splits: list[Split] = [Split.TRAIN, Split.VAL, Split.TEST, Split.PREDICT]
-    datapoint_attrs     = DatapointAttributes({})
-    has_test_annotations: bool        = False
-    classlabels         : ClassLabels = None
+    tasks                : list[Task]  = []
+    splits               : list[Split] = [Split.TRAIN, Split.VAL, Split.TEST, Split.PREDICT]
+    datapoint_attrs                   = DatapointAttributes({})
+    has_test_annotations : bool       = False
+    classlabels          : ClassLabels = None
     
     def __init__(
         self,
@@ -85,11 +77,11 @@ class Dataset(dataset.Dataset, ABC):
     ):
         super().__init__(*args, **kwargs)
         self.root       = core.Path(root)
-        self.split 	    = split
+        self.split      = split
         self.transform  = transform
         self.to_tensor  = to_tensor
         self.verbose    = verbose
-        self.index		= 0  # Use with `__iter__` and :meth`__next__`
+        self.index      = 0  # Used with `__iter__` and `__next__`
         self.datapoints = {}
         self.init_transform()
         self.init_datapoints()
@@ -98,43 +90,65 @@ class Dataset(dataset.Dataset, ABC):
     # region Magic Methods
     
     def __del__(self):
+        """Closes the dataset."""
         self.close()
     
     @abstractmethod
     def __getitem__(self, index: int) -> dict:
-        """Returns a dictionary containing the datapoint and metadata at the
-        given `index`.
+        """Gets a datapoint and metadata at the given index.
+
+        Args:
+            index: Index of the datapoint.
+
+        Returns:
+            Dictionary with datapoint and metadata.
         """
-        pass
     
     def __iter__(self):
-        """Returns an iterator starting at the index ``0``."""
+        """Returns an iterator starting at index ``0``.
+
+        Returns:
+            Self as an iterator.
+        """
         self.reset()
         return self
     
     @abstractmethod
     def __len__(self) -> int:
-        """Return the total number of datapoints in the dataset."""
-        pass
+        """Gets the total number of datapoints.
+
+        Returns:
+            Number of datapoints in the dataset.
+        """
     
     def __next__(self) -> dict:
-        """Returns the next datapoint and metadata when using `__iter__`.
+        """Gets the next datapoint and metadata.
+
+        Returns:
+            Dictionary with the next datapoint and metadata.
+
+        Raises:
+            StopIteration: If index exceeds dataset length.
         """
         if self.index >= self.__len__():
             raise StopIteration
-        else:
-            result      = self.__getitem__(self.index)
-            self.index += 1
-            return result
+        result = self.__getitem__(self.index)
+        self.index += 1
+        return result
     
     def __repr__(self) -> str:
+        """Returns a string representation of the dataset.
+
+        Returns:
+            Formatted string with dataset details.
+        """
         head = "Dataset " + self.__class__.__name__
         body = [f"Number of datapoints: {self.__len__()}"]
         if self.root:
             body.append(f"Root location: {self.root}")
         if hasattr(self, "transform") and self.transform:
             body += [repr(self.transform)]
-        lines = [head]  # + [" " * self._repr_indent + line for line in body]
+        lines = [head]
         return "\n".join(lines)
     
     # endregion
@@ -143,12 +157,19 @@ class Dataset(dataset.Dataset, ABC):
     
     @property
     def disable_pbar(self) -> bool:
+        """Indicates if progress bar is disabled.
+
+        Returns:
+            ``True`` if progress bar is disabled, ``False`` otherwise.
+        """
         return not self.verbose
     
     @property
     def has_annotations(self) -> bool:
-        """Returns ``True`` if the images has accompanied annotations,
-        otherwise ``False``.
+        """Checks if images have annotations.
+
+        Returns:
+            ``True`` if annotations exist, ``False`` otherwise.
         """
         return (
             (
@@ -160,8 +181,10 @@ class Dataset(dataset.Dataset, ABC):
     
     @property
     def hash(self) -> int:
-        """Return the total hash value of all the files (if it has one).
-        Hash values are integers (in bytes) of all files.
+        """Gets total hash value of all files.
+
+        Returns:
+            Integer sum of file hash values in bytes.
         """
         sum = 0
         for k, v in self.datapoints.items():
@@ -173,31 +196,54 @@ class Dataset(dataset.Dataset, ABC):
     
     @property
     def main_attribute(self) -> str:
-        """Return the main attribute of the dataset as the first key in
-        `datapoint_attrs`.
+        """Gets the main dataset attribute.
+
+        Returns:
+            First key from ``datapoint_attrs`` as a string.
         """
         return next(iter(self.datapoint_attrs.keys()))
     
     @property
     def new_datapoint(self) -> dict:
-        """Return a new datapoint with default values."""
+        """Creates a new datapoint with default values.
+
+        Returns:
+            Dictionary with attribute keys set to ``None``.
+        """
         return {k: None for k in self.datapoint_attrs.keys()}
     
     @property
     def split(self) -> Split:
+        """Gets the current dataset split.
+
+        Returns:
+            Current ``Split`` value.
+        """
         return self._split
     
     @split.setter
     def split(self, split: Split):
+        """Sets the dataset split.
+
+        Args:
+            split: Split value to set.
+
+        Raises:
+            ValueError: If ``[split]`` is not in supported splits.
+        """
         split = Split[split] if isinstance(split, str) else split
         if split in self.splits:
             self._split = split
         else:
-            raise ValueError(f"`split` must be one of {self.splits}, "
-                             f"but got {split}.")
+            raise ValueError(f"[split] must be one of {self.splits}, but got [{split}]")
     
     @property
     def split_str(self) -> str:
+        """Gets the string representation of the split.
+
+        Returns:
+            String value of the current split.
+        """
         return self.split.value
     
     # endregion
@@ -205,29 +251,38 @@ class Dataset(dataset.Dataset, ABC):
     # region Initialization
     
     def init_transform(self, transform: A.Compose | Any = None):
-        """Initialize transformation operations."""
+        """Initializes transformation operations.
+
+        Args:
+            transform: Transformations to apply. Default is ``None``.
+        """
         self.transform = transform or self.transform
     
     def init_datapoints(self):
-        """Initialize datapoints dictionary."""
+        """Initializes the datapoints dictionary.
+
+        Raises:
+            ValueError: If ``[datapoint_attrs]`` has no defined attributes.
+        """
         if not self.datapoint_attrs:
-            raise ValueError(f"`datapoint_attrs` has no defined attributes.")
+            raise ValueError("[datapoint_attrs] has no defined attributes")
         self.datapoints = {k: list[v]() for k, v in self.datapoint_attrs.items()}
     
     def init_data(self, cache_data: bool = False):
-        """Initialize data."""
-        # Get image from disk or cache
+        """Initializes dataset data.
+
+        Args:
+            cache_data: If ``True``, caches data to disk. Default is ``False``.
+        """
         cache_file = self.root / f"{self.split_str}.cache"
         if cache_data and cache_file.is_cache_file():
             self.load_cache(path=cache_file)
         else:
             self.get_data()
-            
-        # Filter and verify data
+        
         self.filter_data()
         self.verify_data()
         
-        # Cache data
         if cache_data:
             self.cache_data(path=cache_file)
         else:
@@ -235,11 +290,14 @@ class Dataset(dataset.Dataset, ABC):
     
     @abstractmethod
     def get_data(self):
-        """Get the base data."""
-        pass
+        """Gets the base data."""
     
     def cache_data(self, path: core.Path):
-        """Cache data to `path`."""
+        """Caches data to the specified path.
+
+        Args:
+            path: Path to save the cache.
+        """
         hash_ = 0
         if path.is_cache_file():
             cache = torch.load(path)
@@ -252,29 +310,29 @@ class Dataset(dataset.Dataset, ABC):
                 console.log(f"Cached data to: {path}")
     
     def load_cache(self, path: core.Path):
-        """Load cache data from `path`."""
+        """Loads cached data from the specified path.
+
+        Args:
+            path: Path to load the cache from.
+        """
         self.datapoints = torch.load(path)
         self.datapoints.pop("hash", None)
     
     @abstractmethod
     def filter_data(self):
-        """Filter unwanted datapoints."""
-        pass
+        """Filters unwanted datapoints."""
     
     @abstractmethod
     def verify_data(self):
-        """Verify dataset."""
-        pass
+        """Verifies the dataset."""
     
     @abstractmethod
     def reset(self):
-        """Resets and starts over."""
-        pass
+        """Resets the dataset."""
     
     @abstractmethod
     def close(self):
-        """Stops and releases."""
-        pass
+        """Closes and releases the dataset."""
     
     # endregion
     
@@ -282,23 +340,36 @@ class Dataset(dataset.Dataset, ABC):
     
     @abstractmethod
     def get_datapoint(self, index: int) -> dict:
-        """Get a datapoint at the given `index`."""
-        pass
+        """Gets a datapoint at the specified index.
+
+        Args:
+            index: Index of the datapoint.
+
+        Returns:
+            Dictionary containing the datapoint.
+        """
     
     @abstractmethod
     def get_meta(self, index: int) -> dict:
-        """Get metadata at the given `index`."""
-        pass
+        """Gets metadata at the specified index.
+
+        Args:
+            index: Index of the metadata.
+
+        Returns:
+            Dictionary containing the metadata.
+        """
     
     @classmethod
     def collate_fn(cls, batch: list[dict]) -> dict:
-        """Collate function used to fused input items together when using
-		`batch_size` > ``1``. This is used in
-		`torch.utils.data.DataLoader` wrapper.
+        """Collates input items for batch processing.
 
-		Args:
-			batch: A `list` of `dict`.
-		"""
+        Args:
+            batch: List of dictionaries from the dataset.
+
+        Returns:
+            Collated dictionary for use in ``torch.utils.data.DataLoader`` with batch_size > ``1``.
+        """
         zipped = {
             k: list(v)
             for k, v in zip(batch[0].keys(), zip(*[b.values() for b in batch]))
@@ -317,47 +388,51 @@ class Dataset(dataset.Dataset, ABC):
 # region Multimodal Dataset
 
 class MultimodalDataset(Dataset, ABC):
-    """We design this class to be a multimodal, multi-task, and multi-label
-    dataset. It is designed to be flexible and extensible to support various
-    types of datasets.
-    
+    """Base class for multimodal, multi-task, multi-label datasets.
+
     Attributes:
-        datapoint_attrs: A `dict` of datapoint attributes with the keys
-            are the attribute names and the values are the attribute types.
-            Must contain: {``'image'``: `ImageAnnotation`}. Note that to
-            comply with `albumentations.Compose`, we will treat the first
-            key as the main image attribute. Here are some common attributes:
-                - ``'image'``    : `ImageAnnotation` (main attribute)
-                - ``'depth'``    : `DepthMapAnnotation`
-                - ``'ref_image'``: `ImageAnnotation`
-                - ``'ref_depth'``: `DepthMapAnnotation`
-    
+        datapoint_attrs: Dict of attribute names and types, must include ``'image'``: ``ImageAnnotation``.
+            Common attributes:
+                - ``'image'``    : ``ImageAnnotation`` (main attribute)
+                - ``'depth'``    : ``DepthMapAnnotation``
+                - ``'ref_image'``: ``ImageAnnotation``
+                - ``'ref_depth'``: ``DepthMapAnnotation``
+
     Args:
-        depth_source: The source of the depth data. Default: ``None``.
+        depth_source: Source of depth data. Default is ``'dav2_vitb'``.
     """
-    
     def __init__(
         self,
         depth_source: Literal[*DEPTH_DATA_SOURCES] = "dav2_vitb",
         *args, **kwargs
     ):
+        """Initializes the multimodal dataset.
+
+        Args:
+            depth_source: Source of depth data. Default is ``'dav2_vitb'``.
+
+        Raises:
+            ValueError: If ``[depth_source]`` is not in ``DEPTH_DATA_SOURCES``.
+        """
         if depth_source not in DEPTH_DATA_SOURCES:
-            raise ValueError(f"`depth_source` must be one of "
-                             f"{DEPTH_DATA_SOURCES}, but got {depth_source}.")
+            raise ValueError(f"[depth_source] must be one of {DEPTH_DATA_SOURCES}, but got [{depth_source}]")
         self.depth_source = depth_source
-        # Initialize
         super().__init__(*args, **kwargs)
     
     # region Magic Methods
     
     def __getitem__(self, index: int) -> dict:
-        """Returns a dictionary containing the datapoint and metadata at the
-        given `index`.
+        """Gets a datapoint and metadata at the specified index.
+    
+        Args:
+            index: Index of the datapoint.
+    
+        Returns:
+            Dictionary with datapoint and metadata.
         """
-        # Get datapoint at the given index
         datapoint = self.get_datapoint(index=index)
         meta      = self.get_meta(index=index)
-        # Transform
+        
         if self.transform:
             main_attr      = self.main_attribute
             args           = {k: v for k, v in datapoint.items() if v is not None}
@@ -365,16 +440,21 @@ class MultimodalDataset(Dataset, ABC):
             transformed    = self.transform(**args)
             transformed[main_attr] = transformed.pop("image")
             datapoint     |= transformed
+        
         if self.to_tensor:
             for k, v in datapoint.items():
                 to_tensor_fn = self.datapoint_attrs.get_tensor_fn(k)
                 if to_tensor_fn and v is not None:
                     datapoint[k] = to_tensor_fn(v, keepdim=False, normalize=True)
-        # Return
+        
         return datapoint | {"meta": meta}
     
     def __len__(self) -> int:
-        """Return the total number of datapoints in the dataset."""
+        """Gets the total number of datapoints.
+    
+        Returns:
+            Number of datapoints in the dataset.
+        """
         return len(self.datapoints[self.main_attribute])
     
     # endregion
@@ -382,8 +462,12 @@ class MultimodalDataset(Dataset, ABC):
     # region Initialization
     
     def init_transform(self, transform: A.Compose | Any = None):
+        """Initializes transformation operations with multimodal support.
+    
+        Args:
+            transform: Transformations to apply. Default is ``None``.
+        """
         super().init_transform(transform=transform)
-        # Add additional targets
         if isinstance(self.transform, A.Compose):
             additional_targets = self.datapoint_attrs.albumentation_target_types()
             additional_targets.pop(self.main_attribute, None)
@@ -391,30 +475,31 @@ class MultimodalDataset(Dataset, ABC):
             self.transform.add_targets(additional_targets)
     
     def init_data(self, cache_data: bool = False):
-        """Initialize data."""
-        # Get image from disk or cache
+        """Initializes dataset data with multimodal support.
+    
+        Args:
+            cache_data: If ``True``, caches data to disk. Default is ``False``.
+        """
         cache_file = self.root / f"{self.split_str}.cache"
         if cache_data and cache_file.is_cache_file():
             self.load_cache(path=cache_file)
         else:
             self.get_data()
             self.get_multimodal_data()
-            
-        # Filter and verify data
+        
         self.filter_data()
         self.verify_data()
         
-        # Cache data
         if cache_data:
             self.cache_data(path=cache_file)
         else:
             core.delete_cache(cache_file)
-            
+    
     def get_multimodal_data(self):
-        """Get multimodal data."""
+        """Gets multimodal data for the dataset."""
         if "depth" in self.datapoint_attrs:
             self.get_depth_map()
-            
+        
         if self.has_annotations:
             self.get_reference_image()
             if "ref_depth" in self.datapoint_attrs:
@@ -424,7 +509,7 @@ class MultimodalDataset(Dataset, ABC):
             self.datapoints.pop("ref_depth", None)
     
     def get_reference_image(self):
-        """Get reference image."""
+        """Gets reference images for the dataset."""
         images     = self.datapoints.get("image",     [])
         ref_images = self.datapoints.get("ref_image", [])
         
@@ -437,15 +522,17 @@ class MultimodalDataset(Dataset, ABC):
                 ):
                     root_name = img.root.name
                     path      = img.path.replace(f"/{root_name}/", f"/ref/")
-                    ref_images.append(ImageAnnotation(path=path.image_file(), root=img.root))
+                    ref_images.append(ImageAnnotation(
+                        path = path.image_file(),
+                        root = img.root
+                    ))
             self.datapoints["ref_image"] = ref_images
     
     def get_depth_map(self):
-        """Get depth map."""
+        """Gets depth maps for the dataset."""
         images = self.datapoints.get("image", [])
         depths = self.datapoints.get("depth", [])
         
-        # Depth images
         if len(images) > 0 and len(depths) == 0:
             depths: list[DepthMapAnnotation] = []
             with core.get_progress_bar(disable=self.disable_pbar) as pbar:
@@ -465,11 +552,10 @@ class MultimodalDataset(Dataset, ABC):
             self.datapoints["depth"] = depths
             
     def get_reference_depth_map(self):
-        """Get depth map."""
+        """Gets reference depth maps for the dataset."""
         ref_images = self.datapoints.get("ref_image", [])
         ref_depths = self.datapoints.get("ref_depth", [])
-
-        # Reference depth images
+        
         if len(ref_images) > 0 and len(ref_depths) == 0:
             ref_depths: list[DepthMapAnnotation] = []
             with core.get_progress_bar(disable=self.disable_pbar) as pbar:
@@ -493,30 +579,32 @@ class MultimodalDataset(Dataset, ABC):
         pass
     
     def verify_data(self):
-        """Verify dataset."""
+        """Verifies the dataset integrity.
+    
+        Raises:
+            RuntimeError: If no datapoints exist or attributes are invalid.
+        """
         if self.__len__() <= 0:
-            raise RuntimeError(f"No datapoints in the dataset.")
+            raise RuntimeError("No datapoints in the dataset")
         for k, v in self.datapoints.items():
             if k not in self.datapoint_attrs:
-                raise RuntimeError(f"Attribute ``{k}`` has not been defined in "
-                                   f"`datapoint_attrs`. If this is not an error, "
-                                   f"please define the attribute in the class.")
+                raise RuntimeError(f"Attribute [{k}] is not defined in [datapoint_attrs]; "
+                                   f"define it in the class if intentional")
             if self.datapoint_attrs[k]:
                 if v is None:
-                    raise RuntimeError(f"No ``{k}`` attributes has been defined.")
+                    raise RuntimeError(f"No [{k}] attributes defined")
                 if v is not None and len(v) != self.__len__():
-                    raise RuntimeError(f"Number of {k} attributes ({len(v)}) "
-                                       f"does not match the number of "
-                                       f"datapoints ({self.__len__()}).")
+                    raise RuntimeError(f"Number of [{k}] attributes ({len(v)}) does not match "
+                                       f"datapoints ({self.__len__()})")
         if self.verbose:
-            console.log(f"Number of {self.split_str} datapoints: {self.__len__()}.")
+            console.log(f"Number of {self.split_str} datapoints: {self.__len__()}")
     
     def reset(self):
-        """Reset and start over."""
+        """Resets the dataset to start over."""
         self.index = 0
     
     def close(self):
-        """Stop and release."""
+        """Closes and releases dataset resources."""
         pass
     
     # endregion
@@ -524,7 +612,14 @@ class MultimodalDataset(Dataset, ABC):
     # region Retrieve Data
     
     def get_datapoint(self, index: int) -> dict:
-        """Get a datapoint at the given `index`."""
+        """Gets a datapoint at the specified index.
+
+        Args:
+            index: Index of the datapoint.
+
+        Returns:
+            Dictionary containing the datapoint data.
+        """
         datapoint = self.new_datapoint
         for k, v in self.datapoints.items():
             if v is not None and v[index] and hasattr(v[index], "data"):
@@ -532,8 +627,13 @@ class MultimodalDataset(Dataset, ABC):
         return datapoint
     
     def get_meta(self, index: int) -> dict:
-        """Get metadata at the given `index`. By default, we will use the
-        first attribute in `datapoint_attrs` as the main image attribute.
+        """Gets metadata at the specified index.
+
+        Args:
+            index: Index of the metadata.
+
+        Returns:
+            Dictionary with metadata from the main attribute.
         """
         return self.datapoints[self.main_attribute][index].meta
     

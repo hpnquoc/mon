@@ -35,18 +35,15 @@ plt.rcParams["savefig.bbox"] = "tight"
 # region Window Positioning
 
 def get_grid_size(n: int, nrow: int = 4) -> list[int]:
-    """Calculate the number of rows and columns needed to display the items
-    in a grid.
-    
+    """Calculates grid size for displaying items.
+
     Args:
-        n: The number of items.
-        nrow: The number of items in a row. The final grid size is
-            ``(n / nrow, nrow)``. If ``None``, put all items in a single
-            row. Default: ``4``.
-    
+        n: Number of items.
+        nrow: Items per row (grid size becomes ``(n / nrow, nrow)``).
+            Default is ``4``; if ``0`` or negative, uses all items in one row.
+
     Returns:
-        A ``tuple`` of ``(nrows, ncols)``, where nrows is the number of
-        rows and ncols is the number of columns.
+        List of ``[nrows, ncols]`` representing rows and columns.
     """
     ncols = nrow if nrow > 0 else n
     nrows = math.ceil(n / ncols)
@@ -54,8 +51,11 @@ def get_grid_size(n: int, nrow: int = 4) -> list[int]:
 
 
 def move_figure(x: int, y: int):
-    """Move the matplotlib figure around the window. The upper-left corner to
-    the location specified by ``(x, y)``.
+    """Moves the matplotlib figure to the specified window position.
+
+    Args:
+        x: X-coordinate for the upper-left corner.
+        y: Y-coordinate for the upper-left corner.
     """
     mngr    = plt.get_current_fig_manager()
     backend = matplotlib.get_backend()
@@ -63,7 +63,7 @@ def move_figure(x: int, y: int):
         mngr.window.wm_geometry(f"+{x}+{y}")
     elif backend == "WXAgg":
         mngr.window.SetPosition((x, y))
-    else:  # This works for QT and GTK. You can use window.setGeometry
+    else:
         mngr.window.move(x, y)
 
 # endregion

@@ -31,8 +31,8 @@ network: &network                                                               
 optimizer: &optimizer                                                           # Optimizer(s).
   optimizer:
     name        : "adam"
-    lr          : 1e-3
-    weight_decay: 1e-2
+    lr          : 0.001
+    weight_decay: 0.01
   lr_scheduler       : ~                                                        # Learning rate scheduler.s
   network_params_only: True
 

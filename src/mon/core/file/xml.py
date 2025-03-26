@@ -3,8 +3,7 @@
 
 """XML File Handler.
 
-This module implements the XML file handler by extending the `xmltodict`
-module.
+This module implements the XML file handler by extending the ``xmltodict`` module.
 """
 
 from __future__ import annotations
@@ -13,7 +12,6 @@ from typing import Any, TextIO
 
 from xmltodict import *
 
-from mon.core import pathlib
 from mon.core.file import base
 from mon.globals import FILE_HANDLERS
 
@@ -22,49 +20,50 @@ from mon.globals import FILE_HANDLERS
 
 @FILE_HANDLERS.register(name=".xml")
 class XMLHandler(base.FileHandler):
-    """XML file handler."""
+    """Handler for XML file operations."""
     
-    def read_from_fileobj(self, path: pathlib.Path | str | TextIO, **kwargs) -> Any:
-        """Read data from a file object.
+    def read_from_fileobj(self, path: TextIO, **kwargs) -> Any:
+        """Loads data from a file object.
 
         Args:
-            path: The path to the file. It can be a ``pathlib.Path``, ``str``,
-                or ``TextIO`` object.
-            **kwargs: Additional keyword arguments to pass to the ``xmltodict.parse`` function.
-    
+            path: File stream as ``TextIO`` (text file-like object).
+            **kwargs: Additional arguments for ``xmltodict.parse``.
+
         Returns:
-            The data read from the file.
+            Parsed XML data as a dictionary.
         """
-        return parse(path.read())
+        return parse(path.read(), **kwargs)
     
-    def write_to_fileobj(self, obj : Any, path: pathlib.Path | str | TextIO, **kwargs):
-        """Write data to a file object.
-    
+    def write_to_fileobj(self, obj: Any, path: TextIO, **kwargs):
+        """Writes data to a file object.
+
         Args:
-            obj: The data to write to the file. Must be a dictionary.
-            path: The path to the file. It can be a ``pathlib.Path``, ``str``,
-                or ``TextIO`` object.
-            **kwargs: Additional keyword arguments to pass to the ``xmltodict.unparse`` function.
-    
+            obj: Dictionary to serialize as XML.
+            path: File stream as ``TextIO`` (text file-like object).
+            **kwargs: Additional arguments for ``xmltodict.unparse``.
+
         Raises:
-            TypeError: If ``obj`` is not a dictionary.
+            TypeError: If ``[obj]`` is not a dictionary.
         """
         if not isinstance(obj, dict):
-            raise TypeError(f"`obj` must be a `dict`, but got {type(obj)}.")
-        with open(path, "w") as f:
-            f.write(unparse(input_dict=obj, pretty=True))
+            raise TypeError(f"[obj] must be a dict, got [{type(obj).__name__}]")
+        path.write(unparse(input_dict=obj, pretty=True, **kwargs))
     
     def write_to_string(self, obj: Any, **kwargs) -> str:
-        """Convert a dictionary to an XML string.
-    
+        """Converts a dictionary to an XML string.
+
         Args:
-            obj: The dictionary to convert to an XML string.
-            **kwargs: Additional keyword arguments to pass to the ``xmltodict.unparse`` function.
-    
+            obj: Dictionary to serialize as XML.
+            **kwargs: Additional arguments for ``xmltodict.unparse``.
+
         Returns:
-            The XML string representation of the dictionary.
+            XML string representation of ``obj``.
+
+        Raises:
+            TypeError: If ``[obj]`` is not a dictionary.
         """
-        assert isinstance(obj, dict)
-        return unparse(input_dict=obj, pretty=True)
+        if not isinstance(obj, dict):
+            raise TypeError(f"[obj] must be a dict, got [{type(obj).__name__}]")
+        return unparse(input_dict=obj, pretty=True, **kwargs)
 
 # endregion

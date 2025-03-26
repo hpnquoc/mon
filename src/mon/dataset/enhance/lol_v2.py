@@ -27,15 +27,17 @@ ImageAnnotation     = dtype.ImageAnnotation
 MultimodalDataset   = dtype.MultimodalDataset
 
 
-# region Dataset
-
 @DATASETS.register(name="lol_v2_real")
 class LOLv2Real(MultimodalDataset):
-    """LOL-v2 Real (VE-LOL) dataset consists of ``500`` low-light and
-    normal-light image pairs. They are divided into ``400`` training pairs and
-    ``100`` testing pairs. The low-light images contain noise produced during
-    the photo capture process. Most of the images are indoor scenes. All the
-    images have a resolution of ``400×600``.
+    """Loads LOL-v2 Real dataset from ``root`` dir.
+
+    Args:
+        root: Directory path to dataset. Default is ``default_root_dir``.
+        *args: Additional args for parent class.
+        **kwargs: Additional kwargs for parent class.
+
+    Raises:
+        FileNotFoundError: If ``root`` directory does not exist.
     """
     
     tasks : list[Task]  = [Task.LLIE]
@@ -47,40 +49,41 @@ class LOLv2Real(MultimodalDataset):
         "ref_depth": DepthMapAnnotation,
     })
     has_test_annotations: bool = True
-    
+
     def __init__(self, root: core.Path = default_root_dir, *args, **kwargs):
+        """Initializes dataset with ``root`` path and parent args."""
         root = root / "lol_v2_real" if root.name != "lol_v2_real" else root
         if not root.is_dir():
-            raise FileNotFoundError(f"Directory not found: {root}.")
-        # Initialize
+            raise FileNotFoundError(f"[root] directory not found: [{root}]")
         super().__init__(root=root, *args, **kwargs)
-    
+
     def get_data(self):
-        patterns = [
-            self.root / self.split_str / "image",
-        ]
-        
-        # Images
+        """Populates ``datapoints`` with image annotations for split."""
+        patterns = [self.root / self.split_str / "image"]
+
         images: list[ImageAnnotation] = []
         with core.get_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
-                for path in pbar.track(
-                    sequence    = sorted(list(pattern.rglob("*"))),
-                    description = f"Listing {self.__class__.__name__} {self.split_str} images"
-                ):
+                paths = sorted(pattern.rglob("*"))
+                desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
+                for path in pbar.track(sequence=paths, description=desc):
                     if path.is_image_file():
                         images.append(ImageAnnotation(path=path, root=pattern))
-        
+
         self.datapoints["image"] = images
 
 
 @DATASETS.register(name="lol_v2_synthetic")
 class LOLv2Synthetic(MultimodalDataset):
-    """LOL-v2 Synthetic (VE-LOL-Syn) dataset consists of ``1000`` low-light and
-    normal-light image pairs. They are divided into ``900`` training pairs and
-    ``100`` testing pairs. The low-light images contain noise produced during
-    the photo capture process. Most of the images are indoor scenes. All the
-    images have a resolution of ``400×600``.
+    """Loads LOL-v2 Synthetic dataset from ``root`` dir.
+
+    Args:
+        root: Directory path to dataset. Default is ``default_root_dir``.
+        *args: Additional args for parent class.
+        **kwargs: Additional kwargs for parent class.
+
+    Raises:
+        FileNotFoundError: If ``root`` directory does not exist.
     """
     
     tasks : list[Task]  = [Task.LLIE]
@@ -92,74 +95,95 @@ class LOLv2Synthetic(MultimodalDataset):
         "ref_depth": DepthMapAnnotation,
     })
     has_test_annotations: bool = True
-    
+
     def __init__(self, root: core.Path = default_root_dir, *args, **kwargs):
+        """Initializes dataset with ``root`` path and parent args."""
         root = root / "lol_v2_synthetic" if root.name != "lol_v2_synthetic" else root
         if not root.is_dir():
-            raise FileNotFoundError(f"Directory not found: {root}.")
-        # Initialize
+            raise FileNotFoundError(f"[root] directory not found: [{root}]")
         super().__init__(root=root, *args, **kwargs)
-    
+
     def get_data(self):
-        patterns = [
-            self.root / self.split_str / "image",
-        ]
-        
-        # Images
+        """Populates ``datapoints`` with image annotations for split."""
+        patterns = [self.root / self.split_str / "image"]
+
         images: list[ImageAnnotation] = []
         with core.get_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
-                for path in pbar.track(
-                    sequence    = sorted(list(pattern.rglob("*"))),
-                    description = f"Listing {self.__class__.__name__} {self.split_str} images"
-                ):
+                paths = sorted(pattern.rglob("*"))
+                desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
+                for path in pbar.track(sequence=paths, description=desc):
                     if path.is_image_file():
                         images.append(ImageAnnotation(path=path, root=pattern))
-        
+
         self.datapoints["image"] = images
 
     
 @DATAMODULES.register(name="lol_v2_real")
 class LOLv2RealDataModule(DataModule):
+    """Configures LOLv2Real datasets for training/testing.
+
+    Args:
+        *args: Additional args for parent class.
+        **kwargs: Additional kwargs for parent class.
+    """
     
     tasks: list[Task] = [Task.LLIE]
-    
+
     def prepare_data(self, *args, **kwargs):
+        """Prepares data (placeholder, no action taken)."""
         pass
-    
+
     def setup(self, stage: Literal["train", "test", "predict", None] = None):
+        """Sets up datasets for given ``stage``.
+
+        Args:
+            stage: Stage to configure. Default is ``None``.
+        """
         if self.can_log:
             console.log(f"Setup [red]{self.__class__.__name__}[/red].")
-       
+
         if stage in [None, "train"]:
             self.train = LOLv2Real(split=Split.TRAIN, **self.dataset_kwargs)
-            self.val   = LOLv2Real(split=Split.TEST, **self.dataset_kwargs)
+            self.val   = LOLv2Real(split=Split.TEST,  **self.dataset_kwargs)
         if stage in [None, "test"]:
-            self.test  = LOLv2Real(split=Split.TEST, **self.dataset_kwargs)
-        
+            self.test  = LOLv2Real(split=Split.TEST,  **self.dataset_kwargs)
+
         self.get_classlabels()
         if self.can_log:
             self.summarize()
-
+            
 
 @DATAMODULES.register(name="lol_v2_synthetic")
 class LOLv2SyntheticDataModule(DataModule):
+    """Configures LOLv2Synthetic datasets for training/testing.
+
+    Args:
+        *args: Additional args for parent class.
+        **kwargs: Additional kwargs for parent class.
+    """
     
     tasks: list[Task] = [Task.LLIE]
-    
+
     def prepare_data(self, *args, **kwargs):
+        """Prepares data (placeholder, no action taken)."""
         pass
-    
+
     def setup(self, stage: Literal["train", "test", "predict", None] = None):
+        """Sets up datasets for given ``stage``.
+
+        Args:
+            stage: Stage to configure. Default is ``None``.
+        """
         if self.can_log:
             console.log(f"Setup [red]{self.__class__.__name__}[/red].")
-        
+
         if stage in [None, "train"]:
             self.train = LOLv2Synthetic(split=Split.TRAIN, **self.dataset_kwargs)
-            self.val   = LOLv2Synthetic(split=Split.TEST, **self.dataset_kwargs)
+            self.val   = LOLv2Synthetic(split=Split.TEST,  **self.dataset_kwargs)
         if stage in [None, "test"]:
-            self.test  = LOLv2Synthetic(split=Split.TEST, **self.dataset_kwargs)
-        
+            self.test  = LOLv2Synthetic(split=Split.TEST,  **self.dataset_kwargs)
+
         self.get_classlabels()
         if self.can_log:
             self.summarize()

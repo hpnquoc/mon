@@ -235,15 +235,15 @@ class INF1_P(nn.Module):
 			self.B1       = None
 			s_in_channels = 2
 		
-		p_layers = [nn.INRLayer(s_in_channels, hidden_dim, s_nonlinear, omega_0=omega_0, first_bias_scale=first_bias_scale, is_first=True)]
+		p_layers = [nn.INRLayer(s_in_channels, hidden_dim, s_nonlinear, w0=omega_0, first_bias_scale=first_bias_scale, is_first=True)]
 		for _ in range(1, add_layers - 2):
-			p_layers.append(nn.INRLayer(hidden_dim, hidden_dim, s_nonlinear, omega_0=omega_0, first_bias_scale=first_bias_scale))
-		p_layers.append(nn.INRLayer(hidden_dim, hidden_dim, s_nonlinear, omega_0=omega_0, first_bias_scale=first_bias_scale))
+			p_layers.append(nn.INRLayer(hidden_dim, hidden_dim, s_nonlinear, w0=omega_0, first_bias_scale=first_bias_scale))
+		p_layers.append(nn.INRLayer(hidden_dim, hidden_dim, s_nonlinear, w0=omega_0, first_bias_scale=first_bias_scale))
 		
-		o_layers = [nn.INRLayer(hidden_dim, hidden_dim, v_nonlinear, omega_0=omega_0, first_bias_scale=first_bias_scale)]
+		o_layers = [nn.INRLayer(hidden_dim, hidden_dim, v_nonlinear, w0=omega_0, first_bias_scale=first_bias_scale)]
 		for _ in range(add_layers + 1, num_layers - 1):
-			o_layers.append(nn.INRLayer(hidden_dim, hidden_dim, v_nonlinear, omega_0=omega_0, first_bias_scale=first_bias_scale))
-		o_layers.append(nn.INRLayer(hidden_dim, 1, v_nonlinear, omega_0=omega_0, first_bias_scale=first_bias_scale, is_last=True))
+			o_layers.append(nn.INRLayer(hidden_dim, hidden_dim, v_nonlinear, w0=omega_0, first_bias_scale=first_bias_scale))
+		o_layers.append(nn.INRLayer(hidden_dim, 1, v_nonlinear, w0=omega_0, first_bias_scale=first_bias_scale, is_last=True))
 		
 		self.p_net = nn.Sequential(*p_layers)
 		self.o_net = nn.Sequential(*o_layers)
@@ -298,15 +298,15 @@ class INF1_V(nn.Module):
 			self.B2       = None
 			v_in_channels = patch_dim
 		
-		v_layers = [nn.INRLayer(v_in_channels, hidden_dim, v_nonlinear, omega_0=omega_0, first_bias_scale=first_bias_scale, is_first=True)]
+		v_layers = [nn.INRLayer(v_in_channels, hidden_dim, v_nonlinear, w0=omega_0, first_bias_scale=first_bias_scale, is_first=True)]
 		for _ in range(1, add_layers - 2):
-			v_layers.append(nn.INRLayer(hidden_dim, hidden_dim, v_nonlinear, omega_0=omega_0, first_bias_scale=first_bias_scale))
-		v_layers.append(nn.INRLayer(hidden_dim, hidden_dim, v_nonlinear, omega_0=omega_0, first_bias_scale=first_bias_scale))
+			v_layers.append(nn.INRLayer(hidden_dim, hidden_dim, v_nonlinear, w0=omega_0, first_bias_scale=first_bias_scale))
+		v_layers.append(nn.INRLayer(hidden_dim, hidden_dim, v_nonlinear, w0=omega_0, first_bias_scale=first_bias_scale))
 		
-		o_layers = [nn.INRLayer(hidden_dim, hidden_dim, v_nonlinear, omega_0=omega_0, first_bias_scale=first_bias_scale)]
+		o_layers = [nn.INRLayer(hidden_dim, hidden_dim, v_nonlinear, w0=omega_0, first_bias_scale=first_bias_scale)]
 		for _ in range(add_layers + 1, num_layers - 1):
-			o_layers.append(nn.INRLayer(hidden_dim, hidden_dim, v_nonlinear, omega_0=omega_0, first_bias_scale=first_bias_scale))
-		o_layers.append(nn.INRLayer(hidden_dim, 1, v_nonlinear, omega_0=omega_0, first_bias_scale=first_bias_scale, is_last=True))
+			o_layers.append(nn.INRLayer(hidden_dim, hidden_dim, v_nonlinear, w0=omega_0, first_bias_scale=first_bias_scale))
+		o_layers.append(nn.INRLayer(hidden_dim, 1, v_nonlinear, w0=omega_0, first_bias_scale=first_bias_scale, is_last=True))
 		
 		self.v_net = nn.Sequential(*v_layers)
 		self.o_net = nn.Sequential(*o_layers)
@@ -367,18 +367,18 @@ class INF2(nn.Module):
 			s_in_channels = 2
 			v_in_channels = patch_dim
 		
-		p_layers = [nn.INRLayer(s_in_channels, hidden_dim, s_nonlinear, omega_0=omega_0, first_bias_scale=first_bias_scale, is_first=True)]
-		v_layers = [nn.INRLayer(v_in_channels, hidden_dim, v_nonlinear, omega_0=omega_0, first_bias_scale=first_bias_scale, is_first=True)]
+		p_layers = [nn.INRLayer(s_in_channels, hidden_dim, s_nonlinear, w0=omega_0, first_bias_scale=first_bias_scale, is_first=True)]
+		v_layers = [nn.INRLayer(v_in_channels, hidden_dim, v_nonlinear, w0=omega_0, first_bias_scale=first_bias_scale, is_first=True)]
 		for _ in range(1, add_layers - 2):
-			p_layers.append(nn.INRLayer(hidden_dim, hidden_dim, s_nonlinear, omega_0=omega_0, first_bias_scale=first_bias_scale))
-			v_layers.append(nn.INRLayer(hidden_dim, hidden_dim, v_nonlinear, omega_0=omega_0, first_bias_scale=first_bias_scale))
-		p_layers.append(nn.INRLayer(hidden_dim, mid_channels, s_nonlinear, omega_0=omega_0, first_bias_scale=first_bias_scale))
-		v_layers.append(nn.INRLayer(hidden_dim, mid_channels, v_nonlinear, omega_0=omega_0, first_bias_scale=first_bias_scale))
+			p_layers.append(nn.INRLayer(hidden_dim, hidden_dim, s_nonlinear, w0=omega_0, first_bias_scale=first_bias_scale))
+			v_layers.append(nn.INRLayer(hidden_dim, hidden_dim, v_nonlinear, w0=omega_0, first_bias_scale=first_bias_scale))
+		p_layers.append(nn.INRLayer(hidden_dim, mid_channels, s_nonlinear, w0=omega_0, first_bias_scale=first_bias_scale))
+		v_layers.append(nn.INRLayer(hidden_dim, mid_channels, v_nonlinear, w0=omega_0, first_bias_scale=first_bias_scale))
 		
-		o_layers = [nn.INRLayer(mid_channels * 2, hidden_dim, v_nonlinear, omega_0=omega_0, first_bias_scale=first_bias_scale)]
+		o_layers = [nn.INRLayer(mid_channels * 2, hidden_dim, v_nonlinear, w0=omega_0, first_bias_scale=first_bias_scale)]
 		for _ in range(add_layers + 1, num_layers - 1):
-			o_layers.append(nn.INRLayer(hidden_dim, hidden_dim, v_nonlinear, omega_0=omega_0, first_bias_scale=first_bias_scale))
-		o_layers.append(nn.INRLayer(hidden_dim, 1, v_nonlinear, omega_0=omega_0, first_bias_scale=first_bias_scale, is_last=True))
+			o_layers.append(nn.INRLayer(hidden_dim, hidden_dim, v_nonlinear, w0=omega_0, first_bias_scale=first_bias_scale))
+		o_layers.append(nn.INRLayer(hidden_dim, 1, v_nonlinear, w0=omega_0, first_bias_scale=first_bias_scale, is_last=True))
 		
 		self.p_net = nn.Sequential(*p_layers)
 		self.v_net = nn.Sequential(*v_layers)
@@ -442,24 +442,24 @@ class INF4(nn.Module):
 			s_in_channels = 2
 			v_in_channels = patch_dim
 		
-		p_layers = [nn.INRLayer(s_in_channels, hidden_dim, s_nonlinear, omega_0=omega_0, first_bias_scale=first_bias_scale, is_first=True)]
-		v_layers = [nn.INRLayer(v_in_channels, hidden_dim, v_nonlinear, omega_0=omega_0, first_bias_scale=first_bias_scale, is_first=True)]
-		d_layers = [nn.INRLayer(v_in_channels, hidden_dim, v_nonlinear, omega_0=omega_0, first_bias_scale=first_bias_scale, is_first=True)]
-		e_layers = [nn.INRLayer(v_in_channels, hidden_dim, v_nonlinear, omega_0=omega_0, first_bias_scale=first_bias_scale, is_first=True)]
+		p_layers = [nn.INRLayer(s_in_channels, hidden_dim, s_nonlinear, w0=omega_0, first_bias_scale=first_bias_scale, is_first=True)]
+		v_layers = [nn.INRLayer(v_in_channels, hidden_dim, v_nonlinear, w0=omega_0, first_bias_scale=first_bias_scale, is_first=True)]
+		d_layers = [nn.INRLayer(v_in_channels, hidden_dim, v_nonlinear, w0=omega_0, first_bias_scale=first_bias_scale, is_first=True)]
+		e_layers = [nn.INRLayer(v_in_channels, hidden_dim, v_nonlinear, w0=omega_0, first_bias_scale=first_bias_scale, is_first=True)]
 		for _ in range(1, add_layers - 2):
-			p_layers.append(nn.INRLayer(hidden_dim, hidden_dim, s_nonlinear, omega_0=omega_0, first_bias_scale=first_bias_scale))
-			v_layers.append(nn.INRLayer(hidden_dim, hidden_dim, v_nonlinear, omega_0=omega_0, first_bias_scale=first_bias_scale))
-			d_layers.append(nn.INRLayer(hidden_dim, hidden_dim, v_nonlinear, omega_0=omega_0, first_bias_scale=first_bias_scale))
-			e_layers.append(nn.INRLayer(hidden_dim, hidden_dim, v_nonlinear, omega_0=omega_0, first_bias_scale=first_bias_scale))
-		p_layers.append(nn.INRLayer(hidden_dim, mid_channels, s_nonlinear, omega_0=omega_0, first_bias_scale=first_bias_scale))
-		v_layers.append(nn.INRLayer(hidden_dim, mid_channels, v_nonlinear, omega_0=omega_0, first_bias_scale=first_bias_scale))
-		d_layers.append(nn.INRLayer(hidden_dim, mid_channels, v_nonlinear, omega_0=omega_0, first_bias_scale=first_bias_scale))
-		e_layers.append(nn.INRLayer(hidden_dim, mid_channels, v_nonlinear, omega_0=omega_0, first_bias_scale=first_bias_scale))
+			p_layers.append(nn.INRLayer(hidden_dim, hidden_dim, s_nonlinear, w0=omega_0, first_bias_scale=first_bias_scale))
+			v_layers.append(nn.INRLayer(hidden_dim, hidden_dim, v_nonlinear, w0=omega_0, first_bias_scale=first_bias_scale))
+			d_layers.append(nn.INRLayer(hidden_dim, hidden_dim, v_nonlinear, w0=omega_0, first_bias_scale=first_bias_scale))
+			e_layers.append(nn.INRLayer(hidden_dim, hidden_dim, v_nonlinear, w0=omega_0, first_bias_scale=first_bias_scale))
+		p_layers.append(nn.INRLayer(hidden_dim, mid_channels, s_nonlinear, w0=omega_0, first_bias_scale=first_bias_scale))
+		v_layers.append(nn.INRLayer(hidden_dim, mid_channels, v_nonlinear, w0=omega_0, first_bias_scale=first_bias_scale))
+		d_layers.append(nn.INRLayer(hidden_dim, mid_channels, v_nonlinear, w0=omega_0, first_bias_scale=first_bias_scale))
+		e_layers.append(nn.INRLayer(hidden_dim, mid_channels, v_nonlinear, w0=omega_0, first_bias_scale=first_bias_scale))
 		
-		o_layers = [nn.INRLayer(mid_channels * 4, hidden_dim, v_nonlinear, omega_0=omega_0, first_bias_scale=first_bias_scale)]
+		o_layers = [nn.INRLayer(mid_channels * 4, hidden_dim, v_nonlinear, w0=omega_0, first_bias_scale=first_bias_scale)]
 		for _ in range(add_layers + 1, num_layers - 1):
-			o_layers.append(nn.INRLayer(hidden_dim, hidden_dim, v_nonlinear, omega_0=omega_0, first_bias_scale=first_bias_scale))
-		o_layers.append(nn.INRLayer(hidden_dim, 1, v_nonlinear, omega_0=omega_0, first_bias_scale=first_bias_scale, is_last=True))
+			o_layers.append(nn.INRLayer(hidden_dim, hidden_dim, v_nonlinear, w0=omega_0, first_bias_scale=first_bias_scale))
+		o_layers.append(nn.INRLayer(hidden_dim, 1, v_nonlinear, w0=omega_0, first_bias_scale=first_bias_scale, is_last=True))
 		
 		self.p_net = nn.Sequential(*p_layers)
 		self.v_net = nn.Sequential(*v_layers)

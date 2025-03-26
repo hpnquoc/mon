@@ -315,7 +315,7 @@ class MemoryEfficientCrossAttentionWrapper(MemoryEfficientCrossAttention):
     def forward(self, x, context=None, mask=None):
         b, c, h, w = x.shape
         x = rearrange(x, 'b c h w -> b (h w) c')
-        out = super().forward(x, context=context, mask=mask)
+        out = super().forward(x)
         out = rearrange(out, 'b (h w) c -> b c h w', h=h, w=w, c=c)
         return x + out
 

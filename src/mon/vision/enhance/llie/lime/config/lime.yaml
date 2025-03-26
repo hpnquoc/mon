@@ -29,4 +29,4 @@ network: &network                                                               
   bc     : 1                                                                    # Parameter for controlling the influence of Mertens's contrast measure
   bs     : 1                                                                    # Parameter for controlling the influence of Mertens's saturation measure
   be     : 1                                                                    # Parameter for controlling the influence of Mertens's well exposedness measure
-  eps    : 1e-3                                                                 # Constant to avoid computation instability
+  eps    : 0.01                                                                 # Constant to avoid computation instability

@@ -111,7 +111,7 @@ class CosineAnnealingRestartLR(_LRScheduler):
         optimizer: Torch optimizer.
         periods: Period for each cosine annealing cycle.
         restart_weights: Restart weights at each restart iteration.
-            Default: ``[1]``.
+            Default: [1].
         eta_min: The minimum lr. Default: ``0``.
         last_epoch: Used in _LRScheduler. Default: ``-1``.
     """
@@ -130,8 +130,7 @@ class CosineAnnealingRestartLR(_LRScheduler):
         self.cumulative_period = [sum(self.periods[0:i + 1])
                                   for i in range(0, len(self.periods))]
         if len(self.periods) != len(self.restart_weights):
-            raise ValueError(f"`periods` and `restart_weights` should have the "
-                             f"same length.")
+            raise ValueError(f"`periods` and `restart_weights` should have the same length.")
         super().__init__(optimizer, last_epoch)
 
     def get_lr(self):
@@ -232,7 +231,7 @@ class CosineAnnealingRestartCyclicLR(_LRScheduler):
         optimizer: Torch optimizer.
         periods: Period for each cosine anneling cycle.
         restart_weights: Restart weights at each restart iteration.
-            Default: ``[1]``.
+            Default: [1].
         eta_min: The mimimum lr. Default: ``0``.
         last_epoch: Used in _LRScheduler. Default: ``-1``.
     """
@@ -404,12 +403,7 @@ class VibrateLR(_LRScheduler):
         last_epoch: Used in _LRScheduler. Default: ``-1``.
     """
 
-    def __init__(
-        self,
-        optimizer : Optimizer,
-        total_iter: int,
-        last_epoch: int = -1,
-    ):
+    def __init__(self, optimizer: Optimizer, total_iter: int, last_epoch: int = -1):
         self.total_iter = total_iter
         super().__init__(optimizer, last_epoch)
 

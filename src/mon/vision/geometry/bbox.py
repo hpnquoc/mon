@@ -57,7 +57,7 @@ def bbox_area(bbox: np.ndarray) -> np.ndarray:
             ``[4]``/``[N, 4]`` and ``XYXY`` format.
     
     Returns:
-        A ``[1]``/``[N]`` `numpy.ndarray` containing the area value(s).
+        A [1]/[N] `numpy.ndarray` containing the area value(s).
     """
     if bbox.ndim == 1:
         bbox = np.expand_dims(bbox, 0)

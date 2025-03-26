@@ -83,7 +83,7 @@ def metrics(im_dir, label_dir):
         ex_ref = lpips.im2tensor(lpips.load_image(label_dir + name))
         ex_p0 = ex_p0.cuda()
         ex_ref = ex_ref.cuda()
-        score_lpips = loss_fn.forward(ex_ref, ex_p0)
+        score_lpips = loss_fn.forward(ex_ref)
     
         avg_psnr += score_psnr
         avg_ssim += score_ssim

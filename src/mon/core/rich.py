@@ -3,9 +3,8 @@
 
 """Rich Module.
 
-This module extends the `rich` package.It provides rich text and beautiful
-formatting in the terminal, console, and logging throughout the `mon`
-framework.
+This module extends the ``rich`` package. It provides rich text and beautiful
+formatting in the terminal, console, and logging throughout the ``mon`` framework.
 """
 
 from __future__ import annotations
@@ -48,21 +47,21 @@ from mon.globals import MemoryUnit
 # region Console
 
 def get_terminal_size() -> tuple[int, int]:
-    """Get the size of the terminal window in columns and rows.
+    """Gets the size of the terminal window in columns and rows.
 
     Returns:
-        A tuple containing the number of columns and rows of the terminal window.
+        Tuple of ``(columns, rows)`` as integers.
     """
     size = shutil.get_terminal_size(fallback=(100, 40))
     return size.columns, size.lines
 
 
 def set_terminal_size(rows: int = 40, cols: int = 100):
-    """Set the terminal window size to the specified number of rows and columns.
+    """Sets the terminal window size to the specified rows and columns.
 
     Args:
-        rows: The number of rows for the terminal window. Default: ``40``.
-        cols: The number of columns for the terminal window. Default: ``100``.
+        rows: Number of rows for the terminal. Default is ``40``.
+        cols: Number of columns for the terminal. Default is ``100``.
     """
     fd   = sys.stdout.fileno()
     size = struct.pack("HHHH", rows, cols, 0, 0)
@@ -115,11 +114,10 @@ error_console = rich.console.Console(
 
 
 def get_console() -> rich.console.Console:
-    """Get access to the global ``rich.console.Console`` object. Create a
-    new one if it doesn't exist.
+    """Gets the global ``rich.console.Console`` object, creating it if needed.
 
     Returns:
-        The global ``rich.console.Console`` object.
+        Global ``rich.console.Console`` instance.
     """
     global console
     if console is None:
@@ -134,11 +132,10 @@ def get_console() -> rich.console.Console:
 
 
 def get_error_console() -> rich.console.Console:
-    """Get access to the global ``rich.console.Console`` object that logs
-    errors. Create a new one if it doesn't exist.
+    """Gets the global error-logging ``rich.console.Console`` object, creating it if needed.
 
     Returns:
-        The global ``rich.console.Console`` object for logging errors.
+        Global ``rich.console.Console`` instance for error logging.
     """
     global error_console
     if error_console is None:
@@ -158,27 +155,21 @@ def get_error_console() -> rich.console.Console:
 
 # region Progress
 
-def get_download_bar(
-    transient: bool = False,
-    disable  : bool = False,
-) -> progress.Progress:
-    """Return a ``rich.progress.Progress`` object displaying the current
-    time, the task description, a progress bar, the percentage complete, the
-    transfer speed, the amount downloaded, the time remaining, the time elapsed,
-    and a right-pointing arrow.
+def get_download_bar(transient: bool = False, disable: bool = False) -> progress.Progress:
+    """Creates a ``rich.progress.Progress`` object for download tracking.
 
     Args:
-        transient: Whether to hide the progress bar after completion. Default: ``False``.
-        disable: Whether to disable the progress bar. Default: ``False``.
+        transient: If ``True``, hides the bar after completion. Default is ``False``.
+        disable: If ``True``, disables the progress bar. Default is ``False``.
 
     Returns:
-        A ``rich.progress.Progress`` object configured with various columns.
+        ``rich.progress.Progress`` object with download-specific columns.
     """
     return progress.Progress(
         progress.TextColumn(
             console.get_datetime().strftime("[%x %H:%M:%S]"),
-            justify = "left",
-            style   = "log.time",
+            justify="left",
+            style="log.time",
         ),
         progress.TextColumn("{task.description}", justify="right"),
         progress.BarColumn(bar_width=None),
@@ -191,33 +182,27 @@ def get_download_bar(
         progress.TimeRemainingColumn(),
         ">",
         progress.TimeElapsedColumn(),
-        console   = console,
-        transient = transient,
-        disable   = disable,
+        console=console,
+        transient=transient,
+        disable=disable,
     )
 
 
-def get_progress_bar(
-    transient: bool = False,
-    disable  : bool = False,
-) -> progress.Progress:
-    """Return a ``rich.progress.Progress`` object displaying the current
-    time, the task description, a progress bar, the percentage complete, the
-    total number of processed items, the processing speed, the time remaining,
-    the time elapsed, and a spinner.
+def get_progress_bar(transient: bool = False, disable: bool = False) -> progress.Progress:
+    """Creates a ``rich.progress.Progress`` object for general progress tracking.
 
     Args:
-        transient: Whether to hide the progress bar after completion. Default: ``False``.
-        disable: Whether to disable the progress bar. Default: ``False``.
+        transient: If ``True``, hides the bar after completion. Default is ``False``.
+        disable: If ``True``, disables the progress bar. Default is ``False``.
 
     Returns:
-        A ``rich.progress.Progress`` object configured with various columns.
+        ``rich.progress.Progress`` object with processing-specific columns.
     """
     return progress.Progress(
         progress.TextColumn(
             console.get_datetime().strftime("[%x %H:%M:%S]"),
-            justify = "left",
-            style   = "log.time"
+            justify="left",
+            style="log.time"
         ),
         progress.TextColumn("{task.description}", justify="right"),
         progress.BarColumn(bar_width=None, finished_style="green"),
@@ -231,135 +216,124 @@ def get_progress_bar(
         ">",
         progress.TimeElapsedColumn(),
         progress.SpinnerColumn(),
-        console   = console,
-        transient = transient,
-        disable   = disable,
+        console=console,
+        transient=transient,
+        disable=disable,
     )
 
 
 class MemoryUsageColumn(progress.ProgressColumn):
-    """A progress column showing current CPU/GPU memory usage,
-    e.g. ``33.1/48.0GB``.
-    
+    """Displays current CPU/GPU memory usage in a progress bar (e.g., ``33.1/48.0GB``).
+
     Args:
-        unit: The unit of memory. Default: ``'GB'``.
-        table_column: The column in the table to associate this field with.
-            Default: ``None``.
+        devices: GPU device index or list of indices. Default is ``0``.
+        unit: Memory unit (e.g., ``'GB'``). Default is ``MemoryUnit.GB``.
+        table_column: Column in the table to associate with. Default is ``None``.
     """
     
     def __init__(
         self,
         devices     : int | list[int] = 0,
-        unit        : MemoryUnit      = MemoryUnit.GB,
-        table_column: table.Column    = None
+        unit        : MemoryUnit     = MemoryUnit.GB,
+        table_column: table.Column   = None
     ):
         super().__init__(table_column=table_column)
         self.devices = dtype.to_int_list(devices)
         self.unit    = MemoryUnit.from_value(value=unit)
     
     def render(self, task: progress.Task) -> text.Text:
-        """Return a ``rich.text.Text`` object showing current GPU memory status.
-    
+        """Renders current GPU or CPU memory usage as text.
+
         Args:
-            task: A ``rich.progress.Task`` object representing the progress task.
-    
+            task: ``rich.progress.Task`` object for the progress task.
+
         Returns:
-            A ``rich.text.Text`` object showing the current GPU memory status.
+            ``rich.text.Text`` object with memory usage status.
         """
         return self.get_gpu_memory_text(task) \
             if torch.cuda.is_available() \
             else self.get_machine_memory_text(task)
     
     def get_machine_memory_text(self, task: progress.Task) -> text.Text:
-        """Return a ``rich.text.Text`` object showing current RAM status.
-    
+        """Renders current RAM usage as text.
+
         Args:
-            task: A `r`ich.progress.Task`` object representing the progress task.
-    
+            task: ``rich.progress.Task`` object for the progress task.
+
         Returns:
-            A ``rich.text.Text`` object showing the current RAM status.
+            ``rich.text.Text`` object with RAM usage status.
         """
-        total, used, free = utils.get_machine_memory(unit=self.unit)
-        memory_status     = f"{used:.1f}/{total:.1f}{self.unit.value} (CPU)"
-        memory_text       = text.Text(memory_status, style="bright_yellow")
+        total, used, _ = utils.get_machine_memory(unit=self.unit)
+        memory_status  = f"{used:.1f}/{total:.1f}{self.unit.value} (CPU)"
+        memory_text    = text.Text(memory_status, style="bright_yellow")
         return memory_text
     
     def get_gpu_memory_text(self, task: progress.Task) -> text.Text:
-        """Return a ``rich.text.Text`` object showing current GPU memory status.
-    
+        """Renders current GPU memory usage as text.
+
         Args:
-            task: A ``rich.progress.Task`` object representing the progress task.
-    
+            task: ``rich.progress.Task`` object for the progress task.
+
         Returns:
-            A ``rich.text.Text`` object showing the current GPU memory status.
+            ``rich.text.Text`` object with GPU memory usage status.
         """
-        num_devices          = len(self.devices)
-        totals, useds, frees = [], [], []
+        num_devices = len(self.devices)
+        totals, useds = [], []
         for i in self.devices:
-            t, u, f  = utils.get_gpu_device_memory(device=i, unit=self.unit)
-            totals.append(t)
-            useds.append(u)
-            frees.append(f)
-        # total = np.mean(totals)
-        # used  = np.mean(useds)
-        # free  = np.mean(frees)
+            total, used, _ = utils.get_gpu_device_memory(device=i, unit=self.unit)
+            totals.append(total)
+            useds.append(used)
         total = min(totals)
         used  = max(useds)
-        free  = min(frees)
-        memory_status = (f"{used:.1f}/{total:.1f}{self.unit.value} "
-                         f"({num_devices} GPUs)")
+        memory_status = f"{used:.1f}/{total:.1f}{self.unit.value} ({num_devices} GPUs)"
         memory_text   = text.Text(memory_status, style="bright_yellow")
         return memory_text
-    
+
 
 class ProcessedItemsColumn(progress.ProgressColumn):
-    """A progress column showing the number of processed items,
-    e.g., ``1728/2025``.
-    
+    """Shows the number of processed items in a progress bar (e.g., ``1728/2025``).
+
     Args:
-        table_column: The column in the table to associate this field with.
-            Default: ``None``.
+        table_column: Column in the table to associate with. Default is ``None``.
     """
     
     def __init__(self, table_column: table.Column = None):
         super().__init__(table_column=table_column)
     
     def render(self, task: progress.Task) -> text.Text:
-        """Return a ``rich.text.Text`` object showing the number of processed items.
-    
+        """Renders the number of processed items as text.
+
         Args:
-            task: A ``rich.progress.Task`` object representing the progress task.
-    
+            task: ``rich.progress.Task`` object for the progress task.
+
         Returns:
-            A ``rich.text.Text`` object showing the number of processed items.
+            ``rich.text.Text`` object with processed items count.
         """
-        completed     = int(task.completed)
-        total         = int(task.total)
-        download_text = f"{completed}/{total}"
-        download_text = f"{download_text:>14}"
-        download_text = text.Text(download_text, style="progress.download")
-        return download_text
+        completed = int(task.completed)
+        total     = int(task.total)
+        count     = f"{completed}/{total}"
+        count     = f"{count:>14}"
+        return text.Text(count, style="progress.download")
 
 
 class ProcessingSpeedColumn(progress.ProgressColumn):
-    """A progress column showing human-readable progressing speed."""
+    """Shows human-readable processing speed in a progress bar."""
     
     def render(self, task: progress.Task) -> text.Text:
-        """Return a ``rich.text.Text`` object showing the progressing speed.
-    
+        """Renders the processing speed as text.
+
         Args:
-            task: A ``rich.progress.Task`` object representing the progress task.
-    
+            task: ``rich.progress.Task`` object for the progress task.
+
         Returns:
-            A ``rich.text.Text`` object showing the progressing speed.
+            ``rich.text.Text`` object with the processing speed.
         """
         speed = task.speed
         if speed is None:
             return text.Text("?", style="progress.data.speed")
-        speed_text = "{:0.2f}".format(speed)
+        speed_text = f"{speed:0.2f}"
         speed_text = f"{speed_text:>7}"
-        speed_text = text.Text(f"{speed_text}it/s", style="progress.data.speed")
-        return speed_text
+        return text.Text(f"{speed_text}it/s", style="progress.data.speed")
 
 # endregion
 
@@ -367,22 +341,17 @@ class ProcessingSpeedColumn(progress.ProgressColumn):
 # region Print
 
 def print_dict(x: dict, title: str = ""):
-    """Print a `dict` with a title using the ``rich.pretty.Pretty``
-    format.
-    
-    For example:
-    
-    Title
-    | Key   | Value   |
-    |-------|---------|
-    | Key 1 | Value 1 |
-    | ...   | ...     |
-    
+    """Prints a dictionary with a title using ``rich.pretty.Pretty`` format.
+
     Args:
-        x: The dictionary to be printed.
-        title: The title to be displayed above the dictionary. Default: "".
+        x: Dictionary to print.
+        title: Title displayed above the dictionary. Default is ``""``.
+
+    Raises:
+        TypeError: If ``[x]`` is not a dictionary.
     """
-    assert isinstance(x, dict)
+    if not isinstance(x, dict):
+        raise TypeError(f"[x] must be a dict, but got [{type(x).__name__}]")
     pr = pretty.Pretty(
         x,
         expand_all    = True,
@@ -396,16 +365,23 @@ def print_dict(x: dict, title: str = ""):
 
 @dispatch
 def print_table(x: list[dict]):
-    """Print a ``list`` of ``dict`` in a ``rich.table.Table``. All ``dict`` in
-    the given list must contain the same keys.
+    """Prints a list of dictionaries as a ``rich.table.Table``.
 
     Args:
-        x: A list of dictionaries to be printed in a table format.
-            All dictionaries must have the same keys.
+        x: List of dictionaries with identical keys to print as a table.
+
+    Raises:
+        TypeError: If ``[x]`` is not a list or contains non-dict elements.
+        ValueError: If dictionaries in ``[x]`` do not have identical keys or ``[x]`` is empty.
     """
-    assert isinstance(x, list) and all(isinstance(d, dict) for d in x)
+    if not isinstance(x, list) or not all(isinstance(d, dict) for d in x):
+        raise TypeError(f"[x] must be a list of dicts, but got [{type(x).__name__}]")
+    if not x:
+        raise ValueError("[x] must not be empty")
+    if not all(set(d.keys()) == set(x[0].keys()) for d in x):
+        raise ValueError("All dictionaries in [x] must have identical keys")
     tab = table.Table(show_header=True, header_style="bold magenta")
-    for k, v in x[0].items():
+    for k in x[0].keys():
         tab.add_column(k, no_wrap=True)
     for d in x:
         row = [f"{v}" for v in d.values()]
@@ -415,12 +391,16 @@ def print_table(x: list[dict]):
 
 @dispatch
 def print_table(x: dict):
-    """Print a ``dict`` in a ``rich.table.Table``.
+    """Prints a dictionary as a ``rich.table.Table``.
 
     Args:
-        x: The dictionary to be printed in a table format.
+        x: Dictionary to print as a table.
+
+    Raises:
+        TypeError: If ``[x]`` is not a dictionary.
     """
-    assert isinstance(x, dict)
+    if not isinstance(x, dict):
+        raise TypeError(f"[x] must be a dict, but got [{type(x).__name__}]")
     tab = table.Table(show_header=True, header_style="bold magenta")
     tab.add_column("Key")
     tab.add_column("Value")

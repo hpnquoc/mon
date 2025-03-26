@@ -31,8 +31,17 @@ MultimodalDataset   = dtype.MultimodalDataset
 
 @DATASETS.register(name="rain100")
 class Rain100(MultimodalDataset):
-    """Rain100 dataset consists 100 pairs of rain/no-rain test images."""
-    
+    """Loads Rain100 dataset from ``root`` dir.
+
+    Args:
+        root: Directory path to dataset. Default is ``default_root_dir``.
+        *args: Additional args for parent class.
+        **kwargs: Additional kwargs for parent class.
+
+    Raises:
+        FileNotFoundError: If ``root`` directory does not exist.
+    """
+
     tasks : list[Task]  = [Task.DERAIN]
     splits: list[Split] = [Split.TEST]
     datapoint_attrs     = DatapointAttributes({
@@ -42,25 +51,24 @@ class Rain100(MultimodalDataset):
     has_test_annotations: bool = True
     
     def __init__(self, root: core.Path = default_root_dir, *args, **kwargs):
+        """Initializes dataset with ``root`` path and parent args."""
         root = root / "rain100" if root.name != "rain100" else root
         if not root.is_dir():
-            raise FileNotFoundError(f"Directory not found: {root}.")
-        # Initialize
+            raise FileNotFoundError(f"[root] directory not found: [{root}]")
         super().__init__(root=root, *args, **kwargs)
     
     def get_data(self):
+        """Populates ``datapoints`` with image annotations for split."""
         patterns = [
             self.root / self.split_str / "image",
         ]
         
-        # Images
         images: list[ImageAnnotation] = []
         with core.get_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
-                for path in pbar.track(
-                    sequence    = sorted(list(pattern.rglob("*"))),
-                    description = f"Listing {self.__class__.__name__} {self.split_str} images"
-                ):
+                paths = sorted(pattern.rglob("*"))
+                desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
+                for path in pbar.track(sequence=paths, description=desc):
                     if path.is_image_file():
                         images.append(ImageAnnotation(path=path, root=pattern))
         
@@ -69,10 +77,17 @@ class Rain100(MultimodalDataset):
 
 @DATASETS.register(name="rain100h")
 class Rain100H(MultimodalDataset):
-    """Rain100H dataset consists 100 pairs of rain/no-rain test images and 100
-    pairs of rain/no-rain train-val images.
+    """Loads Rain100H dataset from ``root`` dir.
+
+    Args:
+        root: Directory path to dataset. Default is ``default_root_dir``.
+        *args: Additional args for parent class.
+        **kwargs: Additional kwargs for parent class.
+
+    Raises:
+        FileNotFoundError: If ``root`` directory does not exist.
     """
-    
+
     tasks : list[Task]  = [Task.DERAIN]
     splits: list[Split] = [Split.TRAIN, Split.TEST]
     datapoint_attrs     = DatapointAttributes({
@@ -82,25 +97,24 @@ class Rain100H(MultimodalDataset):
     has_test_annotations: bool = True
     
     def __init__(self, root: core.Path = default_root_dir, *args, **kwargs):
+        """Initializes dataset with ``root`` path and parent args."""
         root = root / "rain100h" if root.name != "rain100h" else root
         if not root.is_dir():
-            raise FileNotFoundError(f"Directory not found: {root}.")
-        # Initialize
+            raise FileNotFoundError(f"[root] directory not found: [{root}]")
         super().__init__(root=root, *args, **kwargs)
     
     def get_data(self):
+        """Populates ``datapoints`` with image annotations for split."""
         patterns = [
             self.root / self.split_str / "image",
         ]
         
-        # Images
         images: list[ImageAnnotation] = []
         with core.get_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
-                for path in pbar.track(
-                    sequence    = sorted(list(pattern.rglob("*"))),
-                    description = f"Listing {self.__class__.__name__} {self.split_str} images"
-                ):
+                paths = sorted(pattern.rglob("*"))
+                desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
+                for path in pbar.track(sequence=paths, description=desc):
                     if path.is_image_file():
                         images.append(ImageAnnotation(path=path, root=pattern))
         
@@ -109,10 +123,17 @@ class Rain100H(MultimodalDataset):
 
 @DATASETS.register(name="rain100l")
 class Rain100L(MultimodalDataset):
-    """Rain100L dataset consists 100 pairs of rain/no-rain test images and 100
-    pairs of rain/no-rain train-val images.
+    """Loads Rain100L dataset from ``root`` dir.
+
+    Args:
+        root: Directory path to dataset. Default is ``default_root_dir``.
+        *args: Additional args for parent class.
+        **kwargs: Additional kwargs for parent class.
+
+    Raises:
+        FileNotFoundError: If ``root`` directory does not exist.
     """
-    
+
     tasks : list[Task]  = [Task.DERAIN]
     splits: list[Split] = [Split.TRAIN, Split.TEST]
     datapoint_attrs     = DatapointAttributes({
@@ -122,25 +143,24 @@ class Rain100L(MultimodalDataset):
     has_test_annotations: bool = True
     
     def __init__(self, root: core.Path = default_root_dir, *args, **kwargs):
+        """Initializes dataset with ``root`` path and parent args."""
         root = root / "rain100l" if root.name != "rain100l" else root
         if not root.is_dir():
-            raise FileNotFoundError(f"Directory not found: {root}.")
-        # Initialize
+            raise FileNotFoundError(f"[root] directory not found: [{root}]")
         super().__init__(root=root, *args, **kwargs)
 
     def get_data(self):
+        """Populates ``datapoints`` with image annotations for split."""
         patterns = [
             self.root / "rain100l" / self.split_str / "image"
         ]
         
-        # Images
         images: list[ImageAnnotation] = []
         with core.get_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
-                for path in pbar.track(
-                    sequence    = sorted(list(pattern.rglob("*"))),
-                    description = f"Listing {self.__class__.__name__} {self.split_str} images"
-                ):
+                paths = sorted(pattern.rglob("*"))
+                desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
+                for path in pbar.track(sequence=paths, description=desc):
                     if path.is_image_file():
                         images.append(ImageAnnotation(path=path, root=pattern))
         
@@ -149,13 +169,25 @@ class Rain100L(MultimodalDataset):
    
 @DATAMODULES.register(name="rain100")
 class Rain100DataModule(DataModule):
+    """Configures Rain100 datasets for training/testing.
+
+    Args:
+        *args: Additional args for parent class.
+        **kwargs: Additional kwargs for parent class.
+    """
 
     tasks: list[Task] = [Task.DERAIN]
     
     def prepare_data(self, *args, **kwargs):
+        """Prepares data (placeholder, no action taken)."""
         pass
     
     def setup(self, stage: Literal["train", "test", "predict", None] = None):
+        """Sets up datasets for given ``stage``.
+
+        Args:
+            stage: Stage to configure. Default is ``None``.
+        """
         if self.can_log:
             console.log(f"Setup [red]{self.__class__.__name__}[/red].")
         
@@ -169,39 +201,28 @@ class Rain100DataModule(DataModule):
         if self.can_log:
             self.summarize()
 
-
-@DATAMODULES.register(name="rain100")
-class Rain100DataModule(DataModule):
-
-    tasks: list[Task] = [Task.DERAIN]
-    
-    def prepare_data(self, *args, **kwargs):
-        pass
-    
-    def setup(self, stage: Literal["train", "test", "predict", None] = None):
-        if self.can_log:
-            console.log(f"Setup [red]{self.__class__.__name__}[/red].")
-        
-        if stage in [None, "train"]:
-            self.train = Rain100(split=Split.TEST, **self.dataset_kwargs)
-            self.val   = Rain100(split=Split.TEST, **self.dataset_kwargs)
-        if stage in [None, "test"]:
-            self.test  = Rain100(split=Split.TEST, **self.dataset_kwargs)
-        
-        self.get_classlabels()
-        if self.can_log:
-            self.summarize()
-    
 
 @DATAMODULES.register(name="rain100h")
 class Rain100HDataModule(DataModule):
+    """Configures Rain100H datasets for training/testing.
+
+    Args:
+        *args: Additional args for parent class.
+        **kwargs: Additional kwargs for parent class.
+    """
 
     tasks: list[Task] = [Task.DERAIN]
     
     def prepare_data(self, *args, **kwargs):
+        """Prepares data (placeholder, no action taken)."""
         pass
     
     def setup(self, stage: Literal["train", "test", "predict", None] = None):
+        """Sets up datasets for given ``stage``.
+
+        Args:
+            stage: Stage to configure. Default is ``None``.
+        """
         if self.can_log:
             console.log(f"Setup [red]{self.__class__.__name__}[/red].")
         
@@ -218,13 +239,25 @@ class Rain100HDataModule(DataModule):
 
 @DATAMODULES.register(name="rain100l")
 class Rain100LDataModule(DataModule):
+    """Configures Rain100L datasets for training/testing.
+
+    Args:
+        *args: Additional args for parent class.
+        **kwargs: Additional kwargs for parent class.
+    """
 
     tasks: list[Task] = [Task.DERAIN]
     
     def prepare_data(self, *args, **kwargs):
+        """Prepares data (placeholder, no action taken)."""
         pass
     
     def setup(self, stage: Literal["train", "test", "predict", None] = None):
+        """Sets up datasets for given ``stage``.
+
+        Args:
+            stage: Stage to configure. Default is ``None``.
+        """
         if self.can_log:
             console.log(f"Setup [red]{self.__class__.__name__}[/red].")
         

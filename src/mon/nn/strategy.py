@@ -85,49 +85,32 @@ STRATEGIES.register(name = "xla"          , module = XLAStrategy)
 # region Helper Function
 
 def get_distributed_info() -> list[int]:
-    """If distributed is available, return the rank and world size, otherwise
-    return ``0`` and ``1``.
-    
+    """Returns rank and world size if distributed, else [0, 1].
+
     Returns:
-        The rank and world size of the current process.
+        List of ``[rank, world_size]`` for the current process.
     """
-    if distributed.is_available():
-        initialized = distributed.is_initialized()
-    else:
-        initialized = False
-    if initialized:
-        rank       = distributed.get_rank()
-        world_size = distributed.get_world_size()
-    else:
-        rank       = 0
-        world_size = 1
-    return [rank, world_size]
+    if distributed.is_available() and distributed.is_initialized():
+        return [distributed.get_rank(), distributed.get_world_size()]
+    return [0, 1]
 
 
 def set_distributed_backend(strategy: str | Callable, cudnn: bool = True):
-    """If you're running on Windows, set the distributed backend to gloo. If
-    you're running on Linux, set the distributed backend to ``'nccl'``.
-    
+    """Sets distributed backend based on OS and strategy.
+
     Args:
-        strategy: The distributed strategy to use. One of: ``'ddp'``, or
-            ``'ddp2'``.
-        cudnn: Whether to use cuDNN or not. Default: ``True``.
+        strategy: Distributed strategy (``"ddp"``, ``"ddp2"``) or callable.
+        cudnn: Enable cuDNN if ``True``. Default is ``True``.
     """
     if torch.backends.cudnn.is_available():
         torch.backends.cudnn.enabled = cudnn
-        console.log(f"cuDNN available: [bright_green]True[/bright_green], "
-                    f"used:" + "[bright_green]True" if cudnn else "[red]False")
+        console.log(f"cuDNN available: [bright_green]True[/bright_green], used: [bright_green]{cudnn}[/bright_green]")
     else:
-        console.log(f"cuDNN available: [red]False")
-    
+        console.log(f"cuDNN available: [red]False[/red]")
+
     if strategy in ["ddp"] or isinstance(strategy, DDPStrategy):
-        if platform.system() == "Windows":
-            os.environ["PL_TORCH_DISTRIBUTED_BACKEND"] = "gloo"
-            console.log(f"Running on a Windows machine, set torch distributed "
-                        f"backend to gloo.")
-        elif platform.system() == "Linux":
-            os.environ["PL_TORCH_DISTRIBUTED_BACKEND"] = "nccl"
-            console.log(f"Running on a Unix machine, set torch distributed "
-                        f"backend to nccl.")
+        backend = "gloo" if platform.system() == "Windows" else "nccl"
+        os.environ["PL_TORCH_DISTRIBUTED_BACKEND"] = backend
+        console.log(f"Running on a {platform.system()} machine, set torch distributed backend to {backend}.")
             
 # endregion

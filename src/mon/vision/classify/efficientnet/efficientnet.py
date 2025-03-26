@@ -42,22 +42,34 @@ current_dir  = current_file.parents[0]
 # region Model
 
 class EfficientNet(nn.ExtraModel, base.ImageClassificationModel, ABC):
-    """EfficientNet models from the paper: "EfficientNet: Rethinking
-    Model Scaling for Convolutional Neural Networks".
-    
+    """EfficientNet model for image classification.
+
     References:
-        https://arxiv.org/abs/1905.11946
+        - https://arxiv.org/abs/1905.11946
     """
     
-    arch     : str          = "efficientnet"
-    ltypes   : list[LType]  = [LType.SUPERVISED]
-    model_dir: core.Path    = current_dir
-    zoo      : dict         = {}
+    arch     : str         = "efficientnet"
+    ltypes   : list[LType] = [LType.SUPERVISED]
+    model_dir: core.Path   = current_dir
+    zoo      : dict        = {}
     
     def init_weights(self, m: nn.Module):
+        """Initializes weights for the model.
+
+        Args:
+            m: Module to initialize weights for.
+        """
         pass
-    
+
     def forward(self, datapoint: dict, *args, **kwargs) -> dict:
+        """Performs forward pass on the model.
+
+        Args:
+            datapoint: Dict with image data.
+        
+        Returns:
+            Dict with logits from the model.
+        """
         x = datapoint["image"]
         y = self.model(x)
         return {"logits": y}
@@ -65,6 +77,11 @@ class EfficientNet(nn.ExtraModel, base.ImageClassificationModel, ABC):
 
 @MODELS.register(name="efficientnet_b0", arch="efficientnet")
 class EfficientNet_B0(EfficientNet):
+    """EfficientNet-B0 model for image classification.
+
+    Args:
+        num_classes: Number of output classes. Default is ``1000``.
+    """
     
     name: str  = "efficientnet_b0"
     zoo : dict = {
@@ -91,6 +108,11 @@ class EfficientNet_B0(EfficientNet):
 
 @MODELS.register(name="efficientnet_b1", arch="efficientnet")
 class EfficientNet_B1(EfficientNet):
+    """EfficientNet-B1 model for image classification.
+
+    Args:
+        num_classes: Number of output classes. Default is ``1000``.
+    """
     
     name: str  = "efficientnet_b1"
     zoo : dict = {
@@ -122,6 +144,11 @@ class EfficientNet_B1(EfficientNet):
 
 @MODELS.register(name="efficientnet_b2", arch="efficientnet")
 class EfficientNet_B2(EfficientNet):
+    """EfficientNet-B2 model for image classification.
+
+    Args:
+        num_classes: Number of output classes. Default is ``1000``.
+    """
     
     name: str  = "efficientnet_b2"
     zoo : dict = {
@@ -148,6 +175,11 @@ class EfficientNet_B2(EfficientNet):
 
 @MODELS.register(name="efficientnet_b3", arch="efficientnet")
 class EfficientNet_B3(EfficientNet):
+    """EfficientNet-B3 model for image classification.
+
+    Args:
+        num_classes: Number of output classes. Default is ``1000``.
+    """
     
     name: str  = "efficientnet_b3"
     zoo : dict = {
@@ -174,6 +206,11 @@ class EfficientNet_B3(EfficientNet):
 
 @MODELS.register(name="efficientnet_b4", arch="efficientnet")
 class EfficientNet_B4(EfficientNet):
+    """EfficientNet-B4 model for image classification.
+
+    Args:
+        num_classes: Number of output classes. Default is ``1000``.
+    """
     
     name: str  = "efficientnet_b4"
     zoo : dict = {
@@ -200,6 +237,11 @@ class EfficientNet_B4(EfficientNet):
 
 @MODELS.register(name="efficientnet_b5", arch="efficientnet")
 class EfficientNet_B5(EfficientNet):
+    """EfficientNet-B5 model for image classification.
+
+    Args:
+        num_classes: Number of output classes. Default is ``1000``.
+    """
     
     name: str  = "efficientnet_b5"
     zoo : dict = {
@@ -226,6 +268,11 @@ class EfficientNet_B5(EfficientNet):
 
 @MODELS.register(name="efficientnet_b6", arch="efficientnet")
 class EfficientNet_B6(EfficientNet):
+    """EfficientNet-B6 model for image classification.
+
+    Args:
+        num_classes: Number of output classes. Default is ``1000``.
+    """
     
     name: str  = "efficientnet_b6"
     zoo : dict = {
@@ -252,6 +299,11 @@ class EfficientNet_B6(EfficientNet):
    
 @MODELS.register(name="efficientnet_b7", arch="efficientnet")
 class EfficientNet_B7(EfficientNet):
+    """EfficientNet-B7 model for image classification.
+
+    Args:
+        num_classes: Number of output classes. Default is ``1000``.
+    """
     
     name: str  = "efficientnet_b7"
     zoo : dict = {
@@ -278,6 +330,11 @@ class EfficientNet_B7(EfficientNet):
 
 @MODELS.register(name="efficientnet_v2_s", arch="efficientnet")
 class EfficientNet_V2_S(EfficientNet):
+    """EfficientNet-V2 Small model for image classification.
+
+    Args:
+        num_classes: Number of output classes. Default is ``1000``.
+    """
     
     name: str  = "efficientnet_v2_s"
     zoo : dict = {
@@ -304,6 +361,11 @@ class EfficientNet_V2_S(EfficientNet):
 
 @MODELS.register(name="efficientnet_v2_m", arch="efficientnet")
 class EfficientNet_V2_M(EfficientNet):
+    """EfficientNet-V2 Medium model for image classification.
+
+    Args:
+        num_classes: Number of output classes. Default is ``1000``.
+    """
     
     name: str  = "efficientnet_v2_m"
     zoo : dict = {
@@ -330,6 +392,11 @@ class EfficientNet_V2_M(EfficientNet):
 
 @MODELS.register(name="efficientnet_v2_l", arch="efficientnet")
 class EfficientNet_V2_L(EfficientNet):
+    """EfficientNet-V2 Large model for image classification.
+
+    Args:
+        num_classes: Number of output classes. Default is ``1000``.
+    """
     
     name: str  = "efficientnet_v2_l"
     zoo : dict = {

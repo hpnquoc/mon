@@ -64,9 +64,9 @@ def predict(args: dict) -> str:
         "fullname" : fullname,
         "root"     : save_dir,
         "weights"  : weights,
-        "optimizer": None,  # Skip initialization for efficiency
-        "loss"     : None,  # Skip initialization for efficiency
-        "metrics"  : None,  # Skip initialization for efficiency
+        # "optimizer": None,  # Skip initialization for efficiency
+        # "loss"     : None,  # Skip initialization for efficiency
+        # "metrics"  : None,  # Skip initialization for efficiency
         "debug"    : save_debug,
         "verbose"  : verbose,
     }

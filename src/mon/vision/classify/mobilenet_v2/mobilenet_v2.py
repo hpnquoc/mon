@@ -27,18 +27,22 @@ current_dir  = current_file.parents[0]
 
 @MODELS.register(name="mobilenet_v2", arch="mobilenet")
 class MobileNetV2(nn.ExtraModel, base.ImageClassificationModel):
-    """MobileNetV2 models from the paper: "MobileNetV2: Inverted Residuals
-    and Linear Bottlenecks"
+    """MobileNetV2 model for image classification.
+
+    Args:
+        num_classes: Number of output classes. Default is ``1000``.
+        width_mult: Width multiplier for the network. Default is ``1.0``.
+        dropout: Dropout rate for the model. Default is ``0.2``.
     
     References:
-        https://arxiv.org/abs/1801.04381
+        - https://arxiv.org/abs/1801.04381
     """
     
-    arch     : str          = "mobilenet"
-    name     : str          = "mobilenet_v2"
-    ltypes   : list[LType]  = [LType.SUPERVISED]
-    model_dir: core.Path    = current_dir
-    zoo      : dict         = {
+    arch     : str         = "mobilenet"
+    name     : str         = "mobilenet_v2"
+    ltypes   : list[LType] = [LType.SUPERVISED]
+    model_dir: core.Path   = current_dir
+    zoo      : dict        = {
         "imagenet1k_v1": {
             "url"        : "https://download.pytorch.org/models/mobilenet_v2-b0353104.pth",
             "path"       : ZOO_DIR / "vision/classify/mobilenet/mobilenet_v2/imagenet1k_v1/mobilenet_v2_imagenet1k_v1.pth",
@@ -75,9 +79,22 @@ class MobileNetV2(nn.ExtraModel, base.ImageClassificationModel):
             self.apply(self.init_weights)
 
     def init_weights(self, m: nn.Module):
+        """Initializes weights for the model.
+
+        Args:
+            m: Module to initialize weights for.
+        """
         pass
-    
+
     def forward(self, datapoint: dict, *args, **kwargs) -> dict:
+        """Performs forward pass on the model.
+
+        Args:
+            datapoint: Dict with image data.
+        
+        Returns:
+            Dict with logits from the model.
+        """
         x = datapoint["image"]
         y = self.model(x)
         return {"logits": y}

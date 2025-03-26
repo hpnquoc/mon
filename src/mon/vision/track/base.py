@@ -120,7 +120,7 @@ class Track(ABC):
     Args:
         id_: The unique ID of the track. Default: ``None``.
         state: The state of the track. Default: `TrackState.NEW`.
-        detections: The list of detections associated with the track. Default: ``[]``.
+        detections: The list of detections associated with the track. Default: [].
     """
     
     count: int = 0

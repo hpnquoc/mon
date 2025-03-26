@@ -35,22 +35,33 @@ current_dir  = current_file.parents[0]
 # region Model
 
 class SwinTransformer(nn.ExtraModel, base.ImageClassificationModel, ABC):
-    """Implements Swin Transformer from the paper: "Swin Transformer:
-    Hierarchical Vision Transformer using Shifted Windows".
-    
+    """Swin Transformer model for image classification.
+
     References:
-        https://arxiv.org/pdf/2103.14030
+        - https://arxiv.org/pdf/2103.14030
     """
     
-    arch     : str          = "swin"
-    ltypes   : list[LType]  = [LType.SUPERVISED]
-    model_dir: core.Path    = current_dir
-    zoo      : dict         = {}
+    arch     : str         = "swin"
+    ltypes   : list[LType] = [LType.SUPERVISED]
+    model_dir: core.Path   = current_dir
+    zoo      : dict        = {}
     
     def init_weights(self, m: nn.Module):
+        """Initializes weights for the model.
+
+        Args:
+            m: Module to initialize weights for.
+        """
         pass
-    
+
     def forward(self, datapoint: dict, *args, **kwargs) -> dict:
+        """Performs forward pass on the model.
+
+        Args:
+            datapoint: Dict with image data.
+        Returns:
+            Dict with logits from the model.
+        """
         x = datapoint["image"]
         y = self.model(x)
         return {"logits": y}
@@ -58,6 +69,13 @@ class SwinTransformer(nn.ExtraModel, base.ImageClassificationModel, ABC):
 
 @MODELS.register(name="swin_t", arch="swin")
 class Swin_T(SwinTransformer):
+    """Swin-T model for image classification.
+
+    Args:
+        num_classes: Number of output classes. Default is ``1000``.
+        dropout: Dropout rate for the model. Default is ``0.0``.
+        attention_dropout: Attention dropout rate. Default is ``0.0``.
+    """
     
     name: str  = "swin_t"
     zoo : dict = {
@@ -94,6 +112,13 @@ class Swin_T(SwinTransformer):
 
 @MODELS.register(name="swin_s", arch="swin")
 class Swin_S(SwinTransformer):
+    """Swin-S model for image classification.
+
+    Args:
+        num_classes: Number of output classes. Default is ``1000``.
+        dropout: Dropout rate for the model. Default is ``0.0``.
+        attention_dropout: Attention dropout rate. Default is ``0.0``.
+    """
     
     name: str  = "swin_s"
     zoo : dict = {
@@ -130,6 +155,13 @@ class Swin_S(SwinTransformer):
 
 @MODELS.register(name="swin_b", arch="swin")
 class Swin_B(SwinTransformer):
+    """Swin-B model for image classification.
+
+    Args:
+        num_classes: Number of output classes. Default is ``1000``.
+        dropout: Dropout rate for the model. Default is ``0.0``.
+        attention_dropout: Attention dropout rate. Default is ``0.0``.
+    """
     
     name: str  = "swin_b"
     zoo : dict = {
@@ -166,6 +198,13 @@ class Swin_B(SwinTransformer):
 
 @MODELS.register(name="swin_v2_t", arch="swin")
 class Swin_V2_T(SwinTransformer):
+    """Swin-V2-T model for image classification.
+
+    Args:
+        num_classes: Number of output classes. Default is ``1000``.
+        dropout: Dropout rate for the model. Default is ``0.0``.
+        attention_dropout: Attention dropout rate. Default is ``0.0``.
+    """
     
     name: str  = "swin_v2_t"
     zoo : dict = {
@@ -202,6 +241,13 @@ class Swin_V2_T(SwinTransformer):
 
 @MODELS.register(name="swin_v2_s", arch="swin")
 class Swin_V2_S(SwinTransformer):
+    """Swin-V2-S model for image classification.
+
+    Args:
+        num_classes: Number of output classes. Default is ``1000``.
+        dropout: Dropout rate for the model. Default is ``0.0``.
+        attention_dropout: Attention dropout rate. Default is ``0.0``.
+    """
     
     name: str  = "swin_v2_s"
     zoo : dict = {
@@ -238,6 +284,13 @@ class Swin_V2_S(SwinTransformer):
 
 @MODELS.register(name="swin_v2_b", arch="swin")
 class Swin_V2_B(SwinTransformer):
+    """Swin-V2-B model for image classification.
+
+    Args:
+        num_classes: Number of output classes. Default is ``1000``.
+        dropout: Dropout rate for the model. Default is ``0.0``.
+        attention_dropout: Attention dropout rate. Default is ``0.0``.
+    """
     
     name: str  = "swin_v2_b"
     zoo : dict = {

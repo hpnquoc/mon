@@ -104,7 +104,7 @@ def adjust_gamma(
     
     Args:
         image: An RGB image of type:
-            - `torch.Tensor` in ``[B, C, H, W]`` format with data in
+            - `torch.Tensor` in [B, C, H, W] format with data in
                 the range ``[0.0, 1.0]``.
             - `numpy.ndarray` in ``[H, W, C]`` format with data in the
                 range ``[0, 255]``.
@@ -139,7 +139,7 @@ def add_noise(
     
     Args:
         image: An RGB image of type:
-            - `torch.Tensor` in ``[B, C, H, W]`` format with data in
+            - `torch.Tensor` in [B, C, H, W] format with data in
                 the range ``[0.0, 1.0]``.
             - `numpy.ndarray` in ``[H, W, C]`` format with data in the
                 range ``[0, 255]``.
@@ -291,7 +291,7 @@ def get_image_channel(
 
     Args:
         image: An RGB image of type:
-            - `torch.Tensor` in ``[B, C, H, W]`` format with data in
+            - `torch.Tensor` in [B, C, H, W] format with data in
                 the range ``[0.0, 1.0]``.
             - `numpy.ndarray` in ``[H, W, C]`` format with data in the
                 range ``[0, 255]``.
@@ -351,7 +351,7 @@ def get_image_num_channels(image: torch.Tensor | np.ndarray) -> int:
 
     Args:
         image: An RGB image of type:
-            - `torch.Tensor` in ``[B, C, H, W]`` format with data in
+            - `torch.Tensor` in [B, C, H, W] format with data in
                 the range ``[0.0, 1.0]``.
             - `numpy.ndarray` in ``[H, W, C]`` format with data in the
                 range ``[0, 255]``.
@@ -382,7 +382,7 @@ def get_image_center(image: torch.Tensor | np.ndarray) -> torch.Tensor | np.ndar
     
     Args:
         image: An RGB image of type:
-            - `torch.Tensor` in ``[B, C, H, W]`` format with data in
+            - `torch.Tensor` in [B, C, H, W] format with data in
                 the range ``[0.0, 1.0]``.
             - `numpy.ndarray` in ``[H, W, C]`` format with data in the
                 range ``[0, 255]``.
@@ -403,7 +403,7 @@ def get_image_center4(image: torch.Tensor | np.ndarray) -> torch.Tensor | np.nda
     
     Args:
         image: An RGB image of type:
-            - `torch.Tensor` in ``[B, C, H, W]`` format with data in
+            - `torch.Tensor` in [B, C, H, W] format with data in
                 the range ``[0.0, 1.0]``.
             - `numpy.ndarray` in ``[H, W, C]`` format with data in the
                 range ``[0, 255]``.
@@ -423,7 +423,7 @@ def get_image_shape(image: torch.Tensor | np.ndarray) -> list[int]:
     
     Args:
         image: An RGB image of type:
-            - `torch.Tensor` in ``[B, C, H, W]`` format with data in
+            - `torch.Tensor` in [B, C, H, W] format with data in
                 the range ``[0.0, 1.0]``.
             - `numpy.ndarray` in ``[H, W, C]`` format with data in the
                 range ``[0, 255]``.
@@ -442,7 +442,7 @@ def get_image_size(
     
     Args:
         input: An RGB image of type:
-            - `torch.Tensor` in ``[B, C, H, W]`` format with data in
+            - `torch.Tensor` in [B, C, H, W] format with data in
                 the range ``[0.0, 1.0]``.
             - `numpy.ndarray` in ``[H, W, C]`` format with data in the
                 range ``[0, 255]``.
@@ -504,7 +504,7 @@ def add_weighted(
 
     Args:
         image1: The first image of type:
-            - `torch.Tensor` in ``[B, C, H, W]`` format with data in the
+            - `torch.Tensor` in [B, C, H, W] format with data in the
                 range ``[0.0, 1.0]``.
             - `numpy.ndarray` in ``[H, W, C]`` format with data in the
                 range ``[0, 255]``.
@@ -547,7 +547,7 @@ def blend_images(
 
     Args:
         image1: A source image of type:
-            - `torch.Tensor` in ``[B, C, H, W]`` format with data in
+            - `torch.Tensor` in [B, C, H, W] format with data in
                 the range ``[0.0, 1.0]``.
             - `numpy.ndarray` in ``[H, W, C]`` format with data in the
                 range ``[0, 255]``.
@@ -878,7 +878,7 @@ def to_image_nparray(
     
     Args:
         image: An RGB image of type:
-            - `torch.Tensor` in ``[B, C, H, W]`` format with data in
+            - `torch.Tensor` in [B, C, H, W] format with data in
                 the range ``[0.0, 1.0]``.
             - `numpy.ndarray` in ``[H, W, C]`` format with data in the
                 range ``[0, 255]``.
@@ -926,7 +926,7 @@ def to_image_tensor(
     
     Args:
         image: An RGB image of type:
-            - `torch.Tensor` in ``[B, C, H, W]`` format with data in
+            - `torch.Tensor` in [B, C, H, W] format with data in
                 the range ``[0.0, 1.0]``.
             - `numpy.ndarray` in ``[H, W, C]`` format with data in the
                 range ``[0, 255]``.
@@ -1002,7 +1002,7 @@ def read_image(
         
     Return:
         An RGB or grayscale image of type:
-            - `torch.Tensor` in ``[B, C, H, W]`` format with data in
+            - `torch.Tensor` in [B, C, H, W] format with data in
                 the range ``[0.0, 1.0]``.
             - `numpy.ndarray` in ``[H, W, C]`` format with data in the
                 range ``[0, 255]``.
@@ -1061,7 +1061,7 @@ def write_image(path: core.Path, image: torch.Tensor | np.ndarray):
     Args:
         path: A path to write the image to.
         image: An RGB image of type:
-            - `torch.Tensor` in ``[B, C, H, W]`` format with data in
+            - `torch.Tensor` in [B, C, H, W] format with data in
                 the range ``[0.0, 1.0]``.
             - `numpy.ndarray` in ``[H, W, C]`` format with data in the
                 range ``[0, 255]``.
@@ -1089,7 +1089,7 @@ def write_image_cv(
     
     Args:
         image: An RGB image of type:
-            - `torch.Tensor` in ``[B, C, H, W]`` format with data in
+            - `torch.Tensor` in [B, C, H, W] format with data in
                 the range ``[0.0, 1.0]``.
             - `numpy.ndarray` in ``[H, W, C]`` format with data in the
                 range ``[0, 255]``.
@@ -1133,7 +1133,7 @@ def write_image_torch(
     
     Args:
         image: An RGB image of type:
-            - `torch.Tensor` in ``[B, C, H, W]`` format with data in
+            - `torch.Tensor` in [B, C, H, W] format with data in
                 the range ``[0.0, 1.0]``.
             - `numpy.ndarray` in ``[H, W, C]`` format with data in the
                 range ``[0, 255]``.
@@ -1263,7 +1263,7 @@ def denormalize_image_mean_std(
     where `mean` is [M_1, ..., M_n] and `std` [S_1, ..., S_n] for `n` channels.
 
     Args:
-        image: An image of type `torch.Tensor` in ``[B, C, H, W]`` format
+        image: An image of type `torch.Tensor` in [B, C, H, W] format
             with data in the range ``[0.0, 1.0]``.
         mean: A sequence of means for each channel.
             Default: ``[0.485, 0.456, 0.406]``.
@@ -1324,7 +1324,7 @@ def normalize_image_mean_std(
     channels.
 
     Args:
-        image: An image of type `torch.Tensor` in ``[B, C, H, W]`` format
+        image: An image of type `torch.Tensor` in [B, C, H, W] format
             with data in the range ``[0, 255]``.
         mean: A sequence of means for each channel.
             Default: ``[0.485, 0.456, 0.406]``.
@@ -1382,7 +1382,7 @@ def normalize_image_by_range(
     ``[`new_min`, `new_max`]``.
     
     Args:
-        image: An image of type `torch.Tensor` in ``[B, C, H, W]`` format
+        image: An image of type `torch.Tensor` in [B, C, H, W] format
             with data in the range ``[0, 255]``.
         min: The current minimum pixel value of the image. Default: ``0.0``.
         max: The current maximum pixel value of the image. Default: ``255.0``.
@@ -1446,7 +1446,7 @@ def atmospheric_point_spread_function(
     
     Args:
         image: An RGB image of type:
-            - `torch.Tensor` in ``[B, C, H, W]`` format with data in
+            - `torch.Tensor` in [B, C, H, W] format with data in
                 the range ``[0.0, 1.0]``.
             - `numpy.ndarray` in ``[H, W, C]`` format with data in the
                 range ``[0, 255]``.
@@ -1561,7 +1561,7 @@ def boundary_aware_prior(
     
     Args:
         image: An RGB image of type:
-            - `torch.Tensor` in ``[B, C, H, W]`` format with data in
+            - `torch.Tensor` in [B, C, H, W] format with data in
                 the range ``[0.0, 1.0]``.
             - `numpy.ndarray` in ``[H, W, C]`` format with data in the
                 range ``[0, 255]``.
@@ -1617,7 +1617,7 @@ def bright_channel_prior(
     
     Args:
         image: An RGB image of type:
-            - `torch.Tensor` in ``[B, C, H, W]`` format with data in
+            - `torch.Tensor` in [B, C, H, W] format with data in
                 the range ``[0.0, 1.0]``.
             - `numpy.ndarray` in ``[H, W, C]`` format with data in the
                 range ``[0, 255]``.
@@ -1659,7 +1659,7 @@ def brightness_attention_map(
     
     Args:
         image: An RGB image of type:
-            - `torch.Tensor` in ``[B, C, H, W]`` format with data in
+            - `torch.Tensor` in [B, C, H, W] format with data in
                 the range ``[0.0, 1.0]``.
             - `numpy.ndarray` in ``[H, W, C]`` format with data in the
                 range ``[0, 255]``.
@@ -1698,7 +1698,7 @@ def dark_channel_prior(
     
     Args:
         image: An RGB image of type:
-            - `torch.Tensor` in ``[B, C, H, W]`` format with data in
+            - `torch.Tensor` in [B, C, H, W] format with data in
                 the range ``[0.0, 1.0]``.
             - `numpy.ndarray` in ``[H, W, C]`` format with data in the
                 range ``[0, 255]``.
@@ -1730,7 +1730,7 @@ def dark_channel_prior_02(
 
     Args:
         image: An RGB image of type:
-            - `torch.Tensor` in ``[B, C, H, W]`` format with data in
+            - `torch.Tensor` in [B, C, H, W] format with data in
                 the range ``[0.0, 1.0]``.
             - `numpy.ndarray` in ``[H, W, C]`` format with data in the
                 range ``[0, 255]``.
@@ -1752,7 +1752,7 @@ def image_local_mean(image: torch.Tensor, patch_size: int = 5) -> torch.Tensor:
     """Calculate the local mean of an image using a sliding window.
     
     Args:
-        image: The input image tensor of shape ``[B, C, H, W]``.
+        image: The input image tensor of shape [B, C, H, W].
         patch_size: The size of the sliding window. Default: ``5``.
     """
     padding = patch_size // 2
@@ -1765,7 +1765,7 @@ def image_local_variance(image: torch.Tensor, patch_size: int = 5) -> torch.Tens
     """Calculate the local variance of an image using a sliding window.
     
     Args:
-        image: The input image tensor of shape ``[B, C, H, W]``.
+        image: The input image tensor of shape [B, C, H, W].
         patch_size: The size of the sliding window. Default: ``5``.
     """
     padding = patch_size // 2
@@ -1783,7 +1783,7 @@ def image_local_stddev(
     """Calculate the local standard deviation of an image using a sliding window.
     
     Args:
-        image: The input image tensor of shape ``[B, C, H, W]``.
+        image: The input image tensor of shape [B, C, H, W].
         patch_size: The size of the sliding window. Default: ``5``.
         eps: A small value to avoid sqrt by zero. Default: ``1e-9``.
     """

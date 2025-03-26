@@ -23,19 +23,15 @@ from mon.dataset.dtype.annotation import base
 # region Utils
 
 def logits_to_class_id(logits: np.ndarray) -> np.ndarray:
-    """Convert logits to class IDs.
+    """Converts logits to class IDs.
 
     Args:
-        logits: A `numpy.ndarray` of logits where each row corresponds
-            to a set of logits for a sample.
+        logits: ``numpy.ndarray`` of logits with shape ``[N, C]`` where ``N`` is samples and ``C`` is classes.
 
     Returns:
-        A `numpy.ndarray` of class IDs corresponding to the highest logit
-        values for each sample.
+        ``numpy.ndarray`` of class IDs with shape [N], selecting the highest logit per sample.
     """
-    # Use np.argmax to get the index of the maximum value along the last axis (axis=1)
-    class_id = np.argmax(logits, axis=-1)
-    return class_id
+    return np.argmax(logits, axis=-1)
 
 
 def class_id_to_logits(
@@ -44,20 +40,18 @@ def class_id_to_logits(
     high_value : float = 1.0,
     low_value  : float = 0.0
 ) -> np.ndarray:
-    """Convert a class ID to logits.
+    """Converts a class ID to logits.
 
     Args:
-        class_id: The ID of the class for which to generate the logit.
-        num_classes: The total number of classes in the classification task.
-        high_value: The logit value for the target class. Default: ``1.0``.
-        low_value: The logit value for non-target classes. Default: ``0.0``.
+        class_id: Integer class ID to set as the target.
+        num_classes: Total number of classes.
+        high_value: Logit value for the target class. Default is ``1.0``.
+        low_value: Logit value for non-target classes. Default is ``0.0``.
 
     Returns:
-        A `numpy.ndarray` represents the logits for the given class ID.
+        ``numpy.ndarray`` of logits with shape ``[num_classes]``.
     """
-    # Initialize logits with low_value
-    logits = np.full(num_classes, low_value)
-    # Set the logit for the target class ID to high_value
+    logits = np.full(num_classes, low_value, dtype=np.float32)
     logits[class_id] = high_value
     return logits
 
@@ -67,13 +61,12 @@ def class_id_to_logits(
 # region Classification
 
 class ClassificationAnnotation(base.Annotation):
-    """A classification annotation for an image.
-    
+    """Classification annotation for an image.
+
     Args:
-        class_id: A class ID of the classification data. ``-1`` means unknown.
-        num_classes: The total number of classes in the classification task.
-        confidence: A confidence in ``[0.0, 1.0]`` for the classification.
-            Default: ``1.0``.
+        class_id: Integer class ID, where ``-1`` indicates unknown.
+        num_classes: Total number of classes in the task.
+        confidence: Confidence score in ``[0.0, 1.0]``. Default is ``1.0``.
     """
     
     def __init__(
@@ -87,52 +80,68 @@ class ClassificationAnnotation(base.Annotation):
         self.class_id    = class_id
         self.num_classes = num_classes
         self.confidence  = confidence
-        self.logits	     = class_id_to_logits(class_id, num_classes)
+        self.logits      = class_id_to_logits(class_id, num_classes)
     
     @property
     def confidence(self) -> float:
-        """The confidence of the bounding box."""
+        """Returns the confidence score.
+
+        Returns:
+            ``float`` representing the confidence in ``[0.0, 1.0]``.
+        """
         return self._confidence
     
     @confidence.setter
     def confidence(self, confidence: float):
+        """Sets the confidence score.
+
+        Args:
+            confidence: Confidence value as a ``float``.
+
+        Raises:
+            ValueError: If ``[confidence]`` is not in ``[0.0, 1.0]``.
+        """
         if not 0.0 <= confidence <= 1.0:
-            raise ValueError(f"`confidence` must be between ``0.0`` and "
-                             f"``1.0``, but got {confidence}.")
+            raise ValueError(f"[confidence] must be in [0.0, 1.0], but got [{confidence}].")
         self._confidence = confidence
     
     @property
-    def data(self) -> list | None:
+    def data(self) -> list[int]:
+        """Returns the class ID as a list.
+
+        Returns:
+            List containing the ``class_id``.
+        """
         return [self.class_id]
     
     @staticmethod
-    def to_tensor(
-        data: torch.Tensor | np.ndarray,
-        *args, **kwargs
-    ) -> torch.Tensor:
-        """Converts the input data to a `torch.Tensor`.
-        
+    def to_tensor(data: torch.Tensor | np.ndarray, *args, **kwargs) -> torch.Tensor:
+        """Converts input data to a tensor.
+
         Args:
-            data: The input data.
+            data: Input data as a ``torch.Tensor`` or ``numpy.ndarray``.
+
+        Returns:
+            ``torch.Tensor`` of the input data.
         """
-        return torch.Tensor(data)
+        return torch.as_tensor(data)
     
     @staticmethod
-    def collate_fn(
-        batch: list[torch.Tensor | np.ndarray]
-    ) -> torch.Tensor | np.ndarray | None:
-        """Collate function used to fused input items together when using
-        `batch_size` > ``1``. This is used in
-        `torch.utils.data.DataLoader` wrapper.
-        
+    def collate_fn(batch: list[torch.Tensor | np.ndarray]) -> torch.Tensor | np.ndarray | None:
+        """Collates batch data for ``torch.utils.data.DataLoader``.
+
         Args:
-            batch: A `list` of class ids.
+            batch: List of class IDs as ``torch.Tensor`` or ``numpy.ndarray``.
+
+        Returns:
+            Collated ``torch.Tensor``, ``numpy.ndarray``, or ``None`` if batch is empty or mixed.
         """
-        if all(isinstance(b, torch.Tensor) for b in batch):
-            return torch.cat(batch, dim=0)
-        elif all(isinstance(b, np.ndarray) for b in batch):
-            return np.concatenate(batch, axis=0)
-        else:
+        if not batch:
             return None
+        if isinstance(batch[0], torch.Tensor):
+            return torch.stack(batch, dim=0)
+        if isinstance(batch[0], np.ndarray):
+            return np.stack(batch, axis=0)
+        return None
     
 # endregion

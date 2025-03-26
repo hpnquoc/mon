@@ -84,7 +84,7 @@ def main():
             PSNR = calculate_rgb_psnr(cropped_GT * 255, cropped_Gen * 255)
 
         SSIM  = calculate_ssim(cropped_GT * 255, cropped_Gen * 255)
-        LPIPS = loss_fn.forward(im_Gen_lpips, im_GT_lpips).item()
+        LPIPS = loss_fn.forward(im_Gen_lpips).item()
         print("{:4}.png \tPSNR: {:.4f} dB, \tSSIM: {:.4f},\tLPIPS: {:.4f}".format(base_name, PSNR, SSIM, LPIPS))
         PSNR_all.append(PSNR)
         SSIM_all.append(SSIM)
