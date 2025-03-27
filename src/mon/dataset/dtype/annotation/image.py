@@ -115,7 +115,7 @@ class ImageAnnotation(base.Annotation):
         """Returns the image shape.
 
         Returns:
-            Tuple of ``[H, W, C]`` representing the image dimensions.
+            Tuple of [H, W, C] representing the image dimensions.
         """
         return self._shape
     
@@ -159,7 +159,7 @@ class ImageAnnotation(base.Annotation):
             cache: If ``True``, caches the image in memory. Default is ``False``.
 
         Returns:
-            ``numpy.ndarray`` in ``[H, W, C]`` format with values in ``[0, 255]``.
+            ``numpy.ndarray`` in [H, W, C] format with values in [0, 255].
         """
         if self.image is not None:
             return self.image
@@ -205,7 +205,7 @@ class ImageAnnotation(base.Annotation):
         """
         if not batch:
             return None
-        return vision.to_4d_image(batch)
+        return vision.convert_image_to_4d(batch)
 
 
 class FrameAnnotation(base.Annotation):
@@ -330,7 +330,7 @@ class FrameAnnotation(base.Annotation):
         """
         if not batch:
             return None
-        return vision.to_4d_image(batch)
+        return vision.convert_image_to_4d(batch)
     
 # endregion
 
@@ -453,7 +453,7 @@ class SemanticSegmentationAnnotation(base.Annotation):
         """Returns the mask shape.
 
         Returns:
-            Tuple of ``[H, W, C]`` representing the mask dimensions.
+            Tuple of [H, W, C] representing the mask dimensions.
         """
         return self._shape
     
@@ -497,7 +497,7 @@ class SemanticSegmentationAnnotation(base.Annotation):
             cache: If ``True``, caches the mask in memory. Default is ``False``.
 
         Returns:
-            ``numpy.ndarray`` in ``[H, W, C]`` format with values in ``[0, 255]`` or ``None``.
+            ``numpy.ndarray`` in [H, W, C] format with values in [0, 255] or ``None``.
         """
         if self.mask is not None:
             return self.mask
@@ -542,6 +542,6 @@ class SemanticSegmentationAnnotation(base.Annotation):
         """
         if not batch:
             return None
-        return vision.to_4d_image(batch)
+        return vision.convert_image_to_4d(batch)
     
 # endregion

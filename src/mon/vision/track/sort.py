@@ -256,8 +256,8 @@ class SORT(base.Tracker):
         Args:
             det_results: A `torch.Tensor` or `numpy.ndarray` of
                 detections in the format of ``[[x1, y1, x2, y2, score, class], ...]``.
-            input_size: The size of the input image in the format ``[H, W]``.
-            image_size: The size of the original image in the format ``[H, W]``.
+            input_size: The size of the input image in the format [H, W].
+            image_size: The size of the original image in the format [H, W].
             frame_id: The frame number. Default: ``None``.
         """
         self.frame_count += 1

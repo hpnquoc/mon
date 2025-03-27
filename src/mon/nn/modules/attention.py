@@ -116,10 +116,10 @@ class EfficientChannelAttention1d(nn.Module):
         """Applies efficient channel attention to 1D input.
 
         Args:
-            input: Input tensor ``[B, C, L]``.
+            input: Input tensor [B, C, L].
 
         Returns:
-            Output tensor ``[B, C, L]`` with channel attention applied.
+            Output tensor [B, C, L] with channel attention applied.
         """
         x = input
         y = self.avg_pool(x)                   # [B, C, 1]

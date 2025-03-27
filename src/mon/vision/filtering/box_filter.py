@@ -29,7 +29,7 @@ def diff_x(image: torch.Tensor, radius: int) -> torch.Tensor:
     """Computes difference along the x-axis of an image.
 
     Args:
-        image: Image as torch.Tensor in [B, C, H, W], range [0.0, 1.0].
+        image: Image as ``torch.Tensor`` in [B, C, H, W], range [0.0, 1.0].
         radius: Radius of the kernel.
     
     Returns:
@@ -54,7 +54,7 @@ def diff_y(image: torch.Tensor, radius: int) -> torch.Tensor:
     """Computes difference along the y-axis of an image.
 
     Args:
-        image: Image as torch.Tensor in [B, C, H, W], range [0.0, 1.0].
+        image: Image as ``torch.Tensor`` in [B, C, H, W], range [0.0, 1.0].
         radius: Radius of the kernel.
     
     Returns:
@@ -88,7 +88,7 @@ def box_filter(
     """Performs box filtering on an image.
 
     Args:
-        image: Image as torch.Tensor in [B, C, H, W], range [0.0, 1.0].
+        image: Image as ``torch.Tensor`` in [B, C, H, W], range [0.0, 1.0].
         kernel_size: Size of the kernel (e.g., 3, 5, 7, 9).
         radius: Radius of the kernel (kernel_size = radius * 2 + 1).
     
@@ -144,7 +144,7 @@ def box_filter_conv(
     """Performs box filtering on an image using convolution.
 
     Args:
-        image: Image as torch.Tensor in [B, C, H, W] format.
+        image: Image as ``torch.Tensor`` in [B, C, H, W] format.
         kernel_size: Size of the kernel (e.g., 3, 5, 7, 9).
         radius: Radius of the kernel (kernel_size = radius * 2 + 1, e.g., 1, 2, 3, 4).
     
@@ -188,7 +188,7 @@ class BoxFilter(nn.Module):
         """Filters the image using box filtering.
 
         Args:
-            image: Image as torch.Tensor in [B, C, H, W] format.
+            image: Image as ``torch.Tensor`` in [B, C, H, W] format.
         
         Returns:
             Filtered image.

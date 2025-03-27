@@ -96,8 +96,8 @@ def scale_gt_mean(
     """Scales image to match target's mean intensity.
 
     Args:
-        image: RGB image as torch.Tensor [B, C, H, W] in ``[0.0, 1.0]`` or
-            np.ndarray ``[H, W, C]`` in ``[0, 255]``.
+        image: RGB image as ``torch.Tensor`` [B, C, H, W] in [0.0, 1.0] or
+            np.ndarray [H, W, C] in [0, 255].
         target: Target image of same type as image.
     
     Returns:

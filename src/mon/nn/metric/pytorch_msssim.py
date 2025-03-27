@@ -29,7 +29,7 @@ def _fspecial_gauss_1d(size: int, sigma: float) -> torch.Tensor:
         sigma: Standard deviation of the Gaussian.
 
     Returns:
-        1D kernel tensor ``[1, 1, size]``.
+        1D kernel tensor [1, 1, size].
 
     References:
         https://github.com/VainF/pytorch-msssim/blob/master/pytorch_msssim/ssim.py
@@ -87,7 +87,7 @@ def _ssim(
     """Computes SSIM and contrast sensitivity between two images.
 
     Args:
-        image1: First image tensor [B, C, H, W] or ``[B, C, D, H, W]``.
+        image1: First image tensor [B, C, H, W] or [B, C, D, H, W].
         image2: Second image tensor of same shape as image1.
         data_range: Value range of images (e.g., ``1.0`` or ``255``).
         window: 1D Gaussian kernel tensor.
@@ -142,7 +142,7 @@ def ssim(
     """Computes SSIM between two images.
 
     Args:
-        image1: First image tensor [B, C, H, W] or ``[B, C, D, H, W]``.
+        image1: First image tensor [B, C, H, W] or [B, C, D, H, W].
         image2: Second image tensor of same shape as image1.
         data_range: Value range of images (e.g., ``1.0`` or ``255``). Default is ``255``.
         size_average: If ``True``, averages SSIM over channels. Default is ``True``.
@@ -156,7 +156,7 @@ def ssim(
         SSIM tensor, averaged if size_average is True.
 
     Raises:
-        ValueError: If shapes mismatch, window_size is even, or dims invalid.
+        ValueError: If shapes mismatch, ``window_size`` is even, or dims invalid.
    
     References:
         https://github.com/VainF/pytorch-msssim/blob/master/pytorch_msssim/ssim.py
@@ -209,7 +209,7 @@ def ms_ssim(
     """Computes Multi-Scale SSIM between two images.
 
     Args:
-        image1: First image tensor [B, C, H, W] or ``[B, C, D, H, W]``.
+        image1: First image tensor [B, C, H, W] or [B, C, D, H, W].
         image2: Second image tensor of same shape as image1.
         data_range: Value range of images (e.g., ``1.0`` or ``255``). Default is ``255``.
         size_average: If ``True``, averages MS-SSIM over channels. Default is ``True``.
@@ -325,7 +325,7 @@ class SSIM(nn.Module):
         """Computes SSIM between two images.
 
         Args:
-            image1: First image tensor [B, C, H, W] or ``[B, C, D, H, W]``.
+            image1: First image tensor [B, C, H, W] or [B, C, D, H, W].
             image2: Second image tensor of same shape as ``image1``.
 
         Returns:
@@ -379,7 +379,7 @@ class MS_SSIM(nn.Module):
         """Computes MS-SSIM between two images.
 
         Args:
-            image1: First image tensor [B, C, H, W] or ``[B, C, D, H, W]``.
+            image1: First image tensor [B, C, H, W] or [B, C, D, H, W].
             image2: Second image tensor of same shape as image1.
 
         Returns:

@@ -348,7 +348,7 @@ def print_dict(x: dict, title: str = ""):
         title: Title displayed above the dictionary. Default is ``""``.
 
     Raises:
-        TypeError: If ``[x]`` is not a dictionary.
+        TypeError: If ``x`` is not a dictionary.
     """
     if not isinstance(x, dict):
         raise TypeError(f"[x] must be a dict, but got [{type(x).__name__}]")
@@ -371,8 +371,8 @@ def print_table(x: list[dict]):
         x: List of dictionaries with identical keys to print as a table.
 
     Raises:
-        TypeError: If ``[x]`` is not a list or contains non-dict elements.
-        ValueError: If dictionaries in ``[x]`` do not have identical keys or ``[x]`` is empty.
+        TypeError: If ``x`` is not a list or contains non-dict elements.
+        ValueError: If dictionaries in ``x`` do not have identical keys or ``x`` is empty.
     """
     if not isinstance(x, list) or not all(isinstance(d, dict) for d in x):
         raise TypeError(f"[x] must be a list of dicts, but got [{type(x).__name__}]")
@@ -397,7 +397,7 @@ def print_table(x: dict):
         x: Dictionary to print as a table.
 
     Raises:
-        TypeError: If ``[x]`` is not a dictionary.
+        TypeError: If ``x`` is not a dictionary.
     """
     if not isinstance(x, dict):
         raise TypeError(f"[x] must be a dict, but got [{type(x).__name__}]")

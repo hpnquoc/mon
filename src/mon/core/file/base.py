@@ -98,7 +98,7 @@ def write_to_file(
         file_format: File format, inferred from ``path`` extension if ``None``. Default is ``None``.
 
     Raises:
-        ValueError: If ``[file_format]`` is not supported.
+        ValueError: If ``file_format`` is not supported.
     """
     path_obj    = pathlib.Path(path) if isinstance(path, (pathlib.Path, str)) else path
     file_format = file_format or (path_obj.suffix if isinstance(path_obj, pathlib.Path) else "")
@@ -123,7 +123,7 @@ def read_from_file(path: pathlib.Path | str | TextIO, file_format: str = None, *
         File content.
 
     Raises:
-        TypeError: If ``[path]`` is not a valid type.
+        TypeError: If ``path`` is not a valid type.
     """
     path_obj    = pathlib.Path(path) if isinstance(path, (pathlib.Path, str)) else path
     file_format = file_format or (path_obj.suffix if isinstance(path_obj, pathlib.Path) else "")
@@ -149,7 +149,7 @@ def merge_files(
         file_format: File format, inferred from ``out_path`` extension if ``None``. Default is ``None``.
 
     Raises:
-        TypeError: If content from ``[in_paths]`` is neither list nor dict.
+        TypeError: If content from ``in_paths`` is neither list nor dict.
     """
     in_paths = [pathlib.Path(p) for p in dtype.to_list(in_paths)]
     data = None

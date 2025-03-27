@@ -114,9 +114,9 @@ def resize(
     Args:
         image: An RGB image of type:
             - `torch.Tensor` in [B, C, H, W] format with data in
-                the range ``[0.0, 1.0]``.
-            - `numpy.ndarray` in ``[H, W, C]`` format with data in the
-                range ``[0, 255]``.
+                the range [0.0, 1.0].
+            - `numpy.ndarray` in [H, W, C] format with data in the
+                range [0, 255].
         size: The target size.
         divisible_by: If not ``None``, then the image will be resized to a size
             that is divisible by this number. Default: ``None``.

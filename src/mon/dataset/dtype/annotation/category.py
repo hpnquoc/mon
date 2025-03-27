@@ -66,7 +66,7 @@ class ClassificationAnnotation(base.Annotation):
     Args:
         class_id: Integer class ID, where ``-1`` indicates unknown.
         num_classes: Total number of classes in the task.
-        confidence: Confidence score in ``[0.0, 1.0]``. Default is ``1.0``.
+        confidence: Confidence score in [0.0, 1.0]. Default is ``1.0``.
     """
     
     def __init__(
@@ -87,7 +87,7 @@ class ClassificationAnnotation(base.Annotation):
         """Returns the confidence score.
 
         Returns:
-            ``float`` representing the confidence in ``[0.0, 1.0]``.
+            ``float`` representing the confidence in [0.0, 1.0].
         """
         return self._confidence
     
@@ -99,7 +99,7 @@ class ClassificationAnnotation(base.Annotation):
             confidence: Confidence value as a ``float``.
 
         Raises:
-            ValueError: If ``[confidence]`` is not in ``[0.0, 1.0]``.
+            ValueError: If ``[confidence]`` is not in [0.0, 1.0].
         """
         if not 0.0 <= confidence <= 1.0:
             raise ValueError(f"[confidence] must be in [0.0, 1.0], but got [{confidence}].")

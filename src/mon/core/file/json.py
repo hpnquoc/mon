@@ -35,7 +35,7 @@ class JSONHandler(base.FileHandler):
             JSON-serializable representation of ``obj``.
 
         Raises:
-            TypeError: If ``[obj]`` type is unsupported.
+            TypeError: If ``obj`` type is unsupported.
         """
         if isinstance(obj, (set, range, np.ndarray)):
             return list(obj)

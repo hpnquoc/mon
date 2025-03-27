@@ -43,7 +43,7 @@ class XMLHandler(base.FileHandler):
             **kwargs: Additional arguments for ``xmltodict.unparse``.
 
         Raises:
-            TypeError: If ``[obj]`` is not a dictionary.
+            TypeError: If ``obj`` is not a dictionary.
         """
         if not isinstance(obj, dict):
             raise TypeError(f"[obj] must be a dict, got [{type(obj).__name__}]")
@@ -60,7 +60,7 @@ class XMLHandler(base.FileHandler):
             XML string representation of ``obj``.
 
         Raises:
-            TypeError: If ``[obj]`` is not a dictionary.
+            TypeError: If ``obj`` is not a dictionary.
         """
         if not isinstance(obj, dict):
             raise TypeError(f"[obj] must be a dict, got [{type(obj).__name__}]")

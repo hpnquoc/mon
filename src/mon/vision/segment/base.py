@@ -75,12 +75,12 @@ class SegmentationModel(VisionModel, ABC):
         outputs       =    data.get("outputs",  {})
         pred_semantic = outputs.pop("semantic", None)
         
-        image         = list(dtype.to_image_nparray(image,         keepdim=False, denormalize=True))
-        tar_semantic  = list(dtype.to_image_nparray(tar_semantic,  keepdim=False, denormalize=True)) if tar_semantic is not None else None
-        pred_semantic = list(dtype.to_image_nparray(pred_semantic, keepdim=False, denormalize=True))
+        image         = list(dtype.convert_image_to_array(image, denormalize=True))
+        tar_semantic  = list(dtype.convert_image_to_array(tar_semantic, denormalize=True)) if tar_semantic is not None else None
+        pred_semantic = list(dtype.convert_image_to_array(pred_semantic, denormalize=True))
         extra_images  = {k: v for k, v in outputs.items() if dtype.is_image(v)}
         extra         = {
-            k: list(dtype.to_image_nparray(v, keepdim=False, denormalize=True))
+            k: list(dtype.convert_image_to_array(v, denormalize=True))
             for k, v in extra_images.items()
         } if extra_images else {}
         

@@ -112,7 +112,7 @@ class SimpleGate(nn.Module):
             input: Input tensor [B, C, H, W], where ``C`` is even.
 
         Returns:
-            Output tensor ``[B, C/2, H, W]``.
+            Output tensor [B, C/2, H, W].
         """
         x1, x2 = input.chunk(chunks=2, dim=1)
         return x1 * x2

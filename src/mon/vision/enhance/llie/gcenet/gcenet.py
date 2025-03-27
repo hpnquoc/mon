@@ -285,7 +285,7 @@ class EnhanceNet(nn.Module):
         x    = image
         gray = dtype.rgb_to_grayscale(image)
         edge = None
-        if depth is not None and dtype.is_color_image(depth):
+        if depth is not None and dtype.is_image_colored(depth):
             depth = dtype.rgb_to_grayscale(depth)
         if self.use_depth:
             x = torch.cat([x, depth], 1)

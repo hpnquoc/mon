@@ -492,7 +492,7 @@ def get_machine_memory(unit: MemoryUnit = MemoryUnit.GB) -> list[int]:
         unit: Memory unit (e.g., ``GB``). Default is ``MemoryUnit.GB``.
 
     Returns:
-        List of ``[total, used, free]`` memory values in the specified unit.
+        List of [total, used, free] memory values in the specified unit.
     """
     memory = psutil.virtual_memory()
     ratio  = MemoryUnit.byte_conversion_mapping()[MemoryUnit.from_value(unit)]
@@ -511,7 +511,7 @@ def get_gpu_device_memory(device: int = 0, unit: MemoryUnit = MemoryUnit.GB) -> 
         unit  : Memory unit (e.g., ``GB``). Default is ``MemoryUnit.GB``.
 
     Returns:
-        List of ``[total, used, free]`` memory values in the specified unit.
+        List of [total, used, free] memory values in the specified unit.
     """
     pynvml.nvmlInit()
     unit  = MemoryUnit.from_value(unit)
@@ -910,7 +910,7 @@ def parse_save_dir(
         data: The dataset's name. Default is ``None``.
 
     Returns:
-        Parsed save directory path as a string or ``Path`` object.
+        Parsed save directory path as a ``str`` or ``pathlib.Path`` object.
     """
     save_dir = pathlib.Path(root)
     if arch:
@@ -1067,7 +1067,7 @@ def download_weights_from_url(url: str, path: pathlib.Path, overwrite: bool = Fa
         Path to the downloaded weights file.
 
     Raises:
-        ValueError: If ``[url]`` is not a valid URL.
+        ValueError: If ``url`` is not a valid URL.
     """
     if not pathlib.is_url(url):
         raise ValueError(f"[url] must be a valid URL, but got [{url}]")

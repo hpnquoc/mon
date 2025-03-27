@@ -105,13 +105,13 @@ def pad_same(
     dilation   : _size_2_t = (1, 1),
     value      : float     = 0
 ) -> torch.Tensor:
-    """Pads input tensor with 'same' padding for convolution.
+    """Pads input tensor with ``'same'`` padding for convolution.
 
     Args:
-        input: Input tensor ``[..., H, W]``.
-        kernel_size: Size of the convolution kernel ``(H, W)``.
-        stride: Stride of the convolution ``(H, W)``.
-        dilation: Dilation of the convolution ``(H, W)``. Default is ``(1, 1)``.
+        input: Input tensor [..., H, W].
+        kernel_size: Size of the convolution kernel (H, W).
+        stride: Stride of the convolution (H, W).
+        dilation: Dilation of the convolution (H, W). Default is ``(1, 1)``.
         value: Padding value. Default is ``0``.
 
     Returns:

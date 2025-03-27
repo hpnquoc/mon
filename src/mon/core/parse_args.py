@@ -24,7 +24,7 @@ from mon.core import pathlib, utils
 # region Utils
 
 def _str_or_none(value: Any) -> str | None:
-    """Converts a value to a string or returns ``None`` if the value is the string ``"None"``.
+    """Converts a value to a ``str`` or returns ``None`` if the value is the string ``"None"``.
 
     Args:
         value: Value to convert.

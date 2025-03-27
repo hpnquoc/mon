@@ -27,7 +27,7 @@ class BBoxAnnotation(base.Annotation):
     Args:
         class_id: Integer class ID, where ``-1`` indicates unknown.
         bbox: Bounding box coordinates as a ``[4]``-shaped array, list, or tuple.
-        confidence: Confidence score in ``[0.0, 1.0]``. Default is ``1.0``.
+        confidence: Confidence score in [0.0, 1.0]. Default is ``1.0``.
     """
     
     def __init__(
@@ -71,7 +71,7 @@ class BBoxAnnotation(base.Annotation):
         """Returns the confidence score.
 
         Returns:
-            ``float`` representing the confidence in ``[0.0, 1.0]``.
+            ``float`` representing the confidence in [0.0, 1.0].
         """
         return self._confidence
     
@@ -83,7 +83,7 @@ class BBoxAnnotation(base.Annotation):
             confidence: Confidence value as a ``float``.
 
         Raises:
-            ValueError: If ``[confidence]`` is not in ``[0.0, 1.0]``.
+            ValueError: If ``[confidence]`` is not in [0.0, 1.0].
         """
         if not 0.0 <= confidence <= 1.0:
             raise ValueError(f"[confidence] must be in [0.0, 1.0], but got [{confidence}]")
@@ -164,7 +164,7 @@ class BBoxesAnnotation(list[BBoxAnnotation]):
         """Returns confidence scores of all bounding box annotations.
 
         Returns:
-            List of ``confidence`` values in ``[0.0, 1.0]``.
+            List of ``confidence`` values in [0.0, 1.0].
         """
         return [item.confidence for item in self]
     

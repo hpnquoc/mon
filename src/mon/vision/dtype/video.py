@@ -47,13 +47,13 @@ def read_video_ffmpeg(
 		width: The width of the video.
 		to_tensor: If ``True`` convert the image from `numpy.ndarray` to
 			`torch.Tensor`. Default: ``False``.
-		normalize: If ``True``, normalize the image to ``[0.0, 1.0]``.
+		normalize: If ``True``, normalize the image to [0.0, 1.0].
 			Default: ``False``.
 	
 	Return:
-		A `numpy.ndarray` image of shape ``[H, W, C]`` with value in
-		range ``[0, 255]`` or a `torch.Tensor` image of shape
-		``[1, C, H, W]`` with value in range ``[0.0, 1.0]``.
+		A `numpy.ndarray` image of shape [H, W, C] with value in
+		range [0, 255] or a `torch.Tensor` image of shape
+		``[1, C, H, W]`` with value in range [0.0, 1.0].
 	"""
 	# RGB24 == 3 bytes per pixel.
 	img_size = height * width * 3
@@ -69,7 +69,7 @@ def read_video_ffmpeg(
 			.reshape([height, width, 3])
 		)  # Numpy
 		if to_tensor:
-			image = I.to_image_tensor(image, False, normalize)
+			image = I.convert_image_to_tensor(image, normalize)
 	return image
 
 # endregion
@@ -87,16 +87,16 @@ def write_video_ffmpeg(
 	Args:
 		process: A subprocess that manages ``ffmpeg``.
 		frame: A frame/image of shape ``[1, C, H, W]``.
-		denormalize: If ``True``, convert image to ``[0, 255]``.
+		denormalize: If ``True``, convert image to [0, 255].
 			Default: ``False``.
 	"""
 	if isinstance(frame, np.ndarray):
-		if I.is_normalized_image(frame):
+		if I.is_image_normalized(frame):
 			frame = I.denormalize_image(frame)
-		if I.is_channel_first_image(frame):
-			frame = I.to_channel_last_image(frame)
+		if I.is_image_channel_first(frame):
+			frame = I.convert_image_to_channel_last(frame)
 	elif isinstance(frame, torch.Tensor):
-		frame = I.to_image_nparray(frame, False, denormalize)
+		frame = I.convert_image_to_array(frame, denormalize)
 	else:
 		raise ValueError(f"`image` must be a `torch.Tensor` or `numpy.ndarray`, "
 		                 f"but got {type(frame)}.")
@@ -112,11 +112,11 @@ class VideoWriter(abc.ABC):
 
 	Args:
 		dst: A directory to save images.
-		image_size: A desired output size of shape ``[H, W]``. This is used to
+		image_size: A desired output size of shape [H, W]. This is used to
 			reshape the input. Default: ``[480, 640]``.
 		frame_rate: A frame rate of the output video. Default: ``10``.
 		save_image: If ``True`` save each image separately. Default: ``False``.
-		denormalize: If ``True``, convert image to ``[0, 255]``.
+		denormalize: If ``True``, convert image to [0, 255].
 			Default: ``False``.
 		verbose: Verbosity. Default: ``False``.
 	"""
@@ -170,7 +170,7 @@ class VideoWriter(abc.ABC):
 		Args:
 			frame: A video frame.
 			path: An image file path with an extension. Default: ``None``.
-			denormalize: If ``True``, convert image to ``[0, 255]``.
+			denormalize: If ``True``, convert image to [0, 255].
 				Default: ``False``.
 		"""
 		pass
@@ -188,7 +188,7 @@ class VideoWriter(abc.ABC):
 			frames: A `list` of video frames.
 			paths: A `list` of image file paths with extensions.
 				Default: ``None``.
-			denormalize: If ``True``, convert image to ``[0, 255]``.
+			denormalize: If ``True``, convert image to [0, 255].
 				Default: ``False``.
 		"""
 		pass
@@ -199,7 +199,7 @@ class VideoWriterCV(VideoWriter):
 
 	Args:
 		dst: A destination directory to save images.
-		image_size: A desired output size of shape ```[H, W]```. This is used
+		image_size: A desired output size of shape `[H, W]`. This is used
 			to reshape the input. Default: ``[480, 640]``.
 		frame_rate: A frame rate of the output video. Default: ``10``.
 		fourcc: Video codec. One of:
@@ -209,7 +209,7 @@ class VideoWriterCV(VideoWriter):
 			- ``'wmv'``
 			Default: ``'mp4v'``.
 		save_image: If ``True``, save each image separately. Default: ``False``.
-		denormalize: If ``True``, convert image to ``[0, 255]``.
+		denormalize: If ``True``, convert image to [0, 255].
 			Default: ``False``.
 		verbose: Verbosity. Default: ``False``.
 	"""
@@ -273,7 +273,7 @@ class VideoWriterCV(VideoWriter):
 		Args:
 			frame: An image.
 			path: An image file path with an extension. Default: ``None``.
-			denormalize: If ``True``, convert image to ``[0, 255]``.
+			denormalize: If ``True``, convert image to [0, 255].
 				Default: ``False``.
 		"""
 		denormalize = denormalize or self.denormalize
@@ -287,7 +287,7 @@ class VideoWriterCV(VideoWriter):
 				denormalize = denormalize
 			)
 		
-		image = I.to_image_nparray(frame, True, denormalize)
+		image = I.convert_image_to_array(frame, denormalize)
 		# IMPORTANT: Image must be in a BGR format
 		image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
 		
@@ -306,7 +306,7 @@ class VideoWriterCV(VideoWriter):
 			frames: A `list` of images.
 			paths: A `list` of image file paths with extensions.
 				Default: ``None``.
-			denormalize: If ``True``, convert image to ``[0, 255]``.
+			denormalize: If ``True``, convert image to [0, 255].
 				Default: ``False``.
 		"""
 		if paths is None:
@@ -320,12 +320,12 @@ class VideoWriterFFmpeg(VideoWriter):
 
 	Args:
 		dst: A destination directory to save images.
-		image_size: A desired output size of shape ``[H, W]``. This is used
+		image_size: A desired output size of shape [H, W]. This is used
 			to reshape the input. Default: `[480, 640]`.
 		frame_rate: A frame rate of the output video. Default: ``10``.
 		pix_fmt: A video codec. Default: ``'yuv420p'``.
 		save_image: If ``True`` save each image separately. Default: ``False``.
-		denormalize: If ``True``, convert image to ``[0, 255]``.
+		denormalize: If ``True``, convert image to [0, 255].
 			Default: ``False``.
 		verbose: Verbosity. Default: ``False``.
 		kwargs: Any supplied kwargs are passed to `ffmpeg` verbatim.
@@ -413,14 +413,14 @@ class VideoWriterFFmpeg(VideoWriter):
 		self,
 		frame      : torch.Tensor | np.ndarray,
 		path       : core.Path = None,
-		denormalize: bool 		  = False
+		denormalize: bool 	   = False
 	):
 		"""Write an image to `dst`.
 
 		Args:
 			frame: An image.
 			path: An image file path with an extension. Default: ``None``.
-			denormalize: If ``True``, convert image to ``[0, 255]``.
+			denormalize: If ``True``, convert image to [0, 255].
 				Default: ``False``.
 		"""
 		denormalize = denormalize or self.denormalize
@@ -450,7 +450,7 @@ class VideoWriterFFmpeg(VideoWriter):
 			frames: A `list` of images.
 			paths: A `list` of image file paths with extensions.
 				Default: ``None``.
-			denormalize: If ``True``, convert image to ``[0, 255]``.
+			denormalize: If ``True``, convert image to [0, 255].
 				Default: ``False``.
 		"""
 		if paths is None:

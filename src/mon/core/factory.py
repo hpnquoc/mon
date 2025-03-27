@@ -41,7 +41,7 @@ class Factory(dict):
             mapping: Optional initial dictionary of registered classes. Default is ``None``.
 
         Raises:
-            ValueError: If ``[name]`` is empty.
+            ValueError: If ``name`` is empty.
         """
         if not name:
             raise ValueError("[name] must not be empty")
@@ -68,7 +68,7 @@ class Factory(dict):
             Decorator function if ``module`` is ``None``, else registers ``module`` directly.
 
         Raises:
-            TypeError: If ``[name]`` is not a string or ``None``.
+            TypeError: If ``name`` is not a ``str`` or ``None``.
         """
         if name is not None and not isinstance(name, str):
             raise TypeError(f"[name] must be str or None, got [{type(name).__name__}]")
@@ -88,7 +88,7 @@ class Factory(dict):
             replace: If ``True``, overwrites existing registration. Default is ``False``.
 
         Raises:
-            ValueError: If ``[module_cls]`` is not a class.
+            ValueError: If ``module_cls`` is not a class.
         """
         if not inspect.isclass(module_cls):
             raise ValueError(f"[module_cls] must be a class, got [{type(module_cls).__name__}]")
@@ -109,7 +109,7 @@ class Factory(dict):
             Instance of the registered class, or a dict if ``to_dict`` is ``True``, or ``None`` if no name provided.
 
         Raises:
-            ValueError: If ``[name]`` is not found in the registry.
+            ValueError: If ``name`` is not found in the registry.
         """
         if not name and (not config or "name" not in config):
             return None
@@ -137,7 +137,7 @@ class Factory(dict):
             List or dict of instances, or ``None`` if no valid instances are built.
 
         Raises:
-            ValueError: If ``[configs]`` is not a list or items are not strings/dicts.
+            ValueError: If ``configs`` is not a list or items are not strings/dicts.
         """
         if not isinstance(configs, list):
             raise ValueError(f"[configs] must be a list, got [{type(configs).__name__}]")
@@ -217,7 +217,7 @@ class ModelFactory(Factory):
             Decorator function if ``module`` is ``None``, else registers ``module`` directly.
 
         Raises:
-            TypeError: If ``[name]`` is not a string or ``None``.
+            TypeError: If ``name`` is not a ``str`` or ``None``.
         """
         if name is not None and not isinstance(name, str):
             raise TypeError(f"[name] must be str or None, got [{type(name).__name__}]")
@@ -244,7 +244,7 @@ class ModelFactory(Factory):
             replace: If ``True``, overwrites existing registration. Default is ``False``.
 
         Raises:
-            ValueError: If ``[module_cls]`` is not a class.
+            ValueError: If ``module_cls`` is not a class.
         """
         if not inspect.isclass(module_cls):
             raise ValueError(f"[module_cls] must be a class, got [{type(module_cls).__name__}]")
@@ -277,7 +277,7 @@ class ModelFactory(Factory):
             Model instance, dict with name-instance pair if ``to_dict`` is ``True``, or ``None`` if no name.
 
         Raises:
-            ValueError: If ``[arch]`` and ``[name]`` are not found in the registry.
+            ValueError: If ``arch`` and ``name`` are not found in the registry.
         """
         if not name and (not config or "name" not in config):
             return None
@@ -313,7 +313,7 @@ class ModelFactory(Factory):
             List or dict of model instances, or ``None`` if no valid instances are built.
 
         Raises:
-            ValueError: If ``[configs]`` is not a list or items are not strings/dicts.
+            ValueError: If ``configs`` is not a list or items are not strings/dicts.
         """
         if not isinstance(configs, list):
             raise ValueError(f"[configs] must be a list, got [{type(configs).__name__}]")

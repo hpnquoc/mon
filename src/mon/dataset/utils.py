@@ -33,7 +33,7 @@ def parse_io_worker(
         src: Source of input data.
         dst: Destination path.
         to_tensor: If ``True``, converts to tensor. Default is ``False``.
-        denormalize: If ``True``, denormalizes to ``[0, 255]``. Default is ``False``.
+        denormalize: If ``True``, denormalizes to [0, 255]. Default is ``False``.
         data_root: Dataset root dir (e.g., ``data/ntire_2025_llie``).
         verbose: If ``True``, enables verbose output. Default is ``False``.
 
@@ -41,7 +41,7 @@ def parse_io_worker(
         Tuple of data name, loader, and writer.
 
     Raises:
-        ValueError: If ``[src]`` is invalid.
+        ValueError: If ``src`` is invalid.
     """
     data_name   : str                  = ""
     data_loader : dtype.Dataset        = None

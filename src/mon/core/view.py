@@ -43,7 +43,7 @@ def get_grid_size(n: int, nrow: int = 4) -> list[int]:
             Default is ``4``; if ``0`` or negative, uses all items in one row.
 
     Returns:
-        List of ``[nrows, ncols]`` representing rows and columns.
+        List of [nrows, ncols] representing rows and columns.
     """
     ncols = nrow if nrow > 0 else n
     nrows = math.ceil(n / ncols)

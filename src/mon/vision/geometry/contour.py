@@ -24,7 +24,16 @@ from mon.globals import ShapeCode
 # region Conversion
 
 def normalize_contour(contour: np.ndarray, height: int, width: int) -> np.ndarray:
-    """Normalize contour's points to the range ``[0.0, 1.0]``."""
+    """Normalizes contour points to the range [0.0, 1.0].
+
+    Args:
+        contour: Contour points as numpy.ndarray in [N, 2] format.
+        height: Image height in pixels.
+        width: Image width in pixels.
+    
+    Returns:
+        Normalized contour points in [N, 2] format.
+    """
     contour  = contour.copy()
     x, y, *_ = contour.T
     x_norm   = x / width
@@ -34,7 +43,15 @@ def normalize_contour(contour: np.ndarray, height: int, width: int) -> np.ndarra
 
 
 def denormalize_contour(contour: np.ndarray, height: int, width: int) -> np.ndarray:
-    """Denormalize contour's points."""
+    """Denormalizes contour points from range [0.0, 1.0] to pixel coordinates.
+
+    Args:
+        contour: Normalized contour points as numpy.ndarray in [N, 2] format.
+        height: Image height in pixels.
+        width: Image width in pixels.
+    Returns:
+        Denormalized contour points in [N, 2] format.
+    """
     contour = contour.copy()
     x_norm, y_norm, *_ = contour.T
     x       = x_norm * width

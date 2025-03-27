@@ -81,10 +81,10 @@ class LayeredFeatureAggregation(nn.Module):
         """Aggregates layered features with attention.
 
         Args:
-            input: Sequence of feature tensors ``[B, C_i, H, W]``.
+            input: Sequence of feature tensors [B, C_i, H, W].
 
         Returns:
-            Aggregated feature tensor ``[B, C_out, H, W]``.
+            Aggregated feature tensor [B, C_out, H, W].
 
         Raises:
             ValueError: If number of input tensors mismatches ``num_experts``.

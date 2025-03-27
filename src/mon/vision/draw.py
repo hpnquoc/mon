@@ -36,10 +36,10 @@ def draw_bbox(
     """Draws a bounding box on an image.
 
     Args:
-        image: Image as numpy.ndarray in ``[H, W, C]`` format, range ``[0, 255]``.
+        image: Image as numpy.ndarray in [H, W, C] format, range [0, 255].
         bbox: Bounding box in XYXY format.
         label: Label for the bounding box. Default is ``None``.
-        color: Color of the bounding box. Default is ``[255, 255, 255]``.
+        color: Color of the bounding box. Default is [255, 255, 255].
         thickness: Thickness of the rectangle borderline in px. Default is ``1``.
         line_type: Type of line (e.g., ``cv2.LINE_8``). Default is ``cv2.LINE_8``.
         shift: Fractional bits in point coordinates. Default is ``0``.
@@ -90,7 +90,7 @@ def draw_heatmap(
     """Overlays a heatmap on an image.
 
     Args:
-        image: RGB/BGR image as numpy.ndarray in ``[H, W, C]``, range ``[0.0, 1.0]``.
+        image: RGB/BGR image as numpy.ndarray in [H, W, C], range [0.0, 1.0].
         heatmap: Heatmap mask to overlay.
         color_map: Color map for heatmap. Default is ``cv2.COLORMAP_JET``.
         alpha: Transparency ratio (0.0-1.0) for blending. Default is ``0.5``.
@@ -108,7 +108,7 @@ def draw_heatmap(
     if not 0.0 <= alpha <= 1.0:
         raise ValueError(f"[alpha] should be in range [0.0, 1.0], but got {alpha}")
 
-    heatmap = I.depth_map_to_color(heatmap, color_map, use_rgb)
+    heatmap = I.convert_depth_to_color(heatmap, color_map, use_rgb)
     heatmap = np.float32(heatmap) / 255
     drawing = I.blend_images(image, heatmap, alpha)
     drawing = drawing / np.max(drawing)
@@ -125,15 +125,15 @@ def draw_semantic(
     """Overlays a semantic mask on an image.
 
     Args:
-        image: RGB image as numpy.ndarray in ``[H, W, C]``, range ``[0, 255]``.
-        semantic: Semantic mask as numpy.ndarray in ``[H, W, 1]``.
+        image: RGB image as numpy.ndarray in [H, W, C], range [0, 255].
+        semantic: Semantic mask as numpy.ndarray in [H, W, 1].
         classlabels: List of class labels.
         alpha: Transparency ratio (0.0-1.0) for blending. Default is ``0.5``.
     
     Returns:
         Image with semantic mask overlay.
     """
-    color_map = I.label_map_id_to_color(semantic, classlabels)
+    color_map = I.convert_label_map_id_to_color(semantic, classlabels)
     drawing   = I.blend_images(image, color_map, alpha)
     drawing   = drawing.astype(np.uint8)
     return drawing
@@ -151,9 +151,9 @@ def draw_trajectory(
     """Draws a trajectory path on an image.
 
     Args:
-        image: RGB image as numpy.ndarray in ``[H, W, C]``, range ``[0, 255]``.
+        image: RGB image as numpy.ndarray in [H, W, C], range [0, 255].
         trajectory: 2D points as array or list in [(x1, y1), ...] format.
-        color: Color of the trajectory. Default is ``[255, 255, 255]``.
+        color: Color of the trajectory. Default is [255, 255, 255].
         thickness: Thickness of the path in px. Default is ``1``.
         line_type: Type of line (e.g., ``cv2.LINE_8``). Default is ``cv2.LINE_8``.
         point: Draw points along the path if True. Default is ``False``.

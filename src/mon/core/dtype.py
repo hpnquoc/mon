@@ -239,7 +239,7 @@ def to_int(x: Any) -> int | None:
         Converted ``int`` or ``None`` if ``x`` is ``None``.
 
     Raises:
-        ValueError: If ``[x]`` cannot be converted to an integer.
+        ValueError: If ``x`` cannot be converted to an integer.
     """
     if x is None:
         return None
@@ -259,7 +259,7 @@ def to_float(x: Any) -> float | None:
         Converted ``float`` or ``None`` if ``x`` is ``None``.
 
     Raises:
-        ValueError: If ``[x]`` cannot be converted to a float.
+        ValueError: If ``x`` cannot be converted to a float.
     """
     if x is None:
         return None
@@ -338,7 +338,7 @@ def iter_to_iter(x: Iterable, item_type: type, return_type: type = None):
         Iterable cast to ``return_type`` with items as ``item_type``; unchanged if ``return_type`` is ``None``.
 
     Raises:
-        TypeError: If ``[x]`` is not a ``list``, ``tuple``, or ``dict``.
+        TypeError: If ``x`` is not a ``list``, ``tuple``, or ``dict``.
     """
     if not isinstance(x, (list, tuple, dict)):
         raise TypeError(f"[x] must be list, tuple, or dict, got [{type(x).__name__}]")
@@ -383,7 +383,7 @@ def split_list(x: list, n: int | list[int]) -> list[list]:
         List of sub-lists.
 
     Raises:
-        ValueError: If ``[x]`` cannot be split evenly by [N] or sizes don’t match ``len(x)``.
+        ValueError: If ``x`` cannot be split evenly by [N] or sizes don’t match ``len(x)``.
 
     Examples:
         >>> x = [1, 2, 3, 4, 5, 6]
@@ -410,7 +410,7 @@ def to_list(x: Any, sep: list[str] = [",", ";", ":"]) -> list:
 
     Args:
         x: Value to convert.
-        sep: List of string delimiters for splitting. Default is ``[",", ";", ":"]``.
+        sep: List of string delimiters for splitting. Default is [",", ";", ":"].
 
     Returns:
         List representation of ``x``.
@@ -435,7 +435,7 @@ def to_int_list(x: Any, sep: list[str] = [",", ";", ":"]) -> list[int]:
 
     Args:
         x: Value to convert.
-        sep: List of string delimiters for splitting. Default is ``[",", ";", ":"]``.
+        sep: List of string delimiters for splitting. Default is [",", ";", ":"].
 
     Returns:
         List of integers from ``x``.
@@ -448,7 +448,7 @@ def to_float_list(x: Any, sep: list[str] = [",", ";", ":"]) -> list[float]:
 
     Args:
         x: Value to convert.
-        sep: List of string delimiters for splitting. Default is ``[",", ";", ":"]``.
+        sep: List of string delimiters for splitting. Default is [",", ";", ":"].
 
     Returns:
         List of floats from ``x``
@@ -489,7 +489,7 @@ def to_tuple(x: Any) -> tuple:
         Tuple representation of ``x``.
 
     Raises:
-        TypeError: If ``[x]`` is not iterable and not a single value.
+        TypeError: If ``x`` is not iterable and not a single value.
     """
     if isinstance(x, list):
         return tuple(x)
@@ -539,7 +539,7 @@ def unique(x: list | tuple) -> list | tuple:
         Deduplicated ``list`` or ``tuple`` matching the type of ``x``.
 
     Raises:
-        TypeError: If ``[x]`` is not a ``list`` or ``tuple``.
+        TypeError: If ``x`` is not a ``list`` or ``tuple``.
     """
     if not isinstance(x, (list, tuple)):
         raise TypeError(f"[x] must be a list or tuple, got [{type(x).__name__}]")

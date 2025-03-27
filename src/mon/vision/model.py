@@ -35,7 +35,7 @@ class VisionModel(nn.Model, ABC):
         """Computes model efficiency score (FLOPs, params).
 
         Args:
-            image_size: Input size as int or ``[H, W]``. Default is ``512``.
+            image_size: Input size as int or [H, W]. Default is ``512``.
         
         Returns:
             Tuple of (FLOPs, parameter count) as floats.
@@ -64,7 +64,7 @@ class VisionModel(nn.Model, ABC):
 
         Args:
             datapoint: Dict with datapoint attributes.
-            image_size: Input size as int or ``[H, W]``. Default is ``512``.
+            image_size: Input size as int or [H, W]. Default is ``512``.
             resize: Resize input to image_size if ``True``. Default is ``False``.
         
         Returns:

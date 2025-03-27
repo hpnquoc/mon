@@ -19,24 +19,19 @@ from mon.vision import dtype
 
 
 def sobel_filter(image: np.ndarray, kernel_size: int = 3) -> np.ndarray:
-    """Sobel filter.
-    
+    """Applies Sobel filter to detect edges in an image.
+
     Args:
-        image: An RGB image of type:
-            - `torch.Tensor` in [B, C, H, W] format with data in
-                the range ``[0.0, 1.0]``.
-            - `numpy.ndarray` in ``[H, W, C]`` format with data in the
-                range ``[0, 255]``.
-        kernel_size: Size of the Sobel kernel. Default: ``3``.
+        image: RGB image as numpy.ndarray in [H, W, C], range [0, 255].
+        kernel_size: Size of the Sobel kernel. Default is ``3``.
+    
+    Returns:
+        Grayscale image with edge magnitudes.
     """
-    if dtype.is_color_image(image):
+    if dtype.is_image_colored(image):
         image = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
-    # Sobel filter in the x direction
     sobel_x = cv2.Sobel(image, cv2.CV_64F, 1, 0, ksize=kernel_size)
-    # Sobel filter in the y direction
     sobel_y = cv2.Sobel(image, cv2.CV_64F, 0, 1, ksize=kernel_size)
-    # Compute the magnitude of the gradient
     sobel_combined = cv2.magnitude(sobel_x, sobel_y)
-    # Convert back to uint8
     sobel_combined = cv2.convertScaleAbs(sobel_combined)
     return sobel_combined

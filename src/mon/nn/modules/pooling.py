@@ -267,9 +267,9 @@ def avg_pool2d_same(
 
     Args:
         input: Input tensor [B, C, H, W].
-        kernel_size: Size of the pooling kernel ``(H, W)``.
-        stride: Stride of the pooling ``(H, W)``.
-        padding: Padding before ``'same'`` adjustment ``(H, W)``. Default is ``0``.
+        kernel_size: Size of the pooling kernel (H, W).
+        stride: Stride of the pooling (H, W).
+        padding: Padding before ``'same'`` adjustment (H, W). Default is ``0``.
         ceil_mode: If ``True``, uses ceil for output shape. Default is ``False``.
         count_include_pad: If ``True``, includes padding in avg. Default is ``True``.
 
@@ -295,9 +295,9 @@ class AvgPool2dSame(nn.AvgPool2d):
     """TensorFlow-like 'same' wrapper for 2D average pooling.
 
     Args:
-        kernel_size: Size of the pooling kernel ``(H, W)``.
-        stride: Stride of the pooling ``(H, W)``. Default is ``None``.
-        padding: Base padding before ``'same'`` adjustment ``(H, W)``. Default is ``0``.
+        kernel_size: Size of the pooling kernel (H, W).
+        stride: Stride of the pooling (H, W). Default is ``None``.
+        padding: Base padding before ``'same'`` adjustment (H, W). Default is ``0``.
         ceil_mode: If ``True``, uses ceil for output shape. Default is ``False``.
         count_include_pad: If ``True``, includes padding in avg. Default is ``True``.
     """
@@ -398,10 +398,10 @@ def max_pool2d_same(
 
     Args:
         input: Input tensor [B, C, H, W].
-        kernel_size: Size of the pooling kernel ``(H, W)``.
-        stride: Stride of the pooling ``(H, W)``.
-        padding: Base padding before ``'same'`` adjustment ``(H, W)``. Default is ``0``.
-        dilation: Dilation of the pooling ``(H, W)``. Default is ``1``.
+        kernel_size: Size of the pooling kernel (H, W).
+        stride: Stride of the pooling (H, W).
+        padding: Base padding before ``'same'`` adjustment (H, W). Default is ``0``.
+        dilation: Dilation of the pooling (H, W). Default is ``1``.
         ceil_mode: If ``True``, uses ceil for output shape. Default is ``False``.
 
     Returns:
@@ -427,10 +427,10 @@ class MaxPool2dSame(nn.MaxPool2d):
     """TensorFlow-like ``'same'`` wrapper for 2D max pooling.
 
     Args:
-        kernel_size: Size of the pooling kernel ``(H, W)``.
-        stride: Stride of the pooling ``(H, W)``. Default is ``None``.
-        padding: Base padding before ``'same'`` adjustment ``(H, W)``. Default is ``(0, 0)``.
-        dilation: Dilation of the pooling ``(H, W)``. Default is ``(1, 1)``.
+        kernel_size: Size of the pooling kernel (H, W).
+        stride: Stride of the pooling (H, W). Default is ``None``.
+        padding: Base padding before ``'same'`` adjustment (H, W). Default is ``(0, 0)``.
+        dilation: Dilation of the pooling (H, W). Default is ``(1, 1)``.
         ceil_mode: If ``True``, uses ceil for output shape. Default is ``False``.
     """
     
@@ -477,8 +477,8 @@ class MedianPool2d(nn.Module):
     """Median pooling layer, usable as a median filter when stride=1.
 
     Args:
-        kernel_size: Size of the pooling kernel ``(H, W)``.
-        stride: Stride of the pooling ``(H, W)``. Default is ``(1, 1)``.
+        kernel_size: Size of the pooling kernel (H, W).
+        stride: Stride of the pooling (H, W). Default is ``(1, 1)``.
         padding: Padding (int or tuple). Default is ``0`` (updated by 'same').
         same: If ``True``, enforces 'same' padding. Default is ``False``.
     """

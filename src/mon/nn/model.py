@@ -63,7 +63,7 @@ def load_weights(
 
     Args:
         model: Model to load weights into.
-        weights: Weights as dict, str path, or core.Path.
+        weights: Weights as dict, str path, or ``core.Path``.
         weights_only: Load only weights if ``True``. Default is ``False``.
     
     Returns:
@@ -709,7 +709,7 @@ class Model(lightning.LightningModule, ABC):
         """Exports the model to ONNX format.
     
         Args:
-            input_dims: Input dimensions as ``[C, H, W]`` or ``None``.
+            input_dims: Input dimensions as [C, H, W] or ``None``.
             file_path: Save path or None to use root/fullname. Default is ``None``.
             export_params: Export parameters if ``True``. Default is ``True``.
        

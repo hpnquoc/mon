@@ -72,12 +72,12 @@ class ImageEnhancementModel(VisionModel, ABC):
         outputs   =    data.get("outputs",  {})
         enhanced  = outputs.pop("enhanced", None)
         
-        image        = list(dtype.to_image_nparray(image,     keepdim=True, denormalize=True))
-        ref_image    = list(dtype.to_image_nparray(ref_image, keepdim=True, denormalize=True)) if ref_image is not None else None
-        enhanced     = list(dtype.to_image_nparray(enhanced,  keepdim=True, denormalize=True))
+        image        = list(dtype.convert_image_to_array(image, denormalize=True))
+        ref_image    = list(dtype.convert_image_to_array(ref_image, denormalize=True)) if ref_image is not None else None
+        enhanced     = list(dtype.convert_image_to_array(enhanced, denormalize=True))
         extra_images = {k: v for k, v in outputs.items() if dtype.is_image(v)}
         extra        = {
-            k: list(dtype.to_image_nparray(v, keepdim=True, denormalize=True))
+            k: list(dtype.convert_image_to_array(v, denormalize=True))
             for k, v in extra_images.items()
         } if extra_images else {}
         

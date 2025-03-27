@@ -65,9 +65,9 @@ def grayscale_to_rgb(
     Args:
         image: A grayscale image of type:
             - `torch.Tensor` in ``[*, 1, H, W]`` format with data in the
-                range ``[0.0, 1.0]``.
-            - `numpy.ndarray` in ``[H, W]`` format with data in the
-                range ``[0, 255]``.
+                range [0.0, 1.0].
+            - `numpy.ndarray` in [H, W] format with data in the
+                range [0, 255].
     """
     if isinstance(image, torch.Tensor):
         return kornia.color.grayscale_to_rgb(image)
@@ -87,9 +87,9 @@ def rgb_to_grayscale(
     Args:
         image: An RGB image of type:
             - `torch.Tensor` in ``[*, 3, H, W]`` format with data in the
-                range ``[0.0, 1.0]``.
+                range [0.0, 1.0].
             - `numpy.ndarray` in ``[H, W, 3]`` format with data in the
-                range ``[0, 255]``.
+                range [0, 255].
         rgb_weights: Weights that will be applied on each channel (RGB). The
             sum of the weights should add up to one. Defaults: ``None``.
     """
@@ -110,9 +110,9 @@ def bgr_to_grayscale(
     Args:
         image: A BGR image of type:
             - `torch.Tensor` in ``[*, 3, H, W]`` format with data in the
-                range ``[0.0, 1.0]``.
+                range [0.0, 1.0].
             - `numpy.ndarray` in ``[H, W, 3]`` format with data in the
-                range ``[0, 255]``.
+                range [0, 255].
     """
     rgb = bgr_to_rgb(image)
     return rgb_to_grayscale(rgb)
@@ -131,9 +131,9 @@ def rgb_to_hls(
     Args:
         image: An RGB image of type:
             - `torch.Tensor` in ``[*, 3, H, W]`` format with data in the
-                range ``[0.0, 1.0]``.
+                range [0.0, 1.0].
             - `numpy.ndarray` in ``[H, W, 3]`` format with data in the
-                range ``[0, 255]``.
+                range [0, 255].
         eps: Epsilon value to avoid division by zero. Defaults: ``1e-8``.
     """
     if isinstance(image, torch.Tensor):
@@ -151,9 +151,9 @@ def hls_to_rgb(image: torch.Tensor | np.ndarray) -> torch.Tensor | np.ndarray:
     Args:
         image: An HLS image of type:
             - `torch.Tensor` in ``[*, 3, H, W]`` format with data in the
-                range ``[0.0, 1.0]``.
+                range [0.0, 1.0].
             - `numpy.ndarray` in ``[H, W, 3]`` format with data in the
-                range ``[0, 255]``.
+                range [0, 255].
     """
     if isinstance(image, torch.Tensor):
         return kornia.color.hls_to_rgb(image)
@@ -177,14 +177,14 @@ def rgb_to_hsv(
     Args:
         image: An RGB image of type:
             - `torch.Tensor` in ``[*, 3, H, W]`` format with data in the
-                range ``[0.0, 1.0]``.
+                range [0.0, 1.0].
             - `numpy.ndarray` in ``[H, W, 3]`` format with data in the
-                range ``[0, 255]``.
+                range [0, 255].
         eps: Scalar to enforce numerical stability. Defaults: ``1e-8``.
     
     Returns:
         The `H` channel values are in the range ``[0, 2pi]``.
-        The `S` and `V` channels are in the range ``[0.0, 1.0]``.
+        The `S` and `V` channels are in the range [0.0, 1.0].
     """
     if isinstance(image, torch.Tensor):
         return kornia.color.rgb_to_hsv(image, eps)
@@ -204,13 +204,13 @@ def rgb_to_v(
     Args:
         image: An RGB image of type:
             - `torch.Tensor` in ``[*, 3, H, W]`` format with data in the
-                range ``[0.0, 1.0]``.
+                range [0.0, 1.0].
             - `numpy.ndarray` in ``[H, W, 3]`` format with data in the
-                range ``[0, 255]``.
+                range [0, 255].
         eps: Scalar to enforce numerical stability. Defaults: ``1e-8``.
     
     Returns:
-        The `V` channels are in the range ``[0.0, 1.0]``.
+        The `V` channels are in the range [0.0, 1.0].
     """
     hsv = rgb_to_hsv(image, eps)
     if isinstance(image, torch.Tensor):
@@ -231,14 +231,14 @@ def bgr_to_hsv(
     Args:
         image: An BGR image of type:
             - `torch.Tensor` in ``[*, 3, H, W]`` format with data in the
-                range ``[0.0, 1.0]``.
+                range [0.0, 1.0].
             - `numpy.ndarray` in ``[H, W, 3]`` format with data in the
-                range ``[0, 255]``.
+                range [0, 255].
         eps: Scalar to enforce numerical stability. Defaults: ``1e-8``.
     
     Returns:
         The `H` channel values are in the range ``[0, 2pi]``.
-        The `S` and `V` channels are in the range ``[0.0, 1.0]``.
+        The `S` and `V` channels are in the range [0.0, 1.0].
     """
     rgb = bgr_to_rgb(image)
     return rgb_to_hsv(rgb, eps)
@@ -253,13 +253,13 @@ def bgr_to_v(
     Args:
         image: An BGR image of type:
             - `torch.Tensor` in ``[*, 3, H, W]`` format with data in the
-                range ``[0.0, 1.0]``.
+                range [0.0, 1.0].
             - `numpy.ndarray` in ``[H, W, 3]`` format with data in the
-                range ``[0, 255]``.
+                range [0, 255].
         eps: Scalar to enforce numerical stability. Defaults: ``1e-8``.
     
     Returns:
-        The `V` channels are in the range ``[0.0, 1.0]``.
+        The `V` channels are in the range [0.0, 1.0].
     """
     hsv = bgr_to_hsv(image, eps)
     if isinstance(image, torch.Tensor):
@@ -278,9 +278,9 @@ def hsv_to_rgb(image: torch.Tensor | np.ndarray) -> torch.Tensor | np.ndarray:
         image: An HSV image of type:
             - `torch.Tensor` in ``[*, 3, H, W]`` format. The `H` channel
                 values are in the range ``[0, 2pi]``. The `S` and `V` channels
-                are in the range ``[0.0, 1.0]``.
+                are in the range [0.0, 1.0].
             - `numpy.ndarray` in ``[H, W, 3]`` format with data in the
-                range ``[0, 255]``.
+                range [0, 255].
     """
     if isinstance(image, torch.Tensor):
         return kornia.color.hsv_to_rgb(image)
@@ -298,9 +298,9 @@ def hsv_to_bgr(image: torch.Tensor | np.ndarray) -> torch.Tensor | np.ndarray:
         image: An HSV image of type:
             - `torch.Tensor` in ``[*, 3, H, W]`` format. The `H` channel
                 values are in the range ``[0, 2pi]``. The `S` and `V` channels
-                are in the range ``[0.0, 1.0]``.
+                are in the range [0.0, 1.0].
             - `numpy.ndarray` in ``[H, W, 3]`` format with data in the
-                range ``[0, 255]``.
+                range [0, 255].
     """
     rgb = hsv_to_rgb(image)
     return rgb_to_bgr(rgb)
@@ -446,9 +446,9 @@ def rgb_to_lab(image: torch.Tensor | np.ndarray) -> torch.Tensor | np.ndarray:
     Args:
         image: An RGB image of type:
             - `torch.Tensor` in ``[*, 3, H, W]`` format with data in the
-                range ``[0.0, 1.0]``.
+                range [0.0, 1.0].
             - `numpy.ndarray` in ``[H, W, 3]`` format with data in the
-                range ``[0, 255]``.
+                range [0, 255].
     
     Returns:
         The `L` channel values are in the range ``[0, 100]``.
@@ -472,13 +472,13 @@ def lab_to_rgb(
     Args:
         image: A Lab image of type:
             - `torch.Tensor` in ``[*, 3, H, W]`` format with data in the
-                range ``[0.0, 1.0]``. The `L` channel values are in the range
+                range [0.0, 1.0]. The `L` channel values are in the range
                 ``[0, 100]``. The `a` and `b` channels are in the range
                 ``[-128, 127]``.
             - `numpy.ndarray` in ``[H, W, 3]`` format with data in the
-                range ``[0, 255]``.
+                range [0, 255].
         clip: Whether to apply clipping to insure output RGB values in range
-            ``[0.0, 1.0]``.
+            [0.0, 1.0].
     """
     if isinstance(image, torch.Tensor):
         return kornia.color.lab_to_rgb(image, clip)
@@ -503,9 +503,9 @@ def rgb_to_luv(
     Args:
         image: An RGB image of type:
             - `torch.Tensor` in ``[*, 3, H, W]`` format with data in the
-                range ``[0.0, 1.0]``.
+                range [0.0, 1.0].
             - `numpy.ndarray` in ``[H, W, 3]`` format with data in the
-                range ``[0, 255]``.
+                range [0, 255].
         eps: Epsilon value to avoid division by zero. Defaults: ``1e-12``.
     """
     if isinstance(image, torch.Tensor):
@@ -526,9 +526,9 @@ def luv_to_rgb(
     Args:
         image: A Luv image of type:
             - `torch.Tensor` in ``[*, 3, H, W]`` format with data in the
-                range ``[0.0, 1.0]``.
+                range [0.0, 1.0].
             - `numpy.ndarray` in ``[H, W, 3]`` format with data in the
-                range ``[0, 255]``.
+                range [0, 255].
         eps: Epsilon value to avoid division by zero. Defaults: ``1e-12``.
     """
     if isinstance(image, torch.Tensor):
@@ -550,9 +550,9 @@ def rgb_to_bgr(image: torch.Tensor | np.ndarray) -> torch.Tensor | np.ndarray:
     Args:
         image: An RGB image of type:
             - `torch.Tensor` in ``[*, 3, H, W]`` format with data in the
-                range ``[0.0, 1.0]``.
+                range [0.0, 1.0].
             - `numpy.ndarray` in ``[H, W, 3]`` format with data in the
-                range ``[0, 255]``.
+                range [0, 255].
     """
     return bgr_to_rgb(image)
 
@@ -563,9 +563,9 @@ def bgr_to_rgb(image: torch.Tensor | np.ndarray) -> torch.Tensor | np.ndarray:
     Args:
         image: A BGR image of type:
             - `torch.Tensor` in ``[*, 3, H, W]`` format with data in the
-                range ``[0.0, 1.0]``.
+                range [0.0, 1.0].
             - `numpy.ndarray` in ``[H, W, 3]`` format with data in the
-                range ``[0, 255]``.
+                range [0, 255].
     """
     if isinstance(image, torch.Tensor):
         return kornia.color.bgr_to_rgb(image)
@@ -585,9 +585,9 @@ def rgb_to_rgba(
     Args:
         image: An RGB image of type:
             - `torch.Tensor` in ``[*, 3, H, W]`` format with data in the
-                range ``[0.0, 1.0]``.
+                range [0.0, 1.0].
             - `numpy.ndarray` in ``[H, W, 3]`` format with data in the
-                range ``[0, 255]``.
+                range [0, 255].
         alpha_val: A `float` number for the alpha value, or a
             `torch.Tensor` of shape ``[*, 1, H, W]``.
     """
@@ -609,9 +609,9 @@ def bgr_to_rgba(
     Args:
         image: A BGR image of type:
             - `torch.Tensor` in ``[*, 3, H, W]`` format with data in the
-                range ``[0.0, 1.0]``.
+                range [0.0, 1.0].
             - `numpy.ndarray` in ``[H, W, 3]`` format with data in the
-                range ``[0, 255]``.
+                range [0, 255].
         alpha_val: A `float` number for the alpha value, or a
             `torch.Tensor` of shape ``[*, 1, H, W]``.
     """
@@ -625,9 +625,9 @@ def rgba_to_rgb(image: torch.Tensor | np.ndarray) -> torch.Tensor | np.ndarray:
     Args:
         image: An RGBA image of type:
             - `torch.Tensor` in ``[*, 4, H, W]`` format with data in the
-                range ``[0.0, 1.0]``.
+                range [0.0, 1.0].
             - `numpy.ndarray` in ``[H, W, 4]`` format with data in the
-                range ``[0, 255]``.
+                range [0, 255].
     """
     if isinstance(image, torch.Tensor):
         return kornia.color.rgba_to_rgb(image)
@@ -644,9 +644,9 @@ def rgba_to_bgr(image: torch.Tensor | np.ndarray) -> torch.Tensor | np.ndarray:
     Args:
         image: An RGBA image of type:
             - `torch.Tensor` in ``[*, 4, H, W]`` format with data in the
-                range ``[0.0, 1.0]``.
+                range [0.0, 1.0].
             - `numpy.ndarray` in ``[H, W, 4]`` format with data in the
-                range ``[0, 255]``.
+                range [0, 255].
     """
     rgb = rgba_to_rgb(image)
     return rgb_to_bgr(rgb)
@@ -660,9 +660,9 @@ def rgb_to_linear_rgb(
     Args:
         image: An RGB image of type:
             - `torch.Tensor` in ``[*, 3, H, W]`` format with data in the
-                range ``[0.0, 1.0]``.
+                range [0.0, 1.0].
             - `numpy.ndarray` in ``[H, W, 3]`` format with data in the
-                range ``[0, 255]``.
+                range [0, 255].
     """
     if isinstance(image, torch.Tensor):
         return kornia.color.rgb_to_linear_rgb(image)
@@ -679,9 +679,9 @@ def linear_rgb_to_rgb(
     Args:
         image: A linear RGB image of type:
             - `torch.Tensor` in ``[*, 3, H, W]`` format with data in the
-                range ``[0.0, 1.0]``.
+                range [0.0, 1.0].
             - `numpy.ndarray` in ``[H, W, 3]`` format with data in the
-                range ``[0, 255]``.
+                range [0, 255].
     """
     if isinstance(image, torch.Tensor):
         return kornia.color.linear_rgb_to_rgb(image)
@@ -704,9 +704,9 @@ def rgb_to_sepia(
     Args:
         image: An RGB image of type:
             - `torch.Tensor` in ``[*, 3, H, W]`` format with data in the
-                range ``[0.0, 1.0]``.
+                range [0.0, 1.0].
             - `numpy.ndarray` in ``[H, W, 3]`` format with data in the
-                range ``[0, 255]``.
+                range [0, 255].
         rescale: If ``True``, the output tensor will be rescaled (max values be
             ``1.0`` or ``255``).
         eps: Epsilon value to avoid division by zero. Defaults: ``1e-6``.
@@ -728,9 +728,9 @@ def rgb_to_xyz(image: torch.Tensor | np.ndarray) -> torch.Tensor | np.ndarray:
     Args:
         image: An RGB image of type:
             - `torch.Tensor` in ``[*, 3, H, W]`` format with data in the
-                range ``[0.0, 1.0]``.
+                range [0.0, 1.0].
             - `numpy.ndarray` in ``[H, W, 3]`` format with data in the
-                range ``[0, 255]``.
+                range [0, 255].
     """
     if isinstance(image, torch.Tensor):
         return kornia.color.rgb_to_xyz(image)
@@ -747,9 +747,9 @@ def xyz_to_rgb(image: torch.Tensor | np.ndarray) -> torch.Tensor | np.ndarray:
     Args:
         image: An XYZ image of type:
             - `torch.Tensor` in ``[*, 3, H, W]`` format with data in the
-                range ``[0.0, 1.0]``.
+                range [0.0, 1.0].
             - `numpy.ndarray` in ``[H, W, 3]`` format with data in the
-                range ``[0, 255]``.
+                range [0, 255].
     """
     if isinstance(image, torch.Tensor):
         return kornia.color.xyz_to_rgb(image)
@@ -766,9 +766,9 @@ def bgr_to_xyz(image: torch.Tensor | np.ndarray) -> torch.Tensor | np.ndarray:
     Args:
         image: A BGR image of type:
             - `torch.Tensor` in ``[*, 3, H, W]`` format with data in the
-                range ``[0.0, 1.0]``.
+                range [0.0, 1.0].
             - `numpy.ndarray` in ``[H, W, 3]`` format with data in the
-                range ``[0, 255]``.
+                range [0, 255].
     """
     rgb = bgr_to_rgb(image)
     return rgb_to_xyz(rgb)
@@ -780,9 +780,9 @@ def xyz_to_bgr(image: torch.Tensor | np.ndarray) -> torch.Tensor | np.ndarray:
     Args:
         image: An XYZ image of type:
             - `torch.Tensor` in ``[*, 3, H, W]`` format with data in the
-                range ``[0.0, 1.0]``.
+                range [0.0, 1.0].
             - `numpy.ndarray` in ``[H, W, 3]`` format with data in the
-                range ``[0, 255]``.
+                range [0, 255].
     """
     rgb = xyz_to_rgb(image)
     return rgb_to_bgr(rgb)
@@ -798,9 +798,9 @@ def rgb_to_ycbcr(image: torch.Tensor | np.ndarray) -> torch.Tensor | np.ndarray:
     Args:
         image: An RGB image of type:
             - `torch.Tensor` in ``[*, 3, H, W]`` format with data in the
-                range ``[0.0, 1.0]``.
+                range [0.0, 1.0].
             - `numpy.ndarray` in ``[H, W, 3]`` format with data in the
-                range ``[0, 255]``.
+                range [0, 255].
     """
     if isinstance(image, torch.Tensor):
         return kornia.color.rgb_to_ycbcr(image)
@@ -817,9 +817,9 @@ def bgr_to_ycbcr(image: torch.Tensor | np.ndarray) -> torch.Tensor | np.ndarray:
     Args:
         image: A BGR image of type:
             - `torch.Tensor` in ``[*, 3, H, W]`` format with data in the
-                range ``[0.0, 1.0]``.
+                range [0.0, 1.0].
             - `numpy.ndarray` in ``[H, W, 3]`` format with data in the
-                range ``[0, 255]``.
+                range [0, 255].
     """
     rgb = bgr_to_rgb(image)
     return rgb_to_ycbcr(rgb)
@@ -831,9 +831,9 @@ def rgb_to_y(image: torch.Tensor | np.ndarray) -> torch.Tensor | np.ndarray:
     Args:
         image: An RGB image of type:
             - `torch.Tensor` in ``[*, 3, H, W]`` format with data in the
-                range ``[0.0, 1.0]``.
+                range [0.0, 1.0].
             - `numpy.ndarray` in ``[H, W, 3]`` format with data in the
-                range ``[0, 255]``.
+                range [0, 255].
     """
     if isinstance(image, torch.Tensor):
         ycbcr = kornia.color.rgb_to_ycbcr(image)
@@ -852,9 +852,9 @@ def bgr_to_y(image: torch.Tensor | np.ndarray) -> torch.Tensor | np.ndarray:
     Args:
         image: A BGR image of type:
             - `torch.Tensor` in ``[*, 3, H, W]`` format with data in the
-                range ``[0.0, 1.0]``.
+                range [0.0, 1.0].
             - `numpy.ndarray` in ``[H, W, 3]`` format with data in the
-                range ``[0, 255]``.
+                range [0, 255].
     """
     rgb = bgr_to_rgb(image)
     return rgb_to_y(rgb)
@@ -866,9 +866,9 @@ def ycbcr_to_rgb(image: torch.Tensor | np.ndarray) -> torch.Tensor | np.ndarray:
     Args:
         image: An YCbCr image of type:
             - `torch.Tensor` in ``[*, 3, H, W]`` format with data in the
-                range ``[0.0, 1.0]``.
+                range [0.0, 1.0].
             - `numpy.ndarray` in ``[H, W, 3]`` format with data in the
-                range ``[0, 255]``.
+                range [0, 255].
     """
     if isinstance(image, torch.Tensor):
         return kornia.color.ycbcr_to_rgb(image)
@@ -885,9 +885,9 @@ def ycbcr_to_bgr(image: torch.Tensor | np.ndarray) -> torch.Tensor | np.ndarray:
     Args:
         image: An YCbCr image of type:
             - `torch.Tensor` in ``[*, 3, H, W]`` format with data in the
-                range ``[0.0, 1.0]``.
+                range [0.0, 1.0].
             - `numpy.ndarray` in ``[H, W, 3]`` format with data in the
-                range ``[0, 255]``.
+                range [0, 255].
     """
     rgb = ycbcr_to_rgb(image)
     return rgb_to_bgr(rgb)
@@ -903,9 +903,9 @@ def rgb_to_yuv(image: torch.Tensor | np.ndarray) -> torch.Tensor | np.ndarray:
     Args:
         image: An RGB image of type:
             - `torch.Tensor` in ``[*, 3, H, W]`` format with data in the
-                range ``[0.0, 1.0]``.
+                range [0.0, 1.0].
             - `numpy.ndarray` in ``[H, W, 3]`` format with data in the
-                range ``[0, 255]``.
+                range [0, 255].
     """
     if isinstance(image, torch.Tensor):
         return kornia.color.rgb_to_yuv(image)
@@ -922,9 +922,9 @@ def bgr_to_yuv(image: torch.Tensor | np.ndarray) -> torch.Tensor | np.ndarray:
     Args:
         image: A BGR image of type:
             - `torch.Tensor` in ``[*, 3, H, W]`` format with data in the
-                range ``[0.0, 1.0]``.
+                range [0.0, 1.0].
             - `numpy.ndarray` in ``[H, W, 3]`` format with data in the
-                range ``[0, 255]``.
+                range [0, 255].
     """
     rgb = bgr_to_rgb(image)
     return rgb_to_yuv(rgb)
@@ -936,9 +936,9 @@ def yuv_to_rgb(image: torch.Tensor | np.ndarray) -> torch.Tensor | np.ndarray:
     Args:
         image: An RGB image of type:
             - `torch.Tensor` in ``[*, 3, H, W]`` format with data in the
-                range ``[0.0, 1.0]``.
+                range [0.0, 1.0].
             - `numpy.ndarray` in ``[H, W, 3]`` format with data in the
-                range ``[0, 255]``.
+                range [0, 255].
     """
     if isinstance(image, torch.Tensor):
         return kornia.color.yuv_to_rgb(image)
@@ -955,9 +955,9 @@ def yuv_to_bgr(image: torch.Tensor | np.ndarray) -> torch.Tensor | np.ndarray:
     Args:
         image: A BGR image of type:
             - `torch.Tensor` in ``[*, 3, H, W]`` format with data in the
-                range ``[0.0, 1.0]``.
+                range [0.0, 1.0].
             - `numpy.ndarray` in ``[H, W, 3]`` format with data in the
-                range ``[0, 255]``.
+                range [0, 255].
     """
     rgb = yuv_to_rgb(image)
     return rgb_to_bgr(rgb)

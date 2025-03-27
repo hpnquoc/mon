@@ -318,7 +318,7 @@ class BBoxFormat(DT.Enum):
     
     CX, CY: refers to a center of bounding box.
     W, H: refers to the width and height of bounding box.
-    N: refers to the normalized value in the range ``[0.0, 1.0]``:
+    N: refers to the normalized value in the range [0.0, 1.0]:
         x_norm = absolute_x / image_width
         height_norm = absolute_height / image_height
     """
