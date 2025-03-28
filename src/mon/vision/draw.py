@@ -1,10 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Drawing.
-
-This module implements drawing functionalities for images.
-"""
+"""Implements drawing functionalities for images."""
 
 from __future__ import annotations
 
@@ -104,9 +101,9 @@ def draw_heatmap(
     """
     
     if np.max(image) > 1:
-        raise ValueError(f"[image] should be np.float32 in range [0.0, 1.0], but got {np.max(image)}")
+        raise ValueError(f"[image] should be np.float32 in range [0.0, 1.0], got {np.max(image)}")
     if not 0.0 <= alpha <= 1.0:
-        raise ValueError(f"[alpha] should be in range [0.0, 1.0], but got {alpha}")
+        raise ValueError(f"[alpha] should be in range [0.0, 1.0], got {alpha}")
 
     heatmap = I.convert_depth_to_color(heatmap, color_map, use_rgb)
     heatmap = np.float32(heatmap) / 255

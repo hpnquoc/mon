@@ -1,10 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Base Classification Model.
-
-This module implements the base model class for classification models.
-"""
+"""Implements base class for classification models."""
 
 from __future__ import annotations
 

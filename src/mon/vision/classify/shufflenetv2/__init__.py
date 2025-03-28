@@ -1,10 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""ShuffleNetV2.
-
-This module implements ShuffleNetV2 models.
-"""
+"""Implements ShuffleNetV2 models."""
 
 from __future__ import annotations
 

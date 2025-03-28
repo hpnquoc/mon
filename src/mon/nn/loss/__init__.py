@@ -1,10 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Loss Functions.
-
-This module implements loss functions for training neural network models.
-"""
+"""Implements loss functions for neural network training."""
 
 from __future__ import annotations
 

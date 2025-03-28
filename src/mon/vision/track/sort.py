@@ -1,10 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""SORT.
-
-This module implements the SORT: A Simple, Online and Realtime Tracker.
-"""
+"""Implements SORT: Simple, Online, Realtime Tracker."""
 
 from __future__ import annotations
 

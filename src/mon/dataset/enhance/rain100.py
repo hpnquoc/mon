@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Rain100 Datasets."""
+"""Implements Rain100 datasets."""
 
 from __future__ import annotations
 
@@ -54,7 +54,7 @@ class Rain100(MultimodalDataset):
         """Initializes dataset with ``root`` path and parent args."""
         root = root / "rain100" if root.name != "rain100" else root
         if not root.is_dir():
-            raise FileNotFoundError(f"[root] directory not found: [{root}]")
+            raise FileNotFoundError(f"[root] directory not found: [{root}].")
         super().__init__(root=root, *args, **kwargs)
     
     def get_data(self):
@@ -100,7 +100,7 @@ class Rain100H(MultimodalDataset):
         """Initializes dataset with ``root`` path and parent args."""
         root = root / "rain100h" if root.name != "rain100h" else root
         if not root.is_dir():
-            raise FileNotFoundError(f"[root] directory not found: [{root}]")
+            raise FileNotFoundError(f"[root] directory not found: [{root}].")
         super().__init__(root=root, *args, **kwargs)
     
     def get_data(self):
@@ -146,7 +146,7 @@ class Rain100L(MultimodalDataset):
         """Initializes dataset with ``root`` path and parent args."""
         root = root / "rain100l" if root.name != "rain100l" else root
         if not root.is_dir():
-            raise FileNotFoundError(f"[root] directory not found: [{root}]")
+            raise FileNotFoundError(f"[root] directory not found: [{root}].")
         super().__init__(root=root, *args, **kwargs)
 
     def get_data(self):
@@ -183,10 +183,11 @@ class Rain100DataModule(DataModule):
         pass
     
     def setup(self, stage: Literal["train", "test", "predict", None] = None):
-        """Sets up datasets for given ``stage``.
+        """Sets up datasets for specified ``stage``.
 
         Args:
-            stage: Stage to configure. Default is ``None``.
+            stage: Stage to setup, one of ``"train"``, ``"test"``, ``"predict"``,
+                or ``None``. Default is ``None``.
         """
         if self.can_log:
             console.log(f"Setup [red]{self.__class__.__name__}[/red].")
@@ -218,10 +219,11 @@ class Rain100HDataModule(DataModule):
         pass
     
     def setup(self, stage: Literal["train", "test", "predict", None] = None):
-        """Sets up datasets for given ``stage``.
+        """Sets up datasets for specified ``stage``.
 
         Args:
-            stage: Stage to configure. Default is ``None``.
+            stage: Stage to setup, one of ``"train"``, ``"test"``, ``"predict"``,
+                or ``None``. Default is ``None``.
         """
         if self.can_log:
             console.log(f"Setup [red]{self.__class__.__name__}[/red].")
@@ -253,10 +255,11 @@ class Rain100LDataModule(DataModule):
         pass
     
     def setup(self, stage: Literal["train", "test", "predict", None] = None):
-        """Sets up datasets for given ``stage``.
+        """Sets up datasets for specified ``stage``.
 
         Args:
-            stage: Stage to configure. Default is ``None``.
+            stage: Stage to setup, one of ``"train"``, ``"test"``, ``"predict"``,
+                or ``None``. Default is ``None``.
         """
         if self.can_log:
             console.log(f"Setup [red]{self.__class__.__name__}[/red].")

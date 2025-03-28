@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Thermal Data Types."""
+"""Implements thermal data types."""
 
 from __future__ import annotations

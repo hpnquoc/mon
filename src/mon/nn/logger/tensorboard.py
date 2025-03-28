@@ -1,10 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Tensorboard Logger.
-
-This module extends the Tensorboard logger.
-"""
+"""Extends the Tensorboard logger."""
 
 from __future__ import annotations
 
@@ -35,7 +32,7 @@ class EventFileWriter(event_file_writer.EventFileWriter):
     """Writes TensorFlow event files to a log directory.
 
     Args:
-        logdir: Directory to save event files.
+        logdir: Directory to save event files as ``str``.
         max_queue_size: Max size of the event queue. Default is ``10``.
         flush_secs: Seconds between flushes. Default is ``120``.
         filename_suffix: Suffix for event file name. Default is ``""``.
@@ -82,20 +79,6 @@ class FileWriter(tensorboard.FileWriter):
         flush_secs     : int = 120,
         filename_suffix: str = ""
     ):
-        """Creates a ``FileWriter`` and an event file. On construction, the writer
-        creates a new event file in ``log_dir``. The other arguments to the
-        constructor control the asynchronous writes to the event file.
-
-        Args:
-            log_dir: Directory where event file will be written.
-            max_queue: Size of the queue for pending events and summaries before
-             one of the 'add' calls forces a flush to disk. Default is ten items.
-            flush_secs: How often, in seconds, to flush the pending events and
-                summaries to disk. Default is every two minutes.
-            filename_suffix: Suffix added to all event filenames in the
-                ``log_dir`` directory. More details on file_name construction in
-                ``tensorboard.summary.writer.event_file_writer.EventFileWriter``.
-        """
         # Sometimes PosixPath is passed in and we need to coerce it to a string in all cases.
         # See if we can remove this in the future if we are actually the ones passing in a PosixPath
         log_dir = str(log_dir)
@@ -195,7 +178,8 @@ class TensorBoardLogger(loggers.TensorBoardLogger):
         if self._experiment:
             return self._experiment
         if rank_zero_only.rank != 0:
-            raise ValueError("[experiment] must initialize on global_rank=0, but got non-zero rank")
+            raise ValueError("[experiment] must initialize on global_rank=0, "
+                             "got non-zero rank.")
         if self.root_dir:
             self._fs.makedirs(self.root_dir, exist_ok=True)
         self._experiment = SummaryWriter(log_dir=self.log_dir, **self._kwargs)

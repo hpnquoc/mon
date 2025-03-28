@@ -7,7 +7,7 @@ This module implements the paper: Zero-shot Single Image Restoration through
 Controlled Perturbation of Koschmieder's Model.
 
 References:
-    https://github.com/aupendu/zero-restore
+    - https://github.com/aupendu/zero-restore
 """
 
 from __future__ import annotations
@@ -48,7 +48,7 @@ class TotalVariationLoss(nn.Loss):
     neighboring pixels.
     
     References:
-        https://github.com/Li-Chongyi/Zero-DCE/blob/master/Zero-DCE_code/Myloss.py
+        - https://github.com/Li-Chongyi/Zero-DCE/blob/master/Zero-DCE_code/Myloss.py
     """
     
     def __init__(

@@ -1,10 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""SqueezeNet.
-
-This module implements SqueezeNet models.
-"""
+"""Implements SqueezeNet models."""
 
 from __future__ import annotations
 

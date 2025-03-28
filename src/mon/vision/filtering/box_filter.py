@@ -1,10 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Box Filter.
-
-This module implements box filters.
-"""
+"""Implements box filters."""
 
 from __future__ import annotations
 
@@ -111,7 +108,7 @@ def box_filter(
         - https://github.com/wuhuikai/DeepGuidedFilter/blob/master/GuidedFilteringLayer/GuidedFilter_PyTorch/guided_filter_pytorch/box_filter.py
     """
     if kernel_size is None and radius is None:
-        raise ValueError("Either [kernel_size] or [radius] must be provided")
+        raise ValueError("Either [kernel_size] or [radius] must be provided.")
     if isinstance(image, torch.Tensor):
         if image.ndim != 4:
             raise ValueError("[image] must have 4 dimensions")
@@ -133,7 +130,7 @@ def box_filter(
             borderType = borderType
         )
     else:
-        raise TypeError(f"[image] must be torch.Tensor or numpy.ndarray, but got {type(image)}")
+        raise TypeError(f"[image] must be torch.Tensor or numpy.ndarray, got {type(image)}.")
     
 
 def box_filter_conv(
@@ -155,7 +152,7 @@ def box_filter_conv(
         ValueError: If neither ``kernel_size`` nor ``radius`` is provided.
     """
     if kernel_size is None and radius is None:
-        raise ValueError("Either [kernel_size] or [radius] must be provided")
+        raise ValueError("Either [kernel_size] or [radius] must be provided.")
     kernel_size = kernel_size or 2 * radius + 1
     b, c, h, w  = image.shape
     kernel      = torch.ones(b, 1, kernel_size, kernel_size, device=image.device)
@@ -180,7 +177,7 @@ class BoxFilter(nn.Module):
     def __init__(self, kernel_size: int = None, radius: int = None):
         super().__init__()
         if kernel_size is None and radius is None:
-            raise ValueError("Either [kernel_size] or [radius] must be provided")
+            raise ValueError("Either [kernel_size] or [radius] must be provided.")
         self.kernel_size = kernel_size or 2 * radius + 1
         self.radius      = int((self.kernel_size - 1) / 2)
 

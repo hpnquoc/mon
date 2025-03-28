@@ -1,10 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Video Data Type.
-
-This module implements the basic functionalities for video data.
-"""
+"""Implements basic functionalities for video data."""
 
 from __future__ import annotations
 
@@ -99,7 +96,7 @@ def write_video_ffmpeg(
 		frame = I.convert_image_to_array(frame, denormalize)
 	else:
 		raise ValueError(f"`image` must be a `torch.Tensor` or `numpy.ndarray`, "
-		                 f"but got {type(frame)}.")
+		                 f"got {type(frame)}.")
 	process.stdin.write(
 		frame
 		.astype(np.uint8)

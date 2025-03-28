@@ -1,13 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Custom SSIM for PyTorch.
-
-This module implements the custom SSIM which is used as the loss function in the
-paper: "ESDNet: Efficient and Scalable Deep Net for Small Object Detection".
+"""Implements custom SSIM loss for ESDNet paper.
 
 References:
-    https://github.com/MingTian99/ESDNet/blob/master/utils/image_utils.py
+    - https://github.com/MingTian99/ESDNet/blob/master/utils/image_utils.py
 """
 
 from __future__ import annotations
@@ -21,7 +18,6 @@ import math
 import torch
 import torch.nn.functional as F
 from torch import nn
-from torch.autograd import Variable
 
 
 def gaussian(window_size: int, sigma: float) -> torch.Tensor:

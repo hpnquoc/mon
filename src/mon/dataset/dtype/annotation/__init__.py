@@ -1,14 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""This package implements multiple annotation types. We try to support all
-possible data types: `torch.Tensor`, `numpy.ndarray`, or
-`Sequence`, but we prioritize `torch.Tensor`.
-
-The term "annotation" is commonly used in machine learning and deep learning to
-describe both ground truth label and model prediction. Basically, both of them
-share similar data structure.
-"""
+"""Implements annotation types for labels and predictions."""
 
 from __future__ import annotations
 
@@ -32,8 +25,14 @@ from mon.dataset.dtype.annotation.value import *
 # region Utils
 
 def get_albumentation_target_type(annotation) -> str | None:
-    """Returns the type of target that Albumentations expects.
-    One of: [``'image'``, ``'mask'``, ``'bboxes'``, ``'keypoints'``, ``'values'``].
+    """Returns Albumentations target type for an annotation.
+
+    Args:
+        annotation: Annotation object to check.
+
+    Returns:
+        Target type: ``"image"``, ``"mask"``, ``"bboxes"``, ``"keypoints"``, or
+        ``"values"``; ``None`` if unknown.
     """
     if annotation in [ImageAnnotation, FrameAnnotation, DepthMapAnnotation]:
         return "image"
@@ -44,42 +43,82 @@ def get_albumentation_target_type(annotation) -> str | None:
     elif annotation in [SemanticSegmentationAnnotation]:
         return "mask"
     else:
-        error_console.log(f"Unknown annotation type: {annotation}, {type(annotation)}")
+        error_console.log(f"Unknown annotation type: {annotation}, {type(annotation)}.")
         return None
 
 
 class DatapointAttributes(dict[str: Optional[Annotation]]):
-    """A dictionary of datapoint attributes with the keys are the attribute
-    names and the values are the annotation types.
+    """Holds datapoint attributes as a ``dict``.
+
+    Args:
+        args: Positional arguments for ``dict`` initialization.
+        kwargs: Keyword arguments for ``dict`` initialization.
+
+    Attributes:
+        Keys: Attribute names as ``str``.
+        Values: Annotation types as ``Annotation`` or ``None``.
     """
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
     
     def to_tensor_fns(self) -> dict[str: Optional[callable]]:
-        """Returns a dictionary of functions to convert the annotation to a tensor."""
+        """Returns dict of functions to convert annotation to tensor.
+    
+        Returns:
+            Dict mapping keys to ``to_tensor`` functions or ``None``.
+        """
         return {k: getattr(v, "to_tensor", None) for k, v in self.items() if v}
     
     def collate_fns(self) -> dict[str: Optional[callable]]:
-        """Returns a dictionary of functions to collate the annotation."""
+        """Returns dict of functions to collate annotation.
+    
+        Returns:
+            Dict mapping keys to ``collate_fn`` functions or ``None``.
+        """
         return {k: getattr(v, "collate_fn", None) for k, v in self.items() if v}
     
     def albumentation_target_types(self) -> dict[str: str]:
-        """Returns a dictionary of target types that Albumentations expects."""
+        """Returns dict of target types Albumentations expects.
+    
+        Returns:
+            Dict mapping keys to target type strings.
+        """
         target_types = {k: get_albumentation_target_type(v) for k, v in self.items() if v}
         target_types = {k: v for k, v in target_types.items() if v}
         return target_types
     
     def get_tensor_fn(self, key: str) -> Optional[callable]:
-        """Returns the function to convert the annotation to a tensor."""
+        """Returns function to convert annotation to tensor.
+    
+        Args:
+            key: Key of the annotation.
+    
+        Returns:
+            ``to_tensor`` function or ``None`` if not found.
+        """
         return self.to_tensor_fns().get(key, None)
     
     def get_collate_fn(self, key: str) -> Optional[callable]:
-        """Returns the function to collate the annotation."""
+        """Returns function to collate annotation.
+    
+        Args:
+            key: Key of the annotation.
+    
+        Returns:
+            ``collate_fn`` function or ``None`` if not found.
+        """
         return self.collate_fns().get(key, None)
     
     def get_albumentation_target_type(self, key: str) -> Optional[str]:
-        """Returns the target type that Albumentations expects."""
+        """Returns target type Albumentations expects.
+    
+        Args:
+            key: Key of the annotation.
+    
+        Returns:
+            Target type string or ``None`` if not found.
+        """
         return self.albumentation_target_types().get(key, None)
     
 # endregion

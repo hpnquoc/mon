@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""LOL-v1 Datasets."""
+"""Implements LOL-v1 datasets."""
 
 from __future__ import annotations
 
@@ -52,7 +52,7 @@ class LOLv1(MultimodalDataset):
         """Initializes dataset with ``root`` path and parent args."""
         root = root / "lol_v1" if root.name != "lol_v1" else root
         if not root.is_dir():
-            raise FileNotFoundError(f"[root] directory not found: [{root}]")
+            raise FileNotFoundError(f"[root] directory not found: [{root}].")
         super().__init__(root=root, *args, **kwargs)
 
     def get_data(self):
@@ -87,10 +87,11 @@ class LOLv1DataModule(DataModule):
         pass
     
     def setup(self, stage: Literal["train", "test", "predict", None] = None):
-        """Sets up datasets for given ``stage``.
+        """Sets up datasets for specified ``stage``.
 
         Args:
-            stage: Stage to configure. Default is ``None``.
+            stage: Stage to setup, one of ``"train"``, ``"test"``, ``"predict"``,
+                or ``None``. Default is ``None``.
         """
         if self.can_log:
             console.log(f"Setup [red]{self.__class__.__name__}[/red].")

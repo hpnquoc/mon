@@ -1,12 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""This package implements modules that are used to build deep learning models.
-The layers are split into two categories: base (atomic layers) and custom
-(layers that are specially designed for a model).
+"""Implements base and custom layers for deep learning models.
 
-In this package, we keep the same naming convention as in `torch.nn.modules`
-for consistency.
+In this package, we keep the same naming convention as in `torch.nn.modules` for consistency.
 """
 
 from __future__ import annotations

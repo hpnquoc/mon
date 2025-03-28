@@ -1,11 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Data Types for Vision Tasks.
-
-This package implements data types for vision tasks, including image, video,
-pointcloud, depth map, and more.
-"""
+"""Implements data types for vision tasks: image, video, pointcloud, etc."""
 
 from __future__ import annotations
 

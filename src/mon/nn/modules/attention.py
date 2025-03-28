@@ -1,10 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Attention Layers.
-
-This module implements attention layers.
-"""
+"""Implements attention layers."""
 
 from __future__ import annotations
 
@@ -146,7 +143,7 @@ class SimplifiedChannelAttention(nn.Module):
         dtype: Data type for the module. Default is ``None``.
 
     References:
-        https://arxiv.org/pdf/2204.04676.pdf
+        - https://arxiv.org/pdf/2204.04676.pdf
     """
 
     def __init__(
@@ -197,7 +194,7 @@ class BAM(nn.Module):
     """Bottleneck Attention Module from BAM paper.
 
     References:
-        https://github.com/Jongchan/attention-module/blob/master/MODELS/bam.py
+        - https://github.com/Jongchan/attention-module/blob/master/MODELS/bam.py
     """
 
     class Flatten(nn.Module):
@@ -357,7 +354,7 @@ class CBAM(nn.Module):
         spatial: If ``True``, includes spatial attention. Default is ``True``.
 
     References:
-        https://github.com/Jongchan/attention-module/blob/master/MODELS/cbam.py
+        - https://github.com/Jongchan/attention-module/blob/master/MODELS/cbam.py
     """
 
     class Flatten(nn.Module):
@@ -555,7 +552,7 @@ class GalerkinSimpleAttention(nn.Module):
         heads: Number of attention heads.
 
     References:
-        https://github.com/2y7c3/Super-Resolution-Neural-Operator/blob/main/models/galerkin.py
+        - https://github.com/2y7c3/Super-Resolution-Neural-Operator/blob/main/models/galerkin.py
     """
 
     def __init__(self, mid_channels: int, heads: int):
@@ -658,8 +655,8 @@ class SqueezeExciteC(nn.Module):
         bias: If ``True``, adds bias to convolutions. Default is ``False``.
         
     References:
-        https://amaarora.github.io/2020/07/24/SeNet.html#squeeze-and-excitation-block-in-pytorch
-        https://github.com/moskomule/senet.pytorch/blob/master/senet/se_module.py
+        - https://amaarora.github.io/2020/07/24/SeNet.html#squeeze-and-excitation-block-in-pytorch
+        - https://github.com/moskomule/senet.pytorch/blob/master/senet/se_module.py
     """
     
     def __init__(
@@ -708,8 +705,8 @@ class SqueezeExciteL(nn.Module):
         bias: If ``True``, adds bias to linear layers. Default is ``False``.
 
     References:
-        https://amaarora.github.io/2020/07/24/SeNet.html#squeeze-and-excitation-block-in-pytorch
-        https://github.com/moskomule/senet.pytorch/blob/master/senet/se_module.py
+        - https://amaarora.github.io/2020/07/24/SeNet.html#squeeze-and-excitation-block-in-pytorch
+        - https://github.com/moskomule/senet.pytorch/blob/master/senet/se_module.py
     """
     
     def __init__(
@@ -764,7 +761,7 @@ class SimAM(nn.Module):
         e_lambda: Regularization parameter for energy. Default is ``1e-4``.
 
     References:
-        https://github.com/ZjjConan/SimAM
+        - https://github.com/ZjjConan/SimAM
     """
 
     def __init__(self, e_lambda: float = 1e-4):

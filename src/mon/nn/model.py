@@ -1,10 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Model.
-
-This module implements the base class for all deep learning models.
-"""
+"""Implements base class for all deep learning models."""
 
 from __future__ import annotations
 
@@ -316,7 +313,7 @@ class Model(lightning.LightningModule, ABC):
         elif isinstance(weights, (str, core.Path)):
             weights_path = core.Path(weights)
             if not weights_path.is_weights_file():
-                raise ValueError(f"[weights] must be a valid path to a weight file, but got [{weights_path}]")
+                raise ValueError(f"[weights] must be a valid path to a weight file, got [{weights_path}].")
             state_dict = torch.load(str(weights_path))
             self.weights = {
                 "url"        : None,
@@ -338,7 +335,7 @@ class Model(lightning.LightningModule, ABC):
         if state_dict:
             self.load_state_dict(state_dict)
             if self.verbose:
-                console.log(f"Loaded model's weights from: {self.weights}")
+                console.log(f"Loaded model's weights from: {self.weights}.")
         
     def init_loss(self, loss: Any):
         """Sets the model's loss function.
@@ -455,7 +452,7 @@ class Model(lightning.LightningModule, ABC):
         network_params_only = self.optimizer.get("network_params_only", True)
     
         if optimizer_config is None:
-            raise ValueError("[optimizer] must be a dict")
+            raise ValueError("[optimizer] must be a dict.")
         optimizer = OPTIMIZERS.build(
             network             = self,
             config              = optimizer_config,
@@ -465,7 +462,7 @@ class Model(lightning.LightningModule, ABC):
         if lr_scheduler_config:
             scheduler_config = lr_scheduler_config.get("scheduler")
             if scheduler_config is None:
-                raise ValueError("[scheduler] must be defined")
+                raise ValueError("[scheduler] must be defined.")
             lr_scheduler_config["scheduler"] = LR_SCHEDULERS.build(
                 optimizer = optimizer,
                 config    = scheduler_config
@@ -483,7 +480,7 @@ class Model(lightning.LightningModule, ABC):
         Returns:
             Tuple of (FLOPs, parameter count) as floats.
         """
-        core.error_console.log("[yellow]This method has not been implemented yet![/yellow]")
+        core.error_console.log("[yellow]This method has not been implemented yet![/yellow].")
         return 0.0, 0.0
     
     # endregion

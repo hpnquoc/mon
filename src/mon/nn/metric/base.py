@@ -1,11 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Base Metric.
-
-This module implements the base classes for all metrics, and the corresponding
-helper functions.
-"""
+"""Implements base classes and helpers for all metrics."""
 
 from __future__ import annotations
 
@@ -43,12 +39,12 @@ class Metric(torchmetrics.Metric, ABC):
     """Base class for all metrics.
 
     Args:
-        *args: Arguments passed to torchmetrics.Metric.
-        **kwargs: Keyword arguments passed to torchmetrics.Metric.
+        *args: Arguments passed to ``torchmetrics.Metric``.
+        **kwargs: Keyword arguments passed to ``torchmetrics.Metric``.
     
     Attributes:
-        mode: One of "FR" or "NR". Default is ``"FR"``.
-        higher_is_better: True if higher values are better. Default is ``True``.
+        mode: One of ``"FR"`` or ``"NR"``. Default is ``"FR"``.
+        higher_is_better: ``True`` if higher values are better. Default is ``True``.
     """
 
     mode            : Literal["FR", "NR"] = "FR"
@@ -97,17 +93,17 @@ def scale_gt_mean(
 
     Args:
         image: RGB image as ``torch.Tensor`` [B, C, H, W] in [0.0, 1.0] or
-            np.ndarray [H, W, C] in [0, 255].
-        target: Target image of same type as image.
+            ``numpy.ndarray`` [H, W, C] in [0, 255].
+        target: Target image of same type as ``image``.
     
     Returns:
         Scaled image matching target's mean.
     
     Raises:
-        TypeError: If image and target types differ.
+        TypeError: If ``image`` and ``target`` types differ.
     
     References:
-        https://github.com/Fediory/HVI-CIDNet/blob/master/measure.py
+        - https://github.com/Fediory/HVI-CIDNet/blob/master/measure.py
     """
     from mon.vision.dtype import color_space
 
@@ -120,7 +116,8 @@ def scale_gt_mean(
         mean_target = cv2.cvtColor(target, cv2.COLOR_RGB2GRAY).mean()
         image       = np.clip(image * (mean_target / mean_image), 0, 255)
     else:
-        raise TypeError(f"[image] and [target] must be same type, but got [{type(image).__name__}] and [{type(target).__name__}]")
+        raise TypeError(f"[image] and [target] must be same type, "
+                        f"got [{type(image).__name__}] and [{type(target).__name__}].")
     return image
     
 # endregion

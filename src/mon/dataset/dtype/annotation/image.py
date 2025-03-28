@@ -1,10 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Image Annotation.
-
-This module implements annotations that take the form of an image.
-"""
+"""Implements image-based annotations."""
 
 from __future__ import annotations
 
@@ -31,25 +28,12 @@ ClassLabels = classlabel.ClassLabels
 # region Image
 
 class ImageAnnotation(base.Annotation):
-    """Image annotation for another image.
+    """Image annotation.
 
     Args:
-        path: Path to the image file as a ``core.Path`` or ``str``.
-        root: Root directory as a ``core.Path`` or ``str``. Default is ``None``.
-        flags: Flag to read the image, one of:
-            - ``cv2.IMREAD_UNCHANGED``           = -1
-            - ``cv2.IMREAD_GRAYSCALE``           = 0
-            - ``cv2.IMREAD_COLOR``               = 1
-            - ``cv2.IMREAD_ANYDEPTH``            = 2
-            - ``cv2.IMREAD_ANYCOLOR``            = 4
-            - ``cv2.IMREAD_LOAD_GDAL``           = 8
-            - ``cv2.IMREAD_REDUCED_GRAYSCALE_2`` = 16
-            - ``cv2.IMREAD_REDUCED_COLOR_2``     = 17
-            - ``cv2.IMREAD_REDUCED_GRAYSCALE_4`` = 32
-            - ``cv2.IMREAD_REDUCED_COLOR_4``     = 33
-            - ``cv2.IMREAD_REDUCED_GRAYSCALE_8`` = 64
-            - ``cv2.IMREAD_REDUCED_COLOR_8``     = 65
-            - ``cv2.IMREAD_IGNORE_ORIENTATION``  = 128
+        path: Path to image file as ``core.Path`` or ``str``.
+        root: Root dir as ``core.Path`` or ``str``. Default is ``None``.
+        flags: Flag to read image (e.g., ``cv2.IMREAD_COLOR``).
             Default is ``cv2.IMREAD_COLOR``.
     """
     
@@ -72,7 +56,7 @@ class ImageAnnotation(base.Annotation):
         """Returns the image file path.
 
         Returns:
-            ``core.Path`` representing the image file path.
+            ``core.Path`` of the image file path.
         """
         return self._path
     
@@ -81,14 +65,14 @@ class ImageAnnotation(base.Annotation):
         """Sets the image file path.
 
         Args:
-            path: Path to the image file as a ``core.Path`` or ``str``.
+            path: Path to image file as ``core.Path`` or ``str``.
 
         Raises:
-            ValueError: If ``[path]`` is not a valid image file path.
+            ValueError: If ``path`` is not a valid image path.
         """
         path_obj = core.Path(path)
         if not path or not path_obj.is_image_file():
-            raise ValueError(f"[path] must be a valid image path, but got [{path}].")
+            raise ValueError(f"[path] must be a valid image path, got [{path}].")
         self._path  = path_obj
         self._shape = vision.read_image_shape(path=self._path)
     
@@ -97,7 +81,7 @@ class ImageAnnotation(base.Annotation):
         """Returns the image file name.
 
         Returns:
-            ``str`` representing the image file name.
+            ``str`` of the image file name.
         """
         return self.path.name
     
@@ -106,7 +90,7 @@ class ImageAnnotation(base.Annotation):
         """Returns the stem of the image file path.
 
         Returns:
-            ``str`` representing the stem of the image file path.
+            ``str`` of the image file path stem.
         """
         return self.path.stem
     
@@ -115,15 +99,13 @@ class ImageAnnotation(base.Annotation):
         """Returns the image shape.
 
         Returns:
-            Tuple of [H, W, C] representing the image dimensions.
+            Tuple of [H, W, C] for image dimensions.
         """
         return self._shape
     
     @property
     def data(self) -> np.ndarray | None:
         """Returns the image data.
-
-        Loads the image without caching if not already loaded, otherwise returns cached data.
 
         Returns:
             ``numpy.ndarray`` of image data or ``None`` if not loaded.
@@ -154,18 +136,18 @@ class ImageAnnotation(base.Annotation):
         """Loads the image into memory.
 
         Args:
-            path: Path to the image file as a ``core.Path`` or ``str``. Default is ``None``.
-            flags: Flag to read the image. Default is ``None``.
-            cache: If ``True``, caches the image in memory. Default is ``False``.
+            path: Path to image file. Default is ``None``.
+            flags: Flag to read image. Default is ``None``.
+            cache: If ``True``, caches image. Default is ``False``.
 
         Returns:
-            ``numpy.ndarray`` in [H, W, C] format with values in [0, 255].
+            ``numpy.ndarray`` in [H, W, C] format, values in [0, 255].
         """
         if self.image is not None:
             return self.image
         load_path  = path or self.path
         load_flags = flags or self.flags
-        image      = vision.read_image(load_path, load_flags, to_tensor=False, normalize=False)
+        image      = vision.read_image(load_path, load_flags, False, False)
         if self._shape != image.shape:
             self._shape = image.shape
         self.image = image if cache else None
@@ -176,22 +158,17 @@ class ImageAnnotation(base.Annotation):
         return image
     
     @staticmethod
-    def to_tensor(
-        data     : torch.Tensor | np.ndarray,
-        keepdim  : bool = False,
-        normalize: bool = True
-    ) -> torch.Tensor:
+    def to_tensor(data: torch.Tensor | np.ndarray, normalize: bool = True) -> torch.Tensor:
         """Converts input data to a tensor.
 
         Args:
-            data: Input data as a ``torch.Tensor`` or ``numpy.ndarray``.
-            keepdim: If ``True``, retains input dimensions. Default is ``False``.
-            normalize: If ``True``, normalizes the data. Default is ``True``.
+            data: Input as ``torch.Tensor`` or ``numpy.ndarray``.
+            normalize: If ``True``, normalizes data. Default is ``True``.
 
         Returns:
-            ``torch.Tensor`` of the converted data.
+            ``torch.Tensor`` of converted data.
         """
-        return vision.to_image_tensor(data, keepdim, normalize)
+        return vision.convert_image_to_tensor(data, normalize)
     
     @staticmethod
     def collate_fn(batch: list[torch.Tensor | np.ndarray]) -> torch.Tensor | np.ndarray | None:
@@ -201,7 +178,7 @@ class ImageAnnotation(base.Annotation):
             batch: List of images as ``torch.Tensor`` or ``numpy.ndarray``.
 
         Returns:
-            Collated ``torch.Tensor``, ``numpy.ndarray``, or ``None`` if batch is empty or invalid.
+            Collated ``torch.Tensor``, ``numpy.ndarray``, or ``None`` if empty/invalid.
         """
         if not batch:
             return None
@@ -209,12 +186,12 @@ class ImageAnnotation(base.Annotation):
 
 
 class FrameAnnotation(base.Annotation):
-    """Image annotation of a video frame.
+    """Frame annotation of a video frame.
 
     Args:
-        index: Integer index of the frame in the video.
-        frame: Ground-truth image as a ``numpy.ndarray``.
-        path: Path to the video file as a ``core.Path`` or ``str``. Default is ``None``.
+        index: Integer index of frame in video.
+        frame: Ground-truth image as ``numpy.ndarray``.
+        path: Path to video file as ``core.Path`` or ``str``. Default is ``None``.
     """
     
     def __init__(
@@ -235,7 +212,7 @@ class FrameAnnotation(base.Annotation):
         """Returns the video file path.
 
         Returns:
-            ``core.Path`` representing the video file path or ``None`` if not set.
+            ``core.Path`` of video file or ``None`` if not set.
         """
         return self._path
     
@@ -244,15 +221,15 @@ class FrameAnnotation(base.Annotation):
         """Sets the video file path.
 
         Args:
-            path: Path to the video file as a ``core.Path`` or ``str`` or ``None``.
+            path: Path to video file or ``None``.
 
         Raises:
-            ValueError: If ``[path]`` is not a valid video file path when provided.
+            ValueError: If ``path`` is not a valid video path when provided.
         """
         if path is not None:
             path_obj = core.Path(path)
             if not path_obj.is_video_file():
-                raise ValueError(f"[path] must be a valid video path, but got [{path}].")
+                raise ValueError(f"[path] must be a valid video path, got [{path}].")
             self._path = path_obj
         else:
             self._path = None
@@ -262,7 +239,7 @@ class FrameAnnotation(base.Annotation):
         """Returns the frame name.
 
         Returns:
-            ``str`` from ``path.name`` if available, else ``index`` as a string.
+            ``str`` from ``path.name`` or ``index`` if path is unset.
         """
         return self.path.name if self.path else str(self.index)
     
@@ -271,7 +248,7 @@ class FrameAnnotation(base.Annotation):
         """Returns the stem of the frame path.
 
         Returns:
-            ``str`` from ``path.stem`` if available, else ``index`` as a string.
+            ``str`` from ``path.stem`` or ``index`` if path is unset.
         """
         return self.path.stem if self.path else str(self.index)
     
@@ -280,7 +257,7 @@ class FrameAnnotation(base.Annotation):
         """Returns the frame data.
 
         Returns:
-            ``numpy.ndarray`` of the frame data.
+            ``numpy.ndarray`` of frame data.
         """
         return self.frame
     
@@ -289,7 +266,7 @@ class FrameAnnotation(base.Annotation):
         """Returns metadata about the frame.
 
         Returns:
-            Dict with keys ``index``, ``name``, ``stem``, ``path``, ``shape``, and ``hash``.
+            Dict with ``index``, ``name``, ``stem``, ``path``, ``shape``, and ``hash``.
         """
         return {
             "index": self.index,
@@ -301,22 +278,17 @@ class FrameAnnotation(base.Annotation):
         }
     
     @staticmethod
-    def to_tensor(
-        data     : torch.Tensor | np.ndarray,
-        keepdim  : bool = False,
-        normalize: bool = True
-    ) -> torch.Tensor:
+    def to_tensor(data: torch.Tensor | np.ndarray, normalize: bool = True) -> torch.Tensor:
         """Converts input data to a tensor.
 
         Args:
-            data: Input data as a ``torch.Tensor`` or ``numpy.ndarray``.
-            keepdim: If ``True``, retains input dimensions. Default is ``False``.
-            normalize: If ``True``, normalizes the data. Default is ``True``.
+            data: Input as ``torch.Tensor`` or ``numpy.ndarray``.
+            normalize: If ``True``, normalizes data. Default is ``True``.
 
         Returns:
-            ``torch.Tensor`` of the converted data.
+            ``torch.Tensor`` of converted data.
         """
-        return vision.to_image_tensor(data, keepdim, normalize)
+        return vision.convert_image_to_tensor(data, normalize)
     
     @staticmethod
     def collate_fn(batch: list[torch.Tensor | np.ndarray]) -> torch.Tensor | np.ndarray | None:
@@ -326,7 +298,7 @@ class FrameAnnotation(base.Annotation):
             batch: List of images as ``torch.Tensor`` or ``numpy.ndarray``.
 
         Returns:
-            Collated ``torch.Tensor``, ``numpy.ndarray``, or ``None`` if batch is empty or invalid.
+            Collated ``torch.Tensor``, ``numpy.ndarray``, or ``None`` if empty/invalid.
         """
         if not batch:
             return None
@@ -338,16 +310,17 @@ class FrameAnnotation(base.Annotation):
 # region Depth Map
 
 class DepthMapAnnotation(ImageAnnotation):
-    """Dense depth map annotation for an image.
+    """Dense depth map annotation.
 
     Args:
-        path: Path to the depth map file as a ``core.Path`` or ``str``.
-        root: Root directory as a ``core.Path`` or ``str``. Default is ``None``.
-        source: Source of depth data, one of ``DEPTH_DATA_SOURCES``. Default is ``None``.
-        flags: Flag to read the image, e.g., ``cv2.IMREAD_COLOR``. Default is ``cv2.IMREAD_COLOR``.
+        path: Path to depth map file as ``core.Path`` or ``str``.
+        root: Root dir as ``core.Path`` or ``str``. Default is ``None``.
+        source: Source of depth data from ``DEPTH_DATA_SOURCES``. Default is ``None``.
+        flags: Flag to read image (e.g., ``cv2.IMREAD_COLOR``).
+            Default is ``cv2.IMREAD_COLOR``.
 
     Raises:
-        ValueError: If ``[source]`` is not in ``DEPTH_DATA_SOURCES``.
+        ValueError: If ``source`` is not in ``DEPTH_DATA_SOURCES``.
     """
     
     def __init__(
@@ -360,7 +333,7 @@ class DepthMapAnnotation(ImageAnnotation):
     ):
         super().__init__(path=path, root=root, flags=flags, *args, **kwargs)
         if source not in DEPTH_DATA_SOURCES:
-            raise ValueError(f"[source] must be one of {DEPTH_DATA_SOURCES}, but got [{source}].")
+            raise ValueError(f"[source] must be one of {DEPTH_DATA_SOURCES}, got [{source}].")
         self.source = source
         self.flags  = (cv2.IMREAD_GRAYSCALE if source and "g" in source else cv2.IMREAD_COLOR)
         
@@ -370,26 +343,12 @@ class DepthMapAnnotation(ImageAnnotation):
 # region Segmentation
 
 class SemanticSegmentationAnnotation(base.Annotation):
-    """Semantic segmentation annotation (mask) for an image.
+    """Semantic segmentation annotation (mask).
 
     Args:
-        path: Path to the image file as a ``core.Path`` or ``str``.
-        root: Root directory as a ``core.Path`` or ``str``. Default is ``None``.
-        flags: Flag to read the image, one of:
-            - ``cv2.IMREAD_UNCHANGED``           = -1
-            - ``cv2.IMREAD_GRAYSCALE``           = 0
-            - ``cv2.IMREAD_COLOR``               = 1
-            - ``cv2.IMREAD_ANYDEPTH``            = 2
-            - ``cv2.IMREAD_ANYCOLOR``            = 4
-            - ``cv2.IMREAD_LOAD_GDAL``           = 8
-            - ``cv2.IMREAD_REDUCED_GRAYSCALE_2`` = 16
-            - ``cv2.IMREAD_REDUCED_COLOR_2``     = 17
-            - ``cv2.IMREAD_REDUCED_GRAYSCALE_4`` = 32
-            - ``cv2.IMREAD_REDUCED_COLOR_4``     = 33
-            - ``cv2.IMREAD_REDUCED_GRAYSCALE_8`` = 64
-            - ``cv2.IMREAD_REDUCED_COLOR_8``     = 65
-            - ``cv2.IMREAD_IGNORE_ORIENTATION``  = 128
-            Default is ``cv2.IMREAD_COLOR``.
+        path: Path to image file as ``core.Path`` or ``str``.
+        root: Root dir as ``core.Path`` or ``str``. Default is ``None``.
+        flags: Flag to read image (e.g., ``cv2.IMREAD_COLOR``). Default is ``cv2.IMREAD_COLOR``.
     """
     
     def __init__(
@@ -411,7 +370,7 @@ class SemanticSegmentationAnnotation(base.Annotation):
         """Returns the image file path.
 
         Returns:
-            ``core.Path`` representing the image file path.
+            ``core.Path`` of the image file path.
         """
         return self._path
     
@@ -420,13 +379,13 @@ class SemanticSegmentationAnnotation(base.Annotation):
         """Sets the image file path.
 
         Args:
-            path: Path to the image file as a ``core.Path`` or ``str`` or ``None``.
+            path: Path to image file or ``None``.
 
         Raises:
-            ValueError: If ``[path]`` is not a valid image file path or is ``None``.
+            ValueError: If ``path`` is not a valid image path or is ``None``.
         """
         if path is None or not core.Path(path).is_image_file():
-            raise ValueError(f"[path] must be a valid image path, but got [{path}].")
+            raise ValueError(f"[path] must be a valid image path, got [{path}].")
         self._path  = core.Path(path)
         self._shape = vision.read_image_shape(path=self._path)
     
@@ -435,7 +394,7 @@ class SemanticSegmentationAnnotation(base.Annotation):
         """Returns the image file name.
 
         Returns:
-            ``str`` representing the image file name.
+            ``str`` of the image file name.
         """
         return self.path.name
     
@@ -444,7 +403,7 @@ class SemanticSegmentationAnnotation(base.Annotation):
         """Returns the stem of the image file path.
 
         Returns:
-            ``str`` representing the stem of the image file path.
+            ``str`` of the image file path stem.
         """
         return self.path.stem
     
@@ -453,15 +412,13 @@ class SemanticSegmentationAnnotation(base.Annotation):
         """Returns the mask shape.
 
         Returns:
-            Tuple of [H, W, C] representing the mask dimensions.
+            Tuple of [H, W, C] for mask dimensions.
         """
         return self._shape
     
     @property
     def data(self) -> np.ndarray | None:
         """Returns the mask data.
-
-        Loads the mask if not already loaded, otherwise returns cached data.
 
         Returns:
             ``numpy.ndarray`` of mask data or ``None`` if not loaded.
@@ -473,7 +430,7 @@ class SemanticSegmentationAnnotation(base.Annotation):
         """Returns metadata about the mask.
 
         Returns:
-            Dict with keys ``name``, ``stem``, ``path``, ``shape``, and ``hash``.
+            Dict with ``name``, ``stem``, ``path``, ``shape``, and ``hash``.
         """
         return {
             "name" : self.name,
@@ -492,43 +449,33 @@ class SemanticSegmentationAnnotation(base.Annotation):
         """Loads the mask into memory.
 
         Args:
-            path: Path to the image file as a ``core.Path`` or ``str``. Default is ``None``.
-            flags: Flag to read the image. Default is ``None``.
-            cache: If ``True``, caches the mask in memory. Default is ``False``.
+            path: Path to image file. Default is ``None``.
+            flags: Flag to read image. Default is ``None``.
+            cache: If ``True``, caches mask. Default is ``False``.
 
         Returns:
-            ``numpy.ndarray`` in [H, W, C] format with values in [0, 255] or ``None``.
+            ``numpy.ndarray`` in [H, W, C], values in [0, 255], or ``None``.
         """
         if self.mask is not None:
             return self.mask
-        load_path  = path or self.path
+        load_path  = path  or self.path
         load_flags = flags or self.flags
-        mask       = vision.read_image(
-            path      = load_path,
-            flags     = load_flags,
-            to_tensor = False,
-            normalize = False
-        )
+        mask       = vision.read_image(load_path, load_flags, False, False)
         self.mask = mask if cache else None
         return mask
     
     @staticmethod
-    def to_tensor(
-        data     : torch.Tensor | np.ndarray,
-        keepdim  : bool = False,
-        normalize: bool = True
-    ) -> torch.Tensor:
+    def to_tensor(data: torch.Tensor | np.ndarray, normalize: bool = True) -> torch.Tensor:
         """Converts input data to a tensor.
 
         Args:
-            data: Input data as a ``torch.Tensor`` or ``numpy.ndarray``.
-            keepdim: If ``True``, retains input dimensions. Default is ``False``.
-            normalize: If ``True``, normalizes the data. Default is ``True``.
+            data: Input as ``torch.Tensor`` or ``numpy.ndarray``.
+            normalize: If ``True``, normalizes data. Default is ``True``.
 
         Returns:
-            ``torch.Tensor`` of the converted data.
+            ``torch.Tensor`` of converted data.
         """
-        return vision.to_image_tensor(data, keepdim, normalize)
+        return vision.convert_image_to_tensor(data, normalize)
     
     @staticmethod
     def collate_fn(batch: list[torch.Tensor | np.ndarray]) -> torch.Tensor | np.ndarray | None:
@@ -538,7 +485,7 @@ class SemanticSegmentationAnnotation(base.Annotation):
             batch: List of masks as ``torch.Tensor`` or ``numpy.ndarray``.
 
         Returns:
-            Collated ``torch.Tensor``, ``numpy.ndarray``, or ``None`` if batch is empty or invalid.
+            Collated ``torch.Tensor``, ``numpy.ndarray``, or ``None`` if empty/invalid.
         """
         if not batch:
             return None

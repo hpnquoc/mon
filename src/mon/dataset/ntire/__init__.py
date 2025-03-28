@@ -1,11 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""NTIRE Datasets.
-
-This module implements NTIRE (New Trends in Image Restoration and Enhancement)
-Challenge datasets.
-"""
+"""Implements NTIRE challenge datasets for image restoration."""
 
 from __future__ import annotations
 

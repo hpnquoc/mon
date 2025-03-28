@@ -1,10 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Distance Function.
-
-This module implements distance functions between two points or arrays.
-"""
+"""Implements distance functions between points or arrays."""
 
 from __future__ import annotations
 

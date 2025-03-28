@@ -3,7 +3,7 @@
 
 """
 References:
-    https://github.com/XLearning-SCU/2020-TIP-ZID
+    - https://github.com/XLearning-SCU/2020-TIP-ZID
 """
 
 from __future__ import annotations
@@ -241,13 +241,7 @@ def predict(args: argparse.Namespace):
     
     # Data I/O
     console.log(f"[bold red]{data}")
-    data_name, data_loader, data_writer = mon.parse_io_worker(
-        src         = data,
-        dst         = save_dir,
-        to_tensor   = False,
-        denormalize = True,
-        verbose     = False,
-    )
+    data_name, data_loader = mon.parse_data_loader(data, False, verbose=False)
     
     # Predicting
     timer = mon.Timer()

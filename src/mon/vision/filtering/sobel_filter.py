@@ -1,10 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Sobel Filter.
-
-This module implements Sobel filter or Sobel operator.
-"""
+"""Implements Sobel filter/operator."""
 
 from __future__ import annotations
 

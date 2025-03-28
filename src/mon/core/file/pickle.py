@@ -1,10 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Pickle File Handler.
-
-This module implements a Pickle file handler by extending the ``pickle`` module.
-"""
+"""Extends ``pickle`` module for Pickle file handling."""
 
 from __future__ import annotations
 
@@ -28,10 +25,10 @@ class PickleHandler(base.FileHandler):
 
         Args:
             path: File stream as ``TextIO`` (binary file-like object).
-            **kwargs: Additional arguments for ``pickle.load``.
-
+            **kwargs: Extra args for ``pickle.load``.
+    
         Returns:
-            Deserialized Pickle data.
+            Deserialized Pickle data as ``Any``.
         """
         return load(path, **kwargs)
     
@@ -39,47 +36,49 @@ class PickleHandler(base.FileHandler):
         """Writes data to a file object.
 
         Args:
-            obj: Data to serialize.
+            obj: Data to serialize as ``Any``.
             path: File stream as ``TextIO`` (binary file-like object).
-            **kwargs: Additional arguments for ``pickle.dump``.
+            **kwargs: Extra args for ``pickle.dump``.
+    
         """
         kwargs.setdefault("protocol", 4)
         dump(obj, path, **kwargs)
     
     def write_to_string(self, obj: Any, **kwargs) -> bytes:
         """Converts data to a Pickle byte string.
-
+    
         Args:
-            obj: Data to serialize.
-            **kwargs: Additional arguments for ``pickle.dumps``.
-
+            obj: Data to serialize as ``Any``.
+            **kwargs: Extra args for ``pickle.dumps``.
+    
         Returns:
-            Pickle byte string representation of ``obj``.
+            Pickle byte string as ``bytes``.
         """
         kwargs.setdefault("protocol", 4)
         return dumps(obj, **kwargs)
     
     def read_from_file(self, path: pathlib.Path | str, mode: str = "rb", **kwargs) -> Any:
         """Loads data from a file.
-
+    
         Args:
             path: File path as ``pathlib.Path`` or ``str``.
-            mode: File open mode. Default is ``rb`` for read binary.
-            **kwargs: Additional arguments for ``read_from_fileobj``.
-
+            mode: File mode. Default is ``rb``.
+            **kwargs: Extra args for ``read_from_fileobj()``.
+    
         Returns:
-            Deserialized Pickle data.
+            Deserialized Pickle data as ``Any``.
         """
         return super().read_from_file(path=pathlib.Path(path), mode=mode, **kwargs)
     
     def write_to_file(self, obj: Any, path: pathlib.Path | str, mode: str = "wb", **kwargs):
         """Writes data to a file.
-
+    
         Args:
-            obj: Data to serialize.
+            obj: Data to serialize as ``Any``.
             path: File path as ``pathlib.Path`` or ``str``.
-            mode: File open mode. Default is ``wb`` for write binary.
-            **kwargs: Additional arguments for ``write_to_fileobj``.
+            mode: File mode. Default is ``wb``.
+            **kwargs: Extra args for ``write_to_fileobj()``.
+    
         """
         super().write_to_file(obj=obj, path=pathlib.Path(path), mode=mode, **kwargs)
 

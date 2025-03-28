@@ -1,10 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Linearity Layers.
-
-This module implements linearity layers.
-"""
+"""Implements linearity layers."""
 
 from __future__ import annotations
 

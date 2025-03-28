@@ -1,11 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Logging Package.
-
-This package implements logging mechanisms to record intermediate results
-during training, validating, testing, and inferring.
-"""
+"""Implements logging for training, validation, testing, and inference results."""
 
 from __future__ import annotations
 

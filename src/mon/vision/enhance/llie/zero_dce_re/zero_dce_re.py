@@ -7,7 +7,8 @@ This module implements the paper: "Zero-Reference Deep Curve Estimation for
 Low-Light Image Enhancement".
 
 References:
-    https://github.com/Li-Chongyi/Zero-DCE
+    -
+https://github.com/Li-Chongyi/Zero-DCE
 """
 
 from __future__ import annotations
@@ -95,7 +96,7 @@ class ZeroDCE_RE(base.ImageEnhancementModel):
         num_iters: The number of progressive loop. Default: ``8``.
         
     References:
-        https://github.com/Li-Chongyi/Zero-DCE
+        - https://github.com/Li-Chongyi/Zero-DCE
     """
 
     arch     : str          = "zero_dce"

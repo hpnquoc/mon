@@ -3,7 +3,7 @@
 
 """
 References:
-    https://github.com/KarelZhang/RUAS
+    - https://github.com/KarelZhang/RUAS
 """
 
 from __future__ import annotations
@@ -65,13 +65,7 @@ def predict(args: dict) -> str:
     
     # Data I/O
     console.log(f"[bold red]{data}")
-    data_name, data_loader, data_writer = mon.parse_io_worker(
-        src         = data,
-        dst         = save_dir,
-        to_tensor   = True,
-        denormalize = True,
-        verbose     = False,
-    )
+    data_name, data_loader = mon.parse_data_loader(data, True, verbose=False)
     
     # Model
     model = Network().to(device)

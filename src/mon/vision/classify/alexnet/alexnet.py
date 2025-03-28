@@ -1,10 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""AlexNet.
-
-This module implements AlexNet models.
-"""
+"""Implements AlexNet models."""
 
 from __future__ import annotations
 

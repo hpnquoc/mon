@@ -1,11 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Callbacks Package.
-
-This package implements callbacks used during the training, validating, and
-testing of machine learning models.
-"""
+"""Implements callbacks for ML model training, validation, and testing."""
 
 from __future__ import annotations
 

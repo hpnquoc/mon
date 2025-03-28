@@ -1,11 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Generic Data Types.
-
-This module implements data handling capabilities, including ``list``, ``dict``, ``tuple``,
-``set``, and more advanced data structures from the ``collections`` module.
-"""
+"""Handles data: ``list``, ``dict``, ``tuple``, ``set``, and ``collections`` types."""
 
 from __future__ import annotations
 
@@ -116,26 +112,34 @@ def intersect_dicts(x: dict, y: dict, exclude: list = []) -> dict:
     Args:
         x: First dictionary.
         y: Second dictionary.
-        exclude: List of keys to exclude. Default is [].
+        exclude: List of keys to exclude. Default is ``[]``.
 
     Returns:
-        Dictionary with keys present in both ``x`` and ``y``, excluding ``exclude``, where values match.
+        Dict with keys in both ``x`` and ``y``, excluding ``exclude``, where values
+        match.
     """
     return {k: v for k, v in x.items() if k in y and k not in exclude and v == y[k]}
 
 
-def intersect_ordered_dicts(x: OrderedDict, y: OrderedDict, exclude: list = []) -> OrderedDict:
+def intersect_ordered_dicts(
+    x: OrderedDict,
+    y: OrderedDict,
+    exclude: list = []
+) -> OrderedDict:
     """Finds the intersection between two OrderedDict instances.
 
     Args:
         x: First ``OrderedDict``.
         y: Second ``OrderedDict``.
-        exclude: List of keys to exclude. Default is [].
+        exclude: List of keys to exclude. Default is ``[]``.
 
     Returns:
-        ``OrderedDict`` with keys present in both ``x`` and ``y``, excluding ``exclude``, where values match.
+        ``OrderedDict`` with keys in both ``x`` and ``y``, excluding ``exclude``, where
+        values match.
     """
-    return OrderedDict((k, v) for k, v in x.items() if k in y and k not in exclude and v == y[k])
+    return OrderedDict(
+        (k, v) for k, v in x.items() if k in y and k not in exclude and v == y[k]
+    )
 
 
 def shuffle_dict(x: dict) -> dict:
@@ -156,17 +160,17 @@ def flatten_models_dict(x: dict) -> dict:
     """Flattens a nested dictionary of models.
 
     Args:
-        x: Nested dictionary of models.
+        x: Nested ``dict`` of models.
 
     Returns:
-        Flattened dictionary with inner keys and values, adding ``arch`` key to nested dictionaries.
+        Flattened ``dict`` with inner keys and values, adding ``arch`` key to nested
+        dicts.
     """
     return {
         k2: {**v2, "arch": k1} if isinstance(v2, dict) else v2
         for k1, v1 in x.items()
         for k2, v2 in v1.items()
     }
-
 
 # endregion
 
@@ -180,7 +184,7 @@ def get_module_vars(module: ModuleType) -> dict:
         module: Module to inspect for public variables.
 
     Returns:
-        Dictionary of public variables, excluding private, callable, or module types.
+        Dict of public vars, excluding private, callable, or module types.
     """
     return {
         k: v for k, v in vars(module).items()
@@ -246,7 +250,7 @@ def to_int(x: Any) -> int | None:
     try:
         return int(x)
     except (ValueError, TypeError):
-        raise ValueError(f"[x] must be convertible to int, got [{x}] ({type(x).__name__})")
+        raise ValueError(f"[x] must be convertible to int, got [{x}] ({type(x).__name__}).")
 
 
 def to_float(x: Any) -> float | None:
@@ -266,21 +270,22 @@ def to_float(x: Any) -> float | None:
     try:
         return float(x)
     except (ValueError, TypeError):
-        raise ValueError(f"[x] must be convertible to float, got [{x}] ({type(x).__name__})")
+        raise ValueError(f"[x] must be convertible to float, got [{x}] ({type(x).__name__}).")
 
 # endregion
 
 
 # region Parsing
 
-def upcast(x: torch.Tensor | np.ndarray, keep_type: bool = False) -> torch.Tensor | np.ndarray:
-    """Upcasts an array or tensor to a higher type to prevent numerical overflows.
+def upcast(
+    x        : torch.Tensor | np.ndarray,
+    keep_type: bool = False
+) -> torch.Tensor | np.ndarray:
+    """Upcasts an array or tensor to a higher type to prevent overflows.
 
     Args:
         x: Input as ``torch.Tensor`` or ``numpy.ndarray``.
-        keep_type: If ``True``, upcasts to a higher integer type (e.g., ``int32`` to ``int64``).
-            If ``False``, upcasts to a floating-point type (e.g., ``int32`` to ``float32``).
-            Default is ``False``.
+        keep_type: If ``True``, upcasts to higher int type. Default is ``False``.
 
     Returns:
         Upcasted ``torch.Tensor`` or ``numpy.ndarray``.
@@ -327,23 +332,24 @@ def concat_lists(x: list[list]) -> list:
 
 
 def iter_to_iter(x: Iterable, item_type: type, return_type: type = None):
-    """Converts an iterable to a specified sequence type, casting items to a given type.
+    """Converts an iterable to a sequence type, casting items to a type.
 
     Args:
         x: Input iterable (must be ``list``, ``tuple``, or ``dict``).
         item_type: Type to cast each item to.
-        return_type: Desired output type (``list``, ``tuple``, or ``None``). Default is ``None``.
+        return_type: Output type (``list``, ``tuple``, or ``None``). Default is ``None``.
 
     Returns:
-        Iterable cast to ``return_type`` with items as ``item_type``; unchanged if ``return_type`` is ``None``.
+        Iterable cast to ``return_type`` with items as ``item_type``.
 
     Raises:
         TypeError: If ``x`` is not a ``list``, ``tuple``, or ``dict``.
     """
     if not isinstance(x, (list, tuple, dict)):
-        raise TypeError(f"[x] must be list, tuple, or dict, got [{type(x).__name__}]")
+        raise TypeError(f"[x] must be list, tuple, or dict, got [{type(x).__name__}].")
     items = map(item_type, x)
-    return list(items) if return_type is list else tuple(items) if return_type is tuple else items
+    return (list(items) if return_type is list else
+            tuple(items) if return_type is tuple else items)
 
 
 def iter_to_list(x: Iterable, item_type: type) -> list:
@@ -374,17 +380,17 @@ def iter_to_tuple(x: Iterable, item_type: type) -> tuple:
 
 def split_list(x: list, n: int | list[int]) -> list[list]:
     """Splits a list into sub-lists based on a count or sizes.
-
+    
     Args:
         x: List to split.
-        n: Integer number of equal sub-lists or list of integers specifying sub-list lengths.
-
+        n: Int for equal sub-lists or list of ints for sub-list lengths.
+    
     Returns:
         List of sub-lists.
-
+    
     Raises:
-        ValueError: If ``x`` cannot be split evenly by [N] or sizes don’t match ``len(x)``.
-
+        ValueError: If ``x`` cannot be split evenly by ``n`` or sizes mismatch.
+    
     Examples:
         >>> x = [1, 2, 3, 4, 5, 6]
         >>> split_list(x, n=2)          # [[1, 2, 3], [4, 5, 6]]
@@ -394,23 +400,25 @@ def split_list(x: list, n: int | list[int]) -> list[list]:
     
     if isinstance(n, int):
         if total_len % n != 0:
-            raise ValueError(f"[x] length [{total_len}] cannot be evenly split into [{n}] sub-lists")
+            raise ValueError(f"[x] length [{total_len}] can't be split into "
+                             f"[{n}] sub-lists.")
         sizes = [total_len // n] * n
     else:
         sizes = n
         if sum(sizes) != total_len:
-            raise ValueError(f"Sum of sub-list sizes [{sum(sizes)}] must equal [x] length [{total_len}]")
+            raise ValueError(f"Sum of sizes [{sum(sizes)}] must equal [x] "
+                             f"length [{total_len}].")
     
     start_indices = [sum(sizes[:i]) for i in range(len(sizes))]
     return [x[start:start + size] for start, size in zip(start_indices, sizes)]
 
 
 def to_list(x: Any, sep: list[str] = [",", ";", ":"]) -> list:
-    """Converts a value to a list, splitting strings by delimiters if applicable.
+    """Converts a value to a list, splitting strings by delimiters if needed.
 
     Args:
         x: Value to convert.
-        sep: List of string delimiters for splitting. Default is [",", ";", ":"].
+        sep: List of delimiters for splitting. Default is ``[",", ";", ":"]``.
 
     Returns:
         List representation of ``x``.
@@ -435,7 +443,7 @@ def to_int_list(x: Any, sep: list[str] = [",", ";", ":"]) -> list[int]:
 
     Args:
         x: Value to convert.
-        sep: List of string delimiters for splitting. Default is [",", ";", ":"].
+        sep: List of delimiters for splitting. Default is ``[",", ";", ":"]``.
 
     Returns:
         List of integers from ``x``.
@@ -448,10 +456,10 @@ def to_float_list(x: Any, sep: list[str] = [",", ";", ":"]) -> list[float]:
 
     Args:
         x: Value to convert.
-        sep: List of string delimiters for splitting. Default is [",", ";", ":"].
+        sep: List of delimiters for splitting. Default is ``[",", ";", ":"]``.
 
     Returns:
-        List of floats from ``x``
+        List of floats from ``x``.
     """
     return [float(item) for item in to_list(x, sep=sep)]
 
@@ -463,7 +471,7 @@ def to_nlist(n: int) -> Callable[[Any], list]:
         n: Desired list length.
 
     Returns:
-        Function converting input to a list of length ``n`` by replication or truncation.
+        Function converting input to list of length ``n`` via replication or truncation.
     """
     def parse(x: Any) -> list:
         items = list(x) if isinstance(x, Iterable) and not isinstance(x, str) else [x]
@@ -507,7 +515,7 @@ def to_ntuple(n: int) -> Callable[[Any], tuple]:
         n: Desired tuple length.
 
     Returns:
-        Function converting input to a tuple of length ``n`` by replication or truncation.
+        Function converting input to tuple of length ``n`` via replication or truncation.
     """
     def parse(x: Any) -> tuple:
         if isinstance(x, Iterable) and not isinstance(x, (str, bytes)):
@@ -530,19 +538,19 @@ to_quadruple = to_ntuple(4)
 
 
 def unique(x: list | tuple) -> list | tuple:
-    """Returns unique items from a list or tuple, preserving the input type.
+    """Returns unique items from a list or tuple, preserving input type.
 
     Args:
         x: Input ``list`` or ``tuple`` to deduplicate.
 
     Returns:
-        Deduplicated ``list`` or ``tuple`` matching the type of ``x``.
+        Deduplicated ``list`` or ``tuple`` matching type of ``x``.
 
     Raises:
         TypeError: If ``x`` is not a ``list`` or ``tuple``.
     """
     if not isinstance(x, (list, tuple)):
-        raise TypeError(f"[x] must be a list or tuple, got [{type(x).__name__}]")
+        raise TypeError(f"[x] must be a list or tuple, got [{type(x).__name__}].")
     return type(x)(set(x))
 
 # endregion

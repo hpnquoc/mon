@@ -1,10 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Rich Progress Bar Callback.
-
-This module implements rich progress bar callback.
-"""
+"""Implements rich progress bar callback."""
 
 from __future__ import annotations
 
@@ -27,11 +24,6 @@ class RichProgressBar(rich_progress.RichProgressBar):
     """Displays a progress bar with rich text formatting."""
 
     def _init_progress(self, trainer: lightning.Trainer):
-        """Initializes the rich progress bar for training.
-
-        Args:
-            trainer: Lightning trainer instance.
-        """
         if self.is_enabled and (self.progress is None or self._progress_stopped):
             self._reset_progress_bar_ids()
             self._console = console
@@ -57,6 +49,7 @@ class RichProgressBar(rich_progress.RichProgressBar):
 
         Args:
             trainer: Lightning trainer instance.
+
         Returns:
             List of column configurations.
         """

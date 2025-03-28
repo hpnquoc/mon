@@ -1,12 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Cityscapes.
-
-This module implements the Cityscapes dataset.
+"""Implements the Cityscapes main dataset.
 
 References:
-	https://www.cityscapes-dataset.com/
+	- https://www.cityscapes-dataset.com/
 """
 
 from __future__ import annotations
@@ -40,9 +38,12 @@ class Cityscapes(MultimodalDataset):
     """Loads and processes the Cityscapes dataset.
 
     Args:
-        ``root``: Root directory path. Default is ``default_root_dir``.
-        ``use_blurred``: Use blurred images if ``True``. Default is ``False``.
-        ``use_coarse``: Use coarse annotations if ``True``. Default is ``False``.
+        root: Root directory path. Default is ``default_root_dir``.
+        use_blurred: Use blurred images if ``True``. Default is ``False``.
+        use_coarse: Use coarse annotations if ``True``. Default is ``False``.
+        *args: Additional args for parent class.
+        **kwargs: Additional kwargs for parent class.
+   
     Raises:
         FileNotFoundError: If ``root``/cityscapes directory does not exist.
     """
@@ -101,7 +102,7 @@ class Cityscapes(MultimodalDataset):
     ):
         root = root / "cityscapes" if root.name != "cityscapes" else root
         if not root.is_dir():
-            raise FileNotFoundError(f"[root] must be a directory, but got [{root}]")
+            raise FileNotFoundError(f"[root] must be a directory, got [{root}].")
 
         self.use_blurred = use_blurred
         self.use_coarse  = use_coarse
@@ -140,23 +141,20 @@ class Cityscapes(MultimodalDataset):
 
 @DATAMODULES.register(name="cityscapes")
 class CityscapesDataModule(DataModule):
-    """Manages Cityscapes dataset loading and setup for training, validation, and testing.
-
-    Args:
-        ``stage``: Setup stage, one of "train", "test", "predict", or ``None``. Default is ``None``.
-    """
+    """Manages Cityscapes dataset loading and setup for training, validation, and testing."""
 
     tasks: list[Task] = [Task.SEGMENT]
 
     def prepare_data(self, *args, **kwargs):
-        """Prepares data for the Cityscapes dataset (currently a no-op)."""
+        """Prepares data (placeholder, no action taken)."""
         pass
 
     def setup(self, stage: Literal["train", "test", "predict", None] = None):
-        """Sets up datasets for specified stage.
+        """Sets up datasets for specified ``stage``.
 
         Args:
-            ``stage``: Stage to setup, one of "train", "test", "predict", or ``None``. Default is ``None``.
+            stage: Stage to setup, one of ``"train"``, ``"test"``, ``"predict"``,
+                or ``None``. Default is ``None``.
         """
         if self.can_log:
             console.log(f"Setup [red]{self.__class__.__name__}[/red].")

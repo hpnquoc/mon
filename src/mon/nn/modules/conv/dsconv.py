@@ -1,10 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Depthwise Separable Convolution Module.
-
-This module implements depthwise separable convolutional layers.
-"""
+"""Implements depthwise separable convolutional layers."""
 
 from __future__ import annotations
 
@@ -76,10 +73,10 @@ class DepthwiseConv2d(nn.Module):
         """Applies depthwise convolution.
 
         Args:
-            input: Input tensor ``[B, C_in, H, W]``.
+            input: Input tensor [B, C_in, H, W].
 
         Returns:
-            Output tensor ``[B, C_in, H_out, W_out]``.
+            Output tensor [B, C_in, H_out, W_out].
         """
         return self.dw_conv(input)
 
@@ -132,10 +129,10 @@ class PointwiseConv2d(nn.Module):
         """Applies pointwise convolution.
 
         Args:
-            input: Input tensor ``[B, C_in, H, W]``.
+            input: Input tensor [B, C_in, H, W].
 
         Returns:
-            Output tensor ``[B, C_out, H_out, W_out]``.
+            Output tensor [B, C_out, H_out, W_out].
         """
         return self.pw_conv(input)
     
@@ -197,10 +194,10 @@ class DepthwiseSeparableConv2d(nn.Module):
         """Applies depthwise then pointwise convolution.
 
         Args:
-            input: Input tensor ``[B, C_in, H, W]``.
+            input: Input tensor [B, C_in, H, W].
 
         Returns:
-            Output tensor ``[B, C_out, H_out, W_out]``.
+            Output tensor [B, C_out, H_out, W_out].
         """
         y = self.dw_conv(input)
         y = self.pw_conv(y)
@@ -257,10 +254,10 @@ class DepthwiseSeparableConvAct2d(nn.Module):
         """Applies depthwise separable convolution and activation.
 
         Args:
-            input: Input tensor ``[B, C_in, H, W]``.
+            input: Input tensor [B, C_in, H, W].
 
         Returns:
-            Output tensor ``[B, C_out, H_out, W_out]`` after activation.
+            Output tensor [B, C_out, H_out, W_out] after activation.
         """
         y = self.ds_conv(input)
         y = self.act(y)
@@ -315,10 +312,10 @@ class DepthwiseSeparableConv2dReLU(nn.Module):
         """Applies depthwise separable convolution and ReLU.
 
         Args:
-            input: Input tensor ``[B, C_in, H, W]``.
+            input: Input tensor [B, C_in, H, W].
 
         Returns:
-            Output tensor ``[B, C_out, H_out, W_out]`` after ReLU.
+            Output tensor [B, C_out, H_out, W_out] after ReLU.
         """
         y = self.ds_conv(input)
         y = self.act(y)

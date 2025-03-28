@@ -7,7 +7,7 @@ This module implement the paper: Zero-Shot Restoration of Underexposed Images
 via Robust Retinex Decomposition.
 
 References:
-    https://github.com/aaaaangel/RRDNet
+    - https://github.com/aaaaangel/RRDNet
 """
 
 from __future__ import annotations

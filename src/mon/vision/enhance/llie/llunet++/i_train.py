@@ -3,7 +3,7 @@
 
 """
 References:
-    https://github.com/xiwang-online/LLUnetPlusPlus
+    - https://github.com/xiwang-online/LLUnetPlusPlus
 """
 
 from __future__ import annotations

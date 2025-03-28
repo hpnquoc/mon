@@ -1,10 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Dropout Layers.
-
-This module implements drop-out layers.
-"""
+"""Implements dropout layers."""
 
 from __future__ import annotations
 
@@ -50,7 +47,7 @@ def drop_path(
         Output tensor with same shape as input, potentially dropped.
 
     References:
-        https://github.com/rwightman/pytorch-image-models/blob/a2727c1bf78ba0d7b5727f5f95e37fb7f8866b1f/timm/models/layers/drop.py
+        - https://github.com/rwightman/pytorch-image-models/blob/a2727c1bf78ba0d7b5727f5f95e37fb7f8866b1f/timm/models/layers/drop.py
     """
     if p == 0.0 or not training:
         return input

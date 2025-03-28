@@ -1,10 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Metric Pipeline.
-
-This script is used to measure metrics for a given model and dataset.
-"""
+"""Measures metrics for a given model and dataset."""
 
 from __future__ import annotations
 

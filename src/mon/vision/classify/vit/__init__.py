@@ -1,10 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""ViT (Vision Transformer).
-
-This module implements ViT (Vision Transformer) models.
-"""
+"""Implements ViT (Vision Transformer) models."""
 
 from __future__ import annotations
 

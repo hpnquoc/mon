@@ -3,7 +3,7 @@
 
 """
 References:
-    https://github.com/JianghaiSCU/R2RNet
+    - https://github.com/JianghaiSCU/R2RNet
 """
 
 from __future__ import annotations
@@ -62,13 +62,7 @@ def predict(args: dict) -> str:
     
     # Data I/O
     console.log(f"[bold red]{data}")
-    data_name, data_loader, data_writer = mon.parse_io_worker(
-        src         = data,
-        dst         = save_dir,
-        to_tensor   = False,
-        denormalize = True,
-        verbose     = False,
-    )
+    data_name, data_loader = mon.parse_data_loader(data, False, verbose=False)
     
     # Model
     opt["path"]["pretrain_model_G"] = str(weights)

@@ -1,10 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""RegNet.
-
-This module implements RegNet models.
-"""
+"""Implements RegNet models."""
 
 from __future__ import annotations
 

@@ -1,10 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Computer Vision Package.
-
-This package implements computer vision tasks.
-"""
+"""Implements computer vision tasks."""
 
 from __future__ import annotations
 

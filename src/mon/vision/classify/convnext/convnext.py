@@ -1,10 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""ConvNeXt.
-
-This module implements ConNeXt models.
-"""
+"""Implements ConvNeXt models."""
 
 from __future__ import annotations
 
@@ -129,6 +126,11 @@ class ConvNeXtTiny(ConvNeXt):
 
 @MODELS.register(name="convnext_small", arch="convnext")
 class ConvNeXtSmall(ConvNeXt):
+    """ConvNeXt Small model for image classification.
+
+    Args:
+        num_classes: Number of output classes. Default is ``1000``.
+    """
     
     name: str  = "convnext_small"
     zoo : dict = {

@@ -1,11 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Convolutional Pacakge.
-
-This package implements convolutional layers that are used to build deep
-learning models.
-"""
+"""Implements convolutional layers for deep learning models."""
 
 from __future__ import annotations
 

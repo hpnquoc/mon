@@ -1,10 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Tracking.
-
-This package implements tracking algorithms.
-"""
+"""Implements tracking algorithms."""
 
 from __future__ import annotations
 

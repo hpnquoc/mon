@@ -1,10 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Contour Geometry.
-
-This module implements geometry functions for contours or segments.
-"""
+"""Implements geometry functions for contours/segments."""
 
 from __future__ import annotations
 

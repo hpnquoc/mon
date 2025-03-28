@@ -7,7 +7,7 @@ This module implements the paper: "Learning to Enhance Low-Light Image via
 Zero-Reference Deep Curve Estimation".
 
 References:
-    https://github.com/Li-Chongyi/Zero-DCE_extension
+    - https://github.com/Li-Chongyi/Zero-DCE_extension
 """
 
 from __future__ import annotations

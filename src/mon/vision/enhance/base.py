@@ -1,10 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Base Image Enhancement Model.
-
-This module implements the base class for enhancement models.
-"""
+"""Implements base class for enhancement models."""
 
 from __future__ import annotations
 
@@ -83,11 +80,11 @@ class ImageEnhancementModel(VisionModel, ABC):
         
         if len(image) != len(enhanced):
             raise ValueError(f"The number of `image` and `enhanced` must be "
-                             f"the same, but got {len(image)} != {len(enhanced)}.")
+                             f"the same, got {len(image)} != {len(enhanced)}.")
         if ref_image is not None:
             if len(image) != len(ref_image):
                 raise ValueError(f"The number of `image` and `ref_image` must "
-                                 f"be the same, but got {len(image)} != {len(ref_image)}.")
+                                 f"be the same, got {len(image)} != {len(ref_image)}.")
             
         for i in range(len(image)):
             if ref_image:

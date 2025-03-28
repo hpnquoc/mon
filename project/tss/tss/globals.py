@@ -106,6 +106,6 @@ CLASSLABELS = ClassLabels([
     {"name": "small-truck",    "id": 6, "category": "vehicle",        "category_id": 3, "train_id": 4,   "color": AppleRGB.TEAL},
     {"name": "truck",          "id": 7, "category": "vehicle",        "category_id": 3, "train_id": 5,   "color": AppleRGB.BLUE},
 ])
-ID2CLASS    = CLASSLABELS.id2class
+ID2CLASS    = CLASSLABELS.id_to_class
 
 # endregion

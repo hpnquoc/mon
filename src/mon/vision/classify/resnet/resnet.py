@@ -1,10 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""ResNet.
-
-This module implements ResNet models.
-"""
+"""Implements ResNet models."""
 
 from __future__ import annotations
 

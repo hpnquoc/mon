@@ -1,10 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""File.
-
-This package implements file I/O functionality for the `mon` package.
-"""
+"""File I/O functionality for the ``mon`` package."""
 
 from __future__ import annotations
 

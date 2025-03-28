@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""RESIDE Datasets."""
+"""Implements RESIDE datasets."""
 
 from __future__ import annotations
 
@@ -63,7 +63,7 @@ class RESIDE_HSTS_Real(MultimodalDataset):
         """Initializes dataset with ``root`` path and parent args."""
         root = root / "reside" if root.name != "reside" else root
         if not root.is_dir():
-            raise FileNotFoundError(f"[root] directory not found: [{root}]")
+            raise FileNotFoundError(f"[root] directory not found: [{root}].")
         super().__init__(root=root, *args, **kwargs)
     
     def get_data(self):
@@ -107,7 +107,7 @@ class RESIDE_HSTS_Synthetic(MultimodalDataset):
         """Initializes dataset with ``root`` path and parent args."""
         root = root / "reside" if root.name != "reside" else root
         if not root.is_dir():
-            raise FileNotFoundError(f"[root] directory not found: [{root}]")
+            raise FileNotFoundError(f"[root] directory not found: [{root}].")
         super().__init__(root=root, *args, **kwargs)
     
     def get_data(self):
@@ -151,7 +151,7 @@ class RESIDE_ITS(MultimodalDataset):
         """Initializes dataset with ``root`` path and parent args."""
         root = root / "reside" if root.name != "reside" else root
         if not root.is_dir():
-            raise FileNotFoundError(f"[root] directory not found: [{root}]")
+            raise FileNotFoundError(f"[root] directory not found: [{root}].")
         super().__init__(root=root, *args, **kwargs)
     
     def get_data(self):
@@ -207,7 +207,7 @@ class RESIDE_OTS(MultimodalDataset):
         """Initializes dataset with ``root`` path and parent args."""
         root = root / "reside" if root.name != "reside" else root
         if not root.is_dir():
-            raise FileNotFoundError(f"[root] directory not found: [{root}]")
+            raise FileNotFoundError(f"[root] directory not found: [{root}].")
         super().__init__(root=root, *args, **kwargs)
     
     def get_data(self):
@@ -262,7 +262,7 @@ class RESIDE_RTTS(MultimodalDataset):
         """Initializes dataset with ``root`` path and parent args."""
         root = root / "reside" if root.name != "reside" else root
         if not root.is_dir():
-            raise FileNotFoundError(f"[root] directory not found: [{root}]")
+            raise FileNotFoundError(f"[root] directory not found: [{root}].")
         super().__init__(root=root, *args, **kwargs)
     
     def get_data(self):
@@ -306,7 +306,7 @@ class RESIDE_SOTS_Indoor(MultimodalDataset):
         """Initializes dataset with ``root`` path and parent args."""
         root = root / "reside" if root.name != "reside" else root
         if not root.is_dir():
-            raise FileNotFoundError(f"[root] directory not found: [{root}]")
+            raise FileNotFoundError(f"[root] directory not found: [{root}].")
         super().__init__(root=root, *args, **kwargs)
     
     def get_data(self):
@@ -362,7 +362,7 @@ class RESIDE_SOTS_Outdoor(MultimodalDataset):
         """Initializes dataset with ``root`` path and parent args."""
         root = root / "reside" if root.name != "reside" else root
         if not root.is_dir():
-            raise FileNotFoundError(f"[root] directory not found: [{root}]")
+            raise FileNotFoundError(f"[root] directory not found: [{root}].")
         super().__init__(root=root, *args, **kwargs)
     
     def get_data(self):
@@ -417,7 +417,7 @@ class RESIDE_URHI(MultimodalDataset):
         """Initializes dataset with ``root`` path and parent args."""
         root = root / "reside" if root.name != "reside" else root
         if not root.is_dir():
-            raise FileNotFoundError(f"[root] directory not found: [{root}]")
+            raise FileNotFoundError(f"[root] directory not found: [{root}].")
         super().__init__(root=root, *args, **kwargs)
     
     def get_data(self):
@@ -452,10 +452,11 @@ class RESIDE_HSTS_Real_DataModule(DataModule):
         pass
     
     def setup(self, stage: Literal["train", "test", "predict", None] = None):
-        """Sets up datasets for given ``stage``.
+        """Sets up datasets for specified ``stage``.
 
         Args:
-            stage: Stage to configure. Default is ``None``.
+            stage: Stage to setup, one of ``"train"``, ``"test"``, ``"predict"``,
+                or ``None``. Default is ``None``.
         """
         if self.can_log:
             console.log(f"Setup [red]{self.__class__.__name__}[/red].")
@@ -487,10 +488,11 @@ class RESIDE_HSTS_Synthetic_DataModule(DataModule):
         pass
     
     def setup(self, stage: Literal["train", "test", "predict", None] = None):
-        """Sets up datasets for given ``stage``.
+        """Sets up datasets for specified ``stage``.
 
         Args:
-            stage: Stage to configure. Default is ``None``.
+            stage: Stage to setup, one of ``"train"``, ``"test"``, ``"predict"``,
+                or ``None``. Default is ``None``.
         """
         if self.can_log:
             console.log(f"Setup [red]{self.__class__.__name__}[/red].")
@@ -522,10 +524,11 @@ class RESIDE_ITS_DataModule(DataModule):
         pass
     
     def setup(self, stage: Literal["train", "test", "predict", None] = None):
-        """Sets up datasets for given ``stage``.
+        """Sets up datasets for specified ``stage``.
 
         Args:
-            stage: Stage to configure. Default is ``None``.
+            stage: Stage to setup, one of ``"train"``, ``"test"``, ``"predict"``,
+                or ``None``. Default is ``None``.
         """
         if self.can_log:
             console.log(f"Setup [red]{self.__class__.__name__}[/red].")
@@ -557,10 +560,11 @@ class RESIDE_OTS_DataModule(DataModule):
         pass
     
     def setup(self, stage: Literal["train", "test", "predict", None] = None):
-        """Sets up datasets for given ``stage``.
+        """Sets up datasets for specified ``stage``.
 
         Args:
-            stage: Stage to configure. Default is ``None``.
+            stage: Stage to setup, one of ``"train"``, ``"test"``, ``"predict"``,
+                or ``None``. Default is ``None``.
         """
         if self.can_log:
             console.log(f"Setup [red]{self.__class__.__name__}[/red].")
@@ -592,10 +596,11 @@ class RESIDE_RTTS_DataModule(DataModule):
         pass
     
     def setup(self, stage: Literal["train", "test", "predict", None] = None):
-        """Sets up datasets for given ``stage``.
+        """Sets up datasets for specified ``stage``.
 
         Args:
-            stage: Stage to configure. Default is ``None``.
+            stage: Stage to setup, one of ``"train"``, ``"test"``, ``"predict"``,
+                or ``None``. Default is ``None``.
         """
         if self.can_log:
             console.log(f"Setup [red]{self.__class__.__name__}[/red].")
@@ -627,10 +632,11 @@ class RESIDE_SOTS_Indoor_DataModule(DataModule):
         pass
     
     def setup(self, stage: Literal["train", "test", "predict", None] = None):
-        """Sets up datasets for given ``stage``.
+        """Sets up datasets for specified ``stage``.
 
         Args:
-            stage: Stage to configure. Default is ``None``.
+            stage: Stage to setup, one of ``"train"``, ``"test"``, ``"predict"``,
+                or ``None``. Default is ``None``.
         """
         if self.can_log:
             console.log(f"Setup [red]{self.__class__.__name__}[/red].")
@@ -662,10 +668,11 @@ class RESIDE_SOTS_Outdoor_DataModule(DataModule):
         pass
     
     def setup(self, stage: Literal["train", "test", "predict", None] = None):
-        """Sets up datasets for given ``stage``.
+        """Sets up datasets for specified ``stage``.
 
         Args:
-            stage: Stage to configure. Default is ``None``.
+            stage: Stage to setup, one of ``"train"``, ``"test"``, ``"predict"``,
+                or ``None``. Default is ``None``.
         """
         if self.can_log:
             console.log(f"Setup [red]{self.__class__.__name__}[/red].")
@@ -697,10 +704,11 @@ class RESIDE_URHI_DataModule(DataModule):
         pass
     
     def setup(self, stage: Literal["train", "test", "predict", None] = None):
-        """Sets up datasets for given ``stage``.
+        """Sets up datasets for specified ``stage``.
 
         Args:
-            stage: Stage to configure. Default is ``None``.
+            stage: Stage to setup, one of ``"train"``, ``"test"``, ``"predict"``,
+                or ``None``. Default is ``None``.
         """
         if self.can_log:
             console.log(f"Setup [red]{self.__class__.__name__}[/red].")

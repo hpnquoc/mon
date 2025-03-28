@@ -1,17 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Filtering.
-
-This package provides functions and classes for performing various linear and
-non-linear filtering operations on 2D images. It means that for each pixel
-location in the source image (normally, rectangular), its neighborhood is
-considered and used to compute the response.
-
-Another common feature of the functions and classes described in this section
-is that, unlike simple arithmetic functions, they need to extrapolate values of
-some non-existing pixels.
-"""
+"""Provides linear/non-linear filtering for 2D images."""
 
 from __future__ import annotations
 

@@ -1,10 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""TorchMetric.
-
-This module provides an interface to :mod:`torchmetrics` library.
-"""
+"""Interfaces with ``torchmetrics`` library."""
 
 from __future__ import annotations
 

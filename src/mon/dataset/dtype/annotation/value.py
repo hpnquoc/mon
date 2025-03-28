@@ -1,11 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Value Annotation.
-
-This module implements annotations that take the form of a value (number,
-boolean, etc.).
-"""
+"""Implements value-based annotations (number, boolean, etc.)."""
 
 from __future__ import annotations
 
@@ -25,7 +21,7 @@ class RegressionAnnotation(base.Annotation):
     """Single regression value annotation.
 
     Args:
-        value: Regression value as a ``float``.
+        value: Regression value as ``float``.
         confidence: Confidence score in [0.0, 1.0]. Default is ``1.0``.
     """
     
@@ -44,7 +40,7 @@ class RegressionAnnotation(base.Annotation):
         """Returns the confidence score.
 
         Returns:
-            ``float`` representing the confidence in [0.0, 1.0].
+            ``float`` in [0.0, 1.0] representing confidence.
         """
         return self._confidence
     
@@ -53,13 +49,13 @@ class RegressionAnnotation(base.Annotation):
         """Sets the confidence score.
 
         Args:
-            confidence: Confidence value as a ``float``.
+            confidence: Confidence value as ``float``.
 
         Raises:
-            ValueError: If ``[confidence]`` is not in [0.0, 1.0].
+            ValueError: If ``confidence`` is not in [0.0, 1.0].
         """
         if not 0.0 <= confidence <= 1.0:
-            raise ValueError(f"[confidence] must be in [0.0, 1.0], but got [{confidence}].")
+            raise ValueError(f"[confidence] must be in [0.0, 1.0], got [{confidence}].")
         self._confidence = confidence
     
     @property
@@ -67,7 +63,7 @@ class RegressionAnnotation(base.Annotation):
         """Returns the regression value as a list.
 
         Returns:
-            List containing the regression ``value``.
+            List containing regression ``value``.
         """
         return [self.value]
     
@@ -76,10 +72,10 @@ class RegressionAnnotation(base.Annotation):
         """Converts input data to a tensor.
 
         Args:
-            data: Input data as a ``torch.Tensor`` or ``numpy.ndarray``.
+            data: Input as ``torch.Tensor`` or ``numpy.ndarray``.
 
         Returns:
-            ``torch.Tensor`` of the input data.
+            ``torch.Tensor`` of input data.
         """
         return torch.as_tensor(data)
     
@@ -91,7 +87,7 @@ class RegressionAnnotation(base.Annotation):
             batch: List of values as ``torch.Tensor`` or ``numpy.ndarray``.
 
         Returns:
-            Collated ``torch.Tensor``, ``numpy.ndarray``, or ``None`` if types are mixed.
+            Collated ``torch.Tensor``, ``numpy.ndarray``, or ``None`` if mixed.
         """
         if not batch:
             return None

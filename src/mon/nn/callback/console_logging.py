@@ -1,11 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Console Logging Callback.
-
-This module implements callbacks for logging training/testing progress to the
-console.
-"""
+"""Implements callbacks for console logging of training/testing progress."""
 
 from __future__ import annotations
 
@@ -36,12 +32,12 @@ error_console = core.error_console
 # noinspection PyMethodMayBeStatic
 @CALLBACKS.register(name="log_training_progress")
 class LogTrainingProgress(callbacks.Callback):
-    """Logs training and testing progress to the console.
+    """Logs training and testing progress to console.
 
     Args:
-        dirpath: Directory path for log file.
+        dirpath: Dir path for log file.
         filename: Log file name. Default is ``log.csv``.
-        every_n_epochs: Log every n epochs, must be non-negative or ``None``. Default is ``1``.
+        every_n_epochs: Log every n epochs. Default is ``1``.
         every_n_train_steps: Log every n training steps.
         train_time_interval: Log every n seconds.
         log_on_train_epoch_end: Log at train epoch end if ``True``.
@@ -76,7 +72,7 @@ class LogTrainingProgress(callbacks.Callback):
         self._init_triggers(every_n_epochs, every_n_train_steps, train_time_interval)
     
     def setup(self, trainer: "pl.Trainer", pl_module: "pl.LightningModule", stage: str):
-        """Sets up logging directory at the start of training stages.
+        """Sets up logging dir at start of training stages.
 
         Args:
             trainer: Lightning trainer instance.
@@ -88,7 +84,7 @@ class LogTrainingProgress(callbacks.Callback):
         self._dirpath = core.Path(dirpath)
     
     def on_train_start(self, trainer: "pl.Trainer", pl_module: "pl.LightningModule"):
-        """Initializes logging at the start of training.
+        """Initializes logging at training start.
 
         Args:
             trainer: Lightning trainer instance.
@@ -113,7 +109,7 @@ class LogTrainingProgress(callbacks.Callback):
             self._logger.flush()
     
     def on_train_end(self, trainer: "pl.Trainer", pl_module: "pl.LightningModule"):
-        """Logs training duration and closes log file at training end.
+        """Logs duration and closes log file at training end.
 
         Args:
             trainer: Lightning trainer instance.
@@ -219,12 +215,12 @@ class LogTrainingProgress(callbacks.Callback):
         every_n_train_steps: int       = None,
         train_time_interval: timedelta = None
     ):
-        """Sets up logging triggers with default values if unspecified.
+        """Sets up logging triggers with defaults if unspecified.
 
         Args:
-            every_n_epochs: Log every n epochs. Default is ``None``.
-            every_n_train_steps: Log every n training steps. Default is ``None``.
-            train_time_interval: Log every n seconds. Default is ``None``.
+            every_n_epochs: Log every n epochs.
+            every_n_train_steps: Log every n training steps.
+            train_time_interval: Log every n seconds.
         """
         if every_n_train_steps is None and every_n_epochs is None and train_time_interval is None:
             every_n_epochs      = 1
@@ -241,13 +237,17 @@ class LogTrainingProgress(callbacks.Callback):
         self._every_n_epochs      = every_n_epochs
         self._every_n_train_steps = every_n_train_steps
         
-    def _init_candidates(self, trainer: "pl.Trainer", pl_module: "pl.LightningModule") -> collections.OrderedDict:
+    def _init_candidates(
+        self,
+        trainer  : "pl.Trainer",
+        pl_module: "pl.LightningModule"
+    ) -> collections.OrderedDict:
         """Initializes logging candidates with metric names.
 
         Args:
             trainer: Lightning trainer instance.
             pl_module: Lightning module instance.
-        
+
         Returns:
             OrderedDict of candidate metric names.
         """
@@ -268,12 +268,15 @@ class LogTrainingProgress(callbacks.Callback):
         self._candidates = candidates
         return self._candidates
     
-    def _update_candidates(self, monitor_candidates: dict[str, torch.Tensor]) -> dict[str, Any]:
+    def _update_candidates(
+        self,
+        monitor_candidates: dict[str, torch.Tensor]
+    ) -> dict[str, Any]:
         """Updates logging candidates with monitored values.
 
         Args:
             monitor_candidates: Dict of metric names to tensor values.
-        
+
         Returns:
             Updated dict of candidates.
         """
@@ -289,7 +292,7 @@ class LogTrainingProgress(callbacks.Callback):
 
         Args:
             trainer: Lightning trainer instance.
-        
+
         Returns:
             Dict of metric names to tensor values.
         """
@@ -313,9 +316,9 @@ class LogTrainingProgress(callbacks.Callback):
 
         Args:
             trainer: Lightning trainer instance.
-            
+
         Returns:
-            True if logging should be skipped, else False.
+            ``True`` if logging should be skipped, else ``False``.
         """
         from lightning.pytorch.trainer.states import TrainerFn
         
@@ -327,13 +330,13 @@ class LogTrainingProgress(callbacks.Callback):
         )
     
     def _should_log_on_train_epoch_end(self, trainer: "pl.Trainer") -> bool:
-        """Determines if logging should occur at train epoch end.
+        """Determines if logging at train epoch end.
 
         Args:
             trainer: Lightning trainer instance.
-        
+
         Returns:
-            True if logging at train epoch end, else False.
+            ``True`` if logging at train epoch end, else ``False``.
         """
         if self._log_on_train_epoch_end is not None:
             return self._log_on_train_epoch_end

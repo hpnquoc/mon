@@ -1,13 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Fast Fourier Convolution.
-
-This module implements Fast-Fourier Convolution layers.
-
-References:
-    https://github.com/pkumivision/FFC
-"""
+"""Implements Fast Fourier Convolution layers."""
 
 from __future__ import annotations
 
@@ -45,7 +39,7 @@ class FourierUnit(nn.Module):
             Default is ``'ortho'``.
 
     References:
-        https://github.com/pkumivision/FFC
+        - https://github.com/pkumivision/FFC
     """
 
     def __init__(
@@ -168,7 +162,7 @@ class SpectralTransform2d(nn.Module):
             Default is ``'ortho'``.
 
     References:
-        https://github.com/pkumivision/FFC
+        - https://github.com/pkumivision/FFC
     """
 
     def __init__(
@@ -224,10 +218,10 @@ class SpectralTransform2d(nn.Module):
         """Applies spectral transform with Fourier units.
 
         Args:
-            input: Input tensor ``[B, C_in, H, W]``.
+            input: Input tensor [B, C_in, H, W].
 
         Returns:
-            Output tensor ``[B, C_out, H_out, W_out]``.
+            Output tensor [B, C_out, H_out, W_out].
         """
         x = input
         x = self.downsample(x)
@@ -272,7 +266,7 @@ class FastFourierConv2d(nn.Module):
             Default is ``'ortho'``.
     
     References:
-        https://github.com/pkumivision/FFC
+        - https://github.com/pkumivision/FFC
     """
 
     def __init__(
@@ -293,7 +287,7 @@ class FastFourierConv2d(nn.Module):
     ):
         super().__init__()
         if stride not in [1, 2]:
-            raise ValueError(f"[stride] must be 1 or 2, but got [{stride}]")
+            raise ValueError(f"[stride] must be 1 or 2, got [{stride}]")
         self.stride      = stride
         self.ratio_g_in  = ratio_g_in
         self.ratio_g_out = ratio_g_out
@@ -357,7 +351,7 @@ class FastFourierConv2d(nn.Module):
         """Applies fast Fourier convolution with local and global paths.
 
         Args:
-            input: Input tensor ``[B, C_in, H, W]`` or tuple of local/global tensors.
+            input: Input tensor [B, C_in, H, W] or tuple of local/global tensors.
 
         Returns:
             Tuple of (local output ``[B, C_out_l, H_out, W_out]``,
@@ -395,7 +389,7 @@ class FastFourierConv2dNormAct(nn.Module):
         Mimics torchvision.ops.misc.Conv2dNormActivation naming.
     
     References:
-        https://github.com/pkumivision/FFC
+        - https://github.com/pkumivision/FFC
     """
 
     def __init__(
@@ -449,7 +443,7 @@ class FastFourierConv2dNormAct(nn.Module):
         """Applies FFC, normalization, and activation.
 
         Args:
-            input: Input tensor ``[B, C_in, H, W]`` or tuple of local/global tensors.
+            input: Input tensor [B, C_in, H, W] or tuple of local/global tensors.
 
         Returns:
             Tuple of (local output ``[B, C_out_l, H_out, W_out]``,
@@ -469,7 +463,7 @@ class FastFourierConv2dSE(nn.Module):
         ratio_g: Ratio of global channels. Range [0, 1].
 
     References:
-        https://github.com/pkumivision/FFC
+        - https://github.com/pkumivision/FFC
     """
 
     def __init__(

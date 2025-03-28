@@ -1,10 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""XML File Handler.
-
-This module implements the XML file handler by extending the ``xmltodict`` module.
-"""
+"""Extends ``xmltodict`` module for XML file handling."""
 
 from __future__ import annotations
 
@@ -27,7 +24,7 @@ class XMLHandler(base.FileHandler):
 
         Args:
             path: File stream as ``TextIO`` (text file-like object).
-            **kwargs: Additional arguments for ``xmltodict.parse``.
+            **kwargs: Extra args for ``xmltodict.parse()``.
 
         Returns:
             Parsed XML data as a dictionary.
@@ -40,13 +37,13 @@ class XMLHandler(base.FileHandler):
         Args:
             obj: Dictionary to serialize as XML.
             path: File stream as ``TextIO`` (text file-like object).
-            **kwargs: Additional arguments for ``xmltodict.unparse``.
+            **kwargs: Extra args for ``xmltodict.unparse()``.
 
         Raises:
             TypeError: If ``obj`` is not a dictionary.
         """
         if not isinstance(obj, dict):
-            raise TypeError(f"[obj] must be a dict, got [{type(obj).__name__}]")
+            raise TypeError(f"[obj] must be a dict, got [{type(obj).__name__}].")
         path.write(unparse(input_dict=obj, pretty=True, **kwargs))
     
     def write_to_string(self, obj: Any, **kwargs) -> str:
@@ -54,7 +51,7 @@ class XMLHandler(base.FileHandler):
 
         Args:
             obj: Dictionary to serialize as XML.
-            **kwargs: Additional arguments for ``xmltodict.unparse``.
+            **kwargs: Extra args for ``xmltodict.unparse()``.
 
         Returns:
             XML string representation of ``obj``.
@@ -63,7 +60,7 @@ class XMLHandler(base.FileHandler):
             TypeError: If ``obj`` is not a dictionary.
         """
         if not isinstance(obj, dict):
-            raise TypeError(f"[obj] must be a dict, got [{type(obj).__name__}]")
+            raise TypeError(f"[obj] must be a dict, got [{type(obj).__name__}].")
         return unparse(input_dict=obj, pretty=True, **kwargs)
 
 # endregion

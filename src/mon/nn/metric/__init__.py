@@ -1,11 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Metric Package.
-
-This package implements evaluation metrics by extending the `torchmetrics`
-package.
-"""
+"""Extends ``torchmetrics`` for evaluation metrics."""
 
 from __future__ import annotations
 

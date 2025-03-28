@@ -1,10 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Dataset.
-
-This package implements various datasets.
-"""
+"""Implements various datasets."""
 
 from __future__ import annotations
 

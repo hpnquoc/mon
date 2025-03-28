@@ -1,11 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Rich Module.
-
-This module extends the ``rich`` package. It provides rich text and beautiful
-formatting in the terminal, console, and logging throughout the ``mon`` framework.
-"""
+"""Extends ``rich`` for text formatting in terminal, console, and ``mon`` logging."""
 
 from __future__ import annotations
 
@@ -57,11 +53,11 @@ def get_terminal_size() -> tuple[int, int]:
 
 
 def set_terminal_size(rows: int = 40, cols: int = 100):
-    """Sets the terminal window size to the specified rows and columns.
+    """Sets the terminal window size to specified rows and columns.
 
     Args:
-        rows: Number of rows for the terminal. Default is ``40``.
-        cols: Number of columns for the terminal. Default is ``100``.
+        rows: Number of rows for terminal. Default is ``40``.
+        cols: Number of columns for terminal. Default is ``100``.
     """
     fd   = sys.stdout.fileno()
     size = struct.pack("HHHH", rows, cols, 0, 0)
@@ -132,10 +128,10 @@ def get_console() -> rich.console.Console:
 
 
 def get_error_console() -> rich.console.Console:
-    """Gets the global error-logging ``rich.console.Console`` object, creating it if needed.
+    """Gets the global error ``rich.console.Console``, creating it if needed.
 
     Returns:
-        Global ``rich.console.Console`` instance for error logging.
+        Global ``rich.console.Console`` for error logging.
     """
     global error_console
     if error_console is None:
@@ -156,14 +152,14 @@ def get_error_console() -> rich.console.Console:
 # region Progress
 
 def get_download_bar(transient: bool = False, disable: bool = False) -> progress.Progress:
-    """Creates a ``rich.progress.Progress`` object for download tracking.
+    """Creates a ``rich.progress.Progress`` for download tracking.
 
     Args:
-        transient: If ``True``, hides the bar after completion. Default is ``False``.
-        disable: If ``True``, disables the progress bar. Default is ``False``.
+        transient: If ``True``, hides bar after completion. Default is ``False``.
+        disable: If ``True``, disables progress bar. Default is ``False``.
 
     Returns:
-        ``rich.progress.Progress`` object with download-specific columns.
+        ``rich.progress.Progress`` with download-specific columns.
     """
     return progress.Progress(
         progress.TextColumn(
@@ -189,14 +185,14 @@ def get_download_bar(transient: bool = False, disable: bool = False) -> progress
 
 
 def get_progress_bar(transient: bool = False, disable: bool = False) -> progress.Progress:
-    """Creates a ``rich.progress.Progress`` object for general progress tracking.
+    """Creates a ``rich.progress.Progress`` for general progress tracking.
 
     Args:
-        transient: If ``True``, hides the bar after completion. Default is ``False``.
-        disable: If ``True``, disables the progress bar. Default is ``False``.
+        transient: If ``True``, hides bar after completion. Default is ``False``.
+        disable: If ``True``, disables progress bar. Default is ``False``.
 
     Returns:
-        ``rich.progress.Progress`` object with processing-specific columns.
+        ``rich.progress.Progress`` with processing-specific columns.
     """
     return progress.Progress(
         progress.TextColumn(
@@ -223,12 +219,12 @@ def get_progress_bar(transient: bool = False, disable: bool = False) -> progress
 
 
 class MemoryUsageColumn(progress.ProgressColumn):
-    """Displays current CPU/GPU memory usage in a progress bar (e.g., ``33.1/48.0GB``).
+    """Displays CPU/GPU memory usage in a progress bar (e.g., ``33.1/48.0GB``).
 
     Args:
         devices: GPU device index or list of indices. Default is ``0``.
         unit: Memory unit (e.g., ``'GB'``). Default is ``MemoryUnit.GB``.
-        table_column: Column in the table to associate with. Default is ``None``.
+        table_column: Column in table to associate with. Default is ``None``.
     """
     
     def __init__(
@@ -248,7 +244,7 @@ class MemoryUsageColumn(progress.ProgressColumn):
             task: ``rich.progress.Task`` object for the progress task.
 
         Returns:
-            ``rich.text.Text`` object with memory usage status.
+            ``rich.text.Text`` with memory usage status.
         """
         return self.get_gpu_memory_text(task) \
             if torch.cuda.is_available() \
@@ -261,7 +257,7 @@ class MemoryUsageColumn(progress.ProgressColumn):
             task: ``rich.progress.Task`` object for the progress task.
 
         Returns:
-            ``rich.text.Text`` object with RAM usage status.
+            ``rich.text.Text`` with RAM usage status.
         """
         total, used, _ = utils.get_machine_memory(unit=self.unit)
         memory_status  = f"{used:.1f}/{total:.1f}{self.unit.value} (CPU)"
@@ -275,7 +271,7 @@ class MemoryUsageColumn(progress.ProgressColumn):
             task: ``rich.progress.Task`` object for the progress task.
 
         Returns:
-            ``rich.text.Text`` object with GPU memory usage status.
+            ``rich.text.Text`` with GPU memory usage status.
         """
         num_devices = len(self.devices)
         totals, useds = [], []
@@ -291,10 +287,10 @@ class MemoryUsageColumn(progress.ProgressColumn):
 
 
 class ProcessedItemsColumn(progress.ProgressColumn):
-    """Shows the number of processed items in a progress bar (e.g., ``1728/2025``).
+    """Shows number of processed items in a progress bar (e.g., ``1728/2025``).
 
     Args:
-        table_column: Column in the table to associate with. Default is ``None``.
+        table_column: Column in table to associate with. Default is ``None``.
     """
     
     def __init__(self, table_column: table.Column = None):
@@ -307,7 +303,7 @@ class ProcessedItemsColumn(progress.ProgressColumn):
             task: ``rich.progress.Task`` object for the progress task.
 
         Returns:
-            ``rich.text.Text`` object with processed items count.
+            ``rich.text.Text`` with processed items count.
         """
         completed = int(task.completed)
         total     = int(task.total)
@@ -326,7 +322,7 @@ class ProcessingSpeedColumn(progress.ProgressColumn):
             task: ``rich.progress.Task`` object for the progress task.
 
         Returns:
-            ``rich.text.Text`` object with the processing speed.
+            ``rich.text.Text`` with the processing speed.
         """
         speed = task.speed
         if speed is None:
@@ -345,13 +341,13 @@ def print_dict(x: dict, title: str = ""):
 
     Args:
         x: Dictionary to print.
-        title: Title displayed above the dictionary. Default is ``""``.
+        title: Title above the dictionary. Default is ``""``.
 
     Raises:
         TypeError: If ``x`` is not a dictionary.
     """
     if not isinstance(x, dict):
-        raise TypeError(f"[x] must be a dict, but got [{type(x).__name__}]")
+        raise TypeError(f"[x] must be a dict, got [{type(x).__name__}].")
     pr = pretty.Pretty(
         x,
         expand_all    = True,
@@ -368,18 +364,18 @@ def print_table(x: list[dict]):
     """Prints a list of dictionaries as a ``rich.table.Table``.
 
     Args:
-        x: List of dictionaries with identical keys to print as a table.
+        x: List of dicts with identical keys to print as a table.
 
     Raises:
-        TypeError: If ``x`` is not a list or contains non-dict elements.
-        ValueError: If dictionaries in ``x`` do not have identical keys or ``x`` is empty.
+        TypeError: If ``x`` is not a list or has non-dict elements.
+        ValueError: If dicts in ``x`` lack identical keys or ``x`` is empty.
     """
     if not isinstance(x, list) or not all(isinstance(d, dict) for d in x):
-        raise TypeError(f"[x] must be a list of dicts, but got [{type(x).__name__}]")
+        raise TypeError(f"[x] must be a list of dicts, got [{type(x).__name__}].")
     if not x:
-        raise ValueError("[x] must not be empty")
+        raise ValueError("[x] must not be empty.")
     if not all(set(d.keys()) == set(x[0].keys()) for d in x):
-        raise ValueError("All dictionaries in [x] must have identical keys")
+        raise ValueError("All dictionaries in [x] must have identical keys.")
     tab = table.Table(show_header=True, header_style="bold magenta")
     for k in x[0].keys():
         tab.add_column(k, no_wrap=True)
@@ -400,7 +396,7 @@ def print_table(x: dict):
         TypeError: If ``x`` is not a dictionary.
     """
     if not isinstance(x, dict):
-        raise TypeError(f"[x] must be a dict, but got [{type(x).__name__}]")
+        raise TypeError(f"[x] must be a dict, got [{type(x).__name__}].")
     tab = table.Table(show_header=True, header_style="bold magenta")
     tab.add_column("Key")
     tab.add_column("Value")

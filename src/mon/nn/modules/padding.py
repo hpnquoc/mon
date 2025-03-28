@@ -1,10 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Padding Layers.
-
-This module implements padding layers.
-"""
+"""Implements padding layers."""
 
 from __future__ import annotations
 

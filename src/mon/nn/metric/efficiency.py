@@ -1,10 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Efficiency Metric.
-
-This module implements efficiency score metrics.
-"""
+"""Implements efficiency score metrics."""
 
 from __future__ import annotations
 
@@ -24,7 +21,11 @@ console = core.console
 
 # region Efficiency Metric
 
-def compute_efficiency_score(model: nn.Module, image_size: _size_2_t = 512, channels: int = 3) -> tuple[float, float]:
+def compute_efficiency_score(
+    model     : nn.Module,
+    image_size: _size_2_t = 512,
+    channels  : int       = 3
+) -> tuple[float, float]:
     """Computes FLOPs and parameters for a model.
 
     Args:
@@ -42,9 +43,9 @@ def compute_efficiency_score(model: nn.Module, image_size: _size_2_t = 512, chan
     flops, params = core.profile(model, inputs=(input,), verbose=False)
 
     flops  = FlopCountAnalysis(model, input).total() if flops == 0 else flops
-    params = model.params if hasattr(model, "params") and params == 0 else params
+    params = model.params           if hasattr(model, "params") and params == 0 else params
     params = parameter_count(model) if hasattr(model, "params") else params
-    params = sum(params.values()) if isinstance(params, dict) else params
+    params = sum(params.values())   if isinstance(params, dict) else params
 
     return flops, params
 

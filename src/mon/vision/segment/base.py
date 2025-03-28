@@ -1,10 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Base Segmentation Model.
-
-This module implements the base class for segmentation models.
-"""
+"""Implements base class for segmentation models."""
 
 from __future__ import annotations
 

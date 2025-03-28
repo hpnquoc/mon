@@ -1,12 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Albumentation Transformations.
-
-This module implements data augmentation functions by extending
-`albumentations` package. These functions are mainly applied to
-`numpy.ndarray` images.
-"""
+"""Extends ``albumentations`` for data augmentation on ``numpy.ndarray`` images."""
 
 from __future__ import annotations
 

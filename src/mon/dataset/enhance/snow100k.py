@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Snow100K Datasets."""
+"""Implements Snow100K datasets."""
 
 from __future__ import annotations
 
@@ -50,7 +50,7 @@ class Snow100K(MultimodalDataset):
         """Initializes dataset with ``root`` path and parent args."""
         root = root / "snow100k" if root.name != "snow100k" else root
         if not root.is_dir():
-            raise FileNotFoundError(f"[root] directory not found: [{root}]")
+            raise FileNotFoundError(f"[root] directory not found: [{root}].")
         super().__init__(root=root, *args, **kwargs)
     
     def get_data(self):
@@ -85,10 +85,11 @@ class Snow100KDataModule(DataModule):
         pass
     
     def setup(self, stage: Literal["train", "test", "predict", None] = None):
-        """Sets up datasets for given ``stage``.
+        """Sets up datasets for specified ``stage``.
 
         Args:
-            stage: Stage to configure. Default is ``None``.
+            stage: Stage to setup, one of ``"train"``, ``"test"``, ``"predict"``,
+                or ``None``. Default is ``None``.
         """
         if self.can_log:
             console.log(f"Setup [red]{self.__class__.__name__}[/red].")

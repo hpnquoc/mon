@@ -1,10 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Runner Package.
-
-This package contains the runner module.
-"""
+"""Contains the runner module."""
 
 from __future__ import annotations
 

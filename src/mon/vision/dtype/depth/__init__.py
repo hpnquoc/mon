@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Depth Data Types."""
+"""Implements depth data types."""
 
 from __future__ import annotations
 

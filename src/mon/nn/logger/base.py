@@ -1,11 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""BAse Logger.
-
-This module implements the base class for all loggers, and the corresponding
-helper functions.
-"""
+"""Implements base class and helpers for all loggers."""
 
 from __future__ import annotations
 

@@ -1,10 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""MIPI Challenges.
-
-This module implements datasets and datamodules for MIPI challenges.
-"""
+"""Implements datasets and datamodules for MIPI challenges."""
 
 from __future__ import annotations
 

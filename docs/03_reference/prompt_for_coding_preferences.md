@@ -1,15 +1,15 @@
 # Prompt for Coding Preferences
 
 ## Docstrings
-- **Format**: Google-style, ≤100 chars, generate docstring if missing. Put __init_'s docstring at class level.
-- **Elements**: Use double ticks `` for vars (e.g., ``path``), args (e.g., ``cache``), modules (e.g., ``numpy``), values (e.g., ``True``).
+- **Format**: Google-style, ≤88 chars, generate docstring if missing. Put __init_'s docstring at class level.
+- **Elements**: Use double ticks to represent code elements such as variable names, function names, types, or literal values.
 - **Defaults**: "Default is ..." (e.g., "Default is ``False``").
 - **Style**: Active voice, concise, no verbose intros (e.g., avoid "This function...").
 - **Raises**: Include if `raise` present, with condition.
 - **Alignment**: no need to align in Args, Attributes, Returns, Raises.
 
 ## Code
-- **Brackets**: Use `[ ]` in `raise`, `print`, `log` (e.g., `raise ValueError(f"[path] must be valid, but got [{path}]")`).
+- **Brackets**: Use `[ ]` in `raise`, `print`, `log` (e.g., `raise ValueError(f"[path] must be valid, got [{path}]").`).
 - **Style**: Active voice, short statements.
 - **Type Hints**: Add return hints (e.g., `-> int`), don't add `-> None` unless explicit `return None`.
 - **Assertions**: Replace `assert` with `raise`, use ", but got" (e.g., `raise TypeError(f"[x] must be dict, but got [{type(x).__name__}]")`).

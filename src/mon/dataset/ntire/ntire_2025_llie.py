@@ -1,12 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""NTIRE 2025 LLIE Challenge.
-
-This module implements datasets and datamodules for NTIRE 2025 LLIE Challenge.
+"""Implements datasets and datamodules for NTIRE 2025 LLIE Challenge.
 
 References:
-	https://codalab.lisn.upsaclay.fr/competitions/21636
+	- https://codalab.lisn.upsaclay.fr/competitions/21636
 """
 
 from __future__ import annotations
@@ -55,7 +53,7 @@ class NTIRE2025LLIE(MultimodalDataset):
         """Initializes dataset with ``root`` path and parent args."""
         root = root / "ntire_2025_llie" if root.name != "ntire_2025_llie" else root
         if not root.is_dir():
-            raise FileNotFoundError(f"[root] directory not found: [{root}]")
+            raise FileNotFoundError(f"[root] directory not found: [{root}].")
         super().__init__(root=root, *args, **kwargs)
 
     def get_data(self):
@@ -96,10 +94,11 @@ class NTIRE2025LLIEDataModule(DataModule):
         pass
 
     def setup(self, stage: Literal["train", "test", "predict", None] = None):
-        """Sets up datasets for given ``stage``.
+        """Sets up datasets for specified ``stage``.
 
         Args:
-            stage: Stage to configure. Default is ``None``.
+            stage: Stage to setup, one of ``"train"``, ``"test"``, ``"predict"``,
+                or ``None``. Default is ``None``.
         """
         if self.can_log:
             console.log(f"Setup [red]{self.__class__.__name__}[/red].")

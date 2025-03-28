@@ -7,7 +7,7 @@ This module implements the paper: "Learning to Enhance Low-Light Image via
 Zero-Reference Deep Curve Estimation".
 
 References:
-    https://github.com/Li-Chongyi/Zero-DCE_extension
+    - https://github.com/Li-Chongyi/Zero-DCE_extension
 """
 
 from __future__ import annotations
@@ -99,7 +99,7 @@ class ZeroDCEpp_RE(base.ImageEnhancementModel):
         scale_factor: Downsampling/upsampling ratio. Defaults: ``1.0``.
         
     References:
-        https://github.com/Li-Chongyi/Zero-DCE_extension
+        - https://github.com/Li-Chongyi/Zero-DCE_extension
     """
     
     arch     : str          = "zero_dce++"

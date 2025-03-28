@@ -1,10 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Base Dataset Template.
-
-This module implements base classes for all datasets.
-"""
+"""Implements base classes for all datasets."""
 
 from __future__ import annotations
 
@@ -51,7 +48,7 @@ class Dataset(dataset.Dataset, ABC):
         classlabels: ``ClassLabels`` with supported labels. Default is ``None``.
 
     Args:
-        root: Root dir with split subdirs (e.g., ``train``). Default is ``None``.
+        root: Root dir with split subdirs. Default is ``None``.
         split: Data split to use. Default is ``Split.TRAIN``.
         transform: Transformations for input/target. Default is ``None``.
         to_tensor: If ``True``, converts to ``torch.Tensor``. Default is ``False``.
@@ -95,20 +92,20 @@ class Dataset(dataset.Dataset, ABC):
     
     @abstractmethod
     def __getitem__(self, index: int) -> dict:
-        """Gets a datapoint and metadata at the given index.
+        """Gets a datapoint and metadata at given index.
 
         Args:
-            index: Index of the datapoint.
+            index: Index of datapoint.
 
         Returns:
-            Dictionary with datapoint and metadata.
+            Dict with datapoint and metadata.
         """
     
     def __iter__(self):
-        """Returns an iterator starting at index ``0``.
+        """Gets total number of datapoints.
 
         Returns:
-            Self as an iterator.
+            Number of datapoints in dataset.
         """
         self.reset()
         return self
@@ -125,7 +122,7 @@ class Dataset(dataset.Dataset, ABC):
         """Gets the next datapoint and metadata.
 
         Returns:
-            Dictionary with the next datapoint and metadata.
+            Dict with next datapoint and metadata.
 
         Raises:
             StopIteration: If index exceeds dataset length.
@@ -137,7 +134,7 @@ class Dataset(dataset.Dataset, ABC):
         return result
     
     def __repr__(self) -> str:
-        """Returns a string representation of the dataset.
+        """Returns string representation of dataset.
 
         Returns:
             Formatted string with dataset details.
@@ -160,7 +157,7 @@ class Dataset(dataset.Dataset, ABC):
         """Indicates if progress bar is disabled.
 
         Returns:
-            ``True`` if progress bar is disabled, ``False`` otherwise.
+            ``True`` if progress bar disabled, ``False`` otherwise.
         """
         return not self.verbose
     
@@ -199,7 +196,7 @@ class Dataset(dataset.Dataset, ABC):
         """Gets the main dataset attribute.
 
         Returns:
-            First key from ``datapoint_attrs`` as a string.
+            First key from ``datapoint_attrs`` as string.
         """
         return next(iter(self.datapoint_attrs.keys()))
     
@@ -208,7 +205,7 @@ class Dataset(dataset.Dataset, ABC):
         """Creates a new datapoint with default values.
 
         Returns:
-            Dictionary with attribute keys set to ``None``.
+            Dict with attribute keys set to ``None``.
         """
         return {k: None for k in self.datapoint_attrs.keys()}
     
@@ -229,20 +226,20 @@ class Dataset(dataset.Dataset, ABC):
             split: Split value to set.
 
         Raises:
-            ValueError: If ``[split]`` is not in supported splits.
+            ValueError: If ``split`` not in supported splits.
         """
         split = Split[split] if isinstance(split, str) else split
         if split in self.splits:
             self._split = split
         else:
-            raise ValueError(f"[split] must be one of {self.splits}, but got [{split}]")
+            raise ValueError(f"[split] must be one of {self.splits}, got [{split}].")
     
     @property
     def split_str(self) -> str:
-        """Gets the string representation of the split.
+        """Gets string representation of the split.
 
         Returns:
-            String value of the current split.
+            String value of current split.
         """
         return self.split.value
     
@@ -262,7 +259,7 @@ class Dataset(dataset.Dataset, ABC):
         """Initializes the datapoints dictionary.
 
         Raises:
-            ValueError: If ``[datapoint_attrs]`` has no defined attributes.
+            ValueError: If ``datapoint_attrs`` has no attributes.
         """
         if not self.datapoint_attrs:
             raise ValueError("[datapoint_attrs] has no defined attributes")
@@ -310,10 +307,10 @@ class Dataset(dataset.Dataset, ABC):
                 console.log(f"Cached data to: {path}")
     
     def load_cache(self, path: core.Path):
-        """Loads cached data from the specified path.
+        """Loads cached data from specified path.
 
         Args:
-            path: Path to load the cache from.
+            path: Path to load cache from.
         """
         self.datapoints = torch.load(path)
         self.datapoints.pop("hash", None)
@@ -340,24 +337,24 @@ class Dataset(dataset.Dataset, ABC):
     
     @abstractmethod
     def get_datapoint(self, index: int) -> dict:
-        """Gets a datapoint at the specified index.
+        """Gets a datapoint at specified index.
 
         Args:
-            index: Index of the datapoint.
+            index: Index of datapoint.
 
         Returns:
-            Dictionary containing the datapoint.
+            Dict containing the datapoint.
         """
     
     @abstractmethod
     def get_meta(self, index: int) -> dict:
-        """Gets metadata at the specified index.
+        """Gets metadata at specified index.
 
         Args:
-            index: Index of the metadata.
+            index: Index of metadata.
 
         Returns:
-            Dictionary containing the metadata.
+            Dict containing the metadata.
         """
     
     @classmethod
@@ -365,10 +362,10 @@ class Dataset(dataset.Dataset, ABC):
         """Collates input items for batch processing.
 
         Args:
-            batch: List of dictionaries from the dataset.
+            batch: List of dicts from dataset.
 
         Returns:
-            Collated dictionary for use in ``torch.utils.data.DataLoader`` with batch_size > ``1``.
+            Collated dict for ``torch.utils.data.DataLoader``.
         """
         zipped = {
             k: list(v)
@@ -391,44 +388,37 @@ class MultimodalDataset(Dataset, ABC):
     """Base class for multimodal, multi-task, multi-label datasets.
 
     Attributes:
-        datapoint_attrs: Dict of attribute names and types, must include ``'image'``: ``ImageAnnotation``.
-            Common attributes:
-                - ``'image'``    : ``ImageAnnotation`` (main attribute)
-                - ``'depth'``    : ``DepthMapAnnotation``
-                - ``'ref_image'``: ``ImageAnnotation``
-                - ``'ref_depth'``: ``DepthMapAnnotation``
+        datapoint_attrs: Dict of attribute names and types. Common attributes:
+            - ``'image'``    : ``ImageAnnotation`` (main attribute)
+            - ``'depth'``    : ``DepthMapAnnotation``
+            - ``'ref_image'``: ``ImageAnnotation``
+            - ``'ref_depth'``: ``DepthMapAnnotation``
 
     Args:
         depth_source: Source of depth data. Default is ``'dav2_vitb'``.
     """
+    
     def __init__(
         self,
         depth_source: Literal[*DEPTH_DATA_SOURCES] = "dav2_vitb",
         *args, **kwargs
     ):
-        """Initializes the multimodal dataset.
-
-        Args:
-            depth_source: Source of depth data. Default is ``'dav2_vitb'``.
-
-        Raises:
-            ValueError: If ``[depth_source]`` is not in ``DEPTH_DATA_SOURCES``.
-        """
         if depth_source not in DEPTH_DATA_SOURCES:
-            raise ValueError(f"[depth_source] must be one of {DEPTH_DATA_SOURCES}, but got [{depth_source}]")
+            raise ValueError(f"[depth_source] must be one of {DEPTH_DATA_SOURCES}, "
+                             f"got [{depth_source}].")
         self.depth_source = depth_source
         super().__init__(*args, **kwargs)
     
     # region Magic Methods
     
     def __getitem__(self, index: int) -> dict:
-        """Gets a datapoint and metadata at the specified index.
-    
+        """Gets a datapoint and metadata at specified index.
+
         Args:
-            index: Index of the datapoint.
-    
+            index: Index of datapoint.
+
         Returns:
-            Dictionary with datapoint and metadata.
+            Dict with datapoint and metadata.
         """
         datapoint = self.get_datapoint(index=index)
         meta      = self.get_meta(index=index)
@@ -445,15 +435,15 @@ class MultimodalDataset(Dataset, ABC):
             for k, v in datapoint.items():
                 to_tensor_fn = self.datapoint_attrs.get_tensor_fn(k)
                 if to_tensor_fn and v is not None:
-                    datapoint[k] = to_tensor_fn(v, keepdim=False, normalize=True)
+                    datapoint[k] = to_tensor_fn(v, normalize=True)
         
         return datapoint | {"meta": meta}
     
     def __len__(self) -> int:
-        """Gets the total number of datapoints.
-    
+        """Gets total number of datapoints.
+
         Returns:
-            Number of datapoints in the dataset.
+            Number of datapoints in dataset.
         """
         return len(self.datapoints[self.main_attribute])
     
@@ -462,8 +452,8 @@ class MultimodalDataset(Dataset, ABC):
     # region Initialization
     
     def init_transform(self, transform: A.Compose | Any = None):
-        """Initializes transformation operations with multimodal support.
-    
+        """Initializes transformations with multimodal support.
+
         Args:
             transform: Transformations to apply. Default is ``None``.
         """
@@ -476,7 +466,7 @@ class MultimodalDataset(Dataset, ABC):
     
     def init_data(self, cache_data: bool = False):
         """Initializes dataset data with multimodal support.
-    
+
         Args:
             cache_data: If ``True``, caches data to disk. Default is ``False``.
         """
@@ -518,7 +508,8 @@ class MultimodalDataset(Dataset, ABC):
             with core.get_progress_bar(disable=self.disable_pbar) as pbar:
                 for img in pbar.track(
                     sequence    = images,
-                    description = f"Listing {self.__class__.__name__} {self.split_str} reference images"
+                    description = f"Listing {self.__class__.__name__} "
+                                  f"{self.split_str} reference images"
                 ):
                     root_name = img.root.name
                     path      = img.path.replace(f"/{root_name}/", f"/ref/")
@@ -538,10 +529,12 @@ class MultimodalDataset(Dataset, ABC):
             with core.get_progress_bar(disable=self.disable_pbar) as pbar:
                 for img in pbar.track(
                     sequence    = images,
-                    description = f"Listing {self.__class__.__name__} {self.split_str} depth maps"
+                    description = f"Listing {self.__class__.__name__} "
+                                  f"{self.split_str} depth maps"
                 ):
                     root_name = img.root.name
-                    path      = img.path.replace(f"/{root_name}/", f"/{root_name}_{self.depth_source}/")
+                    path      = img.path.replace(f"/{root_name}/",
+                                                 f"/{root_name}_{self.depth_source}/")
                     depths.append(
                         DepthMapAnnotation(
                             path   = path.image_file(),
@@ -561,10 +554,12 @@ class MultimodalDataset(Dataset, ABC):
             with core.get_progress_bar(disable=self.disable_pbar) as pbar:
                 for img in pbar.track(
                     sequence    = ref_images,
-                    description = f"Listing {self.__class__.__name__} {self.split_str} reference depth maps"
+                    description = f"Listing {self.__class__.__name__} "
+                                  f"{self.split_str} reference depth maps"
                 ):
                     root_name = img.root.name
-                    path      = img.path.replace(f"/{root_name}/", f"/{root_name}_{self.depth_source}/")
+                    path      = img.path.replace(f"/{root_name}/",
+                                                 f"/{root_name}_{self.depth_source}/")
                     ref_depths.append(
                         DepthMapAnnotation(
                             path   = path.image_file(),
@@ -579,23 +574,23 @@ class MultimodalDataset(Dataset, ABC):
         pass
     
     def verify_data(self):
-        """Verifies the dataset integrity.
-    
+        """Verifies dataset integrity.
+
         Raises:
-            RuntimeError: If no datapoints exist or attributes are invalid.
+            RuntimeError: If no datapoints or attributes invalid.
         """
         if self.__len__() <= 0:
             raise RuntimeError("No datapoints in the dataset")
         for k, v in self.datapoints.items():
             if k not in self.datapoint_attrs:
                 raise RuntimeError(f"Attribute [{k}] is not defined in [datapoint_attrs]; "
-                                   f"define it in the class if intentional")
+                                   f"define it in the class if intentional.")
             if self.datapoint_attrs[k]:
                 if v is None:
                     raise RuntimeError(f"No [{k}] attributes defined")
                 if v is not None and len(v) != self.__len__():
-                    raise RuntimeError(f"Number of [{k}] attributes ({len(v)}) does not match "
-                                       f"datapoints ({self.__len__()})")
+                    raise RuntimeError(f"Number of [{k}] attributes ({len(v)}) does not "
+                                       f"match datapoints ({self.__len__()}).")
         if self.verbose:
             console.log(f"Number of {self.split_str} datapoints: {self.__len__()}")
     
@@ -612,13 +607,13 @@ class MultimodalDataset(Dataset, ABC):
     # region Retrieve Data
     
     def get_datapoint(self, index: int) -> dict:
-        """Gets a datapoint at the specified index.
+        """Gets a datapoint at specified index.
 
         Args:
-            index: Index of the datapoint.
+            index: Index of datapoint.
 
         Returns:
-            Dictionary containing the datapoint data.
+            Dict containing datapoint data.
         """
         datapoint = self.new_datapoint
         for k, v in self.datapoints.items():
@@ -627,13 +622,13 @@ class MultimodalDataset(Dataset, ABC):
         return datapoint
     
     def get_meta(self, index: int) -> dict:
-        """Gets metadata at the specified index.
+        """Gets metadata at specified index.
 
         Args:
-            index: Index of the metadata.
+            index: Index of metadata.
 
         Returns:
-            Dictionary with metadata from the main attribute.
+            Dict with metadata from main attribute.
         """
         return self.datapoints[self.main_attribute][index].meta
     

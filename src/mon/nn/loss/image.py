@@ -1,10 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Image Loss Functions.
-
-This module implements loss functions for images.
-"""
+"""Implements loss functions for images."""
 
 from __future__ import annotations
 
@@ -45,7 +42,7 @@ class ColorConstancyLoss(base.Loss):
     three adjusted channels.
     
     References:
-        https://github.com/Li-Chongyi/Zero-DCE/blob/master/Zero-DCE_code/Myloss.py#L9
+        - https://github.com/Li-Chongyi/Zero-DCE/blob/master/Zero-DCE_code/Myloss.py#L9
     """
     
     def __init__(
@@ -200,7 +197,7 @@ class ExposureControlLoss(base.Loss):
         reduction: Specifies the reduction to apply to the output.
     
     References:
-        https://github.com/Li-Chongyi/Zero-DCE/blob/master/Zero-DCE_code/Myloss.py#L74
+        - https://github.com/Li-Chongyi/Zero-DCE/blob/master/Zero-DCE_code/Myloss.py#L74
     """
     
     def __init__(
@@ -235,7 +232,7 @@ class ExposureValueControlLoss(base.Loss):
         reduction: Specifies the reduction to apply to the output.
     
     References:
-        https://github.com/Li-Chongyi/Zero-DCE/blob/master/Zero-DCE_code/Myloss.py#L74
+        - https://github.com/Li-Chongyi/Zero-DCE/blob/master/Zero-DCE_code/Myloss.py#L74
     """
     
     def __init__(
@@ -331,7 +328,7 @@ class PSNRLoss(base.Loss):
     """PSNR loss.
     
     References:
-        https://github.com/xinntao/BasicSR
+        - https://github.com/xinntao/BasicSR
     """
     
     def __init__(
@@ -439,7 +436,7 @@ class TotalVariationLoss(base.Loss):
     neighboring pixels.
     
     References:
-        https://github.com/Li-Chongyi/Zero-DCE/blob/master/Zero-DCE_code/Myloss.py
+        - https://github.com/Li-Chongyi/Zero-DCE/blob/master/Zero-DCE_code/Myloss.py
     """
     
     def __init__(

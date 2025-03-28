@@ -1,9 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""This module implements utility functions for `mon.nn`. It extends Python
-`torch.nn.utils` module.
-"""
+"""Extends ``torch.nn.utils`` with utility functions for ``mon.nn``."""
 
 from __future__ import annotations
 

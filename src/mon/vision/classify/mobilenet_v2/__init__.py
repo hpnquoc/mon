@@ -1,10 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""MobileNetV2.
-
-This module implements MobileNetV2 models.
-"""
+"""Implements MobileNetV2 models."""
 
 from __future__ import annotations
 

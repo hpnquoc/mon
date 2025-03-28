@@ -1,10 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Normalization Layers.
-
-This module implements normalization layers.
-"""
+"""Implements normalization layers."""
 
 from __future__ import annotations
 
@@ -227,7 +224,7 @@ class HalfInstanceNorm2d(nn.InstanceNorm2d):
         elif input.dim() == 4:
             y1, y2 = torch.chunk(input, 2, dim=1)
         else:
-            raise ValueError(f"[input] must be 3D or 4D, but got [{input.dim()}]D")
+            raise ValueError(f"[input] must be 3D or 4D, got [{input.dim()}]D")
         y1 = F.instance_norm(
             input           = y1,
             running_mean    = self.running_mean,

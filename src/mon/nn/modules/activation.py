@@ -1,10 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Activation Layers.
-
-This module implements activation layers.
-"""
+"""Implements activation layers."""
 
 from __future__ import annotations
 
@@ -102,7 +99,7 @@ class SimpleGate(nn.Module):
     """Simple gate activation unit from 'Simple Baselines for Image Restoration'.
 
     References:
-        https://arxiv.org/pdf/2204.04676.pdf
+        - https://arxiv.org/pdf/2204.04676.pdf
     """
     
     def forward(self, input: torch.Tensor) -> torch.Tensor:
@@ -172,7 +169,7 @@ class Sine(nn.Module):
         w0: Frequency scaling factor, hyperparameter. Default is ``1.0``.
 
     References:
-        https://github.com/lucidrains/siren-pytorch/blob/master/siren_pytorch/siren_pytorch.py
+        - https://github.com/lucidrains/siren-pytorch/blob/master/siren_pytorch/siren_pytorch.py
     """
 
     def __init__(self, w0: float = 1.0):
@@ -219,8 +216,8 @@ class xUnit(nn.Module):
         batch_norm: If ``True``, includes batch normalization. Default is ``False``.
 
     References:
-        https://blog.paperspace.com/xunit-spatial-activation
-        https://github.com/kligvasser/xUnit
+        - https://blog.paperspace.com/xunit-spatial-activation
+        - https://github.com/kligvasser/xUnit
     """
 
     def __init__(
@@ -266,8 +263,8 @@ class xUnitS(nn.Module):
         batch_norm: If ``True``, includes batch normalization. Default is ``False``.
 
     References:
-        https://blog.paperspace.com/xunit-spatial-activation
-        https://github.com/kligvasser/xUnit
+        - https://blog.paperspace.com/xunit-spatial-activation
+        - https://github.com/kligvasser/xUnit
     """
 
     def __init__(
@@ -311,8 +308,8 @@ class xUnitD(nn.Module):
         batch_norm: If ``True``, includes batch normalization. Default is ``False``.
 
     References:
-        https://blog.paperspace.com/xunit-spatial-activation
-        https://github.com/kligvasser/xUnit
+        - https://blog.paperspace.com/xunit-spatial-activation
+        - https://github.com/kligvasser/xUnit
     """
 
     def __init__(

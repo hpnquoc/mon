@@ -1,14 +1,14 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""NightCity Datasets.
+"""Implements NightCity dataset for night-time scene parsing.
 
 This module implements the paper: "Night-time Scene Parsing with a Large Real
 Dataset". The largest real-world night-time semantic segmentation dataset with
 pixel-level labels.
 
 References:
-	https://dmcv.sjtu.edu.cn/people/phd/tanxin/NightCity/index.html
+	- https://dmcv.sjtu.edu.cn/people/phd/tanxin/NightCity/index.html
 """
 
 from __future__ import annotations
@@ -100,7 +100,7 @@ class NightCity(MultimodalDataset):
         """Initializes dataset with ``root`` path and parent args."""
         root = root / "nightcity" if root.name != "nightcity" else root
         if not root.is_dir():
-            raise FileNotFoundError(f"[root] directory not found: [{root}]")
+            raise FileNotFoundError(f"[root] directory not found: [{root}].")
         super().__init__(root=root, *args, **kwargs)
 
     def get_data(self):
@@ -146,10 +146,11 @@ class NightCityDataModule(DataModule):
         pass
 
     def setup(self, stage: Literal["train", "test", "predict", None] = None):
-        """Sets up datasets for given ``stage``.
+        """Sets up datasets for specified ``stage``.
 
         Args:
-            stage: Stage to configure. Default is ``None``.
+            stage: Stage to setup, one of ``"train"``, ``"test"``, ``"predict"``,
+                or ``None``. Default is ``None``.
         """
         if self.can_log:
             console.log(f"Setup [red]{self.__class__.__name__}[/red].")

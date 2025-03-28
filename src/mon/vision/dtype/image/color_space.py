@@ -1,11 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Colorspace Conversion.
-
-This module implements basic color space conversion functions. We use `cv2`
-to handle `numpy.ndarray` and `kornia` to handle `torch.Tensor`.
-"""
+"""Implements color space conversion with ``cv2`` and ``kornia``."""
 
 from __future__ import annotations
 
@@ -75,7 +71,7 @@ def grayscale_to_rgb(
         return cv2.cvtColor(image, cv2.COLOR_GRAY2RGB)
     else:
         raise TypeError(f"`image` must be a `torch.Tensor` or `numpy.ndarray`, "
-                        f"but got {type(image)}.")
+                        f"got {type(image)}.")
     
 
 def rgb_to_grayscale(
@@ -99,7 +95,7 @@ def rgb_to_grayscale(
         return cv2.cvtColor(image, cv2.COLOR_GRAY2RGB)
     else:
         raise TypeError(f"`image` must be a `torch.Tensor` or `numpy.ndarray`, "
-                        f"but got {type(image)}.")
+                        f"got {type(image)}.")
 
 
 def bgr_to_grayscale(
@@ -142,7 +138,7 @@ def rgb_to_hls(
         return cv2.cvtColor(image, cv2.COLOR_RGB2HLS)
     else:
         raise TypeError(f"`image` must be a `torch.Tensor` or `numpy.ndarray`, "
-                        f"but got {type(image)}.")
+                        f"got {type(image)}.")
     
 
 def hls_to_rgb(image: torch.Tensor | np.ndarray) -> torch.Tensor | np.ndarray:
@@ -161,7 +157,7 @@ def hls_to_rgb(image: torch.Tensor | np.ndarray) -> torch.Tensor | np.ndarray:
         return cv2.cvtColor(image, cv2.COLOR_HLS2RGB)
     else:
         raise TypeError(f"`image` must be a `torch.Tensor` or `numpy.ndarray`, "
-                        f"but got {type(image)}.")
+                        f"got {type(image)}.")
 
 # endregion
 
@@ -192,7 +188,7 @@ def rgb_to_hsv(
         return cv2.cvtColor(image, cv2.COLOR_RGB2HSV)
     else:
         raise TypeError(f"`image` must be a `torch.Tensor` or `numpy.ndarray`, "
-                        f"but got {type(image)}.")
+                        f"got {type(image)}.")
 
 
 def rgb_to_v(
@@ -219,7 +215,7 @@ def rgb_to_v(
         return hsv[:, :, 2:3]
     else:
         raise TypeError(f"`image` must be a `torch.Tensor` or `numpy.ndarray`, "
-                        f"but got {type(image)}.")
+                        f"got {type(image)}.")
     
 
 def bgr_to_hsv(
@@ -268,7 +264,7 @@ def bgr_to_v(
         return hsv[:, :, 2:3]
     else:
         raise TypeError(f"`image` must be a `torch.Tensor` or `numpy.ndarray`, "
-                        f"but got {type(image)}.")
+                        f"got {type(image)}.")
     
     
 def hsv_to_rgb(image: torch.Tensor | np.ndarray) -> torch.Tensor | np.ndarray:
@@ -288,7 +284,7 @@ def hsv_to_rgb(image: torch.Tensor | np.ndarray) -> torch.Tensor | np.ndarray:
         return cv2.cvtColor(image, cv2.COLOR_HSV2RGB)
     else:
         raise TypeError(f"`image` must be a `torch.Tensor` or `numpy.ndarray`, "
-                        f"but got {type(image)}.")
+                        f"got {type(image)}.")
 
 
 def hsv_to_bgr(image: torch.Tensor | np.ndarray) -> torch.Tensor | np.ndarray:
@@ -317,7 +313,7 @@ class RGBToHVI(nn.Module):
         eps: Epsilon value to avoid division by zero. Defaults: ``1e-8``.
     
     References:
-        https://github.com/Fediory/HVI-CIDNet/blob/master/net/HVI_transform.py
+        - https://github.com/Fediory/HVI-CIDNet/blob/master/net/HVI_transform.py
     """
     
     def __init__(self, eps: float = 1e-8):
@@ -460,7 +456,7 @@ def rgb_to_lab(image: torch.Tensor | np.ndarray) -> torch.Tensor | np.ndarray:
         return cv2.cvtColor(image, cv2.COLOR_RGB2LAB)
     else:
         raise TypeError(f"`image` must be a `torch.Tensor` or `numpy.ndarray`, "
-                        f"but got {type(image)}.")
+                        f"got {type(image)}.")
 
 
 def lab_to_rgb(
@@ -486,7 +482,7 @@ def lab_to_rgb(
         return cv2.cvtColor(image, cv2.COLOR_LAB2RGB)
     else:
         raise TypeError(f"`image` must be a `torch.Tensor` or `numpy.ndarray`, "
-                        f"but got {type(image)}.")
+                        f"got {type(image)}.")
 
 # endregion
 
@@ -514,7 +510,7 @@ def rgb_to_luv(
         return cv2.cvtColor(image, cv2.COLOR_RGB2LUV)
     else:
         raise TypeError(f"`image` must be a `torch.Tensor` or `numpy.ndarray`, "
-                        f"but got {type(image)}.")
+                        f"got {type(image)}.")
 
 
 def luv_to_rgb(
@@ -537,7 +533,7 @@ def luv_to_rgb(
         return cv2.cvtColor(image, cv2.COLOR_LUV2RGB)
     else:
         raise TypeError(f"`image` must be a `torch.Tensor` or `numpy.ndarray`, "
-                        f"but got {type(image)}.")
+                        f"got {type(image)}.")
 
 # endregion
 
@@ -573,7 +569,7 @@ def bgr_to_rgb(image: torch.Tensor | np.ndarray) -> torch.Tensor | np.ndarray:
         return cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
     else:
         raise TypeError(f"`image` must be a `torch.Tensor` or `numpy.ndarray`, "
-                        f"but got {type(image)}.")
+                        f"got {type(image)}.")
 
 
 def rgb_to_rgba(
@@ -597,7 +593,7 @@ def rgb_to_rgba(
         return cv2.cvtColor(image, cv2.COLOR_RGB2RGBA)
     else:
         raise TypeError(f"`image` must be a `torch.Tensor` or `numpy.ndarray`, "
-                        f"but got {type(image)}.")
+                        f"got {type(image)}.")
 
 
 def bgr_to_rgba(
@@ -635,7 +631,7 @@ def rgba_to_rgb(image: torch.Tensor | np.ndarray) -> torch.Tensor | np.ndarray:
         return cv2.cvtColor(image, cv2.COLOR_RGBA2RGB)
     else:
         raise TypeError(f"`image` must be a `torch.Tensor` or `numpy.ndarray`, "
-                        f"but got {type(image)}.")
+                        f"got {type(image)}.")
 
 
 def rgba_to_bgr(image: torch.Tensor | np.ndarray) -> torch.Tensor | np.ndarray:
@@ -668,7 +664,7 @@ def rgb_to_linear_rgb(
         return kornia.color.rgb_to_linear_rgb(image)
     else:
         raise TypeError(f"`image` must be a `torch.Tensor` or `numpy.ndarray`, "
-                        f"but got {type(image)}.")
+                        f"got {type(image)}.")
     
 
 def linear_rgb_to_rgb(
@@ -687,7 +683,7 @@ def linear_rgb_to_rgb(
         return kornia.color.linear_rgb_to_rgb(image)
     else:
         raise TypeError(f"`image` must be a `torch.Tensor` or `numpy.ndarray`, "
-                        f"but got {type(image)}.")
+                        f"got {type(image)}.")
 
 # endregion
 
@@ -715,7 +711,7 @@ def rgb_to_sepia(
         return kornia.color.sepia_from_rgb(image, rescale, eps)
     else:
         raise TypeError(f"`image` must be a `torch.Tensor` or `numpy.ndarray`, "
-                        f"but got {type(image)}.")
+                        f"got {type(image)}.")
     
 # endregion
 
@@ -738,7 +734,7 @@ def rgb_to_xyz(image: torch.Tensor | np.ndarray) -> torch.Tensor | np.ndarray:
         return cv2.cvtColor(image, cv2.COLOR_RGB2XYZ)
     else:
         raise TypeError(f"`image` must be a `torch.Tensor` or `numpy.ndarray`, "
-                        f"but got {type(image)}.")
+                        f"got {type(image)}.")
 
 
 def xyz_to_rgb(image: torch.Tensor | np.ndarray) -> torch.Tensor | np.ndarray:
@@ -757,7 +753,7 @@ def xyz_to_rgb(image: torch.Tensor | np.ndarray) -> torch.Tensor | np.ndarray:
         return cv2.cvtColor(image, cv2.COLOR_XYZ2RGB)
     else:
         raise TypeError(f"`image` must be a `torch.Tensor` or `numpy.ndarray`, "
-                        f"but got {type(image)}.")
+                        f"got {type(image)}.")
 
 
 def bgr_to_xyz(image: torch.Tensor | np.ndarray) -> torch.Tensor | np.ndarray:
@@ -808,7 +804,7 @@ def rgb_to_ycbcr(image: torch.Tensor | np.ndarray) -> torch.Tensor | np.ndarray:
         return cv2.cvtColor(image, cv2.COLOR_RGB2YCrCb)
     else:
         raise TypeError(f"`image` must be a `torch.Tensor` or `numpy.ndarray`, "
-                        f"but got {type(image)}.")
+                        f"got {type(image)}.")
 
 
 def bgr_to_ycbcr(image: torch.Tensor | np.ndarray) -> torch.Tensor | np.ndarray:
@@ -843,7 +839,7 @@ def rgb_to_y(image: torch.Tensor | np.ndarray) -> torch.Tensor | np.ndarray:
         return ycbcr[:, :, 0:1]
     else:
         raise TypeError(f"`image` must be a `torch.Tensor` or `numpy.ndarray`, "
-                        f"but got {type(image)}.")
+                        f"got {type(image)}.")
 
 
 def bgr_to_y(image: torch.Tensor | np.ndarray) -> torch.Tensor | np.ndarray:
@@ -876,7 +872,7 @@ def ycbcr_to_rgb(image: torch.Tensor | np.ndarray) -> torch.Tensor | np.ndarray:
         return cv2.cvtColor(image, cv2.COLOR_YCrCb2RGB)
     else:
         raise TypeError(f"`image` must be a `torch.Tensor` or `numpy.ndarray`, "
-                        f"but got {type(image)}.")
+                        f"got {type(image)}.")
 
 
 def ycbcr_to_bgr(image: torch.Tensor | np.ndarray) -> torch.Tensor | np.ndarray:
@@ -913,7 +909,7 @@ def rgb_to_yuv(image: torch.Tensor | np.ndarray) -> torch.Tensor | np.ndarray:
         return cv2.cvtColor(image, cv2.COLOR_RGB2YUV)
     else:
         raise TypeError(f"`image` must be a `torch.Tensor` or `numpy.ndarray`, "
-                        f"but got {type(image)}.")
+                        f"got {type(image)}.")
 
 
 def bgr_to_yuv(image: torch.Tensor | np.ndarray) -> torch.Tensor | np.ndarray:
@@ -946,7 +942,7 @@ def yuv_to_rgb(image: torch.Tensor | np.ndarray) -> torch.Tensor | np.ndarray:
         return cv2.cvtColor(image, cv2.COLOR_YUV2RGB)
     else:
         raise TypeError(f"`image` must be a `torch.Tensor` or `numpy.ndarray`, "
-                        f"but got {type(image)}.")
+                        f"got {type(image)}.")
 
 
 def yuv_to_bgr(image: torch.Tensor | np.ndarray) -> torch.Tensor | np.ndarray:

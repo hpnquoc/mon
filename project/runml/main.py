@@ -1,10 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Main.
-
-This module implements main running pipeline.
-"""
+"""Implements main running pipeline."""
 
 from __future__ import annotations
 

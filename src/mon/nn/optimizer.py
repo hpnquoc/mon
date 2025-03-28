@@ -1,11 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Optimizer and Learning Rate Scheduler.
-
-This module implements optimizers and learning rate schedulers using the
-`torch` package.
-"""
+"""Implements optimizers and LR schedulers with ``torch``."""
 
 from __future__ import annotations
 
@@ -47,17 +43,20 @@ __all__ = [
     "StepLR",
 ]
 
+import copy
 import math
 from collections import Counter, defaultdict
 from typing import Any
 
-from torch import optim
+import humps
+from torch import nn, optim
 from torch.optim import lr_scheduler
 # noinspection PyUnresolvedReferences
 from torch.optim.lr_scheduler import _LRScheduler
 
+import mon
+from mon.core import factory
 from mon.globals import LR_SCHEDULERS, OPTIMIZERS
-
 
 # region Optimizer
 
@@ -104,14 +103,13 @@ class CosineAnnealingRestartLR(_LRScheduler):
     restart_weights = [1, 0.5, 0.5, 0.5]
     eta_min         = 1e-7
 
-    It has four cycles, each has 10 iterations. At 10th, 20th, 30th, the
-    scheduler will restart with the weights in restart_weights.
+    It has four cycles, each has 10 iterations. At 10th, 20th, 30th, the scheduler will
+    restart with the weights in restart_weights.
 
     Args:
         optimizer: Torch optimizer.
         periods: Period for each cosine annealing cycle.
-        restart_weights: Restart weights at each restart iteration.
-            Default: [1].
+        restart_weights: Restart weights at each restart iteration. Default: [1].
         eta_min: The minimum lr. Default: ``0``.
         last_epoch: Used in _LRScheduler. Default: ``-1``.
     """
@@ -466,5 +464,205 @@ LR_SCHEDULERS.register(name="polynomial_lr"                 , module=PolynomialL
 LR_SCHEDULERS.register(name="reduce_lr_on_plateau"          , module=ReduceLROnPlateau)
 LR_SCHEDULERS.register(name="sequential_lr"                 , module=SequentialLR)
 LR_SCHEDULERS.register(name="step_lr"                       , module=StepLR)
+
+# endregion
+
+
+# region Factory
+
+class OptimizerFactory(factory.Factory):
+    """Registers and builds optimizers for neural networks."""
+
+    def build(
+        self,
+        network            : nn.Module,
+        name               : str  = None,
+        config             : dict = None,
+        network_params_only: bool = False,
+        to_dict            : bool = False,
+        **kwargs
+    ) -> any:
+        """Builds an optimizer instance by name or config.
+
+        Args:
+            network: Neural network providing parameters.
+            name: Optimizer name. Default is ``None``.
+            config: Optimizer config dict. Default is ``None``.
+            network_params_only: Use only network params if ``True``. Default is ``False``.
+            to_dict: Return dict of {name: instance} if ``True``. Default is ``False``.
+            **kwargs: Additional optimizer arguments.
+        
+        Raises:
+            AssertionError: If name missing when required.
+        
+        Returns:
+            Optimizer instance, dict, or ``None``.
+        """
+        if name is None and config is None:
+            return None
+        if name is None and config:
+            if "name" not in config:
+                raise AssertionError("[name] must be in config, got [None].")
+            config_  = copy.deepcopy(config)
+            name_    = config_.pop("name")
+            name     = name or name_
+            kwargs  |= config_
+        if not name or name not in self:
+            raise AssertionError(f"[name] must be valid and registered, got [{name}].")
+
+        if hasattr(network, "named_parameters"):
+            params = []
+            if network_params_only:
+                for n, p in network.named_parameters():
+                    if all(x not in n for x in ["loss", "train/", "val/", "test/"]):
+                        params.append(p)
+            else:
+                params = network.parameters()
+            instance = self[name](params=params, **kwargs)
+
+            if getattr(instance, "name", None) is None:
+                instance.name = humps.depascalize(humps.pascalize(name))
+            return {name: instance} if to_dict else instance
+
+        return None
+
+    def build_instances(
+        self,
+        network            : nn.Module,
+        configs            : list,
+        network_params_only: bool = True,
+        to_dict            : bool = False,
+        **kwargs
+    ) -> any:
+        """Builds multiple optimizer instances from configs.
+
+        Args:
+            network: Neural network providing parameters.
+            configs: List of optimizer names or config dicts with name.
+            network_params_only: Use only network params if ``True``. Default is ``True``.
+            to_dict: Return dict of {name: instance} if ``True``. Default is ``False``.
+            **kwargs: Additional optimizer arguments.
+        
+        Raises:
+            AssertionError: If configs is not a list.
+       
+        Returns:
+            List or dict of optimizers, or ``None`` if empty.
+        """
+        if configs is None:
+            return None
+        if not isinstance(configs, list):
+            raise AssertionError(f"[configs] must be list, got [{type(configs).__name__}].")
+
+        configs_   = copy.deepcopy(configs)
+        optimizers = {} if to_dict else []
+        for config in configs_:
+            if isinstance(config, str):
+                name = config
+            else:
+                name    = config.pop("name")
+                kwargs |= config
+            opt = self.build(
+                network             = network,
+                name                = name,
+                network_params_only = network_params_only,
+                to_dict             = to_dict,
+                **kwargs
+            )
+            if opt:
+                if to_dict:
+                    optimizers |= opt
+                else:
+                    optimizers.append(opt)
+
+        return optimizers if optimizers else None
+    
+
+class LRSchedulerFactory(factory.Factory):
+    """Registers and builds learning rate schedulers."""
+
+    def build(
+        self,
+        optimizer: optim.Optimizer,
+        name     : str  = None,
+        config   : dict = None,
+        **kwargs
+    ) -> any:
+        """Builds a scheduler instance by name or config.
+
+        Args:
+            optimizer: Optimizer for the scheduler.
+            name: Scheduler name. Default is ``None``.
+            config: Scheduler config dict. Default is ``None``.
+            **kwargs: Additional scheduler arguments.
+        
+        Raises:
+            AssertionError: If name missing or invalid.
+        
+        Returns:
+            Scheduler instance or ``None``.
+        """
+        if name is None and config is None:
+            return None
+        if name is None and config:
+            if "name" not in config:
+                raise AssertionError("[name] must be in config, got [None].")
+            config_ = copy.deepcopy(config)
+            name_   = config_.pop("name")
+            name    = name or name_
+            kwargs |= config_
+        if not name or name not in self:
+            raise AssertionError(f"[name] must be valid and registered, got [{name}].")
+
+        if name in ["GradualWarmupScheduler", "gradual_warmup_scheduler", "gradual-warmup-scheduler"]:
+            after_scheduler = kwargs.pop("after_scheduler")
+            if isinstance(after_scheduler, dict):
+                name_ = after_scheduler.pop("name")
+                after_scheduler = self[name_](optimizer=optimizer, **after_scheduler) if name_ in self else None
+            return self[name](optimizer=optimizer, after_scheduler=after_scheduler, **kwargs)
+
+        return self[name](optimizer=optimizer, **kwargs)
+
+    def build_instances(
+        self,
+        optimizer: optim.Optimizer,
+        configs  : list,
+        **kwargs
+    ) -> list:
+        """Builds multiple scheduler instances from configs.
+
+        Args:
+            optimizer: Optimizer for the schedulers.
+            configs: List of scheduler names or config dicts with name.
+            **kwargs: Additional scheduler arguments.
+        
+        Raises:
+            AssertionError: If configs is not a list.
+        
+        Returns:
+            List of schedulers or ``None`` if empty.
+        """
+        if configs is None:
+            return None
+        if not isinstance(configs, list):
+            raise AssertionError(f"[configs] must be list, got [{type(configs).__name__}].")
+
+        configs_   = copy.deepcopy(configs)
+        schedulers = []
+        for config in configs_:
+            if isinstance(config, str):
+                name = config
+            else:
+                name    = config.pop("name")
+                kwargs |= config
+            scheduler = self.build(optimizer=optimizer, name=name, **kwargs)
+            if scheduler:
+                schedulers.append(scheduler)
+
+        return schedulers if schedulers else None
+
+
+mon.globals.OPTIMIZERS    = OptimizerFactory("Optimizer")
+mon.globals.LR_SCHEDULERS = LRSchedulerFactory("LRScheduler")
 
 # endregion

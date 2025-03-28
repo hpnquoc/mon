@@ -1,14 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Implicit Neural Representations.
-
-This module implements Implicit Neural Representations (INR), their layers and
-networks.
+"""Implements Implicit Neural Representations, layers, and networks.
 
 References:
-    https://github.com/lucidrains/siren-pytorch
-    https://github.com/vishwa91/wire
+    - https://github.com/lucidrains/siren-pytorch
+    - https://github.com/vishwa91/wire
 """
 
 from __future__ import annotations
@@ -558,7 +555,7 @@ class INRLayer(nn.Module):
         elif nonlinear == "finer":
             self.nonlinear = FINERLayer(**layer_args, w0=w0, first_bias_scale=first_bias_scale, is_first=is_first)
         else:
-            raise ValueError(f"[nonlinear] must be supported type, but got [{nonlinear}]")
+            raise ValueError(f"[nonlinear] must be supported type, got [{nonlinear}]")
         
         self.dropout = nn.Dropout(dropout)
         
@@ -728,7 +725,7 @@ class WIRE(nn.Module):
     """WIRE network.
     
     References:
-        https://github.com/liuzhen0212/FINER/blob/main/models.py
+        - https://github.com/liuzhen0212/FINER/blob/main/models.py
     """
     
     def __init__(

@@ -1,12 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""MIPI 2024 Challenges.
-
-This module implements datasets and datamodules for MIPI challenges.
+"""Implements datasets and datamodules for MIPI 2024 challenges.
 
 References:
-	https://mipi-challenge.org/MIPI2024/index.html
+	- https://mipi-challenge.org/MIPI2024/index.html
 """
 
 from __future__ import annotations
@@ -55,7 +53,7 @@ class MIPI2024Flare(MultimodalDataset):
         """Initializes dataset with ``root`` path and parent args."""
         root = root / "mipi_2024_flare" if root.name != "mipi_2024_flare" else root
         if not root.is_dir():
-            raise FileNotFoundError(f"[root] directory not found: [{root}]")
+            raise FileNotFoundError(f"[root] directory not found: [{root}].")
         super().__init__(root=root, *args, **kwargs)
 
     def get_data(self):
@@ -93,6 +91,7 @@ class MIPI2024FlareDataModule(DataModule):
         *args: Additional args for parent class.
         **kwargs: Additional kwargs for parent class.
     """
+    
     tasks: list[Task] = [Task.NIGHTTIME]
 
     def prepare_data(self, *args, **kwargs):
@@ -100,10 +99,11 @@ class MIPI2024FlareDataModule(DataModule):
         pass
 
     def setup(self, stage: Literal["train", "test", "predict", None] = None):
-        """Sets up datasets for given ``stage``.
+        """Sets up datasets for specified ``stage``.
 
         Args:
-            stage: Stage to configure. Default is ``None``.
+            stage: Stage to setup, one of ``"train"``, ``"test"``, ``"predict"``,
+                or ``None``. Default is ``None``.
         """
         if self.can_log:
             console.log(f"Setup [red]{self.__class__.__name__}[/red].")

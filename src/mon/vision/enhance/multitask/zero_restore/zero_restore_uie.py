@@ -7,7 +7,7 @@ This module implements the paper: Zero-shot Single Image Restoration through
 Controlled Perturbation of Koschmieder's Model.
 
 References:
-    https://github.com/aupendu/zero-restore
+    - https://github.com/aupendu/zero-restore
 """
 
 from __future__ import annotations
@@ -192,7 +192,7 @@ class ZeroRestoreUIE(base.ImageEnhancementModel):
     Koschmieder's Model.
     
     References:
-        https://github.com/aupendu/zero-restore/blob/main/model/watermodel.py
+        - https://github.com/aupendu/zero-restore/blob/main/model/watermodel.py
     """
     
     model_dir: core.Path    = current_dir

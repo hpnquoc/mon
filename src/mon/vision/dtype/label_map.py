@@ -1,10 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Image Data Type.
-
-This module implements the basic functionalities for image data.
-"""
+"""Implements basic functionalities for image data."""
 
 from __future__ import annotations
 
@@ -41,7 +38,7 @@ def convert_label_map_id_to_train_id(label_map: np.ndarray, classlabels: "ClassL
     if not isinstance(label_map, np.ndarray):
         raise TypeError(f"[label_map] must be a numpy.ndarray, but got {type(label_map)}.")
     
-    id2train_id = classlabels.id2train_id
+    id2train_id = classlabels.id_to_train_id
     h, w        = I.get_image_size(label_map)
     label_ids   = np.zeros((h, w), dtype=np.uint8)
     label_map   = I.convert_image_to_2d(label_map)
@@ -68,7 +65,7 @@ def convert_label_map_id_to_color(label_map: np.ndarray, classlabels: "ClassLabe
     if not isinstance(label_map, np.ndarray):
         raise TypeError(f"[label_map] must be a numpy.ndarray, but got {type(label_map)}.")
 
-    id2color  = classlabels.id2color
+    id2color  = classlabels.id_color
     h, w      = I.get_image_size(label_map)
     color_map = np.zeros((h, w, 3), dtype=np.uint8)
     label_map = I.convert_image_to_2d(label_map)
@@ -93,7 +90,7 @@ def convert_label_map_color_to_id(label_map: np.ndarray, classlabels: "ClassLabe
     if not isinstance(label_map, np.ndarray):
         raise TypeError(f"[label_map] must be a numpy.ndarray, but got {type(label_map)}.")
     
-    id2color  = classlabels.id2color
+    id2color  = classlabels.id_color
     h, w      = I.get_image_size(label_map)
     label_ids = np.zeros((h, w), dtype=np.uint8)
     for id, color in id2color.items():

@@ -1,10 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Classification Models.
-
-This package implements classification algorithms.
-"""
+"""Implements classification algorithms."""
 
 from __future__ import annotations
 

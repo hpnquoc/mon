@@ -1,10 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""GoogLeNet (Inception v1).
-
-This module implements GoogleNet models.
-"""
+"""Implements GoogLeNet (Inception v1) models."""
 
 from __future__ import annotations
 

@@ -1,10 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Category Annotation.
-
-This module implements annotations that take the form of a category or class.
-"""
+"""Implements category/class annotations."""
 
 from __future__ import annotations
 
@@ -26,10 +23,10 @@ def logits_to_class_id(logits: np.ndarray) -> np.ndarray:
     """Converts logits to class IDs.
 
     Args:
-        logits: ``numpy.ndarray`` of logits with shape ``[N, C]`` where ``N`` is samples and ``C`` is classes.
+        logits: ``numpy.ndarray`` of logits, shape ``[N, C]`` (samples, classes).
 
     Returns:
-        ``numpy.ndarray`` of class IDs with shape [N], selecting the highest logit per sample.
+        ``numpy.ndarray`` of class IDs, shape ``[N]``, with highest logit per sample.
     """
     return np.argmax(logits, axis=-1)
 
@@ -43,13 +40,13 @@ def class_id_to_logits(
     """Converts a class ID to logits.
 
     Args:
-        class_id: Integer class ID to set as the target.
+        class_id: Integer class ID to target.
         num_classes: Total number of classes.
-        high_value: Logit value for the target class. Default is ``1.0``.
-        low_value: Logit value for non-target classes. Default is ``0.0``.
+        high_value: Logit for target class. Default is ``1.0``.
+        low_value: Logit for non-target classes. Default is ``0.0``.
 
     Returns:
-        ``numpy.ndarray`` of logits with shape ``[num_classes]``.
+        ``numpy.ndarray`` of logits, shape ``[num_classes]``.
     """
     logits = np.full(num_classes, low_value, dtype=np.float32)
     logits[class_id] = high_value
@@ -64,8 +61,8 @@ class ClassificationAnnotation(base.Annotation):
     """Classification annotation for an image.
 
     Args:
-        class_id: Integer class ID, where ``-1`` indicates unknown.
-        num_classes: Total number of classes in the task.
+        class_id: Integer class ID, ``-1`` for unknown.
+        num_classes: Total number of classes in task.
         confidence: Confidence score in [0.0, 1.0]. Default is ``1.0``.
     """
     
@@ -87,7 +84,7 @@ class ClassificationAnnotation(base.Annotation):
         """Returns the confidence score.
 
         Returns:
-            ``float`` representing the confidence in [0.0, 1.0].
+            ``float`` in [0.0, 1.0] representing confidence.
         """
         return self._confidence
     
@@ -96,13 +93,13 @@ class ClassificationAnnotation(base.Annotation):
         """Sets the confidence score.
 
         Args:
-            confidence: Confidence value as a ``float``.
+            confidence: Confidence value as ``float``.
 
         Raises:
-            ValueError: If ``[confidence]`` is not in [0.0, 1.0].
+            ValueError: If ``confidence`` is not in [0.0, 1.0].
         """
         if not 0.0 <= confidence <= 1.0:
-            raise ValueError(f"[confidence] must be in [0.0, 1.0], but got [{confidence}].")
+            raise ValueError(f"[confidence] must be in [0.0, 1.0],  got [{confidence}].")
         self._confidence = confidence
     
     @property
@@ -110,7 +107,7 @@ class ClassificationAnnotation(base.Annotation):
         """Returns the class ID as a list.
 
         Returns:
-            List containing the ``class_id``.
+            List containing ``class_id``.
         """
         return [self.class_id]
     
@@ -119,10 +116,10 @@ class ClassificationAnnotation(base.Annotation):
         """Converts input data to a tensor.
 
         Args:
-            data: Input data as a ``torch.Tensor`` or ``numpy.ndarray``.
+            data: Input as ``torch.Tensor`` or ``numpy.ndarray``.
 
         Returns:
-            ``torch.Tensor`` of the input data.
+            ``torch.Tensor`` of input data.
         """
         return torch.as_tensor(data)
     
@@ -134,7 +131,7 @@ class ClassificationAnnotation(base.Annotation):
             batch: List of class IDs as ``torch.Tensor`` or ``numpy.ndarray``.
 
         Returns:
-            Collated ``torch.Tensor``, ``numpy.ndarray``, or ``None`` if batch is empty or mixed.
+            Collated ``torch.Tensor``, ``numpy.ndarray``, or ``None`` if empty/mixed.
         """
         if not batch:
             return None

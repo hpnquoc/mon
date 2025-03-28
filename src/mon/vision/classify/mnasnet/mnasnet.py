@@ -1,10 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""MNASNet.
-
-This module implements MNASNet models.
-"""
+"""Implements MNASNet models."""
 
 from __future__ import annotations
 

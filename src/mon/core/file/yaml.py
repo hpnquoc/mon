@@ -1,10 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""YAML File Handler.
-
-This module implements the YAML file handler by extending the ``yaml`` module.
-"""
+"""Extends ``yaml`` module for YAML file handling."""
 
 from __future__ import annotations
 
@@ -28,10 +25,10 @@ class YAMLHandler(base.FileHandler):
 
         Args:
             path: File stream as ``TextIO`` (text file-like object).
-            **kwargs: Additional arguments for ``yaml.load``.
+            **kwargs: Extra args for ``yaml.load()``.
 
         Returns:
-            Parsed YAML data.
+            Parsed YAML data as ``Any``.
         """
         kwargs.setdefault("Loader", FullLoader)
         return load(path, **kwargs)
@@ -42,7 +39,7 @@ class YAMLHandler(base.FileHandler):
         Args:
             obj: Data to serialize as YAML.
             path: File stream as ``TextIO`` (text file-like object).
-            **kwargs: Additional arguments for ``yaml.dump``.
+            **kwargs: Extra args for ``yaml.dump()``.
         """
         kwargs.setdefault("Dumper", Dumper)
         dump(data=obj, stream=path, **kwargs)
@@ -52,7 +49,7 @@ class YAMLHandler(base.FileHandler):
 
         Args:
             obj: Data to serialize as YAML.
-            **kwargs: Additional arguments for ``yaml.dump``.
+            **kwargs: Extra args for ``yaml.dump()``.
 
         Returns:
             YAML string representation of ``obj``.

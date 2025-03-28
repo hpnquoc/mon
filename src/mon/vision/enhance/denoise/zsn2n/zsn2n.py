@@ -7,7 +7,7 @@ This module implements the paper: "Zero-Shot Noise2Noise: Efficient Image
 Denoising without any Data".
 
 References:
-    https://colab.research.google.com/drive/1i82nyizTdszyHkaHBuKPbWnTzao8HF9b?usp=sharing#scrollTo=Srf0GQTYrkxA
+    - https://colab.research.google.com/drive/1i82nyizTdszyHkaHBuKPbWnTzao8HF9b?usp=sharing#scrollTo=Srf0GQTYrkxA
 """
 
 from __future__ import annotations
@@ -41,7 +41,7 @@ class ZSN2N(base.ImageEnhancementModel):
         num_channels: Output channels for subsequent layers. Default: ``48``.
     
     References:
-        https://colab.research.google.com/drive/1i82nyizTdszyHkaHBuKPbWnTzao8HF9b?usp=sharing#scrollTo=Srf0GQTYrkxA
+        - https://colab.research.google.com/drive/1i82nyizTdszyHkaHBuKPbWnTzao8HF9b?usp=sharing#scrollTo=Srf0GQTYrkxA
     """
     
     arch     : str          = "zsn2n"

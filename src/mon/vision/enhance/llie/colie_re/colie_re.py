@@ -7,7 +7,7 @@ This module implements the paper: "Fast Context-Based Low-Light Image
 Enhancement via Neural Implicit Representations," ECCV 2024.
 
 References:
-    https://github.com/ctom2/colie
+    - https://github.com/ctom2/colie
 """
 
 from __future__ import annotations
@@ -96,7 +96,7 @@ class CoLIE_RE(base.ImageEnhancementModel):
         delta: Sparsity level. Default: ``5``.
     
     References:
-        https://github.com/ctom2/colie
+        - https://github.com/ctom2/colie
     """
     
     arch     : str          = "colie"

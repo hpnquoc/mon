@@ -1,10 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Image Dataset Templates.
-
-This module implements the templates for image-only datasets.
-"""
+"""Implements templates for image-only datasets."""
 
 from __future__ import annotations
 
@@ -33,13 +30,13 @@ class ImageLoader(base.MultimodalDataset):
     """Loads images from a file path, pattern, or directory.
     
     Attributes:
-        datapoint_attrs: Dict of attribute names and types, must include ``'image'``: ``ImageAnnotation``.
+        datapoint_attrs: Dict of attribute names and types.
         
     Args:
         root: Root path or directory of images.
         split: Data split to use. Default is ``Split.PREDICT``.
-        transform : Transformations to apply. Default is ``None``.
-        to_tensor : If ``True``, converts to ``torch.Tensor``. Default is ``False``.
+        transform: Transformations to apply. Default is ``None``.
+        to_tensor: If ``True``, converts to ``torch.Tensor``. Default is ``False``.
         cache_data: If ``True``, caches data to disk. Default is ``False``.
         verbose: If ``True``, enables verbose output. Default is ``True``.
     """
@@ -72,7 +69,7 @@ class ImageLoader(base.MultimodalDataset):
         """Gets image data from the root path.
 
         Raises:
-            IOError: If root path is invalid or no images are found.
+            IOError: If root path invalid or no images found.
         """
         if self.root.is_image_file():
             paths = [self.root]
@@ -87,7 +84,8 @@ class ImageLoader(base.MultimodalDataset):
         with core.get_progress_bar() as pbar:
             for path in pbar.track(
                 sequence    = sorted(paths),
-                description = f"[bright_yellow]Listing {self.__class__.__name__} {self.split_str} images"
+                description = f"[bright_yellow]Listing {self.__class__.__name__} "
+                              f"{self.split_str} images"
             ):
                 if path.is_image_file():
                     images.append(ImageAnnotation(path=path))

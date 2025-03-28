@@ -1,11 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""COCO Datasets.
-
-This package implements COCO datasets for object detection and instance
-segmentation.
-"""
+"""Implements COCO 2017 datasets for detection and segmentation."""
 
 from __future__ import annotations
 

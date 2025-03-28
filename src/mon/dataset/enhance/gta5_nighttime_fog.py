@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""GTA5 Nighttime Fog Datasets.
+"""Implements GTA5 Nighttime Fog datasets.
 
 References:
-    https://github.com/jinyeying/nighttime_dehaze
+    - https://github.com/jinyeying/nighttime_dehaze
 """
 
 from __future__ import annotations
@@ -34,7 +34,7 @@ class GTA5NighttimeFog(MultimodalDataset):
     """Loads GTA5NighttimeFog dataset from ``root`` dir.
 
     Args:
-        root: Directory path to dataset. Default is ``default_root_dir``
+        root: Directory path to dataset. Default is ``default_root_dir``.
         *args: Additional args for parent class.
         **kwargs: Additional kwargs for parent class.
 
@@ -56,7 +56,7 @@ class GTA5NighttimeFog(MultimodalDataset):
         """Initializes dataset with ``root`` path and parent args."""
         root = root / "gta5_nighttime_fog" if root.name != "gta5_nighttime_fog" else root
         if not root.is_dir():
-            raise FileNotFoundError(f"[root] directory not found: [{root}]")
+            raise FileNotFoundError(f"[root] directory not found: [{root}].")
         super().__init__(root=root, *args, **kwargs)
 
     def get_data(self):
@@ -91,10 +91,11 @@ class GTA5NighttimeFogDataModule(DataModule):
         pass
     
     def setup(self, stage: Literal["train", "test", "predict", None] = None):
-        """Sets up datasets for given ``stage``.
+        """Sets up datasets for specified ``stage``.
 
         Args:
-            stage: Stage to configure. Default is ``None``.
+            stage: Stage to setup, one of ``"train"``, ``"test"``, ``"predict"``,
+                or ``None``. Default is ``None``.
         """
         if self.can_log:
             console.log(f"Setup [red]{self.__class__.__name__}[/red].")

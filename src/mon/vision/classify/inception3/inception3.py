@@ -1,10 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Inception v3.
-
-This module implements Inception models.
-"""
+"""Implements Inception v3 models."""
 
 from __future__ import annotations
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""This module implements visual comparison pipeline."""
+"""Implements visual comparison pipeline."""
 
 from __future__ import annotations
 

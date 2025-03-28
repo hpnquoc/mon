@@ -1,10 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""ConvNeXt.
-
-This module implements ConNeXt models.
-"""
+"""Implements ConvNeXt models."""
 
 from __future__ import annotations
 

@@ -1,10 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Logging Module.
-
-This module extends Python's ``logging`` module.
-"""
+"""Extends Python's ``logging`` module."""
 
 from __future__ import annotations
 
@@ -40,10 +37,10 @@ logger = logging.getLogger("rich")
 
 
 def get_logger(path: pathlib.Path = None) -> logging.Logger:
-    """Retrieves or creates a global ``logging.Logger`` with ``rich`` support.
+    """Retrieves or creates a global logger with ``rich`` support.
 
     Args:
-        path: Path for log file output, adds a file handler if provided. Default is ``None``.
+        path: Path for log file, adds file handler if given. Default is ``None``.
 
     Returns:
         Global logger instance.

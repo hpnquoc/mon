@@ -1,10 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Base Convolution Module.
-
-This module implements convolutional layers.
-"""
+"""Implements convolutional layers."""
 
 from __future__ import annotations
 
@@ -59,9 +56,9 @@ def conv2d_same(
     """Applies 2D convolution with same padding.
 
     Args:
-        input: Input tensor ``[B, C_in, H, W]``.
-        weight: Convolution kernel tensor ``[C_out, C_in/groups, kH, kW]``.
-        bias: Optional bias tensor ``[C_out]``. Default is ``None``.
+        input: Input tensor [B, C_in, H, W].
+        weight: Convolution kernel tensor [C_out, C_in/groups, kH, kW].
+        bias: Optional bias tensor [C_out]. Default is ``None``.
         stride: Stride of the convolution. Default is ``1``.
         padding: Padding mode or size. Default is ``0`` (updated by ``'pad_same'``).
         dilation: Dilation of the convolution. Default is ``1``.
@@ -138,10 +135,10 @@ class Conv2dSame(nn.Conv2d):
         """Applies 2D convolution with SAME padding.
 
         Args:
-            input: Input tensor ``[B, C_in, H, W]``.
+            input: Input tensor [B, C_in, H, W].
 
         Returns:
-            Output tensor ``[B, C_out, H_out, W_out]`` with SAME padding.
+            Output tensor [B, C_out, H_out, W_out] with SAME padding.
         """
         return conv2d_same(
             input    = input,

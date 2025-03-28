@@ -1,10 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Enhancement Datasets.
-
-This package implements image/video enhancement datasets.
-"""
+"""Implements image/video enhancement datasets."""
 
 from __future__ import annotations
 

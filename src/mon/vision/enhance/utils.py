@@ -1,10 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Utils
-
-This module implements utility functions for the enhancement models.
-"""
+"""Implements utility functions for enhancement models."""
 
 from __future__ import annotations
 
@@ -27,7 +24,7 @@ class PseudoGTGenerator:
     network of the same image in the previous epoch.
     
     References:
-        https://github.com/VinAIResearch/PSENet-Image-Enhancement/blob/main/source/framework.py
+        - https://github.com/VinAIResearch/PSENet-Image-Enhancement/blob/main/source/framework.py
     """
     
     def __init__(

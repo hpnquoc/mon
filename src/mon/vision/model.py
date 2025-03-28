@@ -1,10 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Base Vision Model.
-
-This module implements the base class for all vision models.
-"""
+"""Implements base class for all vision models."""
 
 from __future__ import annotations
 
@@ -31,18 +28,23 @@ class VisionModel(nn.Model, ABC):
     
     # region Initialize Model
     
-    def compute_efficiency_score(self, image_size: int | Sequence[int] = 512) -> tuple[float, float]:
+    def compute_efficiency_score(
+        self,
+        image_size: int | Sequence[int] = 512,
+        channels  : int = 3,
+    ) -> tuple[float, float]:
         """Computes model efficiency score (FLOPs, params).
 
         Args:
             image_size: Input size as int or [H, W]. Default is ``512``.
+            channels: Number of input channels. Default is ``3``.
         
         Returns:
             Tuple of (FLOPs, parameter count) as floats.
         """
         from mon.vision.dtype import image as I
         h, w      = I.get_image_size(image_size)
-        datapoint = {"image": torch.rand(1, 3, h, w).to(self.device)}
+        datapoint = {"image": torch.rand(1, channels, h, w).to(self.device)}
         flops, params = core.custom_profile(deepcopy(self), inputs=datapoint, verbose=False)
         params        = self.params if hasattr(self, "params") and params == 0 else params
         params        = parameter_count(self) if hasattr(self, "params")  else params

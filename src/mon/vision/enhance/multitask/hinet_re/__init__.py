@@ -6,7 +6,7 @@
 This module implements the paper: "Half-Instance Normalization Network".
 
 References:
-    https://github.com/megvii-model/HINet
+    - https://github.com/megvii-model/HINet
 """
 
 from __future__ import annotations

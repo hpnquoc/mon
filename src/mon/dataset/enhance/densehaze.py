@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Dense-Haze Datasets."""
+"""Implements Dense-Haze datasets."""
 
 from __future__ import annotations
 
@@ -30,7 +30,7 @@ class DenseHaze(MultimodalDataset):
     """Loads Dense-Haze dataset from ``root`` dir.
 
     Args:
-        root: Directory path to dataset. Default is ``default_root_dir``
+        root: Directory path to dataset. Default is ``default_root_dir``.
         *args: Additional args for parent class.
         **kwargs: Additional kwargs for parent class.
 
@@ -49,7 +49,7 @@ class DenseHaze(MultimodalDataset):
         """Initializes dataset with ``root`` path and parent args."""
         root = root / "densehaze" if root.name != "densehaze" else root
         if not root.is_dir():
-            raise FileNotFoundError(f"[root] directory not found: [{root}]")
+            raise FileNotFoundError(f"[root] directory not found: [{root}].")
         super().__init__(root=root, *args, **kwargs)
 
     def get_data(self):
@@ -76,6 +76,7 @@ class DenseHazeDataModule(DataModule):
         *args: Additional args for parent class.
         **kwargs: Additional kwargs for parent class.
     """
+    
     tasks: list[Task] = [Task.DEHAZE]
 
     def prepare_data(self, *args, **kwargs):
@@ -83,10 +84,11 @@ class DenseHazeDataModule(DataModule):
         pass
 
     def setup(self, stage: Literal["train", "test", "predict", None] = None):
-        """Sets up datasets for given ``stage``.
+        """Sets up datasets for specified ``stage``.
 
         Args:
-            stage: Stage to configure. Default is ``None``
+            stage: Stage to setup, one of ``"train"``, ``"test"``, ``"predict"``,
+                or ``None``. Default is ``None``.
         """
         if self.can_log:
             console.log(f"Setup [red]{self.__class__.__name__}[/red].")

@@ -1,10 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Base Depth Estimation Model.
-
-This module implements the base class for depth estimation models.
-"""
+"""Implements base class for depth estimation models."""
 
 from __future__ import annotations
 
@@ -47,7 +44,7 @@ def convert_depth_to_color(
         TypeError: If ``depth`` is not a ``numpy.ndarray``.
     """
     if not isinstance(depth, np.ndarray):
-        raise TypeError(f"[depth] must be a numpy.ndarray, but got {type(depth)}.")
+        raise TypeError(f"[depth] must be a numpy.ndarray, got {type(depth)}.")
     depth = np.uint8(255 * depth) if I.is_image_normalized(depth) else depth
     depth = cv2.applyColorMap(depth, color_map)
     return cv2.cvtColor(depth, cv2.COLOR_BGR2RGB) if use_rgb else depth

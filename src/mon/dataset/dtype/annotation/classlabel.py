@@ -1,10 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""ClassLabel Annotation.
-
-This module implements classlabels in a dataset.
-"""
+"""Implements classlabels in datasets."""
 
 from __future__ import annotations
 
@@ -30,10 +27,8 @@ class ClassLabels(list[dict]):
     def trainable_classes(self) -> 'ClassLabels':
         """Returns all trainable classes.
 
-        Filters class labels to include only those with ``id`` in ``[0, 254]``.
-
         Returns:
-            New ``ClassLabels`` instance with trainable classes.
+            New ``ClassLabels`` with classes where ``id`` is in ``[0, 254]``.
         """
         return ClassLabels([item for item in self if 0 <= item["id"] < 255])
     
@@ -51,7 +46,7 @@ class ClassLabels(list[dict]):
         """Returns all names in the class labels.
 
         Returns:
-            List of ``name`` values from the class labels.
+            List of ``name`` values from class labels.
         """
         return [item["name"] for item in self]
     
@@ -60,12 +55,12 @@ class ClassLabels(list[dict]):
         """Returns all IDs in the class labels.
 
         Returns:
-            List of ``id`` values from the class labels.
+            List of ``id`` values from class labels.
         """
         return [item["id"] for item in self]
     
     @property
-    def id2class(self) -> dict[int, dict]:
+    def id_to_class(self) -> dict[int, dict]:
         """Maps IDs to class label dictionaries.
 
         Returns:
@@ -74,7 +69,7 @@ class ClassLabels(list[dict]):
         return {item["id"]: item for item in self}
     
     @property
-    def id2name(self) -> dict[int, str]:
+    def id_to_name(self) -> dict[int, str]:
         """Maps IDs to class names.
 
         Returns:
@@ -83,11 +78,11 @@ class ClassLabels(list[dict]):
         return {item["id"]: item["name"] for item in self}
     
     @property
-    def id2train_id(self) -> dict[int, int]:
+    def id_to_train_id(self) -> dict[int, int]:
         """Maps IDs to trainable IDs.
 
         Returns:
-            Dict mapping ``id`` to ``train_id`` for IDs and train IDs in ``[0, 254]``.
+            Dict mapping ``id`` to ``train_id`` for IDs in ``[0, 254]``.
         """
         return {
             item["id"]: item["train_id"]
@@ -96,7 +91,7 @@ class ClassLabels(list[dict]):
         }
     
     @property
-    def id2color(self) -> dict[int, list[int] | tuple[int, int, int]]:
+    def id_color(self) -> dict[int, list[int] | tuple[int, int, int]]:
         """Maps IDs to RGB colors.
 
         Returns:

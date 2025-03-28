@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Image Quality Assessment Metric.
+"""Implements image quality assessment metrics.
 
 References:
-    https://github.com/VinAIResearch/PSENet-Image-Enhancement/blob/main/source/iqa.py
+    - https://github.com/VinAIResearch/PSENet-Image-Enhancement/blob/main/source/iqa.py
 """
 
 from __future__ import annotations
@@ -25,7 +25,7 @@ class ImageQualityAssessment(nn.Module):
         pool_size: Size of pooling window. Default is ``25``.
 
     References:
-        https://github.com/VinAIResearch/PSENet-Image-Enhancement/blob/main/source/iqa.py
+        - https://github.com/VinAIResearch/PSENet-Image-Enhancement/blob/main/source/iqa.py
     """
 
     def __init__(self, exposed_level: float = 0.5, pool_size: int = 25):

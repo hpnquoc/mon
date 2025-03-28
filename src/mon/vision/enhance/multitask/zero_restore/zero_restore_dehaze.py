@@ -7,7 +7,7 @@ This module implements the paper: Zero-shot Single Image Restoration through
 Controlled Perturbation of Koschmieder's Model.
 
 References:
-    https://github.com/aupendu/zero-restore
+    - https://github.com/aupendu/zero-restore
 """
 
 from __future__ import annotations

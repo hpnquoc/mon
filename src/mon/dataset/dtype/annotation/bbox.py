@@ -1,10 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Bounding Box Annotation.
-
-This module implements bounding box annotations.
-"""
+"""Implements bounding box annotations."""
 
 from __future__ import annotations
 
@@ -22,11 +19,11 @@ from mon.dataset.dtype.annotation import base
 # region BBox
 
 class BBoxAnnotation(base.Annotation):
-    """Bounding box annotation in an image, including coordinates and optional instance mask.
+    """Bounding box annotation in an image with coordinates and optional mask.
 
     Args:
-        class_id: Integer class ID, where ``-1`` indicates unknown.
-        bbox: Bounding box coordinates as a ``[4]``-shaped array, list, or tuple.
+        class_id: Integer class ID, ``-1`` for unknown.
+        bbox: Box coordinates as ``[4]``-shaped array, list, or tuple.
         confidence: Confidence score in [0.0, 1.0]. Default is ``1.0``.
     """
     
@@ -47,7 +44,7 @@ class BBoxAnnotation(base.Annotation):
         """Returns the bounding box coordinates.
 
         Returns:
-            ``numpy.ndarray`` of shape ``[4]`` with bounding box coordinates.
+            ``numpy.ndarray`` of shape ``[4]`` with box coordinates.
         """
         return self._bbox
     
@@ -56,14 +53,15 @@ class BBoxAnnotation(base.Annotation):
         """Sets the bounding box coordinates.
 
         Args:
-            bbox: Coordinates as a ``numpy.ndarray``, list, or tuple of shape ``[4]``.
+            bbox: Coordinates as ``numpy.ndarray``, list, or tuple of shape ``[4]``.
 
         Raises:
-            ValueError: If ``[bbox]`` is not a 1D array of size ``4``.
+            ValueError: If ``bbox`` is not a 1D array of size ``4``.
         """
         bbox_array = np.asarray(bbox)
         if bbox_array.ndim != 1 or bbox_array.size != 4:
-            raise ValueError(f"[bbox] must be a 1D array of size 4, but got [{bbox_array}]")
+            raise ValueError(f"[bbox] must be a 1D array of size 4, "
+                             f"got [{bbox_array}].")
         self._bbox = bbox_array
     
     @property
@@ -71,7 +69,7 @@ class BBoxAnnotation(base.Annotation):
         """Returns the confidence score.
 
         Returns:
-            ``float`` representing the confidence in [0.0, 1.0].
+            ``float`` in [0.0, 1.0] representing confidence.
         """
         return self._confidence
     
@@ -80,13 +78,13 @@ class BBoxAnnotation(base.Annotation):
         """Sets the confidence score.
 
         Args:
-            confidence: Confidence value as a ``float``.
+            confidence: Confidence value as ``float``.
 
         Raises:
-            ValueError: If ``[confidence]`` is not in [0.0, 1.0].
+            ValueError: If ``confidence`` is not in [0.0, 1.0].
         """
         if not 0.0 <= confidence <= 1.0:
-            raise ValueError(f"[confidence] must be in [0.0, 1.0], but got [{confidence}]")
+            raise ValueError(f"[confidence] must be in [0.0, 1.0], got [{confidence}].")
         self._confidence = confidence
     
     @property
@@ -103,10 +101,10 @@ class BBoxAnnotation(base.Annotation):
         """Converts input data to a tensor.
 
         Args:
-            data: Input data as a ``torch.Tensor`` or ``numpy.ndarray``.
+            data: Input as ``torch.Tensor`` or ``numpy.ndarray``.
 
         Returns:
-            ``torch.Tensor`` of the input data.
+            ``torch.Tensor`` of input data.
         """
         return torch.as_tensor(data)
     
@@ -118,7 +116,7 @@ class BBoxAnnotation(base.Annotation):
             batch: List of items as ``torch.Tensor`` or ``numpy.ndarray``.
 
         Returns:
-            Collated ``torch.Tensor``, ``numpy.ndarray``, or ``None`` if batch is empty or mixed.
+            Collated ``torch.Tensor``, ``numpy.ndarray``, or ``None`` if empty/mixed.
         """
         if not batch:
             return None
@@ -137,7 +135,8 @@ class BBoxesAnnotation(list[BBoxAnnotation]):
         """Returns data of all bounding box annotations.
 
         Returns:
-            List of data (``[x_min, y_min, x_max, y_max, confidence, class_id]``) per annotation, or ``None`` if empty.
+            List of ``[x_min, y_min, x_max, y_max, confidence, class_id]`` or
+                ``None`` if empty.
         """
         return [item.data for item in self] if self else None
     
@@ -155,7 +154,7 @@ class BBoxesAnnotation(list[BBoxAnnotation]):
         """Returns bounding boxes of all bounding box annotations.
 
         Returns:
-            List of ``numpy.ndarray`` bounding box coordinates, each of shape ``[4]``.
+            List of ``numpy.ndarray`` coordinates, each shape ``[4]``.
         """
         return [item.bbox for item in self]
     

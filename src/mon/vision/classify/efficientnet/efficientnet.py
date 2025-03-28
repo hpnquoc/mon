@@ -1,10 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""EfficientNet.
-
-This module implements EfficientNet models.
-"""
+"""Implements EfficientNet models."""
 
 from __future__ import annotations
 

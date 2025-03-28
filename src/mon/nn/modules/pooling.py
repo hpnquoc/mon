@@ -1,10 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Pooling Layers.
-
-This module implements pooling layers.
-"""
+"""Implements pooling layers."""
 
 from __future__ import annotations
 
@@ -190,7 +187,7 @@ class AdaptivePool2d(nn.Module):
             self.pool = nn.Identity()  # pass through
         elif pool_type == "fast":
             if output_size != 1:
-                raise ValueError(f"[pool_type] 'fast' requires output_size=1, but got [{output_size}]")
+                raise ValueError(f"[pool_type] 'fast' requires output_size=1, got [{output_size}]")
             self.pool     = FastAdaptiveAvgPool2d(flatten)
             self.flatten = nn.Identity()
         elif pool_type == "avg":
@@ -345,7 +342,7 @@ class ChannelPool(nn.Module):
     """Global Channel Pool from CBAM Module paper.
 
     References:
-        https://github.com/Jongchan/attention-module/blob/master/MODELS/cbam.py
+        - https://github.com/Jongchan/attention-module/blob/master/MODELS/cbam.py
     """
 
     def forward(self, input: torch.Tensor) -> torch.Tensor:

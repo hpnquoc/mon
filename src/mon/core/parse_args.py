@@ -1,10 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Parse Arguments.
-
-This module defines functions to parse both user-input and config arguments.
-"""
+"""Parses user-input and config arguments."""
 
 from __future__ import annotations
 
@@ -24,37 +21,37 @@ from mon.core import pathlib, utils
 # region Utils
 
 def _str_or_none(value: Any) -> str | None:
-    """Converts a value to a ``str`` or returns ``None`` if the value is the string ``"None"``.
+    """Converts a value to a string or ``None`` if value is ``"None"``.
 
     Args:
         value: Value to convert.
 
     Returns:
-        String representation of ``value``, or ``None`` if ``value`` is ``"None"``.
+        String of ``value`` or ``None`` if ``value`` is ``"None"``.
     """
     return None if value == "None" else str(value)
 
 
 def _int_or_none(value: Any) -> int | None:
-    """Converts a value to an integer or returns ``None`` if the value is the string ``"None"``.
+    """Converts a value to an integer or ``None`` if value is ``"None"``.
 
     Args:
         value: Value to convert.
 
     Returns:
-        Integer representation of ``value``, or ``None`` if ``value`` is ``"None"``.
+        Integer of ``value`` or ``None`` if ``value`` is ``"None"``.
     """
     return None if value == "None" else int(value)
 
 
 def _float_or_none(value: Any) -> float | None:
-    """Converts a value to a float or returns ``None`` if the value is the string ``"None"``.
+    """Converts a value to a float or ``None`` if value is ``"None"``.
 
     Args:
         value: Value to convert.
 
     Returns:
-        Float representation of ``value``, or ``None`` if ``value`` is ``"None"``
+        Float of ``value`` or ``None`` if ``value`` is ``"None"``.
     """
     return None if value == "None" else float(value)
 

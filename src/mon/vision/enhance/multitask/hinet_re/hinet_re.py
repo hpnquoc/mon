@@ -6,7 +6,7 @@
 This module implements the paper: "Half-Instance Normalization Network".
 
 References:
-    https://github.com/megvii-model/HINet
+    - https://github.com/megvii-model/HINet
 """
 
 from __future__ import annotations
@@ -215,7 +215,7 @@ class HINet_RE(base.ImageEnhancementModel):
             Normalization. Default: ``4``.
         
     References:
-        https://github.com/megvii-model/HINet
+        - https://github.com/megvii-model/HINet
     """
     
     model_dir: core.Path    = current_dir

@@ -1,12 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Cityscapes.
-
-This module implements the Cityscapes dataset.
+"""Implements the Cityscapes Foggy dataset.
 
 References:
-	https://www.cityscapes-dataset.com/
+	- https://www.cityscapes-dataset.com/
 """
 
 from __future__ import annotations
@@ -41,7 +39,10 @@ class CityscapesFoggy(Cityscapes):
     """Loads and processes the CityscapesFoggy dataset for dehazing tasks.
 
     Args:
-        ``root``: Root directory path. Default is ``default_root_dir``.
+        root: Root directory path. Default is ``default_root_dir``.
+        *args: Additional args for parent class.
+        **kwargs: Additional kwargs for parent class.
+    
     Raises:
         FileNotFoundError: If ``root``/cityscapes directory does not exist.
     """
@@ -58,7 +59,7 @@ class CityscapesFoggy(Cityscapes):
     def __init__(self, root: core.Path = default_root_dir, *args, **kwargs):
         root = root / "cityscapes" if root.name != "cityscapes" else root
         if not root.is_dir():
-            raise FileNotFoundError(f"[root] must be a directory, but got [{root}]")
+            raise FileNotFoundError(f"[root] must be a directory, got [{root}].")
         super().__init__(root=root, *args, **kwargs)
     
     def get_data(self):
@@ -102,23 +103,20 @@ class CityscapesFoggy(Cityscapes):
 
 @DATAMODULES.register(name="cityscapes_foggy")
 class CityscapesFoggyDataModule(DataModule):
-    """Manages CityscapesFoggy dataset for training, validation, and testing.
-
-    Args:
-        ``stage``: Setup stage, one of "train", "test", "predict", or ``None``. Default is ``None``.
-    """
+    """Manages CityscapesFoggy dataset for training, validation, and testing."""
 
     tasks: list[Task] = [Task.DERAIN]
 
     def prepare_data(self, *args, **kwargs):
-        """Prepares data for the CityscapesFoggy dataset (currently a no-op)."""
+        """Prepares data (placeholder, no action taken)."""
         pass
 
     def setup(self, stage: Literal["train", "test", "predict", None] = None):
-        """Sets up datasets for specified stage.
+        """Sets up datasets for specified ``stage``.
 
         Args:
-            ``stage``: Stage to setup, one of "train", "test", "predict", or ``None``. Default is ``None``.
+            stage: Stage to setup, one of ``"train"``, ``"test"``, ``"predict"``,
+                or ``None``. Default is ``None``.
         """
         if self.can_log:
             console.log(f"Setup [red]{self.__class__.__name__}[/red].")

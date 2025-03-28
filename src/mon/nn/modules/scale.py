@@ -1,10 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Sampling Layers.
-
-This module implements upsampling and downsampling layers.
-"""
+"""Implements upsampling and downsampling layers."""
 
 from __future__ import annotations
 

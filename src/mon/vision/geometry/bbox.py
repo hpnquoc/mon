@@ -1,11 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Bounding Box Geometry.
-
-This module implements geometry functions for bounding boxes. For handling
-geometry, `numpy.ndarray` is used as the primary data structure.
-"""
+"""Implements geometry functions for bounding boxes with ``numpy.ndarray``."""
 
 from __future__ import annotations
 
@@ -244,7 +240,7 @@ def bbox_giou(bbox1: np.ndarray, bbox2: np.ndarray) -> np.ndarray:
         An `numpy.ndarray` in ``[N, M]`` containing the pairwise IoU values.
     
     References:
-        https://arxiv.org/pdf/1902.09630.pdf
+        - https://arxiv.org/pdf/1902.09630.pdf
     """
     # Make sure the bboxes are in 2D arrays.
     if bbox1.ndim == 1:
@@ -297,7 +293,7 @@ def bbox_diou(bbox1: np.ndarray, bbox2: np.ndarray) -> np.ndarray:
         An `numpy.ndarray` in ``[N, M]`` containing the pairwise IoU values.
     
     References:
-        https://arxiv.org/pdf/1902.09630.pdf
+        - https://arxiv.org/pdf/1902.09630.pdf
     """
     # Make sure the bboxes are in 2D arrays.
     if bbox1.ndim == 1:
@@ -353,7 +349,7 @@ def bbox_ciou(bbox1: np.ndarray, bbox2: np.ndarray) -> np.ndarray:
         An `numpy.ndarray` in ``[N, M]`` containing the pairwise IoU values.
     
     References:
-        https://arxiv.org/pdf/1902.09630.pdf
+        - https://arxiv.org/pdf/1902.09630.pdf
     """
     # Make sure the bboxes are in 2D arrays.
     if bbox1.ndim == 1:

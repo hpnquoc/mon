@@ -1,9 +1,10 @@
 # !/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""This module implements visualization functions.
+"""Implements image visualization functions.
 
-https://www.geeksforgeeks.org/concatenate-images-using-opencv-in-python/
+References:
+    - https://www.geeksforgeeks.org/concatenate-images-using-opencv-in-python/
 """
 
 from __future__ import annotations
@@ -40,7 +41,7 @@ def get_grid_size(n: int, nrow: int = 4) -> list[int]:
     Args:
         n: Number of items.
         nrow: Items per row (grid size becomes ``(n / nrow, nrow)``).
-            Default is ``4``; if ``0`` or negative, uses all items in one row.
+            Default is ``4``; if ``0`` or negative, uses one row.
 
     Returns:
         List of [nrows, ncols] representing rows and columns.
@@ -54,8 +55,8 @@ def move_figure(x: int, y: int):
     """Moves the matplotlib figure to the specified window position.
 
     Args:
-        x: X-coordinate for the upper-left corner.
-        y: Y-coordinate for the upper-left corner.
+        x: X-coordinate for upper-left corner.
+        y: Y-coordinate for upper-left corner.
     """
     mngr    = plt.get_current_fig_manager()
     backend = matplotlib.get_backend()

@@ -1,10 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Guided Filter.
-
-This module implements guided filter.
-"""
+"""Implements guided filter."""
 
 from __future__ import annotations
 
@@ -41,7 +38,7 @@ def guided_filter(
 
     Args:
         image: RGB image as ``torch.Tensor`` [B, C, H, W], range [0.0, 1.0], or
-            numpy.ndarray [H, W, C], range [0, 255].
+            ``numpy.ndarray`` [H, W, C], range [0, 255].
         guide: Guidance image, same shape as image.
         radius: Radius of filter (kernel_size = radius * 2 + 1, e.g., 1, 2, 4, 8).
         eps: Sharpness control value. Default is ``1e-8``.
@@ -57,7 +54,8 @@ def guided_filter(
         - https://github.com/wuhuikai/DeepGuidedFilter/blob/master/GuidedFilteringLayer/GuidedFilter_PyTorch/guided_filter_pytorch/guided_filter.py
     """
     if type(image) != type(guide):
-        raise TypeError(f"[image] and [guide] must have the same type, but got {type(image)} and {type(guide)}")
+        raise TypeError(f"[image] and [guide] must have the same type, "
+                        f"got {type(image)} and {type(guide)}.")
 
     if isinstance(image, torch.Tensor):
         x = image
@@ -82,7 +80,7 @@ def guided_filter(
     elif isinstance(image, np.ndarray):
         return ximgproc.guidedFilter(guide=guide, src=image, radius=radius, eps=eps)
     else:
-        raise TypeError(f"[image] must be torch.Tensor or numpy.ndarray, but got {type(image)}")
+        raise TypeError(f"[image] must be torch.Tensor or numpy.ndarray, got {type(image)}.")
 
 
 class GuidedFilter(nn.Module):
@@ -210,7 +208,8 @@ class ConvGuidedFilter(nn.Module):
     """Applies convolutional guided filtering to an image.
 
     Args:
-        radius: Radius of filter (kernel_size = radius * 2 + 1, e.g., 1, 2, 4, 8). Default is ``1``.
+        radius: Radius of filter (kernel_size = radius * 2 + 1, e.g., 1, 2, 4, 8).
+            Default is ``1``.
         norm: Normalization layer. Default is ``nn.BatchNorm2d``.
         downscale: Downscale factor for low-resolution input. Default is ``8``.
     
@@ -359,7 +358,8 @@ class DeepGuidedFilter(nn.Module):
     """Deep Guided Filter network.
 
     Args:
-        radius: Radius of filter (kernel_size = radius * 2 + 1, e.g., 1, 2, 4, 8). Default is ``1``.
+        radius: Radius of filter (kernel_size = radius * 2 + 1, e.g., 1, 2, 4, 8).
+            Default is ``1``.
         eps: Sharpness control value. Default is ``1e-8``.
         lr_channels: Channels for low-res network. Default is ``24``.
         lr_layers: Layers for low-res network. Default is ``5``.
@@ -432,7 +432,8 @@ class DeepConvGuidedFilter(nn.Module):
     """Deep Guided Filter network with convolutional guided filter.
 
     Args:
-        radius: Radius of filter (kernel_size = radius * 2 + 1, e.g., 1, 2, 4, 8). Default is ``1``.
+        radius: Radius of filter (kernel_size = radius * 2 + 1, e.g., 1, 2, 4, 8).
+            Default is ``1``.
         lr_channels: Middle channels for low-res network. Default is ``24``.
         lr_layers: Layers for low-res network. Default is ``5``.
         lr_relu_slope: LeakyReLU slope for low-res network. Default is ``0.2``.

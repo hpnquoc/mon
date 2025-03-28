@@ -1,9 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Video Dataset Template.
-
-This module implements the templates for video-only datasets."""
+"""Implements templates for video-only datasets."""
 
 from __future__ import annotations
 
@@ -36,10 +34,10 @@ class VideoLoader(base.Dataset, ABC):
     """Base class for video loaders.
 
     Attributes:
-        datapoint_attrs: Dict of attribute names and types, must include ``'frame'``: ``FrameAnnotation``.
+        datapoint_attrs: Dict of attribute names and types.
 
     Args:
-        root: Path to a video file or stream.
+        root: Path to video file or stream.
         split: Data split to use. Default is ``Split.PREDICT``.
         transform: Transformations for input/target. Default is ``None``.
         to_tensor: If ``True``, converts to ``torch.Tensor``. Default is ``False``.
@@ -75,13 +73,13 @@ class VideoLoader(base.Dataset, ABC):
     # region Magic Methods
     
     def __getitem__(self, index: int) -> dict:
-        """Gets a datapoint and metadata at the specified index.
-    
+        """Gets a datapoint and metadata at specified index.
+
         Args:
-            index: Index of the datapoint.
-    
+            index: Index of datapoint.
+
         Returns:
-            Dictionary with datapoint and metadata.
+            Dict with datapoint and metadata.
         """
         datapoint = self.get_datapoint(index=index)
         meta      = self.get_meta(index=index)
@@ -98,19 +96,15 @@ class VideoLoader(base.Dataset, ABC):
             for k, v in datapoint.items():
                 to_tensor_fn = self.datapoint_attrs.get_tensor_fn(k)
                 if to_tensor_fn and v is not None:
-                    datapoint[k] = to_tensor_fn(
-                        v         = v,
-                        keepdim   = False,
-                        normalize = True
-                    )
+                    datapoint[k] = to_tensor_fn(v, normalize=True)
         
         return datapoint | {"meta": meta}
     
     def __len__(self) -> int:
-        """Gets the total number of frames.
-    
+        """Gets total number of frames.
+
         Returns:
-            Number of frames in the video.
+            Number of frames in video.
         """
         return self.num_frames
     
@@ -118,7 +112,7 @@ class VideoLoader(base.Dataset, ABC):
     
     def init_transform(self, transform: A.Compose | Any = None):
         """Initializes transformation operations.
-    
+
         Args:
             transform: Transformations to apply. Default is ``None``.
         """
@@ -134,15 +128,15 @@ class VideoLoader(base.Dataset, ABC):
         pass
     
     def verify_data(self):
-        """Verifies the dataset integrity.
-    
+        """Verifies dataset integrity.
+
         Raises:
             RuntimeError: If no datapoints exist.
         """
         if self.__len__() <= 0:
             raise RuntimeError("No datapoints in the dataset")
         if self.verbose:
-            console.log(f"Number of {self.split_str} datapoints: {self.__len__()}")
+            console.log(f"Number of {self.split_str} datapoints: {self.__len__()}.")
 
 # endregion
 
@@ -153,7 +147,7 @@ class VideoLoaderCV(VideoLoader):
     """Loads video frames from a file or stream using ``cv2``.
 
     Args:
-        root: Path to a video file or stream.
+        root: Path to video file or stream.
         split: Data split to use. Default is ``Split.PREDICT``.
         transform: Transformations to apply. Default is ``None``.
         to_tensor: If ``True``, converts to ``torch.Tensor``. Default is ``False``.
@@ -186,17 +180,17 @@ class VideoLoaderCV(VideoLoader):
     
     @property
     def is_stream(self) -> bool:
-        """Checks if the input is a video stream.
-    
+        """Checks if input is a video stream.
+
         Returns:
-            ``True`` if input is a stream, ``False`` otherwise.
+            ``True`` if input is stream, ``False`` otherwise.
         """
         return self.root.is_video_stream() or self.num_frames == -1
     
     @property
     def format(self):
-        """Gets the format of Mat objects.
-    
+        """Gets format of Mat objects.
+
         Returns:
             Format code from ``VideoCapture.retrieve()``; -1 for RAW streams.
         """
@@ -204,62 +198,62 @@ class VideoLoaderCV(VideoLoader):
     
     @property
     def fourcc(self) -> str:
-        """Gets the 4-character codec code.
-    
+        """Gets 4-character codec code.
+
         Returns:
-            FourCC code as a string.
+            FourCC code as string.
         """
         return str(self.video_capture.get(cv2.CAP_PROP_FOURCC))
     
     @property
     def fps(self) -> int:
-        """Gets the frame rate.
-    
+        """Gets frame rate.
+
         Returns:
-            Frames per second as an integer.
+            Frames per second as integer.
         """
         return int(self.video_capture.get(cv2.CAP_PROP_FPS))
     
     @property
     def frame_height(self) -> int:
-        """Gets the height of video frames.
-    
+        """Gets height of video frames.
+
         Returns:
-            Frame height in pixels as an integer.
+            Frame height in pixels as integer.
         """
         return int(self.video_capture.get(cv2.CAP_PROP_FRAME_HEIGHT))
     
     @property
     def frame_width(self) -> int:
-        """Gets the width of video frames.
-    
+        """Gets width of video frames.
+
         Returns:
-            Frame width in pixels as an integer.
+            Frame width in pixels as integer.
         """
         return int(self.video_capture.get(cv2.CAP_PROP_FRAME_WIDTH))
     
     @property
     def shape(self) -> tuple[int, int, int]:
-        """Gets the shape of video frames.
-    
+        """Gets shape of video frames.
+
         Returns:
-            Tuple of ``(height, width, channels)`` as integers.
+            Tuple of (height, width, channels) as integers.
         """
         return self.frame_height, self.frame_width, 3
     
     @property
     def imgsz(self) -> tuple[int, int]:
-        """Gets the image size of video frames.
-    
+        """Gets image size of video frames.
+
         Returns:
-            Tuple of ``(height, width)`` as integers.
+            Tuple of (height, width) as integers.
         """
         return self.frame_height, self.frame_width
     
     @property
     def mode(self):
-        """Gets the current capture mode.
-    
+        """Gets current capture mode.
+
         Returns:
             Backend-specific mode value.
         """
@@ -267,8 +261,8 @@ class VideoLoaderCV(VideoLoader):
     
     @property
     def pos_avi_ratio(self) -> int:
-        """Gets the relative position in the video.
-    
+        """Gets relative position in video.
+
         Returns:
             Integer from ``0`` (start) to ``1`` (end).
         """
@@ -276,19 +270,19 @@ class VideoLoaderCV(VideoLoader):
     
     @property
     def pos_msec(self) -> int:
-        """Gets the current position in milliseconds.
-    
+        """Gets current position in milliseconds.
+
         Returns:
-            Position in milliseconds as an integer.
+            Position in milliseconds as integer.
         """
         return int(self.video_capture.get(cv2.CAP_PROP_POS_MSEC))
     
     @property
     def pos_frames(self) -> int:
-        """Gets the next frame index.
-    
+        """Gets next frame index.
+
         Returns:
-            0-based index of the next frame as an integer.
+            0-based index of next frame as integer.
         """
         return int(self.video_capture.get(cv2.CAP_PROP_POS_FRAMES))
     
@@ -297,10 +291,10 @@ class VideoLoaderCV(VideoLoader):
     # region Initialization
     
     def get_data(self):
-        """Gets video data from the root path.
-    
+        """Gets video data from root path.
+
         Raises:
-            IOError: If root path is not a valid video file or stream.
+            IOError: If root not a valid video file or stream.
         """
         root = core.Path(self.root)
         if root.is_video_file():
@@ -322,24 +316,24 @@ class VideoLoaderCV(VideoLoader):
             self.video_capture.set(cv2.CAP_PROP_POS_FRAMES, self.index)
     
     def close(self):
-        """Closes and releases the video capture."""
+        """Closes and releases video capture."""
         if isinstance(self.video_capture, cv2.VideoCapture):
             self.video_capture.release()
     
     # endregion
     
     def get_datapoint(self, index: int) -> dict:
-        """Gets a datapoint at the specified index.
-    
+        """Gets a datapoint at specified index.
+
         Args:
-            index: Index of the datapoint.
-    
+            index: Index of datapoint.
+
         Returns:
-            Dictionary containing the datapoint data.
-    
+            Dict containing datapoint data.
+
         Raises:
             StopIteration: If index exceeds frame count for non-streams.
-            RuntimeError: If ``video_capture`` is not initialized.
+            RuntimeError: If ``video_capture`` not initialized.
         """
         if not self.is_stream and self.index >= self.num_frames:
             self.close()
@@ -348,7 +342,7 @@ class VideoLoaderCV(VideoLoader):
         if isinstance(self.video_capture, cv2.VideoCapture):
             ret_val, frame = self.video_capture.read()
         else:
-            raise RuntimeError("[video_capture] has not been initialized")
+            raise RuntimeError("[video_capture] has not been initialized.")
         
         if frame is not None:
             frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
@@ -364,13 +358,13 @@ class VideoLoaderCV(VideoLoader):
         return datapoint
     
     def get_meta(self, index: int = 0) -> dict:
-        """Gets metadata at the specified index.
-    
+        """Gets metadata at specified index.
+
         Args:
-            index: Index of the metadata. Default is ``0``.
-    
+            index: Index of metadata. Default is ``0``.
+
         Returns:
-            Dictionary with metadata from the main attribute.
+            Dict with metadata from main attribute.
         """
         return {
             "format"       : self.format,

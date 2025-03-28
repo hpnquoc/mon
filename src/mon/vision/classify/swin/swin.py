@@ -1,10 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Swin Transformer.
-
-This module implements Swin Transformer models.
-"""
+"""Implements Swin Transformer models."""
 
 from __future__ import annotations
 

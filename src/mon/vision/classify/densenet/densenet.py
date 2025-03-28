@@ -1,10 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""DenseNet.
-
-This module implements DenseNet models.
-"""
+"""Implements DenseNet models."""
 
 from __future__ import annotations
 

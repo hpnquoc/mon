@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""MIT-Adobe FiveK Datasets."""
+"""Implements MIT-Adobe FiveK datasets."""
 
 from __future__ import annotations
 
@@ -46,7 +46,7 @@ class FiveKInit(MultimodalDataset):
     """Loads FiveKInit dataset from ``root`` dir for model init.
 
     Args:
-        root: Directory path to dataset. Default is ``default_root_dir``
+        root: Directory path to dataset. Default is ``default_root_dir``.
         *args: Additional args for parent class.
         **kwargs: Additional kwargs for parent class.
 
@@ -70,7 +70,7 @@ class FiveKInit(MultimodalDataset):
         """Initializes dataset with ``root`` path and parent args."""
         root = root / "fivek" if root.name != "fivek" else root
         if not root.is_dir():
-            raise FileNotFoundError(f"[root] directory not found: [{root}]")
+            raise FileNotFoundError(f"[root] directory not found: [{root}].")
 
         self.file_ex   = defaultdict(list)
         self.file_bc   = defaultdict(list)
@@ -176,7 +176,7 @@ class FiveK(MultimodalDataset):
     """Loads FiveK dataset from ``root`` dir with Expert A GT.
 
     Args:
-        root: Directory path to dataset. Default is ``default_root_dir``
+        root: Directory path to dataset. Default is ``default_root_dir``.
         *args: Additional args for parent class.
         **kwargs: Additional kwargs for parent class.
 
@@ -196,7 +196,7 @@ class FiveK(MultimodalDataset):
         """Initializes dataset with ``root`` path and parent args."""
         root = root / "fivek" if root.name != "fivek" else root
         if not root.is_dir():
-            raise FileNotFoundError(f"[root] directory not found: [{root}]")
+            raise FileNotFoundError(f"[root] directory not found: [{root}].")
         super().__init__(root=root, *args, **kwargs)
 
     def get_data(self):
@@ -220,7 +220,7 @@ class FiveKA(MultimodalDataset):
     """Loads FiveKA dataset from ``root`` dir with Expert A GT.
 
     Args:
-        root: Directory path to dataset. Default is ``default_root_dir``
+        root: Directory path to dataset. Default is ``default_root_dir``.
         *args: Additional args for parent class.
         **kwargs: Additional kwargs for parent class.
 
@@ -242,7 +242,7 @@ class FiveKA(MultimodalDataset):
         """Initializes dataset with ``root`` path and parent args."""
         root = root / "fivek" if root.name != "fivek" else root
         if not root.is_dir():
-            raise FileNotFoundError(f"[root] directory not found: [{root}]")
+            raise FileNotFoundError(f"[root] directory not found: [{root}].")
         super().__init__(root=root, *args, **kwargs)
 
     def get_data(self):
@@ -281,7 +281,7 @@ class FiveKB(MultimodalDataset):
     """Loads FiveKB dataset from ``root`` dir with Expert B GT.
 
     Args:
-        root: Directory path to dataset. Default is ``default_root_dir``
+        root: Directory path to dataset. Default is ``default_root_dir``.
         *args: Additional args for parent class.
         **kwargs: Additional kwargs for parent class.
 
@@ -303,7 +303,7 @@ class FiveKB(MultimodalDataset):
         """Initializes dataset with ``root`` path and parent args."""
         root = root / "fivek" if root.name != "fivek" else root
         if not root.is_dir():
-            raise FileNotFoundError(f"[root] directory not found: [{root}]")
+            raise FileNotFoundError(f"[root] directory not found: [{root}].")
         super().__init__(root=root, *args, **kwargs)
 
     def get_data(self):
@@ -342,7 +342,7 @@ class FiveKC(MultimodalDataset):
     """Loads FiveKC dataset from ``root`` dir with Expert C GT.
 
     Args:
-        root: Directory path to dataset. Default is ``default_root_dir``
+        root: Directory path to dataset. Default is ``default_root_dir``.
         *args: Additional args for parent class.
         **kwargs: Additional kwargs for parent class.
 
@@ -364,7 +364,7 @@ class FiveKC(MultimodalDataset):
         """Initializes dataset with ``root`` path and parent args."""
         root = root / "fivek" if root.name != "fivek" else root
         if not root.is_dir():
-            raise FileNotFoundError(f"[root] directory not found: [{root}]")
+            raise FileNotFoundError(f"[root] directory not found: [{root}].")
         super().__init__(root=root, *args, **kwargs)
 
     def get_data(self):
@@ -403,7 +403,7 @@ class FiveKD(MultimodalDataset):
     """Loads FiveKD dataset from ``root`` dir with Expert D GT.
 
     Args:
-        root: Directory path to dataset. Default is ``default_root_dir``
+        root: Directory path to dataset. Default is ``default_root_dir``.
         *args: Additional args for parent class.
         **kwargs: Additional kwargs for parent class.
 
@@ -425,7 +425,7 @@ class FiveKD(MultimodalDataset):
         """Initializes dataset with ``root`` path and parent args."""
         root = root / "fivek" if root.name != "fivek" else root
         if not root.is_dir():
-            raise FileNotFoundError(f"[root] directory not found: [{root}]")
+            raise FileNotFoundError(f"[root] directory not found: [{root}].")
         super().__init__(root=root, *args, **kwargs)
 
     def get_data(self):
@@ -464,7 +464,7 @@ class FiveKE(MultimodalDataset):
     """Loads FiveKE dataset from ``root`` dir with Expert E GT.
 
     Args:
-        root: Directory path to dataset. Default is ``default_root_dir``
+        root: Directory path to dataset. Default is ``default_root_dir``.
         *args: Additional args for parent class.
         **kwargs: Additional kwargs for parent class.
 
@@ -486,7 +486,7 @@ class FiveKE(MultimodalDataset):
         """Initializes dataset with ``root`` path and parent args."""
         root = root / "fivek" if root.name != "fivek" else root
         if not root.is_dir():
-            raise FileNotFoundError(f"[root] directory not found: [{root}]")
+            raise FileNotFoundError(f"[root] directory not found: [{root}].")
         super().__init__(root=root, *args, **kwargs)
 
     def get_data(self):
@@ -536,10 +536,11 @@ class FiveKInitDataModule(DataModule):
         pass
 
     def setup(self, stage: Literal["train", "test", "predict", None] = None):
-        """Sets up datasets for given ``stage``.
+        """Sets up datasets for specified ``stage``.
 
         Args:
-            stage: Stage to configure. Default is ``None``.
+            stage: Stage to setup, one of ``"train"``, ``"test"``, ``"predict"``,
+                or ``None``. Default is ``None``.
         """
         if self.can_log:
             console.log(f"Setup [red]{self.__class__.__name__}[/red].")
@@ -571,10 +572,11 @@ class FiveKDataModule(DataModule):
         pass
 
     def setup(self, stage: Literal["train", "test", "predict", None] = None):
-        """Sets up datasets for given ``stage``.
+        """Sets up datasets for specified ``stage``.
 
         Args:
-            stage: Stage to configure. Default is ``None``.
+            stage: Stage to setup, one of ``"train"``, ``"test"``, ``"predict"``,
+                or ``None``. Default is ``None``.
         """
         if self.can_log:
             console.log(f"Setup [red]{self.__class__.__name__}[/red].")
@@ -606,10 +608,11 @@ class FiveKADataModule(DataModule):
         pass
 
     def setup(self, stage: Literal["train", "test", "predict", None] = None):
-        """Sets up datasets for given ``stage``.
+        """Sets up datasets for specified ``stage``.
 
         Args:
-            stage: Stage to configure. Default is ``None``.
+            stage: Stage to setup, one of ``"train"``, ``"test"``, ``"predict"``,
+                or ``None``. Default is ``None``.
         """
         if self.can_log:
             console.log(f"Setup [red]{self.__class__.__name__}[/red].")
@@ -641,10 +644,11 @@ class FiveKBDataModule(DataModule):
         pass
 
     def setup(self, stage: Literal["train", "test", "predict", None] = None):
-        """Sets up datasets for given ``stage``.
+        """Sets up datasets for specified ``stage``.
 
         Args:
-            stage: Stage to configure. Default is ``None``.
+            stage: Stage to setup, one of ``"train"``, ``"test"``, ``"predict"``,
+                or ``None``. Default is ``None``.
         """
         if self.can_log:
             console.log(f"Setup [red]{self.__class__.__name__}[/red].")
@@ -676,10 +680,11 @@ class FiveKCDataModule(DataModule):
         pass
 
     def setup(self, stage: Literal["train", "test", "predict", None] = None):
-        """Sets up datasets for given ``stage``.
+        """Sets up datasets for specified ``stage``.
 
         Args:
-            stage: Stage to configure. Default is ``None``.
+            stage: Stage to setup, one of ``"train"``, ``"test"``, ``"predict"``,
+                or ``None``. Default is ``None``.
         """
         if self.can_log:
             console.log(f"Setup [red]{self.__class__.__name__}[/red].")
@@ -711,10 +716,11 @@ class FiveKDDataModule(DataModule):
         pass
 
     def setup(self, stage: Literal["train", "test", "predict", None] = None):
-        """Sets up datasets for given ``stage``.
+        """Sets up datasets for specified ``stage``.
 
         Args:
-            stage: Stage to configure. Default is ``None``.
+            stage: Stage to setup, one of ``"train"``, ``"test"``, ``"predict"``,
+                or ``None``. Default is ``None``.
         """
         if self.can_log:
             console.log(f"Setup [red]{self.__class__.__name__}[/red].")
@@ -746,10 +752,11 @@ class FiveKEDataModule(DataModule):
         pass
 
     def setup(self, stage: Literal["train", "test", "predict", None] = None):
-        """Sets up datasets for given ``stage``.
+        """Sets up datasets for specified ``stage``.
 
         Args:
-            stage: Stage to configure. Default is ``None``.
+            stage: Stage to setup, one of ``"train"``, ``"test"``, ``"predict"``,
+                or ``None``. Default is ``None``.
         """
         if self.can_log:
             console.log(f"Setup [red]{self.__class__.__name__}[/red].")

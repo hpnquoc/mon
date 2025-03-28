@@ -1,11 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Factory Module.
-
-This module implements a factory method design pattern. It defines mechanisms for registering
-classes and dynamically building them at run-time.
-"""
+"""Implements factory method for registering and building classes at runtime."""
 
 from __future__ import annotations
 
@@ -38,13 +34,13 @@ class Factory(dict):
 
         Args:
             name: Factory name.
-            mapping: Optional initial dictionary of registered classes. Default is ``None``.
+            mapping: Initial dict of registered classes. Default is ``None``.
 
         Raises:
             ValueError: If ``name`` is empty.
         """
         if not name:
-            raise ValueError("[name] must not be empty")
+            raise ValueError("[name] must not be empty.")
         self.name = name
         super().__init__(mapping or {})
     
@@ -52,26 +48,31 @@ class Factory(dict):
         """Returns a string representation of the factory.
 
         Returns:
-            String in format ``Factory(name=<name>, items=<items>)``.
+            String as ``Factory(name=<name>, items=<items>)``.
         """
         return f"{self.__class__.__name__}(name={self.name}, items={self})"
     
-    def register(self, name: str = None, module: Any = None, replace: bool = False) -> Callable:
+    def register(
+        self,
+        name   : str  = None,
+        module : Any  = None,
+        replace: bool = False
+    ) -> Callable:
         """Registers a module or class with an optional decorator.
 
         Args:
-            name: Module/class name, inferred from ``module`` if ``None``. Default is ``None``.
+            name: Module/class name, inferred if ``None``. Default is ``None``.
             module: Module/class to register. Default is ``None``.
-            replace: If ``True``, overwrites existing registration. Default is ``False``.
+            replace: If ``True``, overwrites existing entry. Default is ``False``.
 
         Returns:
-            Decorator function if ``module`` is ``None``, else registers ``module`` directly.
+            Decorator if ``module`` is ``None``, else registers directly.
 
         Raises:
             TypeError: If ``name`` is not a ``str`` or ``None``.
         """
         if name is not None and not isinstance(name, str):
-            raise TypeError(f"[name] must be str or None, got [{type(name).__name__}]")
+            raise TypeError(f"[name] must be str or None, got [{type(name).__name__}].")
         
         def _register(cls):
             self.register_module(module_cls=cls, module_name=name, replace=replace)
@@ -79,37 +80,50 @@ class Factory(dict):
         
         return _register(module) if module else _register
     
-    def register_module(self, module_cls: Any, module_name: str = None, replace: bool = False):
+    def register_module(
+        self,
+        module_cls : Any,
+        module_name: str  = None,
+        replace    : bool = False
+    ):
         """Registers a module or class to the factory.
 
         Args:
             module_cls: Module or class to register.
-            module_name: Name for registration, inferred from ``module_cls`` if ``None``. Default is ``None``.
-            replace: If ``True``, overwrites existing registration. Default is ``False``.
+            module_name: Name, inferred if ``None``. Default is ``None``.
+            replace: If ``True``, overwrites existing entry. Default is ``False``.
 
         Raises:
             ValueError: If ``module_cls`` is not a class.
         """
         if not inspect.isclass(module_cls):
-            raise ValueError(f"[module_cls] must be a class, got [{type(module_cls).__name__}]")
+            raise ValueError(f"[module_cls] must be a class, "
+                             f"got [{type(module_cls).__name__}].")
         
         key = module_name or humps.kebabize(module_cls.__name__)
         if replace or key not in self:
             self[key] = module_cls
     
-    def build(self, name: str = None, config: dict = None, to_dict: bool = False, **kwargs):
+    def build(
+        self,
+        name   : str  = None,
+        config : dict = None,
+        to_dict: bool = False,
+        **kwargs
+    ):
         """Builds an instance of a registered class.
 
         Args:
-            name: Class name, can be inferred from ``config`` if ``None``. Default is ``None``.
-            config: Dictionary of class arguments. Default is ``None``.
-            to_dict: If ``True``, returns a dict with ``{name: instance}``. Default is ``False``.
+            name: Class name, inferred from ``config`` if ``None``. Default is ``None``.
+            config: Dict of class args. Default is ``None``.
+            to_dict: If ``True``, returns dict with ``{name: instance}``.
+                Default is ``False``.
 
         Returns:
-            Instance of the registered class, or a dict if ``to_dict`` is ``True``, or ``None`` if no name provided.
+            Instance or dict if ``to_dict`` is ``True``, or ``None`` if no name.
 
         Raises:
-            ValueError: If ``name`` is not found in the registry.
+            ValueError: If ``name`` is not in the registry.
         """
         if not name and (not config or "name" not in config):
             return None
@@ -118,29 +132,33 @@ class Factory(dict):
         name   = name or config.pop("name", None)
         kwargs.update(config)
         
-        for candidate in [name, humps.kebabize(name), humps.depascalize(name), humps.pascalize(name)]:
+        for candidate in [name,
+                          humps.kebabize(name),
+                          humps.depascalize(name),
+                          humps.pascalize(name)]:
             if candidate in self:
                 instance = self[candidate](**kwargs)
                 if not hasattr(instance, "name"):
                     instance.name = humps.depascalize(humps.pascalize(candidate))
                 return {candidate: instance} if to_dict else instance
-        raise ValueError(f"[name] must be in registry, got [{name}]")
+        raise ValueError(f"[name] must be in registry, got [{name}].")
     
     def build_instances(self, configs: list[Any], to_dict: bool = False, **kwargs):
         """Builds multiple instances from a list of configurations.
 
         Args:
-            configs: List of configs, each a string name or dict with ``name`` key.
-            to_dict: If ``True``, returns a dict of ``{name: instance}``. Default is ``False``.
+            configs: List of configs (str or dict with ``name`` key).
+            to_dict: If ``True``, returns dict of ``{name: instance}``.
+                Default is ``False``.
 
         Returns:
-            List or dict of instances, or ``None`` if no valid instances are built.
+            List or dict of instances, or ``None`` if no valid instances.
 
         Raises:
-            ValueError: If ``configs`` is not a list or items are not strings/dicts.
+            ValueError: If ``configs`` is not a list or items are invalid.
         """
         if not isinstance(configs, list):
-            raise ValueError(f"[configs] must be a list, got [{type(configs).__name__}]")
+            raise ValueError(f"[configs] must be a list, got [{type(configs).__name__}].")
         
         result = {} if to_dict else []
         for config in configs:
@@ -150,7 +168,8 @@ class Factory(dict):
                 name   = config.pop("name", None)
                 config = copy.deepcopy(config)
             else:
-                raise ValueError(f"[configs] items must be str or dict, got [{type(config).__name__}]")
+                raise ValueError(f"[configs] items must be str or dict, "
+                                 f"got [{type(config).__name__}].")
             
             instance = self.build(name=name, config=config, to_dict=to_dict, **kwargs)
             if instance:
@@ -163,7 +182,7 @@ class Factory(dict):
 
 
 class ModelFactory(Factory):
-    """Factory for registering and building models.
+    """Factory for registering and building deep learning models.
 
     Notes:
         Inherits from ``Factory`` and organizes models by architecture.
@@ -208,22 +227,22 @@ class ModelFactory(Factory):
         """Registers a model with an optional decorator.
 
         Args:
-            name: Model name, inferred from ``module`` if ``None``. Default is ``None``.
-            arch: Architecture name, inferred from ``module`` if ``None``. Default is ``None``.
+            name: Model name, inferred if ``None``. Default is ``None``.
+            arch: Arch name, inferred if ``None``. Default is ``None``.
             module: Model class to register. Default is ``None``.
-            replace: If ``True``, overwrites existing registration. Default is ``False``.
+            replace: If ``True``, overwrites entry. Default is ``False``.
 
         Returns:
-            Decorator function if ``module`` is ``None``, else registers ``module`` directly.
+            Decorator if ``module`` is ``None``, else registers directly.
 
         Raises:
             TypeError: If ``name`` is not a ``str`` or ``None``.
         """
         if name is not None and not isinstance(name, str):
-            raise TypeError(f"[name] must be str or None, got [{type(name).__name__}]")
+            raise TypeError(f"[name] must be str or None, got [{type(name).__name__}].")
         
         def _register(cls: type) -> type:
-            self.register_module(module_cls=cls, module_name=name, arch_name=arch, replace=replace)
+            self.register_module(cls, name, arch, replace)
             return cls
         
         return _register(module) if module else _register
@@ -239,18 +258,19 @@ class ModelFactory(Factory):
 
         Args:
             module_cls: Model class to register.
-            module_name: Model name, inferred from ``module_cls`` if ``None``. Default is ``None``.
-            arch_name: Architecture name, inferred from ``module_cls`` if ``None``. Default is ``None``.
-            replace: If ``True``, overwrites existing registration. Default is ``False``.
+            module_name: Model name, inferred if ``None``. Default is ``None``.
+            arch_name: Arch name, inferred if ``None``. Default is ``None``.
+            replace: If ``True``, overwrites entry. Default is ``False``.
 
         Raises:
             ValueError: If ``module_cls`` is not a class.
         """
         if not inspect.isclass(module_cls):
-            raise ValueError(f"[module_cls] must be a class, got [{type(module_cls).__name__}]")
+            raise ValueError(f"[module_cls] must be a class, "
+                             f"got [{type(module_cls).__name__}].")
         
         module_key = module_name or humps.kebabize(module_cls.__name__)
-        arch_key   = arch_name or humps.kebabize(getattr(module_cls, "arch", module_cls.__name__))
+        arch_key   = arch_name   or humps.kebabize(getattr(module_cls, "arch", module_cls.__name__))
         
         if arch_key not in self:
             self[arch_key] = {}
@@ -268,26 +288,29 @@ class ModelFactory(Factory):
         """Builds a model instance from the registry.
 
         Args:
-            name: Model name, inferred from ``config`` if ``None``. Default is ``None``.
-            arch: Architecture name, inferred from ``name`` if ``None``. Default is ``None``.
-            config: Dictionary of model arguments. Default is ``None``.
+            name: Model name, inferred if ``None``. Default is ``None``.
+            arch: Arch name, inferred if ``None``. Default is ``None``.
+            config: Dict of model args. Default is ``None``.
             to_dict: If ``True``, returns ``{name: instance}``. Default is ``False``.
 
         Returns:
-            Model instance, dict with name-instance pair if ``to_dict`` is ``True``, or ``None`` if no name.
+            Model instance, dict if ``to_dict`` is ``True``, or ``None`` if no name.
 
         Raises:
-            ValueError: If ``arch`` and ``name`` are not found in the registry.
+            ValueError: If ``arch`` and ``name`` not in the registry.
         """
         if not name and (not config or "name" not in config):
             return None
         
         config = copy.deepcopy(config) if config else {}
-        name = name or config.pop("name", None)
-        arch = arch or name
+        name   = name or config.pop("name", None)
+        arch   = arch or name
         kwargs.update(config)
         
-        for candidate in [name, humps.kebabize(name), humps.pascalize(name), humps.depascalize(name)]:
+        for candidate in [name,
+                          humps.kebabize(name),
+                          humps.pascalize(name),
+                          humps.depascalize(name)]:
             for a, models in self.items():
                 if candidate in models:
                     instance = models[candidate](**kwargs)
@@ -295,7 +318,7 @@ class ModelFactory(Factory):
                         instance.name = humps.depascalize(humps.pascalize(candidate))
                     return {candidate: instance} if to_dict else instance
         
-        raise ValueError(f"[arch] [{arch}] and [name] [{name}] must be in registry")
+        raise ValueError(f"[arch] [{arch}] and [name] [{name}] must be in registry.")
     
     def build_instances(
         self,
@@ -303,20 +326,21 @@ class ModelFactory(Factory):
         to_dict: bool = False,
         **kwargs
     ) -> list[Any] | dict[str, Any] | None:
-        """Builds multiple model instances from a list of configurations.
+        """Builds multiple model instances from a list of configs.
 
         Args:
-            configs: List of configs, each a string name or dict with ``name`` key.
-            to_dict: If ``True``, returns a dict of ``{name: instance}``. Default is ``False``.
+            configs: List of configs (str or dict with ``name`` key).
+            to_dict: If ``True``, returns dict of ``{name: instance}``.
+                Default is ``False``.
 
         Returns:
-            List or dict of model instances, or ``None`` if no valid instances are built.
+            List or dict of instances, or ``None`` if no valid instances.
 
         Raises:
-            ValueError: If ``configs`` is not a list or items are not strings/dicts.
+            ValueError: If ``configs`` is not a list or items are invalid.
         """
         if not isinstance(configs, list):
-            raise ValueError(f"[configs] must be a list, got [{type(configs).__name__}]")
+            raise ValueError(f"[configs] must be a list, got [{type(configs).__name__}].")
         
         result = {} if to_dict else []
         for config in configs:
@@ -328,7 +352,8 @@ class ModelFactory(Factory):
                 arch   = config.pop("arch", None)
                 args   = config
             else:
-                raise ValueError(f"[configs] items must be str or dict, got [{type(config).__name__}]")
+                raise ValueError(f"[configs] items must be str or dict, "
+                                 f"got [{type(config).__name__}].")
             
             instance = self.build(name=name, arch=arch, to_dict=to_dict, **args, **kwargs)
             if instance:

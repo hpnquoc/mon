@@ -1,10 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Trainer.
-
-This module implements the training procedure for neural networks.
-"""
+"""Implements training procedure for neural networks."""
 
 from __future__ import annotations
 

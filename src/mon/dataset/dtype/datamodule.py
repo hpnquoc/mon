@@ -1,10 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""DataModule.
-
-This module implements the base class for all datamodules.
-"""
+"""Implements base class for all datamodules."""
 
 from __future__ import annotations
 
@@ -29,7 +26,8 @@ class DataModule(lightning.LightningDataModule, ABC):
     """Base class for all datamodules.
 
     Attributes:
-        dataset_kwargs: Dict of default args for datasets, e.g., train = Dataset(split='train', **self.dataset_kwargs).
+        dataset_kwargs: Dict of default args for datasets, e.g.,
+            train = Dataset(split='train', **self.dataset_kwargs).
 
     Args:
         datasets: Dataset(s) to use.
@@ -78,16 +76,16 @@ class DataModule(lightning.LightningDataModule, ABC):
     @property
     def num_workers(self) -> int:
         """Gets the number of workers for data loading.
-    
+
         Returns:
-            Number of workers (4 times the device count).
+            Number of workers (4 times device count).
         """
         return 4 * len(self.devices)
     
     @property
     def train_dataloader(self) -> data.DataLoader | None:
         """Gets a DataLoader for the train dataset.
-    
+
         Returns:
             ``DataLoader`` for train data or ``None`` if unavailable.
         """
@@ -109,7 +107,7 @@ class DataModule(lightning.LightningDataModule, ABC):
     @property
     def val_dataloader(self) -> data.DataLoader | None:
         """Gets a DataLoader for the val dataset.
-    
+
         Returns:
             ``DataLoader`` for val data or ``None`` if unavailable.
         """
@@ -172,9 +170,9 @@ class DataModule(lightning.LightningDataModule, ABC):
     @property
     def can_log(self) -> bool:
         """Checks if logging is enabled.
-    
+
         Returns:
-            ``True`` if logging is enabled, ``False`` otherwise.
+            ``True`` if logging enabled, ``False`` otherwise.
         """
         return self.verbose and (self.trainer is None or self.trainer.global_rank == 0)
     
@@ -185,7 +183,7 @@ class DataModule(lightning.LightningDataModule, ABC):
     @abstractmethod
     def prepare_data(self, *args, **kwargs):
         """Prepares data for disk or single-GPU tasks.
-    
+
         Args:
             *args: Variable positional arguments.
             **kwargs: Variable keyword arguments.
@@ -195,9 +193,9 @@ class DataModule(lightning.LightningDataModule, ABC):
     @abstractmethod
     def setup(self, stage: Literal["train", "test", "predict", None] = None):
         """Sets up data for every device.
-    
+
         Args:
-            stage: Running stage: ``train``, ``test``, ``predict``, or ``None``. Default is ``None``.
+            stage: Running stage (``train``, ``test``, ``predict``, or ``None``).
         """
     
     def get_classlabels(self):
@@ -208,9 +206,14 @@ class DataModule(lightning.LightningDataModule, ABC):
                 return
         rich.console.log("[yellow]No classlabels found")
     
-    def split_train_val(self, dataset: dataset.Dataset, split_ratio: float = 0.8, full_train: bool = True):
+    def split_train_val(
+        self,
+        dataset    : dataset.Dataset,
+        split_ratio: float = 0.8,
+        full_train : bool  = True
+    ):
         """Splits dataset into train and val sets.
-    
+
         Args:
             dataset: Dataset to split.
             split_ratio: Train set ratio. Default is ``0.8``.

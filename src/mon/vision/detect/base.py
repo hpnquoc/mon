@@ -64,7 +64,7 @@ class Detector(ABC):
             config = core.Path(config)
             if not config.is_yaml():
                 raise ValueError(f"`config` must be a valid path to a YAML "
-                                 f"file, but got {config}.")
+                                 f"file, got {config}.")
             self._config = core.read_from_file(config)
         else:
             self._config = {}
@@ -80,14 +80,14 @@ class Detector(ABC):
             if not weights.is_torch_file():
                 raise ValueError(
                     f"`weights` must be a valid path to a torch saved "
-                    f"file, but got {weights}."
+                    f"file, got {weights}."
                 )
         elif isinstance(weights, dict):
             weights = [core.Path(w) for w in weights]
             if not all(w.is_torch_file for w in weights):
                 raise ValueError(
                     f"`weights` must be a valid path to a torch saved file, "
-                    f"but got {weights}."
+                    f"got {weights}."
                 )
         else:
             raise ValueError()

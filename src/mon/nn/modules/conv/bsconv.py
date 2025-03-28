@@ -1,10 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Blueprint Separable Convolution Module.
-
-This module implements blueprint separable convolutional layers.
-"""
+"""Implements blueprint separable convolutional layers."""
 
 from __future__ import annotations
 
@@ -40,8 +37,8 @@ class BSConv2dS(nn.Module):
         bn_kwargs: Batch norm kwargs. Default is ``None`` (empty dict).
 
     References:
-        https://arxiv.org/abs/2003.13549
-        https://github.com/zeiss-microscopy/BSConv
+        - https://arxiv.org/abs/2003.13549
+        - https://github.com/zeiss-microscopy/BSConv
     """
 
     def __init__(
@@ -62,7 +59,7 @@ class BSConv2dS(nn.Module):
     ):
         super().__init__()
         if not 0.0 <= p <= 1.0:
-            raise AssertionError(f"[p] must be in [0.0, 1.0], but got [{p}]")
+            raise AssertionError(f"[p] must be in [0.0, 1.0], got [{p}].")
         mid_channels = min(in_channels, max(min_mid_channels, math.ceil(p * in_channels)))
         bn_kwargs    = bn_kwargs or {}
 
@@ -110,10 +107,10 @@ class BSConv2dS(nn.Module):
         """Applies blueprint separable convolution.
 
         Args:
-            input: Input tensor ``[B, C_in, H, W]``.
+            input: Input tensor [B, C_in, H, W].
 
         Returns:
-            Output tensor ``[B, C_out, H_out, W_out]``.
+            Output tensor [B, C_out, H_out, W_out].
         """
         y = self.pw1(input)
         if self.bn1:
@@ -152,8 +149,8 @@ class BSConv2dU(nn.Module):
         bn_kwargs: Batch norm kwargs. Default is ``None`` (empty dict).
 
     References:
-        https://arxiv.org/abs/2003.13549
-        https://github.com/zeiss-microscopy/BSConv
+        - https://arxiv.org/abs/2003.13549
+        - https://github.com/zeiss-microscopy/BSConv
     """
 
     def __init__(
@@ -203,10 +200,10 @@ class BSConv2dU(nn.Module):
         """Applies blueprint separable convolution.
 
         Args:
-            input: Input tensor ``[B, C_in, H, W]``.
+            input: Input tensor [B, C_in, H, W].
 
         Returns:
-            Output tensor ``[B, C_out, H_out, W_out]``.
+            Output tensor [B, C_out, H_out, W_out].
         """
         y = self.pw(input)
         if self.bn:

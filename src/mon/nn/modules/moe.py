@@ -1,10 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Mixture of Experts (MoE) Network.
-
-This module implements the Mixture of Experts (MoE) network.
-"""
+"""Implements Mixture of Experts (MoE) network."""
 
 from __future__ import annotations
 
@@ -90,7 +87,7 @@ class LayeredFeatureAggregation(nn.Module):
             ValueError: If number of input tensors mismatches ``num_experts``.
         """
         if len(input) != self.num_experts:
-            raise ValueError(f"Expected {self.num_experts} input tensors, but got [{len(input)}]")
+            raise ValueError(f"Expected {self.num_experts} input tensors, got [{len(input)}]")
 
         r = [
             self.linears[i](self.resize(inp)) if self.resize else self.linears[i](inp) if self.linears else inp

@@ -1,10 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Rich Model Summary Callback.
-
-This module implements rich model summary callback.
-"""
+"""Implements rich model summary callback."""
 
 from __future__ import annotations
 
@@ -38,15 +35,15 @@ class RichModelSummary(callbacks.RichModelSummary):
         *args,
         **summarize_kwargs : Any
     ):
-        """Generates a rich text summary of model layers and parameters.
+        """Generates rich text summary of model layers and parameters.
 
         Args:
             summary_data: List of tuples with column names and row data.
             total_parameters: Total number of parameters.
             trainable_parameters: Number of trainable parameters.
             model_size: Model size in MB.
-            *args: Additional positional arguments.
-            **summarize_kwargs: Additional keyword arguments.
+            *args: Additional positional args.
+            **summarize_kwargs: Additional keyword args.
         """
         table = core.rich.table.Table(header_style="bold magenta")
         table.add_column(" ", style="dim")

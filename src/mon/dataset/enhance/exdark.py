@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""ExDark Datasets."""
+"""Implements ExDark datasets."""
 
 from __future__ import annotations
 
@@ -32,13 +32,14 @@ class ExDark(MultimodalDataset):
     """Loads ExDark dataset from ``root`` dir.
 
     Args:
-        root: Directory path to dataset. Default is ``default_root_dir``
+        root: Directory path to dataset. Default is ``default_root_dir``.
         *args: Additional args for parent class.
         **kwargs: Additional kwargs for parent class.
 
     Raises:
         FileNotFoundError: If ``root`` directory does not exist.
     """
+    
     tasks : list[Task]  = [Task.LLIE, Task.DETECT]
     splits: list[Split] = [Split.TEST]
     datapoint_attrs     = DatapointAttributes({
@@ -50,7 +51,7 @@ class ExDark(MultimodalDataset):
         """Initializes dataset with ``root`` path and parent args."""
         root = root / "exdark" if root.name != "exdark" else root
         if not root.is_dir():
-            raise FileNotFoundError(f"[root] directory not found: [{root}]")
+            raise FileNotFoundError(f"[root] directory not found: [{root}].")
         super().__init__(root=root, *args, **kwargs)
 
     def get_data(self):
@@ -74,13 +75,14 @@ class ExDarkFull(MultimodalDataset):
     """Loads ExDarkFull dataset from ``root`` dir.
 
     Args:
-        root: Directory path to dataset. Default is ``default_root_dir``
+        root: Directory path to dataset. Default is ``default_root_dir``.
         *args: Additional args for parent class.
         **kwargs: Additional kwargs for parent class.
 
     Raises:
         FileNotFoundError: If ``root`` directory does not exist.
     """
+    
     tasks : list[Task]  = [Task.LLIE, Task.DETECT]
     splits: list[Split] = [Split.TEST]
     datapoint_attrs     = DatapointAttributes({
@@ -92,7 +94,7 @@ class ExDarkFull(MultimodalDataset):
         """Initializes dataset with ``root`` path and parent args."""
         root = root / "exdark" if root.name != "exdark" else root
         if not root.is_dir():
-            raise FileNotFoundError(f"[root] directory not found: [{root}]")
+            raise FileNotFoundError(f"[root] directory not found: [{root}].")
         super().__init__(root=root, *args, **kwargs)
 
     def get_data(self):
@@ -126,10 +128,11 @@ class ExDarkDataModule(DataModule):
         pass
     
     def setup(self, stage: Literal["train", "test", "predict", None] = None):
-        """Sets up datasets for given ``stage``.
+        """Sets up datasets for specified ``stage``.
 
         Args:
-            stage: Stage to configure. Default is ``None``.
+            stage: Stage to setup, one of ``"train"``, ``"test"``, ``"predict"``,
+                or ``None``. Default is ``None``.
         """
         if self.can_log:
             console.log(f"Setup [red]{self.__class__.__name__}[/red].")
@@ -160,10 +163,11 @@ class ExDarkFullDataModule(DataModule):
         pass
     
     def setup(self, stage: Literal["train", "test", "predict", None] = None):
-        """Sets up datasets for given ``stage``.
+        """Sets up datasets for specified ``stage``.
 
         Args:
-            stage: Stage to configure. Default is ``None``.
+            stage: Stage to setup, one of ``"train"``, ``"test"``, ``"predict"``,
+                or ``None``. Default is ``None``.
         """
         if self.can_log:
             console.log(f"Setup [red]{self.__class__.__name__}[/red].")

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""This module implements the base classes for tracks and trackers."""
+"""Implements base classes for tracks and trackers."""
 
 from __future__ import annotations
 

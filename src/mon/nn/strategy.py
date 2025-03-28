@@ -1,14 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Strategy.
-
-This module implements strategies used during training machine learning models.
-A strategy is a composition of one Accelerator, one Precision Plugin, a
-CheckpointIO plugin, and other optional plugins such as the ClusterEnvironment.
+"""Implements training strategies with accelerators and plugins.
 
 References:
-    https://pytorch-lightning.readthedocs.io/en/stable/extensions/strategy.html
+    - https://pytorch-lightning.readthedocs.io/en/stable/extensions/strategy.html
 """
 
 from __future__ import annotations
@@ -104,9 +100,9 @@ def set_distributed_backend(strategy: str | Callable, cudnn: bool = True):
     """
     if torch.backends.cudnn.is_available():
         torch.backends.cudnn.enabled = cudnn
-        console.log(f"cuDNN available: [bright_green]True[/bright_green], used: [bright_green]{cudnn}[/bright_green]")
+        console.log(f"cuDNN available: [bright_green]True[/bright_green], used: [bright_green]{cudnn}[/bright_green].")
     else:
-        console.log(f"cuDNN available: [red]False[/red]")
+        console.log(f"cuDNN available: [red]False[/red].")
 
     if strategy in ["ddp"] or isinstance(strategy, DDPStrategy):
         backend = "gloo" if platform.system() == "Windows" else "nccl"

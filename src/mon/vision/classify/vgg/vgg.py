@@ -1,10 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""VGG.
-
-This module implements VGG models.
-"""
+"""Implements VGG models."""
 
 from __future__ import annotations
 

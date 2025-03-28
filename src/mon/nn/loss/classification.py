@@ -1,10 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Classification Loss Functions.
-
-This module implements loss functions for classification tasks.
-"""
+"""Implements loss functions for classification tasks."""
 
 from __future__ import annotations
 
@@ -29,12 +26,25 @@ def dice_coefficient(
     reduce_batch: bool  = False,
     epsilon     : float = 1e-6
 ) -> torch.Tensor:
-    # Average of Dice coefficient for all batches, or for a single mask
+    """Computes Dice coefficient for input and target tensors.
+
+    Args:
+        input: Prediction tensor as ``torch.Tensor``.
+        target: Ground truth tensor as ``torch.Tensor``.
+        reduce_batch: Reduces batch dim if ``True``. Default is ``False``.
+        epsilon: Smoothing factor. Default is ``1e-6``.
+
+    Returns:
+        Dice coefficient as ``torch.Tensor``.
+
+    Raises:
+        ValueError: If sizes mismatch or dims invalid with ``reduce_batch``.
+    """
     if input.size() != target.size():
-        raise ValueError(f"`input` and `target` must have the same size, "
-                         f"but got {input.size()} and {target.size()}.")
+        raise ValueError(f"[input] and [target] must have same size, got "
+                         f"{input.size()} and {target.size()}.")
     if input.dim() != 3 and reduce_batch:
-        raise ValueError(f"`input` must have 3 dimensions, but got {input.dim()}.")
+        raise ValueError(f"[input] must have 3 dims, got {input.dim()}.")
     
     sum_dim  = (-1, -2) if input.dim() == 2 or not reduce_batch else (-1, -2, -3)
     inter    = 2 * (input * target).sum(dim=sum_dim)
@@ -50,9 +60,19 @@ def multiclass_dice_coefficient(
     reduce_batch: bool  = False,
     epsilon     : float = 1e-6
 ) -> torch.Tensor:
-    # Average of Dice coefficient for all classes
+    """Computes Dice coefficient for multiclass tensors.
+
+    Args:
+        input: Prediction tensor as ``torch.Tensor``.
+        target: Ground truth tensor as ``torch.Tensor``.
+        reduce_batch: Reduces batch dim if ``True``. Default is ``False``.
+        epsilon: Smoothing factor. Default is ``1e-6``.
+
+    Returns:
+        Average Dice coefficient as ``torch.Tensor``.
+    """
     return dice_coefficient(
-        input        = input.flatten(0 , 1),
+        input        = input.flatten(0, 1),
         target       = target.flatten(0, 1),
         reduce_batch = reduce_batch,
         epsilon      = epsilon,
@@ -65,25 +85,31 @@ def multiclass_dice_coefficient(
 
 @LOSSES.register(name="dice_loss")
 class DiceLoss(base.Loss):
-    """Dice loss for binary or multiclass classification tasks."""
+    """Dice loss for binary or multiclass classification tasks.
+
+    Args:
+        loss_weight: Weight for loss value. Default is ``1.0``.
+        reduction: Reduction method (``"none"``, ``"mean"``, ``"sum"``).
+            Default is ``"mean"``.
+        reduce_batch: Reduces batch dim if ``True``. Default is ``True``.
+        multiclass: Uses multiclass Dice if ``True``. Default is ``False``.
+    """
     
     def __init__(
         self,
         loss_weight : float = 1.0,
         reduction   : Literal["none", "mean", "sum"] = "mean",
         reduce_batch: bool  = True,
-        multiclass  : bool  = False,
+        multiclass  : bool  = False
     ):
         super().__init__(loss_weight=loss_weight, reduction=reduction)
         self.reduce_batch = reduce_batch
         self.multiclass   = multiclass
-        self.fn = multiclass_dice_coefficient if multiclass else dice_coefficient
-    
-    def forward(self, input: torch.Tensor, target: torch.Tensor) -> torch.Tensor:
-        assert input.shape == target.shape
-        loss  = 1 - self.fn(input=input, target=target, reduce_batch=self.reduce_batch)
-        loss  = reduce_loss(loss=loss, reduction=self.reduction)
-        loss  = self.loss_weight * loss
-        return loss
+        self.fn = (multiclass_dice_coefficient if multiclass else dice_coefficient)
+
+    def forward(self, input : torch.Tensor, target: torch.Tensor) -> torch.Tensor:
+        loss = 1 - self.fn(input=input, target=target, reduce_batch=self.reduce_batch)
+        loss = reduce_loss(loss=loss, reduction=self.reduction)
+        return self.loss_weight * loss
 
 # endregion

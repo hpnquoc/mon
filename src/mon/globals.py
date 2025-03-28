@@ -1,9 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Globals.
-
-This module defines all global constants used across `mon` package.
+"""Defines global constants for ``mon`` package.
 
 Notes:
     * To avoid circular dependency, only define constants of basic/atomic types.
@@ -394,7 +392,7 @@ class BBoxFormat(DT.Enum):
         """
         value_lower = value.lower()
         if value_lower not in cls.str_mapping():
-            raise ValueError(f"`value` must be a valid enum key, but got {value_lower}.")
+            raise ValueError(f"`value` must be a valid enum key, got {value_lower}.")
         return cls.str_mapping()[value_lower]
     
     @classmethod
@@ -415,7 +413,7 @@ class BBoxFormat(DT.Enum):
             ValueError: If the integer is not a valid enum key.
         """
         if value not in cls.int_mapping():
-            raise ValueError(f"`value` must be a valid enum key, but got {value}.")
+            raise ValueError(f"`value` must be a valid enum key, got {value}.")
         return cls.int_mapping()[value]
     
     @classmethod
@@ -538,7 +536,7 @@ class ShapeCode(DT.Enum):
             parts = value.split("_to_")
             if parts[0] == parts[1]:
                 return cls.SAME
-            raise ValueError(f"`value` must be a valid enum key, but got {value_lower}.")
+            raise ValueError(f"`value` must be a valid enum key, got {value_lower}.")
         return cls.str_mapping()[value_lower]
 
     @classmethod
@@ -559,7 +557,7 @@ class ShapeCode(DT.Enum):
             ValueError: If the integer is not a valid enum key.
         """
         if value not in cls.int_mapping():
-            raise ValueError(f"`value` must be a valid enum key, but got {value}.")
+            raise ValueError(f"`value` must be a valid enum key, got {value}.")
         return cls.int_mapping()[value]
     
     @classmethod
@@ -574,8 +572,8 @@ class ShapeCode(DT.Enum):
             value: The value to convert to a ``ShapeCode`` enum.
     
         Returns:
-            The corresponding ``ShapeCode`` enum value, or ``None`` if the value
-            is not of a supported type.
+            The corresponding ``ShapeCode`` enum value, or ``None`` if the value is not
+            of a supported type.
         """
         if isinstance(value, ShapeCode):
             return value
@@ -595,8 +593,8 @@ class TrackState(DT.Enum):
     
     Newly created tracks are classified as ``NEW`` until enough evidence has been
     collected. Then, the track state is changed to ``TRACKED``. Tracks that are no
-    longer alive are classified as ``REMOVED`` to mark them for removal from the
-    set of active tracks.
+    longer alive are classified as ``REMOVED`` to mark them for removal from the set of
+    active tracks.
     """
     
     NEW      = 0
@@ -667,7 +665,7 @@ class TrackState(DT.Enum):
         """
         value_lower = value.lower()
         if value_lower not in cls.str_mapping():
-            raise ValueError(f"`value` must be a valid enum key, but got {value_lower}.")
+            raise ValueError(f"`value` must be a valid enum key, got {value_lower}.")
         return cls.str_mapping()[value_lower]
     
     @classmethod
@@ -688,7 +686,7 @@ class TrackState(DT.Enum):
             ValueError: If the integer is not a valid enum key.
         """
         if value not in cls.int_mapping():
-            raise ValueError(f"`value` must be a valid enum key, but got {value}.")
+            raise ValueError(f"`value` must be a valid enum key, got {value}.")
         return cls.int_mapping()[value]
     
     @classmethod
@@ -811,7 +809,7 @@ class MemoryUnit(DT.Enum):
         """
         value_lower = value.lower()
         if value_lower not in cls.str_mapping():
-            raise ValueError(f"`value` must be a valid enum key, but got {value_lower}.")
+            raise ValueError(f"`value` must be a valid enum key, got {value_lower}.")
         return cls.str_mapping()[value_lower]
     
     @classmethod
@@ -832,7 +830,7 @@ class MemoryUnit(DT.Enum):
             ValueError: If the integer is not a valid enum key.
         """
         if value not in cls.int_mapping():
-            raise ValueError(f"`value` must be a valid enum key, but got {value}.")
+            raise ValueError(f"`value` must be a valid enum key, got {value}.")
         return cls.int_mapping()[value]
     
     @classmethod

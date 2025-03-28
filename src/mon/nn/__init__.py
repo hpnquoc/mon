@@ -1,12 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""This package implements the basic functionalities for machine learning and
-deep learning research. It provides support for high-level machine learning
-packages, such as vision, natural language, or speech.
-
-`mon.nn` package itself is built on top `PyTorch` and `Lightning`
-libraries.
+"""Supports ML/DL research with vision, NLP, speech, built on ``PyTorch`` and
+``Lightning``.
 """
 
 from __future__ import annotations
@@ -29,7 +25,6 @@ from torch.nn.parameter import (
 
 # Import
 import mon.nn.callback
-import mon.nn.factory
 import mon.nn.logger
 import mon.nn.loss
 import mon.nn.metric
@@ -40,7 +35,6 @@ import mon.nn.runner
 import mon.nn.strategy
 import mon.nn.utils
 from mon.nn.callback import *
-from mon.nn.factory import *
 from mon.nn.logger import *
 from mon.nn.loss import *
 from mon.nn.metric import *

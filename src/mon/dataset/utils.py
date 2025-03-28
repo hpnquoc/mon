@@ -1,39 +1,32 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Dataset Utilities.
-
-This module implements data i/o classes and functions.
-"""
+"""Implements utilities for data I/O classes and functions."""
 
 from __future__ import annotations
 
 __all__ = [
-    "parse_io_worker",
+    "parse_data_loader",
 ]
 
-from mon import core, vision
+from mon import core
 from mon.dataset import dtype
 from mon.globals import DATA_DIR, DATASETS, Split
 
 
 # region Parsing
 
-def parse_io_worker(
+def parse_data_loader(
     src        : core.Path | str,
-    dst        : core.Path | str,
     to_tensor  : bool            = False,
-    denormalize: bool            = False,
     data_root  : core.Path | str = None,
     verbose    : bool            = False
-) -> tuple[str, dtype.Dataset, vision.VideoWriterCV]:
-    """Parses I/O worker for src and dst.
+) -> tuple[str, dtype.Dataset]:
+    """Parses I/O worker for data src.
 
     Args:
         src: Source of input data.
-        dst: Destination path.
         to_tensor: If ``True``, converts to tensor. Default is ``False``.
-        denormalize: If ``True``, denormalizes to [0, 255]. Default is ``False``.
         data_root: Dataset root dir (e.g., ``data/ntire_2025_llie``).
         verbose: If ``True``, enables verbose output. Default is ``False``.
 
@@ -43,10 +36,6 @@ def parse_io_worker(
     Raises:
         ValueError: If ``src`` is invalid.
     """
-    data_name   : str                  = ""
-    data_loader : dtype.Dataset        = None
-    data_writer : vision.VideoWriterCV = None
-    
     src = core.Path(src)
     if src.stem in DATASETS:
         src = src.stem
@@ -84,18 +73,9 @@ def parse_io_worker(
             to_tensor = to_tensor,
             verbose   = verbose
         )
-        data_writer = vision.VideoWriterCV(
-            dst         = core.Path(dst),
-            image_size  = data_loader.imgsz,
-            frame_rate  = data_loader.fps,
-            fourcc      = "mp4v",
-            save_image  = False,
-            denormalize = denormalize,
-            verbose     = verbose
-        )
     else:
-        raise ValueError(f"[src] is invalid: {src}")
+        raise ValueError(f"[src] is invalid: {src}.")
     
-    return data_name, data_loader, data_writer
+    return data_name, data_loader
     
 # endregion

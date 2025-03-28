@@ -1,12 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Base Loss Function.
-
-This module implements the base class for all loss functions. Some basic loss
-functions are also implemented here along with their corresponding helper
-functions.
-"""
+"""Implements base class and basic loss functions with helpers."""
 
 from __future__ import annotations
 
@@ -93,7 +88,7 @@ class Loss(_Loss, ABC):
     ):
         super().__init__(reduction=reduction)
         if self.reduction not in self.reductions:
-            raise ValueError(f"`reduction` must be one of: {self.reductions}, but got {reduction}.")
+            raise ValueError(f"`reduction` must be one of: {self.reductions}, got {reduction}.")
         self.loss_weight = loss_weight
         
     def __str__(self):
@@ -192,7 +187,12 @@ class ExtendedL1Loss(Loss):
         self.loss_l1 = L1Loss()
     
     # noinspection PyMethodOverriding
-    def forward(self, input: torch.Tensor, target: torch.Tensor, mask: torch.Tensor) -> torch.Tensor:
+    def forward(
+        self,
+        input : torch.Tensor,
+        target: torch.Tensor,
+        mask  : torch.Tensor
+    ) -> torch.Tensor:
         norm = self.loss_l1(mask, torch.zeros_like(mask))
         loss = self.loss_l1(mask * input, mask * target) / norm
         loss = reduce_loss(loss=loss, reduction=self.reduction)

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Flare7K Datasets."""
+"""Implements Flare7K datasets."""
 
 from __future__ import annotations
 
@@ -35,7 +35,7 @@ class Flare7KPPReal(MultimodalDataset):
     """Loads Flare7K++Real dataset from ``root`` dir.
 
     Args:
-        root: Directory path to dataset. Default is ``default_root_dir``
+        root: Directory path to dataset. Default is ``default_root_dir``.
         *args: Additional args for parent class.
         **kwargs: Additional kwargs for parent class.
 
@@ -55,7 +55,7 @@ class Flare7KPPReal(MultimodalDataset):
         """Initializes dataset with ``root`` path and parent args."""
         root = root / "flare7k++" if root.name != "flare7k++" else root
         if not root.is_dir():
-            raise FileNotFoundError(f"[root] directory not found: [{root}]")
+            raise FileNotFoundError(f"[root] directory not found: [{root}].")
         super().__init__(root=root, *args, **kwargs)
 
     def get_data(self):
@@ -79,7 +79,7 @@ class Flare7KPPSynthetic(MultimodalDataset):
     """Loads Flare7K++Synthetic dataset from ``root`` dir.
 
     Args:
-        root: Directory path to dataset. Default is ``default_root_dir``
+        root: Directory path to dataset. Default is ``default_root_dir``.
         *args: Additional args for parent class.
         **kwargs: Additional kwargs for parent class.
 
@@ -99,7 +99,7 @@ class Flare7KPPSynthetic(MultimodalDataset):
         """Initializes dataset with ``root`` path and parent args."""
         root = root / "flare7k++" if root.name != "flare7k++" else root
         if not root.is_dir():
-            raise FileNotFoundError(f"[root] directory not found: [{root}]")
+            raise FileNotFoundError(f"[root] directory not found: [{root}].")
         super().__init__(root=root, *args, **kwargs)
 
     def get_data(self):
@@ -123,7 +123,7 @@ class Flare7KPPExtra(MultimodalDataset):
     """Loads Flare7K++Extra dataset from ``root`` dir.
 
     Args:
-        root: Directory path to dataset. Default is ``default_root_dir``
+        root: Directory path to dataset. Default is ``default_root_dir``.
         *args: Additional args for parent class.
         **kwargs: Additional kwargs for parent class.
 
@@ -142,7 +142,7 @@ class Flare7KPPExtra(MultimodalDataset):
         """Initializes dataset with ``root`` path and parent args."""
         root = root / "flare7k++" if root.name != "flare7k++" else root
         if not root.is_dir():
-            raise FileNotFoundError(f"[root] directory not found: [{root}]")
+            raise FileNotFoundError(f"[root] directory not found: [{root}].")
         super().__init__(root=root, *args, **kwargs)
 
     def get_data(self):
@@ -177,10 +177,11 @@ class Flare7KPPRealDataModule(DataModule):
         pass
 
     def setup(self, stage: Literal["train", "test", "predict", None] = None):
-        """Sets up datasets for given ``stage``.
+        """Sets up datasets for specified ``stage``.
 
         Args:
-            stage: Stage to configure. Default is ``None``.
+            stage: Stage to setup, one of ``"train"``, ``"test"``, ``"predict"``,
+                or ``None``. Default is ``None``.
         """
         if self.can_log:
             console.log(f"Setup [red]{self.__class__.__name__}[/red].")
@@ -212,10 +213,11 @@ class Flare7KPPSyntheticDataModule(DataModule):
         pass
 
     def setup(self, stage: Literal["train", "test", "predict", None] = None):
-        """Sets up datasets for given ``stage``.
+        """Sets up datasets for specified ``stage``.
 
         Args:
-            stage: Stage to configure. Default is ``None``.
+            stage: Stage to setup, one of ``"train"``, ``"test"``, ``"predict"``,
+                or ``None``. Default is ``None``.
         """
         if self.can_log:
             console.log(f"Setup [red]{self.__class__.__name__}[/red].")
@@ -247,10 +249,11 @@ class Flare7KPPExtraDataModule(DataModule):
         pass
 
     def setup(self, stage: Literal["train", "test", "predict", None] = None):
-        """Sets up datasets for given ``stage``.
+        """Sets up datasets for specified ``stage``.
 
         Args:
-            stage: Stage to configure. Default is ``None``.
+            stage: Stage to setup, one of ``"train"``, ``"test"``, ``"predict"``,
+                or ``None``. Default is ``None``.
         """
         if self.can_log:
             console.log(f"Setup [red]{self.__class__.__name__}[/red].")

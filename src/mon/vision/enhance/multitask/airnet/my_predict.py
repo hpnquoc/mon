@@ -62,13 +62,8 @@ def predict(args: argparse.Namespace):
     
     # Data I/O
     console.log(f"[bold red]{data}")
-    data_name, data_loader, data_writer = mon.parse_io_worker(
-        src         = data,
-        dst         = save_dir,
-        to_tensor   = True,
-        denormalize = True,
-        verbose     = False,
-    )
+    data_name, data_loader = mon.parse_data_loader(data, True, verbose=False)
+    
     save_dir = save_dir / data_name
     save_dir.mkdir(parents=True, exist_ok=True)
     

@@ -1,14 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Predict Pipeline.
-
-This script predicts the output of a model on a given dataset.
-"""
+"""Predicts model output on a given dataset."""
 
 from __future__ import annotations
-
-import argparse
 
 import mon
 
@@ -51,13 +46,7 @@ def predict(args: dict) -> str:
     
     # Data I/O
     console.log(f"[bold red] {data}")
-    data_name, data_loader, data_writer = mon.parse_io_worker(
-        src         = data,
-        dst         = save_dir,
-        to_tensor   = True,
-        denormalize = True,
-        verbose     = False,
-    )
+    data_name, data_loader = mon.parse_data_loader(data, True, verbose=False)
     
     # Model
     args["modelmodule"] |= {
@@ -113,9 +102,7 @@ def predict(args: dict) -> str:
                 output_path  = output_dir / f"{meta['stem']}.jpg"
                 output_path.parent.mkdir(parents=True, exist_ok=True)
                 mon.write_image(output_path, output)
-            # Save video
-            if data_writer:
-                data_writer.write_batch(frames=output)
+            
             # Save Debug
             if save_debug:
                 if use_fullpath:
