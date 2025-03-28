@@ -28,15 +28,15 @@ from torch.nn.common_types import _size_2_t
 # region Fourier Transform
 
 class FourierUnit(nn.Module):
-    """Fourier transform unit from Fast Fourier Convolution paper.
+    """Fourier transform unit from Fast Fourier Convolution.
 
     Args:
-        in_channels: Number of input channels.
-        out_channels: Number of output channels.
-        groups: Number of groups in convolution. Default is ``1``.
-        ffc3d: If ``True``, uses 3D FFT (called by FourierUnit3d). Default is ``False``.
-        fft_norm: FFT normalization mode (``'forward'``, ``'backward'``, ``'ortho'``).
-            Default is ``'ortho'``.
+        in_channels: Number of input channels as ``int``.
+        out_channels: Number of output channels as ``int``.
+        groups: Number of groups in convolution as ``int``. Default is ``1``.
+        ffc3d: Uses 3D FFT if ``True`` (called by FourierUnit3d). Default is ``False``.
+        fft_norm: FFT normalization mode as ``str`` (``"forward"``, ``"backward"``, ``"ortho"``).
+            Default is ``"ortho"``.
 
     References:
         - https://github.com/pkumivision/FFC
@@ -70,10 +70,11 @@ class FourierUnit(nn.Module):
         """Applies Fourier transform, convolution, and inverse transform.
 
         Args:
-            input: Input tensor [B, C, H, W] or ``[B, C, D, H, W]``.
+            input: Input tensor as ``torch.Tensor`` with shape [B, C, H, W]
+                or [B, C, D, H, W].
 
         Returns:
-            Output tensor with same shape as input.
+            Output tensor as ``torch.Tensor`` with same shape as input
         """
         x          = input
         b, c, h, w = x.size()
@@ -99,11 +100,14 @@ class FourierUnit2d(FourierUnit):
     """2D Fourier transform unit from Fast Fourier Convolution.
 
     Args:
-        in_channels: Number of input channels.
-        out_channels: Number of output channels.
-        groups: Number of groups in convolution. Default is ``1``.
-        fft_norm: FFT normalization mode (``'forward'``, ``'backward'``, ``'ortho'``).
-            Default is ``'ortho'``.
+        in_channels: Number of input channels as ``int``.
+        out_channels: Number of output channels as ``int``.
+        groups: Number of groups in convolution as ``int``. Default is ``1``.
+        fft_norm: FFT normalization mode as ``str`` (``"forward"``, ``"backward"``, ``"ortho"``).
+            Default is ``"ortho"``.
+    
+    Attributes:
+        Inherits attributes from ``FourierUnit``.
     """
 
     def __init__(
@@ -126,11 +130,14 @@ class FourierUnit3d(FourierUnit):
     """3D Fourier transform unit from Fast Fourier Convolution.
 
     Args:
-        in_channels: Number of input channels.
-        out_channels: Number of output channels.
-        groups: Number of groups in convolution. Default is ``1``.
-        fft_norm: FFT normalization mode (``'forward'``, ``'backward'``, ``'ortho'``).
-            Default is ``'ortho'``.
+        in_channels: Number of input channels as ``int``.
+        out_channels: Number of output channels as ``int``.
+        groups: Number of groups in convolution as ``int``. Default is ``1``.
+        fft_norm: FFT normalization mode as ``str`` (``"forward"``, ``"backward"``, ``"ortho"``).
+            Default is ``"ortho"``.
+
+    Attributes:
+        Inherits attributes from ``FourierUnit``.
     """
 
     def __init__(
@@ -150,16 +157,17 @@ class FourierUnit3d(FourierUnit):
         
 
 class SpectralTransform2d(nn.Module):
-    """Spectral transform unit from Fast Fourier Convolution paper.
+    """Spectral transform unit from Fast Fourier Convolution.
 
     Args:
-        in_channels: Number of input channels.
-        out_channels: Number of output channels.
-        stride: Stride of the convolution. Default is ``1``.
-        groups: Number of groups in convolution. Default is ``1``.
-        enable_lfu: If ``True``, includes local Fourier unit. Default is ``True``.
-        fft_norm: FFT normalization mode (``'forward'``, ``'backward'``, ``'ortho'``).
-            Default is ``'ortho'``.
+        in_channels: Number of input channels as ``int``.
+        out_channels: Number of output channels as ``int``.
+        stride: Stride of the convolution as ``int`` or ``tuple[int, int]``.
+            Default is ``1``.
+        groups: Number of groups in convolution as ``int``. Default is ``1``.
+        enable_lfu: Includes local Fourier unit if ``True``. Default is ``True``.
+        fft_norm: FFT normalization mode as ``str`` (``"forward"``, ``"backward"``, ``"ortho"``).
+            Default is ``"ortho"``.
 
     References:
         - https://github.com/pkumivision/FFC
@@ -218,10 +226,10 @@ class SpectralTransform2d(nn.Module):
         """Applies spectral transform with Fourier units.
 
         Args:
-            input: Input tensor [B, C_in, H, W].
+            input: Input tensor as ``torch.Tensor`` with shape [B, C_in, H, W].
 
         Returns:
-            Output tensor [B, C_out, H_out, W_out].
+            Output tensor as ``torch.Tensor`` with shape [B, C_out, H_out, W_out].
         """
         x = input
         x = self.downsample(x)
@@ -247,24 +255,27 @@ class SpectralTransform2d(nn.Module):
 # region Fast-Fourier Convolution
 
 class FastFourierConv2d(nn.Module):
-    """Fast Fourier convolution from FFC paper.
+    """Fast Fourier Convolution from FFC paper.
 
     Args:
-        in_channels: Number of input channels.
-        out_channels: Number of output channels.
-        kernel_size: Size of the convolution kernel.
-        ratio_g_in: Ratio of global input channels. Range [0, 1].
-        ratio_g_out: Ratio of global output channels. Range [0, 1].
-        stride: Stride of the convolution. Default is ``1``.
-        padding: Padding size for convolutions. Default is ``0``.
-        dilation: Dilation of the convolution. Default is ``1``.
-        groups: Number of groups in convolution. Default is ``1``.
-        bias: If ``True``, adds bias to convolutions. Default is ``False``.
-        padding_mode: Padding mode for convolutions. Default is ``"zeros"``.
-        enable_lfu: If ``True``, enables local Fourier unit. Default is ``True``.
-        fft_norm: FFT normalization mode (``'forward'``, ``'backward'``, ``'ortho'``).
-            Default is ``'ortho'``.
-    
+        in_channels: Number of input channels as ``int``.
+        out_channels: Number of output channels as ``int``.
+        kernel_size: Size of the convolution kernel as ``int`` or ``tuple[int, int]``.
+        ratio_g_in: Ratio of global input channels as ``float`` in [0, 1].
+        ratio_g_out: Ratio of global output channels as ``float`` in [0, 1].
+        stride: Stride of the convolution as ``int`` or ``tuple[int, int]``.
+            Default is ``1``.
+        padding: Padding size for convolutions as ``int`` or ``tuple[int, int]``.
+            Default is ``0``.
+        dilation: Dilation of the convolution as ``int`` or ``tuple[int, int]``.
+            Default is ``1``.
+        groups: Number of groups in convolution as ``int``. Default is ``1``.
+        bias: Adds bias to convolutions if ``True``. Default is ``False``.
+        padding_mode: Padding mode for convolutions as ``str``. Default is ``"zeros"``.
+        enable_lfu: Enables local Fourier unit if ``True``. Default is ``True``.
+        fft_norm: FFT normalization mode as ``str`` (``"forward"``, ``"backward"``, ``"ortho"``).
+            Default is ``"ortho"``.
+
     References:
         - https://github.com/pkumivision/FFC
     """
@@ -351,11 +362,11 @@ class FastFourierConv2d(nn.Module):
         """Applies fast Fourier convolution with local and global paths.
 
         Args:
-            input: Input tensor [B, C_in, H, W] or tuple of local/global tensors.
+            input: Input tensor as ``torch.Tensor`` with shape [B, C_in, H, W] or tuple of local/global tensors.
 
         Returns:
-            Tuple of (local output ``[B, C_out_l, H_out, W_out]``,
-            global output ``[B, C_out_g, H_out, W_out]``).
+            Tuple of (local output ``torch.Tensor`` with shape [B, C_out_l, H_out, W_out],
+                      global output ``torch.Tensor`` with shape [B, C_out_g, H_out, W_out]).
         """
         x = input
         x_l, x_g = x if isinstance(x, (tuple, list)) else (x, 0)
@@ -365,29 +376,32 @@ class FastFourierConv2d(nn.Module):
 
 
 class FastFourierConv2dNormAct(nn.Module):
-    """Fast Fourier convolution with normalization and activation from FFC paper.
+    """Fast Fourier Convolution with normalization and activation from FFC.
 
     Args:
-        in_channels: Number of input channels.
-        out_channels: Number of output channels.
-        kernel_size: Size of the convolution kernel.
-        ratio_g_in: Ratio of global input channels. Range [0, 1].
-        ratio_g_out: Ratio of global output channels. Range [0, 1].
-        stride: Stride of the convolution. Default is ``1``.
-        padding: Padding size for convolutions. Default is ``0``.
-        dilation: Dilation of the convolution. Default is ``1``.
-        groups: Number of groups in convolution. Default is ``1``.
-        bias: If True, adds bias to convolutions. Default is ``False``.
-        padding_mode: Padding mode for convolutions. Default is ``"zeros"``.
-        norm_layer: Normalization layer class. Default is ``nn.BatchNorm2d``.
-        act_layer: Activation layer class. Default is ``nn.Identity``.
-        enable_lfu: If True, enables local Fourier unit. Default is ``True``.
-        fft_norm: FFT normalization mode (``'forward'``, ``'backward'``, ``'ortho'``).
-            Default is ``'ortho'``.
+        in_channels: Number of input channels as ``int``.
+        out_channels: Number of output channels as ``int``.
+        kernel_size: Size of the convolution kernel as ``int`` or ``tuple[int, int]``.
+        ratio_g_in: Ratio of global input channels as ``float`` in [0, 1].
+        ratio_g_out: Ratio of global output channels as ``float`` in [0, 1].
+        stride: Stride of the convolution as ``int`` or ``tuple[int, int]``.
+            Default is ``1``.
+        padding: Padding size for convolutions as ``int`` or ``tuple[int, int]``.
+            Default is ``0``.
+        dilation: Dilation of the convolution as ``int`` or ``tuple[int, int]``.
+            Default is ``1``.
+        groups: Number of groups in convolution as ``int``. Default is ``1``.
+        bias: Adds bias to convolutions if ``True``. Default is ``False``.
+        padding_mode: Padding mode for convolutions as ``str``. Default is ``"zeros"``.
+        norm_layer: Normalization layer class as ``Any``. Default is ``nn.BatchNorm2d``.
+        act_layer: Activation layer class as ``Any``. Default is ``nn.Identity``.
+        enable_lfu: Enables local Fourier unit if ``True``. Default is ``True``.
+        fft_norm: FFT normalization mode as ``str`` (``"forward"``, ``"backward"``, ``"ortho"``).
+            Default is ``"ortho"``.
 
     Notes:
         Mimics torchvision.ops.misc.Conv2dNormActivation naming.
-    
+
     References:
         - https://github.com/pkumivision/FFC
     """
@@ -443,11 +457,12 @@ class FastFourierConv2dNormAct(nn.Module):
         """Applies FFC, normalization, and activation.
 
         Args:
-            input: Input tensor [B, C_in, H, W] or tuple of local/global tensors.
+            input: Input tensor as ``torch.Tensor`` with shape [B, C_in, H, W] or tuple
+                of local/global tensors.
 
         Returns:
-            Tuple of (local output ``[B, C_out_l, H_out, W_out]``,
-            global output ``[B, C_out_g, H_out, W_out]``).
+            Tuple of (local output ``torch.Tensor`` with shape [B, C_out_l, H_out, W_out],
+                      global output ``torch.Tensor`` with shape [B, C_out_g, H_out, W_out])
         """
         y_l, y_g = self.ffc(input)
         y_l      = self.act_l(self.norm_l(y_l))
@@ -456,11 +471,11 @@ class FastFourierConv2dNormAct(nn.Module):
 
 
 class FastFourierConv2dSE(nn.Module):
-    """Squeeze and Excitation block for Fast Fourier Convolution from FFC paper.
+    """Squeeze and Excitation block for Fast Fourier Convolution from FFC.
 
     Args:
-        channels: Total number of channels.
-        ratio_g: Ratio of global channels. Range [0, 1].
+        channels: Total number of channels as ``int``.
+        ratio_g: Ratio of global channels as ``float`` in [0, 1].
 
     References:
         - https://github.com/pkumivision/FFC
@@ -471,12 +486,6 @@ class FastFourierConv2dSE(nn.Module):
         channels: int,
         ratio_g : float
     ):
-        """Initializes the FastFourierConv2dSE module.
-
-        Args:
-            channels: Total number of channels.
-            ratio_g: Ratio of global channels. Range [0, 1].
-        """
         super().__init__()
         in_cg = int(channels * ratio_g)
         in_cl = channels - in_cg
@@ -508,16 +517,20 @@ class FastFourierConv2dSE(nn.Module):
         )
         self.sigmoid  = nn.Sigmoid()
     
-    def forward(self, input: torch.Tensor | tuple[torch.Tensor, torch.Tensor]) -> tuple[torch.Tensor, torch.Tensor]:
+    def forward(
+        self,
+        input: torch.Tensor | tuple[torch.Tensor, torch.Tensor]
+    ) -> tuple[torch.Tensor, torch.Tensor]:
         """Applies squeeze and excitation to local and global paths.
 
         Args:
-            input: Input tensor [B, C, H, W] or tuple of
-                (local ``[B, C_l, H, W]``, global ``[B, C_g, H, W]``).
+            input: Input tensor as ``torch.Tensor`` with shape [B, C, H, W] or tuple of
+                   (local ``torch.Tensor`` with shape [B, C_l, H, W],
+                    global ``torch.Tensor`` with shape [B, C_g, H, W]).
 
         Returns:
-            Tuple of (local output ``[B, C_l, H_out, W_out]``,
-            global output ``[B, C_g, H_out, W_out]``).
+            Tuple of (local output ``torch.Tensor`` with shape [B, C_l, H_out, W_out],
+                      global output ``torch.Tensor`` with shape [B, C_g, H_out, W_out]).
         """
         x = input
         x_l, x_g = x if isinstance(x, (tuple, list)) else (x, 0)

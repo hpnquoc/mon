@@ -88,10 +88,10 @@ class DiceLoss(base.Loss):
     """Dice loss for binary or multiclass classification tasks.
 
     Args:
-        loss_weight: Weight for loss value. Default is ``1.0``.
-        reduction: Reduction method (``"none"``, ``"mean"``, ``"sum"``).
+        loss_weight: Weight applied to the loss. Default is ``1.0``.
+        reduction: Reduction method: ``"none"``, ``"mean"``, or ``"sum"``.
             Default is ``"mean"``.
-        reduce_batch: Reduces batch dim if ``True``. Default is ``True``.
+        reduce_batch: Reduces batch dimension if ``True``. Default is ``True``.
         multiclass: Uses multiclass Dice if ``True``. Default is ``False``.
     """
     
@@ -108,6 +108,15 @@ class DiceLoss(base.Loss):
         self.fn = (multiclass_dice_coefficient if multiclass else dice_coefficient)
 
     def forward(self, input : torch.Tensor, target: torch.Tensor) -> torch.Tensor:
+        """Computes the Dice loss.
+
+        Args:
+            input: Predicted tensor as ``torch.Tensor``.
+            target: Target tensor as ``torch.Tensor``.
+
+        Returns:
+            Reduced loss as ``torch.Tensor``.
+        """
         loss = 1 - self.fn(input=input, target=target, reduce_batch=self.reduce_batch)
         loss = reduce_loss(loss=loss, reduction=self.reduction)
         return self.loss_weight * loss

@@ -29,12 +29,13 @@ from torch.nn.modules.upsampling import *
 # region Utils
 
 def get_image_size(input: Any) -> tuple[int, int]:
-    """Gets the size of an image as ``(height, width)``.
+    """Gets the size of an image as (height, width).
 
     Args:
-        input: Image or data to measure.
+        input: Image or data to measure as ``Any``.
+
     Returns:
-        Tuple of ``(height, width)`` in pixels.
+        Tuple of (height, width) in pixels as ``tuple[int, int]``.
     """
     from mon.vision.dtype import image as I
     return I.get_image_size(input)
@@ -46,23 +47,21 @@ def get_image_size(input: Any) -> tuple[int, int]:
 
 class Downsample(nn.Module):
     """Downsamples multi-channel 1D, 2D, or 3D data.
-    
+
     Args:
-        size: Output spatial sizes. Default is ``None``.
-        scale_factor: Multiplier for spatial size. Default is ``None``.
-        mode: Interpolation algorithm. One of: ``'nearest'``, ``'linear'``, ``'bilinear'``,
-            ``'bicubic'``, or ``'trilinear'``. Default is ``nearest``.
-        align_corners: If ``True``, the corner pixels of the input and output
-            tensors are aligned, and thus preserving the values of those pixels.
-            This only has effect when ``mode`` is ``'linear'``, ``'bilinear'``,
-            ``'bicubic'``, or ``'trilinear'``. Default is ``False``.
-        recompute_scale_factor: Recompute scale factor if ``True``. Default is ``False``.
-            - If ``True``, then ``scale_factor`` must be passed in and ``scale_factor``
-                is used to compute the output ``size``. The computed output ``size``
-                will be used to infer new scales for the interpolation. Note that when
-                ``scale_factor`` is floating-point, it may differ from the recomputed
-                ``scale_factor`` due to rounding and precision issues.
-            - If ``False``, then `size` or `scale_factor` will be used directly for interpolation.
+        size: Output spatial sizes as ``int`` or ``tuple[int, ...]``. Default is ``None``
+        scale_factor: Multiplier for spatial size as ``float`` or ``tuple[float, ...]``.
+            Default is ``None``
+        mode: Interpolation algorithm as ``str``. One of: ``"nearest"``, ``"linear"``,
+            ``"bilinear"``, ``"bicubic"``, or ``"trilinear"``. Default is ``"nearest"``.
+        align_corners: Aligns corner pixels if ``True``. Default is ``False``.
+            Effective only for ``"linear"``, ``"bilinear"``, ``"bicubic"``, or
+            ``"trilinear"`` modes.
+        recompute_scale_factor: Recomputes scale factor if ``True``. Default is ``False``.
+            - If ``True``, ``scale_factor`` must be provided and is used to compute the
+                output ``size``, which infers new scales for interpolation; may differ
+                from provided ``scale_factor`` due to rounding.
+            - If ``False``, uses ``size`` or ``scale_factor`` directly for interpolation.
     """
     
     def __init__(
@@ -81,7 +80,15 @@ class Downsample(nn.Module):
         self.recompute_scale_factor = recompute_scale_factor
 
     def _invert_scale_factor(self, scale_factor: Any) -> Any:
-        """Inverts scale factor for downsampling."""
+        """Inverts scale factor for downsampling.
+
+        Args:
+            scale_factor: Original scale factor as ``float`` or ``tuple[float, ...]``.
+
+        Returns:
+            Inverted scale factor as ``float`` or ``tuple[float, ...]`` or
+            ``None`` if input is ``None``.
+        """
         if isinstance(scale_factor, tuple):
             return tuple(1.0 / factor for factor in scale_factor)
         return 1.0 / scale_factor if scale_factor else None
@@ -90,10 +97,10 @@ class Downsample(nn.Module):
         """Downsamples the input tensor.
 
         Args:
-            input: Tensor to downsample.
-            
+            input: Tensor to downsample as ``torch.Tensor``.
+
         Returns:
-            Downsampled tensor.
+            Downsampled tensor as ``torch.Tensor``.
         """
         if self.size and self.size == list(input.shape[2:]):
             return input
@@ -113,8 +120,8 @@ class DownsampleConv2d(nn.Module):
     """Downsamples 2D data using a convolutional layer.
 
     Args:
-        in_channels: Number of input channels.
-        out_channels: Number of output channels.
+        in_channels: Number of input channels as ``int``.
+        out_channels: Number of output channels as ``int``.
     """
     
     def __init__(self, in_channels: int, out_channels: int):
@@ -127,10 +134,11 @@ class DownsampleConv2d(nn.Module):
         """Downsamples input tensor via convolution.
 
         Args:
-            input: Tensor of shape ``(B, L, C)`` to downsample.
-        
+            input: Tensor as ``torch.Tensor`` with shape [B, L, C].
+
         Returns:
-            Downsampled tensor of shape ``(B, H*W, C)``.
+            Downsampled tensor as ``torch.Tensor`` with
+            shape ``[B, H'*W', C]`` where ``H' = H/2``, ``W' = W/2``.
         """
         x       = input
         b, l, c = x.shape
@@ -140,15 +148,15 @@ class DownsampleConv2d(nn.Module):
         x       = self.conv(x).flatten(2).transpose(1, 2).contiguous()
         return x
     
-    def flops(self, h: int, w: int) -> int:
+    def flops(self, h: int, w: int) -> float:
         """Calculates FLOPs for the downsampling operation.
 
         Args:
-            h: Input height.
-            w: Input width.
-            
+            h: Input height as ``int``
+            w: Input width as ``int``
+
         Returns:
-            Total FLOPs as an integer.
+            Total FLOPs as ``float``.
         """
         return h // 2 * w // 2 * self.in_channels * self.out_channels * 4 * 4
 
@@ -161,8 +169,8 @@ class UpsampleConv2d(nn.Module):
     """Upsamples 2D data using a transposed convolutional layer.
 
     Args:
-        in_channels: Number of input channels.
-        out_channels: Number of output channels.
+        in_channels: Number of input channels as ``int``.
+        out_channels: Number of output channels as ``int``.
     """
 
     def __init__(self, in_channels: int, out_channels: int):
@@ -175,10 +183,10 @@ class UpsampleConv2d(nn.Module):
         """Upsamples input tensor via transposed convolution.
 
         Args:
-            input: Tensor of shape ``(B, L, C)`` to upsample.
-            
+            input: Tensor as ``torch.Tensor`` with shape [B, L, C].
+
         Returns:
-            Upsampled tensor of shape ``(B, H*W, C)``.
+            Upsampled tensor as ``torch.Tensor`` with shape [B, 4*L, C].
         """
         b, l, c = input.shape
         h       = w = int(math.sqrt(l))
@@ -186,15 +194,15 @@ class UpsampleConv2d(nn.Module):
         x       = self.deconv(x).flatten(2).transpose(1, 2)
         return x
 
-    def flops(self, h: int, w: int) -> int:
+    def flops(self, h: int, w: int) -> float:
         """Calculates FLOPs for the upsampling operation.
 
         Args:
-            h: Input height.
-            w: Input width.
-            
+            h: Input height as ``int``.
+            w: Input width as ``int``.
+
         Returns:
-            Total FLOPs as an integer.
+            Total FLOPs as ``float``.
         """
         return h * w * self.in_channels * self.out_channels * 16
 
@@ -207,7 +215,7 @@ class Scale(nn.Module):
     """Applies a learnable scale parameter to input data.
 
     Args:
-        scale: Initial scale factor value. Default is ``1.0``.
+        scale: Initial scale factor value as ``float``. Default is ``1.0``.
     """
 
     def __init__(self, scale: float = 1.0):
@@ -215,13 +223,13 @@ class Scale(nn.Module):
         self.scale = scale
 
     def forward(self, input: torch.Tensor) -> torch.Tensor:
-        """Adds scale factor to input tensor.
+        """Multiplies input tensor by scale factor.
 
         Args:
-            input: Tensor to scale.
-        
+            input: Tensor to scale as ``torch.Tensor``.
+
         Returns:
-            Scaled tensor.
+            Scaled tensor as ``torch.Tensor``.
         """
         return input + self.scale
 
@@ -230,7 +238,7 @@ class Interpolate(nn.Module):
     """Interpolates input tensor to a specified size.
 
     Args:
-        size: Target output size as ``(height, width)``.
+        size: Target output size as ``int`` or ``tuple[int, int]`` (height, width).
     """
 
     def __init__(self, size: _size_2_t):
@@ -241,10 +249,10 @@ class Interpolate(nn.Module):
         """Resizes input tensor to target size.
 
         Args:
-            input: Tensor to interpolate.
-            
+            input: Tensor to interpolate as ``torch.Tensor``.
+
         Returns:
-            Interpolated tensor.
+            Interpolated tensor as ``torch.Tensor`` with shape [B, C, height, width].
         """
         return F.interpolate(input, self.size)
 

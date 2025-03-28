@@ -41,10 +41,10 @@ class ImageQualityAssessment(nn.Module):
         """Computes image quality score.
 
         Args:
-            images: Input image tensor [B, C, H, W].
+            images: Input image tensor as ``torch.Tensor`` with shape [B, C, H, W].
 
         Returns:
-            Quality score tensor [B, 1].
+            Quality score tensor as ``torch.Tensor`` with shape [B, 1].
         """
         max_rgb     = torch.max(images, dim=1, keepdim=True)[0]
         min_rgb     = torch.min(images, dim=1, keepdim=True)[0]

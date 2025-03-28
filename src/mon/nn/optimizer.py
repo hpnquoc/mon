@@ -614,7 +614,9 @@ class LRSchedulerFactory(factory.Factory):
         if not name or name not in self:
             raise AssertionError(f"[name] must be valid and registered, got [{name}].")
 
-        if name in ["GradualWarmupScheduler", "gradual_warmup_scheduler", "gradual-warmup-scheduler"]:
+        if name in ["GradualWarmupScheduler",
+                    "gradual_warmup_scheduler",
+                    "gradual-warmup-scheduler"]:
             after_scheduler = kwargs.pop("after_scheduler")
             if isinstance(after_scheduler, dict):
                 name_ = after_scheduler.pop("name")

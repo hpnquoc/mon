@@ -51,20 +51,22 @@ class ResNet(nn.ExtraModel, base.ImageClassificationModel, ABC):
     
     def init_weights(self, m: nn.Module):
         """Initializes weights for the model.
-
+    
         Args:
-            m: Module to initialize weights for.
+            m: ``nn.Module`` to initialize weights for.
         """
         pass
 
     def forward(self, datapoint: dict, *args, **kwargs) -> dict:
         """Performs forward pass on the model.
-
+    
         Args:
-            datapoint: Dict with image data.
-        
+            datapoint: ``dict`` with image data.
+            args: Additional positional arguments.
+            kwargs: Additional keyword arguments.
+    
         Returns:
-            Dict with logits from the model.
+            ``dict`` with logits from the model.
         """
         x = datapoint["image"]
         y = self.model(x)

@@ -47,9 +47,9 @@ class VGG(nn.ExtraModel, base.ImageClassificationModel, ABC):
     
     def init_weights(self, m: nn.Module):
         """Initializes weights for the model.
-
+    
         Args:
-            m: Module to initialize weights for.
+            m: ``nn.Module`` to initialize weights for.
         """
         pass
 

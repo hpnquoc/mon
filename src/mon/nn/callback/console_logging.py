@@ -73,11 +73,11 @@ class LogTrainingProgress(callbacks.Callback):
     
     def setup(self, trainer: "pl.Trainer", pl_module: "pl.LightningModule", stage: str):
         """Sets up logging dir at start of training stages.
-
+    
         Args:
-            trainer: Lightning trainer instance.
-            pl_module: Lightning module instance.
-            stage: Current stage (e.g., fit, validate, test).
+            trainer: ``pl.Trainer`` instance.
+            pl_module: ``pl.LightningModule`` instance.
+            stage: Current stage (e.g., ``"fit"``, ``"validate"``, ``"test"``).
         """
         dirpath = self._dirpath or core.Path(trainer.default_root_dir)
         dirpath = trainer.strategy.broadcast(dirpath)
@@ -85,10 +85,10 @@ class LogTrainingProgress(callbacks.Callback):
     
     def on_train_start(self, trainer: "pl.Trainer", pl_module: "pl.LightningModule"):
         """Initializes logging at training start.
-
+    
         Args:
-            trainer: Lightning trainer instance.
-            pl_module: Lightning module instance.
+            trainer: ``pl.Trainer`` instance.
+            pl_module: ``pl.LightningModule`` instance.
         """
         self._candidates  = self._init_candidates(trainer, pl_module)
         self._start_epoch = int(trainer.current_epoch)
@@ -110,10 +110,10 @@ class LogTrainingProgress(callbacks.Callback):
     
     def on_train_end(self, trainer: "pl.Trainer", pl_module: "pl.LightningModule"):
         """Logs duration and closes log file at training end.
-
+    
         Args:
-            trainer: Lightning trainer instance.
-            pl_module: Lightning module instance.
+            trainer: ``pl.Trainer`` instance.
+            pl_module: ``pl.LightningModule`` instance.
         """
         end_time      = timer()
         elapsed_epoch = int(trainer.current_epoch) - self._start_epoch
@@ -132,7 +132,7 @@ class LogTrainingProgress(callbacks.Callback):
             console.log(
                 f"\n{elapsed_epoch} epochs completed "
                 f"in {elapsed_time:.3f} seconds "
-                f"({elapsed_hours:.3f} hours)\n"
+                f"({elapsed_hours:.3f} hours).\n"
             )
     
     def on_train_batch_end(
@@ -144,12 +144,12 @@ class LogTrainingProgress(callbacks.Callback):
         batch_idx: int
     ):
         """Logs training progress at batch end if conditions met.
-
+    
         Args:
-            trainer: Lightning trainer instance.
-            pl_module: Lightning module instance.
-            outputs: Step output from training.
-            batch: Current batch data.
+            trainer: ``pl.Trainer`` instance.
+            pl_module: ``pl.LightningModule`` instance.
+            outputs: Step output from training as ``STEP_OUTPUT``.
+            batch: Current batch data as ``Any``.
             batch_idx: Index of current batch.
         """
         if self._should_skip_logging(trainer):
@@ -183,13 +183,15 @@ class LogTrainingProgress(callbacks.Callback):
     
     def on_train_epoch_end(self, trainer: "pl.Trainer", pl_module: "pl.LightningModule"):
         """Logs training progress at epoch end if conditions met.
-
+    
         Args:
-            trainer: Lightning trainer instance.
-            pl_module: Lightning module instance.
+            trainer: ``pl.Trainer`` instance.
+            pl_module: ``pl.LightningModule`` instance.
         """
-        if not self._should_skip_logging(trainer) and self._should_log_on_train_epoch_end(trainer):
-            if self._every_n_epochs >= 1 and (trainer.current_epoch + 1) % self._every_n_epochs == 0:
+        if (not self._should_skip_logging(trainer)
+            and self._should_log_on_train_epoch_end(trainer)):
+            if (self._every_n_epochs >= 1
+                and (trainer.current_epoch + 1) % self._every_n_epochs == 0):
                 if trainer.is_global_zero:
                     monitor_candidates = self._get_monitor_candidates(trainer)
                     candidates         = self._update_candidates(monitor_candidates)
@@ -197,13 +199,15 @@ class LogTrainingProgress(callbacks.Callback):
     
     def on_validation_end(self, trainer: "pl.Trainer", pl_module: "pl.LightningModule"):
         """Logs validation progress at loop end if conditions met.
-
+    
         Args:
-            trainer: Lightning trainer instance.
-            pl_module: Lightning module instance.
+            trainer: ``pl.Trainer`` instance.
+            pl_module: ``pl.LightningModule`` instance.
         """
-        if not self._should_skip_logging(trainer) and not self._should_log_on_train_epoch_end(trainer):
-            if self._every_n_epochs >= 1 and (trainer.current_epoch + 1) % self._every_n_epochs == 0:
+        if (not self._should_skip_logging(trainer)
+            and not self._should_log_on_train_epoch_end(trainer)):
+            if (self._every_n_epochs >= 1
+                and (trainer.current_epoch + 1) % self._every_n_epochs == 0):
                 if trainer.is_global_zero:
                     monitor_candidates = self._get_monitor_candidates(trainer)
                     candidates         = self._update_candidates(monitor_candidates)
@@ -218,17 +222,17 @@ class LogTrainingProgress(callbacks.Callback):
         """Sets up logging triggers with defaults if unspecified.
 
         Args:
-            every_n_epochs: Log every n epochs.
-            every_n_train_steps: Log every n training steps.
-            train_time_interval: Log every n seconds.
+            every_n_epochs: Log every n epochs. Default is ``None``.
+            every_n_train_steps: Log every n steps. Default is ``None``.
+            train_time_interval: Log every n seconds. Default is ``None``.
         """
-        if every_n_train_steps is None and every_n_epochs is None and train_time_interval is None:
+        if (every_n_train_steps is None
+            and every_n_epochs is None
+            and train_time_interval is None):
             every_n_epochs      = 1
             every_n_train_steps = 0
-            console.log(
-                "Both every_n_train_steps and every_n_epochs are not set. "
-                "Setting every_n_epochs=1"
-            )
+            console.log("Both every_n_train_steps and every_n_epochs are not set. "
+                        "Setting every_n_epochs=1.")
         else:
             every_n_epochs      = every_n_epochs or 0
             every_n_train_steps = every_n_train_steps or 0
@@ -245,11 +249,11 @@ class LogTrainingProgress(callbacks.Callback):
         """Initializes logging candidates with metric names.
 
         Args:
-            trainer: Lightning trainer instance.
-            pl_module: Lightning module instance.
-
+            trainer: ``pl.Trainer`` instance.
+            pl_module: ``pl.LightningModule`` instance.
+    
         Returns:
-            OrderedDict of candidate metric names.
+            ``OrderedDict`` of candidate metric names.
         """
         candidates = collections.OrderedDict()
         candidates |= {"epoch": None}
@@ -273,12 +277,12 @@ class LogTrainingProgress(callbacks.Callback):
         monitor_candidates: dict[str, torch.Tensor]
     ) -> dict[str, Any]:
         """Updates logging candidates with monitored values.
-
+    
         Args:
-            monitor_candidates: Dict of metric names to tensor values.
-
+            monitor_candidates: ``dict`` of metric names to ``torch.Tensor`` values.
+    
         Returns:
-            Updated dict of candidates.
+            Updated ``dict`` of candidates.
         """
         candidates = deepcopy(self._candidates)
         for c, v in monitor_candidates.items():
@@ -289,12 +293,12 @@ class LogTrainingProgress(callbacks.Callback):
     
     def _get_monitor_candidates(self, trainer: "pl.Trainer") -> dict[str, torch.Tensor]:
         """Gathers metrics for logging from trainer callbacks.
-
+    
         Args:
-            trainer: Lightning trainer instance.
-
+            trainer: ``pl.Trainer`` instance.
+    
         Returns:
-            Dict of metric names to tensor values.
+            ``dict`` of metric names to ``torch.Tensor`` values.
         """
         monitor_candidates = deepcopy(trainer.callback_metrics)
         # Cast to int if necessary because `self.log("epoch", 123)` will convert
@@ -313,10 +317,10 @@ class LogTrainingProgress(callbacks.Callback):
     
     def _should_skip_logging(self, trainer: "pl.Trainer") -> bool:
         """Checks if logging should be skipped for current state.
-
+    
         Args:
-            trainer: Lightning trainer instance.
-
+            trainer: ``pl.Trainer`` instance.
+    
         Returns:
             ``True`` if logging should be skipped, else ``False``.
         """
@@ -331,10 +335,10 @@ class LogTrainingProgress(callbacks.Callback):
     
     def _should_log_on_train_epoch_end(self, trainer: "pl.Trainer") -> bool:
         """Determines if logging at train epoch end.
-
+    
         Args:
-            trainer: Lightning trainer instance.
-
+            trainer: ``pl.Trainer`` instance.
+    
         Returns:
             ``True`` if logging at train epoch end, else ``False``.
         """
@@ -356,9 +360,9 @@ class LogTrainingProgress(callbacks.Callback):
     
     def _log(self, candidates: dict[str, torch.Tensor]):
         """Writes candidate metrics to log file and console.
-
+    
         Args:
-            candidates: Dict of metric names to tensor values.
+            candidates: ``dict`` of metric names to ``torch.Tensor`` values.
         """
         # Log to file
         row = ",".join("" if v is None else str(v) for _, v in candidates.items())

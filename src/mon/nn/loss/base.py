@@ -58,11 +58,12 @@ def reduce_loss(
     """Reduces the loss tensor.
 
     Args:
-        loss: Elementwise loss tensor.
-        reduction: Reduction value to use.
-        
+        loss: Elementwise loss tensor as ``torch.Tensor``.
+        reduction: Reduction value as ``"mean"``, ``"sum"``, or ``"none"``.
+            Default is ``"mean"``.
+
     Returns:
-        Reduced loss.
+        Reduced loss as ``torch.Tensor``.
     """
     return {"mean": torch.mean, "sum": torch.sum, "none": lambda x: x}[reduction](loss)
 
@@ -92,10 +93,24 @@ class Loss(_Loss, ABC):
         self.loss_weight = loss_weight
         
     def __str__(self):
+        """Returns a string representation of the object.
+    
+        Returns:
+            Class name as lowercase kebab-case ``str``.
+        """
         return humps.depascalize(self.__class__.__name__).lower()
     
     @abstractmethod
     def forward(self, input: torch.Tensor, target: torch.Tensor) -> torch.Tensor:
+        """Performs forward pass with input and target tensors.
+    
+        Args:
+            input: Input data as ``torch.Tensor``.
+            target: Target data as ``torch.Tensor``.
+    
+        Returns:
+            Output as ``torch.Tensor``.
+        """
         pass
     
 # endregion
@@ -105,6 +120,14 @@ class Loss(_Loss, ABC):
 
 @LOSSES.register(name="charbonnier_loss")
 class CharbonnierLoss(Loss):
+    """Computes the Charbonnier loss between input and target tensors.
+
+    Args:
+        eps: Small constant for numerical stability. Default is ``1e-3``.
+        loss_weight: Weight applied to the loss. Default is ``1.0``.
+        reduction: Reduction method: ``"none"``, ``"mean"``, or ``"sum"``.
+            Default is ``"mean"``.`.
+    """
     
     def __init__(
         self,
@@ -116,6 +139,15 @@ class CharbonnierLoss(Loss):
         self.eps = eps
     
     def forward(self, input: torch.Tensor, target: torch.Tensor) -> torch.Tensor:
+        """Computes the Charbonnier loss.
+
+        Args:
+            input: Predicted tensor as ``torch.Tensor``.
+            target: Target tensor as ``torch.Tensor``.
+
+        Returns:
+            Reduced loss as ``torch.Tensor``.
+        """
         # loss = torch.sqrt((input - target) ** 2 + (self.eps * self.eps))
         diff = input - target
         loss = torch.mean(torch.sqrt((diff * diff) + (self.eps * self.eps)))
@@ -125,6 +157,15 @@ class CharbonnierLoss(Loss):
 
 @LOSSES.register(name="cosine_similarity_loss")
 class CosineSimilarityLoss(Loss):
+    """Computes cosine similarity loss between input and target tensors.
+
+    Args:
+        dim: Dimension for cosine similarity. Default is ``1``.
+        eps: Small constant for numerical stability. Default is ``1e-6``.
+        loss_weight: Weight applied to the loss. Default is ``1.0``.
+        reduction: Reduction method: ``"none"``, ``"mean"``, or ``"sum"``.
+            Default is ``"mean"``.
+    """
     
     def __init__(
         self,
@@ -137,6 +178,15 @@ class CosineSimilarityLoss(Loss):
         self.cos = nn.CosineSimilarity(dim=dim, eps=eps)
     
     def forward(self, input: torch.Tensor, target: torch.Tensor) -> torch.Tensor:
+        """Computes the cosine similarity loss.
+
+        Args:
+            input: Predicted tensor as ``torch.Tensor`` of shape [B, C, H, W].
+            target: Target tensor as ``torch.Tensor`` of shape [B, C, H, W].
+
+        Returns:
+            Loss as ``torch.Tensor``.
+        """
         b, c, h, w = input.size()
         x    = input.permute(0, 2, 3, 1).view(-1, c)
         y    = target.permute(0, 2, 3, 1).view(-1, c)
@@ -146,6 +196,13 @@ class CosineSimilarityLoss(Loss):
 
 @LOSSES.register(name="l1_loss")
 class L1Loss(Loss):
+    """Computes L1 loss between input and target tensors.
+
+    Args:
+        loss_weight: Weight applied to the loss. Default is ``1.0``.
+        reduction: Reduction method: ``"none"``, ``"mean"``, or ``"sum"``.
+            Default is ``"mean"``.
+    """
     
     def __init__(
         self,
@@ -155,12 +212,28 @@ class L1Loss(Loss):
         super().__init__(loss_weight=loss_weight, reduction=reduction)
     
     def forward(self, input: torch.Tensor, target: torch.Tensor) -> torch.Tensor:
+        """Computes the L1 loss.
+
+        Args:
+            input: Predicted tensor as ``torch.Tensor``.
+            target: Target tensor as ``torch.Tensor``.
+
+        Returns:
+            Reduced loss as ``torch.Tensor``.
+        """
         loss = F.l1_loss(input=input, target=target, reduction=self.reduction)
         return self.loss_weight * loss
 
 
 @LOSSES.register(name="l2_loss")
 class L2Loss(Loss):
+    """Computes L2 (MSE) loss between input and target tensors.
+
+    Args:
+        loss_weight: Weight applied to the loss. Default is ``1.0``.
+        reduction: Reduction method: ``"none"``, ``"mean"``, or ``"sum"``.
+            Default is ``"mean"``.
+    """
     
     def __init__(
         self,
@@ -170,13 +243,28 @@ class L2Loss(Loss):
         super().__init__(loss_weight, reduction=reduction)
     
     def forward(self, input: torch.Tensor, target: torch.Tensor) -> torch.Tensor:
+        """Computes the L2 (MSE) loss.
+
+        Args:
+            input: Predicted tensor as ``torch.Tensor``.
+            target: Target tensor as ``torch.Tensor``.
+
+        Returns:
+            Reduced loss as ``torch.Tensor``.
+        """
         loss = F.mse_loss(input=input, target=target, reduction=self.reduction)
         return self.loss_weight * loss
 
 
 @LOSSES.register(name="extended_l1_loss")
 class ExtendedL1Loss(Loss):
-    """Also pays attention to the mask, to be relative to its size."""
+    """Computes extended L1 loss with mask normalization.
+
+    Args:
+        loss_weight: Weight applied to the loss. Default is ``1.0``.
+        reduction: Reduction method: ``"none"``, ``"mean"``, or ``"sum"``.
+            Default is ``"mean"``.
+    """
     
     def __init__(
         self,
@@ -193,6 +281,16 @@ class ExtendedL1Loss(Loss):
         target: torch.Tensor,
         mask  : torch.Tensor
     ) -> torch.Tensor:
+        """Computes the extended L1 loss with mask.
+
+        Args:
+            input: Predicted tensor as ``torch.Tensor``.
+            target: Target tensor as ``torch.Tensor``.
+            mask: Mask tensor as ``torch.Tensor`` for weighting.
+
+        Returns:
+            Reduced loss as ``torch.Tensor``.
+        """
         norm = self.loss_l1(mask, torch.zeros_like(mask))
         loss = self.loss_l1(mask * input, mask * target) / norm
         loss = reduce_loss(loss=loss, reduction=self.reduction)

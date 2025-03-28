@@ -47,10 +47,10 @@ class AdaptiveBatchNorm2d(nn.Module):
     """Applies adaptive batch normalization to 2D data.
 
     Args:
-        num_features: Number of input channels.
-        eps: Smoothing factor for stability. Default is ``0.999``.
-        momentum: Momentum for moving averages. Default is ``0.001``.
-    
+        num_features: Number of input channels as ``int``.
+        eps: Smoothing factor for stability as ``float``. Default is ``0.999``.
+        momentum: Momentum for moving averages as ``float``. Default is ``0.001``.
+
     References:
         - https://arxiv.org/abs/1709.00643
         - https://github.com/nrupatunga/Fast-Image-Filters
@@ -66,10 +66,10 @@ class AdaptiveBatchNorm2d(nn.Module):
         """Normalizes input with learned weights.
 
         Args:
-            input: Tensor to normalize.
-            
+            input: Tensor to normalize as ``torch.Tensor``.
+
         Returns:
-            Normalized tensor.
+            Normalized tensor as ``torch.Tensor``.
         """
         return self.w0 * input + self.w1 * self.norm(input)
 
@@ -82,10 +82,10 @@ class AdaptiveInstanceNorm2d(nn.Module):
     """Applies adaptive instance normalization to 2D data.
 
     Args:
-        num_features: Number of input channels.
-        eps: Smoothing factor for stability. Default is ``0.999``.
-        momentum: Momentum for moving averages. Default is ``0.001``.
-        affine: Enable learnable affine parameters if ``True``. Default is ``False``.
+        num_features: Number of input channels as ``int``.
+        eps: Smoothing factor for stability as ``float``. Default is ``0.999``.
+        momentum: Momentum for moving averages as ``float``. Default is ``0.001``.
+        affine: Enables learnable affine parameters if ``True``. Default is ``False``.
     """
 
     def __init__(
@@ -104,10 +104,10 @@ class AdaptiveInstanceNorm2d(nn.Module):
         """Normalizes input with learned weights.
 
         Args:
-            input: Tensor to normalize.
-        
+            input: Tensor to normalize as ``torch.Tensor``.
+
         Returns:
-            Normalized tensor.
+            Normalized tensor as ``torch.Tensor``.
         """
         return self.w0 * input + self.w1 * self.norm(input)
     
@@ -116,14 +116,14 @@ class LearnableInstanceNorm2d(nn.InstanceNorm2d):
     """Normalizes a learnable fraction of 2D input features.
 
     Args:
-        num_features: Number of input channels.
-        r: Initial fraction to normalize. Default is ``0.5``.
-        eps: Smoothing factor for stability. Default is ``1e-5``.
-        momentum: Momentum for running stats. Default is ``0.1``.
-        affine: Enable learnable affine params if ``True``. Default is ``True``.
-        track_running_stats: Track stats if ``True``. Default is ``False``.
-        device: Target device. Default is ``None``.
-        dtype: Data type. Default is ``None``.
+        num_features: Number of input channels as ``int``.
+        r: Initial fraction to normalize as ``float``. Default is ``0.5``.
+        eps: Smoothing factor for stability as ``float``. Default is ``1e-5``.
+        momentum: Momentum for running stats as ``float``. Default is ``0.1``.
+        affine: Enables learnable affine parameters if ``True``. Default is ``True``.
+        track_running_stats: Tracks running stats if ``True``. Default is ``False``.
+        device: Target device as ``Any``. Default is ``None``.
+        dtype: Data type as ``Any``. Default is ``None``.
     """
 
     def __init__(
@@ -152,10 +152,10 @@ class LearnableInstanceNorm2d(nn.InstanceNorm2d):
         """Applies learnable partial instance normalization.
 
         Args:
-            input: Tensor of shape ``(B, C, H, W)`` to normalize.
-            
+            input: Tensor of shape [B, C, H, W] to normalize as ``torch.Tensor``.
+
         Returns:
-            Partially normalized tensor.
+            Partially normalized tensor as ``torch.Tensor``.
         """
         self._check_input_dim(input)
         b, c, h, w = input.shape
@@ -177,13 +177,16 @@ class HalfInstanceNorm2d(nn.InstanceNorm2d):
     """Normalizes the first half of 2D input features.
 
     Args:
-        num_features: Number of input channels.
-        eps: Smoothing factor for stability. Default is ``1e-5``.
-        momentum: Momentum for running stats. Default is ``0.1``.
-        affine: Enable learnable affine params if ``True``. Default is ``True``.
-        track_running_stats: Track stats if ``True``. Default is ``False``.
-        device: Target device. Default is ``None``.
-        dtype: Data type. Default is ``None``.
+        num_features: Number of input channels as ``int``.
+        eps: Smoothing factor for stability as ``float``. Default is ``1e-5``.
+        momentum: Momentum for running stats as ``float``. Default is ``0.1``.
+        affine: Enables learnable affine parameters if ``True``. Default is ``True``.
+        track_running_stats: Tracks running stats if ``True``. Default is ``False``.
+        device: Target device as ``Any``. Default is ``None``.
+        dtype: Data type as ``Any``. Default is ``None``.
+        
+    Attributes:
+        Inherited from ``nn.InstanceNorm2d``.
     """
 
     def __init__(
@@ -210,11 +213,11 @@ class HalfInstanceNorm2d(nn.InstanceNorm2d):
         """Normalizes first half of input tensor.
 
         Args:
-            input: Tensor of shape ``(B, C, H, W)`` or ``(L, C, T)``.
-        
+            input: Tensor of shape [B, C, H, W] or [L, C, T] as ``torch.Tensor``.
+
         Returns:
-            Tensor with first half normalized.
-       
+            Tensor with first half normalized as ``torch.Tensor``.
+
         Raises:
             ValueError: If input is not 3D or 4D.
         """
@@ -243,14 +246,17 @@ class HalfInstanceNorm2d(nn.InstanceNorm2d):
 # region Layer Normalization
 
 class LayerNorm2d(nn.LayerNorm):
-    """Normalizes channels of 2D spatial tensors ``(B, C, H, W)``.
+    """Normalizes channels of 2D spatial tensors (B, C, H, W).
 
     Args:
-        normalized_shape: Shape to normalize (typically ``C``).
-        eps: Smoothing factor for stability. Default is ``1e-5``.
-        elementwise_affine: Enable affine params if ``True``. Default is ``True``.
-        device: Target device. Default is ``None``.
-        dtype: Data type. Default is ``None``.
+        normalized_shape: Shape to normalize as ``int`` or ``Sequence[int]`` (typically ``C``).
+        eps: Smoothing factor for stability as ``float``. Default is ``1e-5``.
+        elementwise_affine: Enables affine parameters if ``True``. Default is ``True``.
+        device: Target device as ``Any``. Default is ``None``.
+        dtype: Data type as ``Any``. Default is ``None``.
+
+    Attributes:
+        Inherited from ``nn.LayerNorm``.
     """
 
     def __init__(
@@ -273,10 +279,10 @@ class LayerNorm2d(nn.LayerNorm):
         """Applies layer normalization to 2D tensor.
 
         Args:
-            input: Tensor of shape ``(B, C, H, W)``.
-        
+            input: Tensor of shape [B, C, H, W] as ``torch.Tensor``.
+
         Returns:
-            Normalized tensor of shape ``(B, C, H, W)``.
+            Normalized tensor of shape [B, C, H, W] as ``torch.Tensor``.
         """
         return F.layer_norm(
             input.permute(0, 2, 3, 1),

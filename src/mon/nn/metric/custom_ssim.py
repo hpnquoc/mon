@@ -24,11 +24,11 @@ def gaussian(window_size: int, sigma: float) -> torch.Tensor:
     """Creates a 1D Gaussian kernel.
 
     Args:
-        window_size: Size of the Gaussian window.
-        sigma: Standard deviation of the Gaussian.
-    
+        window_size: Size of the Gaussian window as ``int``.
+        sigma: Standard deviation of the Gaussian as ``float``.
+
     Returns:
-        Normalized 1D Gaussian tensor.
+        Normalized 1D Gaussian tensor as ``torch.Tensor``.
     """
     gauss = torch.tensor([
         math.exp(-((x - window_size // 2) ** 2) / (2 * sigma ** 2))
@@ -41,12 +41,13 @@ def create_window(window_size: int, channel: int, sigma: float = 1.5) -> torch.T
     """Creates a 2D Gaussian window tensor.
 
     Args:
-        window_size: Size of the square window.
-        channel: Number of channels for the window.
-        sigma: Standard deviation of the Gaussian. Default is ``1.5``.
+        window_size: Size of the square window as ``int``.
+        channel: Number of channels for the window as ``int``.
+        sigma: Standard deviation of the Gaussian as ``float``. Default is ``1.5``.
 
     Returns:
-        2D Gaussian window tensor with shape [channel, 1, window_size, window_size].
+        2D Gaussian window tensor as ``torch.Tensor`` with shape
+        ``[channel, 1, window_size, window_size]``.
     """
     window_1d = gaussian(window_size, sigma).unsqueeze(1)
     window_2d = window_1d.mm(window_1d.t()).float().unsqueeze(0).unsqueeze(0)
@@ -66,16 +67,17 @@ def ssim(
     """Computes Structural Similarity Index (SSIM) between two images.
 
     Args:
-        image1: First image tensor [B, C, H, W].
-        image2: Second image tensor [B, C, H, W].
-        window: Gaussian window tensor.
-        window_size: Size of the window. Default is ``11``.
-        channel: Number of channels. Default is ``1``.
-        k: Stability constants (k1, k2). Default is ``(0.01, 0.03)``.
-        size_average: If ``True``, average SSIM over all pixels. Default is ``True``.
+        image1: First image tensor as ``torch.Tensor`` with shape [B, C, H, W].
+        image2: Second image tensor as ``torch.Tensor`` with shape [B, C, H, W].
+        window: Gaussian window tensor as ``torch.Tensor``.
+        window_size: Size of the window as ``int``. Default is ``11``.
+        channel: Number of channels as ``int``. Default is ``1``.
+        k: Stability constants (k1, k2) as ``tuple[float, float]``.
+            Default is ``(0.01, 0.03)``.
+        size_average: Averages SSIM over all pixels if ``True``. Default is ``True``.
 
     Returns:
-        SSIM value or map as a tensor.
+        SSIM value or map as ``torch.Tensor``.
     """
     mu1 = F.conv2d(image1, window, padding=window_size // 2, groups=channel)
     mu2 = F.conv2d(image2, window, padding=window_size // 2, groups=channel)
@@ -97,13 +99,14 @@ def ssim(
 
 
 class SSIM(nn.Module):
-    """Computes Structural Similarity Index (SSIM) as a PyTorch module.
+    """Structural Similarity Index (SSIM) module for image comparison.
 
     Args:
-        window_size: Size of the Gaussian window. Default is ``11``.
-        channel: Number of input channels. Default is ``1``.
-        k: Stability constants (k1, k2). Default is ``(0.01, 0.03)``.
-        size_average: If ``True``, average SSIM over all pixels. Default is ``True``.
+        window_size: Size of the Gaussian window as ``int``. Default is ``11``.
+        channel: Number of input channels as ``int``. Default is ``1``.
+        k: Stability constants (k1, k2) as ``tuple[float, float]``.
+            Default is ``(0.01, 0.03)``.
+        size_average: Averages SSIM over all pixels if ``True``. Default is ``True``.
     """
 
     def __init__(
@@ -124,11 +127,11 @@ class SSIM(nn.Module):
         """Computes SSIM between two images.
 
         Args:
-            image1: First image tensor [B, C, H, W].
-            image2: Second image tensor [B, C, H, W].
+            image1: First image tensor as ``torch.Tensor`` with shape [B, C, H, W].
+            image2: Second image tensor as ``torch.Tensor`` with shape [B, C, H, W].
 
         Returns:
-            SSIM value or map as a tensor.
+            SSIM value or map as ``torch.Tensor``
         """
         _, channel, _, _ = image1.size()
         if channel == self.channel and self.window.data.type() == image1.data.type():

@@ -569,7 +569,7 @@ class ZeroLINR(base.ImageEnhancementModel):
 		elif mapping_func in ["pvde"]:
 			inf       = INF4
 		else:
-			raise ValueError(f"``mapping_func`` must be one of {MAPPING_FUNC}, but got: {mapping_func}.")
+			raise ValueError(f"``mapping_func`` must be one of {MAPPING_FUNC}, got: {mapping_func}.")
 		self.inf = inf(
 			window_size       = window_size,
 			down_size         = down_size,
@@ -662,7 +662,7 @@ class ZeroLINR(base.ImageEnhancementModel):
 		elif self.mapping_func in ["pvde"]:
 			r = self.inf(p, v_lr, d_lr, e_lr)
 		else:
-			raise ValueError(f"``mapping_func`` must be one of {MAPPING_FUNC}, but got: {self.mapping}")
+			raise ValueError(f"``mapping_func`` must be one of {MAPPING_FUNC}, got: {self.mapping}")
 		r_lr = r.view(1, 1, self.down_size, self.down_size)
 		# Enhance
 		if self.depth_threshold > 0:

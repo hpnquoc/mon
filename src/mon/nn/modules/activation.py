@@ -66,8 +66,9 @@ class FReLU(nn.Module):
     """Funnel ReLU activation with depthwise convolution.
 
     Args:
-        channels: Number of input channels.
-        kernel_size: Size of the convolution kernel. Default is ``3``.
+        channels: Number of input channels as ``int``.
+        kernel_size: Size of the convolution kernel as ``int`` or ``tuple[int, int]``.
+            Default is ``3``.
     """
 
     def __init__(self, channels: int, kernel_size: _size_2_t = 3):
@@ -87,10 +88,10 @@ class FReLU(nn.Module):
         """Applies FReLU activation with max operation.
 
         Args:
-            input: Input tensor [B, C, H, W].
+            input: Input tensor as ``torch.Tensor`` with shape [B, C, H, W].
 
         Returns:
-            Output tensor [B, C, H, W] after FReLU.
+            Output tensor as ``torch.Tensor`` with shape [B, C, H, W] after FReLU.
         """
         return torch.max(input, self.act(self.conv(input)))
 
@@ -106,10 +107,12 @@ class SimpleGate(nn.Module):
         """Applies simple gate activation by chunking and multiplication.
 
         Args:
-            input: Input tensor [B, C, H, W], where ``C`` is even.
-
+            input: Input tensor as ``torch.Tensor`` with shape [B, C, H, W],
+                where ``C`` is even.
+    
         Returns:
-            Output tensor [B, C/2, H, W].
+            Output tensor as ``torch.Tensor`` with shape [B, C/2, H, W] after chunking
+            and multiplication.
         """
         x1, x2 = input.chunk(chunks=2, dim=1)
         return x1 * x2
@@ -123,11 +126,11 @@ def hard_sigmoid(input: torch.Tensor, inplace: bool = False) -> torch.Tensor:
     """Applies hard sigmoid activation.
 
     Args:
-        input: Input tensor of any shape.
-        inplace: If ``True``, modifies input in-place. Default is ``False``.
-    
+        input: Input tensor as ``torch.Tensor`` of any shape.
+        inplace: Modifies input in-place if ``True``. Default is ``False``.
+
     Returns:
-        Output tensor with values in [0, 1], same shape as input.
+        Output tensor as ``torch.Tensor`` with values in [0, 1], same shape as input.
     """
     if inplace:
         return input.add_(3.0).clamp_(0.0, 6.0).div_(6.0)
@@ -139,7 +142,7 @@ class NegHardsigmoid(nn.Module):
     """Negative hard sigmoid activation.
 
     Args:
-        inplace: If ``True``, modifies input in-place. Default is ``True``.
+        inplace: Modifies input in-place if ``True``. Default is ``True``.
     """
 
     def __init__(self, inplace: bool = True):
@@ -150,10 +153,11 @@ class NegHardsigmoid(nn.Module):
         """Applies negative hard sigmoid activation.
 
         Args:
-            input: Input tensor of any shape.
+            input: Input tensor as ``torch.Tensor`` of any shape.
 
         Returns:
-            Output tensor with values in ``[-0.5, 0.5]``, same shape as input.
+            Output tensor as ``torch.Tensor`` with values in ``[-0.5, 0.5]``,
+            same shape as input
         """
         return F.relu6(3 * input + 3.0, inplace=self.inplace) / 6.0 - 0.5
 
@@ -166,7 +170,7 @@ class Sine(nn.Module):
     """Sine activation unit.
 
     Args:
-        w0: Frequency scaling factor, hyperparameter. Default is ``1.0``.
+        w0: Frequency scaling factor as ``float``. Default is ``1.0``.
 
     References:
         - https://github.com/lucidrains/siren-pytorch/blob/master/siren_pytorch/siren_pytorch.py
@@ -180,10 +184,10 @@ class Sine(nn.Module):
         """Applies sine activation.
 
         Args:
-            input: Input tensor of any shape.
+            input: Input tensor as ``torch.Tensor`` of any shape.
 
         Returns:
-            Output tensor with same shape as input.
+            Output tensor as ``torch.Tensor`` with same shape as input.
         """
         return torch.sin(self.w0 * input)
 
@@ -191,13 +195,11 @@ class Sine(nn.Module):
         """Applies sine activation and returns intermediate value.
 
         Args:
-            input: Input tensor of any shape.
+            input: Input tensor as ``torch.Tensor`` of any shape.
 
         Returns:
-            Tuple of (sine output, intermediate value) with same shape as input.
-
-        Raises:
-            AttributeError: If self.linear is not defined.
+            Tuple of (sine output ``torch.Tensor``,
+                      intermediate value ``torch.Tensor``) with same shape as input.
         """
         intermediate = self.w0 * input  # Corrected: Removed undefined self.linear
         return torch.sin(intermediate), intermediate
@@ -211,9 +213,10 @@ class xUnit(nn.Module):
     """xUnit spatial activation layer.
 
     Args:
-        num_features: Number of input/output channels. Default is ``64``.
-        kernel_size: Size of the depthwise kernel. Default is ``7``.
-        batch_norm: If ``True``, includes batch normalization. Default is ``False``.
+        num_features: Number of input/output channels as ``int``. Default is ``64``.
+        kernel_size: Size of the depthwise kernel as ``int`` or ``tuple[int, int]``.
+            Default is ``7``.
+        batch_norm: Includes batch normalization if ``True``. Default is ``False``.
 
     References:
         - https://blog.paperspace.com/xunit-spatial-activation
@@ -246,10 +249,10 @@ class xUnit(nn.Module):
         """Applies xUnit activation with spatial gating.
 
         Args:
-            input: Input tensor [B, C, H, W].
+            input: Input tensor as ``torch.Tensor`` with shape [B, C, H, W].
 
         Returns:
-            Output tensor [B, C, H, W] with gated activation.
+            Output tensor as ``torch.Tensor`` with shape [B, C, H, W] with gated activation.
         """
         return input * self.features(input)
     
@@ -258,9 +261,10 @@ class xUnitS(nn.Module):
     """Slim xUnit spatial activation layer.
 
     Args:
-        num_features: Number of input/output channels. Default is ``64``.
-        kernel_size: Size of the depthwise kernel. Default is ``7``.
-        batch_norm: If ``True``, includes batch normalization. Default is ``False``.
+        num_features: Number of input/output channels as ``int``. Default is ``64``.
+        kernel_size: Size of the depthwise kernel as ``int`` or ``tuple[int, int]``.
+            Default is ``7``.
+        batch_norm: Includes batch normalization if ``True``. Default is ``False``.
 
     References:
         - https://blog.paperspace.com/xunit-spatial-activation
@@ -291,10 +295,10 @@ class xUnitS(nn.Module):
         """Applies slim xUnit activation with spatial gating.
 
         Args:
-            input: Input tensor [B, C, H, W].
+            input: Input tensor as ``torch.Tensor`` with shape [B, C, H, W].
 
         Returns:
-            Output tensor [B, C, H, W] with gated activation.
+            Output tensor as ``torch.Tensor`` with shape [B, C, H, W] with gated activation.
         """
         return input * self.features(input)
     
@@ -303,9 +307,10 @@ class xUnitD(nn.Module):
     """Dense xUnit spatial activation layer.
 
     Args:
-        num_features: Number of input/output channels. Default is ``64``.
-        kernel_size: Size of the depthwise kernel. Default is ``7``.
-        batch_norm: If ``True``, includes batch normalization. Default is ``False``.
+        num_features: Number of input/output channels as ``int``. Default is ``64``.
+        kernel_size: Size of the depthwise kernel as ``int`` or ``tuple[int, int]``.
+            Default is ``7``.
+        batch_norm: Includes batch normalization if ``True``. Default is ``False``.
 
     References:
         - https://blog.paperspace.com/xunit-spatial-activation
@@ -341,13 +346,13 @@ class xUnitD(nn.Module):
         )
 
     def forward(self, input: torch.Tensor) -> torch.Tensor:
-        """Applies slim xUnit activation with spatial gating.
+        """Applies dense xUnit activation with spatial gating.
 
         Args:
-            input: Input tensor [B, C, H, W].
+            input: Input tensor as ``torch.Tensor`` with shape [B, C, H, W].
 
         Returns:
-            Output tensor [B, C, H, W] with gated activation.
+            Output tensor as ``torch.Tensor`` with shape [B, C, H, W] with gated activation.
         """
         return input * self.features(input)
     
@@ -360,15 +365,11 @@ class ArgMax(nn.Module):
     """Finds indices of maximum values along a dimension.
 
     Args:
-        dim: Dimension to find max indices. Default is ``None`` (entire tensor).
+        dim: Dimension to find max indices as ``int`` or ``None``.
+            Default is ``None`` (entire tensor).
     """
 
     def __init__(self, dim: int = None):
-        """Initializes the ArgMax module.
-
-        Args:
-            dim: Dimension to find max indices. Default is ``None`` (entire tensor).
-        """
         super().__init__()
         self.dim = dim
 
@@ -376,20 +377,20 @@ class ArgMax(nn.Module):
         """Computes indices of maximum values.
 
         Args:
-            input: Input tensor of any shape.
+            input: Input tensor as ``torch.Tensor`` of any shape.
 
         Returns:
-            Tensor of max indices, shape depends on dim.
+            Tensor of max indices as ``torch.Tensor``, shape depends on ``dim``.
         """
         return torch.argmax(input, dim=self.dim)
 
 
 class Clamp(nn.Module):
-    """Clamps a tensor's values within a range of ``[min, max]``.
+    """Clamps a tensor's values within a range of [min, max].
 
     Args:
-        min: The lower-bound of the range to be clamped to. Default: ``-1.0``.
-        max: The upper-bound of the range to be clamped to. Default: ``-1.0``.
+        min: Lower bound of the range as ``float``. Default is ``-1.0``.
+        max: Upper bound of the range as ``float``. Default is ``1.0``.
     """
     
     def __init__(self, min: float = -1.0,  max: float = 1.0):
@@ -398,6 +399,14 @@ class Clamp(nn.Module):
         self.max = max
     
     def forward(self, input: torch.Tensor) -> torch.Tensor:
+        """Clamps tensor values within [min, max].
+
+        Args:
+            input: Input tensor as ``torch.Tensor`` of any shape.
+
+        Returns:
+            Clamped tensor as ``torch.Tensor`` with same shape as input.
+        """
         return torch.clamp(input, min=self.min, max=self.max)
 
 
@@ -413,8 +422,8 @@ def to_act_layer(act_layer: Any = nn.ReLU, *args, **kwargs) -> nn.Module:
 
     Args:
         act_layer: Activation layer class or instance. Default is ``nn.ReLU``.
-        *args: Positional arguments for act_layer instantiation.
-        **kwargs: Keyword arguments for act_layer instantiation.
+        *args: Positional arguments for ``act_layer`` instantiation.
+        **kwargs: Keyword arguments for ``act_layer`` instantiation.
 
     Returns:
         Instantiated activation layer as an ``nn.Module``.

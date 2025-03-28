@@ -86,7 +86,7 @@ def is_image_channel_first(image: torch.Tensor | np.ndarray) -> bool:
     elif isinstance(image, np.ndarray):
         shape = image.shape
     else:
-        raise TypeError(f"[image] must be a numpy.ndarray or torch.Tensor, but got [{type(image)}].")
+        raise TypeError(f"[image] must be a numpy.ndarray or torch.Tensor, got [{type(image)}].")
     
     # Check if tensor has at least 3 dimensions (batch, height/width, channels)
     if not 3 <= len(shape) <= 4:
@@ -166,7 +166,7 @@ def is_image_normalized(image: torch.Tensor | np.ndarray) -> bool:
     elif isinstance(image, np.ndarray):
         return abs(np.amax(image)) <= 1.0
     else:
-        raise TypeError(f"[image] must be a torch.Tensor or numpy.ndarray, but got {type(image)}.")
+        raise TypeError(f"[image] must be a torch.Tensor or numpy.ndarray, got {type(image)}.")
 
 # endregion
 
@@ -300,7 +300,7 @@ def get_image_size(
     elif isinstance(input, (str, core.Path)):
         size = read_image_shape(input)[:2]
     else:
-        raise TypeError(f"[input] must be a torch.Tensor, numpy.ndarray, int, Sequence[int], str, or core.Path, but got {type(input)}.")
+        raise TypeError(f"[input] must be a torch.Tensor, numpy.ndarray, int, Sequence[int], str, or core.Path, got {type(input)}.")
 
     if divisor is not None:
         size = tuple(int(math.ceil(dim / divisor) * divisor) for dim in size)

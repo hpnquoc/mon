@@ -25,7 +25,10 @@ class Trainer(lightning.Trainer):
     """Extends lightning.Trainer with custom methods and properties.
 
     Args:
-        log_image_every_n_epochs: Log debug images every n epochs. Default is ``0``.
+        log_image_every_n_epochs: Log debug images every n epochs as ``int``.
+            Default is ``0``.
+        *args: Variable length argument list passed to ``lightning.Trainer``.
+        **kwargs: Keyword arguments passed to ``lightning.Trainer``.
     """
     
     def __init__(self, log_image_every_n_epochs: int = 0, *args, **kwargs):
@@ -34,16 +37,24 @@ class Trainer(lightning.Trainer):
         
     @lightning.Trainer.current_epoch.setter
     def current_epoch(self, current_epoch: int):
-        """Sets the current epoch."""
+        """Sets the current epoch.
+
+        Args:
+            current_epoch: Epoch number to set as ``int``.
+        """
         self.fit_loop.current_epoch = current_epoch
 
     @lightning.Trainer.global_step.setter
     def global_step(self, global_step: int):
-        """Sets the global step."""
+        """Sets the global step.
+
+        Args:
+            global_step: Step number to set as ``int``.
+        """
         self.fit_loop.global_step = global_step
     
     def _log_device_info(self):
-        """Logs device availability and usage info."""
+        """Logs device availability and usage information."""
         gpu_available, gpu_type = (
             (True, " (cuda)") if strategy.CUDAAccelerator.is_available() else
             (True, " (mps)") if strategy.MPSAccelerator.is_available() else

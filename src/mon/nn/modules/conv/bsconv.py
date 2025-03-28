@@ -17,24 +17,26 @@ from torch import nn
 from torch.nn.common_types import _size_2_t
 
 
-# region Blueprint Separable Convolution
-
 class BSConv2dS(nn.Module):
-    """Unconstrained Blueprint Separable Conv2d from MobileNets paper.
+    """Blueprint Separable Conv2d from MobileNets paper.
 
     Args:
-        in_channels: Number of input channels.
-        out_channels: Number of output channels.
-        kernel_size: Size of the depthwise kernel.
-        stride: Stride of the convolution. Default is ``1``.
-        padding: Padding size or mode. Default is ``0``.
-        dilation: Dilation of the convolution. Default is ``1``.
-        bias: If ``True``, adds bias to depthwise conv. Default is ``True``.
-        padding_mode: Padding mode for depthwise conv. Default is ``"zeros"``.
-        p: Proportion for mid channels. Default is ``0.25``.
-        min_mid_channels: Minimum mid channels. Default is ``4``.
-        with_bn: If ``True``, includes batch norm. Default is ``False``.
-        bn_kwargs: Batch norm kwargs. Default is ``None`` (empty dict).
+        in_channels: Number of input channels as ``int``.
+        out_channels: Number of output channels as ``int``.
+        kernel_size: Size of the depthwise kernel as ``int`` or ``tuple[int, int]``.
+        stride: Stride of the convolution as ``int`` or ``tuple[int, int]``.
+            Default is ``1``.
+        padding: Padding size or mode as ``int``, ``tuple[int, int]``, or ``str``.
+            Default is ``0``.
+        dilation: Dilation of the convolution as ``int`` or ``tuple[int, int]``.
+            Default is ``1``.
+        bias: Adds bias to depthwise conv if ``True``. Default is ``True``.
+        padding_mode: Padding mode for depthwise conv as ``str``. Default is ``"zeros"``.
+        p: Proportion for mid channels as ``float``. Default is ``0.25``.
+        min_mid_channels: Minimum mid channels as ``int``. Default is ``4``.
+        with_bn: Includes batch norm if ``True``. Default is ``False``.
+        bn_kwargs: Batch norm kwargs as ``dict`` or ``None``.
+            Default is ``None`` (empty dict).
 
     References:
         - https://arxiv.org/abs/2003.13549
@@ -107,10 +109,10 @@ class BSConv2dS(nn.Module):
         """Applies blueprint separable convolution.
 
         Args:
-            input: Input tensor [B, C_in, H, W].
+            input: Input tensor as ``torch.Tensor`` with shape [B, C_in, H, W].
 
         Returns:
-            Output tensor [B, C_out, H_out, W_out].
+            Output tensor as ``torch.Tensor`` with shape [B, C_out, H_out, W_out].
         """
         y = self.pw1(input)
         if self.bn1:
@@ -125,7 +127,7 @@ class BSConv2dS(nn.Module):
         """Computes regularization loss for pw1 weights.
 
         Returns:
-            Frobenius norm of weight correlation matrix deviation.
+            Frobenius norm of weight correlation matrix deviation as ``torch.Tensor``.
         """
         w   = self.pw1.weight[:, :, 0, 0]
         wwt = torch.mm(w, w.transpose(0, 1))
@@ -134,19 +136,23 @@ class BSConv2dS(nn.Module):
 
 
 class BSConv2dU(nn.Module):
-    """Unconstrained Blueprint Separable Conv2d from MobileNets paper.
+    """Unconstrained Blueprint Separable Conv2d from MobileNets.
 
     Args:
-        in_channels: Number of input channels.
-        out_channels: Number of output channels.
-        kernel_size: Size of the depthwise kernel.
-        stride: Stride of the convolution. Default is ``1``.
-        padding: Padding size or mode. Default is ``0``.
-        dilation: Dilation of the convolution. Default is ``1``.
-        bias: If ``True``, adds bias to depthwise conv. Default is ``True``.
-        padding_mode: Padding mode for depthwise conv. Default is ``"zeros"``.
-        with_bn: If ``True``, includes batch norm. Default is ``False``.
-        bn_kwargs: Batch norm kwargs. Default is ``None`` (empty dict).
+        in_channels: Number of input channels as ``int``.
+        out_channels: Number of output channels as ``int``.
+        kernel_size: Size of the depthwise kernel as ``int`` or ``tuple[int, int]``.
+        stride: Stride of the convolution as ``int`` or ``tuple[int, int]``.
+            Default is ``1``.
+        padding: Padding size or mode as ``int``, ``tuple[int, int]``, or ``str``.
+            Default is ``0``.
+        dilation: Dilation of the convolution as ``int`` or ``tuple[int, int]``.
+            Default is ``1``.
+        bias: Adds bias to depthwise conv if ``True``. Default is ``True``.
+        padding_mode: Padding mode for depthwise conv as ``str``. Default is ``"zeros"``.
+        with_bn: Includes batch norm if ``True``. Default is ``False``.
+        bn_kwargs: Batch norm kwargs as ``dict`` or ``None``.
+            Default is ``None`` (empty dict).
 
     References:
         - https://arxiv.org/abs/2003.13549
@@ -200,15 +206,13 @@ class BSConv2dU(nn.Module):
         """Applies blueprint separable convolution.
 
         Args:
-            input: Input tensor [B, C_in, H, W].
+            input: Input tensor as ``torch.Tensor`` with shape [B, C_in, H, W].
 
         Returns:
-            Output tensor [B, C_out, H_out, W_out].
+            Output tensor as ``torch.Tensor`` with shape [B, C_out, H_out, W_out].
         """
         y = self.pw(input)
         if self.bn:
             y = self.bn(y)
         y = self.dw(y)
         return y
-
-# endregion

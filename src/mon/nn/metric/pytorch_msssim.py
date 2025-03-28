@@ -25,11 +25,11 @@ def _fspecial_gauss_1d(size: int, sigma: float) -> torch.Tensor:
     """Creates a 1D Gaussian kernel.
 
     Args:
-        size: Size of the Gaussian kernel.
-        sigma: Standard deviation of the Gaussian.
+        size: Size of the Gaussian kernel as ``int``.
+        sigma: Standard deviation of the Gaussian as ``float``.
 
     Returns:
-        1D kernel tensor [1, 1, size].
+        1D kernel tensor as ``torch.Tensor`` with shape `1, 1, size].
 
     References:
         - https://github.com/VainF/pytorch-msssim/blob/master/pytorch_msssim/ssim.py
@@ -43,17 +43,18 @@ def _fspecial_gauss_1d(size: int, sigma: float) -> torch.Tensor:
 
 def _gaussian_filter(input: torch.Tensor, window: torch.Tensor) -> torch.Tensor:
     """Blurs input tensor with a 1D Gaussian kernel.
-    
+
     Args:
-        input: Batch of tensors to blur.
-        window: 1D Gaussian kernel tensor.
+        input: Batch of tensors to blur as ``torch.Tensor``.
+        window: 1D Gaussian kernel tensor as ``torch.Tensor``.
 
     Returns:
-        Blurred tensor of same shape as input.
-    
+        Blurred tensor as ``torch.Tensor`` with same shape as input.
+
     Raises:
-        NotImplementedError: If input shape is not 4D or 5D.
-   
+        AssertionError: If ``window`` shape is not [1, ..., 1, size].
+        NotImplementedError: If ``input`` shape is not 4D or 5D.
+
     References:
         - https://github.com/VainF/pytorch-msssim/blob/master/pytorch_msssim/ssim.py
     """
@@ -87,15 +88,17 @@ def _ssim(
     """Computes SSIM and contrast sensitivity between two images.
 
     Args:
-        image1: First image tensor [B, C, H, W] or [B, C, D, H, W].
-        image2: Second image tensor of same shape as image1.
-        data_range: Value range of images (e.g., ``1.0`` or ``255``).
-        window: 1D Gaussian kernel tensor.
-        size_average: If ``True``, averages SSIM over channels. Default is ``True``.
-        k: Stability constants (k1, k2). Default is ``(0.01, 0.03)``.
+        image1: First image tensor as ``torch.Tensor`` with shape [B, C, H, W]
+            or [B, C, D, H, W].
+        image2: Second image tensor as ``torch.Tensor`` with same shape as ``image1``.
+        data_range: Value range of images as ``float`` (e.g., ``1.0`` or ``255.0``).
+        window: 1D Gaussian kernel tensor as ``torch.Tensor``.
+        size_average: Averages SSIM over channels if ``True``. Default is ``True``.
+        k: Stability constants (k1, k2) as ``tuple[float, float]``.
+            Default is ``(0.01, 0.03)``.
 
     Returns:
-        Tuple of (SSIM per channel, contrast sensitivity) tensors.
+        ``tuple`` of (SSIM per channel, contrast sensitivity) as ``torch.Tensor``s.
 
     References:
         - https://github.com/VainF/pytorch-msssim/blob/master/pytorch_msssim/ssim.py
@@ -142,22 +145,26 @@ def ssim(
     """Computes SSIM between two images.
 
     Args:
-        image1: First image tensor [B, C, H, W] or [B, C, D, H, W].
-        image2: Second image tensor of same shape as image1.
-        data_range: Value range of images (e.g., ``1.0`` or ``255``). Default is ``255``.
-        size_average: If ``True``, averages SSIM over channels. Default is ``True``.
-        window_size: Size of the Gaussian window. Default is ``11``.
-        window_sigma: Gaussian sigma. Default is ``1.5``.
-        window: Optional 1D Gaussian kernel tensor. Default is ``None``.
-        k: Stability constants (k1, k2). Default is ``(0.01, 0.03)``.
-        non_negative_ssim: If ``True``, applies ReLU to SSIM. Default is ``False``.
+        image1: First image tensor as ``torch.Tensor`` with shape [B, C, H, W]
+            or [B, C, D, H, W].
+        image2: Second image tensor as ``torch.Tensor`` with same shape as ``image1``.
+        data_range: Value range of images as ``float`` (e.g., ``1.0`` or ``255.0``).
+            Default is ``255.0``.
+        size_average: Averages SSIM over channels if ``True``. Default is ``True``.
+        window_size: Size of the Gaussian window as ``int``. Default is ``11``.
+        window_sigma: Gaussian sigma as ``float``. Default is ``1.5``.
+        window: Optional 1D Gaussian kernel tensor as ``torch.Tensor`` or ``None``.
+            Default is ``None``.
+        k: Stability constants (k1, k2) as ``tuple[float, float]``.
+            Default is ``(0.01, 0.03)``.
+        non_negative_ssim: Applies ReLU to SSIM if ``True``. Default is ``False``.
 
     Returns:
-        SSIM tensor, averaged if size_average is True.
+        SSIM tensor as ``torch.Tensor``, averaged if ``size_average`` is ``True``.
 
     Raises:
-        ValueError: If shapes mismatch, ``window_size`` is even, or dims invalid.
-   
+        ValueError: If shapes mismatch, ``window_size`` is even, or dims are invalid.
+
     References:
         - https://github.com/VainF/pytorch-msssim/blob/master/pytorch_msssim/ssim.py
     """
@@ -210,23 +217,28 @@ def ms_ssim(
     """Computes Multi-Scale SSIM between two images.
 
     Args:
-        image1: First image tensor [B, C, H, W] or [B, C, D, H, W].
-        image2: Second image tensor of same shape as image1.
-        data_range: Value range of images (e.g., ``1.0`` or ``255``). Default is ``255``.
-        size_average: If ``True``, averages MS-SSIM over channels. Default is ``True``.
-        window_size: Size of the Gaussian window. Default is ``11``.
-        window_sigma: Gaussian sigma. Default is ``1.5``.
-        window: Optional 1D Gaussian kernel tensor. Default is ``None``.
-        weights: Weights for each scale. Default is ``[0.0448, 0.2856, 0.3001, 0.2363, 0.1333]``.
-        k: Stability constants (k1, k2). Default is ``(0.01, 0.03)``.
+        image1: First image tensor as ``torch.Tensor`` with shape [B, C, H, W]
+            or [B, C, D, H, W].
+        image2: Second image tensor as ``torch.Tensor`` with same shape as ``image1``.
+        data_range: Value range of images as ``float`` (e.g., ``1.0`` or ``255.0``).
+            Default is ``255.0``.
+        size_average: Averages MS-SSIM over channels if ``True``. Default is ``True``.
+        window_size: Size of the Gaussian window as ``int``. Default is ``11``.
+        window_sigma: Gaussian sigma as ``float``. Default is ``1.5``.
+        window: Optional 1D Gaussian kernel tensor as ``torch.Tensor`` or ``None``.
+            Default is ``None``.
+        weights: Weights for each scale as ``list[float]`` or ``None``.
+            Default is ``[0.0448, 0.2856, 0.3001, 0.2363, 0.1333]``.
+        k: Stability constants (k1, k2) as ``tuple[float, float]``.
+            Default is ``(0.01, 0.03)``.
 
     Returns:
-        MS-SSIM tensor, averaged if ``size_average`` is ``True``.
-    
+        MS-SSIM tensor as ``torch.Tensor``, averaged if ``size_average`` is ``True``.
+
     Raises:
-        ValueError: If shapes mismatch, ``window_size`` is even, or dims invalid.
+        ValueError: If shapes mismatch, ``window_size`` is even, or dims are invalid.
         AssertionError: If image size is too small for 4 downsamplings.
-    
+
     References:
         - https://github.com/VainF/pytorch-msssim/blob/master/pytorch_msssim/ssim.py
     """
@@ -291,17 +303,19 @@ def ms_ssim(
 
 
 class SSIM(nn.Module):
-    """Computes Structural Similarity Index (SSIM) as a PyTorch module.
+    """Structural Similarity Index (SSIM) module for image comparison.
 
     Args:
-        data_range: Value range of images (e.g., ``1.0`` or ``255``). Default is ``255``.
-        size_average: If ``True``, averages SSIM over channels. Default is ``True``.
-        window_size: Size of the Gaussian window. Default is ``11``.
-        window_sigma: Gaussian sigma. Default is ``1.5``.
-        channel: Number of input channels. Default is ``3``.
-        spatial_dims: Number of spatial dimensions (2 or 3). Default is ``2``.
-        k: Stability constants (k1, k2). Default is ``(0.01, 0.03)``.
-        non_negative_ssim: If ``True``, applies ReLU to SSIM. Default is ``False``.
+        data_range: Value range of images as ``float`` (e.g., ``1.0`` or ``255.0``).
+            Default is ``255.0``.
+        size_average: Averages SSIM over channels if ``True``. Default is ``True``.
+        window_size: Size of the Gaussian window as ``int``. Default is ``11``.
+        window_sigma: Gaussian sigma as ``float``. Default is ``1.5``.
+        channel: Number of input channels as ``int``. Default is ``3``.
+        spatial_dims: Number of spatial dimensions as ``int`` (2 or 3). Default is ``2``.
+        k: Stability constants (k1, k2) as ``tuple[float, float]``.
+            Default is ``(0.01, 0.03)``.
+        non_negative_ssim: Applies ReLU to SSIM if ``True``. Default is ``False``.
     """
 
     def __init__(
@@ -327,11 +341,12 @@ class SSIM(nn.Module):
         """Computes SSIM between two images.
 
         Args:
-            image1: First image tensor [B, C, H, W] or [B, C, D, H, W].
-            image2: Second image tensor of same shape as ``image1``.
+            image1: First image tensor as ``torch.Tensor`` with shape [B, C, H, W]
+                or [B, C, D, H, W].
+            image2: Second image tensor as ``torch.Tensor`` with same shape as ``image1``.
 
         Returns:
-            SSIM tensor, averaged if ``size_average`` is ``True``.
+            SSIM tensor as ``torch.Tensor``, averaged if ``size_average`` is ``True``.
         """
         return ssim(
             image1            = image1,
@@ -345,17 +360,20 @@ class SSIM(nn.Module):
 
 
 class MS_SSIM(nn.Module):
-    """Computes Multi-Scale SSIM as a PyTorch module.
+    """Multi-Scale Structural Similarity Index (MS-SSIM) module.
 
     Args:
-        data_range: Value range of images (e.g., ``1.0`` or ``255``). Default is ``255``.
-        size_average: If ``True``, averages MS-SSIM over channels. Default is ``True``.
-        window_size: Size of the Gaussian window. Default is ``11``.
-        window_sigma: Gaussian sigma. Default is ``1.5``.
-        channel: Number of input channels. Default is ``3``.
-        spatial_dims: Number of spatial dimensions (2 or 3). Default is ``2``.
-        weights: Weights for each scale. Default is ``None`` (uses preset values).
-        k: Stability constants (k1, k2). Default is ``(0.01, 0.03)``.
+        data_range: Value range of images as ``float`` (e.g., ``1.0`` or ``255.0``).
+            Default is ``255.0``.
+        size_average: Averages MS-SSIM over channels if ``True``. Default is ``True``.
+        window_size: Size of the Gaussian window as ``int``. Default is ``11``.
+        window_sigma: Gaussian sigma as ``float``. Default is ``1.5``.
+        channel: Number of input channels as ``int``. Default is ``3``.
+        spatial_dims: Number of spatial dimensions as ``int`` (2 or 3). Default is ``2``.
+        weights: Weights for each scale as ``list[float]`` or ``None``.
+            Default is ``None`` (preset values).
+        k: Stability constants (k1, k2) as ``tuple[float, float]``.
+            Default is ``(0.01, 0.03)``.
     """
 
     def __init__(
@@ -381,11 +399,12 @@ class MS_SSIM(nn.Module):
         """Computes MS-SSIM between two images.
 
         Args:
-            image1: First image tensor [B, C, H, W] or [B, C, D, H, W].
-            image2: Second image tensor of same shape as image1.
+            image1: First image tensor as ``torch.Tensor`` with shape [B, C, H, W]
+                or [B, C, D, H, W].
+            image2: Second image tensor as ``torch.Tensor`` with same shape as ``image1``.
 
         Returns:
-            MS-SSIM tensor, averaged if ``size_average`` is ``True``.
+            MS-SSIM tensor as ``torch.Tensor``, averaged if ``size_average`` is ``True``.
         """
         return ms_ssim(
             image1       = image1,

@@ -56,15 +56,15 @@ def load_weights(
     weights     : dict | str | core.Path,
     weights_only: bool = False
 ) -> dict | None:
-    """Loads state dict from given weights into model.
+    """Loads state dict from weights into a model.
 
     Args:
-        model: Model to load weights into.
-        weights: Weights as dict, str path, or ``core.Path``.
-        weights_only: Load only weights if ``True``. Default is ``False``.
-    
+        model: ``nn.Module`` to load weights into.
+        weights: Weights as ``dict``, ``str`` path, or ``core.Path``.
+        weights_only: Loads only weights if ``True``. Default is ``False``.
+
     Returns:
-        State dict if loaded, ``None`` otherwise.
+        State ``dict`` if loaded, ``None`` otherwise.
     """
     if weights is None:
         return None
@@ -190,7 +190,11 @@ class Model(lightning.LightningModule, ABC):
     
     @property
     def fullname(self) -> str:
-        """Returns the model's full name as name-suffix."""
+        """Returns the model's full name as name-suffix.
+    
+        Returns:
+            Full name as ``str``.
+        """
         return self._fullname
     
     @fullname.setter
@@ -198,13 +202,17 @@ class Model(lightning.LightningModule, ABC):
         """Sets the model's full name, defaults to name if invalid.
     
         Args:
-            fullname: Full name to set.
+            fullname: Full name to set as ``str``.
         """
         self._fullname = fullname if fullname not in [None, "None", ""] else self.name
     
     @property
     def root(self) -> core.Path:
-        """Returns the root directory path."""
+        """Returns the root directory path.
+    
+        Returns:
+            Root directory as ``core.Path``.
+        """
         return self._root
     
     @root.setter
@@ -220,14 +228,22 @@ class Model(lightning.LightningModule, ABC):
     
     @property
     def ckpt_dir(self) -> core.Path:
-        """Returns the checkpoint directory path."""
+        """Returns the checkpoint directory path.
+    
+        Returns:
+            Checkpoint directory as ``core.Path``.
+        """
         if self._ckpt_dir is None:
             self._ckpt_dir = self.root
         return self._ckpt_dir
     
     @property
     def debug_dir(self) -> core.Path:
-        """Returns the debug directory path."""
+        """Returns the debug directory path.
+    
+        Returns:
+            Debug directory as ``core.Path``
+        """
         if self._debug_dir is None:
             self._debug_dir = self.root / "debug"
         return self._debug_dir
@@ -237,10 +253,10 @@ class Model(lightning.LightningModule, ABC):
         """Checks if model is in predicting mode.
     
         Returns:
-            ``True`` if in predicting mode, ``False`` otherwise.
-        
+            ``True`` if predicting, ``False`` otherwise.
+    
         Notes:
-            True when not training and not managed by ``lightning.Trainer``.
+            ``True`` when not training and not managed by ``lightning.Trainer``.
         """
         return not self.training and getattr(self, "_trainer", None) is None
     
@@ -250,7 +266,7 @@ class Model(lightning.LightningModule, ABC):
     
         Returns:
             ``True`` if in debug mode, ``False`` otherwise.
-        
+    
         Notes:
             Returns ``_debug`` if predicting, else ``True``.
         """
@@ -261,7 +277,7 @@ class Model(lightning.LightningModule, ABC):
         """Sets debug mode.
     
         Args:
-            debug: Debug mode value to set.
+            debug: Debug mode value as ``bool`` to set.
         """
         self._debug = debug
     
@@ -284,7 +300,7 @@ class Model(lightning.LightningModule, ABC):
         """Initializes the model's weights.
     
         Args:
-            m: Module to initialize weights for.
+            m: ``nn.Module`` to initialize weights for.
         """
         pass
     
@@ -292,9 +308,9 @@ class Model(lightning.LightningModule, ABC):
         """Assigns pretrained weights to the model.
     
         Args:
-            weights: Weights as dict, str, or Path; ``None`` to skip.
-            overwrite: Overwrite existing weights if ``True``. Default is ``False``.
-        
+            weights: Weights as ``dict``, ``str``, or ``core.Path``; ``None`` to skip.
+            overwrite: Overwrites existing weights if ``True``. Default is ``False``.
+    
         Raises:
             ValueError: If weights path is invalid.
         """
@@ -313,7 +329,8 @@ class Model(lightning.LightningModule, ABC):
         elif isinstance(weights, (str, core.Path)):
             weights_path = core.Path(weights)
             if not weights_path.is_weights_file():
-                raise ValueError(f"[weights] must be a valid path to a weight file, got [{weights_path}].")
+                raise ValueError(f"[weights] must be a valid path to a weight file, "
+                                 f"got [{weights_path}].")
             state_dict = torch.load(str(weights_path))
             self.weights = {
                 "url"        : None,
@@ -327,8 +344,8 @@ class Model(lightning.LightningModule, ABC):
         """Loads intersecting weights into the model.
     
         Args:
-            weights: Weights to load; None uses existing. Default is None.
-            overwrite: Overwrite existing weights if True. Default is False.
+            weights: Weights to load as ``Any``; ``None`` uses existing. Default is ``None``.
+            overwrite: Overwrites existing weights if ``True``. Default is ``False``.
         """
         self.assign_weights(weights, overwrite)
         state_dict = load_weights(self, self.weights, weights_only=True)
@@ -339,9 +356,9 @@ class Model(lightning.LightningModule, ABC):
         
     def init_loss(self, loss: Any):
         """Sets the model's loss function.
-    
+
         Args:
-            loss: Loss as str, dict, or object.
+            loss: Loss as ``str``, ``dict``, or object.
         """
         if isinstance(loss, str):
             self.loss = LOSSES.build(name=loss)
@@ -355,19 +372,22 @@ class Model(lightning.LightningModule, ABC):
             self.loss.eval()
     
     def init_metrics(self, metrics: Any):
-        """Assign metrics.
-        
+        """Assigns metrics to the model.
+    
         Args:
-            metrics: One of the 2 options:
-                - Common metrics for all train_/val_/test_metrics:
-                     metrics: {name: "accuracy"}
-                - Define train_/val_/test_metrics separately:
-                    metrics:
-                        train:
-                            - {name: "accuracy"}
-                            - ...
-                        val  : {name: "accuracy"}
-                        test : ~
+            metrics: Metrics as ``dict`` or list; see notes for structure.
+    
+        Returns:
+            None
+    
+        Notes:
+            Supports two formats:
+            - Common metrics: ``{name: "accuracy"}``
+            - Separate train/val/test metrics:
+                ``metrics``:
+                    ``train``: ``[{name: "accuracy"}, ...]``
+                    ``val``: ``{name: "accuracy"}``
+                    ``test``: ``~``
         """
         # This is a simple hack since LightningModule needs the metric to be
         # defined with self.<metric>. So, here we dynamically add the metric
@@ -395,9 +415,10 @@ class Model(lightning.LightningModule, ABC):
         """Creates metrics from various input types.
     
         Args:
-            metrics: Metric object, dict, list, tuple, or ``None``.
+            metrics: Metric object, ``dict``, ``list``, ``tuple``, or ``None``.
+    
         Returns:
-            List of metric objects or ``None`` if invalid.
+            ``list`` of metric objects or ``None`` if invalid.
         """
         if isinstance(metrics, M.Metric):
             if getattr(metrics, "name", None) is None:
@@ -420,12 +441,12 @@ class Model(lightning.LightningModule, ABC):
         
         Notes:
             Options:
-            - Single optimizer
-            - List/tuple of optimizers
-            - Two lists: [optimizers], [schedulers]
-            - Dict with 'optimizer' and optional 'lr_scheduler'
-            - Tuple of dicts with optional 'frequency'
-            - None for no optimization
+                - Single optimizer
+                - List/tuple of optimizers
+                - Two lists: [optimizers], [schedulers]
+                - Dict with 'optimizer' and optional 'lr_scheduler'
+                - Tuple of dicts with optional 'frequency'
+                - None for no optimization
         
         Examples:
             def configure_optimizers(self):
@@ -477,8 +498,12 @@ class Model(lightning.LightningModule, ABC):
     def compute_efficiency_score(self, *args, **kwargs) -> tuple[float, float]:
         """Computes model efficiency score (FLOPs, params).
     
+        Args:
+            args: Positional arguments.
+            kwargs: Keyword arguments.
+    
         Returns:
-            Tuple of (FLOPs, parameter count) as floats.
+            ``tuple`` of (FLOPs, parameter count) as floats.
         """
         core.error_console.log("[yellow]This method has not been implemented yet![/yellow].")
         return 0.0, 0.0
@@ -492,24 +517,24 @@ class Model(lightning.LightningModule, ABC):
         """Computes forward pass and loss.
     
         Args:
-            datapoint: Dict with datapoint attributes.
-        
+            datapoint: ``dict`` with datapoint attributes.
+    
         Returns:
-            Dict of predictions, must include 'loss' and 'pred' keys.
+            ``dict`` of predictions with ``"loss"`` and ``"pred"`` keys.
         """
         pass
     
     @abstractmethod
-    def compute_metrics(self, datapoint: dict, outputs: dict, metrics: list[M.Metric] | None = None) -> dict:
+    def compute_metrics(self, datapoint: dict, outputs: dict, metrics: list[M.Metric] = None) -> dict:
         """Computes metrics for given predictions.
     
         Args:
-            datapoint: Dict with datapoint attributes.
-            outputs: Dict with model predictions.
-            metrics: List of metric functions or None. Default is None.
-        
+            datapoint: ``dict`` with datapoint attributes.
+            outputs: ``dict`` with model predictions.
+            metrics: ``list`` of ``M.Metric`` or ``None``. Default is ``None``.
+    
         Returns:
-            Dict of computed metric values.
+            ``dict`` of computed metric values.
         """
         pass
     
@@ -518,10 +543,12 @@ class Model(lightning.LightningModule, ABC):
         """Performs forward pass of the model.
     
         Args:
-            datapoint: Dict with datapoint attributes.
-       
+            datapoint: ``dict`` with datapoint attributes.
+            args: Additional positional arguments.
+            kwargs: Additional keyword arguments.
+    
         Returns:
-            Dict of predictions, empty by default.
+            ``dict`` of predictions, empty by default.
         """
         pass
     
@@ -537,11 +564,13 @@ class Model(lightning.LightningModule, ABC):
         """Computes training loss and metrics.
     
         Args:
-            batch: Dict with datapoint attributes from ``DataLoader``.
+            batch: ``dict`` with datapoint attributes from ``DataLoader``.
             batch_idx: Index of the current batch.
-        
+            args: Additional positional arguments.
+            kwargs: Additional keyword arguments.
+    
         Returns:
-            Loss tensor, dict with ``'loss'``, or ``None`` to skip.
+            Loss tensor, ``dict`` with ``"loss"``, or ``None`` to skip.
         """
         outputs  = self.forward_loss(datapoint=batch, *args, **kwargs)
         outputs |= self.compute_metrics(
@@ -578,10 +607,13 @@ class Model(lightning.LightningModule, ABC):
         """Processes validation batch and computes metrics.
     
         Args:
-            batch: Dict with datapoint attributes from ``DataLoader``.
+            batch: ``dict`` with datapoint attributes from ``DataLoader``.
             batch_idx: Index of the current batch.
+            args: Additional positional arguments.
+            kwargs: Additional keyword arguments.
+    
         Returns:
-            Loss tensor, dict with ``'loss'``, or ``None`` to skip.
+            Loss tensor, ``dict`` with ``"loss"``, or ``None`` to skip.
         """
         outputs  = self.forward_loss(datapoint=batch, *args, **kwargs)
         outputs |= self.compute_metrics(
@@ -630,11 +662,13 @@ class Model(lightning.LightningModule, ABC):
         """Processes test batch and computes metrics.
     
         Args:
-            batch: Dict with datapoint attributes from ``DataLoader``.
+            batch: ``dict`` with datapoint attributes from ``DataLoader``.
             batch_idx: Index of the current batch.
-        
+            args: Additional positional arguments.
+            kwargs: Additional keyword arguments.
+    
         Returns:
-            Loss tensor, dict with ``'loss'``, or ``None`` to skip.
+            Loss tensor, ``dict`` with ``"loss"``, or ``None`` to skip.
         """
         outputs  = self.forward_loss(datapoint=batch, *args, **kwargs)
         outputs |= self.compute_metrics(
@@ -683,13 +717,15 @@ class Model(lightning.LightningModule, ABC):
         """Infers model output with optional processing.
     
         Args:
-            datapoint: Dict with datapoint attributes.
-        
+            datapoint: ``dict`` with datapoint attributes.
+            args: Additional positional arguments.
+            kwargs: Additional keyword arguments.
+    
         Returns:
-            Dict of model predictions.
-        
+            ``dict`` of model predictions.
+    
         Notes:
-            Override for custom pre/post-processing; defaults to forward.
+            Override for custom pre/post-processing; defaults to ``forward``.
         """
         return self.forward(datapoint, *args, **kwargs)
     
@@ -706,10 +742,10 @@ class Model(lightning.LightningModule, ABC):
         """Exports the model to ONNX format.
     
         Args:
-            input_dims: Input dimensions as [C, H, W] or ``None``.
-            file_path: Save path or None to use root/fullname. Default is ``None``.
-            export_params: Export parameters if ``True``. Default is ``True``.
-       
+            input_dims: Input dimensions as ``[C, H, W]`` or ``None``.
+            file_path: Save path or ``None`` to use root/fullname. Default is ``None``.
+            export_params: Exports parameters if ``True``. Default is ``True``.
+    
         Raises:
             ValueError: If ``input_dims`` is undefined.
         """
@@ -737,10 +773,10 @@ class Model(lightning.LightningModule, ABC):
         """Exports the model to ``TorchScript`` format.
     
         Args:
-            input_dims: Input dimensions or None.
-            file_path: Save path or None to use root/fullname. Default is ``None``.
-            method: Export method: ``'script'`` or ``'trace'``. Default is ``'script'``.
-        
+            input_dims: Input dimensions as ``list[int]`` or ``None``.
+            file_path: Save path or ``None`` to use root/fullname. Default is ``None``.
+            method: Export method: ``"script"`` or ``"trace"``. Default is ``"script"``.
+    
         Raises:
             ValueError: If ``input_dims`` is undefined.
         """
@@ -750,7 +786,7 @@ class Model(lightning.LightningModule, ABC):
             file_path = core.Path(f"{file_path}.pt")
     
         if not input_dims:
-            raise ValueError("[input_dims] must be defined")
+            raise ValueError("[input_dims] must be defined.")
     
         input_sample = torch.randn(input_dims)
         script       = self.to_torchscript(method=method, example_inputs=input_sample)
@@ -773,13 +809,7 @@ class Model(lightning.LightningModule, ABC):
             and self.current_epoch % log_image_every_n_epochs == 0
         )
     
-    def log_images(
-        self,
-        epoch    : int,
-        step     : int,
-        data     : dict,
-        extension: str = ".jpg"
-    ):
+    def log_images(self, epoch: int, step: int, data: dict, extension: str = ".jpg"):
         """Logs debug images to ``debug_dir``.
     
         Args:
@@ -823,6 +853,6 @@ class ExtraModel(Model, ABC):
         if state_dict:
             self.model.load_state_dict(state_dict=state_dict)
             if self.verbose:
-                console.log(f"Loaded model's weights from: {self.weights}")
+                console.log(f"Loaded model's weights from: {self.weights}.")
 
 # endregion

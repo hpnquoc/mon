@@ -46,12 +46,12 @@ class RichProgressBar(rich_progress.RichProgressBar):
 
     def configure_columns(self, trainer: lightning.Trainer) -> list:
         """Configures columns for the progress bar.
-
+    
         Args:
-            trainer: Lightning trainer instance.
-
+            trainer: ``lightning.Trainer`` instance.
+    
         Returns:
-            List of column configurations.
+            ``list`` of column configurations.
         """
         base_columns = [
             rich.progress.TextColumn(

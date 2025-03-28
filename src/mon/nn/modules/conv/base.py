@@ -42,8 +42,6 @@ from torchvision.ops.misc import (
 from mon.nn.modules import padding as pad
 
 
-# region Convolution
-
 def conv2d_same(
     input   : torch.Tensor,
     weight  : torch.Tensor,
@@ -56,16 +54,21 @@ def conv2d_same(
     """Applies 2D convolution with same padding.
 
     Args:
-        input: Input tensor [B, C_in, H, W].
-        weight: Convolution kernel tensor [C_out, C_in/groups, kH, kW].
-        bias: Optional bias tensor [C_out]. Default is ``None``.
-        stride: Stride of the convolution. Default is ``1``.
-        padding: Padding mode or size. Default is ``0`` (updated by ``'pad_same'``).
-        dilation: Dilation of the convolution. Default is ``1``.
-        groups: Number of groups in convolution. Default is ``1``.
+        input: Input tensor as ``torch.Tensor`` with shape [B, C_in, H, W].
+        weight: Convolution kernel tensor as ``torch.Tensor`` with
+            shape [C_out, C_in/groups, kH, kW].
+        bias: Optional bias tensor as ``torch.Tensor`` with shape [C_out] or ``None``.
+            Default is ``None``.
+        stride: Stride of the convolution as ``int`` or ``tuple[int, int]``.
+            Default is ``1``.
+        padding: Padding mode or size as ``int``, ``tuple[int, int]``, or ``str``.
+            Default is ``0`` (updated by ``'pad_same'``).
+        dilation: Dilation of the convolution as ``int`` or ``tuple[int, int]``.
+            Default is ``1``.
+        groups: Number of groups in convolution as ``int``. Default is ``1``.
 
     Returns:
-        Output tensor after convolution with same padding.
+        Output tensor as ``torch.Tensor`` after convolution with same padding.
     """
     x = input
     y = pad.pad_same(
@@ -87,20 +90,26 @@ def conv2d_same(
 
 
 class Conv2dSame(nn.Conv2d):
-    """Wraps 2D convolution with TensorFlow-like SAME padding.
+    """2D convolution with TensorFlow-like SAME padding.
 
     Args:
-        in_channels: Number of input channels.
-        out_channels: Number of output channels.
-        kernel_size: Size of the convolution kernel.
-        stride: Stride of the convolution. Default is ``1``.
-        padding: Padding size or mode (overridden by SAME). Default is ``0``.
-        dilation: Dilation of the convolution. Default is ``1``.
-        groups: Number of groups in convolution. Default is ``1``.
-        bias: If ``True``, adds bias to convolution. Default is ``True``.
-        padding_mode: Padding mode for convolution. Default is ``"zeros"``.
-        device: Device for the module. Default is ``None``.
-        dtype: Data type for the module. Default is ``None``.
+        in_channels: Number of input channels as ``int``.
+        out_channels: Number of output channels as ``int``.
+        kernel_size: Size of the convolution kernel as ``int`` or ``tuple[int, int]``.
+        stride: Stride of the convolution as ``int`` or ``tuple[int, int]``.
+            Default is ``1``.
+        padding: Padding size or mode as ``int``, ``tuple[int, int]``, or ``str``
+            (overridden by SAME). Default is ``0``.
+        dilation: Dilation of the convolution as ``int`` or ``tuple[int, int]``.
+            Default is ``1``.
+        groups: Number of groups in convolution as ``int``. Default is ``1``.
+        bias: Adds bias to convolution if ``True``. Default is ``True``.
+        padding_mode: Padding mode for convolution as ``str``. Default is ``"zeros"``.
+        device: Device for the module as ``Any``. Default is ``None``.
+        dtype: Data type for the module as ``Any``. Default is ``None``.
+
+    Attributes:
+        Inherits attributes from ``nn.Conv2d``.
     """
 
     def __init__(
@@ -135,10 +144,11 @@ class Conv2dSame(nn.Conv2d):
         """Applies 2D convolution with SAME padding.
 
         Args:
-            input: Input tensor [B, C_in, H, W].
+            input: Input tensor as ``torch.Tensor`` with shape [B, C_in, H, W].
 
         Returns:
-            Output tensor [B, C_out, H_out, W_out] with SAME padding.
+            Output tensor as ``torch.Tensor`` with shape [B, C_out, H_out, W_out]
+            using SAME padding.
         """
         return conv2d_same(
             input    = input,
@@ -154,5 +164,3 @@ class Conv2dSame(nn.Conv2d):
 ConvNormAct   = ConvNormActivation
 Conv2dNormAct = Conv2dNormActivation
 Conv3dNormAct = Conv3dNormActivation
-
-# endregion

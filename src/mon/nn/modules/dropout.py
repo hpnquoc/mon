@@ -38,13 +38,13 @@ def drop_path(
     """Drops paths (Stochastic Depth) per sample in residual blocks.
 
     Args:
-        input: Input tensor of any shape.
-        p: Drop probability for each path. Default is ``0.0``.
-        training: If ``True``, applies drop path during training. Default is ``False``.
-        scale_by_keep: If ``True``, scales output by keep probability. Default is ``True``.
+        input: Input tensor as ``torch.Tensor`` of any shape.
+        p: Drop probability for each path as ``float``. Default is ``0.0``.
+        training: Applies drop path during training if ``True``. Default is ``False``.
+        scale_by_keep: Scales output by keep probability if ``True``. Default is ``True``.
 
     Returns:
-        Output tensor with same shape as input, potentially dropped.
+        Output tensor as ``torch.Tensor`` with same shape as input, potentially dropped.
 
     References:
         - https://github.com/rwightman/pytorch-image-models/blob/a2727c1bf78ba0d7b5727f5f95e37fb7f8866b1f/timm/models/layers/drop.py
@@ -62,8 +62,8 @@ class DropPath(nn.Module):
     """Drops paths (Stochastic Depth) per sample.
 
     Args:
-        p: Drop probability for each path. Default is ``0.1``.
-        scale_by_keep: If ``True``, scales output by keep probability. Default is ``True``.
+        p: Drop probability for each path as ``float``. Default is ``0.1``.
+        scale_by_keep: Scales output by keep probability if ``True``. Default is ``True``.
     """
     
     def __init__(self, p: float = 0.1, scale_by_keep: bool = True):
@@ -75,10 +75,10 @@ class DropPath(nn.Module):
         """Applies drop path to the input.
 
         Args:
-            input: Input tensor of any shape.
+            input: Input tensor as ``torch.Tensor`` of any shape.
 
         Returns:
-            Output tensor with same shape as input, potentially dropped.
+            Output tensor as ``torch.Tensor`` with same shape as input, potentially dropped.
         """
         return drop_path(input, self.drop_prob, self.training, self.scale_by_keep)
 

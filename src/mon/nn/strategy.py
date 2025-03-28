@@ -100,13 +100,15 @@ def set_distributed_backend(strategy: str | Callable, cudnn: bool = True):
     """
     if torch.backends.cudnn.is_available():
         torch.backends.cudnn.enabled = cudnn
-        console.log(f"cuDNN available: [bright_green]True[/bright_green], used: [bright_green]{cudnn}[/bright_green].")
+        console.log(f"cuDNN available: [bright_green]True[/bright_green], "
+                    f"used: [bright_green]{cudnn}[/bright_green].")
     else:
         console.log(f"cuDNN available: [red]False[/red].")
 
     if strategy in ["ddp"] or isinstance(strategy, DDPStrategy):
         backend = "gloo" if platform.system() == "Windows" else "nccl"
         os.environ["PL_TORCH_DISTRIBUTED_BACKEND"] = backend
-        console.log(f"Running on a {platform.system()} machine, set torch distributed backend to {backend}.")
+        console.log(f"Running on a {platform.system()} machine, set torch distributed "
+                    f"backend to {backend}.")
             
 # endregion

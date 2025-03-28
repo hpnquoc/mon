@@ -24,6 +24,8 @@ __all__ = [
 
 import math
 
+import torch
+from torch.nn import functional as F
 from torch.nn.common_types import _size_2_t
 from torch.nn.modules.padding import *
 
@@ -39,13 +41,13 @@ def get_same_padding(
     """Calculates TensorFlow-like 'same' padding for 1D convolution.
 
     Args:
-        x: Input size (e.g., height or width).
-        kernel_size: Size of the convolution kernel.
-        stride: Stride of the convolution.
-        dilation: Dilation of the convolution.
+        x: Input size (e.g., height or width) as ``int``.
+        kernel_size: Size of the convolution kernel as ``int``.
+        stride: Stride of the convolution as ``int``.
+        dilation: Dilation of the convolution as ``int``.
 
     Returns:
-        Padding value for one dimension to achieve ``'same'`` output size.
+        Padding value for one dimension to achieve 'same' output size as ``int``.
     """
     return max(
         (math.ceil(x / stride) - 1) * stride + (kernel_size - 1) * dilation + 1 - x, 0
@@ -60,12 +62,12 @@ def get_symmetric_padding(
     """Calculates symmetric padding for a convolution.
 
     Args:
-        kernel_size: Size of the convolution kernel.
-        stride: Stride of the convolution. Default is ``1``.
-        dilation: Dilation of the convolution. Default is ``1``.
+        kernel_size: Size of the convolution kernel as ``int``.
+        stride: Stride of the convolution as ``int``. Default is ``1``.
+        dilation: Dilation of the convolution as ``int``. Default is ``1``.
 
     Returns:
-        Symmetric padding value for one dimension.
+        Symmetric padding value for one dimension as ``int``.
     """
     return ((stride - 1) + dilation * (kernel_size - 1)) // 2
 
@@ -74,14 +76,17 @@ def to_same_padding(
     kernel_size: _size_2_t,
     padding    : _size_2_t = None
 ) -> int | list[int] | None:
-    """Converts padding to symmetric 'same' style if None.
+    """Converts padding to symmetric 'same' style if ``None``.
 
     Args:
-        kernel_size: Size of the convolutional kernel.
-        padding: Padding for the convolution. Default is ``None``.
+        kernel_size: Size of the convolutional kernel as ``int`` or ``tuple[int, int]``.
+        padding: Padding for the convolution as ``int`` or ``tuple[int, int]``.
+            Default is ``None``.
 
     Returns:
-        Symmetric padding ``(kernel_size // 2)`` if padding is ``None``, else padding.
+        Symmetric padding ``kernel_size // 2`` if padding is ``None`` and
+        ``kernel_size`` is ``int``, or ``[k // 2 for k in kernel_size]``
+        if ``kernel_size`` is a tuple, else padding as is.
     """
     if padding is None:
         if isinstance(kernel_size, int):
@@ -91,10 +96,6 @@ def to_same_padding(
     return padding
 
 
-import torch
-from torch.nn import functional as F
-from torch.nn.common_types import _size_2_t
-
 def pad_same(
     input      : torch.Tensor,
     kernel_size: _size_2_t,
@@ -102,17 +103,19 @@ def pad_same(
     dilation   : _size_2_t = (1, 1),
     value      : float     = 0
 ) -> torch.Tensor:
-    """Pads input tensor with ``'same'`` padding for convolution.
+    """Pads input tensor with 'same' padding for convolution.
 
     Args:
-        input: Input tensor [..., H, W].
-        kernel_size: Size of the convolution kernel (H, W).
-        stride: Stride of the convolution (H, W).
-        dilation: Dilation of the convolution (H, W). Default is ``(1, 1)``.
-        value: Padding value. Default is ``0``.
+        input: Input tensor as ``torch.Tensor`` with shape [..., H, W].
+        kernel_size: Size of the convolution kernel as ``int``
+            or ``tuple[int, int]`` (H, W).
+        stride: Stride of the convolution as ``int`` or ``tuple[int, int]`` (H, W).
+        dilation: Dilation of the convolution as ``tuple[int, int]`` (H, W).
+            Default is ``(1, 1)``.
+        value: Padding value as ``float``. Default is ``0``.
 
     Returns:
-        Padded tensor with same spatial size post-convolution.
+        Padded tensor as ``torch.Tensor`` with same spatial size post-convolution.
     """
     ih, iw = input.size()[-2:]
     pad_h  = get_same_padding(ih, kernel_size[0], stride[0], dilation[0])

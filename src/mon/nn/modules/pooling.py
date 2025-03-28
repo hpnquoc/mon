@@ -60,11 +60,11 @@ def adaptive_avg_max_pool2d(input: torch.Tensor, output_size: int = 1) -> torch.
     """Combines adaptive average and max pooling.
 
     Args:
-        input: Input tensor [B, C, H, W].
-        output_size: Target output size for pooling. Default is ``1``.
+        input: Input tensor as ``torch.Tensor`` with shape [B, C, H, W].
+        output_size: Target output size for pooling as ``int``. Default is ``1``.
 
     Returns:
-        Pooled tensor ``[B, C, output_size, output_size]``.
+        Pooled tensor as ``torch.Tensor`` with shape [B, C, output_size, output_size].
     """
     x_avg = F.adaptive_avg_pool2d(input, output_size)
     x_max = F.adaptive_max_pool2d(input, output_size)
@@ -75,11 +75,12 @@ def adaptive_cat_avg_max_pool2d(input: torch.Tensor, output_size: int = 1) -> to
     """Concatenates adaptive average and max pooling.
 
     Args:
-        input: Input tensor [B, C, H, W].
-        output_size: Target output size for pooling. Default is ``1``.
+        input: Input tensor as ``torch.Tensor`` with shape [B, C, H, W].
+        output_size: Target output size for pooling as ``int``. Default is ``1``.
 
     Returns:
-        Concatenated tensor ``[B, 2*C, output_size, output_size]``.
+        Concatenated tensor as ``torch.Tensor`` with
+        shape [B, 2*C, output_size, output_size].
     """
     x_avg = F.adaptive_avg_pool2d(input, output_size)
     x_max = F.adaptive_max_pool2d(input, output_size)
@@ -88,19 +89,21 @@ def adaptive_cat_avg_max_pool2d(input: torch.Tensor, output_size: int = 1) -> to
 
 def adaptive_pool2d(
     input      : torch.Tensor,
-    pool_type  : str = "avg",
+    pool_type  : Literal["avg", "max", "avg_max", "cat_avg_max"] = "avg",
     output_size: int = 1,
 ) -> torch.Tensor:
     """Applies selectable global pooling with dynamic kernel size.
 
     Args:
-        input: Input tensor [B, C, H, W].
-        pool_type: Type of pooling (``'avg'``, ``'max'``, ``'avg_max'``, ``'cat_avg_max'``).
-            Default is ``'avg'``.
-        output_size: Target output size for pooling. Default is ``1``.
+        input: Input tensor as ``torch.Tensor`` with shape [B, C, H, W].
+        pool_type: Type of pooling as ``Literal["avg", "max", "avg_max", "cat_avg_max"]``.
+            Default is ``"avg"``.
+        output_size: Target output size for pooling as ``int``. Default is ``1``.
 
     Returns:
-        Pooled tensor with shape depending on pool_type.
+        Pooled tensor as ``torch.Tensor`` with shape depending on pool_type:
+        - [B, C, output_size, output_size] for ``"avg"``, ``"max"``, or ``"avg_max"``.
+        - [B, 2*C, output_size, output_size] for ``"cat_avg_max"``.
 
     Raises:
         ValueError: If ``pool_type`` is invalid.
@@ -114,14 +117,14 @@ def adaptive_pool2d(
     elif pool_type == "cat_avg_max":
         return adaptive_cat_avg_max_pool2d(input, output_size)
     else:
-        raise ValueError(f"Invalid pool type: [{pool_type}]")
+        raise ValueError(f"Invalid pool type: [{pool_type}].")
 
 
 class AdaptiveAvgMaxPool2d(nn.Module):
     """Combines adaptive average and max pooling in 2D.
 
     Args:
-        output_size: Target output size for pooling. Default is ``1``.
+        output_size: Target output size for pooling as ``int``. Default is ``1``.
     """
 
     def __init__(self, output_size: int = 1):
@@ -132,10 +135,10 @@ class AdaptiveAvgMaxPool2d(nn.Module):
         """Applies adaptive average and max pooling.
 
         Args:
-            input: Input tensor [B, C, H, W].
+            input: Input tensor as ``torch.Tensor`` with shape [B, C, H, W].
 
         Returns:
-            Pooled tensor ``[B, C, output_size, output_size]``.
+            Pooled tensor as ``torch.Tensor`` with shape [B, C, output_size, output_size].
         """
         return adaptive_avg_max_pool2d(input, self.output_size)
 
@@ -144,7 +147,10 @@ class AdaptiveCatAvgMaxPool2d(nn.Module):
     """Concatenates adaptive average and max pooling in 2D.
 
     Args:
-        output_size: Target output size for pooling. Default is ``1``.
+        output_size: Target output size for pooling as ``int``. Default is ``1``.
+
+    Attributes:
+        output_size: Target output size for pooling as ``int``.
     """
 
     def __init__(self, output_size: int = 1):
@@ -155,10 +161,11 @@ class AdaptiveCatAvgMaxPool2d(nn.Module):
         """Applies adaptive average and max pooling with concatenation.
 
         Args:
-            input: Input tensor [B, C, H, W].
+            input: Input tensor as ``torch.Tensor`` with shape [B, C, H, W].
 
         Returns:
-            Concatenated tensor ``[B, 2*C, output_size, output_size]``.
+            Concatenated tensor as ``torch.Tensor`` with
+            shape [B, 2*C, output_size, output_size].
         """
         return adaptive_cat_avg_max_pool2d(input, self.output_size)
 
@@ -167,10 +174,10 @@ class AdaptivePool2d(nn.Module):
     """Selectable global pooling layer with dynamic kernel size.
 
     Args:
-        output_size: Target output size for pooling. Default is ``1``.
-        pool_type: Type of pooling (``'fast'``, ``'avg'``, ``'max'``, ``'avg_max'``, ``'cat_avg_max'``).
-            Default is ``'fast'``.
-        flatten: If ``True``, flattens spatial dimensions. Default is ``False``.
+        output_size: Target output size for pooling as ``int``. Default is ``1``.
+        pool_type: Type of pooling as ``Literal["fast", "avg", "max", "avg_max", "cat_avg_max"]``.
+            Default is ``"fast"``.
+        flatten: Flattens spatial dimensions if ``True``. Default is ``False``.
     """
 
     def __init__(
@@ -213,10 +220,15 @@ class AdaptivePool2d(nn.Module):
         """Applies selected pooling and optional flattening.
 
         Args:
-            input: Input tensor [B, C, H, W].
+            input: Input tensor as ``torch.Tensor`` with shape [B, C, H, W].
 
         Returns:
-            Pooled tensor, shape varies by ``pool_type`` and flatten.
+            Pooled tensor as ``torch.Tensor`` with shape varying by ``pool_type``
+            and flatten:
+            - [B, C, output_size, output_size] or [B, C*output_size*output_size]
+                for ``"fast"``, ``"avg"``, ``"max"``, ``"avg_max"``.
+            - [B, 2*C, output_size, output_size] or [B, 2*C*output_size*output_size]
+                for ``"cat_avg_max"``.
         """
         return self.flatten(self.pool(input))
 
@@ -229,7 +241,7 @@ class FastAdaptiveAvgPool2d(nn.Module):
     """Fast adaptive average pooling in 2D.
 
     Args:
-        flatten: If ``True``, removes spatial dimensions. Default is ``False``.
+        flatten: Removes spatial dimensions if ``True``. Default is ``False``.
     """
 
     def __init__(self, flatten: bool = False):
@@ -240,10 +252,11 @@ class FastAdaptiveAvgPool2d(nn.Module):
         """Applies fast adaptive average pooling.
 
         Args:
-            input: Input tensor [B, C, H, W].
+            input: Input tensor as ``torch.Tensor`` with shape [B, C, H, W].
 
         Returns:
-            Pooled tensor ``[B, C, 1, 1]`` if not flatten, ``[B, C]`` if flatten.
+            Pooled tensor as ``torch.Tensor`` with shape [B, C, 1, 1] if not flatten,
+            or [B, C] if flatten.
         """
         return input.mean(dim=(2, 3), keepdim=not self.flatten)
 
@@ -263,15 +276,16 @@ def avg_pool2d_same(
     """Applies 2D average pooling with 'same' padding.
 
     Args:
-        input: Input tensor [B, C, H, W].
-        kernel_size: Size of the pooling kernel (H, W).
-        stride: Stride of the pooling (H, W).
-        padding: Padding before ``'same'`` adjustment (H, W). Default is ``0``.
-        ceil_mode: If ``True``, uses ceil for output shape. Default is ``False``.
-        count_include_pad: If ``True``, includes padding in avg. Default is ``True``.
+        input: Input tensor as ``torch.Tensor`` with shape [B, C, H, W].
+        kernel_size: Size of the pooling kernel as ``int`` or ``tuple[int, int]`` (H, W).
+        stride: Stride of the pooling as ``int`` or ``tuple[int, int]`` (H, W).
+        padding: Padding before 'same' adjustment as ``int`` or ``tuple[int, int]`` (H, W).
+            Default is ``0``.
+        ceil_mode: Uses ceil for output shape if ``True``. Default is ``False``.
+        count_include_pad: Includes padding in average if ``True``. Default is ``True``.
 
     Returns:
-        Pooled tensor with ``'same'`` spatial size adjusted by padding.
+        Pooled tensor as ``torch.Tensor`` with 'same' spatial size adjusted by padding.
     """
     y = pad.pad_same(
         input       = input,
@@ -292,11 +306,16 @@ class AvgPool2dSame(nn.AvgPool2d):
     """TensorFlow-like 'same' wrapper for 2D average pooling.
 
     Args:
-        kernel_size: Size of the pooling kernel (H, W).
-        stride: Stride of the pooling (H, W). Default is ``None``.
-        padding: Base padding before ``'same'`` adjustment (H, W). Default is ``0``.
-        ceil_mode: If ``True``, uses ceil for output shape. Default is ``False``.
-        count_include_pad: If ``True``, includes padding in avg. Default is ``True``.
+        kernel_size: Size of the pooling kernel as ``int`` or ``tuple[int, int]`` (H, W).
+        stride: Stride of the pooling as ``int`` or ``tuple[int, int]`` (H, W).
+            Default is ``None``.
+        padding: Base padding before 'same' adjustment as ``int`` or
+            ``tuple[int, int]`` (H, W). Default is ``0``.
+        ceil_mode: Uses ceil for output shape if ``True``. Default is ``False``.
+        count_include_pad: Includes padding in average if ``True``. Default is ``True``.
+
+    Attributes:
+        Inherited from ``nn.AvgPool2d``.
     """
 
     def __init__(
@@ -316,13 +335,14 @@ class AvgPool2dSame(nn.AvgPool2d):
         )
 
     def forward(self, input: torch.Tensor) -> torch.Tensor:
-        """Applies 2D average pooling with ``'same'`` padding.
+        """Applies 2D average pooling with 'same' padding.
 
         Args:
-            input: Input tensor [B, C, H, W].
+            input: Input tensor as ``torch.Tensor`` with shape [B, C, H, W].
 
         Returns:
-            Pooled tensor with ``'same'`` spatial size adjusted by padding.
+            Pooled tensor as ``torch.Tensor`` with 'same' spatial size adjusted
+            by padding.
         """
         return avg_pool2d_same(
             input            = input,
@@ -349,10 +369,11 @@ class ChannelPool(nn.Module):
         """Pools channels globally with max and mean operations.
 
         Args:
-            input: Input tensor [B, C, H, W].
+            input: Input tensor as ``torch.Tensor`` with shape [B, C, H, W],
 
         Returns:
-            Concatenated tensor ``[B, 2, H, W]`` of max and mean across channels.
+            Concatenated tensor as ``torch.Tensor`` with shape [B, 2, H, W] of max
+            and mean across channels.
         """
         return torch.cat(
             tensors=(torch.max(input, 1)[0].unsqueeze(1), torch.mean(input, 1).unsqueeze(1)),
@@ -368,10 +389,11 @@ def lse_pool2d(input: torch.Tensor) -> torch.Tensor:
     """Applies LogSumExp (LSE) pooling, aka RealSoftMax or multivariable softplus.
 
     Args:
-        input: Input tensor [B, C, H, W].
+        input: Input tensor as ``torch.Tensor`` with shape [B, C, H, W].
 
     Returns:
-        Pooled tensor ``[B, C, 1, 1]`` with log-sum-exp over spatial dimensions.
+        Pooled tensor as ``torch.Tensor`` with shape [B, C, 1, 1] with log-sum-exp
+        over spatial dimensions.
     """
     x_flat   = input.view(input.size(0), input.size(1), -1)  # [B, C, H*W]
     x_max, _ = torch.max(x_flat, dim=2, keepdim=True)        # [B, C, 1]
@@ -391,18 +413,20 @@ def max_pool2d_same(
     dilation   : _size_2_t = 1,
     ceil_mode  : bool      = False
 ) -> torch.Tensor:
-    """Applies 2D max pooling with ``'same'`` padding.
+    """Applies 2D max pooling with 'same' padding.
 
     Args:
-        input: Input tensor [B, C, H, W].
-        kernel_size: Size of the pooling kernel (H, W).
-        stride: Stride of the pooling (H, W).
-        padding: Base padding before ``'same'`` adjustment (H, W). Default is ``0``.
-        dilation: Dilation of the pooling (H, W). Default is ``1``.
-        ceil_mode: If ``True``, uses ceil for output shape. Default is ``False``.
+        input: Input tensor as ``torch.Tensor`` with shape [B, C, H, W].
+        kernel_size: Size of the pooling kernel as ``int`` or ``tuple[int, int]`` (H, W).
+        stride: Stride of the pooling as ``int`` or ``tuple[int, int]`` (H, W).
+        padding: Base padding before 'same' adjustment as ``int`` or
+            ``tuple[int, int]`` (H, W). Default is ``0``.
+        dilation: Dilation of the pooling as ``int`` or ``tuple[int, int]`` (H, W).
+            Default is ``1``.
+        ceil_mode: Uses ceil for output shape if ``True``. Default is ``False``.
 
     Returns:
-        Pooled tensor with ``'same'`` spatial size adjusted by padding.
+        Pooled tensor as ``torch.Tensor`` with 'same' spatial size adjusted by padding.
     """
     y = pad.pad_same(
         input       = input,
@@ -421,14 +445,20 @@ def max_pool2d_same(
 
 
 class MaxPool2dSame(nn.MaxPool2d):
-    """TensorFlow-like ``'same'`` wrapper for 2D max pooling.
+    """TensorFlow-like 'same' wrapper for 2D max pooling.
 
     Args:
-        kernel_size: Size of the pooling kernel (H, W).
-        stride: Stride of the pooling (H, W). Default is ``None``.
-        padding: Base padding before ``'same'`` adjustment (H, W). Default is ``(0, 0)``.
-        dilation: Dilation of the pooling (H, W). Default is ``(1, 1)``.
-        ceil_mode: If ``True``, uses ceil for output shape. Default is ``False``.
+        kernel_size: Size of the pooling kernel as ``int`` or ``tuple[int, int]`` (H, W).
+        stride: Stride of the pooling as ``int`` or ``tuple[int, int]`` (H, W).
+            Default is ``None``.
+        padding: Base padding before 'same' adjustment as ``int`` or
+            ``tuple[int, int]`` (H, W). Default is ``(0, 0)``.
+        dilation: Dilation of the pooling as ``int`` or ``tuple[int, int]`` (H, W).
+            Default is ``(1, 1)``.
+        ceil_mode: Uses ceil for output shape if ``True``. Default is ``False``.
+
+    Attributes:
+        Inherited from ``nn.MaxPool2d``.
     """
     
     def __init__(
@@ -448,13 +478,13 @@ class MaxPool2dSame(nn.MaxPool2d):
         )
     
     def forward(self, input: torch.Tensor) -> torch.Tensor:
-        """Applies 2D max pooling with ``'same'`` padding.
+        """Applies 2D max pooling with 'same' padding.
 
         Args:
-            input: Input tensor [B, C, H, W].
+            input: Input tensor as ``torch.Tensor`` with shape [B, C, H, W].
 
         Returns:
-            Pooled tensor with ``'same'`` spatial size adjusted by padding.
+            Pooled tensor as ``torch.Tensor`` with 'same' spatial size adjusted by padding.
         """
         return max_pool2d_same(
             input       = input,
@@ -474,10 +504,12 @@ class MedianPool2d(nn.Module):
     """Median pooling layer, usable as a median filter when stride=1.
 
     Args:
-        kernel_size: Size of the pooling kernel (H, W).
-        stride: Stride of the pooling (H, W). Default is ``(1, 1)``.
-        padding: Padding (int or tuple). Default is ``0`` (updated by 'same').
-        same: If ``True``, enforces 'same' padding. Default is ``False``.
+        kernel_size: Size of the pooling kernel as ``int`` or ``tuple[int, int]`` (H, W).
+        stride: Stride of the pooling as ``int`` or ``tuple[int, int]`` (H, W).
+            Default is ``(1, 1)``.
+        padding: Padding as ``int`` or ``tuple[int, int]`` (H, W).
+            Default is ``0`` (updated by 'same').
+        same: Enforces 'same' padding if ``True``. Default is ``False``.
     """
 
     def __init__(
@@ -497,10 +529,10 @@ class MedianPool2d(nn.Module):
         """Calculates padding for the input tensor.
 
         Args:
-            input: Input tensor [B, C, H, W].
+            input: Input tensor as ``torch.Tensor`` with shape [B, C, H, W].
 
         Returns:
-            Tuple of padding ``(left, right, top, bottom)``.
+            Tuple of padding as ``tuple[int, int, int, int]`` (left, right, top, bottom).
         """
         if self.same:
             ih, iw = input.size()[2:]
@@ -523,10 +555,11 @@ class MedianPool2d(nn.Module):
         """Applies median pooling over spatial dimensions.
 
         Args:
-            input: Input tensor [B, C, H, W].
+            input: Input tensor as ``torch.Tensor`` with shape [B, C, H, W].
 
         Returns:
-            Pooled tensor with reduced spatial size based on kernel and stride.
+            Pooled tensor as ``torch.Tensor`` with reduced spatial size based on
+            kernel and stride.
         """
         y = F.pad(input, self._padding(input), mode="reflect")
         y = y.unfold(2, self.kernel_size[0], self.stride[0])

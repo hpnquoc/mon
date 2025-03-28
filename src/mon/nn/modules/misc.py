@@ -51,7 +51,7 @@ class Concat(nn.Module):
     """Concatenates a list of tensors along a dimension.
 
     Args:
-        dim: Dimension to concatenate along. Default is ``1``.
+        dim: Dimension to concatenate along as ``int``. Default is ``1``.
     """
     
     def __init__(self, dim: int = 1):
@@ -62,10 +62,10 @@ class Concat(nn.Module):
         """Concatenates input tensors along specified dimension.
 
         Args:
-            input: List of tensors to concatenate.
-        
+            input: List of tensors to concatenate as ``list[torch.Tensor]``.
+
         Returns:
-            Concatenated tensor.
+            Concatenated tensor as ``torch.Tensor``.
         """
         return torch.cat(input, dim=self.dim)
 
@@ -74,9 +74,9 @@ class CustomConcat(nn.Module):
     """Concatenates module outputs along a dimension, aligning shapes if needed.
 
     Args:
-        dim: Dimension to concatenate along.
-        *args: Modules to process input.
-        **kwargs: Additional arguments (unused).
+        dim: Dimension to concatenate along as ``int``.
+        *args: Modules to process input as variable positional arguments.
+        **kwargs: Additional keyword arguments (unused).
     """
     
     def __init__(self, dim: int, *args, **kwargs):
@@ -93,10 +93,10 @@ class CustomConcat(nn.Module):
         """Processes input through modules and concatenates outputs.
 
         Args:
-            input: Tensor to process.
-       
+            input: Tensor to process as ``torch.Tensor``.
+
         Returns:
-            Concatenated tensor with aligned shapes.
+            Concatenated tensor as ``torch.Tensor`` with aligned shapes.
         """
         outputs  = [module(input) for module in self._modules.values()]
         shapes_h = [x.shape[2] for x in outputs]
@@ -119,7 +119,7 @@ class Chuncat(nn.Module):
     """Splits tensors into two chunks and concatenates them.
 
     Args:
-        dim: Dimension to split and concatenate along. Default is ``1``.
+        dim: Dimension to split and concatenate along as ``int``. Default is ``1``.
     """
 
     def __init__(self, dim: int = 1):
@@ -130,9 +130,10 @@ class Chuncat(nn.Module):
         """Chunks each tensor and concatenates results.
 
         Args:
-            input: Sequence of tensors to process.
+            input: Sequence of tensors to process as ``Sequence[torch.Tensor]``.
+
         Returns:
-            Concatenated tensor.
+            Concatenated tensor as ``torch.Tensor``.
         """
         y1 = [x.chunk(2, self.dim)[0] for x in input]
         y2 = [x.chunk(2, self.dim)[1] for x in input]
@@ -143,7 +144,7 @@ class InterpolateConcat(nn.Module):
     """Concatenates tensors after interpolating to max size.
 
     Args:
-        dim: Dimension to concatenate along. Default is ``1``.
+        dim: Dimension to concatenate along as ``int``. Default is ``1``.
     """
 
     def __init__(self, dim: int = 1):
@@ -154,16 +155,15 @@ class InterpolateConcat(nn.Module):
         """Interpolates tensors to max size and concatenates.
 
         Args:
-            input: Sequence of tensors to process.
-       
+            input: Sequence of tensors to process as ``Sequence[torch.Tensor]``.
+
         Returns:
-            Concatenated tensor.
+            Concatenated tensor as ``torch.Tensor``.
         """
         sizes = [x.size() for x in input]
         h, w  = max(s[2] for s in sizes), max(s[3] for s in sizes)
         y     = [F.interpolate(x, size=(h, w)) if (x.size(2) != h or x.size(3) != w) else x for x in input]
         return torch.cat(y, dim=self.dim)
-
 
 # endregion
 
@@ -174,7 +174,7 @@ class ExtractItem(nn.Module):
     """Extracts an item at a specified index from a tensor sequence.
 
     Args:
-        index: Index of the item to extract.
+        index: Index of the item to extract as ``int``.
     """
 
     def __init__(self, index: int):
@@ -185,11 +185,12 @@ class ExtractItem(nn.Module):
         """Extracts item at index from sequence.
 
         Args:
-            input: Sequence of tensors or single tensor.
-       
+            input: Sequence of tensors or single tensor as
+                ``Sequence[torch.Tensor]`` or ``torch.Tensor``.
+
         Returns:
-            Tensor at specified index or input if single tensor.
-       
+            Tensor at specified index as ``torch.Tensor`` or input if single tensor,
+
         Raises:
             TypeError: If input is not a tensor, list, or tuple.
         """
@@ -204,7 +205,7 @@ class ExtractItems(nn.Module):
     """Extracts multiple items from a tensor sequence by indexes.
 
     Args:
-        indexes: Indexes of items to extract.
+        indexes: Indexes of items to extract as ``Sequence[int]``.
     """
 
     def __init__(self, indexes: Sequence[int]):
@@ -215,9 +216,12 @@ class ExtractItems(nn.Module):
         """Extracts items at specified indexes from sequence.
 
         Args:
-            input: Sequence of tensors or single tensor.
+            input: Sequence of tensors or single tensor as
+                ``Sequence[torch.Tensor]`` or ``torch.Tensor``.
+
         Returns:
-            List of extracted tensors.
+            List of extracted tensors as ``list[torch.Tensor]``.
+
         Raises:
             TypeError: If input is not a tensor, list, or tuple.
         """
@@ -232,8 +236,8 @@ class Max(nn.Module):
     """Computes maximum along a specified dimension.
 
     Args:
-        dim: Dimension to compute maximum along.
-        keepdim: Keep reduced dimension if ``True``. Default is ``False``.
+        dim: Dimension to compute maximum along as ``int``.
+        keepdim: Keeps reduced dimension if ``True``. Default is ``False``.
     """
 
     def __init__(self, dim: int, keepdim: bool = False):
@@ -245,14 +249,13 @@ class Max(nn.Module):
         """Computes max value along specified dimension.
 
         Args:
-            input: Tensor to compute maximum from.
-        
+            input: Tensor to compute maximum from as ``torch.Tensor``.
+
         Returns:
-            Tensor of max values or tuple if keepdim is ``False``.
+            Tensor of max values as ``torch.Tensor``.
         """
         max_values, _ = torch.max(input, dim=self.dim, keepdim=self.keepdim)
         return max_values
-
 
 # endregion
 
@@ -263,7 +266,7 @@ class FlattenSingle(nn.Module):
     """Flattens a tensor starting from a specified dimension.
 
     Args:
-        dim: Start dimension to flatten from. Default is ``1``.
+        dim: Start dimension to flatten from as ``int``. Default is ``1``.
     """
 
     def __init__(self, dim: int = 1):
@@ -274,10 +277,10 @@ class FlattenSingle(nn.Module):
         """Flattens input tensor from specified dimension.
 
         Args:
-            input: Tensor to flatten.
-        
+            input: Tensor to flatten as ``torch.Tensor``.
+
         Returns:
-            Flattened tensor.
+            Flattened tensor as ``torch.Tensor``.
         """
         return torch.flatten(input, start_dim=self.dim)
 
@@ -290,7 +293,7 @@ class Foldcut(nn.Module):
     """Splits tensor into two chunks and sums them.
 
     Args:
-        dim: Dimension to split and sum along. Default is ``0``.
+        dim: Dimension to split and sum along as ``int``. Default is ``0``.
     """
 
     def __init__(self, dim: int = 0):
@@ -301,9 +304,10 @@ class Foldcut(nn.Module):
         """Chunks tensor and returns sum of parts.
 
         Args:
-            input: Tensor to process.
+            input: Tensor to process as ``torch.Tensor``.
+
         Returns:
-            Summed tensor.
+            Summed tensor as ``torch.Tensor``.
         """
         x1, x2 = input.chunk(2, dim=self.dim)
         return x1 + x2
@@ -319,10 +323,10 @@ class Join(nn.Module):
         """Converts input sequence to a list of tensors.
 
         Args:
-            input: Sequence of tensors to join.
-        
+            input: Sequence of tensors to join as ``Sequence[torch.Tensor]``.
+
         Returns:
-            List of tensors.
+            List of tensors as ``list[torch.Tensor]``.
         """
         return list(input)
 
@@ -331,7 +335,7 @@ class Shortcut(nn.Module):
     """Sums the first two tensors in a sequence.
 
     Args:
-        dim: Dimension for tensor operations (unused). Default is ``0``.
+        dim: Dimension for tensor operations as ``int`` (unused). Default is ``0``.
     """
 
     def __init__(self, dim: int = 0):
@@ -342,10 +346,10 @@ class Shortcut(nn.Module):
         """Sums the first two input tensors.
 
         Args:
-            input: Sequence of at least two tensors.
-            
+            input: Sequence of at least two tensors as ``Sequence[torch.Tensor]``.
+
         Returns:
-            Summed tensor.
+            Summed tensor as ``torch.Tensor``.
         """
         return input[0] + input[1]
 
@@ -354,9 +358,9 @@ class SoftmaxFusion(nn.Module):
     """Fuses multiple layers with optional weighted sum.
 
     Args:
-        n: Number of input tensors.
-        weight: Apply learnable weights if ``True``. Default is ``False``.
-    
+        n: Number of input tensors as ``int``.
+        weight: Applies learnable weights if ``True``. Default is ``False``.
+
     References:
         - https://arxiv.org/abs/1911.09070
     """
@@ -372,10 +376,10 @@ class SoftmaxFusion(nn.Module):
         """Computes weighted or unweighted sum of inputs.
 
         Args:
-            input: Sequence of n tensors.
-        
+            input: Sequence of n tensors as ``Sequence[torch.Tensor]``.
+
         Returns:
-            Fused tensor.
+            Fused tensor as ``torch.Tensor``.
         """
         y = input[0]
         if self.weight:
@@ -398,10 +402,10 @@ class Sum(nn.Module):
         """Sums all input tensors.
 
         Args:
-            input: Sequence of tensors to sum.
-            
+            input: Sequence of tensors to sum as ``Sequence[torch.Tensor]``.
+
         Returns:
-            Summed tensor.
+            Summed tensor as ``torch.Tensor``.
         """
         y = input[0]
         for i in range(1, len(input)):
@@ -417,8 +421,8 @@ class PatchMerging(nn.Module):
     """Merges patches by reducing spatial size and doubling channels.
 
     Args:
-        dim: Number of input channels.
-        norm: Normalization layer type. Default is ``nn.LayerNorm``.
+        dim: Number of input channels as ``int``.
+        norm: Normalization layer type as ``type[nn.Module]``. Default is ``nn.LayerNorm``.
     """
 
     def __init__(self, dim: int, norm: type[nn.Module] = nn.LayerNorm, *args, **kwargs):
@@ -431,9 +435,10 @@ class PatchMerging(nn.Module):
         """Pads and merges patches into 4x channels.
 
         Args:
-            x: Tensor of shape ``(..., H, W, C)``.
+            x: Tensor of shape [..., H, W, C] as ``torch.Tensor``.
+
         Returns:
-            Tensor of shape ``(..., H/2, W/2, 4*C)``.
+            Tensor of shape [..., H/2, W/2, 4*C] as ``torch.Tensor``.
         """
         h, w, _ = x.shape[-3:]
         x       = F.pad(x, (0, 0, 0, w % 2, 0, h % 2))
@@ -447,10 +452,10 @@ class PatchMerging(nn.Module):
         """Merges patches and reduces channel dimension.
 
         Args:
-            input: Tensor of shape ``(B, C, H, W)``.
-            
+            input: Tensor of shape [B, C, H, W] as ``torch.Tensor``.
+
         Returns:
-            Tensor of shape ``(B, H/2, W/2, 2*C)``.
+            Tensor of shape [B, H/2, W/2, 2*C] as ``torch.Tensor``.
         """
         x = self._patch_merging_pad(input)
         x = self.norm(x)
@@ -461,8 +466,8 @@ class PatchMergingV2(nn.Module):
     """Merges patches for Swin Transformer V2.
 
     Args:
-        dim: Number of input channels.
-        norm: Normalization layer type. Default is ``nn.LayerNorm``.
+        dim: Number of input channels as ``int``.
+        norm: Normalization layer type as ``type[nn.Module]``. Default is ``nn.LayerNorm``.
     """
 
     def __init__(self, dim: int, norm: type[nn.Module] = nn.LayerNorm, *args, **kwargs):
@@ -475,10 +480,10 @@ class PatchMergingV2(nn.Module):
         """Pads and merges patches into 4x channels.
 
         Args:
-            x: Tensor of shape ``(..., H, W, C)``.
-            
+            x: Tensor of shape [..., H, W, C] as ``torch.Tensor``.
+
         Returns:
-            Tensor of shape ``(..., H/2, W/2, 4*C)``.
+            Tensor of shape [..., H/2, W/2, 4*C] as ``torch.Tensor``.
         """
         h, w, _ = x.shape[-3:]
         x       = F.pad(x, (0, 0, 0, w % 2, 0, h % 2))
@@ -492,10 +497,10 @@ class PatchMergingV2(nn.Module):
         """Merges patches and applies reduction.
 
         Args:
-            input: Tensor of shape ``(B, C, H, W)``.
-            
+            input: Tensor of shape [B, C, H, W] as ``torch.Tensor``.
+
         Returns:
-            Tensor of shape ``(B, H/2, W/2, 2*C)``.
+            Tensor of shape [B, H/2, W/2, 2*C] as ``torch.Tensor``.
         """
         x = self._patch_merging_pad(input)
         x = self.reduction(x)

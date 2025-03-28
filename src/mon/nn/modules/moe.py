@@ -24,10 +24,10 @@ def get_image_size(input: Any) -> tuple[int, int]:
     """Retrieves the size of an image.
 
     Args:
-        input: Image data in any compatible format.
+        input: Image data in any compatible format as ``Any``.
 
     Returns:
-        Tuple of (height, width) in pixels.
+        Tuple of (height, width) in pixels as ``tuple[int, int]``
     """
     from mon.vision.dtype import image as I
     return I.get_image_size(input)
@@ -41,9 +41,10 @@ class LayeredFeatureAggregation(nn.Module):
     """Layered Feature Aggregation (LFA) fuses decoder layer features.
 
     Args:
-        in_channels: List of input channel counts for each feature.
-        out_channels: Number of output channels.
-        size: Target size for upsampling. Default is ``None`` (no resizing).
+        in_channels: List of input channel counts for each feature as ``list[int]``.
+        out_channels: Number of output channels as ``int``.
+        size: Target size for upsampling as ``int`` or ``tuple[int, int]``.
+            Default is ``None`` (no resizing).
     """
 
     def __init__(
@@ -78,16 +79,18 @@ class LayeredFeatureAggregation(nn.Module):
         """Aggregates layered features with attention.
 
         Args:
-            input: Sequence of feature tensors [B, C_i, H, W].
+            input: Sequence of feature tensors as ``Sequence[torch.Tensor]`` with
+                shapes [B, C_i, H, W].
 
         Returns:
-            Aggregated feature tensor [B, C_out, H, W].
+            Aggregated feature tensor as ``torch.Tensor`` with shape [B, C_out, H, W].
 
         Raises:
             ValueError: If number of input tensors mismatches ``num_experts``.
         """
         if len(input) != self.num_experts:
-            raise ValueError(f"Expected {self.num_experts} input tensors, got [{len(input)}]")
+            raise ValueError(f"Expected {self.num_experts} input tensors, "
+                             f"got [{len(input)}].")
 
         r = [
             self.linears[i](self.resize(inp)) if self.resize else self.linears[i](inp) if self.linears else inp

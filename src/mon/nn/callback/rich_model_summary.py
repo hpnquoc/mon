@@ -36,14 +36,14 @@ class RichModelSummary(callbacks.RichModelSummary):
         **summarize_kwargs : Any
     ):
         """Generates rich text summary of model layers and parameters.
-
+    
         Args:
-            summary_data: List of tuples with column names and row data.
-            total_parameters: Total number of parameters.
-            trainable_parameters: Number of trainable parameters.
-            model_size: Model size in MB.
-            *args: Additional positional args.
-            **summarize_kwargs: Additional keyword args.
+            summary_data: ``list`` of ``tuple``s with column names and row data.
+            total_parameters: Total number of parameters as ``int``.
+            trainable_parameters: Number of trainable parameters as ``int``.
+            model_size: Model size in MB as ``float``.
+            args: Additional positional args.
+            summarize_kwargs: Additional keyword args as ``Any``.
         """
         table = core.rich.table.Table(header_style="bold magenta")
         table.add_column(" ", style="dim")

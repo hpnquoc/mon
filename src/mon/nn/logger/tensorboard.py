@@ -89,10 +89,10 @@ class SummaryWriter(tensorboard.SummaryWriter):
     """Manages TensorBoard summary writing."""
     
     def _get_file_writer(self):
-        """Returns or recreates the default FileWriter instance.
-
+        """Returns or recreates the default ``FileWriter`` instance.
+    
         Returns:
-            FileWriter instance for logging events.
+            ``FileWriter`` instance for logging events.
         """
         if self.all_writers is None or self.file_writer is None:
             self.file_writer = FileWriter(
@@ -120,10 +120,10 @@ def rank_zero_only(fn: Callable) -> Callable:
     """Wraps a function to execute only on rank zero.
 
     Args:
-        fn: Function to restrict to rank zero.
-        
+        fn: ``Callable`` to restrict to rank zero.
+
     Returns:
-        Wrapped function that runs on rank zero or returns None.
+        Wrapped ``Callable`` that runs on rank zero or returns ``None``.
     """
     @functools.wraps(fn)
     def wrapped_fn(*args: Any, **kwargs: Any) -> Any | None:
@@ -138,7 +138,7 @@ def _get_rank() -> int:
     """Retrieves process rank from environment variables.
 
     Returns:
-        Rank as integer, defaults to 0 if not found.
+        Rank as ``int``, defaults to 0 if not found.
     """
     rank_keys = ("RANK", "SLURM_PROCID", "LOCAL_RANK")
     for key in rank_keys:
@@ -164,16 +164,17 @@ class TensorBoardLogger(loggers.TensorBoardLogger):
     @property
     @rank_zero_experiment
     def experiment(self) -> SummaryWriter:
-        """Provides access to the TensorBoard SummaryWriter.
-
+        """Provides access to the TensorBoard ``SummaryWriter``.
+    
         Returns:
-            SummaryWriter instance for TensorBoard logging.
-       
+            ``SummaryWriter`` instance for TensorBoard logging.
+    
         Raises:
             ValueError: If initialized on non-zero global rank.
-        
+    
         Example:
-            self.logger.experiment.some_tensorboard_function()
+            ::
+                self.logger.experiment.some_tensorboard_function()
         """
         if self._experiment:
             return self._experiment

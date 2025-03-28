@@ -58,7 +58,7 @@ def bbox_area(bbox: np.ndarray) -> np.ndarray:
     if bbox.ndim == 1:
         bbox = np.expand_dims(bbox, 0)
     if bbox.ndim != 2:
-        raise ValueError(f"`bbox` must be 1D, but got {bbox.ndim}D.")
+        raise ValueError(f"`bbox` must be 1D, got {bbox.ndim}D.")
     x1   = bbox[..., 0]
     y1   = bbox[..., 1]
     x2   = bbox[..., 2]
@@ -81,7 +81,7 @@ def bbox_center(bbox: np.ndarray) -> np.ndarray:
     if bbox.ndim == 1:
         bbox = np.expand_dims(bbox, 0)
     if bbox.ndim != 2:
-        raise ValueError(f"`bbox` must be 1D, but got {bbox.ndim}D.")
+        raise ValueError(f"`bbox` must be 1D, got {bbox.ndim}D.")
     x1     = bbox[..., 0]
     y1     = bbox[..., 1]
     x2     = bbox[..., 2]
@@ -106,7 +106,7 @@ def bbox_corners(bbox: np.ndarray) -> np.ndarray:
     if bbox.ndim == 1:
         bbox = np.expand_dims(bbox, 0)
     if bbox.ndim != 2:
-        raise ValueError(f"`bbox` must be 1D, but got {bbox.ndim}D.")
+        raise ValueError(f"`bbox` must be 1D, got {bbox.ndim}D.")
     x1      = bbox[..., 0]
     y1      = bbox[..., 1]
     x2      = bbox[..., 2]
