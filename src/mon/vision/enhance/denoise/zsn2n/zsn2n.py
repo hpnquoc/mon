@@ -67,6 +67,9 @@ class ZSN2N(base.ImageEnhancementModel):
         self.conv3 = nn.Conv2d(num_channels, in_channels,  kernel_size=1)
         self.act   = nn.LeakyReLU(negative_slope=0.2, inplace=True)
         
+        # Optimizer
+        self.configure_optimizers()
+        
         # Load weights
         if self.weights:
             self.load_weights()
@@ -135,7 +138,7 @@ class ZSN2N(base.ImageEnhancementModel):
         """
         # Initialize training components
         if reset_weights:
-            self.load_state_dict(self.initial_state_dict)
+            self.load_state_dict(self.initial_state_dict, strict=False)
         optimizer    = self.optimizer.get("optimizer",    None)
         lr_scheduler = self.optimizer.get("lr_scheduler", {})
         scheduler    =   lr_scheduler.get("scheduler",    None)

@@ -78,7 +78,7 @@ class INRLayer(nn.Module):
         elif nonlinear == "finer":
             self.nonlinear = FINERLayer(**layer_args, w0=w0, first_bias_scale=first_bias_scale, is_first=is_first)
         else:
-            raise ValueError(f"[nonlinear] must be supported type, got [{nonlinear}]")
+            raise ValueError(f"[nonlinear] must be supported type, got {nonlinear}.")
         
         self.dropout = nn.Dropout(dropout)
         

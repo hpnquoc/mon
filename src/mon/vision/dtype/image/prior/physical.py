@@ -1,17 +1,24 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Implements atmospheric point spread function (APSF)."""
+"""Implements image physical priors.
+
+This category encompasses models about image properties based on physical (model-based).
+"""
 
 from __future__ import annotations
 
 __all__ = [
     "atmospheric_point_spread_function",
+    "atmospheric_prior",
 ]
 
 import numpy as np
 import torch
 from torch.nn import functional as F
+from torch.nn.common_types import _size_2_t
+
+from mon.vision.dtype.image.prior import statistical
 
 
 def atmospheric_point_spread_function(
@@ -33,7 +40,7 @@ def atmospheric_point_spread_function(
             - ``0.85-0.90``: fog
             - ``0.90-1.00``: rain
             Default is ``0.2``.
-        T: Optical thickness. Possibly: ``[0.7, 1.2, 4]``. According to Narasimhan in
+        T: Optical thickness. Possibly: [0.7, 1.2, 4]. According to Narasimhan in
             CVPR03 paper: T = sigma * R (extinctiontion coefficition * distance or depth),
             which is the same \beta d in haze modelling.
             Default is ``1.2``.
@@ -82,3 +89,34 @@ def atmospheric_point_spread_function(
     else:
         raise ValueError(f"[image] type [{type(image)}] not supported.")
     return apsf
+
+
+def atmospheric_prior(
+    image      : np.ndarray,
+    kernel_size: _size_2_t = 15,
+    p          : float     = 0.0001
+) -> np.ndarray:
+    """Get the atmospheric light in an RGB image.
+
+    Args:
+        image: RGB image as ``np.ndarray`` in [H, W, C] format with data in range [0, 255].
+        kernel_size: Window size for the dark channel as ``int`` or ``tuple[int, int]``.
+            Default is ``15``.
+        p: Percentage of pixels for estimating atmospheric light as ``float``.
+            Default is ``0.0001``.
+
+    Returns:
+        3-element array of atmospheric light as ``np.ndarray`` in range [0, 255] for each channel.
+    """
+    if not isinstance(image, np.ndarray):
+        raise ValueError(f"[image] must be numpy.ndarray, got {type(image)}.")
+    
+    image      = image.transpose(1, 2, 0)
+    # Reference CVPR09, 4.4
+    dark       = statistical.dark_channel_prior_paper(image=image, kernel_size=kernel_size)
+    m, n       = dark.shape
+    flat_i     = image.reshape(m * n, 3)
+    flat_dark  = dark.ravel()
+    search_idx = (-flat_dark).argsort()[:int(m * n * p)]  # find top M * N * p indexes
+    # Return the highest intensity for each channel
+    return np.max(flat_i.take(search_idx, axis=0), axis=0)

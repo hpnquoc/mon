@@ -298,7 +298,7 @@ class FastFourierConv2d(nn.Module):
     ):
         super().__init__()
         if stride not in [1, 2]:
-            raise ValueError(f"[stride] must be 1 or 2, got [{stride}]")
+            raise ValueError(f"[stride] must be 1 or 2, got {stride}.")
         self.stride      = stride
         self.ratio_g_in  = ratio_g_in
         self.ratio_g_out = ratio_g_out

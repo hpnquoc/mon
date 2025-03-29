@@ -22,7 +22,10 @@ from mon.vision.dtype import image as I
 
 # region Conversion
 
-def convert_label_map_id_to_train_id(label_map: np.ndarray, classlabels: "ClassLabels") -> np.ndarray:
+def convert_label_map_id_to_train_id(
+    label_map  : np.ndarray,
+    classlabels: "ClassLabels"
+) -> np.ndarray:
     """Converts label map from IDs to train IDs.
 
     Args:
@@ -36,7 +39,7 @@ def convert_label_map_id_to_train_id(label_map: np.ndarray, classlabels: "ClassL
         TypeError: If ``label_map`` is not a ``numpy.ndarray``.
     """
     if not isinstance(label_map, np.ndarray):
-        raise TypeError(f"[label_map] must be a numpy.ndarray, but got {type(label_map)}.")
+        raise TypeError(f"[label_map] must be a numpy.ndarray, got {type(label_map)}.")
     
     id2train_id = classlabels.id_to_train_id
     h, w        = I.get_image_size(label_map)
@@ -49,7 +52,10 @@ def convert_label_map_id_to_train_id(label_map: np.ndarray, classlabels: "ClassL
     return np.expand_dims(label_ids, axis=-1)
  
 
-def convert_label_map_id_to_color(label_map: np.ndarray, classlabels: "ClassLabels") -> np.ndarray:
+def convert_label_map_id_to_color(
+    label_map  : np.ndarray,
+    classlabels: "ClassLabels"
+) -> np.ndarray:
     """Converts label map from IDs to color-coded representation.
 
     Args:
@@ -63,7 +69,7 @@ def convert_label_map_id_to_color(label_map: np.ndarray, classlabels: "ClassLabe
         TypeError: If ``label_map`` is not a ``numpy.ndarray``.
     """
     if not isinstance(label_map, np.ndarray):
-        raise TypeError(f"[label_map] must be a numpy.ndarray, but got {type(label_map)}.")
+        raise TypeError(f"[label_map] must be a numpy.ndarray, got {type(label_map)}.")
 
     id2color  = classlabels.id_color
     h, w      = I.get_image_size(label_map)
@@ -74,7 +80,10 @@ def convert_label_map_id_to_color(label_map: np.ndarray, classlabels: "ClassLabe
     return color_map
 
 
-def convert_label_map_color_to_id(label_map: np.ndarray, classlabels: "ClassLabels") -> np.ndarray:
+def convert_label_map_color_to_id(
+    label_map  : np.ndarray,
+    classlabels: "ClassLabels"
+) -> np.ndarray:
     """Converts a color-coded label map to label IDs.
 
     Args:
@@ -88,7 +97,7 @@ def convert_label_map_color_to_id(label_map: np.ndarray, classlabels: "ClassLabe
         TypeError: If ``label_map`` is not a ``numpy.ndarray``.
     """
     if not isinstance(label_map, np.ndarray):
-        raise TypeError(f"[label_map] must be a numpy.ndarray, but got {type(label_map)}.")
+        raise TypeError(f"[label_map] must be a numpy.ndarray, got {type(label_map)}.")
     
     id2color  = classlabels.id_color
     h, w      = I.get_image_size(label_map)
@@ -107,12 +116,14 @@ def convert_label_map_id_to_one_hot(
     """Converts label map from IDs to one-hot encoded format.
 
     Args:
-        label_map: IDs label map as ``torch.Tensor`` [B, 1, H, W] or ``numpy.ndarray`` [H, W, 1].
+        label_map: IDs label map as ``torch.Tensor`` [B, 1, H, W] or
+            ``numpy.ndarray`` [H, W, 1].
         num_classes: Number of classes in the label map, optional.
         classlabels: ``ClassLabels`` object with class info, optional.
     
     Returns:
-        One-hot encoded label map as ``torch.Tensor`` [B, C, H, W] or ``numpy.ndarray`` [H, W, C].
+        One-hot encoded label map as ``torch.Tensor`` [B, C, H, W] or
+        ``numpy.ndarray`` [H, W, C].
     
     Raises:
         ValueError: If neither ``num_classes`` nor ``classlabels`` is provided.
@@ -130,17 +141,21 @@ def convert_label_map_id_to_one_hot(
         label_map = I.convert_image_to_2d(label_map)
         return np.eye(num_classes)[label_map]
     else:
-        raise TypeError(f"[label_map] must be a torch.Tensor or numpy.ndarray, but got {type(label_map)}.")
+        raise TypeError(f"[label_map] must be a torch.Tensor or numpy.ndarray, got {type(label_map)}.")
 
 
-def convert_label_map_one_hot_to_id(label_map: torch.Tensor | np.ndarray) -> torch.Tensor | np.ndarray:
+def convert_label_map_one_hot_to_id(
+    label_map: torch.Tensor | np.ndarray
+) -> torch.Tensor | np.ndarray:
     """Converts a one-hot encoded label map to label IDs.
 
     Args:
-        label_map: One-hot encoded label map as ``torch.Tensor`` [B, C, H, W] or ``numpy.ndarray`` [H, W, C].
+        label_map: One-hot encoded label map as ``torch.Tensor`` [B, C, H, W] or
+            ``numpy.ndarray`` [H, W, C].
     
     Returns:
-        Label map with IDs as ``torch.Tensor`` [B, 1, H, W] or ``numpy.ndarray`` [H, W, 1].
+        Label map with IDs as ``torch.Tensor`` [B, 1, H, W] or
+        ``numpy.ndarray`` [H, W, 1].
     
     Raises:
         TypeError: If ``label_map`` is not a ``torch.Tensor`` or ``numpy.ndarray``.
@@ -150,7 +165,7 @@ def convert_label_map_one_hot_to_id(label_map: torch.Tensor | np.ndarray) -> tor
     elif isinstance(label_map, np.ndarray):
         label_map = np.argmax(label_map, axis=-1, keepdims=True)
     else:
-        raise TypeError(f"[label_map] must be a torch.Tensor or numpy.ndarray, but got {type(label_map)}.")
+        raise TypeError(f"[label_map] must be a torch.Tensor or numpy.ndarray, got {type(label_map)}.")
     return label_map
 
 # endregion

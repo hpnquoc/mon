@@ -1,7 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Implements pixel attention layers."""
+"""Implements spatial attention mechanisms.
+
+These modules focus on reweighting spatial locations (e.g., H and W dimensions) within
+feature maps, emphasizing "where" to focus, often based on spatial context or relationships.
+"""
 
 from __future__ import annotations
 

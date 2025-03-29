@@ -5,7 +5,13 @@
 
 from __future__ import annotations
 
-import mon.vision.dtype.image.prior.apsf
-import mon.vision.dtype.image.prior.channel_prior
-from mon.vision.dtype.image.prior.apsf import *
-from mon.vision.dtype.image.prior.channel_prior import *
+import mon.vision.dtype.image.prior.attention
+import mon.vision.dtype.image.prior.descriptive
+import mon.vision.dtype.image.prior.feature
+import mon.vision.dtype.image.prior.physical
+import mon.vision.dtype.image.prior.statistical
+from mon.vision.dtype.image.prior.attention import *
+from mon.vision.dtype.image.prior.descriptive import *
+from mon.vision.dtype.image.prior.feature import *
+from mon.vision.dtype.image.prior.physical import *
+from mon.vision.dtype.image.prior.statistical import *

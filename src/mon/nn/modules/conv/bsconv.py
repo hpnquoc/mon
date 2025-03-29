@@ -61,7 +61,7 @@ class BSConv2dS(nn.Module):
     ):
         super().__init__()
         if not 0.0 <= p <= 1.0:
-            raise AssertionError(f"[p] must be in [0.0, 1.0], got [{p}].")
+            raise AssertionError(f"[p] must be in [0.0, 1.0], got {p}.")
         mid_channels = min(in_channels, max(min_mid_channels, math.ceil(p * in_channels)))
         bn_kwargs    = bn_kwargs or {}
 

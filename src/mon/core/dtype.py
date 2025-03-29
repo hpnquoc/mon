@@ -112,7 +112,7 @@ def intersect_dicts(x: dict, y: dict, exclude: list = []) -> dict:
     Args:
         x: First dictionary.
         y: Second dictionary.
-        exclude: List of keys to exclude. Default is ``[]``.
+        exclude: List of keys to exclude. Default is [].
 
     Returns:
         Dict with keys in both ``x`` and ``y``, excluding ``exclude``, where values
@@ -131,7 +131,7 @@ def intersect_ordered_dicts(
     Args:
         x: First ``OrderedDict``.
         y: Second ``OrderedDict``.
-        exclude: List of keys to exclude. Default is ``[]``.
+        exclude: List of keys to exclude. Default is [].
 
     Returns:
         ``OrderedDict`` with keys in both ``x`` and ``y``, excluding ``exclude``, where
@@ -250,7 +250,7 @@ def to_int(x: Any) -> int | None:
     try:
         return int(x)
     except (ValueError, TypeError):
-        raise ValueError(f"[x] must be convertible to int, got [{x}] ({type(x).__name__}).")
+        raise ValueError(f"[x] must be convertible to int, got {x} ({type(x).__name__}).")
 
 
 def to_float(x: Any) -> float | None:
@@ -270,7 +270,7 @@ def to_float(x: Any) -> float | None:
     try:
         return float(x)
     except (ValueError, TypeError):
-        raise ValueError(f"[x] must be convertible to float, got [{x}] ({type(x).__name__}).")
+        raise ValueError(f"[x] must be convertible to float, got {x} ({type(x).__name__}).")
 
 # endregion
 
@@ -346,7 +346,7 @@ def iter_to_iter(x: Iterable, item_type: type, return_type: type = None):
         TypeError: If ``x`` is not a ``list``, ``tuple``, or ``dict``.
     """
     if not isinstance(x, (list, tuple, dict)):
-        raise TypeError(f"[x] must be list, tuple, or dict, got [{type(x).__name__}].")
+        raise TypeError(f"[x] must be list, tuple, or dict, got {type(x).__name__}.")
     items = map(item_type, x)
     return (list(items) if return_type is list else
             tuple(items) if return_type is tuple else items)
@@ -418,7 +418,7 @@ def to_list(x: Any, sep: list[str] = [",", ";", ":"]) -> list:
 
     Args:
         x: Value to convert.
-        sep: List of delimiters for splitting. Default is ``[",", ";", ":"]``.
+        sep: List of delimiters for splitting. Default is [",", ";", ":"].
 
     Returns:
         List representation of ``x``.
@@ -443,7 +443,7 @@ def to_int_list(x: Any, sep: list[str] = [",", ";", ":"]) -> list[int]:
 
     Args:
         x: Value to convert.
-        sep: List of delimiters for splitting. Default is ``[",", ";", ":"]``.
+        sep: List of delimiters for splitting. Default is [",", ";", ":"].
 
     Returns:
         List of integers from ``x``.
@@ -456,7 +456,7 @@ def to_float_list(x: Any, sep: list[str] = [",", ";", ":"]) -> list[float]:
 
     Args:
         x: Value to convert.
-        sep: List of delimiters for splitting. Default is ``[",", ";", ":"]``.
+        sep: List of delimiters for splitting. Default is [",", ";", ":"].
 
     Returns:
         List of floats from ``x``.
@@ -550,7 +550,7 @@ def unique(x: list | tuple) -> list | tuple:
         TypeError: If ``x`` is not a ``list`` or ``tuple``.
     """
     if not isinstance(x, (list, tuple)):
-        raise TypeError(f"[x] must be a list or tuple, got [{type(x).__name__}].")
+        raise TypeError(f"[x] must be a list or tuple, got {type(x).__name__}.")
     return type(x)(set(x))
 
 # endregion

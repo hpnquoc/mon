@@ -138,7 +138,7 @@ class DownsampleConv2d(nn.Module):
 
         Returns:
             Downsampled tensor as ``torch.Tensor`` with
-            shape ``[B, H'*W', C]`` where ``H' = H/2``, ``W' = W/2``.
+            shape [B, H'*W', C] where ``H' = H/2``, ``W' = W/2``.
         """
         x       = input
         b, l, c = x.shape

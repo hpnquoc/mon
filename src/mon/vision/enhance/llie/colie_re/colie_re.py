@@ -18,6 +18,7 @@ __all__ = [
 
 from typing import Literal
 
+import kornia
 import numpy as np
 import torch
 from fvcore.nn import parameter_count
@@ -87,7 +88,7 @@ class CoLIE_RE(base.ImageEnhancementModel):
     Args:
         window_size: Context window size. Default: ``1``.
         down_size  : Downsampling size. Default: ``256``.
-        add_layer: Should be in range of ``[1, `num_layers` - 2]``.
+        add_layer: Should be in range of [1, `num_layers` - 2].
         L: The "optimally-intense threshold", lower values produce brighter
             images. Default: ``0.3``.
         alpha: Fidelity control. Default: ``1``.
@@ -153,6 +154,9 @@ class CoLIE_RE(base.ImageEnhancementModel):
         self.params += [{"params": self.patch_net.parameters(),   "weight_decay": weight_decay[1]}]
         self.params += [{"params": self.output_net.parameters(),  "weight_decay": weight_decay[2]}]
         
+        # Optimizer
+        self.configure_optimizers()
+        
         # Loss
         self.loss = Loss(L, alpha, beta, gamma, delta)
         
@@ -199,8 +203,8 @@ class CoLIE_RE(base.ImageEnhancementModel):
         # Prepare input
         image_rgb        = datapoint["image"]
         # Enhance
-        image_hsv        = dtype.rgb_to_hsv(image_rgb)
-        image_v          = dtype.rgb_to_v(image_rgb)
+        image_hsv        = kornia.color.rgb_to_hsv(image_rgb)
+        image_v          = image_hsv.clone()[:, 2:3, :, :]
         image_v_lr       = self.interpolate_image(image_v)
         patch            = self.get_patches(image_v_lr)
         spatial          = self.get_coords()
@@ -210,7 +214,7 @@ class CoLIE_RE(base.ImageEnhancementModel):
         image_v_fixed_lr = image_v_lr / (illu_lr + 1e-4)
         image_v_fixed    = self.filter_up(image_v_lr, image_v_fixed_lr, image_v)
         image_hsv_fixed  = self.replace_v_component(image_hsv, image_v_fixed)
-        image_rgb_fixed  = dtype.hsv_to_rgb(image_hsv_fixed)
+        image_rgb_fixed  = kornia.color.hsv_to_rgb(image_hsv_fixed)
         image_rgb_fixed  = image_rgb_fixed / torch.max(image_rgb_fixed)
         # Return
         if self.debug:
@@ -281,7 +285,7 @@ class CoLIE_RE(base.ImageEnhancementModel):
     def infer(self, datapoint: dict, reset_weights: bool = True, *args, **kwargs) -> dict:
         # Initialize training components
         if reset_weights:
-            self.load_state_dict(self.initial_state_dict)
+            self.load_state_dict(self.initial_state_dict, strict=False)
         optimizer = self.optimizer.get("optimizer", None)
         optimizer = optimizer or nn.Adam(self, lr=1e-5, weight_decay=3e-4)
         

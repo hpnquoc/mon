@@ -194,7 +194,7 @@ class AdaptivePool2d(nn.Module):
             self.pool = nn.Identity()  # pass through
         elif pool_type == "fast":
             if output_size != 1:
-                raise ValueError(f"[pool_type] 'fast' requires output_size=1, got [{output_size}]")
+                raise ValueError(f"[pool_type] 'fast' requires output_size=1, got {output_size}.")
             self.pool     = FastAdaptiveAvgPool2d(flatten)
             self.flatten = nn.Identity()
         elif pool_type == "avg":

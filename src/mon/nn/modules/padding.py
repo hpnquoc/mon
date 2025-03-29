@@ -85,7 +85,7 @@ def to_same_padding(
 
     Returns:
         Symmetric padding ``kernel_size // 2`` if padding is ``None`` and
-        ``kernel_size`` is ``int``, or ``[k // 2 for k in kernel_size]``
+        ``kernel_size`` is ``int``, or [k // 2 for k in kernel_size]
         if ``kernel_size`` is a tuple, else padding as is.
     """
     if padding is None:

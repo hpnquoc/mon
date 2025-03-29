@@ -28,6 +28,7 @@ from abc import ABC
 from typing import Literal
 
 import cv2
+import kornia
 import numpy as np
 import torch
 import torchmetrics
@@ -105,19 +106,18 @@ def scale_gt_mean(
     References:
         - https://github.com/Fediory/HVI-CIDNet/blob/master/measure.py
     """
-    from mon.vision.dtype import color_space
-
+    
     if isinstance(image, torch.Tensor) and isinstance(target, torch.Tensor):
-        mean_image  = color_space.rgb_to_grayscale(image).mean()
-        mean_target = color_space.rgb_to_grayscale(target).mean()
+        mean_image  = kornia.color.rgb_to_grayscale(image).mean()
+        mean_target = kornia.color.rgb_to_grayscale(target).mean()
         image       = torch.clip(image * (mean_target / mean_image), 0, 1)
     elif isinstance(image, np.ndarray) and isinstance(target, np.ndarray):
-        mean_image  = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY).mean()
+        mean_image  = cv2.cvtColor(image,  cv2.COLOR_RGB2GRAY).mean()
         mean_target = cv2.cvtColor(target, cv2.COLOR_RGB2GRAY).mean()
         image       = np.clip(image * (mean_target / mean_image), 0, 255)
     else:
         raise TypeError(f"[image] and [target] must be same type, "
-                        f"got [{type(image).__name__}] and [{type(target).__name__}].")
+                        f"got {type(image).__name__} and {type(target).__name__}.")
     return image
     
 # endregion

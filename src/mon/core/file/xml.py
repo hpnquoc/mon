@@ -43,7 +43,7 @@ class XMLHandler(base.FileHandler):
             TypeError: If ``obj`` is not a dictionary.
         """
         if not isinstance(obj, dict):
-            raise TypeError(f"[obj] must be a dict, got [{type(obj).__name__}].")
+            raise TypeError(f"[obj] must be a dict, got {type(obj).__name__}.")
         path.write(unparse(input_dict=obj, pretty=True, **kwargs))
     
     def write_to_string(self, obj: Any, **kwargs) -> str:
@@ -60,7 +60,7 @@ class XMLHandler(base.FileHandler):
             TypeError: If ``obj`` is not a dictionary.
         """
         if not isinstance(obj, dict):
-            raise TypeError(f"[obj] must be a dict, got [{type(obj).__name__}].")
+            raise TypeError(f"[obj] must be a dict, got {type(obj).__name__}.")
         return unparse(input_dict=obj, pretty=True, **kwargs)
 
 # endregion

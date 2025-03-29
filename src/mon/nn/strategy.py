@@ -84,7 +84,7 @@ def get_distributed_info() -> list[int]:
     """Returns rank and world size if distributed, else [0, 1].
 
     Returns:
-        List of ``[rank, world_size]`` for the current process.
+        List of [rank, world_size] for the current process.
     """
     if distributed.is_available() and distributed.is_initialized():
         return [distributed.get_rank(), distributed.get_world_size()]

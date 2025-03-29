@@ -59,7 +59,7 @@ class CityscapesRain(Cityscapes):
     def __init__(self, root: core.Path = default_root_dir, *args, **kwargs):
         root = root / "cityscapes" if root.name != "cityscapes" else root
         if not root.is_dir():
-            raise FileNotFoundError(f"[root] must be a directory, got [{root}].")
+            raise FileNotFoundError(f"[root] must be a directory, got {root}.")
         super().__init__(root=root, *args, **kwargs)
     
     def get_data(self):

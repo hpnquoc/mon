@@ -83,11 +83,11 @@ class SegmentationModel(VisionModel, ABC):
         
         if len(image) != len(pred_semantic):
             raise ValueError(f"The number of `images` and `pred_semantic` must "
-                             f"be the same, but got {len(image)} != {len(pred_semantic)}.")
+                             f"be the same, got {len(image)} != {len(pred_semantic)}.")
         if tar_semantic is not None:
             if len(image) != len(tar_semantic):
                 raise ValueError(f"The number of `images` and `tar_semantic` "
-                                 f"must be the same, but got {len(image)} != {len(tar_semantic)}.")
+                                 f"must be the same, got {len(image)} != {len(tar_semantic)}.")
         
         for i in range(len(image)):
             if tar_semantic:

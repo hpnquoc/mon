@@ -72,7 +72,7 @@ class ImageAnnotation(base.Annotation):
         """
         path_obj = core.Path(path)
         if not path or not path_obj.is_image_file():
-            raise ValueError(f"[path] must be a valid image path, got [{path}].")
+            raise ValueError(f"[path] must be a valid image path, got {path}.")
         self._path  = path_obj
         self._shape = vision.read_image_shape(path=self._path)
     
@@ -229,7 +229,7 @@ class FrameAnnotation(base.Annotation):
         if path is not None:
             path_obj = core.Path(path)
             if not path_obj.is_video_file():
-                raise ValueError(f"[path] must be a valid video path, got [{path}].")
+                raise ValueError(f"[path] must be a valid video path, got {path}.")
             self._path = path_obj
         else:
             self._path = None
@@ -333,7 +333,7 @@ class DepthMapAnnotation(ImageAnnotation):
     ):
         super().__init__(path=path, root=root, flags=flags, *args, **kwargs)
         if source not in DEPTH_DATA_SOURCES:
-            raise ValueError(f"[source] must be one of {DEPTH_DATA_SOURCES}, got [{source}].")
+            raise ValueError(f"[source] must be one of {DEPTH_DATA_SOURCES}, got {source}.")
         self.source = source
         self.flags  = (cv2.IMREAD_GRAYSCALE if source and "g" in source else cv2.IMREAD_COLOR)
         
@@ -385,7 +385,7 @@ class SemanticSegmentationAnnotation(base.Annotation):
             ValueError: If ``path`` is not a valid image path or is ``None``.
         """
         if path is None or not core.Path(path).is_image_file():
-            raise ValueError(f"[path] must be a valid image path, got [{path}].")
+            raise ValueError(f"[path] must be a valid image path, got {path}.")
         self._path  = core.Path(path)
         self._shape = vision.read_image_shape(path=self._path)
     

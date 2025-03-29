@@ -232,7 +232,7 @@ class Dataset(dataset.Dataset, ABC):
         if split in self.splits:
             self._split = split
         else:
-            raise ValueError(f"[split] must be one of {self.splits}, got [{split}].")
+            raise ValueError(f"[split] must be one of {self.splits}, got {split}.")
     
     @property
     def split_str(self) -> str:
@@ -405,7 +405,7 @@ class MultimodalDataset(Dataset, ABC):
     ):
         if depth_source not in DEPTH_DATA_SOURCES:
             raise ValueError(f"[depth_source] must be one of {DEPTH_DATA_SOURCES}, "
-                             f"got [{depth_source}].")
+                             f"got {depth_source}.")
         self.depth_source = depth_source
         super().__init__(*args, **kwargs)
     

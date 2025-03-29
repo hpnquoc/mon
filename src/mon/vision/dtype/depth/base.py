@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Implements base class for depth estimation models."""
+"""Implements base class and utilities functions for depth estimation models."""
 
 from __future__ import annotations
 
@@ -62,13 +62,13 @@ class DepthEstimationModel(VisionModel, ABC):
     # region Forward
     
     def forward_loss(self, datapoint: dict, *args, **kwargs) -> dict:
-        """Computes forward pass and loss for depth estimation.
-
+        """Computes forward pass and loss.
+    
         Args:
-            datapoint: Dict with input data including depth target.
-        
+            datapoint: ``dict`` with datapoint attributes.
+    
         Returns:
-            Dict with predictions and loss.
+            ``dict`` of predictions with ``"loss"`` and ``"output"`` keys.
         """
         outputs = self.forward(datapoint=datapoint, *args, **kwargs)
         pred    = outputs["depth"]
@@ -76,16 +76,16 @@ class DepthEstimationModel(VisionModel, ABC):
         outputs["loss"] = self.loss(pred, target) if self.loss else None
         return outputs
     
-    def compute_metrics(self, datapoint: dict, outputs: dict, metrics: list[nn.Metric] | None = None) -> dict:
-        """Computes metrics for depth predictions.
-
+    def compute_metrics(self, datapoint: dict, outputs: dict, metrics: list[nn.Metric] = None) -> dict:
+        """Computes metrics for given predictions.
+    
         Args:
-            datapoint: Dict with input data including depth target.
-            outputs: Dict with model predictions.
-            metrics: List of metric functions or None. Default is ``None``.
-       
+            datapoint: ``dict`` with datapoint attributes.
+            outputs: ``dict`` with model predictions.
+            metrics: ``list`` of ``M.Metric`` or ``None``. Default is ``None``.
+    
         Returns:
-            Dict of computed metric values.
+            ``dict`` of computed metric values.
         """
         pred    = outputs["depth"]
         target  = datapoint["depth"]

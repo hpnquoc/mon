@@ -17,6 +17,7 @@ __all__ = [
 from copy import deepcopy
 from typing import Literal
 
+import kornia
 import torch
 from fvcore.nn import parameter_count
 
@@ -283,10 +284,10 @@ class EnhanceNet(nn.Module):
         depth: torch.Tensor = None
     ) -> tuple[torch.Tensor, torch.Tensor]:
         x    = image
-        gray = dtype.rgb_to_grayscale(image)
+        gray = kornia.color.rgb_to_grayscale(image)
         edge = None
         if depth is not None and dtype.is_image_colored(depth):
-            depth = dtype.rgb_to_grayscale(depth)
+            depth = kornia.color.rgb_to_grayscale(depth)
         if self.use_depth:
             x = torch.cat([x, depth], 1)
         if self.use_edge:

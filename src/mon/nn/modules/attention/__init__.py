@@ -7,11 +7,11 @@ from __future__ import annotations
 
 import mon.nn.modules.attention.channel
 import mon.nn.modules.attention.galerkin
-import mon.nn.modules.attention.pixel
-import mon.nn.modules.attention.simam
-import mon.nn.modules.attention.squeeze_excite
+import mon.nn.modules.attention.hybrid
+import mon.nn.modules.attention.parameter_free
+import mon.nn.modules.attention.spatial
 from mon.nn.modules.attention.channel import *
 from mon.nn.modules.attention.galerkin import *
-from mon.nn.modules.attention.pixel import *
-from mon.nn.modules.attention.simam import *
-from mon.nn.modules.attention.squeeze_excite import *
+from mon.nn.modules.attention.hybrid import *
+from mon.nn.modules.attention.parameter_free import *
+from mon.nn.modules.attention.spatial import *

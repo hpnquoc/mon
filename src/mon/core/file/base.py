@@ -110,7 +110,7 @@ def write_to_file(
     file_format = file_format or (path_obj.suffix if isinstance(path_obj, pathlib.Path) else "")
     if file_format not in FILE_HANDLERS:
         raise ValueError(f"[file_format] must be one of {list(FILE_HANDLERS.keys())}, "
-                         f"got [{file_format}]")
+                         f"got {file_format}")
     
     handler: FileHandler = FILE_HANDLERS.build(name=file_format)
     if hasattr(path, "write"):
@@ -147,7 +147,7 @@ def read_from_file(
     if isinstance(path_obj, (pathlib.Path, str)):
         return handler.read_from_file(path=path_obj, **kwargs)
     raise TypeError(f"[path] must be str, pathlib.Path, or file-like, "
-                    f"got [{type(path).__name__}].")
+                    f"got {type(path).__name__}.")
 
 
 def merge_files(
@@ -179,7 +179,7 @@ def merge_files(
             data.update(content)
         else:
             raise TypeError(f"[in_paths] content must be list or dict, "
-                            f"got [{type(content).__name__}].")
+                            f"got {type(content).__name__}.")
     
     write_to_file(obj=data, path=out_path, file_format=file_format)
 

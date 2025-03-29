@@ -230,6 +230,6 @@ def resize(
         )
     else:
         raise TypeError(f"`image` must be a `torch.Tensor` or `numpy.ndarray`, "
-                        f"but got {type(image)}.")
+                        f"got {type(image)}.")
 
 # endregion

@@ -28,7 +28,7 @@ class ClassLabels(list[dict]):
         """Returns all trainable classes.
 
         Returns:
-            New ``ClassLabels`` with classes where ``id`` is in ``[0, 254]``.
+            New ``ClassLabels`` with classes where ``id`` is in [0, 254].
         """
         return ClassLabels([item for item in self if 0 <= item["id"] < 255])
     
@@ -82,7 +82,7 @@ class ClassLabels(list[dict]):
         """Maps IDs to trainable IDs.
 
         Returns:
-            Dict mapping ``id`` to ``train_id`` for IDs in ``[0, 254]``.
+            Dict mapping ``id`` to ``train_id`` for IDs in [0, 254].
         """
         return {
             item["id"]: item["train_id"]

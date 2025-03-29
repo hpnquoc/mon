@@ -33,14 +33,14 @@ class VisionModel(nn.Model, ABC):
         image_size: int | Sequence[int] = 512,
         channels  : int = 3,
     ) -> tuple[float, float]:
-        """Computes model efficiency score (FLOPs, params).
+        """Compute model efficiency score (FLOPs, params).
 
         Args:
-            image_size: Input size as int or [H, W]. Default is ``512``.
-            channels: Number of input channels. Default is ``3``.
-        
+            image_size: Input size as ``int`` or [H, W]. Default is ``512``.
+            channels: Number of input channels as ``int``. Default is ``3``.
+
         Returns:
-            Tuple of (FLOPs, parameter count) as floats.
+            Tuple of (FLOPs, parameter count) as ``float`` values.
         """
         from mon.vision.dtype import image as I
         h, w      = I.get_image_size(image_size)
@@ -62,16 +62,16 @@ class VisionModel(nn.Model, ABC):
         resize    : bool = False,
         *args, **kwargs
     ) -> dict:
-        """Infers model output with optional processing.
+        """Infer model output with optional processing.
 
         Args:
-            datapoint: Dict with datapoint attributes.
-            image_size: Input size as int or [H, W]. Default is ``512``.
-            resize: Resize input to image_size if ``True``. Default is ``False``.
-        
+            datapoint: Dict with datapoint attributes as ``dict``.
+            image_size: Input size as ``int`` or [H, W]. Default is ``512``.
+            resize: Resize input to ``image_size`` if ``True``. Default is ``False``.
+
         Returns:
-            Dict of predictions with inference time.
-       
+            Dict of predictions with inference time
+
         Notes:
             Override for custom pre/post-processing; defaults to forward.
         """
@@ -83,7 +83,8 @@ class VisionModel(nn.Model, ABC):
         h0, w0 = I.get_image_size(image)
         for k, v in datapoint.items():
             if I.is_image(v):
-                datapoint[k] = geometry.resize(v, image_size if resize else 32 * ((max(h0, w0) + 31) // 32))
+                size         = image_size if resize else 32 * ((max(h0, w0) + 31) // 32)
+                datapoint[k] = geometry.resize(v, size)
             if isinstance(v, torch.Tensor):
                 datapoint[k] = v.to(self.device)
         

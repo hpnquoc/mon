@@ -66,11 +66,11 @@ class Detection:
         elif isinstance(value, Detection):
             return value
         else:
-            raise ValueError(f"`value` must be a `Detection` class or a `dict`, but got {type(value)}.")
+            raise ValueError(f"`value` must be a `Detection` class or a `dict`, got {type(value)}.")
     
     @property
     def bbox(self) -> np.ndarray:
-        """Return the bounding box of shape ``[4]``."""
+        """Return the bounding box of shape [4]."""
         return self._bbox
     
     @bbox.setter
@@ -79,7 +79,7 @@ class Detection:
         if bbox.ndim == 1 and bbox.size == 4:
             self._bbox = bbox
         else:
-            raise ValueError(f"`bbox` must be a 1D array of size ``4``, but got {bbox.ndim} and {bbox.size}.")
+            raise ValueError(f"`bbox` must be a 1D array of size ``4``, got {bbox.ndim} and {bbox.size}.")
     
     @property
     def bbox_center(self) -> np.ndarray:
@@ -102,7 +102,7 @@ class Detection:
     @confidence.setter
     def confidence(self, confidence: float):
         if not 0.0 <= confidence <= 1.0:
-            raise ValueError(f"`confidence` must be between ``0.0`` and ``1.0``, but got {confidence}.")
+            raise ValueError(f"`confidence` must be between ``0.0`` and ``1.0``, got {confidence}.")
         self._confidence = confidence
     
 
@@ -145,7 +145,7 @@ class Track(ABC):
     def history(self, detections: Detection | list[Detection]):
         detections = [detections] if not isinstance(detections, list) else detections
         if not all(isinstance(d, Detection) for d in detections):
-            raise ValueError(f"`detections` must be a `list` of `Detection`, but got {type(detections)}.")
+            raise ValueError(f"`detections` must be a `list` of `Detection`, got {type(detections)}.")
         self._history = detections
     
     @staticmethod

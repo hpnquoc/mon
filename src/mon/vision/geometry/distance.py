@@ -145,7 +145,7 @@ def get_distance_function(name: str) -> Callable[[np.ndarray, np.ndarray], float
 # region Distance between points
 
 def distance_between_points(x: np.ndarray, y: np.ndarray) -> float:
-	"""Calculate Euclidean distance between two points in ``[x, y]`` format."""
+	"""Calculate Euclidean distance between two points in [x, y] format."""
 	return math.sqrt(((x[0] - y[0]) ** 2) + ((x[1] - y[1]) ** 2))
 
 # endregion
@@ -158,7 +158,7 @@ def distance_between_bbox_and_polygon(bbox_xyxy: np.ndarray, polygon: np.ndarray
 	
 	Args:
 		bbox_xyxy: The bounding box coordinates in ``XYXY`` format.
-		polygon: The polygon as a list of points in ``[x, y]`` format.
+		polygon: The polygon as a list of points in [x, y] format.
 			
 	Returns:
 		positive if the bounding box is inside the ROI,
@@ -182,7 +182,7 @@ def distance_between_bbox_center_and_polygon(bbox_xyxy: np.ndarray, polygon: np.
 	
 	Args:
 		bbox_xyxy: The bounding box coordinates in ``XYXY`` format.
-		polygon: The polygon as a list of points in ``[x, y]`` format.
+		polygon: The polygon as a list of points in [x, y] format.
 	
 	Returns:
 		positive if the bounding box is inside the ROI,

@@ -156,7 +156,7 @@ class NegHardsigmoid(nn.Module):
             input: Input tensor as ``torch.Tensor`` of any shape.
 
         Returns:
-            Output tensor as ``torch.Tensor`` with values in ``[-0.5, 0.5]``,
+            Output tensor as ``torch.Tensor`` with values in [-0.5, 0.5],
             same shape as input
         """
         return F.relu6(3 * input + 3.0, inplace=self.inplace) / 6.0 - 0.5

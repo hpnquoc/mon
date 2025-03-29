@@ -241,6 +241,9 @@ class RRDNet(base.ImageEnhancementModel):
             nn.Conv2d(32, 3, 3, 1, 1)
         )
         
+        # Optimizer
+        self.configure_optimizers()
+        
         # Loss
         self.loss = Loss(illu_factor=illu_factor, reflect_factor=reflect_factor, noise_factor=noise_factor)
         
@@ -287,7 +290,7 @@ class RRDNet(base.ImageEnhancementModel):
     def infer(self, datapoint: dict, reset_weights: bool = True, *args, **kwargs) -> dict:
         # Initialize training components
         if reset_weights:
-            self.load_state_dict(self.initial_state_dict)
+            self.load_state_dict(self.initial_state_dict, strict=False)
         optimizer = self.optimizer.get("optimizer", None)
         optimizer = optimizer or nn.Adam(self.parameters(), lr=0.001)
             

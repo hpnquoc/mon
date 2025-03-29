@@ -347,7 +347,7 @@ def print_dict(x: dict, title: str = ""):
         TypeError: If ``x`` is not a dictionary.
     """
     if not isinstance(x, dict):
-        raise TypeError(f"[x] must be a dict, got [{type(x).__name__}].")
+        raise TypeError(f"[x] must be a dict, got {type(x).__name__}.")
     pr = pretty.Pretty(
         x,
         expand_all    = True,
@@ -371,7 +371,7 @@ def print_table(x: list[dict]):
         ValueError: If dicts in ``x`` lack identical keys or ``x`` is empty.
     """
     if not isinstance(x, list) or not all(isinstance(d, dict) for d in x):
-        raise TypeError(f"[x] must be a list of dicts, got [{type(x).__name__}].")
+        raise TypeError(f"[x] must be a list of dicts, got {type(x).__name__}.")
     if not x:
         raise ValueError("[x] must not be empty.")
     if not all(set(d.keys()) == set(x[0].keys()) for d in x):
@@ -396,7 +396,7 @@ def print_table(x: dict):
         TypeError: If ``x`` is not a dictionary.
     """
     if not isinstance(x, dict):
-        raise TypeError(f"[x] must be a dict, got [{type(x).__name__}].")
+        raise TypeError(f"[x] must be a dict, got {type(x).__name__}.")
     tab = table.Table(show_header=True, header_style="bold magenta")
     tab.add_column("Key")
     tab.add_column("Value")

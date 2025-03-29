@@ -102,7 +102,7 @@ class Cityscapes(MultimodalDataset):
     ):
         root = root / "cityscapes" if root.name != "cityscapes" else root
         if not root.is_dir():
-            raise FileNotFoundError(f"[root] must be a directory, got [{root}].")
+            raise FileNotFoundError(f"[root] must be a directory, got {root}.")
 
         self.use_blurred = use_blurred
         self.use_coarse  = use_coarse

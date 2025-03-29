@@ -59,14 +59,14 @@ def _gaussian_filter(input: torch.Tensor, window: torch.Tensor) -> torch.Tensor:
         - https://github.com/VainF/pytorch-msssim/blob/master/pytorch_msssim/ssim.py
     """
     if not all(ws == 1 for ws in window.shape[1:-1]):
-        raise AssertionError(f"[window] must have shape [1, ..., 1, size], got [{window.shape}].")
+        raise AssertionError(f"[window] must have shape [1, ..., 1, size], got {window.shape}.")
 
     if len(input.shape) == 4:
         conv = F.conv2d
     elif len(input.shape) == 5:
         conv = F.conv3d
     else:
-        raise NotImplementedError(f"[input] must be 4D or 5D, got [{input.shape}]")
+        raise NotImplementedError(f"[input] must be 4D or 5D, got {input.shape}.")
 
     c   = input.shape[1]
     out = input
@@ -170,20 +170,20 @@ def ssim(
     """
     if image1.shape != image2.shape:
         raise ValueError(f"[image1] and [image2] must have same shape, "
-                         f"got [{image1.shape}] and [{image2.shape}].")
+                         f"got {image1.shape} and {image2.shape}.")
 
     for d in range(len(image1.shape) - 1, 1, -1):
         image1 = image1.squeeze(dim=d)
         image2 = image2.squeeze(dim=d)
 
     if len(image1.shape) not in (4, 5):
-        raise ValueError(f"[image1] and [image2] must be 4D or 5D, got [{image1.shape}].")
+        raise ValueError(f"[image1] and [image2] must be 4D or 5D, got {image1.shape}.")
 
     if window is not None:
         window_size = window.shape[-1]
 
     if window_size % 2 != 1:
-        raise ValueError(f"[window_size] must be odd, got [{window_size}].")
+        raise ValueError(f"[window_size] must be odd, got {window_size}.")
 
     if window is None:
         window = _fspecial_gauss_1d(window_size, window_sigma)
@@ -228,7 +228,7 @@ def ms_ssim(
         window: Optional 1D Gaussian kernel tensor as ``torch.Tensor`` or ``None``.
             Default is ``None``.
         weights: Weights for each scale as ``list[float]`` or ``None``.
-            Default is ``[0.0448, 0.2856, 0.3001, 0.2363, 0.1333]``.
+            Default is [0.0448, 0.2856, 0.3001, 0.2363, 0.1333].
         k: Stability constants (k1, k2) as ``tuple[float, float]``.
             Default is ``(0.01, 0.03)``.
 
@@ -244,7 +244,7 @@ def ms_ssim(
     """
     if image1.shape != image2.shape:
         raise ValueError(f"[image1] and [image2] must have same shape, "
-                         f"got [{image1.shape}] and [{image2.shape}].")
+                         f"got {image1.shape} and {image2.shape}.")
 
     for d in range(len(image1.shape) - 1, 1, -1):
         image1 = image1.squeeze(dim=d)
@@ -255,19 +255,19 @@ def ms_ssim(
     elif len(image1.shape) == 5:
         avg_pool = F.avg_pool3d
     else:
-        raise ValueError(f"[image1] and [image2] must be 4D or 5D, got [{image1.shape}].")
+        raise ValueError(f"[image1] and [image2] must be 4D or 5D, got {image1.shape}.")
 
     if window is not None:
         window_size = window.shape[-1]
 
     if window_size % 2 != 1:
-        raise ValueError(f"[window_size] must be odd, got [{window_size}].")
+        raise ValueError(f"[window_size] must be odd, got {window_size}.")
 
     smaller_side = min(image1.shape[-2:])
     if smaller_side <= (window_size - 1) * (2 ** 4):
         raise AssertionError(
             f"[image1] and [image2] must be larger than [{(window_size - 1) * (2 ** 4)}] "
-            f"for 4 downsamplings, got [{smaller_side}]."
+            f"for 4 downsamplings, got {smaller_side}."
         )
 
     if weights is None:

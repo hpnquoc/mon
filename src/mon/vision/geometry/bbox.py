@@ -50,7 +50,7 @@ def bbox_area(bbox: np.ndarray) -> np.ndarray:
     
     Args:
         bbox: Bounding box(es) of type of `numpy.ndarray` in
-            ``[4]``/``[N, 4]`` and ``XYXY`` format.
+            [4]/[N, 4] and ``XYXY`` format.
     
     Returns:
         A [1]/[N] `numpy.ndarray` containing the area value(s).
@@ -72,10 +72,10 @@ def bbox_center(bbox: np.ndarray) -> np.ndarray:
     
     Args:
         bbox: Bounding box(es) of type of `numpy.ndarray` in
-            ``[4]``/``[N, 4]`` and ``XYXY`` format.
+            [4]/[N, 4] and ``XYXY`` format.
     
     Returns:
-        An ``[1, 2]``/``[N, 2]`` `numpy.ndarray` containing the center(s)
+        An [1, 2]/[N, 2] `numpy.ndarray` containing the center(s)
         of bounding box(es) in ``[cx, cy]`` format.
     """
     if bbox.ndim == 1:
@@ -140,7 +140,7 @@ def bbox_corners_points(bbox: np.ndarray) -> np.ndarray:
     if bbox.ndim == 1:
         bbox = np.expand_dims(bbox, 0)
     if bbox.ndim != 2:
-        raise ValueError(f"`bbox` must be 1D, but got {bbox.ndim}D.")
+        raise ValueError(f"`bbox` must be 1D, got {bbox.ndim}D.")
     x1     = bbox[..., 0]
     y1     = bbox[..., 1]
     x2     = bbox[..., 2]
@@ -206,9 +206,9 @@ def bbox_iou(bbox1: np.ndarray, bbox2: np.ndarray) -> np.ndarray:
     if bbox2.ndim == 1:
         bbox2 = np.expand_dims(bbox2, 0)
     if bbox1.ndim != 2:
-        raise ValueError(f"`bbox1` must be 1D, but got {bbox1.ndim}D.")
+        raise ValueError(f"`bbox1` must be 1D, got {bbox1.ndim}D.")
     if bbox2.ndim != 2:
-        raise ValueError(f"`bbox2` must be 1D, but got {bbox2.ndim}D.")
+        raise ValueError(f"`bbox2` must be 1D, got {bbox2.ndim}D.")
     # Expand the dimensions of the bboxes to calculate pairwise IoU values.
     bbox1 = np.expand_dims(bbox1, 1)
     bbox2 = np.expand_dims(bbox2, 0)
@@ -248,9 +248,9 @@ def bbox_giou(bbox1: np.ndarray, bbox2: np.ndarray) -> np.ndarray:
     if bbox2.ndim == 1:
         bbox2 = np.expand_dims(bbox2, 0)
     if bbox1.ndim != 2:
-        raise ValueError(f"`bbox1` must be 1D, but got {bbox1.ndim}D.")
+        raise ValueError(f"`bbox1` must be 1D, got {bbox1.ndim}D.")
     if bbox2.ndim != 2:
-        raise ValueError(f"`bbox2` must be 1D, but got {bbox2.ndim}D.")
+        raise ValueError(f"`bbox2` must be 1D, got {bbox2.ndim}D.")
     # Expand the dimensions of the bboxes to calculate pairwise IoU values.
     bbox1 = np.expand_dims(bbox1, 1)
     bbox2 = np.expand_dims(bbox2, 0)
@@ -301,9 +301,9 @@ def bbox_diou(bbox1: np.ndarray, bbox2: np.ndarray) -> np.ndarray:
     if bbox2.ndim == 1:
         bbox2 = np.expand_dims(bbox2, 0)
     if bbox1.ndim != 2:
-        raise ValueError(f"`bbox1` must be 1D, but got {bbox1.ndim}D.")
+        raise ValueError(f"`bbox1` must be 1D, got {bbox1.ndim}D.")
     if bbox2.ndim != 2:
-        raise ValueError(f"`bbox2` must be 1D, but got {bbox2.ndim}D.")
+        raise ValueError(f"`bbox2` must be 1D, got {bbox2.ndim}D.")
     # Expand the dimensions of the bboxes to calculate pairwise IoU values.
     bbox1 = np.expand_dims(bbox1, 1)
     bbox2 = np.expand_dims(bbox2, 0)
@@ -357,9 +357,9 @@ def bbox_ciou(bbox1: np.ndarray, bbox2: np.ndarray) -> np.ndarray:
     if bbox2.ndim == 1:
         bbox2 = np.expand_dims(bbox2, 0)
     if bbox1.ndim != 2:
-        raise ValueError(f"`bbox1` must be 1D, but got {bbox1.ndim}D.")
+        raise ValueError(f"`bbox1` must be 1D, got {bbox1.ndim}D.")
     if bbox2.ndim != 2:
-        raise ValueError(f"`bbox2` must be 1D, but got {bbox2.ndim}D.")
+        raise ValueError(f"`bbox2` must be 1D, got {bbox2.ndim}D.")
     # Expand the dimensions of the bboxes to calculate pairwise IoU values.
     bbox1 = np.expand_dims(bbox1, 1)
     bbox2 = np.expand_dims(bbox2, 0)

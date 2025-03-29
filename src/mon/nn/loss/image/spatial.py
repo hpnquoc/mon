@@ -1,7 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Implements loss functions using image spatial characteristics."""
+"""Implements spatial and contextual consistency.
+
+These losses enforce spatial coherence or consistency across an image, ensuring that
+local regions align with global context or neighboring areas.
+"""
 
 from __future__ import annotations
 

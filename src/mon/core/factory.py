@@ -72,7 +72,7 @@ class Factory(dict):
             TypeError: If ``name`` is not a ``str`` or ``None``.
         """
         if name is not None and not isinstance(name, str):
-            raise TypeError(f"[name] must be str or None, got [{type(name).__name__}].")
+            raise TypeError(f"[name] must be str or None, got {type(name).__name__}.")
         
         def _register(cls):
             self.register_module(module_cls=cls, module_name=name, replace=replace)
@@ -98,7 +98,7 @@ class Factory(dict):
         """
         if not inspect.isclass(module_cls):
             raise ValueError(f"[module_cls] must be a class, "
-                             f"got [{type(module_cls).__name__}].")
+                             f"got {type(module_cls).__name__}.")
         
         key = module_name or humps.kebabize(module_cls.__name__)
         if replace or key not in self:
@@ -141,7 +141,7 @@ class Factory(dict):
                 if not hasattr(instance, "name"):
                     instance.name = humps.depascalize(humps.pascalize(candidate))
                 return {candidate: instance} if to_dict else instance
-        raise ValueError(f"[name] must be in registry, got [{name}].")
+        raise ValueError(f"[name] must be in registry, got {name}.")
     
     def build_instances(self, configs: list[Any], to_dict: bool = False, **kwargs):
         """Builds multiple instances from a list of configurations.
@@ -158,7 +158,7 @@ class Factory(dict):
             ValueError: If ``configs`` is not a list or items are invalid.
         """
         if not isinstance(configs, list):
-            raise ValueError(f"[configs] must be a list, got [{type(configs).__name__}].")
+            raise ValueError(f"[configs] must be a list, got {type(configs).__name__}.")
         
         result = {} if to_dict else []
         for config in configs:
@@ -169,7 +169,7 @@ class Factory(dict):
                 config = copy.deepcopy(config)
             else:
                 raise ValueError(f"[configs] items must be str or dict, "
-                                 f"got [{type(config).__name__}].")
+                                 f"got {type(config).__name__}.")
             
             instance = self.build(name=name, config=config, to_dict=to_dict, **kwargs)
             if instance:
@@ -239,7 +239,7 @@ class ModelFactory(Factory):
             TypeError: If ``name`` is not a ``str`` or ``None``.
         """
         if name is not None and not isinstance(name, str):
-            raise TypeError(f"[name] must be str or None, got [{type(name).__name__}].")
+            raise TypeError(f"[name] must be str or None, got {type(name).__name__}.")
         
         def _register(cls: type) -> type:
             self.register_module(cls, name, arch, replace)
@@ -266,8 +266,7 @@ class ModelFactory(Factory):
             ValueError: If ``module_cls`` is not a class.
         """
         if not inspect.isclass(module_cls):
-            raise ValueError(f"[module_cls] must be a class, "
-                             f"got [{type(module_cls).__name__}].")
+            raise ValueError(f"[module_cls] must be a class, got {type(module_cls).__name__}.")
         
         module_key = module_name or humps.kebabize(module_cls.__name__)
         arch_key   = arch_name   or humps.kebabize(getattr(module_cls, "arch", module_cls.__name__))
@@ -340,7 +339,7 @@ class ModelFactory(Factory):
             ValueError: If ``configs`` is not a list or items are invalid.
         """
         if not isinstance(configs, list):
-            raise ValueError(f"[configs] must be a list, got [{type(configs).__name__}].")
+            raise ValueError(f"[configs] must be a list, got {type(configs).__name__}.")
         
         result = {} if to_dict else []
         for config in configs:
@@ -353,7 +352,7 @@ class ModelFactory(Factory):
                 args   = config
             else:
                 raise ValueError(f"[configs] items must be str or dict, "
-                                 f"got [{type(config).__name__}].")
+                                 f"got {type(config).__name__}.")
             
             instance = self.build(name=name, arch=arch, to_dict=to_dict, **args, **kwargs)
             if instance:

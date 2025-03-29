@@ -299,7 +299,7 @@ class ZeroRestoreUIE(base.ImageEnhancementModel):
     def infer(self, datapoint: dict, reset_weights: bool = True, *args, **kwargs) -> dict:
         # Initialize training components
         if reset_weights:
-            self.load_state_dict(self.initial_state_dict)
+            self.load_state_dict(self.initial_state_dict, strict=False)
         optimizer = self.optimizer.get("optimizer", None)
         optimizer = optimizer or nn.Adam(self, lr=1e-3, weight_decay=1e-2)
         

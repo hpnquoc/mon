@@ -330,7 +330,7 @@ class Model(lightning.LightningModule, ABC):
             weights_path = core.Path(weights)
             if not weights_path.is_weights_file():
                 raise ValueError(f"[weights] must be a valid path to a weight file, "
-                                 f"got [{weights_path}].")
+                                 f"got {weights_path}.")
             state_dict = torch.load(str(weights_path))
             self.weights = {
                 "url"        : None,
@@ -520,7 +520,7 @@ class Model(lightning.LightningModule, ABC):
             datapoint: ``dict`` with datapoint attributes.
     
         Returns:
-            ``dict`` of predictions with ``"loss"`` and ``"pred"`` keys.
+            ``dict`` of predictions with ``"loss"`` and ``"output"`` keys.
         """
         pass
     
@@ -742,7 +742,7 @@ class Model(lightning.LightningModule, ABC):
         """Exports the model to ONNX format.
     
         Args:
-            input_dims: Input dimensions as ``[C, H, W]`` or ``None``.
+            input_dims: Input dimensions as [C, H, W] or ``None``.
             file_path: Save path or ``None`` to use root/fullname. Default is ``None``.
             export_params: Exports parameters if ``True``. Default is ``True``.
     

@@ -15,7 +15,7 @@ __all__ = [
 import cv2
 import numpy as np
 
-from mon.vision.dtype import image as I
+from mon.vision.dtype import depth as D, image as I, label_map as L
 
 
 def draw_bbox(
@@ -30,22 +30,24 @@ def draw_bbox(
     font_scale: float        = 0.8,
     fill      : bool | float = False
 ) -> np.ndarray:
-    """Draws a bounding box on an image.
+    """Draw bounding box on image.
 
     Args:
-        image: Image as numpy.ndarray in [H, W, C] format, range [0, 255].
-        bbox: Bounding box in XYXY format.
-        label: Label for the bounding box. Default is ``None``.
-        color: Color of the bounding box. Default is [255, 255, 255].
-        thickness: Thickness of the rectangle borderline in px. Default is ``1``.
-        line_type: Type of line (e.g., ``cv2.LINE_8``). Default is ``cv2.LINE_8``.
-        shift: Fractional bits in point coordinates. Default is ``0``.
-        font_face: Font of label text. Default is ``cv2.FONT_HERSHEY_DUPLEX``.
-        font_scale: Scale of label text. Default is ``0.8``.
-        fill: Fill inside with transparency (0.0-1.0, True=0.5). Default is ``False``.
-        
+        image: Image as ``np.ndarray`` in [H, W, C] format, range [0, 255].
+        bbox: Bounding box in XYXY format as ``np.ndarray`` or ``list``.
+        label: Label for box as ``int`` or ``str``. Default is ``None``.
+        color: Box color as ``list[int]``. Default is [255, 255, 255].
+        thickness: Border thickness in px as ``int``. Default is ``1``.
+        line_type: Line type as ``int`` (e.g., ``cv2.LINE_8``). Default is ``cv2.LINE_8``.
+        shift: Fractional bits in coordinates as ``int``. Default is ``0``.
+        font_face: Label font as ``int`` (e.g., ``cv2.FONT_HERSHEY_DUPLEX``).
+            Default is ``cv2.FONT_HERSHEY_DUPLEX``.
+        font_scale: Label text scale as ``float``. Default is ``0.8``
+        fill: Fill transparency (``True``=0.5, 0.0-1.0) as ``bool`` or ``float``.
+            Default is ``False``.
+
     Returns:
-        Image with drawn bounding box.
+        Image with drawn bounding box as ``np.ndarray``.
     """
     drawing = image.copy()
     color   = color or [255, 255, 255]
@@ -84,28 +86,28 @@ def draw_heatmap(
     alpha     : float = 0.5,
     use_rgb   : bool  = False
 ) -> np.ndarray:
-    """Overlays a heatmap on an image.
+    """Overlay heatmap on image.
 
     Args:
-        image: RGB/BGR image as numpy.ndarray in [H, W, C], range [0.0, 1.0].
-        heatmap: Heatmap mask to overlay.
-        color_map: Color map for heatmap. Default is ``cv2.COLORMAP_JET``.
-        alpha: Transparency ratio (0.0-1.0) for blending. Default is ``0.5``.
-        use_rgb: Convert heatmap to RGB if True. Default is ``False``.
-    
+        image: RGB/BGR image as ``np.ndarray`` in [H, W, C], range [0.0, 1.0].
+        heatmap: Heatmap mask as ``np.ndarray``.
+        color_map: Heatmap color map as ``int``. Default is ``cv2.COLORMAP_JET``.
+        alpha: Transparency ratio (0.0-1.0) as ``float``. Default is ``0.5``.
+        use_rgb: Convert heatmap to RGB if ``True``. Default is ``False``.
+
     Returns:
-        Image with heatmap overlay.
-    
+        Image with heatmap overlay as ``np.ndarray``.
+
     Raises:
         ValueError: If image exceeds range [0.0, 1.0] or alpha is invalid.
     """
     
     if np.max(image) > 1:
-        raise ValueError(f"[image] should be np.float32 in range [0.0, 1.0], got {np.max(image)}")
+        raise ValueError(f"[image] should be np.float32 in range [0.0, 1.0], got {np.max(image)}.")
     if not 0.0 <= alpha <= 1.0:
-        raise ValueError(f"[alpha] should be in range [0.0, 1.0], got {alpha}")
+        raise ValueError(f"[alpha] should be in range [0.0, 1.0], got {alpha}.")
 
-    heatmap = I.convert_depth_to_color(heatmap, color_map, use_rgb)
+    heatmap = D.convert_depth_to_color(heatmap, color_map, use_rgb)
     heatmap = np.float32(heatmap) / 255
     drawing = I.blend_images(image, heatmap, alpha)
     drawing = drawing / np.max(drawing)
@@ -119,18 +121,18 @@ def draw_semantic(
     classlabels: "ClassLabels",
     alpha      : float = 0.5
 ) -> np.ndarray:
-    """Overlays a semantic mask on an image.
+    """Overlay semantic mask on image.
 
     Args:
-        image: RGB image as numpy.ndarray in [H, W, C], range [0, 255].
-        semantic: Semantic mask as numpy.ndarray in [H, W, 1].
-        classlabels: List of class labels.
-        alpha: Transparency ratio (0.0-1.0) for blending. Default is ``0.5``.
-    
+        image: RGB image as ``np.ndarray`` in [H, W, C], range [0, 255].
+        semantic: Semantic mask as ``np.ndarray`` in [H, W, 1].
+        classlabels: List of class labels as ``ClassLabels``.
+        alpha: Transparency ratio (0.0-1.0) as ``float``. Default is ``0.5``.
+
     Returns:
-        Image with semantic mask overlay.
+        Image with semantic overlay as ``np.ndarray``.
     """
-    color_map = I.convert_label_map_id_to_color(semantic, classlabels)
+    color_map = L.convert_label_map_id_to_color(semantic, classlabels)
     drawing   = I.blend_images(image, color_map, alpha)
     drawing   = drawing.astype(np.uint8)
     return drawing
@@ -145,28 +147,28 @@ def draw_trajectory(
     point     : bool      = False,
     radius    : int       = 3
 ) -> np.ndarray:
-    """Draws a trajectory path on an image.
+    """Draw trajectory path on image.
 
     Args:
-        image: RGB image as numpy.ndarray in [H, W, C], range [0, 255].
-        trajectory: 2D points as array or list in [(x1, y1), ...] format.
-        color: Color of the trajectory. Default is [255, 255, 255].
-        thickness: Thickness of the path in px. Default is ``1``.
-        line_type: Type of line (e.g., ``cv2.LINE_8``). Default is ``cv2.LINE_8``.
-        point: Draw points along the path if True. Default is ``False``.
-        radius: Radius of points in px. Default is ``3``.
-    
+        image: RGB image as ``np.ndarray`` in [H, W, C], range [0, 255].
+        trajectory: 2D points as ``np.ndarray`` or ``list`` in [(x1, y1), ...] format.
+        color: Path color as ``list[int]``. Default is [255, 255, 255].
+        thickness: Path thickness in px as ``int``. Default is ``1``.
+        line_type: Line type as ``int`` (e.g., ``cv2.LINE_8``). Default is ``cv2.LINE_8``.
+        point: Draw points if ``True``. Default is ``False``.
+        radius: Point radius in px as ``int``. Default is ``3``.
+
     Returns:
-        Image with drawn trajectory.
-    
+        Image with trajectory as ``np.ndarray``.
+
     Raises:
-        TypeError: If trajectory format is invalid.
+        TypeError: If ``trajectory`` format is invalid.
     """
     drawing = image.copy()
 
     if isinstance(trajectory, list):
         if not all(len(t) == 2 for t in trajectory):
-            raise TypeError("[trajectory] must be a list of points in [(x1, y1), ...] format")
+            raise TypeError("[trajectory] must be a list of points in [(x1, y1), ...] format.")
         trajectory = np.array(trajectory)
     trajectory = np.array(trajectory).reshape((-1, 1, 2)).astype(int)
     color      = color or [255, 255, 255]

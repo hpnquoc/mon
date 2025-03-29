@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 
 import kornia
-import torch
 
 import mon
 
@@ -34,13 +33,13 @@ with mon.get_progress_bar() as pbar:
         ref_file  = ref_dir / f"{image_file.stem}{ref_ext}"
         ref       = mon.read_image(path=ref_file, to_tensor=True, normalize=True)
         # HSV
-        image_hsv = mon.rgb_to_hsv(image)
-        ref_hsv   = mon.rgb_to_hsv(ref)
+        image_hsv = kornia.color.rgb_to_hsv(image)
+        ref_hsv   = kornia.color.rgb_to_hsv(ref)
         print(image_file, image_hsv.shape, ref_hsv.shape)
         if image_hsv.shape != ref_hsv.shape:
             ref_hsv = mon.resize(image_hsv, (h0, w0))
         image_hsv[:, -1, :, :] = ref_hsv[:, -1, :, :]
-        output    = mon.hsv_to_rgb(image_hsv)
+        output    = kornia.color.hsv_to_rgb(image_hsv)
         if use_gf:
             output = kornia.filters.bilateral_blur(output, (3, 3), 0.5, (1.5, 1.5))
         # Output

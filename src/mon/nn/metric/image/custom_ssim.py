@@ -47,7 +47,7 @@ def create_window(window_size: int, channel: int, sigma: float = 1.5) -> torch.T
 
     Returns:
         2D Gaussian window tensor as ``torch.Tensor`` with shape
-        ``[channel, 1, window_size, window_size]``.
+        [channel, 1, window_size, window_size].
     """
     window_1d = gaussian(window_size, sigma).unsqueeze(1)
     window_2d = window_1d.mm(window_1d.t()).float().unsqueeze(0).unsqueeze(0)

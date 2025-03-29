@@ -23,10 +23,10 @@ def logits_to_class_id(logits: np.ndarray) -> np.ndarray:
     """Converts logits to class IDs.
 
     Args:
-        logits: ``numpy.ndarray`` of logits, shape ``[N, C]`` (samples, classes).
+        logits: ``numpy.ndarray`` of logits, shape [N, C] (samples, classes).
 
     Returns:
-        ``numpy.ndarray`` of class IDs, shape ``[N]``, with highest logit per sample.
+        ``numpy.ndarray`` of class IDs, shape [N], with highest logit per sample.
     """
     return np.argmax(logits, axis=-1)
 
@@ -46,7 +46,7 @@ def class_id_to_logits(
         low_value: Logit for non-target classes. Default is ``0.0``.
 
     Returns:
-        ``numpy.ndarray`` of logits, shape ``[num_classes]``.
+        ``numpy.ndarray`` of logits, shape [num_classes].
     """
     logits = np.full(num_classes, low_value, dtype=np.float32)
     logits[class_id] = high_value
@@ -99,7 +99,7 @@ class ClassificationAnnotation(base.Annotation):
             ValueError: If ``confidence`` is not in [0.0, 1.0].
         """
         if not 0.0 <= confidence <= 1.0:
-            raise ValueError(f"[confidence] must be in [0.0, 1.0],  got [{confidence}].")
+            raise ValueError(f"[confidence] must be in [0.0, 1.0],  got {confidence}.")
         self._confidence = confidence
     
     @property

@@ -55,10 +55,11 @@ def is_image(image: torch.Tensor | np.ndarray) -> bool:
     """Checks if an input is an image tensor or array.
 
     Args:
-        image: Input to evaluate as ``torch.Tensor`` or ``numpy.ndarray``.
+        image: Input to evaluate as ``torch.Tensor`` or ``np.ndarray``.
 
     Returns:
-        ``True`` if input is a tensor/array and a color image, ``False`` otherwise.
+        ``True`` if input is a tensor or array and a color or grayscale image,
+        ``False`` otherwise.
     """
     return (isinstance(image, (torch.Tensor, np.ndarray)) and
             (is_image_colored(image) or is_image_grayscale(image)))
@@ -68,15 +69,17 @@ def is_image_channel_first(image: torch.Tensor | np.ndarray) -> bool:
     """Checks if an image is in channel-first format.
 
     Args:
-        image: Image as ``torch.Tensor`` or ``numpy.ndarray`` in [C, H, W] or [B, C, H, W] format.
-    
+        image: Image as ``torch.Tensor`` or ``np.ndarray`` in [C, H, W] or
+            [B, C, H, W] format.
+
     Returns:
-        ``True`` if channel-first (e.g., [C, H, W]), ``False`` if channel-last (e.g., [H, W, C]).
-    
+        ``True`` if channel-first (e.g., [C, H, W]),
+        ``False`` if channel-last (e.g., [H, W, C]).
+
     Raises:
-        TypeError: If ``image`` is not a ``torch.Tensor`` or ``numpy.ndarray``.
+        TypeError: If ``image`` is not a ``torch.Tensor`` or ``np.ndarray``.
         ValueError: If ``image`` dimensions are invalid or channel format is ambiguous.
-    
+
     Notes:
         Assumes the smallest dimension is the channel dimension.
     """
@@ -86,7 +89,7 @@ def is_image_channel_first(image: torch.Tensor | np.ndarray) -> bool:
     elif isinstance(image, np.ndarray):
         shape = image.shape
     else:
-        raise TypeError(f"[image] must be a numpy.ndarray or torch.Tensor, got [{type(image)}].")
+        raise TypeError(f"[image] must be a numpy.ndarray or torch.Tensor, got {type(image)}.")
     
     # Check if tensor has at least 3 dimensions (batch, height/width, channels)
     if not 3 <= len(shape) <= 4:
@@ -111,10 +114,12 @@ def is_image_channel_last(image: torch.Tensor | np.ndarray) -> bool:
     """Checks if an image is in channel-last format.
 
     Args:
-        image: Image as ``torch.Tensor`` or ``numpy.ndarray`` in [H, W, C] or [B, H, W, C] format.
-    
+        image: Image as ``torch.Tensor`` or ``np.ndarray`` in [H, W, C] or
+            [B, H, W, C] format.
+
     Returns:
-        ``True`` if channel-last (e.g., [H, W, C]), ``False`` if channel-first (e.g., [C, H, W]).
+        ``True`` if channel-last (e.g., [H, W, C]),
+        ``False`` if channel-first (e.g., [C, H, W]).
     """
     return not is_image_channel_first(image)
 
@@ -123,11 +128,11 @@ def is_image_colored(image: torch.Tensor | np.ndarray) -> bool:
     """Checks if an image is a color image.
 
     Args:
-        image: Image as ``torch.Tensor`` or ``numpy.ndarray``.
-    
+        image: Image as ``torch.Tensor`` or ``np.ndarray``.
+
     Returns:
         ``True`` if the image has 3 or 4 channels, ``False`` otherwise.
-    
+
     Notes:
         Assumes a color image has 3 or 4 channels (e.g., RGB or RGBA).
     """
@@ -231,7 +236,7 @@ def get_image_channel(
             return image[:, :, :, i1:i2] if keep_dim else image[:, :, :, i1]
         elif image.ndim == 3:
             return image[:, :, i1:i2]    if keep_dim else image[:, :, i1]
-    raise ValueError(f"Invalid image dimensions for channel extraction: {image.ndim}.")
+    raise ValueError(f"Invalid image dimensions for channel extraction {image.ndim}.")
     
 
 def get_image_num_channels(image: torch.Tensor | np.ndarray) -> int:
@@ -258,10 +263,11 @@ def get_image_shape(image: torch.Tensor | np.ndarray) -> list[int]:
     """Returns height, width, and channels of an image.
 
     Args:
-        image: RGB image as ``torch.Tensor`` [B, C, H, W] or ``numpy.ndarray`` [H, W, C].
-    
+        image: RGB image as ``torch.Tensor`` with shape [B, C, H, W] or
+            ``np.ndarray`` with shape [H, W, C].
+
     Returns:
-        List of [height, width, channels].
+        List of [height, width, channels] as ``list[int]``.
     """
     h, w, c = (
         (image.shape[-2], image.shape[-1], image.shape[-3])
@@ -278,14 +284,15 @@ def get_image_size(
     """Returns height and width of an image in [H, W] format.
 
     Args:
-        input: RGB image, tensor, array, size, or path as specified type.
-        divisor: Divisor to adjust size, optional. Default is ``None``.
-    
+        input: RGB image, tensor, array, size, or path as ``torch.Tensor``,
+            ``np.ndarray``, ``int``, ``Sequence[int]``, ``str``, or ``core.Path``.
+        divisor: Divisor to adjust size as ``int`` or ``None``. Default is ``None``.
+
     Returns:
-        Tuple of (height, width) in pixels.
-    
+        Tuple of (height, width) in pixels as ``tuple[int, int]``.
+
     Raises:
-        TypeError: If input type is not supported.
+        TypeError: If ``input`` type is not supported.
     """
     if isinstance(input, (list, tuple)):
         size = input[:2] if len(input) == 3 and input[0] >= input[2] else input[-2:]
@@ -300,7 +307,8 @@ def get_image_size(
     elif isinstance(input, (str, core.Path)):
         size = read_image_shape(input)[:2]
     else:
-        raise TypeError(f"[input] must be a torch.Tensor, numpy.ndarray, int, Sequence[int], str, or core.Path, got {type(input)}.")
+        raise TypeError(f"[input] must be a torch.Tensor, numpy.ndarray, int, "
+                        f"Sequence[int], str, or core.Path, got {type(input)}.")
 
     if divisor is not None:
         size = tuple(int(math.ceil(dim / divisor) * divisor) for dim in size)
@@ -325,7 +333,8 @@ def convert_image_to_2d(image: torch.Tensor | np.ndarray) -> torch.Tensor | np.n
         TypeError: If ``image`` is not a ``torch.Tensor`` or ``numpy.ndarray``.
     """
     if not 3 <= image.ndim <= 4:
-        raise ValueError(f"[image]'s number of dimensions must be between 3 and 4, but got {image.ndim}.")
+        raise ValueError(f"[image]'s number of dimensions must be between 3 and 4, "
+                         f"got {image.ndim}.")
     
     if isinstance(image, torch.Tensor):
         if image.ndim == 3:
@@ -338,7 +347,7 @@ def convert_image_to_2d(image: torch.Tensor | np.ndarray) -> torch.Tensor | np.n
         elif image.ndim == 4 and image.shape[0] == 1 and image.shape[3] == 1:
             image = np.squeeze(image, (0, -1))
     else:
-        raise TypeError(f"[image] must be a torch.Tensor or numpy.ndarray, but got {type(image)}.")
+        raise TypeError(f"[image] must be a torch.Tensor or numpy.ndarray, got {type(image)}.")
     
     return image
 
@@ -357,7 +366,8 @@ def convert_image_to_3d(image: torch.Tensor | np.ndarray) -> torch.Tensor | np.n
         TypeError: If ``image`` is not a ``torch.Tensor`` or ``numpy.ndarray``.
     """
     if not 2 <= image.ndim <= 4:
-        raise ValueError(f"[image]'s number of dimensions must be between 2 and 4, but got {image.ndim}.")
+        raise ValueError(f"[image]'s number of dimensions must be between 2 and 4, "
+                         f"got {image.ndim}.")
 
     if isinstance(image, torch.Tensor):
         if image.ndim == 2:
@@ -370,7 +380,7 @@ def convert_image_to_3d(image: torch.Tensor | np.ndarray) -> torch.Tensor | np.n
         elif image.ndim == 4 and image.shape[0] == 1:
             image = np.squeeze(image, 0)
     else:
-        raise TypeError(f"[image] must be a torch.Tensor or numpy.ndarray, but got {type(image)}.")
+        raise TypeError(f"[image] must be a torch.Tensor or numpy.ndarray, got {type(image)}.")
     
     return image
 
@@ -391,7 +401,8 @@ def convert_image_to_4d(
         TypeError: If ``image`` type is not supported.
     """
     if not 2 <= image.ndim <= 4:
-        raise ValueError(f"[image]'s number of dimensions must be between 2 and 4, but got {image.ndim}.")
+        raise ValueError(f"[image]'s number of dimensions must be between 2 and 4, "
+                         f"got {image.ndim}.")
 
     if isinstance(image, torch.Tensor):
         if image.ndim == 2:  # [H, W] -> [1, 1, H, W]
@@ -413,9 +424,12 @@ def convert_image_to_4d(
         elif all(isinstance(i, np.ndarray) and i.ndim == 4 for i in image):
             image = np.concatenate(image, axis=0)  # Concatenate 4D arrays along batch
         else:
-            raise TypeError(f"[image] list/tuple must contain consistent 3D or 4D torch.Tensor or numpy.ndarray, but got mixed types or dimensions.")
+            raise TypeError(f"[image] list/tuple must contain consistent 3D or 4D "
+                            f"torch.Tensor or numpy.ndarray, got mixed types or "
+                            f"dimensions.")
     else:
-        raise TypeError(f"[image] must be a torch.Tensor, numpy.ndarray, or list/tuple of either, but got {type(image)}.")
+        raise TypeError(f"[image] must be a torch.Tensor, numpy.ndarray, or "
+                        f"list/tuple of either, got {type(image)}.")
     
     return image
 
@@ -437,7 +451,8 @@ def convert_image_to_channel_first(image: torch.Tensor | np.ndarray) -> torch.Te
     if is_image_channel_first(image):
         return image
     if not 3 <= image.ndim <= 4:
-        raise ValueError(f"[image]'s number of dimensions must be between 3 and 4, but got {image.ndim}.")
+        raise ValueError(f"[image]'s number of dimensions must be between 3 and 4, "
+                         f"got {image.ndim}.")
     
     if isinstance(image, torch.Tensor):
         image = image.clone()
@@ -452,7 +467,7 @@ def convert_image_to_channel_first(image: torch.Tensor | np.ndarray) -> torch.Te
         elif image.ndim == 4:
             image = np.transpose(image, (0, 3, 1, 2))  # [B, H, W, C] -> [B, C, H, W]
     else:
-        raise TypeError(f"[image] must be a torch.Tensor or numpy.ndarray, but got {type(image)}.")
+        raise TypeError(f"[image] must be a torch.Tensor or numpy.ndarray, got {type(image)}.")
     
     return image
 
@@ -474,7 +489,7 @@ def convert_image_to_channel_last(image: torch.Tensor | np.ndarray) -> torch.Ten
     if is_image_channel_last(image):
         return image
     if not 3 <= image.ndim <= 4:
-        raise ValueError(f"[image]'s number of dimensions must be between 3 and 4, but got {image.ndim}.")
+        raise ValueError(f"[image]'s number of dimensions must be between 3 and 4, got {image.ndim}.")
     
     if isinstance(image, torch.Tensor):
         image = image.clone()
@@ -489,7 +504,7 @@ def convert_image_to_channel_last(image: torch.Tensor | np.ndarray) -> torch.Ten
         elif image.ndim == 4:
             image = np.transpose(image, (0, 2, 3, 1))  # [B, C, H, W] -> [B, H, W, C]
     else:
-        raise TypeError(f"[image] must be a torch.Tensor or numpy.ndarray, but got {type(image)}.")
+        raise TypeError(f"[image] must be a torch.Tensor or numpy.ndarray, got {type(image)}.")
     
     return image
 
@@ -512,7 +527,7 @@ def convert_image_to_array(image: torch.Tensor | np.ndarray, denormalize: bool =
     """
     # Check shape
     if not 3 <= image.ndim <= 4:
-        raise ValueError(f"[image]'s number of dimensions must be between 3 and 4, but got {image.ndim}.")
+        raise ValueError(f"[image]'s number of dimensions must be between 3 and 4, got {image.ndim}.")
     
     # Remove batch dimension
     image = convert_image_to_3d(image)
@@ -545,7 +560,8 @@ def convert_image_to_tensor(
     Args:
         image: RGB image as ``torch.Tensor`` [B, C, H, W] or ``numpy.ndarray`` [H, W, C].
         normalize: Normalize to [0.0, 1.0] if ``True``. Default is ``False``.
-        device: Device to place tensor on, e.g., ``'cuda'`` or ``None`` for CPU. Default is ``None``.
+        device: Device to place tensor on, e.g., ``'cuda'`` or ``None`` for CPU.
+            Default is ``None``.
     
     Returns:
         Image as ``torch.Tensor`` in [B, C, H, W] format.
@@ -562,7 +578,7 @@ def convert_image_to_tensor(
     elif isinstance(image, torch.Tensor):
         image = image.clone()
     else:
-        raise TypeError(f"[image] must be a torch.Tensor or numpy.ndarray, but got {type(image)}.")
+        raise TypeError(f"[image] must be a torch.Tensor or numpy.ndarray, got {type(image)}.")
         
     # Rearrange before sending to GPU for better memory layout.
     image = convert_image_to_channel_first(image)
@@ -608,7 +624,8 @@ def add_images_weighted(
         TypeError: If output type is not ``torch.Tensor`` or ``numpy.ndarray``.
     """
     if image1.shape != image2.shape or type(image1) is not type(image2):
-        raise ValueError("[image1] and [image2] must have the same shape and type.")
+        raise ValueError(f"[image1] and [image2] must have the same shape and type, "
+                         f"got {type(image1).__name__} and {type(image2).__name__}.")
     
     output = image1 * alpha + image2 * beta + gamma
     bound  = 1.0 if is_image_normalized(image1) else 255.0
@@ -618,7 +635,7 @@ def add_images_weighted(
     elif isinstance(output, np.ndarray):
         output = np.clip(output, 0, bound).astype(image1.dtype)
     else:
-        raise TypeError("[output] must be a torch.Tensor or numpy.ndarray.")
+        raise TypeError(f"[output] must be a torch.Tensor or numpy.ndarray, got {type(output)}.")
     return output
 
 
@@ -660,10 +677,12 @@ def read_image(
         flags: OpenCV flag for reading the image. Default is ``cv2.IMREAD_COLOR``.
         to_tensor: Convert to ``torch.Tensor`` if ``True``. Default is ``False``.
         normalize: Normalize to [0.0, 1.0] if ``True``. Default is ``False``.
-        device: Device to place tensor on, e.g., ``'cuda'`` or ``None`` for CPU. Default is ``None``.
+        device: Device to place tensor on, e.g., ``'cuda'`` or ``None`` for CPU.
+            Default is ``None``.
     
     Returns:
-        RGB or grayscale image as ``torch.Tensor`` [B, C, H, W] or ``numpy.ndarray`` [H, W, C].
+        RGB or grayscale image as ``torch.Tensor`` [B, C, H, W] or
+        ``numpy.ndarray`` [H, W, C].
     """
     path = core.Path(path)
     if path.is_raw_image_file():  # Read raw image
@@ -697,15 +716,15 @@ def read_image_shape(path: core.Path) -> tuple[int, int, int]:
     path = core.Path(path)
     if path.is_raw_image_file():
         image = rawpy.imread(str(path)).raw_image_visible
-        h, w = image.shape
-        c = 3
+        h, w  = image.shape
+        c     = 3
     else:
         with Image.open(str(path)) as image:
             w, h = image.size
             mode = image.mode
-            c = {"RGB": 3, "RGBA": 4, "L": 1}.get(mode, None)
+            c    = {"RGB": 3, "RGBA": 4, "L": 1}.get(mode, None)
             if c is None:
-                raise ValueError(f"Unsupported image mode: {mode}.")
+                raise ValueError(f"Unsupported image mode {mode}.")
     
     return h, w, c
 
@@ -727,7 +746,7 @@ def write_image(path: core.Path, image: torch.Tensor | np.ndarray):
     elif isinstance(image, np.ndarray):
         cv2.imwrite(str(path), cv2.cvtColor(image, cv2.COLOR_RGB2BGR))
     else:
-        raise TypeError(f"[image] must be a torch.Tensor or numpy.ndarray, but got {type(image)}.")
+        raise TypeError(f"[image] must be a torch.Tensor or numpy.ndarray, got {type(image)}.")
 
 # endregion
 
@@ -758,7 +777,7 @@ def normalize_image_by_range(
         TypeError: If ``image`` is not a ``torch.Tensor`` or ``numpy.ndarray``.
     """
     if not image.ndim >= 3:
-        raise ValueError(f"[image]'s number of dimensions must be >= 3, but got {image.ndim}.")
+        raise ValueError(f"[image]'s number of dimensions must be >= 3, got {image.ndim}.")
     
     ratio = (new_max - new_min) / (max - min)
     if isinstance(image, torch.Tensor):
@@ -766,7 +785,7 @@ def normalize_image_by_range(
     elif isinstance(image, np.ndarray):
         image = np.copy(image).astype(np.float32)
     else:
-        raise TypeError(f"[image] must be a torch.Tensor or numpy.ndarray, but got {type(image)}.")
+        raise TypeError(f"[image] must be a torch.Tensor or numpy.ndarray, got {type(image)}.")
     image = (image - min) * ratio + new_min
     
     return image

@@ -1082,7 +1082,7 @@ def download_weights_from_url(
         ValueError: If ``url`` is not a valid URL.
     """
     if not pathlib.Path(url).is_url():
-        raise ValueError(f"[url] must be a valid URL, got [{url}].")
+        raise ValueError(f"[url] must be a valid URL, got {url}.")
     
     path = pathlib.Path(path)
     if not path.exists() or overwrite:

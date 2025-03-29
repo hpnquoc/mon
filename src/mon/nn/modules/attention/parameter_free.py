@@ -1,7 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Implements SimAM."""
+"""Implements parameter-free or neuroscience-inspired attention mechanisms.
+
+These modules generate attention weights without additional learnable parameters or are
+inspired by biological principles, aiming for simplicity and efficiency.
+"""
 
 from __future__ import annotations
 

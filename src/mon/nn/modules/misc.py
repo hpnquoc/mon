@@ -198,7 +198,7 @@ class ExtractItem(nn.Module):
             return input
         if isinstance(input, (list, tuple)):
             return input[self.index]
-        raise TypeError(f"[input] must be tensor, list, or tuple, got [{type(input).__name__}]")
+        raise TypeError(f"[input] must be tensor, list, or tuple, got {type(input).__name__}.")
 
 
 class ExtractItems(nn.Module):
@@ -229,7 +229,7 @@ class ExtractItems(nn.Module):
             return [input]
         if isinstance(input, (list, tuple)):
             return [input[i] for i in self.indexes]
-        raise TypeError(f"[input] must be tensor, list, or tuple, got [{type(input).__name__}]")
+        raise TypeError(f"[input] must be tensor, list, or tuple, got {type(input).__name__}.")
 
 
 class Max(nn.Module):

@@ -1,7 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Implements loss functions using image visual characteristics."""
+"""Implements color and illumination consistency.
+
+These losses focus on maintaining or correcting color properties, illumination, or
+exposure, ensuring natural appearance in enhanced or restored images.
+"""
 
 from __future__ import annotations
 

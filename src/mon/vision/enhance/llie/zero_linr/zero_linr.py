@@ -10,7 +10,6 @@ using Neural Implicit Representations".
 from __future__ import annotations
 
 __all__ = [
-	# "SLINR",
 	"ZeroLINR",
 ]
 
@@ -23,7 +22,7 @@ from fvcore.nn import parameter_count
 from torch.nn import functional as F
 
 from mon import core, nn
-from mon.globals import MODELS, LType, Task
+from mon.globals import LType, MODELS, Task
 from mon.vision import dtype, filtering
 from mon.vision.dtype import image as I
 from mon.vision.enhance import base
@@ -32,7 +31,7 @@ console      = core.console
 current_file = core.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 LDA          = nn.LayeredFeatureAggregation
-INR_AF       = nn.modules.inr.INR_AF
+INR_AF       = nn.modules.inr.inr_layer.INR_AF
 MAPPING_FUNC = Literal["p", "v", "d", "e", "pv", "pd", "pe", "pvde"]
 
 
@@ -646,7 +645,7 @@ class ZeroLINR(base.ImageEnhancementModel):
 		# Prepare input
 		image = datapoint["image"]
 		p     = get_coords(self.down_size).to(image.device)
-		v     = dtype.rgb_to_v(image)
+		v     = kornia.color.rgb_to_hsv(image)[:, 2:3, :, :]
 		d     = datapoint.get("depth", None)
 		e     = I.boundary_aware_prior(d, self.edge_threshold) if d is not None else None
 		v_lr = interpolate_image(v, self.down_size)
@@ -662,7 +661,7 @@ class ZeroLINR(base.ImageEnhancementModel):
 		elif self.mapping_func in ["pvde"]:
 			r = self.inf(p, v_lr, d_lr, e_lr)
 		else:
-			raise ValueError(f"``mapping_func`` must be one of {MAPPING_FUNC}, got: {self.mapping}")
+			raise ValueError(f"[mapping_func] must be one of {MAPPING_FUNC}, got: {self.mapping}")
 		r_lr = r.view(1, 1, self.down_size, self.down_size)
 		# Enhance
 		if self.depth_threshold > 0:
@@ -673,9 +672,9 @@ class ZeroLINR(base.ImageEnhancementModel):
 		if self.use_denoise:
 			z_lr = kornia.filters.bilateral_blur(z_lr, self.denoise_ksize, self.denoise_color, self.denoise_space)
 		z   = filter_up(v_lr, z_lr, v, self.gf_radius)
-		hsv = dtype.rgb_to_hsv(image)
+		hsv = kornia.color.rgb_to_hsv(image)
 		hsv = replace_v_component(hsv, z)
-		rgb = dtype.hsv_to_rgb(hsv.clone())
+		rgb = kornia.color.hsv_to_rgb(hsv)
 		# Return
 		return {
 			"image"   : image,

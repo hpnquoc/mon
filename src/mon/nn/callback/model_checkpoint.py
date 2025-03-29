@@ -373,11 +373,11 @@ class ModelCheckpoint(callbacks.ModelCheckpoint):
             ValueError: If ``monitor`` is not set or current metric is ``None`` when in top k.
         """
         if not self.monitor:
-            raise ValueError("[monitor] must be set, got [None].")
+            raise ValueError("[monitor] must be set, got None.")
         current = monitor_candidates.get(self.monitor)
         if self.check_monitor_top_k(trainer, current):
             if current is None:
-                raise ValueError("[current] must be set when in top k, got [None].")
+                raise ValueError("[current] must be set when in top k, got None.")
             self._update_best_and_save(current, trainer, monitor_candidates)
         elif self.verbose:
             if trainer.is_global_zero:
