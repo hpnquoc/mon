@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Implements base class and utilities functions for depth estimation models."""
+"""Implements base class and utility functions for depth estimation models."""
 
 from __future__ import annotations
 

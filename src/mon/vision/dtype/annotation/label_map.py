@@ -22,10 +22,7 @@ from mon.vision.dtype import image as I
 
 # region Conversion
 
-def convert_label_map_id_to_train_id(
-    label_map  : np.ndarray,
-    classlabels: "ClassLabels"
-) -> np.ndarray:
+def convert_label_map_id_to_train_id(label_map: np.ndarray, classlabels: "ClassLabels") -> np.ndarray:
     """Converts label map from IDs to train IDs.
 
     Args:
@@ -52,10 +49,7 @@ def convert_label_map_id_to_train_id(
     return np.expand_dims(label_ids, axis=-1)
  
 
-def convert_label_map_id_to_color(
-    label_map  : np.ndarray,
-    classlabels: "ClassLabels"
-) -> np.ndarray:
+def convert_label_map_id_to_color(label_map: np.ndarray, classlabels: "ClassLabels") -> np.ndarray:
     """Converts label map from IDs to color-coded representation.
 
     Args:
@@ -80,10 +74,7 @@ def convert_label_map_id_to_color(
     return color_map
 
 
-def convert_label_map_color_to_id(
-    label_map  : np.ndarray,
-    classlabels: "ClassLabels"
-) -> np.ndarray:
+def convert_label_map_color_to_id(label_map: np.ndarray, classlabels: "ClassLabels") -> np.ndarray:
     """Converts a color-coded label map to label IDs.
 
     Args:
@@ -127,7 +118,7 @@ def convert_label_map_id_to_one_hot(
     
     Raises:
         ValueError: If neither ``num_classes`` nor ``classlabels`` is provided.
-        TypeError: If ``label_map`` is not a torch.Tensor or numpy.ndarray.
+        TypeError: If ``label_map`` is not a ``torch.Tensor`` or ``numpy.ndarray``.
     """
     if num_classes is None and classlabels is None:
         raise ValueError("Either [num_classes] or [classlabels] must be provided.")
@@ -144,9 +135,7 @@ def convert_label_map_id_to_one_hot(
         raise TypeError(f"[label_map] must be a torch.Tensor or numpy.ndarray, got {type(label_map)}.")
 
 
-def convert_label_map_one_hot_to_id(
-    label_map: torch.Tensor | np.ndarray
-) -> torch.Tensor | np.ndarray:
+def convert_label_map_one_hot_to_id(label_map: torch.Tensor | np.ndarray) -> torch.Tensor | np.ndarray:
     """Converts a one-hot encoded label map to label IDs.
 
     Args:

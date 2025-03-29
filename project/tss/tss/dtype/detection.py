@@ -76,7 +76,7 @@ class Detection:
 	@property
 	def bbox_center(self):
 		"""Get the center of the bounding box."""
-		return mon.bbox_center(bbox=self.bbox)
+		return mon.get_bbox_center(bbox=self.bbox)
 	
 	@property
 	def bbox_tl(self):

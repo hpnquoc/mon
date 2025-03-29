@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Implements base class for segmentation models."""
+"""Implements base class and utility functions for segmentation models."""
 
 from __future__ import annotations
 
@@ -28,7 +28,17 @@ class SegmentationModel(VisionModel, ABC):
     
     tasks: list[Task] = [Task.SEGMENT]
     
+    # region Forward
+    
     def forward_loss(self, datapoint: dict, *args, **kwargs) -> dict:
+        """Computes forward pass and loss.
+    
+        Args:
+            datapoint: ``dict`` with datapoint attributes.
+    
+        Returns:
+            ``dict`` of predictions with ``"loss"`` and ``"output"`` keys.
+        """
         # Forward
         outputs = self.forward(datapoint=datapoint, *args, **kwargs)
         # Loss
@@ -38,13 +48,17 @@ class SegmentationModel(VisionModel, ABC):
         # Return
         return outputs
     
-    def compute_metrics(
-        self,
-        datapoint: dict,
-        outputs  : dict,
-        metrics  : list[nn.Metric] = None
-    ) -> dict:
-        # Metrics
+    def compute_metrics(self, datapoint: dict, outputs: dict, metrics: list[nn.Metric] = None) -> dict:
+        """Computes metrics for given predictions.
+    
+        Args:
+            datapoint: ``dict`` with datapoint attributes.
+            outputs: ``dict`` with model predictions.
+            metrics: ``list`` of ``M.Metric`` or ``None``. Default is ``None``.
+    
+        Returns:
+            ``dict`` of computed metric values.
+        """
         pred    = outputs["semantic"]
         target  = datapoint["semantic"]
         results = {}
@@ -52,16 +66,21 @@ class SegmentationModel(VisionModel, ABC):
             for i, metric in enumerate(metrics):
                 metric_name = getattr(metric, "name", f"metric_{i}")
                 results[metric_name] = metric(pred, target)
-        # Return
         return results
     
-    def log_images(
-        self,
-        epoch    : int,
-        step     : int,
-        data     : dict,
-        extension: str = ".jpg"
-    ):
+    # endregion
+    
+    # region Logging
+    
+    def log_images(self, epoch: int, step: int, data: dict, extension: str = ".jpg"):
+        """Logs debug images to ``debug_dir``.
+    
+        Args:
+            epoch: Current epoch number.
+            step: Current step number.
+            data: Dict with images to log.
+            extension: Image file extension. Default is ``'.jpg'``.
+        """
         epoch    = int(epoch)
         step     = int(step)
         save_dir = self.debug_dir / f"epoch_{epoch:04d}"
@@ -82,12 +101,12 @@ class SegmentationModel(VisionModel, ABC):
         } if extra_images else {}
         
         if len(image) != len(pred_semantic):
-            raise ValueError(f"The number of `images` and `pred_semantic` must "
-                             f"be the same, got {len(image)} != {len(pred_semantic)}.")
+            raise ValueError(f"[image] and [pred_semantic] counts must match, "
+                             f"got {len(image)} != {len(pred_semantic)}.")
         if tar_semantic is not None:
             if len(image) != len(tar_semantic):
-                raise ValueError(f"The number of `images` and `tar_semantic` "
-                                 f"must be the same, got {len(image)} != {len(tar_semantic)}.")
+                raise ValueError(f"[image] and [tar_semantic] counts must match, "
+                                 f"got {len(image)} != {len(tar_semantic)}.")
         
         for i in range(len(image)):
             if tar_semantic:
@@ -102,5 +121,7 @@ class SegmentationModel(VisionModel, ABC):
                 v_i = v[i]
                 extra_path = save_dir / f"{i}_{k}{extension}"
                 cv2.imwrite(str(extra_path), v_i)
-                
+    
+    # endregion
+    
 # endregion

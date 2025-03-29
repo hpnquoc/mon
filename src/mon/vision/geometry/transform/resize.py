@@ -6,53 +6,7 @@
 from __future__ import annotations
 
 __all__ = [
-    "Affine",
-    "Hflip",
-    "HomographyWarper",
-    "PyrDown",
-    "PyrUp",
-    "Rescale",
-    "Resize",
-    "Rot180",
-    "Rotate",
-    "Scale",
-    "ScalePyramid",
-    "Shear",
-    "Translate",
-    "Vflip",
-    "affine",
-    "affine3d",
-    "build_laplacian_pyramid",
-    "build_pyramid",
-    "center_crop",
-    "center_crop3d",
-    "crop_and_resize",
-    "crop_and_resize3d",
-    "crop_by_boxes",
-    "crop_by_boxes3d",
-    "crop_by_indices",
-    "crop_by_transform_mat",
-    "crop_by_transform_mat3d",
-    "elastic_transform2d",
-    "get_affine_matrix2d",
-    "get_affine_matrix3d",
-    "get_perspective_transform",
-    "get_perspective_transform3d",
-    "get_projective_transform",
-    "get_rotation_matrix2d",
-    "get_shear_matrix2d",
-    "get_shear_matrix3d",
-    "get_translation_matrix2d",
-    "hflip",
-    "homography_warp",
-    "homography_warp3d",
-    "invert_affine_transform",
     "pair_downsample",
-    "projection_from_Rt",
-    "pyrdown",
-    "pyrup",
-    "remap",
-    "rescale",
     "resize",
 ]
 
@@ -68,23 +22,26 @@ from torch.nn import functional as F
 from mon.vision import dtype
 
 
-# region Resize
-
 def pair_downsample(image: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
-    """The image pair downsampler, which outputs two downsampled images of half
-    the spatial resolution by averaging diagonal pixels in non-overlapping
-    patches, as shown in the below figure:
+    """Downsample an image into a pair to half resolution.
     
-                                     ---------------------
-        ---------------------        | A1+D1/2 | A2+D2/2 |
-        | A1 | B1 | A2 | B2 |        | A3+D3/2 | A4+D4/2 |
-        | C1 | D1 | C2 | D2 |        ---------------------
-        ---------------------  ===>
-        | A3 | B3 | A4 | B4 |        ---------------------
-        | C3 | D3 | C4 | D4 |        | B1+C1/2 | B2+C2/2 |
-        ---------------------        | B3+C3/2 | B4+C4/2 |
-                                     ---------------------
-    
+    Args:
+        image: Image as ``torch.Tensor`` in [B, C, H, W].
+
+    Returns:
+        Two downsampled images as ``tuple[torch.Tensor, torch.Tensor]``,
+        each [B, C, H/2, W/2].
+
+    Notes:
+        Averages diagonal pixels in non-overlapping patches:
+            ---------------------        ---------------------
+            | A1 | B1 | A2 | B2 |        | A1+D1/2 | A2+D2/2 |
+            | C1 | D1 | C2 | D2 |        | A3+D3/2 | A4+D4/2 |
+            ---------------------  ===>  ---------------------
+            | A3 | B3 | A4 | B4 |        | B1+C1/2 | B2+C2/2 |
+            | C3 | D3 | C4 | D4 |        | B3+C3/2 | B4+C4/2 |
+            ---------------------        ---------------------
+
     References:
         - https://colab.research.google.com/drive/1i82nyizTdszyHkaHBuKPbWnTzao8HF9b?usp=sharing
     """
@@ -103,58 +60,61 @@ def resize(
     size         : int | Sequence[int] = None,
     divisible_by : int = None,
     side         : Literal["short", "long", "vert", "horz", None] = None,
-    interpolation: Literal["nearest", "linear", "bilinear", "bicubic", "trilinear", "area", cv2.INTER_AREA, cv2.INTER_CUBIC, cv2.INTER_LINEAR] = "bilinear",
+    interpolation: Literal["nearest", "linear", "bilinear", "bicubic", "trilinear",
+                           "area", cv2.INTER_AREA, cv2.INTER_CUBIC, cv2.INTER_LINEAR] = "bilinear",
     **kwargs,
 ) -> torch.Tensor | np.ndarray:
     """Resize an image
     
     Args:
-        image: An RGB image of type:
-            - `torch.Tensor` in [B, C, H, W] format with data in
-                the range [0.0, 1.0].
-            - `numpy.ndarray` in [H, W, C] format with data in the
-                range [0, 255].
-        size: The target size.
-        divisible_by: If not ``None``, then the image will be resized to a size
-            that is divisible by this number. Default: ``None``.
-        side: Corresponding side if ``size`` is an integer. One of:
-            - ``'short'``: Resize based on the shortest dimension.
-            - ``'long'``: Resize based on the longest dimension.
-            - ``'vert'``: Resize based on the vertical dimension.
-            - ``'horz'``: Resize based on the horizontal dimension.
-            Defaults: ``'short'``.
-        interpolation: Algorithm used for upsampling.
-            - For `kornia`:
-                - ``'nearest'``
-                - ``'linear'``
-                - ``'bilinear'``
-                - ``'bicubic'``
-                - ``'trilinear'``
-                -  ``'area'``
-                Defaults: ``'bilinear'``.
-            - For `cv2`:
-                - cv2.INTER_AREA: This is used when we need to shrink an image.
-                - cv2.INTER_CUBIC: This is slow but more efficient.
-                - cv2.INTER_LINEAR: This is primarily used when zooming is
-                    required. This is the default interpolation technique in
-                    OpenCV.
-                    
-    **kwargs (korina.geometry.transform.resize):
-        - align_corners: interpolation flag.
-        - antialias: if ``True``, then image will be filtered with Gaussian
-            before downscaling. No effect for upscaling.
+        image: Image as ``torch.Tensor`` in [B, C, H, W], range [0.0, 1.0], or
+            ``np.ndarray`` in [H, W, C], range [0, 255].
+        size: Target size as ``int`` or ``Sequence[int]``. Default is ``None``.
+        divisible_by: If not ``None``, then the image will be resized to a size that is
+            divisible by this number. Default: ``None``.
+        side: Side to scale if ``size`` is ``int``. One of:
+            - ``"short"``: Resize based on the shortest dimension.
+            - ``"long"``: Resize based on the longest dimension.
+            - ``"vert"``: Resize based on the vertical dimension.
+            - ``"horz"``: Resize based on the horizontal dimension.
+            Defaults is ``None``.
+        interpolation: Upsampling method.
+            - For ``kornia``:
+                - ``"nearest"``
+                - ``"linear"``
+                - ``"bilinear"``
+                - ``"bicubic"``
+                - ``"trilinear"``
+                -  ``"area"``
+                Defaults is ``"bilinear"``.
+            - For ``cv2``:
+                - ``cv2.INTER_AREA``: This is used when we need to shrink an image.
+                - ``cv2.INTER_CUBIC``: This is slow but more efficient.
+                - ``cv2.INTER_LINEAR``: This is primarily used when zooming is required.
+                    This is the default interpolation technique in OpenCV.
+        **kwargs (korina.geometry.transform.resize):
+            - align_corners: interpolation flag.
+            - antialias: if ``True``, then image will be filtered with Gaussian
+                before downscaling. No effect for upscaling.
+        
+        **kwargs (cv2.resize):
+            - fx: Scale factor along the horizontal axis.
+            - fy: Scale factor along the vertical axis.
+            - antialias: If ``True``, then image will be filtered with Gaussian before
+                downscaling. No effect for upscaling.
     
-    **kwargs (cv2.resize):
-        - fx: Scale factor along the horizontal axis.
-        - fy: Scale factor along the vertical axis.
-        - antialias: If ``True``, then image will be filtered with Gaussian
-            before downscaling. No effect for upscaling.
+    Returns:
+        Resized image as ``torch.Tensor`` or ``np.ndarray`` matching input type.
+
+    Raises:
+        TypeError: If image is not a ``torch.Tensor`` or ``np.ndarray``.
     """
     # Parse size
     if size:
         size = dtype.get_image_size(size, divisible_by)
     else:
         size = dtype.get_image_size(image, divisible_by)
+        
     # Resize based on the shortest dimension
     if side == "short":
         h0, w0 = dtype.get_image_size(image)
@@ -229,7 +189,4 @@ def resize(
             interpolation = interpolation,
         )
     else:
-        raise TypeError(f"`image` must be a `torch.Tensor` or `numpy.ndarray`, "
-                        f"got {type(image)}.")
-
-# endregion
+        raise TypeError(f"[image] must be a torch.Tensor or numpy.ndarray, got {type(image)}.")

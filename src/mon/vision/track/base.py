@@ -83,7 +83,7 @@ class Detection:
     
     @property
     def bbox_center(self) -> np.ndarray:
-        return G.bbox_center(bbox=self.bbox)[0]
+        return G.get_bbox_center(bbox=self.bbox)[0]
     
     @property
     def bbox_tl(self) -> np.ndarray:
@@ -92,7 +92,7 @@ class Detection:
     
     @property
     def bbox_corners_points(self) -> np.ndarray:
-        return G.bbox_corners_points(bbox=self.bbox)[0]
+        return G.get_bbox_corners_pts(bbox=self.bbox)[0]
     
     @property
     def confidence(self) -> float:

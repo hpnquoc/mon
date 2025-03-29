@@ -21,40 +21,37 @@ from mon.globals import ShapeCode
 # region Conversion
 
 def normalize_contour(contour: np.ndarray, height: int, width: int) -> np.ndarray:
-    """Normalizes contour points to the range [0.0, 1.0].
+    """Normalize contour points to [0.0, 1.0].
 
     Args:
-        contour: Contour points as numpy.ndarray in [N, 2] format.
-        height: Image height in pixels.
-        width: Image width in pixels.
-    
+        contour: Contour points as ``np.ndarray`` in [N, 2] format.
+        height: Image height in pixels as ``int``.
+        width: Image width in pixels as ``int``.
+
     Returns:
-        Normalized contour points in [N, 2] format.
+        Normalized contour points as ``np.ndarray`` in [N, 2] format.
     """
-    contour  = contour.copy()
     x, y, *_ = contour.T
     x_norm   = x / width
     y_norm   = y / height
-    contour  = np.stack((x_norm, y_norm), axis=-1)
-    return contour
+    return np.stack((x_norm, y_norm), axis=-1)
 
 
 def denormalize_contour(contour: np.ndarray, height: int, width: int) -> np.ndarray:
-    """Denormalizes contour points from range [0.0, 1.0] to pixel coordinates.
+    """Denormalize contour points to pixel coordinates.
 
     Args:
-        contour: Normalized contour points as numpy.ndarray in [N, 2] format.
-        height: Image height in pixels.
-        width: Image width in pixels.
+        contour: Normalized points as ``np.ndarray`` in [N, 2], range [0.0, 1.0].
+        height: Image height in pixels as ``int``.
+        width: Image width in pixels as ``int``.
+
     Returns:
-        Denormalized contour points in [N, 2] format.
+        Denormalized contour points as ``np.ndarray`` in [N, 2].
     """
-    contour = contour.copy()
     x_norm, y_norm, *_ = contour.T
-    x       = x_norm * width
-    y       = y_norm * height
-    contour = np.stack((x, y), axis=-1)
-    return contour
+    x = x_norm * width
+    y = y_norm * height
+    return np.stack((x, y), axis=-1)
 
 
 contour_voc_to_yolo = normalize_contour

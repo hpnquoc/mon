@@ -62,7 +62,9 @@ __all__ = [
 
 from typing import Any
 
-from mon.core import dtype as DT, factory, pathlib
+from mon.core import factory, pathlib
+from mon.core.dtype import base as DT
+
 
 # region Directory
 

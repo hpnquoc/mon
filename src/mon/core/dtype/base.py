@@ -1,7 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Handles data: ``list``, ``dict``, ``tuple``, ``set``, and ``collections`` types."""
+"""Handles basic Python data types: ``list``, ``dict``, ``tuple``, ``set``, and
+``collections``.
+"""
 
 from __future__ import annotations
 
