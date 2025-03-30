@@ -21,13 +21,12 @@ import random
 import torch
 
 from mon import core, nn
-from mon.globals import MODELS, LType, Task
+from mon.globals import MODELS
 from mon.vision import dtype, geometry
 from mon.vision.enhance import base
 
 torch.autograd.set_detect_anomaly(True)
 
-console      = core.console
 current_file = core.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
@@ -192,12 +191,12 @@ class ZeroRestoreDehaze(base.ImageEnhancementModel):
     Koschmieder's Model.
     """
     
-    model_dir: core.Path    = current_dir
-    arch     : str          = "zero_restore"
-    name     : str          = "zero_restore_dehaze"
-    tasks    : list[Task]   = [Task.DEHAZE]
-    ltypes   : list[LType]  = [LType.ZERO_SHOT]
-    zoo      : dict         = {}
+    model_dir: core.Path        = current_dir
+    arch     : str              = "zero_restore"
+    name     : str              = "zero_restore_dehaze"
+    tasks    : list[core.Task]  = [core.Task.DEHAZE]
+    ltypes   : list[core.LType] = [core.LType.ZERO_SHOT]
+    zoo      : dict             = {}
     
     def __init__(
         self,

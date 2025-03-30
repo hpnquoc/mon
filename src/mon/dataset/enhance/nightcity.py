@@ -22,27 +22,16 @@ from typing import Literal
 
 import cv2
 
-from mon import core
-from mon.dataset import dtype
-from mon.globals import DATA_DIR, DATAMODULES, DATASETS, Split, Task
-
-console                        = core.console
-default_root_dir               = DATA_DIR / "enhance"
-ClassLabels                    = dtype.ClassLabels
-DataModule                     = dtype.DataModule
-DatapointAttributes            = dtype.DatapointAttributes
-DepthMapAnnotation             = dtype.DepthMapAnnotation
-ImageAnnotation                = dtype.ImageAnnotation
-MultimodalDataset              = dtype.MultimodalDataset
-SemanticSegmentationAnnotation = dtype.SemanticSegmentationAnnotation
+from mon import core, vision
+from mon.globals import DATA_DIR, DATAMODULES, DATASETS
 
 
 @DATASETS.register(name="nightcity")
-class NightCity(MultimodalDataset):
+class NightCity(vision.VisionDataset):
     """Loads NightCity dataset from ``root`` dir.
 
     Args:
-        root: Directory path to dataset. Default is ``default_root_dir``.
+        root: Directory path to dataset. Default is ``DATA_DIR / "enhance"``.
         *args: Additional args for parent class.
         **kwargs: Additional kwargs for parent class.
 
@@ -50,15 +39,15 @@ class NightCity(MultimodalDataset):
         FileNotFoundError: If ``root`` directory does not exist.
     """
     
-    tasks : list[Task]  = [Task.LLIE, Task.NIGHTTIME, Task.SEGMENT]
-    splits: list[Split] = [Split.TRAIN, Split.VAL, Split.TEST]
-    datapoint_attrs     = DatapointAttributes({
-        "image"   : ImageAnnotation,
-        "depth"   : DepthMapAnnotation,
-        "semantic": SemanticSegmentationAnnotation,
+    tasks : list[core.Task]    = [core.Task.LLIE, core.Task.NIGHTTIME, core.Task.SEGMENT]
+    splits: list[core.Split]   = [core.Split.TRAIN, core.Split.VAL, core.Split.TEST]
+    datapoint_attrs            = vision.DatapointAttributes({
+        "image"   : vision.ImageAnnotation,
+        "depth"   : vision.DepthMapAnnotation,
+        "semantic": vision.SemanticSegmentationAnnotation,
     })
-    has_test_annotations: bool        = False
-    classlabels         : ClassLabels = ClassLabels([
+    has_test_annotations: bool = False
+    classlabels         : core.ClassLabels = core.ClassLabels([
         {"name": "unlabeled"           , "id": 0 , "train_id": 255, "category": "void"        , "category_id": 0, "ignore_in_eval": True , "color": [0  , 0  ,   0]},
         {"name": "ego vehicle"         , "id": 1 , "train_id": 255, "category": "void"        , "category_id": 0, "ignore_in_eval": True , "color": [0  , 0  ,   0]},
         {"name": "rectification border", "id": 2 , "train_id": 255, "category": "void"        , "category_id": 0, "ignore_in_eval": True , "color": [0  , 0  ,   0]},
@@ -96,7 +85,7 @@ class NightCity(MultimodalDataset):
         {"name": "license plate"       , "id": -1, "train_id": -1 , "category": "vehicle"     , "category_id": 7, "ignore_in_eval": True , "color": [0  , 0  , 142]},
     ])
 
-    def __init__(self, root: core.Path = default_root_dir, *args, **kwargs):
+    def __init__(self, root: core.Path = DATA_DIR / "enhance", *args, **kwargs):
         """Initializes dataset with ``root`` path and parent args."""
         root = root / "nightcity" if root.name != "nightcity" else root
         if not root.is_dir():
@@ -105,33 +94,36 @@ class NightCity(MultimodalDataset):
 
     def get_data(self):
         """Populates ``datapoints`` with image and semantic annotations."""
-        if self.split == Split.TEST:
+        if self.split == core.Split.TEST:
             patterns = [self.root / "val" / "image"]
         else:
             patterns = [self.root / self.split_str / "image"]
 
-        images: list[ImageAnnotation] = []
+        images: list[vision.ImageAnnotation] = []
         with core.get_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
                 for path in pbar.track(sequence=paths, description=desc):
                     if path.is_image_file():
-                        images.append(ImageAnnotation(path=path, root=pattern))
+                        images.append(vision.ImageAnnotation(path=path, root=pattern))
 
-        semantic: list[SemanticSegmentationAnnotation] = []
+        semantic: list[vision.SemanticSegmentationAnnotation] = []
         with core.get_progress_bar(disable=self.disable_pbar) as pbar:
             desc = f"Listing {self.__class__.__name__} {self.split_str} semantic maps"
             for img in pbar.track(sequence=images, description=desc):
                 path = img.path.replace("/lq/", "/labelIds/")
-                semantic.append(SemanticSegmentationAnnotation(path=path.image_file(), flags=cv2.IMREAD_GRAYSCALE))
+                semantic.append(vision.SemanticSegmentationAnnotation(
+                    path  = path.image_file(),
+                    flags = cv2.IMREAD_GRAYSCALE
+                ))
 
         self.datapoints["image"]    = images
         self.datapoints["semantic"] = semantic
 
 
 @DATAMODULES.register(name="nightcity")
-class NightCityDataModule(DataModule):
+class NightCityDataModule(core.DataModule):
     """Configures NightCity datasets for training/testing.
 
     Args:
@@ -139,7 +131,7 @@ class NightCityDataModule(DataModule):
         **kwargs: Additional kwargs for parent class.
     """
     
-    tasks: list[Task] = [Task.LLIE, Task.NIGHTTIME, Task.SEGMENT]
+    tasks: list[core.Task] = [core.Task.LLIE, core.Task.NIGHTTIME, core.Task.SEGMENT]
 
     def prepare_data(self, *args, **kwargs):
         """Prepares data (placeholder, no action taken)."""
@@ -153,13 +145,13 @@ class NightCityDataModule(DataModule):
                 or ``None``. Default is ``None``.
         """
         if self.can_log:
-            console.log(f"Setup [red]{self.__class__.__name__}[/red].")
+            core.console.log(f"Setup [red]{self.__class__.__name__}[/red].")
 
         if stage in [None, "train"]:
-            self.train = NightCity(split=Split.TRAIN, **self.dataset_kwargs)
-            self.val   = NightCity(split=Split.VAL,   **self.dataset_kwargs)
+            self.train = NightCity(split=core.Split.TRAIN, **self.dataset_kwargs)
+            self.val   = NightCity(split=core.Split.VAL,   **self.dataset_kwargs)
         if stage in [None, "test"]:
-            self.test  = NightCity(split=Split.TEST,  **self.dataset_kwargs)
+            self.test  = NightCity(split=core.Split.TEST,  **self.dataset_kwargs)
 
         self.get_classlabels()
         if self.can_log:

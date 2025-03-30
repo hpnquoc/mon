@@ -12,10 +12,9 @@ __all__ = [
 from torchvision.models import inception_v3
 
 from mon import core, nn
-from mon.globals import MODELS, LType, ZOO_DIR
+from mon.globals import MODELS, ZOO_DIR
 from mon.vision.classify import base
 
-console      = core.console
 current_file = core.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
@@ -37,11 +36,11 @@ class Inception3(nn.ExtraModel, base.ImageClassificationModel):
         - https://arxiv.org/abs/1512.00567
     """
     
-    arch     : str         = "inception"
-    name     : str         = "inception_v3"
-    ltypes   : list[LType] = [LType.SUPERVISED]
-    model_dir: core.Path   = current_dir
-    zoo      : dict        = {
+    arch     : str              = "inception"
+    name     : str              = "inception_v3"
+    ltypes   : list[core.LType] = [core.LType.SUPERVISED]
+    model_dir: core.Path        = current_dir
+    zoo      : dict             = {
         "imagenet1k_v1": {
             "url"        : "https://download.pytorch.org/models/inception_v3_google-0cc3c7bd.pth",
             "path"       : ZOO_DIR / "vision/classify/inception/inception_v3/imagenet1k_v1/inception_v3_imagenet1k_v1.pth",

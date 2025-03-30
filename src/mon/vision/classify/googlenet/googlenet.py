@@ -12,10 +12,9 @@ __all__ = [
 from torchvision.models import googlenet
 
 from mon import core, nn
-from mon.globals import MODELS, LType, ZOO_DIR
+from mon.globals import MODELS, ZOO_DIR
 from mon.vision.classify import base
 
-console      = core.console
 current_file = core.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
@@ -36,11 +35,11 @@ class GoogleNet(nn.ExtraModel, base.ImageClassificationModel):
         - https://arxiv.org/abs/1409.4842
     """
     
-    arch     : str         = "googlenet"
-    name     : str         = "googlenet"
-    ltypes   : list[LType] = [LType.SUPERVISED]
-    model_dir: core.Path   = current_dir
-    zoo      : dict        = {
+    arch     : str              = "googlenet"
+    name     : str              = "googlenet"
+    ltypes   : list[core.LType] = [core.LType.SUPERVISED]
+    model_dir: core.Path        = current_dir
+    zoo      : dict             = {
         "imagenet1k_v1": {
             "url"        : "https://download.pytorch.org/models/googlenet-1378be20.pth",
             "path"       : ZOO_DIR / "vision/classify/googlenet/googlenet/imagenet1k_v1/googlenet_imagenet1k_v1.pth",

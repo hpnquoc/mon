@@ -11,7 +11,7 @@ __all__ = [
     "TASKS",
 ]
 
-from mon.globals import Task
+from mon import Task
 
 # List all tasks that are performed in this project.
 TASKS = [

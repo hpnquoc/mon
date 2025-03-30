@@ -17,8 +17,6 @@ from lightning.pytorch.utilities import model_summary
 from mon import core
 from mon.globals import CALLBACKS
 
-console = core.console
-
 
 # region Rich Model Summary
 
@@ -60,7 +58,7 @@ class RichModelSummary(callbacks.RichModelSummary):
         for row in rows:
             table.add_row(*row)
 
-        console.log(table)
+        core.console.log(table)
 
         param_counts = [
             trainable_parameters,
@@ -79,6 +77,6 @@ class RichModelSummary(callbacks.RichModelSummary):
         grid.add_row(f"[bold]Total params[/]: {parameters[2]} ({total_parameters})")
         grid.add_row(f"[bold]Total estimated model params size (MB)[/]: {parameters[3]}")
 
-        console.log(grid)
+        core.console.log(grid)
         
 # endregion

@@ -16,8 +16,6 @@ from lightning.pytorch.trainer import *
 from mon import core
 from mon.nn import strategy
 
-console = core.console
-
 
 # region Trainer
 
@@ -61,23 +59,23 @@ class Trainer(lightning.Trainer):
             (False, "")
         )
         gpu_used = isinstance(self.accelerator, (strategy.CUDAAccelerator, strategy.MPSAccelerator))
-        console.log(f"GPU available: {gpu_available}{gpu_type}, used: {gpu_used}.")
+        core.console.log(f"GPU available: {gpu_available}{gpu_type}, used: {gpu_used}.")
     
         num_tpu_cores = self.num_devices if isinstance(self.accelerator, strategy.TPUAccelerator) else 0
-        console.log(f"TPU available: {strategy.TPUAccelerator.is_available()}, using: {num_tpu_cores} TPU cores.")
+        core.console.log(f"TPU available: {strategy.TPUAccelerator.is_available()}, using: {num_tpu_cores} TPU cores.")
     
         if strategy.CUDAAccelerator.is_available() and not isinstance(self.accelerator, strategy.CUDAAccelerator):
-            console.log(
+            core.console.log(
                 f"GPU available but not used. Set `accelerator` and `devices` using "
                 f"Trainer(accelerator='gpu', devices={strategy.CUDAAccelerator.auto_device_count()})."
             )
         if strategy.TPUAccelerator.is_available() and not isinstance(self.accelerator, strategy.TPUAccelerator):
-            console.log(
+            core.console.log(
                 f"TPU available but not used. Set `accelerator` and `devices` using "
                 f"Trainer(accelerator='tpu', devices={strategy.TPUAccelerator.auto_device_count()})."
             )
         if strategy.MPSAccelerator.is_available() and not isinstance(self.accelerator, strategy.MPSAccelerator):
-            console.log(
+            core.console.log(
                 f"MPS available but not used. Set `accelerator` and `devices` using "
                 f"Trainer(accelerator='mps', devices={strategy.MPSAccelerator.auto_device_count()})."
             )

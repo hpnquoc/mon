@@ -36,8 +36,7 @@ import torch
 from plum import dispatch
 from rich import panel, pretty, progress, table, text, theme
 
-from mon.core import dtype, utils
-from mon.globals import MemoryUnit
+from mon.core import dtype, enum, utils
 
 
 # region Console
@@ -230,12 +229,12 @@ class MemoryUsageColumn(progress.ProgressColumn):
     def __init__(
         self,
         devices     : int | list[int] = 0,
-        unit        : MemoryUnit     = MemoryUnit.GB,
-        table_column: table.Column   = None
+        unit        : enum.MemoryUnit = enum.MemoryUnit.GB,
+        table_column: table.Column    = None
     ):
         super().__init__(table_column=table_column)
         self.devices = dtype.to_int_list(devices)
-        self.unit    = MemoryUnit.from_value(value=unit)
+        self.unit    = enum.MemoryUnit.from_value(value=unit)
     
     def render(self, task: progress.Task) -> text.Text:
         """Renders current GPU or CPU memory usage as text.

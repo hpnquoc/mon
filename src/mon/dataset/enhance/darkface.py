@@ -14,25 +14,16 @@ __all__ = [
 
 from typing import Literal
 
-from mon import core
-from mon.dataset import dtype
-from mon.globals import DATA_DIR, DATAMODULES, DATASETS, Split, Task
-
-console             = core.console
-default_root_dir    = DATA_DIR / "enhance"
-DataModule          = dtype.DataModule
-DatapointAttributes = dtype.DatapointAttributes
-DepthMapAnnotation  = dtype.DepthMapAnnotation
-ImageAnnotation     = dtype.ImageAnnotation
-MultimodalDataset   = dtype.MultimodalDataset
+from mon import core, vision
+from mon.globals import DATA_DIR, DATAMODULES, DATASETS
 
 
 @DATASETS.register(name="darkface")
-class DarkFace(MultimodalDataset):
+class DarkFace(vision.VisionDataset):
     """Loads DarkFace dataset from ``root`` dir.
 
     Args:
-        root: Directory path to dataset. Default is ``default_root_dir``.
+        root: Directory path to dataset. Default is ``DATA_DIR / "enhance"``.
         *args: Additional args for parent class.
         **kwargs: Additional kwargs for parent class.
 
@@ -40,15 +31,15 @@ class DarkFace(MultimodalDataset):
         FileNotFoundError: If ``root`` directory does not exist.
     """
     
-    tasks : list[Task]  = [Task.LLIE, Task.DETECT]
-    splits: list[Split] = [Split.TEST]
-    datapoint_attrs     = DatapointAttributes({
-        "image": ImageAnnotation,
-        "depth": DepthMapAnnotation,
+    tasks : list[core.Task]    = [core.Task.LLIE, core.Task.DETECT]
+    splits: list[core.Split]   = [core.Split.TEST]
+    datapoint_attrs            = vision.DatapointAttributes({
+        "image": vision.ImageAnnotation,
+        "depth": vision.DepthMapAnnotation,
     })
     has_test_annotations: bool = False
 
-    def __init__(self, root: core.Path = default_root_dir, *args, **kwargs):
+    def __init__(self, root: core.Path = DATA_DIR / "enhance", *args, **kwargs):
         """Initializes dataset with ``root`` path and parent args."""
         root = root / "darkface" if root.name != "darkface" else root
         if not root.is_dir():
@@ -59,24 +50,24 @@ class DarkFace(MultimodalDataset):
         """Populates ``datapoints`` with image annotations for split."""
         patterns = [self.root / self.split_str / "image"]
 
-        images: list[ImageAnnotation] = []
+        images: list[vision.ImageAnnotation] = []
         with core.get_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
                 for path in pbar.track(sequence=paths, description=desc):
                     if path.is_image_file():
-                        images.append(ImageAnnotation(path=path, root=pattern))
+                        images.append(vision.ImageAnnotation(path=path, root=pattern))
 
         self.datapoints["image"] = images
         
 
 @DATASETS.register(name="darkface_full")
-class DarkFaceFull(MultimodalDataset):
+class DarkFaceFull(vision.VisionDataset):
     """Loads DarkFaceFull dataset from ``root`` dir.
 
     Args:
-        root: Directory path to dataset. Default is ``default_root_dir``.
+        root: Directory path to dataset. Default is ``DATA_DIR / "enhance"``.
         *args: Additional args for parent class.
         **kwargs: Additional kwargs for parent class.
 
@@ -84,15 +75,15 @@ class DarkFaceFull(MultimodalDataset):
         FileNotFoundError: If ``root`` directory does not exist.
     """
     
-    tasks : list[Task]  = [Task.LLIE, Task.DETECT]
-    splits: list[Split] = [Split.TEST]
-    datapoint_attrs     = DatapointAttributes({
-        "image": ImageAnnotation,
-        "depth": DepthMapAnnotation,
+    tasks : list[core.Task]  = [core.Task.LLIE, core.Task.DETECT]
+    splits: list[core.Split] = [core.Split.TEST]
+    datapoint_attrs     = vision.DatapointAttributes({
+        "image": vision.ImageAnnotation,
+        "depth": vision.DepthMapAnnotation,
     })
     has_test_annotations: bool = False
 
-    def __init__(self, root: core.Path = default_root_dir, *args, **kwargs):
+    def __init__(self, root: core.Path = DATA_DIR / "enhance", *args, **kwargs):
         """Initializes dataset with ``root`` path and parent args."""
         root = root / "darkface" if root.name != "darkface" else root
         if not root.is_dir():
@@ -103,27 +94,27 @@ class DarkFaceFull(MultimodalDataset):
         """Populates ``datapoints`` with image annotations for split."""
         patterns = [self.root / f"{self.split_str}_full" / "image"]
 
-        images: list[ImageAnnotation] = []
+        images: list[vision.ImageAnnotation] = []
         with core.get_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
                 for path in pbar.track(sequence=paths, description=desc):
                     if path.is_image_file():
-                        images.append(ImageAnnotation(path=path, root=pattern))
+                        images.append(vision.ImageAnnotation(path=path, root=pattern))
 
         self.datapoints["image"] = images
 
 
 @DATAMODULES.register(name="darkface")
-class DarkFaceDataModule(DataModule):
+class DarkFaceDataModule(core.DataModule):
     """Configures DarkFace datasets for training/testing.
 
     Args:
         *args: Additional args for parent class.
         **kwargs: Additional kwargs for parent class.
     """
-    tasks: list[Task] = [Task.LLIE]
+    tasks: list[core.Task] = [core.Task.LLIE]
 
     def prepare_data(self, *args, **kwargs):
         """Prepares data (placeholder, no action taken)."""
@@ -137,13 +128,13 @@ class DarkFaceDataModule(DataModule):
                 or ``None``. Default is ``None``.
         """
         if self.can_log:
-            console.log(f"Setup [red]{self.__class__.__name__}[/red].")
+            core.console.log(f"Setup [red]{self.__class__.__name__}[/red].")
 
         if stage in [None, "train"]:
-            self.train = DarkFace(split=Split.TEST, **self.dataset_kwargs)
-            self.val   = DarkFace(split=Split.TEST, **self.dataset_kwargs)
+            self.train = DarkFace(split=core.Split.TEST, **self.dataset_kwargs)
+            self.val   = DarkFace(split=core.Split.TEST, **self.dataset_kwargs)
         if stage in [None, "test"]:
-            self.test  = DarkFace(split=Split.TEST, **self.dataset_kwargs)
+            self.test  = DarkFace(split=core.Split.TEST, **self.dataset_kwargs)
 
         self.get_classlabels()
         if self.can_log:
@@ -151,14 +142,14 @@ class DarkFaceDataModule(DataModule):
 
 
 @DATAMODULES.register(name="darkface_full")
-class DarkFaceFullDataModule(DataModule):
+class DarkFaceFullDataModule(core.DataModule):
     """Configures DarkFaceFull datasets for training/testing.
 
     Args:
         *args: Additional args for parent class.
         **kwargs: Additional kwargs for parent class.
     """
-    tasks: list[Task] = [Task.LLIE]
+    tasks: list[core.Task] = [core.Task.LLIE]
 
     def prepare_data(self, *args, **kwargs):
         """Prepares data (placeholder, no action taken)."""
@@ -172,13 +163,13 @@ class DarkFaceFullDataModule(DataModule):
                 or ``None``. Default is ``None``.
         """
         if self.can_log:
-            console.log(f"Setup [red]{self.__class__.__name__}[/red].")
+            core.console.log(f"Setup [red]{self.__class__.__name__}[/red].")
 
         if stage in [None, "train"]:
-            self.train = DarkFaceFull(split=Split.TEST, **self.dataset_kwargs)
-            self.val   = DarkFaceFull(split=Split.TEST, **self.dataset_kwargs)
+            self.train = DarkFaceFull(split=core.Split.TEST, **self.dataset_kwargs)
+            self.val   = DarkFaceFull(split=core.Split.TEST, **self.dataset_kwargs)
         if stage in [None, "test"]:
-            self.test  = DarkFaceFull(split=Split.TEST, **self.dataset_kwargs)
+            self.test  = DarkFaceFull(split=core.Split.TEST, **self.dataset_kwargs)
 
         self.get_classlabels()
         if self.can_log:

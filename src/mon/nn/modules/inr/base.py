@@ -5,18 +5,18 @@
 
 from __future__ import annotations
 
+__all__ = [
+    "SigmoidLayer",
+    "TanhLayer",
+    "ReLULayer",
+]
+
 from typing import Any
 
 import numpy as np
 import torch
 from torch import nn
 from torch.nn import functional as F
-
-__all__ = [
-    "SigmoidLayer",
-    "TanhLayer",
-    "ReLULayer",
-]
 
 
 # region Utils

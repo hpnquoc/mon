@@ -25,9 +25,6 @@ from lightning.pytorch.utilities.types import STEP_OUTPUT
 from mon import core
 from mon.globals import CALLBACKS
 
-console       = core.console
-error_console = core.error_console
-
 
 # noinspection PyMethodMayBeStatic
 @CALLBACKS.register(name="log_training_progress")
@@ -129,7 +126,7 @@ class LogTrainingProgress(callbacks.Callback):
         self._logger.close()
 
         if self._verbose and trainer.is_global_zero:
-            console.log(
+            core.console.log(
                 f"\n{elapsed_epoch} epochs completed "
                 f"in {elapsed_time:.3f} seconds "
                 f"({elapsed_hours:.3f} hours).\n"
@@ -231,8 +228,8 @@ class LogTrainingProgress(callbacks.Callback):
             and train_time_interval is None):
             every_n_epochs      = 1
             every_n_train_steps = 0
-            console.log("Both every_n_train_steps and every_n_epochs are not set. "
-                        "Setting every_n_epochs=1.")
+            core.console.log("Both every_n_train_steps and every_n_epochs are not set. "
+                             "Setting every_n_epochs=1.")
         else:
             every_n_epochs      = every_n_epochs or 0
             every_n_train_steps = every_n_train_steps or 0
@@ -390,4 +387,4 @@ class LogTrainingProgress(callbacks.Callback):
                 row_lines.extend([f"{' '.join(header)}", f"{' '.join(values)}"])
             if row_lines:
                 print()
-                console.log("\n".join(row_lines))
+                core.console.log("\n".join(row_lines))

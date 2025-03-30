@@ -20,9 +20,6 @@ from typing import Literal
 
 import numpy as np
 import torch
-from torch import nn
-from torch.nn import functional as F
-from torchvision import models, transforms
 
 from mon.globals import LOSSES
 from mon.nn.loss import base
@@ -123,7 +120,7 @@ class SSIMLoss(base.Loss):
         reduction        : Literal["none", "mean", "sum"] = "mean",
     ):
         super().__init__(loss_weight=loss_weight, reduction=reduction)
-        from mon.nn.metric.pytorch_msssim import SSIM
+        from mon.nn.metric.image.pytorch_msssim import SSIM
         self.ssim = SSIM(
             data_range        = data_range,
             size_average      = size_average,
@@ -184,7 +181,7 @@ class MS_SSIMLoss(base.Loss):
         reduction   : Literal["none", "mean", "sum"] = "mean",
     ):
         super().__init__(loss_weight=loss_weight, reduction=reduction)
-        from mon.nn.metric.pytorch_msssim import MS_SSIM
+        from mon.nn.metric.image.pytorch_msssim import MS_SSIM
         self.ms_ssim = MS_SSIM(
             data_range   = data_range,
             size_average = size_average,

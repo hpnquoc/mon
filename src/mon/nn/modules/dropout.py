@@ -22,9 +22,7 @@ __all__ = [
 import torch
 from torch import nn
 from torch.nn.modules.dropout import *
-from torchvision.ops import (
-    drop_block2d, drop_block3d, DropBlock2d, DropBlock3d
-)
+from torchvision.ops import drop_block2d, drop_block3d, DropBlock2d, DropBlock3d
 
 
 # region Drop Path

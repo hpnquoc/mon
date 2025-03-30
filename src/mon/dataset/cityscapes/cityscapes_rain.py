@@ -18,20 +18,9 @@ from typing import Literal
 
 import cv2
 
-from mon import core
-from mon.dataset import dtype
+from mon import core, vision
 from mon.dataset.cityscapes.cityscapes import Cityscapes
-from mon.globals import DATA_DIR, DATAMODULES, DATASETS, Split, Task
-
-console                        = core.console
-default_root_dir               = DATA_DIR / "cityscapes"
-ClassLabels                    = dtype.ClassLabels
-DataModule                     = dtype.DataModule
-DatapointAttributes            = dtype.DatapointAttributes
-DepthMapAnnotation             = dtype.DepthMapAnnotation
-ImageAnnotation                = dtype.ImageAnnotation
-MultimodalDataset              = dtype.MultimodalDataset
-SemanticSegmentationAnnotation = dtype.SemanticSegmentationAnnotation
+from mon.globals import DATA_DIR, DATAMODULES, DATASETS
 
 
 @DATASETS.register(name="cityscapes_rain")
@@ -47,16 +36,16 @@ class CityscapesRain(Cityscapes):
         FileNotFoundError: If ``root``/cityscapes directory does not exist.
     """
     
-    tasks : list[Task]  = [Task.DERAIN]
-    splits: list[Split] = [Split.TRAIN, Split.VAL]
-    datapoint_attrs     = DatapointAttributes({
-        "image"    : ImageAnnotation,
-        "ref_image": ImageAnnotation,
-        "semantic" : SemanticSegmentationAnnotation,  # gtFine
+    tasks : list[core.Task]    = [core.Task.DERAIN]
+    splits: list[core.Split]   = [core.Split.TRAIN, core.Split.VAL]
+    datapoint_attrs            = vision.DatapointAttributes({
+        "image"    : vision.ImageAnnotation,
+        "ref_image": vision.ImageAnnotation,
+        "semantic" : vision.SemanticSegmentationAnnotation,  # gtFine
     })
     has_test_annotations: bool = True
     
-    def __init__(self, root: core.Path = default_root_dir, *args, **kwargs):
+    def __init__(self, root: core.Path = DATA_DIR / "cityscapes", *args, **kwargs):
         root = root / "cityscapes" if root.name != "cityscapes" else root
         if not root.is_dir():
             raise FileNotFoundError(f"[root] must be a directory, got {root}.")
@@ -66,30 +55,30 @@ class CityscapesRain(Cityscapes):
         """Loads rainy images, reference images, and semantic maps."""
         patterns = [self.root / self.split_str / "leftImg8bit_rain"]
 
-        images: list[ImageAnnotation] = []
+        images: list[vision.ImageAnnotation] = []
         with core.get_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
                 for path in pbar.track(sequence=paths, description=desc):
                     if path.is_image_file():
-                        images.append(ImageAnnotation(path=path, root=pattern))
+                        images.append(vision.ImageAnnotation(path=path, root=pattern))
                         
-        ref_images: list[ImageAnnotation] = []
+        ref_images: list[vision.ImageAnnotation] = []
         with core.get_progress_bar(disable=self.disable_pbar) as pbar:
             desc = f"Listing {self.__class__.__name__} {self.split_str} reference images"
             for img in pbar.track(sequence=images, description=desc):
                 path = img.path.replace("/leftImg8bit_rain/", "/leftImg8bit/")
                 stem = path.stem.split("leftImg8bit")[0]
                 path = path.parent / f"{stem}leftImg8bit{path.suffix}"
-                ref_images.append(ImageAnnotation(path=path.image_file(), root=img.root))
+                ref_images.append(vision.ImageAnnotation(path=path.image_file(), root=img.root))
         
-        semantic: list[SemanticSegmentationAnnotation] = []
+        semantic: list[vision.SemanticSegmentationAnnotation] = []
         with core.get_progress_bar(disable=self.disable_pbar) as pbar:
             desc = f"Listing {self.__class__.__name__} {self.split_str} semantic maps"
             for img in pbar.track(sequence=images, description=desc):
                 path = img.path.replace("/leftImg8bit_rain/", "/gtFine/")
-                semantic.append(SemanticSegmentationAnnotation(
+                semantic.append(vision.SemanticSegmentationAnnotation(
                     path  = path.image_file(),
                     root  = img.root,
                     flags = cv2.IMREAD_GRAYSCALE
@@ -101,10 +90,10 @@ class CityscapesRain(Cityscapes):
 
 
 @DATAMODULES.register(name="cityscapes_rain")
-class CityscapesRainDataModule(DataModule):
+class CityscapesRainDataModule(core.DataModule):
     """Manages CityscapesRain dataset for training, validation, and testing."""
 
-    tasks: list[Task] = [Task.DERAIN]
+    tasks: list[core.Task] = [core.Task.DERAIN]
 
     def prepare_data(self, *args, **kwargs):
         """Prepares data (placeholder, no action taken)."""
@@ -118,13 +107,13 @@ class CityscapesRainDataModule(DataModule):
                 or ``None``. Default is ``None``.
         """
         if self.can_log:
-            console.log(f"Setup [red]{self.__class__.__name__}[/red].")
+            core.console.log(f"Setup [red]{self.__class__.__name__}[/red].")
 
         if stage in [None, "train"]:
-            self.train = CityscapesRain(split=Split.TRAIN, **self.dataset_kwargs)
-            self.val   = CityscapesRain(split=Split.VAL,   **self.dataset_kwargs)
+            self.train = CityscapesRain(split=core.Split.TRAIN, **self.dataset_kwargs)
+            self.val   = CityscapesRain(split=core.Split.VAL,   **self.dataset_kwargs)
         if stage in [None, "test"]:
-            self.test  = CityscapesRain(split=Split.VAL,   **self.dataset_kwargs)
+            self.test  = CityscapesRain(split=core.Split.VAL,   **self.dataset_kwargs)
 
         self.get_classlabels()
         if self.can_log:

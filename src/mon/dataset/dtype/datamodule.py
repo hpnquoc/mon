@@ -15,12 +15,9 @@ from typing import Any, Callable, Literal
 import lightning
 from torch.utils import data
 
-from mon.core import dtype, rich
+from mon.core import dtype, rich, Task
 from mon.dataset.dtype import dataset
-from mon.globals import Task
 
-
-# region DataModule
 
 class DataModule(lightning.LightningDataModule, ABC):
     """Base class for all datamodules.
@@ -242,5 +239,3 @@ class DataModule(lightning.LightningDataModule, ABC):
         
         if self.classlabels:
             self.classlabels.print()
-        
-# endregion

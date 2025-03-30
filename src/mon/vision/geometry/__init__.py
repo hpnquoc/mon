@@ -11,3 +11,4 @@ import mon.vision.geometry.transform
 from mon.vision.geometry.calibrate import *
 from mon.vision.geometry.distance import *
 from mon.vision.geometry.transform import *
+from mon.vision.geometry.transform import albumentation

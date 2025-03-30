@@ -10,11 +10,10 @@ __all__ = [
 ]
 
 from mon import core
+from mon.core import Split
 from mon.dataset import dtype
-from mon.globals import DATA_DIR, DATASETS, Split
+from mon.globals import DATA_DIR, DATASETS
 
-
-# region Parsing
 
 def parse_data_loader(
     src        : core.Path | str,
@@ -77,5 +76,3 @@ def parse_data_loader(
         raise ValueError(f"[src] is invalid: {src}.")
     
     return data_name, data_loader
-    
-# endregion

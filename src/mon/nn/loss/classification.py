@@ -15,7 +15,6 @@ import torch
 
 from mon.globals import LOSSES
 from mon.nn.loss import base
-from mon.nn.loss.base import reduce_loss
 
 
 # region Utils
@@ -118,7 +117,7 @@ class DiceLoss(base.Loss):
             Reduced loss as ``torch.Tensor``.
         """
         loss = 1 - self.fn(input=input, target=target, reduce_batch=self.reduce_batch)
-        loss = reduce_loss(loss=loss, reduction=self.reduction)
+        loss = base.reduce_loss(loss=loss, reduction=self.reduction)
         return self.loss_weight * loss
 
 # endregion

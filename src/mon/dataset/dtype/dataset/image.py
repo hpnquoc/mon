@@ -14,19 +14,19 @@ import glob
 import albumentations as A
 
 from mon import core
+from mon.core import Split
 from mon.dataset.dtype import annotation
 from mon.dataset.dtype.dataset import base
-from mon.globals import Split
 
 console             = core.console
-ClassLabels         = annotation.ClassLabels
+ClassLabels         = core.ClassLabels
 DatapointAttributes = annotation.DatapointAttributes
 ImageAnnotation     = annotation.ImageAnnotation
 
 
 # region Image Loader
 
-class ImageLoader(base.MultimodalDataset):
+class ImageLoader(base.VisionDataset):
     """Loads images from a file path, pattern, or directory.
     
     Attributes:

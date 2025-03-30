@@ -15,9 +15,7 @@ __all__ = [
 import kornia
 import torch
 
-from mon import core, nn
-
-console = core.console
+from mon import nn
 
 
 # region Model

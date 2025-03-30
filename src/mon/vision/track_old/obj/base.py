@@ -19,7 +19,8 @@ import cv2
 import numpy as np
 
 from mon import core, nn
-from mon.globals import AppleRGB, MOTIONS, MovingState
+from mon.core import AppleRGB
+from mon.globals import MOTIONS
 from mon.vision import geometry, utils
 from mon.vision.track_old import motion as mmotion
 

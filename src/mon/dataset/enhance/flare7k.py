@@ -16,26 +16,16 @@ __all__ = [
 
 from typing import Literal
 
-from mon import core
-from mon.dataset import dtype
-from mon.globals import DATA_DIR, DATAMODULES, DATASETS, Split, Task
-
-console             = core.console
-default_root_dir    = DATA_DIR / "enhance"
-ClassLabels         = dtype.ClassLabels
-DataModule          = dtype.DataModule
-DatapointAttributes = dtype.DatapointAttributes
-DepthMapAnnotation  = dtype.DepthMapAnnotation
-ImageAnnotation     = dtype.ImageAnnotation
-MultimodalDataset   = dtype.MultimodalDataset
+from mon import core, vision
+from mon.globals import DATA_DIR, DATAMODULES, DATASETS
 
 
 @DATASETS.register(name="flare7k++_real")
-class Flare7KPPReal(MultimodalDataset):
+class Flare7KPPReal(vision.VisionDataset):
     """Loads Flare7K++Real dataset from ``root`` dir.
 
     Args:
-        root: Directory path to dataset. Default is ``default_root_dir``.
+        root: Directory path to dataset. Default is ``DATA_DIR / "enhance"``.
         *args: Additional args for parent class.
         **kwargs: Additional kwargs for parent class.
 
@@ -43,15 +33,15 @@ class Flare7KPPReal(MultimodalDataset):
         FileNotFoundError: If ``root`` directory does not exist.
     """
     
-    tasks : list[Task]  = [Task.NIGHTTIME]
-    splits: list[Split] = [Split.TEST]
-    datapoint_attrs     = DatapointAttributes({
-        "image"    : ImageAnnotation,
-        "ref_image": ImageAnnotation,
+    tasks : list[core.Task]    = [core.Task.NIGHTTIME]
+    splits: list[core.Split]   = [core.Split.TEST]
+    datapoint_attrs            = vision.DatapointAttributes({
+        "image"    : vision.ImageAnnotation,
+        "ref_image": vision.ImageAnnotation,
     })
     has_test_annotations: bool = True
 
-    def __init__(self, root: core.Path = default_root_dir, *args, **kwargs):
+    def __init__(self, root: core.Path = DATA_DIR / "enhance", *args, **kwargs):
         """Initializes dataset with ``root`` path and parent args."""
         root = root / "flare7k++" if root.name != "flare7k++" else root
         if not root.is_dir():
@@ -62,24 +52,24 @@ class Flare7KPPReal(MultimodalDataset):
         """Populates ``datapoints`` with image annotations for split."""
         patterns = [self.root / self.split_str / "real" / "image"]
 
-        images: list[ImageAnnotation] = []
+        images: list[vision.ImageAnnotation] = []
         with core.get_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
                 for path in pbar.track(sequence=paths, description=desc):
                     if path.is_image_file():
-                        images.append(ImageAnnotation(path=path, root=pattern))
+                        images.append(vision.ImageAnnotation(path=path, root=pattern))
 
         self.datapoints["image"] = images
         
 
 @DATASETS.register(name="flare7k++_synthetic")
-class Flare7KPPSynthetic(MultimodalDataset):
+class Flare7KPPSynthetic(vision.VisionDataset):
     """Loads Flare7K++Synthetic dataset from ``root`` dir.
 
     Args:
-        root: Directory path to dataset. Default is ``default_root_dir``.
+        root: Directory path to dataset. Default is ``DATA_DIR / "enhance"``.
         *args: Additional args for parent class.
         **kwargs: Additional kwargs for parent class.
 
@@ -87,15 +77,15 @@ class Flare7KPPSynthetic(MultimodalDataset):
         FileNotFoundError: If ``root`` directory does not exist.
     """
     
-    tasks : list[Task]  = [Task.NIGHTTIME]
-    splits: list[Split] = [Split.TEST]
-    datapoint_attrs     = DatapointAttributes({
-        "image"    : ImageAnnotation,
-        "ref_image": ImageAnnotation,
+    tasks : list[core.Task]  = [core.Task.NIGHTTIME]
+    splits: list[core.Split] = [core.Split.TEST]
+    datapoint_attrs     = vision.DatapointAttributes({
+        "image"    : vision.ImageAnnotation,
+        "ref_image": vision.ImageAnnotation,
     })
     has_test_annotations: bool = True
 
-    def __init__(self, root: core.Path = default_root_dir, *args, **kwargs):
+    def __init__(self, root: core.Path = DATA_DIR / "enhance", *args, **kwargs):
         """Initializes dataset with ``root`` path and parent args."""
         root = root / "flare7k++" if root.name != "flare7k++" else root
         if not root.is_dir():
@@ -106,24 +96,24 @@ class Flare7KPPSynthetic(MultimodalDataset):
         """Populates ``datapoints`` with image annotations for split."""
         patterns = [self.root / self.split_str / "synthetic" / "image"]
 
-        images: list[ImageAnnotation] = []
+        images: list[vision.ImageAnnotation] = []
         with core.get_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
                 for path in pbar.track(sequence=paths, description=desc):
                     if path.is_image_file():
-                        images.append(ImageAnnotation(path=path, root=pattern))
+                        images.append(vision.ImageAnnotation(path=path, root=pattern))
 
         self.datapoints["image"] = images
 
 
 @DATASETS.register(name="flare7k++_extra")
-class Flare7KPPExtra(MultimodalDataset):
+class Flare7KPPExtra(vision.VisionDataset):
     """Loads Flare7K++Extra dataset from ``root`` dir.
 
     Args:
-        root: Directory path to dataset. Default is ``default_root_dir``.
+        root: Directory path to dataset. Default is ``DATA_DIR / "enhance"``.
         *args: Additional args for parent class.
         **kwargs: Additional kwargs for parent class.
 
@@ -131,14 +121,14 @@ class Flare7KPPExtra(MultimodalDataset):
         FileNotFoundError: If ``root`` directory does not exist.
     """
     
-    tasks : list[Task]  = [Task.NIGHTTIME]
-    splits: list[Split] = [Split.TEST]
-    datapoint_attrs     = DatapointAttributes({
-        "image": ImageAnnotation,
+    tasks : list[core.Task]  = [core.Task.NIGHTTIME]
+    splits: list[core.Split] = [core.Split.TEST]
+    datapoint_attrs     = vision.DatapointAttributes({
+        "image": vision.ImageAnnotation,
     })
     has_test_annotations: bool = False
 
-    def __init__(self, root: core.Path = default_root_dir, *args, **kwargs):
+    def __init__(self, root: core.Path = DATA_DIR / "enhance", *args, **kwargs):
         """Initializes dataset with ``root`` path and parent args."""
         root = root / "flare7k++" if root.name != "flare7k++" else root
         if not root.is_dir():
@@ -149,20 +139,20 @@ class Flare7KPPExtra(MultimodalDataset):
         """Populates ``datapoints`` with image annotations for split."""
         patterns = [self.root / self.split_str / "extra" / "image"]
 
-        images: list[ImageAnnotation] = []
+        images: list[vision.ImageAnnotation] = []
         with core.get_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
                 for path in pbar.track(sequence=paths, description=desc):
                     if path.is_image_file():
-                        images.append(ImageAnnotation(path=path, root=pattern))
+                        images.append(vision.ImageAnnotation(path=path, root=pattern))
 
         self.datapoints["image"] = images
 
 
 @DATAMODULES.register(name="flare7k++_real")
-class Flare7KPPRealDataModule(DataModule):
+class Flare7KPPRealDataModule(core.DataModule):
     """Configures Flare7KPPReal datasets for training/testing.
 
     Args:
@@ -170,7 +160,7 @@ class Flare7KPPRealDataModule(DataModule):
         **kwargs: Additional kwargs for parent class.
     """
     
-    tasks: list[Task] = [Task.NIGHTTIME]
+    tasks: list[core.Task] = [core.Task.NIGHTTIME]
 
     def prepare_data(self, *args, **kwargs):
         """Prepares data (placeholder, no action taken)."""
@@ -184,13 +174,13 @@ class Flare7KPPRealDataModule(DataModule):
                 or ``None``. Default is ``None``.
         """
         if self.can_log:
-            console.log(f"Setup [red]{self.__class__.__name__}[/red].")
+            core.console.log(f"Setup [red]{self.__class__.__name__}[/red].")
 
         if stage in [None, "train"]:
-            self.train = Flare7KPPReal(split=Split.TEST, **self.dataset_kwargs)
-            self.val   = Flare7KPPReal(split=Split.TEST, **self.dataset_kwargs)
+            self.train = Flare7KPPReal(split=core.Split.TEST, **self.dataset_kwargs)
+            self.val   = Flare7KPPReal(split=core.Split.TEST, **self.dataset_kwargs)
         if stage in [None, "test"]:
-            self.test  = Flare7KPPReal(split=Split.TEST, **self.dataset_kwargs)
+            self.test  = Flare7KPPReal(split=core.Split.TEST, **self.dataset_kwargs)
 
         self.get_classlabels()
         if self.can_log:
@@ -198,7 +188,7 @@ class Flare7KPPRealDataModule(DataModule):
     
 
 @DATAMODULES.register(name="flare7k++_synthetic")
-class Flare7KPPSyntheticDataModule(DataModule):
+class Flare7KPPSyntheticDataModule(core.DataModule):
     """Configures Flare7KPPSynthetic datasets for training/testing.
 
     Args:
@@ -206,7 +196,7 @@ class Flare7KPPSyntheticDataModule(DataModule):
         **kwargs: Additional kwargs for parent class.
     """
     
-    tasks: list[Task] = [Task.NIGHTTIME]
+    tasks: list[core.Task] = [core.Task.NIGHTTIME]
 
     def prepare_data(self, *args, **kwargs):
         """Prepares data (placeholder, no action taken)."""
@@ -220,13 +210,13 @@ class Flare7KPPSyntheticDataModule(DataModule):
                 or ``None``. Default is ``None``.
         """
         if self.can_log:
-            console.log(f"Setup [red]{self.__class__.__name__}[/red].")
+            core.console.log(f"Setup [red]{self.__class__.__name__}[/red].")
 
         if stage in [None, "train"]:
-            self.train = Flare7KPPSynthetic(split=Split.TEST, **self.dataset_kwargs)
-            self.val   = Flare7KPPSynthetic(split=Split.TEST, **self.dataset_kwargs)
+            self.train = Flare7KPPSynthetic(split=core.Split.TEST, **self.dataset_kwargs)
+            self.val   = Flare7KPPSynthetic(split=core.Split.TEST, **self.dataset_kwargs)
         if stage in [None, "test"]:
-            self.test  = Flare7KPPSynthetic(split=Split.TEST, **self.dataset_kwargs)
+            self.test  = Flare7KPPSynthetic(split=core.Split.TEST, **self.dataset_kwargs)
 
         self.get_classlabels()
         if self.can_log:
@@ -234,7 +224,7 @@ class Flare7KPPSyntheticDataModule(DataModule):
 
 
 @DATAMODULES.register(name="flare7k++_extra")
-class Flare7KPPExtraDataModule(DataModule):
+class Flare7KPPExtraDataModule(core.DataModule):
     """Configures Flare7KPPExtra datasets for training/testing.
 
     Args:
@@ -242,7 +232,7 @@ class Flare7KPPExtraDataModule(DataModule):
         **kwargs: Additional kwargs for parent class.
     """
     
-    tasks: list[Task] = [Task.NIGHTTIME]
+    tasks: list[core.Task] = [core.Task.NIGHTTIME]
 
     def prepare_data(self, *args, **kwargs):
         """Prepares data (placeholder, no action taken)."""
@@ -256,13 +246,13 @@ class Flare7KPPExtraDataModule(DataModule):
                 or ``None``. Default is ``None``.
         """
         if self.can_log:
-            console.log(f"Setup [red]{self.__class__.__name__}[/red].")
+            core.console.log(f"Setup [red]{self.__class__.__name__}[/red].")
 
         if stage in [None, "train"]:
-            self.train = Flare7KPPExtra(split=Split.TEST, **self.dataset_kwargs)
-            self.val   = Flare7KPPExtra(split=Split.TEST, **self.dataset_kwargs)
+            self.train = Flare7KPPExtra(split=core.Split.TEST, **self.dataset_kwargs)
+            self.val   = Flare7KPPExtra(split=core.Split.TEST, **self.dataset_kwargs)
         if stage in [None, "test"]:
-            self.test  = Flare7KPPExtra(split=Split.TEST, **self.dataset_kwargs)
+            self.test  = Flare7KPPExtra(split=core.Split.TEST, **self.dataset_kwargs)
 
         self.get_classlabels()
         if self.can_log:

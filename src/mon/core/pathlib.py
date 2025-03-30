@@ -307,7 +307,7 @@ class Path(type(pathlib.Path())):
         paths = list(path.rglob("*")) if recursive else list(path.iterdir())
         return [p for p in paths if p.is_file()]
     
-    def ckpt_file(self) -> 'Path' | None:
+    def ckpt_file(self) -> Path | None:
         """Returns the checkpoint file path if found.
 
         Returns:
@@ -330,7 +330,7 @@ class Path(type(pathlib.Path())):
                     return config_path
         return self
     
-    def latest_file(self) -> 'Path' | None:
+    def latest_file(self) -> Path | None:
         """Returns the latest file based on creation time.
 
         Returns:

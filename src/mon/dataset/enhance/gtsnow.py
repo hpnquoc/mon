@@ -12,25 +12,16 @@ __all__ = [
 
 from typing import Literal
 
-from mon import core
-from mon.dataset import dtype
-from mon.globals import DATA_DIR, DATAMODULES, DATASETS, Split, Task
-
-console             = core.console
-default_root_dir    = DATA_DIR / "enhance"
-DataModule          = dtype.DataModule
-DatapointAttributes = dtype.DatapointAttributes
-DepthMapAnnotation  = dtype.DepthMapAnnotation
-ImageAnnotation     = dtype.ImageAnnotation
-MultimodalDataset   = dtype.MultimodalDataset
+from mon import core, vision
+from mon.globals import DATA_DIR, DATAMODULES, DATASETS
 
 
 @DATASETS.register(name="gtsnow")
-class GTSnow(MultimodalDataset):
+class GTSnow(vision.VisionDataset):
     """Loads GTSnow dataset from ``root`` dir.
 
     Args:
-        root: Directory path to dataset. Default is ``default_root_dir``.
+        root: Directory path to dataset. Default is ``DATA_DIR / "enhance"``.
         *args: Additional args for parent class.
         **kwargs: Additional kwargs for parent class.
 
@@ -38,15 +29,15 @@ class GTSnow(MultimodalDataset):
         FileNotFoundError: If ``root`` directory does not exist.
     """
     
-    tasks : list[Task]  = [Task.DESNOW]
-    splits: list[Split] = [Split.TRAIN]
-    datapoint_attrs     = DatapointAttributes({
-        "image"    : ImageAnnotation,
-        "ref_image": ImageAnnotation,
+    tasks : list[core.Task]    = [core.Task.DESNOW]
+    splits: list[core.Split]   = [core.Split.TRAIN]
+    datapoint_attrs            = vision.DatapointAttributes({
+        "image"    : vision.ImageAnnotation,
+        "ref_image": vision.ImageAnnotation,
     })
     has_test_annotations: bool = False
 
-    def __init__(self, root: core.Path = default_root_dir, *args, **kwargs):
+    def __init__(self, root: core.Path = DATA_DIR / "enhance", *args, **kwargs):
         """Initializes dataset with ``root`` path and parent args."""
         root = root / "gtsnow" if root.name != "gtsnow" else root
         if not root.is_dir():
@@ -57,16 +48,16 @@ class GTSnow(MultimodalDataset):
         """Populates ``datapoints`` with image and ref annotations."""
         patterns = [self.root / self.split_str / "image"]
 
-        images: list[ImageAnnotation] = []
+        images: list[vision.ImageAnnotation] = []
         with core.get_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
                 for path in pbar.track(sequence=paths, description=desc):
                     if path.is_image_file():
-                        images.append(ImageAnnotation(path=path, root=pattern))
+                        images.append(vision.ImageAnnotation(path=path, root=pattern))
 
-        ref_images: list[ImageAnnotation] = []
+        ref_images: list[vision.ImageAnnotation] = []
         with core.get_progress_bar(disable=self.disable_pbar) as pbar:
             desc = f"Listing {self.__class__.__name__} {self.split_str} reference images"
             for img in pbar.track(sequence=images, description=desc):
@@ -74,14 +65,14 @@ class GTSnow(MultimodalDataset):
                 path = path[:-9] + "C-000.png"
                 path = path.replace("/image/", "/ref/")
                 path = core.Path(path)
-                ref_images.append(ImageAnnotation(path=path.image_file()))
+                ref_images.append(vision.ImageAnnotation(path=path.image_file()))
 
         self.datapoints["image"]     = images
         self.datapoints["ref_image"] = ref_images
 
 
 @DATAMODULES.register(name="gtsnow")
-class GTSnowDataModule(DataModule):
+class GTSnowDataModule(core.DataModule):
     """Configures GTSnow datasets for training/testing.
 
     Args:
@@ -89,7 +80,7 @@ class GTSnowDataModule(DataModule):
         **kwargs: Additional kwargs for parent class.
     """
     
-    tasks: list[Task] = [Task.DESNOW]
+    tasks: list[core.Task] = [core.Task.DESNOW]
 
     def prepare_data(self, *args, **kwargs):
         """Prepares data (placeholder, no action taken)."""
@@ -103,13 +94,13 @@ class GTSnowDataModule(DataModule):
                 or ``None``. Default is ``None``.
         """
         if self.can_log:
-            console.log(f"Setup [red]{self.__class__.__name__}[/red].")
+            core.console.log(f"Setup [red]{self.__class__.__name__}[/red].")
 
         if stage in [None, "train"]:
-            self.train = GTSnow(split=Split.TRAIN, **self.dataset_kwargs)
-            self.val   = GTSnow(split=Split.TRAIN, **self.dataset_kwargs)
+            self.train = GTSnow(split=core.Split.TRAIN, **self.dataset_kwargs)
+            self.val   = GTSnow(split=core.Split.TRAIN, **self.dataset_kwargs)
         if stage in [None, "test"]:
-            self.test  = GTSnow(split=Split.TRAIN, **self.dataset_kwargs)
+            self.test  = GTSnow(split=core.Split.TRAIN, **self.dataset_kwargs)
 
         if self.classlabels is None:
             self.get_classlabels()

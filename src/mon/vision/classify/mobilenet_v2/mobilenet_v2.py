@@ -12,10 +12,9 @@ __all__ = [
 from torchvision.models import mobilenet_v2
 
 from mon import core, nn
-from mon.globals import MODELS, LType, ZOO_DIR
+from mon.globals import MODELS, ZOO_DIR
 from mon.vision.classify import base
 
-console      = core.console
 current_file = core.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
@@ -35,11 +34,11 @@ class MobileNetV2(nn.ExtraModel, base.ImageClassificationModel):
         - https://arxiv.org/abs/1801.04381
     """
     
-    arch     : str         = "mobilenet"
-    name     : str         = "mobilenet_v2"
-    ltypes   : list[LType] = [LType.SUPERVISED]
-    model_dir: core.Path   = current_dir
-    zoo      : dict        = {
+    arch     : str              = "mobilenet"
+    name     : str              = "mobilenet_v2"
+    ltypes   : list[core.LType] = [core.LType.SUPERVISED]
+    model_dir: core.Path        = current_dir
+    zoo      : dict             = {
         "imagenet1k_v1": {
             "url"        : "https://download.pytorch.org/models/mobilenet_v2-b0353104.pth",
             "path"       : ZOO_DIR / "vision/classify/mobilenet/mobilenet_v2/imagenet1k_v1/mobilenet_v2_imagenet1k_v1.pth",

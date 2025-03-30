@@ -11,8 +11,6 @@ __all__ = [
 
 from mon.core import rich
 
-console = rich.console
-
 
 class ClassLabels(list[dict]):
     """List of class labels defined in a dataset.
@@ -118,7 +116,7 @@ class ClassLabels(list[dict]):
     def print(self):
         """Prints class labels in a formatted table."""
         if not self:
-            console.log("[yellow]No class is available.")
+            rich.console.log("[yellow]No class is available.")
         else:
-            console.log("Classlabels:")
-            core.print_table(self)
+            rich.console.log("Classlabels:")
+            rich.print_table(self)

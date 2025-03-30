@@ -34,10 +34,9 @@ from torchvision.models import (
 )
 
 from mon import core, nn
-from mon.globals import MODELS, LType, ZOO_DIR
+from mon.globals import MODELS, ZOO_DIR
 from mon.vision.classify import base
 
-console      = core.console
 current_file = core.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
@@ -51,10 +50,10 @@ class RegNet(nn.ExtraModel, base.ImageClassificationModel, ABC):
         - https://arxiv.org/abs/2003.13678
     """
     
-    arch     : str         = "regnet"
-    ltypes   : list[LType] = [LType.SUPERVISED]
-    model_dir: core.Path   = current_dir
-    zoo      : dict        = {}
+    arch     : str              = "regnet"
+    ltypes   : list[core.LType] = [core.LType.SUPERVISED]
+    model_dir: core.Path        = current_dir
+    zoo      : dict             = {}
     
     def init_weights(self, m: nn.Module):
         """Initializes weights for the model.

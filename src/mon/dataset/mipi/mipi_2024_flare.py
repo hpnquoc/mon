@@ -16,21 +16,12 @@ __all__ = [
 
 from typing import Literal
 
-from mon import core
-from mon.dataset import dtype
-from mon.globals import DATA_DIR, DATAMODULES, DATASETS, Split, Task
-
-console             = core.console
-default_root_dir    = DATA_DIR / "mipi"
-DataModule          = dtype.DataModule
-DatapointAttributes = dtype.DatapointAttributes
-DepthMapAnnotation  = dtype.DepthMapAnnotation
-ImageAnnotation     = dtype.ImageAnnotation
-MultimodalDataset   = dtype.MultimodalDataset
+from mon import core, vision
+from mon.globals import DATA_DIR, DATAMODULES, DATASETS
 
 
 @DATASETS.register(name="mipi_2024_flare")
-class MIPI2024Flare(MultimodalDataset):
+class MIPI2024Flare(vision.VisionDataset):
     """Loads MIPI 2024 Flare dataset from ``root`` dir.
 
     Args:
@@ -41,15 +32,15 @@ class MIPI2024Flare(MultimodalDataset):
     Raises:
         FileNotFoundError: If ``root`` directory does not exist.
     """
-    tasks : list[Task]  = [Task.NIGHTTIME]
-    splits: list[Split] = [Split.TRAIN, Split.VAL, Split.TEST]
-    datapoint_attrs     = DatapointAttributes({
-        "image"    : ImageAnnotation,
-        "ref_image": ImageAnnotation,
+    tasks : list[core.Task]    = [core.Task.NIGHTTIME]
+    splits: list[core.Split]   = [core.Split.TRAIN, core.Split.VAL, core.Split.TEST]
+    datapoint_attrs            = vision.DatapointAttributes({
+        "image"    : vision.ImageAnnotation,
+        "ref_image": vision.ImageAnnotation,
     })
     has_test_annotations: bool = False
 
-    def __init__(self, root: core.Path = default_root_dir, *args, **kwargs):
+    def __init__(self, root: core.Path = DATA_DIR / "mipi", *args, **kwargs):
         """Initializes dataset with ``root`` path and parent args."""
         root = root / "mipi_2024_flare" if root.name != "mipi_2024_flare" else root
         if not root.is_dir():
@@ -62,29 +53,29 @@ class MIPI2024Flare(MultimodalDataset):
         Raises:
             ValueError: If ``split`` is invalid.
         """
-        if self.split in [Split.TRAIN]:
+        if self.split in [core.Split.TRAIN]:
             patterns = [self.root / "train" / "image"]
-        elif self.split in [Split.VAL]:
+        elif self.split in [core.Split.VAL]:
             patterns = [self.root / "val" / "image"]
-        elif self.split in [Split.TEST]:
+        elif self.split in [core.Split.TEST]:
             patterns = [self.root / "test" / "image"]
         else:
             raise ValueError(f"[split] invalid: [{self.split}]")
 
-        images: list[ImageAnnotation] = []
+        images: list[vision.ImageAnnotation] = []
         with core.get_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
                 for path in pbar.track(sequence=paths, description=desc):
                     if path.is_image_file():
-                        images.append(ImageAnnotation(path=path, root=pattern))
+                        images.append(vision.ImageAnnotation(path=path, root=pattern))
 
         self.datapoints["image"] = images
 		
 
 @DATAMODULES.register(name="mipi_2024_flare")
-class MIPI2024FlareDataModule(DataModule):
+class MIPI2024FlareDataModule(core.DataModule):
     """Configures MIPI 2024 Flare datasets for training/testing.
 
     Args:
@@ -92,7 +83,7 @@ class MIPI2024FlareDataModule(DataModule):
         **kwargs: Additional kwargs for parent class.
     """
     
-    tasks: list[Task] = [Task.NIGHTTIME]
+    tasks: list[core.Task] = [core.Task.NIGHTTIME]
 
     def prepare_data(self, *args, **kwargs):
         """Prepares data (placeholder, no action taken)."""
@@ -106,13 +97,13 @@ class MIPI2024FlareDataModule(DataModule):
                 or ``None``. Default is ``None``.
         """
         if self.can_log:
-            console.log(f"Setup [red]{self.__class__.__name__}[/red].")
+            core.console.log(f"Setup [red]{self.__class__.__name__}[/red].")
 
         if stage in [None, "train"]:
-            self.train = MIPI2024Flare(split=Split.TRAIN, **self.dataset_kwargs)
-            self.val   = MIPI2024Flare(split=Split.VAL,   **self.dataset_kwargs)
+            self.train = MIPI2024Flare(split=core.Split.TRAIN, **self.dataset_kwargs)
+            self.val   = MIPI2024Flare(split=core.Split.VAL,   **self.dataset_kwargs)
         if stage in [None, "test"]:
-            self.test  = MIPI2024Flare(split=Split.TEST,  **self.dataset_kwargs)
+            self.test  = MIPI2024Flare(split=core.Split.TEST,  **self.dataset_kwargs)
 
         self.get_classlabels()
         if self.can_log:

@@ -12,25 +12,16 @@ __all__ = [
 
 from typing import Literal
 
-from mon import core
-from mon.dataset import dtype
-from mon.globals import DATA_DIR, DATAMODULES, DATASETS, Split, Task
-
-console             = core.console
-default_root_dir    = DATA_DIR / "enhance"
-DataModule          = dtype.DataModule
-DatapointAttributes = dtype.DatapointAttributes
-DepthMapAnnotation  = dtype.DepthMapAnnotation
-ImageAnnotation     = dtype.ImageAnnotation
-MultimodalDataset   = dtype.MultimodalDataset
+from mon import core, vision
+from mon.globals import DATA_DIR, DATAMODULES, DATASETS
 
 
 @DATASETS.register(name="rain2800")
-class Rain2800(MultimodalDataset):
+class Rain2800(vision.VisionDataset):
     """Loads Rain2800 dataset from ``root`` dir.
 
     Args:
-        root: Directory path to dataset. Default is ``default_root_dir``.
+        root: Directory path to dataset. Default is ``DATA_DIR / "enhance"``.
         *args: Additional args for parent class.
         **kwargs: Additional kwargs for parent class.
 
@@ -38,15 +29,15 @@ class Rain2800(MultimodalDataset):
         FileNotFoundError: If ``root`` directory does not exist.
     """
 
-    tasks : list[Task]  = [Task.DERAIN]
-    splits: list[Split] = [Split.TEST]
-    datapoint_attrs     = DatapointAttributes({
-        "image"    : ImageAnnotation,
-        "ref_image": ImageAnnotation,
+    tasks : list[core.Task]    = [core.Task.DERAIN]
+    splits: list[core.Split]   = [core.Split.TEST]
+    datapoint_attrs            = vision.DatapointAttributes({
+        "image"    : vision.ImageAnnotation,
+        "ref_image": vision.ImageAnnotation,
     })
     has_test_annotations: bool = True
     
-    def __init__(self, root: core.Path = default_root_dir, *args, **kwargs):
+    def __init__(self, root: core.Path = DATA_DIR / "enhance", *args, **kwargs):
         """Initializes dataset with ``root`` path and parent args."""
         root = root / "rain2800" if root.name != "rain2800" else root
         if not root.is_dir():
@@ -57,20 +48,20 @@ class Rain2800(MultimodalDataset):
         """Populates ``datapoints`` with image annotations for split."""
         patterns = [self.root / self.split_str / "image"]
         
-        images: list[ImageAnnotation] = []
+        images: list[vision.ImageAnnotation] = []
         with core.get_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
                 for path in pbar.track(sequence=paths, description=desc):
                     if path.is_image_file():
-                        images.append(ImageAnnotation(path=path, root=pattern))
+                        images.append(vision.ImageAnnotation(path=path, root=pattern))
 
         self.datapoints["image"] = images
 
 
 @DATAMODULES.register(name="rain2800")
-class Rain2800DataModule(DataModule):
+class Rain2800DataModule(core.DataModule):
     """Configures Rain2800 datasets for training/testing.
 
     Args:
@@ -78,7 +69,7 @@ class Rain2800DataModule(DataModule):
         **kwargs: Additional kwargs for parent class.
     """
 
-    tasks: list[Task] = [Task.DERAIN]
+    tasks: list[core.Task] = [core.Task.DERAIN]
     
     def prepare_data(self, *args, **kwargs):
         """Prepares data (placeholder, no action taken)."""
@@ -92,13 +83,13 @@ class Rain2800DataModule(DataModule):
                 or ``None``. Default is ``None``.
         """
         if self.can_log:
-            console.log(f"Setup [red]{self.__class__.__name__}[/red].")
+            core.console.log(f"Setup [red]{self.__class__.__name__}[/red].")
         
         if stage in [None, "train"]:
-            self.train = Rain2800(split=Split.TEST, **self.dataset_kwargs)
-            self.val   = Rain2800(split=Split.TEST, **self.dataset_kwargs)
+            self.train = Rain2800(split=core.Split.TEST, **self.dataset_kwargs)
+            self.val   = Rain2800(split=core.Split.TEST, **self.dataset_kwargs)
         if stage in [None, "test"]:
-            self.test  = Rain2800(split=Split.TEST, **self.dataset_kwargs)
+            self.test  = Rain2800(split=core.Split.TEST, **self.dataset_kwargs)
         
         self.get_classlabels()
         if self.can_log:

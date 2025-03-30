@@ -17,10 +17,9 @@ from abc import ABC
 from torchvision.models import mnasnet0_5, mnasnet0_75, mnasnet1_0, mnasnet1_3
 
 from mon import core, nn
-from mon.globals import MODELS, LType, ZOO_DIR
+from mon.globals import MODELS, ZOO_DIR
 from mon.vision.classify import base
 
-console      = core.console
 current_file = core.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
@@ -34,10 +33,10 @@ class MNASNet(nn.ExtraModel, base.ImageClassificationModel, ABC):
         - https://arxiv.org/abs/1807.11626
     """
     
-    arch     : str         = "mnasnet"
-    ltypes   : list[LType] = [LType.SUPERVISED]
-    model_dir: core.Path   = current_dir
-    zoo      : dict        = {}
+    arch     : str              = "mnasnet"
+    ltypes   : list[core.LType] = [core.LType.SUPERVISED]
+    model_dir: core.Path        = current_dir
+    zoo      : dict             = {}
     
     def init_weights(self, m: nn.Module):
         """Initializes weights for the model.

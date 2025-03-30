@@ -13,11 +13,9 @@ from abc import ABC
 
 import cv2
 
-from mon import core, nn
+from mon import nn
 from mon.vision import dtype
 from mon.vision.model import VisionModel
-
-console = core.console
 
 
 # region Model

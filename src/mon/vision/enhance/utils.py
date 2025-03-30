@@ -11,9 +11,7 @@ __all__ = [
 
 import torch
 
-from mon import core, nn
-
-console = core.console
+from mon import nn
 
 
 # region Pseudo-GT Image Generator

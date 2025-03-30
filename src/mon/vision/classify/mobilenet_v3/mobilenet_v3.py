@@ -15,10 +15,9 @@ from abc import ABC
 from torchvision.models import mobilenet_v3_large, mobilenet_v3_small
 
 from mon import core, nn
-from mon.globals import MODELS, LType, ZOO_DIR
+from mon.globals import MODELS, ZOO_DIR
 from mon.vision.classify import base
 
-console      = core.console
 current_file = core.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
@@ -32,10 +31,10 @@ class MobileNetV3(nn.ExtraModel, base.ImageClassificationModel, ABC):
         - https://arxiv.org/abs/1905.02244
     """
     
-    arch     : str         = "mobilenet"
-    ltypes   : list[LType] = [LType.SUPERVISED]
-    model_dir: core.Path   = current_dir
-    zoo      : dict        = {}
+    arch     : str              = "mobilenet"
+    ltypes   : list[core.LType] = [core.LType.SUPERVISED]
+    model_dir: core.Path        = current_dir
+    zoo      : dict             = {}
     
     def init_weights(self, m: nn.Module):
         """Initializes weights for the model.

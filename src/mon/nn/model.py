@@ -21,15 +21,12 @@ import torch.hub
 from torch import nn
 
 from mon import core
-from mon.globals import (
-    LOSSES, LR_SCHEDULERS, LType, METRICS, OPTIMIZERS, Task,
-)
+from mon.core import LType, Task
+from mon.globals import LOSSES, LR_SCHEDULERS, METRICS, OPTIMIZERS
 from mon.nn import loss as L, metric as M
 
-console       = core.console
-error_console = core.error_console
-StepOutput    = lightning.pytorch.utilities.types.STEP_OUTPUT
-EpochOutput   = Any  # lightning.pytorch.utilities.types.EPOCH_OUTPUT
+StepOutput  = lightning.pytorch.utilities.types.STEP_OUTPUT
+EpochOutput = Any  # lightning.pytorch.utilities.types.EPOCH_OUTPUT
 
 
 # region Utils
@@ -352,7 +349,7 @@ class Model(lightning.LightningModule, ABC):
         if state_dict:
             self.load_state_dict(state_dict)
             if self.verbose:
-                console.log(f"Loaded model's weights from: {self.weights}.")
+                core.console.log(f"Loaded model's weights from: {self.weights}.")
         
     def init_loss(self, loss: Any):
         """Sets the model's loss function.
@@ -853,6 +850,6 @@ class ExtraModel(Model, ABC):
         if state_dict:
             self.model.load_state_dict(state_dict=state_dict)
             if self.verbose:
-                console.log(f"Loaded model's weights from: {self.weights}.")
+                core.console.log(f"Loaded model's weights from: {self.weights}.")
 
 # endregion

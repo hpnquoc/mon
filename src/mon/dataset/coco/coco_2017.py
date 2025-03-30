@@ -12,32 +12,22 @@ __all__ = [
 
 from typing import Literal
 
-from mon import core
-from mon.dataset import dtype
-from mon.globals import DATA_DIR, DATAMODULES, DATASETS, Split, Task
-
-console             = core.console
-default_root_dir    = DATA_DIR / "coco"
-BBoxesAnnotation    = dtype.BBoxesAnnotation
-ClassLabels         = dtype.ClassLabels
-DataModule          = dtype.DataModule
-DatapointAttributes = dtype.DatapointAttributes
-ImageAnnotation     = dtype.ImageAnnotation
-MultimodalDataset   = dtype.MultimodalDataset
+from mon import core, vision
+from mon.globals import DATA_DIR, DATAMODULES, DATASETS
 
 
 @DATASETS.register(name="coco_2017")
-class COCO2017(MultimodalDataset):
+class COCO2017(vision.VisionDataset):
     """COCO 2017 dataset."""
     
-    tasks : list[Task]  = [Task.DETECT]
-    splits: list[Split] = [Split.TRAIN, Split.VAL, Split.TEST]
-    datapoint_attrs     = DatapointAttributes({
-        "image": ImageAnnotation,
-        # "bbox" : BBoxesAnnotation,
+    tasks : list[core.Task]    = [core.Task.DETECT]
+    splits: list[core.Split]   = [core.Split.TRAIN, core.Split.VAL, core.Split.TEST]
+    datapoint_attrs            = vision.DatapointAttributes({
+        "image": vision.ImageAnnotation,
+        # "bbox" : vision.BBoxesAnnotation,
     })
-    has_test_annotations: bool        = False
-    classlabels         : ClassLabels = ClassLabels([
+    has_test_annotations: bool = False
+    classlabels         : core.ClassLabels = core.ClassLabels([
         {"name": "background"    , "id": 0 , "supercategory": "background", "color": [0  , 0  ,   0]},
         {"name": "person"        , "id": 1 , "supercategory": "person"    , "color": [81 , 120, 228]},
         {"name": "bicycle"       , "id": 2 , "supercategory": "vehicle"   , "color": [138, 183,  33]},
@@ -132,7 +122,7 @@ class COCO2017(MultimodalDataset):
         {"name": "hair brush"    , "id": 91, "supercategory": "indoor"    , "color": [149, 108,  73]}
     ])
     
-    def __init__(self, root: core.Path = default_root_dir, *args, **kwargs):
+    def __init__(self, root: core.Path = DATA_DIR / "coco", *args, **kwargs):
         root = root / "coco_2017" if root.name != "coco_2017" else root
         if not root.is_dir():
             raise FileNotFoundError(f"Directory not found: {root}.")
@@ -145,7 +135,7 @@ class COCO2017(MultimodalDataset):
         ]
         
         # Left Images
-        images: list[ImageAnnotation] = []
+        images: list[vision.ImageAnnotation] = []
         with core.get_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 for path in pbar.track(
@@ -153,28 +143,28 @@ class COCO2017(MultimodalDataset):
 					description = f"Listing {self.__class__.__name__} {self.split_str} images"
 				):
                     if path.is_image_file():
-                        images.append(ImageAnnotation(path=path))
+                        images.append(vision.ImageAnnotation(path=path))
         
         self.datapoints["image"] = images
 
 
 @DATAMODULES.register(name="coco_2017")
-class COCODataModule(DataModule):
+class COCODataModule(core.DataModule):
     
-    tasks: list[Task] = [Task.DETECT]
+    tasks: list[core.Task] = [core.Task.DETECT]
     
     def prepare_data(self, *args, **kwargs):
         pass
     
     def setup(self, stage: Literal["train", "test", "predict", None] = None):
         if self.can_log:
-            console.log(f"Setup [red]{self.__class__.__name__}[/red].")
+            core.console.log(f"Setup [red]{self.__class__.__name__}[/red].")
         
         if stage in [None, "train"]:
-            self.train = COCO2017(split=Split.TRAIN, **self.dataset_kwargs)
-            self.val   = COCO2017(split=Split.VAL,   **self.dataset_kwargs)
+            self.train = COCO2017(split=core.Split.TRAIN, **self.dataset_kwargs)
+            self.val   = COCO2017(split=core.Split.VAL,   **self.dataset_kwargs)
         if stage in [None, "test"]:
-            self.test  = COCO2017(split=Split.TEST,  **self.dataset_kwargs)
+            self.test  = COCO2017(split=core.Split.TEST,  **self.dataset_kwargs)
         
         self.get_classlabels()
         if self.can_log:

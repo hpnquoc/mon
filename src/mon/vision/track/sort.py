@@ -18,12 +18,9 @@ import torch
 from filterpy.kalman import KalmanFilter
 
 from mon import core
-from mon.globals import TrackState
 from mon.vision import geometry as G
 from mon.vision.dtype import image as I
 from mon.vision.track import base
-
-console = core.console
 
 
 # region Matching
@@ -131,8 +128,8 @@ class KalmanBoxTrack(base.Track):
     def __init__(
         self,
         bbox : np.ndarray,
-        id_  : int        = None,
-        state: TrackState = TrackState.NEW,
+        id_  : int             = None,
+        state: core.TrackState = core.TrackState.NEW,
     ):
         super().__init__(
             id_        = id_,
@@ -196,8 +193,8 @@ class KalmanBoxTrack(base.Track):
             )
         )
         # Update tracking state
-        if self.state == TrackState.NEW and self.hits >= 2:
-            self.state = TrackState.TRACKED
+        if self.state == core.TrackState.NEW and self.hits >= 2:
+            self.state = core.TrackState.TRACKED
     
     def predict(self):
         """Advances the state vector and returns the predicted bounding box

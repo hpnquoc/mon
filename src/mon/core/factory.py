@@ -14,7 +14,7 @@ import copy
 import inspect
 from typing import Any, Callable
 
-import humps
+from mon.core import humps
 
 
 # region Factory

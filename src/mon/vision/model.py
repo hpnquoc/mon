@@ -18,8 +18,6 @@ from fvcore.nn import parameter_count
 
 from mon import core, nn
 
-console = core.console
-
 
 # region Model
 

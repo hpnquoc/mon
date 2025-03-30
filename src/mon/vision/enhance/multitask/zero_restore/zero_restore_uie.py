@@ -21,13 +21,12 @@ import random
 import torch
 
 from mon import core, nn
-from mon.globals import MODELS, LType, Task
+from mon.globals import MODELS
 from mon.vision import dtype, geometry
 from mon.vision.enhance import base
 
 torch.autograd.set_detect_anomaly(True)
 
-console      = core.console
 current_file = core.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
@@ -195,12 +194,12 @@ class ZeroRestoreUIE(base.ImageEnhancementModel):
         - https://github.com/aupendu/zero-restore/blob/main/model/watermodel.py
     """
     
-    model_dir: core.Path    = current_dir
-    arch     : str          = "zero_restore"
-    name     : str          = "zero_restore_uie"
-    tasks    : list[Task]   = [Task.UIE]
-    ltypes   : list[LType]  = [LType.ZERO_SHOT]
-    zoo      : dict         = {}
+    model_dir: core.Path        = current_dir
+    arch     : str              = "zero_restore"
+    name     : str              = "zero_restore_uie"
+    tasks    : list[core.Task]  = [core.Task.UIE]
+    ltypes   : list[core.LType] = [core.LType.ZERO_SHOT]
+    zoo      : dict             = {}
     
     def __init__(
         self,

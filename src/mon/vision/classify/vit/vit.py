@@ -18,10 +18,9 @@ from abc import ABC
 from torchvision.models import vit_b_16, vit_b_32, vit_h_14, vit_l_16, vit_l_32
 
 from mon import core, nn
-from mon.globals import MODELS, LType, ZOO_DIR
+from mon.globals import MODELS, ZOO_DIR
 from mon.vision.classify import base
 
-console      = core.console
 current_file = core.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
@@ -35,10 +34,10 @@ class VisionTransformer(base.ImageClassificationModel, ABC):
         - https://arxiv.org/abs/2010.11929
     """
     
-    arch     : str         = "vit"
-    ltypes   : list[LType] = [LType.SUPERVISED]
-    model_dir: core.Path   = current_dir
-    zoo      : dict        = {}
+    arch     : str              = "vit"
+    ltypes   : list[core.LType] = [core.LType.SUPERVISED]
+    model_dir: core.Path        = current_dir
+    zoo      : dict             = {}
     
     def init_weights(self, m: nn.Module):
         """Initializes weights for the model.

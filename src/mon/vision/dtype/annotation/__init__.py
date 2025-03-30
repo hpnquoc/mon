@@ -13,7 +13,11 @@ from __future__ import annotations
 
 import mon.vision.dtype.annotation.bbox
 import mon.vision.dtype.annotation.contour
+import mon.vision.dtype.annotation.depth
+import mon.vision.dtype.annotation.image
 import mon.vision.dtype.annotation.label_map
 from mon.vision.dtype.annotation.bbox import *
 from mon.vision.dtype.annotation.contour import *
+from mon.vision.dtype.annotation.depth import *
+from mon.vision.dtype.annotation.image import *
 from mon.vision.dtype.annotation.label_map import *

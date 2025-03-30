@@ -15,7 +15,7 @@ __all__ = [
 
 import numpy as np
 
-from mon.globals import ShapeCode
+from mon import core
 
 
 # region Conversion
@@ -60,16 +60,16 @@ contour_yolo_to_voc = denormalize_contour
 
 def convert_contour(
     contour: np.ndarray,
-    code   : ShapeCode | int,
+    code   : core.ShapeCode | int,
     height : int,
     width  : int
 ) -> np.ndarray:
     """Convert bounding box."""
-    code = ShapeCode.from_value(value=code)
+    code = core.ShapeCode.from_value(value=code)
     match code:
-        case ShapeCode.VOC2YOLO:
+        case core.ShapeCode.VOC2YOLO:
             return contour_voc_to_yolo(contour, height, width)
-        case ShapeCode.YOLO2VOC:
+        case core.ShapeCode.YOLO2VOC:
             return contour_yolo_to_voc(contour, height, width)
         case _:
             return contour

@@ -9,13 +9,8 @@ __all__ = [
     "GalerkinSimpleAttention",
 ]
 
-from typing import Any
-
 import torch
 from torch import nn
-from torch.nn import functional as F
-from torch.nn.common_types import _size_2_t
-from torchvision.ops.misc import SqueezeExcitation
 
 
 # region Galerkin-type Attention

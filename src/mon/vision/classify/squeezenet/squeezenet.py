@@ -15,10 +15,9 @@ from abc import ABC
 from torchvision.models import squeezenet1_0, squeezenet1_1
 
 from mon import core, nn
-from mon.globals import MODELS, LType, ZOO_DIR
+from mon.globals import MODELS, ZOO_DIR
 from mon.vision.classify import base
 
-console      = core.console
 current_file = core.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
@@ -32,10 +31,10 @@ class SqueezeNet(nn.ExtraModel, base.ImageClassificationModel, ABC):
         - https://arxiv.org/abs/1602.07360
     """
     
-    arch     : str         = "squeezenet"
-    ltypes   : list[LType] = [LType.SUPERVISED]
-    model_dir: core.Path   = current_dir
-    zoo      : dict        = {}
+    arch     : str              = "squeezenet"
+    ltypes   : list[core.LType] = [core.LType.SUPERVISED]
+    model_dir: core.Path        = current_dir
+    zoo      : dict             = {}
 
     def init_weights(self, m: nn.Module):
         """Initializes weights for the model.

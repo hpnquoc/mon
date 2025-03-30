@@ -8,7 +8,6 @@
 from __future__ import annotations
 
 __all__ = [
-    "Enum",
     "concat_lists",
     "flatten_models_dict",
     "get_module_vars",
@@ -50,7 +49,6 @@ __all__ = [
     "upcast",
 ]
 
-import enum
 import itertools
 import random
 import re
@@ -60,50 +58,6 @@ from typing import Any, Callable, Iterable
 
 import numpy as np
 import torch
-
-
-# region Enum
-
-class Enum(enum.Enum):
-    """Extension of Python ``enum.Enum`` with utility methods."""
-    
-    @classmethod
-    def random(cls):
-        """Returns a random enum member.
-
-        Returns:
-            Random member of the enum class.
-        """
-        return random.choice(list(cls))
-    
-    @classmethod
-    def random_value(cls):
-        """Returns a random enum value.
-
-        Returns:
-            Value of a random enum member.
-        """
-        return cls.random().value
-    
-    @classmethod
-    def keys(cls) -> list['Enum']:
-        """Returns all enum members.
-
-        Returns:
-            List of all enum members.
-        """
-        return list(cls)
-    
-    @classmethod
-    def values(cls) -> list[Any]:
-        """Returns all enum values.
-
-        Returns:
-            List of values from all enum members.
-        """
-        return [e.value for e in cls]
-
-# endregion
 
 
 # region Collection

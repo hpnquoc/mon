@@ -22,8 +22,6 @@ import torch
 from mon import core, dataset
 from mon.vision import dtype, track
 
-console = core.console
-
 
 # region Detector
 

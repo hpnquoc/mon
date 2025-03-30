@@ -16,11 +16,8 @@ from timeit import default_timer as timer
 
 import numpy as np
 
-from mon import core
-from mon.globals import TrackState
+from mon.core import TrackState
 from mon.vision import geometry as G
-
-console = core.console
 
 
 # region Track

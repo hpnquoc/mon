@@ -17,12 +17,12 @@ import albumentations as A
 import cv2
 
 from mon import core
+from mon.core import Split
 from mon.dataset.dtype import annotation
 from mon.dataset.dtype.dataset import base
-from mon.globals import Split
 
 console             = core.console
-ClassLabels         = annotation.ClassLabels
+ClassLabels         = core.ClassLabels
 DatapointAttributes = annotation.DatapointAttributes
 FrameAnnotation     = annotation.FrameAnnotation
 ImageAnnotation     = annotation.ImageAnnotation

@@ -25,11 +25,10 @@ from fvcore.nn import parameter_count
 from torch.nn import functional as F
 
 from mon import core, nn
-from mon.globals import MODELS, LType, Task
+from mon.globals import MODELS
 from mon.vision import dtype, filtering
 from mon.vision.enhance import base
 
-console      = core.console
 current_file = core.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
@@ -100,12 +99,12 @@ class CoLIE_RE(base.ImageEnhancementModel):
         - https://github.com/ctom2/colie
     """
     
-    arch     : str          = "colie"
-    name     : str          = "colie_re"
-    tasks    : list[Task]   = [Task.LLIE]
-    ltypes   : list[LType]  = [LType.ZERO_SHOT]
-    model_dir: core.Path    = current_dir
-    zoo      : dict         = {}
+    arch     : str              = "colie"
+    name     : str              = "colie_re"
+    tasks    : list[core.Task]  = [core.Task.LLIE]
+    ltypes   : list[core.LType] = [core.LType.ZERO_SHOT]
+    model_dir: core.Path        = current_dir
+    zoo      : dict             = {}
     
     def __init__(
         self,

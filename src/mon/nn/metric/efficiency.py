@@ -16,8 +16,6 @@ from torch.nn.common_types import _size_2_t
 
 from mon import core
 
-console = core.console
-
 
 # region Efficiency Metric
 
@@ -36,10 +34,10 @@ def compute_efficiency_score(
     Returns:
         Tuple of (FLOPs, parameters) as floats.
     """
-    from mon.vision.dtype import image as I
+    from mon.vision import get_image_size
 
-    h, w  = I.get_image_size(image_size)
-    input = torch.rand(1, channels, h, w).to(core.get_model_device(model))
+    h, w   = get_image_size(image_size)
+    input  = torch.rand(1, channels, h, w).to(core.get_model_device(model))
     flops, params = core.profile(model, inputs=(input,), verbose=False)
 
     flops  = FlopCountAnalysis(model, input).total() if flops == 0 else flops

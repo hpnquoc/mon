@@ -6,11 +6,11 @@
 from __future__ import annotations
 
 __all__ = [
-    "MultimodalDataset",
     "ChainDataset",
     "ConcatDataset",
     "Dataset",
     "IterableDataset",
+    "VisionDataset",
     "Subset",
     "TensorDataset",
     "random_split",
@@ -24,12 +24,13 @@ from torch.utils.data import dataset
 from torch.utils.data.dataset import *
 
 from mon import core
+from mon.core import Split, Task
 from mon.dataset.dtype import annotation
 from mon.dataset.dtype.transform import albumentation as A
-from mon.globals import DEPTH_DATA_SOURCES, Split, Task
+from mon.globals import DEPTH_DATA_SOURCES
 
 console             = core.console
-ClassLabels         = annotation.ClassLabels
+ClassLabels         = core.ClassLabels
 DatapointAttributes = annotation.DatapointAttributes
 DepthMapAnnotation  = annotation.DepthMapAnnotation
 ImageAnnotation     = annotation.ImageAnnotation
@@ -56,11 +57,11 @@ class Dataset(dataset.Dataset, ABC):
         verbose: If ``True``, enables verbose output. Default is ``False``.
     """
     
-    tasks                : list[Task]  = []
-    splits               : list[Split] = [Split.TRAIN, Split.VAL, Split.TEST, Split.PREDICT]
-    datapoint_attrs                   = DatapointAttributes({})
-    has_test_annotations : bool       = False
-    classlabels          : ClassLabels = None
+    tasks : list[Task]  = []
+    splits: list[Split] = [Split.TRAIN, Split.VAL, Split.TEST, Split.PREDICT]
+    datapoint_attrs     = DatapointAttributes({})
+    has_test_annotations: bool        = False
+    classlabels         : ClassLabels = None
     
     def __init__(
         self,
@@ -100,6 +101,7 @@ class Dataset(dataset.Dataset, ABC):
         Returns:
             Dict with datapoint and metadata.
         """
+        pass
     
     def __iter__(self):
         """Gets total number of datapoints.
@@ -117,6 +119,7 @@ class Dataset(dataset.Dataset, ABC):
         Returns:
             Number of datapoints in the dataset.
         """
+        pass
     
     def __next__(self) -> dict:
         """Gets the next datapoint and metadata.
@@ -247,7 +250,7 @@ class Dataset(dataset.Dataset, ABC):
     
     # region Initialization
     
-    def init_transform(self, transform: A.Compose | Any = None):
+    def init_transform(self, transform: A.Compose | dict = None):
         """Initializes transformation operations.
 
         Args:
@@ -378,13 +381,13 @@ class Dataset(dataset.Dataset, ABC):
         return zipped
     
     # endregion
-    
+
 # endregion
 
 
 # region Multimodal Dataset
 
-class MultimodalDataset(Dataset, ABC):
+class VisionDataset(Dataset, ABC):
     """Base class for multimodal, multi-task, multi-label datasets.
 
     Attributes:

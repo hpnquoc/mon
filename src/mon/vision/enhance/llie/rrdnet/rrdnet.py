@@ -24,10 +24,9 @@ import torch
 from torch.nn import functional as F
 
 from mon import core, nn
-from mon.globals import MODELS, LType, Task
+from mon.globals import MODELS
 from mon.vision.enhance import base
 
-console      = core.console
 current_file = core.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 LDA          = nn.LayeredFeatureAggregation
@@ -183,12 +182,12 @@ class Loss(nn.Loss):
 @MODELS.register(name="rrdnet", arch="rrdnet")
 class RRDNet(base.ImageEnhancementModel):
     
-    arch     : str          = "rrdnet"
-    name     : str          = "rrdnet"
-    tasks    : list[Task]   = [Task.LLIE]
-    ltypes   : list[LType]  = [LType.ZERO_SHOT]
-    model_dir: core.Path    = current_dir
-    zoo      : dict         = {}
+    arch     : str              = "rrdnet"
+    name     : str              = "rrdnet"
+    tasks    : list[core.Task]  = [core.Task.LLIE]
+    ltypes   : list[core.LType] = [core.LType.ZERO_SHOT]
+    model_dir: core.Path        = current_dir
+    zoo      : dict             = {}
     
     def __init__(
         self,
@@ -199,7 +198,7 @@ class RRDNet(base.ImageEnhancementModel):
         iters         : int   = 1000,
         *args, **kwargs
     ):
-        super().__init__(name=name, *args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.gamma          = gamma
         self.illu_factor    = illu_factor
         self.reflect_factor = reflect_factor
@@ -287,7 +286,13 @@ class RRDNet(base.ImageEnhancementModel):
             "enhanced"    : enhanced
         }
     
-    def infer(self, datapoint: dict, reset_weights: bool = True, *args, **kwargs) -> dict:
+    def infer(
+        self,
+        datapoint    : dict,
+        epochs       : int  = 1000,
+        reset_weights: bool = True,
+        *args, **kwargs
+    ) -> dict:
         # Initialize training components
         if reset_weights:
             self.load_state_dict(self.initial_state_dict, strict=False)

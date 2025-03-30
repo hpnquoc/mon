@@ -28,25 +28,16 @@ from typing import Literal
 import numpy as np
 import torch
 
-from mon import core
-from mon.dataset import dtype
-from mon.globals import DATA_DIR, DATAMODULES, DATASETS, Split, Task
-
-console             = core.console
-default_root_dir    = DATA_DIR / "enhance"
-DataModule          = dtype.DataModule
-DatapointAttributes = dtype.DatapointAttributes
-DepthMapAnnotation  = dtype.DepthMapAnnotation
-ImageAnnotation     = dtype.ImageAnnotation
-MultimodalDataset   = dtype.MultimodalDataset
+from mon import core, vision
+from mon.globals import DATA_DIR, DATAMODULES, DATASETS
 
 
 @DATASETS.register(name="fivek_init")
-class FiveKInit(MultimodalDataset):
+class FiveKInit(vision.VisionDataset):
     """Loads FiveKInit dataset from ``root`` dir for model init.
 
     Args:
-        root: Directory path to dataset. Default is ``default_root_dir``.
+        root: Directory path to dataset. Default is ``DATA_DIR / "enhance"``.
         *args: Additional args for parent class.
         **kwargs: Additional kwargs for parent class.
 
@@ -54,19 +45,19 @@ class FiveKInit(MultimodalDataset):
         FileNotFoundError: If ``root`` directory does not exist.
     """
     
-    tasks : list[Task]  = [Task.LLIE, Task.RETOUCH]
-    splits: list[Split] = [Split.TRAIN]
-    datapoint_attrs     = DatapointAttributes({
-        "image_ex": ImageAnnotation,
-        "image_bc": ImageAnnotation,
-        "image_vb": ImageAnnotation,
-        "ref_ex"  : ImageAnnotation,
-        "ref_bc"  : ImageAnnotation,
-        "ref_vb"  : ImageAnnotation,
+    tasks : list[core.Task]    = [core.Task.LLIE, core.Task.RETOUCH]
+    splits: list[core.Split]   = [core.Split.TRAIN]
+    datapoint_attrs            = vision.DatapointAttributes({
+        "image_ex": vision.ImageAnnotation,
+        "image_bc": vision.ImageAnnotation,
+        "image_vb": vision.ImageAnnotation,
+        "ref_ex"  : vision.ImageAnnotation,
+        "ref_bc"  : vision.ImageAnnotation,
+        "ref_vb"  : vision.ImageAnnotation,
     })
     has_test_annotations: bool = False
 
-    def __init__(self, root: core.Path = default_root_dir, *args, **kwargs):
+    def __init__(self, root: core.Path = DATA_DIR / "enhance", *args, **kwargs):
         """Initializes dataset with ``root`` path and parent args."""
         root = root / "fivek" if root.name != "fivek" else root
         if not root.is_dir():
@@ -89,12 +80,12 @@ class FiveKInit(MultimodalDataset):
         val_bc = torch.tensor((int(B_bc.stem.split("-")[-1]) - int(A_bc.stem.split("-")[-1])) / 20).float()
         val_vb = torch.tensor((int(B_vb.stem.split("-")[-1]) - int(A_vb.stem.split("-")[-1])) / 20).float()
 
-        image_ex = ImageAnnotation(path=A_ex, root=self.root)
-        ref_ex   = ImageAnnotation(path=B_ex, root=self.root)
-        image_bc = ImageAnnotation(path=A_bc, root=self.root)
-        ref_bc   = ImageAnnotation(path=B_bc, root=self.root)
-        image_vb = ImageAnnotation(path=A_vb, root=self.root)
-        ref_vb   = ImageAnnotation(path=B_vb, root=self.root)
+        image_ex = vision.ImageAnnotation(path=A_ex, root=self.root)
+        ref_ex   = vision.ImageAnnotation(path=B_ex, root=self.root)
+        image_bc = vision.ImageAnnotation(path=A_bc, root=self.root)
+        ref_bc   = vision.ImageAnnotation(path=B_bc, root=self.root)
+        image_vb = vision.ImageAnnotation(path=A_vb, root=self.root)
+        ref_vb   = vision.ImageAnnotation(path=B_vb, root=self.root)
 
         datapoint = {
             "image_ex": image_ex.data,
@@ -172,11 +163,11 @@ class FiveKInit(MultimodalDataset):
 
 
 @DATASETS.register(name="fivek")
-class FiveK(MultimodalDataset):
+class FiveK(vision.VisionDataset):
     """Loads FiveK dataset from ``root`` dir with Expert A GT.
 
     Args:
-        root: Directory path to dataset. Default is ``default_root_dir``.
+        root: Directory path to dataset. Default is ``DATA_DIR / "enhance"``.
         *args: Additional args for parent class.
         **kwargs: Additional kwargs for parent class.
 
@@ -184,15 +175,15 @@ class FiveK(MultimodalDataset):
         FileNotFoundError: If ``root`` directory does not exist.
     """
     
-    tasks : list[Task]  = [Task.LLIE]
-    splits: list[Split] = [Split.TEST]
-    datapoint_attrs     = DatapointAttributes({
-        "image": ImageAnnotation,
-        "depth": DepthMapAnnotation,
+    tasks : list[core.Task]  = [core.Task.LLIE]
+    splits: list[core.Split] = [core.Split.TEST]
+    datapoint_attrs     = vision.DatapointAttributes({
+        "image": vision.ImageAnnotation,
+        "depth": vision.DepthMapAnnotation,
     })
     has_test_annotations: bool = False
 
-    def __init__(self, root: core.Path = default_root_dir, *args, **kwargs):
+    def __init__(self, root: core.Path = DATA_DIR / "enhance", *args, **kwargs):
         """Initializes dataset with ``root`` path and parent args."""
         root = root / "fivek" if root.name != "fivek" else root
         if not root.is_dir():
@@ -203,24 +194,24 @@ class FiveK(MultimodalDataset):
         """Populates ``datapoints`` with image annotations for split."""
         patterns = [self.root / self.split_str / "image"]
 
-        images: list[ImageAnnotation] = []
+        images: list[vision.ImageAnnotation] = []
         with core.get_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
                 for path in pbar.track(sequence=paths, description=desc):
                     if path.is_image_file():
-                        images.append(ImageAnnotation(path=path, root=pattern))
+                        images.append(vision.ImageAnnotation(path=path, root=pattern))
 
         self.datapoints["image"] = images
         
 
 @DATASETS.register(name="fivek_a")
-class FiveKA(MultimodalDataset):
+class FiveKA(vision.VisionDataset):
     """Loads FiveKA dataset from ``root`` dir with Expert A GT.
 
     Args:
-        root: Directory path to dataset. Default is ``default_root_dir``.
+        root: Directory path to dataset. Default is ``DATA_DIR / "enhance"``.
         *args: Additional args for parent class.
         **kwargs: Additional kwargs for parent class.
 
@@ -228,17 +219,17 @@ class FiveKA(MultimodalDataset):
         FileNotFoundError: If ``root`` directory does not exist.
     """
     
-    tasks : list[Task]  = [Task.LLIE]
-    splits: list[Split] = [Split.TRAIN, Split.TEST]
-    datapoint_attrs     = DatapointAttributes({
-        "image"    : ImageAnnotation,
-        "depth"    : DepthMapAnnotation,
-        "ref_image": ImageAnnotation,
-        "ref_depth": DepthMapAnnotation,
+    tasks : list[core.Task]  = [core.Task.LLIE]
+    splits: list[core.Split] = [core.Split.TRAIN, core.Split.TEST]
+    datapoint_attrs     = vision.DatapointAttributes({
+        "image"    : vision.ImageAnnotation,
+        "depth"    : vision.DepthMapAnnotation,
+        "ref_image": vision.ImageAnnotation,
+        "ref_depth": vision.DepthMapAnnotation,
     })
     has_test_annotations: bool = False
 
-    def __init__(self, root: core.Path = default_root_dir, *args, **kwargs):
+    def __init__(self, root: core.Path = DATA_DIR / "enhance", *args, **kwargs):
         """Initializes dataset with ``root`` path and parent args."""
         root = root / "fivek" if root.name != "fivek" else root
         if not root.is_dir():
@@ -249,14 +240,14 @@ class FiveKA(MultimodalDataset):
         """Populates ``datapoints`` with image annotations for split."""
         patterns = [self.root / self.split_str / "image"]
 
-        images: list[ImageAnnotation] = []
+        images: list[vision.ImageAnnotation] = []
         with core.get_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
                 for path in pbar.track(sequence=paths, description=desc):
                     if path.is_image_file():
-                        images.append(ImageAnnotation(path=path, root=pattern))
+                        images.append(vision.ImageAnnotation(path=path, root=pattern))
 
         self.datapoints["image"] = images
 
@@ -266,22 +257,22 @@ class FiveKA(MultimodalDataset):
         ref_images = self.datapoints.get("ref_image", [])
 
         if len(ref_images) == 0:
-            ref_images: list[ImageAnnotation] = []
+            ref_images: list[vision.ImageAnnotation] = []
             with core.get_progress_bar(disable=self.disable_pbar) as pbar:
                 desc = f"Listing {self.__class__.__name__} {self.split_str} reference images"
                 for img in pbar.track(sequence=images, description=desc):
                     root_name = img.root.name
                     path      = img.path.replace(f"/{root_name}/", f"/ref_a/")
-                    ref_images.append(ImageAnnotation(path=path.image_file(), root=img.root))
+                    ref_images.append(vision.ImageAnnotation(path=path.image_file(), root=img.root))
             self.datapoints["ref_image"] = ref_images
     
 
 @DATASETS.register(name="fivek_b")
-class FiveKB(MultimodalDataset):
+class FiveKB(vision.VisionDataset):
     """Loads FiveKB dataset from ``root`` dir with Expert B GT.
 
     Args:
-        root: Directory path to dataset. Default is ``default_root_dir``.
+        root: Directory path to dataset. Default is ``DATA_DIR / "enhance"``.
         *args: Additional args for parent class.
         **kwargs: Additional kwargs for parent class.
 
@@ -289,17 +280,17 @@ class FiveKB(MultimodalDataset):
         FileNotFoundError: If ``root`` directory does not exist.
     """
     
-    tasks : list[Task]  = [Task.LLIE]
-    splits: list[Split] = [Split.TRAIN, Split.TEST]
-    datapoint_attrs     = DatapointAttributes({
-        "image"    : ImageAnnotation,
-        "depth"    : DepthMapAnnotation,
-        "ref_image": ImageAnnotation,
-        "ref_depth": DepthMapAnnotation,
+    tasks : list[core.Task]  = [core.Task.LLIE]
+    splits: list[core.Split] = [core.Split.TRAIN, core.Split.TEST]
+    datapoint_attrs     = vision.DatapointAttributes({
+        "image"    : vision.ImageAnnotation,
+        "depth"    : vision.DepthMapAnnotation,
+        "ref_image": vision.ImageAnnotation,
+        "ref_depth": vision.DepthMapAnnotation,
     })
     has_test_annotations: bool = False
 
-    def __init__(self, root: core.Path = default_root_dir, *args, **kwargs):
+    def __init__(self, root: core.Path = DATA_DIR / "enhance", *args, **kwargs):
         """Initializes dataset with ``root`` path and parent args."""
         root = root / "fivek" if root.name != "fivek" else root
         if not root.is_dir():
@@ -310,14 +301,14 @@ class FiveKB(MultimodalDataset):
         """Populates ``datapoints`` with image annotations for split."""
         patterns = [self.root / self.split_str / "image"]
 
-        images: list[ImageAnnotation] = []
+        images: list[vision.ImageAnnotation] = []
         with core.get_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
                 for path in pbar.track(sequence=paths, description=desc):
                     if path.is_image_file():
-                        images.append(ImageAnnotation(path=path, root=pattern))
+                        images.append(vision.ImageAnnotation(path=path, root=pattern))
 
         self.datapoints["image"] = images
 
@@ -327,22 +318,22 @@ class FiveKB(MultimodalDataset):
         ref_images = self.datapoints.get("ref_image", [])
 
         if len(ref_images) == 0:
-            ref_images: list[ImageAnnotation] = []
+            ref_images: list[vision.ImageAnnotation] = []
             with core.get_progress_bar(disable=self.disable_pbar) as pbar:
                 desc = f"Listing {self.__class__.__name__} {self.split_str} reference images"
                 for img in pbar.track(sequence=images, description=desc):
                     root_name = img.root.name
                     path      = img.path.replace(f"/{root_name}/", f"/ref_b/")
-                    ref_images.append(ImageAnnotation(path=path.image_file(), root=img.root))
+                    ref_images.append(vision.ImageAnnotation(path=path.image_file(), root=img.root))
             self.datapoints["ref_image"] = ref_images
             
 
 @DATASETS.register(name="fivek_c")
-class FiveKC(MultimodalDataset):
+class FiveKC(vision.VisionDataset):
     """Loads FiveKC dataset from ``root`` dir with Expert C GT.
 
     Args:
-        root: Directory path to dataset. Default is ``default_root_dir``.
+        root: Directory path to dataset. Default is ``DATA_DIR / "enhance"``.
         *args: Additional args for parent class.
         **kwargs: Additional kwargs for parent class.
 
@@ -350,17 +341,17 @@ class FiveKC(MultimodalDataset):
         FileNotFoundError: If ``root`` directory does not exist.
     """
     
-    tasks : list[Task]  = [Task.LLIE]
-    splits: list[Split] = [Split.TRAIN, Split.TEST]
-    datapoint_attrs     = DatapointAttributes({
-        "image"    : ImageAnnotation,
-        "depth"    : DepthMapAnnotation,
-        "ref_image": ImageAnnotation,
-        "ref_depth": DepthMapAnnotation,
+    tasks : list[core.Task]  = [core.Task.LLIE]
+    splits: list[core.Split] = [core.Split.TRAIN, core.Split.TEST]
+    datapoint_attrs     = vision.DatapointAttributes({
+        "image"    : vision.ImageAnnotation,
+        "depth"    : vision.DepthMapAnnotation,
+        "ref_image": vision.ImageAnnotation,
+        "ref_depth": vision.DepthMapAnnotation,
     })
     has_test_annotations: bool = False
 
-    def __init__(self, root: core.Path = default_root_dir, *args, **kwargs):
+    def __init__(self, root: core.Path = DATA_DIR / "enhance", *args, **kwargs):
         """Initializes dataset with ``root`` path and parent args."""
         root = root / "fivek" if root.name != "fivek" else root
         if not root.is_dir():
@@ -371,14 +362,14 @@ class FiveKC(MultimodalDataset):
         """Populates ``datapoints`` with image annotations for split."""
         patterns = [self.root / self.split_str / "image"]
 
-        images: list[ImageAnnotation] = []
+        images: list[vision.ImageAnnotation] = []
         with core.get_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
                 for path in pbar.track(sequence=paths, description=desc):
                     if path.is_image_file():
-                        images.append(ImageAnnotation(path=path, root=pattern))
+                        images.append(vision.ImageAnnotation(path=path, root=pattern))
 
         self.datapoints["image"] = images
 
@@ -388,22 +379,22 @@ class FiveKC(MultimodalDataset):
         ref_images = self.datapoints.get("ref_image", [])
 
         if len(ref_images) == 0:
-            ref_images: list[ImageAnnotation] = []
+            ref_images: list[vision.ImageAnnotation] = []
             with core.get_progress_bar(disable=self.disable_pbar) as pbar:
                 desc = f"Listing {self.__class__.__name__} {self.split_str} reference images"
                 for img in pbar.track(sequence=images, description=desc):
                     root_name = img.root.name
                     path      = img.path.replace(f"/{root_name}/", f"/ref_c/")
-                    ref_images.append(ImageAnnotation(path=path.image_file(), root=img.root))
+                    ref_images.append(vision.ImageAnnotation(path=path.image_file(), root=img.root))
             self.datapoints["ref_image"] = ref_images
             
 
 @DATASETS.register(name="fivek_d")
-class FiveKD(MultimodalDataset):
+class FiveKD(vision.VisionDataset):
     """Loads FiveKD dataset from ``root`` dir with Expert D GT.
 
     Args:
-        root: Directory path to dataset. Default is ``default_root_dir``.
+        root: Directory path to dataset. Default is ``DATA_DIR / "enhance"``.
         *args: Additional args for parent class.
         **kwargs: Additional kwargs for parent class.
 
@@ -411,17 +402,17 @@ class FiveKD(MultimodalDataset):
         FileNotFoundError: If ``root`` directory does not exist.
     """
     
-    tasks : list[Task]  = [Task.LLIE]
-    splits: list[Split] = [Split.TRAIN, Split.TEST]
-    datapoint_attrs     = DatapointAttributes({
-        "image"    : ImageAnnotation,
-        "depth"    : DepthMapAnnotation,
-        "ref_image": ImageAnnotation,
-        "ref_depth": DepthMapAnnotation,
+    tasks : list[core.Task]  = [core.Task.LLIE]
+    splits: list[core.Split] = [core.Split.TRAIN, core.Split.TEST]
+    datapoint_attrs     = vision.DatapointAttributes({
+        "image"    : vision.ImageAnnotation,
+        "depth"    : vision.DepthMapAnnotation,
+        "ref_image": vision.ImageAnnotation,
+        "ref_depth": vision.DepthMapAnnotation,
     })
     has_test_annotations: bool = False
 
-    def __init__(self, root: core.Path = default_root_dir, *args, **kwargs):
+    def __init__(self, root: core.Path = DATA_DIR / "enhance", *args, **kwargs):
         """Initializes dataset with ``root`` path and parent args."""
         root = root / "fivek" if root.name != "fivek" else root
         if not root.is_dir():
@@ -432,14 +423,14 @@ class FiveKD(MultimodalDataset):
         """Populates ``datapoints`` with image annotations for split."""
         patterns = [self.root / self.split_str / "image"]
 
-        images: list[ImageAnnotation] = []
+        images: list[vision.ImageAnnotation] = []
         with core.get_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
                 for path in pbar.track(sequence=paths, description=desc):
                     if path.is_image_file():
-                        images.append(ImageAnnotation(path=path, root=pattern))
+                        images.append(vision.ImageAnnotation(path=path, root=pattern))
 
         self.datapoints["image"] = images
 
@@ -449,22 +440,22 @@ class FiveKD(MultimodalDataset):
         ref_images = self.datapoints.get("ref_image", [])
 
         if len(ref_images) == 0:
-            ref_images: list[ImageAnnotation] = []
+            ref_images: list[vision.ImageAnnotation] = []
             with core.get_progress_bar(disable=self.disable_pbar) as pbar:
                 desc = f"Listing {self.__class__.__name__} {self.split_str} reference images"
                 for img in pbar.track(sequence=images, description=desc):
                     root_name = img.root.name
                     path      = img.path.replace(f"/{root_name}/", f"/ref_d/")
-                    ref_images.append(ImageAnnotation(path=path.image_file(), root=img.root))
+                    ref_images.append(vision.ImageAnnotation(path=path.image_file(), root=img.root))
             self.datapoints["ref_image"] = ref_images
             
 
 @DATASETS.register(name="fivek_e")
-class FiveKE(MultimodalDataset):
+class FiveKE(vision.VisionDataset):
     """Loads FiveKE dataset from ``root`` dir with Expert E GT.
 
     Args:
-        root: Directory path to dataset. Default is ``default_root_dir``.
+        root: Directory path to dataset. Default is ``DATA_DIR / "enhance"``.
         *args: Additional args for parent class.
         **kwargs: Additional kwargs for parent class.
 
@@ -472,17 +463,17 @@ class FiveKE(MultimodalDataset):
         FileNotFoundError: If ``root`` directory does not exist.
     """
     
-    tasks : list[Task]  = [Task.LLIE]
-    splits: list[Split] = [Split.TRAIN, Split.TEST]
-    datapoint_attrs     = DatapointAttributes({
-        "image"    : ImageAnnotation,
-        "depth"    : DepthMapAnnotation,
-        "ref_image": ImageAnnotation,
-        "ref_depth": DepthMapAnnotation,
+    tasks : list[core.Task]  = [core.Task.LLIE]
+    splits: list[core.Split] = [core.Split.TRAIN, core.Split.TEST]
+    datapoint_attrs     = vision.DatapointAttributes({
+        "image"    : vision.ImageAnnotation,
+        "depth"    : vision.DepthMapAnnotation,
+        "ref_image": vision.ImageAnnotation,
+        "ref_depth": vision.DepthMapAnnotation,
     })
     has_test_annotations: bool = False
 
-    def __init__(self, root: core.Path = default_root_dir, *args, **kwargs):
+    def __init__(self, root: core.Path = DATA_DIR / "enhance", *args, **kwargs):
         """Initializes dataset with ``root`` path and parent args."""
         root = root / "fivek" if root.name != "fivek" else root
         if not root.is_dir():
@@ -493,14 +484,14 @@ class FiveKE(MultimodalDataset):
         """Populates ``datapoints`` with image annotations for split."""
         patterns = [self.root / self.split_str / "image"]
 
-        images: list[ImageAnnotation] = []
+        images: list[vision.ImageAnnotation] = []
         with core.get_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
                 for path in pbar.track(sequence=paths, description=desc):
                     if path.is_image_file():
-                        images.append(ImageAnnotation(path=path, root=pattern))
+                        images.append(vision.ImageAnnotation(path=path, root=pattern))
 
         self.datapoints["image"] = images
 
@@ -510,18 +501,18 @@ class FiveKE(MultimodalDataset):
         ref_images = self.datapoints.get("ref_image", [])
 
         if len(ref_images) == 0:
-            ref_images: list[ImageAnnotation] = []
+            ref_images: list[vision.ImageAnnotation] = []
             with core.get_progress_bar(disable=self.disable_pbar) as pbar:
                 desc = f"Listing {self.__class__.__name__} {self.split_str} reference images"
                 for img in pbar.track(sequence=images, description=desc):
                     root_name = img.root.name
                     path      = img.path.replace(f"/{root_name}/", f"/ref_e/")
-                    ref_images.append(ImageAnnotation(path=path.image_file(), root=img.root))
+                    ref_images.append(vision.ImageAnnotation(path=path.image_file(), root=img.root))
             self.datapoints["ref_image"] = ref_images
 
 
 @DATAMODULES.register(name="fivek_init")
-class FiveKInitDataModule(DataModule):
+class FiveKInitDataModule(core.DataModule):
     """Configures FiveKInit datasets for training/testing.
 
     Args:
@@ -529,7 +520,7 @@ class FiveKInitDataModule(DataModule):
         **kwargs: Additional kwargs for parent class.
     """
     
-    tasks: list[Task] = [Task.LLIE]
+    tasks: list[core.Task] = [core.Task.LLIE]
 
     def prepare_data(self, *args, **kwargs):
         """Prepares data (placeholder, no action taken)."""
@@ -543,10 +534,10 @@ class FiveKInitDataModule(DataModule):
                 or ``None``. Default is ``None``.
         """
         if self.can_log:
-            console.log(f"Setup [red]{self.__class__.__name__}[/red].")
+            core.console.log(f"Setup [red]{self.__class__.__name__}[/red].")
 
         if stage in [None, "train"]:
-            self.train = FiveKInit(split=Split.TRAIN, **self.dataset_kwargs)
+            self.train = FiveKInit(split=core.Split.TRAIN, **self.dataset_kwargs)
             self.val   = None
         if stage in [None, "test"]:
             self.test  = None
@@ -557,7 +548,7 @@ class FiveKInitDataModule(DataModule):
 
 
 @DATAMODULES.register(name="fivek")
-class FiveKDataModule(DataModule):
+class FiveKDataModule(core.DataModule):
     """Configures FiveK datasets for training/testing.
 
     Args:
@@ -565,7 +556,7 @@ class FiveKDataModule(DataModule):
         **kwargs: Additional kwargs for parent class.
     """
     
-    tasks: list[Task] = [Task.LLIE]
+    tasks: list[core.Task] = [core.Task.LLIE]
 
     def prepare_data(self, *args, **kwargs):
         """Prepares data (placeholder, no action taken)."""
@@ -579,13 +570,13 @@ class FiveKDataModule(DataModule):
                 or ``None``. Default is ``None``.
         """
         if self.can_log:
-            console.log(f"Setup [red]{self.__class__.__name__}[/red].")
+            core.console.log(f"Setup [red]{self.__class__.__name__}[/red].")
 
         if stage in [None, "train"]:
-            self.train = FiveK(split=Split.TEST, **self.dataset_kwargs)
-            self.val   = FiveK(split=Split.TEST, **self.dataset_kwargs)
+            self.train = FiveK(split=core.Split.TEST, **self.dataset_kwargs)
+            self.val   = FiveK(split=core.Split.TEST, **self.dataset_kwargs)
         if stage in [None, "test"]:
-            self.test  = FiveK(split=Split.TEST, **self.dataset_kwargs)
+            self.test  = FiveK(split=core.Split.TEST, **self.dataset_kwargs)
 
         self.get_classlabels()
         if self.can_log:
@@ -593,7 +584,7 @@ class FiveKDataModule(DataModule):
 
 
 @DATAMODULES.register(name="fivek_a")
-class FiveKADataModule(DataModule):
+class FiveKADataModule(core.DataModule):
     """Configures FiveKA datasets for training/testing.
 
     Args:
@@ -601,7 +592,7 @@ class FiveKADataModule(DataModule):
         **kwargs: Additional kwargs for parent class.
     """
     
-    tasks: list[Task] = [Task.LLIE]
+    tasks: list[core.Task] = [core.Task.LLIE]
 
     def prepare_data(self, *args, **kwargs):
         """Prepares data (placeholder, no action taken)."""
@@ -615,13 +606,13 @@ class FiveKADataModule(DataModule):
                 or ``None``. Default is ``None``.
         """
         if self.can_log:
-            console.log(f"Setup [red]{self.__class__.__name__}[/red].")
+            core.console.log(f"Setup [red]{self.__class__.__name__}[/red].")
 
         if stage in [None, "train"]:
-            self.train = FiveKA(split=Split.TRAIN, **self.dataset_kwargs)
-            self.val   = FiveKA(split=Split.TEST,  **self.dataset_kwargs)
+            self.train = FiveKA(split=core.Split.TRAIN, **self.dataset_kwargs)
+            self.val   = FiveKA(split=core.Split.TEST,  **self.dataset_kwargs)
         if stage in [None, "test"]:
-            self.test  = FiveKA(split=Split.TEST,  **self.dataset_kwargs)
+            self.test  = FiveKA(split=core.Split.TEST,  **self.dataset_kwargs)
 
         self.get_classlabels()
         if self.can_log:
@@ -629,7 +620,7 @@ class FiveKADataModule(DataModule):
 
 
 @DATAMODULES.register(name="fivek_b")
-class FiveKBDataModule(DataModule):
+class FiveKBDataModule(core.DataModule):
     """Configures FiveKB datasets for training/testing.
 
     Args:
@@ -637,7 +628,7 @@ class FiveKBDataModule(DataModule):
         **kwargs: Additional kwargs for parent class.
     """
     
-    tasks: list[Task] = [Task.LLIE]
+    tasks: list[core.Task] = [core.Task.LLIE]
 
     def prepare_data(self, *args, **kwargs):
         """Prepares data (placeholder, no action taken)."""
@@ -651,13 +642,13 @@ class FiveKBDataModule(DataModule):
                 or ``None``. Default is ``None``.
         """
         if self.can_log:
-            console.log(f"Setup [red]{self.__class__.__name__}[/red].")
+            core.console.log(f"Setup [red]{self.__class__.__name__}[/red].")
 
         if stage in [None, "train"]:
-            self.train = FiveKB(split=Split.TRAIN, **self.dataset_kwargs)
-            self.val   = FiveKB(split=Split.TEST,  **self.dataset_kwargs)
+            self.train = FiveKB(split=core.Split.TRAIN, **self.dataset_kwargs)
+            self.val   = FiveKB(split=core.Split.TEST,  **self.dataset_kwargs)
         if stage in [None, "test"]:
-            self.test  = FiveKB(split=Split.TEST,  **self.dataset_kwargs)
+            self.test  = FiveKB(split=core.Split.TEST,  **self.dataset_kwargs)
 
         self.get_classlabels()
         if self.can_log:
@@ -665,7 +656,7 @@ class FiveKBDataModule(DataModule):
 
 
 @DATAMODULES.register(name="fivek_c")
-class FiveKCDataModule(DataModule):
+class FiveKCDataModule(core.DataModule):
     """Configures FiveKC datasets for training/testing.
 
     Args:
@@ -673,7 +664,7 @@ class FiveKCDataModule(DataModule):
         **kwargs: Additional kwargs for parent class.
     """
     
-    tasks: list[Task] = [Task.LLIE]
+    tasks: list[core.Task] = [core.Task.LLIE]
 
     def prepare_data(self, *args, **kwargs):
         """Prepares data (placeholder, no action taken)."""
@@ -687,13 +678,13 @@ class FiveKCDataModule(DataModule):
                 or ``None``. Default is ``None``.
         """
         if self.can_log:
-            console.log(f"Setup [red]{self.__class__.__name__}[/red].")
+            core.console.log(f"Setup [red]{self.__class__.__name__}[/red].")
 
         if stage in [None, "train"]:
-            self.train = FiveKC(split=Split.TRAIN, **self.dataset_kwargs)
-            self.val   = FiveKC(split=Split.TEST,  **self.dataset_kwargs)
+            self.train = FiveKC(split=core.Split.TRAIN, **self.dataset_kwargs)
+            self.val   = FiveKC(split=core.Split.TEST,  **self.dataset_kwargs)
         if stage in [None, "test"]:
-            self.test  = FiveKC(split=Split.TEST,  **self.dataset_kwargs)
+            self.test  = FiveKC(split=core.Split.TEST,  **self.dataset_kwargs)
 
         self.get_classlabels()
         if self.can_log:
@@ -701,7 +692,7 @@ class FiveKCDataModule(DataModule):
 
 
 @DATAMODULES.register(name="fivek_d")
-class FiveKDDataModule(DataModule):
+class FiveKDDataModule(core.DataModule):
     """Configures FiveKD datasets for training/testing.
 
     Args:
@@ -709,7 +700,7 @@ class FiveKDDataModule(DataModule):
         **kwargs: Additional kwargs for parent class.
     """
     
-    tasks: list[Task] = [Task.LLIE]
+    tasks: list[core.Task] = [core.Task.LLIE]
 
     def prepare_data(self, *args, **kwargs):
         """Prepares data (placeholder, no action taken)."""
@@ -723,13 +714,13 @@ class FiveKDDataModule(DataModule):
                 or ``None``. Default is ``None``.
         """
         if self.can_log:
-            console.log(f"Setup [red]{self.__class__.__name__}[/red].")
+            core.console.log(f"Setup [red]{self.__class__.__name__}[/red].")
 
         if stage in [None, "train"]:
-            self.train = FiveKD(split=Split.TRAIN, **self.dataset_kwargs)
-            self.val   = FiveKD(split=Split.TEST,  **self.dataset_kwargs)
+            self.train = FiveKD(split=core.Split.TRAIN, **self.dataset_kwargs)
+            self.val   = FiveKD(split=core.Split.TEST,  **self.dataset_kwargs)
         if stage in [None, "test"]:
-            self.test  = FiveKD(split=Split.TEST,  **self.dataset_kwargs)
+            self.test  = FiveKD(split=core.Split.TEST,  **self.dataset_kwargs)
 
         self.get_classlabels()
         if self.can_log:
@@ -737,7 +728,7 @@ class FiveKDDataModule(DataModule):
 
 
 @DATAMODULES.register(name="fivek_e")
-class FiveKEDataModule(DataModule):
+class FiveKEDataModule(core.DataModule):
     """Configures FiveKE datasets for training/testing.
 
     Args:
@@ -745,7 +736,7 @@ class FiveKEDataModule(DataModule):
         **kwargs: Additional kwargs for parent class.
     """
     
-    tasks: list[Task] = [Task.LLIE]
+    tasks: list[core.Task] = [core.Task.LLIE]
 
     def prepare_data(self, *args, **kwargs):
         """Prepares data (placeholder, no action taken)."""
@@ -759,13 +750,13 @@ class FiveKEDataModule(DataModule):
                 or ``None``. Default is ``None``.
         """
         if self.can_log:
-            console.log(f"Setup [red]{self.__class__.__name__}[/red].")
+            core.console.log(f"Setup [red]{self.__class__.__name__}[/red].")
 
         if stage in [None, "train"]:
-            self.train = FiveKE(split=Split.TRAIN, **self.dataset_kwargs)
-            self.val   = FiveKE(split=Split.TEST,  **self.dataset_kwargs)
+            self.train = FiveKE(split=core.Split.TRAIN, **self.dataset_kwargs)
+            self.val   = FiveKE(split=core.Split.TEST,  **self.dataset_kwargs)
         if stage in [None, "test"]:
-            self.test  = FiveKE(split=Split.TEST,  **self.dataset_kwargs)
+            self.test  = FiveKE(split=core.Split.TEST,  **self.dataset_kwargs)
 
         self.get_classlabels()
         if self.can_log:

@@ -21,7 +21,8 @@ import torch
 from torch.nn.common_types import _size_2_t
 
 from mon import core, nn
-from mon.globals import MODELS, LType, Task
+from mon.core import LType, Task
+from mon.globals import MODELS
 from mon.vision.enhance import base
 
 console      = core.console

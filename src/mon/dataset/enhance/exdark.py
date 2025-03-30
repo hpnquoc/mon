@@ -14,25 +14,16 @@ __all__ = [
 
 from typing import Literal
 
-from mon import core
-from mon.dataset import dtype
-from mon.globals import DATA_DIR, DATAMODULES, DATASETS, Split, Task
-
-console             = core.console
-default_root_dir    = DATA_DIR / "enhance"
-DataModule          = dtype.DataModule
-DatapointAttributes = dtype.DatapointAttributes
-DepthMapAnnotation  = dtype.DepthMapAnnotation
-ImageAnnotation     = dtype.ImageAnnotation
-MultimodalDataset   = dtype.MultimodalDataset
+from mon import core, vision
+from mon.globals import DATA_DIR, DATAMODULES, DATASETS
 
 
 @DATASETS.register(name="exdark")
-class ExDark(MultimodalDataset):
+class ExDark(vision.VisionDataset):
     """Loads ExDark dataset from ``root`` dir.
 
     Args:
-        root: Directory path to dataset. Default is ``default_root_dir``.
+        root: Directory path to dataset. Default is ``DATA_DIR / "enhance"``.
         *args: Additional args for parent class.
         **kwargs: Additional kwargs for parent class.
 
@@ -40,14 +31,14 @@ class ExDark(MultimodalDataset):
         FileNotFoundError: If ``root`` directory does not exist.
     """
     
-    tasks : list[Task]  = [Task.LLIE, Task.DETECT]
-    splits: list[Split] = [Split.TEST]
-    datapoint_attrs     = DatapointAttributes({
-        "image": ImageAnnotation,
+    tasks : list[core.Task]    = [core.Task.LLIE, core.Task.DETECT]
+    splits: list[core.Split]   = [core.Split.TEST]
+    datapoint_attrs            = vision.DatapointAttributes({
+        "image": vision.ImageAnnotation,
     })
     has_test_annotations: bool = False
 
-    def __init__(self, root: core.Path = default_root_dir, *args, **kwargs):
+    def __init__(self, root: core.Path = DATA_DIR / "enhance", *args, **kwargs):
         """Initializes dataset with ``root`` path and parent args."""
         root = root / "exdark" if root.name != "exdark" else root
         if not root.is_dir():
@@ -58,24 +49,24 @@ class ExDark(MultimodalDataset):
         """Populates ``datapoints`` with image annotations for split."""
         patterns = [self.root / self.split_str / "image"]
 
-        images: list[ImageAnnotation] = []
+        images: list[vision.ImageAnnotation] = []
         with core.get_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
                 for path in pbar.track(sequence=paths, description=desc):
                     if path.is_image_file():
-                        images.append(ImageAnnotation(path=path, root=pattern))
+                        images.append(vision.ImageAnnotation(path=path, root=pattern))
 
         self.datapoints["image"] = images
 
 
 @DATASETS.register(name="exdark_full")
-class ExDarkFull(MultimodalDataset):
+class ExDarkFull(vision.VisionDataset):
     """Loads ExDarkFull dataset from ``root`` dir.
 
     Args:
-        root: Directory path to dataset. Default is ``default_root_dir``.
+        root: Directory path to dataset. Default is ``DATA_DIR / "enhance"``.
         *args: Additional args for parent class.
         **kwargs: Additional kwargs for parent class.
 
@@ -83,14 +74,14 @@ class ExDarkFull(MultimodalDataset):
         FileNotFoundError: If ``root`` directory does not exist.
     """
     
-    tasks : list[Task]  = [Task.LLIE, Task.DETECT]
-    splits: list[Split] = [Split.TEST]
-    datapoint_attrs     = DatapointAttributes({
-        "image": ImageAnnotation,
+    tasks : list[core.Task]  = [core.Task.LLIE, core.Task.DETECT]
+    splits: list[core.Split] = [core.Split.TEST]
+    datapoint_attrs     = vision.DatapointAttributes({
+        "image": vision.ImageAnnotation,
     })
     has_test_annotations: bool = False
 
-    def __init__(self, root: core.Path = default_root_dir, *args, **kwargs):
+    def __init__(self, root: core.Path = DATA_DIR / "enhance", *args, **kwargs):
         """Initializes dataset with ``root`` path and parent args."""
         root = root / "exdark" if root.name != "exdark" else root
         if not root.is_dir():
@@ -101,27 +92,27 @@ class ExDarkFull(MultimodalDataset):
         """Populates ``datapoints`` with image annotations for split."""
         patterns = [self.root / f"{self.split_str}_full" / "image"]
 
-        images: list[ImageAnnotation] = []
+        images: list[vision.ImageAnnotation] = []
         with core.get_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
                 for path in pbar.track(sequence=paths, description=desc):
                     if path.is_image_file():
-                        images.append(ImageAnnotation(path=path, root=pattern))
+                        images.append(vision.ImageAnnotation(path=path, root=pattern))
 
         self.datapoints["image"] = images
 
 
 @DATAMODULES.register(name="exdark")
-class ExDarkDataModule(DataModule):
+class ExDarkDataModule(core.DataModule):
     """Configures ExDark datasets for training/testing.
 
     Args:
         *args: Additional args for parent class.
         **kwargs: Additional kwargs for parent class.
     """
-    tasks: list[Task] = [Task.LLIE]
+    tasks: list[core.Task] = [core.Task.LLIE]
     
     def prepare_data(self, *args, **kwargs):
         """Prepares data (placeholder, no action taken)."""
@@ -135,13 +126,13 @@ class ExDarkDataModule(DataModule):
                 or ``None``. Default is ``None``.
         """
         if self.can_log:
-            console.log(f"Setup [red]{self.__class__.__name__}[/red].")
+            core.console.log(f"Setup [red]{self.__class__.__name__}[/red].")
         
         if stage in [None, "train"]:
-            self.train = ExDark(split=Split.TEST, **self.dataset_kwargs)
-            self.val   = ExDark(split=Split.TEST, **self.dataset_kwargs)
+            self.train = ExDark(split=core.Split.TEST, **self.dataset_kwargs)
+            self.val   = ExDark(split=core.Split.TEST, **self.dataset_kwargs)
         if stage in [None, "test"]:
-            self.test  = ExDark(split=Split.TEST, **self.dataset_kwargs)
+            self.test  = ExDark(split=core.Split.TEST, **self.dataset_kwargs)
         
         self.get_classlabels()
         if self.can_log:
@@ -149,14 +140,14 @@ class ExDarkDataModule(DataModule):
 
 
 @DATAMODULES.register(name="exdark_full")
-class ExDarkFullDataModule(DataModule):
+class ExDarkFullDataModule(core.DataModule):
     """Configures ExDarkFull datasets for training/testing.
 
     Args:
         *args: Additional args for parent class.
         **kwargs: Additional kwargs for parent class.
     """
-    tasks: list[Task] = [Task.LLIE]
+    tasks: list[core.Task] = [core.Task.LLIE]
     
     def prepare_data(self, *args, **kwargs):
         """Prepares data (placeholder, no action taken)."""
@@ -170,13 +161,13 @@ class ExDarkFullDataModule(DataModule):
                 or ``None``. Default is ``None``.
         """
         if self.can_log:
-            console.log(f"Setup [red]{self.__class__.__name__}[/red].")
+            core.console.log(f"Setup [red]{self.__class__.__name__}[/red].")
         
         if stage in [None, "train"]:
-            self.train = ExDarkFull(split=Split.TEST, **self.dataset_kwargs)
-            self.val   = ExDarkFull(split=Split.TEST, **self.dataset_kwargs)
+            self.train = ExDarkFull(split=core.Split.TEST, **self.dataset_kwargs)
+            self.val   = ExDarkFull(split=core.Split.TEST, **self.dataset_kwargs)
         if stage in [None, "test"]:
-            self.test  = ExDarkFull(split=Split.TEST, **self.dataset_kwargs)
+            self.test  = ExDarkFull(split=core.Split.TEST, **self.dataset_kwargs)
         
         self.get_classlabels()
         if self.can_log:

@@ -22,12 +22,11 @@ from fvcore.nn import parameter_count
 from torch.nn import functional as F
 
 from mon import core, nn
-from mon.globals import LType, MODELS, Task
+from mon.globals import MODELS
 from mon.vision import dtype, filtering
 from mon.vision.dtype import image as I
 from mon.vision.enhance import base
 
-console      = core.console
 current_file = core.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 LDA          = nn.LayeredFeatureAggregation
@@ -180,7 +179,7 @@ class Loss(nn.Loss):
 		loss = loss_f + loss_s + loss_e + loss_tv + loss_de + loss_c
 		
 		if self.verbose:
-			console.log(
+			core.console.log(
 				f"loss_f: {loss_f:.4f}, "
 				f"loss_s: {loss_s:.4f}, "
 				f"loss_e: {loss_e:.4f}, "
@@ -493,11 +492,11 @@ class INF4(nn.Module):
 @MODELS.register(name="zero_linr", arch="zero_linr")
 class ZeroLINR(base.ImageEnhancementModel):
 	
-	model_dir: core.Path    = current_dir
-	arch     : str          = "zero_linr"
-	tasks    : list[Task]   = [Task.LLIE]
-	ltypes   : list[LType]  = [LType.ZERO_SHOT]
-	zoo      : dict         = {}
+	model_dir: core.Path        = current_dir
+	arch     : str              = "zero_linr"
+	tasks    : list[core.Task]  = [core.Task.LLIE]
+	ltypes   : list[core.LType] = [core.LType.ZERO_SHOT]
+	zoo      : dict             = {}
 	
 	def __init__(
 		self,
@@ -622,8 +621,8 @@ class ZeroLINR(base.ImageEnhancementModel):
 		params        = sum(list(params.values())) if isinstance(params, dict) else params
 		# Print
 		if self.verbose:
-			console.log(f"FLOPs : {flops:.4f}")
-			console.log(f"Params: {params:.4f}")
+			core.console.log(f"FLOPs : {flops:.4f}")
+			core.console.log(f"Params: {params:.4f}")
 		# Return
 		return flops, params
 	

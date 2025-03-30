@@ -20,11 +20,6 @@ import math
 import matplotlib
 from matplotlib import pyplot as plt
 
-from mon import core
-
-console = core.console
-
-
 # mpl.use("wxAgg")
 
 plt.ion()

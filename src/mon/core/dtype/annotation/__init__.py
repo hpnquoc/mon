@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Implements basic annotation types."""
+"""Implements base classes for inheritance and basic annotation types."""
 
 from __future__ import annotations
 

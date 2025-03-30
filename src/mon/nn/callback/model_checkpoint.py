@@ -21,9 +21,6 @@ from lightning.pytorch import callbacks
 from mon import core
 from mon.globals import CALLBACKS
 
-console      = core.console
-error_console = core.error_console
-
 
 # region Model Checkpoint
 
@@ -178,7 +175,7 @@ class ModelCheckpoint(callbacks.ModelCheckpoint):
             self.best_k_models       = state_dict.get("best_k_models",       self.best_k_models)
             self.last_model_path     = state_dict.get("last_model_path",     self.last_model_path)
         else:
-            error_console.log(
+            core.error_console.log(
                 f"The dirpath has changed from {dirpath_from_ckpt!r} to "
                 f"{self.dirpath!r}, therefore `best_model_score`, "
                 f"`kth_best_model_path`, `kth_value`, `last_model_path` and "
@@ -234,8 +231,8 @@ class ModelCheckpoint(callbacks.ModelCheckpoint):
         ):
             every_n_epochs      = 1
             every_n_train_steps = 0
-            console.log("Both [every_n_train_steps] and [every_n_epochs] are not set. "
-                        "Setting `every_n_epochs=1`.")
+            core.console.log("Both [every_n_train_steps] and [every_n_epochs] are not set. "
+                             "Setting `every_n_epochs=1`.")
         else:
             every_n_epochs      = every_n_epochs      or 0
             every_n_train_steps = every_n_train_steps or 0
@@ -314,7 +311,7 @@ class ModelCheckpoint(callbacks.ModelCheckpoint):
             and self._fs.isdir(dirpath)
             and len(self._fs.ls(dirpath)) > 0
         ):
-            console.log(f"Checkpoint directory {dirpath} exists and is not empty.")
+            core.console.log(f"Checkpoint directory {dirpath} exists and is not empty.")
     
     def _save_last_checkpoint(
         self,
@@ -383,7 +380,7 @@ class ModelCheckpoint(callbacks.ModelCheckpoint):
             if trainer.is_global_zero:
                 epoch = monitor_candidates["epoch"]
                 step  = monitor_candidates["step"]
-                console.log(f"{f'{self.monitor}':>25} was not in top {self.save_top_k}")
+                core.console.log(f"{f'{self.monitor}':>25} was not in top {self.save_top_k}")
     
     def _update_best_and_save(
         self,
@@ -429,8 +426,8 @@ class ModelCheckpoint(callbacks.ModelCheckpoint):
             if trainer.is_global_zero:
                 epoch = monitor_candidates["epoch"]
                 step  = monitor_candidates["step"]
-                console.log(f"{f'{self.monitor}':>25} reached {current:>12.6f}, "
-                            f"[red]saving as top {k}.")
+                core.console.log(f"{f'{self.monitor}':>25} reached {current:>12.6f}, "
+                                 f"[red]saving as top {k}.")
         self._save_checkpoint(trainer, filepath)
         
         if del_filepath and self._should_remove_checkpoint(trainer, del_filepath, filepath):

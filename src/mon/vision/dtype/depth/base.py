@@ -16,11 +16,8 @@ import cv2
 import numpy as np
 
 from mon import core, nn
-from mon.globals import Task
 from mon.vision.dtype import image as I
 from mon.vision.model import VisionModel
-
-console = core.console
 
 
 # region Conversion
@@ -57,7 +54,7 @@ def convert_depth_to_color(
 class DepthEstimationModel(VisionModel, ABC):
     """Base class for depth estimation models."""
     
-    tasks: list[Task] = [Task.DEPTH]
+    tasks: list[core.Task] = [core.Task.DEPTH]
     
     # region Forward
     

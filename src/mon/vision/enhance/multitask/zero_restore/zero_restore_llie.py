@@ -23,7 +23,7 @@ import numpy as np
 import torch
 
 from mon import core, nn
-from mon.globals import MODELS, LType, Task
+from mon.globals import MODELS
 from mon.vision import dtype, geometry
 from mon.vision.enhance import base
 
@@ -34,7 +34,6 @@ random.seed(1)
 torch.backends.cudnn.deterministic = True
 torch.backends.cudnn.benchmark     = False
 
-console      = core.console
 current_file = core.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
@@ -232,12 +231,12 @@ class ZeroRestoreLLIE(base.ImageEnhancementModel):
     Koschmieder's Model.
     """
     
-    model_dir: core.Path    = current_dir
-    arch     : str          = "zero_restore"
-    name     : str          = "zero_restore_llie"
-    tasks    : list[Task]   = [Task.LLIE]
-    ltypes   : list[LType]  = [LType.ZERO_SHOT]
-    zoo      : dict         = {}
+    model_dir: core.Path        = current_dir
+    arch     : str              = "zero_restore"
+    name     : str              = "zero_restore_llie"
+    tasks    : list[core.Task]  = [core.Task.LLIE]
+    ltypes   : list[core.LType] = [core.LType.ZERO_SHOT]
+    zoo      : dict             = {}
     
     def __init__(
         self,
