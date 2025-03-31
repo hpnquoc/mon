@@ -10,15 +10,3 @@
 [submodule "src/mon/vision/dtype/depth/depth_pro"]
 	path = src/mon/vision/dtype/depth/depth_pro
 	url  = https://github.com/phlong3105/depth_pro
-[submodule "src/mon/vision/segment/sam"]
-	path = src/mon/vision/segment/sam
-	url  = https://github.com/phlong3105/sam
-[submodule "src/mon/vision/segment/sam2"]
-	path = src/mon/vision/segment/sam2
-	url  = https://github.com/phlong3105/sam2
-[submodule "src/mon/vlm/openclip"]
-	path = src/mon/vlm/openclip
-	url  = https://github.com/phlong3105/openclip
-[submodule "src/mon/vlm/clip"]
-	path = src/mon/vlm/clip
-	url  = https://github.com/phlong3105/clip
