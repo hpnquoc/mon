@@ -95,7 +95,7 @@ class Path(type(pathlib.Path())):
         """
         from mon.globals import CONFIG_FILE_FORMATS
         return (not exist or self.is_file()) and self.suffix.lower() in CONFIG_FILE_FORMATS
-    
+        
     def is_dir_like(self) -> bool:
         """Checks if the path resembles a directory format.
 

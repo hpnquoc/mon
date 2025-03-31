@@ -36,8 +36,9 @@ def parse_data_loader(
     src = core.Path(src)
     if src.stem in DATASETS:
         src = src.stem
-        if data_root not in [None, "None", ""] and core.Path(data_root).is_dir():
-            root = data_root
+        if (data_root not in [None, "None", ""]
+            and core.Path(data_root / src).is_dir()):
+            root = data_root / src
         else:
             defaults_dict = dict(zip(
                 DATASETS[src].__init__.__code__.co_varnames[1:],
@@ -56,7 +57,7 @@ def parse_data_loader(
         }
         data_name   = src
         data_loader = DATASETS.build(config=config)
-    elif src.is_dir() and src.exists():
+    elif src.is_dir():
         data_name   = src.name
         data_loader = vision.ImageLoader(
             root      = src,
