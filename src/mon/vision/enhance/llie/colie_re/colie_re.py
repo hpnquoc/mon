@@ -21,7 +21,6 @@ from typing import Literal
 import kornia
 import numpy as np
 import torch
-from fvcore.nn import parameter_count
 from torch.nn import functional as F
 
 from mon import core, nn
@@ -172,18 +171,17 @@ class CoLIE_RE(base.ImageEnhancementModel):
         """Compute the efficiency score of the model, including FLOPs and number
         of parameters.
         """
-        # Define input tensor
+        from fvcore.nn import parameter_count
+        
         h, w      = dtype.get_image_size(image_size)
-        datapoint = {
-            "image": torch.rand(1, 3, h, w).to(self.device),
-        }
-        # Get FLOPs and Params
+        datapoint = {"image": torch.rand(1, 3, h, w).to(self.device)}
+        
         flops, params = core.custom_profile(self, inputs=datapoint, verbose=False)
         # flops         = FlopCountAnalysis(self, datapoint).total() if flops == 0 else flops
         params        = self.params                if hasattr(self, "params") and params == 0 else params
         params        = parameter_count(self)      if hasattr(self, "params")  else params
         params        = sum(list(params.values())) if isinstance(params, dict) else params
-        # Return
+
         return flops, params
     
     def forward_loss(self, datapoint: dict, *args, **kwargs) -> dict:
