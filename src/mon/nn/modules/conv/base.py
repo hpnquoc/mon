@@ -112,7 +112,7 @@ class Conv2dSame(torch.nn.Conv2d):
         dtype: Data type for the module as ``Any``. Default is ``None``.
 
     Attributes:
-        Inherits attributes from ``nn.Conv2d``.
+        Inherits attributes from ``torch.nn.Conv2d``.
     """
 
     def __init__(

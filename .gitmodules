@@ -7,9 +7,6 @@
 [submodule "src/mon/extra/ultralytics"]
 	path = src/mon/extra/ultralytics
 	url  = https://github.com/phlong3105/ultralytics
-[submodule "src/mon/vision/dtype/depth/depth_anything_v2"]
-	path = src/mon/vision/dtype/depth/depth_anything_v2
-	url  = https://github.com/phlong3105/depth_anything_v2
 [submodule "src/mon/vision/dtype/depth/depth_pro"]
 	path = src/mon/vision/dtype/depth/depth_pro
 	url  = https://github.com/phlong3105/depth_pro

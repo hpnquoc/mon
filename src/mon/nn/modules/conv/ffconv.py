@@ -392,8 +392,8 @@ class FastFourierConv2dNormAct(torch.nn.Module):
         groups: Number of groups in convolution as ``int``. Default is ``1``.
         bias: Adds bias to convolutions if ``True``. Default is ``False``.
         padding_mode: Padding mode for convolutions as ``str``. Default is ``"zeros"``.
-        norm_layer: Normalization layer class as ``Any``. Default is ``nn.BatchNorm2d``.
-        act_layer: Activation layer class as ``Any``. Default is ``nn.Identity``.
+        norm_layer: Normalization layer class as ``Any``. Default is ``torch.nn.BatchNorm2d``.
+        act_layer: Activation layer class as ``Any``. Default is ``torch.nn.Identity``.
         enable_lfu: Enables local Fourier unit if ``True``. Default is ``True``.
         fft_norm: FFT normalization mode as ``str`` (``"forward"``, ``"backward"``, ``"ortho"``).
             Default is ``"ortho"``.

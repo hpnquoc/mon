@@ -52,7 +52,7 @@ class BAM(torch.nn.Module):
             num_layers: Number of hidden layers as ``int``. Default is ``1``.
 
         Attributes:
-            c_gate: Sequential layer for channel gating as ``nn.Sequential``.
+            c_gate: Sequential layer for channel gating as ``torch.nn.Sequential``.
         """
         def __init__(
             self,
@@ -97,7 +97,7 @@ class BAM(torch.nn.Module):
             dilation_val: Dilation value for convolutions as ``int``. Default is ``4``.
 
         Attributes:
-            s_gate: Sequential layer for spatial gating as ``nn.Sequential``.
+            s_gate: Sequential layer for spatial gating as ``torch.nn.Sequential``.
         """
         def __init__(
             self,
@@ -249,7 +249,7 @@ class CBAM(torch.nn.Module):
         """Spatial attention submodule for CBAM.
 
         Attributes:
-            spatial: Sequential layer for spatial gating as ``nn.Sequential``.
+            spatial: Sequential layer for spatial gating as ``torch.nn.Sequential``.
         """
         def __init__(self):
             super().__init__()

@@ -319,7 +319,7 @@ class AvgPool2dSame(torch.nn.AvgPool2d):
         count_include_pad: Includes padding in average if ``True``. Default is ``True``.
 
     Attributes:
-        Inherited from ``nn.AvgPool2d``.
+        Inherited from ``torch.nn.AvgPool2d``.
     """
 
     def __init__(
@@ -462,7 +462,7 @@ class MaxPool2dSame(torch.nn.MaxPool2d):
         ceil_mode: Uses ceil for output shape if ``True``. Default is ``False``.
 
     Attributes:
-        Inherited from ``nn.MaxPool2d``.
+        Inherited from ``torch.nn.MaxPool2d``.
     """
     
     def __init__(

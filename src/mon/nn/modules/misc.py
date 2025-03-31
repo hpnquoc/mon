@@ -421,7 +421,7 @@ class PatchMerging(torch.nn.Module):
 
     Args:
         dim: Number of input channels as ``int``.
-        norm: Normalization layer type as ``type[nn.Module]``. Default is ``nn.LayerNorm``.
+        norm: Normalization layer type as ``type[torch.nn.Module]``. Default is ``torch.nn.LayerNorm``.
     """
 
     def __init__(self, dim: int, norm: type[torch.nn.Module] = torch.nn.LayerNorm, *args, **kwargs):
@@ -466,7 +466,7 @@ class PatchMergingV2(torch.nn.Module):
 
     Args:
         dim: Number of input channels as ``int``.
-        norm: Normalization layer type as ``type[nn.Module]``. Default is ``nn.LayerNorm``.
+        norm: Normalization layer type as ``type[nn.Module]``. Default is ``torch.nn.LayerNorm``.
     """
 
     def __init__(self, dim: int, norm: type[torch.nn.Module] = torch.nn.LayerNorm, *args, **kwargs):

@@ -28,7 +28,7 @@ class PerceptualLoss(base.Loss):
     """Perceptual Loss computes feature differences between input and target using a pretrained network.
 
     Args:
-        net: Pretrained network as ``nn.Module`` or ``str``; options: ``"alexnet"``,
+        net: Pretrained network as ``torch.nn.Module`` or ``str``; options: ``"alexnet"``,
             ``"vgg11"``, ``"vgg13"``, ``"vgg16"``, ``"vgg19"``. Default is ``"vgg19"``.
         layers: List of layer indices to extract features from as ``list[str]``.
             Default is ["26"].

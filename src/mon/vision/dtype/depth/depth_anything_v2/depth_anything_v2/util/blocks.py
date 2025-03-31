@@ -27,7 +27,8 @@ def _make_scratch(in_shape, out_shape, groups=1, expand=False):
 
 
 class ResidualConvUnit(nn.Module):
-    """Residual convolution module."""
+    """Residual convolution module.
+    """
 
     def __init__(self, features, activation, bn):
         """Init.
@@ -80,12 +81,13 @@ class ResidualConvUnit(nn.Module):
 
 
 class FeatureFusionBlock(nn.Module):
-    """Feature fusion block."""
+    """Feature fusion block.
+    """
 
     def __init__(
         self, 
         features, 
-        activation,
+        activation, 
         deconv=False, 
         bn=False, 
         expand=False, 

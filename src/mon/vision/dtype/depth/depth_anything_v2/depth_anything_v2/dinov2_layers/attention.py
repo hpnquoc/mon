@@ -10,16 +10,19 @@
 
 import logging
 
-from torch import nn, Tensor
+from torch import Tensor
+from torch import nn
+
 
 logger = logging.getLogger("dinov2")
 
 
 try:
     from xformers.ops import memory_efficient_attention, unbind, fmha
+
     XFORMERS_AVAILABLE = True
 except ImportError:
-    # logger.warning("xFormers not available")
+    logger.warning("xFormers not available")
     XFORMERS_AVAILABLE = False
 
 
@@ -76,3 +79,5 @@ class MemEffAttention(Attention):
         x = self.proj(x)
         x = self.proj_drop(x)
         return x
+
+        

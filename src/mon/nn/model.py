@@ -54,7 +54,7 @@ def load_weights(
     """Loads state dict from weights into a model.
 
     Args:
-        model: ``nn.Module`` to load weights into.
+        model: ``torch.nn.Module`` to load weights into.
         weights: Weights as ``dict``, ``str`` path, or ``core.Path``.
         weights_only: Loads only weights if ``True``. Default is ``False``.
 
@@ -295,7 +295,7 @@ class Model(lightning.LightningModule, ABC):
         """Initializes the model's weights.
     
         Args:
-            m: ``nn.Module`` to initialize weights for.
+            m: ``torch.nn.Module`` to initialize weights for.
         """
         pass
     

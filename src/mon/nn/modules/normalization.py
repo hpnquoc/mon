@@ -193,7 +193,7 @@ class HalfInstanceNorm2d(torch.nn.InstanceNorm2d):
         dtype: Data type as ``Any``. Default is ``None``.
         
     Attributes:
-        Inherited from ``nn.InstanceNorm2d``.
+        Inherited from ``torch.nn.InstanceNorm2d``.
     """
 
     def __init__(
@@ -263,7 +263,7 @@ class LayerNorm2d(torch.nn.LayerNorm):
         dtype: Data type as ``Any``. Default is ``None``.
 
     Attributes:
-        Inherited from ``nn.LayerNorm``.
+        Inherited from ``torch.nn.LayerNorm``.
     """
 
     def __init__(

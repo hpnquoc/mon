@@ -3,8 +3,7 @@
 
 from __future__ import annotations
 
-import argparse
-import copy
+from typing import Sequence
 
 import cv2
 import matplotlib
@@ -15,31 +14,52 @@ import torch.optim
 import mon
 from depth_anything_v2.dpt import DepthAnythingV2
 
-console      = mon.console
 current_file = mon.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
 
 # region Predict
 
-def predict(args: argparse.Namespace):
-    # General config
-    data         = args.data
-    save_dir     = args.save_dir
-    weights      = args.weights
-    device       = mon.set_device(args.device)
-    imgsz        = args.imgsz
-    imgsz        = imgsz[0] if isinstance(imgsz, list | tuple) else imgsz
-    resize       = args.resize
-    benchmark    = args.benchmark
-    save_image   = args.save_image
-    save_debug   = args.save_debug
-    use_fullpath = args.use_fullpath
-    encoder      = args.encoder
-    features     = args.features
-    out_channels = args.out_channels
-    pred_only    = args.pred_only
-    format       = args.format
+def predict(args: dict) -> str:
+    # Parse args
+    hostname     = args["hostname"]
+    root         = args["root"]
+    data         = args["data"]
+    fullname     = args["fullname"]
+    save_dir     = args["save_dir"]
+    weights      = args["weights"]
+    device       = args["device"]
+    seed         = args["seed"]
+    imgsz        = args["imgsz"]
+    imgsz        = imgsz[0] if isinstance(imgsz, Sequence) else imgsz
+    resize       = args["resize"]
+    epochs       = args["epochs"]
+    steps        = args["steps"]
+    benchmark    = args["benchmark"]
+    save_image   = args["save_image"]
+    save_debug   = args["save_debug"]
+    use_fullpath = args["use_fullpath"]
+    verbose      = args["verbose"]
+
+    encoder      = args["network"]["encoder"]
+    features     = args["network"]["features"]
+    out_channels = args["network"]["out_channels"]
+    pred_only    = args["network"]["pred_only"]
+    format       = args["network"]["format"]
+    
+    # Start
+    mon.console.rule(f"[bold red] {fullname}")
+    mon.console.log(f"Machine: {hostname}")
+    
+    # Device
+    device = mon.set_device(device)
+    
+    # Seed
+    mon.set_random_seed(seed)
+    
+    # Data I/O
+    mon.console.log(f"[bold red]{data}")
+    data_name, data_loader = mon.parse_data_loader(data, root, True, verbose=False)
     
     # Model
     '''
@@ -51,37 +71,19 @@ def predict(args: argparse.Namespace):
     }
     depth_anything = DepthAnythingV2(**model_configs[args.encoder])
     '''
-    depth_anything = DepthAnythingV2(encoder=encoder, features=features, out_channels=out_channels)
-    depth_anything.load_state_dict(torch.load(str(weights), map_location="cpu", weights_only=True))
-    depth_anything = depth_anything.to(device).eval()
+    depth_anything = DepthAnythingV2(encoder=encoder, features=features, out_channels=out_channels).to(device)
+    depth_anything.load_state_dict(torch.load(str(weights), map_location=device, weights_only=True))
+    depth_anything = depth_anything.eval()
     
     # Benchmark
     if benchmark:
-        flops, params, avg_time = mon.compute_efficiency_score(
-            model      = copy.deepcopy(depth_anything),
-            image_size = imgsz,
-            channels   = 3,
-            runs       = 100,
-            use_cuda   = True,
-            verbose    = False,
-        )
-        console.log(f"FLOPs  = {flops:.4f}")
-        console.log(f"Params = {params:.4f}")
-        console.log(f"Time   = {avg_time:.4f}")
-    
-    # Data I/O
-    console.log(f"[bold red]{data}")
-    data_name, data_loader, data_writer = mon.parse_io_worker(
-        src         = data,
-        dst         = save_dir,
-        to_tensor   = False,
-        denormalize = True,
-        verbose     = False,
-    )
+        flops, params = mon.compute_efficiency_score(model=depth_anything, image_size=512)
+        mon.console.log(f"FLOPs : {flops:.4f}")
+        mon.console.log(f"Params: {params:.4f}")
     
     # Predicting
-    cmap  = matplotlib.colormaps.get_cmap("Spectral_r")
     timer = mon.Timer()
+    cmap  = matplotlib.colormaps.get_cmap("Spectral_r")
     with torch.no_grad():
         with mon.get_progress_bar() as pbar:
             for i, datapoint in pbar.track(
@@ -89,9 +91,9 @@ def predict(args: argparse.Namespace):
                 total       = len(data_loader),
                 description = f"[bright_yellow] Predicting"
             ):
-                image      = datapoint.get("image")
-                meta       = datapoint.get("meta")
+                meta       = datapoint["meta"]
                 image_path = mon.Path(meta["path"])
+                image      = datapoint["image"]
                 
                 # Infer
                 timer.tick()
@@ -137,9 +139,9 @@ def predict(args: argparse.Namespace):
                             combined_result = cv2.hconcat([image, split_region, output])
                             output          = combined_result
                         cv2.imwrite(str(output_path), output)
-        
-        avg_time = float(timer.avg_time)
-        console.log(f"Average time: {avg_time}")
+    
+    # Finish
+    mon.console.log(f"Average time: {timer.avg_time}")
 
 # endregion
 

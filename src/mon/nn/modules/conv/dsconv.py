@@ -225,7 +225,7 @@ class DepthwiseSeparableConvAct2d(torch.nn.Module):
         padding_mode: Padding mode for convolutions as ``str``. Default is ``"zeros"``.
         device: Device for the module as ``Any``. Default is ``None``.
         dtype: Data type for the module as ``Any``. Default is ``None``.
-        act_layer: Activation layer class as ``nn.Module``. Default is ``nn.ReLU``.
+        act_layer: Activation layer class as ``torch.nn.Module``. Default is ``torch.nn.ReLU``.
     """
 
     def __init__(

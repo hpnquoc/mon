@@ -24,12 +24,12 @@ class GalerkinSimpleAttention(torch.nn.Module):
     Attributes:
         headc: Channels per head as ``int``.
         heads: Number of attention heads as ``int``.
-        qkv_proj: QKV projection layer as ``nn.Conv2d``.
-        o_proj1: First output projection layer as ``nn.Conv2d``.
-        o_proj2: Second output projection layer as ``nn.Conv2d``.
-        kln: Key layer normalization as ``nn.LayerNorm``.
-        vln: Value layer normalization as ``nn.LayerNorm``.
-        act: GELU activation layer as ``nn.GELU``.
+        qkv_proj: QKV projection layer as ``torch.nn.Conv2d``.
+        o_proj1: First output projection layer as ``torch.nn.Conv2d``.
+        o_proj2: Second output projection layer as ``torch.nn.Conv2d``.
+        kln: Key layer normalization as ``torch.nn.LayerNorm``.
+        vln: Value layer normalization as ``torch.nn.LayerNorm``.
+        act: GELU activation layer as ``torch.nn.GELU``.
 
     References:
         - https://github.com/2y7c3/Super-Resolution-Neural-Operator/blob/main/models/galerkin.py
