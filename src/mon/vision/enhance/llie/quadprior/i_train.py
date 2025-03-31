@@ -17,7 +17,6 @@ from cldm.logger import ImageLogger
 from cldm.model import create_model, load_state_dict
 from coco_dataset import create_webdataset
 
-console      = mon.console
 current_file = mon.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
@@ -49,8 +48,8 @@ def train(args: dict) -> str:
     pretrained_ckpt = mon.ZOO_DIR / "vision/enhance/llie/quadprior/quadprior/coco/control_sd15_coco_final.ckpt"
     
     # Start
-    console.rule(f"[bold red] {fullname}")
-    console.log(f"Machine: {hostname}")
+    mon.console.rule(f"[bold red] {fullname}")
+    mon.console.log(f"Machine: {hostname}")
     
     # Device
     device = mon.parse_device(device)

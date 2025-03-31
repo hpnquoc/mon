@@ -17,7 +17,6 @@ from torch.autograd import Variable
 import mon
 from model import *
 
-console      = mon.console
 current_file = mon.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
@@ -62,8 +61,8 @@ def predict(args: dict) -> str:
     verbose      = args["verbose"]
     
     # Start
-    console.rule(f"[bold red] {fullname}")
-    console.log(f"Machine: {hostname}")
+    mon.console.rule(f"[bold red] {fullname}")
+    mon.console.log(f"Machine: {hostname}")
     
     # Device
     device = mon.set_device(device)
@@ -80,17 +79,17 @@ def predict(args: dict) -> str:
     mon.set_random_seed(seed)
     
     # Data I/O
-    console.log(f"[bold red]{data}")
-    data_name, data_loader = mon.parse_data_loader(data, True, verbose=False)
+    mon.console.log(f"[bold red]{data}")
+    data_name, data_loader = mon.parse_data_loader(data, root, True, verbose=False)
     
     # Benchmark
     if benchmark:
         model = Network()
         # flops, params = mon.compute_efficiency_score(model=model, image_size=512)
         total_params  = calculate_model_parameters(model)
-        # console.log(f"FLOPs : {flops:.4f}")
-        # console.log(f"Params: {params:.4f}")
-        console.log(f"Total Params = {total_params:.4f}")
+        # mon.console.log(f"FLOPs : {flops:.4f}")
+        # mon.console.log(f"Params: {params:.4f}")
+        mon.console.log(f"Total Params = {total_params:.4f}")
         
     # Predicting
     timer = mon.Timer()
@@ -154,7 +153,7 @@ def predict(args: dict) -> str:
                 cv2.imwrite(str(output_path), output)
     
     # Finish
-    console.log(f"Average time: {timer.avg_time}")
+    mon.console.log(f"Average time: {timer.avg_time}")
 
 # endregion
 

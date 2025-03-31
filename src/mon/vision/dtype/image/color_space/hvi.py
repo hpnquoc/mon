@@ -10,7 +10,8 @@ __all__ = [
 ]
 
 import torch
-from torch import nn
+
+from mon import nn
 
 
 class RGBToHVI(nn.Module):
@@ -26,7 +27,7 @@ class RGBToHVI(nn.Module):
     def __init__(self, eps: float = 1e-8):
         super().__init__()
         self.eps       = eps
-        self.density_k = nn.Parameter(torch.full([1], 0.2), requires_grad=True)  # k is reciprocal to the paper mentioned
+        self.density_k = torch.nn.Parameter(torch.full([1], 0.2), requires_grad=True)  # k is reciprocal to the paper mentioned
         self.gated     = False
         self.gated2    = False
         self.alpha     = 1.0

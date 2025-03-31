@@ -18,10 +18,8 @@ from urllib.parse import urlparse  # noqa: F401
 import humps
 import lightning.pytorch.utilities.types
 import torch.hub
-from torch import nn
 
 from mon import core
-from mon.core import LType, Task
 from mon.globals import LOSSES, LR_SCHEDULERS, METRICS, OPTIMIZERS
 from mon.nn import loss as L, metric as M
 
@@ -49,7 +47,7 @@ def is_image(image: torch.Tensor) -> bool:
 # region Weights
 
 def load_weights(
-    model       : nn.Module,
+    model       : torch.nn.Module,
     weights     : dict | str | core.Path,
     weights_only: bool = False
 ) -> dict | None:
@@ -140,12 +138,12 @@ class Model(lightning.LightningModule, ABC):
             >>> )
     """
     
-    arch     : str         = ""         # The model's architecture.
-    name     : str         = ""         # The model's name.
-    tasks    : list[Task]  = []         # A list of tasks that the model can perform.
-    ltypes   : list[LType] = []         # A list of learning types that the model can perform.
-    model_dir: core.Path   = None       
-    zoo      : dict        = {}         # A dictionary containing all pretrained weights of the model.
+    arch     : str              = ""    # The model's architecture.
+    name     : str              = ""    # The model's name.
+    tasks    : list[core.Task]  = []    # A list of tasks that the model can perform.
+    ltypes   : list[core.LType] = []    # A list of learning types that the model can perform.
+    model_dir: core.Path        = None
+    zoo      : dict             = {}    # A dictionary containing all pretrained weights of the model.
     
     def __init__(
         self,
@@ -293,7 +291,7 @@ class Model(lightning.LightningModule, ABC):
             path.mkdir(parents=True, exist_ok=True)
     
     @abstractmethod
-    def init_weights(self, m: nn.Module):
+    def init_weights(self, m: torch.nn.Module):
         """Initializes the model's weights.
     
         Args:
@@ -351,13 +349,15 @@ class Model(lightning.LightningModule, ABC):
             if self.verbose:
                 core.console.log(f"Loaded model's weights from: {self.weights}.")
         
-    def init_loss(self, loss: Any):
+    def init_loss(self, loss: Any = None):
         """Sets the model's loss function.
 
         Args:
             loss: Loss as ``str``, ``dict``, or object.
         """
-        if isinstance(loss, str):
+        if loss is None:
+            self.loss = None
+        elif isinstance(loss, str):
             self.loss = LOSSES.build(name=loss)
         elif isinstance(loss, dict):
             self.loss = LOSSES.build(config=loss)
@@ -368,7 +368,7 @@ class Model(lightning.LightningModule, ABC):
             self.loss.requires_grad = True
             self.loss.eval()
     
-    def init_metrics(self, metrics: Any):
+    def init_metrics(self, metrics: Any = None):
         """Assigns metrics to the model.
     
         Args:
@@ -386,22 +386,28 @@ class Model(lightning.LightningModule, ABC):
                     ``val``: ``{name: "accuracy"}``
                     ``test``: ``~``
         """
+        if metrics is None:
+            self.train_metrics = None
+            self.val_metrics   = None
+            self.test_metrics  = None
+            return
+        
         # This is a simple hack since LightningModule needs the metric to be
         # defined with self.<metric>. So, here we dynamically add the metric
         # attribute to the class.
-        train_metrics = metrics.get("train") if isinstance(metrics, dict) else metrics
+        train_metrics      = metrics.get("train") if isinstance(metrics, dict) else metrics
         self.train_metrics = self.create_metrics(train_metrics)
         if self.train_metrics:
             for metric in self.train_metrics:
                 setattr(self, f"train/{metric.name}", metric)
     
-        val_metrics = metrics.get("val") if isinstance(metrics, dict) else metrics
+        val_metrics      = metrics.get("val") if isinstance(metrics, dict) else metrics
         self.val_metrics = self.create_metrics(val_metrics)
         if self.val_metrics:
             for metric in self.val_metrics:
                 setattr(self, f"val/{metric.name}", metric)
     
-        test_metrics = metrics.get("test") if isinstance(metrics, dict) else metrics
+        test_metrics      = metrics.get("test") if isinstance(metrics, dict) else metrics
         self.test_metrics = self.create_metrics(test_metrics)
         if self.test_metrics:
             for metric in self.test_metrics:
@@ -417,16 +423,26 @@ class Model(lightning.LightningModule, ABC):
         Returns:
             ``list`` of metric objects or ``None`` if invalid.
         """
-        if isinstance(metrics, M.Metric):
-            if getattr(metrics, "name", None) is None:
-                metrics.name = humps.depascalize(humps.pascalize(metrics.__class__.__name__))
-            return [metrics]
-        if isinstance(metrics, dict):
-            return [METRICS.build(config=metrics)]
-        if isinstance(metrics, (list, tuple)):
-            return [METRICS.build(config=m) if isinstance(m, dict) else m for m in metrics]
-        return None
-    
+        if metrics is None:
+            return None
+        
+        metrics  = [metrics] if isinstance(metrics, (list, tuple)) else metrics
+        metrics_ = []
+        for m in metrics:
+            if isinstance(m, M.Metric):
+                m.name = humps.depascalize(humps.pascalize(m.__class__.__name__))
+                metrics_.append(m)
+            elif isinstance(m, dict):
+                m_ = METRICS.build(config=m)
+                if m_:
+                    metrics_.append(m_)
+                else:
+                    raise ValueError(f"Metric [{m}] is not supported.")
+            else:
+                raise ValueError(f"[metrics] must be a list of Metric or dicts, got {type(m)}.")
+       
+        return metrics_
+        
     def configure_optimizers(self):
         """Configures optimizers and LR schedulers for optimization.
 
@@ -836,7 +852,7 @@ class ExtraModel(Model, ABC):
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.model: nn.Module = None
+        self.model: torch.nn.Module = None
     
     def load_weights(self, weights: Any = None, overwrite: bool = False):
         """Loads intersecting weights into the wrapped model.

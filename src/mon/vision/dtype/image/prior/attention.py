@@ -19,9 +19,9 @@ import cv2
 import kornia
 import numpy as np
 import torch
-from torch import nn
 from torch.nn.common_types import _size_2_t
 
+from mon import nn
 from mon.vision.dtype.image import base
 
 

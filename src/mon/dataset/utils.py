@@ -9,24 +9,22 @@ __all__ = [
     "parse_data_loader",
 ]
 
-from mon import core
-from mon.core import Split
-from mon.dataset import dtype
+from mon import core, vision
 from mon.globals import DATA_DIR, DATASETS
 
 
 def parse_data_loader(
     src        : core.Path | str,
-    to_tensor  : bool            = False,
     data_root  : core.Path | str = None,
-    verbose    : bool            = False
-) -> tuple[str, dtype.Dataset]:
+    to_tensor  : bool = False,
+    verbose    : bool = False
+) -> tuple[str, core.Dataset]:
     """Parses I/O worker for data src.
 
     Args:
         src: Source of input data.
+        data_root: Dataset root dir (e.g., ``data/ntire_2025_llie``). Default is ``None``.
         to_tensor: If ``True``, converts to tensor. Default is ``False``.
-        data_root: Dataset root dir (e.g., ``data/ntire_2025_llie``).
         verbose: If ``True``, enables verbose output. Default is ``False``.
 
     Returns:
@@ -52,7 +50,7 @@ def parse_data_loader(
         config = {
             "name"     : src,
             "root"     : root,
-            "split"    : Split.TEST,
+            "split"    : core.Split.TEST,
             "to_tensor": to_tensor,
             "verbose"  : verbose,
         }
@@ -60,14 +58,14 @@ def parse_data_loader(
         data_loader = DATASETS.build(config=config)
     elif src.is_dir() and src.exists():
         data_name   = src.name
-        data_loader = dtype.ImageLoader(
+        data_loader = vision.ImageLoader(
             root      = src,
             to_tensor = to_tensor,
             verbose   = verbose
         )
     elif src.is_video_file():
         data_name   = src.name
-        data_loader = dtype.VideoLoaderCV(
+        data_loader = vision.VideoLoaderCV(
             root      = src,
             to_tensor = to_tensor,
             verbose   = verbose

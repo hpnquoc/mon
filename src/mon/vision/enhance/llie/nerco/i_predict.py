@@ -15,7 +15,6 @@ from models import create_model
 from options.test_options import TestOptions
 from util import util
 
-console      = mon.console
 current_file = mon.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
@@ -53,8 +52,8 @@ def predict(args: dict) -> str:
     opt.device         = device
     
     # Start
-    console.rule(f"[bold red] {fullname}")
-    console.log(f"Machine: {hostname}")
+    mon.console.rule(f"[bold red] {fullname}")
+    mon.console.log(f"Machine: {hostname}")
     
     # Device
     device = mon.set_device(device)
@@ -63,8 +62,8 @@ def predict(args: dict) -> str:
     mon.set_random_seed(seed)
     
     # Data I/O
-    console.log(f"[bold red]{data}")
-    data_name, data_loader = mon.parse_data_loader(data, True, verbose=False)
+    mon.console.log(f"[bold red]{data}")
+    data_name, data_loader = mon.parse_data_loader(data, root, True, verbose=False)
     
     testB_dir   = current_dir / "dataset" / "testB"
     testB_files = sorted([f for f in testB_dir.glob("*") if f.is_image_file()])
@@ -82,8 +81,8 @@ def predict(args: dict) -> str:
     # Benchmark
     if benchmark:
         flops, params = model.measure_efficiency_score()
-        console.log(f"FLOPs : {flops:.4f}")
-        console.log(f"Params: {params:.4f}")
+        mon.console.log(f"FLOPs : {flops:.4f}")
+        mon.console.log(f"Params: {params:.4f}")
     
     # Predicting
     timer = mon.Timer()
@@ -146,7 +145,7 @@ def predict(args: dict) -> str:
                     # torchvision.utils.save_image(pre, str(output_path / f"{image_path.stem}_pre.jpg"))
                 '''
                 
-    console.log(f"Average time: {timer.avg_time}")
+    mon.console.log(f"Average time: {timer.avg_time}")
 
 # endregion
 

@@ -14,10 +14,9 @@ __all__ = [
 ]
 
 import torch
-from torch import nn
 
 
-class SimAM(nn.Module):
+class SimAM(torch.nn.Module):
     """SimAM: Simple, Parameter-Free Attention Module from the paper.
 
     Args:
@@ -30,7 +29,7 @@ class SimAM(nn.Module):
     def __init__(self, e_lambda: float = 1e-4):
         super().__init__()
         self.e_lambda = e_lambda
-        self.act      = nn.Sigmoid()
+        self.act      = torch.nn.Sigmoid()
 
     def forward(self, input: torch.Tensor) -> torch.Tensor:
         """Applies SimAM attention to the input.

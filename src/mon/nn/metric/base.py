@@ -32,6 +32,11 @@ import kornia
 import numpy as np
 import torch
 import torchmetrics
+from torchmetrics import (
+    BootStrapper, CatMetric, ClasswiseWrapper, MaxMetric, MeanMetric, MetricCollection,
+    MetricTracker, MinMaxMetric, MinMetric, MultioutputWrapper, MultitaskWrapper,
+    RunningMean, RunningSum, SumMetric,
+)
 
 
 # region Base
@@ -53,33 +58,6 @@ class Metric(torchmetrics.Metric, ABC):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-# endregion
-
-
-# region Aggregation
-
-MetricCollection = torchmetrics.MetricCollection
-
-CatMetric   = torchmetrics.CatMetric
-MaxMetric   = torchmetrics.MaxMetric
-MeanMetric  = torchmetrics.MeanMetric
-MinMetric   = torchmetrics.MinMetric
-RunningMean = torchmetrics.RunningMean
-RunningSum  = torchmetrics.RunningSum
-SumMetric   = torchmetrics.SumMetric
-
-# endregion
-
-
-# region Wrapper
-
-BootStrapper       = torchmetrics.BootStrapper
-ClasswiseWrapper   = torchmetrics.ClasswiseWrapper
-MetricTracker      = torchmetrics.MetricTracker
-MinMaxMetric       = torchmetrics.MinMaxMetric
-MultioutputWrapper = torchmetrics.MultioutputWrapper
-MultitaskWrapper   = torchmetrics.MultitaskWrapper
 
 # endregion
 

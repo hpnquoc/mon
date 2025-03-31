@@ -20,10 +20,11 @@ import math
 from typing import Any
 
 import torch
-from torch import nn
 from torch.nn import functional as F
 from torch.nn.common_types import _size_2_t
-from torch.nn.modules.upsampling import *
+from torch.nn.modules.upsampling import (
+    Upsample, UpsamplingBilinear2d, UpsamplingNearest2d,
+)
 
 
 # region Utils
@@ -45,7 +46,7 @@ def get_image_size(input: Any) -> tuple[int, int]:
 
 # region Downsampling
 
-class Downsample(nn.Module):
+class Downsample(torch.nn.Module):
     """Downsamples multi-channel 1D, 2D, or 3D data.
 
     Args:
@@ -116,7 +117,7 @@ class Downsample(nn.Module):
         )
 
 
-class DownsampleConv2d(nn.Module):
+class DownsampleConv2d(torch.nn.Module):
     """Downsamples 2D data using a convolutional layer.
 
     Args:
@@ -126,7 +127,7 @@ class DownsampleConv2d(nn.Module):
     
     def __init__(self, in_channels: int, out_channels: int):
         super().__init__()
-        self.conv         = nn.Sequential(nn.Conv2d(in_channels, out_channels, 4, 2, 1))
+        self.conv         = torch.nn.Sequential(torch.nn.Conv2d(in_channels, out_channels, 4, 2, 1))
         self.in_channels  = in_channels
         self.out_channels = out_channels
     
@@ -165,7 +166,7 @@ class DownsampleConv2d(nn.Module):
 
 # region Upsampling
 
-class UpsampleConv2d(nn.Module):
+class UpsampleConv2d(torch.nn.Module):
     """Upsamples 2D data using a transposed convolutional layer.
 
     Args:
@@ -175,7 +176,7 @@ class UpsampleConv2d(nn.Module):
 
     def __init__(self, in_channels: int, out_channels: int):
         super().__init__()
-        self.deconv       = nn.ConvTranspose2d(in_channels, out_channels, 2, 2)
+        self.deconv       = torch.nn.ConvTranspose2d(in_channels, out_channels, 2, 2)
         self.in_channels  = in_channels
         self.out_channels = out_channels
 
@@ -211,7 +212,7 @@ class UpsampleConv2d(nn.Module):
 
 # region Misc
 
-class Scale(nn.Module):
+class Scale(torch.nn.Module):
     """Applies a learnable scale parameter to input data.
 
     Args:
@@ -234,7 +235,7 @@ class Scale(nn.Module):
         return input + self.scale
 
 
-class Interpolate(nn.Module):
+class Interpolate(torch.nn.Module):
     """Interpolates input tensor to a specified size.
 
     Args:

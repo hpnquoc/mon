@@ -58,7 +58,6 @@ from typing import Any, Collection, Sequence
 import numpy as np
 import psutil
 import torch
-from torch import nn
 
 from mon.core import dtype, enum, file, humps, pathlib, rich
 
@@ -553,7 +552,7 @@ def parse_device(device: Any) -> list[int] | int | str:
     return device
 
 
-def get_model_device(model: nn.Module) -> torch.device:
+def get_model_device(model: torch.nn.Module) -> torch.device:
     """Gets the device of a model's parameters.
 
     Args:

@@ -34,16 +34,23 @@ import math
 from typing import Any
 
 import torch
-from torch import nn
 from torch.nn import functional as F
-from torch.nn.modules.batchnorm import *
-from torch.nn.modules.instancenorm import *
-from torch.nn.modules.normalization import *
+from torch.nn.modules.batchnorm import (
+    BatchNorm1d, BatchNorm2d, BatchNorm3d, LazyBatchNorm1d, LazyBatchNorm2d,
+    LazyBatchNorm3d, SyncBatchNorm,
+)
+from torch.nn.modules.instancenorm import (
+    InstanceNorm1d, InstanceNorm2d, InstanceNorm3d, LazyInstanceNorm1d,
+    LazyInstanceNorm2d, LazyInstanceNorm3d,
+)
+from torch.nn.modules.normalization import (
+    CrossMapLRN2d, GroupNorm, LayerNorm, LocalResponseNorm,
+)
 
 
 # region Batch Normalization
 
-class AdaptiveBatchNorm2d(nn.Module):
+class AdaptiveBatchNorm2d(torch.nn.Module):
     """Applies adaptive batch normalization to 2D data.
 
     Args:
@@ -58,9 +65,9 @@ class AdaptiveBatchNorm2d(nn.Module):
 
     def __init__(self, num_features: int, eps: float = 0.999, momentum: float = 0.001):
         super().__init__()
-        self.w0   = nn.Parameter(torch.tensor(1.0))
-        self.w1   = nn.Parameter(torch.tensor(0.0))
-        self.norm = nn.BatchNorm2d(num_features, eps, momentum)
+        self.w0   = torch.nn.Parameter(torch.tensor(1.0))
+        self.w1   = torch.nn.Parameter(torch.tensor(0.0))
+        self.norm = torch.nn.BatchNorm2d(num_features, eps, momentum)
 
     def forward(self, input: torch.Tensor) -> torch.Tensor:
         """Normalizes input with learned weights.
@@ -78,7 +85,7 @@ class AdaptiveBatchNorm2d(nn.Module):
 
 # region Instance Normalization
 
-class AdaptiveInstanceNorm2d(nn.Module):
+class AdaptiveInstanceNorm2d(torch.nn.Module):
     """Applies adaptive instance normalization to 2D data.
 
     Args:
@@ -96,9 +103,9 @@ class AdaptiveInstanceNorm2d(nn.Module):
         affine      : bool  = False
     ):
         super().__init__()
-        self.w0   = nn.Parameter(torch.tensor(1.0))
-        self.w1   = nn.Parameter(torch.tensor(0.0))
-        self.norm = nn.InstanceNorm2d(num_features, eps, momentum, affine)
+        self.w0   = torch.nn.Parameter(torch.tensor(1.0))
+        self.w1   = torch.nn.Parameter(torch.tensor(0.0))
+        self.norm = torch.nn.InstanceNorm2d(num_features, eps, momentum, affine)
 
     def forward(self, input: torch.Tensor) -> torch.Tensor:
         """Normalizes input with learned weights.
@@ -112,7 +119,7 @@ class AdaptiveInstanceNorm2d(nn.Module):
         return self.w0 * input + self.w1 * self.norm(input)
     
 
-class LearnableInstanceNorm2d(nn.InstanceNorm2d):
+class LearnableInstanceNorm2d(torch.nn.InstanceNorm2d):
     """Normalizes a learnable fraction of 2D input features.
 
     Args:
@@ -146,7 +153,7 @@ class LearnableInstanceNorm2d(nn.InstanceNorm2d):
             device              = device,
             dtype               = dtype
         )
-        self.r = nn.Parameter(torch.full([num_features], r), requires_grad=True)
+        self.r = torch.nn.Parameter(torch.full([num_features], r), requires_grad=True)
 
     def forward(self, input: torch.Tensor) -> torch.Tensor:
         """Applies learnable partial instance normalization.
@@ -173,7 +180,7 @@ class LearnableInstanceNorm2d(nn.InstanceNorm2d):
         return x_norm * r + input * (1 - r)
 
 
-class HalfInstanceNorm2d(nn.InstanceNorm2d):
+class HalfInstanceNorm2d(torch.nn.InstanceNorm2d):
     """Normalizes the first half of 2D input features.
 
     Args:
@@ -245,7 +252,7 @@ class HalfInstanceNorm2d(nn.InstanceNorm2d):
 
 # region Layer Normalization
 
-class LayerNorm2d(nn.LayerNorm):
+class LayerNorm2d(torch.nn.LayerNorm):
     """Normalizes channels of 2D spatial tensors (B, C, H, W).
 
     Args:

@@ -36,18 +36,17 @@ __all__ = [
 from typing import Sequence
 
 import torch
-from torch import nn
 from torch.nn import Embedding, functional as F
-from torch.nn.modules.channelshuffle import *
-from torch.nn.modules.flatten import *
+from torch.nn.modules.channelshuffle import ChannelShuffle
+from torch.nn.modules.flatten import Flatten, Unflatten
 from torch.nn.modules.fold import Fold, Unfold
-from torch.nn.modules.pixelshuffle import *
+from torch.nn.modules.pixelshuffle import PixelShuffle, PixelUnshuffle
 from torchvision.ops.misc import MLP, Permute
 
 
 # region Concat
 
-class Concat(nn.Module):
+class Concat(torch.nn.Module):
     """Concatenates a list of tensors along a dimension.
 
     Args:
@@ -70,7 +69,7 @@ class Concat(nn.Module):
         return torch.cat(input, dim=self.dim)
 
 
-class CustomConcat(nn.Module):
+class CustomConcat(torch.nn.Module):
     """Concatenates module outputs along a dimension, aligning shapes if needed.
 
     Args:
@@ -115,7 +114,7 @@ class CustomConcat(nn.Module):
         return torch.cat(aligned_outputs, dim=self.dim)
 
 
-class Chuncat(nn.Module):
+class Chuncat(torch.nn.Module):
     """Splits tensors into two chunks and concatenates them.
 
     Args:
@@ -140,7 +139,7 @@ class Chuncat(nn.Module):
         return torch.cat(y1 + y2, dim=self.dim)
 
 
-class InterpolateConcat(nn.Module):
+class InterpolateConcat(torch.nn.Module):
     """Concatenates tensors after interpolating to max size.
 
     Args:
@@ -170,7 +169,7 @@ class InterpolateConcat(nn.Module):
 
 # region Extract
 
-class ExtractItem(nn.Module):
+class ExtractItem(torch.nn.Module):
     """Extracts an item at a specified index from a tensor sequence.
 
     Args:
@@ -201,7 +200,7 @@ class ExtractItem(nn.Module):
         raise TypeError(f"[input] must be tensor, list, or tuple, got {type(input).__name__}.")
 
 
-class ExtractItems(nn.Module):
+class ExtractItems(torch.nn.Module):
     """Extracts multiple items from a tensor sequence by indexes.
 
     Args:
@@ -232,7 +231,7 @@ class ExtractItems(nn.Module):
         raise TypeError(f"[input] must be tensor, list, or tuple, got {type(input).__name__}.")
 
 
-class Max(nn.Module):
+class Max(torch.nn.Module):
     """Computes maximum along a specified dimension.
 
     Args:
@@ -262,7 +261,7 @@ class Max(nn.Module):
 
 # region Flatten
 
-class FlattenSingle(nn.Module):
+class FlattenSingle(torch.nn.Module):
     """Flattens a tensor starting from a specified dimension.
 
     Args:
@@ -289,7 +288,7 @@ class FlattenSingle(nn.Module):
 
 # region Fusion
 
-class Foldcut(nn.Module):
+class Foldcut(torch.nn.Module):
     """Splits tensor into two chunks and sums them.
 
     Args:
@@ -313,7 +312,7 @@ class Foldcut(nn.Module):
         return x1 + x2
 
 
-class Join(nn.Module):
+class Join(torch.nn.Module):
     """Joins multiple features into a list of tensors."""
 
     def __init__(self):
@@ -331,7 +330,7 @@ class Join(nn.Module):
         return list(input)
 
 
-class Shortcut(nn.Module):
+class Shortcut(torch.nn.Module):
     """Sums the first two tensors in a sequence.
 
     Args:
@@ -354,7 +353,7 @@ class Shortcut(nn.Module):
         return input[0] + input[1]
 
 
-class SoftmaxFusion(nn.Module):
+class SoftmaxFusion(torch.nn.Module):
     """Fuses multiple layers with optional weighted sum.
 
     Args:
@@ -370,7 +369,7 @@ class SoftmaxFusion(nn.Module):
         self.weight = weight
         self.iter   = range(n - 1)
         if weight:
-            self.w = nn.Parameter(-torch.arange(1.0, n) / 2, requires_grad=True)
+            self.w = torch.nn.Parameter(-torch.arange(1.0, n) / 2, requires_grad=True)
 
     def forward(self, input: Sequence[torch.Tensor]) -> torch.Tensor:
         """Computes weighted or unweighted sum of inputs.
@@ -392,7 +391,7 @@ class SoftmaxFusion(nn.Module):
         return y
 
 
-class Sum(nn.Module):
+class Sum(torch.nn.Module):
     """Sums all tensors in a sequence."""
 
     def __init__(self):
@@ -417,7 +416,7 @@ class Sum(nn.Module):
 
 # region Merge
 
-class PatchMerging(nn.Module):
+class PatchMerging(torch.nn.Module):
     """Merges patches by reducing spatial size and doubling channels.
 
     Args:
@@ -425,10 +424,10 @@ class PatchMerging(nn.Module):
         norm: Normalization layer type as ``type[nn.Module]``. Default is ``nn.LayerNorm``.
     """
 
-    def __init__(self, dim: int, norm: type[nn.Module] = nn.LayerNorm, *args, **kwargs):
+    def __init__(self, dim: int, norm: type[torch.nn.Module] = torch.nn.LayerNorm, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.dim       = dim
-        self.reduction = nn.Linear(4 * dim, 2 * dim, bias=False)
+        self.reduction = torch.nn.Linear(4 * dim, 2 * dim, bias=False)
         self.norm      = norm(4 * dim)
 
     def _patch_merging_pad(self, x: torch.Tensor) -> torch.Tensor:
@@ -462,7 +461,7 @@ class PatchMerging(nn.Module):
         return self.reduction(x)
 
 
-class PatchMergingV2(nn.Module):
+class PatchMergingV2(torch.nn.Module):
     """Merges patches for Swin Transformer V2.
 
     Args:
@@ -470,10 +469,10 @@ class PatchMergingV2(nn.Module):
         norm: Normalization layer type as ``type[nn.Module]``. Default is ``nn.LayerNorm``.
     """
 
-    def __init__(self, dim: int, norm: type[nn.Module] = nn.LayerNorm, *args, **kwargs):
+    def __init__(self, dim: int, norm: type[torch.nn.Module] = torch.nn.LayerNorm, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.dim       = dim
-        self.reduction = nn.Linear(4 * dim, 2 * dim, bias=False)
+        self.reduction = torch.nn.Linear(4 * dim, 2 * dim, bias=False)
         self.norm      = norm(2 * dim)
 
     def _patch_merging_pad(self, x: torch.Tensor) -> torch.Tensor:

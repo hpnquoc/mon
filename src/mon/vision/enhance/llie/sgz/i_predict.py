@@ -16,7 +16,6 @@ from modeling import model as mmodel
 os.environ["KMP_DUPLICATE_LIB_OK"] = "True"
 # os.environ["CUDA_VISIBLE_DEVICES"] = "1"  # For GPU only
 
-console      = mon.console
 current_file = mon.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
@@ -47,8 +46,8 @@ def predict(args: dict) -> str:
     scale_factor = args["network"]["scale_factor"]
     
     # Start
-    console.rule(f"[bold red] {fullname}")
-    console.log(f"Machine: {hostname}")
+    mon.console.rule(f"[bold red] {fullname}")
+    mon.console.log(f"Machine: {hostname}")
     
     # Device
     device = mon.set_device(device)
@@ -57,8 +56,8 @@ def predict(args: dict) -> str:
     mon.set_random_seed(seed)
     
     # Data I/O
-    console.log(f"[bold red]{data}")
-    data_name, data_loader = mon.parse_data_loader(data, False, verbose=False)
+    mon.console.log(f"[bold red]{data}")
+    data_name, data_loader = mon.parse_data_loader(data, root, True, verbose=False)
     
     # Model
     net = mmodel.enhance_net_nopool(scale_factor, conv_type="dsc").to(device)
@@ -70,8 +69,8 @@ def predict(args: dict) -> str:
         h = (512 // scale_factor) * scale_factor
         w = (512 // scale_factor) * scale_factor
         flops, params = mon.compute_efficiency_score(model=net, image_size=[h, w])
-        console.log(f"FLOPs : {flops:.4f}")
-        console.log(f"Params: {params:.4f}")
+        mon.console.log(f"FLOPs : {flops:.4f}")
+        mon.console.log(f"Params: {params:.4f}")
     
     # Predicting
     timer = mon.Timer()
@@ -110,7 +109,7 @@ def predict(args: dict) -> str:
                     torchvision.utils.save_image(enhanced, str(output_path))
     
     # Finish
-    console.log(f"Average time: {timer.avg_time}")
+    mon.console.log(f"Average time: {timer.avg_time}")
         
 # endregion
 

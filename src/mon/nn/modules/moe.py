@@ -12,7 +12,6 @@ __all__ = [
 from typing import Any, Sequence
 
 import torch
-from torch import nn
 from torch.nn.common_types import _size_2_t
 
 from mon import core
@@ -37,7 +36,7 @@ def get_image_size(input: Any) -> tuple[int, int]:
 
 # region Layer
 
-class LayeredFeatureAggregation(nn.Module):
+class LayeredFeatureAggregation(torch.nn.Module):
     """Layered Feature Aggregation (LFA) fuses decoder layer features.
 
     Args:
@@ -63,17 +62,17 @@ class LayeredFeatureAggregation(nn.Module):
 
         if size is not None:
             self.size    = get_image_size(size)
-            self.resize  = nn.Upsample(size=self.size, mode="bilinear", align_corners=False)
-            self.linears = nn.ModuleList([
-                nn.Conv2d(in_c, self.out_channels, 1) for in_c in self.in_channels
+            self.resize  = torch.nn.Upsample(size=self.size, mode="bilinear", align_corners=False)
+            self.linears = torch.nn.ModuleList([
+                torch.nn.Conv2d(in_c, self.out_channels, 1) for in_c in self.in_channels
             ])
         else:
             self.size    = None
             self.resize  = None
             self.linears = None
 
-        self.conv    = nn.Conv2d(self.out_channels * self.num_experts, self.out_channels, 1)
-        self.softmax = nn.Softmax(dim=1)
+        self.conv    = torch.nn.Conv2d(self.out_channels * self.num_experts, self.out_channels, 1)
+        self.softmax = torch.nn.Softmax(dim=1)
 
     def forward(self, input: Sequence[torch.Tensor]) -> torch.Tensor:
         """Aggregates layered features with attention.

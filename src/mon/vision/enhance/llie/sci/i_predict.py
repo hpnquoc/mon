@@ -16,7 +16,6 @@ from torch.autograd import Variable
 import mon
 from model import Finetunemodel
 
-console      = mon.console
 current_file = mon.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
@@ -44,8 +43,8 @@ def predict(args: dict) -> str:
     verbose      = args["verbose"]
     
     # Start
-    console.rule(f"[bold red] {fullname}")
-    console.log(f"Machine: {hostname}")
+    mon.console.rule(f"[bold red] {fullname}")
+    mon.console.log(f"Machine: {hostname}")
     
     # Device
     device = mon.set_device(device)
@@ -54,8 +53,8 @@ def predict(args: dict) -> str:
     mon.set_random_seed(seed)
     
     # Data I/O
-    console.log(f"[bold red]{data}")
-    data_name, data_loader = mon.parse_data_loader(data, True, verbose=False)
+    mon.console.log(f"[bold red]{data}")
+    data_name, data_loader = mon.parse_data_loader(data, root, True, verbose=False)
     
     # Model
     model = Finetunemodel(weights).to(device)
@@ -64,8 +63,8 @@ def predict(args: dict) -> str:
     # Benchmark
     if benchmark:
         flops, params = mon.compute_efficiency_score(model=model, image_size=512)
-        console.log(f"FLOPs : {flops:.4f}")
-        console.log(f"Params: {params:.4f}")
+        mon.console.log(f"FLOPs : {flops:.4f}")
+        mon.console.log(f"Params: {params:.4f}")
     
     # Predicting
     timer = mon.Timer()
@@ -98,7 +97,7 @@ def predict(args: dict) -> str:
                     torchvision.utils.save_image(r, str(output_path))
        
     # Finish
-    console.log(f"Average time: {timer.avg_time}")
+    mon.console.log(f"Average time: {timer.avg_time}")
 
 # endregion
 

@@ -96,12 +96,11 @@ class DiceLoss(base.Loss):
     
     def __init__(
         self,
-        loss_weight : float = 1.0,
         reduction   : Literal["none", "mean", "sum"] = "mean",
         reduce_batch: bool  = True,
         multiclass  : bool  = False
     ):
-        super().__init__(loss_weight=loss_weight, reduction=reduction)
+        super().__init__(reduction=reduction)
         self.reduce_batch = reduce_batch
         self.multiclass   = multiclass
         self.fn = (multiclass_dice_coefficient if multiclass else dice_coefficient)
@@ -118,6 +117,6 @@ class DiceLoss(base.Loss):
         """
         loss = 1 - self.fn(input=input, target=target, reduce_batch=self.reduce_batch)
         loss = base.reduce_loss(loss=loss, reduction=self.reduction)
-        return self.loss_weight * loss
-
+        return loss
+        
 # endregion

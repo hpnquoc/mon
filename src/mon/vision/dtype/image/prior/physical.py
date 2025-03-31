@@ -15,9 +15,8 @@ __all__ = [
 
 import numpy as np
 import torch
-from torch.nn import functional as F
-from torch.nn.common_types import _size_2_t
 
+from mon.nn import _size_2_t, functional as F
 from mon.vision.dtype.image.prior import statistical
 
 

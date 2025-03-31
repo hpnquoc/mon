@@ -12,4 +12,4 @@ __all__ = [
     "Linear",
 ]
 
-from torch.nn.modules.linear import *
+from torch.nn.modules.linear import Bilinear, Identity, LazyLinear, Linear

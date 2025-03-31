@@ -52,17 +52,21 @@ __all__ = [
 from typing import Any
 
 import torch
-from torch import nn
 from torch.nn import functional as F
 from torch.nn.common_types import _size_2_t
-from torch.nn.modules.activation import *
+from torch.nn.modules.activation import (
+    CELU, ELU, GELU, GLU, Hardshrink, Hardsigmoid, Hardswish, Hardtanh, LeakyReLU,
+    LogSigmoid, LogSoftmax, Mish, MultiheadAttention, PReLU, ReLU, ReLU6, RReLU, SELU,
+    Sigmoid, SiLU, Softmax, Softmax2d, Softmin, Softplus, Softshrink, Softsign,
+    Tanh, Tanhshrink, Threshold,
+)
 
 from mon import core
 
 
 # region Linear Unit
 
-class FReLU(nn.Module):
+class FReLU(torch.nn.Module):
     """Funnel ReLU activation with depthwise convolution.
 
     Args:
@@ -74,7 +78,7 @@ class FReLU(nn.Module):
     def __init__(self, channels: int, kernel_size: _size_2_t = 3):
         super().__init__()
         kernel_size = core.to_2tuple(kernel_size)
-        self.conv   = nn.Conv2d(
+        self.conv   = torch.nn.Conv2d(
             in_channels  = channels,
             out_channels = channels,
             kernel_size  = kernel_size,
@@ -82,7 +86,7 @@ class FReLU(nn.Module):
             padding      = 1,
             groups       = channels
         )
-        self.act    = nn.BatchNorm2d(channels)
+        self.act    = torch.nn.BatchNorm2d(channels)
 
     def forward(self, input: torch.Tensor) -> torch.Tensor:
         """Applies FReLU activation with max operation.
@@ -96,7 +100,7 @@ class FReLU(nn.Module):
         return torch.max(input, self.act(self.conv(input)))
 
 
-class SimpleGate(nn.Module):
+class SimpleGate(torch.nn.Module):
     """Simple gate activation unit from 'Simple Baselines for Image Restoration'.
 
     References:
@@ -138,7 +142,7 @@ def hard_sigmoid(input: torch.Tensor, inplace: bool = False) -> torch.Tensor:
         return F.relu6(input + 3.0) / 6.0
 
 
-class NegHardsigmoid(nn.Module):
+class NegHardsigmoid(torch.nn.Module):
     """Negative hard sigmoid activation.
 
     Args:
@@ -166,7 +170,7 @@ class NegHardsigmoid(nn.Module):
 
 # region Sine
 
-class Sine(nn.Module):
+class Sine(torch.nn.Module):
     """Sine activation unit.
 
     Args:
@@ -209,7 +213,7 @@ class Sine(nn.Module):
 
 # region xUnit
 
-class xUnit(nn.Module):
+class xUnit(torch.nn.Module):
     """xUnit spatial activation layer.
 
     Args:
@@ -231,18 +235,18 @@ class xUnit(nn.Module):
     ):
         super().__init__()
         padding = kernel_size // 2  # Corrected: kernel_size is an int or tuple, not self-referenced
-        self.features = nn.Sequential(
-            nn.BatchNorm2d(num_features) if batch_norm else nn.Identity(),
-            nn.ReLU(),
-            nn.Conv2d(
+        self.features = torch.nn.Sequential(
+            torch.nn.BatchNorm2d(num_features) if batch_norm else torch.nn.Identity(),
+            torch.nn.ReLU(),
+            torch.nn.Conv2d(
                 in_channels  = num_features,
                 out_channels = num_features,
                 kernel_size  = kernel_size,
                 padding      = padding,
                 groups       = num_features
             ),
-            nn.BatchNorm2d(num_features) if batch_norm else nn.Identity(),
-            nn.Sigmoid()
+            torch.nn.BatchNorm2d(num_features) if batch_norm else torch.nn.Identity(),
+            torch.nn.Sigmoid()
         )
 
     def forward(self, input: torch.Tensor) -> torch.Tensor:
@@ -257,7 +261,7 @@ class xUnit(nn.Module):
         return input * self.features(input)
     
 
-class xUnitS(nn.Module):
+class xUnitS(torch.nn.Module):
     """Slim xUnit spatial activation layer.
 
     Args:
@@ -279,16 +283,16 @@ class xUnitS(nn.Module):
     ):
         super().__init__()
         padding = kernel_size // 2  # Corrected: kernel_size is a parameter, not self-referenced
-        self.features = nn.Sequential(
-            nn.Conv2d(
+        self.features = torch.nn.Sequential(
+            torch.nn.Conv2d(
                 in_channels  = num_features,
                 out_channels = num_features,
                 kernel_size  = kernel_size,
                 padding      = padding,
                 groups       = num_features
             ),
-            nn.BatchNorm2d(num_features) if batch_norm else nn.Identity(),
-            nn.Sigmoid()
+            torch.nn.BatchNorm2d(num_features) if batch_norm else torch.nn.Identity(),
+            torch.nn.Sigmoid()
         )
 
     def forward(self, input: torch.Tensor) -> torch.Tensor:
@@ -303,7 +307,7 @@ class xUnitS(nn.Module):
         return input * self.features(input)
     
 
-class xUnitD(nn.Module):
+class xUnitD(torch.nn.Module):
     """Dense xUnit spatial activation layer.
 
     Args:
@@ -325,24 +329,24 @@ class xUnitD(nn.Module):
     ):
         super().__init__()
         padding = kernel_size // 2  # Corrected: kernel_size is a parameter, not self-referenced
-        self.features = nn.Sequential(
-            nn.Conv2d(
+        self.features = torch.nn.Sequential(
+            torch.nn.Conv2d(
                 in_channels  = num_features,
                 out_channels = num_features,
                 kernel_size  = 1,
                 padding      = 0
             ),
-            nn.BatchNorm2d(num_features) if batch_norm else nn.Identity(),
-            nn.ReLU(),
-            nn.Conv2d(
+            torch.nn.BatchNorm2d(num_features) if batch_norm else nn.Identity(),
+            torch.nn.ReLU(),
+            torch.nn.Conv2d(
                 in_channels  = num_features,
                 out_channels = num_features,
                 kernel_size  = kernel_size,
                 padding      = padding,
                 groups       = num_features
             ),
-            nn.BatchNorm2d(num_features) if batch_norm else nn.Identity(),
-            nn.Sigmoid()
+            torch.nn.BatchNorm2d(num_features) if batch_norm else nn.Identity(),
+            torch.nn.Sigmoid()
         )
 
     def forward(self, input: torch.Tensor) -> torch.Tensor:
@@ -361,7 +365,7 @@ class xUnitD(nn.Module):
 
 # region Misc
 
-class ArgMax(nn.Module):
+class ArgMax(torch.nn.Module):
     """Finds indices of maximum values along a dimension.
 
     Args:
@@ -385,7 +389,7 @@ class ArgMax(nn.Module):
         return torch.argmax(input, dim=self.dim)
 
 
-class Clamp(nn.Module):
+class Clamp(torch.nn.Module):
     """Clamps a tensor's values within a range of [min, max].
 
     Args:
@@ -417,19 +421,19 @@ Clip = Clamp
 
 # region Utils
 
-def to_act_layer(act_layer: Any = nn.ReLU, *args, **kwargs) -> nn.Module:
+def to_act_layer(act_layer: Any = torch.nn.ReLU, *args, **kwargs) -> torch.nn.Module:
     """Creates an activation layer from a callable or class.
 
     Args:
-        act_layer: Activation layer class or instance. Default is ``nn.ReLU``.
+        act_layer: Activation layer class or instance. Default is ``torch.nn.ReLU``.
         *args: Positional arguments for ``act_layer`` instantiation.
         **kwargs: Keyword arguments for ``act_layer`` instantiation.
 
     Returns:
-        Instantiated activation layer as an ``nn.Module``.
+        Instantiated activation layer as an ``torch.nn.Module``.
     """
     if not act_layer:
-        return nn.Identity()
+        return torch.nn.Identity()
     if callable(act_layer):
         return act_layer(*args, **kwargs)
     return act_layer

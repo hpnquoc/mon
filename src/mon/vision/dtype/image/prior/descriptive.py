@@ -19,8 +19,9 @@ __all__ = [
 ]
 
 import torch
-from torch import nn
-from torch.nn import functional as F
+
+from mon import nn
+from mon.nn import functional as F
 
 
 def image_local_mean(image: torch.Tensor, patch_size: int = 5) -> torch.Tensor:

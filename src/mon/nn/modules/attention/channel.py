@@ -25,14 +25,13 @@ __all__ = [
 from typing import Any
 
 import torch
-from torch import nn
 from torch.nn.common_types import _size_2_t
 from torchvision.ops.misc import SqueezeExcitation
 
 
 # region Channel Attention Module
 
-class ChannelAttentionModule(nn.Module):
+class ChannelAttentionModule(torch.nn.Module):
     """Channel Attention Module for feature enhancement.
 
     Args:
@@ -62,9 +61,9 @@ class ChannelAttentionModule(nn.Module):
         dtype          : Any  = None
     ):
         super().__init__()
-        self.avg_pool   = nn.AdaptiveAvgPool2d(1)
-        self.excitation = nn.Sequential(
-            nn.Conv2d(
+        self.avg_pool   = torch.nn.AdaptiveAvgPool2d(1)
+        self.excitation = torch.nn.Sequential(
+            torch.nn.Conv2d(
                 in_channels  = channels,
                 out_channels = channels // reduction_ratio,
                 kernel_size  = 1,
@@ -77,8 +76,8 @@ class ChannelAttentionModule(nn.Module):
                 device       = device,
                 dtype        = dtype
             ),
-            nn.ReLU(inplace=True),
-            nn.Conv2d(
+            torch.nn.ReLU(inplace=True),
+            torch.nn.Conv2d(
                 in_channels  = channels // reduction_ratio,
                 out_channels = channels,
                 kernel_size  = 1,
@@ -90,7 +89,7 @@ class ChannelAttentionModule(nn.Module):
                 device       = device,
                 dtype        = dtype
             ),
-            nn.Sigmoid()
+            torch.nn.Sigmoid()
         )
 
     def forward(self, input: torch.Tensor) -> torch.Tensor:
@@ -110,7 +109,7 @@ class ChannelAttentionModule(nn.Module):
 
 # region Efficient Channel Attention
 
-class EfficientChannelAttention(nn.Module):
+class EfficientChannelAttention(torch.nn.Module):
     """Efficient Channel Attention (ECA) module.
 
     Args:
@@ -122,15 +121,15 @@ class EfficientChannelAttention(nn.Module):
     def __init__(self, channels: int, kernel_size: _size_2_t = 3):
         super().__init__()
         padding       = (kernel_size - 1) // 2
-        self.avg_pool = nn.AdaptiveAvgPool2d(1)
-        self.conv     = nn.Conv1d(
+        self.avg_pool = torch.nn.AdaptiveAvgPool2d(1)
+        self.conv     = torch.nn.Conv1d(
             in_channels  = 1,
             out_channels = 1,
             kernel_size  = kernel_size,
             padding      = padding,
             bias         = False
         )
-        self.sigmoid  = nn.Sigmoid()
+        self.sigmoid  = torch.nn.Sigmoid()
         self.channel  = channels
         self.k_size   = kernel_size
 
@@ -159,7 +158,7 @@ class EfficientChannelAttention(nn.Module):
         return self.channel * self.channel * self.k_size
 
 
-class EfficientChannelAttention1d(nn.Module):
+class EfficientChannelAttention1d(torch.nn.Module):
     """Efficient Channel Attention (ECA) module for 1D inputs.
 
     Args:
@@ -175,15 +174,15 @@ class EfficientChannelAttention1d(nn.Module):
     ):
         super().__init__()
         padding       = (kernel_size - 1) // 2
-        self.avg_pool = nn.AdaptiveAvgPool1d(1)
-        self.conv     = nn.Conv1d(
+        self.avg_pool = torch.nn.AdaptiveAvgPool1d(1)
+        self.conv     = torch.nn.Conv1d(
             in_channels  = 1,
             out_channels = 1,
             kernel_size  = kernel_size,
             padding      = padding,
             bias         = False
         )
-        self.sigmoid  = nn.Sigmoid()
+        self.sigmoid  = torch.nn.Sigmoid()
         self.channel  = channels
         self.k_size   = kernel_size
 
@@ -220,7 +219,7 @@ ECA1d = EfficientChannelAttention1d
 
 # region Simplified Channel Attention
 
-class SimplifiedChannelAttention(nn.Module):
+class SimplifiedChannelAttention(torch.nn.Module):
     """Simplified channel attention from 'Simple Baselines for Image Restoration'.
 
     Args:
@@ -241,8 +240,8 @@ class SimplifiedChannelAttention(nn.Module):
         dtype   : Any  = None
     ):
         super().__init__()
-        self.avg_pool   = nn.AdaptiveAvgPool2d(1)
-        self.excitation = nn.Conv2d(
+        self.avg_pool   = torch.nn.AdaptiveAvgPool2d(1)
+        self.excitation = torch.nn.Conv2d(
             in_channels  = channels,
             out_channels = channels,
             kernel_size  = 1,
@@ -274,7 +273,7 @@ class SimplifiedChannelAttention(nn.Module):
 
 # region Squeeze and Excitation
 
-class SqueezeExciteC(nn.Module):
+class SqueezeExciteC(torch.nn.Module):
     """Squeeze and Excite layer using Conv2d from 'Squeeze and Excitation' paper.
 
     Args:
@@ -294,22 +293,22 @@ class SqueezeExciteC(nn.Module):
         bias           : bool = False,
     ):
         super().__init__()
-        self.avg_pool   = nn.AdaptiveAvgPool2d(1)  # squeeze
-        self.excitation = nn.Sequential(
-            nn.Conv2d(
+        self.avg_pool   = torch.nn.AdaptiveAvgPool2d(1)  # squeeze
+        self.excitation = torch.nn.Sequential(
+            torch.nn.Conv2d(
                 in_channels  = channels,
                 out_channels = channels  // reduction_ratio,
                 kernel_size  = 1,
                 bias         = bias,
             ),
-            nn.ReLU(inplace=True),
-            nn.Conv2d(
+            torch.nn.ReLU(inplace=True),
+            torch.nn.Conv2d(
                 in_channels  = channels  // reduction_ratio,
                 out_channels = channels,
                 kernel_size  = 1,
                 bias         = bias,
             ),
-            nn.Sigmoid()
+            torch.nn.Sigmoid()
         )
     
     def forward(self, input: torch.Tensor) -> torch.Tensor:
@@ -325,7 +324,7 @@ class SqueezeExciteC(nn.Module):
         return input * self.excitation(self.avg_pool(input))
 
 
-class SqueezeExciteL(nn.Module):
+class SqueezeExciteL(torch.nn.Module):
     """Squeeze and Excite layer using Linear from 'Squeeze and Excitation' paper.
 
     Args:
@@ -345,20 +344,20 @@ class SqueezeExciteL(nn.Module):
         bias           : bool = False,
     ):
         super().__init__()
-        self.avg_pool   = nn.AdaptiveAvgPool2d(1)
-        self.excitation = nn.Sequential(
-            nn.Linear(
+        self.avg_pool   = torch.nn.AdaptiveAvgPool2d(1)
+        self.excitation = torch.nn.Sequential(
+            torch.nn.Linear(
                 in_features  = channels,
                 out_features = channels // reduction_ratio,
                 bias         = bias
             ),
-            nn.ReLU(inplace=True),
-            nn.Linear(
+            torch.nn.ReLU(inplace=True),
+            torch.nn.Linear(
                 in_features  = channels // reduction_ratio,
                 out_features = channels,
                 bias         = bias
             ),
-            nn.Sigmoid()
+            torch.nn.Sigmoid()
         )
     
     def forward(self, input: torch.Tensor) -> torch.Tensor:

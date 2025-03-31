@@ -11,17 +11,15 @@ __all__ = [
 
 from typing import Any
 
-from lightning.pytorch import callbacks
+from lightning.pytorch.callbacks import rich_model_summary
 from lightning.pytorch.utilities import model_summary
 
 from mon import core
 from mon.globals import CALLBACKS
 
 
-# region Rich Model Summary
-
 @CALLBACKS.register(name="rich_model_summary")
-class RichModelSummary(callbacks.RichModelSummary):
+class RichModelSummary(rich_model_summary.RichModelSummary):
     """Summarizes LightningModule layers with rich text formatting."""
 
     @staticmethod
@@ -78,5 +76,3 @@ class RichModelSummary(callbacks.RichModelSummary):
         grid.add_row(f"[bold]Total estimated model params size (MB)[/]: {parameters[3]}")
 
         core.console.log(grid)
-        
-# endregion

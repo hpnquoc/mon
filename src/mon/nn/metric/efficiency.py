@@ -11,7 +11,6 @@ __all__ = [
 
 import torch
 from fvcore.nn import FlopCountAnalysis, parameter_count
-from torch import nn
 from torch.nn.common_types import _size_2_t
 
 from mon import core
@@ -20,7 +19,7 @@ from mon import core
 # region Efficiency Metric
 
 def compute_efficiency_score(
-    model     : nn.Module,
+    model     : torch.nn.Module,
     image_size: _size_2_t = 512,
     channels  : int       = 3
 ) -> tuple[float, float]:

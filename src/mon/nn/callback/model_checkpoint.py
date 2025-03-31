@@ -16,16 +16,14 @@ from weakref import proxy
 
 import lightning.pytorch as pl
 import torch
-from lightning.pytorch import callbacks
+from lightning.pytorch.callbacks import model_checkpoint
 
 from mon import core
 from mon.globals import CALLBACKS
 
 
-# region Model Checkpoint
-
 @CALLBACKS.register(name="model_checkpoint")
-class ModelCheckpoint(callbacks.ModelCheckpoint):
+class ModelCheckpoint(model_checkpoint.ModelCheckpoint):
     """Saves model periodically by monitoring a quantity, keeping best and last.
 
     Args:
@@ -446,5 +444,3 @@ class ModelCheckpoint(callbacks.ModelCheckpoint):
         for old in ["train", "val", "test", "/"]:
             metric_name = metric_name.replace(old, "")
         return metric_name
-
-# endregion

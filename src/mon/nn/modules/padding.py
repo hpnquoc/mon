@@ -27,7 +27,10 @@ import math
 import torch
 from torch.nn import functional as F
 from torch.nn.common_types import _size_2_t
-from torch.nn.modules.padding import *
+from torch.nn.modules.padding import (
+    ConstantPad1d, ConstantPad2d, ConstantPad3d, ReflectionPad1d, ReflectionPad2d,
+    ReflectionPad3d, ReplicationPad1d, ReplicationPad2d, ReplicationPad3d, ZeroPad2d,
+)
 
 
 # region Helper Function

@@ -50,18 +50,10 @@ class TotalVariationLoss(nn.Loss):
         - https://github.com/Li-Chongyi/Zero-DCE/blob/master/Zero-DCE_code/Myloss.py
     """
     
-    def __init__(
-        self,
-        loss_weight: float = 1.0,
-        reduction  : Literal["none", "mean", "sum"] = "mean",
-    ):
-        super().__init__(loss_weight=loss_weight, reduction=reduction)
+    def __init__(self, reduction: Literal["none", "mean", "sum"] = "mean"):
+        super().__init__(reduction=reduction)
     
-    def forward(
-        self,
-        input : torch.Tensor,
-        target: torch.Tensor = None
-    ) -> torch.Tensor:
+    def forward(self, input: torch.Tensor, target: torch.Tensor = None) -> torch.Tensor:
         x       = input
         b       = x.size()[0]
         h_x     = x.size()[2]
@@ -71,7 +63,6 @@ class TotalVariationLoss(nn.Loss):
         h_tv    = torch.pow((x[:, :, 1:,  :] - x[:, :, :h_x - 1, :]), 2).sum()
         w_tv    = torch.pow((x[:, :,  :, 1:] - x[:, :, :, :w_x - 1]), 2).sum()
         loss    = (h_tv / count_h + w_tv / count_w) / b
-        loss    = self.loss_weight * loss
         return loss
 
 # endregion

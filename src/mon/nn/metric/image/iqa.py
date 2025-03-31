@@ -14,10 +14,9 @@ __all__ = [
 ]
 
 import torch
-from torch import nn
 
 
-class ImageQualityAssessment(nn.Module):
+class ImageQualityAssessment(torch.nn.Module):
     """Assesses image quality based on exposedness, contrast, and saturation.
 
     Args:
@@ -32,9 +31,9 @@ class ImageQualityAssessment(nn.Module):
         super().__init__()
         self.exposed_level = exposed_level
         self.pool_size     = pool_size
-        self.mean_pool     = nn.Sequential(
-            nn.ReflectionPad2d(self.pool_size // 2),
-            nn.AvgPool2d(self.pool_size, stride=1)
+        self.mean_pool     = torch.nn.Sequential(
+            torch.nn.ReflectionPad2d(self.pool_size // 2),
+            torch.nn.AvgPool2d(self.pool_size, stride=1)
         )
 
     def forward(self, images: torch.Tensor) -> torch.Tensor:

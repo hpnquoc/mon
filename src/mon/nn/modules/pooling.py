@@ -45,10 +45,14 @@ __all__ = [
 from typing import Literal
 
 import torch
-from torch import nn
 from torch.nn import functional as F
 from torch.nn.common_types import _size_2_t
-from torch.nn.modules.pooling import *
+from torch.nn.modules.pooling import (
+    AdaptiveAvgPool1d, AdaptiveAvgPool2d, AdaptiveAvgPool3d, AdaptiveMaxPool1d,
+    AdaptiveMaxPool2d, AdaptiveMaxPool3d, AvgPool1d, AvgPool2d, AvgPool3d,
+    FractionalMaxPool2d, FractionalMaxPool3d, LPPool1d, LPPool2d, MaxPool1d, MaxPool2d,
+    MaxPool3d, MaxUnpool1d, MaxUnpool2d, MaxUnpool3d,
+)
 
 from mon import core
 from mon.nn.modules import padding as pad
@@ -120,7 +124,7 @@ def adaptive_pool2d(
         raise ValueError(f"Invalid pool type: [{pool_type}].")
 
 
-class AdaptiveAvgMaxPool2d(nn.Module):
+class AdaptiveAvgMaxPool2d(torch.nn.Module):
     """Combines adaptive average and max pooling in 2D.
 
     Args:
@@ -143,7 +147,7 @@ class AdaptiveAvgMaxPool2d(nn.Module):
         return adaptive_avg_max_pool2d(input, self.output_size)
 
 
-class AdaptiveCatAvgMaxPool2d(nn.Module):
+class AdaptiveCatAvgMaxPool2d(torch.nn.Module):
     """Concatenates adaptive average and max pooling in 2D.
 
     Args:
@@ -170,7 +174,7 @@ class AdaptiveCatAvgMaxPool2d(nn.Module):
         return adaptive_cat_avg_max_pool2d(input, self.output_size)
 
 
-class AdaptivePool2d(nn.Module):
+class AdaptivePool2d(torch.nn.Module):
     """Selectable global pooling layer with dynamic kernel size.
 
     Args:
@@ -189,18 +193,18 @@ class AdaptivePool2d(nn.Module):
         super().__init__()
         self.pool_type = pool_type or ""
 
-        self.flatten = nn.Flatten(1) if flatten else nn.Identity()
+        self.flatten = torch.nn.Flatten(1) if flatten else torch.nn.Identity()
         if not self.pool_type:
-            self.pool = nn.Identity()  # pass through
+            self.pool = torch.nn.Identity()  # pass through
         elif pool_type == "fast":
             if output_size != 1:
                 raise ValueError(f"[pool_type] 'fast' requires output_size=1, got {output_size}.")
-            self.pool     = FastAdaptiveAvgPool2d(flatten)
-            self.flatten = nn.Identity()
+            self.pool    = FastAdaptiveAvgPool2d(flatten)
+            self.flatten = torch.nn.Identity()
         elif pool_type == "avg":
-            self.pool = nn.AdaptiveAvgPool2d(output_size)
+            self.pool = torch.nn.AdaptiveAvgPool2d(output_size)
         elif pool_type == "max":
-            self.pool = nn.AdaptiveMaxPool2d(output_size)
+            self.pool = torch.nn.AdaptiveMaxPool2d(output_size)
         elif pool_type == "avg_max":
             self.pool = AdaptiveAvgMaxPool2d(output_size)
         elif pool_type == "cat_avg_max":
@@ -237,7 +241,7 @@ class AdaptivePool2d(nn.Module):
         return 2 if self.pool_type == "cat_avg_max" else 1
 
 
-class FastAdaptiveAvgPool2d(nn.Module):
+class FastAdaptiveAvgPool2d(torch.nn.Module):
     """Fast adaptive average pooling in 2D.
 
     Args:
@@ -302,7 +306,7 @@ def avg_pool2d_same(
     )
 
 
-class AvgPool2dSame(nn.AvgPool2d):
+class AvgPool2dSame(torch.nn.AvgPool2d):
     """TensorFlow-like 'same' wrapper for 2D average pooling.
 
     Args:
@@ -358,7 +362,7 @@ class AvgPool2dSame(nn.AvgPool2d):
 
 # region Channel Pool
 
-class ChannelPool(nn.Module):
+class ChannelPool(torch.nn.Module):
     """Global Channel Pool from CBAM Module paper.
 
     References:
@@ -444,7 +448,7 @@ def max_pool2d_same(
     )
 
 
-class MaxPool2dSame(nn.MaxPool2d):
+class MaxPool2dSame(torch.nn.MaxPool2d):
     """TensorFlow-like 'same' wrapper for 2D max pooling.
 
     Args:
@@ -500,7 +504,7 @@ class MaxPool2dSame(nn.MaxPool2d):
 
 # region Median Pool
 
-class MedianPool2d(nn.Module):
+class MedianPool2d(torch.nn.Module):
     """Median pooling layer, usable as a median filter when stride=1.
 
     Args:

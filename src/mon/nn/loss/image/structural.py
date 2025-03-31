@@ -28,7 +28,6 @@ class EdgeLoss(base.Loss):
     using a Laplacian kernel.
 
     Args:
-        loss_weight: Weight of the loss as ``float``. Default is ``1.0``
         reduction: Reduction method as ``Literal["none", "mean", "sum"]``.
             Default is ``"mean"``.
 
@@ -37,12 +36,8 @@ class EdgeLoss(base.Loss):
         loss: Charbonnier loss function as ``base.CharbonnierLoss``.
     """
     
-    def __init__(
-        self,
-        loss_weight: float = 1.0,
-        reduction  : Literal["none", "mean", "sum"] = "mean"
-    ):
-        super().__init__(loss_weight=loss_weight, reduction=reduction)
+    def __init__(self, reduction: Literal["none", "mean", "sum"] = "mean"):
+        super().__init__(reduction=reduction)
         k           = torch.Tensor([[0.05, 0.25, 0.4, 0.25, 0.05]])
         self.kernel = torch.matmul(k.t(), k).unsqueeze(0).repeat(3, 1, 1, 1)
         self.loss   = base.CharbonnierLoss()
@@ -95,4 +90,4 @@ class EdgeLoss(base.Loss):
         diff  = edge1 - edge2
         loss  = torch.mean(torch.sqrt((diff * diff) + (self.eps * self.eps)))
         loss  = base.reduce_loss(loss=loss, reduction=self.reduction)
-        return self.loss_weight * loss
+        return loss

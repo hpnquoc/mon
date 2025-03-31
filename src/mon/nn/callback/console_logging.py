@@ -19,16 +19,16 @@ from typing import Any
 
 import lightning.pytorch as pl
 import torch
-from lightning.pytorch import callbacks
 from lightning.pytorch.utilities.types import STEP_OUTPUT
 
 from mon import core
 from mon.globals import CALLBACKS
+from mon.nn.callback import base
 
 
 # noinspection PyMethodMayBeStatic
 @CALLBACKS.register(name="log_training_progress")
-class LogTrainingProgress(callbacks.Callback):
+class LogTrainingProgress(base.Callback):
     """Logs training and testing progress to console.
 
     Args:

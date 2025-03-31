@@ -14,7 +14,6 @@ from copy import deepcopy
 from typing import Sequence
 
 import torch
-from fvcore.nn import parameter_count
 
 from mon import core, nn
 
@@ -40,7 +39,9 @@ class VisionModel(nn.Model, ABC):
         Returns:
             Tuple of (FLOPs, parameter count) as ``float`` values.
         """
+        from fvcore.nn import parameter_count
         from mon.vision.dtype import image as I
+        
         h, w      = I.get_image_size(image_size)
         datapoint = {"image": torch.rand(1, channels, h, w).to(self.device)}
         flops, params = core.custom_profile(deepcopy(self), inputs=datapoint, verbose=False)

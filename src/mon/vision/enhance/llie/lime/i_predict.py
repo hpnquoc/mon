@@ -15,7 +15,6 @@ import cv2
 import mon
 from exposure_enhancement import enhance_image_exposure
 
-console      = mon.console
 current_file = mon.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
@@ -44,8 +43,8 @@ def predict(args: dict) -> str:
     verbose      = args["verbose"]
     
     # Start
-    console.rule(f"[bold red] {fullname}")
-    console.log(f"Machine: {hostname}")
+    mon.console.rule(f"[bold red] {fullname}")
+    mon.console.log(f"Machine: {hostname}")
     
     # Device
     device = mon.set_device(device)
@@ -54,8 +53,8 @@ def predict(args: dict) -> str:
     mon.set_random_seed(seed)
     
     # Data I/O
-    console.log(f"[bold red]{data}")
-    data_name, data_loader = mon.parse_data_loader(data, False, verbose=False)
+    mon.console.log(f"[bold red]{data}")
+    data_name, data_loader = mon.parse_data_loader(data, root, True, verbose=False)
     
     # Predicting
     timer = mon.Timer()
@@ -104,7 +103,7 @@ def predict(args: dict) -> str:
                 cv2.imwrite(str(output_path), enhanced)
     
     # Finish
-    console.log(f"Average time: {timer.avg_time}")
+    mon.console.log(f"Average time: {timer.avg_time}")
 
 # endregion
 

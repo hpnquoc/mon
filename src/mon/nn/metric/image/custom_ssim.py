@@ -17,7 +17,6 @@ import math
 
 import torch
 import torch.nn.functional as F
-from torch import nn
 
 
 def gaussian(window_size: int, sigma: float) -> torch.Tensor:
@@ -98,7 +97,7 @@ def ssim(
     return ssim_map.mean() if size_average else ssim_map.mean(1).mean(1).mean(1)
 
 
-class SSIM(nn.Module):
+class SSIM(torch.nn.Module):
     """Structural Similarity Index (SSIM) module for image comparison.
 
     Args:

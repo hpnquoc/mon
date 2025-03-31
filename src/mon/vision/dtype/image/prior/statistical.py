@@ -21,9 +21,9 @@ import cv2
 import kornia
 import numpy as np
 import torch
-from torch.nn.common_types import _size_2_t
 
 from mon import core
+from mon.nn import _size_2_t
 
 
 def blur_spot_prior(image: np.ndarray, threshold: int = 250) -> bool:

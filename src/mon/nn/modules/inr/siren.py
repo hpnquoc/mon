@@ -16,12 +16,11 @@ __all__ = [
 
 import numpy as np
 import torch
-from torch import nn
 
 from mon.nn.modules.inr import base
 
 
-class SineLayer(nn.Module):
+class SineLayer(torch.nn.Module):
     """Applies linear transformation with sine activation.
 
     Args:
@@ -51,7 +50,7 @@ class SineLayer(nn.Module):
         self.in_channels = in_channels
         self.w0          = w0
         self.is_first    = is_first
-        self.linear      = nn.Linear(in_channels, out_channels, bias=bias)
+        self.linear      = torch.nn.Linear(in_channels, out_channels, bias=bias)
         if init_weights:
             self.init_weights()
 
@@ -86,7 +85,7 @@ class SineLayer(nn.Module):
         return torch.sin(intermediate), intermediate
 
 
-class SIREN(nn.Module):
+class SIREN(torch.nn.Module):
     """Implements SIREN network with sine layers.
 
     Args:
@@ -113,10 +112,10 @@ class SIREN(nn.Module):
         bias           : bool  = True,
     ):
         super().__init__()
-        self.net = nn.Sequential(
+        self.net = torch.nn.Sequential(
             SineLayer(in_channels, hidden_channels, first_w0, is_first=True, bias=bias),
             *[SineLayer(hidden_channels, hidden_channels, hidden_w0, bias=bias) for _ in range(hidden_layers)],
-            nn.Linear(hidden_channels, out_channels)
+            torch.nn.Linear(hidden_channels, out_channels)
         )
         with torch.no_grad():
             self.net[-1].weight.uniform_(-np.sqrt(6 / hidden_channels) / hidden_w0, np.sqrt(6 / hidden_channels) / hidden_w0)

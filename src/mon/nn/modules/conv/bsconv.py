@@ -13,11 +13,10 @@ __all__ = [
 import math
 
 import torch
-from torch import nn
 from torch.nn.common_types import _size_2_t
 
 
-class BSConv2dS(nn.Module):
+class BSConv2dS(torch.nn.Module):
     """Blueprint Separable Conv2d from MobileNets paper.
 
     Args:
@@ -65,7 +64,7 @@ class BSConv2dS(nn.Module):
         mid_channels = min(in_channels, max(min_mid_channels, math.ceil(p * in_channels)))
         bn_kwargs    = bn_kwargs or {}
 
-        self.pw1 = nn.Conv2d(
+        self.pw1 = torch.nn.Conv2d(
             in_channels  = in_channels,
             out_channels = mid_channels,
             kernel_size  = (1, 1),
@@ -76,10 +75,10 @@ class BSConv2dS(nn.Module):
             bias         = False
         )
         self.bn1 = (
-            nn.BatchNorm2d(num_features=mid_channels, **bn_kwargs)
+            torch.nn.BatchNorm2d(num_features=mid_channels, **bn_kwargs)
             if with_bn else None
         )
-        self.pw2 = nn.Conv2d(
+        self.pw2 = torch.nn.Conv2d(
             in_channels  = mid_channels,
             out_channels = out_channels,
             kernel_size  = (1, 1),
@@ -90,10 +89,10 @@ class BSConv2dS(nn.Module):
             bias         = False
         )
         self.bn2 = (
-            nn.BatchNorm2d(num_features=out_channels, **bn_kwargs)
+            torch.nn.BatchNorm2d(num_features=out_channels, **bn_kwargs)
             if with_bn else None
         )
-        self.dw = nn.Conv2d(
+        self.dw = torch.nn.Conv2d(
             in_channels  = out_channels,
             out_channels = out_channels,
             kernel_size  = kernel_size,
@@ -135,7 +134,7 @@ class BSConv2dS(nn.Module):
         return torch.norm(wwt - i, p="fro")
 
 
-class BSConv2dU(nn.Module):
+class BSConv2dU(torch.nn.Module):
     """Unconstrained Blueprint Separable Conv2d from MobileNets.
 
     Args:
@@ -176,7 +175,7 @@ class BSConv2dU(nn.Module):
         super().__init__()
         bn_kwargs = bn_kwargs or {}
 
-        self.pw = nn.Conv2d(
+        self.pw = torch.nn.Conv2d(
             in_channels  = in_channels,
             out_channels = out_channels,
             kernel_size  = (1, 1),
@@ -187,10 +186,10 @@ class BSConv2dU(nn.Module):
             bias         = False
         )
         self.bn = (
-            nn.BatchNorm2d(num_features=out_channels, **bn_kwargs)
+            torch.nn.BatchNorm2d(num_features=out_channels, **bn_kwargs)
             if with_bn else None
         )
-        self.dw = nn.Conv2d(
+        self.dw = torch.nn.Conv2d(
             in_channels  = out_channels,
             out_channels = out_channels,
             kernel_size  = kernel_size,

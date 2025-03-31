@@ -32,7 +32,6 @@ class PSNRLoss(base.Loss):
 
     Args:
         to_y: Converts RGB to Y-channel (luminance) if ``True``. Default is ``False``.
-        loss_weight: Weight of the loss as ``float``. Default is ``1.0``.
         reduction: Reduction method as ``Literal["none", "mean", "sum"]``.
             Default is ``"mean"``.
 
@@ -42,11 +41,10 @@ class PSNRLoss(base.Loss):
     
     def __init__(
         self,
-        to_y       : bool  = False,
-        loss_weight: float = 1.0,
-        reduction  : Literal["none", "mean", "sum"] = "mean",
+        to_y     : bool  = False,
+        reduction: Literal["none", "mean", "sum"] = "mean",
     ):
-        super().__init__(loss_weight=loss_weight, reduction=reduction)
+        super().__init__(reduction=reduction)
         self.scale = 10 / np.log(10)
         self.to_y  = to_y
         self.coef  = torch.tensor([65.481, 128.553, 24.966]).reshape(1, 3, 1, 1)
@@ -82,7 +80,7 @@ class PSNRLoss(base.Loss):
         
         # Apply reduction
         loss = base.reduce_loss(loss=psnr, reduction=self.reduction)
-        return self.loss_weight * loss
+        return loss
 
 
 @LOSSES.register(name="ssim_loss")
@@ -101,7 +99,6 @@ class SSIMLoss(base.Loss):
         k: Constants for SSIM calculation as ``tuple[float, float]`` (k1, k2).
             Default is ``(0.01, 0.03)``.
         non_negative_ssim: Ensures non-negative SSIM if ``True``. Default is ``False``.
-        loss_weight: Weight of the loss as ``float``. Default is ``1.0``.
         reduction: Reduction method as ``Literal["none", "mean", "sum"]``.
             Default is ``"mean"``.
     """
@@ -116,10 +113,9 @@ class SSIMLoss(base.Loss):
         spatial_dims     : int   = 2,
         k                : tuple[float, float] = (0.01, 0.03),
         non_negative_ssim: bool  = False,
-        loss_weight      : float = 1.0,
         reduction        : Literal["none", "mean", "sum"] = "mean",
     ):
-        super().__init__(loss_weight=loss_weight, reduction=reduction)
+        super().__init__(reduction=reduction)
         from mon.nn.metric.image.pytorch_msssim import SSIM
         self.ssim = SSIM(
             data_range        = data_range,
@@ -143,8 +139,9 @@ class SSIMLoss(base.Loss):
             Loss value as ``torch.Tensor``.
         """
         loss = 1.0 - self.ssim(input, target)
-        return base.reduce_loss(loss=loss, reduction=self.reduction)
-
+        loss = base.reduce_loss(loss=loss, reduction=self.reduction)
+        return loss
+    
 
 @LOSSES.register(name="ms_ssim_loss")
 class MS_SSIMLoss(base.Loss):
@@ -162,7 +159,6 @@ class MS_SSIMLoss(base.Loss):
             Default is ``None``.
         k: Constants for SSIM calculation as ``tuple[float, float]`` (k1, k2).
             Default is ``(0.01, 0.03)``.
-        loss_weight: Weight of the loss as ``float``. Default is ``1.0``.
         reduction: Reduction method as ``Literal["none", "mean", "sum"]``.
             Default is ``"mean"``.
     """
@@ -177,10 +173,9 @@ class MS_SSIMLoss(base.Loss):
         spatial_dims: int   = 2,
         weights     : list[float] = None,
         k           : tuple[float, float] = (0.01, 0.03),
-        loss_weight : float = 1.0,
         reduction   : Literal["none", "mean", "sum"] = "mean",
     ):
-        super().__init__(loss_weight=loss_weight, reduction=reduction)
+        super().__init__(reduction=reduction)
         from mon.nn.metric.image.pytorch_msssim import MS_SSIM
         self.ms_ssim = MS_SSIM(
             data_range   = data_range,
@@ -204,4 +199,5 @@ class MS_SSIMLoss(base.Loss):
             Loss value as ``torch.Tensor``.
         """
         loss = 1.0 - self.ms_ssim(input, target)
-        return base.reduce_loss(loss=loss, reduction=self.reduction)
+        loss = base.reduce_loss(loss=loss, reduction=self.reduction)
+        return loss

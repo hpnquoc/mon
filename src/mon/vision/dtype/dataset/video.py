@@ -16,9 +16,10 @@ from typing import Any
 import cv2
 
 from mon import core
-from mon.vision.dtype import annotation as anno
+from mon.globals import TRANSFORMS
+from mon.vision.dtype import annotation
 from mon.vision.dtype.dataset import base
-from mon.vision.geometry import albumentation as album
+from mon.vision.geometry import albumentation
 
 
 class VideoLoader(core.Dataset, ABC):
@@ -37,17 +38,17 @@ class VideoLoader(core.Dataset, ABC):
     """
     
     datapoint_attrs = base.DatapointAttributes({
-        "frame": anno.FrameAnnotation,
+        "frame": annotation.FrameAnnotation,
     })
     
     def __init__(
         self,
         root      : core.Path,
-        split     : core.Split    = core.Split.PREDICT,
-        transform : album.Compose = None,
-        to_tensor : bool          = False,
-        cache_data: bool          = False,
-        verbose   : bool          = True,
+        split     : core.Split = core.Split.PREDICT,
+        transform : albumentation.Compose = None,
+        to_tensor : bool = False,
+        cache_data: bool = False,
+        verbose   : bool = True,
         *args, **kwargs
     ):
         self.num_frames = 0
@@ -101,14 +102,34 @@ class VideoLoader(core.Dataset, ABC):
     
     # endregion
     
-    def init_transform(self, transform: album.Compose | Any = None):
-        """Initializes transformation operations.
+    def init_transform(self, transform: albumentation.Compose | Any = None):
+        """Initializes transformations with multimodal support.
 
         Args:
             transform: Transformations to apply. Default is ``None``.
         """
-        super().init_transform(transform=transform)
-        if self.transform:
+        if transform is None:
+            self.transform = None
+        elif isinstance(transform, albumentation.Compose):
+            self.transform = transform
+        else:
+            transform  = [transform] if not isinstance(transform, (list, tuple)) else transform
+            transform_ = []
+            for t in transform:
+                if isinstance(t, albumentation.BasicTransform):
+                    transform_.append(t)
+                elif isinstance(t, dict):
+                    t_ = TRANSFORMS.build(config=t)
+                    if t_:
+                        transform_.append(t_)
+                    else:
+                        raise ValueError(f"Transform [{t}] is not supported.")
+                else:
+                    raise TypeError(f"[transform] must be a list of albumentation.BasicTransform "
+                                    f"or dicts, got {type(t)}.")
+            self.transform = albumentation.Compose(transforms=transform_)
+            
+        if isinstance(self.transform, albumentation.Compose):
             additional_targets = self.datapoint_attrs.albumentation_target_types()
             additional_targets.pop(self.main_attribute, None)
             additional_targets.pop("meta", None)
@@ -145,11 +166,11 @@ class VideoLoaderCV(VideoLoader):
     def __init__(
         self,
         root      : core.Path,
-        split     : core.Split    = core.Split.PREDICT,
-        transform : album.Compose = None,
-        to_tensor : bool          = False,
-        cache_data: bool          = False,
-        verbose   : bool          = True,
+        split     : core.Split = core.Split.PREDICT,
+        transform : albumentation.Compose = None,
+        to_tensor : bool = False,
+        cache_data: bool = False,
+        verbose   : bool = True,
         *args, **kwargs
     ):
         self.video_capture = None
@@ -333,7 +354,7 @@ class VideoLoaderCV(VideoLoader):
         
         if frame is not None:
             frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-            frame = anno.FrameAnnotation(index=self.index, frame=frame, path=self.root)
+            frame = annotation.FrameAnnotation(index=self.index, frame=frame, path=self.root)
         self.index += 1
         
         datapoint = self.new_datapoint

@@ -39,16 +39,15 @@ class Loss(nn.Loss):
     
     def __init__(
         self,
-        L     : float = 0.5,
-        alpha : float = 1,
-        beta  : float = 20,
-        gamma : float = 8,
-        delta : float = 5,
-        loss_weight: float = 1.0,
-        reduction  : Literal["none", "mean", "sum"] = "mean",
+        L        : float = 0.5,
+        alpha    : float = 1,
+        beta     : float = 20,
+        gamma    : float = 8,
+        delta    : float = 5,
+        reduction: Literal["none", "mean", "sum"] = "mean",
         *args, **kwargs
     ):
-        super().__init__(loss_weight=loss_weight, reduction=reduction)
+        super().__init__(reduction=reduction)
         self.alpha = alpha
         self.beta  = beta
         self.gamma = gamma

@@ -25,37 +25,22 @@ __all__ = [
     "StochasticWeightAveraging",
     "TQDMProgressBar",
     "TimerCallback",
-    # "TuneReportCallback",
-    # "TuneReportCheckpointCallback",
 ]
 
-# import ray.tune.integration.pytorch_lightning as ray
-from lightning.pytorch import callbacks
+from lightning.pytorch.callbacks import (
+    BackboneFinetuning, BaseFinetuning, BasePredictionWriter, BatchSizeFinder, Callback,
+    Checkpoint, DeviceStatsMonitor, EarlyStopping, GradientAccumulationScheduler,
+    LambdaCallback, LearningRateFinder, LearningRateMonitor, ModelPruning, ModelSummary,
+    OnExceptionCheckpoint, SpikeDetection, StochasticWeightAveraging, Timer,
+    TQDMProgressBar,
+)
 
 from mon.globals import CALLBACKS
 
+
 # region Callback
 
-Callback                      = callbacks.Callback
-BackboneFinetuning            = callbacks.BackboneFinetuning
-BaseFinetuning                = callbacks.BaseFinetuning
-BasePredictionWriter          = callbacks.BasePredictionWriter
-BatchSizeFinder               = callbacks.BatchSizeFinder
-Checkpoint                    = callbacks.Checkpoint
-DeviceStatsMonitor            = callbacks.DeviceStatsMonitor
-EarlyStopping                 = callbacks.EarlyStopping
-GradientAccumulationScheduler = callbacks.GradientAccumulationScheduler
-LambdaCallback                = callbacks.LambdaCallback
-LearningRateFinder            = callbacks.LearningRateFinder
-LearningRateMonitor           = callbacks.LearningRateMonitor
-ModelPruning                  = callbacks.ModelPruning
-ModelSummary                  = callbacks.ModelSummary
-OnExceptionCheckpoint         = callbacks.OnExceptionCheckpoint
-ProgressBar                   = callbacks.ProgressBar
-StochasticWeightAveraging     = callbacks.StochasticWeightAveraging
-SpikeDetection                = callbacks.SpikeDetection
-TimerCallback                 = callbacks.Timer
-TQDMProgressBar               = callbacks.TQDMProgressBar
+TimerCallback = Timer
 
 CALLBACKS.register(name="backbone_finetuning",             module=BackboneFinetuning)
 CALLBACKS.register(name="batch_size_finder",               module=BatchSizeFinder)

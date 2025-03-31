@@ -11,7 +11,7 @@ __all__ = [
 ]
 
 import lightning
-from lightning.pytorch.trainer import *
+from lightning.pytorch.trainer import seed_everything
 
 from mon import core
 from mon.nn import strategy

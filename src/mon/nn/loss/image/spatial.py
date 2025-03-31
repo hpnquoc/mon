@@ -16,7 +16,6 @@ __all__ = [
 from typing import Literal
 
 import torch
-from torch import nn
 from torch.nn import functional as F
 
 from mon.globals import LOSSES
@@ -34,7 +33,6 @@ class SpatialConsistencyLoss(base.Loss):
             Default is ``4``.
         patch_size: Size of each neighboring region as ``int``.
             Default is ``4`` (means 4x4).
-        loss_weight: Weight of the loss as ``float``. Default is ``1.0``.
         reduction: Reduction method as ``Literal["none", "mean", "sum"]``.
             Default is ``"mean"``.
     """
@@ -42,11 +40,10 @@ class SpatialConsistencyLoss(base.Loss):
     def __init__(
         self,
         num_regions: Literal[4, 8, 16, 24] = 4,
-        patch_size : int   = 4,
-        loss_weight: float = 1.0,
+        patch_size : int = 4,
         reduction  : Literal["none", "mean", "sum"] = "mean",
     ):
-        super().__init__(loss_weight=loss_weight, reduction=reduction)
+        super().__init__(reduction=reduction)
         self.num_regions = num_regions
         
         kernel_left = torch.FloatTensor([
@@ -205,35 +202,35 @@ class SpatialConsistencyLoss(base.Loss):
                 [0, 0, 0, 0,  0]
             ]).unsqueeze(0).unsqueeze(0)
             
-        self.weight_left  = nn.Parameter(data=kernel_left,  requires_grad=False)
-        self.weight_right = nn.Parameter(data=kernel_right, requires_grad=False)
-        self.weight_up    = nn.Parameter(data=kernel_up,    requires_grad=False)
-        self.weight_down  = nn.Parameter(data=kernel_down,  requires_grad=False)
+        self.weight_left  = torch.nn.Parameter(data=kernel_left,  requires_grad=False)
+        self.weight_right = torch.nn.Parameter(data=kernel_right, requires_grad=False)
+        self.weight_up    = torch.nn.Parameter(data=kernel_up,    requires_grad=False)
+        self.weight_down  = torch.nn.Parameter(data=kernel_down,  requires_grad=False)
         if self.num_regions in [8, 16]:
-            self.weight_upleft    = nn.Parameter(data=kernel_upleft,    requires_grad=False)
-            self.weight_upright   = nn.Parameter(data=kernel_upright,   requires_grad=False)
-            self.weight_downleft  = nn.Parameter(data=kernel_downleft,  requires_grad=False)
-            self.weight_downright = nn.Parameter(data=kernel_downright, requires_grad=False)
+            self.weight_upleft    = torch.nn.Parameter(data=kernel_upleft,    requires_grad=False)
+            self.weight_upright   = torch.nn.Parameter(data=kernel_upright,   requires_grad=False)
+            self.weight_downleft  = torch.nn.Parameter(data=kernel_downleft,  requires_grad=False)
+            self.weight_downright = torch.nn.Parameter(data=kernel_downright, requires_grad=False)
         if self.num_regions in [16, 24]:
-            self.weight_left2       = nn.Parameter(data=kernel_left2,       requires_grad=False)
-            self.weight_right2      = nn.Parameter(data=kernel_right2,      requires_grad=False)
-            self.weight_up2         = nn.Parameter(data=kernel_up2,         requires_grad=False)
-            self.weight_down2       = nn.Parameter(data=kernel_down2,       requires_grad=False)
-            self.weight_up2left2    = nn.Parameter(data=kernel_up2left2,    requires_grad=False)
-            self.weight_up2right2   = nn.Parameter(data=kernel_up2right2,   requires_grad=False)
-            self.weight_down2left2  = nn.Parameter(data=kernel_down2left2,  requires_grad=False)
-            self.weight_down2right2 = nn.Parameter(data=kernel_down2right2, requires_grad=False)
+            self.weight_left2       = torch.nn.Parameter(data=kernel_left2,       requires_grad=False)
+            self.weight_right2      = torch.nn.Parameter(data=kernel_right2,      requires_grad=False)
+            self.weight_up2         = torch.nn.Parameter(data=kernel_up2,         requires_grad=False)
+            self.weight_down2       = torch.nn.Parameter(data=kernel_down2,       requires_grad=False)
+            self.weight_up2left2    = torch.nn.Parameter(data=kernel_up2left2,    requires_grad=False)
+            self.weight_up2right2   = torch.nn.Parameter(data=kernel_up2right2,   requires_grad=False)
+            self.weight_down2left2  = torch.nn.Parameter(data=kernel_down2left2,  requires_grad=False)
+            self.weight_down2right2 = torch.nn.Parameter(data=kernel_down2right2, requires_grad=False)
         if self.num_regions in [24]:
-            self.weight_up2left1    = nn.Parameter(data=kernel_up2left1,    requires_grad=False)
-            self.weight_up2right1   = nn.Parameter(data=kernel_up2right1,   requires_grad=False)
-            self.weight_up1left2    = nn.Parameter(data=kernel_up1left2,    requires_grad=False)
-            self.weight_up1right2   = nn.Parameter(data=kernel_up1right2,   requires_grad=False)
-            self.weight_down2left1  = nn.Parameter(data=kernel_down2left1,  requires_grad=False)
-            self.weight_down2right1 = nn.Parameter(data=kernel_down2right1, requires_grad=False)
-            self.weight_down1left2  = nn.Parameter(data=kernel_down1left2,  requires_grad=False)
-            self.weight_down1right2 = nn.Parameter(data=kernel_down1right2, requires_grad=False)
+            self.weight_up2left1    = torch.nn.Parameter(data=kernel_up2left1,    requires_grad=False)
+            self.weight_up2right1   = torch.nn.Parameter(data=kernel_up2right1,   requires_grad=False)
+            self.weight_up1left2    = torch.nn.Parameter(data=kernel_up1left2,    requires_grad=False)
+            self.weight_up1right2   = torch.nn.Parameter(data=kernel_up1right2,   requires_grad=False)
+            self.weight_down2left1  = torch.nn.Parameter(data=kernel_down2left1,  requires_grad=False)
+            self.weight_down2right1 = torch.nn.Parameter(data=kernel_down2right1, requires_grad=False)
+            self.weight_down1left2  = torch.nn.Parameter(data=kernel_down1left2,  requires_grad=False)
+            self.weight_down1right2 = torch.nn.Parameter(data=kernel_down1right2, requires_grad=False)
         
-        self.pool = nn.AvgPool2d(patch_size)  # Default 4
+        self.pool = torch.nn.AvgPool2d(patch_size)  # Default 4
     
     def __str__(self) -> str:
         """Returns a string representation of the loss."""
@@ -409,4 +406,4 @@ class SpatialConsistencyLoss(base.Loss):
         
         # Apply reduction and weighting
         loss = base.reduce_loss(loss=loss, reduction=self.reduction)
-        return self.loss_weight * loss
+        return loss

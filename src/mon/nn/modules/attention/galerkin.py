@@ -10,12 +10,11 @@ __all__ = [
 ]
 
 import torch
-from torch import nn
 
 
 # region Galerkin-type Attention
 
-class GalerkinSimpleAttention(nn.Module):
+class GalerkinSimpleAttention(torch.nn.Module):
     """Galerkin-type attention mechanism.
 
     Args:
@@ -41,14 +40,14 @@ class GalerkinSimpleAttention(nn.Module):
         self.headc = mid_channels // heads
         self.heads = heads
 
-        self.qkv_proj = nn.Conv2d(mid_channels, 3 * mid_channels, 1)
-        self.o_proj1  = nn.Conv2d(mid_channels, mid_channels, 1)
-        self.o_proj2  = nn.Conv2d(mid_channels, mid_channels, 1)
+        self.qkv_proj = torch.nn.Conv2d(mid_channels, 3 * mid_channels, 1)
+        self.o_proj1  = torch.nn.Conv2d(mid_channels, mid_channels, 1)
+        self.o_proj2  = torch.nn.Conv2d(mid_channels, mid_channels, 1)
 
-        self.kln = nn.LayerNorm((heads, 1, self.headc))
-        self.vln = nn.LayerNorm((heads, 1, self.headc))
+        self.kln = torch.nn.LayerNorm((heads, 1, self.headc))
+        self.vln = torch.nn.LayerNorm((heads, 1, self.headc))
 
-        self.act = nn.GELU()
+        self.act = torch.nn.GELU()
 
     def forward(self, input: torch.Tensor) -> torch.Tensor:
         """Applies Galerkin-type attention.

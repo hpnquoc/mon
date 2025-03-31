@@ -21,11 +21,10 @@ __all__ = [
 from typing import Any
 
 import torch
-from torch import nn
 from torch.nn.common_types import _size_2_t
 
 
-class DepthwiseConv2d(nn.Module):
+class DepthwiseConv2d(torch.nn.Module):
     """Depthwise 2D convolution module.
 
     Args:
@@ -56,7 +55,7 @@ class DepthwiseConv2d(nn.Module):
         dtype       : Any  = None
     ):
         super().__init__()
-        self.dw_conv = nn.Conv2d(
+        self.dw_conv = torch.nn.Conv2d(
             in_channels  = in_channels,
             out_channels = in_channels,
             kernel_size  = kernel_size,
@@ -82,7 +81,7 @@ class DepthwiseConv2d(nn.Module):
         return self.dw_conv(input)
 
 
-class PointwiseConv2d(nn.Module):
+class PointwiseConv2d(torch.nn.Module):
     """Pointwise 2D convolution module with 1x1 kernel.
 
     Args:
@@ -115,7 +114,7 @@ class PointwiseConv2d(nn.Module):
         dtype       : Any  = None
     ):
         super().__init__()
-        self.pw_conv = nn.Conv2d(
+        self.pw_conv = torch.nn.Conv2d(
             in_channels  = in_channels,
             out_channels = out_channels,
             kernel_size  = 1,
@@ -141,7 +140,7 @@ class PointwiseConv2d(nn.Module):
         return self.pw_conv(input)
     
 
-class DepthwiseSeparableConv2d(nn.Module):
+class DepthwiseSeparableConv2d(torch.nn.Module):
     """Depthwise separable 2D convolution module.
 
     Args:
@@ -174,7 +173,7 @@ class DepthwiseSeparableConv2d(nn.Module):
         dtype       : Any  = None
     ):
         super().__init__()
-        self.dw_conv = nn.Conv2d(
+        self.dw_conv = torch.nn.Conv2d(
             in_channels  = in_channels,
             out_channels = in_channels,
             kernel_size  = kernel_size,
@@ -187,7 +186,7 @@ class DepthwiseSeparableConv2d(nn.Module):
             device       = device,
             dtype        = dtype
         )
-        self.pw_conv = nn.Conv2d(
+        self.pw_conv = torch.nn.Conv2d(
             in_channels  = in_channels,
             out_channels = out_channels,
             kernel_size  = 1,
@@ -209,7 +208,7 @@ class DepthwiseSeparableConv2d(nn.Module):
         return self.pw_conv(self.dw_conv(input))
 
 
-class DepthwiseSeparableConvAct2d(nn.Module):
+class DepthwiseSeparableConvAct2d(torch.nn.Module):
     """Depthwise separable 2D convolution with activation.
 
     Args:
@@ -241,7 +240,7 @@ class DepthwiseSeparableConvAct2d(nn.Module):
         padding_mode: str       = "zeros",
         device      : Any       = None,
         dtype       : Any       = None,
-        act_layer   : nn.Module = nn.ReLU
+        act_layer   : torch.nn.Module = torch.nn.ReLU
     ):
         super().__init__()
         self.ds_conv = DepthwiseSeparableConv2d(
@@ -271,7 +270,7 @@ class DepthwiseSeparableConvAct2d(nn.Module):
         return self.act(self.ds_conv(input))
 
 
-class DepthwiseSeparableConv2dReLU(nn.Module):
+class DepthwiseSeparableConv2dReLU(torch.nn.Module):
     """Depthwise separable 2D convolution with ReLU activation.
 
     Args:
@@ -316,7 +315,7 @@ class DepthwiseSeparableConv2dReLU(nn.Module):
             device       = device,
             dtype        = dtype
         )
-        self.act = nn.ReLU(inplace=True)
+        self.act = torch.nn.ReLU(inplace=True)
 
     def forward(self, input: torch.Tensor) -> torch.Tensor:
         """Applies depthwise separable convolution and ReLU.

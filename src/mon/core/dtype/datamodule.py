@@ -15,9 +15,8 @@ from typing import Any, Callable, Literal
 import lightning
 from torch.utils import data
 
-from mon.core import rich
+from mon.core import enum, rich
 from mon.core.dtype import base, dataset
-from mon.core.enum import Task
 
 
 class DataModule(lightning.LightningDataModule, ABC):
@@ -36,7 +35,7 @@ class DataModule(lightning.LightningDataModule, ABC):
         verbose: If ``True``, enables verbose output. Default is ``True``.
     """
     
-    tasks: list[Task] = []
+    tasks: list[enum.Task] = []
     
     def __init__(
         self,

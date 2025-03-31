@@ -15,6 +15,12 @@ from torch.nn import (
 	ParameterDict, ParameterList, Sequential,
 )
 # noinspection PyUnresolvedReferences
+from torch.nn.common_types import (
+	_maybe_indices_t, _ratio_2_t, _ratio_3_t, _ratio_any_t, _size_1_t, _size_2_opt_t,
+	_size_2_t, _size_3_opt_t, _size_3_t, _size_4_t, _size_5_t, _size_6_t,
+	_size_any_opt_t, _size_any_t, _tensor_list_t,
+)
+# noinspection PyUnresolvedReferences
 from torch.nn.parallel import DataParallel as DataParallel
 # noinspection PyUnresolvedReferences
 from torch.nn.parameter import (

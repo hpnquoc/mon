@@ -21,7 +21,6 @@ __all__ = [
 from typing import Literal
 
 import torch
-from torch import nn
 from torch.nn.common_types import _size_2_t
 
 from mon.globals import LOSSES
@@ -44,12 +43,8 @@ class ColorConstancyLoss(base.Loss):
         - https://github.com/Li-Chongyi/Zero-DCE/blob/master/Zero-DCE_code/Myloss.py#L9
     """
     
-    def __init__(
-        self,
-        loss_weight: float = 1.0,
-        reduction  : Literal["none", "mean", "sum"] = "mean"
-    ):
-        super().__init__(loss_weight=loss_weight, reduction=reduction)
+    def __init__(self, reduction: Literal["none", "mean", "sum"] = "mean"):
+        super().__init__(reduction=reduction)
     
     def forward(self, input: torch.Tensor) -> torch.Tensor:
         """Computes the color constancy loss for the input tensor.
@@ -64,8 +59,8 @@ class ColorConstancyLoss(base.Loss):
         mr, mg, mb = torch.split(mean_rgb, 1, dim=1)
         loss       = torch.pow(torch.pow(mr - mg, 2) + torch.pow(mr - mb, 2) + torch.pow(mb - mg, 2), 0.5)
         loss       = base.reduce_loss(loss=loss, reduction=self.reduction)
-        return self.loss_weight * loss
-
+        return loss
+        
 # endregion
 
 
@@ -77,18 +72,16 @@ class DepthAwareIlluminationLoss(base.Loss):
 
     Args:
         alpha: Weighting factor for depth influence as ``float``. Default is ``1.0``.
-        loss_weight: Weight of the loss as ``float``. Default is ``1.0``.
         reduction: Reduction method as ``Literal["none", "mean", "sum"]``.
             Default is ``"mean"``.
     """
     
     def __init__(
         self,
-        alpha      : float = 1.0,
-        loss_weight: float = 1.0,
-        reduction  : Literal["none", "mean", "sum"] = "mean"
+        alpha    : float = 1.0,
+        reduction: Literal["none", "mean", "sum"] = "mean"
     ):
-        super().__init__(loss_weight=loss_weight, reduction=reduction)
+        super().__init__(reduction=reduction)
         self.alpha = alpha
     
     def forward(self, input: torch.Tensor, depth: torch.Tensor) -> torch.Tensor:
@@ -96,7 +89,7 @@ class DepthAwareIlluminationLoss(base.Loss):
 
         Args:
             input: Illumination tensor as ``torch.Tensor`` with shape [B, C, H, W].
-            depth: Depth tensor as ``torch.Tensor`` with shape [B, C, H, W]``.
+            depth: Depth tensor as ``torch.Tensor`` with shape [B, C, H, W].
 
         Returns:
             Loss value as ``torch.Tensor``.
@@ -118,8 +111,7 @@ class DepthAwareIlluminationLoss(base.Loss):
         loss_dy = torch.mean(weight_dy * torch.abs(L_dy))
         
         # Sum the losses from both directions
-        loss = loss_dx + loss_dy
-        return self.loss_weight * loss
+        return loss_dx + loss_dy
 
 
 @LOSSES.register(name="edge_aware_illumination_loss")
@@ -128,18 +120,16 @@ class EdgeAwareIlluminationLoss(base.Loss):
 
     Args:
         beta: Weighting factor for edge influence as ``float``. Default is ``1.0``.
-        loss_weight: Weight of the loss as ``float``. Default is ``1.0``.
         reduction: Reduction method as ``Literal["none", "mean", "sum"]``.
             Default is ``"mean"``.
     """
     
     def __init__(
         self,
-        beta       : float = 1.0,
-        loss_weight: float = 1.0,
-        reduction  : Literal["none", "mean", "sum"] = "mean"
+        beta     : float = 1.0,
+        reduction: Literal["none", "mean", "sum"] = "mean"
     ):
-        super().__init__(loss_weight=loss_weight, reduction=reduction)
+        super().__init__(reduction=reduction)
         self.beta = beta
     
     def forward(self, input: torch.Tensor, edge: torch.Tensor) -> torch.Tensor:
@@ -171,8 +161,7 @@ class EdgeAwareIlluminationLoss(base.Loss):
         loss_dy = torch.mean(weight_dy * torch.abs(L_dy))
         
         # Sum the losses from both directions
-        loss = loss_dx + loss_dy
-        return self.loss_weight * loss
+        return loss_dx + loss_dy
 
 
 @LOSSES.register(name="total_variation_loss")
@@ -182,7 +171,6 @@ class TotalVariationLoss(base.Loss):
     avoid aggressive and sharp changes.
 
     Args:
-        loss_weight: Weight of the loss as ``float``. Default is ``1.0``.
         reduction: Reduction method as ``Literal["none", "mean", "sum"]``.
             Default is ``"mean"``.
 
@@ -190,12 +178,8 @@ class TotalVariationLoss(base.Loss):
         - https://github.com/Li-Chongyi/Zero-DCE/blob/master/Zero-DCE_code/Myloss.py
     """
     
-    def __init__(
-        self,
-        loss_weight: float = 1.0,
-        reduction  : Literal["none", "mean", "sum"] = "mean",
-    ):
-        super().__init__(loss_weight=loss_weight, reduction=reduction)
+    def __init__(self, reduction: Literal["none", "mean", "sum"] = "mean"):
+        super().__init__(reduction=reduction)
     
     def forward(self, input : torch.Tensor) -> torch.Tensor:
         """Computes the total variation loss for the input tensor.
@@ -213,8 +197,8 @@ class TotalVariationLoss(base.Loss):
         h_tv    = torch.pow((x[:, :, 1:,  :] - x[:, :, :h_x - 1, :]), 2).sum()
         w_tv    = torch.pow((x[:, :,  :, 1:] - x[:, :, :, :w_x - 1]), 2).sum()
         loss    = 2 * (h_tv / count_h + w_tv / count_w) / b
-        return self.loss_weight * loss
-    
+        return loss
+        
     @staticmethod
     def _tensor_size(t: torch.Tensor) -> int:
         """Computes the total number of elements in the tensor.
@@ -241,7 +225,6 @@ class ExposureControlLoss(base.Loss):
         patch_size: Kernel size for pooling layer as ``int`` or ``tuple[int, int]``.
             Default is ``16``.
         mean_val: Well-exposedness level E as ``float``. Default is ``0.6``.
-        loss_weight: Weight of the loss as ``float``. Default is ``1.0``.
         reduction: Reduction method as ``Literal["none", "mean", "sum"]``.
             Default is ``"mean"``.
 
@@ -251,22 +234,21 @@ class ExposureControlLoss(base.Loss):
     
     def __init__(
         self,
-        patch_size : _size_2_t = 16,
-        mean_val   : float     = 0.6,
-        loss_weight: float     = 1.0,
-        reduction  : Literal["none", "mean", "sum"] = "mean",
+        patch_size: _size_2_t = 16,
+        mean_val  : float     = 0.6,
+        reduction : Literal["none", "mean", "sum"] = "mean",
     ):
-        super().__init__(loss_weight=loss_weight, reduction=reduction)
+        super().__init__(reduction=reduction)
         self.patch_size = patch_size
         self.mean_val   = mean_val
-        self.pool       = nn.AvgPool2d(self.patch_size)
+        self.pool       = torch.nn.AvgPool2d(self.patch_size)
     
     def forward(self, input: torch.Tensor) -> torch.Tensor:
         x    = torch.mean(input, 1, keepdim=True)
         mean = self.pool(x)
         loss = torch.pow(mean - torch.FloatTensor([self.mean_val]).to(input.device), 2)
         loss = base.reduce_loss(loss=loss, reduction=self.reduction)
-        return self.loss_weight * loss
+        return loss
 
 
 @LOSSES.register(name="exposure_value_control_loss")
@@ -278,7 +260,6 @@ class ExposureValueControlLoss(base.Loss):
             Default is ``16``.
         mean_val: Well-exposedness level E as ``float``; lower values produce
             brighter images. Default is ``0.6``.
-        loss_weight: Weight of the loss as ``float``. Default is ``1.0``.
         reduction: Reduction method as ``Literal["none", "mean", "sum"]``.
         Default is ``"mean"``.
 
@@ -288,15 +269,14 @@ class ExposureValueControlLoss(base.Loss):
     
     def __init__(
         self,
-        patch_size : _size_2_t = 16,
-        mean_val   : float     = 0.6,
-        loss_weight: float     = 1.0,
-        reduction  : Literal["none", "mean", "sum"] = "mean",
+        patch_size: _size_2_t = 16,
+        mean_val  : float     = 0.6,
+        reduction : Literal["none", "mean", "sum"] = "mean",
     ):
-        super().__init__(loss_weight=loss_weight, reduction=reduction)
+        super().__init__(reduction=reduction)
         self.patch_size = patch_size
         self.mean_val   = mean_val
-        self.pool       = nn.AvgPool2d(self.patch_size)
+        self.pool       = torch.nn.AvgPool2d(self.patch_size)
     
     def forward(self, input: torch.Tensor) -> torch.Tensor:
         """Computes the exposure value control loss for the input tensor.
@@ -311,6 +291,6 @@ class ExposureValueControlLoss(base.Loss):
         mean = self.pool(x)                        # Pooled mean: [B, 1, H', W']
         diff = torch.abs(mean - torch.FloatTensor([self.mean_val]).to(input.device))  # Absolute difference
         loss = base.reduce_loss(loss=diff, reduction=self.reduction)  # Reduced absolute difference
-        return self.loss_weight * loss
+        return loss
 
 # endregion

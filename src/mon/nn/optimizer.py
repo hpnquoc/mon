@@ -47,30 +47,21 @@ import math
 from collections import Counter, defaultdict
 from typing import Any
 
-from torch import optim
-from torch.optim import lr_scheduler
+from torch.optim import (
+    Adadelta, Adagrad, Adam, Adamax, AdamW, ASGD, LBFGS, NAdam, Optimizer,
+    RAdam, RMSprop, Rprop, SGD, SparseAdam,
+)
 # noinspection PyUnresolvedReferences
-from torch.optim.lr_scheduler import _LRScheduler
+from torch.optim.lr_scheduler import (
+    _LRScheduler, ChainedScheduler, ConstantLR, CosineAnnealingLR,
+    CosineAnnealingWarmRestarts, CyclicLR, ExponentialLR, LambdaLR, LinearLR,
+    MultiplicativeLR, MultiStepLR, OneCycleLR, PolynomialLR, ReduceLROnPlateau,
+    SequentialLR, StepLR,
+)
 
 from mon.globals import LR_SCHEDULERS, OPTIMIZERS
 
-
 # region Optimizer
-
-Optimizer       = optim.Optimizer
-Adadelta        = optim.Adadelta
-Adagrad         = optim.Adagrad
-Adam            = optim.Adam
-Adamax          = optim.Adamax
-AdamW           = optim.AdamW
-ASGD            = optim.ASGD
-LBFGS           = optim.LBFGS
-NAdam           = optim.NAdam
-RAdam           = optim.RAdam
-RMSprop         = optim.RMSprop
-Rprop           = optim.Rprop
-SGD             = optim.SGD
-SparseAdam      = optim.SparseAdam
 
 OPTIMIZERS.register(name="adadelta"   , module=Adadelta)
 OPTIMIZERS.register(name="adagrad"    , module=Adagrad)
@@ -429,22 +420,7 @@ class VibrateLR(_LRScheduler):
         return [weight * group["initial_lr"] for group in self.optimizer.param_groups]
 
 
-LRScheduler                 = _LRScheduler
-ChainedScheduler            = lr_scheduler.ChainedScheduler
-ConstantLR                  = lr_scheduler.ConstantLR
-CosineAnnealingLR           = lr_scheduler.CosineAnnealingLR
-CosineAnnealingWarmRestarts = lr_scheduler.CosineAnnealingWarmRestarts
-CyclicLR                    = lr_scheduler.CyclicLR
-ExponentialLR               = lr_scheduler.ExponentialLR
-LambdaLR                    = lr_scheduler.LambdaLR
-LinearLR                    = lr_scheduler.LinearLR
-MultiStepLR                 = lr_scheduler.MultiStepLR
-MultiplicativeLR            = lr_scheduler.MultiplicativeLR
-OneCycleLR                  = lr_scheduler.OneCycleLR
-PolynomialLR                = lr_scheduler.PolynomialLR
-ReduceLROnPlateau           = lr_scheduler.ReduceLROnPlateau
-SequentialLR                = lr_scheduler.SequentialLR
-StepLR                      = lr_scheduler.StepLR
+LRScheduler = _LRScheduler
 
 LR_SCHEDULERS.register(name="chained_scheduler"             , module=ChainedScheduler)
 LR_SCHEDULERS.register(name="constant_lr"                   , module=ConstantLR)

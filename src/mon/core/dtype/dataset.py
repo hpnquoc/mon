@@ -22,12 +22,8 @@ import torch
 from torch.utils.data import dataset
 from torch.utils.data.dataset import *
 
-from mon.core import pathlib, rich
+from mon.core import pathlib, rich, enum
 from mon.core.dtype import annotation
-from mon.core.enum import Split, Task
-
-console     = rich.console
-ClassLabels = annotation.ClassLabels
 
 
 class Dataset(dataset.Dataset, ABC):
@@ -49,31 +45,31 @@ class Dataset(dataset.Dataset, ABC):
         verbose: If ``True``, enables verbose output. Default is ``False``.
     """
     
-    tasks               : list[Task]  = []
-    splits              : list[Split] = [Split.TRAIN, Split.VAL, Split.TEST, Split.PREDICT]
-    datapoint_attrs     : Any         = {}
-    has_test_annotations: bool        = False
-    classlabels         : ClassLabels = None
+    tasks : list[enum.Task]    = []
+    splits: list[enum.Split]   = [enum.Split.TRAIN, enum.Split.VAL, enum.Split.TEST, enum.Split.PREDICT]
+    datapoint_attrs     : Any  = {}
+    has_test_annotations: bool = False
+    classlabels         : annotation.ClassLabels = None
     
     def __init__(
         self,
         root      : pathlib.Path,
-        split     : Split = Split.TRAIN,
-        transform : Any   = None,
-        to_tensor : bool  = False,
-        cache_data: bool  = False,
-        verbose   : bool  = False,
+        split     : enum.Split = enum.Split.TRAIN,
+        transform : Any        = None,
+        to_tensor : bool       = False,
+        cache_data: bool       = False,
+        verbose   : bool       = False,
         *args, **kwargs
     ):
         super().__init__(*args, **kwargs)
         self.root       = pathlib.Path(root)
         self.split      = split
-        self.transform  = transform
+        self.transform  = None
         self.to_tensor  = to_tensor
         self.verbose    = verbose
         self.index      = 0  # Used with `__iter__` and `__next__`
         self.datapoints = {}
-        self.init_transform()
+        self.init_transform(transform)
         self.init_datapoints()
         self.init_data(cache_data=cache_data)
         
@@ -166,9 +162,9 @@ class Dataset(dataset.Dataset, ABC):
         return (
             (
                 self.has_test_annotations
-                and self.split in [Split.TEST, Split.PREDICT]
+                and self.split in [enum.Split.TEST, enum.Split.PREDICT]
             )
-            or (self.split in [Split.TRAIN, Split.VAL])
+            or (self.split in [enum.Split.TRAIN, enum.Split.VAL])
         )
     
     @property
@@ -205,7 +201,7 @@ class Dataset(dataset.Dataset, ABC):
         return {k: None for k in self.datapoint_attrs.keys()}
     
     @property
-    def split(self) -> Split:
+    def split(self) -> enum.Split:
         """Gets the current dataset split.
 
         Returns:
@@ -214,7 +210,7 @@ class Dataset(dataset.Dataset, ABC):
         return self._split
     
     @split.setter
-    def split(self, split: Split):
+    def split(self, split: enum.Split):
         """Sets the dataset split.
 
         Args:
@@ -223,7 +219,7 @@ class Dataset(dataset.Dataset, ABC):
         Raises:
             ValueError: If ``split`` not in supported splits.
         """
-        split = Split[split] if isinstance(split, str) else split
+        split = enum.Split[split] if isinstance(split, str) else split
         if split in self.splits:
             self._split = split
         else:
@@ -242,14 +238,15 @@ class Dataset(dataset.Dataset, ABC):
     
     # region Initialization
     
+    @abstractmethod
     def init_transform(self, transform: Any = None):
         """Initializes transformation operations.
 
         Args:
             transform: Transformations to apply. Default is ``None``.
         """
-        self.transform = transform or self.transform
-    
+        pass
+
     def init_datapoints(self):
         """Initializes the datapoints dictionary.
 
@@ -300,7 +297,7 @@ class Dataset(dataset.Dataset, ABC):
             cache = self.datapoints | {"hash": self.hash}
             torch.save(cache, str(path))
             if self.verbose:
-                console.log(f"Cached data to: {path}")
+                rich.console.log(f"Cached data to: {path}")
     
     def load_cache(self, path: pathlib.Path):
         """Loads cached data from specified path.

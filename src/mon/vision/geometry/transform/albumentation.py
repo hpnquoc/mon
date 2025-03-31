@@ -7,20 +7,45 @@ from __future__ import annotations
 
 from typing import Literal
 
-# noinspection PyPackageRequirements,PyUnresolvedReferences
-import albumentations
 from albumentations import *
-from albumentations.augmentations.geometric import functional as fgeometric
-from albumentations.core.transforms_interface import (
-	BaseTransformInitSchema,
-	DualTransform,
-)
+from albumentations.augmentations.geometric import functional as F
+from albumentations.core.transforms_interface import DualTransform
 from albumentations.core.type_definitions import Targets
-from pydantic import Field
+from pydantic import BaseModel, Field
+
+from mon.globals import TRANSFORMS
+
+# region Blur
+
+TRANSFORMS.register(name="advanced_blur", module=AdvancedBlur)
+TRANSFORMS.register(name="blur",          module=Blur)
+TRANSFORMS.register(name="defocus",       module=Defocus)
+TRANSFORMS.register(name="gaussian_blur", module=GaussianBlur)
+TRANSFORMS.register(name="glass_blur",    module=GlassBlur)
+TRANSFORMS.register(name="median_blur",   module=MedianBlur)
+TRANSFORMS.register(name="motion_blur",   module=MotionBlur)
+TRANSFORMS.register(name="zoom_blur",     module=ZoomBlur)
+
+# endregion
 
 
 # region Crop
 
+TRANSFORMS.register(name="at_least_one_bbox_random_crop", module=AtLeastOneBBoxRandomCrop)
+TRANSFORMS.register(name="bbox_safe_random_crop",         module=BBoxSafeRandomCrop)
+TRANSFORMS.register(name="center_crop",                   module=CenterCrop)
+TRANSFORMS.register(name="crop",       				      module=Crop)
+TRANSFORMS.register(name="crop_and_pad",                  module=CropAndPad)
+TRANSFORMS.register(name="crop_non_empty_mask_if_exists", module=CropNonEmptyMaskIfExists)
+TRANSFORMS.register(name="random_crop",	                  module=RandomCrop)
+TRANSFORMS.register(name="random_crop_from_borders",      module=RandomCropFromBorders)
+TRANSFORMS.register(name="random_crop_near_bbox",         module=RandomCropNearBBox)
+TRANSFORMS.register(name="random_resized_crop",           module=RandomResizedCrop)
+TRANSFORMS.register(name="random_sized_bbox_safe_crop",   module=RandomSizedBBoxSafeCrop)
+TRANSFORMS.register(name="random_sized_crop",             module=RandomSizedCrop)
+
+
+@TRANSFORMS.register(name="crop_patch")
 class CropPatch(DualTransform):
 	"""Crop a patch of the image according to
 	`<https://github.com/ZhendongWang6/Uformer/blob/main/dataset/dataset_denoise.py>__`
@@ -56,32 +81,38 @@ class CropPatch(DualTransform):
 # endregion
 
 
-# region Normalize
+# region Domain Adaptation
 
-class NormalizeImageMeanStd(DualTransform):
-	"""Normalize image by given `mean` and `std`."""
-	
-	def __init__(
-		self,
-		mean: Sequence[float] = [0.485, 0.456, 0.406],
-		std : Sequence[float] = [0.229, 0.224, 0.225],
-		p   : float           = 1.0,
-	):
-		super().__init__(p=p)
-		self.mean = mean
-		self.std  = std
-	
-	def apply(self, img: np.ndarray, **params) -> np.ndarray:
-		return (img - self.mean) / self.std
-	
-	def apply_to_mask(self, img: np.ndarray, **params) -> np.ndarray:
-		return (img - self.mean) / self.std
-		
+TRANSFORMS.register(name="fda",                           module=FDA)
+TRANSFORMS.register(name="histogram_matching",            module=HistogramMatching)
+TRANSFORMS.register(name="pixel_distribution_adaptation", module=PixelDistributionAdaptation)
+TRANSFORMS.register(name="template_transform",            module=TemplateTransform)
+
 # endregion
 
 
+# region Dropout
+
+TRANSFORMS.register(name="channel_dropout", module=ChannelDropout)
+TRANSFORMS.register(name="coarse_dropout",  module=CoarseDropout)
+TRANSFORMS.register(name="grid_dropout",    module=GridDropout)
+TRANSFORMS.register(name="mask_dropout",    module=MaskDropout)
+TRANSFORMS.register(name="xy_masking",      module=XYMasking)
+
+# endregion
+
+
+# region Geometric
+
 # region Resize
 
+TRANSFORMS.register(name="longest_max_size",  module=LongestMaxSize)
+TRANSFORMS.register(name="random_scale",      module=RandomScale)
+TRANSFORMS.register(name="resize",            module=Resize)
+TRANSFORMS.register(name="smallest_max_size", module=SmallestMaxSize)
+
+
+@TRANSFORMS.register(name="resize_multiple_of")
 class ResizeMultipleOf(DualTransform):
 	"""Resize the input to the given height and width and ensure that they are
 	constrained to be multiple of a given number.
@@ -118,7 +149,7 @@ class ResizeMultipleOf(DualTransform):
 	
 	_targets = (Targets.IMAGE, Targets.MASK, Targets.KEYPOINTS, Targets.BBOXES)
 	
-	class InitSchema(BaseTransformInitSchema):
+	class InitSchema(BaseModel):
 		height           : int   = Field(ge=1,          description="Desired height of the output.")
 		width            : int   = Field(ge=1,          description="Desired width of the output.")
 		keep_aspect_ratio: bool  = Field(False,         description="Keep the aspect ratio of the input sample.")
@@ -202,7 +233,7 @@ class ResizeMultipleOf(DualTransform):
 	
 	def apply(self, img: np.ndarray, interpolation: int, **params: Any) -> np.ndarray:
 		height, width = self.get_size(img.shape[0], img.shape[1])
-		return fgeometric.resize(img, height=height, width=width, interpolation=interpolation)
+		return F.resize(img, height=height, width=width, interpolation=interpolation)
 	
 	def apply_to_bbox(self, bbox: np.ndarray, **params: Any) -> np.ndarray:
 		# Bounding box coordinates are scale invariant
@@ -212,9 +243,153 @@ class ResizeMultipleOf(DualTransform):
 		height, width = self.get_size(params["rows"], params["cols"])
 		scale_x       = self.width  / width
 		scale_y       = self.height / height
-		return fgeometric.keypoint_scale(keypoint, scale_x, scale_y)
+		return F.keypoint_scale(keypoint, scale_x, scale_y)
 	
 	def get_transform_init_args_names(self) -> tuple[str, ...]:
 		return "height", "width", "interpolation"
+
+# endregion
+
+
+# region Rotate
+
+TRANSFORMS.register(name="random_rotate_90", module=RandomRotate90)
+TRANSFORMS.register(name="rotate",           module=Rotate)
+TRANSFORMS.register(name="safe_rotate",      module=SafeRotate)
+
+# endregion
+
+
+# region Transform
+
+TRANSFORMS.register(name="affine",              module=Affine)
+TRANSFORMS.register(name="d4",                  module=D4)
+TRANSFORMS.register(name="elastic_transform",   module=ElasticTransform)
+TRANSFORMS.register(name="grid_distortion",     module=GridDistortion)
+TRANSFORMS.register(name="grid_elastic_deform", module=GridElasticDeform)
+TRANSFORMS.register(name="horizontal_flip",     module=HorizontalFlip)
+TRANSFORMS.register(name="optical_distortion",  module=OpticalDistortion)
+TRANSFORMS.register(name="pad",                 module=Pad)
+TRANSFORMS.register(name="pad_if_needed",       module=PadIfNeeded)
+TRANSFORMS.register(name="perspective",         module=Perspective)
+TRANSFORMS.register(name="piecewise_affine",    module=PiecewiseAffine)
+TRANSFORMS.register(name="random_grid_shuffle", module=RandomGridShuffle)
+TRANSFORMS.register(name="shift_scale_rotate",  module=ShiftScaleRotate)
+TRANSFORMS.register(name="thin_plate_spline",   module=ThinPlateSpline)
+TRANSFORMS.register(name="transpose",           module=Transpose)
+TRANSFORMS.register(name="vertical_flip",       module=VerticalFlip)
+
+# endregion
+
+# endregion
+
+
+# region Mixing
+
+TRANSFORMS.register(name="overlay_elements", module=OverlayElements)
+
+# endregion
+
+
+# region Spectrogram
+
+TRANSFORMS.register(name="frequency_masking", module=FrequencyMasking)
+TRANSFORMS.register(name="time_masking",      module=TimeMasking)
+TRANSFORMS.register(name="time_reverse",      module=TimeReverse)
+
+# endregion
+
+
+# region Text
+
+TRANSFORMS.register(name="text_image", module=TextImage)
+
+# endregion
+
+
+# region Transform
+
+TRANSFORMS.register(name="additive_noise",             module=AdditiveNoise)
+TRANSFORMS.register(name="auto_contrast",              module=AutoContrast)
+TRANSFORMS.register(name="channel_shuffle",            module=ChannelShuffle)
+TRANSFORMS.register(name="chromatic_aberration",       module=ChromaticAberration)
+TRANSFORMS.register(name="clahe",                      module=CLAHE)
+TRANSFORMS.register(name="color_jitter",               module=ColorJitter)
+TRANSFORMS.register(name="downscale",                  module=Downscale)
+TRANSFORMS.register(name="emboss",                     module=Emboss)
+TRANSFORMS.register(name="equalize",                   module=Equalize)
+TRANSFORMS.register(name="fancy_pca",                  module=FancyPCA)
+TRANSFORMS.register(name="from_float",                 module=FromFloat)
+TRANSFORMS.register(name="gauss_noise",                module=GaussNoise)
+TRANSFORMS.register(name="he_stain",                   module=HEStain)
+TRANSFORMS.register(name="hue_saturation_value",       module=HueSaturationValue)
+TRANSFORMS.register(name="illumination",               module=Illumination)
+TRANSFORMS.register(name="image_compression",          module=ImageCompression)
+TRANSFORMS.register(name="invert_img",                 module=InvertImg)
+TRANSFORMS.register(name="iso_noise",                  module=ISONoise)
+TRANSFORMS.register(name="lambda",                     module=Lambda)
+TRANSFORMS.register(name="morphological",              module=Morphological)
+TRANSFORMS.register(name="multiplicative_noise",       module=MultiplicativeNoise)
+TRANSFORMS.register(name="normalize",                  module=Normalize)
+TRANSFORMS.register(name="pixel_dropout",              module=PixelDropout)
+TRANSFORMS.register(name="planckian_jitter",           module=PlanckianJitter)
+TRANSFORMS.register(name="plasma_brightness_contrast", module=PlasmaBrightnessContrast)
+TRANSFORMS.register(name="plasma_shadow",              module=PlasmaShadow)
+TRANSFORMS.register(name="posterize",                  module=Posterize)
+TRANSFORMS.register(name="random_brightness_contrast", module=RandomBrightnessContrast)
+TRANSFORMS.register(name="random_fog",                 module=RandomFog)
+TRANSFORMS.register(name="random_gamma",               module=RandomGamma)
+TRANSFORMS.register(name="random_gravel",              module=RandomGravel)
+TRANSFORMS.register(name="random_rain",                module=RandomRain)
+TRANSFORMS.register(name="random_shadow",              module=RandomShadow)
+TRANSFORMS.register(name="random_snow",                module=RandomSnow)
+TRANSFORMS.register(name="random_sunflare",            module=RandomSunFlare)
+TRANSFORMS.register(name="random_tone_curve",          module=RandomToneCurve)
+TRANSFORMS.register(name="rgb_shift",                  module=RGBShift)
+TRANSFORMS.register(name="ringing_overshoot",          module=RingingOvershoot)
+TRANSFORMS.register(name="salt_and_pepper",            module=SaltAndPepper)
+TRANSFORMS.register(name="sharpen",                    module=Sharpen)
+TRANSFORMS.register(name="shot_noise",                 module=ShotNoise)
+TRANSFORMS.register(name="solarize",                   module=Solarize)
+TRANSFORMS.register(name="spatter",                    module=Spatter)
+TRANSFORMS.register(name="superpixels",                module=Superpixels)
+TRANSFORMS.register(name="to_float",                   module=ToFloat)
+TRANSFORMS.register(name="to_gray",                    module=ToGray)
+TRANSFORMS.register(name="to_rgb",                     module=ToRGB)
+TRANSFORMS.register(name="to_sepia",                   module=ToSepia)
+TRANSFORMS.register(name="unsharp_mask",               module=UnsharpMask)
+
+
+@TRANSFORMS.register(name="normalize_image_mean_std")
+class NormalizeImageMeanStd(DualTransform):
+	"""Normalize image by given `mean` and `std`."""
 	
+	def __init__(
+		self,
+		mean: Sequence[float] = [0.485, 0.456, 0.406],
+		std : Sequence[float] = [0.229, 0.224, 0.225],
+		p   : float           = 1.0,
+	):
+		super().__init__(p=p)
+		self.mean = mean
+		self.std  = std
+	
+	def apply(self, img: np.ndarray, **params) -> np.ndarray:
+		return (img - self.mean) / self.std
+	
+	def apply_to_mask(self, img: np.ndarray, **params) -> np.ndarray:
+		return (img - self.mean) / self.std
+		
+# endregion
+
+
+# region Transform3D
+
+TRANSFORMS.register(name="center_crop_3d",    module=CenterCrop3D)
+TRANSFORMS.register(name="coarse_dropout_3d", module=CoarseDropout3D)
+TRANSFORMS.register(name="cubic_symmetry",    module=CubicSymmetry)
+TRANSFORMS.register(name="pad_3d",            module=Pad3D)
+TRANSFORMS.register(name="pad_if_needed_3d",  module=PadIfNeeded3D)
+TRANSFORMS.register(name="random_crop_3d",    module=RandomCrop3D)
+
 # endregion

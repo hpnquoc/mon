@@ -11,7 +11,6 @@ import mon
 import myloss
 from mon import albumentation as A
 
-console      = mon.console
 current_file = mon.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
@@ -48,8 +47,8 @@ def train(args: dict) -> str:
     verbose      = args["verbose"]
     
     # Start
-    console.rule(f"[bold red] {fullname}")
-    console.log(f"Machine: {hostname}")
+    mon.console.rule(f"[bold red] {fullname}")
+    mon.console.log(f"Machine: {hostname}")
     
     # Device
     device = mon.set_device(device)

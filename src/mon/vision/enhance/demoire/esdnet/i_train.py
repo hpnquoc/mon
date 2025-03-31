@@ -17,7 +17,6 @@ from model.nets import my_model
 from utils.common import *
 from utils.loss_util import *
 
-console      = mon.console
 current_file = mon.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
@@ -56,14 +55,14 @@ def train_epoch(args, train_img_loader, model, model_fn, optimizer, epoch, iters
 
 def load_checkpoint(model, optimizer, load_epoch):
     state_dict = torch.load(load_epoch)
-    console.log("Loading pre-trained checkpoint %s" % load_epoch)
+    mon.console.log("Loading pre-trained checkpoint %s" % load_epoch)
     model_state_dict = state_dict["state_dict"]
     optimizer_dict   = state_dict["optimizer"]
     learning_rate    = state_dict["learning_rate"]
     iters            = state_dict["iters"]
     model.load_state_dict(model_state_dict)
     optimizer.load_state_dict(optimizer_dict)
-    console.log("Learning rate recorded from the checkpoint: %s" % str(learning_rate))
+    mon.console.log("Learning rate recorded from the checkpoint: %s" % str(learning_rate))
     return learning_rate, iters
 
 
@@ -88,8 +87,8 @@ def train(args: dict) -> str:
     verbose      = args["verbose"]
     
     # Start
-    console.rule(f"[bold red] {fullname}")
-    console.log(f"Machine: {hostname}")
+    mon.console.rule(f"[bold red] {fullname}")
+    mon.console.log(f"Machine: {hostname}")
     
     # Device
     device = mon.set_device(device)
@@ -121,7 +120,7 @@ def train(args: dict) -> str:
                 weights = root / weights
             if (root / "run" / "train" / weights).is_ckpt_file(exist=True):
                 weights = root / "run" / "train" / weights
-    console.log(weights)
+    mon.console.log(weights)
     
     model = my_model(
         en_feature_num = args["MODEL"]["EN_FEATURE_NUM"],

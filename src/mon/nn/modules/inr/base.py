@@ -15,7 +15,6 @@ from typing import Any
 
 import numpy as np
 import torch
-from torch import nn
 from torch.nn import functional as F
 
 
@@ -80,7 +79,7 @@ def get_patches(image: torch.Tensor, kernel_size: int = 1) -> torch.Tensor:
         for j in range(kernel_size):
             kernel[i * kernel_size + j, :, i, j] = 1
     
-    im_padded = nn.ReflectionPad2d(kernel_size // 2)(image)
+    im_padded = torch.nn.ReflectionPad2d(kernel_size // 2)(image)
     extracted = F.conv2d(im_padded, kernel, padding=0)
     return torch.movedim(extracted, 1 if image.dim() == 4 else 0, -1)
 
@@ -119,7 +118,7 @@ def ff_embedding(p: torch.Tensor, B: torch.Tensor = None) -> torch.Tensor:
 
 # region Baic INR Activation Layers
 
-class SigmoidLayer(nn.Module):
+class SigmoidLayer(torch.nn.Module):
     """Applies linear transformation with sigmoid activation.
 
     Args:
@@ -137,8 +136,8 @@ class SigmoidLayer(nn.Module):
     ):
         super().__init__()
         self.in_channels = in_channels
-        self.linear      = nn.Linear(in_channels, out_channels, bias=bias)
-        self.act         = nn.Sigmoid()
+        self.linear      = torch.nn.Linear(in_channels, out_channels, bias=bias)
+        self.act         = torch.nn.Sigmoid()
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """Transforms input with linear layer and sigmoid.
@@ -152,7 +151,7 @@ class SigmoidLayer(nn.Module):
         return self.act(self.linear(x))
     
 
-class TanhLayer(nn.Module):
+class TanhLayer(torch.nn.Module):
     """Applies linear transformation with tanh activation.
 
     Args:
@@ -170,8 +169,8 @@ class TanhLayer(nn.Module):
     ):
         super().__init__()
         self.in_channels = in_channels
-        self.linear      = nn.Linear(in_channels, out_channels, bias=bias)
-        self.act         = nn.Tanh()
+        self.linear      = torch.nn.Linear(in_channels, out_channels, bias=bias)
+        self.act         = torch.nn.Tanh()
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """Transforms input with linear layer and tanh.
@@ -185,7 +184,7 @@ class TanhLayer(nn.Module):
         return self.act(self.linear(x))
     
     
-class ReLULayer(nn.Module):
+class ReLULayer(torch.nn.Module):
     """Applies linear transformation with ReLU activation.
 
     Args:
@@ -206,8 +205,8 @@ class ReLULayer(nn.Module):
     ):
         super().__init__()
         self.in_channels = in_channels
-        self.linear      = nn.Linear(in_channels, out_channels, bias=bias)
-        self.act         = nn.ReLU()
+        self.linear      = torch.nn.Linear(in_channels, out_channels, bias=bias)
+        self.act         = torch.nn.ReLU()
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """Transforms input with linear layer and ReLU.

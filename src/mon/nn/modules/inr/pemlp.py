@@ -11,12 +11,11 @@ __all__ = [
 ]
 
 import torch
-from torch import nn
 
 from mon.nn.modules.inr import base
 
 
-class PositionalEncodingLayer(nn.Module):
+class PositionalEncodingLayer(torch.nn.Module):
     """Applies positional encoding with sine and cosine functions.
 
     Args:
@@ -60,7 +59,7 @@ class PositionalEncodingLayer(nn.Module):
         return torch.cat(out, dim=-1)
     
     
-class PEMLP(nn.Module):
+class PEMLP(torch.nn.Module):
     """Implements positional encoding MLP network.
 
     Args:
@@ -82,11 +81,11 @@ class PEMLP(nn.Module):
         super().__init__()
         self.encoding = PositionalEncodingLayer(in_channels=in_channels, N_freqs=N_freqs)
         
-        layers  = [nn.Linear(self.encoding.out_channels, hidden_channels), nn.ReLU(True)]
-        layers += [nn.Linear(hidden_channels, hidden_channels), nn.ReLU(True)] * hidden_layers
-        layers.append(nn.Linear(hidden_channels, out_channels))
+        layers  = [torch.nn.Linear(self.encoding.out_channels, hidden_channels), torch.nn.ReLU(True)]
+        layers += [torch.nn.Linear(hidden_channels, hidden_channels), torch.nn.ReLU(True)] * hidden_layers
+        layers.append(torch.nn.Linear(hidden_channels, out_channels))
         
-        self.net = nn.Sequential(*layers)
+        self.net = torch.nn.Sequential(*layers)
         
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """Generates output from encoded image coordinates.

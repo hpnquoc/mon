@@ -11,12 +11,11 @@ __all__ = [
 ]
 
 import torch
-from torch import nn
 
 from mon.nn.modules.inr import base
 
 
-class GaussLayer(nn.Module):
+class GaussLayer(torch.nn.Module):
     """Applies linear transformation with Gaussian activation.
 
     Args:
@@ -40,7 +39,7 @@ class GaussLayer(nn.Module):
         super().__init__()
         self.in_channels = in_channels
         self.scale       = scale
-        self.linear      = nn.Linear(in_channels, out_channels, bias=bias)
+        self.linear      = torch.nn.Linear(in_channels, out_channels, bias=bias)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """Transforms input with linear layer and Gaussian.
@@ -54,7 +53,7 @@ class GaussLayer(nn.Module):
         return torch.exp(-(self.scale * self.linear(x))**2)
 
 
-class GAUSS(nn.Module):
+class GAUSS(torch.nn.Module):
     """Implements Gaussian network with Gauss layers.
 
     Args:
@@ -79,10 +78,10 @@ class GAUSS(nn.Module):
         bias           : bool  = True,
     ):
         super().__init__()
-        self.net = nn.Sequential(
+        self.net = torch.nn.Sequential(
             GaussLayer(in_channels, hidden_channels, scale, bias=bias),
             *[GaussLayer(hidden_channels, hidden_channels, scale, bias=bias) for _ in range(hidden_layers)],
-            nn.Linear(hidden_channels, out_channels)
+            torch.nn.Linear(hidden_channels, out_channels)
         )
         
     def forward(self, x: torch.Tensor) -> torch.Tensor:

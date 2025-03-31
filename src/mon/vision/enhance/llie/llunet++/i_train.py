@@ -22,7 +22,6 @@ from loss import Loss
 from model import NestedUNet
 from mon import albumentation as A
 
-console      = mon.console
 current_file = mon.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
@@ -47,7 +46,7 @@ def train_epoch(train_loader, model, criterion, optimizer, device):
             loss.backward()
             optimizer.step()
             loss_meters.update(loss.item(), input.size(0))
-            # console.log(loss_meters.avg)
+            # mon.console.log(loss_meters.avg)
     return loss_meters.avg
 
 
@@ -70,7 +69,7 @@ def val_epoch(val_loader, model, criterion, device):
             loss_meters.update(loss.item(), input.size(0))
             psnr_meters.update(output, target)
             ssim_meters.update(output, target)
-            # console.log(loss_meters.avg)
+            # mon.console.log(loss_meters.avg)
     return loss_meters.avg, psnr_meters.compute(), ssim_meters.compute()
 
 
@@ -95,8 +94,8 @@ def train(args: dict) -> str:
     verbose      = args["verbose"]
     
     # Start
-    console.rule(f"[bold red] {fullname}")
-    console.log(f"Machine: {hostname}")
+    mon.console.rule(f"[bold red] {fullname}")
+    mon.console.log(f"Machine: {hostname}")
     
     # Device
     device = mon.set_device(device)
@@ -149,7 +148,7 @@ def train(args: dict) -> str:
         val_psnr    = float(val_results[1].cpu().detach().numpy())
         val_ssim    = float(val_results[2].cpu().detach().numpy())
         scheduler.step()
-        console.log(
+        mon.console.log(
             "Epoch [%d/%d] train/loss %.4f - val/loss %.4f - val/psnr %.4f - val/ssim %.4f\n"
             % (epoch, epochs, train_loss, val_loss, val_psnr, val_ssim)
         )

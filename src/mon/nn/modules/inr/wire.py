@@ -16,12 +16,11 @@ __all__ = [
 
 import numpy as np
 import torch
-from torch import nn
 
 from mon.nn.modules.inr import base
 
 
-class ComplexGaborLayer(nn.Module):
+class ComplexGaborLayer(torch.nn.Module):
     """Applies complex Gabor transformation to input.
 
     Args:
@@ -52,9 +51,9 @@ class ComplexGaborLayer(nn.Module):
         self.is_first    = is_first
         self.in_channels = in_channels
         dtype            = torch.float if is_first else torch.cfloat
-        self.linear      = nn.Linear(in_channels, out_channels, bias=bias, dtype=dtype)
-        self.w0          = nn.Parameter(torch.tensor([w0]), requires_grad=trainable)
-        self.scale_0     = nn.Parameter(torch.tensor([s0]), requires_grad=trainable)
+        self.linear      = torch.nn.Linear(in_channels, out_channels, bias=bias, dtype=dtype)
+        self.w0          = torch.nn.Parameter(torch.tensor([w0]), requires_grad=trainable)
+        self.scale_0     = torch.nn.Parameter(torch.tensor([s0]), requires_grad=trainable)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """Transforms input with complex Gabor activation.
@@ -71,7 +70,7 @@ class ComplexGaborLayer(nn.Module):
         return torch.exp(1j * omega - scale.abs().square())
 
 
-class WIRE(nn.Module):
+class WIRE(torch.nn.Module):
     """WIRE network.
 
     Args:
@@ -104,10 +103,10 @@ class WIRE(nn.Module):
         hidden_channels = int(hidden_channels / np.sqrt(2))
         dtype = torch.cfloat
 
-        self.net = nn.Sequential(
+        self.net = torch.nn.Sequential(
             ComplexGaborLayer(in_channels, hidden_channels, first_w0, s0=scale, is_first=True, bias=bias),
             *[ComplexGaborLayer(hidden_channels, hidden_channels, hidden_w0, s0=scale, bias=bias) for _ in range(hidden_layers)],
-            nn.Linear(hidden_channels, out_channels, dtype=dtype)
+            torch.nn.Linear(hidden_channels, out_channels, dtype=dtype)
         )
         with torch.no_grad():
             self.net[-1].weight.uniform_(-np.sqrt(6 / hidden_channels) / hidden_w0, np.sqrt(6 / hidden_channels) / hidden_w0)

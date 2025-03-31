@@ -29,7 +29,6 @@ _root = pathlib.Path(__file__).resolve().parents[0]  # root directory
 if str(_root) not in sys.path:
     sys.path.append(str(_root))  # add ROOT to PATH
 
-console      = mon.console
 current_file = mon.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 DehazeResult = namedtuple("DehazeResult", ["learned", "t", "a"])
@@ -180,7 +179,7 @@ class Dehaze:
         :param step: the number of the iteration
         :return:
         """
-        console.log('Iteration %05d    Loss %f  %f' % (step, self.total_loss.item(), self.blur_out.item()), '\r', end='')
+        mon.console.log('Iteration %05d    Loss %f  %f' % (step, self.total_loss.item(), self.blur_out.item()), '\r', end='')
     
     def finalize(self):
         self.final_t_map = np_imresize(self.current_result.t, output_shape=self.original_image.shape[1:])
@@ -230,8 +229,8 @@ def predict(args: argparse.Namespace):
     verbose      = args["verbose"]
     
     # Start
-    console.rule(f"[bold red] {fullname}")
-    console.log(f"Machine: {hostname}")
+    mon.console.rule(f"[bold red] {fullname}")
+    mon.console.log(f"Machine: {hostname}")
     
     # Device
     device = mon.set_device(device)
@@ -240,8 +239,8 @@ def predict(args: argparse.Namespace):
     mon.set_random_seed(seed)
     
     # Data I/O
-    console.log(f"[bold red]{data}")
-    data_name, data_loader = mon.parse_data_loader(data, False, verbose=False)
+    mon.console.log(f"[bold red]{data}")
+    data_name, data_loader = mon.parse_data_loader(data, root, True, verbose=False)
     
     # Predicting
     timer = mon.Timer()
@@ -279,7 +278,7 @@ def predict(args: argparse.Namespace):
                 timer.tock()
          
     # Finish
-    console.log(f"Average time: {timer.avg_time}")
+    mon.console.log(f"Average time: {timer.avg_time}")
 
 # endregion
 

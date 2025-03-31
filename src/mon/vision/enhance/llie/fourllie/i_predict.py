@@ -18,7 +18,6 @@ import options.options as option
 import utils.util as util
 from models import create_model
 
-console      = mon.console
 current_file = mon.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
@@ -50,8 +49,8 @@ def predict(args: dict) -> str:
     opt      = option.dict_to_nonedict(opt)
     
     # Start
-    console.rule(f"[bold red] {fullname}")
-    console.log(f"Machine: {hostname}")
+    mon.console.rule(f"[bold red] {fullname}")
+    mon.console.log(f"Machine: {hostname}")
     
     # Device
     device = mon.set_device(device)
@@ -61,8 +60,8 @@ def predict(args: dict) -> str:
     mon.set_random_seed(seed)
     
     # Data I/O
-    console.log(f"[bold red]{data}")
-    data_name, data_loader = mon.parse_data_loader(data, False, verbose=False)
+    mon.console.log(f"[bold red]{data}")
+    data_name, data_loader = mon.parse_data_loader(data, root, True, verbose=False)
     
     # Model
     opt["path"]["pretrain_model_G"] = str(weights)
@@ -71,8 +70,8 @@ def predict(args: dict) -> str:
     # Measure efficiency score
     if benchmark:
         flops, params = model.measure_efficiency_score(image_size=imgsz)
-        console.log(f"FLOPs : {flops:.4f}")
-        console.log(f"Params: {params:.4f}")
+        mon.console.log(f"FLOPs : {flops:.4f}")
+        mon.console.log(f"Params: {params:.4f}")
     
     # Predicting
     timer = mon.Timer()
@@ -127,7 +126,7 @@ def predict(args: dict) -> str:
                     cv2.imwrite(str(output_path), enhanced)
     
     # Finish
-    console.log(f"Average time: {timer.avg_time}")
+    mon.console.log(f"Average time: {timer.avg_time}")
     
 # endregion
 

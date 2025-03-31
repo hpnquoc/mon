@@ -12,12 +12,11 @@ __all__ = [
 
 import numpy as np
 import torch
-from torch import nn
 
 from mon.nn.modules.inr import base
 
 
-class FINERLayer(nn.Module):
+class FINERLayer(torch.nn.Module):
     """Applies scaled sine activation to linear transformation.
 
     Args:
@@ -49,7 +48,7 @@ class FINERLayer(nn.Module):
         self.in_channels      = in_channels
         self.scale_req_grad   = scale_req_grad
         self.first_bias_scale = first_bias_scale
-        self.linear           = nn.Linear(in_channels, out_channels, bias=bias)
+        self.linear           = torch.nn.Linear(in_channels, out_channels, bias=bias)
         self.init_weights()
         if self.first_bias_scale is not None and self.is_first:
             self.init_first_bias()
@@ -93,7 +92,7 @@ class FINERLayer(nn.Module):
         return torch.sin(self.w0 * scale * linear)
 
 
-class FINER(nn.Module):
+class FINER(torch.nn.Module):
     """Implements FINER network with FINER layers.
 
     Args:
@@ -125,10 +124,10 @@ class FINER(nn.Module):
         scale_req_grad  : bool  = False
     ):
         super().__init__()
-        self.net = nn.Sequential(
+        self.net = torch.nn.Sequential(
             FINERLayer(in_channels, hidden_channels, first_w0, first_bias_scale, is_first=True, bias=bias, scale_req_grad=scale_req_grad),
             *[FINERLayer(hidden_channels, hidden_channels, hidden_w0, bias=bias, scale_req_grad=scale_req_grad) for _ in range(hidden_layers)],
-            nn.Linear(hidden_channels, out_channels)
+            torch.nn.Linear(hidden_channels, out_channels)
         )
         with torch.no_grad():
             self.net[-1].weight.uniform_(-np.sqrt(6 / hidden_channels) / hidden_w0, np.sqrt(6 / hidden_channels) / hidden_w0)

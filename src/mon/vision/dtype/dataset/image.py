@@ -12,9 +12,9 @@ __all__ = [
 import glob
 
 from mon import core
-from mon.vision.dtype import annotation as anno
+from mon.vision.dtype import annotation
 from mon.vision.dtype.dataset import base
-from mon.vision.geometry import albumentation as album
+from mon.vision.geometry import albumentation
 
 
 class ImageLoader(base.VisionDataset):
@@ -33,17 +33,17 @@ class ImageLoader(base.VisionDataset):
     """
     
     datapoint_attrs = base.DatapointAttributes({
-        "image": anno.ImageAnnotation,
+        "image": annotation.ImageAnnotation,
     })
     
     def __init__(
         self,
         root      : core.Path,
-        split     : core.Split    = core.Split.PREDICT,
-        transform : album.Compose = None,
-        to_tensor : bool          = False,
-        cache_data: bool          = False,
-        verbose   : bool          = True,
+        split     : core.Split = core.Split.PREDICT,
+        transform : albumentation.Compose = None,
+        to_tensor : bool = False,
+        cache_data: bool = False,
+        verbose   : bool = True,
         *args, **kwargs
     ):
         super().__init__(
@@ -71,7 +71,7 @@ class ImageLoader(base.VisionDataset):
         else:
             raise IOError(f"Invalid root path: {self.root}")
         
-        images: list[anno.ImageAnnotation] = []
+        images: list[annotation.ImageAnnotation] = []
         with core.get_progress_bar() as pbar:
             for path in pbar.track(
                 sequence    = sorted(paths),
@@ -79,6 +79,6 @@ class ImageLoader(base.VisionDataset):
                               f"{self.split_str} images"
             ):
                 if path.is_image_file():
-                    images.append(anno.ImageAnnotation(path=path))
+                    images.append(annotation.ImageAnnotation(path=path))
         
         self.datapoints["image"] = images

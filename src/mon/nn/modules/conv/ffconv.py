@@ -21,13 +21,12 @@ __all__ = [
 from typing import Any
 
 import torch
-from torch import nn
 from torch.nn.common_types import _size_2_t
 
 
 # region Fourier Transform
 
-class FourierUnit(nn.Module):
+class FourierUnit(torch.nn.Module):
     """Fourier transform unit from Fast Fourier Convolution.
 
     Args:
@@ -54,7 +53,7 @@ class FourierUnit(nn.Module):
         self.groups   = groups
         self.ffc3d    = ffc3d
         self.fft_norm = fft_norm
-        self.conv     = nn.Conv2d(
+        self.conv     = torch.nn.Conv2d(
             in_channels  = in_channels * 2,
             out_channels = out_channels * 2,
             kernel_size  = 1,
@@ -63,8 +62,8 @@ class FourierUnit(nn.Module):
             groups       = self.groups,
             bias         = False
         )
-        self.bn   = nn.BatchNorm2d(out_channels * 2)
-        self.relu = nn.ReLU(inplace=True)
+        self.bn   = torch.nn.BatchNorm2d(out_channels * 2)
+        self.relu = torch.nn.ReLU(inplace=True)
 
     def forward(self, input: torch.Tensor) -> torch.Tensor:
         """Applies Fourier transform, convolution, and inverse transform.
@@ -156,7 +155,7 @@ class FourierUnit3d(FourierUnit):
         )
         
 
-class SpectralTransform2d(nn.Module):
+class SpectralTransform2d(torch.nn.Module):
     """Spectral transform unit from Fast Fourier Convolution.
 
     Args:
@@ -186,20 +185,20 @@ class SpectralTransform2d(nn.Module):
         self.enable_lfu = enable_lfu
         self.stride     = stride
         self.downsample = (
-            nn.AvgPool2d(kernel_size=(2, 2), stride=2)
-            if self.stride == 2 else nn.Identity()
+            torch.nn.AvgPool2d(kernel_size=(2, 2), stride=2)
+            if self.stride == 2 else torch.nn.Identity()
         )
 
-        self.conv1 = nn.Sequential(
-            nn.Conv2d(
+        self.conv1 = torch.nn.Sequential(
+            torch.nn.Conv2d(
                 in_channels  = in_channels,
                 out_channels = out_channels // 2,
                 kernel_size  = 1,
                 groups       = groups,
                 bias         = False
             ),
-            nn.BatchNorm2d(out_channels // 2),
-            nn.ReLU(inplace=True)
+            torch.nn.BatchNorm2d(out_channels // 2),
+            torch.nn.ReLU(inplace=True)
         )
         self.fu = FourierUnit2d(
             in_channels  = out_channels // 2,
@@ -214,7 +213,7 @@ class SpectralTransform2d(nn.Module):
                 groups       = groups,
                 fft_norm     = fft_norm
             )
-        self.conv2 = nn.Conv2d(
+        self.conv2 = torch.nn.Conv2d(
             in_channels  = out_channels // 2,
             out_channels = out_channels,
             kernel_size  = 1,
@@ -254,7 +253,7 @@ class SpectralTransform2d(nn.Module):
 
 # region Fast-Fourier Convolution
 
-class FastFourierConv2d(nn.Module):
+class FastFourierConv2d(torch.nn.Module):
     """Fast Fourier Convolution from FFC paper.
 
     Args:
@@ -309,7 +308,7 @@ class FastFourierConv2d(nn.Module):
         out_c_l = out_channels - out_c_g
 
         self.conv_l2l = (
-            nn.Conv2d(
+            torch.nn.Conv2d(
                 in_channels  = in_c_l,
                 out_channels = out_c_l,
                 kernel_size  = kernel_size,
@@ -319,10 +318,10 @@ class FastFourierConv2d(nn.Module):
                 groups       = groups,
                 bias         = bias,
                 padding_mode = padding_mode
-            ) if in_c_l > 0 and out_c_l > 0 else nn.Identity()
+            ) if in_c_l > 0 and out_c_l > 0 else torch.nn.Identity()
         )
         self.conv_l2g = (
-            nn.Conv2d(
+            torch.nn.Conv2d(
                 in_channels  = in_c_l,
                 out_channels = out_c_g,
                 kernel_size  = kernel_size,
@@ -332,10 +331,10 @@ class FastFourierConv2d(nn.Module):
                 groups       = groups,
                 bias         = bias,
                 padding_mode = padding_mode
-            ) if in_c_l > 0 and out_c_g > 0 else nn.Identity()
+            ) if in_c_l > 0 and out_c_g > 0 else torch.nn.Identity()
         )
         self.conv_g2l = (
-            nn.Conv2d(
+            torch.nn.Conv2d(
                 in_channels  = in_c_g,
                 out_channels = out_c_l,
                 kernel_size  = kernel_size,
@@ -345,7 +344,7 @@ class FastFourierConv2d(nn.Module):
                 groups       = groups,
                 bias         = bias,
                 padding_mode = padding_mode
-            ) if in_c_g > 0 and out_c_l > 0 else nn.Identity()
+            ) if in_c_g > 0 and out_c_l > 0 else torch.nn.Identity()
         )
         self.conv_g2g = (
             SpectralTransform2d(
@@ -355,7 +354,7 @@ class FastFourierConv2d(nn.Module):
                 groups       = 1 if groups == 1 else groups // 2,
                 enable_lfu   = enable_lfu,
                 fft_norm     = fft_norm
-            ) if in_c_g > 0 and out_c_g > 0 else nn.Identity()
+            ) if in_c_g > 0 and out_c_g > 0 else torch.nn.Identity()
         )
 
     def forward(self, input: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
@@ -375,7 +374,7 @@ class FastFourierConv2d(nn.Module):
         return y_l, y_g
 
 
-class FastFourierConv2dNormAct(nn.Module):
+class FastFourierConv2dNormAct(torch.nn.Module):
     """Fast Fourier Convolution with normalization and activation from FFC.
 
     Args:
@@ -419,8 +418,8 @@ class FastFourierConv2dNormAct(nn.Module):
         groups      : int       = 1,
         bias        : bool      = False,
         padding_mode: str       = "zeros",
-        norm_layer  : Any       = nn.BatchNorm2d,
-        act_layer   : Any       = nn.Identity,
+        norm_layer  : Any       = torch.nn.BatchNorm2d,
+        act_layer   : Any       = torch.nn.Identity,
         enable_lfu  : bool      = True,
         fft_norm    : str       = "ortho"
     ):
@@ -441,16 +440,16 @@ class FastFourierConv2dNormAct(nn.Module):
             fft_norm     = fft_norm
         )
         self.norm_l = (
-            nn.Identity() if ratio_g_out == 1 else norm_layer(int(out_channels * (1 - ratio_g_out)))
+            torch.nn.Identity() if ratio_g_out == 1 else norm_layer(int(out_channels * (1 - ratio_g_out)))
         )
         self.norm_g = (
-            nn.Identity() if ratio_g_out == 0 else norm_layer(int(out_channels * ratio_g_out))
+            torch.nn.Identity() if ratio_g_out == 0 else norm_layer(int(out_channels * ratio_g_out))
         )
         self.act_l = (
-            nn.Identity() if ratio_g_out == 1 else act_layer(inplace=True)
+            torch.nn.Identity() if ratio_g_out == 1 else act_layer(inplace=True)
         )
         self.act_g = (
-            nn.Identity() if ratio_g_out == 0 else act_layer(inplace=True)
+            torch.nn.Identity() if ratio_g_out == 0 else act_layer(inplace=True)
         )
 
     def forward(self, input: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
@@ -470,7 +469,7 @@ class FastFourierConv2dNormAct(nn.Module):
         return y_l, y_g
 
 
-class FastFourierConv2dSE(nn.Module):
+class FastFourierConv2dSE(torch.nn.Module):
     """Squeeze and Excitation block for Fast Fourier Convolution from FFC.
 
     Args:
@@ -491,16 +490,16 @@ class FastFourierConv2dSE(nn.Module):
         in_cl = channels - in_cg
         r     = 16
 
-        self.avgpool  = nn.AdaptiveAvgPool2d((1, 1))
-        self.conv1    = nn.Conv2d(
+        self.avgpool  = torch.nn.AdaptiveAvgPool2d((1, 1))
+        self.conv1    = torch.nn.Conv2d(
             in_channels  = channels,
             out_channels = channels // r,
             kernel_size  = 1,
             bias         = True
         )
-        self.relu1    = nn.ReLU(inplace=True)
+        self.relu1    = torch.nn.ReLU(inplace=True)
         self.conv_a2l = (
-            nn.Conv2d(
+            torch.nn.Conv2d(
                 in_channels  = channels // r,
                 out_channels = in_cl,
                 kernel_size  = 1,
@@ -508,14 +507,14 @@ class FastFourierConv2dSE(nn.Module):
             ) if in_cl > 0 else None
         )
         self.conv_a2g = (
-            nn.Conv2d(
+            torch.nn.Conv2d(
                 in_channels  = channels // r,
                 out_channels = in_cg,
                 kernel_size  = 1,
                 bias         = True
             ) if in_cg > 0 else None
         )
-        self.sigmoid  = nn.Sigmoid()
+        self.sigmoid  = torch.nn.Sigmoid()
     
     def forward(
         self,

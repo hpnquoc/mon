@@ -15,10 +15,10 @@ import cv2
 
 from mon import core
 from mon.globals import DEPTH_DATA_SOURCES
-from mon.vision.dtype.annotation import image
+from mon.vision.dtype.annotation import image as I
 
 
-class DepthMapAnnotation(image.ImageAnnotation):
+class DepthMapAnnotation(I.ImageAnnotation):
     """Dense depth map annotation.
 
     Args:

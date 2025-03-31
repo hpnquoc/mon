@@ -32,20 +32,20 @@ from typing import Callable
 
 import torch
 import torch.cuda
-from lightning.pytorch import accelerators, strategies
+from lightning.pytorch.accelerators import (
+    Accelerator, CPUAccelerator, CUDAAccelerator, MPSAccelerator, XLAAccelerator,
+)
+from lightning.pytorch.strategies import (
+    DDPStrategy, DeepSpeedStrategy, FSDPStrategy, ParallelStrategy,
+    SingleDeviceStrategy, Strategy, XLAStrategy,
+)
 from torch import distributed
 
 from mon import core
 from mon.globals import ACCELERATORS, STRATEGIES
 
-
 # region Accelerator
 
-Accelerator     = accelerators.Accelerator
-CPUAccelerator  = accelerators.CPUAccelerator
-CUDAAccelerator = accelerators.CUDAAccelerator
-MPSAccelerator  = accelerators.MPSAccelerator
-XLAAccelerator  = accelerators.XLAAccelerator
 
 ACCELERATORS.register(name="cpu" , module=CPUAccelerator)
 ACCELERATORS.register(name="cuda", module=CUDAAccelerator)
@@ -58,20 +58,12 @@ ACCELERATORS.register(name="xla" , module=XLAAccelerator)
 
 # region Strategy
 
-Strategy             = strategies.Strategy
-DDPStrategy          = strategies.DDPStrategy
-DeepSpeedStrategy    = strategies.DeepSpeedStrategy
-FSDPStrategy         = strategies.FSDPStrategy
-ParallelStrategy     = strategies.ParallelStrategy
-SingleDeviceStrategy = strategies.SingleDeviceStrategy
-XLAStrategy          = strategies.XLAStrategy
-
-STRATEGIES.register(name = "ddp"          , module = DDPStrategy)
-STRATEGIES.register(name = "deepspeed"    , module = DeepSpeedStrategy)
-STRATEGIES.register(name = "fsdp"         , module = FSDPStrategy)
-STRATEGIES.register(name = "parallel"     , module = ParallelStrategy)
-STRATEGIES.register(name = "single_device", module = SingleDeviceStrategy)
-STRATEGIES.register(name = "xla"          , module = XLAStrategy)
+STRATEGIES.register(name="ddp",           module=DDPStrategy)
+STRATEGIES.register(name="deepspeed",     module=DeepSpeedStrategy)
+STRATEGIES.register(name="fsdp",          module=FSDPStrategy)
+STRATEGIES.register(name="parallel",      module=ParallelStrategy)
+STRATEGIES.register(name="single_device", module=SingleDeviceStrategy)
+STRATEGIES.register(name="xla",           module=XLAStrategy)
 
 # endregion
 

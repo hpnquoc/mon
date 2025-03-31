@@ -31,10 +31,13 @@ __all__ = [
 from typing import Any
 
 import torch
-from torch import nn
 from torch.nn import functional as F
 from torch.nn.common_types import _size_2_t, _size_any_t
-from torch.nn.modules.conv import *
+from torch.nn.modules.conv import (
+    Conv1d, Conv2d, Conv3d, ConvTranspose1d, ConvTranspose2d, ConvTranspose3d,
+    LazyConv1d, LazyConv2d, LazyConv3d, LazyConvTranspose1d, LazyConvTranspose2d,
+    LazyConvTranspose3d,
+)
 from torchvision.ops.misc import (
     Conv2dNormActivation, Conv3dNormActivation, ConvNormActivation,
 )
@@ -89,7 +92,7 @@ def conv2d_same(
     return y
 
 
-class Conv2dSame(nn.Conv2d):
+class Conv2dSame(torch.nn.Conv2d):
     """2D convolution with TensorFlow-like SAME padding.
 
     Args:

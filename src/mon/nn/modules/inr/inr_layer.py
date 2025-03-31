@@ -12,7 +12,6 @@ __all__ = [
 from typing import Literal
 
 import torch
-from torch import nn
 
 from mon.nn.modules.inr.base import ReLULayer, SigmoidLayer, TanhLayer
 from mon.nn.modules.inr.finer import FINERLayer
@@ -23,7 +22,7 @@ from mon.nn.modules.inr.wire import ComplexGaborLayer
 INR_AF = Literal["sigmoid", "tanh", "relu", "sine", "gauss", "wire", "finer"]
 
 
-class INRLayer(nn.Module):
+class INRLayer(torch.nn.Module):
     """Combines linear transformation, nonlinearity, and dropout.
 
     Args:
@@ -80,7 +79,7 @@ class INRLayer(nn.Module):
         else:
             raise ValueError(f"[nonlinear] must be supported type, got {nonlinear}.")
         
-        self.dropout = nn.Dropout(dropout)
+        self.dropout = torch.nn.Dropout(dropout)
         
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """Applies nonlinearity and dropout to input.

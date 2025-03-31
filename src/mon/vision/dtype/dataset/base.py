@@ -14,9 +14,9 @@ from abc import ABC
 from typing import Any, Literal, Optional
 
 from mon import core
-from mon.globals import DEPTH_DATA_SOURCES
-from mon.vision.dtype import annotation as anno
-from mon.vision.geometry import albumentation as album
+from mon.globals import DEPTH_DATA_SOURCES, TRANSFORMS
+from mon.vision.dtype import annotation
+from mon.vision.geometry import albumentation
 
 
 class DatapointAttributes(dict[str: Optional[core.Annotation]]):
@@ -83,13 +83,13 @@ class DatapointAttributes(dict[str: Optional[core.Annotation]]):
             ``"values"``; ``None`` if unknown.
         """
         v = self.get(key, None)
-        if v in [anno.ImageAnnotation, anno.FrameAnnotation, anno.DepthMapAnnotation]:
+        if v in [annotation.ImageAnnotation, annotation.FrameAnnotation, annotation.DepthMapAnnotation]:
             return "image"
-        elif v in [anno.BBoxAnnotation, anno.BBoxesAnnotation]:
+        elif v in [annotation.BBoxAnnotation, annotation.BBoxesAnnotation]:
             return "bboxes"
         elif v in [core.ClassificationAnnotation, core.RegressionAnnotation]:
             return "values"
-        elif v in [anno.SemanticSegmentationAnnotation]:
+        elif v in [annotation.SemanticSegmentationAnnotation]:
             return "mask"
         else:
             core.error_console.log(f"Unknown annotation type: {v}, {type(v)}.")
@@ -164,14 +164,34 @@ class VisionDataset(core.Dataset, ABC):
     
     # region Initialization
     
-    def init_transform(self, transform: album.Compose | Any = None):
+    def init_transform(self, transform: albumentation.Compose | Any = None):
         """Initializes transformations with multimodal support.
 
         Args:
             transform: Transformations to apply. Default is ``None``.
         """
-        super().init_transform(transform=transform)
-        if isinstance(self.transform, album.Compose):
+        if transform is None:
+            self.transform = None
+        elif isinstance(transform, albumentation.Compose):
+            self.transform = transform
+        else:
+            transform  = [transform] if not isinstance(transform, (list, tuple)) else transform
+            transform_ = []
+            for t in transform:
+                if isinstance(t, albumentation.BasicTransform):
+                    transform_.append(t)
+                elif isinstance(t, dict):
+                    t_ = TRANSFORMS.build(config=t)
+                    if t_:
+                        transform_.append(t_)
+                    else:
+                        raise ValueError(f"Transform [{t}] is not supported.")
+                else:
+                    raise TypeError(f"[transform] must be a list of albumentation.BasicTransform "
+                                    f"or dicts, got {type(t)}.")
+            self.transform = albumentation.Compose(transforms=transform_)
+            
+        if isinstance(self.transform, albumentation.Compose):
             additional_targets = self.datapoint_attrs.albumentation_target_types()
             additional_targets.pop(self.main_attribute, None)
             additional_targets.pop("meta", None)
@@ -217,7 +237,7 @@ class VisionDataset(core.Dataset, ABC):
         ref_images = self.datapoints.get("ref_image", [])
         
         if len(ref_images) == 0:
-            ref_images: list[anno.ImageAnnotation] = []
+            ref_images: list[annotation.ImageAnnotation] = []
             with core.get_progress_bar(disable=self.disable_pbar) as pbar:
                 for img in pbar.track(
                     sequence    = images,
@@ -226,7 +246,7 @@ class VisionDataset(core.Dataset, ABC):
                 ):
                     root_name = img.root.name
                     path      = img.path.replace(f"/{root_name}/", f"/ref/")
-                    ref_images.append(anno.ImageAnnotation(
+                    ref_images.append(annotation.ImageAnnotation(
                         path = path.image_file(),
                         root = img.root
                     ))
@@ -238,7 +258,7 @@ class VisionDataset(core.Dataset, ABC):
         depths = self.datapoints.get("depth", [])
         
         if len(images) > 0 and len(depths) == 0:
-            depths: list[anno.DepthMapAnnotation] = []
+            depths: list[annotation.DepthMapAnnotation] = []
             with core.get_progress_bar(disable=self.disable_pbar) as pbar:
                 for img in pbar.track(
                     sequence    = images,
@@ -249,7 +269,7 @@ class VisionDataset(core.Dataset, ABC):
                     path      = img.path.replace(f"/{root_name}/",
                                                  f"/{root_name}_{self.depth_source}/")
                     depths.append(
-                        anno.DepthMapAnnotation(
+                        annotation.DepthMapAnnotation(
                             path   = path.image_file(),
                             root   = img.root,
                             source = self.depth_source
@@ -263,7 +283,7 @@ class VisionDataset(core.Dataset, ABC):
         ref_depths = self.datapoints.get("ref_depth", [])
         
         if len(ref_images) > 0 and len(ref_depths) == 0:
-            ref_depths: list[anno.DepthMapAnnotation] = []
+            ref_depths: list[annotation.DepthMapAnnotation] = []
             with core.get_progress_bar(disable=self.disable_pbar) as pbar:
                 for img in pbar.track(
                     sequence    = ref_images,
@@ -274,7 +294,7 @@ class VisionDataset(core.Dataset, ABC):
                     path      = img.path.replace(f"/{root_name}/",
                                                  f"/{root_name}_{self.depth_source}/")
                     ref_depths.append(
-                        anno.DepthMapAnnotation(
+                        annotation.DepthMapAnnotation(
                             path   = path.image_file(),
                             root   = img.root,
                             source = self.depth_source

@@ -18,7 +18,6 @@ __all__ = [
 
 import torch
 import torch.nn.functional as F
-from torch import nn
 
 
 def _fspecial_gauss_1d(size: int, sigma: float) -> torch.Tensor:
@@ -302,7 +301,7 @@ def ms_ssim(
     return ms_ssim_val.mean() if size_average else ms_ssim_val.mean(1)
 
 
-class SSIM(nn.Module):
+class SSIM(torch.nn.Module):
     """Structural Similarity Index (SSIM) module for image comparison.
 
     Args:
@@ -359,7 +358,7 @@ class SSIM(nn.Module):
         )
 
 
-class MS_SSIM(nn.Module):
+class MS_SSIM(torch.nn.Module):
     """Multi-Scale Structural Similarity Index (MS-SSIM) module.
 
     Args:

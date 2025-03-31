@@ -17,7 +17,6 @@ __all__ = [
 from typing import Literal
 
 import torch
-from torch import nn
 from torchvision import models, transforms
 
 from mon.globals import LOSSES
@@ -34,19 +33,17 @@ class PerceptualLoss(base.Loss):
         layers: List of layer indices to extract features from as ``list[str]``.
             Default is ["26"].
         preprocess: Applies normalization if ``True``. Default is ``False``.
-        loss_weight: Weight of the loss as ``float``. Default is ``1.0``.
         reduction: Reduction method as ``Literal["none", "mean", "sum"]``. Default is ``"mean"``.
     """
     
     def __init__(
         self,
-        net        : nn.Module | str = "vgg19",
-        layers     : list  = ["26"],
-        preprocess : bool  = False,
-        loss_weight: float = 1.0,
-        reduction  : Literal["none", "mean", "sum"] = "mean"
+        net       : torch.nn.Module | str = "vgg19",
+        layers    : list  = ["26"],
+        preprocess: bool  = False,
+        reduction : Literal["none", "mean", "sum"] = "mean"
     ):
-        super().__init__(loss_weight=loss_weight, reduction=reduction)
+        super().__init__(reduction=reduction)
         self.layers     = layers
         self.preprocess = preprocess
         
@@ -88,7 +85,7 @@ class PerceptualLoss(base.Loss):
         for xf, yf in zip(input_feats, target_feats):
             loss += self.l1_loss(xf, yf)
         loss = loss / len(input_feats)
-        return self.loss_weight * loss
+        return loss
     
     @staticmethod
     def run_preprocess(input: torch.Tensor) -> torch.Tensor:

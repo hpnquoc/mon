@@ -18,7 +18,6 @@ from network.decom import Decom
 from network.Math_Module import P, Q
 from utils import *
 
-console      = mon.console
 current_file = mon.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
@@ -48,10 +47,10 @@ class Inference(nn.Module):
             # transforms.Resize(1280),
         ]
         self.transform = transforms.Compose(transform)
-        # console.log(self.model_Decom_low)
-        # console.log(self.model_R)
-        # console.log(self.model_L)
-        # console.log(self.adjust_model)
+        # mon.console.log(self.model_Decom_low)
+        # mon.console.log(self.model_R)
+        # mon.console.log(self.model_L)
+        # mon.console.log(self.adjust_model)
         # time.sleep(8)
 
     def unfolding(self, input_low_img):
@@ -92,7 +91,7 @@ class Inference(nn.Module):
             os.makedirs(self.opts.output)
         save_path = os.path.join(self.opts.output, file_name.replace(name, "%s_%d_URetinexNet"%(name, self.opts.ratio)))
         np_save_TensorImg(enhance, save_path)
-        console.log("================================= time for %s: %f============================"%(file_name, p_time))
+        mon.console.log("================================= time for %s: %f============================"%(file_name, p_time))
         """
         return enhance, run_time
         
@@ -122,15 +121,15 @@ def predict(args: dict) -> str:
     args["adjust_model_weights"]    = mon.ZOO_DIR / args["adjust_model_weights"]
     
     # Start
-    console.rule(f"[bold red] {fullname}")
-    console.log(f"Machine: {hostname}")
+    mon.console.rule(f"[bold red] {fullname}")
+    mon.console.log(f"Machine: {hostname}")
     
     # Device
     device = mon.set_device(device)
     
     # Data I/O
-    console.log(f"[bold red]{data}")
-    data_name, data_loader = mon.parse_data_loader(data, False, verbose=False)
+    mon.console.log(f"[bold red]{data}")
+    data_name, data_loader = mon.parse_data_loader(data, root, True, verbose=False)
     
     # Model
     model = Inference(args).to(device)
@@ -139,8 +138,8 @@ def predict(args: dict) -> str:
     # Benchmark
     if benchmark:
         flops, params = mon.compute_efficiency_score(model=model, image_size=512)
-        console.log(f"FLOPs : {flops:.4f}")
-        console.log(f"Params: {params:.4f}")
+        mon.console.log(f"FLOPs : {flops:.4f}")
+        mon.console.log(f"Params: {params:.4f}")
     
     # Predicting
     sum_time = 0
@@ -171,7 +170,7 @@ def predict(args: dict) -> str:
         
     # Finish
     avg_time = float(sum_time / len(data_loader))
-    console.log(f"Average time: {avg_time}")
+    mon.console.log(f"Average time: {avg_time}")
 
 # endregion
 

@@ -14,7 +14,6 @@ import utils
 from basicsr.models import create_model
 from basicsr.utils.options import parse
 
-console      = mon.console
 current_file = mon.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
@@ -46,8 +45,8 @@ def predict(args: dict) -> str:
     opt          = parse(opt_path, is_train=False)
     
     # Start
-    console.rule(f"[bold red] {fullname}")
-    console.log(f"Machine: {hostname}")
+    mon.console.rule(f"[bold red] {fullname}")
+    mon.console.log(f"Machine: {hostname}")
     
     # Device
     # gpu_list = ",".join(str(x) for x in args.gpus)
@@ -60,8 +59,8 @@ def predict(args: dict) -> str:
     mon.set_random_seed(seed)
     
     # Data I/O
-    console.log(f"[bold red]{data}")
-    data_name, data_loader = mon.parse_data_loader(data, True, verbose=False)
+    mon.console.log(f"[bold red]{data}")
+    data_name, data_loader = mon.parse_data_loader(data, root, True, verbose=False)
     
     # Model
     model      = create_model(opt).net_g
@@ -81,8 +80,8 @@ def predict(args: dict) -> str:
     # Benchmark
     # if benchmark:
     #     flops, params = model.measure_efficiency_score(image_size=imgsz)
-    #     console.log(f"FLOPs : {flops:.4f}")
-    #     console.log(f"Params: {params:.4f}")
+    #     mon.console.log(f"FLOPs : {flops:.4f}")
+    #     mon.console.log(f"Params: {params:.4f}")
     
     # Predicting
     timer  = mon.Timer()
@@ -105,7 +104,7 @@ def predict(args: dict) -> str:
                 if resize:
                     h0, w0 = mon.get_image_size(image)
                     image  = mon.resize(image, imgsz)
-                    console.log("Resizing images to: ", image.shape[2], image.shape[3])
+                    mon.console.log("Resizing images to: ", image.shape[2], image.shape[3])
                     # images = proc.resize(input=images, size=[1000, 666])
                 # Padding in case images are not multiples of 4
                 h, w  = mon.get_image_size(image)
@@ -138,7 +137,7 @@ def predict(args: dict) -> str:
                     utils.save_img(str(output_path), img_as_ubyte(enhanced))
         
     # Finish
-    console.log(f"Average time: {timer.avg_time}")
+    mon.console.log(f"Average time: {timer.avg_time}")
         
 # endregion
 

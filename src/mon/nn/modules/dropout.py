@@ -20,8 +20,9 @@ __all__ = [
 ]
 
 import torch
-from torch import nn
-from torch.nn.modules.dropout import *
+from torch.nn.modules.dropout import (
+    AlphaDropout, Dropout, Dropout1d, Dropout2d, Dropout3d, FeatureAlphaDropout,
+)
 from torchvision.ops import drop_block2d, drop_block3d, DropBlock2d, DropBlock3d
 
 
@@ -56,7 +57,7 @@ def drop_path(
     return input * random_tensor
     
 
-class DropPath(nn.Module):
+class DropPath(torch.nn.Module):
     """Drops paths (Stochastic Depth) per sample.
 
     Args:

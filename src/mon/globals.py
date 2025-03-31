@@ -42,6 +42,7 @@ __all__ = [
     "STRATEGIES",
     "TORCH_FILE_FORMATS",
     "TRACKERS",
+    "TRANSFORMS",
     "VIDEO_FILE_FORMATS",
     "WEIGHTS_FILE_FORMATS",
     "ZOO_DIR",
@@ -102,6 +103,7 @@ OBJECTS       = factory.Factory(name="Objects")
 OPTIMIZERS    = factory.Factory(name="Optimizers")
 STRATEGIES    = factory.Factory(name="Strategies")
 TRACKERS      = factory.Factory(name="Trackers")
+TRANSFORMS    = factory.Factory(name="Transforms")
 
 # endregion
 
