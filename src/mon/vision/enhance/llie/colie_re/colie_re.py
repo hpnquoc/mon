@@ -23,7 +23,7 @@ from torch.nn import functional as F
 
 from mon import core, nn
 from mon.globals import MODELS
-from mon.vision import dtype, filtering
+from mon.vision import datatype, filtering
 from mon.vision.enhance import base
 
 current_file = core.Path(__file__).absolute()
@@ -175,7 +175,7 @@ class CoLIE_RE(base.ImageEnhancementModel):
         """
         from fvcore.nn import parameter_count
         
-        h, w      = dtype.get_image_size(image_size)
+        h, w      = datatype.get_image_size(image_size)
         datapoint = {"image": torch.rand(1, 3, h, w).to(self.device)}
         
         flops, params = core.custom_profile(self, inputs=datapoint, verbose=False)
@@ -255,7 +255,7 @@ class CoLIE_RE(base.ImageEnhancementModel):
     
     def get_patches(self, image: torch.Tensor) -> torch.Tensor:
         """Creates a tensor where the channel contains patch information."""
-        num_channels = dtype.get_image_num_channels(image)
+        num_channels = datatype.get_image_num_channels(image)
         kernel       = torch.zeros((self.window_size ** 2, num_channels, self.window_size, self.window_size)).to(self.device)
         for i in range(self.window_size):
             for j in range(self.window_size):

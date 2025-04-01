@@ -19,6 +19,7 @@ mea_parser.add_argument('--SICE_grad', action='store_true', help='measure SICE_g
 mea_parser.add_argument('--SICE_mix', action='store_true', help='measure SICE_mix dataset')
 mea = mea_parser.parse_args()
 
+
 def ssim(prediction, target):
     C1 = (0.01 * 255)**2
     C2 = (0.03 * 255)**2
@@ -38,6 +39,7 @@ def ssim(prediction, target):
                 (2 * sigma12 + C2)) / ((mu1_sq + mu2_sq + C1) *
                                        (sigma1_sq + sigma2_sq + C2))
     return ssim_map.mean()
+
 
 def calculate_ssim(target, ref):
     '''
@@ -62,6 +64,7 @@ def calculate_ssim(target, ref):
     else:
         raise ValueError('Wrong input image dimensions.')
 
+
 def calculate_psnr(target, ref):
     img1 = np.array(target, dtype=np.float32)
     img2 = np.array(ref, dtype=np.float32)
@@ -69,17 +72,17 @@ def calculate_psnr(target, ref):
     psnr = 10.0 * np.log10(255.0 * 255.0 / (np.mean(np.square(diff)) + 1e-8))
     return psnr
 
+
 def metrics(im_dir, label_dir, use_GT_mean):
-    avg_psnr = 0
-    avg_ssim = 0
+    avg_psnr  = 0
+    avg_ssim  = 0
     avg_lpips = 0
-    n = 0
-    loss_fn = lpips.LPIPS(net='alex')
+    n         = 0
+    loss_fn   = lpips.LPIPS(net='alex')
     loss_fn.cuda()
     for item in tqdm(sorted(glob.glob(im_dir))):
-        n += 1
-        
-        im1 = Image.open(item).convert('RGB') 
+        n   += 1
+        im1  = Image.open(item).convert('RGB')
         
         os_name = platform.system()
         if os_name.lower() == 'windows':
@@ -105,17 +108,15 @@ def metrics(im_dir, label_dir, use_GT_mean):
         ex_p0 = lpips.im2tensor(im1).cuda()
         ex_ref = lpips.im2tensor(im2).cuda()
         
-
         score_lpips = loss_fn.forward(ex_ref, ex_p0)
     
-        avg_psnr += score_psnr
-        avg_ssim += score_ssim
+        avg_psnr  += score_psnr
+        avg_ssim  += score_ssim
         avg_lpips += score_lpips.item()
         torch.cuda.empty_cache()
     
-
-    avg_psnr = avg_psnr / n
-    avg_ssim = avg_ssim / n
+    avg_psnr  = avg_psnr / n
+    avg_ssim  = avg_ssim / n
     avg_lpips = avg_lpips / n
     return avg_psnr, avg_ssim, avg_lpips
 

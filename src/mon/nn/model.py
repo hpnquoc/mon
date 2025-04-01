@@ -38,7 +38,7 @@ def is_image(image: torch.Tensor) -> bool:
     Returns:
         ``True`` if image is valid, ``False`` otherwise.
     """
-    from mon.vision.dtype import image as I
+    from mon.vision.datatype import image as I
     return I.is_image(image)
     
 # endregion

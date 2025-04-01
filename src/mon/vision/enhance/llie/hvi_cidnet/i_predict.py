@@ -30,7 +30,7 @@ def predict(args: dict) -> str:
     data         = args["data"]
     fullname     = args["fullname"]
     save_dir     = args["save_dir"]
-    weights      = mon.Path(args["weights"])
+    weights      = args["weights"]
     device       = args["device"]
     seed         = args["seed"]
     imgsz        = args["imgsz"]
@@ -71,6 +71,7 @@ def predict(args: dict) -> str:
     model.trans.gated2 = gated2
     model.trans.alpha  = alpha
     
+    weights = mon.Path(weights)
     if weights.name == "hvi_cidnet_lol_v2_real_w_perc.pth":
         model.trans.alpha = 0.84
     elif weights.name == "hvi_cidnet_lol_v2_real_best_ssim.pth":

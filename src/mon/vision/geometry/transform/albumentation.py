@@ -15,6 +15,7 @@ from pydantic import BaseModel, Field
 
 from mon.globals import TRANSFORMS
 
+
 # region Blur
 
 TRANSFORMS.register(name="advanced_blur", module=AdvancedBlur)

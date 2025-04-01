@@ -17,7 +17,7 @@ from timeit import default_timer as timer
 import numpy as np
 
 from mon.core import TrackState
-from mon.vision import dtype
+from mon.vision import datatype
 
 
 # region Track
@@ -80,7 +80,7 @@ class Detection:
     
     @property
     def bbox_center(self) -> np.ndarray:
-        return dtype.get_bbox_center(bbox=self.bbox)[0]
+        return datatype.get_bbox_center(bbox=self.bbox)[0]
     
     @property
     def bbox_tl(self) -> np.ndarray:
@@ -89,7 +89,7 @@ class Detection:
     
     @property
     def bbox_corners_points(self) -> np.ndarray:
-        return dtype.get_bbox_corners_pts(bbox=self.bbox)[0]
+        return datatype.get_bbox_corners_pts(bbox=self.bbox)[0]
     
     @property
     def confidence(self) -> float:

@@ -7,7 +7,7 @@ fullname    : &fullname "hvi_cidnet_lol_v1"                                     
 save_dir    : &save_dir ~                                                       # Saving directory. If not set, it will be `root/arch/model/data`.
 weights     : &weights ~                                                        # Path to the pretrained weights.
 device      : 0                                                                 # Running device (i.e., cuda:0 | cuda:0,1,2,3 | cpu).
-seed        : 0                                                                 # Random seed.
+seed        : [1, 1000000]                                                      # Random seed.
 imgsz       : &imgsz 256                                                        # Image size for the model.
 resize      : False                                                             # Resize the input image to `imgsz`.
 epochs      : &epochs 1000                                                      # Training epochs.
@@ -34,8 +34,6 @@ optimizer: &optimizer                                                           
   lr                : 0.0001
   cos_restart_cyclic: False
   cos_restart       : True
-  warmup_epochs     : 3
-  start_warmup      : True
 
 # Loss
 loss: &loss                                                                     # Loss function.
@@ -49,7 +47,10 @@ loss: &loss                                                                     
 datamodule:
   name      : *data                                                             # Data module name (e.g., cifar10).
   root      : "data/enhance/lol_v1"                                             # Root directory of the dataset.
-  transform : ~                                                                 # Data augmentation.
+  transform :                                                                   # Data augmentation.
+    - {name: "random_crop", height: *imgsz, width: *imgsz}
+    - {name: "horizontal_flip"}
+    - {name: "vertical_flip"}
   to_tensor : True                                                              # If ``True``, convert the data to tensor.
   batch_size: 8                                                                 # Batch size.
   cache_data: False                                                             # If ``True``, cache the data.
@@ -58,5 +59,8 @@ datamodule:
 
 # Trainer
 trainer:
-  grad_detect: False
-  grad_clip  : True
+  warmup_epochs: 3
+  start_warmup : True
+  grad_detect  : False
+  grad_clip    : True
+  norm_size    : True

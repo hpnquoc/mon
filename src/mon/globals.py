@@ -48,7 +48,7 @@ __all__ = [
     "ZOO_DIR",
 ]
 
-from mon.core import factory, pathlib, enum
+from mon.core import factory, pathlib, enums
 
 
 # region Directory
@@ -122,34 +122,34 @@ EXTRA_DATASET_STR = "[extra]"
 EXTRA_MODEL_STR   = "[extra]"
 EXTRA_DATASETS    = {}
 EXTRA_MODELS      = {                   # architecture/model (+ variant)
-    # region dtype/depth
+    # region datatype/depth
     "depth_anything_v2": {
         "depth_anything_v2_vitb": {
             "tasks"    : [enum.Task.DEPTH],
             "ltypes"   : [enum.LType.SUPERVISED],
-            "model_dir": MON_DIR / "vision" / "dtype" / "depth" / "depth_anything_v2",
+            "model_dir": MON_DIR / "vision" / "datatype" / "depth" / "depth_anything_v2",
         },
         "depth_anything_v2_vits": {
             "tasks"    : [enum.Task.DEPTH],
             "ltypes"   : [enum.LType.SUPERVISED],
-            "model_dir": MON_DIR / "vision" / "dtype" / "depth" / "depth_anything_v2",
+            "model_dir": MON_DIR / "vision" / "datatype" / "depth" / "depth_anything_v2",
         },
         "depth_anything_v2_vitl": {
             "tasks"    : [enum.Task.DEPTH],
             "ltypes"   : [enum.LType.SUPERVISED],
-            "model_dir": MON_DIR / "vision" / "dtype" / "depth" / "depth_anything_v2",
+            "model_dir": MON_DIR / "vision" / "datatype" / "depth" / "depth_anything_v2",
         },
         "depth_anything_v2_vitg": {
             "tasks"    : [enum.Task.DEPTH],
             "ltypes"   : [enum.LType.SUPERVISED],
-            "model_dir": MON_DIR / "vision" / "dtype" / "depth" / "depth_anything_v2",
+            "model_dir": MON_DIR / "vision" / "datatype" / "depth" / "depth_anything_v2",
         },
     },
     "depth_pro"        : {
         "depth_pro": {
             "tasks"    : [enum.Task.DEPTH],
             "ltypes"   : [enum.LType.ZERO_SHOT],
-            "model_dir": MON_DIR / "vision" / "dtype" / "depth" / "depth_pro",
+            "model_dir": MON_DIR / "vision" / "datatype" / "depth" / "depth_pro",
         },
     },
     # endregion

@@ -58,6 +58,16 @@ def train(args: dict) -> str:
     use_fullpath = args["use_fullpath"]
     verbose      = args["verbose"]
     
+    start_lr         = args["optimizer"]["lr"]
+    end_lr           = args["optimizer"]["min_lr"]
+    warmup_epochs    = args["optimizer"]["warmup_epochs"]
+    patch_size_train = args["datamodule"]["patch_size_train"]
+    patch_size_test  = args["datamodule"]["patch_size_test"]
+    batch_size       = args["datamodule"]["batch_size"]
+    shuffle          = args["datamodule"]["shuffle"]
+    clip_grad        = args["trainer"]["clip_grad"]
+    use_amp          = args["trainer"]["use_amp"]
+    
     start_epoch      = 0
     optim_state_dict = None
    
@@ -74,11 +84,11 @@ def train(args: dict) -> str:
     # Data I/O
     data_root     = mon.parse_data_dir(root, data_dir=args["datamodule"]["root"])
     train_dir     = data_root / "train"
-    train_dataset = Dataload(data_dir=train_dir, patch_size=args["datamodule"]["patch_size_train"])
+    train_dataset = Dataload(data_dir=train_dir, patch_size=patch_size_train)
     train_loader  = torch.utils.data.DataLoader(
         train_dataset,
-        batch_size  = args["datamodule"]["batch_size"],
-        shuffle     = args["datamodule"]["shuffle"],
+        batch_size  = batch_size,
+        shuffle     = shuffle,
         num_workers = 4,
         drop_last   = False,
         pin_memory  = True
@@ -92,10 +102,10 @@ def train(args: dict) -> str:
         val_dir = mon.ROOT_DIR / "data" / "enhance" / "rain100" / "test"
     else:
         raise ValueError("No validation dataset found.")
-    val_dataset = Dataload(data_dir=val_dir, patch_size=args["datamodule"]["patch_size_test"])
+    val_dataset = Dataload(data_dir=val_dir, patch_size=patch_size_test)
     val_loader  = torch.utils.data.DataLoader(
         val_dataset,
-        batch_size  = args["datamodule"]["batch_size"],
+        batch_size  = batch_size,
         shuffle     = False,
         num_workers = 1,
         drop_last   = False,
@@ -122,9 +132,6 @@ def train(args: dict) -> str:
     # criterion = PSNRLoss().to(device)
     
     # Optimizer
-    start_lr         = args["optimizer"]["lr"]
-    end_lr           = args["optimizer"]["min_lr"]
-    warmup_epochs    = args["optimizer"]["warmup_epochs"]
     optimizer        = optim.AdamW(model_.parameters(), lr=start_lr, eps=1e-8)
     scheduler_cosine = optim.lr_scheduler.CosineAnnealingLR(optimizer, epochs - warmup_epochs, eta_min=end_lr)
     scheduler        = mon.GradualWarmupScheduler(optimizer, multiplier=1, total_epoch=warmup_epochs, after_scheduler=scheduler_cosine)
@@ -158,12 +165,12 @@ def train(args: dict) -> str:
                 image    = data[0].to(device)
                 ref      = data[1].to(device)
                 enhanced = model_(image)
-                if args["trainer"]["use_amp"]:
+                if use_amp:
                     with torch.cuda.amp.autocast():
                         train_ssim = criterion(enhanced, ref)
                         loss       = 1 - train_ssim
                     scaler.scale(loss).backward()
-                    # torch.nn.utils.clip_grad_norm_(model_restoration.parameters(), args["trainer"]["clip_grad"])
+                    # torch.nn.utils.clip_grad_norm_(model_restoration.parameters(), clip_grad)
                     scaler.step(optimizer)
                     scaler.update()
                     functional.reset_net(model_)
@@ -172,7 +179,7 @@ def train(args: dict) -> str:
                     loss       = 1 - train_ssim
                     loss.backward()
                     scaled_loss += loss.item()
-                    # torch.nn.utils.clip_grad_norm_(model_restoration.parameters(), args["trainer"]["clip_grad"])
+                    # torch.nn.utils.clip_grad_norm_(model_restoration.parameters(), clip_grad)
                     optimizer.step()
                     functional.reset_net(model_)
                 torch.cuda.synchronize()

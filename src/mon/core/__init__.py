@@ -21,8 +21,8 @@ Design Principle:
 
 from __future__ import annotations
 
-import mon.core.dtype
-import mon.core.enum
+import mon.core.datatype
+import mon.core.enums
 import mon.core.factory
 import mon.core.file
 import mon.core.humps
@@ -32,8 +32,8 @@ import mon.core.pathlib
 import mon.core.rich
 import mon.core.thop
 import mon.core.utils
-from mon.core.dtype import *
-from mon.core.enum import *
+from mon.core.datatype import *
+from mon.core.enums import *
 from mon.core.factory import *
 from mon.core.file import *
 from mon.core.humps import *

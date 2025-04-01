@@ -18,7 +18,7 @@ import numpy as np
 import torch
 
 from mon.nn import functional as F
-from mon.vision import dtype
+from mon.vision import datatype
 
 
 def pair_downsample(image: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
@@ -111,13 +111,13 @@ def resize(
     """
     # Parse size
     if size:
-        size = dtype.get_image_size(size, divisible_by)
+        size = datatype.get_image_size(size, divisible_by)
     else:
-        size = dtype.get_image_size(image, divisible_by)
+        size = datatype.get_image_size(image, divisible_by)
         
     # Resize based on the shortest dimension
     if side == "short":
-        h0, w0 = dtype.get_image_size(image)
+        h0, w0 = datatype.get_image_size(image)
         h1, w1 = size
         if h0 < w0:
             scale = h1 / h0
@@ -134,7 +134,7 @@ def resize(
         size = (new_h, new_w)
     # Resize based on the longest dimension
     elif side == "long":
-        h0, w0 = dtype.get_image_size(image)
+        h0, w0 = datatype.get_image_size(image)
         h1, w1 = size
         if h0 > w0:
             scale = h1 / h0

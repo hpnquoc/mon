@@ -26,7 +26,7 @@ __all__ = [
 
 import mon
 from mon import ClassLabels
-from mon.core import dtype as DT
+from mon.core import datatype as DT
 
 
 # region Directory

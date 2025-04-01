@@ -36,7 +36,7 @@ import torch
 from plum import dispatch
 from rich import panel, pretty, progress, table, text, theme
 
-from mon.core import dtype, enum, utils
+from mon.core import datatype, enums, utils
 
 
 # region Console
@@ -233,7 +233,7 @@ class MemoryUsageColumn(progress.ProgressColumn):
         table_column: table.Column    = None
     ):
         super().__init__(table_column=table_column)
-        self.devices = dtype.to_int_list(devices)
+        self.devices = datatype.to_int_list(devices)
         self.unit    = enum.MemoryUnit.from_value(value=unit)
     
     def render(self, task: progress.Task) -> text.Text:

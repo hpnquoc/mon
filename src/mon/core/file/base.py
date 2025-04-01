@@ -15,7 +15,7 @@ __all__ = [
 from abc import ABC, abstractmethod
 from typing import Any, TextIO
 
-from mon.core import dtype, pathlib
+from mon.core import datatype, pathlib
 from mon.globals import FILE_HANDLERS
 
 
@@ -167,7 +167,7 @@ def merge_files(
     Raises:
         TypeError: If content from ``in_paths`` is neither ``list`` nor ``dict``.
     """
-    in_paths = [pathlib.Path(p) for p in dtype.to_list(in_paths)]
+    in_paths = [pathlib.Path(p) for p in datatype.to_list(in_paths)]
     data = None
     for input_path in in_paths:
         content = read_from_file(path=input_path)

@@ -29,13 +29,13 @@ current_dir  = current_file.parents[0]
 
 # region Train
 
-def train_epoch(train_loader, model, criterion, optimizer, device):
+def train_epoch(train_dataloader, model, criterion, optimizer, device):
     loss_meters = AverageMeter()
     model.train()
     with mon.get_progress_bar() as pbar:
         for i, datapoint in pbar.track(
-            sequence    = enumerate(train_loader),
-            total       = len(train_loader),
+            sequence    = enumerate(train_dataloader),
+            total       = len(train_dataloader),
             description = f"[bright_yellow] Training"
         ):
             input  = datapoint["image"].to(device)
@@ -51,15 +51,15 @@ def train_epoch(train_loader, model, criterion, optimizer, device):
     return loss_meters.avg
 
 
-def val_epoch(val_loader, model, criterion, device):
+def val_epoch(val_dataloader, model, criterion, device):
     loss_meters = AverageMeter()
     psnr_meters = mon.PeakSignalNoiseRatio().to(device)
     ssim_meters = mon.StructuralSimilarityIndexMeasure().to(device)
     model.eval()
     with mon.get_progress_bar() as pbar:
         for i, datapoint in pbar.track(
-            sequence    = enumerate(val_loader),
-            total       = len(val_loader),
+            sequence    = enumerate(val_dataloader),
+            total       = len(val_dataloader),
             description = f"[bright_yellow] Validating"
         ):
             input  = datapoint["image"].to(device)

@@ -19,7 +19,7 @@ import torch
 from mon import core, nn
 from mon.globals import MODELS
 from mon.nn import _size_2_t
-from mon.vision import dtype, geometry
+from mon.vision import datatype, geometry
 from mon.vision.enhance import base
 
 current_file = core.Path(__file__).absolute()
@@ -162,7 +162,7 @@ class ZSN2N(base.ImageEnhancementModel):
         
         # Input
         image  = datapoint["image"].to(self.device)
-        h0, w0 = dtype.get_image_size(image)
+        h0, w0 = datatype.get_image_size(image)
         if resize:
             image = geometry.resize(image, image_size)
         else:

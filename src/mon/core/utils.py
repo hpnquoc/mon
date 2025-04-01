@@ -59,7 +59,7 @@ import numpy as np
 import psutil
 import torch
 
-from mon.core import dtype, enum, file, humps, pathlib, rich
+from mon.core import datatype, enums, file, humps, pathlib, rich
 
 try:
     import pynvml
@@ -201,7 +201,7 @@ def list_config_files(
         model_name   = parse_model_name(model)
         config_files = [cf for cf in config_files if model_name in cf.name]
 
-    return sorted(dtype.unique(config_files))
+    return sorted(datatype.unique(config_files))
 
 
 def list_configs(
@@ -225,7 +225,7 @@ def list_configs(
         model        = model
     )
     return sorted(
-        dtype.unique([str(cf.name) for cf in config_files]),
+        datatype.unique([str(cf.name) for cf in config_files]),
         key = lambda x: (os.path.splitext(x)[1], x)
     )
 
@@ -601,8 +601,8 @@ def is_extra_model(model: str) -> bool:
     from mon.globals import MODELS, EXTRA_MODELS, EXTRA_MODEL_STR
     
     model        = model.replace(f" {EXTRA_MODEL_STR}", "").strip()
-    mon_models   = dtype.flatten_models_dict(MODELS)
-    extra_models = dtype.flatten_models_dict(EXTRA_MODELS)
+    mon_models   = datatype.flatten_models_dict(MODELS)
+    extra_models = datatype.flatten_models_dict(EXTRA_MODELS)
     return (
         f"{EXTRA_MODEL_STR}" in model
         or (model not in mon_models and model in extra_models)
@@ -622,7 +622,7 @@ def list_mon_models(task: str = None, mode: str = None, arch: str = None) -> lis
     """
     from mon.globals import MODELS
     
-    flatten_models = dtype.flatten_models_dict(MODELS)
+    flatten_models = datatype.flatten_models_dict(MODELS)
     models         = list(flatten_models.keys())
     
     if task in enum.Task.values():
@@ -652,7 +652,7 @@ def list_extra_models(task: str = None, mode: str = None, arch: str = None) -> l
     """
     from mon.globals import EXTRA_MODELS
     
-    flatten_models = dtype.flatten_models_dict(EXTRA_MODELS)
+    flatten_models = datatype.flatten_models_dict(EXTRA_MODELS)
     models         = list(flatten_models.keys())
    
     if task in enum.Task.values():
@@ -716,7 +716,7 @@ def list_mon_archs(task: str = None, mode: str = None) -> list[str]:
     """
     from mon.globals import MODELS
     
-    flatten_models = dtype.flatten_models_dict(MODELS)
+    flatten_models = datatype.flatten_models_dict(MODELS)
     models         = list(flatten_models.keys())
     
     if task in enum.Task.values():
@@ -731,7 +731,7 @@ def list_mon_archs(task: str = None, mode: str = None) -> list[str]:
              for m in models
              if flatten_models[m].arch not in [None, "None", ""]]
     
-    return sorted(dtype.unique(archs))
+    return sorted(datatype.unique(archs))
 
 
 def list_extra_archs(task: str = None, mode: str = None) -> list[str]:
@@ -746,7 +746,7 @@ def list_extra_archs(task: str = None, mode: str = None) -> list[str]:
     """
     from mon.globals import EXTRA_MODELS
     
-    flatten_models = dtype.flatten_models_dict(EXTRA_MODELS)
+    flatten_models = datatype.flatten_models_dict(EXTRA_MODELS)
     models         = list(flatten_models.keys())
     
     if task in enum.Task.values():
@@ -760,7 +760,7 @@ def list_extra_archs(task: str = None, mode: str = None) -> list[str]:
     archs = [flatten_models[m]["arch"].strip()
              for m in models if flatten_models[m]["arch"] not in [None, "None", ""]]
     
-    return sorted(dtype.unique(archs))
+    return sorted(datatype.unique(archs))
 
 
 def list_archs(
@@ -789,15 +789,15 @@ def list_archs(
         models         = [m for m in models       if humps.snakecase(m) in project_models]
         extra_models   = [m for m in extra_models if humps.snakecase(m) in project_models]
     
-    flatten_mon_models   = dtype.flatten_models_dict(MODELS)
-    flatten_extra_models = dtype.flatten_models_dict(EXTRA_MODELS)
+    flatten_mon_models   = datatype.flatten_models_dict(MODELS)
+    flatten_extra_models = datatype.flatten_models_dict(EXTRA_MODELS)
     archs = (
         [flatten_mon_models[m].arch      for m in models] +
         [flatten_extra_models[m]["arch"] for m in extra_models]
     )
     archs = [a.strip() for a in archs if a not in [None, "None", ""]]
     
-    return sorted(dtype.unique(archs))
+    return sorted(datatype.unique(archs))
 
 
 def parse_model_dir(arch: str, model: str) -> pathlib.Path | None:
@@ -1113,7 +1113,7 @@ def list_weights_files(
     weights_files += collect_weights_files(ZOO_DIR)
     
     model_name = parse_model_name(model)
-    return sorted(dtype.unique([f for f in weights_files if model_name in str(f)]))
+    return sorted(datatype.unique([f for f in weights_files if model_name in str(f)]))
 
 
 def parse_weights_file(
@@ -1132,7 +1132,7 @@ def parse_weights_file(
     from mon.globals import ROOT_DIR
     
     root = pathlib.Path(root)
-    weights = dtype.to_list(weights)
+    weights = datatype.to_list(weights)
     
     for i, w in enumerate(weights):
         w = pathlib.Path(w)
