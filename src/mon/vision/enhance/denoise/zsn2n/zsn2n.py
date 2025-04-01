@@ -1,10 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""ZS-N2N.
-
-This module implements the paper: "Zero-Shot Noise2Noise: Efficient Image
-Denoising without any Data".
+"""Implements the paper: "Zero-Shot Noise2Noise: Efficient Image Denoising without any
+Data," CVPR 2023.
 
 References:
     - https://colab.research.google.com/drive/1i82nyizTdszyHkaHBuKPbWnTzao8HF9b?usp=sharing#scrollTo=Srf0GQTYrkxA
@@ -17,10 +15,10 @@ __all__ = [
 ]
 
 import torch
-from torch.nn.common_types import _size_2_t
 
 from mon import core, nn
 from mon.globals import MODELS
+from mon.nn import _size_2_t
 from mon.vision import dtype, geometry
 from mon.vision.enhance import base
 
@@ -32,12 +30,11 @@ current_dir  = current_file.parents[0]
 
 @MODELS.register(name="zsn2n", arch="zsn2n")
 class ZSN2N(base.ImageEnhancementModel):
-    """Zero-Shot Noise2Noise: Efficient Image Denoising without any Data.
+    """ZS-N2N model for image denoising.
     
     Args:
-        in_channels: The first layer's input channel. Default: ``3`` for RGB
-            image.
-        num_channels: Output channels for subsequent layers. Default: ``48``.
+        in_channels: The first layer's input channel. Default is ``3`` for RGB image.
+        num_channels: Output channels for subsequent layers. Default is ``48``.
     
     References:
         - https://colab.research.google.com/drive/1i82nyizTdszyHkaHBuKPbWnTzao8HF9b?usp=sharing#scrollTo=Srf0GQTYrkxA
@@ -77,35 +74,54 @@ class ZSN2N(base.ImageEnhancementModel):
         self.initial_state_dict = self.state_dict()
     
     def init_weights(self, m: nn.Module):
+        """Initializes the model's weights.
+    
+        Args:
+            m: ``nn.Module`` to initialize weights for.
+        """
         pass
     
-    def configure_optimizers(self):
-        return None
-        
     def forward_loss(self, datapoint: dict, *args, **kwargs) -> dict:
+        """Computes forward pass and loss.
+    
+        Args:
+            datapoint: ``dict`` with datapoint attributes.
+    
+        Returns:
+            ``dict`` of predictions with ``"loss"`` and ``"enhanced"`` keys.
+        """
         # Forward
-        noisy                = datapoint["image"]
-        noisy1, noisy2       = self.pair_downsampler(noisy)
-        datapoint1           = datapoint | {"image": noisy1}
-        datapoint2           = datapoint | {"image": noisy2}
-        outputs1             = self.forward(datapoint=datapoint1, *args, **kwargs)
-        outputs2             = self.forward(datapoint=datapoint2, *args, **kwargs)
-        outputs              = self.forward(datapoint=datapoint,  *args, **kwargs)
+        noisy          = datapoint["image"]
+        noisy1, noisy2 = self.pair_downsampler(noisy)
+        datapoint1     = datapoint | {"image": noisy1}
+        datapoint2     = datapoint | {"image": noisy2}
+        outputs1       = self.forward(datapoint=datapoint1, *args, **kwargs)
+        outputs2       = self.forward(datapoint=datapoint2, *args, **kwargs)
+        outputs        = self.forward(datapoint=datapoint,  *args, **kwargs)
+        
         # Symmetric Loss
-        pred1                = noisy1 - outputs1["enhanced"]
-        pred2                = noisy2 - outputs2["enhanced"]
-        noisy_denoised       =  noisy -  outputs["enhanced"]
+        pred1          = noisy1 - outputs1["enhanced"]
+        pred2          = noisy2 - outputs2["enhanced"]
+        noisy_denoised =  noisy -  outputs["enhanced"]
         denoised1, denoised2 = self.pair_downsampler(noisy_denoised)
         mse_loss  = nn.MSELoss()
         loss_res  = 0.5 * (mse_loss(noisy1, pred2)    + mse_loss(noisy2, pred1))
         loss_cons = 0.5 * (mse_loss(pred1, denoised1) + mse_loss(pred2, denoised2))
         loss      = loss_res + loss_cons
-        # loss      = nn.reduce_loss(loss=loss, reduction="mean")
-        outputs["loss"] = loss
-        # Return
-        return outputs
+        
+        return outputs | {
+			"loss": loss,
+		}
     
     def forward(self, datapoint: dict, *args, **kwargs) -> dict:
+        """Performs forward pass of the model.
+    
+        Args:
+            datapoint: ``dict`` with datapoint attributes.
+    
+        Returns:
+            ``dict`` of predictions with ``"enhanced"`` keys.
+        """
         x = datapoint["image"]
         x = self.act(self.conv1(x))
         x = self.act(self.conv2(x))
@@ -121,19 +137,19 @@ class ZSN2N(base.ImageEnhancementModel):
         resize       : bool      = False,
         reset_weights: bool      = True,
     ) -> dict:
-        """Infer the model on a single datapoint. This method is different from
-        `forward()` in term that you may want to perform additional
-        pre-processing or post-processing steps.
-        
-        Notes:
-            If you want to perform specific pre-processing or post-processing
-            steps, you should override this method.
-        
+        """Infers model output with optional processing.
+    
         Args:
-            datapoint: A `dict` containing the attributes of a datapoint.
-            image_size: The input size. Default: ``512``.
-            resize: Resize the input image to the model's input size. Default: ``False``.
-            reset_weights: Whether to reset the weights before training. Default: ``True``.
+            datapoint: ``dict`` with datapoint attributes.
+            image_size: Input size as ``int`` or [H, W]. Default is ``512``.
+            resize: Resize input to ``image_size`` if ``True``. Default is ``False``.
+            reset_weights: Whether to reset the weights before training. Default is ``True``.
+            
+        Returns:
+            ``dict`` of model predictions.
+    
+        Notes:
+            Override for custom pre/post-processing; defaults to ``self.forward()``.
         """
         # Initialize training components
         if reset_weights:

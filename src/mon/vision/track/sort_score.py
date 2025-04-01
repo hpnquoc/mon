@@ -11,15 +11,14 @@ __all__ = [
 ]
 
 from timeit import default_timer as timer
-from typing import Sequence
 
 import numpy as np
 import torch
 from filterpy.kalman import KalmanFilter
 
 from mon import core
-from mon.vision import geometry as G
-from mon.vision.dtype import image as I
+from mon.nn import _size_2_t
+from mon.vision import dtype
 from mon.vision.track import base, sort
 
 
@@ -49,9 +48,9 @@ def associate_detections_to_tracks(
     
     # iou_matrix = iou_batch(detections, tracks)
     if association == "giou":
-        iou_matrix = G.bbox_giou(detections, tracks)
+        iou_matrix = dtype.bbox_giou(detections, tracks)
     else:
-        iou_matrix = G.bbox_iou(detections, tracks)
+        iou_matrix = dtype.bbox_iou(detections, tracks)
     
     if min(iou_matrix.shape) > 0:
         a = (iou_matrix > iou_threshold).astype(np.int32)
@@ -105,14 +104,10 @@ class KalmanBoxScoreTrack(base.Track):
         self,
         bbox         : np.ndarray,
         det_threshold: float,
-        id_          : int             = None,
+        id_          : int = None,
         state        : core.TrackState = core.TrackState.NEW,
     ):
-        super().__init__(
-            id_        = id_,
-            state      = state,
-            detections = [],
-        )
+        super().__init__(id_=id_, state=state, detections=[])
         # Define constant velocity model
         self.kf   = KalmanFilter(dim_x=7, dim_z=4)
         self.kf.F = np.array(
@@ -235,8 +230,8 @@ class SORTScore(base.Tracker):
     def update(
         self,
         det_results: torch.Tensor | np.ndarray,
-        input_size : int | Sequence[int],
-        image_size : int | Sequence[int],
+        input_size : _size_2_t,
+        image_size : _size_2_t,
         frame_id   : int = None,
     ):
         """Requires: this method must be called once for each frame even with
@@ -256,8 +251,8 @@ class SORTScore(base.Tracker):
         bboxes        = det_results[:, 0:4]  # [x1, y1, x2, y2]
         classes       = det_results[:,   5]
         # Scale the detections
-        input_size    = I.get_image_size(input_size)
-        image_size    = I.get_image_size(image_size)
+        input_size    = dtype.get_image_size(input_size)
+        image_size    = dtype.get_image_size(image_size)
         inp_h, inp_w  = input_size[0], input_size[1]
         img_h, img_w  = image_size[0], image_size[1]
         if inp_h != img_h or inp_w != img_w:

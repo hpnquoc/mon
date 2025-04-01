@@ -253,7 +253,7 @@ class HalfInstanceNorm2d(torch.nn.InstanceNorm2d):
 # region Layer Normalization
 
 class LayerNorm2d(torch.nn.LayerNorm):
-    """Normalizes channels of 2D spatial tensors (B, C, H, W).
+    """Normalizes channels of 2D spatial tensors [B, C, H, W].
 
     Args:
         normalized_shape: Shape to normalize as ``int`` or ``Sequence[int]`` (typically ``C``).

@@ -1,9 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""
+"""Implements the paper: "UNet++ Based Nested Skip Connections Network for Low-Light
+Image Enhancement,"
+
 References:
-    `<https://github.com/xiwang-online/LLUnetPlusPlus>`__
+    - https://github.com/xiwang-online/LLUnetPlusPlus
 """
 
 from __future__ import annotations

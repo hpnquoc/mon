@@ -1,10 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""NeurOP.
-
-This module implements the paper: "Neural Color Operators for Sequential Image
-Retouching".
+"""Implements the paper: "Neural Color Operators for Sequential Image Retouching,"
+ECCV 2022.
 
 References:
     - https://github.com/amberwangyili/neurop
@@ -22,7 +20,6 @@ from data import build_train_loader
 from models import build_model
 from utils import *
 
-console      = mon.console
 current_file = mon.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
@@ -55,8 +52,8 @@ def train(args: argparse.Namespace):
     opt["network_G"]["init_model"] = mon.ROOT_DIR / opt["network_G"]["init_model"]
     
     # Start
-    console.rule(f"[bold red] {fullname}")
-    console.log(f"Machine: {hostname}")
+    mon.console.rule(f"[bold red] {fullname}")
+    mon.console.log(f"Machine: {hostname}")
     
     # Device
     device = mon.set_device(device)

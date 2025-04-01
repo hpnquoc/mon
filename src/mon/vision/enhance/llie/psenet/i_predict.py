@@ -1,6 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+"""Implements the paper: "PSENet: Progressive Self-Enhancement Network for Unsupervised
+Extreme-Light Image Enhancement," WACV 2023.
+
+References:
+    - https://github.com/VinAIResearch/PSENet-Image-Enhancement
+"""
+
 from __future__ import annotations
 
 import torch

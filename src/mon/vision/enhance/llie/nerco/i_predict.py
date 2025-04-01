@@ -1,6 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+"""Implements the paper: "Implicit Neural Representation for Cooperative Low-light
+Image Enhancement," ICCV 2023.
+
+References:
+    - https://github.com/Ysz2022/NeRCo
+"""
+
 from __future__ import annotations
 
 import random

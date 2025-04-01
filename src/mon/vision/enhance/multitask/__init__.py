@@ -1,10 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Multi-Task Image Enhancement.
-
-This package implements multi-task image enhancement models, i.e., general
-image restoration models.
+"""Implements multi-task image enhancement algorithms, i.e., general image restoration
+models.
 """
 
 from __future__ import annotations

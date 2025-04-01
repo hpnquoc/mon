@@ -18,8 +18,6 @@ from utils.util import get_resume_paths, opt_get
 import mon
 from .base_model import BaseModel
 
-console = mon.console
-
 logger = logging.getLogger('base')
 
 

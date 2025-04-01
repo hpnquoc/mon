@@ -1,10 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""RRDNet.
-
-This module implement the paper: Zero-Shot Restoration of Underexposed Images
-via Robust Retinex Decomposition.
+"""Implements the paper: "Zero-Shot Restoration of Underexposed Images via Robust
+Retinex Decomposition," ICME 2020.
 
 References:
     - https://github.com/aaaaangel/RRDNet
@@ -29,7 +27,6 @@ from mon.vision.enhance import base
 
 current_file = core.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
-LDA          = nn.LayeredFeatureAggregation
 
 bilateral_ksize = (3, 3)
 bilateral_color = 0.1
@@ -48,7 +45,7 @@ class Loss(nn.Loss):
         reduction     : Literal["none", "mean", "sum"] = "mean",
         *args, **kwargs
     ):
-        super().__init__(reduction=reduction, *args, **kwargs)
+        super().__init__(reduction=reduction)
         self.illu_factor    = illu_factor
         self.reflect_factor = reflect_factor
         self.noise_factor   = noise_factor
@@ -181,6 +178,7 @@ class Loss(nn.Loss):
 
 @MODELS.register(name="rrdnet", arch="rrdnet")
 class RRDNet(base.ImageEnhancementModel):
+    """RRDNet model for low-light image enhancement."""
     
     arch     : str              = "rrdnet"
     name     : str              = "rrdnet"
@@ -254,22 +252,40 @@ class RRDNet(base.ImageEnhancementModel):
         self.initial_state_dict = self.state_dict()
     
     def init_weights(self, m: nn.Module):
+        """Initializes the model's weights.
+    
+        Args:
+            m: ``nn.Module`` to initialize weights for.
+        """
         pass
         
     def forward_loss(self, datapoint: dict, *args, **kwargs) -> dict:
+        """Computes forward pass and loss.
+    
+        Args:
+            datapoint: ``dict`` with datapoint attributes.
+    
+        Returns:
+            ``dict`` of predictions with ``"loss"`` and ``"enhanced"`` keys.
+        """
         # Forward
-        outputs         = self.forward(datapoint=datapoint, *args, **kwargs)
-        image           = outputs["image"]
-        illumination    = outputs["illumination"]
-        reflectance     = outputs["reflectance"]
-        noise           = outputs["noise"]
-        loss            = self.loss(image, illumination, reflectance, noise)
-        outputs["loss"] = loss
-        return outputs
+        outputs = self.forward(datapoint=datapoint, *args, **kwargs)
+        
+        # Loss
+        image        = outputs["image"]
+        illumination = outputs["illumination"]
+        reflectance  = outputs["reflectance"]
+        noise        = outputs["noise"]
+        loss         = self.loss(image, illumination, reflectance, noise)
+        
+        return outputs | {
+            "loss": loss,
+        }
         
     def forward(self, datapoint: dict, *args, **kwargs) -> dict:
-        # Prepare input
-        image        = datapoint["image"]
+        # Input
+        image = datapoint["image"]
+        
         # Enhance
         illumination = torch.sigmoid(self.illumination_net(image))
         reflectance  = torch.sigmoid(self.reflectance_net(image))
@@ -277,7 +293,7 @@ class RRDNet(base.ImageEnhancementModel):
         adjust_illu  = torch.pow(illumination, self.gamma)
         enhanced     = adjust_illu * ((image - noise) / illumination)
         enhanced     = torch.clamp(enhanced, min=0, max=1)
-        # Return
+
         return {
             "image"       : image,
             "illumination": illumination,
@@ -286,13 +302,21 @@ class RRDNet(base.ImageEnhancementModel):
             "enhanced"    : enhanced
         }
     
-    def infer(
-        self,
-        datapoint    : dict,
-        epochs       : int  = 1000,
-        reset_weights: bool = True,
-        *args, **kwargs
-    ) -> dict:
+    def infer(self, datapoint: dict, reset_weights: bool = True, *args, **kwargs) -> dict:
+        """Infers model output with optional processing.
+    
+        Args:
+            datapoint: ``dict`` with datapoint attributes.
+            image_size: Input size as ``int`` or [H, W]. Default is ``512``.
+            resize: Resize input to ``image_size`` if ``True``. Default is ``False``.
+            reset_weights: Whether to reset the weights before training. Default is ``True``.
+            
+        Returns:
+            ``dict`` of model predictions.
+    
+        Notes:
+            Override for custom pre/post-processing; defaults to ``self.forward()``.
+        """
         # Initialize training components
         if reset_weights:
             self.load_state_dict(self.initial_state_dict, strict=False)
@@ -308,7 +332,7 @@ class RRDNet(base.ImageEnhancementModel):
         timer = core.Timer()
         timer.tick()
         self.train()
-        for _ in range(epochs - 1):
+        for _ in range(self.iters):
             outputs = self.forward_loss(datapoint=datapoint)
             self.zero_grad()
             optimizer.zero_grad()

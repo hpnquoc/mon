@@ -1,9 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""De-rain.
-
-This package implements single-image deraining algorithms and models.
-"""
+"""Implements image deraining algorithms."""
 
 from __future__ import annotations

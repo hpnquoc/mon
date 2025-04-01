@@ -1,9 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""De-blurring.
-
-This package implements de-blurring models.
-"""
+"""Implements deblurring algorithms."""
 
 from __future__ import annotations

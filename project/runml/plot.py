@@ -5,6 +5,10 @@
 
 from __future__ import annotations
 
+import sys
+
+sys.dont_write_bytecode = True
+
 import math
 
 import click
@@ -14,7 +18,6 @@ from matplotlib import pyplot as plt
 
 import mon
 
-console = mon.console
 
 plt.rcParams["savefig.bbox"] = "tight"
 
@@ -115,8 +118,8 @@ def list_images(input_dir: mon.Path, verbose: bool):
                     dataset_names.append(dataset_dir.name)
     dataset_names = sorted(dataset_names)
     if verbose:
-        console.log(list(image_grid.keys()))
-        console.log(dataset_names)
+        mon.console.log(list(image_grid.keys()))
+        mon.console.log(dataset_names)
     
     # Listing image names
     image_stem_dict = {}

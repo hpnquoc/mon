@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-Reference:
+References:
     https://github.com/pvnieo/Low-light-Image-Enhancement
 """
 

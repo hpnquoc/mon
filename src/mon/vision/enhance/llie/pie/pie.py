@@ -6,7 +6,7 @@ import cv2
 import numpy as np
 
 
-def calcEta(R, nR, eta):
+def calcEta(R,nR,eta):
     f = np.linalg.norm(nR-R,ord=2)
     f /= (np.linalg.norm(R,ord=2)+1e-10)
     if f <= eta:
@@ -20,7 +20,7 @@ def imgrad(im):
     return gv,gh
 
 
-def psf2otf(psf, outSize):
+def psf2otf(psf,outSize):
     '''
     code is from https://blog.csdn.net/
     weixin_43890288/article/details/
@@ -45,7 +45,7 @@ def psf2otf(psf, outSize):
     return otf
 
 
-def shrink(x, lam):
+def shrink(x,lam):
     eps = 1e-10
     abs_x = abs(x)
     f = x*1.0/(abs_x+eps)
@@ -53,14 +53,15 @@ def shrink(x, lam):
     return f
 
 
-def upDateP1(R, bv, bh, lam):
+def upDateP1(R,bv,bh,lam):
     dvR,dhR = imgrad(R)
     dv = shrink(dvR+bv,1.0/(2*lam))
     dh = shrink(dhR+bh,1.0/(2*lam))
     return dv,dh
 
 
-def upDataP2(S, I, difv, difh, fdH, fdV, fdHcj, fdVcj, beta, lam):
+def upDataP2(S,I,difv,difh,fdH,fdV,\
+            fdHcj,fdVcj,beta,lam):
     eps = 1e-10
     ahp = beta*lam
     dfdvR = np.fft.fft2(difv)
@@ -78,7 +79,8 @@ def upDataP2(S, I, difv, difh, fdH, fdV, fdHcj, fdVcj, beta, lam):
     return R,bv,bh
 
 
-def upDataP3(S, R, I0, gama, alpha, fdH, fdV, fdHcj, fdVcj):
+def upDataP3(S,R,I0,gama,alpha,\
+            fdH,fdV,fdHcj,fdVcj):
     eps = 1e-10
     f1 = gama*I0 + S/(R+eps)
     f1 = np.fft.fft2(f1)
@@ -91,7 +93,7 @@ def upDataP3(S, R, I0, gama, alpha, fdH, fdV, fdHcj, fdVcj):
     return I
 
 
-def optimizAlgo(S, alpha, beta, lam, gama, eta1, eta2):
+def optimizAlgo(S,alpha,beta,lam,gama,eta1,eta2):
     # initialization
     I = cv2.GaussianBlur(S,(5,5),0)
     I0 = np.mean(S)

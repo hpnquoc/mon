@@ -1,6 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+"""Implements the paper: "Zero-Reference Low-Light Enhancement via Physical Quadruple
+Priors," CVPR 2024.
+
+References:
+    - https://github.com/daooshee/QuadPrior
+"""
+
 from __future__ import annotations
 
 from cldm.hack import disable_verbosity

@@ -1,6 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+"""Implements the paper: "Retinexformer: One-stage Retinex-based Transformer for
+Low-light Image Enhancement," ICCV 2023.
+
+References:
+    - https://github.com/caiyuanhao1998/Retinexformer
+"""
+
 from __future__ import annotations
 
 from typing import Sequence

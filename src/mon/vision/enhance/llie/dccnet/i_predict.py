@@ -1,9 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""
-Reference:
-    https://github.com/Ian0926/DCC-Net
+"""Implements the paper: "Deep Color Consistent Network for Low Light-Image
+Enhancement," CVPR 2022.
+
+References:
+    - https://github.com/Ian0926/DCC-Net
 """
 
 from __future__ import annotations

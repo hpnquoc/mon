@@ -9,12 +9,9 @@ import mon.vision.dtype.depth
 import mon.vision.dtype.image
 import mon.vision.dtype.thermal
 import mon.vision.dtype.video
+from mon.vision.dtype.annotation import *
+from mon.vision.dtype.dataset import *
 from mon.vision.dtype.depth import *
 from mon.vision.dtype.image import *
 from mon.vision.dtype.thermal import *
 from mon.vision.dtype.video import *
-
-import mon.vision.dtype.annotation
-import mon.vision.dtype.dataset
-from mon.vision.dtype.annotation import *
-from mon.vision.dtype.dataset import *

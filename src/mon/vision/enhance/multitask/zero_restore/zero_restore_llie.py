@@ -1,13 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Zero-Restore
-
-This module implements the paper: Zero-shot Single Image Restoration through
-Controlled Perturbation of Koschmieder's Model.
+"""Implements the paper: "Zero-shot Single Image Restoration through Controlled
+Perturbation of Koschmieder's Model," CVPR 2021.
 
 References:
-    - https://github.com/aupendu/zero-restore
+	- https://github.com/aupendu/zero-restore
 """
 
 from __future__ import annotations
@@ -218,15 +216,17 @@ class Estimation(nn.Module):
 
 @MODELS.register(name="zero_restore_llie", arch="zero_restore")
 class ZeroRestoreLLIE(base.ImageEnhancementModel):
-    """Zero-shot Single Image Restoration through Controlled Perturbation of
-    Koschmieder's Model.
+    """Zero-Restore model for low-light image enhancement.
+    
+    References:
+	    - https://github.com/aupendu/zero-restore
     """
     
-    model_dir: core.Path        = current_dir
     arch     : str              = "zero_restore"
     name     : str              = "zero_restore_llie"
     tasks    : list[core.Task]  = [core.Task.LLIE]
     ltypes   : list[core.LType] = [core.LType.ZERO_SHOT]
+    model_dir: core.Path        = current_dir
     zoo      : dict             = {}
     
     def __init__(
@@ -255,6 +255,11 @@ class ZeroRestoreLLIE(base.ImageEnhancementModel):
         self.initial_state_dict = self.state_dict()
         
     def init_weights(self, m: nn.Module):
+        """Initializes the model's weights.
+    
+        Args:
+            m: ``nn.Module`` to initialize weights for.
+        """
         classname = m.__class__.__name__
         if classname.find("Conv2d") != -1:  # 0.02
             m.weight.data.normal_(0.0, 0.001)
@@ -262,12 +267,20 @@ class ZeroRestoreLLIE(base.ImageEnhancementModel):
             m.weight.data.normal_(0.0, 0.001)
     
     def forward_loss(self, datapoint: dict, *args, **kwargs) -> dict:
+        """Computes forward pass and loss.
+    
+        Args:
+            datapoint: ``dict`` with datapoint attributes.
+    
+        Returns:
+            ``dict`` of predictions with ``"loss"`` and ``"enhanced"`` keys.
+        """
         # Forward 1
-        outputs   = self.forward(datapoint=datapoint, *args, **kwargs)
-        image     = datapoint["image"]
-        trans_map = outputs["trans"]
-        atm_map   = outputs["atm"]
-        enhanced  = outputs["enhanced"]
+        outputs     = self.forward(datapoint=datapoint, *args, **kwargs)
+        image       = datapoint["image"]
+        trans_map   = outputs["trans"]
+        atm_map     = outputs["atm"]
+        enhanced    = outputs["enhanced"]
         # Forward 2
         p_x         = 0.9
         image_x     = image * p_x + (1 - p_x) * atm_map
@@ -275,6 +288,7 @@ class ZeroRestoreLLIE(base.ImageEnhancementModel):
         trans_map_x = outputs_x["trans"]
         atm_map_x   = outputs_x["atm"]
         enhanced_x  = outputs_x["enhanced"]
+        
         # Loss
         o_tensor  = torch.ones(enhanced.shape).to(self.device)
         z_tensor  = torch.zeros(enhanced.shape).to(self.device)
@@ -290,19 +304,26 @@ class ZeroRestoreLLIE(base.ImageEnhancementModel):
         loss_mn   = loss_mn_r + loss_mn_g + 10 * loss_mn_b
         loss_tv   = nn.TotalVariationLoss()(enhanced)
         loss      = loss_t + loss_a + 0.001 * loss_mx + 0.01 * loss_mn + 0.001 * loss_tv
-        outputs["loss"] = loss
-        # Return
-        return outputs
+
+        return outputs | {
+			"loss": loss,
+		}
         
     def forward(self, datapoint: dict, *args, **kwargs) -> dict:
-        # Prepare input
+        """Performs forward pass of the model.
+    
+        Args:
+            datapoint: ``dict`` with datapoint attributes.
+    
+        Returns:
+            ``dict`` of predictions with ``"enhanced"`` keys.
+        """
         image      = datapoint["image"]
-        # Forward
         trans, atm = self.estimation(image)
         atm        = atm.expand_as(image)
         trans      = trans.expand_as(image)
         enhanced   = (image - (1 - trans) * atm) / trans
-        # Return
+
         return {
             "trans"   : trans,
             "atm"     : atm,
@@ -328,6 +349,18 @@ class ZeroRestoreLLIE(base.ImageEnhancementModel):
         return image
     
     def infer(self, datapoint: dict, reset_weights: bool = True, *args, **kwargs) -> dict:
+        """Infers model output with optional processing.
+    
+        Args:
+            datapoint: ``dict`` with datapoint attributes.
+            reset_weights: Whether to reset the weights before training. Default is ``True``.
+            
+        Returns:
+            ``dict`` of model predictions.
+    
+        Notes:
+            Override for custom pre/post-processing; defaults to ``self.forward()``.
+        """
         # Initialize training components
         if reset_weights:
             self.load_state_dict(self.initial_state_dict, strict=False)

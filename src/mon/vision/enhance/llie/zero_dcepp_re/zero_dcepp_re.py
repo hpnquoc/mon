@@ -1,10 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Zero-DCE++.
-
-This module implements the paper: "Learning to Enhance Low-Light Image via
-Zero-Reference Deep Curve Estimation".
+"""Implements the paper: "Learning to Enhance Low-Light Image via Zero-Reference Deep
+Curve Estimation," IEEE TPAMI 2022.
 
 References:
     - https://github.com/Li-Chongyi/Zero-DCE_extension
@@ -85,17 +83,14 @@ class Loss(nn.Loss):
 
 @MODELS.register(name="zero_dce++_re", arch="zero_dce++")
 class ZeroDCEpp_RE(base.ImageEnhancementModel):
-    """Learning to Enhance Low-Light Image via Zero-Reference Deep Curve
-    Estimation.
+    """Zero-DCE++ model for low-light image enhancement.
     
     Args:
-        in_channels: The first layer's input channel. Default: ``3`` for RGB
-            image.
-        num_channels: The number of input and output channels for subsequent
-            layers. Default: ``32``.
-        num_iters: The number of convolutional layers in the model.
-            Default: ``8``.
-        scale_factor: Downsampling/upsampling ratio. Defaults: ``1.0``.
+        in_channels: The first layer's input channel. Default is ``3`` for RGB image.
+        num_channels: The number of input and output channels for subsequent layers.
+            Default is ``32``.
+        num_iters: The number of convolutional layers in the model. Default is ``8``.
+        scale_factor: Downsampling/upsampling ratio. Default is ``1.0``.
         
     References:
         - https://github.com/Li-Chongyi/Zero-DCE_extension
@@ -140,7 +135,12 @@ class ZeroDCEpp_RE(base.ImageEnhancementModel):
         else:
             self.apply(self.init_weights)
 
-    def init_weights(self, m: torch.nn.Module):
+    def init_weights(self, m: nn.Module):
+        """Initializes the model's weights.
+    
+        Args:
+            m: ``nn.Module`` to initialize weights for.
+        """
         classname = m.__class__.__name__
         if classname.find("Conv") != -1:
             if hasattr(m, "conv"):
@@ -153,23 +153,43 @@ class ZeroDCEpp_RE(base.ImageEnhancementModel):
                 m.weight.data.normal_(0.0, 0.02)
     
     def forward_loss(self, datapoint: dict, *args, **kwargs) -> dict | None:
+        """Computes forward pass and loss.
+    
+        Args:
+            datapoint: ``dict`` with datapoint attributes.
+    
+        Returns:
+            ``dict`` of predictions with ``"loss"`` and ``"enhanced"`` keys.
+        """
         # Forward
         outputs = self.forward(datapoint=datapoint, *args, **kwargs)
+        
         # Loss
         image    = datapoint["image"]
         enhanced = outputs["enhanced"]
         adjust   = outputs["adjust"]
-        outputs["loss"] = self.loss(image, adjust, enhanced)
-        # Return
-        return outputs
+        loss     = self.loss(image, adjust, enhanced)
+        
+        return outputs | {
+            "loss": loss,
+        }
     
     def forward(self, datapoint: dict, *args, **kwargs) -> dict:
-        x = datapoint["image"]
-        #
+        """Performs forward pass of the model.
+    
+        Args:
+            datapoint: ``dict`` with datapoint attributes.
+    
+        Returns:
+            ``dict`` of predictions with ``"enhanced"`` keys.
+        """
+        # Input
+        x      = datapoint["image"]
         x_down = x
         if self.scale_factor != 1:
             x_down = F.interpolate(x, scale_factor=1 / self.scale_factor, mode="bilinear")
-        #
+        
+        # Process
         x1  =  self.relu(self.e_conv1(x_down))
         x2  =  self.relu(self.e_conv2(x1))
         x3  =  self.relu(self.e_conv3(x2))
@@ -177,14 +197,14 @@ class ZeroDCEpp_RE(base.ImageEnhancementModel):
         x5  =  self.relu(self.e_conv5(torch.cat([x3, x4], 1)))
         x6  =  self.relu(self.e_conv6(torch.cat([x2, x5], 1)))
         x_r = torch.tanh(self.e_conv7(torch.cat([x1, x6], 1)))
-        #
         if self.scale_factor != 1:
             x_r = self.upsample(x_r)
-        #
+        
+        # Enhance
         y = x
         for i in range(0, self.num_iters):
             y = y + x_r * (torch.pow(y, 2) - y)
-        #
+        
         return {
             "adjust"  : x_r,
             "enhanced": y,

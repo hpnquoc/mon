@@ -1,25 +1,19 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
-from __future__ import annotations
-
-import argparse
 import glob
-import os
+import sys
 from collections import OrderedDict
 
-import cv2
+from natsort import natsort
+import argparse
+import options.options as option
+from Measure import Measure, psnr
+from imresize import imresize
+from models import create_model
+import torch
+from utils.util import opt_get
 import numpy as np
 import pandas as pd
-import torch
-from natsort import natsort
-
-import options.options as option
-from imresize import imresize
-from measure import Measure, psnr
-from models import create_model
-from utils.util import opt_get
-
+import os
+import cv2
 
 def fiFindByWildcard(wildcard):
     return natsort.natsorted(glob.glob(wildcard, recursive=True))
@@ -75,7 +69,6 @@ def imCropCenter(img, size):
 def impad(img, top=0, bottom=0, left=0, right=0, color=255):
     return np.pad(img, [(top, bottom), (left, right), (0, 0)], 'reflect')
 
-
 def hiseq_color_cv2_img(img):
     (b, g, r) = cv2.split(img)
     bH = cv2.equalizeHist(b)
@@ -83,7 +76,6 @@ def hiseq_color_cv2_img(img):
     rH = cv2.equalizeHist(r)
     result = cv2.merge((bH, gH, rH))
     return result
-
 
 def main():
     parser = argparse.ArgumentParser()

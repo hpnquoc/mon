@@ -1,9 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""HINet.
-
-This module implements the paper: "Half-Instance Normalization Network".
+"""Implements the paper: "HINet: Half Instance Normalization Network for Image
+Restoration," CVPRW 2021.
 
 References:
     - https://github.com/megvii-model/HINet
@@ -15,17 +14,15 @@ __all__ = [
     "HINet_RE",
 ]
 
-from typing import Any, Sequence
+from typing import Any
 
 import torch
-from torch.nn.common_types import _size_2_t
 
 from mon import core, nn
-from mon.core import LType, Task
 from mon.globals import MODELS
+from mon.nn import _size_2_t
 from mon.vision.enhance import base
 
-console      = core.console
 current_file = core.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
@@ -136,7 +133,7 @@ class SupervisedAttentionModule(nn.Module):
         dtype       : Any       = None,
     ):
         super().__init__()
-        padding    = kernel_size[0] // 2 if isinstance(kernel_size, Sequence) else kernel_size // 2
+        padding    = kernel_size[0] // 2 if isinstance(kernel_size, (list, tuple)) else kernel_size // 2
         self.conv1 = nn.Conv2d(
             in_channels  = channels,
             out_channels = channels,
@@ -205,75 +202,63 @@ class HINet_RE(base.ImageEnhancementModel):
     """Half-Instance Normalization Network.
     
     Args:
-        in_channels: The first layer's input channel. Default: ``3`` for RGB
-            image.
-        num_channels: Output channels for subsequent layers. Default: ``64``.
-        depth: The depth of the network. Default: ``5``.
-        relu_slope: The slope of the ReLU activation. Default: ``0.2``,
-        in_pos_left: The layer index to begin applying the Instance
-            Normalization. Default: ``0``.
-        in_pos_right: The layer index to end applying the Instance
-            Normalization. Default: ``4``.
+        in_channels: The first layer's input channel. Default is ``3`` for RGB image.
+        num_channels: Output channels for subsequent layers. Default is ``64``.
+        depth: The depth of the network. Default is ``5``.
+        relu_slope: The slope of the ReLU activation. Default is ``0.2``.
+        in_pos_left: The layer index to begin applying the Instance Normalization.
+            Default is ``0``.
+        in_pos_right: The layer index to end applying the Instance Normalization.
+            Default is ``4``.
         
     References:
         - https://github.com/megvii-model/HINet
     """
     
-    model_dir: core.Path    = current_dir
-    arch     : str          = "hinet"
-    tasks    : list[Task]   = [Task.DEBLUR, Task.DENOISE, Task.DERAIN, Task.DESNOW, Task.LLIE]
-    ltypes   : list[LType]  = [LType.SUPERVISED]
-    zoo      : dict         = {}
+    arch     : str              = "hinet"
+    name     : str              = "hinet_re"
+    tasks    : list[core.Task]  = [core.Task.DEBLUR, core.Task.DENOISE, core.Task.DERAIN,
+                                   core.Task.DESNOW, core.Task.LLIE]
+    ltypes   : list[core.LType] = [core.LType.SUPERVISED]
+    model_dir: core.Path        = current_dir
+    zoo      : dict             = {}
     
     def __init__(
         self,
-        in_channels : int   = 3,
         num_channels: int   = 64,
         depth       : int   = 5,
         relu_slope  : float = 0.2,
         in_pos_left : int   = 0,
         in_pos_right: int   = 4,
-        weights     : Any   = None,
         *args, **kwargs
     ):
-        super().__init__(
-            name        = "hinet_re",
-            in_channels = in_channels,
-            weights     = weights,
-            *args, **kwargs
-        )
-        self.in_channels  = in_channels
-        self.num_channels = num_channels
-        self.depth        = depth
-        self.relu_slope   = relu_slope
-        self.in_pos_left  = in_pos_left
-        self.in_pos_right = in_pos_right
+        super().__init__(*args, **kwargs)
         
-        # Construct model
+        # Network
         self.down_path_1  = nn.ModuleList()
         self.down_path_2  = nn.ModuleList()
-        self.conv_01      = nn.Conv2d(self.in_channels, self.num_channels, 3, 1, 1)
-        self.conv_02      = nn.Conv2d(self.in_channels, self.num_channels, 3, 1, 1)
-        prev_channels     = self.num_channels
-        for i in range(self.depth):  # 0, 1, 2, 3, 4
-            use_hin    = True if self.in_pos_left <= i <= self.in_pos_right else False
-            downsample = True if (i + 1) < self.depth else False
-            self.down_path_1.append(UNetConvBlock(prev_channels, (2 ** i) * self.num_channels, downsample, self.relu_slope, use_hin=use_hin))
-            self.down_path_2.append(UNetConvBlock(prev_channels, (2 ** i) * self.num_channels, downsample, self.relu_slope, use_csff=downsample, use_hin=use_hin))
-            prev_channels = (2 ** i) * self.num_channels
+        self.conv_01      = nn.Conv2d(3, num_channels, 3, 1, 1)
+        self.conv_02      = nn.Conv2d(3, num_channels, 3, 1, 1)
+        prev_channels     = num_channels
+        for i in range(depth):  # 0, 1, 2, 3, 4
+            use_hin    = True if in_pos_left <= i <= in_pos_right else False
+            downsample = True if (i + 1) < depth else False
+            self.down_path_1.append(UNetConvBlock(prev_channels, (2 ** i) * num_channels, downsample, relu_slope, use_hin=use_hin))
+            self.down_path_2.append(UNetConvBlock(prev_channels, (2 ** i) * num_channels, downsample, relu_slope, use_csff=downsample, use_hin=use_hin))
+            prev_channels = (2 ** i) * num_channels
         self.up_path_1   = nn.ModuleList()
         self.up_path_2   = nn.ModuleList()
         self.skip_conv_1 = nn.ModuleList()
         self.skip_conv_2 = nn.ModuleList()
-        for i in reversed(range(self.depth - 1)):
-            self.up_path_1.append(UNetUpBlock(prev_channels, (2 ** i) * self.num_channels, self.relu_slope))
-            self.up_path_2.append(UNetUpBlock(prev_channels, (2 ** i) * self.num_channels, self.relu_slope))
-            self.skip_conv_1.append(nn.Conv2d((2 ** i) * self.num_channels, (2 ** i) * self.num_channels, 3, 1, 1))
-            self.skip_conv_2.append(nn.Conv2d((2 ** i) * self.num_channels, (2 ** i) * self.num_channels, 3, 1, 1))
-            prev_channels = (2 ** i) * self.num_channels
+        for i in reversed(range(depth - 1)):
+            self.up_path_1.append(UNetUpBlock(prev_channels, (2 ** i) * num_channels, relu_slope))
+            self.up_path_2.append(UNetUpBlock(prev_channels, (2 ** i) * num_channels, relu_slope))
+            self.skip_conv_1.append(nn.Conv2d((2 ** i) * num_channels, (2 ** i) * num_channels, 3, 1, 1))
+            self.skip_conv_2.append(nn.Conv2d((2 ** i) * num_channels, (2 ** i) * num_channels, 3, 1, 1))
+            prev_channels = (2 ** i) * num_channels
         self.sam12 = SupervisedAttentionModule(prev_channels)
         self.cat12 = nn.Conv2d(prev_channels * 2, prev_channels, 1, 1, 0)
-        self.last  = nn.Conv2d(prev_channels, self.in_channels, 3, 1, 1, bias=True)
+        self.last  = nn.Conv2d(prev_channels, 3, 3, 1, 1, bias=True)
         
         # Load weights
         if self.weights:
@@ -282,6 +267,11 @@ class HINet_RE(base.ImageEnhancementModel):
             self.apply(self.init_weights)
 
     def init_weights(self, m: nn.Module):
+        """Initializes the model's weights.
+    
+        Args:
+            m: ``nn.Module`` to initialize weights for.
+        """
         gain      = torch.nn.init.calculate_gain("leaky_relu", 0.20)
         classname = m.__class__.__name__
         if classname.find("Conv") != -1:
@@ -291,20 +281,38 @@ class HINet_RE(base.ImageEnhancementModel):
                     nn.init.constant_(m.bias, 0)
     
     def forward_loss(self, datapoint: dict, *args, **kwargs) -> dict:
+        """Computes forward pass and loss.
+    
+        Args:
+            datapoint: ``dict`` with datapoint attributes.
+    
+        Returns:
+            ``dict`` of predictions with ``"loss"`` and ``"enhanced"`` keys.
+        """
         # Forward
         outputs = self.forward(datapoint=datapoint, *args, **kwargs)
+        
         # Loss
-        target  = datapoint["ref_image"]
-        if self.loss:
-            loss = 0
-            for p in outputs.values():
-                loss += self.loss(p, target)
-        else:
-            loss = None
-        outputs["loss"] = loss
-        return outputs
+        target = datapoint["ref_image"]
+        y1     = outputs["stage1"]
+        y2     = outputs["enhanced"]
+        loss   = 0.5 * self.loss(y1, target) + 0.5 * self.loss(y2, target)
+        
+        # Return
+        return outputs | {
+            "loss": loss,
+        }
     
     def forward(self, datapoint: dict, *args, **kwargs) -> dict:
+        """Performs forward pass of the model.
+    
+        Args:
+            datapoint: ``dict`` with datapoint attributes.
+    
+        Returns:
+            ``dict`` of predictions with ``"enhanced"`` keys.
+        """
+        # Input
         x = datapoint["image"]
 
         # Stage 1

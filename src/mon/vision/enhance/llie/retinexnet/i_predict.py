@@ -1,6 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+"""Implements the paper: "Deep Retinex Decomposition for Low-Light Enhancement," BMCV 2018.
+
+References:
+    - https://github.com/aasharma90/RetinexNet_PyTorch
+"""
+
 from __future__ import annotations
 
 import mon

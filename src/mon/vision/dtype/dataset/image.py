@@ -24,7 +24,7 @@ class ImageLoader(base.VisionDataset):
         datapoint_attrs: Dict of attribute names and types.
         
     Args:
-        root: Root path or directory of images.
+        root: A single image file path, pattern, or directory of images.
         split: Data split to use. Default is ``Split.PREDICT``.
         transform: Transformations to apply. Default is ``None``.
         to_tensor: If ``True``, converts to ``torch.Tensor``. Default is ``False``.

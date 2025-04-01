@@ -1,22 +1,20 @@
-import argparse
 import glob
 import os
 import time
 from collections import OrderedDict
 
-import cv2
-import lpips
 import numpy as np
 import torch
+import cv2
+import argparse
+
 from natsort import natsort
-from skimage.metrics import (
-	peak_signal_noise_ratio as psnr,
-	structural_similarity as ssim,
-)
+from skimage.metrics import structural_similarity as ssim
+from skimage.metrics import peak_signal_noise_ratio as psnr
+import lpips
 
 
-class Measure:
-    
+class Measure():
     def __init__(self, net='alex', use_gpu=False):
         self.device = 'cuda' if use_gpu else 'cpu'
         self.model = lpips.LPIPS(net=net)
@@ -28,7 +26,7 @@ class Measure:
     def lpips(self, imgA, imgB, model=None):
         tA = t(imgA).to(self.device)
         tB = t(imgB).to(self.device)
-        dist01 = self.model.forward(tA).item()
+        dist01 = self.model.forward(tA, tB).item()
         return dist01
 
     def ssim(self, imgA, imgB, gray_scale=True):
@@ -72,7 +70,6 @@ def imread(path):
 def format_result(psnr, ssim, lpips):
     return f'{psnr:0.2f}, {ssim:0.3f}, {lpips:0.3f}'
 
-
 def measure_dirs(dirA, dirB, use_gpu, verbose=False):
     if verbose:
         vprint = lambda x: print(x)
@@ -115,11 +112,12 @@ if __name__ == "__main__":
     parser.add_argument('-dirB', default='', type=str)
     parser.add_argument('-type', default='png')
     parser.add_argument('--use_gpu', action='store_true', default=False)
-    args    = parser.parse_args()
-    dirA    = args.dirA
-    dirB    = args.dirB
-    type    = args.type
+    args = parser.parse_args()
+
+    dirA = args.dirA
+    dirB = args.dirB
+    type = args.type
     use_gpu = args.use_gpu
-    
+
     if len(dirA) > 0 and len(dirB) > 0:
         measure_dirs(dirA, dirB, use_gpu=use_gpu, verbose=True)

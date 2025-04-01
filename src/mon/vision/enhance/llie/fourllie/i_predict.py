@@ -1,9 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""
+"""Implements the paper: "FourLLIE: Boosting Low-Light Image Enhancement by Fourier
+Frequency Information," ACMMM 2023.
+
 References:
-    - https://github.com/JianghaiSCU/R2RNet
+    - https://github.com/wangchx67/FourLLIE
 """
 
 from __future__ import annotations

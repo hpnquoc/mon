@@ -1,10 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Zero-DCE++.
-
-This module implements the paper: "Learning to Enhance Low-Light Image via
-Zero-Reference Deep Curve Estimation".
+"""Implements the paper: "Learning to Enhance Low-Light Image via Zero-Reference Deep
+Curve Estimation," IEEE TPAMI 2022.
 
 References:
     - https://github.com/Li-Chongyi/Zero-DCE_extension

@@ -426,7 +426,7 @@ class Model(lightning.LightningModule, ABC):
         if metrics is None:
             return None
         
-        metrics  = [metrics] if isinstance(metrics, (list, tuple)) else metrics
+        metrics  = [metrics] if not isinstance(metrics, (list, tuple)) else metrics
         metrics_ = []
         for m in metrics:
             if isinstance(m, M.Metric):
@@ -447,7 +447,7 @@ class Model(lightning.LightningModule, ABC):
         """Configures optimizers and LR schedulers for optimization.
 
         Returns:
-            One of: dict, list, tuple, Optimizer, or ``None``; see Notes.
+            One of: ``dict``, ``list``, ``tuple``, ``Optimizer``, or ``None``; see Notes.
         
         Raises:
             ValueError: If optimizer or scheduler config is invalid.
@@ -557,9 +557,7 @@ class Model(lightning.LightningModule, ABC):
     
         Args:
             datapoint: ``dict`` with datapoint attributes.
-            args: Additional positional arguments.
-            kwargs: Additional keyword arguments.
-    
+
         Returns:
             ``dict`` of predictions, empty by default.
         """
@@ -652,11 +650,10 @@ class Model(lightning.LightningModule, ABC):
         )
     
         if self.should_log_images():
-            data = batch | {"outputs": outputs}
             self.log_images(
                 epoch = self.current_epoch,
                 step  = self.global_step,
-                data  = data
+                data  = batch | {"outputs": outputs},
             )
     
         return outputs.get("loss", None)
@@ -707,11 +704,10 @@ class Model(lightning.LightningModule, ABC):
         )
     
         if self.should_log_images():
-            data = batch | {"outputs": outputs}
             self.log_images(
                 epoch = self.current_epoch,
                 step  = self.global_step,
-                data  = data
+                data  = batch | {"outputs": outputs},
             )
     
         return outputs.get("loss", None)
@@ -738,7 +734,7 @@ class Model(lightning.LightningModule, ABC):
             ``dict`` of model predictions.
     
         Notes:
-            Override for custom pre/post-processing; defaults to ``forward``.
+            Override for custom pre/post-processing; defaults to ``self.forward()``.
         """
         return self.forward(datapoint, *args, **kwargs)
     

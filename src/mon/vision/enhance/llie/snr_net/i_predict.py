@@ -1,9 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""
-Reference:
-    https://github.com/dvlab-research/SNR-Aware-Low-Light-Enhance
+"""Implements the paper: "SNR-aware Low-Light Image Enhancement," CVPR 2022.
+
+References:
+    - https://github.com/dvlab-research/SNR-Aware-Low-Light-Enhance
 """
 
 from __future__ import annotations

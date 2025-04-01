@@ -1,9 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Super-Resolution.
-
-This package implements super-resolution algorithms and models.
-"""
+"""Implements super-resolution algorithms."""
 
 from __future__ import annotations

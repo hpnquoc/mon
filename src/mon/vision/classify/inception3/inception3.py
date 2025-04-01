@@ -84,11 +84,9 @@ class Inception3(nn.ExtraModel, base.ImageClassificationModel):
     
         Args:
             datapoint: ``dict`` with image data.
-            args: Additional positional arguments.
-            kwargs: Additional keyword arguments.
     
         Returns:
-            ``dict`` with logits from the model.
+            ``dict`` of predictions with ``"logits"`` keys.
         """
         x = datapoint["image"]
         y = self.model(x)

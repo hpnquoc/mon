@@ -5,10 +5,13 @@
 
 from __future__ import annotations
 
+import sys
+
+sys.dont_write_bytecode = True
+
 import mon
 import mon.core.utils
 
-console      = mon.console
 current_file = mon.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
@@ -37,8 +40,8 @@ def train(args: dict) -> str:
     
     # Start
     if mon.is_rank_zero():
-        console.rule("[bold red] INITIALIZATION")
-        console.log(f"Machine: {hostname}")
+        mon.console.rule("[bold red] INITIALIZATION")
+        mon.console.log(f"Machine: {hostname}")
     
     # Device
     # device = mon.set_device(device)
@@ -66,11 +69,11 @@ def train(args: dict) -> str:
     model: mon.Model = mon.MODELS.build(config=args["modelmodule"])
     if mon.is_rank_zero():
         mon.print_dict(args, title=fullname)
-        console.log("[green]Done")
+        mon.console.log("[green]Done")
     
     # Trainer
     if mon.is_rank_zero():
-        console.rule("[bold red] SETUP TRAINER")
+        mon.console.rule("[bold red] SETUP TRAINER")
     
     callbacks = args["trainer"]["callbacks"]
     for i, callback in enumerate(callbacks):
@@ -97,11 +100,11 @@ def train(args: dict) -> str:
     trainer.current_epoch = mon.get_epoch_from_checkpoint(ckpt=ckpt)
     trainer.global_step   = mon.get_global_step_from_checkpoint(ckpt=ckpt)
     if mon.is_rank_zero():
-        console.log("[green]Done")
+        mon.console.log("[green]Done")
     
     # Training
     if mon.is_rank_zero():
-        console.rule("[bold red] TRAINING")
+        mon.console.rule("[bold red] TRAINING")
     trainer.fit(
         model             = model,
         train_dataloaders = datamodule.train_dataloader,
@@ -109,8 +112,8 @@ def train(args: dict) -> str:
         ckpt_path         = ckpt,
     )
     if mon.is_rank_zero():
-        console.log(f"Model: {fullname}")  # Log
-        console.log("[green]Done")
+        mon.console.log(f"Model: {fullname}")  # Log
+        mon.console.log("[green]Done")
     
     # Return
     return str(save_dir)

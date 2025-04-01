@@ -1,7 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""
+"""Implements the paper: "Toward Fast, Flexible, and Robust Low-Light Image Enhancement,"
+CVPR 2022.
+
 References:
     - https://github.com/vis-opt-group/SCI
 """

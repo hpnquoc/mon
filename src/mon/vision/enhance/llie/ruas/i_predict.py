@@ -1,7 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""
+"""Implements the paper: "Retinex-inspired Unrolling with Cooperative Prior Architecture
+Search for Low-light Image Enhancement," 2021.
+
 References:
     - https://github.com/KarelZhang/RUAS
 """

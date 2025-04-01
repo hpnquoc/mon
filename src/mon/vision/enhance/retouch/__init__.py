@@ -1,9 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Image Retouching.
-
-This package implements image retouching algorithms and models.
-"""
+"""Implements image retouching algorithms."""
 
 from __future__ import annotations

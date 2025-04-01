@@ -17,9 +17,9 @@ __all__ = [
 import cv2
 import numpy as np
 import torch
-from torch.nn import functional as F
 
 from mon import core
+from mon.nn import functional as F
 from mon.vision.dtype import image as I
 
 

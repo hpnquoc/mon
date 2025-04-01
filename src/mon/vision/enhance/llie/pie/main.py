@@ -1,60 +1,51 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
+#coding=utf-8
 
-# https://github.com/DavidQiuChao/PIE
-
-from __future__ import annotations
-
-import argparse
-import time
-
-import cv2
-
-import mon
+import os
+import imageio
+import numpy as np
 import pie
-from mon import RUN_DIR
-
-console = mon.console
 
 
-def main(args: argparse.Namespace):
-    args.input_dir  = mon.Path(args.input_dir)
-    args.output_dir = mon.Path(args.output_dir)
-    args.output_dir.mkdir(parents=True, exist_ok=True)
-    
-    console.log(f"Data: {args.input_dir}")
-    
-    #
-    image_paths = list(args.input_dir.rglob("*"))
-    image_paths = [path for path in image_paths if path.is_image_file()]
-    sum_time    = 0
-    with mon.get_progress_bar() as pbar:
-        for _, image_path in pbar.track(
-            sequence    = enumerate(image_paths),
-            total       = len(image_paths),
-            description = f"[bright_yellow] Inferring"
-        ):
-            # console.log(image_path)
-            image          = cv2.imread(str(image_path))
-            start_time     = time.time()
-            enhanced_image = pie.PIE(image)
-            run_time       = (time.time() - start_time)
-            output_path    = args.output_dir / f"{image_path.stem}.jpg"
-            cv2.imwrite(str(output_path), enhanced_image)
-            sum_time      += run_time
-    avg_time = float(sum_time / len(image_paths))
-    console.log(f"Average time: {avg_time}")
-
-
-def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--input-dir",  type=str, default="data/test_data/")
-    parser.add_argument("--output-dir", type=str, default=RUN_DIR / "predict/vision/enhance/llie/zerodce")
-    parser.add_argument("--image-size", type=int, default=512)
-    args = parser.parse_args()
-    return args
+def main(name):
+    print(name)
+    rim = imageio.imread(name)
+    start = time.time()
+    out=pie.PIE(rim)
+    end = time.time()
+    cost = (end-start)
+    print('PIE cost: {}'.format(cost))
+    return out
 
 
 if __name__ == "__main__":
-    args = parse_args()
-    main(args)
+    import argparse
+    import time
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-i','--indir',help='input image sequence list')
+    parser.add_argument('-o','--odir',help='result image name',\
+            default='res')
+    parser.add_argument('-f','--flist',help='specific test sample',\
+            default=0)
+    args = parser.parse_args()
+    indir = args.indir
+    odir = args.odir
+    flist = args.flist
+    names = os.listdir(indir)
+    names.sort()
+    if flist:
+        with open(flist,'r') as f:
+            flines = f.readlines()
+            flines = [ele.strip()\
+                    for ele in flines]
+    for name in names:
+        if flist and (os.path.splitext(name)[0] not in flines):
+            continue
+        oname = os.path.join(odir,name)
+        name = os.path.join(indir,name)
+        start = time.time()
+        res = main(name)
+        end = time.time()
+        cost = (end-start)
+        print('total cost: {}'.format(cost))
+        imageio.imwrite(oname.replace('bmp','jpg'),res)

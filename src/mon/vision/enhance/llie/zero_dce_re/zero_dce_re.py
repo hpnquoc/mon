@@ -1,14 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Zero-DCE
-
-This module implements the paper: "Zero-Reference Deep Curve Estimation for
-Low-Light Image Enhancement".
+"""Implements the paper: "Zero-Reference Deep Curve Estimation for Low-Light Image
+Enhancement," CVPR 2020.
 
 References:
-    -
-https://github.com/Li-Chongyi/Zero-DCE
+    - https://github.com/Li-Chongyi/Zero-DCE
 """
 
 from __future__ import annotations
@@ -85,14 +82,13 @@ class Loss(nn.Loss):
 
 @MODELS.register(name="zero_dce_re", arch="zero_dce")
 class ZeroDCE_RE(base.ImageEnhancementModel):
-    """Zero-Reference Deep Curve Estimation for Low-Light Image Enhancement.
+    """Zero-DCE model for low-light image enhancement.
     
     Args:
-        in_channels: The first layer's input channel. Default: ``3`` for RGB
-            image.
-        num_channels: The number of input and output channels for subsequent
-            layers. Default: ``32``.
-        num_iters: The number of progressive loop. Default: ``8``.
+        in_channels: The first layer's input channel. Default is ``3`` for RGB image.
+        num_channels: The number of input and output channels for subsequent layers.
+            Default is``32``.
+        num_iters: The number of progressive loop. Default is ``8``.
         
     References:
         - https://github.com/Li-Chongyi/Zero-DCE
@@ -116,7 +112,7 @@ class ZeroDCE_RE(base.ImageEnhancementModel):
         self.num_iters = num_iters
         out_channels   = in_channels * num_iters
         
-        # Construct model
+        # Network
         self.relu     = nn.ReLU(inplace=True)
         self.e_conv1  = nn.Conv2d(in_channels,      num_channels, 3, 1, 1, bias=True)
         self.e_conv2  = nn.Conv2d(num_channels,     num_channels, 3, 1, 1, bias=True)
@@ -138,6 +134,11 @@ class ZeroDCE_RE(base.ImageEnhancementModel):
             self.apply(self.init_weights)
 
     def init_weights(self, m: nn.Module):
+        """Initializes the model's weights.
+    
+        Args:
+            m: ``nn.Module`` to initialize weights for.
+        """
         classname = m.__class__.__name__
         if classname.find("Conv") != -1:
             m.weight.data.normal_(0.0, 0.02)
@@ -145,34 +146,61 @@ class ZeroDCE_RE(base.ImageEnhancementModel):
             m.weight.data.normal_(1.0, 0.02)
             m.bias.data.fill_(0)
     
-    def forward_loss(self, datapoint: dict, *args, **kwargs) -> dict | None:
+    def forward_loss(self, datapoint: dict, *args, **kwargs) -> dict:
+        """Computes forward pass and loss.
+    
+        Args:
+            datapoint: ``dict`` with datapoint attributes.
+    
+        Returns:
+            ``dict`` of predictions with ``"loss"`` and ``"enhanced"`` keys.
+        """
         # Forward
-        outputs  = self.forward(datapoint=datapoint, *args, **kwargs)
+        outputs = self.forward(datapoint=datapoint, *args, **kwargs)
+        
         # Loss
         image    = datapoint["image"]
         enhanced = outputs["enhanced"]
         adjust   = outputs.pop("adjust")
-        outputs["loss"] = self.loss(image, adjust, enhanced)
+        loss     = self.loss(image, adjust, enhanced)
+        
         # Return
-        return outputs
+        return outputs | {
+            "loss": loss,
+        }
     
     def forward(self, datapoint: dict, *args, **kwargs) -> dict:
-        x       = datapoint["image"]
-        x1      =  self.relu(self.e_conv1(x))
-        x2      =  self.relu(self.e_conv2(x1))
-        x3      =  self.relu(self.e_conv3(x2))
-        x4      =  self.relu(self.e_conv4(x3))
-        x5      =  self.relu(self.e_conv5(torch.cat([x3, x4], 1)))
-        x6      =  self.relu(self.e_conv6(torch.cat([x2, x5], 1)))
-        x_r     = torch.tanh(self.e_conv7(torch.cat([x1, x6], 1)))
-        x_rs    = torch.split(x_r, 3, dim=1)
-        y       = x
+        """Performs forward pass of the model.
+    
+        Args:
+            datapoint: ``dict`` with datapoint attributes.
+    
+        Returns:
+            ``dict`` of predictions with ``"enhanced"`` keys.
+        """
+        # Input
+        x = datapoint["image"]
+        
+        # Process
+        x1   =  self.relu(self.e_conv1(x))
+        x2   =  self.relu(self.e_conv2(x1))
+        x3   =  self.relu(self.e_conv3(x2))
+        x4   =  self.relu(self.e_conv4(x3))
+        x5   =  self.relu(self.e_conv5(torch.cat([x3, x4], 1)))
+        x6   =  self.relu(self.e_conv6(torch.cat([x2, x5], 1)))
+        x_r  = torch.tanh(self.e_conv7(torch.cat([x1, x6], 1)))
+        x_rs = torch.split(x_r, 3, dim=1)
+        
+        # Enhance
         outputs = {}
+        y = x
         for i in range(0, self.num_iters):
             y = y + x_rs[i] * (torch.pow(y, 2) - y)
             outputs[f"adjust_{i}"] = x_rs[i]
-        outputs["adjust"]   = x_r
-        outputs["enhanced"] = y
-        return outputs
+
+        return outputs | {
+            "adjust"  : x_r,
+            "enhanced": y,
+        }
     
 # endregion

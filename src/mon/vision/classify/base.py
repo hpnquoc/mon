@@ -12,12 +12,12 @@ __all__ = [
 from abc import ABC
 
 from mon import core, nn
-from mon.vision.model import VisionModel
+from mon.vision import model
 
 
 # region Model
 
-class ImageClassificationModel(VisionModel, ABC):
+class ImageClassificationModel(model.VisionModel, ABC):
     """Base class for image classification models."""
 
     tasks: list[core.Task] = [core.Task.CLASSIFY]
@@ -40,18 +40,24 @@ class ImageClassificationModel(VisionModel, ABC):
 
     def forward_loss(self, datapoint: dict, *args, **kwargs) -> dict:
         """Computes forward pass and loss.
-
+    
         Args:
-            datapoint: Dict with datapoint attributes.
-        
+            datapoint: ``dict`` with datapoint attributes.
+    
         Returns:
-            Dict with predictions and loss.
+            ``dict`` of predictions with ``"loss"`` and ``"logits"`` keys.
         """
+        # Forward
         outputs = self.forward(datapoint=datapoint, *args, **kwargs)
+        
+        # Loss
         pred    = outputs["logits"]
         target  = datapoint["class_id"]
-        outputs["loss"] = self.loss(pred, target) if self.loss else None
-        return outputs
+        loss    = self.loss(pred, target) if self.loss else None
+        
+        return outputs | {
+            "loss": loss,
+        }
 
     def compute_metrics(
         self,
@@ -59,15 +65,15 @@ class ImageClassificationModel(VisionModel, ABC):
         outputs  : dict,
         metrics  : list[nn.Metric] = None
     ) -> dict:
-        """Computes metrics for predictions.
-
+        """Computes metrics for given predictions.
+    
         Args:
-            datapoint: Dict with datapoint attributes.
-            outputs: Dict with model predictions.
-            metrics: List of metric functions or ``None``. Default is ``None``.
-        
+            datapoint: ``dict`` with datapoint attributes.
+            outputs: ``dict`` with model predictions.
+            metrics: ``list`` of ``M.Metric`` or ``None``. Default is ``None``.
+    
         Returns:
-            Dict of computed metric values.
+            ``dict`` of computed metric values.
         """
         pred    = outputs["logits"]
         target  = datapoint["class_id"]

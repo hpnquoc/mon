@@ -14,19 +14,15 @@ from abc import ABC
 import cv2
 
 from mon import core, nn
-from mon.core import Task
-from mon.vision import dtype
-from mon.vision.model import VisionModel
-
-console = core.console
+from mon.vision import dtype, model
 
 
 # region Model
 
-class SegmentationModel(VisionModel, ABC):
+class SegmentationModel(model.VisionModel, ABC):
     """The base class for all segmentation models."""
     
-    tasks: list[Task] = [Task.SEGMENT]
+    tasks: list[core.Task] = [core.Task.SEGMENT]
     
     # region Forward
     
@@ -37,16 +33,19 @@ class SegmentationModel(VisionModel, ABC):
             datapoint: ``dict`` with datapoint attributes.
     
         Returns:
-            ``dict`` of predictions with ``"loss"`` and ``"output"`` keys.
+            ``dict`` of predictions with ``"loss"`` and ``"semantic"`` keys.
         """
         # Forward
         outputs = self.forward(datapoint=datapoint, *args, **kwargs)
+        
         # Loss
         pred    = outputs["semantic"]
         target  = datapoint["semantic"]
-        outputs["loss"] = self.loss(pred, target)
-        # Return
-        return outputs
+        loss    = self.loss(pred, target)
+        
+        return outputs | {
+			"loss": loss,
+		}
     
     def compute_metrics(self, datapoint: dict, outputs: dict, metrics: list[nn.Metric] = None) -> dict:
         """Computes metrics for given predictions.
@@ -79,7 +78,7 @@ class SegmentationModel(VisionModel, ABC):
             epoch: Current epoch number.
             step: Current step number.
             data: Dict with images to log.
-            extension: Image file extension. Default is ``'.jpg'``.
+            extension: Image file extension. Default is ``".jpg"``.
         """
         epoch    = int(epoch)
         step     = int(step)

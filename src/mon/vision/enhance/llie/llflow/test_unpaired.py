@@ -1,26 +1,19 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
-# https://github.com/wyf0912/LLFlow
-
-from __future__ import annotations
-
-import argparse
 import glob
-import os
-
-import cv2
-import numpy as np
-import torch
+import sys
+from collections import OrderedDict
 import tqdm
 from natsort import natsort
-
-import mon
+import argparse
 import options.options as option
+from Measure import Measure, psnr
+from imresize import imresize
 from models import create_model
+import torch
 from utils.util import opt_get
-
-console = mon.console
+import numpy as np
+import pandas as pd
+import os
+import cv2
 
 
 def fiFindByWildcard(wildcard):
@@ -97,6 +90,49 @@ def auto_padding(img, times=16):
     return img, [h1, h2, w1, w2]
 
 
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--opt", default="./confs/LOL_smallNet.yml")
+    parser.add_argument("-n", "--name", default="unpaired")
+    args = parser.parse_args()
+    conf_path = args.opt
+    conf = conf_path.split('/')[-1].replace('.yml', '')
+    model, opt = load_model(conf_path)
+    model.netG = model.netG.cuda()
+    
+    lr_dir = opt['dataroot_unpaired']
+    lr_paths = fiFindByWildcard(os.path.join(lr_dir, '*.*'))
+
+    this_dir = os.path.dirname(os.path.realpath(__file__))
+    test_dir = os.path.join(this_dir, '..', 'results', conf, args.name)
+    print(f"Out dir: {test_dir}")
+
+    for lr_path, idx_test in tqdm.tqdm(zip(lr_paths, range(len(lr_paths)))):
+
+        lr = imread(lr_path)
+        raw_shape = lr.shape
+        lr, padding_params = auto_padding(lr)
+        his = hiseq_color_cv2_img(lr)
+        if opt.get("histeq_as_input", False):
+            lr = his
+
+        lr_t = t(lr)
+        if opt["datasets"]["train"].get("log_low", False):
+            lr_t = torch.log(torch.clamp(lr_t + 1e-3, min=1e-3))
+        if opt.get("concat_histeq", False):
+            his = t(his)
+            lr_t = torch.cat([lr_t, his], dim=1)
+        heat = opt['heat']
+        with torch.cuda.amp.autocast():
+            sr_t = model.get_sr(lq=lr_t.cuda(), heat=None)
+
+        sr = rgb(torch.clamp(sr_t, 0, 1)[:, :, padding_params[0]:sr_t.shape[2] - padding_params[1],
+                 padding_params[2]:sr_t.shape[3] - padding_params[3]])
+        assert raw_shape == sr.shape
+        path_out_sr = os.path.join(test_dir, os.path.basename(lr_path))
+        imwrite(path_out_sr, sr)
+
+
 def format_measurements(meas):
     s_out = []
     for k, v in meas.items():
@@ -106,49 +142,5 @@ def format_measurements(meas):
     return str_out
 
 
-def main(args: argparse.Namespace):
-    conf_path  = args.opt
-    conf       = conf_path.split("/")[-1].replace(".yml", "")
-    model, opt = load_model(conf_path)
-    model.netG = model.netG.cuda()
-    
-    lr_dir     = opt["dataroot_unpaired"]
-    lr_paths   = fiFindByWildcard(os.path.join(lr_dir, "*.*"))
-    this_dir   = os.path.dirname(os.path.realpath(__file__))
-    test_dir   = os.path.join(this_dir, "..", "results", conf, args.name)
-    # console.log(f"Out dir: {test_dir}")
-    
-    for lr_path, idx_test in tqdm.tqdm(zip(lr_paths, range(len(lr_paths)))):
-        lr        = imread(lr_path)
-        raw_shape = lr.shape
-        lr, padding_params = auto_padding(lr)
-        his = hiseq_color_cv2_img(lr)
-        if opt.get("histeq_as_input", False):
-            lr = his
-        
-        lr_t = t(lr)
-        if opt["datasets"]["train"].get("log_low", False):
-            lr_t = torch.log(torch.clamp(lr_t + 1e-3, min=1e-3))
-        if opt.get("concat_histeq", False):
-            his = t(his)
-            lr_t = torch.cat([lr_t, his], dim=1)
-        heat = opt["heat"]
-        with torch.cuda.amp.autocast():
-            sr_t = model.get_sr(lq=lr_t.cuda(), heat=None)
-        
-        sr = rgb(
-            torch.clamp(sr_t, 0, 1)[:, :,
-            padding_params[0]:sr_t.shape[2] - padding_params[1],
-            padding_params[2]:sr_t.shape[3] - padding_params[3]]
-        )
-        assert raw_shape == sr.shape
-        path_out_sr = os.path.join(test_dir, os.path.basename(lr_path))
-        imwrite(path_out_sr, sr)
-
-
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--opt",        default="./confs/LOL_smallNet.yml")
-    parser.add_argument("--name", "-n", default="unpaired")
-    args = parser.parse_args()
-    main(args)
+    main()

@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""
+"""Implements the paper: "Low-Light Image Enhancement with Normalizing Flow," AAAI 2022.
+
 References:
     - https://github.com/wyf0912/LLFlow
 """

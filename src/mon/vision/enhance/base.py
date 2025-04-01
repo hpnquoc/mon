@@ -14,13 +14,12 @@ from abc import ABC
 import cv2
 
 from mon import nn
-from mon.vision import dtype
-from mon.vision.model import VisionModel
+from mon.vision import dtype, model
 
 
 # region Model
 
-class ImageEnhancementModel(VisionModel, ABC):
+class ImageEnhancementModel(model.VisionModel, ABC):
     """The base class for all image enhancement models."""
     
     # region Forward Pass
@@ -32,16 +31,19 @@ class ImageEnhancementModel(VisionModel, ABC):
             datapoint: ``dict`` with datapoint attributes.
     
         Returns:
-            ``dict`` of predictions with ``"loss"`` and ``"output"`` keys.
+            ``dict`` of predictions with ``"loss"`` and ``"enhanced"`` keys.
         """
         # Forward
         outputs = self.forward(datapoint=datapoint, *args, **kwargs)
+        
         # Loss
         pred   = outputs["enhanced"]
         target = datapoint["ref_image"]
-        outputs["loss"] = self.loss(pred, target)
-        # Return
-        return outputs
+        loss   = self.loss(pred, target)
+        
+        return outputs | {
+            "loss": loss,
+        }
     
     def compute_metrics(self, datapoint: dict, outputs: dict, metrics: list[nn.Metric] = None) -> dict:
         """Computes metrics for given predictions.
@@ -74,17 +76,17 @@ class ImageEnhancementModel(VisionModel, ABC):
             epoch: Current epoch number.
             step: Current step number.
             data: Dict with images to log.
-            extension: Image file extension. Default is ``'.jpg'``.
+            extension: Image file extension. Default is ``".jpg"``.
         """
         epoch    = int(epoch)
         step     = int(step)
         save_dir = self.debug_dir / f"epoch_{epoch:04d}"
         save_dir.mkdir(parents=True, exist_ok=True)
         
-        image     =    data.get("image",    None)
+        image     =    data.get("image",     None)
         ref_image =    data.get("ref_image", None)
-        outputs   =    data.get("outputs",  {})
-        enhanced  = outputs.pop("enhanced", None)
+        outputs   =    data.get("outputs",   {})
+        enhanced  = outputs.pop("enhanced",  None)
         
         image        = list(dtype.convert_image_to_array(image, denormalize=True))
         ref_image    = list(dtype.convert_image_to_array(ref_image, denormalize=True)) if ref_image is not None else None

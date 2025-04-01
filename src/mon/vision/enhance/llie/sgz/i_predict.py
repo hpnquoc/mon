@@ -1,6 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+"""Implements the paper: "Semantic-Guided Zero-Shot Learning for Low-Light Image/Video
+Enhancement," WACV 2022.
+
+References:
+    - https://github.com/ShenZheng2000/Semantic-Guided-Low-Light-Image-Enhancement
+"""
+
 from __future__ import annotations
 
 import os

@@ -1,10 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Zero-LINR.
-
-This module implement our idea: "Zero-Shot Low-light Image Enhancement Network
-using Neural Implicit Representations".
+"""Implements the paper: "Zero-Shot Low-light Image Enhancement Network using Neural
+Implicit Representations".
 """
 
 from __future__ import annotations
@@ -18,19 +16,16 @@ from typing import Literal
 import kornia
 import numpy as np
 import torch
-from fvcore.nn import parameter_count
-from torch.nn import functional as F
 
 from mon import core, nn
 from mon.globals import MODELS
+from mon.nn import functional as F
 from mon.vision import dtype, filtering
-from mon.vision.dtype import image as I
 from mon.vision.enhance import base
 
 current_file = core.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
-LDA          = nn.LayeredFeatureAggregation
-INR_AF       = nn.modules.inr.inr_layer.INR_AF
+INR_AF       = nn.inr_layer.INR_AF
 MAPPING_FUNC = Literal["p", "v", "d", "e", "pv", "pd", "pe", "pvde"]
 
 
@@ -50,7 +45,7 @@ def get_coords(down_size: int) -> torch.Tensor:
 
 def get_patches(image: torch.Tensor, kernel_size: int = 1) -> torch.Tensor:
 	"""Creates a tensor where the channel contains patch information."""
-	num_channels = I.get_image_num_channels(image)
+	num_channels = dtype.get_image_num_channels(image)
 	kernel       = torch.zeros((kernel_size ** 2, num_channels, kernel_size, kernel_size)).to(image.device)
 	for i in range(kernel_size):
 		for j in range(kernel_size):
@@ -103,7 +98,7 @@ def laplace(self, model_output: torch.Tensor, coords: torch.Tensor):
 	return self.divergence(grad, x)
 
 
-def divergence(self, model_output: torch.Tensor, coords: torch.Tensor):
+def divergence(model_output: torch.Tensor, coords: torch.Tensor):
 	y   = model_output
 	x   = coords
 	div = 0.0
@@ -112,7 +107,7 @@ def divergence(self, model_output: torch.Tensor, coords: torch.Tensor):
 	return div
 
 
-def gradient(self, model_output: torch.Tensor, coords: torch.Tensor, grad_outputs: torch.Tensor = None):
+def gradient(model_output: torch.Tensor, coords: torch.Tensor, grad_outputs: torch.Tensor = None):
 	y = model_output
 	x = coords
 	if grad_outputs is None:
@@ -138,9 +133,8 @@ class Loss(nn.Loss):
 		loss_w_c   : float = 5.0,
 		reduction  : Literal["none", "mean", "sum"] = "mean",
 		verbose    : bool = True,
-		*args, **kwargs
 	):
-		super().__init__(reduction=reduction, *args, **kwargs)
+		super().__init__(reduction=reduction)
 		self.loss_w_f   = loss_w_f
 		self.loss_w_s   = loss_w_s
 		self.loss_w_e   = loss_w_e
@@ -196,8 +190,8 @@ class Loss(nn.Loss):
 # region Modules
 
 class INF1_P(nn.Module):
-	"""Implicit Neural Function (INF) for 1-way residual reconstruction, i.e.,
-	f: (p) -> r.
+	"""Implicit Neural Function (INF) for 1-way residual reconstruction,
+	i.e., f: (p) -> r.
 	
 	References:
         - https://github.com/lly-louis/INF
@@ -210,7 +204,7 @@ class INF1_P(nn.Module):
 		down_size        : int         = 256,
 		num_layers       : int         = 4,
 		add_layers       : int         = 2,
-		omega_0          : float       = 30.0,
+		w0               : float       = 30.0,
 		first_bias_scale : float       = 20.0,
 		s_nonlinear      : INR_AF      = "finer",
 		use_ff           : bool        = True,
@@ -233,15 +227,15 @@ class INF1_P(nn.Module):
 			self.B1       = None
 			s_in_channels = 2
 		
-		p_layers = [nn.INRLayer(s_in_channels, hidden_dim, s_nonlinear, w0=omega_0, first_bias_scale=first_bias_scale, is_first=True)]
+		p_layers = [nn.INRLayer(s_in_channels, hidden_dim, s_nonlinear, w0=w0, first_bias_scale=first_bias_scale, is_first=True)]
 		for _ in range(1, add_layers - 2):
-			p_layers.append(nn.INRLayer(hidden_dim, hidden_dim, s_nonlinear, w0=omega_0, first_bias_scale=first_bias_scale))
-		p_layers.append(nn.INRLayer(hidden_dim, hidden_dim, s_nonlinear, w0=omega_0, first_bias_scale=first_bias_scale))
+			p_layers.append(nn.INRLayer(hidden_dim, hidden_dim, s_nonlinear, w0=w0, first_bias_scale=first_bias_scale))
+		p_layers.append(nn.INRLayer(hidden_dim, hidden_dim, s_nonlinear, w0=w0, first_bias_scale=first_bias_scale))
 		
-		o_layers = [nn.INRLayer(hidden_dim, hidden_dim, v_nonlinear, w0=omega_0, first_bias_scale=first_bias_scale)]
+		o_layers = [nn.INRLayer(hidden_dim, hidden_dim, v_nonlinear, w0=w0, first_bias_scale=first_bias_scale)]
 		for _ in range(add_layers + 1, num_layers - 1):
-			o_layers.append(nn.INRLayer(hidden_dim, hidden_dim, v_nonlinear, w0=omega_0, first_bias_scale=first_bias_scale))
-		o_layers.append(nn.INRLayer(hidden_dim, 1, v_nonlinear, w0=omega_0, first_bias_scale=first_bias_scale, is_last=True))
+			o_layers.append(nn.INRLayer(hidden_dim, hidden_dim, v_nonlinear, w0=w0, first_bias_scale=first_bias_scale))
+		o_layers.append(nn.INRLayer(hidden_dim, 1, v_nonlinear, w0=w0, first_bias_scale=first_bias_scale, is_last=True))
 		
 		self.p_net = nn.Sequential(*p_layers)
 		self.o_net = nn.Sequential(*o_layers)
@@ -258,8 +252,8 @@ class INF1_P(nn.Module):
 
 
 class INF1_V(nn.Module):
-	"""Implicit Neural Function (INF) for 1-way residual reconstruction, i.e.,
-	f: (v) -> r.
+	"""Implicit Neural Function (INF) for 1-way residual reconstruction,
+	i.e., f: (v) -> r.
 	
 	References:
         - https://github.com/lly-louis/INF
@@ -272,7 +266,7 @@ class INF1_V(nn.Module):
 		down_size        : int         = 256,
 		num_layers       : int         = 4,
 		add_layers       : int         = 2,
-		omega_0          : float       = 30.0,
+		w0               : float       = 30.0,
 		first_bias_scale : float       = 20.0,
 		s_nonlinear      : INR_AF      = "finer",
 		use_ff           : bool        = True,
@@ -296,15 +290,15 @@ class INF1_V(nn.Module):
 			self.B2       = None
 			v_in_channels = patch_dim
 		
-		v_layers = [nn.INRLayer(v_in_channels, hidden_dim, v_nonlinear, w0=omega_0, first_bias_scale=first_bias_scale, is_first=True)]
+		v_layers = [nn.INRLayer(v_in_channels, hidden_dim, v_nonlinear, w0=w0, first_bias_scale=first_bias_scale, is_first=True)]
 		for _ in range(1, add_layers - 2):
-			v_layers.append(nn.INRLayer(hidden_dim, hidden_dim, v_nonlinear, w0=omega_0, first_bias_scale=first_bias_scale))
-		v_layers.append(nn.INRLayer(hidden_dim, hidden_dim, v_nonlinear, w0=omega_0, first_bias_scale=first_bias_scale))
+			v_layers.append(nn.INRLayer(hidden_dim, hidden_dim, v_nonlinear, w0=w0, first_bias_scale=first_bias_scale))
+		v_layers.append(nn.INRLayer(hidden_dim, hidden_dim, v_nonlinear, w0=w0, first_bias_scale=first_bias_scale))
 		
-		o_layers = [nn.INRLayer(hidden_dim, hidden_dim, v_nonlinear, w0=omega_0, first_bias_scale=first_bias_scale)]
+		o_layers = [nn.INRLayer(hidden_dim, hidden_dim, v_nonlinear, w0=w0, first_bias_scale=first_bias_scale)]
 		for _ in range(add_layers + 1, num_layers - 1):
-			o_layers.append(nn.INRLayer(hidden_dim, hidden_dim, v_nonlinear, w0=omega_0, first_bias_scale=first_bias_scale))
-		o_layers.append(nn.INRLayer(hidden_dim, 1, v_nonlinear, w0=omega_0, first_bias_scale=first_bias_scale, is_last=True))
+			o_layers.append(nn.INRLayer(hidden_dim, hidden_dim, v_nonlinear, w0=w0, first_bias_scale=first_bias_scale))
+		o_layers.append(nn.INRLayer(hidden_dim, 1, v_nonlinear, w0=w0, first_bias_scale=first_bias_scale, is_last=True))
 		
 		self.v_net = nn.Sequential(*v_layers)
 		self.o_net = nn.Sequential(*o_layers)
@@ -322,8 +316,8 @@ class INF1_V(nn.Module):
 
 
 class INF2(nn.Module):
-	"""Implicit Neural Function (INF) for 2-way residual reconstruction, i.e.,
-	f: (p,v) -> r.
+	"""Implicit Neural Function (INF) for 2-way residual reconstruction,
+	i.e., f: (p,v) -> r.
 	
 	References:
         - https://github.com/lly-louis/INF
@@ -336,7 +330,7 @@ class INF2(nn.Module):
 		down_size        : int         = 256,
 		num_layers       : int         = 4,
 		add_layers       : int         = 2,
-		omega_0          : float       = 30.0,
+		w0               : float       = 30.0,
 		first_bias_scale : float       = 20.0,
 		s_nonlinear      : INR_AF      = "finer",
 		use_ff           : bool        = True,
@@ -365,18 +359,18 @@ class INF2(nn.Module):
 			s_in_channels = 2
 			v_in_channels = patch_dim
 		
-		p_layers = [nn.INRLayer(s_in_channels, hidden_dim, s_nonlinear, w0=omega_0, first_bias_scale=first_bias_scale, is_first=True)]
-		v_layers = [nn.INRLayer(v_in_channels, hidden_dim, v_nonlinear, w0=omega_0, first_bias_scale=first_bias_scale, is_first=True)]
+		p_layers = [nn.INRLayer(s_in_channels, hidden_dim, s_nonlinear, w0=w0, first_bias_scale=first_bias_scale, is_first=True)]
+		v_layers = [nn.INRLayer(v_in_channels, hidden_dim, v_nonlinear, w0=w0, first_bias_scale=first_bias_scale, is_first=True)]
 		for _ in range(1, add_layers - 2):
-			p_layers.append(nn.INRLayer(hidden_dim, hidden_dim, s_nonlinear, w0=omega_0, first_bias_scale=first_bias_scale))
-			v_layers.append(nn.INRLayer(hidden_dim, hidden_dim, v_nonlinear, w0=omega_0, first_bias_scale=first_bias_scale))
-		p_layers.append(nn.INRLayer(hidden_dim, mid_channels, s_nonlinear, w0=omega_0, first_bias_scale=first_bias_scale))
-		v_layers.append(nn.INRLayer(hidden_dim, mid_channels, v_nonlinear, w0=omega_0, first_bias_scale=first_bias_scale))
+			p_layers.append(nn.INRLayer(hidden_dim, hidden_dim, s_nonlinear, w0=w0, first_bias_scale=first_bias_scale))
+			v_layers.append(nn.INRLayer(hidden_dim, hidden_dim, v_nonlinear, w0=w0, first_bias_scale=first_bias_scale))
+		p_layers.append(nn.INRLayer(hidden_dim, mid_channels, s_nonlinear, w0=w0, first_bias_scale=first_bias_scale))
+		v_layers.append(nn.INRLayer(hidden_dim, mid_channels, v_nonlinear, w0=w0, first_bias_scale=first_bias_scale))
 		
-		o_layers = [nn.INRLayer(mid_channels * 2, hidden_dim, v_nonlinear, w0=omega_0, first_bias_scale=first_bias_scale)]
+		o_layers = [nn.INRLayer(mid_channels * 2, hidden_dim, v_nonlinear, w0=w0, first_bias_scale=first_bias_scale)]
 		for _ in range(add_layers + 1, num_layers - 1):
-			o_layers.append(nn.INRLayer(hidden_dim, hidden_dim, v_nonlinear, w0=omega_0, first_bias_scale=first_bias_scale))
-		o_layers.append(nn.INRLayer(hidden_dim, 1, v_nonlinear, w0=omega_0, first_bias_scale=first_bias_scale, is_last=True))
+			o_layers.append(nn.INRLayer(hidden_dim, hidden_dim, v_nonlinear, w0=w0, first_bias_scale=first_bias_scale))
+		o_layers.append(nn.INRLayer(hidden_dim, 1, v_nonlinear, w0=w0, first_bias_scale=first_bias_scale, is_last=True))
 		
 		self.p_net = nn.Sequential(*p_layers)
 		self.v_net = nn.Sequential(*v_layers)
@@ -397,8 +391,8 @@ class INF2(nn.Module):
 
 
 class INF4(nn.Module):
-	"""Implicit Neural Function (INF) for 4-way residual reconstruction, i.e.,
-	f: (p,v,d,e) -> r.
+	"""Implicit Neural Function (INF) for 4-way residual reconstruction,
+	i.e., f: (p,v,d,e) -> r.
 	
 	References:
         - https://github.com/lly-louis/INF
@@ -411,7 +405,7 @@ class INF4(nn.Module):
 		down_size        : int         = 256,
 		num_layers       : int         = 4,
 		add_layers       : int         = 2,
-		omega_0          : float       = 30.0,
+		w0               : float       = 30.0,
 		first_bias_scale : float       = 20.0,
 		s_nonlinear      : INR_AF      = "finer",
 		use_ff           : bool        = True,
@@ -440,24 +434,24 @@ class INF4(nn.Module):
 			s_in_channels = 2
 			v_in_channels = patch_dim
 		
-		p_layers = [nn.INRLayer(s_in_channels, hidden_dim, s_nonlinear, w0=omega_0, first_bias_scale=first_bias_scale, is_first=True)]
-		v_layers = [nn.INRLayer(v_in_channels, hidden_dim, v_nonlinear, w0=omega_0, first_bias_scale=first_bias_scale, is_first=True)]
-		d_layers = [nn.INRLayer(v_in_channels, hidden_dim, v_nonlinear, w0=omega_0, first_bias_scale=first_bias_scale, is_first=True)]
-		e_layers = [nn.INRLayer(v_in_channels, hidden_dim, v_nonlinear, w0=omega_0, first_bias_scale=first_bias_scale, is_first=True)]
+		p_layers = [nn.INRLayer(s_in_channels, hidden_dim, s_nonlinear, w0=w0, first_bias_scale=first_bias_scale, is_first=True)]
+		v_layers = [nn.INRLayer(v_in_channels, hidden_dim, v_nonlinear, w0=w0, first_bias_scale=first_bias_scale, is_first=True)]
+		d_layers = [nn.INRLayer(v_in_channels, hidden_dim, v_nonlinear, w0=w0, first_bias_scale=first_bias_scale, is_first=True)]
+		e_layers = [nn.INRLayer(v_in_channels, hidden_dim, v_nonlinear, w0=w0, first_bias_scale=first_bias_scale, is_first=True)]
 		for _ in range(1, add_layers - 2):
-			p_layers.append(nn.INRLayer(hidden_dim, hidden_dim, s_nonlinear, w0=omega_0, first_bias_scale=first_bias_scale))
-			v_layers.append(nn.INRLayer(hidden_dim, hidden_dim, v_nonlinear, w0=omega_0, first_bias_scale=first_bias_scale))
-			d_layers.append(nn.INRLayer(hidden_dim, hidden_dim, v_nonlinear, w0=omega_0, first_bias_scale=first_bias_scale))
-			e_layers.append(nn.INRLayer(hidden_dim, hidden_dim, v_nonlinear, w0=omega_0, first_bias_scale=first_bias_scale))
-		p_layers.append(nn.INRLayer(hidden_dim, mid_channels, s_nonlinear, w0=omega_0, first_bias_scale=first_bias_scale))
-		v_layers.append(nn.INRLayer(hidden_dim, mid_channels, v_nonlinear, w0=omega_0, first_bias_scale=first_bias_scale))
-		d_layers.append(nn.INRLayer(hidden_dim, mid_channels, v_nonlinear, w0=omega_0, first_bias_scale=first_bias_scale))
-		e_layers.append(nn.INRLayer(hidden_dim, mid_channels, v_nonlinear, w0=omega_0, first_bias_scale=first_bias_scale))
+			p_layers.append(nn.INRLayer(hidden_dim, hidden_dim, s_nonlinear, w0=w0, first_bias_scale=first_bias_scale))
+			v_layers.append(nn.INRLayer(hidden_dim, hidden_dim, v_nonlinear, w0=w0, first_bias_scale=first_bias_scale))
+			d_layers.append(nn.INRLayer(hidden_dim, hidden_dim, v_nonlinear, w0=w0, first_bias_scale=first_bias_scale))
+			e_layers.append(nn.INRLayer(hidden_dim, hidden_dim, v_nonlinear, w0=w0, first_bias_scale=first_bias_scale))
+		p_layers.append(nn.INRLayer(hidden_dim, mid_channels, s_nonlinear, w0=w0, first_bias_scale=first_bias_scale))
+		v_layers.append(nn.INRLayer(hidden_dim, mid_channels, v_nonlinear, w0=w0, first_bias_scale=first_bias_scale))
+		d_layers.append(nn.INRLayer(hidden_dim, mid_channels, v_nonlinear, w0=w0, first_bias_scale=first_bias_scale))
+		e_layers.append(nn.INRLayer(hidden_dim, mid_channels, v_nonlinear, w0=w0, first_bias_scale=first_bias_scale))
 		
-		o_layers = [nn.INRLayer(mid_channels * 4, hidden_dim, v_nonlinear, w0=omega_0, first_bias_scale=first_bias_scale)]
+		o_layers = [nn.INRLayer(mid_channels * 4, hidden_dim, v_nonlinear, w0=w0, first_bias_scale=first_bias_scale)]
 		for _ in range(add_layers + 1, num_layers - 1):
-			o_layers.append(nn.INRLayer(hidden_dim, hidden_dim, v_nonlinear, w0=omega_0, first_bias_scale=first_bias_scale))
-		o_layers.append(nn.INRLayer(hidden_dim, 1, v_nonlinear, w0=omega_0, first_bias_scale=first_bias_scale, is_last=True))
+			o_layers.append(nn.INRLayer(hidden_dim, hidden_dim, v_nonlinear, w0=w0, first_bias_scale=first_bias_scale))
+		o_layers.append(nn.INRLayer(hidden_dim, 1, v_nonlinear, w0=w0, first_bias_scale=first_bias_scale, is_last=True))
 		
 		self.p_net = nn.Sequential(*p_layers)
 		self.v_net = nn.Sequential(*v_layers)
@@ -491,23 +485,23 @@ class INF4(nn.Module):
 
 @MODELS.register(name="zero_linr", arch="zero_linr")
 class ZeroLINR(base.ImageEnhancementModel):
+	"""Zero-LINR model for low-light image enhancement."""
 	
-	model_dir: core.Path        = current_dir
 	arch     : str              = "zero_linr"
+	name     : str              = "zero_linr"
 	tasks    : list[core.Task]  = [core.Task.LLIE]
 	ltypes   : list[core.LType] = [core.LType.ZERO_SHOT]
+	model_dir: core.Path        = current_dir
 	zoo      : dict             = {}
 	
 	def __init__(
 		self,
-		name             : str          = "zero_linr",
-		# Network
 		mapping_func     : MAPPING_FUNC = "pvde",
 		window_size      : int          = 9,
 		down_size        : int          = 256,
 		num_layers       : int          = 4,
 		add_layers       : int          = 2,
-		omega_0          : float        = 30.0,
+		w0               : float        = 30.0,
 		first_bias_scale : float        = 20.0,
 		s_nonlinear      : INR_AF       = "finer",
 		use_ff           : bool         = True,
@@ -519,9 +513,9 @@ class ZeroLINR(base.ImageEnhancementModel):
 		# Post-process
 		gf_radius        : int          = 7,
 		use_denoise      : bool         = False,
-		denoise_ksize    : list[float]  = (3, 3),
+		denoise_ksize    : list[float]  = [3, 3],
 		denoise_color    : float        = 0.5,
-		denoise_space    : list[float]  = (1.5, 1.5),
+		denoise_space    : list[float]  = [1.5, 1.5],
 		# Loss
 		loss_e_mean      : float        = 0.9,
 		loss_w_f         : float        = 1,
@@ -530,9 +524,10 @@ class ZeroLINR(base.ImageEnhancementModel):
 		loss_w_tv        : float        = 20,
 		loss_w_de        : float        = 1,
 		loss_w_c         : float        = 5,
+		iters            : int          = 100,
 		*args, **kwargs
 	):
-		super().__init__(name=name, *args, **kwargs)
+		super().__init__(*args, **kwargs)
 		self.mapping_func    = mapping_func
 		self.down_size       = down_size
 		self.depth_threshold = depth_threshold
@@ -542,6 +537,7 @@ class ZeroLINR(base.ImageEnhancementModel):
 		self.denoise_ksize   = denoise_ksize
 		self.denoise_color   = denoise_color
 		self.denoise_space   = denoise_space
+		self.iters           = iters
 		weight_decay         = [0.1, 0.0001, 0.001]
 		
 		# Model
@@ -567,13 +563,13 @@ class ZeroLINR(base.ImageEnhancementModel):
 		elif mapping_func in ["pvde"]:
 			inf       = INF4
 		else:
-			raise ValueError(f"``mapping_func`` must be one of {MAPPING_FUNC}, got: {mapping_func}.")
+			raise ValueError(f"[mapping_func] must be one of {MAPPING_FUNC}, got {mapping_func}.")
 		self.inf = inf(
 			window_size       = window_size,
 			down_size         = down_size,
 			num_layers        = num_layers,
 			add_layers        = add_layers,
-			omega_0           = omega_0,
+			w0                = w0,
 			first_bias_scale  = first_bias_scale,
 			s_nonlinear       = s_nonlinear,
 			use_ff            = use_ff,
@@ -583,9 +579,12 @@ class ZeroLINR(base.ImageEnhancementModel):
 			weight_decay      = weight_decay,
 		)
 		
+		# Optimizer
+		self.configure_optimizers()
+		
 		# Loss
 		self.loss = Loss(
-			loss_e_mean = loss_e_mean,  # 1.0 - loss_e_mean,
+			loss_e_mean = loss_e_mean,
 			loss_w_f    = loss_w_f,
 			loss_w_s    = loss_w_s,
 			loss_w_e    = loss_w_e,
@@ -602,33 +601,50 @@ class ZeroLINR(base.ImageEnhancementModel):
 		self.initial_state_dict = self.state_dict()
 	
 	def init_weights(self, m: nn.Module):
+		"""Initializes the model's weights.
+    
+        Args:
+            m: ``nn.Module`` to initialize weights for.
+        """
 		pass
 	
 	def compute_efficiency_score(self, image_size: int = 512) -> tuple[float, float]:
-		"""Compute the efficiency score of the model, including FLOPs and number
-		of parameters.
-		"""
-		# Define input tensor
+		"""Compute model efficiency score (FLOPs, params).
+
+        Args:
+            image_size: Input size as ``int`` or [H, W]. Default is ``512``.
+
+        Returns:
+            Tuple of (FLOPs, parameter count) as ``float`` values.
+        """
+		from fvcore.nn import parameter_count
+		
 		h, w      = dtype.get_image_size(image_size)
 		datapoint = {
 			"image": torch.rand(1, 3, h, w).to(self.device),
 			"depth": torch.rand(1, 1, h, w).to(self.device)
 		}
-		# Get FLOPs and Params
+
 		flops, params = core.custom_profile(self, inputs=datapoint, verbose=False)
 		params        = self.params                if hasattr(self, "params") and params == 0 else params
 		params        = parameter_count(self)      if hasattr(self, "params")  else params
 		params        = sum(list(params.values())) if isinstance(params, dict) else params
-		# Print
-		if self.verbose:
-			core.console.log(f"FLOPs : {flops:.4f}")
-			core.console.log(f"Params: {params:.4f}")
-		# Return
+
 		return flops, params
 	
 	def forward_loss(self, datapoint: dict, *args, **kwargs) -> dict:
+		"""Computes forward pass and loss.
+    
+        Args:
+            datapoint: ``dict`` with datapoint attributes.
+    
+        Returns:
+            ``dict`` of predictions with ``"loss"`` and ``"enhanced"`` keys.
+        """
 		# Forward
 		outputs  = self.forward(datapoint=datapoint, *args, **kwargs)
+		
+		# Loss
 		image    = outputs.get("image",    None)
 		v_lr     = outputs.get("v_lr",     None)
 		d_lr     = outputs.get("d_lr",     None)
@@ -637,19 +653,30 @@ class ZeroLINR(base.ImageEnhancementModel):
 		z_lr     = outputs.get("z_lr",     None)
 		enhanced = outputs.get("enhanced", None)
 		loss     = self.loss(image, enhanced, v_lr, x_lr, z_lr, d_lr, e_lr)
-		outputs["loss"] = loss
-		return outputs
+		
+		return outputs | {
+			"loss": loss,
+		}
 		
 	def forward(self, datapoint: dict, *args, **kwargs) -> dict:
-		# Prepare input
+		"""Performs forward pass of the model.
+    
+        Args:
+            datapoint: ``dict`` with datapoint attributes.
+    
+        Returns:
+            ``dict`` of predictions with ``"enhanced"`` keys.
+        """
+		# Input
 		image = datapoint["image"]
 		p     = get_coords(self.down_size).to(image.device)
 		v     = kornia.color.rgb_to_hsv(image)[:, 2:3, :, :]
 		d     = datapoint.get("depth", None)
-		e     = I.boundary_aware_prior(d, self.edge_threshold) if d is not None else None
+		e     = dtype.boundary_aware_prior(d, self.edge_threshold) if d is not None else None
 		v_lr = interpolate_image(v, self.down_size)
 		d_lr = interpolate_image(d, self.down_size) if d is not None else None
 		e_lr = interpolate_image(e, self.down_size) if e is not None else None
+		
 		# Mapping
 		if self.mapping_func in ["p", "v", "pv"]:
 			r = self.inf(p, v_lr)
@@ -660,13 +687,15 @@ class ZeroLINR(base.ImageEnhancementModel):
 		elif self.mapping_func in ["pvde"]:
 			r = self.inf(p, v_lr, d_lr, e_lr)
 		else:
-			raise ValueError(f"[mapping_func] must be one of {MAPPING_FUNC}, got: {self.mapping}")
+			raise ValueError(f"[mapping_func] must be one of {MAPPING_FUNC}, got {self.mapping}.")
 		r_lr = r.view(1, 1, self.down_size, self.down_size)
+		
 		# Enhance
 		if self.depth_threshold > 0:
 			r_lr = r_lr * (1 + self.depth_threshold * (1 - d_lr / d_lr.max()))
 		x_lr = v_lr + r_lr
 		z_lr = v_lr / (x_lr + 1e-8)
+		
 		# Post-process
 		if self.use_denoise:
 			z_lr = kornia.filters.bilateral_blur(z_lr, self.denoise_ksize, self.denoise_color, self.denoise_space)
@@ -674,66 +703,68 @@ class ZeroLINR(base.ImageEnhancementModel):
 		hsv = kornia.color.rgb_to_hsv(image)
 		hsv = replace_v_component(hsv, z)
 		rgb = kornia.color.hsv_to_rgb(hsv)
-		# Return
-		return {
-			"image"   : image,
-			"depth"   : d,
-			"edge"    : e,
-			"v_lr"    : v_lr,
-			"d_lr"    : d_lr,
-			"e_lr"    : e_lr,
-			"r_lr"    : r_lr,
-			"x_lr"    : x_lr,
-			"z_lr"    : z_lr,
-			"enhanced": rgb,
-		}
-	 
-	def infer(
-		self,
-		datapoint    : dict,
-		epochs       : int   = 300,   # 300
-		lr           : float = 1e-5,  # 1e-5
-		weight_decay : float = 3e-4,  # 3e-4
-		reset_weights: bool  = True,
-		*args, **kwargs
-	) -> dict:
-		# Initialize training components
-		self.train()
-		if reset_weights and self.initial_state_dict is not None:
-			self.load_state_dict(self.initial_state_dict)
-		if isinstance(self.optimizer, dict):
-			optimizer = self.optimizer.get("optimizer", None)
-		else:
-			optimizer = nn.Adam(
-				self.parameters(),
-				lr           = lr,
-				betas        = (0.9, 0.999),
-				weight_decay = weight_decay
-			)
 		
-		# Pre-processing
+		if self.debug:
+			return {
+				"image"   : image,
+				"depth"   : d,
+				"edge"    : e,
+				"v_lr"    : v_lr,
+				"d_lr"    : d_lr,
+				"e_lr"    : e_lr,
+				"r_lr"    : r_lr,
+				"x_lr"    : x_lr,
+				"z_lr"    : z_lr,
+				"enhanced": rgb,
+			}
+		else:
+			return {
+				"enhanced": rgb,
+			}
+	
+	def infer(self, datapoint: dict, reset_weights: bool = True, *args, **kwargs) -> dict:
+		"""Infers model output with optional processing.
+    
+        Args:
+            datapoint: ``dict`` with datapoint attributes.
+            image_size: Input size as ``int`` or [H, W]. Default is ``512``.
+            resize: Resize input to ``image_size`` if ``True``. Default is ``False``.
+            reset_weights: Whether to reset the weights before training. Default is ``True``.
+            
+        Returns:
+            ``dict`` of model predictions.
+    
+        Notes:
+            Override for custom pre/post-processing; defaults to ``self.forward()``.
+        """
+		# Initialize training components
+		if reset_weights:
+			self.load_state_dict(self.initial_state_dict, strict=False)
+		optimizer = self.optimizer.get("optimizer", None)
+		optimizer = optimizer or nn.Adam(self.parameters(), lr=0.00001, weight_decay=0.0003)
+		
+		# Input
 		for k, v in datapoint.items():
 			if isinstance(v, torch.Tensor):
 				datapoint[k] = v.to(self.device)
 		
-		# Training
-		for _ in range(epochs):
+		# Optimize
+		timer = core.Timer()
+		timer.tick()
+		self.train()
+		for _ in range(self.iters):
 			outputs = self.forward_loss(datapoint=datapoint)
 			optimizer.zero_grad()
 			loss = outputs["loss"]
-			if loss is not None:
-				loss.backward(retain_graph=True)
-				optimizer.step()
-		
-		# Forward
+			loss.backward(retain_graph=True)
+			optimizer.step()
 		self.eval()
-		timer = core.Timer()
-		timer.tick()
 		outputs = self.forward(datapoint=datapoint)
 		timer.tock()
 		
 		# Return
-		outputs["time"] = timer.avg_time
-		return outputs
+		return outputs | {
+			"time": timer.avg_time,
+		}
 
 # endregion

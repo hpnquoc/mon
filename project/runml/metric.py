@@ -5,6 +5,10 @@
 
 from __future__ import annotations
 
+import sys
+
+sys.dont_write_bytecode = True
+
 import logging
 
 import click
@@ -15,7 +19,6 @@ import torch
 
 import mon
 
-console  = mon.console
 _METRICS = pyiqa.default_model_configs.DEFAULT_CONFIGS
 
 
@@ -199,7 +202,7 @@ def main(
     if not verbose:
         logger = logging.getLogger()
         logger.disabled = True
-    console.rule(f"[bold red] {model}")
+    mon.console.rule(f"[bold red] {model}")
     
     for b in backend:
         if b in ["pyiqa"]:
@@ -237,12 +240,12 @@ def main(
                 )
                 results_gt_mean = update_best_results(results_gt_mean, metric_values_gt_mean)
         else:
-            console.log(f"`{backend}` is not supported!")
+            mon.console.log(f"`{backend}` is not supported!")
     
     # Show results
     # console.rule(f"[bold red] {model}")
-    console.log(f"[bold green]Model: {model}")
-    console.log(f"[bold red]Data : {input_dir.name}")
+    mon.console.log(f"[bold green]Model: {model}")
+    mon.console.log(f"[bold red]Data : {input_dir.name}")
     message = ""
     # Headers
     for m, v in results.items():

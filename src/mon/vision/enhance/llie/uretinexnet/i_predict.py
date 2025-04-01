@@ -1,7 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""
+"""Implements the paper: "URetinex-Net: Retinex-based Deep Unfolding Network for
+Low-light-Image-Enhancement," CVPR 2022.
+
 References:
     - https://github.com/AndersonYong/URetinex-Net
 """

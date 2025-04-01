@@ -1,9 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""De-moireing.
-
-This package implements de-moireing algorithms and models.
-"""
+"""Implements demoireing algorithms."""
 
 from __future__ import annotations

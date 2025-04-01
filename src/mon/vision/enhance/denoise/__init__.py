@@ -1,10 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""De-noising.
-
-This package implements de-noising algorithms and models.
-"""
+"""Implements denoising algorithms."""
 
 from __future__ import annotations
 

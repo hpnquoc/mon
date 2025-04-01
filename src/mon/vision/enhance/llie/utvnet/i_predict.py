@@ -1,7 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# https://github.com/CharlieZCJ/UTVNet
+"""Implements the paper: "Adaptive Unfolding Total Variation Network for Low-Light
+Image Enhancement," ICCV 2021.
+
+References:
+    - https://github.com/CharlieZCJ/UTVNet
+"""
 
 '''
 This is a PyTorch implementation of the ICCV 2021 paper:

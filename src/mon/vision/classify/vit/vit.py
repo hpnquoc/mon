@@ -49,11 +49,12 @@ class VisionTransformer(base.ImageClassificationModel, ABC):
 
     def forward(self, datapoint: dict, *args, **kwargs) -> dict:
         """Performs forward pass on the model.
-
+    
         Args:
-            datapoint: Dict with image data.
+            datapoint: ``dict`` with image data.
+    
         Returns:
-            Dict with logits from the model.
+            ``dict`` of predictions with ``"logits"`` keys.
         """
         x = datapoint["image"]
         y = self.model(x)

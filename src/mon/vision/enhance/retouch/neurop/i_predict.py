@@ -1,10 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""NeurOP.
-
-This module implements the paper: "Neural Color Operators for Sequential Image
-Retouching".
+"""Implements the paper: "Neural Color Operators for Sequential Image Retouching,"
+ECCV 2022.
 
 References:
     - https://github.com/amberwangyili/neurop
@@ -21,7 +19,6 @@ import mon
 from models import build_model
 from utils import *
 
-console      = mon.console
 current_file = mon.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
@@ -57,8 +54,8 @@ def predict(args: dict) -> str:
     opt["weights"] = weights
     
     # Start
-    console.rule(f"[bold red] {fullname}")
-    console.log(f"Machine: {hostname}")
+    mon.console.rule(f"[bold red] {fullname}")
+    mon.console.log(f"Machine: {hostname}")
     
     # Device
     device = mon.set_device(device)
@@ -67,7 +64,7 @@ def predict(args: dict) -> str:
     mon.set_random_seed(seed)
     
     # Data I/O
-    console.log(f"[bold red]{data}")
+    mon.console.log(f"[bold red]{data}")
     data_name, data_loader = mon.parse_data_loader(data, root, True, verbose=False)
     
     # Model
@@ -76,8 +73,8 @@ def predict(args: dict) -> str:
     # Benchmark
     if benchmark:
         flops, params = model.measure_efficiency_score(image_size=imgsz)
-        console.log(f"FLOPs : {flops:.4f}")
-        console.log(f"Params: {params:.4f}")
+        mon.console.log(f"FLOPs : {flops:.4f}")
+        mon.console.log(f"Params: {params:.4f}")
     
     # Predicting
     timer = mon.Timer()
@@ -125,7 +122,7 @@ def predict(args: dict) -> str:
                     imageio.imwrite(str(output_path), (255.0 * sr_img).astype("uint8"))
         
     # Finish
-    console.log(f"Average time: {timer.avg_time}")
+    mon.console.log(f"Average time: {timer.avg_time}")
         
 # endregion
 

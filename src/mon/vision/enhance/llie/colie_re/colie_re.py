@@ -1,10 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""CoLIE.
-
-This module implements the paper: "Fast Context-Based Low-Light Image
-Enhancement via Neural Implicit Representations," ECCV 2024.
+"""Implements the paper: "Fast Context-Based Low-Light Image Enhancement via Neural
+Implicit Representations," ECCV 2024.
 
 References:
     - https://github.com/ctom2/colie
@@ -44,7 +42,6 @@ class Loss(nn.Loss):
         gamma    : float = 8,
         delta    : float = 5,
         reduction: Literal["none", "mean", "sum"] = "mean",
-        *args, **kwargs
     ):
         super().__init__(reduction=reduction)
         self.alpha = alpha
@@ -79,19 +76,18 @@ class Loss(nn.Loss):
 
 @MODELS.register(name="colie_re", arch="colie")
 class CoLIE_RE(base.ImageEnhancementModel):
-    """Fast Context-Based Low-Light Image Enhancement via Neural Implicit
-    Representations.
+    """COLIE model for low-light image enhancement.
     
     Args:
-        window_size: Context window size. Default: ``1``.
-        down_size  : Downsampling size. Default: ``256``.
+        window_size: Context window size. Default is ``1``.
+        down_size  : Downsampling size. Default is ``256``.
         add_layer: Should be in range of [1, `num_layers` - 2].
-        L: The "optimally-intense threshold", lower values produce brighter
-            images. Default: ``0.3``.
-        alpha: Fidelity control. Default: ``1``.
-        beta: Illumination smoothness. Default: ``20``.
-        gamma: Exposure control. Default: ``8``.
-        delta: Sparsity level. Default: ``5``.
+        L: The "optimally-intense threshold", lower values produce brighter images.
+            Default is ``0.3``.
+        alpha: Fidelity control. Default is ``1``.
+        beta: Illumination smoothness. Default is ``20``.
+        gamma: Exposure control. Default is ``8``.
+        delta: Sparsity level. Default is ``5``.
     
     References:
         - https://github.com/ctom2/colie
@@ -124,22 +120,21 @@ class CoLIE_RE(base.ImageEnhancementModel):
         self.window_size = window_size
         self.patch_dim   = window_size ** 2
         self.down_size   = down_size
-        self.omega_0     = 30.0
         self.iters       = iters
         
         # Network
-        patch_layers   = [nn.INRLayer(self.patch_dim, hidden_dim, "sine", w0=self.omega_0, is_first=True)]
-        spatial_layers = [nn.INRLayer(2, hidden_dim, "sine", w0=self.omega_0, is_first=True)]
+        patch_layers   = [nn.INRLayer(self.patch_dim, hidden_dim, "sine", w0=30.0, is_first=True)]
+        spatial_layers = [nn.INRLayer(2, hidden_dim, "sine", w0=30.0, is_first=True)]
         for _ in range(1, add_layer - 2):
-            patch_layers.append(nn.INRLayer(hidden_dim, hidden_dim, "sine", w0=self.omega_0))
-            spatial_layers.append(nn.INRLayer(hidden_dim, hidden_dim, "sine", w0=self.omega_0))
-        patch_layers.append(nn.INRLayer(hidden_dim, hidden_dim // 2, "sine", w0=self.omega_0))
-        spatial_layers.append(nn.INRLayer(hidden_dim, hidden_dim // 2, "sine", w0=self.omega_0))
+            patch_layers.append(nn.INRLayer(hidden_dim, hidden_dim, "sine", w0=30.0))
+            spatial_layers.append(nn.INRLayer(hidden_dim, hidden_dim, "sine", w0=30.0))
+        patch_layers.append(nn.INRLayer(hidden_dim, hidden_dim // 2, "sine", w0=30.0))
+        spatial_layers.append(nn.INRLayer(hidden_dim, hidden_dim // 2, "sine", w0=30.0))
         
         output_layers  = []
         for _ in range(add_layer, num_layers - 1):
-            output_layers.append(nn.INRLayer(hidden_dim, hidden_dim, "sine", w0=self.omega_0))
-        output_layers.append(nn.INRLayer(hidden_dim, 1, "sine", w0=self.omega_0, is_last=True))
+            output_layers.append(nn.INRLayer(hidden_dim, hidden_dim, "sine", w0=30.0))
+        output_layers.append(nn.INRLayer(hidden_dim, 1, "sine", w0=30.0, is_last=True))
         
         self.patch_net   = nn.Sequential(*patch_layers)
         self.spatial_net = nn.Sequential(*spatial_layers)
@@ -165,11 +160,22 @@ class CoLIE_RE(base.ImageEnhancementModel):
         self.initial_state_dict = self.state_dict()
     
     def init_weights(self, m: nn.Module):
+        """Initializes weights for the model.
+    
+        Args:
+            m: ``nn.Module`` to initialize weights for.
+        """
         pass
     
     def compute_efficiency_score(self, image_size: int = 512) -> tuple[float, float]:
-        """Compute the efficiency score of the model, including FLOPs and number
-        of parameters.
+        """Compute model efficiency score (FLOPs, params).
+
+        Args:
+            image_size: Input size as ``int`` or [H, W]. Default is ``512``.
+            channels: Number of input channels as ``int``. Default is ``3``.
+
+        Returns:
+            Tuple of (FLOPs, parameter count) as ``float`` values.
         """
         from fvcore.nn import parameter_count
         
@@ -185,34 +191,56 @@ class CoLIE_RE(base.ImageEnhancementModel):
         return flops, params
     
     def forward_loss(self, datapoint: dict, *args, **kwargs) -> dict:
+        """Computes forward pass and loss.
+    
+        Args:
+            datapoint: ``dict`` with datapoint attributes.
+    
+        Returns:
+            ``dict`` of predictions with ``"loss"`` and ``"enhanced"`` keys.
+        """
         # Forward
         outputs = self.forward(datapoint=datapoint, *args, **kwargs)
+        
         # Loss
         illu_lr          = outputs["illu_lr"]
         image_v_lr       = outputs["image_v_lr"]
         image_v_fixed_lr = outputs["image_v_fixed_lr"]
-        outputs["loss"]  = self.loss(illu_lr, image_v_lr, image_v_fixed_lr)
-        # Return
-        return outputs
+        loss             = self.loss(illu_lr, image_v_lr, image_v_fixed_lr)
+        
+        return outputs | {
+			"loss": loss,
+		}
         
     def forward(self, datapoint: dict, *args, **kwargs) -> dict:
-        # Prepare input
-        image_rgb        = datapoint["image"]
+        """Performs forward pass of the model.
+    
+        Args:
+            datapoint: ``dict`` with datapoint attributes.
+    
+        Returns:
+            ``dict`` of predictions with ``"enhanced"`` keys.
+        """
+        # Input
+        image_rgb   = datapoint["image"]
+        image_hsv   = kornia.color.rgb_to_hsv(image_rgb)
+        image_v     = image_hsv.clone()[:, 2:3, :, :]
+        image_v_lr  = self.interpolate_image(image_v)
+        
+        # Mapping
+        patch       = self.get_patches(image_v_lr)
+        spatial     = self.get_coords()
+        illu_res_lr = self.output_net(torch.cat([self.patch_net(patch), self.spatial_net(spatial)], -1))
+        illu_res_lr = illu_res_lr.view(1, 1, self.down_size, self.down_size)
+        
         # Enhance
-        image_hsv        = kornia.color.rgb_to_hsv(image_rgb)
-        image_v          = image_hsv.clone()[:, 2:3, :, :]
-        image_v_lr       = self.interpolate_image(image_v)
-        patch            = self.get_patches(image_v_lr)
-        spatial          = self.get_coords()
-        illu_res_lr      = self.output_net(torch.cat([self.patch_net(patch), self.spatial_net(spatial)], -1))
-        illu_res_lr      = illu_res_lr.view(1, 1, self.down_size, self.down_size)
         illu_lr          = illu_res_lr + image_v_lr
         image_v_fixed_lr = image_v_lr / (illu_lr + 1e-4)
         image_v_fixed    = self.filter_up(image_v_lr, image_v_fixed_lr, image_v)
         image_hsv_fixed  = self.replace_v_component(image_hsv, image_v_fixed)
         image_rgb_fixed  = kornia.color.hsv_to_rgb(image_hsv_fixed)
         image_rgb_fixed  = image_rgb_fixed / torch.max(image_rgb_fixed)
-        # Return
+        
         if self.debug:
             return {
                 "illu_lr"         : illu_lr,
@@ -254,12 +282,7 @@ class CoLIE_RE(base.ImageEnhancementModel):
         return coords
     
     @staticmethod
-    def filter_up(
-        x_lr  : torch.Tensor,
-        y_lr  : torch.Tensor,
-        x_hr  : torch.Tensor,
-        radius: int = 1
-    ):
+    def filter_up(x_lr: torch.Tensor, y_lr: torch.Tensor, x_hr: torch.Tensor, radius: int = 1):
         """Applies the guided filter to upscale the predicted image. """
         gf   = filtering.FastGuidedFilter(radius=radius)
         y_hr = gf(x_lr, y_lr, x_hr)
@@ -268,17 +291,29 @@ class CoLIE_RE(base.ImageEnhancementModel):
     
     @staticmethod
     def replace_v_component(image_hsv: torch.Tensor, v_new: torch.Tensor) -> torch.Tensor:
-        """Replaces the `V` component of an HSV image `[1, 3, H, W]`."""
+        """Replaces the `V` component of an HSV image [1, 3, H, W]."""
         image_hsv[:, -1, :, :] = v_new
         return image_hsv
     
     @staticmethod
     def replace_i_component(image_hvi: torch.Tensor, i_new: torch.Tensor) -> torch.Tensor:
-        """Replaces the `I` component of an HVI image `[1, 3, H, W]`."""
+        """Replaces the `I` component of an HVI image [1, 3, H, W]."""
         image_hvi[:, 2, :, :] = i_new
         return image_hvi
     
     def infer(self, datapoint: dict, reset_weights: bool = True, *args, **kwargs) -> dict:
+        """Infers model output with optional processing.
+    
+        Args:
+            datapoint: ``dict`` with datapoint attributes.
+            reset_weights: Whether to reset the weights before training. Default is ``True``.
+            
+        Returns:
+            ``dict`` of model predictions.
+    
+        Notes:
+            Override for custom pre/post-processing; defaults to ``self.forward()``.
+        """
         # Initialize training components
         if reset_weights:
             self.load_state_dict(self.initial_state_dict, strict=False)

@@ -11,11 +11,11 @@ __all__ = [
 
 from abc import ABC
 from copy import deepcopy
-from typing import Sequence
 
 import torch
 
 from mon import core, nn
+from mon.nn import _size_2_t
 
 
 # region Model
@@ -25,11 +25,7 @@ class VisionModel(nn.Model, ABC):
     
     # region Initialize Model
     
-    def compute_efficiency_score(
-        self,
-        image_size: int | Sequence[int] = 512,
-        channels  : int = 3,
-    ) -> tuple[float, float]:
+    def compute_efficiency_score(self, image_size: _size_2_t = 512, channels: int = 3) -> tuple[float, float]:
         """Compute model efficiency score (FLOPs, params).
 
         Args:
@@ -40,9 +36,9 @@ class VisionModel(nn.Model, ABC):
             Tuple of (FLOPs, parameter count) as ``float`` values.
         """
         from fvcore.nn import parameter_count
-        from mon.vision.dtype import image as I
+        from mon.vision import dtype
         
-        h, w      = I.get_image_size(image_size)
+        h, w      = dtype.get_image_size(image_size)
         datapoint = {"image": torch.rand(1, channels, h, w).to(self.device)}
         flops, params = core.custom_profile(deepcopy(self), inputs=datapoint, verbose=False)
         params        = self.params if hasattr(self, "params") and params == 0 else params
@@ -57,31 +53,30 @@ class VisionModel(nn.Model, ABC):
     def infer(
         self,
         datapoint : dict,
-        image_size: int | Sequence[int] = 512,
-        resize    : bool = False,
+        image_size: _size_2_t = 512,
+        resize    : bool      = False,
         *args, **kwargs
     ) -> dict:
-        """Infer model output with optional processing.
-
+        """Infers model output with optional processing.
+    
         Args:
-            datapoint: Dict with datapoint attributes as ``dict``.
+            datapoint: ``dict`` with datapoint attributes.
             image_size: Input size as ``int`` or [H, W]. Default is ``512``.
             resize: Resize input to ``image_size`` if ``True``. Default is ``False``.
-
+    
         Returns:
-            Dict of predictions with inference time
-
+            ``dict`` of model predictions with inference time.
+    
         Notes:
-            Override for custom pre/post-processing; defaults to forward.
+            Override for custom pre/post-processing; defaults to ``self.forward()``.
         """
-        from mon.vision.dtype import image as I
-        from mon.vision import geometry
+        from mon.vision import dtype, geometry
         
         # Input
         image  = datapoint["image"]
-        h0, w0 = I.get_image_size(image)
+        h0, w0 = dtype.get_image_size(image)
         for k, v in datapoint.items():
-            if I.is_image(v):
+            if dtype.is_image(v):
                 size         = image_size if resize else 32 * ((max(h0, w0) + 31) // 32)
                 datapoint[k] = geometry.resize(v, size)
             if isinstance(v, torch.Tensor):
@@ -95,8 +90,8 @@ class VisionModel(nn.Model, ABC):
     
         # Post-processing
         for k, v in outputs.items():
-            if I.is_image(v):
-                h1, w1 = I.get_image_size(v)
+            if dtype.is_image(v):
+                h1, w1 = v.get_image_size(v)
                 if h1 != h0 or w1 != w0:
                     outputs[k] = geometry.resize(v, (h0, w0))
         

@@ -1,6 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+"""Implements the paper: "Learning a Simple Low-light Image Enhancer from Paired
+Low-light Instances," CVPR 2023.
+
+References:
+    - https://github.com/zhenqifu/PairLIE
+"""
+
 from __future__ import annotations
 
 import torch.optim

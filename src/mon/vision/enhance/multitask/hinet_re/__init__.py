@@ -1,9 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""HINet.
-
-This module implements the paper: "Half-Instance Normalization Network".
+"""Implements the paper: "HINet: Half Instance Normalization Network for Image
+Restoration," CVPRW 2021.
 
 References:
     - https://github.com/megvii-model/HINet

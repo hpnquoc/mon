@@ -1,9 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Low-Light Image Enhancement.
-
-This package implements low-light image enhancement algorithms and models.
+"""Implements low-light image enhancement algorithms.
 
 References:
 	- https://github.com/dawnlh/awesome-low-light-image-enhancement

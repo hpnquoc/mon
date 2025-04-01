@@ -16,8 +16,7 @@ import cv2
 import numpy as np
 
 from mon import core, nn
-from mon.vision.dtype import image as I
-from mon.vision.model import VisionModel
+from mon.vision import dtype, model
 
 
 # region Conversion
@@ -42,7 +41,7 @@ def convert_depth_to_color(
     """
     if not isinstance(depth, np.ndarray):
         raise TypeError(f"[depth] must be a numpy.ndarray, got {type(depth)}.")
-    depth = np.uint8(255 * depth) if I.is_image_normalized(depth) else depth
+    depth = np.uint8(255 * depth) if dtype.is_image_normalized(depth) else depth
     depth = cv2.applyColorMap(depth, color_map)
     return cv2.cvtColor(depth, cv2.COLOR_BGR2RGB) if use_rgb else depth
     
@@ -51,7 +50,7 @@ def convert_depth_to_color(
 
 # region Model
 
-class DepthEstimationModel(VisionModel, ABC):
+class DepthEstimationModel(model.VisionModel, ABC):
     """Base class for depth estimation models."""
     
     tasks: list[core.Task] = [core.Task.DEPTH]
@@ -65,13 +64,19 @@ class DepthEstimationModel(VisionModel, ABC):
             datapoint: ``dict`` with datapoint attributes.
     
         Returns:
-            ``dict`` of predictions with ``"loss"`` and ``"output"`` keys.
+            ``dict`` of predictions with ``"loss"`` and ``"depth"`` keys.
         """
+        # Forward
         outputs = self.forward(datapoint=datapoint, *args, **kwargs)
+        
+        # Loss
         pred    = outputs["depth"]
         target  = datapoint["depth"]
-        outputs["loss"] = self.loss(pred, target) if self.loss else None
-        return outputs
+        loss    = self.loss(pred, target) if self.loss else None
+        
+        return outputs | {
+			"loss": loss,
+		}
     
     def compute_metrics(self, datapoint: dict, outputs: dict, metrics: list[nn.Metric] = None) -> dict:
         """Computes metrics for given predictions.

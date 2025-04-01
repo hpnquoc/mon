@@ -39,11 +39,7 @@ class PSNRLoss(base.Loss):
         - https://github.com/xinntao/BasicSR
     """
     
-    def __init__(
-        self,
-        to_y     : bool  = False,
-        reduction: Literal["none", "mean", "sum"] = "mean",
-    ):
+    def __init__(self, to_y: bool = False, reduction: Literal["none", "mean", "sum"] = "mean"):
         super().__init__(reduction=reduction)
         self.scale = 10 / np.log(10)
         self.to_y  = to_y
