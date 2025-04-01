@@ -129,6 +129,8 @@ def predict(args: dict) -> str:
     use_fullpath = args["use_fullpath"]
     verbose      = args["verbose"]
     
+    use_float16  = args["use_float16"]
+    
     config_path  = current_dir / args["config_path"]  # "./models/cldm_v15.yaml"
     init_ckpt    = mon.ZOO_DIR / "vision/enhance/llie/quadprior/quadprior/coco/control_sd15_init.ckpt"
     ae_ckpt      = mon.ZOO_DIR / "vision/enhance/llie/quadprior/quadprior/coco/ae_epoch=00_step=7000.ckpt"
@@ -167,7 +169,7 @@ def predict(args: dict) -> str:
     # Load bypass decoder
     model.change_first_stage(ae_ckpt)
     
-    if args["use_float16"]:
+    if use_float16:
         model = model.to(device).to(dtype=torch.float16)
     else:
         model = model.to(device)
@@ -204,7 +206,7 @@ def predict(args: dict) -> str:
                     input_image      = image,
                     num_samples      = 1,
                     image_resolution = imgsz,
-                    use_float16      = args["use_float16"],
+                    use_float16      = use_float16,
                 )[0]
                 timer.tock()
                 

@@ -42,6 +42,15 @@ def predict(args: dict) -> str:
     use_fullpath = args["use_fullpath"]
     verbose      = args["verbose"]
     
+    gamma   = args["network"]["gamma"]
+    lambda_ = args["network"]["lambda_"]
+    dual    = not args["network"]["lime"]
+    sigma   = args["network"]["sigma"]
+    bc      = args["network"]["bc"]
+    bs      = args["network"]["bs"]
+    be      = args["network"]["be"]
+    eps     = args["network"]["eps"]
+    
     # Start
     mon.console.rule(f"[bold red] {fullname}")
     mon.console.log(f"Machine: {hostname}")
@@ -75,15 +84,8 @@ def predict(args: dict) -> str:
             # Infer
             timer.tick()
             enhanced = enhance_image_exposure(
-                im      = image,
-                gamma   = args["network"]["gamma"],
-                lambda_ = args["network"]["lambda_"],
-                dual    = not args["network"]["lime"],
-                sigma   = args["network"]["sigma"],
-                bc      = args["network"]["bc"],
-                bs      = args["network"]["bs"],
-                be      = args["network"]["be"],
-                eps     = args["network"]["eps"]
+                im=image, gamma=gamma, lambda_=lambda_, dual=dual, sigma=sigma, bc=bc,
+                bs=bs, be=be, eps=eps
             )
             timer.tock()
             

@@ -55,7 +55,7 @@ def train(epoch):
         
         # use random gamma function (enhancement curve) to improve generalization
         if opt.gamma:
-            gamma = random.randint(opt.start_gamma,opt.end_gamma) / 100.0
+            gamma = random.randint(opt.start_gamma, opt.end_gamma) / 100.0
             output_rgb = model(im1 ** gamma)  
         else:
             output_rgb = model(im1)  
@@ -187,23 +187,22 @@ def init_loss():
     E_weight    = opt.E_weight 
     P_weight    = 1.0
     
-    L1_loss= L1Loss(loss_weight=L1_weight, reduction='mean').cuda()
-    D_loss = SSIM(weight=D_weight).cuda()
-    E_loss = EdgeLoss(loss_weight=E_weight).cuda()
-    P_loss = PerceptualLoss({'conv1_2': 1, 'conv2_2': 1,'conv3_4': 1,'conv4_4': 1}, perceptual_weight = P_weight ,criterion='mse').cuda()
-    return L1_loss,P_loss,E_loss,D_loss
+    L1_loss = L1Loss(loss_weight=L1_weight, reduction='mean').cuda()
+    D_loss  = SSIM(weight=D_weight).cuda()
+    E_loss  = EdgeLoss(loss_weight=E_weight).cuda()
+    P_loss  = PerceptualLoss({'conv1_2': 1, 'conv2_2': 1,'conv3_4': 1,'conv4_4': 1}, perceptual_weight = P_weight ,criterion='mse').cuda()
+    return L1_loss, P_loss, E_loss, D_loss
 
 
-if __name__ == '__main__':  
-    
+if __name__ == '__main__':
     '''
-    preparision
+    preparation
     '''
     train_init()
     training_data_loader, testing_data_loader = load_datasets()
     model = build_model()
-    optimizer,scheduler = make_scheduler()
-    L1_loss,P_loss,E_loss,D_loss = init_loss()
+    optimizer, scheduler = make_scheduler()
+    L1_loss, P_loss, E_loss, D_loss = init_loss()
     
     '''
     train

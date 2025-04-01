@@ -10,7 +10,7 @@ device      : 0                                                                 
 seed        : 0                                                                 # Random seed.
 imgsz       : &imgsz 256                                                        # Image size for the model.
 resize      : False                                                             # Resize the input image to `imgsz`.
-epochs      : &epochs 100                                                       # Training epochs.
+epochs      : &epochs 1000                                                      # Training epochs.
 steps       : &steps ~                                                          # Training steps.
 benchmark   : False                                                             # Benchmark the model.
 save_image  : True                                                              # Save the output image.
@@ -22,9 +22,12 @@ verbose     : &verbose True                                                     
 
 # Network
 network: &network                                                               # Network architecture.
-  gated2: True
-  alpha : 0.8
-  gamma : 1.0
+  gated      : True
+  gated2     : False
+  alpha      : 0.8
+  gamma      : 1.0
+  start_gamma: 60
+  end_gamma  : 120
 
 # Optimizer
 optimizer: &optimizer                                                           # Optimizer(s).
@@ -34,13 +37,26 @@ optimizer: &optimizer                                                           
   warmup_epochs     : 3
   start_warmup      : True
 
+# Loss
+loss: &loss                                                                     # Loss function.
+  HVI_weight: 1.0
+  L1_weight : 1.0
+  D_weight  : 0.5
+  E_weight  : 50.0
+  P_weight  : 0.01
+
 # Datamodule
 datamodule:
   name      : *data                                                             # Data module name (e.g., cifar10).
   root      : "data/enhance/lol_v1"                                             # Root directory of the dataset.
-  transform : ~
+  transform : ~                                                                 # Data augmentation.
   to_tensor : True                                                              # If ``True``, convert the data to tensor.
   batch_size: 8                                                                 # Batch size.
   cache_data: False                                                             # If ``True``, cache the data.
   shuffle   : True                                                              # If ``True``, shuffle the data.
   verbose   : *verbose                                                          # Verbosity.
+
+# Trainer
+trainer:
+  grad_detect: False
+  grad_clip  : True

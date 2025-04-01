@@ -11,11 +11,9 @@ References:
 from __future__ import annotations
 
 import cv2
-import numpy as np
 import torch
 import torchvision
 
-import data.util as dutil
 import mon
 from net.CIDNet import CIDNet
 
@@ -45,8 +43,10 @@ def predict(args: dict) -> str:
     use_fullpath = args["use_fullpath"]
     verbose      = args["verbose"]
     
-    alpha = args["network"]["alpha"]
-    gamma = args["network"]["gamma"]
+    gated  = args["network"]["gated"]
+    gated2 = args["network"]["gated2"]
+    alpha  = args["network"]["alpha"]
+    gamma  = args["network"]["gamma"]
     
     # Start
     mon.console.rule(f"[bold red] {fullname}")
@@ -67,22 +67,14 @@ def predict(args: dict) -> str:
     model = CIDNet().to(device)
     model.load_state_dict(torch.load(weights, map_location=lambda storage, loc: storage))
     model.eval()
+    model.trans.gated  = gated
+    model.trans.gated2 = gated2
+    model.trans.alpha  = alpha
     
-    if data == "lol_v1":
-        model.trans.gated  = True
-    elif data in ["lol_v2_real", "lol_v2_synthetic"]:
-        model.trans.gated2 = True
-        if weights.name == "hvi_cidnet_lol_v2_real_w_perc.pth":
-            model.trans.alpha = 0.84
-        elif weights.name == "hvi_cidnet_lol_v2_real_best_psnr.pth":
-            model.trans.alpha = 0.8
-        elif weights.name == "hvi_cidnet_lol_v2_real_best_ssim.pth":
-            model.trans.alpha = 0.82
-        else:
-            model.trans.alpha = alpha
-    else:
-        model.trans.gated2 = args["network"]["gated2"]
-        model.trans.alpha  = alpha
+    if weights.name == "hvi_cidnet_lol_v2_real_w_perc.pth":
+        model.trans.alpha = 0.84
+    elif weights.name == "hvi_cidnet_lol_v2_real_best_ssim.pth":
+        model.trans.alpha = 0.82
     
     # Measure efficiency score
     if benchmark:

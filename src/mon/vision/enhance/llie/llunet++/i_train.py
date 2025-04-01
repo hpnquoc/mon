@@ -1,7 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""
+"""Implements the paper: "UNet++ Based Nested Skip Connections Network for Low-Light
+Image Enhancement,"
+
 References:
     - https://github.com/xiwang-online/LLUnetPlusPlus
 """
@@ -20,7 +22,6 @@ import mon
 from average_meter import AverageMeter
 from loss import Loss
 from model import NestedUNet
-from mon import albumentation as A
 
 current_file = mon.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
@@ -93,6 +94,10 @@ def train(args: dict) -> str:
     use_fullpath = args["use_fullpath"]
     verbose      = args["verbose"]
     
+    lr           = args["optimizer"]["lr"]
+    weight_decay = args["optimizer"]["weight_decay"]
+    loss_weights = args["loss"]["loss_weights"]
+    
     # Start
     mon.console.rule(f"[bold red] {fullname}")
     mon.console.log(f"Machine: {hostname}")
@@ -105,11 +110,6 @@ def train(args: dict) -> str:
     mon.set_random_seed(seed)
     
     # Data I/O
-    args["datamodule"] |= {
-        "transform": A.Compose(transforms=[
-            A.Resize(width=imgsz, height=imgsz),
-        ])
-    }
     datamodule: mon.DataModule = mon.DATAMODULES.build(config=args["datamodule"])
     datamodule.setup(stage="train")
     train_dataloader = datamodule.train_dataloader
@@ -120,11 +120,11 @@ def train(args: dict) -> str:
     model.train()
     
     # Optimizer
-    optimizer = optim.Adam(model.parameters(), lr=args["optimizer"]["lr"], weight_decay=args["optimizer"]["weight_decay"])
+    optimizer = optim.Adam(model.parameters(), lr=lr, weight_decay=weight_decay)
     scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, 0.99)
     
     # Loss
-    criterion = Loss(*args["loss"]["loss_weights"]).to(device)
+    criterion = Loss(*loss_weights).to(device)
     
     # Logging
     writer = SummaryWriter(log_dir=str(save_dir))
@@ -155,7 +155,7 @@ def train(args: dict) -> str:
         
         # Log
         log["epoch"].append(epoch)
-        log["lr"].append(args["optimizer"]["lr"])
+        log["lr"].append(lr)
         log["train/loss"].append(train_loss)
         log["val/loss"].append(val_loss)
         log["val/psnr"].append(val_psnr)

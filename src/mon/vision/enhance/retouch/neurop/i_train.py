@@ -28,25 +28,25 @@ current_dir  = current_file.parents[0]
 
 def train(args: argparse.Namespace):
     # Parse args
-    hostname     = args.hostname
-    root         = args.root
-    data         = args.data
-    fullname     = args.fullname
-    save_dir     = args.save_dir
-    weights      = args.weights
-    device       = args.device
-    seed         = args.seed
-    imgsz        = args.imgsz
-    resize       = args.resize
-    epochs       = args.epochs
-    steps        = args.steps
-    benchmark    = args.benchmark
-    save_image   = args.save_image
-    save_debug   = args.save_debug
-    use_fullpath = args.use_fullpath
-    verbose      = args.verbose
+    hostname     = args["hostname"]
+    root         = args["root"]
+    data         = args["data"]
+    fullname     = args["fullname"]
+    save_dir     = args["save_dir"]
+    weights      = args["weights"]
+    device       = args["device"]
+    seed         = args["seed"]
+    imgsz        = args["imgsz"]
+    resize       = args["resize"]
+    epochs       = args["epochs"]
+    steps        = args["steps"]
+    benchmark    = args["benchmark"]
+    save_image   = args["save_image"]
+    save_debug   = args["save_debug"]
+    use_fullpath = args["use_fullpath"]
+    verbose      = args["verbose"]
     
-    opt_path = str(current_dir / "options" / "train" / args.opt_path)
+    opt_path = str(current_dir / "options" / "train" / args["opt_path"])
     opt      = parse(opt_path)
     opt      = dict_to_nonedict(opt)
     opt["network_G"]["init_model"] = mon.ROOT_DIR / opt["network_G"]["init_model"]

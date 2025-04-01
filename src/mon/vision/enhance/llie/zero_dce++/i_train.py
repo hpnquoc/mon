@@ -16,7 +16,6 @@ import torch.optim
 import model as mmodel
 import mon
 import myloss
-from mon import albumentation as A
 
 current_file = mon.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
@@ -53,7 +52,12 @@ def train(args: dict) -> str:
     use_fullpath = args["use_fullpath"]
     verbose      = args["verbose"]
     
-    scale_factor = args["network"]["scale_factor"]
+    scale_factor     = args["network"]["scale_factor"]
+    lr               = args["optimizer"]["lr"]
+    weight_decay     = args["optimizer"]["weight_decay"]
+    grad_clip_norm   = args["trainer"]["grad_clip_norm"]
+    display_iter     = args["trainer"]["display_iter"]
+    checkpoints_iter = args["trainer"]["checkpoints_iter"]
     
     # Start
     mon.console.rule(f"[bold red] {fullname}")
@@ -66,13 +70,6 @@ def train(args: dict) -> str:
     mon.set_random_seed(seed)
     
     # Data I/O
-    '''
-    args["datamodule"] |= {
-        "transform": A.Compose(transforms=[
-            A.Resize(width=imgsz, height=imgsz),
-        ])
-    }
-    '''
     datamodule: mon.DataModule = mon.DATAMODULES.build(config=vars(args["datamodule"]))
     datamodule.setup(stage="train")
     train_dataloader = datamodule.train_dataloader
@@ -85,11 +82,7 @@ def train(args: dict) -> str:
     dce_net.train()
     
     # Optimizer
-    optimizer = torch.optim.Adam(
-        dce_net.parameters(),
-        lr           = args["optimizer"]["lr"],
-        weight_decay = args["optimizer"]["weight_decay"]
-    )
+    optimizer = torch.optim.Adam(dce_net.parameters(), lr=lr, weight_decay=weight_decay)
     
     # Loss
     L_color = myloss.L_color()
@@ -117,15 +110,15 @@ def train(args: dict) -> str:
     
                 optimizer.zero_grad()
                 loss.backward()
-                torch.nn.utils.clip_grad_norm_(dce_net.parameters(), args["trainer"]["grad_clip_norm"])
+                torch.nn.utils.clip_grad_norm_(dce_net.parameters(), grad_clip_norm)
                 optimizer.step()
                 
                 # Log
-                if ((i + 1) % args["trainer"]["display_iter"]) == 0:
+                if ((i + 1) % display_iter) == 0:
                     print("Loss at iteration", i + 1, ":", loss.item())
                 
                 # Save
-                if ((i + 1) % args["trainer"]["checkpoints_iter"]) == 0:
+                if ((i + 1) % checkpoints_iter) == 0:
                     torch.save(dce_net.state_dict(), i / "best.pt")
 
 # endregion

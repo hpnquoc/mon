@@ -67,6 +67,9 @@ def predict(args: dict) -> str:
     use_fullpath = args["use_fullpath"]
     verbose      = args["verbose"]
     
+    lr           = args["optimizer"]["lr"]
+    weight_decay = args["optimizer"]["weight_decay"]
+    
     # Start
     mon.console.rule(f"[bold red] {fullname}")
     mon.console.log(f"Machine: {hostname}")
@@ -119,7 +122,7 @@ def predict(args: dict) -> str:
             model.enhance.out_conv.apply(model.enhance_weights_init)
             model = model.to(device)
             model.train()
-            optimizer = torch.optim.Adam(model.parameters(), lr=args["optimizer"]["lr"], weight_decay=3e-4)
+            optimizer = torch.optim.Adam(model.parameters(), lr=lr, weight_decay=weight_decay)
             input     = Variable(image, requires_grad=False).to(device)
             for _ in range(epochs):
                 optimizer.zero_grad()
