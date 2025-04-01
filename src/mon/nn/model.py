@@ -12,7 +12,7 @@ __all__ = [
 ]
 
 from abc import ABC, abstractmethod
-from typing import Any
+from typing import Any, Callable
 from urllib.parse import urlparse  # noqa: F401
 
 import humps
@@ -357,12 +357,18 @@ class Model(lightning.LightningModule, ABC):
         """
         if loss is None:
             self.loss = None
+        elif isinstance(loss, Callable):
+            self.loss = loss
         elif isinstance(loss, str):
             self.loss = LOSSES.build(name=loss)
         elif isinstance(loss, dict):
-            self.loss = LOSSES.build(config=loss)
+            if "name" in loss:
+                self.loss = LOSSES.build(config=loss)
+            else:
+                self.loss = loss
         else:
-            self.loss = loss
+            core.console.log(f"")
+            raise TypeError(f"[loss] must be a str, dict, or callable, got {type(loss)}.")
     
         if isinstance(self.loss, L.Loss):
             self.loss.requires_grad = True
@@ -432,7 +438,7 @@ class Model(lightning.LightningModule, ABC):
             if isinstance(m, M.Metric):
                 m.name = humps.depascalize(humps.pascalize(m.__class__.__name__))
                 metrics_.append(m)
-            elif isinstance(m, dict):
+            elif isinstance(m, dict) and "name" in m:
                 m_ = METRICS.build(config=m)
                 if m_:
                     metrics_.append(m_)

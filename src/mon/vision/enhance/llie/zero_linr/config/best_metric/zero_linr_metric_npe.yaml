@@ -62,7 +62,14 @@ optimizer: &optimizer                                                           
   network_params_only: True
 
 # Loss
-loss: &loss ~                                                                   # Loss function.
+loss: &loss                                                                     # Loss function.
+  loss_e_mean: 0.5                                                              # Default is ``0.5``.
+  loss_w_f   : 1                                                                # Default is ``1.``
+  loss_w_s   : 5                                                                # Default is ``5``.
+  loss_w_e   : 8                                                                # Default is ``8``.
+  loss_w_tv  : 20                                                               # Default is ``20``.
+  loss_w_de  : 1                                                                # Default is ``1``.
+  loss_w_c   : 5                                                                # Default is ``5``.
 
 # Metric
 metrics: &metrics                                                               # Metrics for evaluation.

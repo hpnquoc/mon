@@ -1,6 +1,7 @@
-from torch.optim.lr_scheduler import _LRScheduler
-from torch.optim.lr_scheduler import ReduceLROnPlateau
 import math
+
+from torch.optim.lr_scheduler import _LRScheduler, ReduceLROnPlateau
+
 
 class GradualWarmupScheduler(_LRScheduler):
     """ Gradually warm-up(increasing) learning rate in optimizer.
@@ -62,6 +63,7 @@ class GradualWarmupScheduler(_LRScheduler):
         else:
             self.step_ReduceLROnPlateau(metrics, epoch)
             
+            
 def get_position_from_periods(iteration, cumulative_period):
     """Get the position from a period list.
 
@@ -81,6 +83,7 @@ def get_position_from_periods(iteration, cumulative_period):
     for i, period in enumerate(cumulative_period):
         if iteration <= period:
             return i
+        
         
 class CosineAnnealingRestartCyclicLR(_LRScheduler):
     """ Cosine annealing with restarts learning rate scheme.
@@ -129,6 +132,7 @@ class CosineAnnealingRestartCyclicLR(_LRScheduler):
                 (self.last_epoch - nearest_restart) / current_period)))
             for base_lr in self.base_lrs
         ]
+
 
 class CosineAnnealingRestartLR(_LRScheduler):
     """ Cosine annealing with restarts learning rate scheme.

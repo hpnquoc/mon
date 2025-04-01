@@ -516,14 +516,6 @@ class ZeroLINR(base.ImageEnhancementModel):
 		denoise_ksize    : list[float]  = [3, 3],
 		denoise_color    : float        = 0.5,
 		denoise_space    : list[float]  = [1.5, 1.5],
-		# Loss
-		loss_e_mean      : float        = 0.9,
-		loss_w_f         : float        = 1,
-		loss_w_s         : float        = 5,
-		loss_w_e         : float        = 8,
-		loss_w_tv        : float        = 20,
-		loss_w_de        : float        = 1,
-		loss_w_c         : float        = 5,
 		iters            : int          = 100,
 		*args, **kwargs
 	):
@@ -584,13 +576,13 @@ class ZeroLINR(base.ImageEnhancementModel):
 		
 		# Loss
 		self.loss = Loss(
-			loss_e_mean = loss_e_mean,
-			loss_w_f    = loss_w_f,
-			loss_w_s    = loss_w_s,
-			loss_w_e    = loss_w_e,
-			loss_w_tv   = loss_w_tv,
-			loss_w_de   = loss_w_de,
-			loss_w_c    = loss_w_c,
+			loss_e_mean = self.loss["loss_e_mean"],
+			loss_w_f    = self.loss["loss_w_f"],
+			loss_w_s    = self.loss["loss_w_s"],
+			loss_w_e    = self.loss["loss_w_e"],
+			loss_w_tv   = self.loss["loss_w_tv"],
+			loss_w_de   = self.loss["loss_w_de"],
+			loss_w_c    = self.loss["loss_w_c"],
 		)
 		
 		# Load weights

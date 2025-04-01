@@ -1,16 +1,18 @@
 
 import os
 import random
-import torch
-import torch.utils.data as data
-import numpy as np
 from os import listdir
 from os.path import join
+
+import numpy as np
+import torch
+import torch.utils.data as data
 from data.util import *
 from torchvision import transforms as t
 
-    
+
 class LOLDatasetFromFolder(data.Dataset):
+    
     def __init__(self, data_dir, transform=None):
         super(LOLDatasetFromFolder, self).__init__()
         self.data_dir = data_dir
@@ -45,6 +47,7 @@ class LOLDatasetFromFolder(data.Dataset):
 
     
 class LOLv2DatasetFromFolder(data.Dataset):
+    
     def __init__(self, data_dir, transform=None):
         super(LOLv2DatasetFromFolder, self).__init__()
         self.data_dir = data_dir
@@ -76,8 +79,8 @@ class LOLv2DatasetFromFolder(data.Dataset):
         return 685
 
 
-
 class LOLv2SynDatasetFromFolder(data.Dataset):
+    
     def __init__(self, data_dir, transform=None):
         super(LOLv2SynDatasetFromFolder, self).__init__()
         self.data_dir = data_dir
@@ -109,8 +112,3 @@ class LOLv2SynDatasetFromFolder(data.Dataset):
 
     def __len__(self):
         return 900
-
-
-
-    
-

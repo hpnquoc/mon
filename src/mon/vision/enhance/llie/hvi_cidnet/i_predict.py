@@ -13,12 +13,11 @@ from __future__ import annotations
 import cv2
 import numpy as np
 import torch
+import torchvision
 
 import data.util as dutil
 import mon
-import options.options as option
-import utils.util as util
-from models import create_model
+from net.CIDNet import CIDNet
 
 current_file = mon.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
@@ -33,7 +32,7 @@ def predict(args: dict) -> str:
     data         = args["data"]
     fullname     = args["fullname"]
     save_dir     = args["save_dir"]
-    weights      = args["weights"]
+    weights      = mon.Path(args["weights"])
     device       = args["device"]
     seed         = args["seed"]
     imgsz        = args["imgsz"]
@@ -46,9 +45,8 @@ def predict(args: dict) -> str:
     use_fullpath = args["use_fullpath"]
     verbose      = args["verbose"]
     
-    opt_path = str(current_dir / "options" / "test" / args["opt_path"])
-    opt      = option.parse(opt_path, is_train=False)
-    opt      = option.dict_to_nonedict(opt)
+    alpha = args["network"]["alpha"]
+    gamma = args["network"]["gamma"]
     
     # Start
     mon.console.rule(f"[bold red] {fullname}")
@@ -56,7 +54,6 @@ def predict(args: dict) -> str:
     
     # Device
     device = mon.set_device(device)
-    opt["device"] = device
     
     # Seed
     mon.set_random_seed(seed)
@@ -66,8 +63,26 @@ def predict(args: dict) -> str:
     data_name, data_loader = mon.parse_data_loader(data, root, True, verbose=False)
     
     # Model
-    opt["path"]["pretrain_model_G"] = str(weights)
-    model = create_model(opt)
+    torch.set_grad_enabled(False)
+    model = CIDNet().to(device)
+    model.load_state_dict(torch.load(weights, map_location=lambda storage, loc: storage))
+    model.eval()
+    
+    if data == "lol_v1":
+        model.trans.gated  = True
+    elif data in ["lol_v2_real", "lol_v2_synthetic"]:
+        model.trans.gated2 = True
+        if weights.name == "hvi_cidnet_lol_v2_real_w_perc.pth":
+            model.trans.alpha = 0.84
+        elif weights.name == "hvi_cidnet_lol_v2_real_best_psnr.pth":
+            model.trans.alpha = 0.8
+        elif weights.name == "hvi_cidnet_lol_v2_real_best_ssim.pth":
+            model.trans.alpha = 0.82
+        else:
+            model.trans.alpha = alpha
+    else:
+        model.trans.gated2 = args["network"]["gated2"]
+        model.trans.alpha  = alpha
     
     # Measure efficiency score
     if benchmark:
@@ -87,35 +102,19 @@ def predict(args: dict) -> str:
                 # Input
                 meta       = datapoint["meta"]
                 image_path = mon.Path(meta["path"])
-                image      = dutil.read_img(None, str(image_path))
-                image      = image[:, :, ::-1]
+                image      = datapoint["image"].to(device)
                 h0, w0     = mon.get_image_size(image)
                 image      = mon.resize(image, divisible_by=32)
-                image_nf   = cv2.blur(image, (5, 5))
-                image_nf   = image_nf * 1.0 / 255.0
-                image_nf   = torch.from_numpy(np.ascontiguousarray(np.transpose(image_nf, (2, 0, 1)))).float()
-                image      = torch.from_numpy(np.ascontiguousarray(np.transpose(image,    (2, 0, 1)))).float()
-                image      = image.unsqueeze(0).to(device)
-                image_nf   = image_nf.unsqueeze(0).to(device)
                 
                 # Infer
                 timer.tick()
-                model.feed_data(
-                    data    = {
-                        "idx"   : i,
-                        "LQs"   : image,
-                        "nf"    : image_nf,
-                        "border": 0,
-                    },
-                    need_GT = False,
-                )
-                model.test()
+                enhanced = model(image ** gamma)
                 timer.tock()
                 
                 # Post-processing
-                visuals  = model.get_current_visuals(need_GT=False)
-                enhanced = util.tensor2img(visuals["rlt"])  # uint8
+                enhanced = torch.clamp(enhanced, 0, 1)
                 enhanced = cv2.resize(enhanced, (w0, h0))
+                enhanced = torchvision.transforms.ToPILImage()(enhanced.squeeze(0))
                 
                 # Save
                 if save_image:
@@ -125,7 +124,7 @@ def predict(args: dict) -> str:
                     else:
                         output_path = save_dir / data_name / f"{image_path.stem}.jpg"
                     output_path.parent.mkdir(parents=True, exist_ok=True)
-                    cv2.imwrite(str(output_path), enhanced)
+                    enhanced.save(str(output_path))
     
     # Finish
     mon.console.log(f"Average time: {timer.avg_time}")

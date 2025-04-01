@@ -20,7 +20,6 @@ use_fullpath: False                                                             
 exist_ok    : True                                                              # If ``False``, it will delete the save directory if it already exists.
 verbose     : &verbose True                                                     # Verbosity.
                                                                                 
-### For ``mon`` Framework ###
 # Network
 network: &network                                                               # Network architecture.
   window_size : 7                                                               # Context window size.
@@ -30,11 +29,6 @@ network: &network                                                               
   add_layer   : 2                                                               # Addition layer.
   weight_decay: [0.1, 0.0001, 0.001]
   iters       : *epochs
-  L           : 0.3                                                             # L parameter.
-  alpha       : 1                                                               # Fidelity control.
-  beta        : 20                                                              # Illumination smoothness.
-  gamma       : 8                                                               # Exposure control.
-  delta       : 5                                                               # Sparsity level.
 
 # Optimizer
 optimizer: &optimizer                                                           # Optimizer(s).
@@ -46,7 +40,12 @@ optimizer: &optimizer                                                           
   network_params_only: True
 
 # Loss
-loss: &loss ~                                                                   # Loss function.
+loss: &loss                                                                     # Loss function.
+  L    : 0.3                                                                    # L parameter.
+  alpha: 1                                                                      # Fidelity control.
+  beta : 20                                                                     # Illumination smoothness.
+  gamma: 8                                                                      # Exposure control.
+  delta: 5                                                                      # Sparsity level.
 
 # Metric
 metrics: &metrics                                                               # Metrics for evaluation.

@@ -22,9 +22,8 @@ verbose     : &verbose True                                                     
 
 # Optimizer
 optimizer: &optimizer                                                           # Optimizer(s).
-  name        : "adam"
-  lr          : 0.00004
-  # weight_decay: 0.00001
+  name: "adam"
+  lr  : 0.00004
   
 # Datamodule
 datamodule:

@@ -1,12 +1,15 @@
 
 import os
-import torch.utils.data as data
 from os import listdir
 from os.path import join
-from data.util import *
+
 import torch.nn.functional as F
+import torch.utils.data as data
+from data.util import *
+
 
 class SICEDatasetFromFolderEval(data.Dataset):
+    
     def __init__(self, data_dir, transform=None):
         super(SICEDatasetFromFolderEval, self).__init__()
         data_filenames = [join(data_dir, x) for x in listdir(data_dir) if is_image_file(x)]
@@ -33,6 +36,7 @@ class SICEDatasetFromFolderEval(data.Dataset):
     
     
 class DatasetFromFolderEval(data.Dataset):
+    
     def __init__(self, data_dir, transform=None):
         super(DatasetFromFolderEval, self).__init__()
         data_filenames = [join(data_dir, x) for x in listdir(data_dir) if is_image_file(x)]

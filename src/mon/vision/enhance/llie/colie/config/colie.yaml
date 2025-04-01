@@ -22,9 +22,20 @@ verbose     : &verbose True                                                     
 
 # Network
 network: &network                                                               # Network architecture.
-  window: 7
-  L     : 0.3
-  alpha : 1
-  beta  : 20
-  gamma : 8
-  delta : 5
+  window    : 7
+  num_layers: 4
+  hidden_dim: *imgsz
+  add_layer : 2
+  
+# Optimizer
+optimizer: &optimizer                                                           # Optimizer(s).
+  lr          : 0.00001
+  weight_decay: 0.0003
+
+# Loss
+loss: &loss                                                                     # Loss function.
+  L     : 0.3                                                                   # The "optimally-intense threshold", lower values produce brighter images. Default is ``0.3``.
+  alpha : 1                                                                     # Fidelity control. Default is ``1``.
+  beta  : 20                                                                    # Illumination smoothness. Default is ``20``.
+  gamma : 8                                                                     # Exposure control. Default is ``8``.
+  delta : 5                                                                     # Sparsity level. Default is ``5``.

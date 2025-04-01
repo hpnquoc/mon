@@ -34,9 +34,6 @@ class lowlight_loader(data.Dataset):
 		self.data_list = self.train_list
 		print("Total training examples:", len(self.train_list))
 
-
-		
-
 	def __getitem__(self, index):
 
 		data_lowlight_path = self.data_list[index]

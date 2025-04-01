@@ -48,11 +48,16 @@ def predict(args: dict) -> str:
     verbose      = args["verbose"]
     
     window       = args["network"]["window"]
-    L            = args["network"]["L"]
-    alpha        = args["network"]["alpha"]
-    beta         = args["network"]["beta"]
-    gamma        = args["network"]["gamma"]
-    delta        = args["network"]["delta"]
+    num_layers   = args["network"]["num_layers"]
+    hidden_dim   = args["network"]["hidden_dim"]
+    add_layer    = args["network"]["add_layer"]
+    lr           = args["optimizer"]["lr"]
+    weight_decay = args["optimizer"]["weight_decay"]
+    L            = args["loss"]["L"]
+    alpha        = args["loss"]["alpha"]
+    beta         = args["loss"]["beta"]
+    gamma        = args["loss"]["gamma"]
+    delta        = args["loss"]["delta"]
     
     # Start
     mon.console.rule(f"[bold red] {fullname}")
@@ -70,7 +75,7 @@ def predict(args: dict) -> str:
     
     # Benchmark
     if benchmark:
-        model = INF(patch_dim=window**2, num_layers=4, hidden_dim=256, add_layer=2)
+        model = INF(patch_dim=window ** 2, num_layers=num_layers, hidden_dim=hidden_dim, add_layer=add_layer)
         flops, params = mon.compute_efficiency_score(model=model, image_size=512)
         mon.console.log(f"FLOPs : {flops:.4f}")
         mon.console.log(f"Params: {params:.4f}")
@@ -94,11 +99,11 @@ def predict(args: dict) -> str:
             patches    = get_patches(img_v_lr, window)
             
             # Model
-            img_siren  = INF(patch_dim=window ** 2, num_layers=4, hidden_dim=256, add_layer=2)
+            img_siren  = INF(patch_dim=window ** 2, num_layers=num_layers, hidden_dim=hidden_dim, add_layer=add_layer)
             img_siren  = img_siren.to(device)
             # Optimizer
-            optimizer  = torch.optim.Adam(img_siren.parameters(), lr=1e-5, betas=(0.9, 0.999), weight_decay=3e-4)
-            # Loss Functions
+            optimizer  = torch.optim.Adam(img_siren.parameters(), lr=lr, betas=(0.9, 0.999), weight_decay=weight_decay)
+            # Loss
             l_exp = L_exp(16, L)
             l_TV  = L_TV()
 

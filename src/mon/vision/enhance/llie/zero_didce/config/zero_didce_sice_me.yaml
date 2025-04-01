@@ -8,7 +8,7 @@ save_dir    : &save_dir ~                                                       
 weights     : &weights "zoo/vision/enhance/llie/zero_didce/zero_didce/sice_me/zero_didce_sice_me.pth" # Path to the pretrained weights.
 device      : 0                                                                 # Running device (i.e., cuda:0 | cuda:0,1,2,3 | cpu).
 seed        : 100                                                               # Random seed.
-imgsz       : &imgsz 512                                                        # Image size for the model.
+imgsz       : &imgsz 256                                                        # Image size for the model.
 resize      : False                                                             # Resize the input image to `imgsz`.
 epochs      : &epochs 200                                                       # Training epochs.
 steps       : &steps ~                                                          # Training steps.
@@ -33,7 +33,8 @@ optimizer: &optimizer                                                           
 datamodule:
   name      : *data                                                             # Data module name (e.g., cifar10).
   root      : "data/enhance/sice_me"                                            # Root directory of the dataset.
-  transform : ~                                                                 # Data augmentation.
+  transform :                                                                   # Data augmentation.
+    - {name: "resize", height: *imgsz, width : *imgsz}
   to_tensor : True                                                              # If ``True``, convert the data to tensor.
   batch_size: 32                                                                # Batch size.
   cache_data: False                                                             # If ``True``, cache the data.

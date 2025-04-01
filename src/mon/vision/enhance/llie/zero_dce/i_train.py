@@ -64,11 +64,13 @@ def train(args: dict) -> str:
     mon.set_random_seed(seed)
     
     # Data I/O
+    '''
     args["datamodule"] |= {
         "transform": A.Compose(transforms=[
             A.Resize(width=imgsz, height=imgsz),
         ])
     }
+    '''
     datamodule: mon.DataModule = mon.DATAMODULES.build(config=args["datamodule"])
     datamodule.setup(stage="train")
     train_dataloader = datamodule.train_dataloader

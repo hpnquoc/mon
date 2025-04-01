@@ -82,12 +82,6 @@ class CoLIE_RE(base.ImageEnhancementModel):
         window_size: Context window size. Default is ``1``.
         down_size  : Downsampling size. Default is ``256``.
         add_layer: Should be in range of [1, `num_layers` - 2].
-        L: The "optimally-intense threshold", lower values produce brighter images.
-            Default is ``0.3``.
-        alpha: Fidelity control. Default is ``1``.
-        beta: Illumination smoothness. Default is ``20``.
-        gamma: Exposure control. Default is ``8``.
-        delta: Sparsity level. Default is ``5``.
     
     References:
         - https://github.com/ctom2/colie
@@ -109,11 +103,6 @@ class CoLIE_RE(base.ImageEnhancementModel):
         add_layer   : int         = 2,
         weight_decay: list[float] = [0.1, 0.0001, 0.001],
         iters       : int         = 100,
-        L           : float       = 0.3,
-        alpha       : float       = 1,
-        beta        : float       = 20,
-        gamma       : float       = 8,
-        delta       : float       = 5,
         *args, **kwargs
     ):
         super().__init__(*args, **kwargs)
@@ -150,7 +139,14 @@ class CoLIE_RE(base.ImageEnhancementModel):
         self.configure_optimizers()
         
         # Loss
-        self.loss = Loss(L, alpha, beta, gamma, delta)
+        
+        self.loss = Loss(
+            L     = self.loss["L"],
+            alpha = self.loss["alpha"],
+            beta  = self.loss["beta"],
+            gamma = self.loss["gamma"],
+            delta = self.loss["delta"]
+        )
         
         # Load weights
         if self.weights:

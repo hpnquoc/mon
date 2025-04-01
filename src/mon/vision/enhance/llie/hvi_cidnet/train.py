@@ -1,22 +1,24 @@
 import os
-import torch
 import random
-from torchvision import transforms
-import torch.optim as optim
-import torch.backends.cudnn as cudnn
-import numpy as np
-from torch.utils.data import DataLoader
-from net.CIDNet import CIDNet
-from data.options import option
-from measure import metrics
-from eval import eval
-from data.data import *
-from loss.losses import *
-from data.scheduler import *
-from tqdm import tqdm
 from datetime import datetime
 
+import numpy as np
+import torch.backends.cudnn as cudnn
+import torch.optim as optim
+from torch.utils.data import DataLoader
+from torchvision import transforms
+from tqdm import tqdm
+
+from data.data import *
+from data.options import option
+from data.scheduler import *
+from eval import eval
+from loss.losses import *
+from measure import metrics
+from net.CIDNet import CIDNet
+
 opt = option().parse_args()
+
 
 def seed_torch():
     seed = random.randint(1, 1000000)
@@ -27,6 +29,7 @@ def seed_torch():
     torch.cuda.manual_seed_all(seed)
     os.environ['PYTHONHASHSEED'] = str(seed)
     
+    
 def train_init():
     seed_torch()
     cudnn.benchmark = True
@@ -34,6 +37,7 @@ def train_init():
     cuda = opt.gpu_mode
     if cuda and not torch.cuda.is_available():
         raise Exception("No GPU found, please run without --cuda")
+    
     
 def train(epoch):
     model.train()
@@ -98,7 +102,8 @@ def checkpoint(epoch):
     torch.save(model.state_dict(), model_out_path)
     print("Checkpoint saved to {}".format(model_out_path))
     return model_out_path
-    
+
+
 def load_datasets():
     print('===> Loading datasets')
     if opt.lol_v1 or opt.lol_blur or opt.lolv2_real or opt.lolv2_syn or opt.SID or opt.SICE_mix or opt.SICE_grad:
@@ -147,6 +152,7 @@ def load_datasets():
         raise Exception("should choose a dataset")
     return training_data_loader, testing_data_loader
 
+
 def build_model():
     print('===> Building model ')
     model = CIDNet().cuda()
@@ -154,6 +160,7 @@ def build_model():
         pth = f"./weights/train/epoch_{opt.start_epoch}.pth"
         model.load_state_dict(torch.load(pth, map_location=lambda storage, loc: storage))
     return model
+
 
 def make_scheduler():
     optimizer = optim.Adam(model.parameters(), lr=opt.lr)      
@@ -173,6 +180,7 @@ def make_scheduler():
         raise Exception("should choose a scheduler")
     return optimizer,scheduler
 
+
 def init_loss():
     L1_weight   = opt.L1_weight
     D_weight    = opt.D_weight 
@@ -184,6 +192,7 @@ def init_loss():
     E_loss = EdgeLoss(loss_weight=E_weight).cuda()
     P_loss = PerceptualLoss({'conv1_2': 1, 'conv2_2': 1,'conv3_4': 1,'conv4_4': 1}, perceptual_weight = P_weight ,criterion='mse').cuda()
     return L1_loss,P_loss,E_loss,D_loss
+
 
 if __name__ == '__main__':  
     
@@ -276,4 +285,3 @@ if __name__ == '__main__':
         f.write("|----------------------|----------------------|----------------------|----------------------|\n")  
         for i in range(len(psnr)):
             f.write(f"| {opt.start_epoch+(i+1)*opt.snapshots} | { psnr[i]:.4f} | {ssim[i]:.4f} | {lpips[i]:.4f} |\n")  
-        

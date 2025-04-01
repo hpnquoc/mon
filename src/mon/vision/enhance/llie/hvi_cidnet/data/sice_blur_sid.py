@@ -1,17 +1,17 @@
 
 import os
 import random
-import torch
-import torch.utils.data as data
-import numpy as np
 from os import listdir
 from os.path import join
-from PIL import Image
+
+import numpy as np
+import torch
+import torch.utils.data as data
 from data.util import *
-from torchvision import transforms as t
-import torch.nn.functional as F
+
 
 class LOLBlurDatasetFromFolder(data.Dataset):
+    
     def __init__(self, data_dir, transform=None):
         super(LOLBlurDatasetFromFolder, self).__init__()
         self.data_dir = data_dir
@@ -51,6 +51,7 @@ class LOLBlurDatasetFromFolder(data.Dataset):
     
 
 class SIDDatasetFromFolder(data.Dataset):
+    
     def __init__(self, data_dir, transform=None):
         super(SIDDatasetFromFolder, self).__init__()
         self.data_dir = data_dir
@@ -92,8 +93,8 @@ class SIDDatasetFromFolder(data.Dataset):
         return 2099
     
     
-    
 class SICEDatasetFromFolder(data.Dataset):
+    
     def __init__(self, data_dir, transform=None):
         super(SICEDatasetFromFolder, self).__init__()
         self.data_dir = data_dir
