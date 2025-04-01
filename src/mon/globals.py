@@ -6,7 +6,7 @@
 Notes:
     * To avoid circular dependency, only define constants of basic/atomic types.
     * The same goes for type aliases.
-    * The only exception is the enum and factory constants.
+    * The only exception is the enums and factory constants.
 """
 
 from __future__ import annotations
@@ -48,8 +48,7 @@ __all__ = [
     "ZOO_DIR",
 ]
 
-from mon.core import factory, pathlib, enums
-
+from mon.core import enums, factory, pathlib
 
 # region Directory
 
@@ -125,30 +124,30 @@ EXTRA_MODELS      = {                   # architecture/model (+ variant)
     # region datatype/depth
     "depth_anything_v2": {
         "depth_anything_v2_vitb": {
-            "tasks"    : [enum.Task.DEPTH],
-            "ltypes"   : [enum.LType.SUPERVISED],
+            "tasks"    : [enums.Task.DEPTH],
+            "ltypes"   : [enums.LType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "datatype" / "depth" / "depth_anything_v2",
         },
         "depth_anything_v2_vits": {
-            "tasks"    : [enum.Task.DEPTH],
-            "ltypes"   : [enum.LType.SUPERVISED],
+            "tasks"    : [enums.Task.DEPTH],
+            "ltypes"   : [enums.LType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "datatype" / "depth" / "depth_anything_v2",
         },
         "depth_anything_v2_vitl": {
-            "tasks"    : [enum.Task.DEPTH],
-            "ltypes"   : [enum.LType.SUPERVISED],
+            "tasks"    : [enums.Task.DEPTH],
+            "ltypes"   : [enums.LType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "datatype" / "depth" / "depth_anything_v2",
         },
         "depth_anything_v2_vitg": {
-            "tasks"    : [enum.Task.DEPTH],
-            "ltypes"   : [enum.LType.SUPERVISED],
+            "tasks"    : [enums.Task.DEPTH],
+            "ltypes"   : [enums.LType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "datatype" / "depth" / "depth_anything_v2",
         },
     },
     "depth_pro"        : {
         "depth_pro": {
-            "tasks"    : [enum.Task.DEPTH],
-            "ltypes"   : [enum.LType.ZERO_SHOT],
+            "tasks"    : [enums.Task.DEPTH],
+            "ltypes"   : [enums.LType.ZERO_SHOT],
             "model_dir": MON_DIR / "vision" / "datatype" / "depth" / "depth_pro",
         },
     },
@@ -156,103 +155,103 @@ EXTRA_MODELS      = {                   # architecture/model (+ variant)
     # region detect
     "yolor" : {
         "yolor_d6": {
-            "tasks"    : [enum.Task.DETECT],
-            "ltypes"   : [enum.LType.SUPERVISED],
+            "tasks"    : [enums.Task.DETECT],
+            "ltypes"   : [enums.LType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "detect" / "yolor",
         },
         "yolor_e6": {
-            "tasks"    : [enum.Task.DETECT],
-            "ltypes"   : [enum.LType.SUPERVISED],
+            "tasks"    : [enums.Task.DETECT],
+            "ltypes"   : [enums.LType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "detect" / "yolor",
         },
         "yolor_p6": {
-            "tasks"    : [enum.Task.DETECT],
-            "ltypes"   : [enum.LType.SUPERVISED],
+            "tasks"    : [enums.Task.DETECT],
+            "ltypes"   : [enums.LType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "detect" / "yolor",
         },
         "yolor_w6": {
-            "tasks"    : [enum.Task.DETECT],
-            "ltypes"   : [enum.LType.SUPERVISED],
+            "tasks"    : [enums.Task.DETECT],
+            "ltypes"   : [enums.LType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "detect" / "yolor",
         },
     },
     "yolov7": {
         "yolov7"    : {
-            "tasks"    : [enum.Task.DETECT],
-            "ltypes"   : [enum.LType.SUPERVISED],
+            "tasks"    : [enums.Task.DETECT],
+            "ltypes"   : [enums.LType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "detect" / "yolov7",
         },
         "yolov7_d6" : {
-            "tasks"    : [enum.Task.DETECT],
-            "ltypes"   : [enum.LType.SUPERVISED],
+            "tasks"    : [enums.Task.DETECT],
+            "ltypes"   : [enums.LType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "detect" / "yolov7",
         },
         "yolov7_e6" : {
-            "tasks"    : [enum.Task.DETECT],
-            "ltypes"   : [enum.LType.SUPERVISED],
+            "tasks"    : [enums.Task.DETECT],
+            "ltypes"   : [enums.LType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "detect" / "yolov7",
         },
         "yolov7_e6e": {
-            "tasks"    : [enum.Task.DETECT],
-            "ltypes"   : [enum.LType.SUPERVISED],
+            "tasks"    : [enums.Task.DETECT],
+            "ltypes"   : [enums.LType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "detect" / "yolov7",
         },
         "yolov7_w6" : {
-            "tasks"    : [enum.Task.DETECT],
-            "ltypes"   : [enum.LType.SUPERVISED],
+            "tasks"    : [enums.Task.DETECT],
+            "ltypes"   : [enums.LType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "detect" / "yolov7",
         },
         "yolov7x"   : {
-            "tasks"    : [enum.Task.DETECT],
-            "ltypes"   : [enum.LType.SUPERVISED],
+            "tasks"    : [enums.Task.DETECT],
+            "ltypes"   : [enums.LType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "detect" / "yolov7",
         },
     },
     "yolov8": {
         "yolov8n": {
-            "tasks"    : [enum.Task.DETECT],
-            "ltypes"   : [enum.LType.SUPERVISED],
+            "tasks"    : [enums.Task.DETECT],
+            "ltypes"   : [enums.LType.SUPERVISED],
             "model_dir": MON_EXTRA_DIR / "vision" / "ultralytics",
         },
         "yolov8s": {
-            "tasks"    : [enum.Task.DETECT],
-            "ltypes"   : [enum.LType.SUPERVISED],
+            "tasks"    : [enums.Task.DETECT],
+            "ltypes"   : [enums.LType.SUPERVISED],
             "model_dir": MON_EXTRA_DIR / "vision" / "ultralytics",
         },
         "yolov8m": {
-            "tasks"    : [enum.Task.DETECT],
+            "tasks"    : [enums.Task.DETECT],
             "model_dir": MON_EXTRA_DIR / "vision" / "ultralytics",
         },
         "yolov8l": {
-            "tasks"    : [enum.Task.DETECT],
-            "ltypes"   : [enum.LType.SUPERVISED],
+            "tasks"    : [enums.Task.DETECT],
+            "ltypes"   : [enums.LType.SUPERVISED],
             "model_dir": MON_EXTRA_DIR / "vision" / "ultralytics",
         },
         "yolov8x": {
-            "tasks"    : [enum.Task.DETECT],
-            "ltypes"   : [enum.LType.SUPERVISED],
+            "tasks"    : [enums.Task.DETECT],
+            "ltypes"   : [enums.LType.SUPERVISED],
             "model_dir": MON_EXTRA_DIR / "vision" / "ultralytics",
         },
     },
     "yolov9": {
         "gelan_c" : {
-            "tasks"    : [enum.Task.DETECT],
-            "ltypes"   : [enum.LType.SUPERVISED],
+            "tasks"    : [enums.Task.DETECT],
+            "ltypes"   : [enums.LType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "detect" / "yolov9",
         },
         "gelan_e" : {
-            "tasks"    : [enum.Task.DETECT],
-            "ltypes"   : [enum.LType.SUPERVISED],
+            "tasks"    : [enums.Task.DETECT],
+            "ltypes"   : [enums.LType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "detect" / "yolov9",
         },
         "yolov9_c": {
-            "tasks"    : [enum.Task.DETECT],
-            "ltypes"   : [enum.LType.SUPERVISED],
+            "tasks"    : [enums.Task.DETECT],
+            "ltypes"   : [enums.LType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "detect" / "yolov9",
         },
         "yolov9_e": {
-            "tasks"    : [enum.Task.DETECT],
-            "ltypes"   : [enum.LType.SUPERVISED],
+            "tasks"    : [enums.Task.DETECT],
+            "ltypes"   : [enums.LType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "detect" / "yolov9",
         },
     },
@@ -260,8 +259,8 @@ EXTRA_MODELS      = {                   # architecture/model (+ variant)
     # region enhance/dehaze
     "zid"   : {
         "zid": {
-            "tasks"    : [enum.Task.DEHAZE],
-            "ltypes"   : [enum.LType.ZERO_SHOT],
+            "tasks"    : [enums.Task.DEHAZE],
+            "ltypes"   : [enums.LType.ZERO_SHOT],
             "model_dir": MON_DIR / "vision" / "enhance" / "dehaze" / "zid",
         },
     },
@@ -269,13 +268,13 @@ EXTRA_MODELS      = {                   # architecture/model (+ variant)
     # region enhance/demoire
     "esdnet": {
         "esdnet": {
-            "tasks"    : [enum.Task.DEMOIRE, enum.Task.LLIE],
-            "ltypes"   : [enum.LType.SUPERVISED],
+            "tasks"    : [enums.Task.DEMOIRE, enums.Task.LLIE],
+            "ltypes"   : [enums.LType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "enhance" / "demoire" / "esdnet",
         },
         "esdnet_l": {
-            "tasks"    : [enum.Task.DEMOIRE, enum.Task.LLIE],
-            "ltypes"   : [enum.LType.SUPERVISED],
+            "tasks"    : [enums.Task.DEMOIRE, enums.Task.LLIE],
+            "ltypes"   : [enums.LType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "enhance" / "demoire" / "esdnet",
         },
     },
@@ -283,8 +282,8 @@ EXTRA_MODELS      = {                   # architecture/model (+ variant)
     # region enhance/derain
     "esdnet_snn": {
         "esdnet_snn": {
-            "tasks"    : [enum.Task.DERAIN, enum.Task.LLIE],
-            "ltypes"   : [enum.LType.SUPERVISED],
+            "tasks"    : [enums.Task.DERAIN, enums.Task.LLIE],
+            "ltypes"   : [enums.LType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "enhance" / "derain" / "esdnet_snn",
         },
     },
@@ -292,183 +291,183 @@ EXTRA_MODELS      = {                   # architecture/model (+ variant)
     # region enhance/llie
     "colie"        : {
         "colie": {
-            "tasks"    : [enum.Task.LLIE],
-            "ltypes"   : [enum.LType.ZERO_SHOT],
+            "tasks"    : [enums.Task.LLIE],
+            "ltypes"   : [enums.LType.ZERO_SHOT],
             "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "colie",
         },
     },
     "dccnet"       : {
         "dccnet": {
-            "tasks"    : [enum.Task.LLIE],
-            "ltypes"   : [enum.LType.SUPERVISED],
+            "tasks"    : [enums.Task.LLIE],
+            "ltypes"   : [enums.LType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "dccnet",
         },
     },
     "enlightengan" : {
         "enlightengan": {
-            "tasks"    : [enum.Task.LLIE],
-            "ltypes"   : [enum.LType.UNSUPERVISED],
+            "tasks"    : [enums.Task.LLIE],
+            "ltypes"   : [enums.LType.UNSUPERVISED],
             "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "enlightengan",
         },
     },
     "fourllie"     : {
         "fourllie": {
-            "tasks"    : [enum.Task.LLIE],
-            "ltypes"   : [enum.LType.SUPERVISED],
+            "tasks"    : [enums.Task.LLIE],
+            "ltypes"   : [enums.LType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "fourllie",
         },
     },
     "hvi_cidnet"   : {
         "hvi_cidnet": {
-            "tasks"    : [enum.Task.LLIE],
-            "ltypes"   : [enum.LType.SUPERVISED],
+            "tasks"    : [enums.Task.LLIE],
+            "ltypes"   : [enums.LType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "hvi_cidnet",
         },
     },
     "lime"         : {
         "lime": {
-            "tasks"    : [enum.Task.LLIE],
-            "ltypes"   : [enum.LType.TRADITIONAL],
+            "tasks"    : [enums.Task.LLIE],
+            "ltypes"   : [enums.LType.TRADITIONAL],
             "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "lime",
         },
     },
     "llflow"       : {
         "llflow": {
-            "tasks"    : [enum.Task.LLIE],
-            "ltypes"   : [enum.LType.SUPERVISED],
+            "tasks"    : [enums.Task.LLIE],
+            "ltypes"   : [enums.LType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "llflow",
         },
     },
     "llunet++"     : {
         "llunet++": {
-            "tasks"    : [enum.Task.LLIE],
-            "ltypes"   : [enum.LType.SUPERVISED],
+            "tasks"    : [enums.Task.LLIE],
+            "ltypes"   : [enums.LType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "llunetpp",
         },
     },
     "nerco"        : {
         "nerco": {
-            "tasks"    : [enum.Task.LLIE],
-            "ltypes"   : [enum.LType.UNSUPERVISED],
+            "tasks"    : [enums.Task.LLIE],
+            "ltypes"   : [enums.LType.UNSUPERVISED],
             "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "nerco",
         },
     },
     "pairlie"      : {
         "pairlie": {
-            "tasks"    : [enum.Task.LLIE],
-            "ltypes"   : [enum.LType.UNSUPERVISED],
+            "tasks"    : [enums.Task.LLIE],
+            "ltypes"   : [enums.LType.UNSUPERVISED],
             "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "pairlie",
         },
     },
     "pie"          : {
         "pie": {
-            "tasks"    : [enum.Task.LLIE],
-            "ltypes"   : [enum.LType.TRADITIONAL],
+            "tasks"    : [enums.Task.LLIE],
+            "ltypes"   : [enums.LType.TRADITIONAL],
             "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "pie",
         },
     },
     "psenet"       : {
         "psenet": {
-            "tasks"    : [enum.Task.LLIE],
-            "ltypes"   : [enum.LType.SUPERVISED],
+            "tasks"    : [enums.Task.LLIE],
+            "ltypes"   : [enums.LType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "psenet",
         },
     },
     "quadprior"    : {
         "quadprior": {
-            "tasks"    : [enum.Task.LLIE],
-            "ltypes"   : [enum.LType.ZERO_SHOT],
+            "tasks"    : [enums.Task.LLIE],
+            "ltypes"   : [enums.LType.ZERO_SHOT],
             "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "quadprior",
         }
     },
     "retinexformer": {
         "retinexformer": {
-            "tasks"    : [enum.Task.LLIE],
-            "ltypes"   : [enum.LType.SUPERVISED],
+            "tasks"    : [enums.Task.LLIE],
+            "ltypes"   : [enums.LType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "retinexformer",
         },
     },
     "retinexnet"   : {
         "retinexnet": {
-            "tasks"    : [enum.Task.LLIE],
-            "ltypes"   : [enum.LType.SUPERVISED],
+            "tasks"    : [enums.Task.LLIE],
+            "ltypes"   : [enums.LType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "retinexnet",
         },
     },
     "rsfnet"       : {
         "rsfnet": {
-            "tasks"    : [enum.Task.LLIE],
-            "ltypes"   : [enum.LType.UNSUPERVISED],
+            "tasks"    : [enums.Task.LLIE],
+            "ltypes"   : [enums.LType.UNSUPERVISED],
             "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "rsfnet",
         },
     },
     "ruas"         : {
         "ruas": {
-            "tasks"    : [enum.Task.LLIE],
-            "ltypes"   : [enum.LType.UNSUPERVISED],
+            "tasks"    : [enums.Task.LLIE],
+            "ltypes"   : [enums.LType.UNSUPERVISED],
             "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "ruas",
         },
     },
     "sci"          : {
         "sci": {
-            "tasks"    : [enum.Task.LLIE],
-            "ltypes"   : [enum.LType.UNSUPERVISED],
+            "tasks"    : [enums.Task.LLIE],
+            "ltypes"   : [enums.LType.UNSUPERVISED],
             "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "sci",
         },
     },
     "sgz"          : {
         "sgz": {
-            "tasks"    : [enum.Task.LLIE],
-            "ltypes"   : [enum.LType.UNSUPERVISED],
+            "tasks"    : [enums.Task.LLIE],
+            "ltypes"   : [enums.LType.UNSUPERVISED],
             "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "sgz",
         },
     },
     "snr_net"      : {
         "snr_net": {
-            "tasks"    : [enum.Task.LLIE],
-            "ltypes"   : [enum.LType.SUPERVISED],
+            "tasks"    : [enums.Task.LLIE],
+            "ltypes"   : [enums.LType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "snr_net",
         },
     },
     "uretinexnet"  : {
         "uretinexnet": {
-            "tasks"    : [enum.Task.LLIE],
-            "ltypes"   : [enum.LType.SUPERVISED],
+            "tasks"    : [enums.Task.LLIE],
+            "ltypes"   : [enums.LType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "uretinexnet",
         },
     },
     "utvnet"       : {
         "utvnet": {
-            "tasks"    : [enum.Task.LLIE],
-            "ltypes"   : [enum.LType.SUPERVISED],
+            "tasks"    : [enums.Task.LLIE],
+            "ltypes"   : [enums.LType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "utvnet",
         },
     },
     "zero_dce"     : {
         "zero_dce"  : {
-            "tasks"    : [enum.Task.LLIE],
-            "ltypes"   : [enum.LType.UNSUPERVISED],
+            "tasks"    : [enums.Task.LLIE],
+            "ltypes"   : [enums.LType.UNSUPERVISED],
             "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "zero_dce",
         },
     },
     "zero_dce++"   : {
         "zero_dce++": {
-            "tasks"    : [enum.Task.LLIE],
-            "ltypes"   : [enum.LType.UNSUPERVISED],
+            "tasks"    : [enums.Task.LLIE],
+            "ltypes"   : [enums.LType.UNSUPERVISED],
             "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "zero_dce++",
         },
     },
     "zero_didce"   : {
         "zero_didce": {
-            "tasks"    : [enum.Task.LLIE],
-            "ltypes"   : [enum.LType.UNSUPERVISED],
+            "tasks"    : [enums.Task.LLIE],
+            "ltypes"   : [enums.LType.UNSUPERVISED],
             "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "zero_didce",
         },
     },
     "zero_ig"      : {
         "zero_ig": {
-            "tasks"    : [enum.Task.LLIE],
-            "ltypes"   : [enum.LType.ZERO_SHOT],
+            "tasks"    : [enums.Task.LLIE],
+            "ltypes"   : [enums.LType.ZERO_SHOT],
             "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "zero_ig",
         },
     },
@@ -476,15 +475,15 @@ EXTRA_MODELS      = {                   # architecture/model (+ variant)
     # region enhance/multitask
     "airnet"   : {
         "airnet": {
-            "tasks"    : [enum.Task.DENOISE, enum.Task.DERAIN, enum.Task.DEHAZE],
-            "ltypes"   : [enum.LType.SUPERVISED],
+            "tasks"    : [enums.Task.DENOISE, enums.Task.DERAIN, enums.Task.DEHAZE],
+            "ltypes"   : [enums.LType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "enhance" / "multitask" / "airnet",
         },
     },
     "restormer": {
         "restormer": {
-            "tasks"    : [enum.Task.DEBLUR, enum.Task.DENOISE, enum.Task.DERAIN, enum.Task.DESNOW, enum.Task.LLIE],
-            "ltypes"   : [enum.LType.SUPERVISED],
+            "tasks"    : [enums.Task.DEBLUR, enums.Task.DENOISE, enums.Task.DERAIN, enums.Task.DESNOW, enums.Task.LLIE],
+            "ltypes"   : [enums.LType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "enhance" / "multitask" / "restormer",
         },
     },
@@ -492,8 +491,8 @@ EXTRA_MODELS      = {                   # architecture/model (+ variant)
     # region enhance/retouch
     "neurop": {
         "neurop": {
-            "tasks"    : [enum.Task.RETOUCH, enum.Task.LLIE],
-            "ltypes"   : [enum.LType.SUPERVISED],
+            "tasks"    : [enums.Task.RETOUCH, enums.Task.LLIE],
+            "ltypes"   : [enums.LType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "enhance" / "retouch" / "neurop",
         },
     },
@@ -501,8 +500,8 @@ EXTRA_MODELS      = {                   # architecture/model (+ variant)
     # region enhance/sr
     "sronet": {
         "sronet": {
-            "tasks"    : [enum.Task.SR],
-            "ltypes"   : [enum.LType.SUPERVISED],
+            "tasks"    : [enums.Task.SR],
+            "ltypes"   : [enums.LType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "enhance" / "sr" / "sronet",
         },
     },
@@ -510,40 +509,40 @@ EXTRA_MODELS      = {                   # architecture/model (+ variant)
     # region segment
     "sam" : {
         "sam_vit_b": {
-            "tasks"    : [enum.Task.SEGMENT],
-            "ltypes"   : [enum.LType.SUPERVISED],
+            "tasks"    : [enums.Task.SEGMENT],
+            "ltypes"   : [enums.LType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "segment" / "sam",
         },
         "sam_vit_h": {
-            "tasks"    : [enum.Task.SEGMENT],
-            "ltypes"   : [enum.LType.SUPERVISED],
+            "tasks"    : [enums.Task.SEGMENT],
+            "ltypes"   : [enums.LType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "segment" / "sam",
         },
         "sam_vit_l": {
-            "tasks"    : [enum.Task.SEGMENT],
-            "ltypes"   : [enum.LType.SUPERVISED],
+            "tasks"    : [enums.Task.SEGMENT],
+            "ltypes"   : [enums.LType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "segment" / "sam",
         },
     },
     "sam2": {
         "sam2_hiera_b+": {
-            "tasks"    : [enum.Task.SEGMENT],
-            "ltypes"   : [enum.LType.SUPERVISED],
+            "tasks"    : [enums.Task.SEGMENT],
+            "ltypes"   : [enums.LType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "segment" / "sam2",
         },
         "sam2_hiera_l" : {
-            "tasks"    : [enum.Task.SEGMENT],
-            "ltypes"   : [enum.LType.SUPERVISED],
+            "tasks"    : [enums.Task.SEGMENT],
+            "ltypes"   : [enums.LType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "segment" / "sam2",
         },
         "sam2_hiera_s" : {
-            "tasks"    : [enum.Task.SEGMENT],
-            "ltypes"   : [enum.LType.SUPERVISED],
+            "tasks"    : [enums.Task.SEGMENT],
+            "ltypes"   : [enums.LType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "segment" / "sam2",
         },
         "sam2_hiera_t" : {
-            "tasks"    : [enum.Task.SEGMENT],
-            "ltypes"   : [enum.LType.SUPERVISED],
+            "tasks"    : [enums.Task.SEGMENT],
+            "ltypes"   : [enums.LType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "segment" / "sam2",
         },
     },

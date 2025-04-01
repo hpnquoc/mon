@@ -36,9 +36,9 @@ class VisionModel(nn.Model, ABC):
             Tuple of (FLOPs, parameter count) as ``float`` values.
         """
         from fvcore.nn import parameter_count
-        from mon.vision import datatype
+        from mon.vision import data_type
         
-        h, w      = datatype.get_image_size(image_size)
+        h, w      = data_type.get_image_size(image_size)
         datapoint = {"image": torch.rand(1, channels, h, w).to(self.device)}
         flops, params = core.custom_profile(deepcopy(self), inputs=datapoint, verbose=False)
         params        = self.params if hasattr(self, "params") and params == 0 else params
@@ -70,13 +70,13 @@ class VisionModel(nn.Model, ABC):
         Notes:
             Override for custom pre/post-processing; defaults to ``self.forward()``.
         """
-        from mon.vision import datatype, geometry
+        from mon.vision import data_type, geometry
         
         # Input
         image  = datapoint["image"]
-        h0, w0 = datatype.get_image_size(image)
+        h0, w0 = data_type.get_image_size(image)
         for k, v in datapoint.items():
-            if datatype.is_image(v):
+            if data_type.is_image(v):
                 size         = image_size if resize else 32 * ((max(h0, w0) + 31) // 32)
                 datapoint[k] = geometry.resize(v, size)
             if isinstance(v, torch.Tensor):
@@ -90,7 +90,7 @@ class VisionModel(nn.Model, ABC):
     
         # Post-processing
         for k, v in outputs.items():
-            if datatype.is_image(v):
+            if data_type.is_image(v):
                 h1, w1 = v.get_image_size(v)
                 if h1 != h0 or w1 != w0:
                     outputs[k] = geometry.resize(v, (h0, w0))

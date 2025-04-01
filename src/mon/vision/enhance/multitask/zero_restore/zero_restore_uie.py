@@ -20,7 +20,7 @@ import torch
 
 from mon import core, nn
 from mon.globals import MODELS
-from mon.vision import datatype, geometry
+from mon.vision import data_type, geometry
 from mon.vision.enhance import base
 
 torch.autograd.set_detect_anomaly(True)
@@ -334,7 +334,7 @@ class ZeroRestoreUIE(base.ImageEnhancementModel):
         
         # Input
         image  = datapoint["image"].to(self.device)
-        h0, w0 = datatype.get_image_size(image)
+        h0, w0 = data_type.get_image_size(image)
         image  = geometry.resize(image, divisible_by=32)
         
         # Optimize

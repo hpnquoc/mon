@@ -17,8 +17,6 @@ from typing import Any, Callable
 from mon.core import humps
 
 
-# region Factory
-
 class Factory(dict):
     """Base factory class for registering and building objects.
 
@@ -362,5 +360,3 @@ class ModelFactory(Factory):
                     result.append(next(iter(instance.values())) if isinstance(instance, dict) else instance)
         
         return result if result else None
-
-# endregion

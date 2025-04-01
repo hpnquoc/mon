@@ -15,11 +15,9 @@ __all__ = [
 from abc import ABC, abstractmethod
 from typing import Any, TextIO
 
-from mon.core import datatype, pathlib
+from mon.core import pathlib, type_extensions
 from mon.globals import FILE_HANDLERS
 
-
-# region File Handler
 
 class FileHandler(ABC):
     """Base class for reading and writing data in various file formats."""
@@ -162,12 +160,11 @@ def merge_files(
         out_path: Output ``pathlib.Path``, ``str`` path, or ``TextIO`` stream.
         file_format: File format, inferred from ``out_path`` if ``None``.
             Default is ``None``.
-        kwargs: Additional keyword arguments.
 
     Raises:
         TypeError: If content from ``in_paths`` is neither ``list`` nor ``dict``.
     """
-    in_paths = [pathlib.Path(p) for p in datatype.to_list(in_paths)]
+    in_paths = [pathlib.Path(p) for p in type_extensions.to_list(in_paths)]
     data = None
     for input_path in in_paths:
         content = read_from_file(path=input_path)
@@ -182,5 +179,3 @@ def merge_files(
                             f"got {type(content).__name__}.")
     
     write_to_file(obj=data, path=out_path, file_format=file_format)
-
-# endregion

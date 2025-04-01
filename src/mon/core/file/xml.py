@@ -13,8 +13,6 @@ from mon.core.file import base
 from mon.globals import FILE_HANDLERS
 
 
-# region XML File Handler
-
 @FILE_HANDLERS.register(name=".xml")
 class XMLHandler(base.FileHandler):
     """Handler for XML file operations."""
@@ -62,5 +60,3 @@ class XMLHandler(base.FileHandler):
         if not isinstance(obj, dict):
             raise TypeError(f"[obj] must be a dict, got {type(obj).__name__}.")
         return unparse(input_dict=obj, pretty=True, **kwargs)
-
-# endregion

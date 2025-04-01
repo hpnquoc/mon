@@ -15,8 +15,6 @@ from mon.core.file import base
 from mon.globals import FILE_HANDLERS
 
 
-# region JSON File Handler
-
 @FILE_HANDLERS.register(name=".json")
 class JSONHandler(base.FileHandler):
     """Handler for JSON file operations."""
@@ -75,5 +73,3 @@ class JSONHandler(base.FileHandler):
         """
         kwargs.setdefault("default", self.set_default)
         return dumps(obj, **kwargs)
-
-# endregion

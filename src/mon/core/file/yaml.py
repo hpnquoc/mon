@@ -13,8 +13,6 @@ from mon.core.file import base
 from mon.globals import FILE_HANDLERS
 
 
-# region YAML File Handler
-
 @FILE_HANDLERS.register(name=".yaml")
 @FILE_HANDLERS.register(name=".yml")
 class YAMLHandler(base.FileHandler):
@@ -56,5 +54,3 @@ class YAMLHandler(base.FileHandler):
         """
         kwargs.setdefault("Dumper", Dumper)
         return dump(data=obj, stream=None, **kwargs)
-
-# endregion

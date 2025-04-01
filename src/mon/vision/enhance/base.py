@@ -14,7 +14,7 @@ from abc import ABC
 import cv2
 
 from mon import nn
-from mon.vision import datatype, model
+from mon.vision import data_type, model
 
 
 # region Model
@@ -88,12 +88,12 @@ class ImageEnhancementModel(model.VisionModel, ABC):
         outputs   =    data.get("outputs",   {})
         enhanced  = outputs.pop("enhanced",  None)
         
-        image        = list(datatype.convert_image_to_array(image, denormalize=True))
-        ref_image    = list(datatype.convert_image_to_array(ref_image, denormalize=True)) if ref_image is not None else None
-        enhanced     = list(datatype.convert_image_to_array(enhanced, denormalize=True))
-        extra_images = {k: v for k, v in outputs.items() if datatype.is_image(v)}
+        image        = list(data_type.convert_image_to_array(image, denormalize=True))
+        ref_image    = list(data_type.convert_image_to_array(ref_image, denormalize=True)) if ref_image is not None else None
+        enhanced     = list(data_type.convert_image_to_array(enhanced, denormalize=True))
+        extra_images = {k: v for k, v in outputs.items() if data_type.is_image(v)}
         extra        = {
-            k: list(datatype.convert_image_to_array(v, denormalize=True))
+            k: list(data_type.convert_image_to_array(v, denormalize=True))
             for k, v in extra_images.items()
         } if extra_images else {}
         

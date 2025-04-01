@@ -21,7 +21,7 @@ Design Principle:
 
 from __future__ import annotations
 
-import mon.core.datatype
+import mon.core.data_type
 import mon.core.enums
 import mon.core.factory
 import mon.core.file
@@ -31,8 +31,9 @@ import mon.core.parse_args
 import mon.core.pathlib
 import mon.core.rich
 import mon.core.thop
+import mon.core.type_extensions
 import mon.core.utils
-from mon.core.datatype import *
+from mon.core.data_type import *
 from mon.core.enums import *
 from mon.core.factory import *
 from mon.core.file import *
@@ -45,4 +46,5 @@ from mon.core.rich import (
 	get_terminal_size, print_dict, print_table, set_terminal_size,
 )
 from mon.core.thop import *
+from mon.core.type_extensions import *
 from mon.core.utils import *

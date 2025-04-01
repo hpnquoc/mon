@@ -13,8 +13,6 @@ from mon.core.file import base
 from mon.globals import FILE_HANDLERS
 
 
-# region Pickle File Handler
-
 @FILE_HANDLERS.register(name=".pickle")
 @FILE_HANDLERS.register(name=".pkl")
 class PickleHandler(base.FileHandler):
@@ -81,5 +79,3 @@ class PickleHandler(base.FileHandler):
     
         """
         super().write_to_file(obj=obj, path=pathlib.Path(path), mode=mode, **kwargs)
-
-# endregion

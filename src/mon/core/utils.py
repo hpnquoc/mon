@@ -59,7 +59,7 @@ import numpy as np
 import psutil
 import torch
 
-from mon.core import datatype, enums, file, humps, pathlib, rich
+from mon.core import enums, file, humps, pathlib, rich, type_extensions
 
 try:
     import pynvml
@@ -201,7 +201,7 @@ def list_config_files(
         model_name   = parse_model_name(model)
         config_files = [cf for cf in config_files if model_name in cf.name]
 
-    return sorted(datatype.unique(config_files))
+    return sorted(type_extensions.unique(config_files))
 
 
 def list_configs(
@@ -225,7 +225,7 @@ def list_configs(
         model        = model
     )
     return sorted(
-        datatype.unique([str(cf.name) for cf in config_files]),
+        type_extensions.unique([str(cf.name) for cf in config_files]),
         key = lambda x: (os.path.splitext(x)[1], x)
     )
 
@@ -342,8 +342,8 @@ def list_mon_datasets(task: str, mode: str) -> list[str]:
     """
     from mon.globals import DATASETS
 
-    split    = enum.Split("train" if mode == "train" else "test")
-    task     = enum.Task(task)
+    split    = enums.Split("train" if mode == "train" else "test")
+    task     = enums.Task(task)
     datasets = DATASETS
 
     return sorted([
@@ -364,8 +364,8 @@ def list_extra_datasets(task: str, mode: str) -> list[str]:
     """
     from mon.globals import EXTRA_DATASETS
 
-    split    = enum.Split("train" if mode == "train" else "test")
-    task     = enum.Task(task)
+    split    = enums.Split("train" if mode == "train" else "test")
+    task     = enums.Task(task)
     datasets = EXTRA_DATASETS
 
     return sorted([
@@ -484,7 +484,7 @@ def set_device(device: Any, use_single_device: bool = True) -> torch.device:
     return torch.device(f"cuda:{device}" if torch.cuda.is_available() else "cpu")
 
 
-def get_machine_memory(unit: enum.MemoryUnit = enum.MemoryUnit.GB) -> list[int]:
+def get_machine_memory(unit: enums.MemoryUnit = enums.MemoryUnit.GB) -> list[int]:
     """Gets RAM status as a list of total, used, and free memory.
 
     Args:
@@ -494,7 +494,7 @@ def get_machine_memory(unit: enum.MemoryUnit = enum.MemoryUnit.GB) -> list[int]:
         List of [total, used, free] memory values in specified unit.
     """
     memory = psutil.virtual_memory()
-    ratio  = enum.MemoryUnit.byte_conversion_mapping()[enum.MemoryUnit.from_value(unit)]
+    ratio  = enums.MemoryUnit.byte_conversion_mapping()[enums.MemoryUnit.from_value(unit)]
     return [
         memory.total     / ratio,  # total
         memory.used      / ratio,  # used
@@ -502,7 +502,7 @@ def get_machine_memory(unit: enum.MemoryUnit = enum.MemoryUnit.GB) -> list[int]:
     ]
 
 
-def get_gpu_device_memory(device: int = 0, unit: enum.MemoryUnit = enum.MemoryUnit.GB) -> list[int]:
+def get_gpu_device_memory(device: int = 0, unit: enums.MemoryUnit = enums.MemoryUnit.GB) -> list[int]:
     """Gets GPU memory status as a list of total, used, and free memory.
 
     Args:
@@ -513,9 +513,9 @@ def get_gpu_device_memory(device: int = 0, unit: enum.MemoryUnit = enum.MemoryUn
         List of [total, used, free] memory values in specified unit.
     """
     pynvml.nvmlInit()
-    unit  = enum.MemoryUnit.from_value(unit)
+    unit  = enums.MemoryUnit.from_value(unit)
     info  = pynvml.nvmlDeviceGetMemoryInfo(pynvml.nvmlDeviceGetHandleByIndex(device))
-    ratio = enum.MemoryUnit.byte_conversion_mapping()[unit]
+    ratio = enums.MemoryUnit.byte_conversion_mapping()[unit]
     return [
         info.total / ratio,  # total
         info.used  / ratio,  # used
@@ -601,8 +601,8 @@ def is_extra_model(model: str) -> bool:
     from mon.globals import MODELS, EXTRA_MODELS, EXTRA_MODEL_STR
     
     model        = model.replace(f" {EXTRA_MODEL_STR}", "").strip()
-    mon_models   = datatype.flatten_models_dict(MODELS)
-    extra_models = datatype.flatten_models_dict(EXTRA_MODELS)
+    mon_models   = type_extensions.flatten_models_dict(MODELS)
+    extra_models = type_extensions.flatten_models_dict(EXTRA_MODELS)
     return (
         f"{EXTRA_MODEL_STR}" in model
         or (model not in mon_models and model in extra_models)
@@ -622,16 +622,16 @@ def list_mon_models(task: str = None, mode: str = None, arch: str = None) -> lis
     """
     from mon.globals import MODELS
     
-    flatten_models = datatype.flatten_models_dict(MODELS)
+    flatten_models = type_extensions.flatten_models_dict(MODELS)
     models         = list(flatten_models.keys())
     
-    if task in enum.Task.values():
-        task   = enum.Task(task)
+    if task in enums.Task.values():
+        task   = enums.Task(task)
         models = [m for m in models if task in flatten_models[m].tasks]
    
     if mode == "train":
         models = [m for m in models
-                  if any(lt in enum.LType.trainable() for lt in flatten_models[m].ltypes)]
+                  if any(lt in enums.LType.trainable() for lt in flatten_models[m].ltypes)]
     
     if arch:
         models = [m for m in models if arch in flatten_models[m].arch]
@@ -652,16 +652,16 @@ def list_extra_models(task: str = None, mode: str = None, arch: str = None) -> l
     """
     from mon.globals import EXTRA_MODELS
     
-    flatten_models = datatype.flatten_models_dict(EXTRA_MODELS)
+    flatten_models = type_extensions.flatten_models_dict(EXTRA_MODELS)
     models         = list(flatten_models.keys())
    
-    if task in enum.Task.values():
-        task   = enum.Task(task)
+    if task in enums.Task.values():
+        task   = enums.Task(task)
         models = [m for m in models if task in flatten_models[m]["tasks"]]
    
     if mode == "train":
         models = [m for m in models
-                  if any(lt in enum.LType.trainable() for lt in flatten_models[m]["ltypes"])]
+                  if any(lt in enums.LType.trainable() for lt in flatten_models[m]["ltypes"])]
     
     if arch:
         models = [m for m in models if arch in flatten_models[m]["arch"]]
@@ -716,22 +716,22 @@ def list_mon_archs(task: str = None, mode: str = None) -> list[str]:
     """
     from mon.globals import MODELS
     
-    flatten_models = datatype.flatten_models_dict(MODELS)
+    flatten_models = type_extensions.flatten_models_dict(MODELS)
     models         = list(flatten_models.keys())
     
-    if task in enum.Task.values():
-        task   = enum.Task(task)
+    if task in enums.Task.values():
+        task   = enums.Task(task)
         models = [m for m in models if task in flatten_models[m].tasks]
     
     if mode == "train":
         models = [m for m in models
-                  if any(lt in enum.LType.trainable() for lt in flatten_models[m].ltypes)]
+                  if any(lt in enums.LType.trainable() for lt in flatten_models[m].ltypes)]
     
     archs = [flatten_models[m].arch.strip()
              for m in models
              if flatten_models[m].arch not in [None, "None", ""]]
     
-    return sorted(datatype.unique(archs))
+    return sorted(type_extensions.unique(archs))
 
 
 def list_extra_archs(task: str = None, mode: str = None) -> list[str]:
@@ -746,21 +746,21 @@ def list_extra_archs(task: str = None, mode: str = None) -> list[str]:
     """
     from mon.globals import EXTRA_MODELS
     
-    flatten_models = datatype.flatten_models_dict(EXTRA_MODELS)
+    flatten_models = type_extensions.flatten_models_dict(EXTRA_MODELS)
     models         = list(flatten_models.keys())
     
-    if task in enum.Task.values():
-        task   = enum.Task(task)
+    if task in enums.Task.values():
+        task   = enums.Task(task)
         models = [m for m in models if task in flatten_models[m]["tasks"]]
     
     if mode == "train":
         models = [m for m in models
-                  if any(lt in enum.LType.trainable() for lt in flatten_models[m]["ltypes"])]
+                  if any(lt in enums.LType.trainable() for lt in flatten_models[m]["ltypes"])]
     
     archs = [flatten_models[m]["arch"].strip()
              for m in models if flatten_models[m]["arch"] not in [None, "None", ""]]
     
-    return sorted(datatype.unique(archs))
+    return sorted(type_extensions.unique(archs))
 
 
 def list_archs(
@@ -789,15 +789,15 @@ def list_archs(
         models         = [m for m in models       if humps.snakecase(m) in project_models]
         extra_models   = [m for m in extra_models if humps.snakecase(m) in project_models]
     
-    flatten_mon_models   = datatype.flatten_models_dict(MODELS)
-    flatten_extra_models = datatype.flatten_models_dict(EXTRA_MODELS)
+    flatten_mon_models   = type_extensions.flatten_models_dict(MODELS)
+    flatten_extra_models = type_extensions.flatten_models_dict(EXTRA_MODELS)
     archs = (
         [flatten_mon_models[m].arch      for m in models] +
         [flatten_extra_models[m]["arch"] for m in extra_models]
     )
     archs = [a.strip() for a in archs if a not in [None, "None", ""]]
     
-    return sorted(datatype.unique(archs))
+    return sorted(type_extensions.unique(archs))
 
 
 def parse_model_dir(arch: str, model: str) -> pathlib.Path | None:
@@ -962,7 +962,7 @@ def list_tasks(project_root: str | pathlib.Path) -> list[str]:
     Returns:
         Sorted list of task names as strings.
     """
-    tasks = enum.Task.keys()
+    tasks = enums.Task.keys()
     
     default_configs = get_project_default_config(project_root)
     if default_configs.get("TASKS"):
@@ -1113,7 +1113,7 @@ def list_weights_files(
     weights_files += collect_weights_files(ZOO_DIR)
     
     model_name = parse_model_name(model)
-    return sorted(datatype.unique([f for f in weights_files if model_name in str(f)]))
+    return sorted(type_extensions.unique([f for f in weights_files if model_name in str(f)]))
 
 
 def parse_weights_file(
@@ -1132,7 +1132,7 @@ def parse_weights_file(
     from mon.globals import ROOT_DIR
     
     root = pathlib.Path(root)
-    weights = datatype.to_list(weights)
+    weights = type_extensions.to_list(weights)
     
     for i, w in enumerate(weights):
         w = pathlib.Path(w)

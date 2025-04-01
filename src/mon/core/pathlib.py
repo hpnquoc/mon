@@ -28,7 +28,7 @@ from pathlib import *
 
 import validators
 
-from mon.core import datatype, humps
+from mon.core import humps, type_extensions
 
 
 # region Path
@@ -427,7 +427,7 @@ def hash_files(paths: list[Path | str]) -> int:
     Returns:
         Integer sum of file sizes in bytes.
     """
-    paths = [Path(f) for f in datatype.to_list(paths) if f]
+    paths = [Path(f) for f in type_extensions.to_list(paths) if f]
     return sum(f.stat().st_size for f in paths if f.is_file())
 
 # endregion
@@ -468,7 +468,7 @@ def delete_dir(paths: Path | str | list[Path | str]):
     Args:
         paths: Single path or list of directory paths.
     """
-    paths = datatype.unique(datatype.to_list(paths))
+    paths = type_extensions.unique(type_extensions.to_list(paths))
     for p in paths:
         p = Path(p)
         if p.exists():
@@ -517,7 +517,7 @@ def mkdirs(
         exist_ok: If ``True``, ignores existing dirs. Default is ``True``.
         replace: If ``True``, deletes and recreates dirs. Default is ``False``.
     """
-    paths = datatype.unique(datatype.to_list(paths))
+    paths = type_extensions.unique(type_extensions.to_list(paths))
     for p in paths:
         p = Path(p)
         if p.is_url():
@@ -535,7 +535,7 @@ def rmdirs(paths: Path | str | list[Path | str]):
     Args:
         paths: Single path or list of directory paths.
     """
-    paths = datatype.unique(datatype.to_list(paths))
+    paths = type_extensions.unique(type_extensions.to_list(paths))
     for p in paths:
         p = Path(p)
         if p.is_url():

@@ -16,7 +16,7 @@ import cv2
 import numpy as np
 
 from mon import core
-from mon.vision import datatype
+from mon.vision import data_type
 
 
 def draw_bbox(
@@ -108,9 +108,9 @@ def draw_heatmap(
     if not 0.0 <= alpha <= 1.0:
         raise ValueError(f"[alpha] should be in range [0.0, 1.0], got {alpha}.")
 
-    heatmap = datatype.convert_depth_to_color(heatmap, color_map, use_rgb)
+    heatmap = data_type.convert_depth_to_color(heatmap, color_map, use_rgb)
     heatmap = np.float32(heatmap) / 255
-    drawing = datatype.blend_images(image, heatmap, alpha)
+    drawing = data_type.blend_images(image, heatmap, alpha)
     drawing = drawing / np.max(drawing)
     drawing = np.uint8(255 * drawing)
     return drawing
@@ -133,8 +133,8 @@ def draw_semantic(
     Returns:
         Image with semantic overlay as ``np.ndarray``.
     """
-    color_map = datatype.convert_label_map_id_to_color(semantic, classlabels)
-    drawing   = datatype.blend_images(image, color_map, alpha)
+    color_map = data_type.convert_label_map_id_to_color(semantic, classlabels)
+    drawing   = data_type.blend_images(image, color_map, alpha)
     drawing   = drawing.astype(np.uint8)
     return drawing
     
