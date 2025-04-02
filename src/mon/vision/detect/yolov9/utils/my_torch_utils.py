@@ -13,8 +13,7 @@ import torch.distributed as dist
 import torch.nn as nn
 import torch.nn.functional as F
 from torch.nn.parallel import DistributedDataParallel as DDP
-
-from utils.general import LOGGER, check_version, colorstr, file_date, git_describe
+from utils.general import check_version, colorstr, file_date, git_describe, LOGGER
 from utils.lion import Lion
 
 LOCAL_RANK = int(os.getenv('LOCAL_RANK', -1))  # https://pytorch.org/docs/stable/elastic/run.html

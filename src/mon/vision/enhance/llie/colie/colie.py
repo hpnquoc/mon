@@ -1,8 +1,6 @@
 import argparse
 import os
 
-import numpy as np
-from PIL import Image
 from tqdm import tqdm
 
 from color import hsv2rgb_torch, rgb2hsv_torch

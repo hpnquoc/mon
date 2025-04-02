@@ -1,14 +1,16 @@
 #!/usr/bin/env python
 
-from setuptools import find_packages, setup
-
 import os
 import subprocess
 import sys
 import time
+
 import torch
-from torch.utils.cpp_extension import (BuildExtension, CppExtension,
-                                       CUDAExtension)
+from setuptools import find_packages, setup
+from torch.utils.cpp_extension import (
+    BuildExtension, CppExtension,
+    CUDAExtension,
+)
 
 version_file = 'basicsr/version.py'
 

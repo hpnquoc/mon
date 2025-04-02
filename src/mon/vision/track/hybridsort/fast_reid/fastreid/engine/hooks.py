@@ -14,15 +14,15 @@ from fast_reid.fastreid.evaluation.testing import flatten_results_dict
 from fast_reid.fastreid.solver import optim
 from fast_reid.fastreid.utils import comm
 from fast_reid.fastreid.utils.checkpoint import \
-	PeriodicCheckpointer as _PeriodicCheckpointer
+    PeriodicCheckpointer as _PeriodicCheckpointer
 from fast_reid.fastreid.utils.events import (
-	EventStorage, EventWriter,
-	get_event_storage,
+    EventStorage, EventWriter,
+    get_event_storage,
 )
 from fast_reid.fastreid.utils.file_io import PathManager
 from fast_reid.fastreid.utils.precision_bn import (
-	get_bn_modules,
-	update_bn_stats,
+    get_bn_modules,
+    update_bn_stats,
 )
 from fast_reid.fastreid.utils.timer import Timer
 from torch import nn

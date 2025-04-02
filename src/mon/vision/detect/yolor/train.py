@@ -29,13 +29,17 @@ from models.yolo import Model
 from utils.datasets import create_dataloader
 from utils.general import (
     check_dataset, check_file, check_git_status, check_img_size, fitness, fitness_ap,
-    fitness_ap50, fitness_f, fitness_p, fitness_r, get_latest_run, increment_path, init_seeds, labels_to_class_weights,
+    fitness_ap50, fitness_f, fitness_p, fitness_r, get_latest_run, increment_path,
+    init_seeds, labels_to_class_weights,
     labels_to_image_weights, print_mutation, set_logging, strip_optimizer,
 )
 from utils.google_utils import attempt_download
 from utils.loss import compute_loss
 from utils.plots import plot_evolution, plot_images, plot_labels, plot_results
-from utils.torch_utils import intersect_dicts, ModelEMA, select_device, torch_distributed_zero_first
+from utils.torch_utils import (
+    intersect_dicts, ModelEMA, select_device,
+    torch_distributed_zero_first,
+)
 
 logger = logging.getLogger(__name__)
 

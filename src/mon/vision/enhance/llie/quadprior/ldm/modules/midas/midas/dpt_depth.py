@@ -3,7 +3,7 @@ import torch.nn as nn
 
 from .base_model import BaseModel
 from .blocks import (
-	_make_encoder, FeatureFusionBlock_custom, forward_vit, Interpolate,
+    _make_encoder, FeatureFusionBlock_custom, forward_vit, Interpolate,
 )
 
 

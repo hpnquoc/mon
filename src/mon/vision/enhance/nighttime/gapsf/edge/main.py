@@ -3,25 +3,21 @@ Pixel Difference Networks for Efficient Edge Detection (accepted as an ICCV 2021
 See paper in https://arxiv.org/abs/2108.07009
 """
 
-from __future__ import absolute_import
-from __future__ import unicode_literals
-from __future__ import print_function
-from __future__ import division
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 import argparse
-import os
-import time
-import models
-from models.convert_pidinet import convert_pidinet
-from utils import *
-from edge_dataloader import BSDS_VOCLoader, BSDS_Loader, Multicue_Loader, NYUD_Loader, Custom_Loader
-from torch.utils.data import DataLoader
 
 import torch
 import torchvision
-import torch.nn as nn
-import torch.nn.functional as F
-import torch.backends.cudnn as cudnn
+from torch.utils.data import DataLoader
+
+import models
+from edge_dataloader import (
+    BSDS_Loader, BSDS_VOCLoader, Custom_Loader, Multicue_Loader,
+    NYUD_Loader,
+)
+from models.convert_pidinet import convert_pidinet
+from utils import *
 
 parser = argparse.ArgumentParser(description='PyTorch Pixel Difference Convolutional Networks')
 
@@ -313,7 +309,6 @@ def train(train_loader, model, optimizer, epoch, running_file, args, running_lr)
 def test(test_loader, model, epoch, running_file, args):
 
     from PIL import Image
-    import scipy.io as sio
     model.eval()
 
     if args.ablation:

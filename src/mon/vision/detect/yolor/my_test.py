@@ -1,13 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import argparse
 import glob
 import json
 import os
-import socket
 
-import click
 import numpy as np
 import torch
 import yaml
@@ -17,7 +14,8 @@ import mon
 from models.experimental import attempt_load
 from utils.datasets import create_dataloader
 from utils.general import (
-    box_iou, check_dataset, check_file, check_img_size, clip_coords, coco80_to_coco91_class,
+    box_iou, check_dataset, check_file, check_img_size, clip_coords,
+    coco80_to_coco91_class,
     non_max_suppression, scale_coords, set_logging, xywh2xyxy, xyxy2xywh,
 )
 from utils.loss import compute_loss

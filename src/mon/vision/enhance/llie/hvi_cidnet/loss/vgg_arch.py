@@ -1,8 +1,10 @@
 import os
-import torch
 from collections import OrderedDict
+
+import torch
 from torch import nn as nn
 from torchvision.models import vgg as vgg
+
 
 class Registry():
     """

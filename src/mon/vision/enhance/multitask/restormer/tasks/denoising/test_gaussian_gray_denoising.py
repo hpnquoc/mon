@@ -2,21 +2,20 @@
 ## Syed Waqas Zamir, Aditya Arora, Salman Khan, Munawar Hayat, Fahad Shahbaz Khan, and Ming-Hsuan Yang
 ## https://arxiv.org/abs/2111.09881
 
-import numpy as np
-import os
 import argparse
+import os
+from glob import glob
+
+import numpy as np
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+from basicsr.models.archs.restormer_arch import Restormer
+from natsort import natsorted
+from skimage import img_as_ubyte
 from tqdm import tqdm
 
-import torch.nn as nn
-import torch
-import torch.nn.functional as F
-
-from basicsr.models.archs.restormer_arch import Restormer
-from skimage import img_as_ubyte
-from natsort import natsorted
-from glob import glob
 import utils
-from pdb import set_trace as stx
 
 parser = argparse.ArgumentParser(description='Gasussian Grayscale Denoising using Restormer')
 

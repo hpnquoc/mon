@@ -16,9 +16,7 @@ from sam2.modeling.sam2_utils import (
     sample_box_points,
     select_closest_cond_frames,
 )
-
 from sam2.utils.misc import concat_points
-
 from training.utils.data_utils import BatchedVideoDatapoint
 
 

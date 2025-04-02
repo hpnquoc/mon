@@ -14,10 +14,7 @@
  * limitations under the License.
  */
 import useVideo from '@/common/components/video/editor/useVideo';
-import {
-  activeBackgroundEffectAtom,
-  activeHighlightEffectAtom,
-} from '@/demo/atoms';
+import {activeBackgroundEffectAtom, activeHighlightEffectAtom,} from '@/demo/atoms';
 import {useSetAtom} from 'jotai';
 import {useCallback, useEffect} from 'react';
 import {EffectUpdateEvent} from '../VideoWorkerBridge';

@@ -18,7 +18,7 @@ from torchvision.transforms import (
 from .network.decoder import MultiresConvDecoder
 from .network.encoder import DepthProEncoder
 from .network.fov import FOVNetwork
-from .network.vit_factory import VIT_CONFIG_DICT, ViTPreset, create_vit
+from .network.vit_factory import create_vit, VIT_CONFIG_DICT, ViTPreset
 
 
 @dataclass

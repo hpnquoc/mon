@@ -3,12 +3,6 @@
 
 """Implements visual comparison pipeline."""
 
-from __future__ import annotations
-
-import sys
-
-sys.dont_write_bytecode = True
-
 import math
 
 import click
@@ -17,7 +11,6 @@ import numpy as np
 from matplotlib import pyplot as plt
 
 import mon
-
 
 plt.rcParams["savefig.bbox"] = "tight"
 

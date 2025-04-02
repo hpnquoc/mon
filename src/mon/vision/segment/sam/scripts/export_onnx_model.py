@@ -4,13 +4,12 @@
 # This source code is licensed under the license found in the
 # LICENSE file in the root directory of this source tree.
 
-import torch
-
-from segment_anything import sam_model_registry
-from segment_anything.utils.onnx import SamOnnxModel
-
 import argparse
 import warnings
+
+import torch
+from segment_anything import sam_model_registry
+from segment_anything.utils.onnx import SamOnnxModel
 
 try:
     import onnxruntime  # type: ignore

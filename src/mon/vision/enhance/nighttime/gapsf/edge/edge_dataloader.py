@@ -1,9 +1,10 @@
-from torch.utils import data
-import torchvision.transforms as transforms
 import os
 from pathlib import Path
-from PIL import Image
+
 import numpy as np
+import torchvision.transforms as transforms
+from PIL import Image
+from torch.utils import data
 
 
 def fold_files(foldname):

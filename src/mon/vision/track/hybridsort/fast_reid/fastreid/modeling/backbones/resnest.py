@@ -9,8 +9,8 @@ import math
 import torch
 from fast_reid.fastreid.layers import DropBlock2D, get_norm, SplAtConv2d
 from fast_reid.fastreid.utils.checkpoint import (
-	get_missing_parameters_message,
-	get_unexpected_parameters_message,
+    get_missing_parameters_message,
+    get_unexpected_parameters_message,
 )
 from torch import nn
 

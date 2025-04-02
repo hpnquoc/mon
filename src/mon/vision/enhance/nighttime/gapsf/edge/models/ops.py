@@ -10,6 +10,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+
 class Conv2d(nn.Module):
     def __init__(self, pdc, in_channels, out_channels, kernel_size, stride=1, padding=0, dilation=1, groups=1, bias=False):
         super(Conv2d, self).__init__()
@@ -95,4 +96,3 @@ def createConvFunc(op_type):
     else:
         print('impossible to be here unless you force that')
         return None
-

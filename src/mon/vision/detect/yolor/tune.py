@@ -21,11 +21,11 @@ from torch.nn.parallel import DistributedDataParallel as DDP
 from torch.utils.tensorboard import SummaryWriter
 from tqdm import tqdm
 
-import my_test  # import test.py to get mAP after each epoch
 from utils.datasets import create_dataloader9 as create_dataloader
 from utils.general import (
     check_dataset, check_file, check_git_status, check_img_size, fitness, fitness_ap,
-    fitness_ap50, fitness_f, fitness_p, fitness_r, get_latest_run, increment_path, init_seeds, labels_to_class_weights,
+    fitness_ap50, fitness_f, fitness_p, fitness_r, get_latest_run, increment_path,
+    init_seeds, labels_to_class_weights,
     labels_to_image_weights, print_mutation, set_logging, strip_optimizer,
 )
 from utils.google_utils import attempt_download

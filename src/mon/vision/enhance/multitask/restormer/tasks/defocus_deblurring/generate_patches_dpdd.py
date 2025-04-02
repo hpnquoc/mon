@@ -1,16 +1,15 @@
 ##### Data preparation file for training Restormer on the DPDD Dataset ########
 
+import os
+from copy import deepcopy
+from glob import glob
+
 import cv2
 import numpy as np
-from glob import glob
+from joblib import delayed, Parallel
 from natsort import natsorted
-import os
 from tqdm import tqdm
-from copy import deepcopy
 
-from joblib import Parallel, delayed
-import multiprocessing
-from pdb import set_trace as stx
 
 def shapness_measure(img_temp,kernel_size):
     conv_x = cv2.Sobel(img_temp,cv2.CV_64F,1,0,ksize=kernel_size)

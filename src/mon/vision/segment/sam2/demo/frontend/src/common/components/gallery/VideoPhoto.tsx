@@ -15,13 +15,7 @@
  */
 import Logger from '@/common/logger/Logger';
 import stylex from '@stylexjs/stylex';
-import {
-  CSSProperties,
-  MouseEventHandler,
-  useCallback,
-  useEffect,
-  useRef,
-} from 'react';
+import {CSSProperties, MouseEventHandler, useCallback, useEffect, useRef,} from 'react';
 
 const styles = stylex.create({
   background: {

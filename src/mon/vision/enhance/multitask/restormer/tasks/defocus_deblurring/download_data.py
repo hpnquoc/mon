@@ -2,12 +2,11 @@
 ## Syed Waqas Zamir, Aditya Arora, Salman Khan, Munawar Hayat, Fahad Shahbaz Khan, and Ming-Hsuan Yang
 ## https://arxiv.org/abs/2111.09881
 
+import argparse
 ## Download training and testing data for Defocus Deblurring task
 import os
 # import gdown
 import shutil
-
-import argparse
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--data', type=str, required=True, help='train, test or train-test')

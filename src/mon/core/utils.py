@@ -164,7 +164,7 @@ def get_project_default_config(project_root: str | pathlib.Path) -> dict:
 def list_config_files(
     project_root: str | pathlib.Path,
     model_root  : str | pathlib.Path = None,
-    model       : str                = None
+    model       : str = None
 ) -> list[pathlib.Path]:
     """Lists configuration files in the project and/or model directory.
 
@@ -188,7 +188,7 @@ def list_config_files(
         config_files += collect_config_files(project_root)
     if is_valid(model_root):
         config_files += collect_config_files(model_root)
-
+    
     config_files = [
         cf for cf in config_files
         if cf.is_config_file() or (cf.is_py_file() and cf.name != "__init__.py")
@@ -204,7 +204,7 @@ def list_config_files(
 def list_configs(
     project_root: str | pathlib.Path,
     model_root  : str | pathlib.Path = None,
-    model       : str                = None
+    model       : str = None
 ) -> list[str]:
     """Lists config file names in the project and/or model directory.
 

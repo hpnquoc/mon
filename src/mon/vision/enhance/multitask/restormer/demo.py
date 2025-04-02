@@ -9,19 +9,18 @@
 ## Example usage with tile option on a large image: python demo.py --task Single_Image_Defocus_Deblurring --input_dir './demo/degraded/portrait.jpg' --result_dir './demo/restored/' --tile 720 --tile_overlap 32
 ##--------------------------------------------------------------
 
+import argparse
+import os
+from glob import glob
+from runpy import run_path
+
+import cv2
+import numpy as np
 import torch
 import torch.nn.functional as F
-import torchvision.transforms.functional as TF
-import os
-from runpy import run_path
-from skimage import img_as_ubyte
 from natsort import natsorted
-from glob import glob
-import cv2
+from skimage import img_as_ubyte
 from tqdm import tqdm
-import argparse
-from pdb import set_trace as stx
-import numpy as np
 
 parser = argparse.ArgumentParser(description='Test Restormer on your own images')
 parser.add_argument('--input_dir', default='./demo/degraded/', type=str, help='Directory of input images or path of single image')

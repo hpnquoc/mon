@@ -2,8 +2,7 @@ from copy import deepcopy
 
 import numpy as np
 import torch
-
-from utils.general import LOGGER, colorstr
+from utils.general import colorstr, LOGGER
 from utils.torch_utils import profile
 
 

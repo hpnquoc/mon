@@ -14,7 +14,7 @@ import torch
 
 from mon import core
 from mon.constants import DETECTORS
-from mon.vision import types, track
+from mon.vision import track, types
 from mon.vision.detect import base
 
 console       = core.console

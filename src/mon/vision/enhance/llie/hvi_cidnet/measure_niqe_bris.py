@@ -1,9 +1,11 @@
-import glob
-from tqdm import tqdm
-from PIL import Image
-import imquality.brisque as brisque
-from loss.niqe_utils import *
 import argparse
+import glob
+
+import imquality.brisque as brisque
+from PIL import Image
+from tqdm import tqdm
+
+from loss.niqe_utils import *
 
 eval_parser = argparse.ArgumentParser(description='Eval')
 eval_parser.add_argument('--DICM', action='store_true', help='output DICM dataset')

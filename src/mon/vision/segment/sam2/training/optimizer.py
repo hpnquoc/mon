@@ -8,7 +8,6 @@ import fnmatch
 import inspect
 import itertools
 import logging
-import types
 from typing import (
     Any,
     Callable,
@@ -24,7 +23,6 @@ from typing import (
 )
 
 import hydra
-
 import torch
 import torch.nn as nn
 from omegaconf import DictConfig

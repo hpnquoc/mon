@@ -27,14 +27,14 @@ __all__ = [
 ]
 
 from torchmetrics.image import (
-	ErrorRelativeGlobalDimensionlessSynthesis, InceptionScore, KernelInceptionDistance,
-	LearnedPerceptualImagePatchSimilarity, MemorizationInformedFrechetInceptionDistance,
-	MultiScaleStructuralSimilarityIndexMeasure, PeakSignalNoiseRatio,
-	PeakSignalNoiseRatioWithBlockedEffect, PerceptualPathLength, QualityWithNoReference,
-	RelativeAverageSpectralError, RootMeanSquaredErrorUsingSlidingWindow,
-	SpatialCorrelationCoefficient, SpatialDistortionIndex, SpectralAngleMapper,
-	SpectralDistortionIndex, StructuralSimilarityIndexMeasure, TotalVariation,
-	UniversalImageQualityIndex, VisualInformationFidelity,
+    ErrorRelativeGlobalDimensionlessSynthesis, InceptionScore, KernelInceptionDistance,
+    LearnedPerceptualImagePatchSimilarity, MemorizationInformedFrechetInceptionDistance,
+    MultiScaleStructuralSimilarityIndexMeasure, PeakSignalNoiseRatio,
+    PeakSignalNoiseRatioWithBlockedEffect, PerceptualPathLength, QualityWithNoReference,
+    RelativeAverageSpectralError, RootMeanSquaredErrorUsingSlidingWindow,
+    SpatialCorrelationCoefficient, SpatialDistortionIndex, SpectralAngleMapper,
+    SpectralDistortionIndex, StructuralSimilarityIndexMeasure, TotalVariation,
+    UniversalImageQualityIndex, VisualInformationFidelity,
 )
 
 from mon.constants import METRICS

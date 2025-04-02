@@ -11,7 +11,7 @@ from itertools import repeat
 from multiprocessing.pool import ThreadPool
 from pathlib import Path
 from threading import Thread
-import mon
+
 import cv2
 import numpy as np
 import torch
@@ -24,6 +24,8 @@ from utils.general import (
     segment2box, segments2boxes, xyn2xy, xywh2xyxy, xywhn2xyxy, xyxy2xywh,
 )
 from utils.torch_utils import torch_distributed_zero_first
+
+import mon
 
 # from pycocotools import mask as maskUtils
 

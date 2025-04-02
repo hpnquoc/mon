@@ -16,7 +16,8 @@
 import ObjectActions from '@/common/components/annotations/ObjectActions';
 import ObjectPlaceholder from '@/common/components/annotations/ObjectPlaceholder';
 import ObjectThumbnail from '@/common/components/annotations/ObjectThumbnail';
-import ToolbarObjectContainer from '@/common/components/annotations/ToolbarObjectContainer';
+import ToolbarObjectContainer
+    from '@/common/components/annotations/ToolbarObjectContainer';
 import useVideo from '@/common/components/video/editor/useVideo';
 import {BaseTracklet} from '@/common/tracker/Tracker';
 import emptyFunction from '@/common/utils/emptyFunction';

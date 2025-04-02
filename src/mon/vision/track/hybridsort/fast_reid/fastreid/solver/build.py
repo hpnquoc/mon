@@ -12,8 +12,8 @@ import math
 import re
 from enum import Enum
 from typing import (
-	Any, Callable, Dict, Iterable, List, Optional, Set, Type,
-	Union,
+    Any, Callable, Dict, Iterable, List, Optional, Set, Type,
+    Union,
 )
 
 import torch

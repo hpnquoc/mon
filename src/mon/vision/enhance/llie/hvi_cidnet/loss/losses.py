@@ -1,9 +1,8 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from loss.vgg_arch import VGGFeatureExtractor, Registry
 from loss.loss_utils import *
-
+from loss.vgg_arch import Registry, VGGFeatureExtractor
 
 _reduction_modes = ['none', 'mean', 'sum']
 
@@ -188,6 +187,3 @@ class SSIM(torch.nn.Module):
             self.channel = channel
 
         return (1. - map_ssim(img1, img2, window, self.window_size, channel, self.size_average)) * self.weight
-
-
-

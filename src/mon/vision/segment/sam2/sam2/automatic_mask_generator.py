@@ -9,8 +9,6 @@ from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
 import torch
-from torchvision.ops.boxes import batched_nms, box_area  # type: ignore
-
 from sam2.modeling.sam2_base import SAM2Base
 from sam2.sam2_image_predictor import SAM2ImagePredictor
 from sam2.utils.amg import (
@@ -31,6 +29,7 @@ from sam2.utils.amg import (
     uncrop_masks,
     uncrop_points,
 )
+from torchvision.ops.boxes import batched_nms, box_area  # type: ignore
 
 
 class SAM2AutomaticMaskGenerator:

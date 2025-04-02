@@ -7,7 +7,6 @@ import hashlib
 import os
 import shutil
 import tempfile
-from pathlib import Path
 from typing import Iterable, List, Optional, Tuple, Union
 
 import av

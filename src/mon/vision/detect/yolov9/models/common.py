@@ -5,12 +5,10 @@ import math
 import platform
 import warnings
 import zipfile
-from collections import OrderedDict, namedtuple
+from collections import namedtuple, OrderedDict
 from copy import copy
 from pathlib import Path
 from urllib.parse import urlparse
-
-from typing import Optional
 
 import cv2
 import numpy as np
@@ -21,12 +19,13 @@ import torch.nn as nn
 from IPython.display import display
 from PIL import Image
 from torch.cuda import amp
-
 from utils import TryExcept
 from utils.dataloaders import exif_transpose, letterbox
-from utils.general import (LOGGER, ROOT, Profile, check_requirements, check_suffix, check_version, colorstr,
-                           increment_path, is_notebook, make_divisible, non_max_suppression, scale_boxes,
-                           xywh2xyxy, xyxy2xywh, yaml_load)
+from utils.general import (
+    check_requirements, check_suffix, check_version, colorstr, increment_path,
+    is_notebook, LOGGER, make_divisible, non_max_suppression, Profile, ROOT,
+    scale_boxes, xywh2xyxy, xyxy2xywh, yaml_load,
+)
 from utils.plots import Annotator, colors, save_one_box
 from utils.torch_utils import copy_attr, smart_inference_mode
 
@@ -492,9 +491,8 @@ class SPPF(nn.Module):
 
 
 import torch.nn.functional as F
-from torch.nn.modules.utils import _pair
-    
-    
+
+
 class ReOrg(nn.Module):
     # yolo
     def __init__(self):

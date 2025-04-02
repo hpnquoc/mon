@@ -22,9 +22,9 @@ from fvcore.nn import parameter_count
 from mon import core, nn
 from mon.constants import LType, MODELS, Task
 from mon.nn import init
-from mon.vision import types, filtering, geometry
-from mon.vision.types import image as I
+from mon.vision import filtering, geometry, types
 from mon.vision.enhance import base
+from mon.vision.types import image as I
 
 current_file = core.Path(__file__).absolute()
 current_dir  = current_file.parents[0]

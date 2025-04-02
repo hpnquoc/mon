@@ -32,14 +32,18 @@ from mon import core, DATA_DIR
 from utils.autoanchor import check_anchors
 from utils.datasets import create_dataloader
 from utils.general import (
-    check_dataset, check_file, check_img_size, colorstr, fitness, get_latest_run, increment_path,
-    init_seeds, labels_to_class_weights, labels_to_image_weights, one_cycle, print_mutation, set_logging,
+    check_file, check_img_size, colorstr, fitness, get_latest_run, increment_path,
+    init_seeds, labels_to_class_weights, labels_to_image_weights, one_cycle,
+    print_mutation, set_logging,
     strip_optimizer,
 )
 from utils.google_utils import attempt_download
 from utils.loss import ComputeLoss, ComputeLossOTA
 from utils.plots import plot_evolution, plot_images, plot_results
-from utils.torch_utils import intersect_dicts, is_parallel, ModelEMA, select_device, torch_distributed_zero_first
+from utils.torch_utils import (
+    intersect_dicts, is_parallel, ModelEMA, select_device,
+    torch_distributed_zero_first,
+)
 from utils.wandb_logging.wandb_utils import check_wandb_resume, WandbLogger
 
 logger       = logging.getLogger(__name__)

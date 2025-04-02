@@ -1,4 +1,3 @@
-import numpy as np
 import lap
 import numpy as np
 import scipy

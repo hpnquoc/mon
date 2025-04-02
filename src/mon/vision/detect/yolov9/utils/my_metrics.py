@@ -5,8 +5,7 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import numpy as np
 import torch
-
-from utils import TryExcept, threaded
+from utils import threaded, TryExcept
 
 
 def fitness(x):

@@ -1,9 +1,10 @@
 import torch
 import torch.nn as nn
-from net.HVI_transform import RGB_HVI
-from net.transformer_utils import *
-from net.LCA import *
 from huggingface_hub import PyTorchModelHubMixin
+from net.HVI_transform import RGB_HVI
+from net.LCA import *
+from net.transformer_utils import *
+
 
 class CIDNet(nn.Module, PyTorchModelHubMixin):
     def __init__(self, 
@@ -124,6 +125,3 @@ class CIDNet(nn.Module, PyTorchModelHubMixin):
     def HVIT(self,x):
         hvi = self.trans.HVIT(x)
         return hvi
-    
-    
-

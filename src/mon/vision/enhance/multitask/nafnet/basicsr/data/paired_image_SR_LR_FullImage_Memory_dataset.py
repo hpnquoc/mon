@@ -8,9 +8,9 @@ import pickle
 
 import numpy as np
 from basicsr.data.data_util import (
-	paired_paths_from_folder,
-	paired_paths_from_lmdb,
-	paired_paths_from_meta_info_file,
+    paired_paths_from_folder,
+    paired_paths_from_lmdb,
+    paired_paths_from_meta_info_file,
 )
 from basicsr.data.transforms import augment, paired_random_crop_hw
 from basicsr.utils import FileClient, imfrombytes, img2tensor, padding

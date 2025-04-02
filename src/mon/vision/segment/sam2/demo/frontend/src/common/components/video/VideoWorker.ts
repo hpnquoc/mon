@@ -19,10 +19,7 @@ import {TrackerRequestMessageEvent} from '@/common/tracker/TrackerTypes';
 import {TRACKER_MAPPING} from '@/common/tracker/Trackers';
 import {serializeError} from 'serialize-error';
 import VideoWorkerContext from './VideoWorkerContext';
-import {
-  ErrorResponse,
-  VideoWorkerRequestMessageEvent,
-} from './VideoWorkerTypes';
+import {ErrorResponse, VideoWorkerRequestMessageEvent,} from './VideoWorkerTypes';
 
 registerSerializableConstructors();
 

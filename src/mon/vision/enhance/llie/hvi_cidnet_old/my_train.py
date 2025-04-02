@@ -20,14 +20,14 @@ from torchvision import transforms
 
 import mon
 from data.data import (
-	get_eval_set, get_lol_v1_training_set, get_lol_v2_synthetic_training_set,
-	get_lol_v2_training_set,
-	get_sice_eval_set, get_sice_training_set, get_sid_training_set,
-	get_training_set_blur,
+    get_eval_set, get_lol_v1_training_set, get_lol_v2_synthetic_training_set,
+    get_lol_v2_training_set,
+    get_sice_eval_set, get_sice_training_set, get_sid_training_set,
+    get_training_set_blur,
 )
 from data.scheduler import (
-	CosineAnnealingRestartCyclicLR,
-	CosineAnnealingRestartLR, GradualWarmupScheduler,
+    CosineAnnealingRestartCyclicLR,
+    CosineAnnealingRestartLR, GradualWarmupScheduler,
 )
 from eval import eval
 from loss.losses import EdgeLoss, L1Loss, PerceptualLoss, SSIM

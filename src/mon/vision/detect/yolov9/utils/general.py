@@ -12,7 +12,6 @@ import signal
 import sys
 import time
 import urllib
-from copy import deepcopy
 from datetime import datetime
 from itertools import repeat
 from multiprocessing.pool import ThreadPool
@@ -20,7 +19,7 @@ from pathlib import Path
 from subprocess import check_output
 from tarfile import is_tarfile
 from typing import Optional
-from zipfile import ZipFile, is_zipfile
+from zipfile import is_zipfile, ZipFile
 
 import cv2
 import IPython
@@ -30,11 +29,11 @@ import pkg_resources as pkg
 import torch
 import torchvision
 import yaml
-
-from mon import DATA_DIR
-from utils import TryExcept, emojis
+from utils import emojis, TryExcept
 from utils.downloads import gsutil_getsize
 from utils.metrics import box_iou, fitness
+
+from mon import DATA_DIR
 
 FILE = Path(__file__).resolve()
 ROOT = FILE.parents[1]  # YOLO root directory

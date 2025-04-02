@@ -20,14 +20,18 @@ import torch.nn.functional as F
 import torchvision
 import yaml
 from PIL import ExifTags, Image, ImageOps
-from torch.utils.data import DataLoader, Dataset, dataloader, distributed
+from torch.utils.data import DataLoader, dataloader, Dataset, distributed
 from tqdm import tqdm
-
-from utils.augmentations import (Albumentations, augment_hsv, classify_albumentations, classify_transforms, copy_paste,
-                                 letterbox, mixup, random_perspective)
-from utils.general import (DATASETS_DIR, LOGGER, NUM_THREADS, TQDM_BAR_FORMAT, check_dataset, check_requirements,
-                           check_yaml, clean_str, cv2, is_colab, is_kaggle, segments2boxes, unzip_file, xyn2xy,
-                           xywh2xyxy, xywhn2xyxy, xyxy2xywhn)
+from utils.augmentations import (
+    Albumentations, augment_hsv, classify_albumentations, classify_transforms,
+    copy_paste,
+    letterbox, mixup, random_perspective,
+)
+from utils.general import (
+    check_dataset, check_requirements, check_yaml, clean_str, cv2, DATASETS_DIR,
+    is_colab, is_kaggle, LOGGER, NUM_THREADS, segments2boxes, TQDM_BAR_FORMAT,
+    unzip_file, xyn2xy, xywh2xyxy, xywhn2xyxy, xyxy2xywhn,
+)
 from utils.torch_utils import torch_distributed_zero_first
 
 # Parameters

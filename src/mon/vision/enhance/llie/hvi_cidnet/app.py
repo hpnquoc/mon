@@ -1,15 +1,14 @@
-import numpy as np
-import torch
-import gradio as gr
-from PIL import Image
-from net.CIDNet import CIDNet
-import torchvision.transforms as transforms
-import torch.nn.functional as F
-import os
-import imquality.brisque as brisque
-from loss.niqe_utils import *
-import platform
 import argparse
+import os
+import platform
+
+import gradio as gr
+import imquality.brisque as brisque
+import torch.nn.functional as F
+import torchvision.transforms as transforms
+
+from loss.niqe_utils import *
+from net.CIDNet import CIDNet
 
 opt_parser = argparse.ArgumentParser(description='App')
 opt_parser.add_argument('--cpu', action='store_true', help='CPU-Only')

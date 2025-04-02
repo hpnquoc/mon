@@ -382,6 +382,6 @@ class Dataset(dataset.Dataset, ABC):
         }
         for k, v in zipped.items():
             collate_fn = getattr(cls.datapoint_attrs[k], "collate_fn", None)
-            if collate_fn and v:
+            if collate_fn and v is not None:
                 zipped[k] = collate_fn(batch=v)
         return zipped

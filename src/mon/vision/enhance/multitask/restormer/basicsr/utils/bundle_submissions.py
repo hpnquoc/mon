@@ -8,9 +8,13 @@
 import numpy as np
 import scipy.io as sio
 import os
-import h5py
-
-def bundle_submissions_raw(submission_folder,session):
+ import os
+ 
+ import numpy as np
+ import scipy.io as sio
+ 
+ 
+ def bundle_submissions_raw(submission_folder,session):
     '''
     Bundles submission data for raw denoising
 

@@ -8,8 +8,8 @@ import time
 import torch
 from setuptools import find_packages, setup
 from torch.utils.cpp_extension import (
-	BuildExtension, CppExtension,
-	CUDAExtension,
+    BuildExtension, CppExtension,
+    CUDAExtension,
 )
 
 version_file = 'basicsr/version.py'

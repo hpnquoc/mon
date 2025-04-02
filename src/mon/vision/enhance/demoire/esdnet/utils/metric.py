@@ -4,8 +4,8 @@ import lpips
 import numpy as np
 import torch
 from skimage.metrics import (
-	peak_signal_noise_ratio as ski_psnr,
-	structural_similarity as ski_ssim,
+    peak_signal_noise_ratio as ski_psnr,
+    structural_similarity as ski_ssim,
 )
 from utils.matlab_ssim import MATLAB_SSIM
 

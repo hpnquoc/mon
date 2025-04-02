@@ -11,8 +11,8 @@ import unittest
 import torch
 import torch.nn as nn
 from sync_batchnorm import (
-	DataParallelWithCallback, SynchronizedBatchNorm1d,
-	SynchronizedBatchNorm2d,
+    DataParallelWithCallback, SynchronizedBatchNorm1d,
+    SynchronizedBatchNorm2d,
 )
 from sync_batchnorm.unittest import TorchTestCase
 from torch.autograd import Variable

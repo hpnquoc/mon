@@ -12,7 +12,7 @@ from abc import ABC
 import cv2
 
 from mon import nn
-from mon.vision import types, model
+from mon.vision import model, types
 
 
 # ----- Image Enhancement Model -----

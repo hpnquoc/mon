@@ -1,8 +1,8 @@
-import cv2
 import os
-import torch
 
+import cv2
 import numpy as np
+import torch
 from scipy import misc
 
 

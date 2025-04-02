@@ -15,10 +15,7 @@
  */
 import {useSetAtom} from 'jotai';
 import {useCallback} from 'react';
-import {
-  MessageType,
-  messageAtom,
-} from '@/common/components/snackbar/snackbarAtoms';
+import {messageAtom, MessageType,} from '@/common/components/snackbar/snackbarAtoms';
 
 export type EnqueueOption = {
   duration?: number;

@@ -3,12 +3,6 @@
 
 """Trains a model on a given dataset."""
 
-from __future__ import annotations
-
-import sys
-
-sys.dont_write_bytecode = True
-
 import mon
 import mon.core.utils
 

@@ -12,9 +12,9 @@ from torch.nn.parallel import DistributedDataParallel as DDP
 from torch.utils.tensorboard import SummaryWriter
 from yolox.data import DataPrefetcher
 from yolox.utils import (
-	all_reduce_norm, get_model_info, get_rank, get_world_size, gpu_mem_usage,
-	load_ckpt, MeterBuffer, ModelEMA, occupy_mem, save_checkpoint, setup_logger,
-	synchronize,
+    all_reduce_norm, get_model_info, get_rank, get_world_size, gpu_mem_usage,
+    load_ckpt, MeterBuffer, ModelEMA, occupy_mem, save_checkpoint, setup_logger,
+    synchronize,
 )
 
 

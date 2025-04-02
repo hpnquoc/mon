@@ -1,7 +1,9 @@
 import os
+
 import cv2
-import torch
 import numpy as np
+
+
 # This script is adapted from the following repository: https://github.com/JingyunLiang/SwinIR
 
 def calculate_psnr(img1, img2, test_y_channel=False):

@@ -1,17 +1,10 @@
 from collections import OrderedDict
-import util.util as util
-from util.util import weights_init, get_model_list, vgg_preprocess, load_vgg16, get_scheduler
-from util.image_pool import ImagePool
-from .base_model import BaseModel
-from . import networks
-from .unit_network import *
-from collections import OrderedDict
 
 import util.util as util
-from util.image_pool import ImagePool
+from util.image_pool import ImagePool, ImagePool
 from util.util import (
-	get_model_list, get_scheduler, load_vgg16, vgg_preprocess,
-	weights_init,
+    get_model_list, get_model_list, get_scheduler, get_scheduler,
+    load_vgg16, load_vgg16, vgg_preprocess, vgg_preprocess, weights_init, weights_init,
 )
 
 from . import networks

@@ -4,18 +4,19 @@
 // This source code is licensed under the license found in the
 // LICENSE file in the root directory of this source tree.
 
-import { InferenceSession, Tensor } from "onnxruntime-web";
-import React, { useContext, useEffect, useState } from "react";
+import {InferenceSession, Tensor} from "onnxruntime-web";
+import React, {useContext, useEffect, useState} from "react";
 import "./assets/scss/App.scss";
-import { handleImageScale } from "./components/helpers/scaleHelper";
-import { modelScaleProps } from "./components/helpers/Interfaces";
-import { onnxMaskToImage } from "./components/helpers/maskUtils";
-import { modelData } from "./components/helpers/onnxModelAPI";
+import {handleImageScale} from "./components/helpers/scaleHelper";
+import {modelScaleProps} from "./components/helpers/Interfaces";
+import {onnxMaskToImage} from "./components/helpers/maskUtils";
+import {modelData} from "./components/helpers/onnxModelAPI";
 import Stage from "./components/Stage";
 import AppContext from "./components/hooks/createContext";
-const ort = require("onnxruntime-web");
 /* @ts-ignore */
 import npyjs from "npyjs";
+
+const ort = require("onnxruntime-web");
 
 // Define image, embedding and model paths
 const IMAGE_PATH = "/assets/data/dogs.jpg";

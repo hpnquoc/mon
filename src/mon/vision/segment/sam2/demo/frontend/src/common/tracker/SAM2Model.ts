@@ -17,51 +17,56 @@ import {generateThumbnail} from '@/common/components/video/editor/VideoEditorUti
 import VideoWorkerContext from '@/common/components/video/VideoWorkerContext';
 import Logger from '@/common/logger/Logger';
 import {
-  SAM2ModelAddNewPointsMutation,
-  SAM2ModelAddNewPointsMutation$data,
+    SAM2ModelAddNewPointsMutation,
+    SAM2ModelAddNewPointsMutation$data,
 } from '@/common/tracker/__generated__/SAM2ModelAddNewPointsMutation.graphql';
-import {SAM2ModelCancelPropagateInVideoMutation} from '@/common/tracker/__generated__/SAM2ModelCancelPropagateInVideoMutation.graphql';
-import {SAM2ModelClearPointsInFrameMutation} from '@/common/tracker/__generated__/SAM2ModelClearPointsInFrameMutation.graphql';
-import {SAM2ModelClearPointsInVideoMutation} from '@/common/tracker/__generated__/SAM2ModelClearPointsInVideoMutation.graphql';
-import {SAM2ModelCloseSessionMutation} from '@/common/tracker/__generated__/SAM2ModelCloseSessionMutation.graphql';
-import {SAM2ModelRemoveObjectMutation} from '@/common/tracker/__generated__/SAM2ModelRemoveObjectMutation.graphql';
-import {SAM2ModelStartSessionMutation} from '@/common/tracker/__generated__/SAM2ModelStartSessionMutation.graphql';
 import {
-  BaseTracklet,
-  Mask,
-  SegmentationPoint,
-  StreamingState,
-  Tracker,
-  Tracklet,
+    SAM2ModelCancelPropagateInVideoMutation
+} from '@/common/tracker/__generated__/SAM2ModelCancelPropagateInVideoMutation.graphql';
+import {
+    SAM2ModelClearPointsInFrameMutation
+} from '@/common/tracker/__generated__/SAM2ModelClearPointsInFrameMutation.graphql';
+import {
+    SAM2ModelClearPointsInVideoMutation
+} from '@/common/tracker/__generated__/SAM2ModelClearPointsInVideoMutation.graphql';
+import {
+    SAM2ModelCloseSessionMutation
+} from '@/common/tracker/__generated__/SAM2ModelCloseSessionMutation.graphql';
+import {
+    SAM2ModelRemoveObjectMutation
+} from '@/common/tracker/__generated__/SAM2ModelRemoveObjectMutation.graphql';
+import {
+    SAM2ModelStartSessionMutation
+} from '@/common/tracker/__generated__/SAM2ModelStartSessionMutation.graphql';
+import {
+    BaseTracklet,
+    Mask,
+    SegmentationPoint,
+    StreamingState,
+    Tracker,
+    Tracklet,
 } from '@/common/tracker/Tracker';
 import {TrackerOptions} from '@/common/tracker/Trackers';
 import {
-  ClearPointsInVideoResponse,
-  SessionStartFailedResponse,
-  SessionStartedResponse,
-  StreamingCompletedResponse,
-  StreamingStartedResponse,
-  StreamingStateUpdateResponse,
-  TrackletCreatedResponse,
-  TrackletDeletedResponse,
-  TrackletsUpdatedResponse,
+    ClearPointsInVideoResponse,
+    SessionStartedResponse,
+    SessionStartFailedResponse,
+    StreamingCompletedResponse,
+    StreamingStartedResponse,
+    StreamingStateUpdateResponse,
+    TrackletCreatedResponse,
+    TrackletDeletedResponse,
+    TrackletsUpdatedResponse,
 } from '@/common/tracker/TrackerTypes';
 import {convertMaskToRGBA} from '@/common/utils/MaskUtils';
 import multipartStream from '@/common/utils/MultipartStream';
 import {Stats} from '@/debug/stats/Stats';
 import {INFERENCE_API_ENDPOINT} from '@/demo/DemoConfig';
 import {createEnvironment} from '@/graphql/RelayEnvironment';
-import {
-  DataArray,
-  Masks,
-  RLEObject,
-  decode,
-  encode,
-  toBbox,
-} from '@/jscocotools/mask';
+import {DataArray, decode, encode, Masks, RLEObject, toBbox,} from '@/jscocotools/mask';
 import {THEME_COLORS} from '@/theme/colors';
 import invariant from 'invariant';
-import {IEnvironment, commitMutation, graphql} from 'relay-runtime';
+import {commitMutation, graphql, IEnvironment} from 'relay-runtime';
 
 type Options = Pick<TrackerOptions, 'inferenceEndpoint'>;
 

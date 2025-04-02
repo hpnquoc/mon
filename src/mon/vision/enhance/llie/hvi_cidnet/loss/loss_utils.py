@@ -1,10 +1,9 @@
-import torch
-import torch.nn.functional as F
 import functools
 from math import exp
+
+import torch
+import torch.nn.functional as F
 from torch.autograd import Variable
-
-
 
 
 def reduce_loss(loss, reduction):

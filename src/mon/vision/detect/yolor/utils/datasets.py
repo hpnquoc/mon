@@ -14,16 +14,10 @@ from threading import Thread
 import cv2
 import numpy as np
 import torch
-from PIL import Image, ExifTags
+from PIL import ExifTags, Image
 from torch.utils.data import Dataset
 from tqdm import tqdm
-
-import pickle
-from copy import deepcopy
-from pycocotools import mask as maskUtils
-from torchvision.utils import save_image
-
-from utils.general import xyxy2xywh, xywh2xyxy
+from utils.general import xywh2xyxy, xyxy2xywh
 from utils.torch_utils import torch_distributed_zero_first
 
 # Parameters

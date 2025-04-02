@@ -1,13 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import argparse
 import pathlib
-import socket
 import sys
 import time
 
-import click
 import cv2
 import torch
 import torch.backends.cudnn as cudnn

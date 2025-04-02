@@ -22,12 +22,12 @@ from trackers.sort_tracker.sort import Sort
 from trackers.sort_tracker.sort_score import Sort_score
 from utils.utils import write_results, write_results_no_score
 from yolox.utils import (
-	gather,
-	is_main_process,
-	postprocess,
-	synchronize,
-	time_synchronized,
-	xyxy2xywh,
+    gather,
+    is_main_process,
+    postprocess,
+    synchronize,
+    time_synchronized,
+    xyxy2xywh,
 )
 
 

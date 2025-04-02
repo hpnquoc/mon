@@ -17,11 +17,11 @@ import useMessagesSnackbar from '@/common/components/snackbar/useDemoMessagesSna
 import useVideo from '@/common/components/video/editor/useVideo';
 import useInputVideo from '@/common/components/video/useInputVideo';
 import {
-  activeTrackletObjectIdAtom,
-  isPlayingAtom,
-  isStreamingAtom,
-  labelTypeAtom,
-  trackletObjectsAtom,
+    activeTrackletObjectIdAtom,
+    isPlayingAtom,
+    isStreamingAtom,
+    labelTypeAtom,
+    trackletObjectsAtom,
 } from '@/demo/atoms';
 import {useAtomValue, useSetAtom} from 'jotai';
 import {useState} from 'react';

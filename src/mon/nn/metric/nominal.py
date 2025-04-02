@@ -12,7 +12,7 @@ __all__ = [
 ]
 
 from torchmetrics.nominal import (
-	CramersV, FleissKappa, PearsonsContingencyCoefficient, TheilsU, TschuprowsT,
+    CramersV, FleissKappa, PearsonsContingencyCoefficient, TheilsU, TschuprowsT,
 )
 
 from mon.constants import METRICS

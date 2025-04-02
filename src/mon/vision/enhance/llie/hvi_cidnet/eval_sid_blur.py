@@ -1,11 +1,11 @@
-import os
 import argparse
-from torchvision.transforms import Compose, ToTensor
-from data.data import *
-from torchvision import transforms
-from torch.utils.data import DataLoader
-from net.CIDNet import CIDNet
+import os
 
+from torch.utils.data import DataLoader
+from torchvision import transforms
+
+from data.data import *
+from net.CIDNet import CIDNet
 
 eval_parser = argparse.ArgumentParser(description='Eval')
 eval_parser.add_argument('--SID', action='store_true')
@@ -71,6 +71,3 @@ if __name__ == '__main__':
                 output_folder =  SID_folder + fill_index + "/"
                 eval_data = DataLoader(dataset=get_eval_set(now_dir), num_workers=0, batch_size=1, shuffle=False)
                 eval(net, eval_data, model_path, output_folder)
-        
-
-

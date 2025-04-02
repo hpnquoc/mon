@@ -18,7 +18,7 @@ import numpy as np
 import torch
 
 from mon import core, datasets
-from mon.vision import types, track
+from mon.vision import track, types
 
 
 # region Detector

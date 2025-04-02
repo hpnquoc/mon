@@ -3,12 +3,6 @@
 
 """Predicts model output on a given dataset."""
 
-from __future__ import annotations
-
-import sys
-
-sys.dont_write_bytecode = True
-
 import mon
 
 current_file = mon.Path(__file__).absolute()

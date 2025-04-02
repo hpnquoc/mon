@@ -1,22 +1,11 @@
-from __future__ import absolute_import
-from __future__ import unicode_literals
-from __future__ import print_function
-from __future__ import division
+from __future__ import absolute_import, division, print_function, unicode_literals
 
-import os
-import shutil
 import math
+import os
 import time
-import random
-import skimage
-import numpy as np
-from skimage import io
-from skimage.transform import resize
 
 import torch
-import torch.nn as nn
 import torch.nn.functional as F
-from torch.utils.data import Dataset
 
 
 ######################################

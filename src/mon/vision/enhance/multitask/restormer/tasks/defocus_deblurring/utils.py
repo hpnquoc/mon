@@ -2,13 +2,13 @@
 ## Syed Waqas Zamir, Aditya Arora, Salman Khan, Munawar Hayat, Fahad Shahbaz Khan, and Ming-Hsuan Yang
 ## https://arxiv.org/abs/2111.09881
 
-import numpy as np
-import os
-import cv2
 import math
 
+import cv2
+import numpy as np
 from skimage import metrics
 from sklearn.metrics import mean_absolute_error
+
 
 def MAE(img1, img2):
     mae_0=mean_absolute_error(img1[:,:,0], img2[:,:,0],

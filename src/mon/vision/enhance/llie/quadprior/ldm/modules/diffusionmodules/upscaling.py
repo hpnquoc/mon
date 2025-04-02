@@ -4,8 +4,8 @@ import numpy as np
 import torch
 import torch.nn as nn
 from ldm.modules.diffusionmodules.util import (
-	extract_into_tensor,
-	make_beta_schedule,
+    extract_into_tensor,
+    make_beta_schedule,
 )
 from ldm.util import default
 

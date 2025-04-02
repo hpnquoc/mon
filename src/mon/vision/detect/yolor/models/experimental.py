@@ -3,11 +3,14 @@
 import numpy as np
 import torch
 import torch.nn as nn
-
-import mon
 from models.common import Conv, DWConv
 from utils.google_utils import attempt_download
-from utils.torch_utils import intersect_dicts, ModelEMA, select_device, torch_distributed_zero_first
+from utils.torch_utils import (
+    intersect_dicts, ModelEMA, select_device,
+    torch_distributed_zero_first,
+)
+
+import mon
 
 console      = mon.console
 current_file = mon.Path(__file__).absolute()

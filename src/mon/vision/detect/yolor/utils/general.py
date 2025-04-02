@@ -16,9 +16,11 @@ import matplotlib
 import numpy as np
 import torch
 import yaml
-
 from utils.google_utils import gsutil_getsize
-from utils.metrics import fitness, fitness_ap50, fitness_p, fitness_r, fitness_f1, fitness_ap
+from utils.metrics import (
+    fitness, fitness_ap, fitness_ap50, fitness_f1, fitness_p,
+    fitness_r,
+)
 from utils.torch_utils import init_torch_seeds
 
 # Set printoptions

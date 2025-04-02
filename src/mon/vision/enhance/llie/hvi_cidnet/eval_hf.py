@@ -1,14 +1,15 @@
-from net.CIDNet import CIDNet
-import os
-import json
-import safetensors.torch as sf
-from huggingface_hub import hf_hub_download
 import argparse
-import torchvision.transforms as transforms
-import torch.nn.functional as F
+import json
+import os
+
+import safetensors.torch as sf
 import torch
-import platform
+import torch.nn.functional as F
+import torchvision.transforms as transforms
+from huggingface_hub import hf_hub_download
 from PIL import Image
+
+from net.CIDNet import CIDNet
 
 eval_parser = argparse.ArgumentParser(description='EvalHF')
 eval_parser.add_argument('--path', type=str, default="Fediory/HVI-CIDNet-LOLv1-wperc", help='You can change this path to our method weights mentioned here: https://huggingface.co/papers/2502.20272.')

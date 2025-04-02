@@ -1,8 +1,8 @@
-import numpy as np
 import random
+
+import numpy as np
 import torch
 import torch.nn as nn
-
 from models.common import Conv, DWConv
 from utils.google_utils import attempt_download
 
@@ -268,5 +268,3 @@ def attempt_load(weights, map_location=None):
         for k in ['names', 'stride']:
             setattr(model, k, getattr(model[-1], k))
         return model  # return ensemble
-
-

@@ -1,15 +1,17 @@
 from collections import namedtuple
+
+import numpy as np
+import torch
+import torch.nn as nn
 from cv2.ximgproc import guidedFilter
+from skimage.measure import compare_psnr, compare_ssim
+
 from net import *
 from net.losses import StdLoss
 from net.vae_model import VAE
-from utils.imresize import np_imresize
-from utils.image_io import *
 from utils.dcp import get_atmosphere
-from skimage.measure import compare_psnr, compare_ssim
-import torch
-import torch.nn as nn
-import numpy as np
+from utils.image_io import *
+from utils.imresize import np_imresize
 
 DehazeResult = namedtuple("DehazeResult", ['learned', 't', 'a'])
 

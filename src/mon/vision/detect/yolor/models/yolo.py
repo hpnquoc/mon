@@ -10,7 +10,6 @@ logger = logging.getLogger(__name__)
 
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 
 from models.common import Conv, Bottleneck, SPP, SPPCSP, VoVCSP, DWConv, Focus, BottleneckCSP, BottleneckCSPLG, BottleneckCSPSE, BottleneckCSPSAM, BottleneckCSPSEA, BottleneckCSPSAMA, BottleneckCSPSAMB, BottleneckCSPGC, BottleneckCSPDNL, BottleneckCSP2, BottleneckCSP2SAM, Concat, DownC, DownD, DNL, GC, SAM, SAMA, NMS, autoShape, TR, BottleneckCSPTR, BottleneckCSP2TR, SPPCSPTR, ReOrg, BottleneckCSPF, ImplicitA, ImplicitM, DWT
 from models.experimental import MixConv2d, CrossConv, C3

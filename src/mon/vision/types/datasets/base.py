@@ -70,7 +70,7 @@ class VisionDataset(core.Dataset, ABC):
         if self.to_tensor:
             for k, v in datapoint.items():
                 to_tensor_fn = getattr(self.datapoint_attrs[k], "to_tensor", None)
-                if to_tensor_fn and v:
+                if to_tensor_fn and v is not None:
                     datapoint[k] = to_tensor_fn(v, normalize=True)
         
         return datapoint | {"meta": meta}

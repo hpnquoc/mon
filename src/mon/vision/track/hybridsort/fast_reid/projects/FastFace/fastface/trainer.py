@@ -8,8 +8,8 @@ import os
 import time
 
 from fast_reid.fastreid.data.build import (
-	_root, build_reid_test_loader,
-	build_reid_train_loader,
+    _root, build_reid_test_loader,
+    build_reid_train_loader,
 )
 from fast_reid.fastreid.data.datasets import DATASET_REGISTRY
 from fast_reid.fastreid.data.transforms import build_transforms

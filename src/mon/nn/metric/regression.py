@@ -26,12 +26,12 @@ __all__ = [
 ]
 
 from torchmetrics.regression import (
-	ConcordanceCorrCoef, CosineSimilarity, CriticalSuccessIndex, ExplainedVariance,
-	KendallRankCorrCoef, KLDivergence, LogCoshError, MeanAbsoluteError,
-	MeanAbsolutePercentageError, MeanSquaredError, MeanSquaredLogError,
-	MinkowskiDistance, PearsonCorrCoef, R2Score, RelativeSquaredError, SpearmanCorrCoef,
-	SymmetricMeanAbsolutePercentageError, TweedieDevianceScore,
-	WeightedMeanAbsolutePercentageError,
+    ConcordanceCorrCoef, CosineSimilarity, CriticalSuccessIndex, ExplainedVariance,
+    KendallRankCorrCoef, KLDivergence, LogCoshError, MeanAbsoluteError,
+    MeanAbsolutePercentageError, MeanSquaredError, MeanSquaredLogError,
+    MinkowskiDistance, PearsonCorrCoef, R2Score, RelativeSquaredError, SpearmanCorrCoef,
+    SymmetricMeanAbsolutePercentageError, TweedieDevianceScore,
+    WeightedMeanAbsolutePercentageError,
 )
 
 from mon.constants import METRICS

@@ -1,8 +1,9 @@
-import os
 import glob
+import os
 import time
-import torch
+
 import torchvision
+
 from modeling import model
 from option import *
 from utils import *

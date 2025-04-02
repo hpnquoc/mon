@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 import BackgroundEffects from '@/common/components/effects/BackgroundEffects';
-import EffectsToolbarBottomActions from '@/common/components/effects/EffectsToolbarBottomActions';
+import EffectsToolbarBottomActions
+    from '@/common/components/effects/EffectsToolbarBottomActions';
 import EffectsToolbarHeader from '@/common/components/effects/EffectsToolbarHeader';
 import HighlightEffects from '@/common/components/effects/HighlightEffects';
 import useMessagesSnackbar from '@/common/components/snackbar/useDemoMessagesSnackbar';

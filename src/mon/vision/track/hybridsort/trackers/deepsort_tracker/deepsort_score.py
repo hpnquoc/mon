@@ -4,8 +4,8 @@ import cv2
 import numpy as np
 import torch
 from trackers.deepsort_tracker import (
-	iou_matching, kalman_filter,
-	kalman_filter_score, linear_assignment_score,
+    iou_matching, kalman_filter,
+    kalman_filter_score, linear_assignment_score,
 )
 from yolox.data.dataloading import get_yolox_datadir
 

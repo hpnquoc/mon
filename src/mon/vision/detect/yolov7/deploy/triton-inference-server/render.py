@@ -1,8 +1,5 @@
-import numpy as np
-
 import cv2
-
-from math import sqrt
+import numpy as np
 
 _LINE_THICKNESS_SCALING = 500.0
 

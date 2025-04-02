@@ -11,8 +11,8 @@ import torch
 # from basicsr.data import create_dataloader, create_dataset
 from basicsr.models import create_model
 from basicsr.utils import (
-	FileClient, imfrombytes, img2tensor, imwrite, padding,
-	set_random_seed, tensor2img,
+    FileClient, imfrombytes, img2tensor, imwrite, padding,
+    set_random_seed, tensor2img,
 )
 from basicsr.utils.dist_util import get_dist_info, init_dist
 from basicsr.utils.options import dict2str, parse

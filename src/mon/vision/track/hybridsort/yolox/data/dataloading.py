@@ -7,8 +7,8 @@ import random
 
 import torch
 from torch.utils.data.dataloader import (
-	DataLoader as torchDataLoader,
-	default_collate,
+    DataLoader as torchDataLoader,
+    default_collate,
 )
 
 from .samplers import YoloBatchSampler

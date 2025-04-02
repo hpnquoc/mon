@@ -10,8 +10,8 @@ import torch
 from fast_reid.fastreid.layers import get_norm
 from fast_reid.fastreid.modeling.backbones import BACKBONE_REGISTRY
 from fast_reid.fastreid.utils.checkpoint import (
-	get_missing_parameters_message,
-	get_unexpected_parameters_message,
+    get_missing_parameters_message,
+    get_unexpected_parameters_message,
 )
 from torch import nn
 

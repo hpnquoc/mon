@@ -1,10 +1,11 @@
-from thop import profile
-import torch
 import time
+
+import torch
+from thop import profile
+
 from net.CIDNet import CIDNet
 
-
-model = CIDNet().to('cuda')  
+model = CIDNet().to('cuda')
 input = torch.rand(1,3,256,256).to('cuda')  
 torch.cuda.synchronize()
 model.eval()

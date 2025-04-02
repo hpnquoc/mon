@@ -21,7 +21,7 @@ from torch.nn import functional as F
 
 from mon import core, nn
 from mon.constants import LType, MODELS, Task
-from mon.vision import types, filtering
+from mon.vision import filtering, types
 from mon.vision.enhance import base
 
 current_file = core.Path(__file__).absolute()

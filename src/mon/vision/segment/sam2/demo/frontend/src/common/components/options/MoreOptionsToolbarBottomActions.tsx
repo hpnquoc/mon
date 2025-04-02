@@ -15,8 +15,8 @@
  */
 import RestartSessionButton from '@/common/components/session/RestartSessionButton';
 import {
-  EFFECT_TOOLBAR_INDEX,
-  OBJECT_TOOLBAR_INDEX,
+    EFFECT_TOOLBAR_INDEX,
+    OBJECT_TOOLBAR_INDEX,
 } from '@/common/components/toolbar/ToolbarConfig';
 import {ChevronLeft} from '@carbon/icons-react';
 import {Button} from 'react-daisyui';

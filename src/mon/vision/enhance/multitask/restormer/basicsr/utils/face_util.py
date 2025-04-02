@@ -1,10 +1,10 @@
+import os
+
 import cv2
 import numpy as np
-import os
 import torch
-from skimage import transform as trans
-
 from basicsr.utils import imwrite
+from skimage import transform as trans
 
 try:
     import dlib

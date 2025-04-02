@@ -1,9 +1,8 @@
 
 import torch
-import torch.nn as nn
-import torch.nn.functional as F
 
 from .config import config_model_converted
+
 
 def convert_pdc(op, weight):
     if op == 'cv':
@@ -71,4 +70,3 @@ def convert_pidinet(state_dict, config):
             new_dict[pname] = p
 
     return new_dict
-

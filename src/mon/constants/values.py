@@ -53,7 +53,7 @@ from mon.core import factory, pathlib
 
 # ----- Directory -----
 current_file  = pathlib.Path(__file__).absolute()
-ROOT_DIR      = current_file.parents[2]     # ./mon
+ROOT_DIR      = current_file.parents[3]     # ./mon
 DATA_DIR      = ROOT_DIR / "data"           # ./mon/data
 SRC_DIR       = ROOT_DIR / "src"            # ./mon/src
 MON_DIR       = ROOT_DIR / "src/mon"        # ./mon/src/mon

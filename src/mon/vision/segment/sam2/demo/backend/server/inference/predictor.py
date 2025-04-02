@@ -36,7 +36,6 @@ from inference.data_types import (
 from pycocotools.mask import decode as decode_masks, encode as encode_masks
 from sam2.build_sam import build_sam2_video_predictor
 
-
 logger = logging.getLogger(__name__)
 
 

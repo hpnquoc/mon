@@ -2,15 +2,16 @@
 ## Syed Waqas Zamir, Aditya Arora, Salman Khan, Munawar Hayat, Fahad Shahbaz Khan, and Ming-Hsuan Yang
 ## https://arxiv.org/abs/2111.09881
 
+import concurrent.futures
 import os
-import numpy as np
 from glob import glob
+
+import cv2
+import numpy as np
 from natsort import natsorted
 from skimage import io
-import cv2
 from skimage.metrics import structural_similarity
-from tqdm import tqdm
-import concurrent.futures
+
 
 def image_align(deblurred, gt):
   # this function is based on kohler evaluation code

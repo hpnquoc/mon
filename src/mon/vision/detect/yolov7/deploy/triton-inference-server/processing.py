@@ -1,7 +1,8 @@
-from boundingbox import BoundingBox
-
 import cv2
 import numpy as np
+
+from boundingbox import BoundingBox
+
 
 def preprocess(img, input_shape, letter_box=True):
     if letter_box:

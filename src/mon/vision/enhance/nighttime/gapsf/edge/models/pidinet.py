@@ -3,15 +3,13 @@ Author: Zhuo Su, Wenzhe Liu
 Date: Feb 18, 2021
 """
 
-import math
-import numpy as np
-
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from .ops import Conv2d
 from .config import config_model, config_model_converted
+from .ops import Conv2d
+
 
 class CSAM(nn.Module):
     """

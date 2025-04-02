@@ -25,8 +25,8 @@ import torch.nn as nn
 import torch.nn.functional as F
 from fast_reid.fastreid.layers import DropPath, to_2tuple, trunc_normal_
 from fast_reid.fastreid.utils.checkpoint import (
-	get_missing_parameters_message,
-	get_unexpected_parameters_message,
+    get_missing_parameters_message,
+    get_unexpected_parameters_message,
 )
 
 from .build import BACKBONE_REGISTRY

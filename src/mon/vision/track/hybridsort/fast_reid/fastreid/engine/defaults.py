@@ -16,11 +16,11 @@ from collections import OrderedDict
 
 import torch
 from fast_reid.fastreid.data import (
-	build_reid_test_loader,
-	build_reid_train_loader,
+    build_reid_test_loader,
+    build_reid_train_loader,
 )
 from fast_reid.fastreid.evaluation import (
-	inference_on_dataset, print_csv_format, ReidEvaluator,
+    inference_on_dataset, print_csv_format, ReidEvaluator,
 )
 from fast_reid.fastreid.modeling.meta_arch import build_model
 from fast_reid.fastreid.solver import build_lr_scheduler, build_optimizer
@@ -29,8 +29,8 @@ from fast_reid.fastreid.utils.checkpoint import Checkpointer
 from fast_reid.fastreid.utils.collect_env import collect_env_info
 from fast_reid.fastreid.utils.env import seed_all_rng
 from fast_reid.fastreid.utils.events import (
-	CommonMetricPrinter, JSONWriter,
-	TensorboardXWriter,
+    CommonMetricPrinter, JSONWriter,
+    TensorboardXWriter,
 )
 from fast_reid.fastreid.utils.file_io import PathManager
 from fast_reid.fastreid.utils.logger import setup_logger

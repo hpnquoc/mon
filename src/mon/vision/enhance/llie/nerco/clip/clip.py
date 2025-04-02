@@ -8,8 +8,8 @@ import torch
 from PIL import Image
 from pkg_resources import packaging
 from torchvision.transforms import (
-	CenterCrop, Compose, Normalize, Resize,
-	ToTensor,
+    CenterCrop, Compose, Normalize, Resize,
+    ToTensor,
 )
 from tqdm import tqdm
 

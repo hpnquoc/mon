@@ -6,12 +6,10 @@ import logging
 import math
 import os
 import random
-import socket
 import time
 from collections import OrderedDict
 from warnings import warn
 
-import click
 import numpy as np
 import torch.distributed as dist
 import torch.nn as nn
@@ -25,9 +23,9 @@ from torch.nn.parallel import DistributedDataParallel as DDP
 from torch.utils.tensorboard import SummaryWriter
 from tqdm import tqdm
 
+import mon
 import my_test as test  # import test.py to get mAP after each epoch
 from models.yolo import Model
-import mon
 from utils.datasets import create_dataloader
 from utils.general import (
     check_dataset, check_file, check_git_status, check_img_size, fitness, fitness_ap,
@@ -38,7 +36,10 @@ from utils.general import (
 from utils.google_utils import attempt_download
 from utils.loss import compute_loss
 from utils.plots import plot_evolution, plot_images, plot_labels, plot_results
-from utils.torch_utils import intersect_dicts, ModelEMA, select_device, torch_distributed_zero_first
+from utils.torch_utils import (
+    intersect_dicts, ModelEMA, select_device,
+    torch_distributed_zero_first,
+)
 
 logger       = logging.getLogger(__name__)
 console      = mon.console

@@ -15,10 +15,11 @@
  */
 import PrimaryCTAButton from '@/common/components/button/PrimaryCTAButton';
 import RestartSessionButton from '@/common/components/session/RestartSessionButton';
-import ToolbarBottomActionsWrapper from '@/common/components/toolbar/ToolbarBottomActionsWrapper';
+import ToolbarBottomActionsWrapper
+    from '@/common/components/toolbar/ToolbarBottomActionsWrapper';
 import {
-  MORE_OPTIONS_TOOLBAR_INDEX,
-  OBJECT_TOOLBAR_INDEX,
+    MORE_OPTIONS_TOOLBAR_INDEX,
+    OBJECT_TOOLBAR_INDEX,
 } from '@/common/components/toolbar/ToolbarConfig';
 import {ChevronRight} from '@carbon/icons-react';
 

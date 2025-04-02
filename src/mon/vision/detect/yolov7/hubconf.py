@@ -88,8 +88,7 @@ if __name__ == '__main__':
 
     # Verify inference
     import numpy as np
-    from PIL import Image
-
+    
     imgs = [np.zeros((640, 480, 3))]
 
     results = model(imgs)  # batched inference
