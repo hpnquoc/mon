@@ -162,7 +162,7 @@ class ImageAnnotation(core.Annotation):
         Returns:
             ``torch.Tensor`` of converted data.
         """
-        return processing.convert_image_to_tensor(data, normalize)
+        return processing.image_to_tensor(data, normalize)
     
     @staticmethod
     def collate_fn(batch: list[torch.Tensor | np.ndarray]) -> torch.Tensor | np.ndarray | None:
@@ -176,4 +176,4 @@ class ImageAnnotation(core.Annotation):
         """
         if not batch:
             return None
-        return processing.convert_image_to_4d(batch)
+        return processing.image_to_4d(batch)

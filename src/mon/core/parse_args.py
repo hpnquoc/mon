@@ -53,19 +53,6 @@ def _float_or_none(value: Any) -> float | None:
     return None if value == "None" else float(value)
 
 
-def get_image_size(input: Any) -> tuple[int, int]:
-    """Retrieves the size of an image as a width-height tuple.
-
-    Args:
-        input: Image input to measure.
-
-    Returns:
-        Tuple of ``(width, height)`` in integers.
-    """
-    from mon.vision import image_size
-    return image_size(input)
-
-
 # ----- Parse Args -----
 def parse_cli_args() -> argparse.Namespace:
     """Parse CLI arguments."""
@@ -190,6 +177,8 @@ def parse_train_args(model_root: str | pathlib.Path = None) -> dict | argparse.N
 
 def parse_predict_args(model_root: str | pathlib.Path = None) -> dict | argparse.Namespace:
     """Parse arguments for predicting."""
+    from mon import vision
+    
     hostname = socket.gethostname().lower()
     
     # Get input args
@@ -246,7 +235,7 @@ def parse_predict_args(model_root: str | pathlib.Path = None) -> dict | argparse
         
     weights = utils.parse_weights_file(root, weights)
     device  = utils.parse_device(device)
-    imgsz   = get_image_size(imgsz)
+    imgsz   = vision.image_size(imgsz)
     
     # Update arguments
     args["hostname"]     = hostname

@@ -88,7 +88,7 @@ def test(args: argparse.Namespace):
         test_patch_size = 128
         stride_rate     = 1 / 2
         sum_time        = 0
-        with mon.get_progress_bar() as pbar:
+        with mon.create_progress_bar() as pbar:
             for ii, data_test in pbar.track(
                 sequence    = enumerate(test_loader),
                 total       = len(test_loader),

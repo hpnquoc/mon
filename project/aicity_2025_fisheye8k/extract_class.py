@@ -35,7 +35,7 @@ def extract_class(
     label_files = list(label_dir.rglob("*/labels/*.txt"))
     label_files = [f for f in label_files if f.is_txt_file()]
     label_files = sorted(label_files)
-    with mon.get_progress_bar() as pbar:
+    with mon.create_progress_bar() as pbar:
         for i in pbar.track(
             sequence    = range(len(label_files)),
             total       = len(label_files),

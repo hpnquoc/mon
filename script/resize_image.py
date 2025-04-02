@@ -42,7 +42,7 @@ def resize_image(
     image_files = list(input_dir.rglob("*"))
     image_files = [f for f in image_files if f.is_image_file()]
     image_files = sorted(image_files)
-    with mon.get_progress_bar() as pbar:
+    with mon.create_progress_bar() as pbar:
         for i in pbar.track(
             sequence    = range(len(image_files)),
             total       = len(image_files),

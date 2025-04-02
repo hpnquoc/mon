@@ -73,7 +73,7 @@ class ImageLoader(base.VisionDataset):
             raise IOError(f"Invalid root path: {self.root}")
         
         images: list[ImageAnnotation] = []
-        with core.get_progress_bar() as pbar:
+        with core.create_progress_bar() as pbar:
             for path in pbar.track(
                 sequence    = sorted(paths),
                 description = f"[bright_yellow]Listing {self.__class__.__name__} "

@@ -29,7 +29,7 @@ current_dir  = current_file.parents[0]
 def train_epoch(train_dataloader, model, criterion, optimizer, device):
     loss_meters = AverageMeter()
     model.train()
-    with mon.get_progress_bar() as pbar:
+    with mon.create_progress_bar() as pbar:
         for i, datapoint in pbar.track(
             sequence    = enumerate(train_dataloader),
             total       = len(train_dataloader),
@@ -53,7 +53,7 @@ def val_epoch(val_dataloader, model, criterion, device):
     psnr_meters = mon.PeakSignalNoiseRatio().to(device)
     ssim_meters = mon.StructuralSimilarityIndexMeasure().to(device)
     model.eval()
-    with mon.get_progress_bar() as pbar:
+    with mon.create_progress_bar() as pbar:
         for i, datapoint in pbar.track(
             sequence    = enumerate(val_dataloader),
             total       = len(val_dataloader),

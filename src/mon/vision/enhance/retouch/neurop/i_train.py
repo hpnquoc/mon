@@ -74,7 +74,7 @@ def train(args: argparse.Namespace):
     current_step = 0
     total_iters  = opt["train"]["niter"]
     total_epochs = int(total_iters / len(train_loader))
-    with mon.get_progress_bar() as pbar:
+    with mon.create_progress_bar() as pbar:
         for epoch in pbar.track(
             sequence    = range(total_epochs + 1),
             total       = total_epochs + 1,

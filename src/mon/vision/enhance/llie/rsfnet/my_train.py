@@ -97,7 +97,7 @@ def train(args: argparse.Namespace):
             optimizer.param_groups[0]["lr"] = optimizer.param_groups[0]["lr"] * args.lr_decay
             optimizer.param_groups[1]["lr"] = optimizer.param_groups[1]["lr"] * args.lr_decay
     
-        with mon.get_progress_bar() as pbar:
+        with mon.create_progress_bar() as pbar:
             for i, datapoint in pbar.track(
                 sequence    = enumerate(train_dataloader),
                 total       = len(train_dataloader),

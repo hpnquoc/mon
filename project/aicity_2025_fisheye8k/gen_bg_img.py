@@ -60,7 +60,7 @@ def gen_bg_img(
     os.makedirs(str(save_dir / "labels"), exist_ok=True)
     
     # Save the images into a local folder
-    with mon.get_progress_bar() as pbar:
+    with mon.create_progress_bar() as pbar:
         for im in pbar.track(
             sequence    = bg_images[:num_images],
             total       = num_images,

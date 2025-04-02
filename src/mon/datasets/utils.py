@@ -12,10 +12,10 @@ from mon.constants import DATA_DIR, DATASETS, Split
 
 
 def parse_data_loader(
-    src        : core.Path | str,
-    data_root  : core.Path | str = None,
-    to_tensor  : bool = False,
-    verbose    : bool = False
+    src      : core.Path | str,
+    data_root: core.Path | str = None,
+    to_tensor: bool = False,
+    verbose  : bool = False
 ) -> tuple[str, core.Dataset]:
     """Parses I/O worker for data src.
 

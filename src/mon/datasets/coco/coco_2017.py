@@ -135,7 +135,7 @@ class COCO2017(vision.VisionDataset):
         
         # Left Images
         images: list[vision.ImageAnnotation] = []
-        with core.get_progress_bar(disable=self.disable_pbar) as pbar:
+        with core.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 for path in pbar.track(
 					sequence    = sorted(list(pattern.rglob("*"))),

@@ -235,7 +235,7 @@ def train(args: argparse.Namespace):
         torch.autograd.set_detect_anomaly(True)
         
         # Train epoch
-        with mon.get_progress_bar() as pbar:
+        with mon.create_progress_bar() as pbar:
             for batch in pbar.track(
                 sequence    = training_data_loader,
                 total       = len(training_data_loader),

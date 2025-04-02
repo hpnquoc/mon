@@ -61,7 +61,7 @@ class RESIDE_HSTS_Real(vision.VisionDataset):
         patterns = [self.root / "hsts" / "real" / self.split_str / "image"]
         
         images: list[vision.ImageAnnotation] = []
-        with core.get_progress_bar(disable=self.disable_pbar) as pbar:
+        with core.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
@@ -105,7 +105,7 @@ class RESIDE_HSTS_Synthetic(vision.VisionDataset):
         patterns = [self.root / "hsts" / "synthetic" / self.split_str / "image"]
         
         images: list[vision.ImageAnnotation] = []
-        with core.get_progress_bar(disable=self.disable_pbar) as pbar:
+        with core.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
@@ -149,7 +149,7 @@ class RESIDE_ITS(vision.VisionDataset):
         patterns = [self.root / "its" / self.split_str / "image"]
         
         images: list[vision.ImageAnnotation] = []
-        with core.get_progress_bar(disable=self.disable_pbar) as pbar:
+        with core.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
@@ -158,7 +158,7 @@ class RESIDE_ITS(vision.VisionDataset):
                         images.append(vision.ImageAnnotation(path=path, root=pattern))
         
         ref_images: list[vision.ImageAnnotation] = []
-        with core.get_progress_bar(disable=self.disable_pbar) as pbar:
+        with core.create_progress_bar(disable=self.disable_pbar) as pbar:
             for img in pbar.track(
                 sequence=images,
                 description=f"Listing {self.__class__.__name__} {self.split_str} reference images"
@@ -205,7 +205,7 @@ class RESIDE_OTS(vision.VisionDataset):
         patterns = [self.root / "ots" / self.split_str / "image"]
         
         images: list[vision.ImageAnnotation] = []
-        with core.get_progress_bar(disable=self.disable_pbar) as pbar:
+        with core.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
@@ -214,7 +214,7 @@ class RESIDE_OTS(vision.VisionDataset):
                         images.append(vision.ImageAnnotation(path=path, root=pattern))
         
         ref_images: list[vision.ImageAnnotation] = []
-        with core.get_progress_bar(disable=self.disable_pbar) as pbar:
+        with core.create_progress_bar(disable=self.disable_pbar) as pbar:
             for img in pbar.track(
                 sequence=images,
                 description=f"Listing {self.__class__.__name__} {self.split_str} reference images"
@@ -260,7 +260,7 @@ class RESIDE_RTTS(vision.VisionDataset):
         patterns = [self.root / "rtts" / self.split_str / "image"]
         
         images: list[vision.ImageAnnotation] = []
-        with core.get_progress_bar(disable=self.disable_pbar) as pbar:
+        with core.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
@@ -304,7 +304,7 @@ class RESIDE_SOTS_Indoor(vision.VisionDataset):
         patterns = [self.root / "sots" / "indoor" / self.split_str / "image"]
         
         images: list[vision.ImageAnnotation] = []
-        with core.get_progress_bar(disable=self.disable_pbar) as pbar:
+        with core.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
@@ -313,7 +313,7 @@ class RESIDE_SOTS_Indoor(vision.VisionDataset):
                         images.append(vision.ImageAnnotation(path=path, root=pattern))
         
         ref_images: list[vision.ImageAnnotation] = []
-        with core.get_progress_bar(disable=self.disable_pbar) as pbar:
+        with core.create_progress_bar(disable=self.disable_pbar) as pbar:
             for img in pbar.track(
                 sequence    = images,
                 description = f"Listing {self.__class__.__name__} {self.split_str} reference images"
@@ -360,7 +360,7 @@ class RESIDE_SOTS_Outdoor(vision.VisionDataset):
         patterns = [self.root / "sots" / "outdoor" / self.split_str / "image"]
         
         images: list[vision.ImageAnnotation] = []
-        with core.get_progress_bar(disable=self.disable_pbar) as pbar:
+        with core.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
@@ -369,7 +369,7 @@ class RESIDE_SOTS_Outdoor(vision.VisionDataset):
                         images.append(vision.ImageAnnotation(path=path, root=pattern))
         
         ref_images: list[vision.ImageAnnotation] = []
-        with core.get_progress_bar(disable=self.disable_pbar) as pbar:
+        with core.create_progress_bar(disable=self.disable_pbar) as pbar:
             for img in pbar.track(
                 sequence    = images,
                 description = f"Listing {self.__class__.__name__} {self.split_str} reference images"
@@ -415,7 +415,7 @@ class RESIDE_URHI(vision.VisionDataset):
         patterns = [self.root / "urhi" / self.split_str / "image"]
         
         images: list[vision.ImageAnnotation] = []
-        with core.get_progress_bar(disable=self.disable_pbar) as pbar:
+        with core.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"

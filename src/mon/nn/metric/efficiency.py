@@ -30,9 +30,9 @@ def compute_efficiency_score(
     Returns:
         Tuple of (FLOPs, parameters) as floats.
     """
-    from mon.vision import image_size
+    from mon.vision import types
 
-    h, w   = image_size(image_size)
+    h, w   = types.image_size(image_size)
     input  = torch.rand(1, channels, h, w).to(core.get_model_device(model))
     flops, params = core.profile(model, inputs=(input,), verbose=False)
 

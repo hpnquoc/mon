@@ -55,7 +55,7 @@ class CityscapesFoggy(Cityscapes):
         patterns = [self.root / self.split_str / "leftImg8bit_foggy"]
         
         images: list[vision.ImageAnnotation] = []
-        with core.get_progress_bar(disable=self.disable_pbar) as pbar:
+        with core.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
@@ -64,7 +64,7 @@ class CityscapesFoggy(Cityscapes):
                         images.append(vision.ImageAnnotation(path=path, root=pattern))
         
         ref_images: list[vision.ImageAnnotation] = []
-        with core.get_progress_bar(disable=self.disable_pbar) as pbar:
+        with core.create_progress_bar(disable=self.disable_pbar) as pbar:
             desc = f"Listing {self.__class__.__name__} {self.split_str} reference images"
             for img in pbar.track(sequence=images, description=desc):
                 path = img.path.replace("/leftImg8bit_foggy/", "/leftImg8bit/")
@@ -74,7 +74,7 @@ class CityscapesFoggy(Cityscapes):
         
         # Semantic segmentation maps
         semantic: list[vision.SemanticSegmentationAnnotation] = []
-        with core.get_progress_bar(disable=self.disable_pbar) as pbar:
+        with core.create_progress_bar(disable=self.disable_pbar) as pbar:
             desc = f"Listing {self.__class__.__name__} {self.split_str} semantic maps"
             for img in pbar.track(sequence=ref_images, description=desc):
                 path = img.path.replace("/leftImg8bit/", "/gtFine/")

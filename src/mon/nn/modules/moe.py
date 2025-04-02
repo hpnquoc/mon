@@ -7,27 +7,13 @@ __all__ = [
     "LayeredFeatureAggregation",
 ]
 
-from typing import Any, Sequence
+from typing import Sequence
 
 import torch
 from torch.nn.common_types import _size_2_t
 
 from mon import core
 
-
-# ----- Utils -----
-def get_image_size(input: Any) -> tuple[int, int]:
-    """Retrieves the size of an image.
-
-    Args:
-        input: Image data in any compatible format as ``Any``.
-
-    Returns:
-        Tuple of (height, width) in pixels as ``tuple[int, int]``
-    """
-    from mon.vision.types import image as I
-    return I.image_size(input)
-    
 
 # ----- Layer -----
 class LayeredFeatureAggregation(torch.nn.Module):
@@ -47,6 +33,8 @@ class LayeredFeatureAggregation(torch.nn.Module):
         size        : _size_2_t = None
     ):
         super().__init__()
+        from mon.vision import types
+        
         self.in_channels  = core.to_int_list(in_channels)
         self.out_channels = out_channels
         self.num_experts  = len(self.in_channels)
@@ -55,7 +43,7 @@ class LayeredFeatureAggregation(torch.nn.Module):
             raise ValueError("[in_channels] must not be empty")
 
         if size:
-            self.size    = get_image_size(size)
+            self.size    = types.image_size(size)
             self.resize  = torch.nn.Upsample(size=self.size, mode="bilinear", align_corners=False)
             self.linears = torch.nn.ModuleList([
                 torch.nn.Conv2d(in_c, self.out_channels, 1) for in_c in self.in_channels

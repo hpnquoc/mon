@@ -151,7 +151,7 @@ def train(args: dict) -> str:
         model_.train()
         
         # Train
-        with mon.get_progress_bar() as pbar:
+        with mon.create_progress_bar() as pbar:
             for i, data in pbar.track(
                 sequence    = enumerate(train_loader),
                 total       = len(train_loader),

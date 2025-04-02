@@ -140,7 +140,7 @@ def train(args: dict) -> str:
     ).to(device)
     
     # Training
-    with mon.get_progress_bar() as pbar:
+    with mon.create_progress_bar() as pbar:
         for i in pbar.track(
             sequence    = range(epochs),
             total       = epochs,

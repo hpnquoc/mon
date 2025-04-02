@@ -56,7 +56,7 @@ class SICE(vision.VisionDataset):
         
         # Images
         images: list[vision.ImageAnnotation] = []
-        with core.get_progress_bar(disable=self.disable_pbar) as pbar:
+        with core.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
@@ -102,7 +102,7 @@ class SICEGrad(vision.VisionDataset):
         
         # Images
         images: list[vision.ImageAnnotation] = []
-        with core.get_progress_bar(disable=self.disable_pbar) as pbar:
+        with core.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
@@ -146,7 +146,7 @@ class SICEME(vision.VisionDataset):
         
         # Images
         images: list[vision.ImageAnnotation] = []
-        with core.get_progress_bar(disable=self.disable_pbar) as pbar:
+        with core.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
@@ -192,7 +192,7 @@ class SICEMix(vision.VisionDataset):
         
         # Images
         images: list[vision.ImageAnnotation] = []
-        with core.get_progress_bar(disable=self.disable_pbar) as pbar:
+        with core.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"

@@ -1,4 +1,4 @@
-# Prompt for Coding Preferences
+# Prompt for Code Refactoring
 
 ## Docstrings
 - **Format**: Google-style, ≤88 chars, generate docstring if missing. Put __init_'s docstring at class level.

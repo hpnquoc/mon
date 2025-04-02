@@ -88,7 +88,7 @@ def train(args: dict) -> str:
     L_tv    = myloss.L_TV()
     
     # Training
-    with mon.get_progress_bar() as pbar:
+    with mon.create_progress_bar() as pbar:
         for _ in pbar.track(
             sequence    = range(epochs),
             total       = epochs,

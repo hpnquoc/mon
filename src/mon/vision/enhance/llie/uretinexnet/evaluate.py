@@ -96,7 +96,7 @@ class Inference(nn.Module):
     def evaluate(self):
         low_image_paths = list(self.opts.input_low.rglob("*"))
         low_image_paths = [path for path in low_image_paths if path.is_image_file()]
-        with mon.get_progress_bar() as pbar:
+        with mon.create_progress_bar() as pbar:
             for _, low_image_path in pbar.track(
                 sequence    = enumerate(low_image_paths),
                 total       = len(low_image_paths),

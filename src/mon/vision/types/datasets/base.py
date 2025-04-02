@@ -174,7 +174,7 @@ class VisionDataset(core.Dataset, ABC):
         
         if len(ref_images) == 0:
             ref_images: list[ImageAnnotation] = []
-            with core.get_progress_bar(disable=self.disable_pbar) as pbar:
+            with core.create_progress_bar(disable=self.disable_pbar) as pbar:
                 for img in pbar.track(
                     sequence    = images,
                     description = f"Listing {self.__class__.__name__} "
@@ -195,7 +195,7 @@ class VisionDataset(core.Dataset, ABC):
         
         if len(images) > 0 and len(depths) == 0:
             depths: list[DepthMapAnnotation] = []
-            with core.get_progress_bar(disable=self.disable_pbar) as pbar:
+            with core.create_progress_bar(disable=self.disable_pbar) as pbar:
                 for img in pbar.track(
                     sequence    = images,
                     description = f"Listing {self.__class__.__name__} "
@@ -219,7 +219,7 @@ class VisionDataset(core.Dataset, ABC):
         
         if len(ref_images) > 0 and len(ref_depths) == 0:
             ref_depths: list[DepthMapAnnotation] = []
-            with core.get_progress_bar(disable=self.disable_pbar) as pbar:
+            with core.create_progress_bar(disable=self.disable_pbar) as pbar:
                 for img in pbar.track(
                     sequence    = ref_images,
                     description = f"Listing {self.__class__.__name__} "

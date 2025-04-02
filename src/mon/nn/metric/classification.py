@@ -9,7 +9,6 @@ __all__ = [
 	"CalibrationError",
 	"CohenKappa",
 	"ConfusionMatrix",
-	"Dice",
 	"ExactMatch",
 	"F1Score",
 	"FBetaScore",
@@ -31,11 +30,11 @@ __all__ = [
 ]
 
 from torchmetrics.classification import (
-    Accuracy, AUROC, AveragePrecision, CalibrationError, CohenKappa, ConfusionMatrix,
-    Dice, ExactMatch, F1Score, FBetaScore, HammingDistance, HingeLoss, JaccardIndex,
-    MatthewsCorrCoef, Precision, PrecisionAtFixedRecall, PrecisionRecallCurve, Recall,
-    RecallAtFixedPrecision, ROC, SensitivityAtSpecificity, Specificity,
-    SpecificityAtSensitivity, StatScores,
+	Accuracy, AUROC, AveragePrecision, CalibrationError, CohenKappa, ConfusionMatrix,
+	ExactMatch, F1Score, FBetaScore, HammingDistance, HingeLoss, JaccardIndex,
+	MatthewsCorrCoef, Precision, PrecisionAtFixedRecall, PrecisionRecallCurve, Recall,
+	RecallAtFixedPrecision, ROC, SensitivityAtSpecificity, Specificity,
+	SpecificityAtSensitivity, StatScores,
 )
 
 from mon.constants import METRICS
@@ -47,7 +46,6 @@ METRICS.register(name="average_precision",          module=AveragePrecision)
 METRICS.register(name="calibration_error",          module=CalibrationError)
 METRICS.register(name="cohen_kappa",                module=CohenKappa)
 METRICS.register(name="confusion_matrix",           module=ConfusionMatrix)
-METRICS.register(name="dice",                       module=Dice)
 METRICS.register(name="exact_match",                module=ExactMatch)
 METRICS.register(name="f1_score ",                  module=F1Score)
 METRICS.register(name="f_beta_score",               module=FBetaScore)

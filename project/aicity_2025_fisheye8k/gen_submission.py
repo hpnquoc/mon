@@ -77,7 +77,7 @@ def gen_submission(
 	image_files = [f for f in image_files if f.is_image_file()]
 	image_files = sorted(image_files)
 	detections: list[dict] = []
-	with mon.get_progress_bar() as pbar:
+	with mon.create_progress_bar() as pbar:
 		for i in pbar.track(
 			sequence    = range(len(image_files)),
 			total       = len(image_files),

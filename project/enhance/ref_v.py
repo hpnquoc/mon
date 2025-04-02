@@ -20,7 +20,7 @@ image_files = [f for f in image_files if f.is_image_file()]
 image_files = sorted(image_files)
 num_items   = len(image_files)
 
-with mon.get_progress_bar() as pbar:
+with mon.create_progress_bar() as pbar:
     for image_file in pbar.track(
         sequence    = image_files,
         total       = len(image_files),

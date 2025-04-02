@@ -50,7 +50,7 @@ class SIDSony(vision.VisionDataset):
         patterns = [self.root / self.split_str / "image"]
         
         images: list[vision.ImageAnnotation] = []
-        with core.get_progress_bar(disable=self.disable_pbar) as pbar:
+        with core.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"

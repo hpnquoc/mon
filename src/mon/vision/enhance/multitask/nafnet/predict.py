@@ -166,7 +166,7 @@ def predict(
     opt["dist"] = False
     model       = create_model(opt)
     
-    with mon.get_progress_bar() as pbar:
+    with mon.create_progress_bar() as pbar:
         for i in pbar.track(
             sequence    = range(len(source)),
             total       = len(source),

@@ -9,9 +9,9 @@ __all__ = [
     "download_weights_from_url",
     "get_epoch_from_checkpoint",
     "get_global_step_from_checkpoint",
-    "get_gpu_device_memory",
+    "get_gpu_memory_usages",
     "get_latest_checkpoint",
-    "get_machine_memory",
+    "get_machine_memory_usages",
     "get_model_device",
     "get_project_default_config",
     "is_extra_model",
@@ -467,7 +467,7 @@ def set_device(device: Any, use_single_device: bool = True) -> torch.device:
     return torch.device(f"cuda:{device}" if torch.cuda.is_available() else "cpu")
 
 
-def get_machine_memory(unit: MemoryUnit = MemoryUnit.GB) -> list[int]:
+def get_machine_memory_usages(unit: MemoryUnit = MemoryUnit.GB) -> list[int]:
     """Gets RAM status as a list of total, used, and free memory.
 
     Args:
@@ -485,7 +485,7 @@ def get_machine_memory(unit: MemoryUnit = MemoryUnit.GB) -> list[int]:
     ]
 
 
-def get_gpu_device_memory(device: int = 0, unit: MemoryUnit = MemoryUnit.GB) -> list[int]:
+def get_gpu_memory_usages(device: int = 0, unit: MemoryUnit = MemoryUnit.GB) -> list[int]:
     """Gets GPU memory status as a list of total, used, and free memory.
 
     Args:

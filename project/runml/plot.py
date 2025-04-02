@@ -93,7 +93,7 @@ def list_images(input_dir: mon.Path, verbose: bool):
         "input"       : "",
         "ground-truth": "",
     }
-    with mon.get_progress_bar() as pbar:
+    with mon.create_progress_bar() as pbar:
         for sd in pbar.track(
             sequence    = subdirs,
             total       = len(subdirs),
@@ -116,7 +116,7 @@ def list_images(input_dir: mon.Path, verbose: bool):
     
     # Listing image names
     image_stem_dict = {}
-    with mon.get_progress_bar() as pbar:
+    with mon.create_progress_bar() as pbar:
         for dn in pbar.track(
             sequence    = dataset_names,
             total       = len(dataset_names),
@@ -145,7 +145,7 @@ def plot_cv2(
         output_dir.mkdir(parents=True, exist_ok=True)
     
     # Visualize images
-    with mon.get_progress_bar() as pbar:
+    with mon.create_progress_bar() as pbar:
         for dn in pbar.track(
             sequence    = dataset_names,
             total       = len(dataset_names),
@@ -249,7 +249,7 @@ def plot_cv2_diff(
         output_dir.mkdir(parents=True, exist_ok=True)
     
     # Visualize images
-    with mon.get_progress_bar() as pbar:
+    with mon.create_progress_bar() as pbar:
         for dn in pbar.track(
             sequence    = dataset_names,
             total       = len(dataset_names),
@@ -364,7 +364,7 @@ def plot_matplotlib(
     
     # Visualize images
     first_image = True
-    with mon.get_progress_bar() as pbar:
+    with mon.create_progress_bar() as pbar:
         for dn in pbar.track(
             sequence    = dataset_names,
             total       = len(dataset_names),

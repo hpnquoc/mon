@@ -103,7 +103,7 @@ class Cityscapes(vision.VisionDataset):
         patterns   = [self.root / self.split_str / image_name]
 
         images: list[vision.ImageAnnotation] = []
-        with core.get_progress_bar(disable=self.disable_pbar) as pbar:
+        with core.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} left images"
@@ -112,7 +112,7 @@ class Cityscapes(vision.VisionDataset):
                         images.append(vision.ImageAnnotation(path=path, root=pattern))
 
         semantic: list[vision.SemanticSegmentationAnnotation] = []
-        with core.get_progress_bar(disable=self.disable_pbar) as pbar:
+        with core.create_progress_bar(disable=self.disable_pbar) as pbar:
             desc = f"Listing {self.__class__.__name__} {self.split_str} semantic maps"
             for img in pbar.track(sequence=images, description=desc):
                 path = img.path.replace(image_name, gt_name)

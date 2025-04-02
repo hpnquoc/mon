@@ -155,7 +155,7 @@ class VideoWriter(ABC):
         self,
         frame      : torch.Tensor | np.ndarray,
         path       : core.Path = None,
-        denormalize: bool 	   = False
+        denormalize: bool = False
     ):
         """Write frame to ``dst``.
 
@@ -171,7 +171,7 @@ class VideoWriter(ABC):
         self,
         frames     : list[torch.Tensor | np.ndarray],
         paths      : list[core.Path] = None,
-        denormalize: bool			 	= False
+        denormalize: bool = False
     ):
         """Write batch of frames to ``dst``.
 
@@ -247,7 +247,7 @@ class VideoWriterCV(VideoWriter):
         self,
         frame      : torch.Tensor | np.ndarray,
         path       : core.Path = None,
-        denormalize: bool 		  = False
+        denormalize: bool = False
     ):
         """Write frame to video.
 
@@ -267,7 +267,7 @@ class VideoWriterCV(VideoWriter):
         self,
         frames     : list[torch.Tensor | np.ndarray],
         paths      : list[core.Path] = None,
-        denormalize: bool 			 = False
+        denormalize: bool = False
     ):
         """Write batch of frames to video.
 
@@ -357,7 +357,7 @@ class VideoWriterFFmpeg(VideoWriter):
         self,
         frame      : torch.Tensor | np.ndarray,
         path       : core.Path = None,
-        denormalize: bool 	   = False
+        denormalize: bool = False
     ):
         """Write frame to video.
 
@@ -374,7 +374,7 @@ class VideoWriterFFmpeg(VideoWriter):
         self,
         frames     : list[torch.Tensor | np.ndarray],
         paths      : list[core.Path] = None,
-        denormalize: bool 			 = False,
+        denormalize: bool = False,
     ):
         """Write batch of frames to video.
 

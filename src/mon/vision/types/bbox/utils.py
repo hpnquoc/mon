@@ -20,7 +20,7 @@ __all__ = [
 import numpy as np
 
 
-# ----- Properties Accessors -----
+# ----- Accessor -----
 def bbox_area(bbox: np.ndarray) -> np.ndarray:
     """Compute area of bounding box(es).
 

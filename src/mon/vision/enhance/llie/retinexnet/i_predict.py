@@ -53,7 +53,7 @@ def predict(args: dict) -> str:
     model = RetinexNet(imgsz, benchmark).to(device)
     
     image_paths = []
-    with mon.get_progress_bar() as pbar:
+    with mon.create_progress_bar() as pbar:
         for i, datapoint in pbar.track(
             sequence    = enumerate(data_loader),
             total       = len(data_loader),

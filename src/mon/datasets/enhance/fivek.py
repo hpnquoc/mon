@@ -129,7 +129,7 @@ class FiveKInit(vision.VisionDataset):
         patterns = [self.root / "retouch_init"]
 
         file_ex = defaultdict(list)
-        with core.get_progress_bar(disable=self.disable_pbar) as pbar:
+        with core.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("exposure/*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} exposure images"
@@ -139,7 +139,7 @@ class FiveKInit(vision.VisionDataset):
                         file_ex[idx_ex].append(path)
 
         file_bc = defaultdict(list)
-        with core.get_progress_bar(disable=self.disable_pbar) as pbar:
+        with core.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("black_clipping/*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} black clipping images"
@@ -149,7 +149,7 @@ class FiveKInit(vision.VisionDataset):
                         file_bc[idx_bc].append(path)
 
         file_vb = defaultdict(list)
-        with core.get_progress_bar(disable=self.disable_pbar) as pbar:
+        with core.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("vibrance/*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} vibrance images"
@@ -201,7 +201,7 @@ class FiveK(vision.VisionDataset):
         patterns = [self.root / self.split_str / "image"]
 
         images: list[vision.ImageAnnotation] = []
-        with core.get_progress_bar(disable=self.disable_pbar) as pbar:
+        with core.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
@@ -247,7 +247,7 @@ class FiveKA(vision.VisionDataset):
         patterns = [self.root / self.split_str / "image"]
 
         images: list[vision.ImageAnnotation] = []
-        with core.get_progress_bar(disable=self.disable_pbar) as pbar:
+        with core.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
@@ -264,7 +264,7 @@ class FiveKA(vision.VisionDataset):
 
         if len(ref_images) == 0:
             ref_images: list[vision.ImageAnnotation] = []
-            with core.get_progress_bar(disable=self.disable_pbar) as pbar:
+            with core.create_progress_bar(disable=self.disable_pbar) as pbar:
                 desc = f"Listing {self.__class__.__name__} {self.split_str} reference images"
                 for img in pbar.track(sequence=images, description=desc):
                     root_name = img.root.name
@@ -308,7 +308,7 @@ class FiveKB(vision.VisionDataset):
         patterns = [self.root / self.split_str / "image"]
 
         images: list[vision.ImageAnnotation] = []
-        with core.get_progress_bar(disable=self.disable_pbar) as pbar:
+        with core.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
@@ -325,7 +325,7 @@ class FiveKB(vision.VisionDataset):
 
         if len(ref_images) == 0:
             ref_images: list[vision.ImageAnnotation] = []
-            with core.get_progress_bar(disable=self.disable_pbar) as pbar:
+            with core.create_progress_bar(disable=self.disable_pbar) as pbar:
                 desc = f"Listing {self.__class__.__name__} {self.split_str} reference images"
                 for img in pbar.track(sequence=images, description=desc):
                     root_name = img.root.name
@@ -369,7 +369,7 @@ class FiveKC(vision.VisionDataset):
         patterns = [self.root / self.split_str / "image"]
 
         images: list[vision.ImageAnnotation] = []
-        with core.get_progress_bar(disable=self.disable_pbar) as pbar:
+        with core.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
@@ -386,7 +386,7 @@ class FiveKC(vision.VisionDataset):
 
         if len(ref_images) == 0:
             ref_images: list[vision.ImageAnnotation] = []
-            with core.get_progress_bar(disable=self.disable_pbar) as pbar:
+            with core.create_progress_bar(disable=self.disable_pbar) as pbar:
                 desc = f"Listing {self.__class__.__name__} {self.split_str} reference images"
                 for img in pbar.track(sequence=images, description=desc):
                     root_name = img.root.name
@@ -430,7 +430,7 @@ class FiveKD(vision.VisionDataset):
         patterns = [self.root / self.split_str / "image"]
 
         images: list[vision.ImageAnnotation] = []
-        with core.get_progress_bar(disable=self.disable_pbar) as pbar:
+        with core.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
@@ -447,7 +447,7 @@ class FiveKD(vision.VisionDataset):
 
         if len(ref_images) == 0:
             ref_images: list[vision.ImageAnnotation] = []
-            with core.get_progress_bar(disable=self.disable_pbar) as pbar:
+            with core.create_progress_bar(disable=self.disable_pbar) as pbar:
                 desc = f"Listing {self.__class__.__name__} {self.split_str} reference images"
                 for img in pbar.track(sequence=images, description=desc):
                     root_name = img.root.name
@@ -491,7 +491,7 @@ class FiveKE(vision.VisionDataset):
         patterns = [self.root / self.split_str / "image"]
 
         images: list[vision.ImageAnnotation] = []
-        with core.get_progress_bar(disable=self.disable_pbar) as pbar:
+        with core.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
@@ -508,7 +508,7 @@ class FiveKE(vision.VisionDataset):
 
         if len(ref_images) == 0:
             ref_images: list[vision.ImageAnnotation] = []
-            with core.get_progress_bar(disable=self.disable_pbar) as pbar:
+            with core.create_progress_bar(disable=self.disable_pbar) as pbar:
                 desc = f"Listing {self.__class__.__name__} {self.split_str} reference images"
                 for img in pbar.track(sequence=images, description=desc):
                     root_name = img.root.name

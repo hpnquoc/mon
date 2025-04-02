@@ -25,20 +25,6 @@ from torch.nn.modules.upsampling import (
 )
 
 
-# ----- Utils -----
-def get_image_size(input: Any) -> tuple[int, int]:
-    """Gets the size of an image as (height, width).
-
-    Args:
-        input: Image or data to measure as ``Any``.
-
-    Returns:
-        Tuple of (height, width) in pixels as ``tuple[int, int]``.
-    """
-    from mon.vision.types import image as I
-    return I.image_size(input)
-    
-
 # ----- Downsampling -----
 class Downsample(torch.nn.Module):
     """Downsamples multi-channel 1D, 2D, or 3D data.
@@ -232,7 +218,8 @@ class Interpolate(torch.nn.Module):
 
     def __init__(self, size: _size_2_t):
         super().__init__()
-        self.size = get_image_size(size)
+        from mon.vision import types
+        self.size = types.image_size(size)
 
     def forward(self, input: torch.Tensor) -> torch.Tensor:
         """Resizes input tensor to target size.

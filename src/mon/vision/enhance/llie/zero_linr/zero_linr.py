@@ -28,7 +28,7 @@ MAPPING_FUNC = Literal["p", "v", "d", "e", "pv", "pd", "pe", "pvde"]
 
 
 # ----- Utils -----
-def get_coords(down_size: int) -> torch.Tensor:
+def create_coords(down_size: int) -> torch.Tensor:
 	"""Creates a coordinates grid.
 	
 	Args:
@@ -40,7 +40,7 @@ def get_coords(down_size: int) -> torch.Tensor:
 	return coords
 
 
-def get_patches(image: torch.Tensor, kernel_size: int = 1) -> torch.Tensor:
+def create_patches(image: torch.Tensor, kernel_size: int = 1) -> torch.Tensor:
 	"""Creates a tensor where the channel contains patch information."""
 	num_channels = types.image_num_channels(image)
 	kernel       = torch.zeros((kernel_size ** 2, num_channels, kernel_size, kernel_size)).to(image.device)
@@ -301,7 +301,7 @@ class INF1_V(nn.Module):
 		self.params += [{"params": self.o_net.parameters(), "weight_decay": weight_decay[2]}]
 		
 	def forward(self, p: torch.Tensor, v: torch.Tensor) -> torch.Tensor:
-		v_patch = get_patches(v, self.window_size)
+		v_patch = create_patches(v, self.window_size)
 		v_patch = ff_embedding(v_patch, self.B2)
 		return self.o_net(self.v_net(v_patch))
 
@@ -376,7 +376,7 @@ class INF2(nn.Module):
 		
 	def forward(self, p: torch.Tensor, v: torch.Tensor) -> torch.Tensor:
 		p       = ff_embedding(p, self.B1)
-		v_patch = get_patches(v, self.window_size)
+		v_patch = create_patches(v, self.window_size)
 		v_patch = ff_embedding(v_patch, self.B2)
 		return self.o_net(torch.cat((self.p_net(p), self.v_net(v_patch)), -1))
 
@@ -461,9 +461,9 @@ class INF4(nn.Module):
 		
 	def forward(self, p: torch.Tensor, v: torch.Tensor, d: torch.Tensor, e: torch.Tensor) -> torch.Tensor:
 		p       = ff_embedding(p, self.B1)
-		v_patch = get_patches(v, self.window_size)
-		d_patch = get_patches(d, self.window_size)
-		e_patch = get_patches(e, self.window_size)
+		v_patch = create_patches(v, self.window_size)
+		d_patch = create_patches(d, self.window_size)
+		e_patch = create_patches(e, self.window_size)
 		v_patch = ff_embedding(v_patch, self.B2)
 		d_patch = ff_embedding(d_patch, self.B2)
 		e_patch = ff_embedding(e_patch, self.B2)
@@ -649,7 +649,7 @@ class ZeroLINR(base.ImageEnhancementModel):
         """
 		# Input
 		image = datapoint["image"]
-		p     = get_coords(self.down_size).to(image.device)
+		p     = create_coords(self.down_size).to(image.device)
 		v     = kornia.color.rgb_to_hsv(image)[:, 2:3, :, :]
 		d     = datapoint.get("depth", None)
 		e     = types.boundary_aware_prior(d, self.edge_threshold) if d else None

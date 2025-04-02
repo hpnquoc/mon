@@ -8,12 +8,12 @@ __all__ = [
     "ProcessedItemsColumn",
     "ProcessingSpeedColumn",
     "console",
+    "create_download_bar",
+    "create_progress_bar",
     "error_console",
     "field_style",
     "get_console",
-    "get_download_bar",
     "get_error_console",
-    "get_progress_bar",
     "get_terminal_size",
     "level_styles",
     "print_dict",
@@ -145,7 +145,7 @@ def get_error_console() -> rich.console.Console:
 
 
 # ----- Progress -----
-def get_download_bar(transient: bool = False, disable: bool = False) -> progress.Progress:
+def create_download_bar(transient: bool = False, disable: bool = False) -> progress.Progress:
     """Creates a ``rich.progress.Progress`` for download tracking.
 
     Args:
@@ -178,7 +178,7 @@ def get_download_bar(transient: bool = False, disable: bool = False) -> progress
     )
 
 
-def get_progress_bar(transient: bool = False, disable: bool = False) -> progress.Progress:
+def create_progress_bar(transient: bool = False, disable: bool = False) -> progress.Progress:
     """Creates a ``rich.progress.Progress`` for general progress tracking.
 
     Args:
@@ -240,29 +240,25 @@ class MemoryUsageColumn(progress.ProgressColumn):
         Returns:
             ``rich.text.Text`` with memory usage status.
         """
-        return self.get_gpu_memory_text(task) \
+        return self.gpu_memory_text \
             if torch.cuda.is_available() \
-            else self.get_machine_memory_text(task)
+            else self.machine_memory_text
     
-    def get_machine_memory_text(self, task: progress.Task) -> text.Text:
+    @property
+    def machine_memory_text(self) -> text.Text:
         """Renders current RAM usage as text.
-
-        Args:
-            task: ``rich.progress.Task`` object for the progress task.
 
         Returns:
             ``rich.text.Text`` with RAM usage status.
         """
-        total, used, _ = utils.get_machine_memory(unit=self.unit)
+        total, used, _ = utils.get_machine_memory_usages(unit=self.unit)
         memory_status  = f"{used:.1f}/{total:.1f}{self.unit.value} (CPU)"
         memory_text    = text.Text(memory_status, style="bright_yellow")
         return memory_text
     
-    def get_gpu_memory_text(self, task: progress.Task) -> text.Text:
+    @property
+    def gpu_memory_text(self) -> text.Text:
         """Renders current GPU memory usage as text.
-
-        Args:
-            task: ``rich.progress.Task`` object for the progress task.
 
         Returns:
             ``rich.text.Text`` with GPU memory usage status.
@@ -270,7 +266,7 @@ class MemoryUsageColumn(progress.ProgressColumn):
         num_devices = len(self.devices)
         totals, useds = [], []
         for i in self.devices:
-            total, used, _ = utils.get_gpu_device_memory(device=i, unit=self.unit)
+            total, used, _ = utils.get_gpu_memory_usages(device=i, unit=self.unit)
             totals.append(total)
             useds.append(used)
         total = min(totals)
