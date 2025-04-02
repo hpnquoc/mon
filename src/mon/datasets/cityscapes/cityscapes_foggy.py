@@ -1,0 +1,119 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+"""Implements the Cityscapes Foggy dataset.
+
+References:
+	- https://www.cityscapes-dataset.com/
+"""
+
+__all__ = [
+    "CityscapesFoggy",
+    "CityscapesFoggyDataModule",
+]
+
+from typing import Literal
+
+import cv2
+
+from mon import core, vision
+from mon.datasets.cityscapes.cityscapes import Cityscapes
+from mon.globals import DATA_DIR, DATAMODULES, DATASETS
+
+
+@DATASETS.register(name="cityscapes_foggy")
+class CityscapesFoggy(Cityscapes):
+    """Loads and processes the CityscapesFoggy dataset for dehazing tasks.
+
+    Args:
+        root: Root directory path. Default is ``default_root_dir``.
+        *args: Additional args for parent class.
+        **kwargs: Additional kwargs for parent class.
+    
+    Raises:
+        FileNotFoundError: If ``root``/cityscapes directory does not exist.
+    """
+    
+    tasks : list[core.Task]    = [core.Task.DEHAZE]
+    splits: list[core.Split]   = [core.Split.TRAIN, core.Split.VAL, core.Split.TEST]
+    datapoint_attrs            = vision.DatapointAttributes({
+        "image"    : vision.ImageAnnotation,
+        "ref_image": vision.ImageAnnotation,
+        "semantic" : vision.SemanticSegmentationAnnotation,  # gtFine
+    })
+    has_test_annotations: bool = True
+    
+    def __init__(self, root: core.Path = DATA_DIR / "cityscapes", *args, **kwargs):
+        root = root / "cityscapes" if root.name != "cityscapes" else root
+        if not root.is_dir():
+            raise FileNotFoundError(f"[root] must be a directory, got {root}.")
+        super().__init__(root=root, *args, **kwargs)
+    
+    def get_data(self):
+        """Loads foggy images, reference images, and semantic maps."""
+        patterns = [self.root / self.split_str / "leftImg8bit_foggy"]
+        
+        images: list[vision.ImageAnnotation] = []
+        with core.get_progress_bar(disable=self.disable_pbar) as pbar:
+            for pattern in patterns:
+                paths = sorted(pattern.rglob("*"))
+                desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
+                for path in pbar.track(sequence=paths, description=desc):
+                    if path.is_image_file():
+                        images.append(vision.ImageAnnotation(path=path, root=pattern))
+        
+        ref_images: list[vision.ImageAnnotation] = []
+        with core.get_progress_bar(disable=self.disable_pbar) as pbar:
+            desc = f"Listing {self.__class__.__name__} {self.split_str} reference images"
+            for img in pbar.track(sequence=images, description=desc):
+                path = img.path.replace("/leftImg8bit_foggy/", "/leftImg8bit/")
+                stem = path.stem.split("leftImg8bit")[0]
+                path = path.parent / f"{stem}leftImg8bit{path.suffix}"
+                ref_images.append(vision.ImageAnnotation(path=path.image_file(), root=img.root))
+        
+        # Semantic segmentation maps
+        semantic: list[vision.SemanticSegmentationAnnotation] = []
+        with core.get_progress_bar(disable=self.disable_pbar) as pbar:
+            desc = f"Listing {self.__class__.__name__} {self.split_str} semantic maps"
+            for img in pbar.track(sequence=ref_images, description=desc):
+                path = img.path.replace("/leftImg8bit/", "/gtFine/")
+                semantic.append(vision.SemanticSegmentationAnnotation(
+                    path  = path.image_file(),
+                    root  = img.root,
+                    flags = cv2.IMREAD_GRAYSCALE
+                ))
+        
+        self.datapoints["image"]     = images
+        self.datapoints["ref_image"] = ref_images
+        self.datapoints["semantic"]  = semantic
+
+
+@DATAMODULES.register(name="cityscapes_foggy")
+class CityscapesFoggyDataModule(core.DataModule):
+    """Manages CityscapesFoggy dataset for training, validation, and testing."""
+
+    tasks: list[core.Task] = [core.Task.DERAIN]
+
+    def prepare_data(self, *args, **kwargs):
+        """Prepares data (placeholder, no action taken)."""
+        pass
+
+    def setup(self, stage: Literal["train", "test", "predict", None] = None):
+        """Sets up datasets for specified ``stage``.
+
+        Args:
+            stage: Stage to setup, one of ``"train"``, ``"test"``, ``"predict"``,
+                or ``None``. Default is ``None``.
+        """
+        if self.can_log:
+            core.console.log(f"Setup [red]{self.__class__.__name__}[/red].")
+
+        if stage in [None, "train"]:
+            self.train = CityscapesFoggy(split=core.Split.TRAIN, **self.dataset_kwargs)
+            self.val   = CityscapesFoggy(split=core.Split.VAL,   **self.dataset_kwargs)
+        if stage in [None, "test"]:
+            self.test  = CityscapesFoggy(split=core.Split.TEST,  **self.dataset_kwargs)
+
+        self.get_classlabels()
+        if self.can_log:
+            self.summarize()

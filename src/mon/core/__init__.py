@@ -19,7 +19,6 @@ Design Principle:
 	- Each submodule should extend a module and keep the same name.
 """
 
-import mon.core.data_type
 import mon.core.enums
 import mon.core.factory
 import mon.core.humps
@@ -30,8 +29,8 @@ import mon.core.rich
 import mon.core.serializers
 import mon.core.thop
 import mon.core.type_extensions
+import mon.core.types
 import mon.core.utils
-from mon.core.data_type import *
 from mon.core.enums import *
 from mon.core.factory import *
 from mon.core.humps import *
@@ -45,4 +44,5 @@ from mon.core.rich import (
 from mon.core.serializers import *
 from mon.core.thop import *
 from mon.core.type_extensions import *
+from mon.core.types import *
 from mon.core.utils import *

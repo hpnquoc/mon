@@ -14,7 +14,7 @@ import torch
 
 from mon import core
 from mon.globals import DETECTORS
-from mon.vision import data_type, track
+from mon.vision import types, track
 from mon.vision.detect import base
 
 console       = core.console
@@ -130,7 +130,7 @@ class YOLOv8(base.Detector1):
             Input tensor of shape `[B, C, H, W]`.
         """
         input  = images.copy()
-        ratio  = max(self.image_size) / max(data_type.get_image_size(input=input))
+        ratio  = max(self.image_size) / max(types.get_image_size(input=input))
         stride = self.model.stride
         stride = int(stride.max() if isinstance(stride, torch.Tensor) else stride)
         
@@ -148,7 +148,7 @@ class YOLOv8(base.Detector1):
                 raise ValueError
             input = np.ascontiguousarray(input)
 
-        input = data_type.to_image_tensor(
+        input = types.to_image_tensor(
             image= input,
             keepdim   = False,
             normalize = True,
@@ -195,8 +195,8 @@ class YOLOv8(base.Detector1):
             max_det    = self.max_detections,
             classes    = self.allowed_ids
         )
-        h0, w0 = data_type.get_image_size(input=images)
-        h1, w1 = data_type.get_image_size(input=input)
+        h0, w0 = types.get_image_size(input=images)
+        h1, w1 = types.get_image_size(input=input)
         for i, p in enumerate(pred):
             p[:, :4]  = ops.scale_boxes((h1, w1), p[:, :4], (h0, w0)).round()
             p         = p.detach().cpu().numpy()

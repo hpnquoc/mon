@@ -12,7 +12,7 @@ from abc import ABC
 import cv2
 
 from mon import core, nn
-from mon.vision import data_type, model
+from mon.vision import types, model
 
 
 # region Model
@@ -88,12 +88,12 @@ class SegmentationModel(model.VisionModel, ABC):
         outputs       =    data.get("outputs",  {})
         pred_semantic = outputs.pop("semantic", None)
         
-        image         = list(data_type.convert_image_to_array(image, denormalize=True))
-        tar_semantic  = list(data_type.convert_image_to_array(tar_semantic, denormalize=True)) if tar_semantic is not None else None
-        pred_semantic = list(data_type.convert_image_to_array(pred_semantic, denormalize=True))
-        extra_images  = {k: v for k, v in outputs.items() if data_type.is_image(v)}
+        image         = list(types.convert_image_to_array(image, denormalize=True))
+        tar_semantic  = list(types.convert_image_to_array(tar_semantic, denormalize=True)) if tar_semantic is not None else None
+        pred_semantic = list(types.convert_image_to_array(pred_semantic, denormalize=True))
+        extra_images  = {k: v for k, v in outputs.items() if types.is_image(v)}
         extra         = {
-            k: list(data_type.convert_image_to_array(v, denormalize=True))
+            k: list(types.convert_image_to_array(v, denormalize=True))
             for k, v in extra_images.items()
         } if extra_images else {}
         

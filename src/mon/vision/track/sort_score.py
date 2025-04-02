@@ -16,7 +16,7 @@ from filterpy.kalman import KalmanFilter
 
 from mon import core
 from mon.nn import _size_2_t
-from mon.vision import data_type
+from mon.vision import types
 from mon.vision.track import base, sort
 
 
@@ -46,9 +46,9 @@ def associate_detections_to_tracks(
     
     # iou_matrix = iou_batch(detections, tracks)
     if association == "giou":
-        iou_matrix = data_type.bbox_giou(detections, tracks)
+        iou_matrix = types.bbox_giou(detections, tracks)
     else:
-        iou_matrix = data_type.bbox_iou(detections, tracks)
+        iou_matrix = types.bbox_iou(detections, tracks)
     
     if min(iou_matrix.shape) > 0:
         a = (iou_matrix > iou_threshold).astype(np.int32)
@@ -249,8 +249,8 @@ class SORTScore(base.Tracker):
         bboxes        = det_results[:, 0:4]  # [x1, y1, x2, y2]
         classes       = det_results[:,   5]
         # Scale the detections
-        input_size    = data_type.get_image_size(input_size)
-        image_size    = data_type.get_image_size(image_size)
+        input_size    = types.get_image_size(input_size)
+        image_size    = types.get_image_size(image_size)
         inp_h, inp_w  = input_size[0], input_size[1]
         img_h, img_w  = image_size[0], image_size[1]
         if inp_h != img_h or inp_w != img_w:

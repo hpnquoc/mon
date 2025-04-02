@@ -2,5 +2,3 @@
 # -*- coding: utf-8 -*-
 
 """Implements vision-language models."""
-
-from __future__ import annotations

@@ -10,7 +10,7 @@ __all__ = [
 import cv2
 import numpy as np
 
-from mon.vision import data_type
+from mon.vision import types
 
 
 def sobel_filter(image: np.ndarray, kernel_size: int = 3) -> np.ndarray:
@@ -23,7 +23,7 @@ def sobel_filter(image: np.ndarray, kernel_size: int = 3) -> np.ndarray:
     Returns:
         Grayscale image with edge magnitudes.
     """
-    if data_type.is_image_colored(image):
+    if types.is_image_colored(image):
         image = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
     sobel_x = cv2.Sobel(image, cv2.CV_64F, 1, 0, ksize=kernel_size)
     sobel_y = cv2.Sobel(image, cv2.CV_64F, 0, 1, ksize=kernel_size)

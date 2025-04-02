@@ -22,8 +22,8 @@ from fvcore.nn import parameter_count
 from mon import core, nn
 from mon.globals import MODELS
 from mon.nn import init
-from mon.vision import data_type, filtering, geometry
-from mon.vision.data_type import image as I
+from mon.vision import types, filtering, geometry
+from mon.vision.types import image as I
 from mon.vision.enhance import base
 
 current_file = core.Path(__file__).absolute()
@@ -283,7 +283,7 @@ class EnhanceNet(nn.Module):
         x    = image
         gray = kornia.color.rgb_to_grayscale(image)
         edge = None
-        if depth is not None and data_type.is_image_colored(depth):
+        if depth is not None and types.is_image_colored(depth):
             depth = kornia.color.rgb_to_grayscale(depth)
         if self.use_depth:
             x = torch.cat([x, depth], 1)
@@ -401,7 +401,7 @@ class GCENet(base.ImageEnhancementModel):
         of parameters, and runtime.
         """
         # Define input tensor
-        h, w      = data_type.get_image_size(image_size)
+        h, w      = types.get_image_size(image_size)
         datapoint = {
             "image": torch.rand(1, channels, h, w).to(self.device),
             "depth": torch.rand(1,        1, h, w).to(self.device)
