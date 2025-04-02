@@ -3,5 +3,4 @@
 
 """Implements RegNet models."""
 
-import mon.vision.classify.regnet.regnet
 from mon.vision.classify.regnet.regnet import *

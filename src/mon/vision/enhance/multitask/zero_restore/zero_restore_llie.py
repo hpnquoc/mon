@@ -37,10 +37,9 @@ current_dir  = current_file.parents[0]
 # region Loss
 
 class TotalVariationLoss(nn.Loss):
-    """Total Variation Loss on the Illumination (Illumination Smoothness Loss)
-    `\mathcal{L}_{tvA}` preserve the monotonicity relations between
-    neighboring pixels. It is used to avoid aggressive and sharp changes between
-    neighboring pixels.
+    """Total Variation Loss on the Illumination (Illumination Smoothness Loss) preserve
+    the monotonicity relations between neighboring pixels. It is used to avoid
+    aggressive and sharp changes between neighboring pixels.
     
     References:
         - https://github.com/Li-Chongyi/Zero-DCE/blob/master/Zero-DCE_code/Myloss.py

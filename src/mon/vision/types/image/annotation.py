@@ -4,7 +4,6 @@
 """Implements image-based annotations."""
 
 __all__ = [
-    "FrameAnnotation",
     "ImageAnnotation",
 ]
 
@@ -13,7 +12,7 @@ import numpy as np
 import torch
 
 from mon import core
-from mon.vision.types import image as I
+from mon.vision.types.image import io, processing
 
 
 class ImageAnnotation(core.Annotation):
@@ -63,7 +62,7 @@ class ImageAnnotation(core.Annotation):
         if not path or not path_obj.is_image_file():
             raise ValueError(f"[path] must be a valid image path, got {path}.")
         self._path  = path_obj
-        self._shape = I.read_image_shape(path=self._path)
+        self._shape = io.read_image_shape(path=self._path)
     
     @property
     def name(self) -> str:
@@ -136,7 +135,7 @@ class ImageAnnotation(core.Annotation):
             return self.image
         load_path  = path or self.path
         load_flags = flags or self.flags
-        image      = I.read_image(load_path, load_flags, False, False)
+        image      = io.read_image(load_path, load_flags, False, False)
         if self._shape != image.shape:
             self._shape = image.shape
         self.image = image if cache else None
@@ -157,7 +156,7 @@ class ImageAnnotation(core.Annotation):
         Returns:
             ``torch.Tensor`` of converted data.
         """
-        return I.convert_image_to_tensor(data, normalize)
+        return processing.convert_image_to_tensor(data, normalize)
     
     @staticmethod
     def collate_fn(batch: list[torch.Tensor | np.ndarray]) -> torch.Tensor | np.ndarray | None:
@@ -171,124 +170,4 @@ class ImageAnnotation(core.Annotation):
         """
         if not batch:
             return None
-        return I.convert_image_to_4d(batch)
-
-
-class FrameAnnotation(core.Annotation):
-    """Frame annotation of a video frame.
-
-    Args:
-        index: Integer index of frame in video.
-        frame: Ground-truth image as ``numpy.ndarray``.
-        path: Path to video file as ``core.Path`` or ``str``. Default is ``None``.
-    """
-    
-    def __init__(
-        self,
-        index: int,
-        frame: np.ndarray,
-        path : core.Path | str = None,
-        *args, **kwargs
-    ):
-        super().__init__(*args, **kwargs)
-        self.index = index
-        self.frame = frame
-        self.path  = path
-        self.shape = I.get_image_shape(image=frame)
-    
-    @property
-    def path(self) -> core.Path:
-        """Returns the video file path.
-
-        Returns:
-            ``core.Path`` of video file or ``None`` if not set.
-        """
-        return self._path
-    
-    @path.setter
-    def path(self, path: core.Path | str | None):
-        """Sets the video file path.
-
-        Args:
-            path: Path to video file or ``None``.
-
-        Raises:
-            ValueError: If ``path`` is not a valid video path when provided.
-        """
-        if path is not None:
-            path_obj = core.Path(path)
-            if not path_obj.is_video_file():
-                raise ValueError(f"[path] must be a valid video path, got {path}.")
-            self._path = path_obj
-        else:
-            self._path = None
-    
-    @property
-    def name(self) -> str:
-        """Returns the frame name.
-
-        Returns:
-            ``str`` from ``path.name`` or ``index`` if path is unset.
-        """
-        return self.path.name if self.path else str(self.index)
-    
-    @property
-    def stem(self) -> str:
-        """Returns the stem of the frame path.
-
-        Returns:
-            ``str`` from ``path.stem`` or ``index`` if path is unset.
-        """
-        return self.path.stem if self.path else str(self.index)
-    
-    @property
-    def data(self) -> np.ndarray:
-        """Returns the frame data.
-
-        Returns:
-            ``numpy.ndarray`` of frame data.
-        """
-        return self.frame
-    
-    @property
-    def meta(self) -> dict:
-        """Returns metadata about the frame.
-
-        Returns:
-            Dict with ``index``, ``name``, ``stem``, ``path``, ``shape``, and ``hash``.
-        """
-        return {
-            "index": self.index,
-            "name" : self.name,
-            "stem" : self.stem,
-            "path" : self.path,
-            "shape": self.shape,
-            "hash" : self.path.stat().st_size if self.path else None,
-        }
-    
-    @staticmethod
-    def to_tensor(data: torch.Tensor | np.ndarray, normalize: bool = True) -> torch.Tensor:
-        """Converts input data to a tensor.
-
-        Args:
-            data: Input as ``torch.Tensor`` or ``numpy.ndarray``.
-            normalize: If ``True``, normalizes data. Default is ``True``.
-
-        Returns:
-            ``torch.Tensor`` of converted data.
-        """
-        return I.convert_image_to_tensor(data, normalize)
-    
-    @staticmethod
-    def collate_fn(batch: list[torch.Tensor | np.ndarray]) -> torch.Tensor | np.ndarray | None:
-        """Collates batch data for ``torch.utils.data.DataLoader``.
-
-        Args:
-            batch: List of images as ``torch.Tensor`` or ``numpy.ndarray``.
-
-        Returns:
-            Collated ``torch.Tensor``, ``numpy.ndarray``, or ``None`` if empty/invalid.
-        """
-        if not batch:
-            return None
-        return I.convert_image_to_4d(batch)
+        return processing.convert_image_to_4d(batch)

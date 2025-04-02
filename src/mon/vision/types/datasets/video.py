@@ -16,8 +16,8 @@ import cv2
 from mon import core
 from mon.globals import TRANSFORMS
 from mon.vision.geometry import albumentation
-from mon.vision.types import annotations
 from mon.vision.types.datasets import base
+from mon.vision.types.video import FrameAnnotation
 
 
 class VideoLoader(core.Dataset, ABC):
@@ -36,7 +36,7 @@ class VideoLoader(core.Dataset, ABC):
     """
     
     datapoint_attrs = base.DatapointAttributes({
-        "frame": annotations.FrameAnnotation,
+        "frame": FrameAnnotation,
     })
     
     def __init__(

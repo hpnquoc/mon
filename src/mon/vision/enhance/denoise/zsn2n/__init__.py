@@ -8,5 +8,4 @@ References:
     - https://colab.research.google.com/drive/1i82nyizTdszyHkaHBuKPbWnTzao8HF9b?usp=sharing#scrollTo=Srf0GQTYrkxA
 """
 
-import mon.vision.enhance.denoise.zsn2n.zsn2n
 from mon.vision.enhance.denoise.zsn2n.zsn2n import *

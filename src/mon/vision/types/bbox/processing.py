@@ -1,26 +1,22 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Implements bounding box annotations."""
+"""Implements bounding box manipulation and preprocessing functions."""
 
 __all__ = [
-    "BBoxAnnotation",
-    "BBoxesAnnotation",
     "bbox_center_distance",
     "bbox_ciou",
-    "bbox_coco_to_voc",
-    "bbox_coco_to_yolo",
     "bbox_diou",
     "bbox_giou",
     "bbox_iou",
-    "bbox_voc_to_coco",
-    "bbox_voc_to_yolo",
-    "bbox_yolo_to_coco",
-    "bbox_yolo_to_voc",
     "convert_bbox",
+    "convert_bbox_coco_to_voc",
+    "convert_bbox_coco_to_yolo",
     "convert_bbox_cxcywhn_to_xywh",
     "convert_bbox_cxcywhn_to_xyxy",
     "convert_bbox_cxcywhn_to_xyxyn",
+    "convert_bbox_voc_to_coco",
+    "convert_bbox_voc_to_yolo",
     "convert_bbox_xywh_to_cxcywhn",
     "convert_bbox_xywh_to_xyxy",
     "convert_bbox_xywh_to_xyxyn",
@@ -31,159 +27,13 @@ __all__ = [
     "convert_bbox_xyxyn_to_cxcywhn",
     "convert_bbox_xyxyn_to_xywh",
     "convert_bbox_xyxyn_to_xyxy",
-    "get_bbox_area",
-    "get_bbox_center",
-    "get_bbox_corners",
-    "get_bbox_corners_pts",
-    "get_enclosing_bbox",
+    "convert_bbox_yolo_to_coco",
+    "convert_bbox_yolo_to_voc",
 ]
 
 import numpy as np
-import torch
 
 from mon import core
-
-
-# region Accessing
-
-def get_bbox_area(bbox: np.ndarray) -> np.ndarray:
-    """Compute area of bounding box(es).
-
-    Args:
-        bbox: Box(es) as ``np.ndarray`` in [4] or [N, 4], XYXY format.
-
-    Returns:
-        Area(s) as ``np.ndarray`` in [1] or [N] shape.
-
-    Raises:
-        ValueError: If ``bbox`` is not 1D or 2D.
-    """
-    if bbox.ndim == 1:
-        bbox = np.expand_dims(bbox, 0)
-    if bbox.ndim != 2:
-        raise ValueError(f"[bbox] must be 1D or 2D, got {bbox.ndim}D.")
-    x1 = bbox[..., 0]
-    y1 = bbox[..., 1]
-    x2 = bbox[..., 2]
-    y2 = bbox[..., 3]
-    return (x2 - x1) * (y2 - y1)
-
-
-def get_bbox_center(bbox: np.ndarray) -> np.ndarray:
-    """Compute center(s) of bounding box(es).
-
-    Args:
-        bbox: Box(es) as ``np.ndarray`` in [4] or [N, 4], XYXY format.
-
-    Returns:
-        Center(s) as ``np.ndarray`` in [1, 2] or [N, 2], [cx, cy] format.
-
-    Raises:
-        ValueError: If bbox is not 1D or 2D.
-    """
-    if bbox.ndim == 1:
-        bbox = np.expand_dims(bbox, 0)
-    if bbox.ndim != 2:
-        raise ValueError(f"[bbox] must be 1D or 2D, got {bbox.ndim}D.")
-    x1 = bbox[..., 0]
-    y1 = bbox[..., 1]
-    x2 = bbox[..., 2]
-    y2 = bbox[..., 3]
-    cx = x1 + (x2 - x1) / 2.0
-    cy = y1 + (y2 - y1) / 2.0
-    return np.stack((cx, cy), -1)
-
-
-def get_bbox_corners(bbox: np.ndarray) -> np.ndarray:
-    """Get corner(s) of bounding box(es).
-
-    Args:
-        bbox: Box(es) as ``np.ndarray`` in [4] or [N, 4], XYXY format
-
-    Returns:
-        Corners as ``np.ndarray`` in [N, 8], [x1, y1, x2, y2, x3, y3, x4, y4] format
-
-    Raises:
-        ValueError: If ``bbox`` is not 1D or 2D
-    """
-    if bbox.ndim == 1:
-        bbox = np.expand_dims(bbox, 0)
-    if bbox.ndim != 2:
-        raise ValueError(f"[bbox] must be 1D or 2D, got {bbox.ndim}D.")
-    x1   = bbox[..., 0]
-    y1   = bbox[..., 1]
-    x2   = bbox[..., 2]
-    y2   = bbox[..., 3]
-    w    = x2 - x1
-    h    = y2 - y1
-    c_x1 = x1
-    c_y1 = y1
-    c_x2 = x1 + w
-    c_y2 = y1
-    c_x3 = x2
-    c_y3 = y2
-    c_x4 = x1
-    c_y4 = y1 + h
-    return np.hstack((c_x1, c_y1, c_x2, c_y2, c_x3, c_y3, c_x4, c_y4))
-
-
-def get_bbox_corners_pts(bbox: np.ndarray) -> np.ndarray:
-    """Get corner(s) of bounding box(es) as points.
-
-    Args:
-        bbox: Box(es) as ``np.ndarray`` in [4] or [N, 4], XYXY format.
-
-    Returns:
-        Corners as ``np.ndarray`` in
-        [N, 4, 2], [[x1, y1], [x2, y2], [x3, y3], [x4, y4]] format.
-
-    Raises:
-        ValueError: If ``bbox`` is not 1D or 2D.
-    """
-    if bbox.ndim == 1:
-        bbox = np.expand_dims(bbox, 0)
-    if bbox.ndim != 2:
-        raise ValueError(f"[bbox] must be 1D or 2D, got {bbox.ndim}D.")
-    x1   = bbox[..., 0]
-    y1   = bbox[..., 1]
-    x2   = bbox[..., 2]
-    y2   = bbox[..., 3]
-    w    = x2 - x1
-    h    = y2 - y1
-    c_x1 = x1
-    c_y1 = y1
-    c_x2 = x1 + w
-    c_y2 = y1
-    c_x3 = x2
-    c_y3 = y2
-    c_x4 = x1
-    c_y4 = y1 + h
-    return np.array([[c_x1, c_y1], [c_x2, c_y2], [c_x3, c_y3], [c_x4, c_y4]], np.int32)
-
-
-def get_enclosing_bbox(bbox: np.ndarray) -> np.ndarray:
-    """Get enclosing box(es) for rotated corners.
-
-    Args:
-        bbox: Box(es) as ``np.ndarray`` in [..., 8], [x1, y1, x2, y2, x3, y3, x4, y4] format.
-
-    Returns:
-        Box(es) as ``np.ndarray`` in [..., 4], XYXY format.
-
-    Raises:
-        ValueError: If bbox last dimension is not 8.
-    """
-    if bbox.shape[-1] < 8:
-        raise ValueError(f"[bbox] last dimension must be 8, got {bbox.shape[-1]}.")
-    x_ = bbox[:, [0, 2, 4, 6]]
-    y_ = bbox[:, [1, 3, 5, 7]]
-    x1 = np.min(x_, 1).reshape(-1, 1)
-    y1 = np.min(y_, 1).reshape(-1, 1)
-    x2 = np.max(x_, 1).reshape(-1, 1)
-    y2 = np.max(y_, 1).reshape(-1, 1)
-    return np.hstack((x1, y1, x2, y2, bbox[:, 8:]))
-
-# endregion
 
 
 # region Association
@@ -735,12 +585,12 @@ def convert_bbox_xyxyn_to_xyxy(bbox: np.ndarray, height: int, width: int) -> np.
     return np.stack((x1, y1, x2, y2), axis=-1)
 
 
-bbox_coco_to_voc  = convert_bbox_xywh_to_xyxy
-bbox_coco_to_yolo = convert_bbox_xywh_to_cxcywhn
-bbox_voc_to_coco  = convert_bbox_xyxy_to_xywh
-bbox_voc_to_yolo  = convert_bbox_xyxy_to_cxcywhn
-bbox_yolo_to_coco = convert_bbox_cxcywhn_to_xywh
-bbox_yolo_to_voc  = convert_bbox_cxcywhn_to_xyxy
+convert_bbox_coco_to_voc  = convert_bbox_xywh_to_xyxy
+convert_bbox_coco_to_yolo = convert_bbox_xywh_to_cxcywhn
+convert_bbox_voc_to_coco  = convert_bbox_xyxy_to_xywh
+convert_bbox_voc_to_yolo  = convert_bbox_xyxy_to_cxcywhn
+convert_bbox_yolo_to_coco = convert_bbox_cxcywhn_to_xywh
+convert_bbox_yolo_to_voc  = convert_bbox_cxcywhn_to_xyxy
 
 
 def convert_bbox(bbox: np.ndarray, code: core.ShapeCode | int, height: int, width: int) -> np.ndarray:
@@ -763,170 +613,18 @@ def convert_bbox(bbox: np.ndarray, code: core.ShapeCode | int, height: int, widt
         case core.ShapeCode.SAME:
             return bbox
         case core.ShapeCode.VOC2COCO | core.ShapeCode.XYXY2XYWH:
-            return bbox_voc_to_coco(bbox)
+            return convert_bbox_voc_to_coco(bbox)
         case core.ShapeCode.VOC2YOLO | core.ShapeCode.XYXY2CXCYN:
-            return bbox_voc_to_yolo(bbox, height, width)
+            return convert_bbox_voc_to_yolo(bbox, height, width)
         case core.ShapeCode.COCO2VOC | core.ShapeCode.XYWH2XYXY:
-            return bbox_coco_to_voc(bbox)
+            return convert_bbox_coco_to_voc(bbox)
         case core.ShapeCode.COCO2YOLO | core.ShapeCode.XYWH2CXCYN:
-            return bbox_coco_to_yolo(bbox, height, width)
+            return convert_bbox_coco_to_yolo(bbox, height, width)
         case core.ShapeCode.YOLO2VOC | core.ShapeCode.CXCYN2XYXY:
-            return bbox_yolo_to_voc(bbox, height, width)
+            return convert_bbox_yolo_to_voc(bbox, height, width)
         case core.ShapeCode.YOLO2COCO | core.ShapeCode.CXCYN2XYXY:
-            return bbox_yolo_to_coco(bbox, height, width)
+            return convert_bbox_yolo_to_coco(bbox, height, width)
         case _:
             raise ValueError(f"[code] invalid: {code}.")
 
-# endregion
-
-
-# region Annotation
-
-class BBoxAnnotation(core.Annotation):
-    """Bounding box annotation in an image with coordinates and optional mask.
-
-    Args:
-        class_id: Integer class ID, ``-1`` for unknown.
-        bbox: Box coordinates as [4]-shaped array, list, or tuple.
-        confidence: Confidence score in [0.0, 1.0]. Default is ``1.0``.
-    """
-    
-    def __init__(
-        self,
-        class_id  : int,
-        bbox      : np.ndarray | list | tuple,
-        confidence: float = 1.0,
-        *args, **kwargs
-    ):
-        super().__init__(*args, **kwargs)
-        self.class_id   = class_id
-        self.bbox       = bbox
-        self.confidence = confidence
-    
-    @property
-    def bbox(self) -> np.ndarray:
-        """Returns the bounding box coordinates.
-
-        Returns:
-            ``numpy.ndarray`` of shape [4] with box coordinates.
-        """
-        return self._bbox
-    
-    @bbox.setter
-    def bbox(self, bbox: np.ndarray | list | tuple):
-        """Sets the bounding box coordinates.
-
-        Args:
-            bbox: Coordinates as ``numpy.ndarray``, list, or tuple of shape [4].
-
-        Raises:
-            ValueError: If ``bbox`` is not a 1D array of size ``4``.
-        """
-        bbox_array = np.asarray(bbox)
-        if bbox_array.ndim != 1 or bbox_array.size != 4:
-            raise ValueError(f"[bbox] must be a 1D array of size 4, got {bbox_array}.")
-        self._bbox = bbox_array
-    
-    @property
-    def confidence(self) -> float:
-        """Returns the confidence score.
-
-        Returns:
-            ``float`` in [0.0, 1.0] representing confidence.
-        """
-        return self._confidence
-    
-    @confidence.setter
-    def confidence(self, confidence: float):
-        """Sets the confidence score.
-
-        Args:
-            confidence: Confidence value as ``float``.
-
-        Raises:
-            ValueError: If ``confidence`` is not in [0.0, 1.0].
-        """
-        if not 0.0 <= confidence <= 1.0:
-            raise ValueError(f"[confidence] must be in [0.0, 1.0], got {confidence}.")
-        self._confidence = confidence
-    
-    @property
-    def data(self) -> list[float | int]:
-        """Returns the annotation data.
-
-        Returns:
-            List of [x_min, y_min, x_max, y_max, confidence, class_id].
-        """
-        return [*self.bbox, self.confidence, self.class_id]
-    
-    @staticmethod
-    def to_tensor(data: torch.Tensor | np.ndarray) -> torch.Tensor:
-        """Converts input data to a tensor.
-
-        Args:
-            data: Input as ``torch.Tensor`` or ``numpy.ndarray``.
-
-        Returns:
-            ``torch.Tensor`` of input data.
-        """
-        return torch.as_tensor(data)
-    
-    @staticmethod
-    def collate_fn(batch: list[torch.Tensor | np.ndarray]) -> torch.Tensor | np.ndarray | None:
-        """Collates batch data for ``torch.utils.data.DataLoader``.
-
-        Args:
-            batch: List of items as ``torch.Tensor`` or ``numpy.ndarray``.
-
-        Returns:
-            Collated ``torch.Tensor``, ``numpy.ndarray``, or ``None`` if empty/mixed.
-        """
-        if not batch:
-            return None
-        if isinstance(batch[0], torch.Tensor):
-            return torch.stack(batch, dim=0)
-        if isinstance(batch[0], np.ndarray):
-            return np.stack(batch, axis=0)
-        return None
-
-
-class BBoxesAnnotation(list[BBoxAnnotation]):
-    """List of bounding box annotations in an image."""
-    
-    @property
-    def data(self) -> list[list[float | int]] | None:
-        """Returns data of all bounding box annotations.
-
-        Returns:
-            List of [x_min, y_min, x_max, y_max, confidence, class_id] or ``None`` if empty.
-        """
-        return [item.data for item in self] if self else None
-    
-    @property
-    def class_ids(self) -> list[int]:
-        """Returns class IDs of all bounding box annotations.
-
-        Returns:
-            List of ``class_id`` values.
-        """
-        return [item.class_id for item in self]
-    
-    @property
-    def bboxes(self) -> list[np.ndarray]:
-        """Returns bounding boxes of all bounding box annotations.
-
-        Returns:
-            List of ``numpy.ndarray`` coordinates, each shape [4].
-        """
-        return [item.bbox for item in self]
-    
-    @property
-    def confidences(self) -> list[float]:
-        """Returns confidence scores of all bounding box annotations.
-
-        Returns:
-            List of ``confidence`` values in [0.0, 1.0].
-        """
-        return [item.confidence for item in self]
-    
 # endregion

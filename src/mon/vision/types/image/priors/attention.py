@@ -79,8 +79,6 @@ class BrightnessAttentionMap(nn.Module):
     Brighter regions are given lower weights to avoid over-saturation, while preserving
     image details and enhancing contrast in dark regions effectively.
 
-    Equation: `I_{attn} = (1 - I_{V})^{\gamma}`, where `\gamma \geq 1`.
-
     Args:
         gamma: Parameter controlling the curvature of the map as ``float``.
             Default is ``2.5``

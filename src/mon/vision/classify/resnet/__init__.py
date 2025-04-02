@@ -3,5 +3,4 @@
 
 """Implements ResNet models."""
 
-import mon.vision.classify.resnet.resnet
 from mon.vision.classify.resnet.resnet import *

@@ -3,5 +3,4 @@
 
 """Implements Total Variation De-noising."""
 
-import mon.vision.enhance.denoise.tv_denoise.tv_denoise
 from mon.vision.enhance.denoise.tv_denoise.tv_denoise import *

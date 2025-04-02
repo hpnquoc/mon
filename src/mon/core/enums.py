@@ -16,7 +16,7 @@ __all__ = [
     "TrackState",
 ]
 
-from typing import Any
+from typing import Any, Union
 
 from mon.core.type_extensions import Enum
 
@@ -244,7 +244,7 @@ class LType(Enum):
     ZERO_SHOT    = "zero_shot"          # Zero-Shot Learning.
     
     @classmethod
-    def trainable(cls) -> list[LType]:
+    def trainable(cls) -> list["LType"]:
         """Return a list of trainable learning types."""
         return [cls.SUPERVISED, cls.UNSUPERVISED]
 
@@ -289,7 +289,7 @@ class BBoxFormat(Enum):
     YOLO    = "yolo"
     
     @classmethod
-    def str_mapping(cls) -> dict[str, BBoxFormat]:
+    def str_mapping(cls) -> dict[str, "BBoxFormat"]:
         """Returns a dictionary mapping string keys to ``BBoxFormat`` enum values.
     
         This method provides a mapping from string representations of bounding
@@ -311,7 +311,7 @@ class BBoxFormat(Enum):
         }
     
     @classmethod
-    def int_mapping(cls) -> dict[int, BBoxFormat]:
+    def int_mapping(cls) -> dict[int, "BBoxFormat"]:
         """Returns a dictionary mapping integer keys to ``BBoxFormat`` enum values.
 
         This method provides a mapping from integer representations of bounding
@@ -333,7 +333,7 @@ class BBoxFormat(Enum):
         }
     
     @classmethod
-    def from_str(cls, value: str) -> BBoxFormat:
+    def from_str(cls, value: str) -> "BBoxFormat":
         """Converts a string to a ``BBoxFormat`` enum.
     
         This method takes a string representation of a bounding box format and
@@ -355,7 +355,7 @@ class BBoxFormat(Enum):
         return cls.str_mapping()[value_lower]
     
     @classmethod
-    def from_int(cls, value: int) -> BBoxFormat:
+    def from_int(cls, value: int) -> "BBoxFormat":
         """Convert an integer to a ``BBoxFormat`` enum.
     
         This method takes an integer representation of a bounding box format and
@@ -376,7 +376,7 @@ class BBoxFormat(Enum):
         return cls.int_mapping()[value]
     
     @classmethod
-    def from_value(cls, value: Any) -> BBoxFormat | None:
+    def from_value(cls, value: Any) -> "BBoxFormat":
         """Convert an arbitrary value to a ``BBoxFormat`` enum.
     
         This method takes an arbitrary value and attempts to convert it to a
@@ -418,7 +418,7 @@ class ShapeCode(Enum):
     YOLO2COCO  = 12
     
     @classmethod
-    def str_mapping(cls) -> dict[str, ShapeCode]:
+    def str_mapping(cls) -> dict[str, "ShapeCode"]:
         """Returns a dictionary mapping string keys to ``ShapeCode`` enum values.
     
         This method provides a mapping from string representations of shape codes
@@ -446,7 +446,7 @@ class ShapeCode(Enum):
         }
 
     @classmethod
-    def int_mapping(cls) -> dict[int, ShapeCode]:
+    def int_mapping(cls) -> dict[int, "ShapeCode"]:
         """Returns a dictionary mapping integer keys to ``ShapeCode`` enum values.
     
         This method provides a mapping from integer representations of shape codes
@@ -474,7 +474,7 @@ class ShapeCode(Enum):
         }
     
     @classmethod
-    def from_str(cls, value: str) -> ShapeCode:
+    def from_str(cls, value: str) -> "ShapeCode":
         """Converts a string to a ``ShapeCode`` enum.
     
         This method takes a string representation of a shape code and converts it
@@ -499,7 +499,7 @@ class ShapeCode(Enum):
         return cls.str_mapping()[value_lower]
 
     @classmethod
-    def from_int(cls, value: int) -> ShapeCode:
+    def from_int(cls, value: int) -> "ShapeCode":
         """Convert an integer to a ``ShapeCode`` enum.
     
         This method takes an integer representation of a shape code and converts it
@@ -520,7 +520,7 @@ class ShapeCode(Enum):
         return cls.int_mapping()[value]
     
     @classmethod
-    def from_value(cls, value: Any) -> ShapeCode | None:
+    def from_value(cls, value: Any) -> "ShapeCode":
         """Convert an arbitrary value to a ``ShapeCode`` enum.
     
         This method takes an arbitrary value and attempts to convert it to a
@@ -645,7 +645,7 @@ class TrackState(Enum):
         return cls.int_mapping()[value]
     
     @classmethod
-    def from_value(cls, value: "TrackState" | str | int) -> TrackState | None:
+    def from_value(cls, value: Any) -> "TrackState":
         """Convert an arbitrary value to a ``TrackState`` enum.
     
         This method takes an arbitrary value and attempts to convert it to a
@@ -684,7 +684,7 @@ class MemoryUnit(Enum):
     PB = "PB"
     
     @classmethod
-    def str_mapping(cls) -> dict[str, MemoryUnit]:
+    def str_mapping(cls) -> dict:
         """Return a dictionary mapping strings to ``MemoryUnit`` enums.
     
         This method provides a mapping from string representations of memory units
@@ -705,7 +705,7 @@ class MemoryUnit(Enum):
         }
     
     @classmethod
-    def int_mapping(cls) -> dict[int, MemoryUnit]:
+    def int_mapping(cls) -> dict[int, "MemoryUnit"]:
         """Return a dictionary mapping integers to ``MemoryUnit`` enums.
     
         This method provides a mapping from integer representations of memory units
@@ -726,7 +726,7 @@ class MemoryUnit(Enum):
         }
     
     @classmethod
-    def byte_conversion_mapping(cls) -> dict[MemoryUnit, int]:
+    def byte_conversion_mapping(cls) -> dict["MemoryUnit", int]:
         """Return a dictionary mapping memory units to their corresponding
         number of bytes.
     
@@ -748,7 +748,7 @@ class MemoryUnit(Enum):
         }
     
     @classmethod
-    def from_str(cls, value: str) -> MemoryUnit:
+    def from_str(cls, value: str) -> "MemoryUnit":
         """Convert a string to a ``MemoryUnit`` enum.
     
         This method takes a string representation of a memory unit and converts
@@ -770,7 +770,7 @@ class MemoryUnit(Enum):
         return cls.str_mapping()[value_lower]
     
     @classmethod
-    def from_int(cls, value: int) -> MemoryUnit:
+    def from_int(cls, value: int) -> "MemoryUnit":
         """Convert an integer to a ``MemoryUnit`` enum.
     
         This method takes an integer representation of a memory unit and converts
@@ -791,7 +791,7 @@ class MemoryUnit(Enum):
         return cls.int_mapping()[value]
     
     @classmethod
-    def from_value(cls, value: Any) -> MemoryUnit | None:
+    def from_value(cls, value: Any) -> "MemoryUnit":
         """Convert an arbitrary value to a ``MemoryUnit`` enum.
     
         This method attempts to convert an arbitrary value to a ``MemoryUnit`` enum.

@@ -3,7 +3,6 @@
 
 """File I/O functionality for the ``mon`` package."""
 
-import mon.core.serializers.base
 import mon.core.serializers.json
 import mon.core.serializers.pickle
 import mon.core.serializers.xml

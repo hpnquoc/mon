@@ -8,5 +8,4 @@ References:
     - https://github.com/ctom2/colie
 """
 
-import mon.vision.enhance.llie.colie_re.colie_re
 from mon.vision.enhance.llie.colie_re.colie_re import *

@@ -3,5 +3,4 @@
 
 """Implements ViT (Vision Transformer) models."""
 
-import mon.vision.classify.vit.vit
 from mon.vision.classify.vit.vit import *

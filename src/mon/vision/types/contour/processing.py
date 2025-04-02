@@ -4,9 +4,9 @@
 """Implements geometry functions for contours/segments."""
 
 __all__ = [
-    "contour_voc_to_yolo",
-    "contour_yolo_to_voc",
     "convert_contour",
+    "convert_contour_voc_to_yolo",
+    "convert_contour_yolo_to_voc",
     "denormalize_contour",
     "normalize_contour",
 ]
@@ -16,7 +16,7 @@ import numpy as np
 from mon import core
 
 
-# region Conversion
+# region Normalize
 
 def normalize_contour(contour: np.ndarray, height: int, width: int) -> np.ndarray:
     """Normalize contour points to [0.0, 1.0].
@@ -51,9 +51,13 @@ def denormalize_contour(contour: np.ndarray, height: int, width: int) -> np.ndar
     y = y_norm * height
     return np.stack((x, y), axis=-1)
 
+# endregion
 
-contour_voc_to_yolo = normalize_contour
-contour_yolo_to_voc = denormalize_contour
+
+# region Conversion
+
+convert_contour_voc_to_yolo = normalize_contour
+convert_contour_yolo_to_voc = denormalize_contour
 
 
 def convert_contour(
@@ -66,9 +70,9 @@ def convert_contour(
     code = core.ShapeCode.from_value(value=code)
     match code:
         case core.ShapeCode.VOC2YOLO:
-            return contour_voc_to_yolo(contour, height, width)
+            return convert_contour_voc_to_yolo(contour, height, width)
         case core.ShapeCode.YOLO2VOC:
-            return contour_yolo_to_voc(contour, height, width)
+            return convert_contour_yolo_to_voc(contour, height, width)
         case _:
             return contour
 

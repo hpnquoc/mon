@@ -3,9 +3,6 @@
 
 """Implements tracking algorithms."""
 
-import mon.vision.track.base
-import mon.vision.track.sort
-import mon.vision.track.sort_score
 from mon.vision.track.base import *
 from mon.vision.track.sort import *
 from mon.vision.track.sort_score import *

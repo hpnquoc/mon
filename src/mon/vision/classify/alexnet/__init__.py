@@ -3,5 +3,4 @@
 
 """Implements AlexNet models."""
 
-import mon.vision.classify.alexnet.alexnet
 from mon.vision.classify.alexnet.alexnet import *

@@ -3,5 +3,4 @@
 
 """Implements ConvNeXt models."""
 
-import mon.vision.classify.convnext.convnext
 from mon.vision.classify.convnext.convnext import *

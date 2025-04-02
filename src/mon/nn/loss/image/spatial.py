@@ -22,9 +22,9 @@ from mon.nn.loss import base
 
 @LOSSES.register(name="spatial_consistency_loss")
 class SpatialConsistencyLoss(base.Loss):
-    """Spatial Consistency Loss `\mathcal{L}_{spa}` encourages spatial coherence of the
-    enhanced image through preserving the difference of neighboring regions between the
-    input image and its enhanced version.
+    """Spatial Consistency Loss encourages spatial coherence of the enhanced image
+    through preserving the difference of neighboring regions between the input image
+    and its enhanced version.
 
     Args:
         num_regions: Number of neighboring regions as ``Literal[4, 8, 16, 24]``.

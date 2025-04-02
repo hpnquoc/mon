@@ -29,8 +29,8 @@ from mon.nn.loss import base
 
 @LOSSES.register(name="color_constancy_loss")
 class ColorConstancyLoss(base.Loss):
-    """Color Constancy Loss `\mathcal{L}_{col}` corrects potential color deviations in
-    the enhanced image and builds relations among the three adjusted channels.
+    """Color Constancy Loss corrects potential color deviations in the enhanced image
+    and builds relations among the three adjusted channels.
 
     Args:
         loss_weight: Weight of the loss as ``float``. Default is ``1.0``.
@@ -164,9 +164,8 @@ class EdgeAwareIlluminationLoss(base.Loss):
 
 @LOSSES.register(name="total_variation_loss")
 class TotalVariationLoss(base.Loss):
-    """Total Variation Loss on the Illumination (Illumination Smoothness Loss)
-    `\mathcal{L}_{tvA}` preserves monotonicity relations between neighboring pixels to
-    avoid aggressive and sharp changes.
+    """Total Variation Loss on the Illumination (Illumination Smoothness Loss) preserves
+    monotonicity relations between neighboring pixels to avoid aggressive and sharp changes.
 
     Args:
         reduction: Reduction method as ``Literal["none", "mean", "sum"]``.
@@ -216,8 +215,8 @@ class TotalVariationLoss(base.Loss):
 
 @LOSSES.register(name="exposure_control_loss")
 class ExposureControlLoss(base.Loss):
-    """Exposure Control Loss `\mathcal{L}_{exp}` measures the distance between the
-    average intensity value of a local region and the well-exposedness level E.
+    """Exposure Control Loss measures the distance between the average intensity value
+    of a local region and the well-exposedness level E.
 
     Args:
         patch_size: Kernel size for pooling layer as ``int`` or ``tuple[int, int]``.

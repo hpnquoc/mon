@@ -3,5 +3,4 @@
 
 """Implements EfficientNet models."""
 
-import mon.vision.classify.efficientnet.efficientnet
 from mon.vision.classify.efficientnet.efficientnet import *

@@ -279,7 +279,7 @@ class Path(type(pathlib.Path())):
         """
         return name in [d.name for d in self.subdirs()]
     
-    def subdirs(self, recursive: bool = False) -> list['Path']:
+    def subdirs(self, recursive: bool = False) -> list["Path"]:
         """Returns a list of subdirectory paths.
 
         Args:
@@ -292,7 +292,7 @@ class Path(type(pathlib.Path())):
         paths = list(path.rglob("*")) if recursive else list(path.iterdir())
         return [p for p in paths if p.is_dir()]
     
-    def files(self, recursive: bool = False) -> list['Path']:
+    def files(self, recursive: bool = False) -> list["Path"]:
         """Returns a list of file paths in the directory.
 
         Args:
@@ -305,7 +305,7 @@ class Path(type(pathlib.Path())):
         paths = list(path.rglob("*")) if recursive else list(path.iterdir())
         return [p for p in paths if p.is_file()]
     
-    def ckpt_file(self) -> Path | None:
+    def ckpt_file(self) -> "Path":
         """Returns the checkpoint file path if found.
 
         Returns:
@@ -314,7 +314,7 @@ class Path(type(pathlib.Path())):
         ckpt_path = self.with_suffix(".ckpt")
         return ckpt_path if ckpt_path.is_file() else self
     
-    def config_file(self) -> 'Path':
+    def config_file(self) -> "Path":
         """Returns the configuration file path.
 
         Returns:
@@ -328,7 +328,7 @@ class Path(type(pathlib.Path())):
                     return config_path
         return self
     
-    def latest_file(self) -> Path | None:
+    def latest_file(self) -> "Path":
         """Returns the latest file based on creation time.
 
         Returns:
@@ -337,7 +337,7 @@ class Path(type(pathlib.Path())):
         files = self.files()
         return max(files, key=os.path.getctime) if files else None
     
-    def image_file(self) -> 'Path':
+    def image_file(self) -> "Path":
         """Returns the image file path.
 
         Returns:
@@ -350,7 +350,7 @@ class Path(type(pathlib.Path())):
                 return temp
         return self
     
-    def yaml_file(self) -> 'Path':
+    def yaml_file(self) -> "Path":
         """Returns the YAML file path.
 
         Returns:
@@ -362,7 +362,7 @@ class Path(type(pathlib.Path())):
                 return temp
         return self
     
-    def relative_path(self, start_part: 'Path' | str) -> 'Path':
+    def relative_path(self, start_part: str) -> "Path":
         """Returns the relative path from a given start part.
 
         Args:
@@ -379,7 +379,7 @@ class Path(type(pathlib.Path())):
         start_idx = path_str.index(start_part)
         return Path(path_str[start_idx:])
     
-    def copy_to(self, dst: 'Path' | str, replace: bool = True):
+    def copy_to(self, dst: str, replace: bool = True):
         """Copies the file to a new location.
 
         Args:
@@ -398,7 +398,7 @@ class Path(type(pathlib.Path())):
             dst.unlink(missing_ok=True)
         shutil.copyfile(src=str(self), dst=str(dst))
     
-    def replace(self, old: str, new: str, count: int = 1) -> 'Path':
+    def replace(self, old: str, new: str, count: int = 1) -> "Path":
         """Replaces occurrences of a string in the path.
 
         Args:

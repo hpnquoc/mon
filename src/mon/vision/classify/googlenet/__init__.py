@@ -3,5 +3,4 @@
 
 """Implements GoogLeNet (Inception v1) models."""
 
-import mon.vision.classify.googlenet.googlenet
 from mon.vision.classify.googlenet.googlenet import *

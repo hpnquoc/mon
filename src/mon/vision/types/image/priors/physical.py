@@ -15,7 +15,7 @@ import numpy as np
 import torch
 
 from mon.nn import _size_2_t, functional as F
-from mon.vision.types.image.prior import statistical
+from mon.vision.types.image.priors import statistical
 
 
 def atmospheric_point_spread_function(

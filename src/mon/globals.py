@@ -119,37 +119,6 @@ EXTRA_DATASET_STR = "[extra]"
 EXTRA_MODEL_STR   = "[extra]"
 EXTRA_DATASETS    = {}
 EXTRA_MODELS      = {                   # architecture/model (+ variant)
-    # region datatype/depth
-    "depth_anything_v2": {
-        "depth_anything_v2_vitb": {
-            "tasks"    : [enums.Task.DEPTH],
-            "ltypes"   : [enums.LType.SUPERVISED],
-            "model_dir": MON_DIR / "vision" / "datatype" / "depth" / "depth_anything_v2",
-        },
-        "depth_anything_v2_vits": {
-            "tasks"    : [enums.Task.DEPTH],
-            "ltypes"   : [enums.LType.SUPERVISED],
-            "model_dir": MON_DIR / "vision" / "datatype" / "depth" / "depth_anything_v2",
-        },
-        "depth_anything_v2_vitl": {
-            "tasks"    : [enums.Task.DEPTH],
-            "ltypes"   : [enums.LType.SUPERVISED],
-            "model_dir": MON_DIR / "vision" / "datatype" / "depth" / "depth_anything_v2",
-        },
-        "depth_anything_v2_vitg": {
-            "tasks"    : [enums.Task.DEPTH],
-            "ltypes"   : [enums.LType.SUPERVISED],
-            "model_dir": MON_DIR / "vision" / "datatype" / "depth" / "depth_anything_v2",
-        },
-    },
-    "depth_pro"        : {
-        "depth_pro": {
-            "tasks"    : [enums.Task.DEPTH],
-            "ltypes"   : [enums.LType.ZERO_SHOT],
-            "model_dir": MON_DIR / "vision" / "datatype" / "depth" / "depth_pro",
-        },
-    },
-    # endregion
     # region detect
     "yolor" : {
         "yolor_d6": {
@@ -501,6 +470,37 @@ EXTRA_MODELS      = {                   # architecture/model (+ variant)
             "tasks"    : [enums.Task.SR],
             "ltypes"   : [enums.LType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "enhance" / "sr" / "sronet",
+        },
+    },
+    # endregion
+    # region types/depth
+    "depth_anything_v2": {
+        "depth_anything_v2_vitb": {
+            "tasks"    : [enums.Task.DEPTH],
+            "ltypes"   : [enums.LType.SUPERVISED],
+            "model_dir": MON_DIR / "vision" / "types" / "depth" / "depth_anything_v2",
+        },
+        "depth_anything_v2_vits": {
+            "tasks"    : [enums.Task.DEPTH],
+            "ltypes"   : [enums.LType.SUPERVISED],
+            "model_dir": MON_DIR / "vision" / "types" / "depth" / "depth_anything_v2",
+        },
+        "depth_anything_v2_vitl": {
+            "tasks"    : [enums.Task.DEPTH],
+            "ltypes"   : [enums.LType.SUPERVISED],
+            "model_dir": MON_DIR / "vision" / "types" / "depth" / "depth_anything_v2",
+        },
+        "depth_anything_v2_vitg": {
+            "tasks"    : [enums.Task.DEPTH],
+            "ltypes"   : [enums.LType.SUPERVISED],
+            "model_dir": MON_DIR / "vision" / "types" / "depth" / "depth_anything_v2",
+        },
+    },
+    "depth_pro"        : {
+        "depth_pro": {
+            "tasks"    : [enums.Task.DEPTH],
+            "ltypes"   : [enums.LType.ZERO_SHOT],
+            "model_dir": MON_DIR / "vision" / "types" / "depth" / "depth_pro",
         },
     },
     # endregion

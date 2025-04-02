@@ -13,7 +13,7 @@ import cv2
 
 from mon import core
 from mon.globals import DEPTH_DATA_SOURCES
-from mon.vision.types.annotations import image as I
+from mon.vision.types import image as I
 
 
 class DepthMapAnnotation(I.ImageAnnotation):

@@ -14,7 +14,11 @@ from typing import Any, Literal, Optional
 from mon import core
 from mon.globals import DEPTH_DATA_SOURCES, TRANSFORMS
 from mon.vision.geometry import albumentation
-from mon.vision.types import annotations
+from mon.vision.types.bbox import BBoxAnnotation, BBoxesAnnotation
+from mon.vision.types.depth import DepthMapAnnotation
+from mon.vision.types.image import ImageAnnotation
+from mon.vision.types.label_map import SemanticSegmentationAnnotation
+from mon.vision.types.video import FrameAnnotation
 
 
 class DatapointAttributes(dict[str: Optional[core.Annotation]]):
@@ -81,13 +85,13 @@ class DatapointAttributes(dict[str: Optional[core.Annotation]]):
             ``"values"``; ``None`` if unknown.
         """
         v = self.get(key, None)
-        if v in [annotations.ImageAnnotation, annotations.FrameAnnotation, annotations.DepthMapAnnotation]:
+        if v in [ImageAnnotation, FrameAnnotation, DepthMapAnnotation]:
             return "image"
-        elif v in [annotations.BBoxAnnotation, annotations.BBoxesAnnotation]:
+        elif v in [BBoxAnnotation, BBoxesAnnotation]:
             return "bboxes"
         elif v in [core.ClassificationAnnotation, core.RegressionAnnotation]:
             return "values"
-        elif v in [annotations.SemanticSegmentationAnnotation]:
+        elif v in [SemanticSegmentationAnnotation]:
             return "mask"
         else:
             core.error_console.log(f"Unknown annotation type: {v}, {type(v)}.")
@@ -235,7 +239,7 @@ class VisionDataset(core.Dataset, ABC):
         ref_images = self.datapoints.get("ref_image", [])
         
         if len(ref_images) == 0:
-            ref_images: list[annotations.ImageAnnotation] = []
+            ref_images: list[ImageAnnotation] = []
             with core.get_progress_bar(disable=self.disable_pbar) as pbar:
                 for img in pbar.track(
                     sequence    = images,
@@ -244,7 +248,7 @@ class VisionDataset(core.Dataset, ABC):
                 ):
                     root_name = img.root.name
                     path      = img.path.replace(f"/{root_name}/", f"/ref/")
-                    ref_images.append(annotations.ImageAnnotation(
+                    ref_images.append(ImageAnnotation(
                         path = path.image_file(),
                         root = img.root
                     ))
@@ -256,7 +260,7 @@ class VisionDataset(core.Dataset, ABC):
         depths = self.datapoints.get("depth", [])
         
         if len(images) > 0 and len(depths) == 0:
-            depths: list[annotations.DepthMapAnnotation] = []
+            depths: list[DepthMapAnnotation] = []
             with core.get_progress_bar(disable=self.disable_pbar) as pbar:
                 for img in pbar.track(
                     sequence    = images,
@@ -267,7 +271,7 @@ class VisionDataset(core.Dataset, ABC):
                     path      = img.path.replace(f"/{root_name}/",
                                                  f"/{root_name}_{self.depth_source}/")
                     depths.append(
-                        annotations.DepthMapAnnotation(
+                        DepthMapAnnotation(
                             path   = path.image_file(),
                             root   = img.root,
                             source = self.depth_source
@@ -281,7 +285,7 @@ class VisionDataset(core.Dataset, ABC):
         ref_depths = self.datapoints.get("ref_depth", [])
         
         if len(ref_images) > 0 and len(ref_depths) == 0:
-            ref_depths: list[annotations.DepthMapAnnotation] = []
+            ref_depths: list[DepthMapAnnotation] = []
             with core.get_progress_bar(disable=self.disable_pbar) as pbar:
                 for img in pbar.track(
                     sequence    = ref_images,
@@ -292,7 +296,7 @@ class VisionDataset(core.Dataset, ABC):
                     path      = img.path.replace(f"/{root_name}/",
                                                  f"/{root_name}_{self.depth_source}/")
                     ref_depths.append(
-                        annotations.DepthMapAnnotation(
+                        DepthMapAnnotation(
                             path   = path.image_file(),
                             root   = img.root,
                             source = self.depth_source

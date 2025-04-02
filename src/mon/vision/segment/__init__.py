@@ -3,5 +3,4 @@
 
 """Implements segmentation algorithms and models."""
 
-import mon.vision.segment.base
 from mon.vision.segment.base import *
