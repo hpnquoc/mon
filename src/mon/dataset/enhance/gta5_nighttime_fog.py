@@ -7,8 +7,6 @@ References:
     - https://github.com/jinyeying/nighttime_dehaze
 """
 
-from __future__ import annotations
-
 __all__ = [
     "GTA5NighttimeFog",
     "GTA5NighttimeFogDataModule",

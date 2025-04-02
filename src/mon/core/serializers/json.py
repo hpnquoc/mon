@@ -3,20 +3,18 @@
 
 """Extends ``json`` package for JSON file handling."""
 
-from __future__ import annotations
-
 from json import *
 from typing import Any, TextIO
 
 import numpy as np
 
 from mon.core import pathlib
-from mon.core.file import base
-from mon.globals import FILE_HANDLERS
+from mon.core.serializers import base
+from mon.globals import SERIALIZERS
 
 
-@FILE_HANDLERS.register(name=".json")
-class JSONHandler(base.FileHandler):
+@SERIALIZERS.register(name=".json")
+class JSONSerializer(base.BaseSerializer):
     """Handler for JSON file operations."""
     
     @staticmethod

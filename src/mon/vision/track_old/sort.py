@@ -3,8 +3,6 @@
 
 """This module implements the Simple Online Realtime Tracker (SORT) tracker."""
 
-from __future__ import annotations
-
 __all__ = [
     "SORT",
     "SORTBBox",

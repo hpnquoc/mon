@@ -3,8 +3,6 @@
 
 """Implements efficiency score metrics."""
 
-from __future__ import annotations
-
 __all__ = [
 	"compute_efficiency_score",
 ]

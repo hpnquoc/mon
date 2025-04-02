@@ -3,8 +3,6 @@
 
 """Implements input/output operations for images."""
 
-from __future__ import annotations
-
 __all__ = [
     "read_image",
     "read_image_shape",

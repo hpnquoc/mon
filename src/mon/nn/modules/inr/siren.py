@@ -7,8 +7,6 @@ References:
     - https://github.com/lucidrains/siren-pytorch
 """
 
-from __future__ import annotations
-
 __all__ = [
     "SIREN",
     "SineLayer",

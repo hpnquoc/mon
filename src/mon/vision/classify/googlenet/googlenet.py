@@ -3,8 +3,6 @@
 
 """Implements GoogLeNet (Inception v1) models."""
 
-from __future__ import annotations
-
 __all__ = [
     "GoogleNet",
 ]

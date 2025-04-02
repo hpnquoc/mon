@@ -8,8 +8,6 @@ References:
     - https://github.com/AndersonYong/URetinex-Net
 """
 
-from __future__ import annotations
-
 import time
 
 import torchvision.transforms as transforms

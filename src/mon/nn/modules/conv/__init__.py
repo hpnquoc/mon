@@ -3,8 +3,6 @@
 
 """Implements convolutional layers for deep learning models."""
 
-from __future__ import annotations
-
 import mon.nn.modules.conv.base
 import mon.nn.modules.conv.bsconv
 import mon.nn.modules.conv.dsconv

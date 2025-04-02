@@ -3,8 +3,6 @@
 
 """This module implements the base class for all trackers."""
 
-from __future__ import annotations
-
 __all__ = [
     "Tracker",
 ]

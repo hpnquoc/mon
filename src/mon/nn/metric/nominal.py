@@ -3,8 +3,6 @@
 
 """Implement nominal metrics."""
 
-from __future__ import annotations
-
 __all__ = [
     "CramersV",
     "FleissKappa",

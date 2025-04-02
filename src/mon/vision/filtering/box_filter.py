@@ -3,8 +3,6 @@
 
 """Implements box filters."""
 
-from __future__ import annotations
-
 __all__ = [
     "BoxFilter",
     "box_filter",

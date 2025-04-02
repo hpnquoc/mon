@@ -3,8 +3,6 @@
 
 """Implements training procedure for neural networks."""
 
-from __future__ import annotations
-
 __all__ = [
     "Trainer",
     "seed_everything",

@@ -6,8 +6,6 @@
 This category encompasses models about image properties based on physical (model-based).
 """
 
-from __future__ import annotations
-
 __all__ = [
     "atmospheric_point_spread_function",
     "atmospheric_prior",

@@ -3,8 +3,6 @@
 
 """Implements DICM datasets."""
 
-from __future__ import annotations
-
 __all__ = [
     "DICM",
     "DICMDataModule",

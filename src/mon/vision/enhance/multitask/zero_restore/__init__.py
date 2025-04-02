@@ -8,8 +8,6 @@ References:
 	- https://github.com/aupendu/zero-restore
 """
 
-from __future__ import annotations
-
 import mon.vision.enhance.multitask.zero_restore.zero_restore_dehaze
 import mon.vision.enhance.multitask.zero_restore.zero_restore_llie
 import mon.vision.enhance.multitask.zero_restore.zero_restore_uie

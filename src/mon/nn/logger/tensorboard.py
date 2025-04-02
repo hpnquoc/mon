@@ -3,8 +3,6 @@
 
 """Extends the Tensorboard logger."""
 
-from __future__ import annotations
-
 __all__ = [
     "TensorBoardLogger",
 ]

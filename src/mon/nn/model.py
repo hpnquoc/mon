@@ -3,8 +3,6 @@
 
 """Implements base class for all deep learning models."""
 
-from __future__ import annotations
-
 __all__ = [
     "ExtraModel",
     "Model",

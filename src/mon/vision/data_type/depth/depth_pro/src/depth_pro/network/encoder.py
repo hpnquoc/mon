@@ -1,8 +1,6 @@
 # Copyright (C) 2024 Apple Inc. All Rights Reserved.
 # DepthProEncoder combining patch and image encoders.
 
-from __future__ import annotations
-
 import math
 from typing import Iterable, Optional
 

@@ -7,8 +7,6 @@ These modules focus on reweighting spatial locations (e.g., H and W dimensions) 
 feature maps, emphasizing "where" to focus, often based on spatial context or relationships.
 """
 
-from __future__ import annotations
-
 __all__ = [
     "PAM",
     "PixelAttentionModule",

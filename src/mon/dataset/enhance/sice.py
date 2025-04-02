@@ -3,8 +3,6 @@
 
 """Implements SICE datasets."""
 
-from __future__ import annotations
-
 __all__ = [
     "SICE",
     "SICEDataModule",

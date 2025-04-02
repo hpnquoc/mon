@@ -8,8 +8,6 @@ These losses leverage high-level features extracted from pretrained neural netwo
 pixel-wise differences.
 """
 
-from __future__ import annotations
-
 __all__ = [
     "PerceptualLoss",
 ]

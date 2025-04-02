@@ -6,8 +6,6 @@ References:
     https://github.com/pvnieo/Low-light-Image-Enhancement
 """
 
-from __future__ import annotations
-
 from typing import Sequence
 
 import cv2

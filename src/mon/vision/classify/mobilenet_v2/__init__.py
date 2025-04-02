@@ -3,7 +3,5 @@
 
 """Implements MobileNetV2 models."""
 
-from __future__ import annotations
-
 import mon.vision.classify.mobilenet_v2.mobilenet_v2
 from mon.vision.classify.mobilenet_v2.mobilenet_v2 import *

@@ -3,8 +3,6 @@
 
 """Implements distance functions between points or arrays."""
 
-from __future__ import annotations
-
 __all__ = [
 	"angle_between_arrays",
 	"chebyshev_distance",

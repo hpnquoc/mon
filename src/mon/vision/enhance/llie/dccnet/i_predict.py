@@ -8,8 +8,6 @@ References:
     - https://github.com/Ian0926/DCC-Net
 """
 
-from __future__ import annotations
-
 import torch
 import torch.optim
 import torchvision

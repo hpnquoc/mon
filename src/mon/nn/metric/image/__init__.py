@@ -3,8 +3,6 @@
 
 """Implement image quality assessment metrics."""
 
-from __future__ import annotations
-
 import mon.nn.metric.image.base
 import mon.nn.metric.image.custom_ssim
 import mon.nn.metric.image.iqa

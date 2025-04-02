@@ -7,8 +7,6 @@ References:
 	- https://www.cityscapes-dataset.com/
 """
 
-from __future__ import annotations
-
 __all__ = [
     "Cityscapes",
     "CityscapesDataModule",

@@ -3,8 +3,6 @@
 
 """Implements FlareReal800 datasets."""
 
-from __future__ import annotations
-
 __all__ = [
     "FlareReal800",
     "FlareReal800DataModule",

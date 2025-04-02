@@ -3,8 +3,6 @@
 
 """Implements input/output operations for videos."""
 
-from __future__ import annotations
-
 __all__ = [
     "VideoWriter",
     "VideoWriterCV",

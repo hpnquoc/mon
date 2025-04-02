@@ -8,8 +8,6 @@ References:
     - https://github.com/ShenZheng2000/Semantic-Guided-Low-Light-Image-Enhancement
 """
 
-from __future__ import annotations
-
 import os
 
 import torch

@@ -7,8 +7,6 @@ References:
     - https://github.com/vishwa91/wire
 """
 
-from __future__ import annotations
-
 __all__ = [
     "WIRE",
     "ComplexGaborLayer",

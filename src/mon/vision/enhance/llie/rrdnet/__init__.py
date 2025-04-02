@@ -8,7 +8,5 @@ References:
     - https://github.com/aaaaangel/RRDNet
 """
 
-from __future__ import annotations
-
 import mon.vision.enhance.llie.rrdnet.rrdnet
 from mon.vision.enhance.llie.rrdnet.rrdnet import *

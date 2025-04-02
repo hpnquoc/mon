@@ -3,8 +3,6 @@
 
 """Implements COCO 2017 datasets for detection and segmentation."""
 
-from __future__ import annotations
-
 __all__ = [
     "COCO2017",
     "COCODataModule",

@@ -3,8 +3,6 @@
 
 """This module implements the base classes for all tracking objects."""
 
-from __future__ import annotations
-
 __all__ = [
     "Instance", "MovingObject", "Object", "StaticObject", "Track",
 ]

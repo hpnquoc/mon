@@ -3,8 +3,6 @@
 
 """Implements LIME datasets."""
 
-from __future__ import annotations
-
 __all__ = [
     "LIME",
     "LIMEDataModule",

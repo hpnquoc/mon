@@ -3,8 +3,6 @@
 
 # https://github.com/AndersonYong/URetinex-Net
 
-from __future__ import annotations
-
 import argparse
 import time
 

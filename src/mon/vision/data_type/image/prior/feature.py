@@ -7,8 +7,6 @@ This category involves identifying and isolating structural or semantic features
 (e.g., edges, boundaries) in an image.
 """
 
-from __future__ import annotations
-
 __all__ = [
     "BoundaryAwarePrior",
     "boundary_aware_prior",

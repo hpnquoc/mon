@@ -5,8 +5,6 @@
 # pip install onnx-tool
 # https://pypi.org/project/onnx-tool/0.1.7/
 
-from __future__ import annotations
-
 import cv2
 import torch
 

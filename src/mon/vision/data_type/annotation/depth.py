@@ -3,8 +3,6 @@
 
 """Implements depth-based annotations."""
 
-from __future__ import annotations
-
 __all__ = [
     "DepthMapAnnotation",
 ]

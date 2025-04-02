@@ -7,8 +7,6 @@ References:
     - https://github.com/2y7c3/Super-Resolution-Neural-Operator
 """
 
-from __future__ import annotations
-
 import torch
 import torch.optim
 import torchvision

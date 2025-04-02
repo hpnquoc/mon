@@ -3,8 +3,6 @@
 
 """Implements SqueezeNet models."""
 
-from __future__ import annotations
-
 __all__ = [
     "SqueezeNet1_0",
     "SqueezeNet1_1",

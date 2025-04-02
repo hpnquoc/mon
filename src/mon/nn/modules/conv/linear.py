@@ -3,8 +3,6 @@
 
 """Implements linearity layers."""
 
-from __future__ import annotations
-
 __all__ = [
     "Bilinear",
     "Identity",

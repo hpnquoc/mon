@@ -3,8 +3,6 @@
 
 """Implements VV datasets."""
 
-from __future__ import annotations
-
 __all__ = [
     "VV",
     "VVDataModule",

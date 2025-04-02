@@ -3,8 +3,6 @@
 
 """Implements image-based annotations."""
 
-from __future__ import annotations
-
 __all__ = [
     "FrameAnnotation",
     "ImageAnnotation",

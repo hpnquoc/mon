@@ -3,8 +3,6 @@
 
 """Implements templates for image-only datasets."""
 
-from __future__ import annotations
-
 __all__ = [
     "ImageLoader",
 ]

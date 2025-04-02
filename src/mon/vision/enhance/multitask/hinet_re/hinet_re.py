@@ -8,8 +8,6 @@ References:
     - https://github.com/megvii-model/HINet
 """
 
-from __future__ import annotations
-
 __all__ = [
     "HINet_RE",
 ]

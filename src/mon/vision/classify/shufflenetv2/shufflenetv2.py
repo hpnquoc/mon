@@ -3,8 +3,6 @@
 
 """Implements ShuffleNetV2 models."""
 
-from __future__ import annotations
-
 __all__ = [
     "ShuffleNetV2_X1_0",
     "ShuffleNetV2_X1_5",

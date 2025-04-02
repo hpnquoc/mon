@@ -3,8 +3,6 @@
 
 """Implement classification metrics."""
 
-from __future__ import annotations
-
 __all__ = [
 	"Accuracy",
 	"AveragePrecision",

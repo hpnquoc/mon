@@ -3,8 +3,6 @@
 
 """Implements LOL-v2 datasets."""
 
-from __future__ import annotations
-
 __all__ = [
     "LOLv2Real",
     "LOLv2RealDataModule",

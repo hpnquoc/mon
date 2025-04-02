@@ -3,8 +3,6 @@
 
 """Implements Inception v3 models."""
 
-from __future__ import annotations
-
 __all__ = [
     "Inception3",
 ]

@@ -3,8 +3,6 @@
 
 """Implements category/class annotations."""
 
-from __future__ import annotations
-
 __all__ = [
     "ClassificationAnnotation",
     "convert_class_id_to_logits",
@@ -14,7 +12,7 @@ __all__ = [
 import numpy as np
 import torch
 
-from mon.core.data_type.annotation import base
+from mon.core.data_type.annotations import base
 
 
 # region Conversion

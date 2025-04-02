@@ -7,8 +7,6 @@ This category encompasses assumptions about image properties based on statistica
 (data-driven).
 """
 
-from __future__ import annotations
-
 __all__ = [
     "blur_spot_prior",
     "bright_channel_prior",

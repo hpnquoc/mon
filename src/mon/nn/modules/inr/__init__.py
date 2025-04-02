@@ -3,8 +3,6 @@
 
 """Implements Implicit Neural Representations, layers, and networks."""
 
-from __future__ import annotations
-
 import mon.nn.modules.inr.base
 import mon.nn.modules.inr.finer
 import mon.nn.modules.inr.gauss

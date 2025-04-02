@@ -3,8 +3,6 @@
 
 """Implements image manipulation and preprocessing functions."""
 
-from __future__ import annotations
-
 __all__ = [
     "add_images_weighted",
     "blend_images",

@@ -3,8 +3,6 @@
 
 """Implements miscellaneous layers."""
 
-from __future__ import annotations
-
 __all__ = [
     "ChannelShuffle",
     "Chuncat",

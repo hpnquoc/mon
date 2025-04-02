@@ -3,8 +3,6 @@
 
 """Implements RESIDE datasets."""
 
-from __future__ import annotations
-
 __all__ = [
     "RESIDE_HSTS_Real",
     "RESIDE_HSTS_Real_DataModule",

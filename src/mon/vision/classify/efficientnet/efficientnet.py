@@ -3,8 +3,6 @@
 
 """Implements EfficientNet models."""
 
-from __future__ import annotations
-
 __all__ = [
     "EfficientNet_B0",
     "EfficientNet_B1",

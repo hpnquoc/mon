@@ -3,8 +3,6 @@
 
 """This module implements prediction pipeline."""
 
-from __future__ import annotations
-
 import torch
 
 
@@ -84,5 +82,3 @@ def uneven_optimize(optimizer_type, parameters, optimization_closure,
             next_step_optimization_args = next_step_optimization_args_temp
     else:
         assert False
-
-

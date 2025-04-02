@@ -3,8 +3,6 @@
 
 """Implements base classes and helpers for all metrics."""
 
-from __future__ import annotations
-
 __all__ = [
     "BootStrapper",
     "CatMetric",

@@ -3,8 +3,6 @@
 
 """Implements blueprint separable convolutional layers."""
 
-from __future__ import annotations
-
 __all__ = [
     "BSConv2dS",
     "BSConv2dU",

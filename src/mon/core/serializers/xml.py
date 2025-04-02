@@ -3,18 +3,16 @@
 
 """Extends ``xmltodict`` module for XML file handling."""
 
-from __future__ import annotations
-
 from typing import Any, TextIO
 
 from xmltodict import *
 
-from mon.core.file import base
-from mon.globals import FILE_HANDLERS
+from mon.core.serializers import base
+from mon.globals import SERIALIZERS
 
 
-@FILE_HANDLERS.register(name=".xml")
-class XMLHandler(base.FileHandler):
+@SERIALIZERS.register(name=".xml")
+class XMLSerializer(base.BaseSerializer):
     """Handler for XML file operations."""
     
     def read_from_fileobj(self, path: TextIO, **kwargs) -> Any:

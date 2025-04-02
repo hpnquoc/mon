@@ -8,8 +8,6 @@ References:
     - https://github.com/KarelZhang/RUAS
 """
 
-from __future__ import annotations
-
 import numpy as np
 import torch
 import torch.backends.cudnn as cudnn

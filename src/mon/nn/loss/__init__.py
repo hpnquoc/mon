@@ -3,8 +3,6 @@
 
 """Implements loss functions for neural network training."""
 
-from __future__ import annotations
-
 import mon.nn.loss.base
 import mon.nn.loss.classification
 import mon.nn.loss.image

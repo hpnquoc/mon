@@ -3,8 +3,6 @@
 
 """Implements GT-Rain datasets."""
 
-from __future__ import annotations
-
 __all__ = [
     "GTRain",
     "GTRainDataModule",

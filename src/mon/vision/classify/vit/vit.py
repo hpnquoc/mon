@@ -3,8 +3,6 @@
 
 """Implements ViT (Vision Transformer) models."""
 
-from __future__ import annotations
-
 __all__ = [
     "ViT_B_16",
     "ViT_B_32",

@@ -3,8 +3,6 @@
 
 """Implements MIT-Adobe FiveK datasets."""
 
-from __future__ import annotations
-
 __all__ = [
     "FiveK",
     "FiveKA",

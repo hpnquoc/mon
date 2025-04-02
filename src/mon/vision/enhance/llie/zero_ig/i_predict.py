@@ -8,8 +8,6 @@ References:
     - https://github.com/Doyle59217/ZeroIG
 """
 
-from __future__ import annotations
-
 import logging
 import sys
 

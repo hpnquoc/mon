@@ -7,8 +7,6 @@ These losses enforce spatial coherence or consistency across an image, ensuring 
 local regions align with global context or neighboring areas.
 """
 
-from __future__ import annotations
-
 __all__ = [
     "SpatialConsistencyLoss",
 ]

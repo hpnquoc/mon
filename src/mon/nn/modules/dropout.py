@@ -3,8 +3,6 @@
 
 """Implements dropout layers."""
 
-from __future__ import annotations
-
 __all__ = [
     "AlphaDropout",
     "DropBlock2d",

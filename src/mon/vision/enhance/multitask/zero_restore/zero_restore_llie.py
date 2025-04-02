@@ -8,8 +8,6 @@ References:
 	- https://github.com/aupendu/zero-restore
 """
 
-from __future__ import annotations
-
 __all__ = [
     "ZeroRestoreLLIE",
 ]

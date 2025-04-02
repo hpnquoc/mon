@@ -8,8 +8,6 @@ References:
     - https://github.com/Fediory/HVI-CIDNet
 """
 
-from __future__ import annotations
-
 import random
 
 import torch.backends.cudnn as cudnn

@@ -7,8 +7,6 @@ References:
     - https://github.com/aasharma90/RetinexNet_PyTorch
 """
 
-from __future__ import annotations
-
 import mon
 from model import RetinexNet
 

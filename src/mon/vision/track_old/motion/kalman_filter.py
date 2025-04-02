@@ -3,8 +3,6 @@
 
 """This module implements Kalman Filter-based motion models."""
 
-from __future__ import annotations
-
 __all__ = [
     "KFBBoxMotion",
 ]

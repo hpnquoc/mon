@@ -3,8 +3,6 @@
 
 """This package implements tracking algorithms."""
 
-from __future__ import annotations
-
 import mon.vision.track_old.base
 import mon.vision.track_old.deepsort
 import mon.vision.track_old.motion

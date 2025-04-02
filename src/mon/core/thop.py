@@ -3,8 +3,6 @@
 
 """Extends ``thop.profile`` for PyTorch operation counting."""
 
-from __future__ import annotations
-
 # noinspection PyUnresolvedReferences
 from thop import *
 from thop.profile import register_hooks

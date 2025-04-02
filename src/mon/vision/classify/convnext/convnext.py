@@ -3,8 +3,6 @@
 
 """Implements ConvNeXt models."""
 
-from __future__ import annotations
-
 __all__ = [
     "ConvNeXtBase",
     "ConvNeXtLarge",

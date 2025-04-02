@@ -8,8 +8,6 @@ References:
     - https://github.com/daooshee/QuadPrior
 """
 
-from __future__ import annotations
-
 from cldm.hack import disable_verbosity
 
 disable_verbosity()

@@ -3,8 +3,6 @@
 
 """Implements DenseNet models."""
 
-from __future__ import annotations
-
 __all__ = [
     "DenseNet121",
     "DenseNet161",

@@ -29,8 +29,6 @@ Author: Chuanjun Zheng (chuanjunzhengcs@gmail.com)
 
 '''
 
-from __future__ import annotations
-
 import torch
 import torchvision
 

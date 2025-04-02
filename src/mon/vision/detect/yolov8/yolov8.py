@@ -3,8 +3,6 @@
 
 """This module implements YOLOv8 detectors."""
 
-from __future__ import annotations
-
 __all__ = [
     "YOLOv8Detector",
 ]

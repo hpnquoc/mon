@@ -3,8 +3,6 @@
 
 """Implements Rain12 datasets."""
 
-from __future__ import annotations
-
 __all__ = [
     "Rain12",
     "Rain12DataModule",

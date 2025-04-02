@@ -3,8 +3,6 @@
 
 """Implements geometric computer vision tasks."""
 
-from __future__ import annotations
-
 import mon.vision.geometry.calibrate
 import mon.vision.geometry.distance
 import mon.vision.geometry.transform

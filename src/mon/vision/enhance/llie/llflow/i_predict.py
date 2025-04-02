@@ -7,8 +7,6 @@ References:
     - https://github.com/wyf0912/LLFlow
 """
 
-from __future__ import annotations
-
 import os
 
 import cv2

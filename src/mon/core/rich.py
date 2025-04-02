@@ -3,8 +3,6 @@
 
 """Extends ``rich`` for text formatting in terminal, console, and ``mon`` logging."""
 
-from __future__ import annotations
-
 __all__ = [
     "MemoryUsageColumn",
     "ProcessedItemsColumn",

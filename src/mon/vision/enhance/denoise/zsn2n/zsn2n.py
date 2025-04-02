@@ -8,8 +8,6 @@ References:
     - https://colab.research.google.com/drive/1i82nyizTdszyHkaHBuKPbWnTzao8HF9b?usp=sharing#scrollTo=Srf0GQTYrkxA
 """
 
-from __future__ import annotations
-
 __all__ = [
     "ZSN2N",
 ]

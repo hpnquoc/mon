@@ -3,8 +3,6 @@
 
 """Implement regression metrics."""
 
-from __future__ import annotations
-
 __all__ = [
     "ConcordanceCorrCoef",
     "CosineSimilarity",

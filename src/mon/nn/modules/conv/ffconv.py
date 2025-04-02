@@ -3,8 +3,6 @@
 
 """Implements Fast Fourier Convolution layers."""
 
-from __future__ import annotations
-
 __all__ = [
     "FFConv2d",
     "FFConv2dNormAct",

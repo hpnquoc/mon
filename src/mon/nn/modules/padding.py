@@ -3,8 +3,6 @@
 
 """Implements padding layers."""
 
-from __future__ import annotations
-
 __all__ = [
     "ConstantPad1d",
     "ConstantPad2d",

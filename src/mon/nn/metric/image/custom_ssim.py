@@ -7,8 +7,6 @@ References:
     - https://github.com/MingTian99/ESDNet/blob/master/utils/image_utils.py
 """
 
-from __future__ import annotations
-
 __all__ = [
     "SSIM",
 ]

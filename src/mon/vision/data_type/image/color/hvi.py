@@ -3,8 +3,6 @@
 
 """Implements HVI color space."""
 
-from __future__ import annotations
-
 __all__ = [
     "RGBToHVI",
 ]

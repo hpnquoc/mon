@@ -7,8 +7,6 @@ These modules generate attention weights without additional learnable parameters
 inspired by biological principles, aiming for simplicity and efficiency.
 """
 
-from __future__ import annotations
-
 __all__ = [
     "SimAM",
 ]

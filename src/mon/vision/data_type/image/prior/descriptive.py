@@ -7,8 +7,6 @@ This category includes methods that compute statistical properties (e.g., mean,
 variance, standard deviation) over local regions of an image.
 """
 
-from __future__ import annotations
-
 __all__ = [
     "ImageLocalMean",
     "ImageLocalStdDev",

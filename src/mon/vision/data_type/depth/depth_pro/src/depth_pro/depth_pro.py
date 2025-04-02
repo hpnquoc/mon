@@ -2,8 +2,6 @@
 # Depth Pro: Sharp Monocular Metric Depth in Less Than a Second
 
 
-from __future__ import annotations
-
 from dataclasses import dataclass
 from typing import Mapping, Optional, Tuple, Union
 

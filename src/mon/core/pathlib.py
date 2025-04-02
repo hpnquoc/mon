@@ -3,8 +3,6 @@
 
 """Extends Python ``pathlib`` module."""
 
-from __future__ import annotations
-
 __all__ = [
     "Path",
     "PosixPath",

@@ -9,8 +9,6 @@ Notes:
     * The only exception is the enums and factory constants.
 """
 
-from __future__ import annotations
-
 __all__ = [
     "ACCELERATORS",
     "CALLBACKS",
@@ -26,7 +24,7 @@ __all__ = [
     "EXTRA_DATASET_STR",
     "EXTRA_MODELS",
     "EXTRA_MODEL_STR",
-    "FILE_HANDLERS",
+    "SERIALIZERS",
     "IMAGE_FILE_FORMATS",
     "LOGGERS",
     "LOSSES",
@@ -91,7 +89,6 @@ DATASETS      = factory.Factory(name="Datasets")
 DETECTORS     = factory.Factory(name="Detectors")
 DISTANCES     = factory.Factory(name="Distances")
 EMBEDDERS     = factory.Factory(name="Embedders")
-FILE_HANDLERS = factory.Factory(name="FileHandlers")
 LOGGERS       = factory.Factory(name="Loggers")
 LOSSES        = factory.Factory(name="Losses")
 LR_SCHEDULERS = factory.Factory(name="LRSchedulers")
@@ -100,6 +97,7 @@ MODELS        = factory.ModelFactory(name="Models")
 MOTIONS       = factory.Factory(name="Motions")
 OBJECTS       = factory.Factory(name="Objects")
 OPTIMIZERS    = factory.Factory(name="Optimizers")
+SERIALIZERS   = factory.Factory(name="FileHandlers")
 STRATEGIES    = factory.Factory(name="Strategies")
 TRACKERS      = factory.Factory(name="Trackers")
 TRANSFORMS    = factory.Factory(name="Transforms")

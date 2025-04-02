@@ -3,8 +3,6 @@
 
 """Extends Python's ``logging`` module."""
 
-from __future__ import annotations
-
 __all__ = [
     "disable_print",
     "enable_print",

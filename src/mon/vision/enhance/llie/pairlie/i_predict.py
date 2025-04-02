@@ -8,8 +8,6 @@ References:
     - https://github.com/zhenqifu/PairLIE
 """
 
-from __future__ import annotations
-
 import torch.optim
 import torchvision
 

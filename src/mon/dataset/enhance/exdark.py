@@ -3,8 +3,6 @@
 
 """Implements ExDark datasets."""
 
-from __future__ import annotations
-
 __all__ = [
     "ExDark",
     "ExDarkDataModule",

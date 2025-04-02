@@ -3,8 +3,6 @@
 
 """Implements bounding box annotations."""
 
-from __future__ import annotations
-
 __all__ = [
     "BBoxAnnotation",
     "BBoxesAnnotation",

@@ -7,8 +7,6 @@ These losses focus on maintaining or correcting color properties, illumination, 
 exposure, ensuring natural appearance in enhanced or restored images.
 """
 
-from __future__ import annotations
-
 __all__ = [
     "ColorConstancyLoss",
     "DepthAwareIlluminationLoss",

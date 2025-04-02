@@ -7,8 +7,6 @@ References:
     - https://codalab.lisn.upsaclay.fr/competitions/17640
 """
 
-from __future__ import annotations
-
 __all__ = [
     "NTIRE2024LLIE",
     "NTIRE2024LLIEDataModule",

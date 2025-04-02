@@ -7,8 +7,6 @@ References:
     - https://github.com/VainF/pytorch-msssim
 """
 
-from __future__ import annotations
-
 __all__ = [
     "MS_SSIM",
     "SSIM",

@@ -3,8 +3,6 @@
 
 """Implements factory method for registering and building classes at runtime."""
 
-from __future__ import annotations
-
 __all__ = [
     "Factory",
     "ModelFactory",

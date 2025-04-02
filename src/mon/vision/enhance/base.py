@@ -3,8 +3,6 @@
 
 """Implements base class and utility functions for enhancement models."""
 
-from __future__ import annotations
-
 __all__ = [
     "ImageEnhancementModel",
 ]

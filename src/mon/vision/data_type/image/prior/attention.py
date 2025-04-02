@@ -8,8 +8,6 @@ in deep learning to guide processing or interpretation (e.g., attention maps in 
 networks).
 """
 
-from __future__ import annotations
-
 __all__ = [
     "BrightnessAttentionMap",
     "brightness_attention_map",

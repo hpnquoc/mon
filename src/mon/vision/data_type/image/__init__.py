@@ -3,8 +3,6 @@
 
 """Implements image data types."""
 
-from __future__ import annotations
-
 import mon.vision.data_type.image.color
 import mon.vision.data_type.image.core
 import mon.vision.data_type.image.io

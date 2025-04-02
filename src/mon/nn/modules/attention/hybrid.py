@@ -7,8 +7,6 @@ These combine channel and spatial attention, often sequentially or in parallel, 
 refine features across both dimensions, providing a more comprehensive focus mechanism.
 """
 
-from __future__ import annotations
-
 __all__ = [
     "BAM",
     "CBAM",

@@ -3,8 +3,6 @@
 
 """Implements tracking algorithms."""
 
-from __future__ import annotations
-
 import mon.vision.track.base
 import mon.vision.track.sort
 import mon.vision.track.sort_score

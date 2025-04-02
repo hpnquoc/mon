@@ -3,8 +3,6 @@
 
 """Implements various image priors."""
 
-from __future__ import annotations
-
 import mon.vision.data_type.image.prior.attention
 import mon.vision.data_type.image.prior.descriptive
 import mon.vision.data_type.image.prior.feature

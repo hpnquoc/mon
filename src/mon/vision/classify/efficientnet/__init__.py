@@ -3,7 +3,5 @@
 
 """Implements EfficientNet models."""
 
-from __future__ import annotations
-
 import mon.vision.classify.efficientnet.efficientnet
 from mon.vision.classify.efficientnet.efficientnet import *

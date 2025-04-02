@@ -8,8 +8,6 @@ References:
     - https://github.com/Li-Chongyi/Zero-DCE
 """
 
-from __future__ import annotations
-
 import torch
 import torch.optim
 import torchvision

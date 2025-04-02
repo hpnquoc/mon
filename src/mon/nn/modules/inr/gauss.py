@@ -3,8 +3,6 @@
 
 """Implements Gaussian network with Gauss layers."""
 
-from __future__ import annotations
-
 __all__ = [
     "GAUSS",
     "GaussLayer",

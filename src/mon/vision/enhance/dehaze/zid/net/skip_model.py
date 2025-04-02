@@ -3,8 +3,6 @@
 
 """This module implements prediction pipeline."""
 
-from __future__ import annotations
-
 from net.layers import *
 
 

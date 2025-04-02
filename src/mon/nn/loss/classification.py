@@ -3,8 +3,6 @@
 
 """Implements loss functions for classification tasks."""
 
-from __future__ import annotations
-
 __all__ = [
     "DiceLoss",
 ]

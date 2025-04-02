@@ -8,8 +8,6 @@ References:
     - https://github.com/Li-Chongyi/Zero-DCE
 """
 
-from __future__ import annotations
-
 __all__ = [
     "ZeroDCE_RE",
 ]

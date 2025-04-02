@@ -3,8 +3,6 @@
 
 """This module implements prediction pipeline."""
 
-from __future__ import annotations
-
 from math import pi
 
 import numpy as np

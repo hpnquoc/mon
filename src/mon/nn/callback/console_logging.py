@@ -3,8 +3,6 @@
 
 """Implements callbacks for console logging of training/testing progress."""
 
-from __future__ import annotations
-
 __all__ = [
     "LogTrainingProgress"
 ]

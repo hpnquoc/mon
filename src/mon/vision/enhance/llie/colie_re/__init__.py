@@ -8,7 +8,5 @@ References:
     - https://github.com/ctom2/colie
 """
 
-from __future__ import annotations
-
 import mon.vision.enhance.llie.colie_re.colie_re
 from mon.vision.enhance.llie.colie_re.colie_re import *

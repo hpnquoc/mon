@@ -3,8 +3,6 @@
 
 """Implements Mixture of Experts (MoE) network."""
 
-from __future__ import annotations
-
 __all__ = [
     "LayeredFeatureAggregation",
 ]

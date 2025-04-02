@@ -3,8 +3,6 @@
 
 """Implements FINER network with FINER layers."""
 
-from __future__ import annotations
-
 __all__ = [
     "FINER",
     "FINERLayer",

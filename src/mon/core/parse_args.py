@@ -3,8 +3,6 @@
 
 """Parses user-input and config arguments."""
 
-from __future__ import annotations
-
 __all__ = [
     "parse_cli_args",
     "parse_predict_args",

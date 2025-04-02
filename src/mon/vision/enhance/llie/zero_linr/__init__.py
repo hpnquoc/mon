@@ -5,7 +5,5 @@
 Implicit Representations".
 """
 
-from __future__ import annotations
-
 import mon.vision.enhance.llie.zero_linr.zero_linr
 from mon.vision.enhance.llie.zero_linr.zero_linr import *

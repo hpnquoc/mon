@@ -3,8 +3,6 @@
 
 """Implements classification algorithms."""
 
-from __future__ import annotations
-
 import mon.vision.classify.alexnet
 import mon.vision.classify.base
 import mon.vision.classify.convnext

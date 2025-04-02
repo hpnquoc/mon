@@ -8,8 +8,6 @@ References:
     - https://github.com/aaaaangel/RRDNet
 """
 
-from __future__ import annotations
-
 __all__ = [
     "RRDNet",
 ]

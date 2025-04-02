@@ -3,8 +3,6 @@
 
 """Implements I-Haze datasets."""
 
-from __future__ import annotations
-
 __all__ = [
     "IHaze",
     "IHazeDataModule",

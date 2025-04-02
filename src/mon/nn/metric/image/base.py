@@ -3,8 +3,6 @@
 
 """Implement image quality assessment metrics."""
 
-from __future__ import annotations
-
 __all__ = [
     "ErrorRelativeGlobalDimensionlessSynthesis",
     "InceptionScore",

@@ -3,8 +3,6 @@
 
 """Implements base classes for all datasets."""
 
-from __future__ import annotations
-
 __all__ = [
     "ChainDataset",
     "ConcatDataset",
@@ -23,7 +21,7 @@ from torch.utils.data import dataset
 from torch.utils.data.dataset import *
 
 from mon.core import enums, pathlib, rich
-from mon.core.data_type import annotation
+from mon.core.data_type import annotations
 
 
 class Dataset(dataset.Dataset, ABC):
@@ -49,7 +47,7 @@ class Dataset(dataset.Dataset, ABC):
     splits: list[enums.Split]  = [enums.Split.TRAIN, enums.Split.VAL, enums.Split.TEST, enums.Split.PREDICT]
     datapoint_attrs     : Any  = {}
     has_test_annotations: bool = False
-    classlabels         : annotation.ClassLabels = None
+    classlabels         : annotations.ClassLabels = None
     
     def __init__(
         self,

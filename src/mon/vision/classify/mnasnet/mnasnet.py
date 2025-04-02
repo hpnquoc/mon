@@ -3,8 +3,6 @@
 
 """Implements MNASNet models."""
 
-from __future__ import annotations
-
 __all__ = [
     "MNASNet0_5",
     "MNASNet0_75",

@@ -3,8 +3,6 @@
 
 """Implements base class for all vision models."""
 
-from __future__ import annotations
-
 __all__ = [
     "VisionModel",
 ]

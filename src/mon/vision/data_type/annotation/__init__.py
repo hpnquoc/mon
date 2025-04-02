@@ -9,8 +9,6 @@ Annotations describe specific aspects of the visual data, such as object locatio
 categories, or semantic regions, and are typically created manually or semi-automatically.
 """
 
-from __future__ import annotations
-
 # import mon.vision.dtype.annotation.bbox
 # import mon.vision.dtype.annotation.contour
 # import mon.vision.dtype.annotation.depth

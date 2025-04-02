@@ -7,8 +7,6 @@ References:
 	- https://mipi-challenge.org/MIPI2024/index.html
 """
 
-from __future__ import annotations
-
 __all__ = [
 	"MIPI2024Flare",
 	"MIPI2024FlareDataModule",

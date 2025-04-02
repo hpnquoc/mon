@@ -6,8 +6,6 @@ References:
     `<https://github.com/Fediory/HVI-CIDNet>`__
 """
 
-from __future__ import annotations
-
 import argparse
 import copy
 

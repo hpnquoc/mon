@@ -7,8 +7,6 @@ References:
     - https://www.geeksforgeeks.org/concatenate-images-using-opencv-in-python/
 """
 
-from __future__ import annotations
-
 __all__ = [
     "get_grid_size",
     "move_figure",

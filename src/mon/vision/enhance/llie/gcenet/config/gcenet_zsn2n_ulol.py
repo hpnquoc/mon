@@ -1,8 +1,6 @@
 #!/usr/bin/edenoised1nv python
 # -*- coding: utf-8 -*-
 
-from __future__ import annotations
-
 from mon.config import default
 
 import mon

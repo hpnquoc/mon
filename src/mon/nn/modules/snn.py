@@ -3,8 +3,6 @@
 
 """Implements SNNs and wraps ``snntorch`` and ``spikingjelly`` libraries."""
 
-from __future__ import annotations
-
 import sys
 
 from mon import core

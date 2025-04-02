@@ -2,8 +2,6 @@
 # Factory functions to build and load ViT models.
 
 
-from __future__ import annotations
-
 import logging
 import types
 from dataclasses import dataclass

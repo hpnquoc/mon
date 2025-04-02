@@ -3,8 +3,6 @@
 
 """Implements depthwise separable convolutional layers."""
 
-from __future__ import annotations
-
 __all__ = [
     "DSConv2d",
     "DSConv2dReLU",

@@ -3,8 +3,6 @@
 
 """Implements LoLI-Street datasets."""
 
-from __future__ import annotations
-
 __all__ = [
     "LoLIStreet",
     "LoLIStreetDataModule",

@@ -3,8 +3,6 @@
 
 """Implements rich progress bar callback."""
 
-from __future__ import annotations
-
 __all__ = [
    "RichProgressBar",
 ]

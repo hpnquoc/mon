@@ -3,8 +3,6 @@
 
 """Implements various datasets."""
 
-from __future__ import annotations
-
 import mon.dataset.cityscapes
 import mon.dataset.coco
 import mon.dataset.enhance

@@ -3,8 +3,6 @@
 
 """Implements computer vision tasks."""
 
-from __future__ import annotations
-
 import mon.vision.classify
 import mon.vision.data_type
 import mon.vision.draw

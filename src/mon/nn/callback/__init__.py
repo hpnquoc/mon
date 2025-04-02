@@ -3,8 +3,6 @@
 
 """Implements callbacks for ML model training, validation, and testing."""
 
-from __future__ import annotations
-
 import mon.nn.callback.base
 import mon.nn.callback.console_logging
 import mon.nn.callback.model_checkpoint

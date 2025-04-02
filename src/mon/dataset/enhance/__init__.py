@@ -3,8 +3,6 @@
 
 """Implements image/video enhancement datasets."""
 
-from __future__ import annotations
-
 import mon.dataset.enhance.darkcityscapes
 import mon.dataset.enhance.darkface
 import mon.dataset.enhance.densehaze

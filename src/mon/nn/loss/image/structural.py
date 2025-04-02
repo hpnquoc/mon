@@ -7,8 +7,6 @@ These losses emphasize preserving or enhancing edges, boundaries, or structural 
 in an image, critical for tasks like segmentation or enhancement.
 """
 
-from __future__ import annotations
-
 __all__ = [
     "EdgeLoss",
 ]

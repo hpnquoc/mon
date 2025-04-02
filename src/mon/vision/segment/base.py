@@ -3,8 +3,6 @@
 
 """Implements base class and utility functions for segmentation models."""
 
-from __future__ import annotations
-
 __all__ = [
     "SegmentationModel",
 ]

@@ -7,8 +7,6 @@ This module implements our idea: "Guided Curve Estimation Network for Low-Light
 Image Enhancement".
 """
 
-from __future__ import annotations
-
 __all__ = [
     "GCENet",
     "GCENet_ZSN2N",

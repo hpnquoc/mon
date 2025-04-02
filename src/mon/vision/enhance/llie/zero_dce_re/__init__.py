@@ -8,7 +8,5 @@ References:
     - https://github.com/Li-Chongyi/Zero-DCE
 """
 
-from __future__ import annotations
-
 import mon.vision.enhance.llie.zero_dce_re.zero_dce_re
 from mon.vision.enhance.llie.zero_dce_re.zero_dce_re import *

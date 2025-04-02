@@ -3,8 +3,6 @@
 
 """Extends ``torchmetrics`` for evaluation metrics."""
 
-from __future__ import annotations
-
 import mon.nn.metric.base
 import mon.nn.metric.classification
 import mon.nn.metric.efficiency

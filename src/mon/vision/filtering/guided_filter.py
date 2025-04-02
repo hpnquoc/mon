@@ -3,8 +3,6 @@
 
 """Implements guided filter."""
 
-from __future__ import annotations
-
 __all__ = [
     "ConvGuidedFilter",
     "DeepConvGuidedFilter",

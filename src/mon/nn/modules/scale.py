@@ -3,8 +3,6 @@
 
 """Implements upsampling and downsampling layers."""
 
-from __future__ import annotations
-
 __all__ = [
     "Downsample",
     "DownsampleConv2d",

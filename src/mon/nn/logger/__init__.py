@@ -3,8 +3,6 @@
 
 """Implements logging for training, validation, testing, and inference results."""
 
-from __future__ import annotations
-
 import mon.nn.logger.base
 import mon.nn.logger.tensorboard
 from mon.nn.logger.base import *

@@ -3,8 +3,6 @@
 
 """Implements pooling layers."""
 
-from __future__ import annotations
-
 __all__ = [
     "AdaptiveAvgMaxPool2d",
     "AdaptiveAvgPool1d",

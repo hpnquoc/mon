@@ -6,8 +6,6 @@ References:
     `<https://github.com/ZhendongWang6/Uformer>`__
 """
 
-from __future__ import annotations
-
 import argparse
 import os
 import sys

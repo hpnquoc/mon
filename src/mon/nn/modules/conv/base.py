@@ -3,8 +3,6 @@
 
 """Implements convolutional layers."""
 
-from __future__ import annotations
-
 __all__ = [
     "Conv1d",
     "Conv2d",

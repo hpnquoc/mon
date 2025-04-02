@@ -3,8 +3,6 @@
 
 """Implements basic functionalities for image data."""
 
-from __future__ import annotations
-
 __all__ = [
     "SemanticSegmentationAnnotation",
     "convert_label_map_color_to_id",

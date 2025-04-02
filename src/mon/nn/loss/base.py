@@ -3,8 +3,6 @@
 
 """Implements base class and basic loss functions with helpers."""
 
-from __future__ import annotations
-
 __all__ = [
     "BCELoss",
     "BCEWithLogitsLoss",

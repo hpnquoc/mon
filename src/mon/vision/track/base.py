@@ -3,8 +3,6 @@
 
 """Implements base classes for tracks and trackers."""
 
-from __future__ import annotations
-
 __all__ = [
     "Detection",
     "Track",

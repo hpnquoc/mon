@@ -3,8 +3,6 @@
 
 """Implements optimizers and LR schedulers with ``torch``."""
 
-from __future__ import annotations
-
 __all__ = [
     "ASGD",
     "Adadelta",

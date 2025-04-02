@@ -3,7 +3,5 @@
 
 """Implements transformation functions."""
 
-from __future__ import annotations
-
 import mon.vision.geometry.transform.resize
 from mon.vision.geometry.transform.resize import *

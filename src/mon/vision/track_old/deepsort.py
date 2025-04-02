@@ -5,8 +5,6 @@
 Association Metric (Deep SORT) tracker.
 """
 
-from __future__ import annotations
-
 __all__ = [
     "DeepSORT",
 ]

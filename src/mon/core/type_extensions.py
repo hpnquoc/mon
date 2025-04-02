@@ -5,8 +5,6 @@
 ``collections``.
 """
 
-from __future__ import annotations
-
 __all__ = [
     "Enum",
     "concat_lists",

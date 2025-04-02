@@ -3,8 +3,6 @@
 
 """Implements SORT: Simple, Online, Realtime Tracker."""
 
-from __future__ import annotations
-
 __all__ = [
     "KalmanBoxScoreTrack",
     "SORTScore",

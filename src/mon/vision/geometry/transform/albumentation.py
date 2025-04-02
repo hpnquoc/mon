@@ -3,8 +3,6 @@
 
 """Extends ``albumentations`` for data augmentation on ``numpy.ndarray`` images."""
 
-from __future__ import annotations
-
 from typing import Literal
 
 from albumentations import *

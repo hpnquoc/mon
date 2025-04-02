@@ -3,8 +3,6 @@
 
 """Basic implicit neural representation (INR) layers."""
 
-from __future__ import annotations
-
 __all__ = [
     "SigmoidLayer",
     "TanhLayer",

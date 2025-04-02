@@ -3,8 +3,6 @@
 
 """Implements Fusion datasets."""
 
-from __future__ import annotations
-
 __all__ = [
     "Fusion",
     "FusionDataModule",

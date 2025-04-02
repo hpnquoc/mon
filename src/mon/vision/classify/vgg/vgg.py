@@ -3,8 +3,6 @@
 
 """Implements VGG models."""
 
-from __future__ import annotations
-
 __all__ = [
     "VGG11",
     "VGG11_BN",

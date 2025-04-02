@@ -3,8 +3,6 @@
 
 """Wraps DepthPro models for easy loading and inference."""
 
-from __future__ import annotations
-
 __all__ = [
     "DepthPro",
 ]

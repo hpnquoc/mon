@@ -5,8 +5,6 @@
 ``Lightning``.
 """
 
-from __future__ import annotations
-
 # Interface to `torch.nn`. We import commonly used components so that
 # everything can be accessed under one single import of ``from mon import nn``.
 # noinspection PyUnresolvedReferences

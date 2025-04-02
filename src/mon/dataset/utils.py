@@ -3,8 +3,6 @@
 
 """Implements utilities for data I/O classes and functions."""
 
-from __future__ import annotations
-
 __all__ = [
     "parse_data_loader",
 ]

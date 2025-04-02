@@ -3,8 +3,6 @@
 
 """Implements activation layers."""
 
-from __future__ import annotations
-
 __all__ = [
     "ArgMax",
     "CELU",

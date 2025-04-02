@@ -3,19 +3,17 @@
 
 """Extends ``pickle`` module for Pickle file handling."""
 
-from __future__ import annotations
-
 from pickle import *
 from typing import Any, TextIO
 
 from mon.core import pathlib
-from mon.core.file import base
-from mon.globals import FILE_HANDLERS
+from mon.core.serializers import base
+from mon.globals import SERIALIZERS
 
 
-@FILE_HANDLERS.register(name=".pickle")
-@FILE_HANDLERS.register(name=".pkl")
-class PickleHandler(base.FileHandler):
+@SERIALIZERS.register(name=".pickle")
+@SERIALIZERS.register(name=".pkl")
+class PickleSerializer(base.BaseSerializer):
     """Handler for Pickle file operations."""
     
     def read_from_fileobj(self, path: TextIO, **kwargs) -> Any:

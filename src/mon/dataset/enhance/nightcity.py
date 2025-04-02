@@ -11,8 +11,6 @@ References:
 	- https://dmcv.sjtu.edu.cn/people/phd/tanxin/NightCity/index.html
 """
 
-from __future__ import annotations
-
 __all__ = [
 	"NightCity",
 	"NightCityDataModule",

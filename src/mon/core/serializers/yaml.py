@@ -3,19 +3,17 @@
 
 """Extends ``yaml`` module for YAML file handling."""
 
-from __future__ import annotations
-
 from typing import Any, TextIO
 
 from yaml import *
 
-from mon.core.file import base
-from mon.globals import FILE_HANDLERS
+from mon.core.serializers import base
+from mon.globals import SERIALIZERS
 
 
-@FILE_HANDLERS.register(name=".yaml")
-@FILE_HANDLERS.register(name=".yml")
-class YAMLHandler(base.FileHandler):
+@SERIALIZERS.register(name=".yaml")
+@SERIALIZERS.register(name=".yml")
+class YAMLSerializer(base.BaseSerializer):
     """Handler for YAML file operations."""
     
     def read_from_fileobj(self, path: TextIO, **kwargs) -> Any:

@@ -3,8 +3,6 @@
 
 """Implements MobileNetV3 models."""
 
-from __future__ import annotations
-
 __all__ = [
     "MobileNetV3Large",
     "MobileNetV3Small",

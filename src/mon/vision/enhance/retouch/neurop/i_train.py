@@ -8,8 +8,6 @@ References:
     - https://github.com/amberwangyili/neurop
 """
 
-from __future__ import annotations
-
 import argparse
 from collections import defaultdict
 

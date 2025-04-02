@@ -3,8 +3,6 @@
 
 """Implements base class and helpers for all loggers."""
 
-from __future__ import annotations
-
 __all__ = [
     "CSVLogger",
     "CometLogger",

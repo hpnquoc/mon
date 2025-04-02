@@ -3,7 +3,5 @@
 
 """Wraps DepthAnythingV2 models for easy loading and inference."""
 
-from __future__ import annotations
-
 import mon.vision.data_type.depth.depth_anything_v2.depth_anything_v2
 from mon.vision.data_type.depth.depth_anything_v2.depth_anything_v2 import *

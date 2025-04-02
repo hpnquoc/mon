@@ -3,8 +3,6 @@
 
 """Extends ``enum.Enum`` class and defines custom enums."""
 
-from __future__ import annotations
-
 __all__ = [
     "AppleRGB",
     "BBoxFormat",
@@ -18,53 +16,9 @@ __all__ = [
     "TrackState",
 ]
 
-import enum
-import random
 from typing import Any
 
-
-# region Enum
-
-class Enum(enum.Enum):
-    """Extension of Python ``enum.Enum`` with utility methods."""
-    
-    @classmethod
-    def random(cls):
-        """Returns a random enum member.
-
-        Returns:
-            Random member of the enum class.
-        """
-        return random.choice(list(cls))
-    
-    @classmethod
-    def random_value(cls):
-        """Returns a random enum value.
-
-        Returns:
-            Value of a random enum member.
-        """
-        return cls.random().value
-    
-    @classmethod
-    def keys(cls) -> list['Enum']:
-        """Returns all enum members.
-
-        Returns:
-            List of all enum members.
-        """
-        return list(cls)
-    
-    @classmethod
-    def values(cls) -> list[Any]:
-        """Returns all enum values.
-
-        Returns:
-            List of values from all enum members.
-        """
-        return [e.value for e in cls]
-
-# endregion
+from mon.core.type_extensions import Enum
 
 
 # region Color

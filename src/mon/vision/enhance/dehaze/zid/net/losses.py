@@ -3,8 +3,6 @@
 
 """This module implements prediction pipeline."""
 
-from __future__ import annotations
-
 from net.downsampler import *
 from net.layers import CovarianceLayer, GrayscaleLayer, VarianceLayer
 from torch.nn import functional

@@ -3,8 +3,6 @@
 
 """Implements Total Variation De-noising."""
 
-from __future__ import annotations
-
 __all__ = [
     "TVDenoise",
 ]

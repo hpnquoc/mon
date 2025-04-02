@@ -3,8 +3,6 @@
 
 """Implements INR layer with various nonlinearities."""
 
-from __future__ import annotations
-
 __all__ = [
     "INRLayer",
 ]

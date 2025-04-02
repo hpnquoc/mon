@@ -7,8 +7,6 @@ References:
 	- https://github.com/dawnlh/awesome-low-light-image-enhancement
 """
 
-from __future__ import annotations
-
 import mon.vision.enhance.llie.colie_re
 import mon.vision.enhance.llie.gcenet
 import mon.vision.enhance.llie.rrdnet

@@ -8,8 +8,6 @@ References:
     - https://github.com/caiyuanhao1998/Retinexformer
 """
 
-from __future__ import annotations
-
 from typing import Sequence
 
 import torch

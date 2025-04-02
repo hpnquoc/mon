@@ -6,8 +6,6 @@
 In this package, we keep the same naming convention as in `torch.nn.modules` for consistency.
 """
 
-from __future__ import annotations
-
 import mon.nn.modules.activation
 import mon.nn.modules.attention
 import mon.nn.modules.conv

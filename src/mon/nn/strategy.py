@@ -7,8 +7,6 @@ References:
     - https://pytorch-lightning.readthedocs.io/en/stable/extensions/strategy.html
 """
 
-from __future__ import annotations
-
 __all__ = [
     # Accelerator
     "Accelerator",

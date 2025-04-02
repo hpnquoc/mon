@@ -3,8 +3,6 @@
 
 """Wraps DepthAnythingV2 models for easy loading and inference."""
 
-from __future__ import annotations
-
 __all__ = [
     "DepthAnythingV2_ViTB",
     "DepthAnythingV2_ViTL",

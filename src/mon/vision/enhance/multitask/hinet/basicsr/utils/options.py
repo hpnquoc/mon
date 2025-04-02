@@ -8,8 +8,6 @@
 # Copyright 2018-2020 BasicSR Authors
 # ------------------------------------------------------------------------
 
-from __future__ import annotations
-
 from collections import OrderedDict
 from os import path as osp
 

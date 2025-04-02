@@ -7,8 +7,6 @@ References:
     - https://github.com/VinAIResearch/PSENet-Image-Enhancement/blob/main/source/iqa.py
 """
 
-from __future__ import annotations
-
 __all__ = [
     "ImageQualityAssessment",
 ]

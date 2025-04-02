@@ -8,8 +8,6 @@ tensor of shape [B, C, H, W], where C is the number of channels) based on inter-
 relationships, emphasizing "what" is important in the feature map.
 """
 
-from __future__ import annotations
-
 __all__ = [
     "ChannelAttentionModule",
     "ECA",

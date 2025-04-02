@@ -3,8 +3,6 @@
 
 """Implements normalization layers."""
 
-from __future__ import annotations
-
 __all__ = [
     "AdaptiveBatchNorm2d",
     "AdaptiveInstanceNorm2d",

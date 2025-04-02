@@ -3,8 +3,6 @@
 
 """Implements Swin Transformer models."""
 
-from __future__ import annotations
-
 __all__ = [
     "Swin_B",
     "Swin_S",

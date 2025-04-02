@@ -3,8 +3,6 @@
 
 """Implements RegNet models."""
 
-from __future__ import annotations
-
 __all__ = [
     "RegNetX_32GF",
     "RegNet_X_16GF",

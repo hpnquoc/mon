@@ -8,8 +8,6 @@ References:
     - https://github.com/Ysz2022/NeRCo
 """
 
-from __future__ import annotations
-
 import random
 from typing import Sequence
 

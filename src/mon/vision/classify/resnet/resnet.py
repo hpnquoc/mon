@@ -3,8 +3,6 @@
 
 """Implements ResNet models."""
 
-from __future__ import annotations
-
 __all__ = [
     "ResNeXt101_32X8D",
     "ResNeXt101_64X4D",

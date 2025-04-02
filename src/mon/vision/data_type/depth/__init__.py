@@ -3,11 +3,11 @@
 
 """Implements depth data types."""
 
-from __future__ import annotations
-
 import mon.vision.data_type.depth.base
 import mon.vision.data_type.depth.depth_anything_v2
 import mon.vision.data_type.depth.depth_pro
+import mon.vision.data_type.depth.utils
 from mon.vision.data_type.depth.base import *
 from mon.vision.data_type.depth.depth_anything_v2 import *
 from mon.vision.data_type.depth.depth_pro import *
+from mon.vision.data_type.depth.utils import *

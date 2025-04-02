@@ -3,8 +3,6 @@
 
 """Implements geometry functions for contours/segments."""
 
-from __future__ import annotations
-
 __all__ = [
     "contour_voc_to_yolo",
     "contour_yolo_to_voc",

@@ -3,8 +3,6 @@
 
 """Implements attention layers."""
 
-from __future__ import annotations
-
 import mon.nn.modules.attention.channel
 import mon.nn.modules.attention.galerkin
 import mon.nn.modules.attention.hybrid

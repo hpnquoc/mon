@@ -3,8 +3,6 @@
 
 """Implements rich model summary callback."""
 
-from __future__ import annotations
-
 __all__ = [
     "RichModelSummary",
 ]

@@ -3,8 +3,6 @@
 
 """Implements base classes for all datasets."""
 
-from __future__ import annotations
-
 __all__ = [
     "DatapointAttributes",
     "VisionDataset",

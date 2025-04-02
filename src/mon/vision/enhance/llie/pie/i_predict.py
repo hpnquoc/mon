@@ -8,8 +8,6 @@ References:
     - https://github.com/DavidQiuChao/PIE
 """
 
-from __future__ import annotations
-
 from typing import Sequence
 
 import cv2

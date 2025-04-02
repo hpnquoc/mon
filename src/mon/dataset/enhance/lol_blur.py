@@ -3,8 +3,6 @@
 
 """Implements LOL-Blur datasets."""
 
-from __future__ import annotations
-
 __all__ = [
     "LOLBlur",
     "LOLBlurDataModule",

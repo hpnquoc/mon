@@ -3,8 +3,6 @@
 
 """Implements positional encoding MLP network."""
 
-from __future__ import annotations
-
 __all__ = [
     "PEMLP",
     "PositionalEncodingLayer",

@@ -8,8 +8,6 @@ References:
     - https://github.com/vis-opt-group/SCI
 """
 
-from __future__ import annotations
-
 import torch
 import torch.utils
 import torchvision

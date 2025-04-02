@@ -3,8 +3,6 @@
 
 """Implements data types for vision tasks: image, video, pointcloud, etc."""
 
-from __future__ import annotations
-
 import mon.vision.data_type.depth
 import mon.vision.data_type.image
 import mon.vision.data_type.thermal

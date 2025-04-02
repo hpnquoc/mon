@@ -3,8 +3,6 @@
 
 """Implements Galerkin-type attention mechanisms."""
 
-from __future__ import annotations
-
 __all__ = [
     "GalerkinSimpleAttention",
 ]

@@ -8,8 +8,6 @@ References:
     - https://github.com/ctom2/colie
 """
 
-from __future__ import annotations
-
 __all__ = [
     "CoLIE_RE",
 ]

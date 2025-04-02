@@ -3,8 +3,6 @@
 
 """Implements transformation functions."""
 
-from __future__ import annotations
-
 __all__ = [
     "pair_downsample",
     "resize",

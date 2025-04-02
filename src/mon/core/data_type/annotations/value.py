@@ -3,8 +3,6 @@
 
 """Implements value-based annotations (number, boolean, etc.)."""
 
-from __future__ import annotations
-
 __all__ = [
     "RegressionAnnotation",
 ]
@@ -12,7 +10,7 @@ __all__ = [
 import numpy as np
 import torch
 
-from mon.core.data_type.annotation import base
+from mon.core.data_type.annotations import base
 
 
 class RegressionAnnotation(base.Annotation):

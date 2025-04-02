@@ -5,8 +5,6 @@ Dense Prediction Transformer Decoder architecture.
 Implements a variant of Vision Transformers for Dense Prediction, https://arxiv.org/abs/2103.13413
 """
 
-from __future__ import annotations
-
 from typing import Iterable
 
 import torch

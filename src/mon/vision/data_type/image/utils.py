@@ -3,8 +3,6 @@
 
 """Implements general-purpose utilities for image tasks."""
 
-from __future__ import annotations
-
 __all__ = [
     "get_image_center",
     "get_image_center4",

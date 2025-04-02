@@ -3,8 +3,6 @@
 
 """Implements LightEffect datasets."""
 
-from __future__ import annotations
-
 __all__ = [
     "LightEffect",
     "LightEffectDataModule",

@@ -3,8 +3,6 @@
 
 """Extends ``humps`` module."""
 
-from __future__ import annotations
-
 __all__ = [
 	"camelize",
 	"decamelize",

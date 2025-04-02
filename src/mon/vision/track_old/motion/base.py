@@ -23,8 +23,6 @@ Notes:
                   the Factory approach.
 """
 
-from __future__ import annotations
-
 __all__ = [
     "Motion",
 ]

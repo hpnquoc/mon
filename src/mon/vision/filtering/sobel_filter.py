@@ -3,8 +3,6 @@
 
 """Implements Sobel filter/operator."""
 
-from __future__ import annotations
-
 __all__ = [
     "sobel_filter",
 ]

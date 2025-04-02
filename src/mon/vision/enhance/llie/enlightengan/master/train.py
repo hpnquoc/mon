@@ -3,8 +3,6 @@
 
 # https://github.com/VITA-Group/EnlightenGAN
 
-from __future__ import annotations
-
 import time
 
 from data.data_loader import CreateDataLoader

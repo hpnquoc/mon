@@ -3,8 +3,6 @@
 
 """The MON framework."""
 
-from __future__ import annotations
-
 # Order-specific import. DO NOT CHANGE!!!
 import mon.core
 import mon.globals

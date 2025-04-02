@@ -3,8 +3,6 @@
 
 """Implements factory classes for optimizers and LR schedulers."""
 
-from __future__ import annotations
-
 __all__ = [
     "LRSchedulerFactory",
     "OptimizerFactory",

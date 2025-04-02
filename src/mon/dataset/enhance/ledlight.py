@@ -3,8 +3,6 @@
 
 """Implements LEDLight datasets."""
 
-from __future__ import annotations
-
 __all__ = [
     "LEDLight",
     "LEDLightDataModule",

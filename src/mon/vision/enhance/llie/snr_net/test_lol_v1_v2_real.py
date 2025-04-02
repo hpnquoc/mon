@@ -3,8 +3,6 @@
 
 # https://github.com/dvlab-research/SNR-Aware-Low-Light-Enhance
 
-from __future__ import annotations
-
 import argparse
 import logging
 import os.path as osp

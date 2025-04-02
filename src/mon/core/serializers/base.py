@@ -3,23 +3,21 @@
 
 """Base class and functions for file handlers with helper utilities."""
 
-from __future__ import annotations
-
 __all__ = [
-    "FileHandler",
-    "write_to_file",
-    "read_from_file",
+    "BaseSerializer",
     "merge_files",
+    "read_from_file",
+    "write_to_file",
 ]
 
 from abc import ABC, abstractmethod
 from typing import Any, TextIO
 
 from mon.core import pathlib, type_extensions
-from mon.globals import FILE_HANDLERS
+from mon.globals import SERIALIZERS
 
 
-class FileHandler(ABC):
+class BaseSerializer(ABC):
     """Base class for reading and writing data in various file formats."""
     
     @abstractmethod
@@ -106,11 +104,11 @@ def write_to_file(
     """
     path_obj    = pathlib.Path(path) if isinstance(path, (pathlib.Path, str)) else path
     file_format = file_format or (path_obj.suffix if isinstance(path_obj, pathlib.Path) else "")
-    if file_format not in FILE_HANDLERS:
-        raise ValueError(f"[file_format] must be one of {list(FILE_HANDLERS.keys())}, "
+    if file_format not in SERIALIZERS:
+        raise ValueError(f"[file_format] must be one of {list(SERIALIZERS.keys())}, "
                          f"got {file_format}")
     
-    handler: FileHandler = FILE_HANDLERS.build(name=file_format)
+    handler: BaseSerializer = SERIALIZERS.build(name=file_format)
     if hasattr(path, "write"):
         handler.write_to_fileobj(obj=obj, path=path, **kwargs)
     else:
@@ -139,7 +137,7 @@ def read_from_file(
     path_obj    = pathlib.Path(path) if isinstance(path, (pathlib.Path, str)) else path
     file_format = file_format or (path_obj.suffix if isinstance(path_obj, pathlib.Path) else "")
     
-    handler: FileHandler = FILE_HANDLERS.build(name=file_format)
+    handler: BaseSerializer = SERIALIZERS.build(name=file_format)
     if hasattr(path, "read"):
         return handler.read_from_fileobj(path=path, **kwargs)
     if isinstance(path_obj, (pathlib.Path, str)):

@@ -3,8 +3,6 @@
 
 """Provides utility functions and data structures."""
 
-from __future__ import annotations
-
 __all__ = [
     "Timer",
     "check_installed_package",
@@ -59,7 +57,7 @@ import numpy as np
 import psutil
 import torch
 
-from mon.core import enums, file, humps, pathlib, rich, type_extensions
+from mon.core import enums, humps, pathlib, rich, serializers, type_extensions
 
 try:
     import pynvml
@@ -312,7 +310,7 @@ def load_config(config: Any) -> dict:
             spec.loader.exec_module(module)
             data   = {key: value for key, value in module.__dict__.items() if not key.startswith("__")}
         else:
-            data = file.read_from_file(path=config)
+            data = serializers.read_from_file(path=config)
     else:
         data = None
     

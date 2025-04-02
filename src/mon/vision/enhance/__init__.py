@@ -3,8 +3,6 @@
 
 """Implements image enhancement algorithms and models."""
 
-from __future__ import annotations
-
 import mon.vision.enhance.base
 import mon.vision.enhance.deblur
 import mon.vision.enhance.dehaze

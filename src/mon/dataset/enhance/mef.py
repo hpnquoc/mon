@@ -3,8 +3,6 @@
 
 """Implements MEF datasets."""
 
-from __future__ import annotations
-
 __all__ = [
     "MEF",
     "MEFDataModule",

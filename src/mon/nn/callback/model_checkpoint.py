@@ -3,8 +3,6 @@
 
 """Implements checkpoint callback to auto-save model during training."""
 
-from __future__ import annotations
-
 __all__ = [
     "ModelCheckpoint",
 ]

@@ -6,8 +6,6 @@
 This module implements the base class for all detectors.
 """
 
-from __future__ import annotations
-
 __all__ = [
     "Detector",
     "Detector1",

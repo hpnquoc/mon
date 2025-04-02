@@ -8,8 +8,6 @@ image and a reference (ground truth) image, often based on objective metrics use
 image quality assessment.
 """
 
-from __future__ import annotations
-
 __all__ = [
     "MS_SSIMLoss",
     "PSNRLoss",

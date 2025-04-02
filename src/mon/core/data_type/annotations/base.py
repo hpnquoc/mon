@@ -10,8 +10,6 @@ They describe specific aspects of the visual data, such as object locations, cat
 or semantic regions, and are typically created manually or semi-automatically.
 """
 
-from __future__ import annotations
-
 __all__ = [
     "Annotation",
 ]
