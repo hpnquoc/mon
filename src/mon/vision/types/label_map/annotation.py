@@ -15,8 +15,12 @@ from mon import core
 from mon.vision.types import image as I
 
 
+# ----- Annotation -----
 class SemanticSegmentationAnnotation(core.Annotation):
     """Semantic segmentation annotation (mask).
+    
+    Attributes:
+        albumentation_target_type: Type of target for Albumentations. Default is ``mask``.
 
     Args:
         path: Path to image file as ``core.Path`` or ``str``.
@@ -24,11 +28,13 @@ class SemanticSegmentationAnnotation(core.Annotation):
         flags: Flag to read image (e.g., ``cv2.IMREAD_COLOR``). Default is ``cv2.IMREAD_COLOR``.
     """
     
+    albumentation_target_type: str = "mask"
+    
     def __init__(
         self,
         path : core.Path | str,
         root : core.Path | str = None,
-        flags: int             = cv2.IMREAD_COLOR,
+        flags: int = cv2.IMREAD_COLOR,
         *args, **kwargs
     ):
         super().__init__(*args, **kwargs)
@@ -116,8 +122,8 @@ class SemanticSegmentationAnnotation(core.Annotation):
     def load(
         self,
         path : core.Path | str = None,
-        flags: int             = None,
-        cache: bool            = False,
+        flags: int  = None,
+        cache: bool = False,
     ) -> np.ndarray | None:
         """Loads the mask into memory.
 

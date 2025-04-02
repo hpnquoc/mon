@@ -11,9 +11,10 @@ __all__ = [
 from typing import Literal
 
 from mon import core, vision
-from mon.globals import DATA_DIR, DATAMODULES, DATASETS
+from mon.constants import DATA_DIR, DATAMODULES, DATASETS, Split, Task
 
 
+# ----- Dataset -----
 @DATASETS.register(name="lighteffect")
 class LightEffect(vision.VisionDataset):
     """Loads LightEffect dataset from ``root`` dir.
@@ -27,9 +28,9 @@ class LightEffect(vision.VisionDataset):
         FileNotFoundError: If ``root`` directory does not exist.
     """
     
-    tasks : list[core.Task]    = [core.Task.NIGHTTIME]
-    splits: list[core.Split]   = [core.Split.TRAIN]
-    datapoint_attrs            = vision.DatapointAttributes({
+    tasks : list[Task]  = [Task.NIGHTTIME]
+    splits: list[Split] = [Split.TRAIN]
+    datapoint_attrs     = vision.DatapointAttributes({
         "image": vision.ImageAnnotation,
     })
     has_test_annotations: bool = False
@@ -57,6 +58,7 @@ class LightEffect(vision.VisionDataset):
         self.datapoints["image"] = images
 
 
+# ----- DataModule -----
 @DATAMODULES.register(name="lighteffect")
 class LightEffectDataModule(core.DataModule):
     """Configures LightEffect datasets for training/testing.
@@ -66,7 +68,7 @@ class LightEffectDataModule(core.DataModule):
         **kwargs: Additional kwargs for parent class.
     """
     
-    tasks: list[core.Task] = [core.Task.NIGHTTIME]
+    tasks: list[Task] = [Task.NIGHTTIME]
 
     def prepare_data(self, *args, **kwargs):
         """Prepares data (placeholder, no action taken)."""
@@ -83,10 +85,10 @@ class LightEffectDataModule(core.DataModule):
             core.console.log(f"Setup [red]{self.__class__.__name__}[/red].")
 
         if stage in [None, "train"]:
-            self.train = LightEffect(split=core.Split.TRAIN, **self.dataset_kwargs)
-            self.val   = LightEffect(split=core.Split.TRAIN, **self.dataset_kwargs)
+            self.train = LightEffect(split=Split.TRAIN, **self.dataset_kwargs)
+            self.val   = LightEffect(split=Split.TRAIN, **self.dataset_kwargs)
         if stage in [None, "test"]:
-            self.test  = LightEffect(split=core.Split.TRAIN, **self.dataset_kwargs)
+            self.test  = LightEffect(split=Split.TRAIN, **self.dataset_kwargs)
 
         self.get_classlabels()
         if self.can_log:

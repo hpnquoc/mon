@@ -24,8 +24,7 @@ from torch.nn.modules.dropout import (
 from torchvision.ops import drop_block2d, drop_block3d, DropBlock2d, DropBlock3d
 
 
-# region Drop Path
-
+# ----- Drop Path -----
 def drop_path(
     input        : torch.Tensor,
     p            : float = 0.0,
@@ -78,5 +77,3 @@ class DropPath(torch.nn.Module):
             Output tensor as ``torch.Tensor`` with same shape as input, potentially dropped.
         """
         return drop_path(input, self.drop_prob, self.training, self.scale_by_keep)
-
-# endregion

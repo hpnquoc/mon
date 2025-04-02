@@ -16,8 +16,7 @@ import torch
 from torch.nn import functional as F
 
 
-# region Utils
-
+# ----- Utils -----
 def get_size(x: Any) -> tuple[int, int]:
     """Gets the size of an image as (height, width).
 
@@ -111,11 +110,8 @@ def ff_embedding(p: torch.Tensor, B: torch.Tensor = None) -> torch.Tensor:
     x_proj = (2 * np.pi * p) @ B.T
     return torch.cat([torch.sin(x_proj), torch.cos(x_proj)], dim=-1)
 
-# endregion
 
-
-# region Baic INR Activation Layers
-
+# ----- Basic Activation Layers -----
 class SigmoidLayer(torch.nn.Module):
     """Applies linear transformation with sigmoid activation.
 
@@ -216,5 +212,3 @@ class ReLULayer(torch.nn.Module):
             Transformed tensor as ``torch.Tensor``.
         """
         return self.act(self.linear(x))
-
-# endregion

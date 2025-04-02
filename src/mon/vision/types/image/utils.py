@@ -26,8 +26,7 @@ import torch
 from mon.nn import _size_2_t
 
 
-# region Accessing
-
+# ----- Accessing -----
 def get_image_center(image: torch.Tensor | np.ndarray) -> torch.Tensor | np.ndarray:
     """Returns the center of an image as (x=h/2, y=w/2).
 
@@ -162,11 +161,8 @@ def get_image_size(
         size = tuple(int(math.ceil(dim / divisor) * divisor) for dim in size)
     return size
 
-# endregion
 
-
-# region Assertion
-
+# ----- Assertion -----
 def is_image(image: torch.Tensor | np.ndarray) -> bool:
     """Checks if an input is an image tensor or array.
 
@@ -288,5 +284,3 @@ def is_image_normalized(image: torch.Tensor | np.ndarray) -> bool:
         return abs(np.amax(image)) <= 1.0
     else:
         raise TypeError(f"[image] must be a torch.Tensor or numpy.ndarray, got {type(image)}.")
-
-# endregion

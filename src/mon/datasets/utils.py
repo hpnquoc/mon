@@ -8,7 +8,7 @@ __all__ = [
 ]
 
 from mon import core, vision
-from mon.globals import DATA_DIR, DATASETS
+from mon.constants import DATA_DIR, DATASETS, Split
 
 
 def parse_data_loader(
@@ -49,7 +49,7 @@ def parse_data_loader(
         config = {
             "name"     : src,
             "root"     : root,
-            "split"    : core.Split.TEST,
+            "split"    : Split.TEST,
             "to_tensor": to_tensor,
             "verbose"  : verbose,
         }

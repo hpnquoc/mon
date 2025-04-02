@@ -13,10 +13,12 @@ from typing import Any, Callable, Literal
 import lightning
 from torch.utils import data
 
-from mon.core import enums, rich, type_extensions
+from mon.constants import Task
+from mon.core import rich, type_extensions
 from mon.core.types import dataset
 
 
+# ----- DataModule -----
 class DataModule(lightning.LightningDataModule, ABC):
     """Base class for all datamodules.
 
@@ -33,7 +35,7 @@ class DataModule(lightning.LightningDataModule, ABC):
         verbose: If ``True``, enables verbose output. Default is ``True``.
     """
     
-    tasks: list[enums.Task] = []
+    tasks: list[Task] = []
     
     def __init__(
         self,
@@ -66,8 +68,7 @@ class DataModule(lightning.LightningDataModule, ABC):
         
         self.classlabels = None
     
-    # region Properties
-    
+    # ----- Properties -----
     @property
     def num_workers(self) -> int:
         """Gets the number of workers for data loading.
@@ -171,10 +172,7 @@ class DataModule(lightning.LightningDataModule, ABC):
         """
         return self.verbose and (self.trainer is None or self.trainer.global_rank == 0)
     
-    # endregion
-    
-    # region Initialization
-    
+    # ----- Initialization -----
     @abstractmethod
     def prepare_data(self, *args, **kwargs):
         """Prepares data for disk or single-GPU tasks.
@@ -196,7 +194,7 @@ class DataModule(lightning.LightningDataModule, ABC):
     def get_classlabels(self):
         """Loads class labels from datasets."""
         for dataset in [self.train, self.val, self.test, self.predict]:
-            if dataset is not None:
+            if dataset:
                 self.classlabels = getattr(dataset, "classlabels", None)
                 return
         rich.console.log("[yellow]No classlabels found")

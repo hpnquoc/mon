@@ -65,10 +65,10 @@ def eval(
         model.trans.gated2 = False
     torch.set_grad_enabled(True)
 
-# endregion
 
 
-# region Main
+
+# ----- Main -----
 
 def parse_args():
     eval_parser = argparse.ArgumentParser(description="Eval")
@@ -177,5 +177,3 @@ if __name__ == "__main__":
         unpaired  = ep.unpaired,
         alpha     = alpha
     )
-    
-# endregion

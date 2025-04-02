@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Defines global constants for ``mon`` package.
+"""Defines scalar constants.
 
 Notes:
     * To avoid circular dependency, only define constants of basic/atomic types.
@@ -24,7 +24,7 @@ __all__ = [
     "EXTRA_DATASET_STR",
     "EXTRA_MODELS",
     "EXTRA_MODEL_STR",
-    "SERIALIZERS",
+    "Enum",
     "IMAGE_FILE_FORMATS",
     "LOGGERS",
     "LOSSES",
@@ -37,6 +37,7 @@ __all__ = [
     "OBJECTS",
     "OPTIMIZERS",
     "ROOT_DIR",
+    "SERIALIZERS",
     "STRATEGIES",
     "TORCH_FILE_FORMATS",
     "TRACKERS",
@@ -46,11 +47,12 @@ __all__ = [
     "ZOO_DIR",
 ]
 
-from mon.core import enums, factory, pathlib
+from mon.constants.enums import *
+from mon.core import factory, pathlib
 
-# region Directory
 
-current_file = pathlib.Path(__file__).absolute()
+# ----- Directory -----
+current_file  = pathlib.Path(__file__).absolute()
 ROOT_DIR      = current_file.parents[2]     # ./mon
 DATA_DIR      = ROOT_DIR / "data"           # ./mon/data
 SRC_DIR       = ROOT_DIR / "src"            # ./mon/src
@@ -77,11 +79,449 @@ if not DATA_DIR.is_dir():
     raise Warning(f"Cannot locate the ``data`` directory.")
 '''
 
-# endregion
+
+# ----- Constants -----
+CONFIG_FILE_FORMATS  = [".config", ".cfg", ".yaml", ".yml", ".py", ".json", ".names", ".txt"]
+IMAGE_FILE_FORMATS   = [".arw", ".bmp", ".dng", ".jpg", ".jpeg", ".png", ".ppm", ".raf", ".tif", ".tiff"]
+VIDEO_FILE_FORMATS   = [".avi", ".m4v", ".mkv", ".mov", ".mp4", ".mpeg", ".mpg", ".wmv"]
+TORCH_FILE_FORMATS   = [".pt", ".pth", ".weights", ".ckpt", ".tar", ".onnx"]
+WEIGHTS_FILE_FORMATS = [".pt", ".pth", ".onnx"]
+DEPTH_DATA_SOURCES   = [None, "dav2_vitb", "dav2_vitl"]
+# List 3rd party modules
+EXTRA_DATASET_STR = "[extra]"
+EXTRA_MODEL_STR   = "[extra]"
+EXTRA_DATASETS    = {}
+EXTRA_MODELS      = {                   # architecture/model (+ variant)
+    # region detect
+    "yolor" : {
+        "yolor_d6": {
+            "tasks"    : [Task.DETECT],
+            "ltypes"   : [LType.SUPERVISED],
+            "model_dir": MON_DIR / "vision" / "detect" / "yolor",
+        },
+        "yolor_e6": {
+            "tasks"    : [Task.DETECT],
+            "ltypes"   : [LType.SUPERVISED],
+            "model_dir": MON_DIR / "vision" / "detect" / "yolor",
+        },
+        "yolor_p6": {
+            "tasks"    : [Task.DETECT],
+            "ltypes"   : [LType.SUPERVISED],
+            "model_dir": MON_DIR / "vision" / "detect" / "yolor",
+        },
+        "yolor_w6": {
+            "tasks"    : [Task.DETECT],
+            "ltypes"   : [LType.SUPERVISED],
+            "model_dir": MON_DIR / "vision" / "detect" / "yolor",
+        },
+    },
+    "yolov7": {
+        "yolov7"    : {
+            "tasks"    : [Task.DETECT],
+            "ltypes"   : [LType.SUPERVISED],
+            "model_dir": MON_DIR / "vision" / "detect" / "yolov7",
+        },
+        "yolov7_d6" : {
+            "tasks"    : [Task.DETECT],
+            "ltypes"   : [LType.SUPERVISED],
+            "model_dir": MON_DIR / "vision" / "detect" / "yolov7",
+        },
+        "yolov7_e6" : {
+            "tasks"    : [Task.DETECT],
+            "ltypes"   : [LType.SUPERVISED],
+            "model_dir": MON_DIR / "vision" / "detect" / "yolov7",
+        },
+        "yolov7_e6e": {
+            "tasks"    : [Task.DETECT],
+            "ltypes"   : [LType.SUPERVISED],
+            "model_dir": MON_DIR / "vision" / "detect" / "yolov7",
+        },
+        "yolov7_w6" : {
+            "tasks"    : [Task.DETECT],
+            "ltypes"   : [LType.SUPERVISED],
+            "model_dir": MON_DIR / "vision" / "detect" / "yolov7",
+        },
+        "yolov7x"   : {
+            "tasks"    : [Task.DETECT],
+            "ltypes"   : [LType.SUPERVISED],
+            "model_dir": MON_DIR / "vision" / "detect" / "yolov7",
+        },
+    },
+    "yolov8": {
+        "yolov8n": {
+            "tasks"    : [Task.DETECT],
+            "ltypes"   : [LType.SUPERVISED],
+            "model_dir": MON_EXTRA_DIR / "vision" / "ultralytics",
+        },
+        "yolov8s": {
+            "tasks"    : [Task.DETECT],
+            "ltypes"   : [LType.SUPERVISED],
+            "model_dir": MON_EXTRA_DIR / "vision" / "ultralytics",
+        },
+        "yolov8m": {
+            "tasks"    : [Task.DETECT],
+            "model_dir": MON_EXTRA_DIR / "vision" / "ultralytics",
+        },
+        "yolov8l": {
+            "tasks"    : [Task.DETECT],
+            "ltypes"   : [LType.SUPERVISED],
+            "model_dir": MON_EXTRA_DIR / "vision" / "ultralytics",
+        },
+        "yolov8x": {
+            "tasks"    : [Task.DETECT],
+            "ltypes"   : [LType.SUPERVISED],
+            "model_dir": MON_EXTRA_DIR / "vision" / "ultralytics",
+        },
+    },
+    "yolov9": {
+        "gelan_c" : {
+            "tasks"    : [Task.DETECT],
+            "ltypes"   : [LType.SUPERVISED],
+            "model_dir": MON_DIR / "vision" / "detect" / "yolov9",
+        },
+        "gelan_e" : {
+            "tasks"    : [Task.DETECT],
+            "ltypes"   : [LType.SUPERVISED],
+            "model_dir": MON_DIR / "vision" / "detect" / "yolov9",
+        },
+        "yolov9_c": {
+            "tasks"    : [Task.DETECT],
+            "ltypes"   : [LType.SUPERVISED],
+            "model_dir": MON_DIR / "vision" / "detect" / "yolov9",
+        },
+        "yolov9_e": {
+            "tasks"    : [Task.DETECT],
+            "ltypes"   : [LType.SUPERVISED],
+            "model_dir": MON_DIR / "vision" / "detect" / "yolov9",
+        },
+    },
+    # endregion
+    # region enhance/dehaze
+    "zid"   : {
+        "zid": {
+            "tasks"    : [Task.DEHAZE],
+            "ltypes"   : [LType.ZERO_SHOT],
+            "model_dir": MON_DIR / "vision" / "enhance" / "dehaze" / "zid",
+        },
+    },
+    # endregion
+    # region enhance/demoire
+    "esdnet": {
+        "esdnet": {
+            "tasks"    : [Task.DEMOIRE, Task.LLIE],
+            "ltypes"   : [LType.SUPERVISED],
+            "model_dir": MON_DIR / "vision" / "enhance" / "demoire" / "esdnet",
+        },
+        "esdnet_l": {
+            "tasks"    : [Task.DEMOIRE, Task.LLIE],
+            "ltypes"   : [LType.SUPERVISED],
+            "model_dir": MON_DIR / "vision" / "enhance" / "demoire" / "esdnet",
+        },
+    },
+    # endregion
+    # region enhance/derain
+    "esdnet_snn": {
+        "esdnet_snn": {
+            "tasks"    : [Task.DERAIN, Task.LLIE],
+            "ltypes"   : [LType.SUPERVISED],
+            "model_dir": MON_DIR / "vision" / "enhance" / "derain" / "esdnet_snn",
+        },
+    },
+    # endregion
+    # region enhance/llie
+    "colie"        : {
+        "colie": {
+            "tasks"    : [Task.LLIE],
+            "ltypes"   : [LType.ZERO_SHOT],
+            "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "colie",
+        },
+    },
+    "dccnet"       : {
+        "dccnet": {
+            "tasks"    : [Task.LLIE],
+            "ltypes"   : [LType.SUPERVISED],
+            "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "dccnet",
+        },
+    },
+    "enlightengan" : {
+        "enlightengan": {
+            "tasks"    : [Task.LLIE],
+            "ltypes"   : [LType.UNSUPERVISED],
+            "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "enlightengan",
+        },
+    },
+    "fourllie"     : {
+        "fourllie": {
+            "tasks"    : [Task.LLIE],
+            "ltypes"   : [LType.SUPERVISED],
+            "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "fourllie",
+        },
+    },
+    "hvi_cidnet"   : {
+        "hvi_cidnet": {
+            "tasks"    : [Task.LLIE],
+            "ltypes"   : [LType.SUPERVISED],
+            "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "hvi_cidnet",
+        },
+    },
+    "lime"         : {
+        "lime": {
+            "tasks"    : [Task.LLIE],
+            "ltypes"   : [LType.TRADITIONAL],
+            "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "lime",
+        },
+    },
+    "llflow"       : {
+        "llflow": {
+            "tasks"    : [Task.LLIE],
+            "ltypes"   : [LType.SUPERVISED],
+            "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "llflow",
+        },
+    },
+    "llunet++"     : {
+        "llunet++": {
+            "tasks"    : [Task.LLIE],
+            "ltypes"   : [LType.SUPERVISED],
+            "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "llunetpp",
+        },
+    },
+    "nerco"        : {
+        "nerco": {
+            "tasks"    : [Task.LLIE],
+            "ltypes"   : [LType.UNSUPERVISED],
+            "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "nerco",
+        },
+    },
+    "pairlie"      : {
+        "pairlie": {
+            "tasks"    : [Task.LLIE],
+            "ltypes"   : [LType.UNSUPERVISED],
+            "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "pairlie",
+        },
+    },
+    "pie"          : {
+        "pie": {
+            "tasks"    : [Task.LLIE],
+            "ltypes"   : [LType.TRADITIONAL],
+            "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "pie",
+        },
+    },
+    "psenet"       : {
+        "psenet": {
+            "tasks"    : [Task.LLIE],
+            "ltypes"   : [LType.SUPERVISED],
+            "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "psenet",
+        },
+    },
+    "quadprior"    : {
+        "quadprior": {
+            "tasks"    : [Task.LLIE],
+            "ltypes"   : [LType.ZERO_SHOT],
+            "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "quadprior",
+        }
+    },
+    "retinexformer": {
+        "retinexformer": {
+            "tasks"    : [Task.LLIE],
+            "ltypes"   : [LType.SUPERVISED],
+            "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "retinexformer",
+        },
+    },
+    "retinexnet"   : {
+        "retinexnet": {
+            "tasks"    : [Task.LLIE],
+            "ltypes"   : [LType.SUPERVISED],
+            "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "retinexnet",
+        },
+    },
+    "rsfnet"       : {
+        "rsfnet": {
+            "tasks"    : [Task.LLIE],
+            "ltypes"   : [LType.UNSUPERVISED],
+            "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "rsfnet",
+        },
+    },
+    "ruas"         : {
+        "ruas": {
+            "tasks"    : [Task.LLIE],
+            "ltypes"   : [LType.UNSUPERVISED],
+            "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "ruas",
+        },
+    },
+    "sci"          : {
+        "sci": {
+            "tasks"    : [Task.LLIE],
+            "ltypes"   : [LType.UNSUPERVISED],
+            "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "sci",
+        },
+    },
+    "sgz"          : {
+        "sgz": {
+            "tasks"    : [Task.LLIE],
+            "ltypes"   : [LType.UNSUPERVISED],
+            "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "sgz",
+        },
+    },
+    "snr_net"      : {
+        "snr_net": {
+            "tasks"    : [Task.LLIE],
+            "ltypes"   : [LType.SUPERVISED],
+            "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "snr_net",
+        },
+    },
+    "uretinexnet"  : {
+        "uretinexnet": {
+            "tasks"    : [Task.LLIE],
+            "ltypes"   : [LType.SUPERVISED],
+            "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "uretinexnet",
+        },
+    },
+    "utvnet"       : {
+        "utvnet": {
+            "tasks"    : [Task.LLIE],
+            "ltypes"   : [LType.SUPERVISED],
+            "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "utvnet",
+        },
+    },
+    "zero_dce"     : {
+        "zero_dce"  : {
+            "tasks"    : [Task.LLIE],
+            "ltypes"   : [LType.UNSUPERVISED],
+            "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "zero_dce",
+        },
+    },
+    "zero_dce++"   : {
+        "zero_dce++": {
+            "tasks"    : [Task.LLIE],
+            "ltypes"   : [LType.UNSUPERVISED],
+            "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "zero_dce++",
+        },
+    },
+    "zero_didce"   : {
+        "zero_didce": {
+            "tasks"    : [Task.LLIE],
+            "ltypes"   : [LType.UNSUPERVISED],
+            "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "zero_didce",
+        },
+    },
+    "zero_ig"      : {
+        "zero_ig": {
+            "tasks"    : [Task.LLIE],
+            "ltypes"   : [LType.ZERO_SHOT],
+            "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "zero_ig",
+        },
+    },
+    # endregion
+    # region enhance/multitask
+    "airnet"   : {
+        "airnet": {
+            "tasks"    : [Task.DENOISE, Task.DERAIN, Task.DEHAZE],
+            "ltypes"   : [LType.SUPERVISED],
+            "model_dir": MON_DIR / "vision" / "enhance" / "multitask" / "airnet",
+        },
+    },
+    "restormer": {
+        "restormer": {
+            "tasks"    : [Task.DEBLUR, Task.DENOISE, Task.DERAIN, Task.DESNOW, Task.LLIE],
+            "ltypes"   : [LType.SUPERVISED],
+            "model_dir": MON_DIR / "vision" / "enhance" / "multitask" / "restormer",
+        },
+    },
+    # endregion
+    # region enhance/retouch
+    "neurop": {
+        "neurop": {
+            "tasks"    : [Task.RETOUCH, Task.LLIE],
+            "ltypes"   : [LType.SUPERVISED],
+            "model_dir": MON_DIR / "vision" / "enhance" / "retouch" / "neurop",
+        },
+    },
+    # endregion
+    # region enhance/sr
+    "sronet": {
+        "sronet": {
+            "tasks"    : [Task.SR],
+            "ltypes"   : [LType.SUPERVISED],
+            "model_dir": MON_DIR / "vision" / "enhance" / "sr" / "sronet",
+        },
+    },
+    # endregion
+    # region segment
+    "sam" : {
+        "sam_vit_b": {
+            "tasks"    : [Task.SEGMENT],
+            "ltypes"   : [LType.SUPERVISED],
+            "model_dir": MON_DIR / "vision" / "segment" / "sam",
+        },
+        "sam_vit_h": {
+            "tasks"    : [Task.SEGMENT],
+            "ltypes"   : [LType.SUPERVISED],
+            "model_dir": MON_DIR / "vision" / "segment" / "sam",
+        },
+        "sam_vit_l": {
+            "tasks"    : [Task.SEGMENT],
+            "ltypes"   : [LType.SUPERVISED],
+            "model_dir": MON_DIR / "vision" / "segment" / "sam",
+        },
+    },
+    "sam2": {
+        "sam2_hiera_b+": {
+            "tasks"    : [Task.SEGMENT],
+            "ltypes"   : [LType.SUPERVISED],
+            "model_dir": MON_DIR / "vision" / "segment" / "sam2",
+        },
+        "sam2_hiera_l" : {
+            "tasks"    : [Task.SEGMENT],
+            "ltypes"   : [LType.SUPERVISED],
+            "model_dir": MON_DIR / "vision" / "segment" / "sam2",
+        },
+        "sam2_hiera_s" : {
+            "tasks"    : [Task.SEGMENT],
+            "ltypes"   : [LType.SUPERVISED],
+            "model_dir": MON_DIR / "vision" / "segment" / "sam2",
+        },
+        "sam2_hiera_t" : {
+            "tasks"    : [Task.SEGMENT],
+            "ltypes"   : [LType.SUPERVISED],
+            "model_dir": MON_DIR / "vision" / "segment" / "sam2",
+        },
+    },
+    # endregion
+    # region types/depth
+    "depth_anything_v2": {
+        "depth_anything_v2_vitb": {
+            "tasks"    : [Task.DEPTH],
+            "ltypes"   : [LType.SUPERVISED],
+            "model_dir": MON_DIR / "vision" / "types" / "depth" / "depth_anything_v2",
+        },
+        "depth_anything_v2_vits": {
+            "tasks"    : [Task.DEPTH],
+            "ltypes"   : [LType.SUPERVISED],
+            "model_dir": MON_DIR / "vision" / "types" / "depth" / "depth_anything_v2",
+        },
+        "depth_anything_v2_vitl": {
+            "tasks"    : [Task.DEPTH],
+            "ltypes"   : [LType.SUPERVISED],
+            "model_dir": MON_DIR / "vision" / "types" / "depth" / "depth_anything_v2",
+        },
+        "depth_anything_v2_vitg": {
+            "tasks"    : [Task.DEPTH],
+            "ltypes"   : [LType.SUPERVISED],
+            "model_dir": MON_DIR / "vision" / "types" / "depth" / "depth_anything_v2",
+        },
+    },
+    "depth_pro"        : {
+        "depth_pro": {
+            "tasks"    : [Task.DEPTH],
+            "ltypes"   : [LType.ZERO_SHOT],
+            "model_dir": MON_DIR / "vision" / "types" / "depth" / "depth_pro",
+        },
+    },
+    # endregion
+}
 
 
-# region Factory
-
+# ----- Factory -----
 ACCELERATORS  = factory.Factory(name="Accelerators")
 CALLBACKS     = factory.Factory(name="Callbacks")
 DATAMODULES   = factory.Factory(name="DataModules")
@@ -101,450 +541,3 @@ SERIALIZERS   = factory.Factory(name="FileHandlers")
 STRATEGIES    = factory.Factory(name="Strategies")
 TRACKERS      = factory.Factory(name="Trackers")
 TRANSFORMS    = factory.Factory(name="Transforms")
-
-# endregion
-
-
-# region Constants
-
-CONFIG_FILE_FORMATS  = [".config", ".cfg", ".yaml", ".yml", ".py", ".json", ".names", ".txt"]
-IMAGE_FILE_FORMATS   = [".arw", ".bmp", ".dng", ".jpg", ".jpeg", ".png", ".ppm", ".raf", ".tif", ".tiff"]
-VIDEO_FILE_FORMATS   = [".avi", ".m4v", ".mkv", ".mov", ".mp4", ".mpeg", ".mpg", ".wmv"]
-TORCH_FILE_FORMATS   = [".pt", ".pth", ".weights", ".ckpt", ".tar", ".onnx"]
-WEIGHTS_FILE_FORMATS = [".pt", ".pth", ".onnx"]
-DEPTH_DATA_SOURCES   = [None, "dav2_vitb", "dav2_vitl"]
-
-# List 3rd party modules
-EXTRA_DATASET_STR = "[extra]"
-EXTRA_MODEL_STR   = "[extra]"
-EXTRA_DATASETS    = {}
-EXTRA_MODELS      = {                   # architecture/model (+ variant)
-    # region detect
-    "yolor" : {
-        "yolor_d6": {
-            "tasks"    : [enums.Task.DETECT],
-            "ltypes"   : [enums.LType.SUPERVISED],
-            "model_dir": MON_DIR / "vision" / "detect" / "yolor",
-        },
-        "yolor_e6": {
-            "tasks"    : [enums.Task.DETECT],
-            "ltypes"   : [enums.LType.SUPERVISED],
-            "model_dir": MON_DIR / "vision" / "detect" / "yolor",
-        },
-        "yolor_p6": {
-            "tasks"    : [enums.Task.DETECT],
-            "ltypes"   : [enums.LType.SUPERVISED],
-            "model_dir": MON_DIR / "vision" / "detect" / "yolor",
-        },
-        "yolor_w6": {
-            "tasks"    : [enums.Task.DETECT],
-            "ltypes"   : [enums.LType.SUPERVISED],
-            "model_dir": MON_DIR / "vision" / "detect" / "yolor",
-        },
-    },
-    "yolov7": {
-        "yolov7"    : {
-            "tasks"    : [enums.Task.DETECT],
-            "ltypes"   : [enums.LType.SUPERVISED],
-            "model_dir": MON_DIR / "vision" / "detect" / "yolov7",
-        },
-        "yolov7_d6" : {
-            "tasks"    : [enums.Task.DETECT],
-            "ltypes"   : [enums.LType.SUPERVISED],
-            "model_dir": MON_DIR / "vision" / "detect" / "yolov7",
-        },
-        "yolov7_e6" : {
-            "tasks"    : [enums.Task.DETECT],
-            "ltypes"   : [enums.LType.SUPERVISED],
-            "model_dir": MON_DIR / "vision" / "detect" / "yolov7",
-        },
-        "yolov7_e6e": {
-            "tasks"    : [enums.Task.DETECT],
-            "ltypes"   : [enums.LType.SUPERVISED],
-            "model_dir": MON_DIR / "vision" / "detect" / "yolov7",
-        },
-        "yolov7_w6" : {
-            "tasks"    : [enums.Task.DETECT],
-            "ltypes"   : [enums.LType.SUPERVISED],
-            "model_dir": MON_DIR / "vision" / "detect" / "yolov7",
-        },
-        "yolov7x"   : {
-            "tasks"    : [enums.Task.DETECT],
-            "ltypes"   : [enums.LType.SUPERVISED],
-            "model_dir": MON_DIR / "vision" / "detect" / "yolov7",
-        },
-    },
-    "yolov8": {
-        "yolov8n": {
-            "tasks"    : [enums.Task.DETECT],
-            "ltypes"   : [enums.LType.SUPERVISED],
-            "model_dir": MON_EXTRA_DIR / "vision" / "ultralytics",
-        },
-        "yolov8s": {
-            "tasks"    : [enums.Task.DETECT],
-            "ltypes"   : [enums.LType.SUPERVISED],
-            "model_dir": MON_EXTRA_DIR / "vision" / "ultralytics",
-        },
-        "yolov8m": {
-            "tasks"    : [enums.Task.DETECT],
-            "model_dir": MON_EXTRA_DIR / "vision" / "ultralytics",
-        },
-        "yolov8l": {
-            "tasks"    : [enums.Task.DETECT],
-            "ltypes"   : [enums.LType.SUPERVISED],
-            "model_dir": MON_EXTRA_DIR / "vision" / "ultralytics",
-        },
-        "yolov8x": {
-            "tasks"    : [enums.Task.DETECT],
-            "ltypes"   : [enums.LType.SUPERVISED],
-            "model_dir": MON_EXTRA_DIR / "vision" / "ultralytics",
-        },
-    },
-    "yolov9": {
-        "gelan_c" : {
-            "tasks"    : [enums.Task.DETECT],
-            "ltypes"   : [enums.LType.SUPERVISED],
-            "model_dir": MON_DIR / "vision" / "detect" / "yolov9",
-        },
-        "gelan_e" : {
-            "tasks"    : [enums.Task.DETECT],
-            "ltypes"   : [enums.LType.SUPERVISED],
-            "model_dir": MON_DIR / "vision" / "detect" / "yolov9",
-        },
-        "yolov9_c": {
-            "tasks"    : [enums.Task.DETECT],
-            "ltypes"   : [enums.LType.SUPERVISED],
-            "model_dir": MON_DIR / "vision" / "detect" / "yolov9",
-        },
-        "yolov9_e": {
-            "tasks"    : [enums.Task.DETECT],
-            "ltypes"   : [enums.LType.SUPERVISED],
-            "model_dir": MON_DIR / "vision" / "detect" / "yolov9",
-        },
-    },
-    # endregion
-    # region enhance/dehaze
-    "zid"   : {
-        "zid": {
-            "tasks"    : [enums.Task.DEHAZE],
-            "ltypes"   : [enums.LType.ZERO_SHOT],
-            "model_dir": MON_DIR / "vision" / "enhance" / "dehaze" / "zid",
-        },
-    },
-    # endregion
-    # region enhance/demoire
-    "esdnet": {
-        "esdnet": {
-            "tasks"    : [enums.Task.DEMOIRE, enums.Task.LLIE],
-            "ltypes"   : [enums.LType.SUPERVISED],
-            "model_dir": MON_DIR / "vision" / "enhance" / "demoire" / "esdnet",
-        },
-        "esdnet_l": {
-            "tasks"    : [enums.Task.DEMOIRE, enums.Task.LLIE],
-            "ltypes"   : [enums.LType.SUPERVISED],
-            "model_dir": MON_DIR / "vision" / "enhance" / "demoire" / "esdnet",
-        },
-    },
-    # endregion
-    # region enhance/derain
-    "esdnet_snn": {
-        "esdnet_snn": {
-            "tasks"    : [enums.Task.DERAIN, enums.Task.LLIE],
-            "ltypes"   : [enums.LType.SUPERVISED],
-            "model_dir": MON_DIR / "vision" / "enhance" / "derain" / "esdnet_snn",
-        },
-    },
-    # endregion
-    # region enhance/llie
-    "colie"        : {
-        "colie": {
-            "tasks"    : [enums.Task.LLIE],
-            "ltypes"   : [enums.LType.ZERO_SHOT],
-            "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "colie",
-        },
-    },
-    "dccnet"       : {
-        "dccnet": {
-            "tasks"    : [enums.Task.LLIE],
-            "ltypes"   : [enums.LType.SUPERVISED],
-            "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "dccnet",
-        },
-    },
-    "enlightengan" : {
-        "enlightengan": {
-            "tasks"    : [enums.Task.LLIE],
-            "ltypes"   : [enums.LType.UNSUPERVISED],
-            "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "enlightengan",
-        },
-    },
-    "fourllie"     : {
-        "fourllie": {
-            "tasks"    : [enums.Task.LLIE],
-            "ltypes"   : [enums.LType.SUPERVISED],
-            "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "fourllie",
-        },
-    },
-    "hvi_cidnet"   : {
-        "hvi_cidnet": {
-            "tasks"    : [enums.Task.LLIE],
-            "ltypes"   : [enums.LType.SUPERVISED],
-            "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "hvi_cidnet",
-        },
-    },
-    "lime"         : {
-        "lime": {
-            "tasks"    : [enums.Task.LLIE],
-            "ltypes"   : [enums.LType.TRADITIONAL],
-            "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "lime",
-        },
-    },
-    "llflow"       : {
-        "llflow": {
-            "tasks"    : [enums.Task.LLIE],
-            "ltypes"   : [enums.LType.SUPERVISED],
-            "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "llflow",
-        },
-    },
-    "llunet++"     : {
-        "llunet++": {
-            "tasks"    : [enums.Task.LLIE],
-            "ltypes"   : [enums.LType.SUPERVISED],
-            "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "llunetpp",
-        },
-    },
-    "nerco"        : {
-        "nerco": {
-            "tasks"    : [enums.Task.LLIE],
-            "ltypes"   : [enums.LType.UNSUPERVISED],
-            "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "nerco",
-        },
-    },
-    "pairlie"      : {
-        "pairlie": {
-            "tasks"    : [enums.Task.LLIE],
-            "ltypes"   : [enums.LType.UNSUPERVISED],
-            "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "pairlie",
-        },
-    },
-    "pie"          : {
-        "pie": {
-            "tasks"    : [enums.Task.LLIE],
-            "ltypes"   : [enums.LType.TRADITIONAL],
-            "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "pie",
-        },
-    },
-    "psenet"       : {
-        "psenet": {
-            "tasks"    : [enums.Task.LLIE],
-            "ltypes"   : [enums.LType.SUPERVISED],
-            "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "psenet",
-        },
-    },
-    "quadprior"    : {
-        "quadprior": {
-            "tasks"    : [enums.Task.LLIE],
-            "ltypes"   : [enums.LType.ZERO_SHOT],
-            "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "quadprior",
-        }
-    },
-    "retinexformer": {
-        "retinexformer": {
-            "tasks"    : [enums.Task.LLIE],
-            "ltypes"   : [enums.LType.SUPERVISED],
-            "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "retinexformer",
-        },
-    },
-    "retinexnet"   : {
-        "retinexnet": {
-            "tasks"    : [enums.Task.LLIE],
-            "ltypes"   : [enums.LType.SUPERVISED],
-            "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "retinexnet",
-        },
-    },
-    "rsfnet"       : {
-        "rsfnet": {
-            "tasks"    : [enums.Task.LLIE],
-            "ltypes"   : [enums.LType.UNSUPERVISED],
-            "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "rsfnet",
-        },
-    },
-    "ruas"         : {
-        "ruas": {
-            "tasks"    : [enums.Task.LLIE],
-            "ltypes"   : [enums.LType.UNSUPERVISED],
-            "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "ruas",
-        },
-    },
-    "sci"          : {
-        "sci": {
-            "tasks"    : [enums.Task.LLIE],
-            "ltypes"   : [enums.LType.UNSUPERVISED],
-            "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "sci",
-        },
-    },
-    "sgz"          : {
-        "sgz": {
-            "tasks"    : [enums.Task.LLIE],
-            "ltypes"   : [enums.LType.UNSUPERVISED],
-            "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "sgz",
-        },
-    },
-    "snr_net"      : {
-        "snr_net": {
-            "tasks"    : [enums.Task.LLIE],
-            "ltypes"   : [enums.LType.SUPERVISED],
-            "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "snr_net",
-        },
-    },
-    "uretinexnet"  : {
-        "uretinexnet": {
-            "tasks"    : [enums.Task.LLIE],
-            "ltypes"   : [enums.LType.SUPERVISED],
-            "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "uretinexnet",
-        },
-    },
-    "utvnet"       : {
-        "utvnet": {
-            "tasks"    : [enums.Task.LLIE],
-            "ltypes"   : [enums.LType.SUPERVISED],
-            "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "utvnet",
-        },
-    },
-    "zero_dce"     : {
-        "zero_dce"  : {
-            "tasks"    : [enums.Task.LLIE],
-            "ltypes"   : [enums.LType.UNSUPERVISED],
-            "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "zero_dce",
-        },
-    },
-    "zero_dce++"   : {
-        "zero_dce++": {
-            "tasks"    : [enums.Task.LLIE],
-            "ltypes"   : [enums.LType.UNSUPERVISED],
-            "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "zero_dce++",
-        },
-    },
-    "zero_didce"   : {
-        "zero_didce": {
-            "tasks"    : [enums.Task.LLIE],
-            "ltypes"   : [enums.LType.UNSUPERVISED],
-            "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "zero_didce",
-        },
-    },
-    "zero_ig"      : {
-        "zero_ig": {
-            "tasks"    : [enums.Task.LLIE],
-            "ltypes"   : [enums.LType.ZERO_SHOT],
-            "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "zero_ig",
-        },
-    },
-    # endregion
-    # region enhance/multitask
-    "airnet"   : {
-        "airnet": {
-            "tasks"    : [enums.Task.DENOISE, enums.Task.DERAIN, enums.Task.DEHAZE],
-            "ltypes"   : [enums.LType.SUPERVISED],
-            "model_dir": MON_DIR / "vision" / "enhance" / "multitask" / "airnet",
-        },
-    },
-    "restormer": {
-        "restormer": {
-            "tasks"    : [enums.Task.DEBLUR, enums.Task.DENOISE, enums.Task.DERAIN, enums.Task.DESNOW, enums.Task.LLIE],
-            "ltypes"   : [enums.LType.SUPERVISED],
-            "model_dir": MON_DIR / "vision" / "enhance" / "multitask" / "restormer",
-        },
-    },
-    # endregion
-    # region enhance/retouch
-    "neurop": {
-        "neurop": {
-            "tasks"    : [enums.Task.RETOUCH, enums.Task.LLIE],
-            "ltypes"   : [enums.LType.SUPERVISED],
-            "model_dir": MON_DIR / "vision" / "enhance" / "retouch" / "neurop",
-        },
-    },
-    # endregion
-    # region enhance/sr
-    "sronet": {
-        "sronet": {
-            "tasks"    : [enums.Task.SR],
-            "ltypes"   : [enums.LType.SUPERVISED],
-            "model_dir": MON_DIR / "vision" / "enhance" / "sr" / "sronet",
-        },
-    },
-    # endregion
-    # region types/depth
-    "depth_anything_v2": {
-        "depth_anything_v2_vitb": {
-            "tasks"    : [enums.Task.DEPTH],
-            "ltypes"   : [enums.LType.SUPERVISED],
-            "model_dir": MON_DIR / "vision" / "types" / "depth" / "depth_anything_v2",
-        },
-        "depth_anything_v2_vits": {
-            "tasks"    : [enums.Task.DEPTH],
-            "ltypes"   : [enums.LType.SUPERVISED],
-            "model_dir": MON_DIR / "vision" / "types" / "depth" / "depth_anything_v2",
-        },
-        "depth_anything_v2_vitl": {
-            "tasks"    : [enums.Task.DEPTH],
-            "ltypes"   : [enums.LType.SUPERVISED],
-            "model_dir": MON_DIR / "vision" / "types" / "depth" / "depth_anything_v2",
-        },
-        "depth_anything_v2_vitg": {
-            "tasks"    : [enums.Task.DEPTH],
-            "ltypes"   : [enums.LType.SUPERVISED],
-            "model_dir": MON_DIR / "vision" / "types" / "depth" / "depth_anything_v2",
-        },
-    },
-    "depth_pro"        : {
-        "depth_pro": {
-            "tasks"    : [enums.Task.DEPTH],
-            "ltypes"   : [enums.LType.ZERO_SHOT],
-            "model_dir": MON_DIR / "vision" / "types" / "depth" / "depth_pro",
-        },
-    },
-    # endregion
-    # region segment
-    "sam" : {
-        "sam_vit_b": {
-            "tasks"    : [enums.Task.SEGMENT],
-            "ltypes"   : [enums.LType.SUPERVISED],
-            "model_dir": MON_DIR / "vision" / "segment" / "sam",
-        },
-        "sam_vit_h": {
-            "tasks"    : [enums.Task.SEGMENT],
-            "ltypes"   : [enums.LType.SUPERVISED],
-            "model_dir": MON_DIR / "vision" / "segment" / "sam",
-        },
-        "sam_vit_l": {
-            "tasks"    : [enums.Task.SEGMENT],
-            "ltypes"   : [enums.LType.SUPERVISED],
-            "model_dir": MON_DIR / "vision" / "segment" / "sam",
-        },
-    },
-    "sam2": {
-        "sam2_hiera_b+": {
-            "tasks"    : [enums.Task.SEGMENT],
-            "ltypes"   : [enums.LType.SUPERVISED],
-            "model_dir": MON_DIR / "vision" / "segment" / "sam2",
-        },
-        "sam2_hiera_l" : {
-            "tasks"    : [enums.Task.SEGMENT],
-            "ltypes"   : [enums.LType.SUPERVISED],
-            "model_dir": MON_DIR / "vision" / "segment" / "sam2",
-        },
-        "sam2_hiera_s" : {
-            "tasks"    : [enums.Task.SEGMENT],
-            "ltypes"   : [enums.LType.SUPERVISED],
-            "model_dir": MON_DIR / "vision" / "segment" / "sam2",
-        },
-        "sam2_hiera_t" : {
-            "tasks"    : [enums.Task.SEGMENT],
-            "ltypes"   : [enums.LType.SUPERVISED],
-            "model_dir": MON_DIR / "vision" / "segment" / "sam2",
-        },
-    },
-    # endregion
-}
-
-# endregion

@@ -15,6 +15,7 @@ from typing import Any, Callable
 from mon.core import humps
 
 
+# ----- Base Factory -----
 class Factory(dict):
     """Base factory class for registering and building objects.
 
@@ -67,7 +68,7 @@ class Factory(dict):
         Raises:
             TypeError: If ``name`` is not a ``str`` or ``None``.
         """
-        if name is not None and not isinstance(name, str):
+        if name and not isinstance(name, str):
             raise TypeError(f"[name] must be str or None, got {type(name).__name__}.")
         
         def _register(cls):
@@ -177,6 +178,7 @@ class Factory(dict):
         return result if result else None
 
 
+# ----- Model Factory -----
 class ModelFactory(Factory):
     """Factory for registering and building deep learning models.
 
@@ -234,7 +236,7 @@ class ModelFactory(Factory):
         Raises:
             TypeError: If ``name`` is not a ``str`` or ``None``.
         """
-        if name is not None and not isinstance(name, str):
+        if name and not isinstance(name, str):
             raise TypeError(f"[name] must be str or None, got {type(name).__name__}.")
         
         def _register(cls: type) -> type:

@@ -13,9 +13,10 @@ __all__ = [
 from typing import Literal
 
 from mon import core, vision
-from mon.globals import DATA_DIR, DATAMODULES, DATASETS
+from mon.constants import DATA_DIR, DATAMODULES, DATASETS, Split, Task
 
 
+# ----- Dataset -----
 @DATASETS.register(name="darkface")
 class DarkFace(vision.VisionDataset):
     """Loads DarkFace dataset from ``root`` dir.
@@ -29,9 +30,9 @@ class DarkFace(vision.VisionDataset):
         FileNotFoundError: If ``root`` directory does not exist.
     """
     
-    tasks : list[core.Task]    = [core.Task.LLIE, core.Task.DETECT]
-    splits: list[core.Split]   = [core.Split.TEST]
-    datapoint_attrs            = vision.DatapointAttributes({
+    tasks : list[Task]  = [Task.LLIE, Task.DETECT]
+    splits: list[Split] = [Split.TEST]
+    datapoint_attrs     = vision.DatapointAttributes({
         "image": vision.ImageAnnotation,
         "depth": vision.DepthMapAnnotation,
     })
@@ -60,6 +61,7 @@ class DarkFace(vision.VisionDataset):
         self.datapoints["image"] = images
         
 
+# ----- DataModule -----
 @DATASETS.register(name="darkface_full")
 class DarkFaceFull(vision.VisionDataset):
     """Loads DarkFaceFull dataset from ``root`` dir.
@@ -73,8 +75,8 @@ class DarkFaceFull(vision.VisionDataset):
         FileNotFoundError: If ``root`` directory does not exist.
     """
     
-    tasks : list[core.Task]  = [core.Task.LLIE, core.Task.DETECT]
-    splits: list[core.Split] = [core.Split.TEST]
+    tasks : list[Task]  = [Task.LLIE, Task.DETECT]
+    splits: list[Split] = [Split.TEST]
     datapoint_attrs     = vision.DatapointAttributes({
         "image": vision.ImageAnnotation,
         "depth": vision.DepthMapAnnotation,
@@ -112,7 +114,8 @@ class DarkFaceDataModule(core.DataModule):
         *args: Additional args for parent class.
         **kwargs: Additional kwargs for parent class.
     """
-    tasks: list[core.Task] = [core.Task.LLIE]
+    
+    tasks: list[Task] = [Task.LLIE]
 
     def prepare_data(self, *args, **kwargs):
         """Prepares data (placeholder, no action taken)."""
@@ -129,10 +132,10 @@ class DarkFaceDataModule(core.DataModule):
             core.console.log(f"Setup [red]{self.__class__.__name__}[/red].")
 
         if stage in [None, "train"]:
-            self.train = DarkFace(split=core.Split.TEST, **self.dataset_kwargs)
-            self.val   = DarkFace(split=core.Split.TEST, **self.dataset_kwargs)
+            self.train = DarkFace(split=Split.TEST, **self.dataset_kwargs)
+            self.val   = DarkFace(split=Split.TEST, **self.dataset_kwargs)
         if stage in [None, "test"]:
-            self.test  = DarkFace(split=core.Split.TEST, **self.dataset_kwargs)
+            self.test  = DarkFace(split=Split.TEST, **self.dataset_kwargs)
 
         self.get_classlabels()
         if self.can_log:
@@ -147,7 +150,8 @@ class DarkFaceFullDataModule(core.DataModule):
         *args: Additional args for parent class.
         **kwargs: Additional kwargs for parent class.
     """
-    tasks: list[core.Task] = [core.Task.LLIE]
+    
+    tasks: list[Task] = [Task.LLIE]
 
     def prepare_data(self, *args, **kwargs):
         """Prepares data (placeholder, no action taken)."""
@@ -164,10 +168,10 @@ class DarkFaceFullDataModule(core.DataModule):
             core.console.log(f"Setup [red]{self.__class__.__name__}[/red].")
 
         if stage in [None, "train"]:
-            self.train = DarkFaceFull(split=core.Split.TEST, **self.dataset_kwargs)
-            self.val   = DarkFaceFull(split=core.Split.TEST, **self.dataset_kwargs)
+            self.train = DarkFaceFull(split=Split.TEST, **self.dataset_kwargs)
+            self.val   = DarkFaceFull(split=Split.TEST, **self.dataset_kwargs)
         if stage in [None, "test"]:
-            self.test  = DarkFaceFull(split=core.Split.TEST, **self.dataset_kwargs)
+            self.test  = DarkFaceFull(split=Split.TEST, **self.dataset_kwargs)
 
         self.get_classlabels()
         if self.can_log:

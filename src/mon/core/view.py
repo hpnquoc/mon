@@ -26,8 +26,7 @@ plt.show()
 plt.rcParams["savefig.bbox"] = "tight"
 
 
-# region Window Positioning
-
+# ----- Window Positioning -----
 def get_grid_size(n: int, nrow: int = 4) -> list[int]:
     """Calculates grid size for displaying items.
 
@@ -59,5 +58,3 @@ def move_figure(x: int, y: int):
         mngr.window.SetPosition((x, y))
     else:
         mngr.window.move(x, y)
-
-# endregion

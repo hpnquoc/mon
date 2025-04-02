@@ -27,8 +27,7 @@ import torch
 from mon.vision.types.image import utils
 
 
-# region Conversion
-
+# ----- Conversion -----
 def convert_image_to_2d(image: torch.Tensor | np.ndarray) -> torch.Tensor | np.ndarray:
     """Converts a 3D or 4D image to 2D.
 
@@ -305,11 +304,8 @@ def convert_image_to_tensor(
     
     return image
 
-# endregion
 
-
-# region Fusion
-
+# ----- Fusion -----
 def add_images_weighted(
     image1: torch.Tensor | np.ndarray,
     image2: torch.Tensor | np.ndarray,
@@ -368,11 +364,8 @@ def blend_images(
     """
     return add_images_weighted(image1=image1, image2=image2, alpha=alpha, beta=1.0 - alpha, gamma=gamma)
 
-# endregion
 
-
-# region Normalize
-
+# ----- Normalize -----
 def normalize_image_by_range(
     image  : torch.Tensor | np.ndarray,
     min    : float = 0.0,
@@ -425,5 +418,3 @@ denormalize_image = functools.partial(
     new_min = 0.0,
     new_max = 255.0
 )
-
-# endregion

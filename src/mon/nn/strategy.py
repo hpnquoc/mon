@@ -40,22 +40,17 @@ from lightning.pytorch.strategies import (
 from torch import distributed
 
 from mon import core
-from mon.globals import ACCELERATORS, STRATEGIES
+from mon.constants import ACCELERATORS, STRATEGIES
 
-# region Accelerator
-
-
+# ----- Accelerator -----
 ACCELERATORS.register(name="cpu" , module=CPUAccelerator)
 ACCELERATORS.register(name="cuda", module=CUDAAccelerator)
 ACCELERATORS.register(name="gpu" , module=CUDAAccelerator)
 ACCELERATORS.register(name="mps" , module=MPSAccelerator)
 ACCELERATORS.register(name="xla" , module=XLAAccelerator)
 
-# endregion
 
-
-# region Strategy
-
+# ----- Strategy -----
 STRATEGIES.register(name="ddp",           module=DDPStrategy)
 STRATEGIES.register(name="deepspeed",     module=DeepSpeedStrategy)
 STRATEGIES.register(name="fsdp",          module=FSDPStrategy)
@@ -63,11 +58,8 @@ STRATEGIES.register(name="parallel",      module=ParallelStrategy)
 STRATEGIES.register(name="single_device", module=SingleDeviceStrategy)
 STRATEGIES.register(name="xla",           module=XLAStrategy)
 
-# endregion
 
-
-# region Helper Function
-
+# ----- Utils -----
 def get_distributed_info() -> list[int]:
     """Returns rank and world size if distributed, else [0, 1].
 
@@ -98,5 +90,3 @@ def set_distributed_backend(strategy: str | Callable, cudnn: bool = True):
         os.environ["PL_TORCH_DISTRIBUTED_BACKEND"] = backend
         core.console.log(f"Running on a {platform.system()} machine, set torch "
                          f"distributed backend to {backend}.")
-            
-# endregion

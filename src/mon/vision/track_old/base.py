@@ -13,7 +13,7 @@ from typing import Any, Callable
 import numpy as np
 
 from mon import core
-from mon.globals import MOTIONS, OBJECTS
+from mon.constants import MOTIONS, OBJECTS
 from mon.vision.track_old import motion as mmotion, obj
 
 console = core.console
@@ -156,5 +156,3 @@ class Tracker(ABC):
     def delete_dead_tracks(self):
         """Delete all dead tracks."""
         pass
-
-# endregion

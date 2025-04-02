@@ -18,8 +18,7 @@ from mon.nn import functional as F
 from mon.vision import types
 
 
-# region Utils
-
+# ----- Utils -----
 def diff_x(image: torch.Tensor, radius: int) -> torch.Tensor:
     """Computes difference along the x-axis of an image.
 
@@ -69,11 +68,8 @@ def diff_y(image: torch.Tensor, radius: int) -> torch.Tensor:
     output = torch.cat([left, middle, right], dim=3)
     return output
 
-# endregion
 
-
-# region Box Filter
-
+# ----- Box Filter -----
 def box_filter(
     image      : torch.Tensor,
     kernel_size: int = None,
@@ -189,5 +185,3 @@ class BoxFilter(nn.Module):
             Filtered image.
         """
         return box_filter(image, self.kernel_size, self.radius)
-    
-# endregion

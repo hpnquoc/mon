@@ -21,8 +21,15 @@ import numpy as np
 import torch
 
 
+# ----- Annotation -----
 class Annotation(ABC):
-    """Base class for annotation classes, representing task-specific data."""
+    """Base class for annotation classes, representing task-specific data.
+    
+    Attributes:
+        albumentation_target_type: Type of target for Albumentations. Default is ``None``.
+    """
+    
+    albumentation_target_type: str = None
     
     @property
     @abstractmethod

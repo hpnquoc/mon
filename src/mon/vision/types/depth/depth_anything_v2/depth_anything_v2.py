@@ -15,29 +15,30 @@ from typing import Any, Literal
 
 from depth_anything_v2 import dpt
 from mon import core, nn
-from mon.globals import MODELS, ZOO_DIR
+from mon.constants import LType, MODELS, Task, ZOO_DIR
 from mon.vision.types.depth import base
 
 current_file = core.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
 
-# region Model
-
+# ----- Model -----
 class DepthAnythingV2(nn.ExtraModel, base.DepthEstimationModel, ABC):
     """This class implements a wrapper for `DepthAnythingV2` models
     defined in `mon_extra.vision.depth.depth_anything_v2`.
     """
     
-    arch     : str              = "depth_anything_v2"
-    tasks    : list[core.Task]  = [core.Task.DEPTH]
-    ltypes   : list[core.LType] = [core.LType.INFERENCE]
-    model_dir: core.Path        = current_dir
-    zoo      : dict             = {}
+    arch     : str         = "depth_anything_v2"
+    tasks    : list[Task]  = [Task.DEPTH]
+    ltypes   : list[LType] = [LType.INFERENCE]
+    model_dir: core.Path   = current_dir
+    zoo      : dict        = {}
     
+    # ----- Initialization -----
     def init_weights(self, m: nn.Module):
         pass
     
+    # ----- Forward Pass -----
     def forward(self, datapoint: dict, *args, **kwargs) -> dict:
         x = datapoint["image"]
         y = self.model(x)
@@ -149,5 +150,3 @@ def build_depth_anything_v2(
         return DepthAnythingV2_ViTL(in_channels=in_channels, weights=weights, *args, **kwargs)
     elif encoder == "vitg":
         raise NotImplementedError("The `vitg` encoder has been not implemented yet.")
-    
-# endregion

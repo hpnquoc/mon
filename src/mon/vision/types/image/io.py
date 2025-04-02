@@ -22,8 +22,7 @@ from mon import core
 from mon.vision.types.image import processing, utils
 
 
-# region Read
-
+# ----- Read -----
 def read_image(
     path     : core.Path,
     flags    : int  = cv2.IMREAD_COLOR,
@@ -89,11 +88,8 @@ def read_image_shape(path: core.Path) -> tuple[int, int, int]:
     
     return h, w, c
 
-# endregion
 
-
-# region Write
-
+# ----- Write -----
 def write_image(path: core.Path, image: torch.Tensor | np.ndarray):
     """Writes an image to a file path.
 
@@ -112,5 +108,3 @@ def write_image(path: core.Path, image: torch.Tensor | np.ndarray):
         cv2.imwrite(str(path), cv2.cvtColor(image, cv2.COLOR_RGB2BGR))
     else:
         raise TypeError(f"[image] must be a torch.Tensor or numpy.ndarray, got {type(image)}.")
-
-# endregion

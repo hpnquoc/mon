@@ -17,10 +17,11 @@ from typing import Literal
 import cv2
 
 from mon import core, vision
+from mon.constants import DATA_DIR, DATAMODULES, DATASETS, Split, Task
 from mon.datasets.cityscapes.cityscapes import Cityscapes
-from mon.globals import DATA_DIR, DATAMODULES, DATASETS
 
 
+# ----- Dataset -----
 @DATASETS.register(name="cityscapes_foggy")
 class CityscapesFoggy(Cityscapes):
     """Loads and processes the CityscapesFoggy dataset for dehazing tasks.
@@ -34,9 +35,9 @@ class CityscapesFoggy(Cityscapes):
         FileNotFoundError: If ``root``/cityscapes directory does not exist.
     """
     
-    tasks : list[core.Task]    = [core.Task.DEHAZE]
-    splits: list[core.Split]   = [core.Split.TRAIN, core.Split.VAL, core.Split.TEST]
-    datapoint_attrs            = vision.DatapointAttributes({
+    tasks : list[Task]  = [Task.DEHAZE]
+    splits: list[Split] = [Split.TRAIN, Split.VAL, Split.TEST]
+    datapoint_attrs     = vision.DatapointAttributes({
         "image"    : vision.ImageAnnotation,
         "ref_image": vision.ImageAnnotation,
         "semantic" : vision.SemanticSegmentationAnnotation,  # gtFine
@@ -88,11 +89,12 @@ class CityscapesFoggy(Cityscapes):
         self.datapoints["semantic"]  = semantic
 
 
+# ----- DataModule -----
 @DATAMODULES.register(name="cityscapes_foggy")
 class CityscapesFoggyDataModule(core.DataModule):
     """Manages CityscapesFoggy dataset for training, validation, and testing."""
 
-    tasks: list[core.Task] = [core.Task.DERAIN]
+    tasks: list[Task] = [Task.DERAIN]
 
     def prepare_data(self, *args, **kwargs):
         """Prepares data (placeholder, no action taken)."""
@@ -109,10 +111,10 @@ class CityscapesFoggyDataModule(core.DataModule):
             core.console.log(f"Setup [red]{self.__class__.__name__}[/red].")
 
         if stage in [None, "train"]:
-            self.train = CityscapesFoggy(split=core.Split.TRAIN, **self.dataset_kwargs)
-            self.val   = CityscapesFoggy(split=core.Split.VAL,   **self.dataset_kwargs)
+            self.train = CityscapesFoggy(split=Split.TRAIN, **self.dataset_kwargs)
+            self.val   = CityscapesFoggy(split=Split.VAL,   **self.dataset_kwargs)
         if stage in [None, "test"]:
-            self.test  = CityscapesFoggy(split=core.Split.TEST,  **self.dataset_kwargs)
+            self.test  = CityscapesFoggy(split=Split.TEST,  **self.dataset_kwargs)
 
         self.get_classlabels()
         if self.can_log:

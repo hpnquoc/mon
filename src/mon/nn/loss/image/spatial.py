@@ -16,10 +16,11 @@ from typing import Literal
 import torch
 from torch.nn import functional as F
 
-from mon.globals import LOSSES
+from mon.constants import LOSSES
 from mon.nn.loss import base
 
 
+# ----- Spatial Loss -----
 @LOSSES.register(name="spatial_consistency_loss")
 class SpatialConsistencyLoss(base.Loss):
     """Spatial Consistency Loss encourages spatial coherence of the enhanced image

@@ -23,8 +23,7 @@ from mon.core import pathlib
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"  # Disable TensorFlow logging
 
 
-# region Logging
-
+# ----- Logging -----
 logging.basicConfig(
     level    = logging.INFO,
     format   = "%(message)s",
@@ -53,11 +52,8 @@ def get_logger(path: pathlib.Path = None) -> logging.Logger:
         logger.addHandler(file_handler)
     return logger
 
-# endregion
 
-
-# region Print
-
+# ----- Print -----
 @contextlib.contextmanager
 def disable_print() -> Iterator[None]:
     """Temporarily disables printing to stdout by redirecting it to ``os.devnull``.
@@ -82,5 +78,3 @@ def enable_print():
         Use this to undo manual redirection of ``sys.stdout`` (e.g., to ``os.devnull``).
     """
     sys.stdout = sys.__stdout__
-
-# endregion

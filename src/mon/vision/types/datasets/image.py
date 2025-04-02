@@ -10,11 +10,13 @@ __all__ = [
 import glob
 
 from mon import core
+from mon.constants import Split
 from mon.vision.geometry import albumentation
 from mon.vision.types.datasets import base
 from mon.vision.types.image import ImageAnnotation
 
 
+# ----- Image Loader -----
 class ImageLoader(base.VisionDataset):
     """Loads images from a file path, pattern, or directory.
     
@@ -37,7 +39,7 @@ class ImageLoader(base.VisionDataset):
     def __init__(
         self,
         root      : core.Path,
-        split     : core.Split = core.Split.PREDICT,
+        split     : Split = Split.PREDICT,
         transform : albumentation.Compose = None,
         to_tensor : bool = False,
         cache_data: bool = False,
@@ -54,6 +56,7 @@ class ImageLoader(base.VisionDataset):
             *args, **kwargs
         )
     
+    # ----- Initialization -----
     def get_data(self):
         """Gets image data from the root path.
 

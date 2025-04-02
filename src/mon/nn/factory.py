@@ -17,8 +17,7 @@ import mon
 from mon.core import factory
 
 
-# region Factory
-
+# ----- Factory -----
 class OptimizerFactory(factory.Factory):
     """Registers and builds optimizers for neural networks."""
 
@@ -213,8 +212,6 @@ class LRSchedulerFactory(factory.Factory):
         return schedulers if schedulers else None
 
 
-# endregion
-
-
-mon.globals.OPTIMIZERS    = OptimizerFactory("Optimizer")
-mon.globals.LR_SCHEDULERS = LRSchedulerFactory("LRScheduler")
+# ----- Registering -----
+mon.constants.OPTIMIZERS    = OptimizerFactory("Optimizer")
+mon.constants.LR_SCHEDULERS = LRSchedulerFactory("LRScheduler")

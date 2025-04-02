@@ -11,7 +11,7 @@ __all__ = [
 import numpy as np
 
 from mon import core
-from mon.globals import TRACKERS
+from mon.constants import TRACKERS
 from mon.vision import geometry
 from mon.vision.track_old import base, motion as mmotion
 
@@ -32,7 +32,7 @@ def linear_assignment(cost_matrix):
         x, y = linear_sum_assignment(cost_matrix)
         return np.array(list(zip(x, y)))
 
-# endregion
+
 
 
 # region SORT
@@ -247,5 +247,3 @@ class SORTBBox(base.Tracker):
             # NOTE: Remove dead tracks
             if trk.time_since_update > self.max_age:
                 self.tracks.pop(i)
-
-# endregion

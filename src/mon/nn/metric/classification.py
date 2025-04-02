@@ -38,8 +38,9 @@ from torchmetrics.classification import (
 	SpecificityAtSensitivity, StatScores,
 )
 
-from mon.globals import METRICS
+from mon.constants import METRICS
 
+# ----- Registering -----
 METRICS.register(name="auroc",                      module=AUROC)
 METRICS.register(name="accuracy",                   module=Accuracy)
 METRICS.register(name="average_precision",          module=AveragePrecision)

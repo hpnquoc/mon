@@ -56,8 +56,7 @@ from mon import core
 from mon.nn.modules import padding as pad
 
 
-# region Adaptive Pool
-
+# ----- Adaptive Pool -----
 def adaptive_avg_max_pool2d(input: torch.Tensor, output_size: int = 1) -> torch.Tensor:
     """Combines adaptive average and max pooling.
 
@@ -262,11 +261,8 @@ class FastAdaptiveAvgPool2d(torch.nn.Module):
         """
         return input.mean(dim=(2, 3), keepdim=not self.flatten)
 
-# endregion
 
-
-# region Average Pool
-
+# ----- Average Pool -----
 def avg_pool2d_same(
     input            : torch.Tensor,
     kernel_size      : _size_2_t,
@@ -355,11 +351,8 @@ class AvgPool2dSame(torch.nn.AvgPool2d):
             count_include_pad = self.count_include_pad
         )
 
-# endregion
 
-
-# region Channel Pool
-
+# ----- Channel Pool -----
 class ChannelPool(torch.nn.Module):
     """Global Channel Pool from CBAM Module paper.
 
@@ -382,11 +375,8 @@ class ChannelPool(torch.nn.Module):
             dim=1
         )
 
-# endregion
 
-
-# region LSE Pool
-
+# ----- LSE Pool -----
 def lse_pool2d(input: torch.Tensor) -> torch.Tensor:
     """Applies LogSumExp (LSE) pooling, aka RealSoftMax or multivariable softplus.
 
@@ -402,11 +392,9 @@ def lse_pool2d(input: torch.Tensor) -> torch.Tensor:
     y        = x_max + (x_flat - x_max).exp().sum(dim=2, keepdim=True).log()  # [B, C, 1]
     return y.view(input.size(0), input.size(1), 1, 1)        # [B, C, 1, 1]
 
-# endregion
 
 
-# region Max Pool
-
+# ----- Max Pool -----
 def max_pool2d_same(
     input      : torch.Tensor,
     kernel_size: _size_2_t,
@@ -497,11 +485,8 @@ class MaxPool2dSame(torch.nn.MaxPool2d):
             ceil_mode   = self.ceil_mode
         )
 
-# endregion
 
-
-# region Median Pool
-
+# ----- Median Pool -----
 class MedianPool2d(torch.nn.Module):
     """Median pooling layer, usable as a median filter when stride=1.
 
@@ -567,5 +552,3 @@ class MedianPool2d(torch.nn.Module):
         y = y.unfold(2, self.kernel_size[0], self.stride[0])
         y = y.unfold(3, self.kernel_size[1], self.stride[1])
         return y.contiguous().view(y.size()[:4] + (-1,)).median(dim=-1)[0]
-
-# endregion

@@ -36,12 +36,10 @@ def main():
         if f.exists():
             strip_optimizer(f)  # strip optimizers
 
-# endregion
 
 
-# region Main
+
+# ----- Main -----
 
 if __name__ == "__main__":
     main()
-
-# endregion

@@ -10,15 +10,14 @@ __all__ = [
 from torchvision.models import inception_v3
 
 from mon import core, nn
-from mon.globals import MODELS, ZOO_DIR
+from mon.constants import LType, MODELS, ZOO_DIR
 from mon.vision.classify import base
 
 current_file = core.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
 
-# region Model
-
+# ----- Model -----
 @MODELS.register(name="inception_v3", arch="inception")
 class Inception3(nn.ExtraModel, base.ImageClassificationModel):
     """Inception v3 model for image classification.
@@ -34,11 +33,11 @@ class Inception3(nn.ExtraModel, base.ImageClassificationModel):
         - https://arxiv.org/abs/1512.00567
     """
     
-    arch     : str              = "inception"
-    name     : str              = "inception_v3"
-    ltypes   : list[core.LType] = [core.LType.SUPERVISED]
-    model_dir: core.Path        = current_dir
-    zoo      : dict             = {
+    arch     : str         = "inception"
+    name     : str         = "inception_v3"
+    ltypes   : list[LType] = [LType.SUPERVISED]
+    model_dir: core.Path   = current_dir
+    zoo      : dict        = {
         "imagenet1k_v1": {
             "url"        : "https://download.pytorch.org/models/inception_v3_google-0cc3c7bd.pth",
             "path"       : ZOO_DIR / "vision/classify/inception/inception_v3/imagenet1k_v1/inception_v3_imagenet1k_v1.pth",
@@ -68,7 +67,8 @@ class Inception3(nn.ExtraModel, base.ImageClassificationModel):
             self.load_weights()
         else:
             self.apply(self.init_weights)
-            
+    
+    # ----- Initialization -----
     def init_weights(self, m: nn.Module):
         """Initializes weights for the model.
     
@@ -76,7 +76,8 @@ class Inception3(nn.ExtraModel, base.ImageClassificationModel):
             m: ``nn.Module`` to initialize weights for.
         """
         pass
-
+    
+    # ----- Forward Pass -----
     def forward(self, datapoint: dict, *args, **kwargs) -> dict:
         """Performs forward pass on the model.
     
@@ -89,5 +90,3 @@ class Inception3(nn.ExtraModel, base.ImageClassificationModel):
         x = datapoint["image"]
         y = self.model(x)
         return {"logits": y}
-        
-# endregion

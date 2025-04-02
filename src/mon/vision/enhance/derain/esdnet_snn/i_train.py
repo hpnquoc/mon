@@ -34,8 +34,7 @@ current_file = mon.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
 
-# region Train
-
+# ----- Train -----
 def train(args: dict) -> str:
     # Parse args
     hostname     = args["hostname"]
@@ -256,11 +255,8 @@ def train(args: dict) -> str:
             print("-" * 150)
     writer.close()
         
-# endregion
 
-
-# region Main
-
+# ----- Main -----
 def main() -> str:
     args = mon.parse_train_args(model_root=current_dir)
     train(args)
@@ -268,5 +264,3 @@ def main() -> str:
 
 if __name__ == "__main__":
     main()
-
-# endregion

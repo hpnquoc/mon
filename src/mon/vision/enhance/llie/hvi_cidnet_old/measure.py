@@ -107,10 +107,10 @@ def metrics(im_dir, label_dir, use_gt_mean):
     avg_lpips = avg_lpips / n
     return avg_psnr, avg_ssim, avg_lpips
 
-# endregion
 
 
-# region Main
+
+# ----- Main -----
 
 def parse_args():
     mea_parser = argparse.ArgumentParser(description="Measure")
@@ -146,5 +146,3 @@ if __name__ == "__main__":
     print("===> Avg.PSNR: {:.4f} dB ".format(avg_psnr))
     print("===> Avg.SSIM: {:.4f} ".format(avg_ssim))
     print("===> Avg.LPIPS: {:.4f} ".format(avg_lpips))
-
-# endregion

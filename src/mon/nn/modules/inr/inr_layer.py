@@ -20,6 +20,7 @@ from mon.nn.modules.inr.wire import ComplexGaborLayer
 INR_AF = Literal["sigmoid", "tanh", "relu", "sine", "gauss", "wire", "finer"]
 
 
+# ----- General INR Layer -----
 class INRLayer(torch.nn.Module):
     """Combines linear transformation, nonlinearity, and dropout.
 

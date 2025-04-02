@@ -12,8 +12,7 @@ import torch
 from mon import nn
 
 
-# region Pseudo-GT Image Generator
-
+# ----- Pseudo-GT Image Generator -----
 class PseudoGTGenerator:
     """To create the pseudo GT image, we compare and combine the 2N generated
     reference images, the original image, and the output of the enhancement
@@ -52,7 +51,7 @@ class PseudoGTGenerator:
         # gammas: [b, nref], im: [b, c, h, w] -> synthetic_references: [b, nref, c, h, w]
         synthetic_references = 1 - (1 - image[:, None]) ** gammas[:, :, None, None, None]
         
-        if prev_output is not None:
+        if prev_output:
             # previous_iter_output = self.model(image)[0].clone().detach()
             prev_output = prev_output.clone().detach()
             references  = torch.cat([image[:, None], prev_output[:, None], synthetic_references], dim=1)
@@ -66,5 +65,3 @@ class PseudoGTGenerator:
         max_idx    = max_idx.repeat(1, c, 1, 1)[:, None]
         pseudo_gt  = torch.gather(references, 1, max_idx)
         return pseudo_gt.squeeze(1)
-
-# endregion

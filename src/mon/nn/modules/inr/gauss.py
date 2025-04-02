@@ -13,6 +13,7 @@ import torch
 from mon.nn.modules.inr import base
 
 
+# ----- Gauss's Activation Layer -----
 class GaussLayer(torch.nn.Module):
     """Applies linear transformation with Gaussian activation.
 
@@ -51,6 +52,7 @@ class GaussLayer(torch.nn.Module):
         return torch.exp(-(self.scale * self.linear(x))**2)
 
 
+# ----- GAUSS -----
 class GAUSS(torch.nn.Module):
     """Implements Gaussian network with Gauss layers.
 

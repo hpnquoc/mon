@@ -35,10 +35,10 @@ def eval(model, testing_data_loader, model_path, output_folder):
         
     torch.set_grad_enabled(True)
    
-# endregion
 
 
-# region Main
+
+# ----- Main -----
 
 def parse_args():
     eval_parser = argparse.ArgumentParser(description="Eval")
@@ -81,5 +81,3 @@ if __name__ == "__main__":
                 output_folder =  SID_folder + fill_index + "/"
                 eval_data     = DataLoader(dataset=get_eval_set(now_dir), num_workers=0, batch_size=1, shuffle=False)
                 eval(net, eval_data, model_path, output_folder)
-
-# endregion

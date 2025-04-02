@@ -34,11 +34,11 @@ import torch
 from plum import dispatch
 from rich import panel, pretty, progress, table, text, theme
 
-from mon.core import enums, type_extensions, utils
+from mon.constants import MemoryUnit
+from mon.core import type_extensions, utils
 
 
-# region Console
-
+# ----- Console -----
 def get_terminal_size() -> tuple[int, int]:
     """Gets the size of the terminal window in columns and rows.
 
@@ -143,11 +143,8 @@ def get_error_console() -> rich.console.Console:
         )
     return error_console
 
-# endregion
 
-
-# region Progress
-
+# ----- Progress -----
 def get_download_bar(transient: bool = False, disable: bool = False) -> progress.Progress:
     """Creates a ``rich.progress.Progress`` for download tracking.
 
@@ -227,12 +224,12 @@ class MemoryUsageColumn(progress.ProgressColumn):
     def __init__(
         self,
         devices     : int | list[int] = 0,
-        unit        : enums.MemoryUnit = enums.MemoryUnit.GB,
-        table_column: table.Column    = None
+        unit        : MemoryUnit   = MemoryUnit.GB,
+        table_column: table.Column = None
     ):
         super().__init__(table_column=table_column)
         self.devices = type_extensions.to_int_list(devices)
-        self.unit    = enums.MemoryUnit.from_value(value=unit)
+        self.unit    = MemoryUnit.from_value(value=unit)
     
     def render(self, task: progress.Task) -> text.Text:
         """Renders current GPU or CPU memory usage as text.
@@ -328,11 +325,8 @@ class ProcessingSpeedColumn(progress.ProgressColumn):
         speed_text = f"{speed_text:>7}"
         return text.Text(f"{speed_text}it/s", style="progress.data.speed")
 
-# endregion
 
-
-# region Print
-
+# ----- Print -----
 def print_dict(x: dict, title: str = ""):
     """Prints a dictionary with a title using ``rich.pretty.Pretty`` format.
 
@@ -401,5 +395,3 @@ def print_table(x: dict):
         row = [f"{k}", f"{v}"]
         tab.add_row(*row)
     console.log(tab)
-
-# endregion

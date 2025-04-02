@@ -332,10 +332,10 @@ def test(
         maps[c] = ap[i]
     return (mp, mr, map50, map, *(loss.cpu() / len(dataloader)).tolist()), maps, t
     
-# endregion
 
 
-# region Main
+
+# ----- Main -----
 
 def main() -> str:
     # Parse args
@@ -403,5 +403,3 @@ def main() -> str:
 
 if __name__ == "__main__":
     main()
-
-# endregion

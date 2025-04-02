@@ -12,7 +12,7 @@ from typing import Any
 import torch
 
 from mon import core, nn
-from mon.globals import MODELS, ZOO_DIR
+from mon.constants import LType, MODELS, Task, ZOO_DIR
 from mon.vision.types.depth import base
 from .src import depth_pro
 
@@ -20,20 +20,19 @@ current_file = core.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
 
-# region Model
-
+# ----- Model -----
 @MODELS.register(name="depth_pro", arch="depth_pro")
 class DepthPro(nn.ExtraModel, base.DepthEstimationModel):
     """This class implements a wrapper for `DepthAnythingV2` models
     defined in `mon_extra.vision.depth.depth_anything_v2`.
     """
     
-    arch     : str              = "depth_pro"
-    name     : str              = "depth_pro"
-    tasks    : list[core.Task]  = [core.Task.DEPTH]
-    ltypes   : list[core.LType] = [core.LType.INFERENCE]
-    model_dir: core.Path        = current_dir
-    zoo      : dict             = {
+    arch     : str         = "depth_pro"
+    name     : str         = "depth_pro"
+    tasks    : list[Task]  = [Task.DEPTH]
+    ltypes   : list[LType] = [LType.INFERENCE]
+    model_dir: core.Path   = current_dir
+    zoo      : dict        = {
         "pretrained": {
             "url"        : None,
             "path"       : ZOO_DIR / "vision/dtype/depth/depth_pro/depth_pro/pretrained/depth_pro.pt",
@@ -71,9 +70,11 @@ class DepthPro(nn.ExtraModel, base.DepthEstimationModel):
         else:
             self.apply(self.init_weights)
     
+    # ----- Initialization -----
     def init_weights(self, m: nn.Module):
         pass
     
+    # ----- Forward Pass -----
     def forward(self, datapoint: dict, *args, **kwargs) -> dict:
         x       = datapoint["image"]
         f_px    = datapoint["f_px"]
@@ -83,6 +84,7 @@ class DepthPro(nn.ExtraModel, base.DepthEstimationModel):
             "depth"         : outputs["depth"],
         }
     
+    # ----- Predicting -----
     def infer(self, datapoint : dict, *args, **kwargs) -> dict:
         # Pre-processing
         meta               = datapoint["meta"]
@@ -105,5 +107,3 @@ class DepthPro(nn.ExtraModel, base.DepthEstimationModel):
         return outputs | {
             "time": timer.avg_time
         }
-    
-# endregion

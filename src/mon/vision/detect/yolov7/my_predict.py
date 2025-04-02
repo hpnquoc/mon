@@ -27,7 +27,7 @@ current_file = mon.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
 
-# region Predict
+# ----- Predict -----
 
 def predict(opt, save_img: bool = False):
     weights  = opt.weights
@@ -184,10 +184,10 @@ def predict(opt, save_img: bool = False):
 
     print(f"Done. ({time.time() - t0:.3f}s)")
 
-# endregion
 
 
-# region Main
+
+# ----- Main -----
 
 def main() -> str:
     # Parse args
@@ -215,5 +215,3 @@ def main() -> str:
 
 if __name__ == "__main__":
     main()
-    
-# endregion

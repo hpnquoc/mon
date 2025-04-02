@@ -25,9 +25,10 @@ __all__ = [
 from typing import Literal
 
 from mon import core, vision
-from mon.globals import DATA_DIR, DATAMODULES, DATASETS
+from mon.constants import DATA_DIR, DATAMODULES, DATASETS, Split, Task
 
 
+# ----- Dataset -----
 @DATASETS.register(name="reside_hsts_real")
 class RESIDE_HSTS_Real(vision.VisionDataset):
     """Loads RESIDE-HSTS-Real dataset from ``root`` dir.
@@ -41,9 +42,9 @@ class RESIDE_HSTS_Real(vision.VisionDataset):
         FileNotFoundError: If ``root`` directory does not exist.
     """
 
-    tasks : list[core.Task]    = [core.Task.DEHAZE]
-    splits: list[core.Split]   = [core.Split.TEST]
-    datapoint_attrs            = vision.DatapointAttributes({
+    tasks : list[Task]  = [Task.DEHAZE]
+    splits: list[Split] = [Split.TEST]
+    datapoint_attrs     = vision.DatapointAttributes({
         "image": vision.ImageAnnotation,
     })
     has_test_annotations: bool = False
@@ -84,8 +85,8 @@ class RESIDE_HSTS_Synthetic(vision.VisionDataset):
         FileNotFoundError: If ``root`` directory does not exist.
     """
 
-    tasks : list[core.Task]  = [core.Task.DEHAZE]
-    splits: list[core.Split] = [core.Split.TEST]
+    tasks : list[Task]  = [Task.DEHAZE]
+    splits: list[Split] = [Split.TEST]
     datapoint_attrs     = vision.DatapointAttributes({
         "image"    : vision.ImageAnnotation,
         "ref_image": vision.ImageAnnotation,
@@ -128,8 +129,8 @@ class RESIDE_ITS(vision.VisionDataset):
         FileNotFoundError: If ``root`` directory does not exist.
     """
 
-    tasks : list[core.Task]  = [core.Task.DEHAZE]
-    splits: list[core.Split] = [core.Split.TRAIN, core.Split.VAL]
+    tasks : list[Task]  = [Task.DEHAZE]
+    splits: list[Split] = [Split.TRAIN, Split.VAL]
     datapoint_attrs     = vision.DatapointAttributes({
         "image"    : vision.ImageAnnotation,
         "ref_image": vision.ImageAnnotation,
@@ -184,8 +185,8 @@ class RESIDE_OTS(vision.VisionDataset):
         FileNotFoundError: If ``root`` directory does not exist.
     """
 
-    tasks : list[core.Task]  = [core.Task.DEHAZE]
-    splits: list[core.Split] = [core.Split.TRAIN]
+    tasks : list[Task]  = [Task.DEHAZE]
+    splits: list[Split] = [Split.TRAIN]
     datapoint_attrs     = vision.DatapointAttributes({
         "image"    : vision.ImageAnnotation,
         "ref_image": vision.ImageAnnotation,
@@ -240,8 +241,8 @@ class RESIDE_RTTS(vision.VisionDataset):
         FileNotFoundError: If ``root`` directory does not exist.
     """
 
-    tasks : list[core.Task]  = [core.Task.DEHAZE]
-    splits: list[core.Split] = [core.Split.TEST]
+    tasks : list[Task]  = [Task.DEHAZE]
+    splits: list[Split] = [Split.TEST]
     datapoint_attrs     = vision.DatapointAttributes({
         "image": vision.ImageAnnotation,
     })
@@ -283,8 +284,8 @@ class RESIDE_SOTS_Indoor(vision.VisionDataset):
         FileNotFoundError: If ``root`` directory does not exist.
     """
 
-    tasks : list[core.Task]  = [core.Task.DEHAZE]
-    splits: list[core.Split] = [core.Split.TEST]
+    tasks : list[Task]  = [Task.DEHAZE]
+    splits: list[Split] = [Split.TEST]
     datapoint_attrs     = vision.DatapointAttributes({
         "image"    : vision.ImageAnnotation,
         "ref_image": vision.ImageAnnotation,
@@ -339,8 +340,8 @@ class RESIDE_SOTS_Outdoor(vision.VisionDataset):
         FileNotFoundError: If ``root`` directory does not exist.
     """
 
-    tasks : list[core.Task]  = [core.Task.DEHAZE]
-    splits: list[core.Split] = [core.Split.TEST]
+    tasks : list[Task]  = [Task.DEHAZE]
+    splits: list[Split] = [Split.TEST]
     datapoint_attrs     = vision.DatapointAttributes({
         "image"    : vision.ImageAnnotation,
         "ref_image": vision.ImageAnnotation,
@@ -395,8 +396,8 @@ class RESIDE_URHI(vision.VisionDataset):
         FileNotFoundError: If ``root`` directory does not exist.
     """
 
-    tasks : list[core.Task]  = [core.Task.DEHAZE]
-    splits: list[core.Split] = [core.Split.TEST]
+    tasks : list[Task]  = [Task.DEHAZE]
+    splits: list[Split] = [Split.TEST]
     datapoint_attrs     = vision.DatapointAttributes({
         "image": vision.ImageAnnotation,
     })
@@ -425,6 +426,7 @@ class RESIDE_URHI(vision.VisionDataset):
         self.datapoints["image"] = images
         
 
+# ----- DataModule -----
 @DATAMODULES.register(name="reside_hsts_real")
 class RESIDE_HSTS_Real_DataModule(core.DataModule):
     """Configures RESIDE_HSTS_Real datasets for training/testing.
@@ -434,7 +436,7 @@ class RESIDE_HSTS_Real_DataModule(core.DataModule):
         **kwargs: Additional kwargs for parent class.
     """
 
-    tasks: list[core.Task] = [core.Task.DEHAZE]
+    tasks: list[Task] = [Task.DEHAZE]
     
     def prepare_data(self, *args, **kwargs):
         """Prepares data (placeholder, no action taken)."""
@@ -451,10 +453,10 @@ class RESIDE_HSTS_Real_DataModule(core.DataModule):
             core.console.log(f"Setup [red]{self.__class__.__name__}[/red].")
         
         if stage in [None, "train"]:
-            self.train = RESIDE_HSTS_Real(split=core.Split.TEST, **self.dataset_kwargs)
-            self.val   = RESIDE_HSTS_Real(split=core.Split.TEST, **self.dataset_kwargs)
+            self.train = RESIDE_HSTS_Real(split=Split.TEST, **self.dataset_kwargs)
+            self.val   = RESIDE_HSTS_Real(split=Split.TEST, **self.dataset_kwargs)
         if stage in [None, "test"]:
-            self.test  = RESIDE_HSTS_Real(split=core.Split.TEST, **self.dataset_kwargs)
+            self.test  = RESIDE_HSTS_Real(split=Split.TEST, **self.dataset_kwargs)
         
         self.get_classlabels()
         if self.can_log:
@@ -470,7 +472,7 @@ class RESIDE_HSTS_Synthetic_DataModule(core.DataModule):
         **kwargs: Additional kwargs for parent class.
     """
 
-    tasks: list[core.Task] = [core.Task.DEHAZE]
+    tasks: list[Task] = [Task.DEHAZE]
     
     def prepare_data(self, *args, **kwargs):
         """Prepares data (placeholder, no action taken)."""
@@ -487,10 +489,10 @@ class RESIDE_HSTS_Synthetic_DataModule(core.DataModule):
             core.console.log(f"Setup [red]{self.__class__.__name__}[/red].")
         
         if stage in [None, "train"]:
-            self.train = RESIDE_HSTS_Synthetic(split=core.Split.TEST, **self.dataset_kwargs)
-            self.val   = RESIDE_HSTS_Synthetic(split=core.Split.TEST, **self.dataset_kwargs)
+            self.train = RESIDE_HSTS_Synthetic(split=Split.TEST, **self.dataset_kwargs)
+            self.val   = RESIDE_HSTS_Synthetic(split=Split.TEST, **self.dataset_kwargs)
         if stage in [None, "test"]:
-            self.test  = RESIDE_HSTS_Synthetic(split=core.Split.TEST, **self.dataset_kwargs)
+            self.test  = RESIDE_HSTS_Synthetic(split=Split.TEST, **self.dataset_kwargs)
         
         self.get_classlabels()
         if self.can_log:
@@ -506,7 +508,7 @@ class RESIDE_ITS_DataModule(core.DataModule):
         **kwargs: Additional kwargs for parent class.
     """
 
-    tasks: list[core.Task] = [core.Task.DEHAZE]
+    tasks: list[Task] = [Task.DEHAZE]
     
     def prepare_data(self, *args, **kwargs):
         """Prepares data (placeholder, no action taken)."""
@@ -523,10 +525,10 @@ class RESIDE_ITS_DataModule(core.DataModule):
             core.console.log(f"Setup [red]{self.__class__.__name__}[/red].")
         
         if stage in [None, "train"]:
-            self.train = RESIDE_ITS(split=core.Split.TRAIN, **self.dataset_kwargs)
-            self.val   = RESIDE_ITS(split=core.Split.VAL, **self.dataset_kwargs)
+            self.train = RESIDE_ITS(split=Split.TRAIN, **self.dataset_kwargs)
+            self.val   = RESIDE_ITS(split=Split.VAL, **self.dataset_kwargs)
         if stage in [None, "test"]:
-            self.test  = RESIDE_ITS(split=core.Split.TEST, **self.dataset_kwargs)
+            self.test  = RESIDE_ITS(split=Split.TEST, **self.dataset_kwargs)
         
         self.get_classlabels()
         if self.can_log:
@@ -542,7 +544,7 @@ class RESIDE_OTS_DataModule(core.DataModule):
         **kwargs: Additional kwargs for parent class.
     """
 
-    tasks: list[core.Task] = [core.Task.DEHAZE]
+    tasks: list[Task] = [Task.DEHAZE]
     
     def prepare_data(self, *args, **kwargs):
         """Prepares data (placeholder, no action taken)."""
@@ -559,10 +561,10 @@ class RESIDE_OTS_DataModule(core.DataModule):
             core.console.log(f"Setup [red]{self.__class__.__name__}[/red].")
         
         if stage in [None, "train"]:
-            self.train = RESIDE_OTS(split=core.Split.TRAIN, **self.dataset_kwargs)
-            self.val   = RESIDE_ITS(split=core.Split.VAL, **self.dataset_kwargs)
+            self.train = RESIDE_OTS(split=Split.TRAIN, **self.dataset_kwargs)
+            self.val   = RESIDE_ITS(split=Split.VAL, **self.dataset_kwargs)
         if stage in [None, "test"]:
-            self.test  = RESIDE_ITS(split=core.Split.TEST, **self.dataset_kwargs)
+            self.test  = RESIDE_ITS(split=Split.TEST, **self.dataset_kwargs)
         
         self.get_classlabels()
         if self.can_log:
@@ -578,7 +580,7 @@ class RESIDE_RTTS_DataModule(core.DataModule):
         **kwargs: Additional kwargs for parent class.
     """
 
-    tasks: list[core.Task] = [core.Task.DEHAZE]
+    tasks: list[Task] = [Task.DEHAZE]
     
     def prepare_data(self, *args, **kwargs):
         """Prepares data (placeholder, no action taken)."""
@@ -595,10 +597,10 @@ class RESIDE_RTTS_DataModule(core.DataModule):
             core.console.log(f"Setup [red]{self.__class__.__name__}[/red].")
         
         if stage in [None, "train"]:
-            self.train = RESIDE_RTTS(split=core.Split.TEST, **self.dataset_kwargs)
-            self.val   = RESIDE_RTTS(split=core.Split.TEST, **self.dataset_kwargs)
+            self.train = RESIDE_RTTS(split=Split.TEST, **self.dataset_kwargs)
+            self.val   = RESIDE_RTTS(split=Split.TEST, **self.dataset_kwargs)
         if stage in [None, "test"]:
-            self.test  = RESIDE_RTTS(split=core.Split.TEST, **self.dataset_kwargs)
+            self.test  = RESIDE_RTTS(split=Split.TEST, **self.dataset_kwargs)
         
         self.get_classlabels()
         if self.can_log:
@@ -614,7 +616,7 @@ class RESIDE_SOTS_Indoor_DataModule(core.DataModule):
         **kwargs: Additional kwargs for parent class.
     """
 
-    tasks: list[core.Task] = [core.Task.DEHAZE]
+    tasks: list[Task] = [Task.DEHAZE]
     
     def prepare_data(self, *args, **kwargs):
         """Prepares data (placeholder, no action taken)."""
@@ -631,10 +633,10 @@ class RESIDE_SOTS_Indoor_DataModule(core.DataModule):
             core.console.log(f"Setup [red]{self.__class__.__name__}[/red].")
         
         if stage in [None, "train"]:
-            self.train = RESIDE_SOTS_Indoor(split=core.Split.TEST, **self.dataset_kwargs)
-            self.val   = RESIDE_SOTS_Indoor(split=core.Split.TEST, **self.dataset_kwargs)
+            self.train = RESIDE_SOTS_Indoor(split=Split.TEST, **self.dataset_kwargs)
+            self.val   = RESIDE_SOTS_Indoor(split=Split.TEST, **self.dataset_kwargs)
         if stage in [None, "test"]:
-            self.test  = RESIDE_SOTS_Indoor(split=core.Split.TEST, **self.dataset_kwargs)
+            self.test  = RESIDE_SOTS_Indoor(split=Split.TEST, **self.dataset_kwargs)
         
         self.get_classlabels()
         if self.can_log:
@@ -650,7 +652,7 @@ class RESIDE_SOTS_Outdoor_DataModule(core.DataModule):
         **kwargs: Additional kwargs for parent class.
     """
 
-    tasks: list[core.Task] = [core.Task.DEHAZE]
+    tasks: list[Task] = [Task.DEHAZE]
     
     def prepare_data(self, *args, **kwargs):
         """Prepares data (placeholder, no action taken)."""
@@ -667,10 +669,10 @@ class RESIDE_SOTS_Outdoor_DataModule(core.DataModule):
             core.console.log(f"Setup [red]{self.__class__.__name__}[/red].")
         
         if stage in [None, "train"]:
-            self.train = RESIDE_SOTS_Outdoor(split=core.Split.TEST, **self.dataset_kwargs)
-            self.val   = RESIDE_SOTS_Outdoor(split=core.Split.TEST, **self.dataset_kwargs)
+            self.train = RESIDE_SOTS_Outdoor(split=Split.TEST, **self.dataset_kwargs)
+            self.val   = RESIDE_SOTS_Outdoor(split=Split.TEST, **self.dataset_kwargs)
         if stage in [None, "test"]:
-            self.test  = RESIDE_SOTS_Outdoor(split=core.Split.TEST, **self.dataset_kwargs)
+            self.test  = RESIDE_SOTS_Outdoor(split=Split.TEST, **self.dataset_kwargs)
         
         self.get_classlabels()
         if self.can_log:
@@ -686,7 +688,7 @@ class RESIDE_URHI_DataModule(core.DataModule):
         **kwargs: Additional kwargs for parent class.
     """
 
-    tasks: list[core.Task] = [core.Task.DEHAZE]
+    tasks: list[Task] = [Task.DEHAZE]
     
     def prepare_data(self, *args, **kwargs):
         """Prepares data (placeholder, no action taken)."""
@@ -703,10 +705,10 @@ class RESIDE_URHI_DataModule(core.DataModule):
             core.console.log(f"Setup [red]{self.__class__.__name__}[/red].")
         
         if stage in [None, "train"]:
-            self.train = RESIDE_URHI(split=core.Split.TEST, **self.dataset_kwargs)
-            self.val   = RESIDE_URHI(split=core.Split.TEST, **self.dataset_kwargs)
+            self.train = RESIDE_URHI(split=Split.TEST, **self.dataset_kwargs)
+            self.val   = RESIDE_URHI(split=Split.TEST, **self.dataset_kwargs)
         if stage in [None, "test"]:
-            self.test  = RESIDE_URHI(split=core.Split.TEST, **self.dataset_kwargs)
+            self.test  = RESIDE_URHI(split=Split.TEST, **self.dataset_kwargs)
         
         self.get_classlabels()
         if self.can_log:

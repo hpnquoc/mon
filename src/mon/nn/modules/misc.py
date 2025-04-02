@@ -42,8 +42,7 @@ from torch.nn.modules.pixelshuffle import PixelShuffle, PixelUnshuffle
 from torchvision.ops.misc import MLP, Permute
 
 
-# region Concat
-
+# ----- Concat -----
 class Concat(torch.nn.Module):
     """Concatenates a list of tensors along a dimension.
 
@@ -162,11 +161,8 @@ class InterpolateConcat(torch.nn.Module):
         y     = [F.interpolate(x, size=(h, w)) if (x.size(2) != h or x.size(3) != w) else x for x in input]
         return torch.cat(y, dim=self.dim)
 
-# endregion
 
-
-# region Extract
-
+# ----- Extract -----
 class ExtractItem(torch.nn.Module):
     """Extracts an item at a specified index from a tensor sequence.
 
@@ -254,11 +250,8 @@ class Max(torch.nn.Module):
         max_values, _ = torch.max(input, dim=self.dim, keepdim=self.keepdim)
         return max_values
 
-# endregion
 
-
-# region Flatten
-
+# ----- Flatten -----
 class FlattenSingle(torch.nn.Module):
     """Flattens a tensor starting from a specified dimension.
 
@@ -281,11 +274,8 @@ class FlattenSingle(torch.nn.Module):
         """
         return torch.flatten(input, start_dim=self.dim)
 
-# endregion
 
-
-# region Fusion
-
+# ----- Fusion -----
 class Foldcut(torch.nn.Module):
     """Splits tensor into two chunks and sums them.
 
@@ -409,11 +399,8 @@ class Sum(torch.nn.Module):
             y += input[i]
         return y
 
-# endregion
 
-
-# region Merge
-
+# ----- Merging -----
 class PatchMerging(torch.nn.Module):
     """Merges patches by reducing spatial size and doubling channels.
 
@@ -502,5 +489,3 @@ class PatchMergingV2(torch.nn.Module):
         x = self._patch_merging_pad(input)
         x = self.reduction(x)
         return self.norm(x)
-
-# endregion

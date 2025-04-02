@@ -15,8 +15,12 @@ from mon import core
 from mon.vision.types.image import io, processing
 
 
+# ----- Annotation -----
 class ImageAnnotation(core.Annotation):
     """Image annotation.
+    
+    Attributes:
+        albumentation_target_type: Type of target for Albumentations. Default is ``image``.
 
     Args:
         path: Path to image file as ``core.Path`` or ``str``.
@@ -24,6 +28,8 @@ class ImageAnnotation(core.Annotation):
         flags: Flag to read image (e.g., ``cv2.IMREAD_COLOR``).
             Default is ``cv2.IMREAD_COLOR``.
     """
+    
+    albumentation_target_type: str = "image"
     
     def __init__(
         self,

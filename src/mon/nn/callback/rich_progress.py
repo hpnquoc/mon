@@ -12,9 +12,10 @@ import torch
 from lightning.pytorch.callbacks.progress import rich_progress
 
 from mon import core
-from mon.globals import CALLBACKS
+from mon.constants import CALLBACKS
 
 
+# ----- Progress Bar -----
 @CALLBACKS.register(name="rich_progress_bar")
 class RichProgressBar(rich_progress.RichProgressBar):
     """Displays a progress bar with rich text formatting."""

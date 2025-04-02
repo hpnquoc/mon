@@ -14,8 +14,7 @@ __all__ = [
 import numpy as np
 
 
-# region Accessing
-
+# ----- Accessing -----
 def get_bbox_area(bbox: np.ndarray) -> np.ndarray:
     """Compute area of bounding box(es).
 
@@ -152,5 +151,3 @@ def get_enclosing_bbox(bbox: np.ndarray) -> np.ndarray:
     x2 = np.max(x_, 1).reshape(-1, 1)
     y2 = np.max(y_, 1).reshape(-1, 1)
     return np.hstack((x1, y1, x2, y2, bbox[:, 8:]))
-
-# endregion

@@ -23,10 +23,10 @@ seed	     = 100
 use_fullname = False
 verbose      = True
 
-# endregion
 
 
-# region Model
+
+# ----- Model -----
 
 model = {
 	"name"        : model_name,     # The model's name.
@@ -65,7 +65,7 @@ model = {
 	"verbose"     : verbose,        # Verbosity.
 }
 
-# endregion
+
 
 
 # region Data
@@ -86,7 +86,7 @@ data = {
     "verbose"   : verbose,       # Verbosity.
 }
 
-# endregion
+
 
 
 # region Training
@@ -118,7 +118,7 @@ trainer = default.trainer | {
 	"max_epochs"       : 50,
 }
 
-# endregion
+
 
 
 # region Predicting
@@ -126,5 +126,3 @@ trainer = default.trainer | {
 predictor = default.predictor | {
 	"default_root_dir": root,  # Default path for saving results.
 }
-
-# endregion

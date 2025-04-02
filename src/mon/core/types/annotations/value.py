@@ -13,13 +13,19 @@ import torch
 from mon.core.types.annotations import base
 
 
+# ----- Annotation -----
 class RegressionAnnotation(base.Annotation):
     """Single regression value annotation.
-
+    
+    Attributes:
+        albumentation_target_type: Type of target for Albumentations. Default is ``values``.
+        
     Args:
         value: Regression value as ``float``.
         confidence: Confidence score in [0.0, 1.0]. Default is ``1.0``.
     """
+    
+    albumentation_target_type: str = "values"
     
     def __init__(self, value: float, confidence: float = 1.0, *args, **kwargs):
         super().__init__(*args, **kwargs)

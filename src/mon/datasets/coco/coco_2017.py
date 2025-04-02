@@ -11,16 +11,17 @@ __all__ = [
 from typing import Literal
 
 from mon import core, vision
-from mon.globals import DATA_DIR, DATAMODULES, DATASETS
+from mon.constants import DATA_DIR, DATAMODULES, DATASETS, Split, Task
 
 
+# ----- Dataset -----
 @DATASETS.register(name="coco_2017")
 class COCO2017(vision.VisionDataset):
     """COCO 2017 dataset."""
     
-    tasks : list[core.Task]    = [core.Task.DETECT]
-    splits: list[core.Split]   = [core.Split.TRAIN, core.Split.VAL, core.Split.TEST]
-    datapoint_attrs            = vision.DatapointAttributes({
+    tasks : list[Task]  = [Task.DETECT]
+    splits: list[Split] = [Split.TRAIN, Split.VAL, Split.TEST]
+    datapoint_attrs     = vision.DatapointAttributes({
         "image": vision.ImageAnnotation,
         # "bbox" : vision.BBoxesAnnotation,
     })
@@ -146,10 +147,11 @@ class COCO2017(vision.VisionDataset):
         self.datapoints["image"] = images
 
 
+# ----- DataModule -----
 @DATAMODULES.register(name="coco_2017")
 class COCODataModule(core.DataModule):
     
-    tasks: list[core.Task] = [core.Task.DETECT]
+    tasks: list[Task] = [Task.DETECT]
     
     def prepare_data(self, *args, **kwargs):
         pass
@@ -159,10 +161,10 @@ class COCODataModule(core.DataModule):
             core.console.log(f"Setup [red]{self.__class__.__name__}[/red].")
         
         if stage in [None, "train"]:
-            self.train = COCO2017(split=core.Split.TRAIN, **self.dataset_kwargs)
-            self.val   = COCO2017(split=core.Split.VAL,   **self.dataset_kwargs)
+            self.train = COCO2017(split=Split.TRAIN, **self.dataset_kwargs)
+            self.val   = COCO2017(split=Split.VAL,   **self.dataset_kwargs)
         if stage in [None, "test"]:
-            self.test  = COCO2017(split=core.Split.TEST,  **self.dataset_kwargs)
+            self.test  = COCO2017(split=Split.TEST,  **self.dataset_kwargs)
         
         self.get_classlabels()
         if self.can_log:

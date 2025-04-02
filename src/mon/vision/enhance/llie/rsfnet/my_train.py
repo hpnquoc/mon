@@ -23,7 +23,7 @@ current_file = mon.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
 
-# region Train
+# ----- Train -----
 
 def weights_init(m):
     if isinstance(m, nn.Conv2d):
@@ -134,10 +134,10 @@ def train(args: argparse.Namespace):
             """
             torch.save(model.state_dict(), weights_dir / f"{fullname}_last.pt")
             
-# endregion
 
 
-# region Main
+
+# ----- Main -----
 
 def main() -> str:
     args = mon.parse_train_args(model_root=current_dir)
@@ -146,5 +146,3 @@ def main() -> str:
 
 if __name__ == "__main__":
     main()
-
-# endregion

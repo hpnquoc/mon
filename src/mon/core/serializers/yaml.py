@@ -7,10 +7,11 @@ from typing import Any, TextIO
 
 from yaml import *
 
+from mon.constants import SERIALIZERS
 from mon.core.serializers import base
-from mon.globals import SERIALIZERS
 
 
+# ----- Serializer -----
 @SERIALIZERS.register(name=".yaml")
 @SERIALIZERS.register(name=".yml")
 class YAMLSerializer(base.BaseSerializer):

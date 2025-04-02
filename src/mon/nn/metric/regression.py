@@ -34,8 +34,9 @@ from torchmetrics.regression import (
 	WeightedMeanAbsolutePercentageError,
 )
 
-from mon.globals import METRICS
+from mon.constants import METRICS
 
+# ----- Registering -----
 METRICS.register(name="concordance_corr_coef",                    module=ConcordanceCorrCoef)
 METRICS.register(name="cosine_similarity",                        module=CosineSimilarity)
 METRICS.register(name="critical_success_index",                   module=CriticalSuccessIndex)

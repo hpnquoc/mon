@@ -15,9 +15,10 @@ __all__ = [
 from typing import Literal
 
 from mon import core, vision
-from mon.globals import DATA_DIR, DATAMODULES, DATASETS
+from mon.constants import DATA_DIR, DATAMODULES, DATASETS, Split, Task
 
 
+# ----- Dataset -----
 @DATASETS.register(name="flare7k++_real")
 class Flare7KPPReal(vision.VisionDataset):
     """Loads Flare7K++Real dataset from ``root`` dir.
@@ -31,9 +32,9 @@ class Flare7KPPReal(vision.VisionDataset):
         FileNotFoundError: If ``root`` directory does not exist.
     """
     
-    tasks : list[core.Task]    = [core.Task.NIGHTTIME]
-    splits: list[core.Split]   = [core.Split.TEST]
-    datapoint_attrs            = vision.DatapointAttributes({
+    tasks : list[Task]  = [Task.NIGHTTIME]
+    splits: list[Split] = [Split.TEST]
+    datapoint_attrs     = vision.DatapointAttributes({
         "image"    : vision.ImageAnnotation,
         "ref_image": vision.ImageAnnotation,
     })
@@ -75,8 +76,8 @@ class Flare7KPPSynthetic(vision.VisionDataset):
         FileNotFoundError: If ``root`` directory does not exist.
     """
     
-    tasks : list[core.Task]  = [core.Task.NIGHTTIME]
-    splits: list[core.Split] = [core.Split.TEST]
+    tasks : list[Task]  = [Task.NIGHTTIME]
+    splits: list[Split] = [Split.TEST]
     datapoint_attrs     = vision.DatapointAttributes({
         "image"    : vision.ImageAnnotation,
         "ref_image": vision.ImageAnnotation,
@@ -119,8 +120,8 @@ class Flare7KPPExtra(vision.VisionDataset):
         FileNotFoundError: If ``root`` directory does not exist.
     """
     
-    tasks : list[core.Task]  = [core.Task.NIGHTTIME]
-    splits: list[core.Split] = [core.Split.TEST]
+    tasks : list[Task]  = [Task.NIGHTTIME]
+    splits: list[Split] = [Split.TEST]
     datapoint_attrs     = vision.DatapointAttributes({
         "image": vision.ImageAnnotation,
     })
@@ -149,6 +150,7 @@ class Flare7KPPExtra(vision.VisionDataset):
         self.datapoints["image"] = images
 
 
+# ----- DataModule -----
 @DATAMODULES.register(name="flare7k++_real")
 class Flare7KPPRealDataModule(core.DataModule):
     """Configures Flare7KPPReal datasets for training/testing.
@@ -158,7 +160,7 @@ class Flare7KPPRealDataModule(core.DataModule):
         **kwargs: Additional kwargs for parent class.
     """
     
-    tasks: list[core.Task] = [core.Task.NIGHTTIME]
+    tasks: list[Task] = [Task.NIGHTTIME]
 
     def prepare_data(self, *args, **kwargs):
         """Prepares data (placeholder, no action taken)."""
@@ -175,10 +177,10 @@ class Flare7KPPRealDataModule(core.DataModule):
             core.console.log(f"Setup [red]{self.__class__.__name__}[/red].")
 
         if stage in [None, "train"]:
-            self.train = Flare7KPPReal(split=core.Split.TEST, **self.dataset_kwargs)
-            self.val   = Flare7KPPReal(split=core.Split.TEST, **self.dataset_kwargs)
+            self.train = Flare7KPPReal(split=Split.TEST, **self.dataset_kwargs)
+            self.val   = Flare7KPPReal(split=Split.TEST, **self.dataset_kwargs)
         if stage in [None, "test"]:
-            self.test  = Flare7KPPReal(split=core.Split.TEST, **self.dataset_kwargs)
+            self.test  = Flare7KPPReal(split=Split.TEST, **self.dataset_kwargs)
 
         self.get_classlabels()
         if self.can_log:
@@ -194,7 +196,7 @@ class Flare7KPPSyntheticDataModule(core.DataModule):
         **kwargs: Additional kwargs for parent class.
     """
     
-    tasks: list[core.Task] = [core.Task.NIGHTTIME]
+    tasks: list[Task] = [Task.NIGHTTIME]
 
     def prepare_data(self, *args, **kwargs):
         """Prepares data (placeholder, no action taken)."""
@@ -211,10 +213,10 @@ class Flare7KPPSyntheticDataModule(core.DataModule):
             core.console.log(f"Setup [red]{self.__class__.__name__}[/red].")
 
         if stage in [None, "train"]:
-            self.train = Flare7KPPSynthetic(split=core.Split.TEST, **self.dataset_kwargs)
-            self.val   = Flare7KPPSynthetic(split=core.Split.TEST, **self.dataset_kwargs)
+            self.train = Flare7KPPSynthetic(split=Split.TEST, **self.dataset_kwargs)
+            self.val   = Flare7KPPSynthetic(split=Split.TEST, **self.dataset_kwargs)
         if stage in [None, "test"]:
-            self.test  = Flare7KPPSynthetic(split=core.Split.TEST, **self.dataset_kwargs)
+            self.test  = Flare7KPPSynthetic(split=Split.TEST, **self.dataset_kwargs)
 
         self.get_classlabels()
         if self.can_log:
@@ -230,7 +232,7 @@ class Flare7KPPExtraDataModule(core.DataModule):
         **kwargs: Additional kwargs for parent class.
     """
     
-    tasks: list[core.Task] = [core.Task.NIGHTTIME]
+    tasks: list[Task] = [Task.NIGHTTIME]
 
     def prepare_data(self, *args, **kwargs):
         """Prepares data (placeholder, no action taken)."""
@@ -247,10 +249,10 @@ class Flare7KPPExtraDataModule(core.DataModule):
             core.console.log(f"Setup [red]{self.__class__.__name__}[/red].")
 
         if stage in [None, "train"]:
-            self.train = Flare7KPPExtra(split=core.Split.TEST, **self.dataset_kwargs)
-            self.val   = Flare7KPPExtra(split=core.Split.TEST, **self.dataset_kwargs)
+            self.train = Flare7KPPExtra(split=Split.TEST, **self.dataset_kwargs)
+            self.val   = Flare7KPPExtra(split=Split.TEST, **self.dataset_kwargs)
         if stage in [None, "test"]:
-            self.test  = Flare7KPPExtra(split=core.Split.TEST, **self.dataset_kwargs)
+            self.test  = Flare7KPPExtra(split=Split.TEST, **self.dataset_kwargs)
 
         self.get_classlabels()
         if self.can_log:

@@ -11,8 +11,7 @@ __all__ = [
     "write_video_ffmpeg",
 ]
 
-import abc
-from abc import abstractmethod
+from abc import ABC, abstractmethod
 from typing import Sequence
 
 import cv2
@@ -24,8 +23,7 @@ from mon import core
 from mon.vision.types import image as I
 
 
-# region Read
-
+# ----- Read -----
 def read_video_ffmpeg(
     process,
     height   : int,
@@ -66,11 +64,8 @@ def read_video_ffmpeg(
             image = I.convert_image_to_tensor(image, normalize)
     return image
 
-# endregion
 
-
-# region Write
-
+# ----- Write -----
 def write_video_ffmpeg(
     process,
     frame      : torch.Tensor | np.ndarray,
@@ -103,7 +98,7 @@ def write_video_ffmpeg(
     return None
 
 
-class VideoWriter(abc.ABC):
+class VideoWriter(ABC):
     """Base class for video writers.
 
     Args:
@@ -391,5 +386,3 @@ class VideoWriterFFmpeg(VideoWriter):
             paths = [None for _ in range(len(frames))]
         for frame, path in zip(frames, paths):
             self.write(frame, path, denormalize)
-            
-# endregion

@@ -18,7 +18,7 @@ import numpy as np
 
 from mon import core, nn
 from mon.core import AppleRGB
-from mon.globals import MOTIONS
+from mon.constants import MOTIONS
 from mon.vision import geometry, utils
 from mon.vision.track_old import motion as mmotion
 
@@ -134,7 +134,7 @@ class Instance:
             )
         return image
 
-# endregion
+
 
 
 # region Object
@@ -495,5 +495,3 @@ class MovingObject(list[Instance], Object):
 
 
 Track = MovingObject
-
-# endregion

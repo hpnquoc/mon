@@ -57,10 +57,9 @@ from torch.optim.lr_scheduler import (
     SequentialLR, StepLR,
 )
 
-from mon.globals import LR_SCHEDULERS, OPTIMIZERS
+from mon.constants import LR_SCHEDULERS, OPTIMIZERS
 
-# region Optimizer
-
+# ----- Registering Optimizer -----
 OPTIMIZERS.register(name="adadelta"   , module=Adadelta)
 OPTIMIZERS.register(name="adagrad"    , module=Adagrad)
 OPTIMIZERS.register(name="adam"       , module=Adam)
@@ -75,11 +74,8 @@ OPTIMIZERS.register(name="rprop"      , module=Rprop)
 OPTIMIZERS.register(name="sgd"        , module=SGD)
 OPTIMIZERS.register(name="sparse_adam", module=SparseAdam)
 
-# endregion
 
-
-# region Scheduler
-
+# ----- Scheduler -----
 @LR_SCHEDULERS.register(name="cosine_annealing_restart_lr")
 class CosineAnnealingRestartLR(_LRScheduler):
     """Cosine annealing with restarts learning rate scheme.
@@ -418,6 +414,7 @@ class VibrateLR(_LRScheduler):
         return [weight * group["initial_lr"] for group in self.optimizer.param_groups]
 
 
+# ----- Registering Scheduler -----
 LRScheduler = _LRScheduler
 
 LR_SCHEDULERS.register(name="chained_scheduler"             , module=ChainedScheduler)
@@ -435,5 +432,3 @@ LR_SCHEDULERS.register(name="polynomial_lr"                 , module=PolynomialL
 LR_SCHEDULERS.register(name="reduce_lr_on_plateau"          , module=ReduceLROnPlateau)
 LR_SCHEDULERS.register(name="sequential_lr"                 , module=SequentialLR)
 LR_SCHEDULERS.register(name="step_lr"                       , module=StepLR)
-
-# endregion

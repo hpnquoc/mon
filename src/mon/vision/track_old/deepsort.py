@@ -10,7 +10,7 @@ __all__ = [
 ]
 
 from mon import core
-from mon.globals import TRACKERS
+from mon.constants import TRACKERS
 from mon.vision.track_old import base
 
 console = core.console
@@ -20,7 +20,7 @@ console = core.console
 
 # region Helper Function
 
-# endregion
+
 
 
 # region DeepSORT
@@ -32,5 +32,3 @@ class DeepSORT(base.Tracker):
     See more: `mon.vision.model.track.base.Tracker`.
     """
     pass
-    
-# endregion

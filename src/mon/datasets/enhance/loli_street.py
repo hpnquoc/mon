@@ -13,9 +13,10 @@ __all__ = [
 from typing import Literal
 
 from mon import core, vision
-from mon.globals import DATA_DIR, DATAMODULES, DATASETS
+from mon.constants import DATA_DIR, DATAMODULES, DATASETS, Split, Task
 
 
+# ----- Dataset -----
 @DATASETS.register(name="loli_street")
 class LoLIStreet(vision.VisionDataset):
     """Loads LoLIStreet dataset from ``root`` dir.
@@ -29,9 +30,9 @@ class LoLIStreet(vision.VisionDataset):
         FileNotFoundError: If ``root`` directory does not exist.
     """
     
-    tasks : list[core.Task]    = [core.Task.LLIE]
-    splits: list[core.Split]   = [core.Split.TRAIN, core.Split.VAL, core.Split.TEST]
-    datapoint_attrs            = vision.DatapointAttributes({
+    tasks : list[Task]  = [Task.LLIE]
+    splits: list[Split] = [Split.TRAIN, Split.VAL, Split.TEST]
+    datapoint_attrs     = vision.DatapointAttributes({
         "image"    : vision.ImageAnnotation,
         "depth"    : vision.DepthMapAnnotation,
         "ref_image": vision.ImageAnnotation,
@@ -48,7 +49,7 @@ class LoLIStreet(vision.VisionDataset):
 
     def get_data(self):
         """Populates ``datapoints`` with image annotations for split."""
-        if self.split == core.Split.TEST:
+        if self.split == Split.TEST:
             patterns = [self.root / "val" / "image"]
         else:
             patterns = [self.root / self.split_str / "image"]
@@ -78,8 +79,8 @@ class LoLIStreetVal(vision.VisionDataset):
         FileNotFoundError: If ``root`` directory does not exist.
     """
     
-    tasks : list[core.Task]  = [core.Task.LLIE]
-    splits: list[core.Split] = [core.Split.TEST]
+    tasks : list[Task]  = [Task.LLIE]
+    splits: list[Split] = [Split.TEST]
     datapoint_attrs     = vision.DatapointAttributes({
         "image"    : vision.ImageAnnotation,
         "depth"    : vision.DepthMapAnnotation,
@@ -124,8 +125,8 @@ class LoLIStreetTest(vision.VisionDataset):
         FileNotFoundError: If ``root`` directory does not exist.
     """
     
-    tasks : list[core.Task]  = [core.Task.LLIE]
-    splits: list[core.Split] = [core.Split.TEST]
+    tasks : list[Task]  = [Task.LLIE]
+    splits: list[Split] = [Split.TEST]
     datapoint_attrs     = vision.DatapointAttributes({
         "image": vision.ImageAnnotation,
         "depth": vision.DepthMapAnnotation,
@@ -155,6 +156,7 @@ class LoLIStreetTest(vision.VisionDataset):
         self.datapoints["image"] = images
         
 
+# ----- DataModule -----
 @DATAMODULES.register(name="loli_street")
 class LoLIStreetDataModule(core.DataModule):
     """Configures LoLIStreet datasets for training/testing.
@@ -164,7 +166,7 @@ class LoLIStreetDataModule(core.DataModule):
         **kwargs: Additional kwargs for parent class.
     """
     
-    tasks: list[core.Task] = [core.Task.LLIE]
+    tasks: list[Task] = [Task.LLIE]
 
     def prepare_data(self, *args, **kwargs):
         """Prepares data (placeholder, no action taken)."""
@@ -181,10 +183,10 @@ class LoLIStreetDataModule(core.DataModule):
             core.console.log(f"Setup [red]{self.__class__.__name__}[/red].")
 
         if stage in [None, "train"]:
-            self.train = LoLIStreet(split=core.Split.TRAIN, **self.dataset_kwargs)
-            self.val   = LoLIStreet(split=core.Split.VAL,   **self.dataset_kwargs)
+            self.train = LoLIStreet(split=Split.TRAIN, **self.dataset_kwargs)
+            self.val   = LoLIStreet(split=Split.VAL,   **self.dataset_kwargs)
         if stage in [None, "test"]:
-            self.test  = LoLIStreet(split=core.Split.TEST,  **self.dataset_kwargs)
+            self.test  = LoLIStreet(split=Split.TEST,  **self.dataset_kwargs)
 
         self.get_classlabels()
         if self.can_log:

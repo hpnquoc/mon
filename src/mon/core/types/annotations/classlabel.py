@@ -10,6 +10,7 @@ __all__ = [
 from mon.core import rich
 
 
+# ----- Class-Labels -----
 class ClassLabels(list[dict]):
     """List of class labels defined in a dataset.
 

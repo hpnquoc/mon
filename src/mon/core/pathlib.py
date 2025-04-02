@@ -29,8 +29,7 @@ import validators
 from mon.core import humps, type_extensions
 
 
-# region Path
-
+# ----- Path -----
 class Path(type(pathlib.Path())):
     """Extended ``pathlib.Path`` with additional functionalities.
     
@@ -91,7 +90,7 @@ class Path(type(pathlib.Path())):
         Returns:
             ``True`` if path is a config file, ``False`` otherwise.
         """
-        from mon.globals import CONFIG_FILE_FORMATS
+        from mon.constants import CONFIG_FILE_FORMATS
         return (not exist or self.is_file()) and self.suffix.lower() in CONFIG_FILE_FORMATS
         
     def is_dir_like(self) -> bool:
@@ -119,7 +118,7 @@ class Path(type(pathlib.Path())):
         Returns:
             ``True`` if path is an image file, ``False`` otherwise.
         """
-        from mon.globals import IMAGE_FILE_FORMATS
+        from mon.constants import IMAGE_FILE_FORMATS
         return (not exist or self.is_file()) and self.suffix.lower() in IMAGE_FILE_FORMATS
     
     def is_json_file(self, exist: bool = True) -> bool:
@@ -180,7 +179,7 @@ class Path(type(pathlib.Path())):
         Returns:
             ``True`` if path has a Torch extension, ``False`` otherwise.
         """
-        from mon.globals import TORCH_FILE_FORMATS
+        from mon.constants import TORCH_FILE_FORMATS
         return (not exist or self.is_file()) and self.suffix.lower() in TORCH_FILE_FORMATS
     
     def is_txt_file(self, exist: bool = True) -> bool:
@@ -223,7 +222,7 @@ class Path(type(pathlib.Path())):
         Returns:
             ``True`` if path is a video file, ``False`` otherwise.
         """
-        from mon.globals import VIDEO_FILE_FORMATS
+        from mon.constants import VIDEO_FILE_FORMATS
         return (not exist or self.is_file()) and self.suffix.lower() in VIDEO_FILE_FORMATS.values()
     
     def is_video_stream(self) -> bool:
@@ -243,7 +242,7 @@ class Path(type(pathlib.Path())):
         Returns:
             ``True`` if path is a weights file, ``False`` otherwise.
         """
-        from mon.globals import WEIGHTS_FILE_FORMATS
+        from mon.constants import WEIGHTS_FILE_FORMATS
         return (not exist or self.is_file()) and self.suffix.lower() in WEIGHTS_FILE_FORMATS
     
     def is_xml_file(self, exist: bool = True) -> bool:
@@ -320,7 +319,7 @@ class Path(type(pathlib.Path())):
         Returns:
             Configuration file ``Path``.
         """
-        from mon.globals import CONFIG_FILE_FORMATS
+        from mon.constants import CONFIG_FILE_FORMATS
         for ext in CONFIG_FILE_FORMATS:
             for stem in [self.stem, humps.snakecase(self.stem)]:
                 config_path = self.with_name(f"{stem}{ext}")
@@ -343,7 +342,7 @@ class Path(type(pathlib.Path())):
         Returns:
             Image file ``Path``.
         """
-        from mon.globals import IMAGE_FILE_FORMATS
+        from mon.constants import IMAGE_FILE_FORMATS
         for ext in IMAGE_FILE_FORMATS:
             temp = self.with_suffix(ext)
             if temp.is_file():
@@ -411,28 +410,8 @@ class Path(type(pathlib.Path())):
         """
         return Path(str(self).replace(old, new, count))
 
-# endregion
 
-
-# region Obtainment
-
-def hash_files(paths: list[Path | str]) -> int:
-    """Calculates the total hash value of files based on their sizes.
-
-    Args:
-        paths: List of file paths to hash.
-
-    Returns:
-        Integer sum of file sizes in bytes.
-    """
-    paths = [Path(f) for f in type_extensions.to_list(paths) if f]
-    return sum(f.stat().st_size for f in paths if f.is_file())
-
-# endregion
-
-
-# region Creation
-
+# ----- Creation -----
 def copy_file(src: Path | str, dst: Path | str) -> None:
     """Copies a file to a new location.
 
@@ -445,11 +424,25 @@ def copy_file(src: Path | str, dst: Path | str) -> None:
     dst.parent.mkdir(parents=True, exist_ok=True)
     shutil.copyfile(src, dst)
 
-# endregion
+
+# ----- Reading -----
+def hash_files(paths: list[Path | str]) -> int:
+    """Calculates the total hash value of files based on their sizes.
+
+    Args:
+        paths: List of file paths to hash.
+
+    Returns:
+        Integer sum of file sizes in bytes.
+    """
+    paths = [Path(f) for f in type_extensions.to_list(paths) if f]
+    return sum(f.stat().st_size for f in paths if f.is_file())
 
 
-# region Alternation
+# ----- Updating -----
 
+
+# ----- Deletion -----
 def delete_cache(path: Path | str, recursive: bool = True):
     """Clears cache files in a directory and optionally its subdirs.
 
@@ -545,5 +538,3 @@ def rmdirs(paths: Path | str | list[Path | str]):
             p.rmdir()
         except Exception as err:
             print(f"Cannot delete directory: [err].")
-
-# endregion

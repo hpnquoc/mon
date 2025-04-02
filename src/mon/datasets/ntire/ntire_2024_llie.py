@@ -15,9 +15,10 @@ __all__ = [
 from typing import Literal
 
 from mon import core, vision
-from mon.globals import DATA_DIR, DATAMODULES, DATASETS
+from mon.constants import DATA_DIR, DATAMODULES, DATASETS, Split, Task
 
 
+# ----- Dataset -----
 @DATASETS.register(name="ntire_2024_llie")
 class NTIRE2024LLIE(vision.VisionDataset):
     """Loads NTIRE 2024 LLIE dataset from ``root`` dir.
@@ -30,9 +31,9 @@ class NTIRE2024LLIE(vision.VisionDataset):
     Raises:
         FileNotFoundError: If ``root`` directory does not exist.
     """
-    tasks : list[core.Task]    =  [core.Task.LLIE]
-    splits: list[core.Split]   = [core.Split.TRAIN, core.Split.VAL, core.Split.TEST]
-    datapoint_attrs            = vision.DatapointAttributes({
+    tasks : list[Task]  =  [Task.LLIE]
+    splits: list[Split] = [Split.TRAIN, Split.VAL, Split.TEST]
+    datapoint_attrs     = vision.DatapointAttributes({
         "image"    : vision.ImageAnnotation,
         "ref_image": vision.ImageAnnotation,
     })
@@ -51,11 +52,11 @@ class NTIRE2024LLIE(vision.VisionDataset):
         Raises:
             ValueError: If ``split`` is invalid.
         """
-        if self.split in [core.Split.TRAIN]:
+        if self.split in [Split.TRAIN]:
             patterns = [self.root / "train" / "image"]
-        elif self.split in [core.Split.VAL]:
+        elif self.split in [Split.VAL]:
             patterns = [self.root / "val" / "image"]
-        elif self.split in [core.Split.TEST]:
+        elif self.split in [Split.TEST]:
             patterns = [self.root / "test" / "image"]
         else:
             raise ValueError(f"[split] invalid: [{self.split}]")
@@ -72,6 +73,7 @@ class NTIRE2024LLIE(vision.VisionDataset):
         self.datapoints["image"] = images
         
 
+# ----- DataModule -----
 @DATAMODULES.register(name="ntire_2024_llie")
 class NTIRE2024LLIEDataModule(core.DataModule):
     """Configures NTIRE 2024 LLIE datasets for training/testing.
@@ -80,7 +82,7 @@ class NTIRE2024LLIEDataModule(core.DataModule):
         *args: Additional args for parent class.
         **kwargs: Additional kwargs for parent class.
     """
-    tasks: list[core.Task] = [core.Task.LLIE]
+    tasks: list[Task] = [Task.LLIE]
     
     def prepare_data(self, *args, **kwargs):
         """Prepares data for disk or single-GPU tasks."""
@@ -97,10 +99,10 @@ class NTIRE2024LLIEDataModule(core.DataModule):
             core.console.log(f"Setup [red]{self.__class__.__name__}[/red]")
         
         if stage in [None, "train"]:
-            self.train = NTIRE2024LLIE(split=core.Split.TRAIN, **self.dataset_kwargs)
-            self.val   = NTIRE2024LLIE(split=core.Split.TRAIN, **self.dataset_kwargs)
+            self.train = NTIRE2024LLIE(split=Split.TRAIN, **self.dataset_kwargs)
+            self.val   = NTIRE2024LLIE(split=Split.TRAIN, **self.dataset_kwargs)
         if stage in [None, "test"]:
-            self.test  = NTIRE2024LLIE(split=core.Split.VAL,   **self.dataset_kwargs)
+            self.test  = NTIRE2024LLIE(split=Split.VAL,   **self.dataset_kwargs)
         
         self.get_classlabels()
         if self.can_log:

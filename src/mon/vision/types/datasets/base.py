@@ -9,96 +9,18 @@ __all__ = [
 ]
 
 from abc import ABC
-from typing import Any, Literal, Optional
+from typing import Any, Literal
 
 from mon import core
-from mon.globals import DEPTH_DATA_SOURCES, TRANSFORMS
+from mon.constants import DEPTH_DATA_SOURCES, TRANSFORMS
 from mon.vision.geometry import albumentation
-from mon.vision.types.bbox import BBoxAnnotation, BBoxesAnnotation
 from mon.vision.types.depth import DepthMapAnnotation
 from mon.vision.types.image import ImageAnnotation
-from mon.vision.types.label_map import SemanticSegmentationAnnotation
-from mon.vision.types.video import FrameAnnotation
+
+DatapointAttributes = core.DatapointAttributes
 
 
-class DatapointAttributes(dict[str: Optional[core.Annotation]]):
-    """Holds datapoint attributes as a ``dict``.
-
-    Args:
-        args: Positional arguments for ``dict`` initialization.
-        kwargs: Keyword arguments for ``dict`` initialization.
-
-    Attributes:
-        Keys: Attribute names as ``str``.
-        Values: Annotation types as ``Annotation`` or ``None``.
-    """
-    
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-    
-    def to_tensor_fns(self) -> dict[str: Optional[callable]]:
-        """Returns dict of functions to convert annotation to tensor.
-    
-        Returns:
-            Dict mapping keys to ``to_tensor`` functions or ``None``.
-        """
-        return {k: getattr(v, "to_tensor", None) for k, v in self.items() if v}
-    
-    def collate_fns(self) -> dict[str: Optional[callable]]:
-        """Returns dict of functions to collate annotation.
-    
-        Returns:
-            Dict mapping keys to ``collate_fn`` functions or ``None``.
-        """
-        return {k: getattr(v, "collate_fn", None) for k, v in self.items() if v}
-    
-    def get_tensor_fn(self, key: str) -> Optional[callable]:
-        """Returns function to convert annotation to tensor.
-    
-        Args:
-            key: Key of the annotation.
-    
-        Returns:
-            ``to_tensor`` function or ``None`` if not found.
-        """
-        return self.to_tensor_fns().get(key, None)
-    
-    def get_collate_fn(self, key: str) -> Optional[callable]:
-        """Returns function to collate annotation.
-    
-        Args:
-            key: Key of the annotation.
-    
-        Returns:
-            ``collate_fn`` function or ``None`` if not found.
-        """
-        return self.collate_fns().get(key, None)
-    
-    def get_albumentation_target_type(self, key: str) -> Optional[str]:
-        """Returns Albumentations target type for an annotation.
-    
-        Args:
-            key: Annotation object to check.
-    
-        Returns:
-            Target type: ``"image"``, ``"mask"``, ``"bboxes"``, ``"keypoints"``, or
-            ``"values"``; ``None`` if unknown.
-        """
-        v = self.get(key, None)
-        if v in [ImageAnnotation, FrameAnnotation, DepthMapAnnotation]:
-            return "image"
-        elif v in [BBoxAnnotation, BBoxesAnnotation]:
-            return "bboxes"
-        elif v in [core.ClassificationAnnotation, core.RegressionAnnotation]:
-            return "values"
-        elif v in [SemanticSegmentationAnnotation]:
-            return "mask"
-        else:
-            core.error_console.log(f"Unknown annotation type: {v}, {type(v)}.")
-            return None
-        # return self.albumentation_target_types().get(key, None)
-        
-
+# ----- Vision Dataset -----
 class VisionDataset(core.Dataset, ABC):
     """Base class for multimodal, multi-task, multi-label datasets.
 
@@ -124,23 +46,22 @@ class VisionDataset(core.Dataset, ABC):
         self.depth_source = depth_source
         super().__init__(*args, **kwargs)
     
-    # region Magic Methods
-    
+    # ----- Magic Methods -----
     def __getitem__(self, index: int) -> dict:
-        """Gets a datapoint and metadata at specified index.
+        """Gets a datapoint and metadata at given ``index``.
 
         Args:
             index: Index of datapoint.
 
         Returns:
-            Dict with datapoint and metadata.
+            ``dict`` with datapoint and metadata.
         """
         datapoint = self.get_datapoint(index=index)
         meta      = self.get_meta(index=index)
         
         if self.transform:
             main_attr      = self.main_attribute
-            args           = {k: v for k, v in datapoint.items() if v is not None}
+            args           = {k: v for k, v in datapoint.items() if v}
             args["image"]  = args.pop(main_attr)
             transformed    = self.transform(**args)
             transformed[main_attr] = transformed.pop("image")
@@ -148,8 +69,8 @@ class VisionDataset(core.Dataset, ABC):
         
         if self.to_tensor:
             for k, v in datapoint.items():
-                to_tensor_fn = self.datapoint_attrs.get_tensor_fn(k)
-                if to_tensor_fn and v is not None:
+                to_tensor_fn = getattr(self.datapoint_attrs[k], "to_tensor", None)
+                if to_tensor_fn and v:
                     datapoint[k] = to_tensor_fn(v, normalize=True)
         
         return datapoint | {"meta": meta}
@@ -162,10 +83,24 @@ class VisionDataset(core.Dataset, ABC):
         """
         return len(self.datapoints[self.main_attribute])
     
-    # endregion
+    # ----- Properties -----
+    @property
+    def albumentation_target_types(self) -> dict[str, str]:
+        """Gets the target types for Albumentations.
+        
+        Returns:
+            ``dict`` with keys as attribute names and values as target types.
+        """
+        target_types = {}
+        for k, v in self.datapoint_attrs.items():
+            target_type = getattr(v, "albumentation_target_type", None)
+            if target_type:
+                target_types[k] = target_type
+        
+        target_types.pop("meta", None)
+        return target_types
     
-    # region Initialization
-    
+    # ----- Initialization -----
     def init_transform(self, transform: albumentation.Compose | Any = None):
         """Initializes transformations with multimodal support.
 
@@ -194,9 +129,8 @@ class VisionDataset(core.Dataset, ABC):
             self.transform = albumentation.Compose(transforms=transform_)
             
         if isinstance(self.transform, albumentation.Compose):
-            additional_targets = self.datapoint_attrs.albumentation_target_types()
+            additional_targets = self.albumentation_target_types
             additional_targets.pop(self.main_attribute, None)
-            additional_targets.pop("meta", None)
             self.transform.add_targets(additional_targets)
     
     def init_data(self, cache_data: bool = False):
@@ -268,8 +202,7 @@ class VisionDataset(core.Dataset, ABC):
                                   f"{self.split_str} depth maps"
                 ):
                     root_name = img.root.name
-                    path      = img.path.replace(f"/{root_name}/",
-                                                 f"/{root_name}_{self.depth_source}/")
+                    path      = img.path.replace(f"/{root_name}/", f"/{root_name}_{self.depth_source}/")
                     depths.append(
                         DepthMapAnnotation(
                             path   = path.image_file(),
@@ -337,10 +270,7 @@ class VisionDataset(core.Dataset, ABC):
         """Closes and releases dataset resources."""
         pass
     
-    # endregion
-    
-    # region Retrieve Data
-    
+    # ----- Data Retrieval -----
     def get_datapoint(self, index: int) -> dict:
         """Gets a datapoint at specified index.
 
@@ -366,5 +296,3 @@ class VisionDataset(core.Dataset, ABC):
             Dict with metadata from main attribute.
         """
         return self.datapoints[self.main_attribute][index].meta
-    
-    # endregion

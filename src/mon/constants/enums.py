@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Extends ``enum.Enum`` class and defines custom enums."""
+"""Defines custom enumerations for various constants used in the project."""
 
 __all__ = [
     "AppleRGB",
@@ -16,13 +16,12 @@ __all__ = [
     "TrackState",
 ]
 
-from typing import Any, Union
+from typing import Any
 
 from mon.core.type_extensions import Enum
 
 
-# region Color
-
+# ----- Color -----
 class RGB(Enum):
     """138 RGB colors."""
     
@@ -229,11 +228,8 @@ class BasicRGB(Enum):
     TEAL    = (0  , 128, 128)
     NAVY    = (0  , 0  , 128)
 
-# endregion
 
-
-# region ML/DL
-
+# ----- ML/DL -----
 class LType(Enum):
     """Learning types."""
     
@@ -265,11 +261,8 @@ class Split(Enum):
     TEST    = "test"
     PREDICT = "predict"
 
-# endregion
 
-
-# region Vision
-
+# ----- Vision/DL -----
 class BBoxFormat(Enum):
     """Bounding box formats.
     
@@ -561,7 +554,7 @@ class TrackState(Enum):
     
     @classmethod
     def str_mapping(cls) -> dict:
-        """Return a dictionary mapping strings to ``TrackState`` enums.
+        """Return a dictionary mapping strings to ``TrackState`` 
     
         This method provides a mapping from string representations of track states
         to their corresponding ``TrackState`` enum values. This is useful for converting
@@ -582,7 +575,7 @@ class TrackState(Enum):
     
     @classmethod
     def int_mapping(cls) -> dict:
-        """Return a dictionary mapping integers to ``TrackState`` enums.
+        """Return a dictionary mapping integers to ``TrackState`` 
     
         This method provides a mapping from integer representations of track
         states to their corresponding ``TrackState`` enum values. This is useful
@@ -668,11 +661,8 @@ class TrackState(Enum):
             return cls.from_int(value)
         return None
 
-# endregion
 
-
-# region Device
-
+# ----- Device -----
 class MemoryUnit(Enum):
     """Memory units."""
     
@@ -685,7 +675,7 @@ class MemoryUnit(Enum):
     
     @classmethod
     def str_mapping(cls) -> dict:
-        """Return a dictionary mapping strings to ``MemoryUnit`` enums.
+        """Return a dictionary mapping strings to ``MemoryUnit`` 
     
         This method provides a mapping from string representations of memory units
         to their corresponding ``MemoryUnit`` enum values. This is useful for
@@ -706,7 +696,7 @@ class MemoryUnit(Enum):
     
     @classmethod
     def int_mapping(cls) -> dict[int, "MemoryUnit"]:
-        """Return a dictionary mapping integers to ``MemoryUnit`` enums.
+        """Return a dictionary mapping integers to ``MemoryUnit`` 
     
         This method provides a mapping from integer representations of memory units
         to their corresponding ``MemoryUnit`` enum values. This is useful for converting
@@ -812,8 +802,6 @@ class MemoryUnit(Enum):
         if isinstance(value, int):
             return cls.from_int(value)
         return None
-
-# endregion
 
 
 class Task(Enum):

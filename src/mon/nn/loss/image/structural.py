@@ -16,10 +16,11 @@ from typing import Literal
 import torch
 from torch.nn import functional as F
 
-from mon.globals import LOSSES
+from mon.constants import LOSSES
 from mon.nn.loss import base
 
 
+# ----- Edge Loss -----
 @LOSSES.register(name="edge_loss")
 class EdgeLoss(base.Loss):
     """Edge Loss computes the difference in edge features between input and target

@@ -89,7 +89,7 @@ class Detector(ABC):
             raise ValueError()
         self._weights = weights
         
-    # endregion
+    
     
     @abstractmethod
     def __call__(
@@ -267,5 +267,3 @@ class Detector1(ABC):
             `list` has ``B`` items.
         """
         pass
-    
-# endregion

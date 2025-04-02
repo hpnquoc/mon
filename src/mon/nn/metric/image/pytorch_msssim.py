@@ -176,7 +176,7 @@ def ssim(
     if len(image1.shape) not in (4, 5):
         raise ValueError(f"[image1] and [image2] must be 4D or 5D, got {image1.shape}.")
 
-    if window is not None:
+    if window:
         window_size = window.shape[-1]
 
     if window_size % 2 != 1:
@@ -254,7 +254,7 @@ def ms_ssim(
     else:
         raise ValueError(f"[image1] and [image2] must be 4D or 5D, got {image1.shape}.")
 
-    if window is not None:
+    if window:
         window_size = window.shape[-1]
 
     if window_size % 2 != 1:

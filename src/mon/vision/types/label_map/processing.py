@@ -11,7 +11,6 @@ __all__ = [
     "convert_label_map_one_hot_to_id",
 ]
 
-import cv2
 import numpy as np
 import torch
 
@@ -20,8 +19,7 @@ from mon.nn import functional as F
 from mon.vision.types import image as I
 
 
-# region Conversion
-
+# ----- Conversion -----
 def convert_label_map_id_to_train_id(label_map: np.ndarray, classlabels: core.ClassLabels) -> np.ndarray:
     """Converts label map from IDs to train IDs.
 
@@ -101,7 +99,7 @@ def convert_label_map_color_to_id(label_map: np.ndarray, classlabels: core.Class
 
 def convert_label_map_id_to_one_hot(
     label_map  : torch.Tensor | np.ndarray,
-    num_classes: int              = None,
+    num_classes: int = None,
     classlabels: core.ClassLabels = None,
 ) ->torch.Tensor | np.ndarray:
     """Converts label map from IDs to one-hot encoded format.
@@ -156,5 +154,3 @@ def convert_label_map_one_hot_to_id(label_map: torch.Tensor | np.ndarray) -> tor
     else:
         raise TypeError(f"[label_map] must be a torch.Tensor or numpy.ndarray, got {type(label_map)}.")
     return label_map
-
-# endregion

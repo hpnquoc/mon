@@ -11,9 +11,10 @@ __all__ = [
 from typing import Literal
 
 from mon import core, vision
-from mon.globals import DATA_DIR, DATAMODULES, DATASETS
+from mon.constants import DATA_DIR, DATAMODULES, DATASETS, Split, Task
 
 
+# ----- Dataset -----
 @DATASETS.register(name="dicm")
 class DICM(vision.VisionDataset):
     """Loads DICM dataset from ``root`` dir.
@@ -26,9 +27,10 @@ class DICM(vision.VisionDataset):
     Raises:
         FileNotFoundError: If ``root`` directory does not exist.
     """
-    tasks : list[core.Task]    = [core.Task.LLIE]
-    splits: list[core.Split]   = [core.Split.TEST]
-    datapoint_attrs            = vision.DatapointAttributes({
+    
+    tasks : list[Task]  = [Task.LLIE]
+    splits: list[Split] = [Split.TEST]
+    datapoint_attrs     = vision.DatapointAttributes({
         "image": vision.ImageAnnotation,
         "depth": vision.DepthMapAnnotation,
     })
@@ -57,6 +59,7 @@ class DICM(vision.VisionDataset):
         self.datapoints["image"] = images
 
 
+# ----- DataModule -----
 @DATAMODULES.register(name="dicm")
 class DICMDataModule(core.DataModule):
     """Configures DICM datasets for training/testing.
@@ -65,7 +68,8 @@ class DICMDataModule(core.DataModule):
         *args: Additional args for parent class.
         **kwargs: Additional kwargs for parent class.
     """
-    tasks: list[core.Task] = [core.Task.LLIE]
+    
+    tasks: list[Task] = [Task.LLIE]
 
     def prepare_data(self, *args, **kwargs):
         """Prepares data (placeholder, no action taken)."""
@@ -82,10 +86,10 @@ class DICMDataModule(core.DataModule):
             core.console.log(f"Setup [red]{self.__class__.__name__}[/red].")
 
         if stage in [None, "train"]:
-            self.train = DICM(split=core.Split.TEST, **self.dataset_kwargs)
-            self.val   = DICM(split=core.Split.TEST, **self.dataset_kwargs)
+            self.train = DICM(split=Split.TEST, **self.dataset_kwargs)
+            self.val   = DICM(split=Split.TEST, **self.dataset_kwargs)
         if stage in [None, "test"]:
-            self.test  = DICM(split=core.Split.TEST, **self.dataset_kwargs)
+            self.test  = DICM(split=Split.TEST, **self.dataset_kwargs)
 
         self.get_classlabels()
         if self.can_log:

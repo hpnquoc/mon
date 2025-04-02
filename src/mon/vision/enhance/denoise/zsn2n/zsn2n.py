@@ -15,17 +15,16 @@ __all__ = [
 import torch
 
 from mon import core, nn
-from mon.globals import MODELS
+from mon.constants import LType, MODELS, Task
 from mon.nn import _size_2_t
-from mon.vision import types, geometry
+from mon.vision import geometry, types
 from mon.vision.enhance import base
 
 current_file = core.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
 
-# region Model
-
+# ----- Model -----
 @MODELS.register(name="zsn2n", arch="zsn2n")
 class ZSN2N(base.ImageEnhancementModel):
     """ZS-N2N model for image denoising.
@@ -38,12 +37,12 @@ class ZSN2N(base.ImageEnhancementModel):
         - https://colab.research.google.com/drive/1i82nyizTdszyHkaHBuKPbWnTzao8HF9b?usp=sharing#scrollTo=Srf0GQTYrkxA
     """
     
-    arch     : str              = "zsn2n"
-    name     : str              = "zsn2n"
-    tasks    : list[core.Task]  = [core.Task.DENOISE]
-    ltypes   : list[core.LType] = [core.LType.ZERO_SHOT]
-    model_dir: core.Path        = current_dir
-    zoo      : dict             = {}
+    arch     : str         = "zsn2n"
+    name     : str         = "zsn2n"
+    tasks    : list[Task]  = [Task.DENOISE]
+    ltypes   : list[LType] = [LType.ZERO_SHOT]
+    model_dir: core.Path   = current_dir
+    zoo      : dict        = {}
     
     def __init__(
         self,
@@ -71,6 +70,7 @@ class ZSN2N(base.ImageEnhancementModel):
             self.apply(self.init_weights)
         self.initial_state_dict = self.state_dict()
     
+    # ----- Initialization -----
     def init_weights(self, m: nn.Module):
         """Initializes the model's weights.
     
@@ -79,6 +79,7 @@ class ZSN2N(base.ImageEnhancementModel):
         """
         pass
     
+    # ----- Forward Pass -----
     def forward_loss(self, datapoint: dict, *args, **kwargs) -> dict:
         """Computes forward pass and loss.
     
@@ -127,7 +128,8 @@ class ZSN2N(base.ImageEnhancementModel):
         if self.predicting:
             y = torch.clamp(y, 0, 1)
         return {"enhanced": y}
-  
+    
+    # ----- Predicting -----
     def infer(
         self,
         datapoint    : dict,
@@ -190,5 +192,3 @@ class ZSN2N(base.ImageEnhancementModel):
             "enhanced": enhanced,
             "time"    : timer.avg_time,
         }
-        
-# endregion

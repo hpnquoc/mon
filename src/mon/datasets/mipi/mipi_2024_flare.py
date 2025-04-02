@@ -15,9 +15,10 @@ __all__ = [
 from typing import Literal
 
 from mon import core, vision
-from mon.globals import DATA_DIR, DATAMODULES, DATASETS
+from mon.constants import DATA_DIR, DATAMODULES, DATASETS, Split, Task
 
 
+# ----- Dataset -----
 @DATASETS.register(name="mipi_2024_flare")
 class MIPI2024Flare(vision.VisionDataset):
     """Loads MIPI 2024 Flare dataset from ``root`` dir.
@@ -30,9 +31,9 @@ class MIPI2024Flare(vision.VisionDataset):
     Raises:
         FileNotFoundError: If ``root`` directory does not exist.
     """
-    tasks : list[core.Task]    = [core.Task.NIGHTTIME]
-    splits: list[core.Split]   = [core.Split.TRAIN, core.Split.VAL, core.Split.TEST]
-    datapoint_attrs            = vision.DatapointAttributes({
+    tasks : list[Task]  = [Task.NIGHTTIME]
+    splits: list[Split] = [Split.TRAIN, Split.VAL, Split.TEST]
+    datapoint_attrs     = vision.DatapointAttributes({
         "image"    : vision.ImageAnnotation,
         "ref_image": vision.ImageAnnotation,
     })
@@ -51,11 +52,11 @@ class MIPI2024Flare(vision.VisionDataset):
         Raises:
             ValueError: If ``split`` is invalid.
         """
-        if self.split in [core.Split.TRAIN]:
+        if self.split in [Split.TRAIN]:
             patterns = [self.root / "train" / "image"]
-        elif self.split in [core.Split.VAL]:
+        elif self.split in [Split.VAL]:
             patterns = [self.root / "val" / "image"]
-        elif self.split in [core.Split.TEST]:
+        elif self.split in [Split.TEST]:
             patterns = [self.root / "test" / "image"]
         else:
             raise ValueError(f"[split] invalid: [{self.split}]")
@@ -72,6 +73,7 @@ class MIPI2024Flare(vision.VisionDataset):
         self.datapoints["image"] = images
 		
 
+# ----- DataModule -----
 @DATAMODULES.register(name="mipi_2024_flare")
 class MIPI2024FlareDataModule(core.DataModule):
     """Configures MIPI 2024 Flare datasets for training/testing.
@@ -81,7 +83,7 @@ class MIPI2024FlareDataModule(core.DataModule):
         **kwargs: Additional kwargs for parent class.
     """
     
-    tasks: list[core.Task] = [core.Task.NIGHTTIME]
+    tasks: list[Task] = [Task.NIGHTTIME]
 
     def prepare_data(self, *args, **kwargs):
         """Prepares data (placeholder, no action taken)."""
@@ -98,10 +100,10 @@ class MIPI2024FlareDataModule(core.DataModule):
             core.console.log(f"Setup [red]{self.__class__.__name__}[/red].")
 
         if stage in [None, "train"]:
-            self.train = MIPI2024Flare(split=core.Split.TRAIN, **self.dataset_kwargs)
-            self.val   = MIPI2024Flare(split=core.Split.VAL,   **self.dataset_kwargs)
+            self.train = MIPI2024Flare(split=Split.TRAIN, **self.dataset_kwargs)
+            self.val   = MIPI2024Flare(split=Split.VAL,   **self.dataset_kwargs)
         if stage in [None, "test"]:
-            self.test  = MIPI2024Flare(split=core.Split.TEST,  **self.dataset_kwargs)
+            self.test  = MIPI2024Flare(split=Split.TEST,  **self.dataset_kwargs)
 
         self.get_classlabels()
         if self.can_log:

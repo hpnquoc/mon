@@ -60,8 +60,7 @@ import numpy as np
 import torch
 
 
-# region Collection
-
+# ----- Collection -----
 def intersect_dicts(x: dict, y: dict, exclude: list = []) -> dict:
     """Finds the intersection between two dictionaries.
 
@@ -128,11 +127,8 @@ def flatten_models_dict(x: dict) -> dict:
         for k2, v2 in v1.items()
     }
 
-# endregion
 
-
-# region Enum
-
+# ----- Enum -----
 class Enum(enum.Enum):
     """Extension of Python ``enum.Enum`` with utility methods."""
     
@@ -172,11 +168,8 @@ class Enum(enum.Enum):
         """
         return [e.value for e in cls]
 
-# endregion
 
-
-# region Module
-
+# ----- Module -----
 def get_module_vars(module: ModuleType) -> dict:
     """Returns public variables of a module as a dictionary.
 
@@ -196,11 +189,8 @@ def get_module_vars(module: ModuleType) -> dict:
         )
     }
 
-# endregion
 
-
-# region Numeric
-
+# ----- Numeric -----
 def is_int(x: Any) -> bool:
     """Checks if a value can be converted to an integer.
 
@@ -272,11 +262,8 @@ def to_float(x: Any) -> float | None:
     except (ValueError, TypeError):
         raise ValueError(f"[x] must be convertible to float, got {x} ({type(x).__name__}).")
 
-# endregion
 
-
-# region Parsing
-
+# ----- Parsing -----
 def upcast(
     x        : torch.Tensor | np.ndarray,
     keep_type: bool = False
@@ -314,11 +301,8 @@ def upcast(
         case _:
             return x
 
-# endregion
 
-
-# region Sequence
-
+# ----- Sequence -----
 def concat_lists(x: list[list]) -> list:
     """Concatenates a list of lists into a single flattened list.
 
@@ -435,7 +419,7 @@ def to_list(x: Any, sep: list[str] = [",", ";", ":"]) -> list:
             if delimiter in stripped:
                 return stripped.split(delimiter)
         return [stripped]
-    return [x] if x is not None else []
+    return [x] if x else []
 
 
 def to_int_list(x: Any, sep: list[str] = [",", ";", ":"]) -> list[int]:
@@ -505,7 +489,7 @@ def to_tuple(x: Any) -> tuple:
         return tuple(x.values())
     if isinstance(x, Iterable) and not isinstance(x, (str, bytes)):
         return tuple(x)
-    return (x,) if x is not None else ()
+    return (x,) if x else ()
 
 
 def to_ntuple(n: int) -> Callable[[Any], tuple]:
@@ -553,11 +537,8 @@ def unique(x: list | tuple) -> list | tuple:
         raise TypeError(f"[x] must be a list or tuple, got {type(x).__name__}.")
     return type(x)(set(x))
 
-# endregion
 
-
-# region String
-
+# ----- String -----
 def to_str(x: Any, sep: str = ",") -> str:
     """Converts a value to a string, joining iterable elements with a delimiter.
 
@@ -573,9 +554,7 @@ def to_str(x: Any, sep: str = ",") -> str:
     elif isinstance(x, (list, tuple)):
         items = x
     else:
-        return str(x) if x is not None else ""
+        return str(x) if x else ""
     
     items = [str(item) for item in items]
     return sep.join(items) if items else ""
-    
-# endregion

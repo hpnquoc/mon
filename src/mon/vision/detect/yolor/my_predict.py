@@ -33,7 +33,7 @@ current_file = mon.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
 
-# region Predict
+# ----- Predict -----
 
 def load_classes(path):
     # Loads *.names file at "path"
@@ -203,10 +203,10 @@ def predict(opt, save_img: bool = False):
     
     print("Done. (%.3fs)" % (time.time() - t0))
 
-# endregion
 
 
-# region Main
+
+# ----- Main -----
 
 
 def main() -> str:
@@ -236,5 +236,3 @@ def main() -> str:
 
 if __name__ == "__main__":
     main()
-
-# endregion

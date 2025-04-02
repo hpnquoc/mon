@@ -25,8 +25,7 @@ from torch.nn.modules.upsampling import (
 )
 
 
-# region Utils
-
+# ----- Utils -----
 def get_image_size(input: Any) -> tuple[int, int]:
     """Gets the size of an image as (height, width).
 
@@ -39,11 +38,8 @@ def get_image_size(input: Any) -> tuple[int, int]:
     from mon.vision.types import image as I
     return I.get_image_size(input)
     
-# endregion
 
-
-# region Downsampling
-
+# ----- Downsampling -----
 class Downsample(torch.nn.Module):
     """Downsamples multi-channel 1D, 2D, or 3D data.
 
@@ -159,11 +155,8 @@ class DownsampleConv2d(torch.nn.Module):
         """
         return h // 2 * w // 2 * self.in_channels * self.out_channels * 4 * 4
 
-# endregion
 
-
-# region Upsampling
-
+# ----- Upsampling -----
 class UpsampleConv2d(torch.nn.Module):
     """Upsamples 2D data using a transposed convolutional layer.
 
@@ -205,11 +198,8 @@ class UpsampleConv2d(torch.nn.Module):
         """
         return h * w * self.in_channels * self.out_channels * 16
 
-# endregion
 
-
-# region Misc
-
+# ----- Misc -----
 class Scale(torch.nn.Module):
     """Applies a learnable scale parameter to input data.
 
@@ -254,5 +244,3 @@ class Interpolate(torch.nn.Module):
             Interpolated tensor as ``torch.Tensor`` with shape [B, C, height, width].
         """
         return F.interpolate(input, self.size)
-
-# endregion

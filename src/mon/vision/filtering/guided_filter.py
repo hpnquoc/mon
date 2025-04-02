@@ -24,8 +24,7 @@ from mon.vision import geometry
 from mon.vision.filtering.box_filter import BoxFilter
 
 
-# region Guided Filter
-
+# ----- Guided Filter -----
 def guided_filter(
     image : torch.Tensor | np.ndarray,
     guide : torch.Tensor | np.ndarray,
@@ -278,11 +277,8 @@ class ConvGuidedFilter(nn.Module):
         y_lr = geometry.resize(x_hr, (h, w), interpolation="bicubic")
         return self.forward(x_lr, y_lr, x_hr)
     
-# endregion
 
-
-# region Deep Guided Filter
-
+# ----- Deep Guided Filter -----
 def weights_init_identity(m):
     """Initializes weights of a module to identity or zero.
 
@@ -505,5 +501,3 @@ class DeepConvGuidedFilter(nn.Module):
             path: Path to the weights file as ``str`` or ``core.Path``.
         """
         self.lr.load_state_dict(torch.load(str(path)))
-
-# endregion

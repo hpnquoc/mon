@@ -11,11 +11,11 @@ from typing import Literal
 
 import torch
 
-from mon.globals import LOSSES
+from mon.constants import LOSSES
 from mon.nn.loss import base
 
 
-# region Utils
+# region Dice Loss
 
 def dice_coefficient(
     input       : torch.Tensor,
@@ -75,10 +75,6 @@ def multiclass_dice_coefficient(
         epsilon      = epsilon,
     )
 
-# endregion
-
-
-# region Loss
 
 @LOSSES.register(name="dice_loss")
 class DiceLoss(base.Loss):
@@ -116,5 +112,5 @@ class DiceLoss(base.Loss):
         loss = 1 - self.fn(input=input, target=target, reduce_batch=self.reduce_batch)
         loss = base.reduce_loss(loss=loss, reduction=self.reduction)
         return loss
-        
+
 # endregion

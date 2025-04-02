@@ -21,8 +21,7 @@ current_file = mon.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
 
-# region Train
-
+# ----- Train -----
 def train_epoch(args, train_img_loader, model, model_fn, optimizer, epoch, iters, lr_scheduler):
     """Training Loop for each epoch"""
     tbar       = tqdm(train_img_loader)
@@ -185,11 +184,8 @@ def train(args: dict) -> str:
         }, save_dir / "last.ckpt")
         torch.save(model.state_dict(), save_dir / "last.pt")
 
-# endregion
 
-
-# region Main
-
+# ----- Main -----
 def main() -> str:
     args = mon.parse_train_args(model_root=current_dir)
     train(args)
@@ -197,5 +193,3 @@ def main() -> str:
 
 if __name__ == "__main__":
     main()
-
-# endregion

@@ -20,6 +20,7 @@ __all__ = [
 from humps import *
 
 
+# ----- Utils -----
 def snakecase(x: str) -> str:
 	"""Converts a string to snake_case by replacing spaces and hyphens with underscores.
 

@@ -13,9 +13,10 @@ from lightning.pytorch.callbacks import rich_model_summary
 from lightning.pytorch.utilities import model_summary
 
 from mon import core
-from mon.globals import CALLBACKS
+from mon.constants import CALLBACKS
 
 
+# ----- Model Summary -----
 @CALLBACKS.register(name="rich_model_summary")
 class RichModelSummary(rich_model_summary.RichModelSummary):
     """Summarizes LightningModule layers with rich text formatting."""

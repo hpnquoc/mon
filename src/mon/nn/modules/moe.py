@@ -15,8 +15,7 @@ from torch.nn.common_types import _size_2_t
 from mon import core
 
 
-# region Utils
-
+# ----- Utils -----
 def get_image_size(input: Any) -> tuple[int, int]:
     """Retrieves the size of an image.
 
@@ -29,11 +28,8 @@ def get_image_size(input: Any) -> tuple[int, int]:
     from mon.vision.types import image as I
     return I.get_image_size(input)
     
-# endregion
 
-
-# region Layer
-
+# ----- Layer -----
 class LayeredFeatureAggregation(torch.nn.Module):
     """Layered Feature Aggregation (LFA) fuses decoder layer features.
 
@@ -58,7 +54,7 @@ class LayeredFeatureAggregation(torch.nn.Module):
         if not self.num_experts:
             raise ValueError("[in_channels] must not be empty")
 
-        if size is not None:
+        if size:
             self.size    = get_image_size(size)
             self.resize  = torch.nn.Upsample(size=self.size, mode="bilinear", align_corners=False)
             self.linears = torch.nn.ModuleList([
@@ -96,5 +92,3 @@ class LayeredFeatureAggregation(torch.nn.Module):
         w   = self.softmax(self.conv(o_s))  # [B, C_out, H, W]
         o_w = torch.stack([r[i] * w[:, i:i+1] for i in range(len(r))], dim=1)  # [B, num_experts, C_out, H, W]
         return torch.sum(o_w, dim=1)  # [B, C_out, H, W]
-
-# endregion

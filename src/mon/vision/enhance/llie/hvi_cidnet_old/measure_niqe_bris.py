@@ -33,10 +33,10 @@ def metrics(im_dir):
     avg_niqe = avg_niqe / n
     return avg_niqe, avg_brisque
 
-# endregion
 
 
-# region Main
+
+# ----- Main -----
 
 def parse_args():
     eval_parser = argparse.ArgumentParser(description="Eval")
@@ -65,5 +65,3 @@ if __name__ == "__main__":
     avg_niqe, avg_brisque = metrics(im_dir)
     print(avg_niqe)
     print(avg_brisque)
-
-# endregion

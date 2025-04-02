@@ -15,8 +15,9 @@ from torchmetrics.nominal import (
 	CramersV, FleissKappa, PearsonsContingencyCoefficient, TheilsU, TschuprowsT,
 )
 
-from mon.globals import METRICS
+from mon.constants import METRICS
 
+# ----- Registering -----
 METRICS.register(name="cramers_v",                        module=CramersV)
 METRICS.register(name="fleiss_kappa",                     module=FleissKappa)
 METRICS.register(name="pearsons_contingency_coefficient", module=PearsonsContingencyCoefficient)

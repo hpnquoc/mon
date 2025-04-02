@@ -17,7 +17,7 @@ from typing import Any
 import torch
 
 from mon import core, nn
-from mon.globals import MODELS
+from mon.constants import LType, MODELS, Task
 from mon.nn import _size_2_t
 from mon.vision.enhance import base
 
@@ -25,8 +25,7 @@ current_file = core.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
 
-# region Module
-
+# ----- Module -----
 class UNetConvBlock(nn.Module):
 
     def __init__(
@@ -190,11 +189,8 @@ class SupervisedAttentionModule(nn.Module):
         x1  = x1 + x
         return x1, img
 
-# endregion
 
-
-# region Model
-
+# ----- Model -----
 @MODELS.register(name="hinet_re", arch="hinet")
 class HINet_RE(base.ImageEnhancementModel):
     """Half-Instance Normalization Network.
@@ -213,13 +209,13 @@ class HINet_RE(base.ImageEnhancementModel):
         - https://github.com/megvii-model/HINet
     """
     
-    arch     : str              = "hinet"
-    name     : str              = "hinet_re"
-    tasks    : list[core.Task]  = [core.Task.DEBLUR, core.Task.DENOISE, core.Task.DERAIN,
-                                   core.Task.DESNOW, core.Task.LLIE]
-    ltypes   : list[core.LType] = [core.LType.SUPERVISED]
-    model_dir: core.Path        = current_dir
-    zoo      : dict             = {}
+    arch     : str         = "hinet"
+    name     : str         = "hinet_re"
+    tasks    : list[Task]  = [Task.DEBLUR, Task.DENOISE, Task.DERAIN,
+                                   Task.DESNOW, Task.LLIE]
+    ltypes   : list[LType] = [LType.SUPERVISED]
+    model_dir: core.Path   = current_dir
+    zoo      : dict        = {}
     
     def __init__(
         self,
@@ -264,6 +260,7 @@ class HINet_RE(base.ImageEnhancementModel):
         else:
             self.apply(self.init_weights)
 
+    # ----- Initialization -----
     def init_weights(self, m: nn.Module):
         """Initializes the model's weights.
     
@@ -275,9 +272,10 @@ class HINet_RE(base.ImageEnhancementModel):
         if classname.find("Conv") != -1:
             if hasattr(m, "conv"):
                 nn.init.orthogonal_(m.weight, gain=gain)
-                if m.bias is not None:
+                if m.bias:
                     nn.init.constant_(m.bias, 0)
     
+    # ----- Forward Pass -----
     def forward_loss(self, datapoint: dict, *args, **kwargs) -> dict:
         """Computes forward pass and loss.
     
@@ -350,5 +348,3 @@ class HINet_RE(base.ImageEnhancementModel):
             "stage1"  : y1,
             "enhanced": y2,
         }
-
-# endregion

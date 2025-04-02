@@ -18,6 +18,7 @@ import torch
 from mon.nn.modules.inr import base
 
 
+# ----- Complex Gabor Layer -----
 class ComplexGaborLayer(torch.nn.Module):
     """Applies complex Gabor transformation to input.
 
@@ -68,6 +69,7 @@ class ComplexGaborLayer(torch.nn.Module):
         return torch.exp(1j * omega - scale.abs().square())
 
 
+# ----- WIRE -----
 class WIRE(torch.nn.Module):
     """WIRE network.
 

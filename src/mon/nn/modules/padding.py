@@ -31,8 +31,7 @@ from torch.nn.modules.padding import (
 )
 
 
-# region Helper Function
-
+# ----- Utils -----
 def get_same_padding(
     x          : int,
     kernel_size: int,
@@ -124,5 +123,3 @@ def pad_same(
     if pad_h > 0 or pad_w > 0:
         input = F.pad(input, [pad_w // 2, pad_w - pad_w // 2, pad_h // 2, pad_h - pad_h // 2], value=value)
     return input
-
-# endregion

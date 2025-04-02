@@ -19,8 +19,8 @@ import numpy as np
 import torch
 
 from mon import core, nn
-from mon.globals import MODELS
-from mon.vision import types, geometry
+from mon.constants import LType, MODELS, Task
+from mon.vision import geometry, types
 from mon.vision.enhance import base
 
 torch.manual_seed(1)
@@ -34,8 +34,7 @@ current_file = core.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
 
-# region Loss
-
+# ----- Loss -----
 class TotalVariationLoss(nn.Loss):
     """Total Variation Loss on the Illumination (Illumination Smoothness Loss) preserve
     the monotonicity relations between neighboring pixels. It is used to avoid
@@ -60,11 +59,8 @@ class TotalVariationLoss(nn.Loss):
         loss    = (h_tv / count_h + w_tv / count_w) / b
         return loss
 
-# endregion
 
-
-# region Module
-
+# ----- Module -----
 class DoubleConv(nn.Module):
     
     def __init__(self, in_channels: int, out_channels: int):
@@ -206,11 +202,8 @@ class Estimation(nn.Module):
         atm   = torch.sigmoid(atm)
         return trans, atm
 
-# endregion
 
-
-# region Model
-
+# ----- Model -----
 @MODELS.register(name="zero_restore_llie", arch="zero_restore")
 class ZeroRestoreLLIE(base.ImageEnhancementModel):
     """Zero-Restore model for low-light image enhancement.
@@ -219,12 +212,12 @@ class ZeroRestoreLLIE(base.ImageEnhancementModel):
 	    - https://github.com/aupendu/zero-restore
     """
     
-    arch     : str              = "zero_restore"
-    name     : str              = "zero_restore_llie"
-    tasks    : list[core.Task]  = [core.Task.LLIE]
-    ltypes   : list[core.LType] = [core.LType.ZERO_SHOT]
-    model_dir: core.Path        = current_dir
-    zoo      : dict             = {}
+    arch     : str         = "zero_restore"
+    name     : str         = "zero_restore_llie"
+    tasks    : list[Task]  = [Task.LLIE]
+    ltypes   : list[LType] = [LType.ZERO_SHOT]
+    model_dir: core.Path   = current_dir
+    zoo      : dict        = {}
     
     def __init__(
         self,
@@ -250,7 +243,8 @@ class ZeroRestoreLLIE(base.ImageEnhancementModel):
         else:
             self.apply(self.init_weights)
         self.initial_state_dict = self.state_dict()
-        
+    
+    # ----- Initialization -----
     def init_weights(self, m: nn.Module):
         """Initializes the model's weights.
     
@@ -263,6 +257,7 @@ class ZeroRestoreLLIE(base.ImageEnhancementModel):
         if classname.find("Linear") != -1:  # 0.02
             m.weight.data.normal_(0.0, 0.001)
     
+    # ----- Forward Pass -----
     def forward_loss(self, datapoint: dict, *args, **kwargs) -> dict:
         """Computes forward pass and loss.
     
@@ -345,6 +340,7 @@ class ZeroRestoreLLIE(base.ImageEnhancementModel):
             image = image.flip(3)
         return image
     
+    # ----- Predicting -----
     def infer(self, datapoint: dict, reset_weights: bool = True, *args, **kwargs) -> dict:
         """Infers model output with optional processing.
     
@@ -394,5 +390,3 @@ class ZeroRestoreLLIE(base.ImageEnhancementModel):
             "enhanced": enhanced,
             "time"    : timer.avg_time,
         }
-    
-# endregion

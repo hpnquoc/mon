@@ -25,8 +25,7 @@ current_file = mon.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
 
-# region Train
-
+# ----- Train -----
 def train_epoch(train_dataloader, model, criterion, optimizer, device):
     loss_meters = AverageMeter()
     model.train()
@@ -189,11 +188,8 @@ def train(args: dict) -> str:
    
     writer.close()
     
-# endregion
-
     
-# region Main
-
+# ----- Main -----
 def main() -> str:
     args = mon.parse_train_args(model_root=current_dir)
     train(args)
@@ -201,5 +197,3 @@ def main() -> str:
 
 if __name__ == "__main__":
     main()
-
-# endregion

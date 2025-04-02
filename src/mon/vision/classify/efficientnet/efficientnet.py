@@ -26,15 +26,14 @@ from torchvision.models import (
 )
 
 from mon import core, nn
-from mon.globals import MODELS, ZOO_DIR
+from mon.constants import LType, MODELS, ZOO_DIR
 from mon.vision.classify import base
 
 current_file = core.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
 
-# region Model
-
+# ----- Model -----
 class EfficientNet(nn.ExtraModel, base.ImageClassificationModel, ABC):
     """EfficientNet model for image classification.
 
@@ -42,11 +41,12 @@ class EfficientNet(nn.ExtraModel, base.ImageClassificationModel, ABC):
         - https://arxiv.org/abs/1905.11946
     """
     
-    arch     : str              = "efficientnet"
-    ltypes   : list[core.LType] = [core.LType.SUPERVISED]
-    model_dir: core.Path        = current_dir
-    zoo      : dict             = {}
+    arch     : str         = "efficientnet"
+    ltypes   : list[LType] = [LType.SUPERVISED]
+    model_dir: core.Path   = current_dir
+    zoo      : dict        = {}
     
+    # ----- Initialization -----
     def init_weights(self, m: nn.Module):
         """Initializes weights for the model.
     
@@ -54,7 +54,8 @@ class EfficientNet(nn.ExtraModel, base.ImageClassificationModel, ABC):
             m: ``nn.Module`` to initialize weights for.
         """
         pass
-
+    
+    # ----- Forward Pass -----
     def forward(self, datapoint: dict, *args, **kwargs) -> dict:
         """Performs forward pass on the model.
     
@@ -413,5 +414,3 @@ class EfficientNet_V2_L(EfficientNet):
             self.load_weights()
         else:
             self.apply(self.init_weights)
-        
-# endregion

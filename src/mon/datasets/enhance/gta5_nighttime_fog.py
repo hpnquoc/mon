@@ -15,9 +15,10 @@ __all__ = [
 from typing import Literal
 
 from mon import core, vision
-from mon.globals import DATA_DIR, DATAMODULES, DATASETS
+from mon.constants import DATA_DIR, DATAMODULES, DATASETS, Split, Task
 
 
+# ----- Dataset -----
 @DATASETS.register(name="gta5_nighttime_fog")
 class GTA5NighttimeFog(vision.VisionDataset):
     """Loads GTA5NighttimeFog dataset from ``root`` dir.
@@ -31,9 +32,9 @@ class GTA5NighttimeFog(vision.VisionDataset):
         FileNotFoundError: If ``root`` directory does not exist.
     """
     
-    tasks : list[core.Task]    = [core.Task.DEHAZE, core.Task.NIGHTTIME]
-    splits: list[core.Split]   = [core.Split.TRAIN, core.Split.TEST]
-    datapoint_attrs            = vision.DatapointAttributes({
+    tasks : list[Task]  = [Task.DEHAZE, Task.NIGHTTIME]
+    splits: list[Split] = [Split.TRAIN, Split.TEST]
+    datapoint_attrs     = vision.DatapointAttributes({
         "image"    : vision.ImageAnnotation,
         "depth"    : vision.DepthMapAnnotation,
         "ref_image": vision.ImageAnnotation,
@@ -64,6 +65,7 @@ class GTA5NighttimeFog(vision.VisionDataset):
         self.datapoints["image"] = images
 
 
+# ----- DataModule -----
 @DATAMODULES.register(name="gta5_nighttime_fog")
 class GTA5NighttimeFogDataModule(core.DataModule):
     """Configures GTA5NighttimeFog datasets for training/testing.
@@ -73,7 +75,7 @@ class GTA5NighttimeFogDataModule(core.DataModule):
         **kwargs: Additional kwargs for parent class.
     """
     
-    tasks: list[core.Task] = [core.Task.DEHAZE, core.Task.NIGHTTIME]
+    tasks: list[Task] = [Task.DEHAZE, Task.NIGHTTIME]
     
     def prepare_data(self, *args, **kwargs):
         """Prepares data (placeholder, no action taken)."""
@@ -90,10 +92,10 @@ class GTA5NighttimeFogDataModule(core.DataModule):
             core.console.log(f"Setup [red]{self.__class__.__name__}[/red].")
         
         if stage in [None, "train"]:
-            self.train = GTA5NighttimeFog(split=core.Split.TRAIN, **self.dataset_kwargs)
-            self.val   = GTA5NighttimeFog(split=core.Split.TEST,  **self.dataset_kwargs)
+            self.train = GTA5NighttimeFog(split=Split.TRAIN, **self.dataset_kwargs)
+            self.val   = GTA5NighttimeFog(split=Split.TEST,  **self.dataset_kwargs)
         if stage in [None, "test"]:
-            self.test  = GTA5NighttimeFog(split=core.Split.TEST,  **self.dataset_kwargs)
+            self.test  = GTA5NighttimeFog(split=Split.TEST,  **self.dataset_kwargs)
         
         self.get_classlabels()
         if self.can_log:

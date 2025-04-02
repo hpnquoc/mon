@@ -20,7 +20,7 @@ import torch
 from torch.nn import functional as F
 
 from mon import core, nn
-from mon.globals import MODELS
+from mon.constants import LType, MODELS, Task
 from mon.vision.enhance import base
 
 current_file = core.Path(__file__).absolute()
@@ -31,8 +31,7 @@ bilateral_color = 0.1
 bilateral_space = (1.5, 1.5)
 
 
-# region Loss
-
+# ----- Loss -----
 class Loss(nn.Loss):
     
     def __init__(
@@ -169,21 +168,18 @@ class Loss(nn.Loss):
         x      = torch.cat([slice1, slice2, slice3], dim=1)
         return x
 
-# endregion
 
-
-# region Model
-
+# ----- Model -----
 @MODELS.register(name="rrdnet", arch="rrdnet")
 class RRDNet(base.ImageEnhancementModel):
     """RRDNet model for low-light image enhancement."""
     
-    arch     : str              = "rrdnet"
-    name     : str              = "rrdnet"
-    tasks    : list[core.Task]  = [core.Task.LLIE]
-    ltypes   : list[core.LType] = [core.LType.ZERO_SHOT]
-    model_dir: core.Path        = current_dir
-    zoo      : dict             = {}
+    arch     : str         = "rrdnet"
+    name     : str         = "rrdnet"
+    tasks    : list[Task]  = [Task.LLIE]
+    ltypes   : list[LType] = [LType.ZERO_SHOT]
+    model_dir: core.Path   = current_dir
+    zoo      : dict        = {}
     
     def __init__(
         self,
@@ -249,6 +245,7 @@ class RRDNet(base.ImageEnhancementModel):
             self.apply(self.init_weights)
         self.initial_state_dict = self.state_dict()
     
+    # ----- Initialization -----
     def init_weights(self, m: nn.Module):
         """Initializes the model's weights.
     
@@ -256,7 +253,8 @@ class RRDNet(base.ImageEnhancementModel):
             m: ``nn.Module`` to initialize weights for.
         """
         pass
-        
+    
+    # ----- Forward Pass -----
     def forward_loss(self, datapoint: dict, *args, **kwargs) -> dict:
         """Computes forward pass and loss.
     
@@ -300,6 +298,7 @@ class RRDNet(base.ImageEnhancementModel):
             "enhanced"    : enhanced
         }
     
+    # ----- Predicting -----
     def infer(self, datapoint: dict, reset_weights: bool = True, *args, **kwargs) -> dict:
         """Infers model output with optional processing.
     
@@ -345,5 +344,3 @@ class RRDNet(base.ImageEnhancementModel):
         return outputs | {
             "time": timer.avg_time,
         }
-
-# endregion

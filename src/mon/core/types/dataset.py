@@ -6,6 +6,7 @@
 __all__ = [
     "ChainDataset",
     "ConcatDataset",
+    "DatapointAttributes",
     "Dataset",
     "IterableDataset",
     "Subset",
@@ -18,12 +19,33 @@ from typing import Any
 
 import torch
 from torch.utils.data import dataset
-from torch.utils.data.dataset import *
+from torch.utils.data.dataset import (
+    ChainDataset, ConcatDataset, IterableDataset, random_split, Subset, TensorDataset,
+)
 
-from mon.core import enums, pathlib, rich
+from mon.constants import Split, Task
+from mon.core import pathlib, rich
 from mon.core.types import annotations
 
 
+# ----- Datapoint -----
+class DatapointAttributes(dict[str, annotations.Annotation]):
+    """Holds datapoint attributes as a ``dict``.
+
+    Args:
+        args: Positional arguments for ``dict`` initialization.
+        kwargs: Keyword arguments for ``dict`` initialization.
+
+    Attributes:
+        Keys: Attribute names as ``str``.
+        Values: Annotation types as ``Annotation`` or ``None``.
+    """
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        
+
+# ----- Dataset -----
 class Dataset(dataset.Dataset, ABC):
     """Base class for all datasets.
 
@@ -43,20 +65,20 @@ class Dataset(dataset.Dataset, ABC):
         verbose: If ``True``, enables verbose output. Default is ``False``.
     """
     
-    tasks : list[enums.Task]   = []
-    splits: list[enums.Split]  = [enums.Split.TRAIN, enums.Split.VAL, enums.Split.TEST, enums.Split.PREDICT]
-    datapoint_attrs     : Any  = {}
+    tasks : list[Task]  = []
+    splits: list[Split] = [Split.TRAIN, Split.VAL, Split.TEST, Split.PREDICT]
+    datapoint_attrs     = DatapointAttributes({})
     has_test_annotations: bool = False
-    classlabels         : annotations.ClassLabels = None
+    classlabels: annotations.ClassLabels = None
     
     def __init__(
         self,
         root      : pathlib.Path,
-        split     : enums.Split = enums.Split.TRAIN,
-        transform : Any        = None,
-        to_tensor : bool       = False,
-        cache_data: bool       = False,
-        verbose   : bool       = False,
+        split     : Split = Split.TRAIN,
+        transform : Any   = None,
+        to_tensor : bool  = False,
+        cache_data: bool  = False,
+        verbose   : bool  = False,
         *args, **kwargs
     ):
         super().__init__(*args, **kwargs)
@@ -71,21 +93,20 @@ class Dataset(dataset.Dataset, ABC):
         self.init_datapoints()
         self.init_data(cache_data=cache_data)
         
-    # region Magic Methods
-    
+    # ----- Magic Methods -----
     def __del__(self):
         """Closes the dataset."""
         self.close()
     
     @abstractmethod
     def __getitem__(self, index: int) -> dict:
-        """Gets a datapoint and metadata at given index.
+        """Gets a datapoint and metadata at given ``index``.
 
         Args:
             index: Index of datapoint.
 
         Returns:
-            Dict with datapoint and metadata.
+            ``dict`` with datapoint and metadata.
         """
         pass
     
@@ -137,10 +158,7 @@ class Dataset(dataset.Dataset, ABC):
         lines = [head]
         return "\n".join(lines)
     
-    # endregion
-    
-    # region Properties
-    
+    # ----- Properties -----
     @property
     def disable_pbar(self) -> bool:
         """Indicates if progress bar is disabled.
@@ -160,9 +178,9 @@ class Dataset(dataset.Dataset, ABC):
         return (
             (
                 self.has_test_annotations
-                and self.split in [enums.Split.TEST, enums.Split.PREDICT]
+                and self.split in [Split.TEST, Split.PREDICT]
             )
-            or (self.split in [enums.Split.TRAIN, enums.Split.VAL])
+            or (self.split in [Split.TRAIN, Split.VAL])
         )
     
     @property
@@ -199,7 +217,7 @@ class Dataset(dataset.Dataset, ABC):
         return {k: None for k in self.datapoint_attrs.keys()}
     
     @property
-    def split(self) -> enums.Split:
+    def split(self) -> Split:
         """Gets the current dataset split.
 
         Returns:
@@ -208,7 +226,7 @@ class Dataset(dataset.Dataset, ABC):
         return self._split
     
     @split.setter
-    def split(self, split: enums.Split):
+    def split(self, split: Split):
         """Sets the dataset split.
 
         Args:
@@ -217,7 +235,7 @@ class Dataset(dataset.Dataset, ABC):
         Raises:
             ValueError: If ``split`` not in supported splits.
         """
-        split = enums.Split[split] if isinstance(split, str) else split
+        split = Split[split] if isinstance(split, str) else split
         if split in self.splits:
             self._split = split
         else:
@@ -232,10 +250,7 @@ class Dataset(dataset.Dataset, ABC):
         """
         return self.split.value
     
-    # endregion
-    
-    # region Initialization
-    
+    # ----- Initialization -----
     @abstractmethod
     def init_transform(self, transform: Any = None):
         """Initializes transformation operations.
@@ -252,7 +267,7 @@ class Dataset(dataset.Dataset, ABC):
             ValueError: If ``datapoint_attrs`` has no attributes.
         """
         if not self.datapoint_attrs:
-            raise ValueError("[datapoint_attrs] has no defined attributes")
+            raise ValueError("[datapoint_attrs] has no defined attributes.")
         self.datapoints = {k: list[v]() for k, v in self.datapoint_attrs.items()}
     
     def init_data(self, cache_data: bool = False):
@@ -326,10 +341,7 @@ class Dataset(dataset.Dataset, ABC):
         """Closes and releases the dataset."""
         pass
     
-    # endregion
-    
-    # region Retrieve Data
-    
+    # ----- Data Retrieval -----
     @abstractmethod
     def get_datapoint(self, index: int) -> dict:
         """Gets a datapoint at specified index.
@@ -369,10 +381,7 @@ class Dataset(dataset.Dataset, ABC):
             for k, v in zip(batch[0].keys(), zip(*[b.values() for b in batch]))
         }
         for k, v in zipped.items():
-            if not hasattr(cls.datapoint_attrs, "get_collate_fn"):
-                raise ValueError("[datapoint_attrs] has no defined collate function.")
-            else:
-                collate_fn = cls.datapoint_attrs.get_collate_fn(k)
+            collate_fn = getattr(cls.datapoint_attrs[k], "collate_fn", None)
             if collate_fn and v:
                 zipped[k] = collate_fn(batch=v)
         return zipped

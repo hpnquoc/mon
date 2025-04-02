@@ -11,9 +11,10 @@ __all__ = [
 from typing import Literal
 
 from mon import core, vision
-from mon.globals import DATA_DIR, DATAMODULES, DATASETS
+from mon.constants import DATA_DIR, DATAMODULES, DATASETS, Split, Task
 
 
+# ----- Dataset -----
 @DATASETS.register(name="flarereal800")
 class FlareReal800(vision.VisionDataset):
     """Loads FlareReal800 dataset from ``root`` dir.
@@ -27,9 +28,9 @@ class FlareReal800(vision.VisionDataset):
         FileNotFoundError: If ``root`` directory does not exist.
     """
     
-    tasks : list[core.Task]    = [core.Task.NIGHTTIME]
-    splits: list[core.Split]   = [core.Split.TRAIN, core.Split.VAL]
-    datapoint_attrs            = vision.DatapointAttributes({
+    tasks : list[Task]  = [Task.NIGHTTIME]
+    splits: list[Split] = [Split.TRAIN, Split.VAL]
+    datapoint_attrs     = vision.DatapointAttributes({
         "image"    : vision.ImageAnnotation,
         "ref_image": vision.ImageAnnotation,
     })
@@ -58,6 +59,7 @@ class FlareReal800(vision.VisionDataset):
         self.datapoints["image"] = images
     
 
+# ----- DataModule -----
 @DATAMODULES.register(name="flarereal800")
 class FlareReal800DataModule(core.DataModule):
     """Configures FlareReal800 datasets for training/testing.
@@ -67,7 +69,7 @@ class FlareReal800DataModule(core.DataModule):
         **kwargs: Additional kwargs for parent class.
     """
     
-    tasks: list[core.Task] = [core.Task.NIGHTTIME]
+    tasks: list[Task] = [Task.NIGHTTIME]
 
     def prepare_data(self, *args, **kwargs):
         """Prepares data (placeholder, no action taken)."""
@@ -84,10 +86,10 @@ class FlareReal800DataModule(core.DataModule):
             core.console.log(f"Setup [red]{self.__class__.__name__}[/red].")
 
         if stage in [None, "train"]:
-            self.train = FlareReal800(split=core.Split.TRAIN, **self.dataset_kwargs)
-            self.val   = FlareReal800(split=core.Split.VAL,   **self.dataset_kwargs)
+            self.train = FlareReal800(split=Split.TRAIN, **self.dataset_kwargs)
+            self.val   = FlareReal800(split=Split.VAL,   **self.dataset_kwargs)
         if stage in [None, "test"]:
-            self.test  = FlareReal800(split=core.Split.VAL,   **self.dataset_kwargs)
+            self.test  = FlareReal800(split=Split.VAL,   **self.dataset_kwargs)
 
         self.get_classlabels()
         if self.can_log:

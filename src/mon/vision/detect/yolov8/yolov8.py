@@ -13,7 +13,7 @@ import numpy as np
 import torch
 
 from mon import core
-from mon.globals import DETECTORS
+from mon.constants import DETECTORS
 from mon.vision import types, track
 from mon.vision.detect import base
 
@@ -220,5 +220,3 @@ class YOLOv8(base.Detector1):
             return batch_instances
         else:
             return pred
-    
-# endregion

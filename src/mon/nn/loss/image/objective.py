@@ -19,10 +19,11 @@ from typing import Literal
 import numpy as np
 import torch
 
-from mon.globals import LOSSES
+from mon.constants import LOSSES
 from mon.nn.loss import base
 
 
+# ----- PSNR Loss -----
 @LOSSES.register(name="psnr_loss")
 class PSNRLoss(base.Loss):
     """PSNR Loss computes the Peak Signal-to-Noise Ratio loss between input and target
@@ -77,6 +78,7 @@ class PSNRLoss(base.Loss):
         return loss
 
 
+# ----- SSIM Loss -----
 @LOSSES.register(name="ssim_loss")
 class SSIMLoss(base.Loss):
     """SSIM Loss computes the Structural Similarity Index Measure loss between input

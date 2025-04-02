@@ -17,7 +17,7 @@ from typing import Literal
 import torch
 
 from mon import core, nn
-from mon.globals import MODELS
+from mon.constants import LType, MODELS, Task
 from mon.nn import functional as F
 from mon.vision.enhance import base
 
@@ -25,8 +25,7 @@ current_file = core.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
 
-# region Loss
-
+# ----- Loss -----
 class Loss(nn.Loss):
     
     def __init__(
@@ -74,11 +73,8 @@ class Loss(nn.Loss):
         )
         return loss
 
-# endregion
 
-
-# region Model
-
+# ----- Model -----
 @MODELS.register(name="zero_dce++_re", arch="zero_dce++")
 class ZeroDCEpp_RE(base.ImageEnhancementModel):
     """Zero-DCE++ model for low-light image enhancement.
@@ -94,12 +90,12 @@ class ZeroDCEpp_RE(base.ImageEnhancementModel):
         - https://github.com/Li-Chongyi/Zero-DCE_extension
     """
     
-    arch     : str              = "zero_dce++"
-    name     : str              = "zero_dce++_re"
-    tasks    : list[core.Task]  = [core.Task.LLIE]
-    ltypes   : list[core.LType] = [core.LType.UNSUPERVISED]
-    model_dir: core.Path        = current_dir
-    zoo      : dict             = {}
+    arch     : str         = "zero_dce++"
+    name     : str         = "zero_dce++_re"
+    tasks    : list[Task]  = [Task.LLIE]
+    ltypes   : list[LType] = [LType.UNSUPERVISED]
+    model_dir: core.Path   = current_dir
+    zoo      : dict        = {}
 
     def __init__(
         self,
@@ -132,7 +128,8 @@ class ZeroDCEpp_RE(base.ImageEnhancementModel):
             self.load_weights()
         else:
             self.apply(self.init_weights)
-
+    
+    # ----- Initialization -----
     def init_weights(self, m: nn.Module):
         """Initializes the model's weights.
     
@@ -150,6 +147,7 @@ class ZeroDCEpp_RE(base.ImageEnhancementModel):
             else:
                 m.weight.data.normal_(0.0, 0.02)
     
+    # ----- Forward Pass -----
     def forward_loss(self, datapoint: dict, *args, **kwargs) -> dict | None:
         """Computes forward pass and loss.
     
@@ -207,5 +205,3 @@ class ZeroDCEpp_RE(base.ImageEnhancementModel):
             "adjust"  : x_r,
             "enhanced": y,
         }
-
-# endregion

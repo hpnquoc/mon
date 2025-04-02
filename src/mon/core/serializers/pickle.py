@@ -6,11 +6,12 @@
 from pickle import *
 from typing import Any, TextIO
 
+from mon.constants import SERIALIZERS
 from mon.core import pathlib
 from mon.core.serializers import base
-from mon.globals import SERIALIZERS
 
 
+# ----- Serializer -----
 @SERIALIZERS.register(name=".pickle")
 @SERIALIZERS.register(name=".pkl")
 class PickleSerializer(base.BaseSerializer):

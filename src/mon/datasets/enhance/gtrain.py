@@ -11,9 +11,10 @@ __all__ = [
 from typing import Literal
 
 from mon import core, vision
-from mon.globals import DATA_DIR, DATAMODULES, DATASETS
+from mon.constants import DATA_DIR, DATAMODULES, DATASETS, Split, Task
 
 
+# ----- Dataset -----
 @DATASETS.register(name="gtrain")
 class GTRain(vision.VisionDataset):
     """Loads GTRain dataset from ``root`` dir.
@@ -27,9 +28,9 @@ class GTRain(vision.VisionDataset):
         FileNotFoundError: If ``root`` directory does not exist.
     """
     
-    tasks : list[core.Task]    = [core.Task.DERAIN]
-    splits: list[core.Split]   = [core.Split.TRAIN, core.Split.VAL, core.Split.TEST]
-    datapoint_attrs            = vision.DatapointAttributes({
+    tasks : list[Task]  = [Task.DERAIN]
+    splits: list[Split] = [Split.TRAIN, Split.VAL, Split.TEST]
+    datapoint_attrs     = vision.DatapointAttributes({
         "image"    : vision.ImageAnnotation,
         "ref_image": vision.ImageAnnotation,
     })
@@ -71,7 +72,8 @@ class GTRain(vision.VisionDataset):
         self.datapoints["image"]     = images
         self.datapoints["ref_image"] = ref_images
 
-            
+        
+# ----- DataModule -----
 @DATAMODULES.register(name="gtrain")
 class GTRainDataModule(core.DataModule):
     """Configures GTRain datasets for training/testing.
@@ -81,7 +83,7 @@ class GTRainDataModule(core.DataModule):
         **kwargs: Additional kwargs for parent class.
     """
     
-    tasks: list[core.Task] = [core.Task.DERAIN]
+    tasks: list[Task] = [Task.DERAIN]
 
     def prepare_data(self, *args, **kwargs):
         """Prepares data (placeholder, no action taken)."""
@@ -98,10 +100,10 @@ class GTRainDataModule(core.DataModule):
             core.console.log(f"Setup [red]{self.__class__.__name__}[/red].")
 
         if stage in [None, "train"]:
-            self.train = GTRain(split=core.Split.TRAIN, **self.dataset_kwargs)
-            self.val   = GTRain(split=core.Split.VAL,   **self.dataset_kwargs)
+            self.train = GTRain(split=Split.TRAIN, **self.dataset_kwargs)
+            self.val   = GTRain(split=Split.VAL,   **self.dataset_kwargs)
         if stage in [None, "test"]:
-            self.test  = GTRain(split=core.Split.TEST,  **self.dataset_kwargs)
+            self.test  = GTRain(split=Split.TEST,  **self.dataset_kwargs)
 
         self.get_classlabels()
         if self.can_log:

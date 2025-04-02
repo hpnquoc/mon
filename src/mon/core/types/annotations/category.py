@@ -15,8 +15,7 @@ import torch
 from mon.core.types.annotations import base
 
 
-# region Conversion
-
+# ----- Processing -----
 def convert_logits_to_class_id(logits: np.ndarray) -> np.ndarray:
     """Converts logits to class IDs.
 
@@ -50,19 +49,21 @@ def convert_class_id_to_logits(
     logits[class_id] = high_value
     return logits
 
-# endregion
 
-
-# region Annotation
-
+# ----- Annotation -----
 class ClassificationAnnotation(base.Annotation):
     """Classification annotation for an image.
-
+    
+    Attributes:
+        albumentation_target_type: Type of target for Albumentations. Default is ``values``.
+        
     Args:
         class_id: Integer class ID, ``-1`` for unknown.
         num_classes: Total number of classes in task.
         confidence: Confidence score in [0.0, 1.0]. Default is ``1.0``.
     """
+    
+    albumentation_target_type: str = "values"
     
     def __init__(
         self,
@@ -138,5 +139,3 @@ class ClassificationAnnotation(base.Annotation):
         if isinstance(batch[0], np.ndarray):
             return np.stack(batch, axis=0)
         return None
-
-# endregion

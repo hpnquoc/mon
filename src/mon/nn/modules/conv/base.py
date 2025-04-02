@@ -43,6 +43,7 @@ from torchvision.ops.misc import (
 from mon.nn.modules import padding as pad
 
 
+# ----- Conv2dSame -----
 def conv2d_same(
     input   : torch.Tensor,
     weight  : torch.Tensor,
@@ -162,6 +163,7 @@ class Conv2dSame(torch.nn.Conv2d):
         )
 
 
+# ----- Conv + Norm + Act -----
 ConvNormAct   = ConvNormActivation
 Conv2dNormAct = Conv2dNormActivation
 Conv3dNormAct = Conv3dNormActivation

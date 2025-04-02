@@ -16,8 +16,7 @@ current_file = mon.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
 
-# region Predict
-
+# ----- Predict -----
 def get_score_map(b, c, h, w, is_mean: bool = True) -> torch.Tensor:
     center_h = h / 2
     center_w = w / 2
@@ -170,11 +169,8 @@ def predict(args: dict) -> str:
     # Finish
     mon.console.log(f"Average time: {timer.avg_time}")
 
-# endregion
 
-
-# region Main
-
+# ----- Main -----
 def main() -> str:
     args = mon.parse_predict_args(model_root=current_dir)
     predict(args)
@@ -182,5 +178,3 @@ def main() -> str:
 
 if __name__ == "__main__":
     main()
-    
-# endregion

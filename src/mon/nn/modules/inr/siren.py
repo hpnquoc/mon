@@ -18,6 +18,7 @@ import torch
 from mon.nn.modules.inr import base
 
 
+# ----- Sine's Layer -----
 class SineLayer(torch.nn.Module):
     """Applies linear transformation with sine activation.
 
@@ -83,6 +84,7 @@ class SineLayer(torch.nn.Module):
         return torch.sin(intermediate), intermediate
 
 
+# ----- SIREN -----
 class SIREN(torch.nn.Module):
     """Implements SIREN network with sine layers.
 

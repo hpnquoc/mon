@@ -13,15 +13,14 @@ from abc import ABC
 from torchvision.models import squeezenet1_0, squeezenet1_1
 
 from mon import core, nn
-from mon.globals import MODELS, ZOO_DIR
+from mon.constants import LType, MODELS, ZOO_DIR
 from mon.vision.classify import base
 
 current_file = core.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
 
-# region Model
-
+# ----- Model -----
 class SqueezeNet(nn.ExtraModel, base.ImageClassificationModel, ABC):
     """SqueezeNet model for image classification.
 
@@ -29,11 +28,12 @@ class SqueezeNet(nn.ExtraModel, base.ImageClassificationModel, ABC):
         - https://arxiv.org/abs/1602.07360
     """
     
-    arch     : str              = "squeezenet"
-    ltypes   : list[core.LType] = [core.LType.SUPERVISED]
-    model_dir: core.Path        = current_dir
-    zoo      : dict             = {}
+    arch     : str         = "squeezenet"
+    ltypes   : list[LType] = [LType.SUPERVISED]
+    model_dir: core.Path   = current_dir
+    zoo      : dict        = {}
 
+    # ----- Initialization -----
     def init_weights(self, m: nn.Module):
         """Initializes weights for the model.
     
@@ -42,6 +42,7 @@ class SqueezeNet(nn.ExtraModel, base.ImageClassificationModel, ABC):
         """
         pass
 
+    # ----- Forward Pass -----
     def forward(self, datapoint: dict, *args, **kwargs) -> dict:
         """Performs forward pass on the model.
     
@@ -118,5 +119,3 @@ class SqueezeNet1_1(SqueezeNet):
             self.load_weights()
         else:
             self.apply(self.init_weights)
-        
-# endregion

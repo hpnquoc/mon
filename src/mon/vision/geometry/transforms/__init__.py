@@ -3,4 +3,4 @@
 
 """Implements transformation functions."""
 
-from mon.vision.geometry.transform.resize import *
+from mon.vision.geometry.transforms.resize import *

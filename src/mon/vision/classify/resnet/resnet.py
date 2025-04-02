@@ -25,15 +25,14 @@ from torchvision.models import (
 )
 
 from mon import core, nn
-from mon.globals import MODELS, ZOO_DIR
+from mon.constants import LType, MODELS, ZOO_DIR
 from mon.vision.classify import base
 
 current_file = core.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
 
-# region ResNet
-
+# ----- ResNet -----
 class ResNet(nn.ExtraModel, base.ImageClassificationModel, ABC):
     """ResNet model for image classification.
 
@@ -41,11 +40,12 @@ class ResNet(nn.ExtraModel, base.ImageClassificationModel, ABC):
         - https://arxiv.org/abs/1512.03385
     """
     
-    arch     : str              = "resnet"
-    ltypes   : list[core.LType] = [core.LType.SUPERVISED]
-    model_dir: core.Path        = current_dir
-    zoo      : dict             = {}
+    arch     : str         = "resnet"
+    ltypes   : list[LType] = [LType.SUPERVISED]
+    model_dir: core.Path   = current_dir
+    zoo      : dict        = {}
     
+    # ----- Initialization -----
     def init_weights(self, m: nn.Module):
         """Initializes weights for the model.
     
@@ -54,6 +54,7 @@ class ResNet(nn.ExtraModel, base.ImageClassificationModel, ABC):
         """
         pass
 
+    # ----- Forward Pass -----
     def forward(self, datapoint: dict, *args, **kwargs) -> dict:
         """Performs forward pass on the model.
     
@@ -237,11 +238,8 @@ class ResNet152(ResNet):
         else:
             self.apply(self.init_weights)
         
-# endregion
 
-
-# region ResNeXt
-
+# ----- ResNeXt -----
 @MODELS.register(name="resnext50_32x4d", arch="resnet")
 class ResNeXt50_32X4D(ResNet):
     """ResNeXt-50-32x4d model for image classification.
@@ -344,11 +342,8 @@ class ResNeXt101_64X4D(ResNet):
         else:
             self.apply(self.init_weights)
         
-# endregion
 
-
-# region WideResNet
-
+# ----- WideResNet -----
 @MODELS.register(name="wide_resnet50_2", arch="resnet")
 class WideResNet50_2(ResNet):
     """WideResNet-50-2 model for image classification.
@@ -419,5 +414,3 @@ class WideResNet101_2(ResNet):
             self.load_weights()
         else:
             self.apply(self.init_weights)
-        
-# endregion

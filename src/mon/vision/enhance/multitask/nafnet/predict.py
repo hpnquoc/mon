@@ -177,9 +177,7 @@ def predict(
             single_image_inference(model, inp, str(destination[i]))
 
 
-# region Main
+# ----- Main -----
 
 if __name__ == "__main__":
     predict()
-
-# endregion

@@ -590,10 +590,10 @@ def train(hyp, opt, device, tb_writer=None, wandb=None):
     torch.cuda.empty_cache()
     return results
 
-# endregion
 
 
-# region Main
+
+# ----- Main -----
 
 def main() -> str:
     # Parse arguments
@@ -760,5 +760,3 @@ def main() -> str:
 
 if __name__ == "__main__":
     main()
-
-# endregion

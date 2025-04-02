@@ -86,5 +86,3 @@ class Motion(ABC):
     def current(self):
         """Return the current motion model estimate."""
         pass
-    
-# endregion

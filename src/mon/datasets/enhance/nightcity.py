@@ -21,9 +21,10 @@ from typing import Literal
 import cv2
 
 from mon import core, vision
-from mon.globals import DATA_DIR, DATAMODULES, DATASETS
+from mon.constants import DATA_DIR, DATAMODULES, DATASETS, Split, Task
 
 
+# ----- Dataset -----
 @DATASETS.register(name="nightcity")
 class NightCity(vision.VisionDataset):
     """Loads NightCity dataset from ``root`` dir.
@@ -37,9 +38,9 @@ class NightCity(vision.VisionDataset):
         FileNotFoundError: If ``root`` directory does not exist.
     """
     
-    tasks : list[core.Task]    = [core.Task.LLIE, core.Task.NIGHTTIME, core.Task.SEGMENT]
-    splits: list[core.Split]   = [core.Split.TRAIN, core.Split.VAL, core.Split.TEST]
-    datapoint_attrs            = vision.DatapointAttributes({
+    tasks : list[Task]  = [Task.LLIE, Task.NIGHTTIME, Task.SEGMENT]
+    splits: list[Split] = [Split.TRAIN, Split.VAL, Split.TEST]
+    datapoint_attrs     = vision.DatapointAttributes({
         "image"   : vision.ImageAnnotation,
         "depth"   : vision.DepthMapAnnotation,
         "semantic": vision.SemanticSegmentationAnnotation,
@@ -92,7 +93,7 @@ class NightCity(vision.VisionDataset):
 
     def get_data(self):
         """Populates ``datapoints`` with image and semantic annotations."""
-        if self.split == core.Split.TEST:
+        if self.split == Split.TEST:
             patterns = [self.root / "val" / "image"]
         else:
             patterns = [self.root / self.split_str / "image"]
@@ -120,6 +121,7 @@ class NightCity(vision.VisionDataset):
         self.datapoints["semantic"] = semantic
 
 
+# ----- DataModule -----
 @DATAMODULES.register(name="nightcity")
 class NightCityDataModule(core.DataModule):
     """Configures NightCity datasets for training/testing.
@@ -129,7 +131,7 @@ class NightCityDataModule(core.DataModule):
         **kwargs: Additional kwargs for parent class.
     """
     
-    tasks: list[core.Task] = [core.Task.LLIE, core.Task.NIGHTTIME, core.Task.SEGMENT]
+    tasks: list[Task] = [Task.LLIE, Task.NIGHTTIME, Task.SEGMENT]
 
     def prepare_data(self, *args, **kwargs):
         """Prepares data (placeholder, no action taken)."""
@@ -146,10 +148,10 @@ class NightCityDataModule(core.DataModule):
             core.console.log(f"Setup [red]{self.__class__.__name__}[/red].")
 
         if stage in [None, "train"]:
-            self.train = NightCity(split=core.Split.TRAIN, **self.dataset_kwargs)
-            self.val   = NightCity(split=core.Split.VAL,   **self.dataset_kwargs)
+            self.train = NightCity(split=Split.TRAIN, **self.dataset_kwargs)
+            self.val   = NightCity(split=Split.VAL,   **self.dataset_kwargs)
         if stage in [None, "test"]:
-            self.test  = NightCity(split=core.Split.TEST,  **self.dataset_kwargs)
+            self.test  = NightCity(split=Split.TEST,  **self.dataset_kwargs)
 
         self.get_classlabels()
         if self.can_log:

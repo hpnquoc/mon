@@ -20,10 +20,11 @@ import torch
 from lightning.pytorch.utilities.types import STEP_OUTPUT
 
 from mon import core
-from mon.globals import CALLBACKS
+from mon.constants import CALLBACKS
 from mon.nn.callback import base
 
 
+# ----- Logging -----
 # noinspection PyMethodMayBeStatic
 @CALLBACKS.register(name="log_training_progress")
 class LogTrainingProgress(base.Callback):
@@ -337,7 +338,7 @@ class LogTrainingProgress(base.Callback):
         Returns:
             ``True`` if logging at train epoch end, else ``False``.
         """
-        if self._log_on_train_epoch_end is not None:
+        if self._log_on_train_epoch_end:
             return self._log_on_train_epoch_end
 
         if trainer.check_val_every_n_epoch != 1:

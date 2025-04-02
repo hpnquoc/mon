@@ -16,8 +16,7 @@ from typing import Any
 from mon.core import pathlib, utils
 
 
-# region Utils
-
+# ----- Utils -----
 def _str_or_none(value: Any) -> str | None:
     """Converts a value to a string or ``None`` if value is ``"None"``.
 
@@ -66,9 +65,8 @@ def get_image_size(input: Any) -> tuple[int, int]:
     from mon.vision import get_image_size
     return get_image_size(input)
 
-# endregion
 
-
+# ----- Parse Args -----
 def parse_cli_args() -> argparse.Namespace:
     """Parse CLI arguments."""
     parser = argparse.ArgumentParser(description="predict")

@@ -13,9 +13,10 @@ __all__ = [
 from typing import Literal
 
 from mon import core, vision
-from mon.globals import DATA_DIR, DATAMODULES, DATASETS
+from mon.constants import DATA_DIR, DATAMODULES, DATASETS, Split, Task
 
 
+# ----- Dataset -----
 @DATASETS.register(name="lol_v2_real")
 class LOLv2Real(vision.VisionDataset):
     """Loads LOL-v2 Real dataset from ``root`` dir.
@@ -29,9 +30,9 @@ class LOLv2Real(vision.VisionDataset):
         FileNotFoundError: If ``root`` directory does not exist.
     """
     
-    tasks : list[core.Task]    = [core.Task.LLIE]
-    splits: list[core.Split]   = [core.Split.TRAIN, core.Split.TEST]
-    datapoint_attrs            = vision.DatapointAttributes({
+    tasks : list[Task]  = [Task.LLIE]
+    splits: list[Split] = [Split.TRAIN, Split.TEST]
+    datapoint_attrs     = vision.DatapointAttributes({
         "image"    : vision.ImageAnnotation,
         "depth"    : vision.DepthMapAnnotation,
         "ref_image": vision.ImageAnnotation,
@@ -75,8 +76,8 @@ class LOLv2Synthetic(vision.VisionDataset):
         FileNotFoundError: If ``root`` directory does not exist.
     """
     
-    tasks : list[core.Task]  = [core.Task.LLIE]
-    splits: list[core.Split] = [core.Split.TRAIN, core.Split.TEST]
+    tasks : list[Task]  = [Task.LLIE]
+    splits: list[Split] = [Split.TRAIN, Split.TEST]
     datapoint_attrs     = vision.DatapointAttributes({
         "image"    : vision.ImageAnnotation,
         "depth"    : vision.DepthMapAnnotation,
@@ -108,6 +109,7 @@ class LOLv2Synthetic(vision.VisionDataset):
         self.datapoints["image"] = images
 
     
+# ----- DataModule -----
 @DATAMODULES.register(name="lol_v2_real")
 class LOLv2RealDataModule(core.DataModule):
     """Configures LOLv2Real datasets for training/testing.
@@ -117,7 +119,7 @@ class LOLv2RealDataModule(core.DataModule):
         **kwargs: Additional kwargs for parent class.
     """
     
-    tasks: list[core.Task] = [core.Task.LLIE]
+    tasks: list[Task] = [Task.LLIE]
 
     def prepare_data(self, *args, **kwargs):
         """Prepares data (placeholder, no action taken)."""
@@ -134,10 +136,10 @@ class LOLv2RealDataModule(core.DataModule):
             core.console.log(f"Setup [red]{self.__class__.__name__}[/red].")
 
         if stage in [None, "train"]:
-            self.train = LOLv2Real(split=core.Split.TRAIN, **self.dataset_kwargs)
-            self.val   = LOLv2Real(split=core.Split.TEST,  **self.dataset_kwargs)
+            self.train = LOLv2Real(split=Split.TRAIN, **self.dataset_kwargs)
+            self.val   = LOLv2Real(split=Split.TEST,  **self.dataset_kwargs)
         if stage in [None, "test"]:
-            self.test  = LOLv2Real(split=core.Split.TEST,  **self.dataset_kwargs)
+            self.test  = LOLv2Real(split=Split.TEST,  **self.dataset_kwargs)
 
         self.get_classlabels()
         if self.can_log:
@@ -153,7 +155,7 @@ class LOLv2SyntheticDataModule(core.DataModule):
         **kwargs: Additional kwargs for parent class.
     """
     
-    tasks: list[core.Task] = [core.Task.LLIE]
+    tasks: list[Task] = [Task.LLIE]
 
     def prepare_data(self, *args, **kwargs):
         """Prepares data (placeholder, no action taken)."""
@@ -170,10 +172,10 @@ class LOLv2SyntheticDataModule(core.DataModule):
             core.console.log(f"Setup [red]{self.__class__.__name__}[/red].")
 
         if stage in [None, "train"]:
-            self.train = LOLv2Synthetic(split=core.Split.TRAIN, **self.dataset_kwargs)
-            self.val   = LOLv2Synthetic(split=core.Split.TEST,  **self.dataset_kwargs)
+            self.train = LOLv2Synthetic(split=Split.TRAIN, **self.dataset_kwargs)
+            self.val   = LOLv2Synthetic(split=Split.TEST,  **self.dataset_kwargs)
         if stage in [None, "test"]:
-            self.test  = LOLv2Synthetic(split=core.Split.TEST,  **self.dataset_kwargs)
+            self.test  = LOLv2Synthetic(split=Split.TEST,  **self.dataset_kwargs)
 
         self.get_classlabels()
         if self.can_log:

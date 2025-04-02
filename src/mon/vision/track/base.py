@@ -160,7 +160,7 @@ class Track(ABC):
         """Predict the next state of the tracking object."""
         pass
         
-# endregion
+
 
 
 # region Tracker
@@ -175,5 +175,3 @@ class Tracker(ABC):
     @abstractmethod
     def update(self, *args, **kwargs):
         pass
-
-# endregion

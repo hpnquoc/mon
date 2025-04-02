@@ -14,6 +14,7 @@ import torch
 from mon.nn.modules.inr import base
 
 
+# ----- FINER's Activation Layer -----
 class FINERLayer(torch.nn.Module):
     """Applies scaled sine activation to linear transformation.
 
@@ -48,7 +49,7 @@ class FINERLayer(torch.nn.Module):
         self.first_bias_scale = first_bias_scale
         self.linear           = torch.nn.Linear(in_channels, out_channels, bias=bias)
         self.init_weights()
-        if self.first_bias_scale is not None and self.is_first:
+        if self.first_bias_scale and self.is_first:
             self.init_first_bias()
 
     def init_weights(self):
@@ -90,6 +91,7 @@ class FINERLayer(torch.nn.Module):
         return torch.sin(self.w0 * scale * linear)
 
 
+# ----- FINER -----
 class FINER(torch.nn.Module):
     """Implements FINER network with FINER layers.
 

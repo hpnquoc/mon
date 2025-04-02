@@ -11,9 +11,10 @@ __all__ = [
 from typing import Literal
 
 from mon import core, vision
-from mon.globals import DATA_DIR, DATAMODULES, DATASETS
+from mon.constants import DATA_DIR, DATAMODULES, DATASETS, Split, Task
 
 
+# ----- Dataset -----
 @DATASETS.register(name="gtsnow")
 class GTSnow(vision.VisionDataset):
     """Loads GTSnow dataset from ``root`` dir.
@@ -27,9 +28,9 @@ class GTSnow(vision.VisionDataset):
         FileNotFoundError: If ``root`` directory does not exist.
     """
     
-    tasks : list[core.Task]    = [core.Task.DESNOW]
-    splits: list[core.Split]   = [core.Split.TRAIN]
-    datapoint_attrs            = vision.DatapointAttributes({
+    tasks : list[Task]  = [Task.DESNOW]
+    splits: list[Split] = [Split.TRAIN]
+    datapoint_attrs     = vision.DatapointAttributes({
         "image"    : vision.ImageAnnotation,
         "ref_image": vision.ImageAnnotation,
     })
@@ -69,6 +70,7 @@ class GTSnow(vision.VisionDataset):
         self.datapoints["ref_image"] = ref_images
 
 
+# ----- DataModule -----
 @DATAMODULES.register(name="gtsnow")
 class GTSnowDataModule(core.DataModule):
     """Configures GTSnow datasets for training/testing.
@@ -78,7 +80,7 @@ class GTSnowDataModule(core.DataModule):
         **kwargs: Additional kwargs for parent class.
     """
     
-    tasks: list[core.Task] = [core.Task.DESNOW]
+    tasks: list[Task] = [Task.DESNOW]
 
     def prepare_data(self, *args, **kwargs):
         """Prepares data (placeholder, no action taken)."""
@@ -95,10 +97,10 @@ class GTSnowDataModule(core.DataModule):
             core.console.log(f"Setup [red]{self.__class__.__name__}[/red].")
 
         if stage in [None, "train"]:
-            self.train = GTSnow(split=core.Split.TRAIN, **self.dataset_kwargs)
-            self.val   = GTSnow(split=core.Split.TRAIN, **self.dataset_kwargs)
+            self.train = GTSnow(split=Split.TRAIN, **self.dataset_kwargs)
+            self.val   = GTSnow(split=Split.TRAIN, **self.dataset_kwargs)
         if stage in [None, "test"]:
-            self.test  = GTSnow(split=core.Split.TRAIN, **self.dataset_kwargs)
+            self.test  = GTSnow(split=Split.TRAIN, **self.dataset_kwargs)
 
         if self.classlabels is None:
             self.get_classlabels()

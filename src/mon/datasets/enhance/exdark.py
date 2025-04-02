@@ -13,9 +13,10 @@ __all__ = [
 from typing import Literal
 
 from mon import core, vision
-from mon.globals import DATA_DIR, DATAMODULES, DATASETS
+from mon.constants import DATA_DIR, DATAMODULES, DATASETS, Split, Task
 
 
+# ----- Dataset -----
 @DATASETS.register(name="exdark")
 class ExDark(vision.VisionDataset):
     """Loads ExDark dataset from ``root`` dir.
@@ -29,9 +30,9 @@ class ExDark(vision.VisionDataset):
         FileNotFoundError: If ``root`` directory does not exist.
     """
     
-    tasks : list[core.Task]    = [core.Task.LLIE, core.Task.DETECT]
-    splits: list[core.Split]   = [core.Split.TEST]
-    datapoint_attrs            = vision.DatapointAttributes({
+    tasks : list[Task]  = [Task.LLIE, Task.DETECT]
+    splits: list[Split] = [Split.TEST]
+    datapoint_attrs     = vision.DatapointAttributes({
         "image": vision.ImageAnnotation,
     })
     has_test_annotations: bool = False
@@ -72,8 +73,8 @@ class ExDarkFull(vision.VisionDataset):
         FileNotFoundError: If ``root`` directory does not exist.
     """
     
-    tasks : list[core.Task]  = [core.Task.LLIE, core.Task.DETECT]
-    splits: list[core.Split] = [core.Split.TEST]
+    tasks : list[Task]  = [Task.LLIE, Task.DETECT]
+    splits: list[Split] = [Split.TEST]
     datapoint_attrs     = vision.DatapointAttributes({
         "image": vision.ImageAnnotation,
     })
@@ -102,6 +103,7 @@ class ExDarkFull(vision.VisionDataset):
         self.datapoints["image"] = images
 
 
+# ----- DataModule -----
 @DATAMODULES.register(name="exdark")
 class ExDarkDataModule(core.DataModule):
     """Configures ExDark datasets for training/testing.
@@ -110,7 +112,8 @@ class ExDarkDataModule(core.DataModule):
         *args: Additional args for parent class.
         **kwargs: Additional kwargs for parent class.
     """
-    tasks: list[core.Task] = [core.Task.LLIE]
+    
+    tasks: list[Task] = [Task.LLIE]
     
     def prepare_data(self, *args, **kwargs):
         """Prepares data (placeholder, no action taken)."""
@@ -127,10 +130,10 @@ class ExDarkDataModule(core.DataModule):
             core.console.log(f"Setup [red]{self.__class__.__name__}[/red].")
         
         if stage in [None, "train"]:
-            self.train = ExDark(split=core.Split.TEST, **self.dataset_kwargs)
-            self.val   = ExDark(split=core.Split.TEST, **self.dataset_kwargs)
+            self.train = ExDark(split=Split.TEST, **self.dataset_kwargs)
+            self.val   = ExDark(split=Split.TEST, **self.dataset_kwargs)
         if stage in [None, "test"]:
-            self.test  = ExDark(split=core.Split.TEST, **self.dataset_kwargs)
+            self.test  = ExDark(split=Split.TEST, **self.dataset_kwargs)
         
         self.get_classlabels()
         if self.can_log:
@@ -145,7 +148,8 @@ class ExDarkFullDataModule(core.DataModule):
         *args: Additional args for parent class.
         **kwargs: Additional kwargs for parent class.
     """
-    tasks: list[core.Task] = [core.Task.LLIE]
+    
+    tasks: list[Task] = [Task.LLIE]
     
     def prepare_data(self, *args, **kwargs):
         """Prepares data (placeholder, no action taken)."""
@@ -162,10 +166,10 @@ class ExDarkFullDataModule(core.DataModule):
             core.console.log(f"Setup [red]{self.__class__.__name__}[/red].")
         
         if stage in [None, "train"]:
-            self.train = ExDarkFull(split=core.Split.TEST, **self.dataset_kwargs)
-            self.val   = ExDarkFull(split=core.Split.TEST, **self.dataset_kwargs)
+            self.train = ExDarkFull(split=Split.TEST, **self.dataset_kwargs)
+            self.val   = ExDarkFull(split=Split.TEST, **self.dataset_kwargs)
         if stage in [None, "test"]:
-            self.test  = ExDarkFull(split=core.Split.TEST, **self.dataset_kwargs)
+            self.test  = ExDarkFull(split=Split.TEST, **self.dataset_kwargs)
         
         self.get_classlabels()
         if self.can_log:

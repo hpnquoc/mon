@@ -9,19 +9,18 @@ __all__ = [
 
 from abc import ABC
 
-from mon import core, nn
+from mon import nn
+from mon.constants import Task
 from mon.vision import model
 
 
-# region Model
-
+# ----- Base Model -----
 class DepthEstimationModel(model.VisionModel, ABC):
     """Base class for depth estimation models."""
     
-    tasks: list[core.Task] = [core.Task.DEPTH]
+    tasks: list[Task] = [Task.DEPTH]
     
-    # region Forward
-    
+    # ----- Forward Pass -----
     def forward_loss(self, datapoint: dict, *args, **kwargs) -> dict:
         """Computes forward pass and loss.
     
@@ -62,7 +61,3 @@ class DepthEstimationModel(model.VisionModel, ABC):
                 metric_name = getattr(metric, "name", f"metric_{i}")
                 results[metric_name] = metric(pred, target)
         return results
-        
-    # endregion
-    
-# endregion

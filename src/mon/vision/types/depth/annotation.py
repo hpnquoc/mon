@@ -12,13 +12,17 @@ from typing import Literal
 import cv2
 
 from mon import core
-from mon.globals import DEPTH_DATA_SOURCES
+from mon.constants import DEPTH_DATA_SOURCES
 from mon.vision.types import image as I
 
 
+# ----- Annotation -----
 class DepthMapAnnotation(I.ImageAnnotation):
     """Dense depth map annotation.
-
+    
+    Attributes:
+        albumentation_target_type: Type of target for Albumentations. Default is ``image``.
+    
     Args:
         path: Path to depth map file as ``core.Path`` or ``str``.
         root: Root dir as ``core.Path`` or ``str``. Default is ``None``.
@@ -29,6 +33,8 @@ class DepthMapAnnotation(I.ImageAnnotation):
     Raises:
         ValueError: If ``source`` is not in ``DEPTH_DATA_SOURCES``.
     """
+    
+    albumentation_target_type: str = "image"
     
     def __init__(
         self,

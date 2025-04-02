@@ -33,11 +33,10 @@ __all__ = [
 
 import numpy as np
 
-from mon import core
+from mon.constants import ShapeCode
 
 
-# region Association
-
+# ----- Association -----
 def bbox_iou(bbox1: np.ndarray, bbox2: np.ndarray) -> np.ndarray:
     """Compute IoU between two sets of bounding boxes.
 
@@ -354,11 +353,8 @@ def bbox_center_distance(bbox1: np.ndarray, bbox2: np.ndarray) -> np.ndarray:
 
     return ct_dist
 
-# endregion
 
-
-# region Conversion
-
+# ----- Conversion -----
 def convert_bbox_cxcywhn_to_xywh(bbox: np.ndarray, height: int, width: int) -> np.ndarray:
     """Convert boxes from CXCYWHN to XYWH format.
 
@@ -593,7 +589,7 @@ convert_bbox_yolo_to_coco = convert_bbox_cxcywhn_to_xywh
 convert_bbox_yolo_to_voc  = convert_bbox_cxcywhn_to_xyxy
 
 
-def convert_bbox(bbox: np.ndarray, code: core.ShapeCode | int, height: int, width: int) -> np.ndarray:
+def convert_bbox(bbox: np.ndarray, code: ShapeCode | int, height: int, width: int) -> np.ndarray:
     """Convert bounding box between formats.
 
     Args:
@@ -608,23 +604,21 @@ def convert_bbox(bbox: np.ndarray, code: core.ShapeCode | int, height: int, widt
     Raises:
         ValueError: If ``code`` is invalid.
     """
-    code = core.ShapeCode.from_value(value=code)
+    code = ShapeCode.from_value(value=code)
     match code:
-        case core.ShapeCode.SAME:
+        case ShapeCode.SAME:
             return bbox
-        case core.ShapeCode.VOC2COCO | core.ShapeCode.XYXY2XYWH:
+        case ShapeCode.VOC2COCO | ShapeCode.XYXY2XYWH:
             return convert_bbox_voc_to_coco(bbox)
-        case core.ShapeCode.VOC2YOLO | core.ShapeCode.XYXY2CXCYN:
+        case ShapeCode.VOC2YOLO | ShapeCode.XYXY2CXCYN:
             return convert_bbox_voc_to_yolo(bbox, height, width)
-        case core.ShapeCode.COCO2VOC | core.ShapeCode.XYWH2XYXY:
+        case ShapeCode.COCO2VOC | ShapeCode.XYWH2XYXY:
             return convert_bbox_coco_to_voc(bbox)
-        case core.ShapeCode.COCO2YOLO | core.ShapeCode.XYWH2CXCYN:
+        case ShapeCode.COCO2YOLO | ShapeCode.XYWH2CXCYN:
             return convert_bbox_coco_to_yolo(bbox, height, width)
-        case core.ShapeCode.YOLO2VOC | core.ShapeCode.CXCYN2XYXY:
+        case ShapeCode.YOLO2VOC | ShapeCode.CXCYN2XYXY:
             return convert_bbox_yolo_to_voc(bbox, height, width)
-        case core.ShapeCode.YOLO2COCO | core.ShapeCode.CXCYN2XYXY:
+        case ShapeCode.YOLO2COCO | ShapeCode.CXCYN2XYXY:
             return convert_bbox_yolo_to_coco(bbox, height, width)
         case _:
             raise ValueError(f"[code] invalid: {code}.")
-
-# endregion

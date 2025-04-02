@@ -16,13 +16,11 @@ from mon import core, nn
 from mon.nn import _size_2_t
 
 
-# region Model
-
+# ----- Base Model -----
 class VisionModel(nn.Model, ABC):
     """Base class for vision models with image/video input."""
     
-    # region Initialize Model
-    
+    # ----- Initialization -----
     def compute_efficiency_score(self, image_size: _size_2_t = 512, channels: int = 3) -> tuple[float, float]:
         """Compute model efficiency score (FLOPs, params).
 
@@ -44,10 +42,7 @@ class VisionModel(nn.Model, ABC):
         params        = sum(params.values())  if isinstance(params, dict) else params
         return flops, params
         
-    # endregion
-    
-    # region Predicting
-    
+    # ----- Predicting -----
     def infer(
         self,
         datapoint : dict,
@@ -97,7 +92,3 @@ class VisionModel(nn.Model, ABC):
         return outputs | {
             "time": timer.avg_time
         }
-    
-    # endregion
-    
-# endregion

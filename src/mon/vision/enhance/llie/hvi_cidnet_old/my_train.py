@@ -38,7 +38,7 @@ current_file = mon.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
 
-# region Train
+# ----- Train -----
 
 def train(args: argparse.Namespace):
     # General config
@@ -317,10 +317,10 @@ def train(args: argparse.Namespace):
         torch.save(model.state_dict(), str(weights_dir / "last.pt"))
         torch.cuda.empty_cache()
     
-# endregion
 
 
-# region Main
+
+# ----- Main -----
 
 def main() -> str:
     args = mon.parse_train_args(model_root=current_dir)
@@ -329,5 +329,3 @@ def main() -> str:
 
 if __name__ == "__main__":
     main()
-    
-# endregion

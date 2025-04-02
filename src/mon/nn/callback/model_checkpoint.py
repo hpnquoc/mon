@@ -17,9 +17,10 @@ import torch
 from lightning.pytorch.callbacks import model_checkpoint
 
 from mon import core
-from mon.globals import CALLBACKS
+from mon.constants import CALLBACKS
 
 
+# ----- Model Checkpointing -----
 @CALLBACKS.register(name="model_checkpoint")
 class ModelCheckpoint(model_checkpoint.ModelCheckpoint):
     """Saves model periodically by monitoring a quantity, keeping best and last.

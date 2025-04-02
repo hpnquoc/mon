@@ -10,15 +10,14 @@ __all__ = [
 from torchvision.models import mobilenet_v2
 
 from mon import core, nn
-from mon.globals import MODELS, ZOO_DIR
+from mon.constants import LType, MODELS, ZOO_DIR
 from mon.vision.classify import base
 
 current_file = core.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
 
-# region Model
-
+# ----- Model -----
 @MODELS.register(name="mobilenet_v2", arch="mobilenet")
 class MobileNetV2(nn.ExtraModel, base.ImageClassificationModel):
     """MobileNetV2 model for image classification.
@@ -32,11 +31,11 @@ class MobileNetV2(nn.ExtraModel, base.ImageClassificationModel):
         - https://arxiv.org/abs/1801.04381
     """
     
-    arch     : str              = "mobilenet"
-    name     : str              = "mobilenet_v2"
-    ltypes   : list[core.LType] = [core.LType.SUPERVISED]
-    model_dir: core.Path        = current_dir
-    zoo      : dict             = {
+    arch     : str         = "mobilenet"
+    name     : str         = "mobilenet_v2"
+    ltypes   : list[LType] = [LType.SUPERVISED]
+    model_dir: core.Path   = current_dir
+    zoo      : dict        = {
         "imagenet1k_v1": {
             "url"        : "https://download.pytorch.org/models/mobilenet_v2-b0353104.pth",
             "path"       : ZOO_DIR / "vision/classify/mobilenet/mobilenet_v2/imagenet1k_v1/mobilenet_v2_imagenet1k_v1.pth",
@@ -71,7 +70,8 @@ class MobileNetV2(nn.ExtraModel, base.ImageClassificationModel):
             self.load_weights()
         else:
             self.apply(self.init_weights)
-
+    
+    # ----- Initialization -----
     def init_weights(self, m: nn.Module):
         """Initializes weights for the model.
     
@@ -79,7 +79,8 @@ class MobileNetV2(nn.ExtraModel, base.ImageClassificationModel):
             m: ``nn.Module`` to initialize weights for.
         """
         pass
-
+    
+    # ----- Forward Pass -----
     def forward(self, datapoint: dict, *args, **kwargs) -> dict:
         """Performs forward pass on the model.
     
@@ -92,5 +93,3 @@ class MobileNetV2(nn.ExtraModel, base.ImageClassificationModel):
         x = datapoint["image"]
         y = self.model(x)
         return {"logits": y}
-
-# endregion

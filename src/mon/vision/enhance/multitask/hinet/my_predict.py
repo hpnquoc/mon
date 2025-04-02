@@ -18,7 +18,7 @@ current_file = mon.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
 
-# region Predict
+# ----- Predict -----
 
 def predict(args: argparse.Namespace):
     # General config
@@ -110,10 +110,10 @@ def predict(args: argparse.Namespace):
         avg_time = float(timer.avg_time)
         console.log(f"Average time: {avg_time}")
     
-# endregion
 
 
-# region Main
+
+# ----- Main -----
 
 def main() -> str:
     args = mon.parse_predict_args(model_root=current_dir)
@@ -122,5 +122,3 @@ def main() -> str:
 
 if __name__ == "__main__":
     main()
-
-# endregion

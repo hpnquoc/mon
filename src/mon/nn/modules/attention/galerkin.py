@@ -10,8 +10,7 @@ __all__ = [
 import torch
 
 
-# region Galerkin-type Attention
-
+# ----- Galerkin-type Attention -----
 class GalerkinSimpleAttention(torch.nn.Module):
     """Galerkin-type attention mechanism.
 
@@ -69,5 +68,3 @@ class GalerkinSimpleAttention(torch.nn.Module):
 
         ret = v.permute(0, 3, 1, 2) + input  # [B, C, h, w]
         return self.o_proj2(self.act(self.o_proj1(ret))) + input
-
-# endregion

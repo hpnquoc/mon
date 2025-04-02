@@ -21,8 +21,7 @@ current_file = mon.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
 
-# region Predict
-
+# ----- Predict -----
 def save_images(tensor, path):
     image_numpy = tensor[0].cpu().float().numpy()
     image_numpy = (np.transpose(image_numpy, (1, 2, 0)))
@@ -118,11 +117,8 @@ def predict(args: dict) -> str:
     # Finish
     mon.console.log(f"Average time: {timer.avg_time}")
 
-# endregion
 
-
-# region Main
-
+# ----- Main -----
 def main() -> str:
     args = mon.parse_predict_args(model_root=current_dir)
     predict(args)
@@ -130,5 +126,3 @@ def main() -> str:
 
 if __name__ == "__main__":
     main()
-    
-# endregion

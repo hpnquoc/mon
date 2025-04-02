@@ -11,9 +11,10 @@ __all__ = [
 from typing import Literal
 
 from mon import core, vision
-from mon.globals import DATA_DIR, DATAMODULES, DATASETS
+from mon.constants import DATA_DIR, DATAMODULES, DATASETS, Split, Task
 
 
+# ----- Dataset -----
 @DATASETS.register(name="fusion")
 class Fusion(vision.VisionDataset):
     """Loads Fusion dataset from ``root`` dir.
@@ -27,9 +28,9 @@ class Fusion(vision.VisionDataset):
         FileNotFoundError: If ``root`` directory does not exist.
     """
     
-    tasks : list[core.Task]    = [core.Task.LLIE]
-    splits: list[core.Split]   = [core.Split.TEST]
-    datapoint_attrs            = vision.DatapointAttributes({
+    tasks : list[Task]  = [Task.LLIE]
+    splits: list[Split] = [Split.TEST]
+    datapoint_attrs     = vision.DatapointAttributes({
         "image": vision.ImageAnnotation,
         "depth": vision.DepthMapAnnotation,
     })
@@ -58,6 +59,7 @@ class Fusion(vision.VisionDataset):
         self.datapoints["image"] = images
 
 
+# ----- DataModule -----
 @DATAMODULES.register(name="fusion")
 class FusionDataModule(core.DataModule):
     """Configures Fusion datasets for training/testing.
@@ -67,7 +69,7 @@ class FusionDataModule(core.DataModule):
         **kwargs: Additional kwargs for parent class.
     """
     
-    tasks: list[core.Task] = [core.Task.LLIE]
+    tasks: list[Task] = [Task.LLIE]
 
     def prepare_data(self, *args, **kwargs):
         """Prepares data (placeholder, no action taken)."""
@@ -84,10 +86,10 @@ class FusionDataModule(core.DataModule):
             core.console.log(f"Setup [red]{self.__class__.__name__}[/red].")
 
         if stage in [None, "train"]:
-            self.train = Fusion(split=core.Split.TEST, **self.dataset_kwargs)
-            self.val   = Fusion(split=core.Split.TEST, **self.dataset_kwargs)
+            self.train = Fusion(split=Split.TEST, **self.dataset_kwargs)
+            self.val   = Fusion(split=Split.TEST, **self.dataset_kwargs)
         if stage in [None, "test"]:
-            self.test  = Fusion(split=core.Split.TEST, **self.dataset_kwargs)
+            self.test  = Fusion(split=Split.TEST, **self.dataset_kwargs)
 
         self.get_classlabels()
         if self.can_log:

@@ -15,13 +15,11 @@ from mon import nn
 from mon.vision import types, model
 
 
-# region Model
-
+# ----- Image Enhancement Model -----
 class ImageEnhancementModel(model.VisionModel, ABC):
     """The base class for all image enhancement models."""
     
-    # region Forward Pass
-    
+    # ----- Forward Pass -----
     def forward_loss(self, datapoint: dict, *args, **kwargs) -> dict:
         """Computes forward pass and loss.
     
@@ -57,16 +55,13 @@ class ImageEnhancementModel(model.VisionModel, ABC):
         pred    = outputs["enhanced"]
         target  = datapoint["ref_image"]
         results = {}
-        if metrics is not None:
+        if metrics:
             for i, metric in enumerate(metrics):
                 metric_name = getattr(metric, "name", f"metric_{i}")
                 results[metric_name] = metric(pred, target)
         return results
     
-    # endregion
-    
-    # region Logging
-    
+    # ----- Logging -----
     def log_images(self, epoch: int, step: int, data: dict, extension: str = ".jpg"):
         """Logs debug images to ``debug_dir``.
     
@@ -87,7 +82,7 @@ class ImageEnhancementModel(model.VisionModel, ABC):
         enhanced  = outputs.pop("enhanced",  None)
         
         image        = list(types.convert_image_to_array(image, denormalize=True))
-        ref_image    = list(types.convert_image_to_array(ref_image, denormalize=True)) if ref_image is not None else None
+        ref_image    = list(types.convert_image_to_array(ref_image, denormalize=True)) if ref_image else None
         enhanced     = list(types.convert_image_to_array(enhanced, denormalize=True))
         extra_images = {k: v for k, v in outputs.items() if types.is_image(v)}
         extra        = {
@@ -98,7 +93,7 @@ class ImageEnhancementModel(model.VisionModel, ABC):
         if len(image) != len(enhanced):
             raise ValueError(f"[image] and [enhanced] counts must match, "
                              f"got {len(image)} != {len(enhanced)}.")
-        if ref_image is not None:
+        if ref_image:
             if len(image) != len(ref_image):
                 raise ValueError(f"[image] and [ref_image] counts must match, "
                                  f"got {len(image)}] != [{len(ref_image)}.")
@@ -116,7 +111,3 @@ class ImageEnhancementModel(model.VisionModel, ABC):
                 v_i = v[i]
                 extra_path = save_dir / f"{i}_{k}{extension}"
                 cv2.imwrite(str(extra_path), v_i)
-    
-    # endregion
-    
-# endregion

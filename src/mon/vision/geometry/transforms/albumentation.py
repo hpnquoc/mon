@@ -11,11 +11,9 @@ from albumentations.core.transforms_interface import DualTransform
 from albumentations.core.type_definitions import Targets
 from pydantic import BaseModel, Field
 
-from mon.globals import TRANSFORMS
+from mon.constants import TRANSFORMS
 
-
-# region Blur
-
+# ----- Blur -----
 TRANSFORMS.register(name="advanced_blur", module=AdvancedBlur)
 TRANSFORMS.register(name="blur",          module=Blur)
 TRANSFORMS.register(name="defocus",       module=Defocus)
@@ -25,11 +23,8 @@ TRANSFORMS.register(name="median_blur",   module=MedianBlur)
 TRANSFORMS.register(name="motion_blur",   module=MotionBlur)
 TRANSFORMS.register(name="zoom_blur",     module=ZoomBlur)
 
-# endregion
 
-
-# region Crop
-
+# ----- Crop -----
 TRANSFORMS.register(name="at_least_one_bbox_random_crop", module=AtLeastOneBBoxRandomCrop)
 TRANSFORMS.register(name="bbox_safe_random_crop",         module=BBoxSafeRandomCrop)
 TRANSFORMS.register(name="center_crop",                   module=CenterCrop)
@@ -77,34 +72,24 @@ class CropPatch(DualTransform):
 			c = np.random.randint(0, w - self.patch_size)
 		return {"r": r, "c": c}
 
-# endregion
 
-
-# region Domain Adaptation
-
+# ----- Domain Adaptation -----
 TRANSFORMS.register(name="fda",                           module=FDA)
 TRANSFORMS.register(name="histogram_matching",            module=HistogramMatching)
 TRANSFORMS.register(name="pixel_distribution_adaptation", module=PixelDistributionAdaptation)
 TRANSFORMS.register(name="template_transform",            module=TemplateTransform)
 
-# endregion
 
-
-# region Dropout
-
+# ----- Dropout -----
 TRANSFORMS.register(name="channel_dropout", module=ChannelDropout)
 TRANSFORMS.register(name="coarse_dropout",  module=CoarseDropout)
 TRANSFORMS.register(name="grid_dropout",    module=GridDropout)
 TRANSFORMS.register(name="mask_dropout",    module=MaskDropout)
 TRANSFORMS.register(name="xy_masking",      module=XYMasking)
 
-# endregion
 
-
-# region Geometric
-
-# region Resize
-
+# ----- Geometric -----
+# ----- Resize -----
 TRANSFORMS.register(name="longest_max_size",  module=LongestMaxSize)
 TRANSFORMS.register(name="random_scale",      module=RandomScale)
 TRANSFORMS.register(name="resize",            module=Resize)
@@ -247,20 +232,12 @@ class ResizeMultipleOf(DualTransform):
 	def get_transform_init_args_names(self) -> tuple[str, ...]:
 		return "height", "width", "interpolation"
 
-# endregion
-
-
-# region Rotate
-
+# ----- Rotate -----
 TRANSFORMS.register(name="random_rotate_90", module=RandomRotate90)
 TRANSFORMS.register(name="rotate",           module=Rotate)
 TRANSFORMS.register(name="safe_rotate",      module=SafeRotate)
 
-# endregion
-
-
-# region Transform
-
+# ----- Transform -----
 TRANSFORMS.register(name="affine",              module=Affine)
 TRANSFORMS.register(name="d4",                  module=D4)
 TRANSFORMS.register(name="elastic_transform",   module=ElasticTransform)
@@ -278,36 +255,22 @@ TRANSFORMS.register(name="thin_plate_spline",   module=ThinPlateSpline)
 TRANSFORMS.register(name="transpose",           module=Transpose)
 TRANSFORMS.register(name="vertical_flip",       module=VerticalFlip)
 
-# endregion
 
-# endregion
-
-
-# region Mixing
-
+# ----- Mixing -----
 TRANSFORMS.register(name="overlay_elements", module=OverlayElements)
 
-# endregion
 
-
-# region Spectrogram
-
+# ----- Spectrogram -----
 TRANSFORMS.register(name="frequency_masking", module=FrequencyMasking)
 TRANSFORMS.register(name="time_masking",      module=TimeMasking)
 TRANSFORMS.register(name="time_reverse",      module=TimeReverse)
 
-# endregion
 
-
-# region Text
-
+# ----- Text -----
 TRANSFORMS.register(name="text_image", module=TextImage)
 
-# endregion
 
-
-# region Transform
-
+# ----- Transform -----
 TRANSFORMS.register(name="additive_noise",             module=AdditiveNoise)
 TRANSFORMS.register(name="auto_contrast",              module=AutoContrast)
 TRANSFORMS.register(name="channel_shuffle",            module=ChannelShuffle)
@@ -379,16 +342,11 @@ class NormalizeImageMeanStd(DualTransform):
 	def apply_to_mask(self, img: np.ndarray, **params) -> np.ndarray:
 		return (img - self.mean) / self.std
 		
-# endregion
 
-
-# region Transform3D
-
+# ----- Transform3D -----
 TRANSFORMS.register(name="center_crop_3d",    module=CenterCrop3D)
 TRANSFORMS.register(name="coarse_dropout_3d", module=CoarseDropout3D)
 TRANSFORMS.register(name="cubic_symmetry",    module=CubicSymmetry)
 TRANSFORMS.register(name="pad_3d",            module=Pad3D)
 TRANSFORMS.register(name="pad_if_needed_3d",  module=PadIfNeeded3D)
 TRANSFORMS.register(name="random_crop_3d",    module=RandomCrop3D)
-
-# endregion

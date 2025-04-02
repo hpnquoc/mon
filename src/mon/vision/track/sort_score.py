@@ -88,7 +88,7 @@ def associate_detections_to_tracks(
     
     return matches, np.array(unmatched_detections), np.array(unmatched_tracks)
 
-# endregion
+
 
 
 # region Track
@@ -198,7 +198,7 @@ class KalmanBoxScoreTrack(base.Track):
         """Returns the current bounding box estimate."""
         return sort.convert_x_to_bbox(self.kf.x)
     
-# endregion
+
 
 
 # region Tracker
@@ -308,5 +308,3 @@ class SORTScore(base.Tracker):
         if len(ret) > 0:
             return np.concatenate(ret)
         return np.empty((0, 5))
-    
-# endregion

@@ -17,10 +17,11 @@ from typing import Literal
 import torch
 from torchvision import models, transforms
 
-from mon.globals import LOSSES
+from mon.constants import LOSSES
 from mon.nn.loss import base
 
 
+# ----- Perceptual Loss -----
 @LOSSES.register(name="perceptual_loss")
 class PerceptualLoss(base.Loss):
     """Perceptual Loss computes feature differences between input and target using a pretrained network.

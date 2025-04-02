@@ -57,7 +57,7 @@ def custom_profile(
         elif m_type not in types_collection and report_missing:
             print(f"[WARN] Cannot find rule for [{m_type}]. Treat as zero MACs and Params.")
         
-        if fn is not None:
+        if fn:
             handler_collection[m] = (
                 m.register_forward_hook(fn),
                 m.register_forward_hook(count_parameters),

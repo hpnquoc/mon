@@ -13,15 +13,14 @@ from abc import ABC
 from torchvision.models import mobilenet_v3_large, mobilenet_v3_small
 
 from mon import core, nn
-from mon.globals import MODELS, ZOO_DIR
+from mon.constants import LType, MODELS, ZOO_DIR
 from mon.vision.classify import base
 
 current_file = core.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
 
-# region Model
-
+# ----- Model -----
 class MobileNetV3(nn.ExtraModel, base.ImageClassificationModel, ABC):
     """MobileNetV3 model for image classification.
 
@@ -29,11 +28,12 @@ class MobileNetV3(nn.ExtraModel, base.ImageClassificationModel, ABC):
         - https://arxiv.org/abs/1905.02244
     """
     
-    arch     : str              = "mobilenet"
-    ltypes   : list[core.LType] = [core.LType.SUPERVISED]
-    model_dir: core.Path        = current_dir
-    zoo      : dict             = {}
+    arch     : str         = "mobilenet"
+    ltypes   : list[LType] = [LType.SUPERVISED]
+    model_dir: core.Path   = current_dir
+    zoo      : dict        = {}
     
+    # ----- Initialization -----
     def init_weights(self, m: nn.Module):
         """Initializes weights for the model.
     
@@ -42,6 +42,7 @@ class MobileNetV3(nn.ExtraModel, base.ImageClassificationModel, ABC):
         """
         pass
 
+    # ----- Forward Pass -----
     def forward(self, datapoint: dict, *args, **kwargs) -> dict:
         """Performs forward pass on the model.
     
@@ -123,5 +124,3 @@ class MobileNetV3Small(MobileNetV3):
             self.load_weights()
         else:
             self.apply(self.init_weights)
-
-# endregion

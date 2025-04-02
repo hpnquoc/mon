@@ -13,7 +13,7 @@ import numpy as np
 from filterpy import kalman
 
 from mon import core
-from mon.globals import MOTIONS
+from mon.constants import MOTIONS
 from mon.vision.track_old.motion import base
 
 console = core.console
@@ -62,7 +62,7 @@ def box_x_to_xyxy(x: np.ndarray, score: float | None = None) -> np.ndarray:
             score
         ]).reshape((1, 5))
 
-# endregion
+
 
 
 # region Kalman Filter
@@ -165,6 +165,3 @@ class KFBBoxMotion(base.Motion):
     def current(self) -> np.ndarray:
         """Return the current motion model estimate."""
         return box_x_to_xyxy(self.kf.x)
-
-    
-# endregion

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Implements color and illumination consistency.
+"""Implements color, exposure, and illumination consistency.
 
 These losses focus on maintaining or correcting color properties, illumination, or
 exposure, ensuring natural appearance in enhanced or restored images.
@@ -21,12 +21,11 @@ from typing import Literal
 import torch
 from torch.nn.common_types import _size_2_t
 
-from mon.globals import LOSSES
+from mon.constants import LOSSES
 from mon.nn.loss import base
 
 
-# region Color
-
+# ----- Color Loss -----
 @LOSSES.register(name="color_constancy_loss")
 class ColorConstancyLoss(base.Loss):
     """Color Constancy Loss corrects potential color deviations in the enhanced image
@@ -58,12 +57,88 @@ class ColorConstancyLoss(base.Loss):
         loss       = torch.pow(torch.pow(mr - mg, 2) + torch.pow(mr - mb, 2) + torch.pow(mb - mg, 2), 0.5)
         loss       = base.reduce_loss(loss=loss, reduction=self.reduction)
         return loss
-        
-# endregion
+    
+
+# ----- Exposure Loss -----
+@LOSSES.register(name="exposure_control_loss")
+class ExposureControlLoss(base.Loss):
+    """Exposure Control Loss measures the distance between the average intensity value
+    of a local region and the well-exposedness level E.
+
+    Args:
+        patch_size: Kernel size for pooling layer as ``int`` or ``tuple[int, int]``.
+            Default is ``16``.
+        mean_val: Well-exposedness level E as ``float``. Default is ``0.6``.
+        reduction: Reduction method as ``Literal["none", "mean", "sum"]``.
+            Default is ``"mean"``.
+
+    References:
+        - https://github.com/Li-Chongyi/Zero-DCE/blob/master/Zero-DCE_code/Myloss.py#L74
+    """
+    
+    def __init__(
+        self,
+        patch_size: _size_2_t = 16,
+        mean_val  : float     = 0.6,
+        reduction : Literal["none", "mean", "sum"] = "mean",
+    ):
+        super().__init__(reduction=reduction)
+        self.patch_size = patch_size
+        self.mean_val   = mean_val
+        self.pool       = torch.nn.AvgPool2d(self.patch_size)
+    
+    def forward(self, input: torch.Tensor) -> torch.Tensor:
+        x    = torch.mean(input, 1, keepdim=True)
+        mean = self.pool(x)
+        loss = torch.pow(mean - torch.FloatTensor([self.mean_val]).to(input.device), 2)
+        loss = base.reduce_loss(loss=loss, reduction=self.reduction)
+        return loss
 
 
-# region Illumination
+@LOSSES.register(name="exposure_value_control_loss")
+class ExposureValueControlLoss(base.Loss):
+    """Exposure Value Control Loss measures the absolute value of the ``ExposureControlLoss``.
 
+    Args:
+        patch_size: Kernel size for pooling layer as ``int`` or ``tuple[int, int]``.
+            Default is ``16``.
+        mean_val: Well-exposedness level E as ``float``; lower values produce
+            brighter images. Default is ``0.6``.
+        reduction: Reduction method as ``Literal["none", "mean", "sum"]``.
+        Default is ``"mean"``.
+
+    References:
+        - https://github.com/Li-Chongyi/Zero-DCE/blob/master/Zero-DCE_code/Myloss.py#L74
+    """
+    
+    def __init__(
+        self,
+        patch_size: _size_2_t = 16,
+        mean_val  : float     = 0.6,
+        reduction : Literal["none", "mean", "sum"] = "mean",
+    ):
+        super().__init__(reduction=reduction)
+        self.patch_size = patch_size
+        self.mean_val   = mean_val
+        self.pool       = torch.nn.AvgPool2d(self.patch_size)
+    
+    def forward(self, input: torch.Tensor) -> torch.Tensor:
+        """Computes the exposure value control loss for the input tensor.
+
+        Args:
+            input: Input tensor as ``torch.Tensor`` with shape [B, C, H, W].
+
+        Returns:
+            Loss value as ``torch.Tensor``
+        """
+        x    = torch.mean(input, 1, keepdim=True)  # Channel-wise mean: [B, 1, H, W]
+        mean = self.pool(x)                        # Pooled mean: [B, 1, H', W']
+        diff = torch.abs(mean - torch.FloatTensor([self.mean_val]).to(input.device))  # Absolute difference
+        loss = base.reduce_loss(loss=diff, reduction=self.reduction)  # Reduced absolute difference
+        return loss
+
+
+# ----- Illumination Loss -----
 @LOSSES.register(name="depth_aware_illumination_loss")
 class DepthAwareIlluminationLoss(base.Loss):
     """Calculate the depth-weighted smoothness loss for 4D tensors.
@@ -207,87 +282,3 @@ class TotalVariationLoss(base.Loss):
             Number of elements as ``int``.
         """
         return t.size()[1] * t.size()[2] * t.size()[3]
-    
-# endregion
-
-
-# region Exposure
-
-@LOSSES.register(name="exposure_control_loss")
-class ExposureControlLoss(base.Loss):
-    """Exposure Control Loss measures the distance between the average intensity value
-    of a local region and the well-exposedness level E.
-
-    Args:
-        patch_size: Kernel size for pooling layer as ``int`` or ``tuple[int, int]``.
-            Default is ``16``.
-        mean_val: Well-exposedness level E as ``float``. Default is ``0.6``.
-        reduction: Reduction method as ``Literal["none", "mean", "sum"]``.
-            Default is ``"mean"``.
-
-    References:
-        - https://github.com/Li-Chongyi/Zero-DCE/blob/master/Zero-DCE_code/Myloss.py#L74
-    """
-    
-    def __init__(
-        self,
-        patch_size: _size_2_t = 16,
-        mean_val  : float     = 0.6,
-        reduction : Literal["none", "mean", "sum"] = "mean",
-    ):
-        super().__init__(reduction=reduction)
-        self.patch_size = patch_size
-        self.mean_val   = mean_val
-        self.pool       = torch.nn.AvgPool2d(self.patch_size)
-    
-    def forward(self, input: torch.Tensor) -> torch.Tensor:
-        x    = torch.mean(input, 1, keepdim=True)
-        mean = self.pool(x)
-        loss = torch.pow(mean - torch.FloatTensor([self.mean_val]).to(input.device), 2)
-        loss = base.reduce_loss(loss=loss, reduction=self.reduction)
-        return loss
-
-
-@LOSSES.register(name="exposure_value_control_loss")
-class ExposureValueControlLoss(base.Loss):
-    """Exposure Value Control Loss measures the absolute value of the ``ExposureControlLoss``.
-
-    Args:
-        patch_size: Kernel size for pooling layer as ``int`` or ``tuple[int, int]``.
-            Default is ``16``.
-        mean_val: Well-exposedness level E as ``float``; lower values produce
-            brighter images. Default is ``0.6``.
-        reduction: Reduction method as ``Literal["none", "mean", "sum"]``.
-        Default is ``"mean"``.
-
-    References:
-        - https://github.com/Li-Chongyi/Zero-DCE/blob/master/Zero-DCE_code/Myloss.py#L74
-    """
-    
-    def __init__(
-        self,
-        patch_size: _size_2_t = 16,
-        mean_val  : float     = 0.6,
-        reduction : Literal["none", "mean", "sum"] = "mean",
-    ):
-        super().__init__(reduction=reduction)
-        self.patch_size = patch_size
-        self.mean_val   = mean_val
-        self.pool       = torch.nn.AvgPool2d(self.patch_size)
-    
-    def forward(self, input: torch.Tensor) -> torch.Tensor:
-        """Computes the exposure value control loss for the input tensor.
-
-        Args:
-            input: Input tensor as ``torch.Tensor`` with shape [B, C, H, W].
-
-        Returns:
-            Loss value as ``torch.Tensor``
-        """
-        x    = torch.mean(input, 1, keepdim=True)  # Channel-wise mean: [B, 1, H, W]
-        mean = self.pool(x)                        # Pooled mean: [B, 1, H', W']
-        diff = torch.abs(mean - torch.FloatTensor([self.mean_val]).to(input.device))  # Absolute difference
-        loss = base.reduce_loss(loss=diff, reduction=self.reduction)  # Reduced absolute difference
-        return loss
-
-# endregion

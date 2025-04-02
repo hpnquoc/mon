@@ -8,7 +8,7 @@ import numpy as np
 from onnxruntime import InferenceSession
 
 from mon import core
-from mon.globals import ZOO_DIR
+from mon.constants import ZOO_DIR
 
 console      = core.console
 current_file = core.Path(__file__).absolute()

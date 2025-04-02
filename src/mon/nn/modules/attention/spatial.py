@@ -16,8 +16,7 @@ import torch
 from torch.nn.common_types import _size_2_t
 
 
-# region Pixel Attention Module
-
+# ----- Pixel Attention -----
 class PixelAttentionModule(torch.nn.Module):
     """Pixel Attention Module for spatial feature enhancement.
 
@@ -63,5 +62,3 @@ class PixelAttentionModule(torch.nn.Module):
 
 
 PAM = PixelAttentionModule
-
-# endregion

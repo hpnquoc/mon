@@ -17,9 +17,10 @@ from typing import Literal
 import cv2
 
 from mon import core, vision
-from mon.globals import DATA_DIR, DATAMODULES, DATASETS
+from mon.constants import DATA_DIR, DATAMODULES, DATASETS, Split, Task
 
 
+# ----- Dataset -----
 @DATASETS.register(name="cityscapes")
 class Cityscapes(vision.VisionDataset):
     """Loads and processes the Cityscapes dataset.
@@ -35,9 +36,9 @@ class Cityscapes(vision.VisionDataset):
         FileNotFoundError: If ``root``/cityscapes directory does not exist.
     """
 
-    tasks : list[core.Task]    = [core.Task.SEGMENT]
-    splits: list[core.Split]   = [core.Split.TRAIN, core.Split.VAL, core.Split.TEST]
-    datapoint_attrs            = vision.DatapointAttributes({
+    tasks : list[Task]  = [Task.SEGMENT]
+    splits: list[Split] = [Split.TRAIN, Split.VAL, Split.TEST]
+    datapoint_attrs     = vision.DatapointAttributes({
         "image"   : vision.ImageAnnotation,
         "semantic": vision.SemanticSegmentationAnnotation,
     })
@@ -126,11 +127,12 @@ class Cityscapes(vision.VisionDataset):
         self.datapoints["semantic"] = semantic
 
 
+# ----- DataModule -----
 @DATAMODULES.register(name="cityscapes")
 class CityscapesDataModule(core.DataModule):
     """Manages Cityscapes dataset loading and setup for training, validation, and testing."""
 
-    tasks: list[core.Task] = [core.Task.SEGMENT]
+    tasks: list[Task] = [Task.SEGMENT]
 
     def prepare_data(self, *args, **kwargs):
         """Prepares data (placeholder, no action taken)."""
@@ -147,10 +149,10 @@ class CityscapesDataModule(core.DataModule):
             core.console.log(f"Setup [red]{self.__class__.__name__}[/red].")
 
         if stage in [None, "train"]:
-            self.train = Cityscapes(split=core.Split.TRAIN, **self.dataset_kwargs)
-            self.val   = Cityscapes(split=core.Split.VAL,   **self.dataset_kwargs)
+            self.train = Cityscapes(split=Split.TRAIN, **self.dataset_kwargs)
+            self.val   = Cityscapes(split=Split.VAL,   **self.dataset_kwargs)
         if stage in [None, "test"]:
-            self.test  = Cityscapes(split=core.Split.TEST,  **self.dataset_kwargs)
+            self.test  = Cityscapes(split=Split.TEST,  **self.dataset_kwargs)
 
         self.get_classlabels()
         if self.can_log:

@@ -17,9 +17,10 @@ __all__ = [
 from typing import Literal
 
 from mon import core, vision
-from mon.globals import DATA_DIR, DATAMODULES, DATASETS
+from mon.constants import DATA_DIR, DATAMODULES, DATASETS, Split, Task
 
 
+# ----- Dataset -----
 @DATASETS.register(name="sice")
 class SICE(vision.VisionDataset):
     """Loads SICE dataset from ``root`` dir.
@@ -33,9 +34,9 @@ class SICE(vision.VisionDataset):
         FileNotFoundError: If ``root`` directory does not exist.
     """
     
-    tasks : list[core.Task]    = [core.Task.LLIE]
-    splits: list[core.Split]   = [core.Split.TRAIN, core.Split.TEST]
-    datapoint_attrs            = vision.DatapointAttributes({
+    tasks : list[Task]  = [Task.LLIE]
+    splits: list[Split] = [Split.TRAIN, Split.TEST]
+    datapoint_attrs     = vision.DatapointAttributes({
         "image"    : vision.ImageAnnotation,
         "depth"    : vision.DepthMapAnnotation,
         "ref_image": vision.ImageAnnotation,
@@ -79,8 +80,8 @@ class SICEGrad(vision.VisionDataset):
         FileNotFoundError: If ``root`` directory does not exist.
     """
     
-    tasks : list[core.Task]  = [core.Task.LLIE]
-    splits: list[core.Split] = [core.Split.TRAIN, core.Split.TEST]
+    tasks : list[Task]  = [Task.LLIE]
+    splits: list[Split] = [Split.TRAIN, Split.TEST]
     datapoint_attrs     = vision.DatapointAttributes({
         "image"    : vision.ImageAnnotation,
         "depth"    : vision.DepthMapAnnotation,
@@ -125,8 +126,8 @@ class SICEME(vision.VisionDataset):
         FileNotFoundError: If ``root`` directory does not exist.
     """
     
-    tasks : list[core.Task]  = [core.Task.LLIE]
-    splits: list[core.Split] = [core.Split.TRAIN]
+    tasks : list[Task]  = [Task.LLIE]
+    splits: list[Split] = [Split.TRAIN]
     datapoint_attrs     = vision.DatapointAttributes({
         "image": vision.ImageAnnotation,
         "depth": vision.DepthMapAnnotation,
@@ -169,8 +170,8 @@ class SICEMix(vision.VisionDataset):
         FileNotFoundError: If ``root`` directory does not exist.
     """
     
-    tasks : list[core.Task]  = [core.Task.LLIE]
-    splits: list[core.Split] = [core.Split.TRAIN, core.Split.TEST]
+    tasks : list[Task]  = [Task.LLIE]
+    splits: list[Split] = [Split.TRAIN, Split.TEST]
     datapoint_attrs     = vision.DatapointAttributes({
         "image"    : vision.ImageAnnotation,
         "depth"    : vision.DepthMapAnnotation,
@@ -202,6 +203,7 @@ class SICEMix(vision.VisionDataset):
         self.datapoints["image"] = images
 
 
+# ----- DataModule -----
 @DATAMODULES.register(name="sice")
 class SICEDataModule(core.DataModule):
     """Configures SICE datasets for training/testing.
@@ -211,7 +213,7 @@ class SICEDataModule(core.DataModule):
         **kwargs: Additional kwargs for parent class.
     """
     
-    tasks: list[core.Task] = [core.Task.LLIE]
+    tasks: list[Task] = [Task.LLIE]
     
     def prepare_data(self, *args, **kwargs):
         """Prepares data (placeholder, no action taken)."""
@@ -228,10 +230,10 @@ class SICEDataModule(core.DataModule):
             core.console.log(f"Setup [red]{self.__class__.__name__}[/red].")
         
         if stage in [None, "train"]:
-            self.train = SICE(split=core.Split.TRAIN, **self.dataset_kwargs)
-            self.val   = SICE(split=core.Split.TEST,  **self.dataset_kwargs)
+            self.train = SICE(split=Split.TRAIN, **self.dataset_kwargs)
+            self.val   = SICE(split=Split.TEST,  **self.dataset_kwargs)
         if stage in [None, "test"]:
-            self.test  = SICE(split=core.Split.TEST,  **self.dataset_kwargs)
+            self.test  = SICE(split=Split.TEST,  **self.dataset_kwargs)
         
         self.get_classlabels()
         if self.can_log:
@@ -247,7 +249,7 @@ class SICEGradDataModule(core.DataModule):
         **kwargs: Additional kwargs for parent class.
     """
     
-    tasks: list[core.Task] = [core.Task.LLIE]
+    tasks: list[Task] = [Task.LLIE]
     
     def prepare_data(self, *args, **kwargs):
         """Prepares data (placeholder, no action taken)."""
@@ -264,10 +266,10 @@ class SICEGradDataModule(core.DataModule):
             core.console.log(f"Setup [red]{self.__class__.__name__}[/red].")
         
         if stage in [None, "train"]:
-            self.train = SICEGrad(split=core.Split.TRAIN, **self.dataset_kwargs)
-            self.val   = SICEGrad(split=core.Split.TEST,  **self.dataset_kwargs)
+            self.train = SICEGrad(split=Split.TRAIN, **self.dataset_kwargs)
+            self.val   = SICEGrad(split=Split.TEST,  **self.dataset_kwargs)
         if stage in [None, "test"]:
-            self.test  = SICEGrad(split=core.Split.TEST,  **self.dataset_kwargs)
+            self.test  = SICEGrad(split=Split.TEST,  **self.dataset_kwargs)
         
         self.get_classlabels()
         if self.can_log:
@@ -283,7 +285,7 @@ class SICEMEDataModule(core.DataModule):
         **kwargs: Additional kwargs for parent class.
     """
     
-    tasks: list[core.Task] = [core.Task.LLIE]
+    tasks: list[Task] = [Task.LLIE]
     
     def prepare_data(self, *args, **kwargs):
         """Prepares data (placeholder, no action taken)."""
@@ -300,10 +302,10 @@ class SICEMEDataModule(core.DataModule):
             core.console.log(f"Setup [red]{self.__class__.__name__}[/red].")
         
         if stage in [None, "train"]:
-            self.train = SICEME(split=core.Split.TRAIN, **self.dataset_kwargs)
-            self.val   = SICEME(split=core.Split.TEST,  **self.dataset_kwargs)
+            self.train = SICEME(split=Split.TRAIN, **self.dataset_kwargs)
+            self.val   = SICEME(split=Split.TEST,  **self.dataset_kwargs)
         if stage in [None, "test"]:
-            self.test  = SICEME(split=core.Split.TEST,  **self.dataset_kwargs)
+            self.test  = SICEME(split=Split.TEST,  **self.dataset_kwargs)
             
         self.get_classlabels()
         if self.can_log:
@@ -319,7 +321,7 @@ class SICEMixDataModule(core.DataModule):
         **kwargs: Additional kwargs for parent class.
     """
     
-    tasks: list[core.Task] = [core.Task.LLIE]
+    tasks: list[Task] = [Task.LLIE]
     
     def prepare_data(self, *args, **kwargs):
         """Prepares data (placeholder, no action taken)."""
@@ -336,10 +338,10 @@ class SICEMixDataModule(core.DataModule):
             core.console.log(f"Setup [red]{self.__class__.__name__}[/red].")
         
         if stage in [None, "train"]:
-            self.train = SICEMix(split=core.Split.TRAIN, **self.dataset_kwargs)
-            self.val   = SICEMix(split=core.Split.TEST,  **self.dataset_kwargs)
+            self.train = SICEMix(split=Split.TRAIN, **self.dataset_kwargs)
+            self.val   = SICEMix(split=Split.TEST,  **self.dataset_kwargs)
         if stage in [None, "test"]:
-            self.test  = SICEMix(split=core.Split.TEST,  **self.dataset_kwargs)
+            self.test  = SICEMix(split=Split.TEST,  **self.dataset_kwargs)
         
         self.get_classlabels()
         if self.can_log:

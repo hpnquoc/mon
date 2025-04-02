@@ -46,8 +46,7 @@ from torch.nn.modules.normalization import (
 )
 
 
-# region Batch Normalization
-
+# ----- Batch Normalization -----
 class AdaptiveBatchNorm2d(torch.nn.Module):
     """Applies adaptive batch normalization to 2D data.
 
@@ -78,11 +77,8 @@ class AdaptiveBatchNorm2d(torch.nn.Module):
         """
         return self.w0 * input + self.w1 * self.norm(input)
 
-# endregion
 
-
-# region Instance Normalization
-
+# ----- Instance Normalization -----
 class AdaptiveInstanceNorm2d(torch.nn.Module):
     """Applies adaptive instance normalization to 2D data.
 
@@ -245,11 +241,8 @@ class HalfInstanceNorm2d(torch.nn.InstanceNorm2d):
         )
         return torch.cat([y1, y2], dim=1 if input.dim() == 4 else 0)
  
-# endregion
 
-
-# region Layer Normalization
-
+# ----- Layer Normalization -----
 class LayerNorm2d(torch.nn.LayerNorm):
     """Normalizes channels of 2D spatial tensors [B, C, H, W].
 
@@ -296,5 +289,3 @@ class LayerNorm2d(torch.nn.LayerNorm):
             bias               = self.bias,
             eps                = self.eps
         ).permute(0, 3, 1, 2)
-
-# endregion

@@ -11,9 +11,10 @@ __all__ = [
 from typing import Literal
 
 from mon import core, vision
-from mon.globals import DATA_DIR, DATAMODULES, DATASETS
+from mon.constants import DATA_DIR, DATAMODULES, DATASETS, Split, Task
 
 
+# ----- Dataset -----
 @DATASETS.register(name="rain800")
 class Rain800(vision.VisionDataset):
     """Loads Rain800 dataset from ``root`` dir.
@@ -27,9 +28,9 @@ class Rain800(vision.VisionDataset):
         FileNotFoundError: If ``root`` directory does not exist.
     """
 
-    tasks : list[core.Task]    = [core.Task.DERAIN]
-    splits: list[core.Split]   = [core.Split.TRAIN, core.Split.VAL, core.Split.TEST]
-    datapoint_attrs            = vision.DatapointAttributes({
+    tasks : list[Task]  = [Task.DERAIN]
+    splits: list[Split] = [Split.TRAIN, Split.VAL, Split.TEST]
+    datapoint_attrs     = vision.DatapointAttributes({
         "image"    : vision.ImageAnnotation,
         "ref_image": vision.ImageAnnotation,
     })
@@ -58,6 +59,7 @@ class Rain800(vision.VisionDataset):
         self.datapoints["image"] = images
 
 
+# ----- DataModule -----
 @DATAMODULES.register(name="rain800")
 class Rain800DataModule(core.DataModule):
     """Configures Rain800 datasets for training/testing.
@@ -67,7 +69,7 @@ class Rain800DataModule(core.DataModule):
         **kwargs: Additional kwargs for parent class.
     """
 
-    tasks: list[core.Task] = [core.Task.DERAIN]
+    tasks: list[Task] = [Task.DERAIN]
     
     def prepare_data(self, *args, **kwargs):
         """Prepares data (placeholder, no action taken)."""
@@ -84,10 +86,10 @@ class Rain800DataModule(core.DataModule):
             core.console.log(f"Setup [red]{self.__class__.__name__}[/red].")
         
         if stage in [None, "train"]:
-            self.train = Rain800(split=core.Split.TRAIN, **self.dataset_kwargs)
-            self.val   = Rain800(split=core.Split.VAL,   **self.dataset_kwargs)
+            self.train = Rain800(split=Split.TRAIN, **self.dataset_kwargs)
+            self.val   = Rain800(split=Split.VAL,   **self.dataset_kwargs)
         if stage in [None, "test"]:
-            self.test  = Rain800(split=core.Split.TEST,  **self.dataset_kwargs)
+            self.test  = Rain800(split=Split.TEST,  **self.dataset_kwargs)
         
         self.get_classlabels()
         if self.can_log:

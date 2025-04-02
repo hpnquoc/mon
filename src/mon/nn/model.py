@@ -18,15 +18,14 @@ import lightning.pytorch.utilities.types
 import torch.hub
 
 from mon import core
-from mon.globals import LOSSES, LR_SCHEDULERS, METRICS, OPTIMIZERS
+from mon.constants import LOSSES, LR_SCHEDULERS, LType, METRICS, OPTIMIZERS, Task
 from mon.nn import loss as L, metric as M
 
 StepOutput  = lightning.pytorch.utilities.types.STEP_OUTPUT
 EpochOutput = Any  # lightning.pytorch.utilities.types.EPOCH_OUTPUT
 
 
-# region Utils
-
+# ----- Utils -----
 def is_image(image: torch.Tensor) -> bool:
     """Checks if input is a valid image tensor.
 
@@ -39,11 +38,8 @@ def is_image(image: torch.Tensor) -> bool:
     from mon.vision.types import image as I
     return I.is_image(image)
     
-# endregion
-
-
-# region Weights
-
+    
+# ----- Weights -----
 def load_weights(
     model       : torch.nn.Module,
     weights     : dict | str | core.Path,
@@ -76,11 +72,8 @@ def load_weights(
 
     return state_dict["state_dict"] if "state_dict" in state_dict else state_dict
 
-# endregion
 
-
-# region Model
-
+# ----- Model -----
 class Model(lightning.LightningModule, ABC):
     """The base class for all machine learning models.
     
@@ -136,12 +129,12 @@ class Model(lightning.LightningModule, ABC):
             >>> )
     """
     
-    arch     : str              = ""    # The model's architecture.
-    name     : str              = ""    # The model's name.
-    tasks    : list[core.Task]  = []    # A list of tasks that the model can perform.
-    ltypes   : list[core.LType] = []    # A list of learning types that the model can perform.
-    model_dir: core.Path        = None
-    zoo      : dict             = {}    # A dictionary containing all pretrained weights of the model.
+    arch     : str         = ""         # The model's architecture.
+    name     : str         = ""         # The model's name.
+    tasks    : list[Task]  = []         # A list of tasks that the model can perform.
+    ltypes   : list[LType] = []         # A list of learning types that the model can perform.
+    model_dir: core.Path   = None
+    zoo      : dict        = {}         # A dictionary containing all pretrained weights of the model.
     
     def __init__(
         self,
@@ -179,8 +172,7 @@ class Model(lightning.LightningModule, ABC):
         self.init_loss(loss)
         self.init_metrics(metrics)
         
-    # region Properties
-    
+    # ----- Properties -----
     @property
     def fullname(self) -> str:
         """Returns the model's full name as name-suffix.
@@ -274,10 +266,7 @@ class Model(lightning.LightningModule, ABC):
         """
         self._debug = debug
     
-    # endregion
-    
-    # region Initialization
-    
+    # ----- Initialization -----
     def init_name(self):
         """Sets the model's name if not already defined."""
         if not self.name:
@@ -525,10 +514,7 @@ class Model(lightning.LightningModule, ABC):
         core.error_console.log("[yellow]This method has not been implemented yet![/yellow].")
         return 0.0, 0.0
     
-    # endregion
-    
-    # region Forward Pass
-    
+    # ----- Forward Pass -----
     @abstractmethod
     def forward_loss(self, datapoint: dict, *args, **kwargs) -> dict:
         """Computes forward pass and loss.
@@ -567,10 +553,7 @@ class Model(lightning.LightningModule, ABC):
         """
         pass
     
-    # endregion
-    
-    # region Training
-    
+    # ----- Training -----
     def on_fit_start(self):
         """Runs at the start of model fitting."""
         self.create_dir()
@@ -598,7 +581,7 @@ class Model(lightning.LightningModule, ABC):
         log_values |= {
             f"train/{k}": v
             for k, v in outputs.items()
-            if v is not None and not is_image(v)
+            if v and not is_image(v)
         }
         self.log_dict(
             dictionary     = log_values,
@@ -641,7 +624,7 @@ class Model(lightning.LightningModule, ABC):
         log_values |= {
             f"val/{k}": v
             for k, v in outputs.items()
-            if v is not None and not is_image(v)
+            if v and not is_image(v)
         }
         self.log_dict(
             dictionary     = log_values,
@@ -695,7 +678,7 @@ class Model(lightning.LightningModule, ABC):
         log_values |= {
             f"test/{k}": v
             for k, v in outputs.items()
-            if v is not None and not is_image(v)
+            if v and not is_image(v)
         }
         self.log_dict(
             dictionary     = log_values,
@@ -722,10 +705,7 @@ class Model(lightning.LightningModule, ABC):
             for metric in self.test_metrics:
                 metric.reset()
     
-    # endregion
-    
-    # region Predicting
-    
+    # ----- Predicting -----
     def infer(self, datapoint: dict, *args, **kwargs) -> dict:
         """Infers model output with optional processing.
     
@@ -742,10 +722,7 @@ class Model(lightning.LightningModule, ABC):
         """
         return self.forward(datapoint, *args, **kwargs)
     
-    # endregion
-    
-    # region Exporting
-    
+    # ----- Exporting -----
     def export_to_onnx(
         self,
         input_dims   : list[int] = None,
@@ -805,10 +782,7 @@ class Model(lightning.LightningModule, ABC):
         script       = self.to_torchscript(method=method, example_inputs=input_sample)
         torch.jit.save(script, file_path)
     
-    # endregion
-    
-    # region Logging
-    
+    # ----- Logging -----
     def should_log_images(self) -> bool:
         """Checks if debug images should be logged.
     
@@ -833,12 +807,6 @@ class Model(lightning.LightningModule, ABC):
         """
         pass
     
-    # endregion
-    
-# endregion
-
-
-# region Extra Model
 
 class ExtraModel(Model, ABC):
     """Wraps a third-party model for mon integration.
@@ -867,5 +835,3 @@ class ExtraModel(Model, ABC):
             self.model.load_state_dict(state_dict=state_dict)
             if self.verbose:
                 core.console.log(f"Loaded model's weights from: {self.weights}.")
-
-# endregion

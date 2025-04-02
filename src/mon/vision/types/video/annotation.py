@@ -14,14 +14,20 @@ from mon import core
 from mon.vision.types import image as I
 
 
+# ----- Annotation -----
 class FrameAnnotation(core.Annotation):
     """Frame annotation of a video frame.
-
+    
+    Attributes:
+        albumentation_target_type: Type of target for Albumentations. Default is ``image``.
+        
     Args:
         index: Integer index of frame in video.
         frame: Ground-truth image as ``numpy.ndarray``.
         path: Path to video file as ``core.Path`` or ``str``. Default is ``None``.
     """
+    
+    albumentation_target_type: str = "image"
     
     def __init__(
         self,

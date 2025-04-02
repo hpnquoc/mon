@@ -15,8 +15,7 @@ from mon import core
 from mon.nn import strategy
 
 
-# region Trainer
-
+# ----- Trainer -----
 class Trainer(lightning.Trainer):
     """Extends lightning.Trainer with custom methods and properties.
 
@@ -77,5 +76,3 @@ class Trainer(lightning.Trainer):
                 f"MPS available but not used. Set `accelerator` and `devices` using "
                 f"Trainer(accelerator='mps', devices={strategy.MPSAccelerator.auto_device_count()})."
             )
-
-# endregion

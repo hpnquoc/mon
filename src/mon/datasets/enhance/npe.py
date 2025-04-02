@@ -11,9 +11,10 @@ __all__ = [
 from typing import Literal
 
 from mon import core, vision
-from mon.globals import DATA_DIR, DATAMODULES, DATASETS
+from mon.constants import DATA_DIR, DATAMODULES, DATASETS, Split, Task
 
 
+# ----- Dataset -----
 @DATASETS.register(name="npe")
 class NPE(vision.VisionDataset):
     """Loads NPE dataset from ``root`` dir.
@@ -27,9 +28,9 @@ class NPE(vision.VisionDataset):
         FileNotFoundError: If ``root`` directory does not exist.
     """
 
-    tasks : list[core.Task]    = [core.Task.LLIE]
-    splits: list[core.Split]   = [core.Split.TEST]
-    datapoint_attrs            = vision.DatapointAttributes({
+    tasks : list[Task]  = [Task.LLIE]
+    splits: list[Split] = [Split.TEST]
+    datapoint_attrs     = vision.DatapointAttributes({
         "image": vision.ImageAnnotation,
         "depth": vision.DepthMapAnnotation,
     })
@@ -60,6 +61,7 @@ class NPE(vision.VisionDataset):
         self.datapoints["image"] = images
 
 
+# ----- DataModule -----
 @DATAMODULES.register(name="npe")
 class NPEDataModule(core.DataModule):
     """Configures NPE datasets for training/testing.
@@ -69,7 +71,7 @@ class NPEDataModule(core.DataModule):
         **kwargs: Additional kwargs for parent class.
     """
 
-    tasks: list[core.Task] = [core.Task.LLIE]
+    tasks: list[Task] = [Task.LLIE]
     
     def prepare_data(self, *args, **kwargs):
         """Prepares data (placeholder, no action taken)."""
@@ -86,10 +88,10 @@ class NPEDataModule(core.DataModule):
             core.console.log(f"Setup [red]{self.__class__.__name__}[/red].")
         
         if stage in [None, "train"]:
-            self.train = NPE(split=core.Split.TEST, **self.dataset_kwargs)
-            self.val   = NPE(split=core.Split.TEST, **self.dataset_kwargs)
+            self.train = NPE(split=Split.TEST, **self.dataset_kwargs)
+            self.val   = NPE(split=Split.TEST, **self.dataset_kwargs)
         if stage in [None, "test"]:
-            self.test  = NPE(split=core.Split.TEST, **self.dataset_kwargs)
+            self.test  = NPE(split=Split.TEST, **self.dataset_kwargs)
         
         self.get_classlabels()
         if self.can_log:

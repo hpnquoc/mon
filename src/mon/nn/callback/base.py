@@ -33,11 +33,9 @@ from lightning.pytorch.callbacks import (
     TQDMProgressBar,
 )
 
-from mon.globals import CALLBACKS
+from mon.constants import CALLBACKS
 
-
-# region Callback
-
+# ----- Registering -----
 TimerCallback = Timer
 
 CALLBACKS.register(name="backbone_finetuning",             module=BackboneFinetuning)
@@ -54,5 +52,3 @@ CALLBACKS.register(name="spike_detection",                 module=SpikeDetection
 CALLBACKS.register(name="stochastic_weight_averaging",     module=StochasticWeightAveraging)
 CALLBACKS.register(name="timer",                           module=TimerCallback)
 CALLBACKS.register(name="tqdm_progress_bar",               module=TQDMProgressBar)
-
-# endregion

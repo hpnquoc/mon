@@ -14,14 +14,20 @@ import torch
 from mon import core
 
 
+# ----- Annotation -----
 class BBoxAnnotation(core.Annotation):
     """Bounding box annotation in an image with coordinates and optional mask.
-
+    
+    Attributes:
+        albumentation_target_type: Type of target for Albumentations. Default is ``bboxes``.
+    
     Args:
         class_id: Integer class ID, ``-1`` for unknown.
         bbox: Box coordinates as [4]-shaped array, list, or tuple.
         confidence: Confidence score in [0.0, 1.0]. Default is ``1.0``.
     """
+    
+    albumentation_target_type: str = "bboxes"
     
     def __init__(
         self,
@@ -123,7 +129,13 @@ class BBoxAnnotation(core.Annotation):
 
 
 class BBoxesAnnotation(list[BBoxAnnotation]):
-    """List of bounding box annotations in an image."""
+    """List of bounding box annotations in an image.
+    
+    Attributes:
+        albumentation_target_type: Type of target for Albumentations. Default is ``bboxes``.
+    """
+    
+    albumentation_target_type: str = "bboxes"
     
     @property
     def data(self) -> list[list[float | int]] | None:

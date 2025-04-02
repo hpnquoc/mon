@@ -11,9 +11,10 @@ __all__ = [
 from typing import Literal
 
 from mon import core, vision
-from mon.globals import DATA_DIR, DATAMODULES, DATASETS
+from mon.constants import DATA_DIR, DATAMODULES, DATASETS, Split, Task
 
 
+# ----- Dataset -----
 @DATASETS.register(name="darkcityscapes")
 class DarkCityscapes(vision.VisionDataset):
     """Loads DarkCityscapes dataset from ``root`` dir.
@@ -27,9 +28,9 @@ class DarkCityscapes(vision.VisionDataset):
         FileNotFoundError: If ``root`` directory does not exist.
     """
     
-    tasks : list[core.Task]    = [core.Task.LLIE, core.Task.SEGMENT]
-    splits: list[core.Split]   = [core.Split.TEST]
-    datapoint_attrs            = vision.DatapointAttributes({
+    tasks : list[Task]  = [Task.LLIE, Task.SEGMENT]
+    splits: list[Split] = [Split.TEST]
+    datapoint_attrs     = vision.DatapointAttributes({
         "image"    : vision.ImageAnnotation,
         "depth"    : vision.DepthMapAnnotation,
         "ref_image": vision.ImageAnnotation,
@@ -60,6 +61,7 @@ class DarkCityscapes(vision.VisionDataset):
         self.datapoints["image"] = images
 
 
+# ----- DataModule -----
 @DATAMODULES.register(name="darkcityscapes")
 class DarkCityscapesDataModule(core.DataModule):
     """Configures DarkCityscapes datasets for training/testing.
@@ -68,7 +70,8 @@ class DarkCityscapesDataModule(core.DataModule):
         *args: Additional args for parent class.
         **kwargs: Additional kwargs for parent class.
     """
-    tasks: list[core.Task] = [core.Task.LLIE]
+   
+    tasks: list[Task] = [Task.LLIE]
 
     def prepare_data(self, *args, **kwargs) -> None:
         """Prepares data (placeholder, no action taken)."""
@@ -85,10 +88,10 @@ class DarkCityscapesDataModule(core.DataModule):
             core.console.log(f"Setup [red]{self.__class__.__name__}[/red].")
 
         if stage in [None, "train"]:
-            self.train = DarkCityscapes(split=core.Split.TEST, **self.dataset_kwargs)
-            self.val   = DarkCityscapes(split=core.Split.TEST, **self.dataset_kwargs)
+            self.train = DarkCityscapes(split=Split.TEST, **self.dataset_kwargs)
+            self.val   = DarkCityscapes(split=Split.TEST, **self.dataset_kwargs)
         if stage in [None, "test"]:
-            self.test  = DarkCityscapes(split=core.Split.TEST, **self.dataset_kwargs)
+            self.test  = DarkCityscapes(split=Split.TEST, **self.dataset_kwargs)
 
         self.get_classlabels()
         if self.can_log:

@@ -8,11 +8,12 @@ from typing import Any, TextIO
 
 import numpy as np
 
+from mon.constants import SERIALIZERS
 from mon.core import pathlib
 from mon.core.serializers import base
-from mon.globals import SERIALIZERS
 
 
+# ----- Serializer -----
 @SERIALIZERS.register(name=".json")
 class JSONSerializer(base.BaseSerializer):
     """Handler for JSON file operations."""

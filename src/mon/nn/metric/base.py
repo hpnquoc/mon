@@ -37,8 +37,7 @@ from torchmetrics import (
 )
 
 
-# region Base
-
+# ----- Base Metric -----
 class Metric(torchmetrics.Metric, ABC):
     """Base class for all metrics.
 
@@ -57,11 +56,8 @@ class Metric(torchmetrics.Metric, ABC):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-# endregion
 
-
-# region Scale
-
+# ----- GT Mean -----
 def scale_gt_mean(
     image : torch.Tensor | np.ndarray,
     target: torch.Tensor | np.ndarray
@@ -95,5 +91,3 @@ def scale_gt_mean(
         raise TypeError(f"[image] and [target] must be same type, "
                         f"got {type(image).__name__} and {type(target).__name__}.")
     return image
-    
-# endregion

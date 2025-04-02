@@ -45,11 +45,10 @@ from torch.nn.modules.loss import (
 )
 
 from mon import core
-from mon.globals import LOSSES
+from mon.constants import LOSSES
 
 
-# region Base Loss
-
+# ----- Base Loss -----
 def reduce_loss(
     loss     : torch.Tensor,
     reduction: Literal["mean", "sum", "none"] = "mean"
@@ -106,12 +105,9 @@ class Loss(_Loss, ABC):
             Output as ``torch.Tensor``.
         """
         pass
-    
-# endregion
 
 
-# region Basic Loss
-
+# ----- Core Loss -----
 @LOSSES.register(name="charbonnier_loss")
 class CharbonnierLoss(Loss):
     """Computes the Charbonnier loss between input and target tensors.
@@ -218,6 +214,7 @@ class ExtendedL1Loss(Loss):
         return reduce_loss(loss=loss, reduction=self.reduction)
     
 
+# ----- Registering -----
 LOSSES.register(name="bce_loss",                          module=BCELoss)
 LOSSES.register(name="bce_with_logits_loss",              module=BCEWithLogitsLoss)
 LOSSES.register(name="cosine_embedding_loss",             module=CosineEmbeddingLoss)
@@ -239,5 +236,3 @@ LOSSES.register(name="smooth_l1_loss",                    module=SmoothL1Loss)
 LOSSES.register(name="soft_margin_loss",                  module=SoftMarginLoss)
 LOSSES.register(name="triplet_margin_loss",               module=TripletMarginLoss)
 LOSSES.register(name="triplet_margin_with_distance_Loss", module=TripletMarginWithDistanceLoss)
-
-# endregion

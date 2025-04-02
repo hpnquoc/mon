@@ -33,8 +33,7 @@ current_dir  = current_file.parents[0]
 DehazeResult = namedtuple("DehazeResult", ["learned", "t", "a"])
 
 
-# region Predict
-
+# ----- Predict -----
 class Dehaze:
     
     def __init__(self, image_name, image, num_iter=500, clip=True, output_path="output"):
@@ -279,11 +278,8 @@ def predict(args: argparse.Namespace):
     # Finish
     mon.console.log(f"Average time: {timer.avg_time}")
 
-# endregion
 
-
-# region Main
-
+# ----- Main -----
 def main() -> str:
     args = mon.parse_predict_args(model_root=current_dir)
     predict(args)
@@ -291,5 +287,3 @@ def main() -> str:
 
 if __name__ == "__main__":
     main()
-    
-# endregion

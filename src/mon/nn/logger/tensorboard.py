@@ -21,11 +21,10 @@ from tensorboard.compat.proto.event_pb2 import Event, SessionLog
 from tensorboard.summary.writer import event_file_writer, record_writer
 from torch.utils import tensorboard
 
-from mon.globals import LOGGERS
+from mon.constants import LOGGERS
 
 
-# region Tensorboard
-
+# ----- Tensorboard -----
 class EventFileWriter(event_file_writer.EventFileWriter):
     """Writes TensorFlow event files to a log directory.
 
@@ -149,11 +148,8 @@ def _get_rank() -> int:
 # Add the attribute to the function but don't overwrite in case Trainer has already set it
 rank_zero_only.rank = getattr(rank_zero_only, "rank", _get_rank())
 
-# endregion
 
-
-# region Tensorboard Logger
-
+# ----- Tensorboard Logger -----
 @LOGGERS.register(name="tensorboard")
 @LOGGERS.register(name="tensorboard_logger")
 class TensorBoardLogger(loggers.TensorBoardLogger):
@@ -183,5 +179,3 @@ class TensorBoardLogger(loggers.TensorBoardLogger):
             self._fs.makedirs(self.root_dir, exist_ok=True)
         self._experiment = SummaryWriter(log_dir=self.log_dir, **self._kwargs)
         return self._experiment
-
-# endregion

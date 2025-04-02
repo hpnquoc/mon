@@ -14,8 +14,7 @@ from torch.nn.common_types import _size_2_t
 from mon import core
 
 
-# region Efficiency Metric
-
+# ----- Efficiency -----
 def compute_efficiency_score(
     model     : torch.nn.Module,
     image_size: _size_2_t = 512,
@@ -43,5 +42,3 @@ def compute_efficiency_score(
     params = sum(params.values())   if isinstance(params, dict) else params
 
     return flops, params
-
-# endregion

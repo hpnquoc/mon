@@ -20,7 +20,7 @@ import torch
 from fvcore.nn import parameter_count
 
 from mon import core, nn
-from mon.globals import MODELS
+from mon.constants import LType, MODELS, Task
 from mon.nn import init
 from mon.vision import types, filtering, geometry
 from mon.vision.types import image as I
@@ -30,8 +30,7 @@ current_file = core.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
 
-# region Loss
-
+# ----- Loss -----
 class Loss(nn.Loss):
     
     def __init__(
@@ -75,7 +74,7 @@ class Loss(nn.Loss):
         loss_col = self.loss_col(input=enhance)               if self.weight_col  > 0 else 0
         loss_exp = self.loss_exp(input=enhance)               if self.weight_exp  > 0 else 0
         loss_spa = self.loss_spa(input=enhance, target=input) if self.weight_spa  > 0 else 0
-        if adjust is not None:
+        if adjust:
             loss_tva = self.loss_tva(input=adjust)  if self.weight_tva > 0 else 0
         else:
             loss_tva = self.loss_tva(input=enhance) if self.weight_tva > 0 else 0
@@ -87,11 +86,8 @@ class Loss(nn.Loss):
         )
         return loss
         
-# endregion
 
-
-# region Module
-
+# ----- Module -----
 class LRNet(nn.Module):
     
     def __init__(
@@ -283,12 +279,12 @@ class EnhanceNet(nn.Module):
         x    = image
         gray = kornia.color.rgb_to_grayscale(image)
         edge = None
-        if depth is not None and types.is_image_colored(depth):
+        if depth and types.is_image_colored(depth):
             depth = kornia.color.rgb_to_grayscale(depth)
         if self.use_depth:
             x = torch.cat([x, depth], 1)
         if self.use_edge:
-            if depth is not None:
+            if depth:
                 edge = self.dba(depth)
             else:
                 edge = self.dba(gray)
@@ -325,21 +321,18 @@ class DenoiseNet(nn.Module):
         y = self.conv3(x)
         return y
 
-# endregion
 
-
-# region Model
-
+# ----- Model -----
 @MODELS.register(name="gcenet", arch="gcenet")
 class GCENet(base.ImageEnhancementModel):
     """Guided Curve Estimation Network for Low-Light Image Enhancement."""
     
-    arch     : str              = "gcenet"
-    name     : str              = "gcenet"
-    tasks    : list[core.Task]  = [core.Task.LLIE]
-    ltypes   : list[core.LType] = [core.LType.UNSUPERVISED]
-    model_dir: core.Path        = current_dir
-    zoo      : dict             = {}
+    arch     : str         = "gcenet"
+    name     : str         = "gcenet"
+    tasks    : list[Task]  = [Task.LLIE]
+    ltypes   : list[LType] = [LType.UNSUPERVISED]
+    model_dir: core.Path   = current_dir
+    zoo      : dict         = {}
     
     def __init__(
         self,
@@ -433,7 +426,7 @@ class GCENet(base.ImageEnhancementModel):
         depth = datapoint["depth"]
         # Enhancement
         adjust, edge = self.en(image, depth)
-        edge  = edge.detach() if edge is not None else None  # Must call detach() else error
+        edge  = edge.detach() if edge else None  # Must call detach() else error
         # Enhancement loop
         if self.bam_gamma in [None, 0.0]:
             enhanced = image
@@ -501,5 +494,3 @@ class GCENet_ZSN2N(GCENet):
         outputs["loss"] = loss
         # Return
         return outputs
-
-# endregion

@@ -16,10 +16,9 @@ from lightning.pytorch.loggers import (
     CometLogger, CSVLogger, Logger, MLFlowLogger, NeptuneLogger, WandbLogger,
 )
 
-from mon.globals import LOGGERS
+from mon.constants import LOGGERS
 
-# region Logger
-
+# ----- Registering -----
 LOGGERS.register(name="csv",            module=CSVLogger)
 LOGGERS.register(name="csv_logger",     module=CSVLogger)
 LOGGERS.register(name="comet",          module=CometLogger)
@@ -30,5 +29,3 @@ LOGGERS.register(name="neptune",        module=NeptuneLogger)
 LOGGERS.register(name="neptune_logger", module=NeptuneLogger)
 LOGGERS.register(name="wandb",          module=WandbLogger)
 LOGGERS.register(name="wandb_logger",   module=WandbLogger)
-
-# endregion

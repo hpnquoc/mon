@@ -10,15 +10,14 @@ __all__ = [
 from torchvision.models import googlenet
 
 from mon import core, nn
-from mon.globals import MODELS, ZOO_DIR
+from mon.constants import LType, MODELS, ZOO_DIR
 from mon.vision.classify import base
 
 current_file = core.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
 
-# region Model
-
+# ----- Model -----
 @MODELS.register(name="googlenet", arch="googlenet")
 class GoogleNet(nn.ExtraModel, base.ImageClassificationModel):
     """GoogLeNet (Inception v1) model for image classification.
@@ -33,11 +32,11 @@ class GoogleNet(nn.ExtraModel, base.ImageClassificationModel):
         - https://arxiv.org/abs/1409.4842
     """
     
-    arch     : str              = "googlenet"
-    name     : str              = "googlenet"
-    ltypes   : list[core.LType] = [core.LType.SUPERVISED]
-    model_dir: core.Path        = current_dir
-    zoo      : dict             = {
+    arch     : str         = "googlenet"
+    name     : str         = "googlenet"
+    ltypes   : list[LType] = [LType.SUPERVISED]
+    model_dir: core.Path   = current_dir
+    zoo      : dict        = {
         "imagenet1k_v1": {
             "url"        : "https://download.pytorch.org/models/googlenet-1378be20.pth",
             "path"       : ZOO_DIR / "vision/classify/googlenet/googlenet/imagenet1k_v1/googlenet_imagenet1k_v1.pth",
@@ -69,7 +68,8 @@ class GoogleNet(nn.ExtraModel, base.ImageClassificationModel):
             self.load_weights()
         else:
             self.apply(self.init_weights)
-            
+    
+    # ----- Initialization -----
     def init_weights(self, m: nn.Module):
         """Initializes weights for the model.
     
@@ -77,7 +77,8 @@ class GoogleNet(nn.ExtraModel, base.ImageClassificationModel):
             m: ``nn.Module`` to initialize weights for.
         """
         pass
-
+    
+    # ----- Forward Pass -----
     def forward(self, datapoint: dict, *args, **kwargs) -> dict:
         """Performs forward pass on the model.
     
@@ -90,5 +91,3 @@ class GoogleNet(nn.ExtraModel, base.ImageClassificationModel):
         x = datapoint["image"]
         y = self.model(x)
         return {"logits": y}
-        
-# endregion

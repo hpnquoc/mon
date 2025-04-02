@@ -27,8 +27,7 @@ from torch.nn.common_types import _size_2_t
 from torchvision.ops.misc import SqueezeExcitation
 
 
-# region Channel Attention Module
-
+# ----- Channel Attention -----
 class ChannelAttentionModule(torch.nn.Module):
     """Channel Attention Module for feature enhancement.
 
@@ -102,11 +101,8 @@ class ChannelAttentionModule(torch.nn.Module):
         """
         return input * self.excitation(self.avg_pool(input))
 
-# endregion
 
-
-# region Efficient Channel Attention
-
+# ----- Efficient Channel Attention -----
 class EfficientChannelAttention(torch.nn.Module):
     """Efficient Channel Attention (ECA) module.
 
@@ -212,11 +208,8 @@ class EfficientChannelAttention1d(torch.nn.Module):
 ECA   = EfficientChannelAttention
 ECA1d = EfficientChannelAttention1d
 
-# endregion
 
-
-# region Simplified Channel Attention
-
+# ----- Simplified Channel Attention -----
 class SimplifiedChannelAttention(torch.nn.Module):
     """Simplified channel attention from 'Simple Baselines for Image Restoration'.
 
@@ -266,11 +259,8 @@ class SimplifiedChannelAttention(torch.nn.Module):
         y = self.excitation(y.view(b, c, 1, 1)).view(b, c, 1, 1)  # [B, C] -> [B, C, 1, 1]
         return x * y.expand_as(x)
     
-# endregion
 
-
-# region Squeeze and Excitation
-
+# ----- Squeeze and Excitation -----
 class SqueezeExciteC(torch.nn.Module):
     """Squeeze and Excite layer using Conv2d from 'Squeeze and Excitation' paper.
 
@@ -372,5 +362,3 @@ class SqueezeExciteL(torch.nn.Module):
         y = self.avg_pool(input).view(b, c)      # [B, C, 1, 1] -> [B, C]
         y = self.excitation(y).view(b, c, 1, 1)  # [B, C] -> [B, C, 1, 1]
         return input * y
-
-# endregion

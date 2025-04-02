@@ -24,8 +24,7 @@ import cv2
 import numpy as np
 
 
-# region Angle between two arrays
-
+# ----- Angle between two arrays -----
 def angle_between_arrays(x: np.ndarray, y: np.ndarray) -> float | bool:
 	"""Calculate the angle between two arrays."""
 	vec1 = np.array([x[-1][0] - x[0][0], x[-1][1] - x[0][1]])
@@ -38,11 +37,8 @@ def angle_between_arrays(x: np.ndarray, y: np.ndarray) -> float | bool:
 	angle = np.arccos(cos) * 360 / (2 * np.pi)
 	return angle
 
-# endregion
 
-
-# region Distance between two arrays
-
+# ----- Distance between two arrays -----
 def chebyshev_distance(x: np.ndarray, y: np.ndarray) -> float:
 	"""Calculate the Chebyshev distance."""
 	n   = x.shape[0]
@@ -137,20 +133,14 @@ def get_distance_function(name: str) -> Callable[[np.ndarray, np.ndarray], float
 	else:
 		raise ValueError(f"")
 
-# endregion
 
-
-# region Distance between points
-
+# ----- Distance between points -----
 def distance_between_points(x: np.ndarray, y: np.ndarray) -> float:
 	"""Calculate Euclidean distance between two points in [x, y] format."""
 	return math.sqrt(((x[0] - y[0]) ** 2) + ((x[1] - y[1]) ** 2))
 
-# endregion
 
-
-# region Distance between bounding box and polygon
-
+# ----- Distance between bounding box and polygon -----
 def distance_between_bbox_and_polygon(bbox_xyxy: np.ndarray, polygon: np.ndarray) -> float:
 	"""Compute the distance between a bounding box and a polygon.
 	
@@ -190,5 +180,3 @@ def distance_between_bbox_center_and_polygon(bbox_xyxy: np.ndarray, polygon: np.
 	cx = (bbox_xyxy[0] + bbox_xyxy[2]) / 2
 	cy = (bbox_xyxy[1] + bbox_xyxy[3]) / 2
 	return int(cv2.pointPolygonTest(polygon, (cx, cy), True))
-
-# endregion

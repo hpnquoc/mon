@@ -14,12 +14,12 @@ from typing import Any
 import cv2
 
 from mon import core
-from mon.globals import TRANSFORMS
+from mon.constants import Split, TRANSFORMS
 from mon.vision.geometry import albumentation
-from mon.vision.types.datasets import base
 from mon.vision.types.video import FrameAnnotation
 
 
+# ----- Video Loader -----
 class VideoLoader(core.Dataset, ABC):
     """Base class for video loaders.
 
@@ -35,14 +35,14 @@ class VideoLoader(core.Dataset, ABC):
         verbose: If ``True``, enables verbose output. Default is ``True``.
     """
     
-    datapoint_attrs = base.DatapointAttributes({
+    datapoint_attrs = core.DatapointAttributes({
         "frame": FrameAnnotation,
     })
     
     def __init__(
         self,
         root      : core.Path,
-        split     : core.Split = core.Split.PREDICT,
+        split     : Split = Split.PREDICT,
         transform : albumentation.Compose = None,
         to_tensor : bool = False,
         cache_data: bool = False,
@@ -60,23 +60,22 @@ class VideoLoader(core.Dataset, ABC):
             *args, **kwargs
         )
     
-    # region Magic Methods
-    
+    # ----- Magic Methods -----
     def __getitem__(self, index: int) -> dict:
-        """Gets a datapoint and metadata at specified index.
+        """Gets a datapoint and metadata at given ``index``.
 
         Args:
             index: Index of datapoint.
 
         Returns:
-            Dict with datapoint and metadata.
+            ``dict`` with datapoint and metadata.
         """
         datapoint = self.get_datapoint(index=index)
         meta      = self.get_meta(index=index)
         
         if self.transform:
             main_attr      = self.main_attribute
-            args           = {k: v for k, v in datapoint.items() if v is not None}
+            args           = {k: v for k, v in datapoint.items() if v}
             args["image"]  = args.pop(main_attr)
             transformed    = self.transform(**args)
             transformed[main_attr] = transformed.pop("image")
@@ -84,8 +83,8 @@ class VideoLoader(core.Dataset, ABC):
         
         if self.to_tensor:
             for k, v in datapoint.items():
-                to_tensor_fn = self.datapoint_attrs.get_tensor_fn(k)
-                if to_tensor_fn and v is not None:
+                to_tensor_fn = getattr(self.datapoint_attrs[k], "to_tensor", None)
+                if to_tensor_fn and v:
                     datapoint[k] = to_tensor_fn(v, normalize=True)
         
         return datapoint | {"meta": meta}
@@ -98,8 +97,24 @@ class VideoLoader(core.Dataset, ABC):
         """
         return self.num_frames
     
-    # endregion
+    # ----- Properties -----
+    @property
+    def albumentation_target_types(self) -> dict[str, str]:
+        """Gets the target types for Albumentations.
+        
+        Returns:
+            ``dict`` with keys as attribute names and values as target types.
+        """
+        target_types = {}
+        for k, v in self.datapoint_attrs.items():
+            target_type = getattr(v, "albumentation_target_type", None)
+            if target_type:
+                target_types[k] = target_type
+        
+        target_types.pop("meta", None)
+        return target_types
     
+    # ----- Initialization -----
     def init_transform(self, transform: albumentation.Compose | Any = None):
         """Initializes transformations with multimodal support.
 
@@ -128,9 +143,8 @@ class VideoLoader(core.Dataset, ABC):
             self.transform = albumentation.Compose(transforms=transform_)
             
         if isinstance(self.transform, albumentation.Compose):
-            additional_targets = self.datapoint_attrs.albumentation_target_types()
+            additional_targets = self.albumentation_target_types
             additional_targets.pop(self.main_attribute, None)
-            additional_targets.pop("meta", None)
             self.transform.add_targets(additional_targets)
     
     def filter_data(self):
@@ -164,7 +178,7 @@ class VideoLoaderCV(VideoLoader):
     def __init__(
         self,
         root      : core.Path,
-        split     : core.Split = core.Split.PREDICT,
+        split     : Split = Split.PREDICT,
         transform : albumentation.Compose = None,
         to_tensor : bool = False,
         cache_data: bool = False,
@@ -182,8 +196,7 @@ class VideoLoaderCV(VideoLoader):
             *args, **kwargs
         )
     
-    # region Properties
-    
+    # ----- Properties -----
     @property
     def is_stream(self) -> bool:
         """Checks if input is a video stream.
@@ -292,10 +305,7 @@ class VideoLoaderCV(VideoLoader):
         """
         return int(self.video_capture.get(cv2.CAP_PROP_POS_FRAMES))
     
-    # endregion
-    
-    # region Initialization
-    
+    # ----- Initialization -----
     def get_data(self):
         """Gets video data from root path.
 
@@ -326,8 +336,6 @@ class VideoLoaderCV(VideoLoader):
         if isinstance(self.video_capture, cv2.VideoCapture):
             self.video_capture.release()
     
-    # endregion
-    
     def get_datapoint(self, index: int) -> dict:
         """Gets a datapoint at specified index.
 
@@ -352,7 +360,7 @@ class VideoLoaderCV(VideoLoader):
         
         if frame is not None:
             frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-            frame = annotations.FrameAnnotation(index=self.index, frame=frame, path=self.root)
+            frame = FrameAnnotation(index=self.index, frame=frame, path=self.root)
         self.index += 1
         
         datapoint = self.new_datapoint

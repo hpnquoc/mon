@@ -62,8 +62,7 @@ from torch.nn.modules.activation import (
 from mon import core
 
 
-# region Linear Unit
-
+# ----- Linear Unit -----
 class FReLU(torch.nn.Module):
     """Funnel ReLU activation with depthwise convolution.
 
@@ -118,12 +117,9 @@ class SimpleGate(torch.nn.Module):
         """
         x1, x2 = input.chunk(chunks=2, dim=1)
         return x1 * x2
-    
-# endregion
 
 
-# region Sigmoid
-
+# ----- Sigmoid -----
 def hard_sigmoid(input: torch.Tensor, inplace: bool = False) -> torch.Tensor:
     """Applies hard sigmoid activation.
 
@@ -163,11 +159,8 @@ class NegHardsigmoid(torch.nn.Module):
         """
         return F.relu6(3 * input + 3.0, inplace=self.inplace) / 6.0 - 0.5
 
-# endregion
 
-
-# region Sine
-
+# ----- Sine -----
 class Sine(torch.nn.Module):
     """Sine activation unit.
 
@@ -206,11 +199,8 @@ class Sine(torch.nn.Module):
         intermediate = self.w0 * input  # Corrected: Removed undefined self.linear
         return torch.sin(intermediate), intermediate
     
-# endregion
 
-
-# region xUnit
-
+# ----- xUnit -----
 class xUnit(torch.nn.Module):
     """xUnit spatial activation layer.
 
@@ -334,7 +324,7 @@ class xUnitD(torch.nn.Module):
                 kernel_size  = 1,
                 padding      = 0
             ),
-            torch.nn.BatchNorm2d(num_features) if batch_norm else nn.Identity(),
+            torch.nn.BatchNorm2d(num_features) if batch_norm else torch.nn.Identity(),
             torch.nn.ReLU(),
             torch.nn.Conv2d(
                 in_channels  = num_features,
@@ -343,7 +333,7 @@ class xUnitD(torch.nn.Module):
                 padding      = padding,
                 groups       = num_features
             ),
-            torch.nn.BatchNorm2d(num_features) if batch_norm else nn.Identity(),
+            torch.nn.BatchNorm2d(num_features) if batch_norm else torch.nn.Identity(),
             torch.nn.Sigmoid()
         )
 
@@ -358,11 +348,8 @@ class xUnitD(torch.nn.Module):
         """
         return input * self.features(input)
     
-# endregion
 
-
-# region Misc
-
+# ----- Misc -----
 class ArgMax(torch.nn.Module):
     """Finds indices of maximum values along a dimension.
 
@@ -414,11 +401,8 @@ class Clamp(torch.nn.Module):
 
 Clip = Clamp
 
-# endregion
 
-
-# region Utils
-
+# ----- Utils -----
 def to_act_layer(act_layer: Any = torch.nn.ReLU, *args, **kwargs) -> torch.nn.Module:
     """Creates an activation layer from a callable or class.
 
@@ -435,5 +419,3 @@ def to_act_layer(act_layer: Any = torch.nn.ReLU, *args, **kwargs) -> torch.nn.Mo
     if callable(act_layer):
         return act_layer(*args, **kwargs)
     return act_layer
-
-# endregion

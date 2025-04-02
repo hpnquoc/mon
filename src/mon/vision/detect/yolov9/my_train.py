@@ -535,10 +535,10 @@ def train(hyp, opt, device, callbacks):  # hyp is path/to/hyp.yaml or hyp dictio
     torch.cuda.empty_cache()
     return results
 
-# endregion
 
 
-# region Main
+
+# ----- Main -----
 
 def main() -> str:
     # Parse arguments
@@ -715,5 +715,3 @@ def main() -> str:
 
 if __name__ == "__main__":
     main()
-
-# endregion

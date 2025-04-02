@@ -16,8 +16,7 @@ current_file = mon.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
 
-# region Predict
-
+# ----- Predict -----
 def predict(args: dict) -> str:
     # Parse args
     hostname     = args["hostname"]
@@ -147,11 +146,8 @@ def predict(args: dict) -> str:
     # Finish
     mon.console.log(f"Average time: {timer.avg_time}")
 
-# endregion
 
-
-# region Main
-
+# ----- Main -----
 def main() -> str:
     args = mon.parse_predict_args(model_root=current_dir)
     predict(args)
@@ -159,5 +155,3 @@ def main() -> str:
 
 if __name__ == "__main__":
     main()
-    
-# endregion

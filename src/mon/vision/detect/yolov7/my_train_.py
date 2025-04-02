@@ -604,10 +604,10 @@ def train(hyp, opt, device, tb_writer=None):
     torch.cuda.empty_cache()
     return results
 
-# endregion
 
 
-# region Main
+
+# ----- Main -----
 
 @click.command(name="train", context_settings=dict(ignore_unknown_options=True, allow_extra_args=True))
 @click.option("--root",       type=str, default=None, help="Project root.")
@@ -837,5 +837,3 @@ def main(
 
 if __name__ == "__main__":
     main()
-    
-# endregion

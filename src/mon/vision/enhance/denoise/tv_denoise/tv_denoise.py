@@ -13,8 +13,7 @@ import torch
 from mon import nn
 
 
-# region Model
-
+# ----- Model -----
 class TVDenoise(nn.Module):
     
     def __init__(self, noisy_image: torch.Tensor):
@@ -32,11 +31,10 @@ class TVDenoise(nn.Module):
     @clean_image.setter
     def clean_image(self, clean_image: torch.Tensor):
         self._clean_image = clean_image
-      
+    
+    # ----- Forward Pass -----
     def forward(self):
         return (
             self.l2_term(self.clean_image, self.noisy_image)
             + 0.0001 * self.regularization(self.clean_image)
         )
-    
-# endregion

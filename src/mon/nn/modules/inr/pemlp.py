@@ -13,6 +13,7 @@ import torch
 from mon.nn.modules.inr import base
 
 
+# ----- Positional Encoding Layer -----
 class PositionalEncodingLayer(torch.nn.Module):
     """Applies positional encoding with sine and cosine functions.
 
@@ -56,7 +57,8 @@ class PositionalEncodingLayer(torch.nn.Module):
                 out.append(func(freq * x))
         return torch.cat(out, dim=-1)
     
-    
+
+# ----- PEMLP -----
 class PEMLP(torch.nn.Module):
     """Implements positional encoding MLP network.
 

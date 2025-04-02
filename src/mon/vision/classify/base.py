@@ -10,16 +10,17 @@ __all__ = [
 from abc import ABC
 
 from mon import core, nn
+from mon.constants import Task
 from mon.vision import model
 
 
-# region Model
-
+# ----- Classification Model -----
 class ImageClassificationModel(model.VisionModel, ABC):
     """Base class for image classification models."""
 
-    tasks: list[core.Task] = [core.Task.CLASSIFY]
-
+    tasks: list[Task] = [Task.CLASSIFY]
+    
+    # ----- Initialization -----
     def parse_num_classes(self, num_classes: int) -> int:
         """Updates num_classes from pretrained weights if needed.
 
@@ -35,7 +36,8 @@ class ImageClassificationModel(model.VisionModel, ABC):
                 num_classes = num_classes_
                 core.console.log(f"Overriding num_classes from {num_classes} to {num_classes_}")
         return num_classes
-
+    
+    # ----- Forward Pass -----
     def forward_loss(self, datapoint: dict, *args, **kwargs) -> dict:
         """Computes forward pass and loss.
     
@@ -81,5 +83,3 @@ class ImageClassificationModel(model.VisionModel, ABC):
                 metric_name = getattr(metric, "name", f"metric_{i}")
                 results[metric_name] = metric(pred, target)
         return results
-    
-# endregion

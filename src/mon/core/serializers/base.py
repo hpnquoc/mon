@@ -13,10 +13,11 @@ __all__ = [
 from abc import ABC, abstractmethod
 from typing import Any, TextIO
 
+from mon.constants import SERIALIZERS
 from mon.core import pathlib, type_extensions
-from mon.globals import SERIALIZERS
 
 
+# ----- Serializer -----
 class BaseSerializer(ABC):
     """Base class for reading and writing data in various file formats."""
     
@@ -84,6 +85,7 @@ class BaseSerializer(ABC):
             self.write_to_fileobj(obj=obj, path=f, **kwargs)
 
 
+# ----- Functional -----
 def write_to_file(
     obj        : Any,
     path       : pathlib.Path | str | TextIO,

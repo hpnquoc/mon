@@ -34,7 +34,7 @@ current_file = mon.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
 
-# region Predict
+# ----- Predict -----
 
 @smart_inference_mode()
 def run(opt, nosave: bool = False):
@@ -213,7 +213,7 @@ def run(opt, nosave: bool = False):
     if opt.update:
         strip_optimizer(weights[0])
 
-# endregion
+
 
 
 # region Train
@@ -239,5 +239,3 @@ def main() -> str:
 
 if __name__ == "__main__":
     main()
-
-# endregion

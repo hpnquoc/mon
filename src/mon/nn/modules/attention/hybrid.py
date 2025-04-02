@@ -16,6 +16,7 @@ import torch
 from torch.nn import functional as F
 
 
+# ----- Channel-Spatial Attention -----
 class BAM(torch.nn.Module):
     """Bottleneck Attention Module from BAM paper.
 

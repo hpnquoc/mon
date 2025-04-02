@@ -13,6 +13,7 @@ import numpy as np
 from mon.vision import types
 
 
+# ----- Sobel Filter -----
 def sobel_filter(image: np.ndarray, kernel_size: int = 3) -> np.ndarray:
     """Applies Sobel filter to detect edges in an image.
 

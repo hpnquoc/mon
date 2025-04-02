@@ -22,8 +22,7 @@ import torch
 from torch.nn.common_types import _size_2_t
 
 
-# region Fourier Transform
-
+# ----- Fourier Transform -----
 class FourierUnit(torch.nn.Module):
     """Fourier transform unit from Fast Fourier Convolution.
 
@@ -246,11 +245,8 @@ class SpectralTransform2d(torch.nn.Module):
         y = self.conv2(x + y + xs)
         return y
 
-# endregion
 
-
-# region Fast-Fourier Convolution
-
+# ----- Fast-Fourier Convolution -----
 class FastFourierConv2d(torch.nn.Module):
     """Fast Fourier Convolution from FFC paper.
 
@@ -542,5 +538,3 @@ class FastFourierConv2dSE(torch.nn.Module):
 FFConv2d        = FastFourierConv2d
 FFConv2dNormAct = FastFourierConv2dNormAct
 FFConv2dSE      = FastFourierConv2dSE
-
-# endregion

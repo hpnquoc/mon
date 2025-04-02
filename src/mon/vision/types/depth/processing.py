@@ -13,8 +13,7 @@ import numpy as np
 from mon.vision.types import image as I
 
 
-# region Conversion
-
+# ----- Conversion -----
 def convert_depth_to_color(
     depth    : np.ndarray,
     color_map: int = cv2.COLORMAP_JET,
@@ -38,5 +37,3 @@ def convert_depth_to_color(
     depth = np.uint8(255 * depth) if I.is_image_normalized(depth) else depth
     depth = cv2.applyColorMap(depth, color_map)
     return cv2.cvtColor(depth, cv2.COLOR_BGR2RGB) if use_rgb else depth
-    
-# endregion

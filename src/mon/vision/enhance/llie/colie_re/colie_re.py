@@ -20,7 +20,7 @@ import torch
 from torch.nn import functional as F
 
 from mon import core, nn
-from mon.globals import MODELS
+from mon.constants import LType, MODELS, Task
 from mon.vision import types, filtering
 from mon.vision.enhance import base
 
@@ -28,8 +28,7 @@ current_file = core.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
 
-# region Loss
-
+# ----- Loss -----
 class Loss(nn.Loss):
     
     def __init__(
@@ -67,11 +66,8 @@ class Loss(nn.Loss):
         )
         return loss
 
-# endregion
 
-
-# region Model
-
+# ----- Model -----
 @MODELS.register(name="colie_re", arch="colie")
 class CoLIE_RE(base.ImageEnhancementModel):
     """COLIE model for low-light image enhancement.
@@ -85,12 +81,12 @@ class CoLIE_RE(base.ImageEnhancementModel):
         - https://github.com/ctom2/colie
     """
     
-    arch     : str              = "colie"
-    name     : str              = "colie_re"
-    tasks    : list[core.Task]  = [core.Task.LLIE]
-    ltypes   : list[core.LType] = [core.LType.ZERO_SHOT]
-    model_dir: core.Path        = current_dir
-    zoo      : dict             = {}
+    arch     : str         = "colie"
+    name     : str         = "colie_re"
+    tasks    : list[Task]  = [Task.LLIE]
+    ltypes   : list[LType] = [LType.ZERO_SHOT]
+    model_dir: core.Path   = current_dir
+    zoo      : dict        = {}
     
     def __init__(
         self,
@@ -153,6 +149,7 @@ class CoLIE_RE(base.ImageEnhancementModel):
             self.apply(self.init_weights)
         self.initial_state_dict = self.state_dict()
     
+    # ----- Initialization -----
     def init_weights(self, m: nn.Module):
         """Initializes weights for the model.
     
@@ -184,6 +181,7 @@ class CoLIE_RE(base.ImageEnhancementModel):
 
         return flops, params
     
+    # ----- Forward Pass -----
     def forward_loss(self, datapoint: dict, *args, **kwargs) -> dict:
         """Computes forward pass and loss.
     
@@ -295,6 +293,7 @@ class CoLIE_RE(base.ImageEnhancementModel):
         image_hvi[:, 2, :, :] = i_new
         return image_hvi
     
+    # ----- Predicting -----
     def infer(self, datapoint: dict, reset_weights: bool = True, *args, **kwargs) -> dict:
         """Infers model output with optional processing.
     
@@ -337,5 +336,3 @@ class CoLIE_RE(base.ImageEnhancementModel):
         return outputs | {
             "time": timer.avg_time,
         }
-    
-# endregion

@@ -32,7 +32,7 @@ current_file = mon.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
 
-# region Train
+# ----- Train -----
 
 def init_loggers(opt):
     log_file      = osp.join(opt['path']['log'], f"train_{opt['name']}_{get_time_str()}.log")
@@ -375,10 +375,10 @@ def train(args: argparse.Namespace):
     if tb_logger:
         tb_logger.close()
 
-# endregion
 
 
-# region Main
+
+# ----- Main -----
 
 def main() -> str:
     args = mon.parse_train_args(model_root=current_dir)
@@ -387,5 +387,3 @@ def main() -> str:
 
 if __name__ == "__main__":
     main()
-
-# endregion

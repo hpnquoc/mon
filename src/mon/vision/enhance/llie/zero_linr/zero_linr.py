@@ -16,9 +16,9 @@ import numpy as np
 import torch
 
 from mon import core, nn
-from mon.globals import MODELS
+from mon.constants import LType, MODELS, Task
 from mon.nn import functional as F
-from mon.vision import types, filtering
+from mon.vision import filtering, types
 from mon.vision.enhance import base
 
 current_file = core.Path(__file__).absolute()
@@ -27,8 +27,7 @@ INR_AF       = nn.inr_layer.INR_AF
 MAPPING_FUNC = Literal["p", "v", "d", "e", "pv", "pd", "pe", "pvde"]
 
 
-# region Utils
-
+# ----- Utils -----
 def get_coords(down_size: int) -> torch.Tensor:
 	"""Creates a coordinates grid.
 	
@@ -113,11 +112,8 @@ def gradient(model_output: torch.Tensor, coords: torch.Tensor, grad_outputs: tor
 	grad = torch.autograd.grad(y, [x], grad_outputs=grad_outputs, create_graph=True)[0]
 	return grad
 	
-# endregion
 
-
-# region Loss
-
+# ----- Loss -----
 class Loss(nn.Loss):
 	
 	def __init__(
@@ -163,9 +159,9 @@ class Loss(nn.Loss):
 		loss_tv = self.loss_w_tv * self.loss_tv(x_lr)
 		loss_c  = self.loss_w_c  * self.loss_c(enhanced)
 		loss_de = 0.0
-		if d_lr is not None:
+		if d_lr:
 			loss_de += self.loss_depth(x_lr, d_lr)
-		if e_lr is not None:
+		if e_lr:
 			loss_de += self.loss_edge(x_lr, e_lr)
 		loss_de = self.loss_w_de * loss_de
 		loss = loss_f + loss_s + loss_e + loss_tv + loss_de + loss_c
@@ -182,11 +178,8 @@ class Loss(nn.Loss):
 		
 		return loss
 
-# endregion
 
-
-# region Modules
-
+# ----- Module -----
 class INF1_P(nn.Module):
 	"""Implicit Neural Function (INF) for 1-way residual reconstruction,
 	i.e., f: (p) -> r.
@@ -476,21 +469,18 @@ class INF4(nn.Module):
 		e_patch = ff_embedding(e_patch, self.B2)
 		return self.o_net(torch.cat((self.p_net(p), self.v_net(v_patch), self.d_net(d_patch), self.e_net(e_patch)), -1))
 
-# endregion
 
-
-# region Model
-
+# ----- Model -----
 @MODELS.register(name="zero_linr", arch="zero_linr")
 class ZeroLINR(base.ImageEnhancementModel):
 	"""Zero-LINR model for low-light image enhancement."""
 	
-	arch     : str              = "zero_linr"
-	name     : str              = "zero_linr"
-	tasks    : list[core.Task]  = [core.Task.LLIE]
-	ltypes   : list[core.LType] = [core.LType.ZERO_SHOT]
-	model_dir: core.Path        = current_dir
-	zoo      : dict             = {}
+	arch     : str         = "zero_linr"
+	name     : str         = "zero_linr"
+	tasks    : list[Task]  = [Task.LLIE]
+	ltypes   : list[LType] = [LType.ZERO_SHOT]
+	model_dir: core.Path   = current_dir
+	zoo      : dict        = {}
 	
 	def __init__(
 		self,
@@ -662,10 +652,10 @@ class ZeroLINR(base.ImageEnhancementModel):
 		p     = get_coords(self.down_size).to(image.device)
 		v     = kornia.color.rgb_to_hsv(image)[:, 2:3, :, :]
 		d     = datapoint.get("depth", None)
-		e     = types.boundary_aware_prior(d, self.edge_threshold) if d is not None else None
+		e     = types.boundary_aware_prior(d, self.edge_threshold) if d else None
 		v_lr = interpolate_image(v, self.down_size)
-		d_lr = interpolate_image(d, self.down_size) if d is not None else None
-		e_lr = interpolate_image(e, self.down_size) if e is not None else None
+		d_lr = interpolate_image(d, self.down_size) if d else None
+		e_lr = interpolate_image(e, self.down_size) if e else None
 		
 		# Mapping
 		if self.mapping_func in ["p", "v", "pv"]:
@@ -756,5 +746,3 @@ class ZeroLINR(base.ImageEnhancementModel):
 		return outputs | {
 			"time": timer.avg_time,
 		}
-
-# endregion

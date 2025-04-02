@@ -37,8 +37,9 @@ from torchmetrics.image import (
 	UniversalImageQualityIndex, VisualInformationFidelity,
 )
 
-from mon.globals import METRICS
+from mon.constants import METRICS
 
+# ----- Registering -----
 METRICS.register(name="error_relative_global_dimensionless_synthesis",    module=ErrorRelativeGlobalDimensionlessSynthesis)
 METRICS.register(name="inception_score",                                  module=InceptionScore)
 METRICS.register(name="kernel_inception_distance",                        module=KernelInceptionDistance)

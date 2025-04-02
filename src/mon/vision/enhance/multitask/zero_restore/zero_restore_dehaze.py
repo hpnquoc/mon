@@ -17,8 +17,8 @@ import random
 import torch
 
 from mon import core, nn
-from mon.globals import MODELS
-from mon.vision import types, geometry
+from mon.constants import LType, MODELS, Task
+from mon.vision import geometry, types
 from mon.vision.enhance import base
 
 torch.autograd.set_detect_anomaly(True)
@@ -27,8 +27,7 @@ current_file = core.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
 
-# region Module
-
+# ----- Module -----
 class DoubleConv(nn.Module):
     
     def __init__(self, in_channels: int, out_channels: int):
@@ -176,11 +175,8 @@ class Estimation(nn.Module):
         atm   = torch.sigmoid(self.dense(atm))
         return trans, atm
 
-# endregion
 
-
-# region Model
-
+# ----- Model -----
 @MODELS.register(name="zero_restore_dehaze", arch="zero_restore")
 class ZeroRestoreDehaze(base.ImageEnhancementModel):
     """Zero-Restore model for image dehazing.
@@ -189,12 +185,12 @@ class ZeroRestoreDehaze(base.ImageEnhancementModel):
 	    - https://github.com/aupendu/zero-restore
     """
     
-    arch     : str              = "zero_restore"
-    name     : str              = "zero_restore_dehaze"
-    tasks    : list[core.Task]  = [core.Task.DEHAZE]
-    ltypes   : list[core.LType] = [core.LType.ZERO_SHOT]
-    model_dir: core.Path        = current_dir
-    zoo      : dict             = {}
+    arch     : str         = "zero_restore"
+    name     : str         = "zero_restore_dehaze"
+    tasks    : list[Task]  = [Task.DEHAZE]
+    ltypes   : list[LType] = [LType.ZERO_SHOT]
+    model_dir: core.Path   = current_dir
+    zoo      : dict        = {}
     
     def __init__(
         self,
@@ -220,7 +216,8 @@ class ZeroRestoreDehaze(base.ImageEnhancementModel):
         else:
             self.apply(self.init_weights)
         self.initial_state_dict = self.state_dict()
-        
+    
+    # ----- Initialization -----
     def init_weights(self, m: nn.Module):
         """Initializes the model's weights.
     
@@ -233,6 +230,7 @@ class ZeroRestoreDehaze(base.ImageEnhancementModel):
         if classname.find("Linear") != -1:  # 0.02
             m.weight.data.normal_(0.0, 0.001)
     
+    # ----- Forward Pass -----
     def forward_loss(self, datapoint: dict, *args, **kwargs) -> dict:
         """Computes forward pass and loss.
     
@@ -310,7 +308,8 @@ class ZeroRestoreDehaze(base.ImageEnhancementModel):
         if it == 7:
             image = image.flip(3)
         return image
-        
+    
+    # ----- Predicting -----
     def infer(self, datapoint: dict, reset_weights: bool = True, *args, **kwargs) -> dict:
         """Infers model output with optional processing.
     
@@ -361,5 +360,3 @@ class ZeroRestoreDehaze(base.ImageEnhancementModel):
             "enhanced": enhanced,
             "time"    : timer.avg_time,
         }
-
-# endregion

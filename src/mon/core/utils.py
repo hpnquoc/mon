@@ -57,7 +57,11 @@ import numpy as np
 import psutil
 import torch
 
-from mon.core import enums, humps, pathlib, rich, serializers, type_extensions
+from mon.constants import (
+    DATASETS, EXTRA_MODEL_STR, EXTRA_MODELS, LType, MemoryUnit, MODELS, ROOT_DIR, Split,
+    Task, ZOO_DIR,
+)
+from mon.core import humps, pathlib, rich, serializers, type_extensions
 
 try:
     import pynvml
@@ -66,8 +70,7 @@ except ImportError:
     pynvml_available = False
 
 
-# region Checkpoint
-
+# ----- Checkpoint -----
 def get_epoch_from_checkpoint(ckpt: pathlib.Path) -> int:
     """Gets the epoch value from a checkpoint file.
 
@@ -128,11 +131,8 @@ def get_latest_checkpoint(dirpath: pathlib.Path) -> str | None:
     
     return str(ckpts[0])
 
-# endregion
 
-
-# region Config
-
+# ----- Config -----
 def get_project_default_config(project_root: str | pathlib.Path) -> dict:
     """Gets the default configuration of the project.
 
@@ -143,8 +143,7 @@ def get_project_default_config(project_root: str | pathlib.Path) -> dict:
         Dict with default config, or empty dict if invalid or not found.
     """
     if project_root in [None, "None", ""]:
-        from mon.core.rich import error_console
-        error_console.log(f"[project_root] is not a valid project directory: {project_root}.")
+        rich.error_console.log(f"[project_root] is not a valid project directory: {project_root}.")
         return {}
     
     config_file = pathlib.Path(project_root) / "config" / "default.py"
@@ -245,8 +244,6 @@ def parse_config_file(
     Returns:
         ``Path`` to config file if found, else ``None``.
     """
-    from mon.core.rich import error_console
-    
     def find_config_in_dirs(config, dirs):
         for config_dir in dirs:
             config_ = (config_dir / config.name).config_file()
@@ -281,7 +278,7 @@ def parse_config_file(
             if config_.is_config_file():
                 return config_
     
-    error_console.log(
+    rich.error_console.log(
         f"Could not find configuration file given: "
         f"config={config}, project_root={project_root}, "
         f"model_root={model_root}, weights_path={weights_path}"
@@ -298,8 +295,6 @@ def load_config(config: Any) -> dict:
     Returns:
         Dict with loaded config, or empty dict if loading fails.
     """
-    from mon.core.rich import error_console, console
-    
     if isinstance(config, dict):
         data = config
     elif isinstance(config, (pathlib.Path, str)):
@@ -315,19 +310,16 @@ def load_config(config: Any) -> dict:
         data = None
     
     if data:
-        console.log(f"Loaded configuration from: {config}.")
+        rich.console.log(f"Loaded configuration from: {config}.")
     else:
-        error_console.log(f"Could not load configuration from: {config}. "
-                          f"Returning empty dict.")
+        rich.error_console.log(f"Could not load configuration from: {config}. "
+                               f"Returning empty dict.")
         data = {}
 
     return data
 
-# endregion
 
-
-# region Datasets
-
+# ----- Datasets -----
 def list_mon_datasets(task: str, mode: str) -> list[str]:
     """Lists all available datasets in the ``mon`` framework.
 
@@ -338,10 +330,8 @@ def list_mon_datasets(task: str, mode: str) -> list[str]:
     Returns:
         Sorted list of dataset names matching task and mode.
     """
-    from mon.globals import DATASETS
-
-    split    = enums.Split("train" if mode == "train" else "test")
-    task     = enums.Task(task)
+    split    = Split("train" if mode == "train" else "test")
+    task     = Task(task)
     datasets = DATASETS
 
     return sorted([
@@ -360,10 +350,10 @@ def list_extra_datasets(task: str, mode: str) -> list[str]:
     Returns:
         Sorted list of dataset names matching task and mode.
     """
-    from mon.globals import EXTRA_DATASETS
+    from mon.constants import EXTRA_DATASETS, Split, Task
 
-    split    = enums.Split("train" if mode == "train" else "test")
-    task     = enums.Task(task)
+    split    = Split("train" if mode == "train" else "test")
+    task     = Task(task)
     datasets = EXTRA_DATASETS
 
     return sorted([
@@ -407,8 +397,6 @@ def parse_data_dir(
     Returns:
         Parsed the absolute path of the data directory.
     """
-    from mon.globals import ROOT_DIR
-    
     root     = pathlib.Path(root)
     data_dir = pathlib.Path(data_dir)
     if not data_dir.is_dir():
@@ -418,11 +406,8 @@ def parse_data_dir(
             data_dir = root / data_dir
     return data_dir
 
-# endregion
 
-
-# region Device
-
+# ----- Device -----
 def is_rank_zero() -> bool:
     """Checks if current process is rank zero in distributed training.
 
@@ -482,7 +467,7 @@ def set_device(device: Any, use_single_device: bool = True) -> torch.device:
     return torch.device(f"cuda:{device}" if torch.cuda.is_available() else "cpu")
 
 
-def get_machine_memory(unit: enums.MemoryUnit = enums.MemoryUnit.GB) -> list[int]:
+def get_machine_memory(unit: MemoryUnit = MemoryUnit.GB) -> list[int]:
     """Gets RAM status as a list of total, used, and free memory.
 
     Args:
@@ -492,7 +477,7 @@ def get_machine_memory(unit: enums.MemoryUnit = enums.MemoryUnit.GB) -> list[int
         List of [total, used, free] memory values in specified unit.
     """
     memory = psutil.virtual_memory()
-    ratio  = enums.MemoryUnit.byte_conversion_mapping()[enums.MemoryUnit.from_value(unit)]
+    ratio  = MemoryUnit.byte_conversion_mapping()[MemoryUnit.from_value(unit)]
     return [
         memory.total     / ratio,  # total
         memory.used      / ratio,  # used
@@ -500,7 +485,7 @@ def get_machine_memory(unit: enums.MemoryUnit = enums.MemoryUnit.GB) -> list[int
     ]
 
 
-def get_gpu_device_memory(device: int = 0, unit: enums.MemoryUnit = enums.MemoryUnit.GB) -> list[int]:
+def get_gpu_device_memory(device: int = 0, unit: MemoryUnit = MemoryUnit.GB) -> list[int]:
     """Gets GPU memory status as a list of total, used, and free memory.
 
     Args:
@@ -511,9 +496,9 @@ def get_gpu_device_memory(device: int = 0, unit: enums.MemoryUnit = enums.Memory
         List of [total, used, free] memory values in specified unit.
     """
     pynvml.nvmlInit()
-    unit  = enums.MemoryUnit.from_value(unit)
+    unit  = MemoryUnit.from_value(unit)
     info  = pynvml.nvmlDeviceGetMemoryInfo(pynvml.nvmlDeviceGetHandleByIndex(device))
-    ratio = enums.MemoryUnit.byte_conversion_mapping()[unit]
+    ratio = MemoryUnit.byte_conversion_mapping()[unit]
     return [
         info.total / ratio,  # total
         info.used  / ratio,  # used
@@ -561,11 +546,8 @@ def get_model_device(model: torch.nn.Module) -> torch.device:
     """
     return next(model.parameters()).device
     
-# endregion
 
-
-# region Menu
-
+# ----- Menu -----
 def parse_menu_string(items: Sequence | Collection, num_columns: int = 4) -> str:
     """Parses a list of items into a formatted menu string.
 
@@ -582,11 +564,8 @@ def parse_menu_string(items: Sequence | Collection, num_columns: int = 4) -> str
     s += f"{f'Other.':} (please specify)\n  "
     return s
 
-# endregion
 
-
-# region Models
-
+# ----- Models -----
 def is_extra_model(model: str) -> bool:
     """Checks if a model is an extra model.
 
@@ -596,8 +575,6 @@ def is_extra_model(model: str) -> bool:
     Returns:
         ``True`` if model is extra, ``False`` otherwise.
     """
-    from mon.globals import MODELS, EXTRA_MODELS, EXTRA_MODEL_STR
-    
     model        = model.replace(f" {EXTRA_MODEL_STR}", "").strip()
     mon_models   = type_extensions.flatten_models_dict(MODELS)
     extra_models = type_extensions.flatten_models_dict(EXTRA_MODELS)
@@ -618,18 +595,16 @@ def list_mon_models(task: str = None, mode: str = None, arch: str = None) -> lis
     Returns:
         Sorted list of model names matching task, mode, and arch.
     """
-    from mon.globals import MODELS
-    
     flatten_models = type_extensions.flatten_models_dict(MODELS)
     models         = list(flatten_models.keys())
     
-    if task in enums.Task.values():
-        task   = enums.Task(task)
+    if task in Task.values():
+        task   = Task(task)
         models = [m for m in models if task in flatten_models[m].tasks]
    
     if mode == "train":
         models = [m for m in models
-                  if any(lt in enums.LType.trainable() for lt in flatten_models[m].ltypes)]
+                  if any(lt in LType.trainable() for lt in flatten_models[m].ltypes)]
     
     if arch:
         models = [m for m in models if arch in flatten_models[m].arch]
@@ -648,18 +623,18 @@ def list_extra_models(task: str = None, mode: str = None, arch: str = None) -> l
     Returns:
         Sorted list of model names matching task, mode, and arch.
     """
-    from mon.globals import EXTRA_MODELS
+    from mon.constants import EXTRA_MODELS
     
     flatten_models = type_extensions.flatten_models_dict(EXTRA_MODELS)
     models         = list(flatten_models.keys())
    
-    if task in enums.Task.values():
-        task   = enums.Task(task)
+    if task in Task.values():
+        task   = Task(task)
         models = [m for m in models if task in flatten_models[m]["tasks"]]
    
     if mode == "train":
         models = [m for m in models
-                  if any(lt in enums.LType.trainable() for lt in flatten_models[m]["ltypes"])]
+                  if any(lt in LType.trainable() for lt in flatten_models[m]["ltypes"])]
     
     if arch:
         models = [m for m in models if arch in flatten_models[m]["arch"]]
@@ -684,8 +659,6 @@ def list_models(
     Returns:
         Sorted list of model names matching task, mode, and arch.
     """
-    from mon.globals import EXTRA_MODEL_STR
-    
     models       = list_mon_models(task=task, mode=mode, arch=arch)
     extra_models = list_extra_models(task=task, mode=mode, arch=arch)
     
@@ -712,18 +685,18 @@ def list_mon_archs(task: str = None, mode: str = None) -> list[str]:
     Returns:
         Sorted list of unique arch names matching task and mode.
     """
-    from mon.globals import MODELS
+    from mon.constants import MODELS
     
     flatten_models = type_extensions.flatten_models_dict(MODELS)
     models         = list(flatten_models.keys())
     
-    if task in enums.Task.values():
-        task   = enums.Task(task)
+    if task in Task.values():
+        task   = Task(task)
         models = [m for m in models if task in flatten_models[m].tasks]
     
     if mode == "train":
         models = [m for m in models
-                  if any(lt in enums.LType.trainable() for lt in flatten_models[m].ltypes)]
+                  if any(lt in LType.trainable() for lt in flatten_models[m].ltypes)]
     
     archs = [flatten_models[m].arch.strip()
              for m in models
@@ -742,18 +715,16 @@ def list_extra_archs(task: str = None, mode: str = None) -> list[str]:
     Returns:
         Sorted list of unique arch names matching task and mode.
     """
-    from mon.globals import EXTRA_MODELS
-    
     flatten_models = type_extensions.flatten_models_dict(EXTRA_MODELS)
     models         = list(flatten_models.keys())
     
-    if task in enums.Task.values():
-        task   = enums.Task(task)
+    if task in Task.values():
+        task   = Task(task)
         models = [m for m in models if task in flatten_models[m]["tasks"]]
     
     if mode == "train":
         models = [m for m in models
-                  if any(lt in enums.LType.trainable() for lt in flatten_models[m]["ltypes"])]
+                  if any(lt in LType.trainable() for lt in flatten_models[m]["ltypes"])]
     
     archs = [flatten_models[m]["arch"].strip()
              for m in models if flatten_models[m]["arch"] not in [None, "None", ""]]
@@ -776,8 +747,6 @@ def list_archs(
     Returns:
         Sorted list of unique arch names matching task and mode.
     """
-    from mon.globals import MODELS, EXTRA_MODELS
-    
     models       = list_mon_models(task=task, mode=mode)
     extra_models = list_extra_models(task=task, mode=mode)
     
@@ -808,8 +777,6 @@ def parse_model_dir(arch: str, model: str) -> pathlib.Path | None:
     Returns:
         ``Path`` to model dir if found, else ``None``.
     """
-    from mon.globals import EXTRA_MODELS, MODELS
-    
     model_name = parse_model_name(model)
     model_dir  = (
         EXTRA_MODELS[arch][model_name].get("model_dir")
@@ -828,8 +795,6 @@ def parse_model_name(model: str) -> str:
     Returns:
         Parsed model name as a string.
     """
-    from mon.globals import EXTRA_MODEL_STR
-    
     return model.replace(f" {EXTRA_MODEL_STR}", "").strip()
 
 
@@ -857,11 +822,8 @@ def parse_model_fullname(name: str, data: str, suffix: str = None) -> str:
             fullname = f"{fullname}_{humps.kebabize(suffix)}"
     return fullname
 
-# endregion
 
-
-# region Package
-
+# ----- Package -----
 def check_installed_package(package_name: str, verbose: bool = False) -> bool:
     """Checks if a package is installed.
 
@@ -882,11 +844,8 @@ def check_installed_package(package_name: str, verbose: bool = False) -> bool:
             print(f"[{package_name}] is not installed")
         return False
 
-# endregion
 
-
-# region Save Dir
-
+# ----- Save Dir -----
 def list_train_save_dirs(root: str | pathlib.Path) -> list[pathlib.Path]:
     """Lists all training save directories in the given project.
 
@@ -926,11 +885,8 @@ def parse_save_dir(
             save_dir /= data
     return save_dir
 
-# endregion
 
-
-# region Seed
-
+# ----- Seed -----
 def set_random_seed(seed: int | list[int] | tuple[int, int]) -> None:
     """Sets random seeds for various libraries.
 
@@ -946,11 +902,8 @@ def set_random_seed(seed: int | list[int] | tuple[int, int]) -> None:
     torch.cuda.manual_seed_all(seed)
     os.environ["PYTHONHASHSEED"] = str(seed)
 
-# endregion
 
-
-# region Tasks
-
+# ----- Tasks -----
 def list_tasks(project_root: str | pathlib.Path) -> list[str]:
     """Lists all available tasks in the project.
 
@@ -960,7 +913,7 @@ def list_tasks(project_root: str | pathlib.Path) -> list[str]:
     Returns:
         Sorted list of task names as strings.
     """
-    tasks = enums.Task.keys()
+    tasks = Task.keys()
     
     default_configs = get_project_default_config(project_root)
     if default_configs.get("TASKS"):
@@ -968,11 +921,8 @@ def list_tasks(project_root: str | pathlib.Path) -> list[str]:
     
     return sorted(t.value for t in tasks)
 
-# endregion
 
-
-# region Timer
-
+# ----- Timer -----
 class Timer:
     """A simple timer.
     
@@ -1052,11 +1002,8 @@ class Timer:
         self.avg_time   = 0.0
         self.duration   = 0.0
 
-# endregion
 
-
-# region Weights
-
+# ----- Weights -----
 def download_weights_from_url(
     url      : str,
     path     : pathlib.Path,
@@ -1099,8 +1046,6 @@ def list_weights_files(
     Returns:
         Sorted list of weights file ``Path`` objects.
     """
-    from mon.globals import ZOO_DIR
-    
     def collect_weights_files(root: pathlib.Path) -> list[pathlib.Path]:
         return sorted(f for f in root.rglob("*") if f.is_weights_file())
     
@@ -1127,8 +1072,6 @@ def parse_weights_file(
     Returns:
         Parsed weights path(s) as single path or sequence, or ``None`` if empty.
     """
-    from mon.globals import ROOT_DIR
-    
     root = pathlib.Path(root)
     weights = type_extensions.to_list(weights)
     
@@ -1142,5 +1085,3 @@ def parse_weights_file(
     if len(weights) == 1:
         return weights[0]
     return weights or None
-
-# endregion
