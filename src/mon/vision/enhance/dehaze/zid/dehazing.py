@@ -1,7 +1,5 @@
 from collections import namedtuple
 
-import numpy as np
-import torch
 import torch.nn as nn
 from cv2.ximgproc import guidedFilter
 from skimage.measure import compare_psnr, compare_ssim

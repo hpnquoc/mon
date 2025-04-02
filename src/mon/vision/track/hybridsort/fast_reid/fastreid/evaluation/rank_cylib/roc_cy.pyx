@@ -9,6 +9,15 @@ cimport numpy as np
 cimport
 
 cimport
+
+cimport
+numpy as np
+cimport
+cimport
+import cython
+import faiss
+import numpy as np
+
 numpy as np
 cimport
 import cython
