@@ -33,9 +33,6 @@ from mon.core import humps, type_extensions
 class Path(type(pathlib.Path())):
     """Extended ``pathlib.Path`` with additional functionalities.
     
-    Args:
-        path: Path to extend with extra methods.
-        
     Notes:
         Methods are kept as methods (not properties) for consistency with ``pathlib.Path``.
     """

@@ -33,7 +33,7 @@ class LayeredFeatureAggregation(torch.nn.Module):
         size        : _size_2_t = None
     ):
         super().__init__()
-        from mon.vision import types
+        from mon import vision
         
         self.in_channels  = core.to_int_list(in_channels)
         self.out_channels = out_channels
@@ -43,7 +43,7 @@ class LayeredFeatureAggregation(torch.nn.Module):
             raise ValueError("[in_channels] must not be empty")
 
         if size:
-            self.size    = types.image_size(size)
+            self.size    = vision.image_size(size)
             self.resize  = torch.nn.Upsample(size=self.size, mode="bilinear", align_corners=False)
             self.linears = torch.nn.ModuleList([
                 torch.nn.Conv2d(in_c, self.out_channels, 1) for in_c in self.in_channels

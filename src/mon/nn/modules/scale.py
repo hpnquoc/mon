@@ -218,8 +218,8 @@ class Interpolate(torch.nn.Module):
 
     def __init__(self, size: _size_2_t):
         super().__init__()
-        from mon.vision import types
-        self.size = types.image_size(size)
+        from mon import vision
+        self.size = vision.image_size(size)
 
     def forward(self, input: torch.Tensor) -> torch.Tensor:
         """Resizes input tensor to target size.

@@ -173,7 +173,7 @@ class CoLIE_RE(base.ImageEnhancementModel):
         h, w      = types.image_size(image_size)
         datapoint = {"image": torch.rand(1, 3, h, w).to(self.device)}
         
-        flops, params = core.custom_profile(self, inputs=datapoint, verbose=False)
+        flops, params = core.thop.custom_profile(self, inputs=datapoint, verbose=False)
         # flops         = FlopCountAnalysis(self, datapoint).total() if flops == 0 else flops
         params        = self.params                if hasattr(self, "params") and params == 0 else params
         params        = parameter_count(self)      if hasattr(self, "params")  else params

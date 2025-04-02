@@ -24,7 +24,6 @@ from mon.constants import LType, MODELS, Task
 from mon.nn import init
 from mon.vision import filtering, geometry, types
 from mon.vision.enhance import base
-from mon.vision.types import image as I
 
 current_file = core.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
@@ -244,7 +243,7 @@ class EnhanceNet(nn.Module):
         self.num_channels  = num_channels
         self.out_channels  = 3
         # Depth Boundary Aware
-        self.dba     = I.BoundaryAwarePrior(eps=eps, normalized=False)
+        self.dba     = types.BoundaryAwarePrior(eps=eps, normalized=False)
         # Encoder
         self.e_conv1 = ConvBlock(self.in_channels,  self.num_channels, norm=norm)
         self.e_conv2 = ConvBlock(self.num_channels, self.num_channels, norm=norm)
@@ -371,7 +370,7 @@ class GCENet(base.ImageEnhancementModel):
             use_edge     = self.use_edge,
         )
         self.gf  = filtering.GuidedFilter(radius=self.gf_radius, eps=self.gf_eps)
-        self.bam = I.BrightnessAttentionMap(gamma=self.bam_gamma, denoise_ksize=self.bam_ksize)
+        self.bam = types.BrightnessAttentionMap(gamma=self.bam_gamma, denoise_ksize=self.bam_ksize)
         
         # Loss
         self.loss = Loss(reduction="mean")
@@ -401,7 +400,7 @@ class GCENet(base.ImageEnhancementModel):
         }
         
         # Get FLOPs and Params
-        flops, params = core.custom_profile(deepcopy(self), inputs=datapoint, verbose=False)
+        flops, params = core.thop.custom_profile(deepcopy(self), inputs=datapoint, verbose=False)
         params        = self.params                if hasattr(self, "params") and params == 0 else params
         params        = parameter_count(self)      if hasattr(self, "params")  else params
         params        = sum(list(params.values())) if isinstance(params, dict) else params

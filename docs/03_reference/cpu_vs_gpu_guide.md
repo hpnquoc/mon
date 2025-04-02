@@ -1,10 +1,10 @@
-# ⚡ Vision Deep Learning Workflow: CPU vs GPU Guide
+# Vision Deep Learning Workflow: CPU vs GPU Guide
 
 Choosing the right device (CPU or GPU) for each step in a vision deep learning pipeline can greatly improve performance and resource efficiency.
 
 ---
 
-## ✅ Task-by-Task Device Breakdown
+## Task-by-Task Device Breakdown
 
 | Task                                          | Best Device      | Reason                                                                 |
 |-----------------------------------------------|------------------|------------------------------------------------------------------------|
@@ -21,18 +21,14 @@ Choosing the right device (CPU or GPU) for each step in a vision deep learning p
 | 💾 Saving/Loading Models                      | **CPU or GPU**   | File I/O, but model must be moved to correct device                    |
 | 🖼️ Visualization (e.g., matplotlib)          | **CPU**          | Rendering and plotting work on CPU; move tensors if needed             |
 
----
-
-## 🧠 Best Practices
+## Best Practices
 
 - Preprocessing & augmentations → **CPU**
 - Model + training/inference → **GPU**
 - Use `pin_memory=True` in DataLoader when training on GPU
 - Move data to GPU **after** loading and preprocessing
 
----
-
-## 🔄 Efficient Workflow Summary
+## Efficient Workflow Summary
 
 ```text
 [Disk (CPU)] → Load image

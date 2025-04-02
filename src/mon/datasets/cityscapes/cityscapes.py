@@ -84,8 +84,8 @@ class Cityscapes(vision.VisionDataset):
     def __init__(
         self,
         root       : core.Path = DATA_DIR / "cityscapes",
-        use_blurred: bool      = False,
-        use_coarse : bool      = False,
+        use_blurred: bool = False,
+        use_coarse : bool = False,
         *args, **kwargs
     ):
         root = root / "cityscapes" if root.name != "cityscapes" else root

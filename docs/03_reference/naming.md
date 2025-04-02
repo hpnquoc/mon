@@ -2,19 +2,21 @@
 
 ## Standard Conventions
 
-- `module_name`
-- `package_name`
-- `local_var_name`
-- `global_var_name`
-- `instance_var_name`
-- `method_name`
-- `function_name`
-- `function_parameter_name`
-- `ClassName`
-- `ExceptionName`
-- `GLOBAL_CONSTANT_NAME`
-- `query_proper_noun_for_thing`
-- `send_acronym_via_https`
+| Type                          | Format       |
+|-------------------------------|--------------|
+| `module_name`                 | noun or verb |
+| `package_name`                | noun or verb |
+| `local_var_name`              | noun         |
+| `global_var_name`             | noun         |
+| `instance_var_name`           | noun         |
+| `method_name`                 | noun or verb |
+| `function_name`               | noun or verb |
+| `function_parameter_name`     | noun         |
+| `ClassName`                   | noun         |
+| `ExceptionName`               | noun         |
+| `GLOBAL_CONSTANT_NAME`        | noun         |
+| `query_proper_noun_for_thing` | noun         |
+| `send_acronym_via_https`      | noun         |
 
 ## Singular vs Plural
 
@@ -26,25 +28,42 @@
 
 - **Creation:**
     - Use `create` when creating a resource. Ex: `create_dir()`.
-    - Use `X.from()` when creating an instance of class `X` from a value. Ex: `List.from_string()`.
     - `write` when saving to disk. Use together with `read`. 
 
-- **Accessing:**
+- **Conversion:**
+    - Use `to` when converting a variable from arbitrary types to the desired type. Ex: `to_list()`.
+    - Use `x_to_y` when converting a variable from type `a` to type `b`. Ex: `str_to_int()`.
+    - Use `X.from()` when creating an instance of class `X` from a value. Ex: `List.from_string()`.
+
+- **Read:**
     - `get` when retrieving a **stored value or accessing a property**, often implying a simple lookup or minimal computation.
     - Omitting `get`. Directly names the property (e.g., “area”), implying the function computes or returns it without emphasizing the action of retrieval. Ex: `bbox_area()`.
     - `read` when acquiring data from disk. Use together with `write`.
 
 - **Updating:**
-	- Use `change` when a whole thing, such as image, is replaced by something else.
-	- Use `update` when one or more of the components is updated as a result, and something new could also be added.
-	- Use `add` to add something into a group of the things.
-	- Use `append` similar as `add`. It could be used when it doesn't modify the original group of things, but produce the new group.
-	- Use `write` when preserving data to an external source. Use together with `read`.
-	- Use `disable` to configure a resource an unavailable or inactive state.
-	- Use `split` when separating parts of a resource.
-	- Use `merge` when creating a single resource from multiple resources.
-	- Use `join` similar as `merge` but for data and values.
+    - Use `change` when a whole thing, such as image, is replaced by something else.
+    - Use `update` when one or more of the components is updated as a result, and something new could also be added.
+    - Use `add` to add something into a group of the things.
+    - Use `append` similar as `add`. It could be used when it doesn't modify the original group of things, but produce the new group.
+    - Use `write` when preserving data to an external source. Use together with `read`.
+    - Use `disable` to configure a resource an unavailable or inactive state.
+    - Use `split` when separating parts of a resource.
+    - Use `merge` when creating a single resource from multiple resources.
+    - Use `join` similar as `merge` but for data and values.
 
 - **Deletion:**
-	- Use `remove` when a given thing is removed from a group of the things.
-	- Use `delete` to eliminate the object or group of things.
+    - Use `remove` when a given thing is removed from a group of the things.
+    - Use `delete` to eliminate the object or group of things.
+
+- **Validity Check:**
+    - Use `is` when defining state of a resource. Ex: `is_available()`.
+    - Use `has` to define whether a resource contains a certain data. Ex: `has_name()`.
+    - Use `can` to define a certain ability of a resource.
+    - Use `should` to define a certain obligation of a resource.
+
+- **Using noun for function name:**
+    - function is always expected to perform an action. **If it barely returns a value, it should be a property**.
+    - You have a hint that the function should be transformed into a property
+      when:
+        - The function barely contains a `return ...` statement,
+        - The function's name, which comes naturally into your mind is `get_something`, as in `product.get_price()` --> `product.price()`.

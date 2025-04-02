@@ -12,7 +12,6 @@ __all__ = [
 ]
 
 from abc import ABC, abstractmethod
-from typing import Sequence
 
 import cv2
 import ffmpeg

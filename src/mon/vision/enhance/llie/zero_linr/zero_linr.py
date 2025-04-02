@@ -605,7 +605,7 @@ class ZeroLINR(base.ImageEnhancementModel):
 			"depth": torch.rand(1, 1, h, w).to(self.device)
 		}
 
-		flops, params = core.custom_profile(self, inputs=datapoint, verbose=False)
+		flops, params = core.thop.custom_profile(self, inputs=datapoint, verbose=False)
 		params        = self.params                if hasattr(self, "params") and params == 0 else params
 		params        = parameter_count(self)      if hasattr(self, "params")  else params
 		params        = sum(list(params.values())) if isinstance(params, dict) else params

@@ -96,6 +96,7 @@ class PEMLP(torch.nn.Module):
         Returns:
             Output tensor as ``torch.Tensor`` from network.
         """
-        s, _   = base.get_size(x)
-        coords = base.get_coords(s).to(x.device)
+        from mon import vision
+        s, _   = vision.image_size(x)
+        coords = base.create_coords(s).to(x.device)
         return self.net(self.enconding(coords))

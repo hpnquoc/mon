@@ -9,41 +9,13 @@ __all__ = [
     "ReLULayer",
 ]
 
-from typing import Any
-
 import numpy as np
 import torch
 from torch.nn import functional as F
 
 
 # ----- Utils -----
-def get_size(x: Any) -> tuple[int, int]:
-    """Gets the size of an image as (height, width).
-
-    Args:
-        x: Image or data to measure as ``Any``.
-
-    Returns:
-        Tuple of (height, width) as ``tuple[int, int]`` in pixels.
-    """
-    from mon.vision.types import image as I
-    return I.image_size(x)
-
-
-def get_image_num_channels(image: torch.Tensor | np.ndarray) -> int:
-    """Gets the number of channels in an image.
-
-    Args:
-        image: Tensor or array representing an image as ``torch.Tensor`` or ``np.ndarray``.
-
-    Returns:
-        Number of channels as ``int``.
-    """
-    from mon.vision.types import image as I
-    return I.image_num_channels(image)
-
-
-def get_coords(down_size: int) -> torch.Tensor:
+def create_coords(down_size: int) -> torch.Tensor:
     """Creates a coordinates grid.
 
     Args:
@@ -57,7 +29,7 @@ def get_coords(down_size: int) -> torch.Tensor:
     return torch.from_numpy(coords).float()
 
 
-def get_patches(image: torch.Tensor, kernel_size: int = 1) -> torch.Tensor:
+def create_patches(image: torch.Tensor, kernel_size: int = 1) -> torch.Tensor:
     """Extracts patches into channels of a tensor.
 
     Args:
@@ -68,8 +40,8 @@ def get_patches(image: torch.Tensor, kernel_size: int = 1) -> torch.Tensor:
         Tensor with patches in channels as ``torch.Tensor``,
         shape [H', W', K^2] or [B, H', W', K^2].
     """
-    from mon.vision.types import image as I
-    num_channels = I.image_num_channels(image)
+    from mon import vision
+    num_channels = vision.image_num_channels(image)
     kernel       = torch.zeros(kernel_size**2, num_channels, kernel_size, kernel_size, device=image.device)
     
     for i in range(kernel_size):

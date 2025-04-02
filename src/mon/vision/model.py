@@ -32,11 +32,11 @@ class VisionModel(nn.Model, ABC):
             Tuple of (FLOPs, parameter count) as ``float`` values.
         """
         from fvcore.nn import parameter_count
-        from mon.vision import types
+        from mon import vision
         
-        h, w      = types.image_size(image_size)
+        h, w      = vision.image_size(image_size)
         datapoint = {"image": torch.rand(1, channels, h, w).to(self.device)}
-        flops, params = core.custom_profile(deepcopy(self), inputs=datapoint, verbose=False)
+        flops, params = core.thop.custom_profile(deepcopy(self), inputs=datapoint, verbose=False)
         params        = self.params if hasattr(self, "params") and params == 0 else params
         params        = parameter_count(self) if hasattr(self, "params")  else params
         params        = sum(params.values())  if isinstance(params, dict) else params
@@ -63,15 +63,15 @@ class VisionModel(nn.Model, ABC):
         Notes:
             Override for custom pre/post-processing; defaults to ``self.forward()``.
         """
-        from mon.vision import types, geometry
+        from mon import vision
         
         # Input
         image  = datapoint["image"]
-        h0, w0 = types.image_size(image)
+        h0, w0 = vision.image_size(image)
         for k, v in datapoint.items():
-            if types.is_image(v):
+            if vision.is_image(v):
                 size         = image_size if resize else 32 * ((max(h0, w0) + 31) // 32)
-                datapoint[k] = geometry.resize(v, size)
+                datapoint[k] = vision.resize(v, size)
             if isinstance(v, torch.Tensor):
                 datapoint[k] = v.to(self.device)
         
@@ -83,10 +83,10 @@ class VisionModel(nn.Model, ABC):
     
         # Post-processing
         for k, v in outputs.items():
-            if types.is_image(v):
+            if vision.is_image(v):
                 h1, w1 = v.image_size(v)
                 if h1 != h0 or w1 != w0:
-                    outputs[k] = geometry.resize(v, (h0, w0))
+                    outputs[k] = vision.resize(v, (h0, w0))
         
         # Return
         return outputs | {

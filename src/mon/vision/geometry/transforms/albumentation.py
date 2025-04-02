@@ -232,6 +232,7 @@ class ResizeMultipleOf(DualTransform):
 	def get_transform_init_args_names(self) -> tuple[str, ...]:
 		return "height", "width", "interpolation"
 
+
 # ----- Rotate -----
 TRANSFORMS.register(name="random_rotate_90", module=RandomRotate90)
 TRANSFORMS.register(name="rotate",           module=Rotate)

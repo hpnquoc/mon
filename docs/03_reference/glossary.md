@@ -11,7 +11,6 @@ Standard abbreviations in code. See more: [Abbreviations in code](https://github
 - Abbreviation (`abbr`):
 - Absolute (`abs`): 
 - Address (`addr`)
-- Annotation (`anno`): A shared data structure for both ground-truth `label`s and predictions. 
 - Application (`app`): 
 - Argument (`arg`):  
 - Array (`arr`):   

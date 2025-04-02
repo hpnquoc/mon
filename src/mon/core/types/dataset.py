@@ -35,10 +35,6 @@ class DatapointAttributes(dict[str, annotations.Annotation]):
     Args:
         args: Positional arguments for ``dict`` initialization.
         kwargs: Keyword arguments for ``dict`` initialization.
-
-    Attributes:
-        Keys: Attribute names as ``str``.
-        Values: Annotation types as ``Annotation`` or ``None``.
     """
     
     def __init__(self, *args, **kwargs):

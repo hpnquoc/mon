@@ -35,8 +35,8 @@ def is_image(image: torch.Tensor) -> bool:
     Returns:
         ``True`` if image is valid, ``False`` otherwise.
     """
-    from mon.vision.types import image as I
-    return I.is_image(image)
+    from mon import vision
+    return vision.is_image(image)
     
     
 # ----- Weights -----
