@@ -74,7 +74,7 @@ def predict(args: dict) -> str:
             meta       = datapoint["meta"]
             image_path = mon.Path(meta["path"])
             image      = datapoint["image"]
-            h0, w0     = mon.get_image_size(image)
+            h0, w0     = mon.image_size(image)
             if resize:
                 image = cv2.resize(image, (imgsz, imgsz))
             

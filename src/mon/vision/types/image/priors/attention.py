@@ -55,7 +55,7 @@ def brightness_attention_map(
             image = kornia.filters.median_blur(image, denoise_ksize)
             # image = kornia.filters.bilateral_blur(image, denoise_ksize, 0.1, (1.5, 1.5))
         hsv = kornia.color.rgb_to_hsv(image)
-        v   = utils.get_image_channel(image=hsv, index=(2, 3), keep_dim=True)  # hsv[:, 2:3, :, :]
+        v   = utils.image_channel(image=hsv, index=(2, 3), keep_dim=True)  # hsv[:, 2:3, :, :]
         bam = torch.pow((1 - v), gamma)
     elif isinstance(image, np.ndarray):
         if denoise_ksize:
@@ -64,7 +64,7 @@ def brightness_attention_map(
         if hsv.dtype != np.float64:
             hsv  = hsv.astype("float64")
             hsv /= 255.0
-        v   = utils.get_image_channel(image=hsv, index=(2, 3), keep_dim=True)  # hsv[:, :, 2:3]
+        v   = utils.image_channel(image=hsv, index=(2, 3), keep_dim=True)  # hsv[:, :, 2:3]
         bam = np.power((1 - v), gamma)
     else:
         raise TypeError(f"[image] must be a torch.Tensor or np.ndarray, got {type(image)}.")

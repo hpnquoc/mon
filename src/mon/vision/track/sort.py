@@ -258,8 +258,8 @@ class SORT(base.Tracker):
         bboxes        = det_results[:, 0:4]  # [x1, y1, x2, y2]
         classes       = det_results[:,   5]
         # Scale the detections
-        input_size    = types.get_image_size(input_size)
-        image_size    = types.get_image_size(image_size)
+        input_size    = types.image_size(input_size)
+        image_size    = types.image_size(image_size)
         inp_h, inp_w  = input_size[0], input_size[1]
         img_h, img_w  = image_size[0], image_size[1]
         if inp_h != img_h or inp_w != img_w:

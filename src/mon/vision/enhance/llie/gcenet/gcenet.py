@@ -394,7 +394,7 @@ class GCENet(base.ImageEnhancementModel):
         of parameters, and runtime.
         """
         # Define input tensor
-        h, w      = types.get_image_size(image_size)
+        h, w      = types.image_size(image_size)
         datapoint = {
             "image": torch.rand(1, channels, h, w).to(self.device),
             "depth": torch.rand(1,        1, h, w).to(self.device)

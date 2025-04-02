@@ -1,7 +1,14 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Implements input/output operations for images."""
+"""Implements input/output operations for images.
+
+Common Tasks:
+    - Load images from disk.
+    - Save images to disk.
+    - Batch I/O.
+    - Metadata handling.
+"""
 
 __all__ = [
     "read_image",
@@ -56,7 +63,7 @@ def read_image(
             image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
     
     if to_tensor:
-        image = processing.convert_image_to_tensor(image, normalize=normalize, device=device)
+        image = processing.image_to_tensor(image, normalize=normalize, device=device)
     
     return image
 

@@ -28,7 +28,7 @@ with mon.get_progress_bar() as pbar:
     ):
         # Image
         image     = mon.read_image(path=image_file, to_tensor=True, normalize=True)
-        h0, w0    = mon.get_image_size(image)
+        h0, w0    = mon.image_size(image)
         # Ref
         ref_file  = ref_dir / f"{image_file.stem}{ref_ext}"
         ref       = mon.read_image(path=ref_file, to_tensor=True, normalize=True)

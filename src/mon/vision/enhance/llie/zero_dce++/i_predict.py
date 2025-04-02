@@ -85,7 +85,7 @@ def predict(args: dict) -> str:
                 meta       = datapoint["meta"]
                 image_path = mon.Path(meta["path"])
                 image      = datapoint["image"]
-                h0, w0     = mon.get_image_size(image)
+                h0, w0     = mon.image_size(image)
                 h1         = (h0 // scale_factor) * scale_factor
                 w1         = (w0 // scale_factor) * scale_factor
                 image      = image[:, :, 0:h1, 0:w1]

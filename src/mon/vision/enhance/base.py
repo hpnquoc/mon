@@ -81,12 +81,12 @@ class ImageEnhancementModel(model.VisionModel, ABC):
         outputs   =    data.get("outputs",   {})
         enhanced  = outputs.pop("enhanced",  None)
         
-        image        = list(types.convert_image_to_array(image, denormalize=True))
-        ref_image    = list(types.convert_image_to_array(ref_image, denormalize=True)) if ref_image else None
-        enhanced     = list(types.convert_image_to_array(enhanced, denormalize=True))
+        image        = list(types.image_to_array(image, denormalize=True))
+        ref_image    = list(types.image_to_array(ref_image, denormalize=True)) if ref_image else None
+        enhanced     = list(types.image_to_array(enhanced, denormalize=True))
         extra_images = {k: v for k, v in outputs.items() if types.is_image(v)}
         extra        = {
-            k: list(types.convert_image_to_array(v, denormalize=True))
+            k: list(types.image_to_array(v, denormalize=True))
             for k, v in extra_images.items()
         } if extra_images else {}
         

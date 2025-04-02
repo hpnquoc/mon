@@ -114,7 +114,7 @@ def box_filter(
         normalize   = kwargs.get("normalize",  False)
         borderType  = kwargs.get("borderType", cv2.BORDER_DEFAULT)
         kernel_size = kernel_size or 2 * radius + 1
-        kernel_size = types.get_image_size(kernel_size)
+        kernel_size = types.image_size(kernel_size)
         return cv2.boxFilter(
             src        = image,
             ddepth     = ddepth,

@@ -27,7 +27,7 @@ def get_size(x: Any) -> tuple[int, int]:
         Tuple of (height, width) as ``tuple[int, int]`` in pixels.
     """
     from mon.vision.types import image as I
-    return I.get_image_size(x)
+    return I.image_size(x)
 
 
 def get_image_num_channels(image: torch.Tensor | np.ndarray) -> int:
@@ -40,7 +40,7 @@ def get_image_num_channels(image: torch.Tensor | np.ndarray) -> int:
         Number of channels as ``int``.
     """
     from mon.vision.types import image as I
-    return I.get_image_num_channels(image)
+    return I.image_num_channels(image)
 
 
 def get_coords(down_size: int) -> torch.Tensor:
@@ -69,7 +69,7 @@ def get_patches(image: torch.Tensor, kernel_size: int = 1) -> torch.Tensor:
         shape [H', W', K^2] or [B, H', W', K^2].
     """
     from mon.vision.types import image as I
-    num_channels = I.get_image_num_channels(image)
+    num_channels = I.image_num_channels(image)
     kernel       = torch.zeros(kernel_size**2, num_channels, kernel_size, kernel_size, device=image.device)
     
     for i in range(kernel_size):

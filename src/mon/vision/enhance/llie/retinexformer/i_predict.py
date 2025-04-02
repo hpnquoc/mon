@@ -106,12 +106,12 @@ def predict(args: dict) -> str:
                     torch.cuda.ipc_collect()
                     torch.cuda.empty_cache()
                 if resize:
-                    h0, w0 = mon.get_image_size(image)
+                    h0, w0 = mon.image_size(image)
                     image  = mon.resize(image, imgsz)
                     mon.console.log("Resizing images to: ", image.shape[2], image.shape[3])
                     # images = proc.resize(input=images, size=[1000, 666])
                 # Padding in case images are not multiples of 4
-                h, w  = mon.get_image_size(image)
+                h, w  = mon.image_size(image)
                 H, W  = ((h + factor) // factor) * factor, ((w + factor) // factor) * factor
                 padh  = H - h if h % factor != 0 else 0
                 padw  = W - w if w % factor != 0 else 0

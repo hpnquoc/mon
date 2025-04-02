@@ -92,7 +92,7 @@ class RelightNet(nn.Module):
 
 def calculate_efficiency_score_decomnet(model, image_size: int = 512):
     # Define input tensor
-    h, w  = mon.get_image_size(image_size)
+    h, w  = mon.image_size(image_size)
     input = torch.rand(1, 3, h, w).to(model.device)
     # Get FLOPs and Params
     flops, params = thop.profile(deepcopy(model), inputs=(input, ), verbose=False)
@@ -101,7 +101,7 @@ def calculate_efficiency_score_decomnet(model, image_size: int = 512):
 
 def calculate_efficiency_score_enhancenet(model, image_size: int = 512):
     # Define input tensor
-    h, w  = mon.get_image_size(image_size)
+    h, w  = mon.image_size(image_size)
     input = torch.rand(1, 1, h, w).to(model.device)
     mask  = torch.rand(1, 3, h, w).to(model.device)
     # Get FLOPs and Params

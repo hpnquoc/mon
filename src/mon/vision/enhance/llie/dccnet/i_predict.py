@@ -84,7 +84,7 @@ def predict(args: dict) -> str:
                 meta       = datapoint["meta"]
                 image_path = mon.Path(meta["path"])
                 image      = datapoint["image"].to(device)
-                h0, w0     = mon.get_image_size(image)
+                h0, w0     = mon.image_size(image)
                 image      = mon.resize(image, divisible_by=32)
                 
                 # Infer

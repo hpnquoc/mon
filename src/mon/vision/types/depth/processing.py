@@ -1,10 +1,14 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Implements general-purpose utilities for depth tasks."""
+"""Implements general-purpose utilities for depth tasks.
+
+Common Tasks:
+    - Format conversions.
+"""
 
 __all__ = [
-    "convert_depth_to_color",
+    "depth_to_color",
 ]
 
 import cv2
@@ -14,7 +18,7 @@ from mon.vision.types import image as I
 
 
 # ----- Conversion -----
-def convert_depth_to_color(
+def depth_to_color(
     depth    : np.ndarray,
     color_map: int = cv2.COLORMAP_JET,
     use_rgb  : bool = False

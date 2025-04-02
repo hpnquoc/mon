@@ -89,7 +89,7 @@ def predict(args: dict) -> str:
                 meta       = datapoint["meta"]
                 image_path = mon.Path(meta["path"])
                 image      = utils.image_from_path(str(image_path))
-                h0, w0     = mon.get_image_size(meta["shape"])
+                h0, w0     = mon.image_size(meta["shape"])
                 # Scale image to have the resolution of multiple of 4
                 image      = utils.scale_image(image, scale_factor, device) if scale_factor != 1 else image
                 image      = image.to(device)

@@ -66,7 +66,7 @@ def measure_metric_pyiqa(
     metric      = [m.lower() for m in metric]
     values      = {m: []     for m in metric}
     results     = {}
-    h, w        = mon.get_image_size(imgsz)
+    h, w        = mon.image_size(imgsz)
     
     # Parse metrics
     metric_f    = {}
@@ -92,7 +92,7 @@ def measure_metric_pyiqa(
         ):
             # Image
             image  = mon.read_image(path=image_file, to_tensor=True, normalize=True)
-            h0, w0 = mon.get_image_size(image)
+            h0, w0 = mon.image_size(image)
             if torch.any(image.isnan()):
                 continue
             if resize:  # Force resize
@@ -107,7 +107,7 @@ def measure_metric_pyiqa(
                     target_file = temp
             if target_file and target_file.exists():  # Has target file
                 target = mon.read_image(path=target_file, to_tensor=True, normalize=True)
-                h1, w1 = mon.get_image_size(target)
+                h1, w1 = mon.image_size(target)
                 if resize:  # Force resize
                     target = mon.resize(target, (h, w))
                 elif h1 != h0 or w1 != w0:  # Mismatch size between image and target

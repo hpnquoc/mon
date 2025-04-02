@@ -31,7 +31,7 @@ def predict(args: argparse.Namespace):
     weights      = args.weights
     device       = mon.set_device(args.device)
     imgsz        = args.imgsz
-    imgsz        = mon.get_image_size(imgsz)
+    imgsz        = mon.image_size(imgsz)
     resize       = args.resize
     benchmark    = args.benchmark
     save_image   = args.save_image
@@ -87,7 +87,7 @@ def predict(args: argparse.Namespace):
                 image      = torch.from_numpy(image).float()
                 image      = image.permute(2, 0, 1)
                 image      = image.to(device).unsqueeze(0)
-                h0, w0     = mon.get_image_size(image)
+                h0, w0     = mon.image_size(image)
                 if resize:
                     image = mon.resize(image, imgsz)
                 else:

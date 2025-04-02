@@ -86,7 +86,7 @@ def predict(args: dict) -> str:
                 meta       = datapoint["meta"]
                 image_path = mon.Path(meta["path"])
                 image      = datapoint["image"].to(device)
-                h0, w0     = mon.get_image_size(image)
+                h0, w0     = mon.image_size(image)
                 if resize:
                     image = mon.resize(image, imgsz)
                 else:
@@ -104,7 +104,7 @@ def predict(args: dict) -> str:
                 # Post-processing
                 visuals = model.get_current_visuals()
                 sr_img  = visuals["rlt"]
-                h1, w1  = mon.get_image_size(sr_img)
+                h1, w1  = mon.image_size(sr_img)
                 if h1 != h0 or w1 != w0:
                     sr_img = mon.resize(sr_img, (h0, w0))
                     

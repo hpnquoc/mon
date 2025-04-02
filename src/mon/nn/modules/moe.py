@@ -26,7 +26,7 @@ def get_image_size(input: Any) -> tuple[int, int]:
         Tuple of (height, width) in pixels as ``tuple[int, int]``
     """
     from mon.vision.types import image as I
-    return I.get_image_size(input)
+    return I.image_size(input)
     
 
 # ----- Layer -----

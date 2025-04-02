@@ -40,7 +40,7 @@ class FrameAnnotation(core.Annotation):
         self.index = index
         self.frame = frame
         self.path  = path
-        self.shape = I.get_image_shape(image=frame)
+        self.shape = I.image_shape(image=frame)
     
     @property
     def path(self) -> core.Path:
@@ -123,7 +123,7 @@ class FrameAnnotation(core.Annotation):
         Returns:
             ``torch.Tensor`` of converted data.
         """
-        return I.convert_image_to_tensor(data, normalize)
+        return I.image_to_tensor(data, normalize)
     
     @staticmethod
     def collate_fn(batch: list[torch.Tensor | np.ndarray]) -> torch.Tensor | np.ndarray | None:
@@ -137,4 +137,4 @@ class FrameAnnotation(core.Annotation):
         """
         if not batch:
             return None
-        return I.convert_image_to_4d(batch)
+        return I.image_to_4d(batch)

@@ -8,14 +8,14 @@ __all__ = [
     "resize",
 ]
 
-from typing import Literal, Sequence
+from typing import Literal
 
 import cv2
 import kornia
 import numpy as np
 import torch
 
-from mon.nn import functional as F
+from mon.nn import _size_2_t, functional as F
 from mon.vision import types
 
 
@@ -55,7 +55,7 @@ def pair_downsample(image: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
 # noinspection PyTypeHints
 def resize(
     image        : torch.Tensor | np.ndarray,
-    size         : int | Sequence[int] = None,
+    size         : _size_2_t = None,
     divisible_by : int = None,
     side         : Literal["short", "long", "vert", "horz", None] = None,
     interpolation: Literal["nearest", "linear", "bilinear", "bicubic", "trilinear", "area",
@@ -109,13 +109,13 @@ def resize(
     """
     # Parse size
     if size:
-        size = types.get_image_size(size, divisible_by)
+        size = types.image_size(size, divisible_by)
     else:
-        size = types.get_image_size(image, divisible_by)
+        size = types.image_size(image, divisible_by)
         
     # Resize based on the shortest dimension
     if side == "short":
-        h0, w0 = types.get_image_size(image)
+        h0, w0 = types.image_size(image)
         h1, w1 = size
         if h0 < w0:
             scale = h1 / h0
@@ -132,7 +132,7 @@ def resize(
         size = (new_h, new_w)
     # Resize based on the longest dimension
     elif side == "long":
-        h0, w0 = types.get_image_size(image)
+        h0, w0 = types.image_size(image)
         h1, w1 = size
         if h0 > w0:
             scale = h1 / h0

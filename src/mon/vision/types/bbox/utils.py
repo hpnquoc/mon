@@ -1,21 +1,27 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Implements general-purpose utilities for bounding box."""
+"""Implements general-purpose utilities for bounding box.
+
+Common Tasks:
+    - Property accessors
+    - Validation checks
+    - Miscellaneous
+"""
 
 __all__ = [
-    "get_bbox_area",
-    "get_bbox_center",
-    "get_bbox_corners",
-    "get_bbox_corners_pts",
-    "get_enclosing_bbox",
+    "bbox_area",
+    "bbox_center",
+    "bbox_corners",
+    "bbox_corners_pts",
+    "enclosing_bbox",
 ]
 
 import numpy as np
 
 
-# ----- Accessing -----
-def get_bbox_area(bbox: np.ndarray) -> np.ndarray:
+# ----- Properties Accessors -----
+def bbox_area(bbox: np.ndarray) -> np.ndarray:
     """Compute area of bounding box(es).
 
     Args:
@@ -38,7 +44,7 @@ def get_bbox_area(bbox: np.ndarray) -> np.ndarray:
     return (x2 - x1) * (y2 - y1)
 
 
-def get_bbox_center(bbox: np.ndarray) -> np.ndarray:
+def bbox_center(bbox: np.ndarray) -> np.ndarray:
     """Compute center(s) of bounding box(es).
 
     Args:
@@ -63,7 +69,7 @@ def get_bbox_center(bbox: np.ndarray) -> np.ndarray:
     return np.stack((cx, cy), -1)
 
 
-def get_bbox_corners(bbox: np.ndarray) -> np.ndarray:
+def bbox_corners(bbox: np.ndarray) -> np.ndarray:
     """Get corner(s) of bounding box(es).
 
     Args:
@@ -96,7 +102,7 @@ def get_bbox_corners(bbox: np.ndarray) -> np.ndarray:
     return np.hstack((c_x1, c_y1, c_x2, c_y2, c_x3, c_y3, c_x4, c_y4))
 
 
-def get_bbox_corners_pts(bbox: np.ndarray) -> np.ndarray:
+def bbox_corners_pts(bbox: np.ndarray) -> np.ndarray:
     """Get corner(s) of bounding box(es) as points.
 
     Args:
@@ -130,7 +136,7 @@ def get_bbox_corners_pts(bbox: np.ndarray) -> np.ndarray:
     return np.array([[c_x1, c_y1], [c_x2, c_y2], [c_x3, c_y3], [c_x4, c_y4]], np.int32)
 
 
-def get_enclosing_bbox(bbox: np.ndarray) -> np.ndarray:
+def enclosing_bbox(bbox: np.ndarray) -> np.ndarray:
     """Get enclosing box(es) for rotated corners.
 
     Args:

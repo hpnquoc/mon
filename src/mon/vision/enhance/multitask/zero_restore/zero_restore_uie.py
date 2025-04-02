@@ -331,7 +331,7 @@ class ZeroRestoreUIE(base.ImageEnhancementModel):
         
         # Input
         image  = datapoint["image"].to(self.device)
-        h0, w0 = types.get_image_size(image)
+        h0, w0 = types.image_size(image)
         image  = geometry.resize(image, divisible_by=32)
         
         # Optimize

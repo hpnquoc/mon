@@ -157,7 +157,7 @@ class Detector1(ABC):
         self.weights        = weights
         self.classlabels    = datasets.ClassLabels.from_value(value=classlabels)
         self.allowed_ids    = self.classlabels.ids(key="id", exclude_negative_key=True)
-        self.image_size     = types.get_image_size(image_size)
+        self.image_size     = types.image_size(image_size)
         self.conf_threshold = conf_threshold
         self.iou_threshold  = iou_threshold
         self.max_detections = max_detections

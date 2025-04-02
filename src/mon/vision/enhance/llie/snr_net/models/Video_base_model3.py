@@ -270,8 +270,8 @@ class VideoBaseModel(BaseModel):
         self.test()
     
     def measure_efficiency_score(self, image_size: int = 512, channels: int = 3) -> tuple[float, float]:
-        from mon import get_image_size
-        h, w  = get_image_size(image_size)
+        from mon import image_size
+        h, w  = image_size(image_size)
         input = torch.rand(1, channels, h, w).to(self.device)
         data  = {
             "idx": 0,

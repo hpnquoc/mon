@@ -1,19 +1,25 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Implements image manipulation and preprocessing functions."""
+"""Implements image manipulation and preprocessing functions.
+
+Common Tasks:
+    - Format conversions.
+    - Image transformations.
+    - Pixel operations.
+"""
 
 __all__ = [
     "add_images_weighted",
     "blend_images",
-    "convert_image_to_2d",
-    "convert_image_to_3d",
-    "convert_image_to_4d",
-    "convert_image_to_array",
-    "convert_image_to_channel_first",
-    "convert_image_to_channel_last",
-    "convert_image_to_tensor",
     "denormalize_image",
+    "image_to_2d",
+    "image_to_3d",
+    "image_to_4d",
+    "image_to_array",
+    "image_to_channel_first",
+    "image_to_channel_last",
+    "image_to_tensor",
     "normalize_image",
     "normalize_image_by_range",
 ]
@@ -28,7 +34,7 @@ from mon.vision.types.image import utils
 
 
 # ----- Conversion -----
-def convert_image_to_2d(image: torch.Tensor | np.ndarray) -> torch.Tensor | np.ndarray:
+def image_to_2d(image: torch.Tensor | np.ndarray) -> torch.Tensor | np.ndarray:
     """Converts a 3D or 4D image to 2D.
 
     Args:
@@ -61,7 +67,7 @@ def convert_image_to_2d(image: torch.Tensor | np.ndarray) -> torch.Tensor | np.n
     return image
 
 
-def convert_image_to_3d(image: torch.Tensor | np.ndarray) -> torch.Tensor | np.ndarray:
+def image_to_3d(image: torch.Tensor | np.ndarray) -> torch.Tensor | np.ndarray:
     """Converts a 2D or 4D image to 3D.
 
     Args:
@@ -94,8 +100,10 @@ def convert_image_to_3d(image: torch.Tensor | np.ndarray) -> torch.Tensor | np.n
     return image
 
 
-def convert_image_to_4d(
-    image: torch.Tensor | np.ndarray | list[torch.Tensor] | list[np.ndarray] | tuple[torch.Tensor, ...] | tuple[np.ndarray, ...]
+def image_to_4d(
+    image: torch.Tensor | np.ndarray
+           | list[torch.Tensor] | list[np.ndarray]
+           | tuple[torch.Tensor, ...] | tuple[np.ndarray, ...]
 ) -> torch.Tensor | np.ndarray:
     """Converts a 2D or 3D image to 4D.
 
@@ -143,7 +151,7 @@ def convert_image_to_4d(
     return image
 
 
-def convert_image_to_channel_first(image: torch.Tensor | np.ndarray) -> torch.Tensor | np.ndarray:
+def image_to_channel_first(image: torch.Tensor | np.ndarray) -> torch.Tensor | np.ndarray:
     """Converts an image to channel-first format.
 
     Args:
@@ -181,7 +189,7 @@ def convert_image_to_channel_first(image: torch.Tensor | np.ndarray) -> torch.Te
     return image
 
 
-def convert_image_to_channel_last(image: torch.Tensor | np.ndarray) -> torch.Tensor | np.ndarray:
+def image_to_channel_last(image: torch.Tensor | np.ndarray) -> torch.Tensor | np.ndarray:
     """Converts an image to channel-last format.
 
     Args:
@@ -218,7 +226,7 @@ def convert_image_to_channel_last(image: torch.Tensor | np.ndarray) -> torch.Ten
     return image
 
 
-def convert_image_to_array(image: torch.Tensor | np.ndarray, denormalize: bool = False) -> np.ndarray:
+def image_to_array(image: torch.Tensor | np.ndarray, denormalize: bool = False) -> np.ndarray:
     """Converts an image to a ``numpy.ndarray``.
     
     Args:
@@ -239,7 +247,7 @@ def convert_image_to_array(image: torch.Tensor | np.ndarray, denormalize: bool =
         raise ValueError(f"[image]'s number of dimensions must be between 3 and 4, got {image.ndim}.")
     
     # Remove batch dimension
-    image = convert_image_to_3d(image)
+    image = image_to_3d(image)
     # Detach
     if isinstance(image, torch.Tensor):
         image = image.detach().cpu()
@@ -249,7 +257,7 @@ def convert_image_to_array(image: torch.Tensor | np.ndarray, denormalize: bool =
     else:
         image = np.clip(image, 0, 1)
     # Rearrange
-    image = convert_image_to_channel_last(image)
+    image = image_to_channel_last(image)
     # Convert to numpy
     image = image.numpy() if isinstance(image, torch.Tensor) else image
     # Denormalize
@@ -259,7 +267,7 @@ def convert_image_to_array(image: torch.Tensor | np.ndarray, denormalize: bool =
     return image
 
 
-def convert_image_to_tensor(
+def image_to_tensor(
     image    : torch.Tensor | np.ndarray,
     normalize: bool = False,
     device   : Any  = None
@@ -290,13 +298,13 @@ def convert_image_to_tensor(
         raise TypeError(f"[image] must be a torch.Tensor or numpy.ndarray, got {type(image)}.")
         
     # Rearrange before sending to GPU for better memory layout.
-    image = convert_image_to_channel_first(image)
+    image = image_to_channel_first(image)
     # Ensure float32 for model input.
     image = image.float()
     # Normalize image
     image = normalize_image(image) if normalize else image
     # Add batch dimension
-    image = convert_image_to_4d(image)
+    image = image_to_4d(image)
     # Place on device
     if device:
         image = image.to(device)

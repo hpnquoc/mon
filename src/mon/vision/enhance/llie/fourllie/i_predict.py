@@ -86,7 +86,7 @@ def predict(args: dict) -> str:
                 image_path = mon.Path(meta["path"])
                 image      = dutil.read_img(None, str(image_path))
                 image      = image[:, :, ::-1]
-                h0, w0     = mon.get_image_size(image)
+                h0, w0     = mon.image_size(image)
                 image      = mon.resize(image, divisible_by=32)
                 image_nf   = cv2.blur(image, (5, 5))
                 image_nf   = image_nf * 1.0 / 255.0

@@ -106,7 +106,7 @@ def draw_heatmap(
     if not 0.0 <= alpha <= 1.0:
         raise ValueError(f"[alpha] should be in range [0.0, 1.0], got {alpha}.")
 
-    heatmap = types.convert_depth_to_color(heatmap, color_map, use_rgb)
+    heatmap = types.depth_to_color(heatmap, color_map, use_rgb)
     heatmap = np.float32(heatmap) / 255
     drawing = types.blend_images(image, heatmap, alpha)
     drawing = drawing / np.max(drawing)
@@ -131,7 +131,7 @@ def draw_semantic(
     Returns:
         Image with semantic overlay as ``np.ndarray``.
     """
-    color_map = types.convert_label_map_id_to_color(semantic, classlabels)
+    color_map = types.label_map_id_to_color(semantic, classlabels)
     drawing   = types.blend_images(image, color_map, alpha)
     drawing   = drawing.astype(np.uint8)
     return drawing

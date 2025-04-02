@@ -122,7 +122,7 @@ def predict(args: dict) -> str:
                 timer.tock()
                 
                 # Post-process
-                h1, w1 = mon.get_image_size(enhanced)
+                h1, w1 = mon.image_size(enhanced)
                 if h1 != h0 or w1 != w0:
                     enhanced = mon.resize(enhanced, (h0, w0))
                 enhanced = util.tensor2im(enhanced)

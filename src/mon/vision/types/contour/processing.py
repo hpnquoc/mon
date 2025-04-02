@@ -1,12 +1,16 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Implements geometry functions for contours/segments."""
+"""Implements geometry functions for contours/segments.
+
+Common Tasks:
+    - Format conversions.
+"""
 
 __all__ = [
+    "contour_voc_to_yolo",
+    "contour_yolo_to_voc",
     "convert_contour",
-    "convert_contour_voc_to_yolo",
-    "convert_contour_yolo_to_voc",
     "denormalize_contour",
     "normalize_contour",
 ]
@@ -52,8 +56,8 @@ def denormalize_contour(contour: np.ndarray, height: int, width: int) -> np.ndar
 
 
 # ----- Conversion -----
-convert_contour_voc_to_yolo = normalize_contour
-convert_contour_yolo_to_voc = denormalize_contour
+contour_voc_to_yolo = normalize_contour
+contour_yolo_to_voc = denormalize_contour
 
 
 def convert_contour(
@@ -66,8 +70,8 @@ def convert_contour(
     code = ShapeCode.from_value(value=code)
     match code:
         case ShapeCode.VOC2YOLO:
-            return convert_contour_voc_to_yolo(contour, height, width)
+            return contour_voc_to_yolo(contour, height, width)
         case ShapeCode.YOLO2VOC:
-            return convert_contour_yolo_to_voc(contour, height, width)
+            return contour_yolo_to_voc(contour, height, width)
         case _:
             return contour

@@ -20,6 +20,7 @@ import numpy as np
 import torch
 
 from mon import core
+from mon.nn import _size_2_t
 from mon.vision.types import image as I
 
 
@@ -61,7 +62,7 @@ def read_video_ffmpeg(
             .reshape([height, width, 3])
         )
         if to_tensor:
-            image = I.convert_image_to_tensor(image, normalize)
+            image = I.image_to_tensor(image, normalize)
     return image
 
 
@@ -85,9 +86,9 @@ def write_video_ffmpeg(
         if I.is_image_normalized(frame):
             frame = I.denormalize_image(frame)
         if I.is_image_channel_first(frame):
-            frame = I.convert_image_to_channel_last(frame)
+            frame = I.image_to_channel_last(frame)
     elif isinstance(frame, torch.Tensor):
-        frame = I.convert_image_to_array(frame, denormalize)
+        frame = I.image_to_array(frame, denormalize)
     else:
         raise ValueError(f"[frame] must be a torch.Tensor or np.ndarray, got [{type(frame).__name__}].")
     process.stdin.write(
@@ -113,7 +114,7 @@ class VideoWriter(ABC):
     def __init__(
         self,
         dst		   : core.Path,
-        image_size : int | Sequence[int] = [480, 640],
+        image_size : _size_2_t = [480, 640],
         frame_rate : float = 10,
         denormalize: bool  = False,
         verbose    : bool  = False,
@@ -122,7 +123,7 @@ class VideoWriter(ABC):
         self.dst         = core.Path(dst)
         self.denormalize = denormalize
         self.index       = 0
-        self.image_size  = I.get_image_size(image_size)
+        self.image_size  = I.image_size(image_size)
         self.frame_rate  = frame_rate
         self.verbose     = verbose
         self.init()
@@ -199,7 +200,7 @@ class VideoWriterCV(VideoWriter):
     def __init__(
         self,
         dst		   : core.Path,
-        image_size : int | Sequence[int] = [480, 640],
+        image_size : _size_2_t = [480, 640],
         frame_rate : float = 30,
         fourcc     : str   = "mp4v",
         denormalize: bool  = False,
@@ -256,7 +257,7 @@ class VideoWriterCV(VideoWriter):
             denormalize: Convert to [0, 255] if ``True``. Default is ``False``.
         """
         denormalize = denormalize or self.denormalize
-        image       = I.convert_image_to_array(frame, denormalize)
+        image       = I.image_to_array(frame, denormalize)
         # IMPORTANT: Image must be in a BGR format
         image       = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
         self.video_writer.write(image)
@@ -297,7 +298,7 @@ class VideoWriterFFmpeg(VideoWriter):
     def __init__(
         self,
         dst		   : core.Path,
-        image_size : int | Sequence[int] = [480, 640],
+        image_size : _size_2_t = [480, 640],
         frame_rate : float = 10,
         pix_fmt    : str   = "yuv420p",
         denormalize: bool  = False,

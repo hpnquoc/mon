@@ -1,34 +1,39 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Implements bounding box manipulation and preprocessing functions."""
+"""Implements bounding box manipulation and preprocessing functions.
+
+Common Tasks:
+    - Format conversions.
+    - Transformations.
+"""
 
 __all__ = [
     "bbox_center_distance",
     "bbox_ciou",
+    "bbox_coco_to_voc",
+    "bbox_coco_to_yolo",
+    "bbox_cxcywhn_to_xywh",
+    "bbox_cxcywhn_to_xyxy",
+    "bbox_cxcywhn_to_xyxyn",
     "bbox_diou",
     "bbox_giou",
     "bbox_iou",
+    "bbox_voc_to_coco",
+    "bbox_voc_to_yolo",
+    "bbox_xywh_to_cxcywhn",
+    "bbox_xywh_to_xyxy",
+    "bbox_xywh_to_xyxyn",
+    "bbox_xyxy_to_cxcywhn",
+    "bbox_xyxy_to_xywh",
+    "bbox_xyxy_to_xywh",
+    "bbox_xyxy_to_xyxyn",
+    "bbox_xyxyn_to_cxcywhn",
+    "bbox_xyxyn_to_xywh",
+    "bbox_xyxyn_to_xyxy",
+    "bbox_yolo_to_coco",
+    "bbox_yolo_to_voc",
     "convert_bbox",
-    "convert_bbox_coco_to_voc",
-    "convert_bbox_coco_to_yolo",
-    "convert_bbox_cxcywhn_to_xywh",
-    "convert_bbox_cxcywhn_to_xyxy",
-    "convert_bbox_cxcywhn_to_xyxyn",
-    "convert_bbox_voc_to_coco",
-    "convert_bbox_voc_to_yolo",
-    "convert_bbox_xywh_to_cxcywhn",
-    "convert_bbox_xywh_to_xyxy",
-    "convert_bbox_xywh_to_xyxyn",
-    "convert_bbox_xyxy_to_cxcywhn",
-    "convert_bbox_xyxy_to_xywh",
-    "convert_bbox_xyxy_to_xywh",
-    "convert_bbox_xyxy_to_xyxyn",
-    "convert_bbox_xyxyn_to_cxcywhn",
-    "convert_bbox_xyxyn_to_xywh",
-    "convert_bbox_xyxyn_to_xyxy",
-    "convert_bbox_yolo_to_coco",
-    "convert_bbox_yolo_to_voc",
 ]
 
 import numpy as np
@@ -36,7 +41,7 @@ import numpy as np
 from mon.constants import ShapeCode
 
 
-# ----- Association -----
+# ----- Calculation -----
 def bbox_iou(bbox1: np.ndarray, bbox2: np.ndarray) -> np.ndarray:
     """Compute IoU between two sets of bounding boxes.
 
@@ -355,7 +360,7 @@ def bbox_center_distance(bbox1: np.ndarray, bbox2: np.ndarray) -> np.ndarray:
 
 
 # ----- Conversion -----
-def convert_bbox_cxcywhn_to_xywh(bbox: np.ndarray, height: int, width: int) -> np.ndarray:
+def bbox_cxcywhn_to_xywh(bbox: np.ndarray, height: int, width: int) -> np.ndarray:
     """Convert boxes from CXCYWHN to XYWH format.
 
     Args:
@@ -374,7 +379,7 @@ def convert_bbox_cxcywhn_to_xywh(bbox: np.ndarray, height: int, width: int) -> n
     return np.stack((x, y, w, h), axis=-1)
 
 
-def convert_bbox_cxcywhn_to_xyxy(bbox: np.ndarray, height: int, width: int) -> np.ndarray:
+def bbox_cxcywhn_to_xyxy(bbox: np.ndarray, height: int, width: int) -> np.ndarray:
     """Convert boxes from CXCYWHN to XYXY format.
 
     Args:
@@ -393,7 +398,7 @@ def convert_bbox_cxcywhn_to_xyxy(bbox: np.ndarray, height: int, width: int) -> n
     return np.stack((x1, y1, x2, y2), axis=-1)
 
 
-def convert_bbox_cxcywhn_to_xyxyn(bbox: np.ndarray) -> np.ndarray:
+def bbox_cxcywhn_to_xyxyn(bbox: np.ndarray) -> np.ndarray:
     """Convert boxes from CXCYWHN to XYXYN format.
 
     Args:
@@ -410,7 +415,7 @@ def convert_bbox_cxcywhn_to_xyxyn(bbox: np.ndarray) -> np.ndarray:
     return np.stack((x1, y1, x2, y2), axis=-1)
 
 
-def convert_bbox_xywh_to_cxcywhn(bbox: np.ndarray, height: int, width: int) -> np.ndarray:
+def bbox_xywh_to_cxcywhn(bbox: np.ndarray, height: int, width: int) -> np.ndarray:
     """Convert boxes from XYWH to CXCYWHN format.
 
     Args:
@@ -431,7 +436,7 @@ def convert_bbox_xywh_to_cxcywhn(bbox: np.ndarray, height: int, width: int) -> n
     return np.stack((cx_norm, cy_norm, w_norm, h_norm), axis=-1)
 
 
-def convert_bbox_xywh_to_xyxy(bbox: np.ndarray) -> np.ndarray:
+def bbox_xywh_to_xyxy(bbox: np.ndarray) -> np.ndarray:
     """Convert boxes from XYWH to XYXY format.
 
     Args:
@@ -446,7 +451,7 @@ def convert_bbox_xywh_to_xyxy(bbox: np.ndarray) -> np.ndarray:
     return np.stack((x, y, x2, y2), axis=-1)
 
 
-def convert_bbox_xywh_to_xyxyn(bbox: np.ndarray, height: int, width: int) -> np.ndarray:
+def bbox_xywh_to_xyxyn(bbox: np.ndarray, height: int, width: int) -> np.ndarray:
     """Convert boxes from XYWH to XYXYN format.
 
     Args:
@@ -467,7 +472,7 @@ def convert_bbox_xywh_to_xyxyn(bbox: np.ndarray, height: int, width: int) -> np.
     return np.stack((x1_norm, y1_norm, x2_norm, y2_norm), axis=-1)
 
 
-def convert_bbox_xyxy_to_cxcywhn(bbox: np.ndarray, height: int, width: int) -> np.ndarray:
+def bbox_xyxy_to_cxcywhn(bbox: np.ndarray, height: int, width: int) -> np.ndarray:
     """Convert boxes from XYXY to CXCYWHN format.
 
     Args:
@@ -490,7 +495,7 @@ def convert_bbox_xyxy_to_cxcywhn(bbox: np.ndarray, height: int, width: int) -> n
     return np.stack((cx_norm, cy_norm, w_norm, h_norm), axis=-1)
 
 
-def convert_bbox_xyxy_to_xywh(bbox: np.ndarray) -> np.ndarray:
+def bbox_xyxy_to_xywh(bbox: np.ndarray) -> np.ndarray:
     """Convert boxes from XYXY to XYWH format.
 
     Args:
@@ -505,7 +510,7 @@ def convert_bbox_xyxy_to_xywh(bbox: np.ndarray) -> np.ndarray:
     return np.stack((x1, y1, w, h), axis=-1)
 
 
-def convert_bbox_xyxy_to_xyxyn(bbox: np.ndarray, height: int, width: int) -> np.ndarray:
+def bbox_xyxy_to_xyxyn(bbox: np.ndarray, height: int, width: int) -> np.ndarray:
     """Convert boxes from XYXY to XYXYN format.
 
     Args:
@@ -524,7 +529,7 @@ def convert_bbox_xyxy_to_xyxyn(bbox: np.ndarray, height: int, width: int) -> np.
     return np.stack((x1_norm, y1_norm, x2_norm, y2_norm), axis=-1)
 
 
-def convert_bbox_xyxyn_to_cxcywhn(bbox: np.ndarray) -> np.ndarray:
+def bbox_xyxyn_to_cxcywhn(bbox: np.ndarray) -> np.ndarray:
     """Convert boxes from XYXYN to CXCYWHN format.
 
     Args:
@@ -541,7 +546,7 @@ def convert_bbox_xyxyn_to_cxcywhn(bbox: np.ndarray) -> np.ndarray:
     return np.stack((cx_norm, cy_norm, w_norm, h_norm), axis=-1)
 
 
-def convert_bbox_xyxyn_to_xywh(bbox: np.ndarray, height: int, width: int) -> np.ndarray:
+def bbox_xyxyn_to_xywh(bbox: np.ndarray, height: int, width: int) -> np.ndarray:
     """Convert boxes from XYXYN to XYWH format.
 
     Args:
@@ -562,7 +567,7 @@ def convert_bbox_xyxyn_to_xywh(bbox: np.ndarray, height: int, width: int) -> np.
     return np.stack((x1, y1, w, h), axis=-1)
 
 
-def convert_bbox_xyxyn_to_xyxy(bbox: np.ndarray, height: int, width: int) -> np.ndarray:
+def bbox_xyxyn_to_xyxy(bbox: np.ndarray, height: int, width: int) -> np.ndarray:
     """Convert boxes from XYXYN to XYXY format.
 
     Args:
@@ -581,12 +586,12 @@ def convert_bbox_xyxyn_to_xyxy(bbox: np.ndarray, height: int, width: int) -> np.
     return np.stack((x1, y1, x2, y2), axis=-1)
 
 
-convert_bbox_coco_to_voc  = convert_bbox_xywh_to_xyxy
-convert_bbox_coco_to_yolo = convert_bbox_xywh_to_cxcywhn
-convert_bbox_voc_to_coco  = convert_bbox_xyxy_to_xywh
-convert_bbox_voc_to_yolo  = convert_bbox_xyxy_to_cxcywhn
-convert_bbox_yolo_to_coco = convert_bbox_cxcywhn_to_xywh
-convert_bbox_yolo_to_voc  = convert_bbox_cxcywhn_to_xyxy
+bbox_coco_to_voc  = bbox_xywh_to_xyxy
+bbox_coco_to_yolo = bbox_xywh_to_cxcywhn
+bbox_voc_to_coco  = bbox_xyxy_to_xywh
+bbox_voc_to_yolo  = bbox_xyxy_to_cxcywhn
+bbox_yolo_to_coco = bbox_cxcywhn_to_xywh
+bbox_yolo_to_voc  = bbox_cxcywhn_to_xyxy
 
 
 def convert_bbox(bbox: np.ndarray, code: ShapeCode | int, height: int, width: int) -> np.ndarray:
@@ -609,16 +614,16 @@ def convert_bbox(bbox: np.ndarray, code: ShapeCode | int, height: int, width: in
         case ShapeCode.SAME:
             return bbox
         case ShapeCode.VOC2COCO | ShapeCode.XYXY2XYWH:
-            return convert_bbox_voc_to_coco(bbox)
+            return bbox_voc_to_coco(bbox)
         case ShapeCode.VOC2YOLO | ShapeCode.XYXY2CXCYN:
-            return convert_bbox_voc_to_yolo(bbox, height, width)
+            return bbox_voc_to_yolo(bbox, height, width)
         case ShapeCode.COCO2VOC | ShapeCode.XYWH2XYXY:
-            return convert_bbox_coco_to_voc(bbox)
+            return bbox_coco_to_voc(bbox)
         case ShapeCode.COCO2YOLO | ShapeCode.XYWH2CXCYN:
-            return convert_bbox_coco_to_yolo(bbox, height, width)
+            return bbox_coco_to_yolo(bbox, height, width)
         case ShapeCode.YOLO2VOC | ShapeCode.CXCYN2XYXY:
-            return convert_bbox_yolo_to_voc(bbox, height, width)
+            return bbox_yolo_to_voc(bbox, height, width)
         case ShapeCode.YOLO2COCO | ShapeCode.CXCYN2XYXY:
-            return convert_bbox_yolo_to_coco(bbox, height, width)
+            return bbox_yolo_to_coco(bbox, height, width)
         case _:
             raise ValueError(f"[code] invalid: {code}.")

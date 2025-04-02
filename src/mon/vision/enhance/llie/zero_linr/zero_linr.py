@@ -42,7 +42,7 @@ def get_coords(down_size: int) -> torch.Tensor:
 
 def get_patches(image: torch.Tensor, kernel_size: int = 1) -> torch.Tensor:
 	"""Creates a tensor where the channel contains patch information."""
-	num_channels = types.get_image_num_channels(image)
+	num_channels = types.image_num_channels(image)
 	kernel       = torch.zeros((kernel_size ** 2, num_channels, kernel_size, kernel_size)).to(image.device)
 	for i in range(kernel_size):
 		for j in range(kernel_size):
@@ -599,7 +599,7 @@ class ZeroLINR(base.ImageEnhancementModel):
         """
 		from fvcore.nn import parameter_count
 		
-		h, w      = types.get_image_size(image_size)
+		h, w      = types.image_size(image_size)
 		datapoint = {
 			"image": torch.rand(1, 3, h, w).to(self.device),
 			"depth": torch.rand(1, 1, h, w).to(self.device)

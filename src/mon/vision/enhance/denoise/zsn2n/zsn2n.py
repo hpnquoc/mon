@@ -162,7 +162,7 @@ class ZSN2N(base.ImageEnhancementModel):
         
         # Input
         image  = datapoint["image"].to(self.device)
-        h0, w0 = types.get_image_size(image)
+        h0, w0 = types.image_size(image)
         if resize:
             image = geometry.resize(image, image_size)
         else:

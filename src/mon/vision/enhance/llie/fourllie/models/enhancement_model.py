@@ -229,7 +229,7 @@ class enhancement_model(BaseModel):
         self.test()
         
     def measure_efficiency_score(self, image_size: int = 512, channels: int = 3) -> tuple[float, float]:
-        h, w  = mon.get_image_size(image_size)
+        h, w  = mon.image_size(image_size)
         input = torch.rand(1, channels, h, w).to(self.device)
         data  = {
             "idx": 0,

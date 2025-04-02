@@ -1,15 +1,21 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Implements general-purpose utilities for image tasks."""
+"""Implements general-purpose utilities for image tasks.
+
+Common Tasks:
+    - Property accessors
+    - Validation checks
+    - Miscellaneous
+"""
 
 __all__ = [
-    "get_image_center",
-    "get_image_center4",
-    "get_image_channel",
-    "get_image_num_channels",
-    "get_image_shape",
-    "get_image_size",
+    "image_center",
+    "image_center4",
+    "image_channel",
+    "image_num_channels",
+    "image_shape",
+    "image_size",
     "is_image",
     "is_image_channel_first",
     "is_image_channel_last",
@@ -26,8 +32,8 @@ import torch
 from mon.nn import _size_2_t
 
 
-# ----- Accessing -----
-def get_image_center(image: torch.Tensor | np.ndarray) -> torch.Tensor | np.ndarray:
+# ----- Properties Accessors -----
+def image_center(image: torch.Tensor | np.ndarray) -> torch.Tensor | np.ndarray:
     """Returns the center of an image as (x=h/2, y=w/2).
 
     Args:
@@ -36,12 +42,12 @@ def get_image_center(image: torch.Tensor | np.ndarray) -> torch.Tensor | np.ndar
     Returns:
         Center coordinates as ``torch.Tensor`` or ``numpy.ndarray`` with shape [2].
     """
-    h, w   = get_image_size(image)
+    h, w   = image_size(image)
     center = [h / 2, w / 2]
     return torch.tensor(center) if isinstance(image, torch.Tensor) else np.array(center)
 
 
-def get_image_center4(image: torch.Tensor | np.ndarray) -> torch.Tensor | np.ndarray:
+def image_center4(image: torch.Tensor | np.ndarray) -> torch.Tensor | np.ndarray:
     """Returns the center of an image as (x=h/2, y=w/2, x=h/2, y=w/2).
 
     Args:
@@ -50,12 +56,12 @@ def get_image_center4(image: torch.Tensor | np.ndarray) -> torch.Tensor | np.nda
     Returns:
         Center coordinates as ``torch.Tensor`` or ``numpy.ndarray`` with shape [4].
     """
-    h, w   = get_image_size(image)
+    h, w   = image_size(image)
     center = [h / 2, w / 2, h / 2, w / 2]
     return torch.tensor(center) if isinstance(image, torch.Tensor) else np.array(center)
 
 
-def get_image_channel(
+def image_channel(
     image   : torch.Tensor | np.ndarray,
     index   : _size_2_t,
     keep_dim: bool = True
@@ -88,7 +94,7 @@ def get_image_channel(
     raise ValueError(f"Invalid image dimensions for channel extraction {image.ndim}.")
     
     
-def get_image_num_channels(image: torch.Tensor | np.ndarray) -> int:
+def image_num_channels(image: torch.Tensor | np.ndarray) -> int:
     """Returns the number of channels in an image.
 
     Args:
@@ -108,7 +114,7 @@ def get_image_num_channels(image: torch.Tensor | np.ndarray) -> int:
     return c
 
 
-def get_image_shape(image: torch.Tensor | np.ndarray) -> list[int]:
+def image_shape(image: torch.Tensor | np.ndarray) -> list[int]:
     """Returns height, width, and channels of an image.
 
     Args:
@@ -126,7 +132,7 @@ def get_image_shape(image: torch.Tensor | np.ndarray) -> list[int]:
     return [h, w, c]
 
 
-def get_image_size(
+def image_size(
     input  : torch.Tensor | np.ndarray | _size_2_t,
     divisor: int = None,
 ) -> tuple[int, int]:
@@ -162,7 +168,7 @@ def get_image_size(
     return size
 
 
-# ----- Assertion -----
+# ----- Validation Checks -----
 def is_image(image: torch.Tensor | np.ndarray) -> bool:
     """Checks if an input is an image tensor or array.
 
@@ -248,7 +254,7 @@ def is_image_colored(image: torch.Tensor | np.ndarray) -> bool:
     Notes:
         Assumes a color image has 3 or 4 channels (e.g., RGB or RGBA).
     """
-    return get_image_num_channels(image) in [3, 4]
+    return image_num_channels(image) in [3, 4]
 
 
 def is_image_grayscale(image: torch.Tensor | np.ndarray) -> bool:
@@ -263,7 +269,7 @@ def is_image_grayscale(image: torch.Tensor | np.ndarray) -> bool:
     Notes:
         Assumes a grayscale image has 1 channel (e.g., [H, W] or [B, 1, H, W]).
     """
-    return get_image_num_channels(image) == 1 or len(image.shape) == 2
+    return image_num_channels(image) == 1 or len(image.shape) == 2
 
 
 def is_image_normalized(image: torch.Tensor | np.ndarray) -> bool:
