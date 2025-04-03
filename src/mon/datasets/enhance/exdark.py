@@ -15,10 +15,18 @@ from typing import Literal
 from mon import core, vision
 from mon.constants import DATA_DIR, DATAMODULES, DATASETS, Split, Task
 
+# ----- Alias -----
+ClassLabels                    = core.ClassLabels
+DatapointAttributes            = core.DatapointAttributes
+DepthMapAnnotation             = vision.DepthMapAnnotation
+ImageAnnotation                = vision.ImageAnnotation
+SemanticSegmentationAnnotation = vision.SemanticSegmentationAnnotation
+VisionDataset                  = vision.VisionDataset
+
 
 # ----- Dataset -----
 @DATASETS.register(name="exdark")
-class ExDark(vision.VisionDataset):
+class ExDark(VisionDataset):
     """Loads ExDark dataset from ``root`` dir.
 
     Args:
@@ -32,8 +40,8 @@ class ExDark(vision.VisionDataset):
     
     tasks : list[Task]  = [Task.LLIE, Task.DETECT]
     splits: list[Split] = [Split.TEST]
-    datapoint_attrs     = vision.DatapointAttributes({
-        "image": vision.ImageAnnotation,
+    datapoint_attrs     = DatapointAttributes({
+        "image": ImageAnnotation,
     })
     has_test_annotations: bool = False
 
@@ -48,20 +56,20 @@ class ExDark(vision.VisionDataset):
         """Populates ``datapoints`` with image annotations for split."""
         patterns = [self.root / self.split_str / "image"]
 
-        images: list[vision.ImageAnnotation] = []
+        images: list[ImageAnnotation] = []
         with core.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
                 for path in pbar.track(sequence=paths, description=desc):
                     if path.is_image_file():
-                        images.append(vision.ImageAnnotation(path=path, root=pattern))
+                        images.append(ImageAnnotation(path=path, root=pattern))
 
         self.datapoints["image"] = images
 
 
 @DATASETS.register(name="exdark_full")
-class ExDarkFull(vision.VisionDataset):
+class ExDarkFull(VisionDataset):
     """Loads ExDarkFull dataset from ``root`` dir.
 
     Args:
@@ -75,8 +83,8 @@ class ExDarkFull(vision.VisionDataset):
     
     tasks : list[Task]  = [Task.LLIE, Task.DETECT]
     splits: list[Split] = [Split.TEST]
-    datapoint_attrs     = vision.DatapointAttributes({
-        "image": vision.ImageAnnotation,
+    datapoint_attrs     = DatapointAttributes({
+        "image": ImageAnnotation,
     })
     has_test_annotations: bool = False
 
@@ -91,14 +99,14 @@ class ExDarkFull(vision.VisionDataset):
         """Populates ``datapoints`` with image annotations for split."""
         patterns = [self.root / f"{self.split_str}_full" / "image"]
 
-        images: list[vision.ImageAnnotation] = []
+        images: list[ImageAnnotation] = []
         with core.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
                 for path in pbar.track(sequence=paths, description=desc):
                     if path.is_image_file():
-                        images.append(vision.ImageAnnotation(path=path, root=pattern))
+                        images.append(ImageAnnotation(path=path, root=pattern))
 
         self.datapoints["image"] = images
 
@@ -106,12 +114,7 @@ class ExDarkFull(vision.VisionDataset):
 # ----- DataModule -----
 @DATAMODULES.register(name="exdark")
 class ExDarkDataModule(core.DataModule):
-    """Configures ExDark datasets for training/testing.
-
-    Args:
-        *args: Additional args for parent class.
-        **kwargs: Additional kwargs for parent class.
-    """
+    """Configures ExDark datasets for training/testing."""
     
     tasks: list[Task] = [Task.LLIE]
     
@@ -142,12 +145,7 @@ class ExDarkDataModule(core.DataModule):
 
 @DATAMODULES.register(name="exdark_full")
 class ExDarkFullDataModule(core.DataModule):
-    """Configures ExDarkFull datasets for training/testing.
-
-    Args:
-        *args: Additional args for parent class.
-        **kwargs: Additional kwargs for parent class.
-    """
+    """Configures ExDarkFull datasets for training/testing."""
     
     tasks: list[Task] = [Task.LLIE]
     

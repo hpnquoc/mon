@@ -19,10 +19,18 @@ import cv2
 from mon import core, vision
 from mon.constants import DATA_DIR, DATAMODULES, DATASETS, Split, Task
 
+# ----- Alias -----
+ClassLabels                    = core.ClassLabels
+DatapointAttributes            = core.DatapointAttributes
+DepthMapAnnotation             = vision.DepthMapAnnotation
+ImageAnnotation                = vision.ImageAnnotation
+SemanticSegmentationAnnotation = vision.SemanticSegmentationAnnotation
+VisionDataset                  = vision.VisionDataset
+
 
 # ----- Dataset -----
 @DATASETS.register(name="cityscapes")
-class Cityscapes(vision.VisionDataset):
+class Cityscapes(VisionDataset):
     """Loads and processes the Cityscapes dataset.
 
     Args:
@@ -38,9 +46,9 @@ class Cityscapes(vision.VisionDataset):
 
     tasks : list[Task]  = [Task.SEGMENT]
     splits: list[Split] = [Split.TRAIN, Split.VAL, Split.TEST]
-    datapoint_attrs     = vision.DatapointAttributes({
-        "image"   : vision.ImageAnnotation,
-        "semantic": vision.SemanticSegmentationAnnotation,
+    datapoint_attrs     = DatapointAttributes({
+        "image"   : ImageAnnotation,
+        "semantic": SemanticSegmentationAnnotation,
     })
     has_test_annotations: bool = True
     classlabels         : core.ClassLabels = core.ClassLabels([
@@ -102,22 +110,22 @@ class Cityscapes(vision.VisionDataset):
         gt_name    = "gtCoarse" if self.use_coarse else "gtFine"
         patterns   = [self.root / self.split_str / image_name]
 
-        images: list[vision.ImageAnnotation] = []
+        images: list[ImageAnnotation] = []
         with core.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} left images"
                 for path in pbar.track(sequence=paths, description=desc):
                     if path.is_image_file():
-                        images.append(vision.ImageAnnotation(path=path, root=pattern))
+                        images.append(ImageAnnotation(path=path, root=pattern))
 
-        semantic: list[vision.SemanticSegmentationAnnotation] = []
+        semantic: list[SemanticSegmentationAnnotation] = []
         with core.create_progress_bar(disable=self.disable_pbar) as pbar:
             desc = f"Listing {self.__class__.__name__} {self.split_str} semantic maps"
             for img in pbar.track(sequence=images, description=desc):
                 path = img.path.replace(image_name, gt_name)
                 path = path.parent / f"{path.stem}_labelIds{path.suffix}"
-                semantic.append(vision.SemanticSegmentationAnnotation(
+                semantic.append(SemanticSegmentationAnnotation(
                     path  = path.image_file(),
                     root  = img.root,
                     flags = cv2.IMREAD_GRAYSCALE

@@ -29,10 +29,18 @@ import torch
 from mon import core, vision
 from mon.constants import DATA_DIR, DATAMODULES, DATASETS, Split, Task
 
+# ----- Alias -----
+ClassLabels                    = core.ClassLabels
+DatapointAttributes            = core.DatapointAttributes
+DepthMapAnnotation             = vision.DepthMapAnnotation
+ImageAnnotation                = vision.ImageAnnotation
+SemanticSegmentationAnnotation = vision.SemanticSegmentationAnnotation
+VisionDataset                  = vision.VisionDataset
+
 
 # ----- Dataset -----
 @DATASETS.register(name="fivek_init")
-class FiveKInit(vision.VisionDataset):
+class FiveKInit(VisionDataset):
     """Loads FiveKInit dataset from ``root`` dir for model init.
 
     Args:
@@ -46,13 +54,13 @@ class FiveKInit(vision.VisionDataset):
     
     tasks : list[Task]  = [Task.LLIE, Task.RETOUCH]
     splits: list[Split] = [Split.TRAIN]
-    datapoint_attrs     = vision.DatapointAttributes({
-        "image_ex": vision.ImageAnnotation,
-        "image_bc": vision.ImageAnnotation,
-        "image_vb": vision.ImageAnnotation,
-        "ref_ex"  : vision.ImageAnnotation,
-        "ref_bc"  : vision.ImageAnnotation,
-        "ref_vb"  : vision.ImageAnnotation,
+    datapoint_attrs     = DatapointAttributes({
+        "image_ex": ImageAnnotation,
+        "image_bc": ImageAnnotation,
+        "image_vb": ImageAnnotation,
+        "ref_ex"  : ImageAnnotation,
+        "ref_bc"  : ImageAnnotation,
+        "ref_vb"  : ImageAnnotation,
     })
     has_test_annotations: bool = False
 
@@ -86,12 +94,12 @@ class FiveKInit(vision.VisionDataset):
         val_bc = torch.tensor((int(B_bc.stem.split("-")[-1]) - int(A_bc.stem.split("-")[-1])) / 20).float()
         val_vb = torch.tensor((int(B_vb.stem.split("-")[-1]) - int(A_vb.stem.split("-")[-1])) / 20).float()
 
-        image_ex = vision.ImageAnnotation(path=A_ex, root=self.root)
-        ref_ex   = vision.ImageAnnotation(path=B_ex, root=self.root)
-        image_bc = vision.ImageAnnotation(path=A_bc, root=self.root)
-        ref_bc   = vision.ImageAnnotation(path=B_bc, root=self.root)
-        image_vb = vision.ImageAnnotation(path=A_vb, root=self.root)
-        ref_vb   = vision.ImageAnnotation(path=B_vb, root=self.root)
+        image_ex = ImageAnnotation(path=A_ex, root=self.root)
+        ref_ex   = ImageAnnotation(path=B_ex, root=self.root)
+        image_bc = ImageAnnotation(path=A_bc, root=self.root)
+        ref_bc   = ImageAnnotation(path=B_bc, root=self.root)
+        image_vb = ImageAnnotation(path=A_vb, root=self.root)
+        ref_vb   = ImageAnnotation(path=B_vb, root=self.root)
 
         datapoint = {
             "image_ex": image_ex.data,
@@ -103,8 +111,8 @@ class FiveKInit(vision.VisionDataset):
         }
         if self.to_tensor:
             for k, v in datapoint.items():
-                to_tensor_fn = self.datapoint_attrs.get_tensor_fn(k)
-                if to_tensor_fn and v:
+                to_tensor_fn = getattr(self.datapoint_attrs[k], "to_tensor", None)
+                if to_tensor_fn and v is not None:
                     datapoint[k] = to_tensor_fn(v, keepdim=False, normalize=True)
         datapoint |= {
             "val_ex"       : val_ex,
@@ -169,7 +177,7 @@ class FiveKInit(vision.VisionDataset):
 
 
 @DATASETS.register(name="fivek")
-class FiveK(vision.VisionDataset):
+class FiveK(VisionDataset):
     """Loads FiveK dataset from ``root`` dir with Expert A GT.
 
     Args:
@@ -183,9 +191,9 @@ class FiveK(vision.VisionDataset):
     
     tasks : list[Task]  = [Task.LLIE]
     splits: list[Split] = [Split.TEST]
-    datapoint_attrs     = vision.DatapointAttributes({
-        "image": vision.ImageAnnotation,
-        "depth": vision.DepthMapAnnotation,
+    datapoint_attrs     = DatapointAttributes({
+        "image": ImageAnnotation,
+        "depth": DepthMapAnnotation,
     })
     has_test_annotations: bool = False
 
@@ -200,20 +208,20 @@ class FiveK(vision.VisionDataset):
         """Populates ``datapoints`` with image annotations for split."""
         patterns = [self.root / self.split_str / "image"]
 
-        images: list[vision.ImageAnnotation] = []
+        images: list[ImageAnnotation] = []
         with core.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
                 for path in pbar.track(sequence=paths, description=desc):
                     if path.is_image_file():
-                        images.append(vision.ImageAnnotation(path=path, root=pattern))
+                        images.append(ImageAnnotation(path=path, root=pattern))
 
         self.datapoints["image"] = images
         
 
 @DATASETS.register(name="fivek_a")
-class FiveKA(vision.VisionDataset):
+class FiveKA(VisionDataset):
     """Loads FiveKA dataset from ``root`` dir with Expert A GT.
 
     Args:
@@ -227,11 +235,11 @@ class FiveKA(vision.VisionDataset):
     
     tasks : list[Task]  = [Task.LLIE]
     splits: list[Split] = [Split.TRAIN, Split.TEST]
-    datapoint_attrs     = vision.DatapointAttributes({
-        "image"    : vision.ImageAnnotation,
-        "depth"    : vision.DepthMapAnnotation,
-        "ref_image": vision.ImageAnnotation,
-        "ref_depth": vision.DepthMapAnnotation,
+    datapoint_attrs     = DatapointAttributes({
+        "image"    : ImageAnnotation,
+        "depth"    : DepthMapAnnotation,
+        "ref_image": ImageAnnotation,
+        "ref_depth": DepthMapAnnotation,
     })
     has_test_annotations: bool = False
 
@@ -246,14 +254,14 @@ class FiveKA(vision.VisionDataset):
         """Populates ``datapoints`` with image annotations for split."""
         patterns = [self.root / self.split_str / "image"]
 
-        images: list[vision.ImageAnnotation] = []
+        images: list[ImageAnnotation] = []
         with core.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
                 for path in pbar.track(sequence=paths, description=desc):
                     if path.is_image_file():
-                        images.append(vision.ImageAnnotation(path=path, root=pattern))
+                        images.append(ImageAnnotation(path=path, root=pattern))
 
         self.datapoints["image"] = images
 
@@ -263,18 +271,18 @@ class FiveKA(vision.VisionDataset):
         ref_images = self.datapoints.get("ref_image", [])
 
         if len(ref_images) == 0:
-            ref_images: list[vision.ImageAnnotation] = []
+            ref_images: list[ImageAnnotation] = []
             with core.create_progress_bar(disable=self.disable_pbar) as pbar:
                 desc = f"Listing {self.__class__.__name__} {self.split_str} reference images"
                 for img in pbar.track(sequence=images, description=desc):
                     root_name = img.root.name
                     path      = img.path.replace(f"/{root_name}/", f"/ref_a/")
-                    ref_images.append(vision.ImageAnnotation(path=path.image_file(), root=img.root))
+                    ref_images.append(ImageAnnotation(path=path.image_file(), root=img.root))
             self.datapoints["ref_image"] = ref_images
     
 
 @DATASETS.register(name="fivek_b")
-class FiveKB(vision.VisionDataset):
+class FiveKB(VisionDataset):
     """Loads FiveKB dataset from ``root`` dir with Expert B GT.
 
     Args:
@@ -288,11 +296,11 @@ class FiveKB(vision.VisionDataset):
     
     tasks : list[Task]  = [Task.LLIE]
     splits: list[Split] = [Split.TRAIN, Split.TEST]
-    datapoint_attrs     = vision.DatapointAttributes({
-        "image"    : vision.ImageAnnotation,
-        "depth"    : vision.DepthMapAnnotation,
-        "ref_image": vision.ImageAnnotation,
-        "ref_depth": vision.DepthMapAnnotation,
+    datapoint_attrs     = DatapointAttributes({
+        "image"    : ImageAnnotation,
+        "depth"    : DepthMapAnnotation,
+        "ref_image": ImageAnnotation,
+        "ref_depth": DepthMapAnnotation,
     })
     has_test_annotations: bool = False
 
@@ -307,14 +315,14 @@ class FiveKB(vision.VisionDataset):
         """Populates ``datapoints`` with image annotations for split."""
         patterns = [self.root / self.split_str / "image"]
 
-        images: list[vision.ImageAnnotation] = []
+        images: list[ImageAnnotation] = []
         with core.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
                 for path in pbar.track(sequence=paths, description=desc):
                     if path.is_image_file():
-                        images.append(vision.ImageAnnotation(path=path, root=pattern))
+                        images.append(ImageAnnotation(path=path, root=pattern))
 
         self.datapoints["image"] = images
 
@@ -324,18 +332,18 @@ class FiveKB(vision.VisionDataset):
         ref_images = self.datapoints.get("ref_image", [])
 
         if len(ref_images) == 0:
-            ref_images: list[vision.ImageAnnotation] = []
+            ref_images: list[ImageAnnotation] = []
             with core.create_progress_bar(disable=self.disable_pbar) as pbar:
                 desc = f"Listing {self.__class__.__name__} {self.split_str} reference images"
                 for img in pbar.track(sequence=images, description=desc):
                     root_name = img.root.name
                     path      = img.path.replace(f"/{root_name}/", f"/ref_b/")
-                    ref_images.append(vision.ImageAnnotation(path=path.image_file(), root=img.root))
+                    ref_images.append(ImageAnnotation(path=path.image_file(), root=img.root))
             self.datapoints["ref_image"] = ref_images
             
 
 @DATASETS.register(name="fivek_c")
-class FiveKC(vision.VisionDataset):
+class FiveKC(VisionDataset):
     """Loads FiveKC dataset from ``root`` dir with Expert C GT.
 
     Args:
@@ -349,11 +357,11 @@ class FiveKC(vision.VisionDataset):
     
     tasks : list[Task]  = [Task.LLIE]
     splits: list[Split] = [Split.TRAIN, Split.TEST]
-    datapoint_attrs     = vision.DatapointAttributes({
-        "image"    : vision.ImageAnnotation,
-        "depth"    : vision.DepthMapAnnotation,
-        "ref_image": vision.ImageAnnotation,
-        "ref_depth": vision.DepthMapAnnotation,
+    datapoint_attrs     = DatapointAttributes({
+        "image"    : ImageAnnotation,
+        "depth"    : DepthMapAnnotation,
+        "ref_image": ImageAnnotation,
+        "ref_depth": DepthMapAnnotation,
     })
     has_test_annotations: bool = False
 
@@ -368,14 +376,14 @@ class FiveKC(vision.VisionDataset):
         """Populates ``datapoints`` with image annotations for split."""
         patterns = [self.root / self.split_str / "image"]
 
-        images: list[vision.ImageAnnotation] = []
+        images: list[ImageAnnotation] = []
         with core.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
                 for path in pbar.track(sequence=paths, description=desc):
                     if path.is_image_file():
-                        images.append(vision.ImageAnnotation(path=path, root=pattern))
+                        images.append(ImageAnnotation(path=path, root=pattern))
 
         self.datapoints["image"] = images
 
@@ -385,18 +393,18 @@ class FiveKC(vision.VisionDataset):
         ref_images = self.datapoints.get("ref_image", [])
 
         if len(ref_images) == 0:
-            ref_images: list[vision.ImageAnnotation] = []
+            ref_images: list[ImageAnnotation] = []
             with core.create_progress_bar(disable=self.disable_pbar) as pbar:
                 desc = f"Listing {self.__class__.__name__} {self.split_str} reference images"
                 for img in pbar.track(sequence=images, description=desc):
                     root_name = img.root.name
                     path      = img.path.replace(f"/{root_name}/", f"/ref_c/")
-                    ref_images.append(vision.ImageAnnotation(path=path.image_file(), root=img.root))
+                    ref_images.append(ImageAnnotation(path=path.image_file(), root=img.root))
             self.datapoints["ref_image"] = ref_images
             
 
 @DATASETS.register(name="fivek_d")
-class FiveKD(vision.VisionDataset):
+class FiveKD(VisionDataset):
     """Loads FiveKD dataset from ``root`` dir with Expert D GT.
 
     Args:
@@ -410,11 +418,11 @@ class FiveKD(vision.VisionDataset):
     
     tasks : list[Task]  = [Task.LLIE]
     splits: list[Split] = [Split.TRAIN, Split.TEST]
-    datapoint_attrs     = vision.DatapointAttributes({
-        "image"    : vision.ImageAnnotation,
-        "depth"    : vision.DepthMapAnnotation,
-        "ref_image": vision.ImageAnnotation,
-        "ref_depth": vision.DepthMapAnnotation,
+    datapoint_attrs     = DatapointAttributes({
+        "image"    : ImageAnnotation,
+        "depth"    : DepthMapAnnotation,
+        "ref_image": ImageAnnotation,
+        "ref_depth": DepthMapAnnotation,
     })
     has_test_annotations: bool = False
 
@@ -429,14 +437,14 @@ class FiveKD(vision.VisionDataset):
         """Populates ``datapoints`` with image annotations for split."""
         patterns = [self.root / self.split_str / "image"]
 
-        images: list[vision.ImageAnnotation] = []
+        images: list[ImageAnnotation] = []
         with core.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
                 for path in pbar.track(sequence=paths, description=desc):
                     if path.is_image_file():
-                        images.append(vision.ImageAnnotation(path=path, root=pattern))
+                        images.append(ImageAnnotation(path=path, root=pattern))
 
         self.datapoints["image"] = images
 
@@ -446,18 +454,18 @@ class FiveKD(vision.VisionDataset):
         ref_images = self.datapoints.get("ref_image", [])
 
         if len(ref_images) == 0:
-            ref_images: list[vision.ImageAnnotation] = []
+            ref_images: list[ImageAnnotation] = []
             with core.create_progress_bar(disable=self.disable_pbar) as pbar:
                 desc = f"Listing {self.__class__.__name__} {self.split_str} reference images"
                 for img in pbar.track(sequence=images, description=desc):
                     root_name = img.root.name
                     path      = img.path.replace(f"/{root_name}/", f"/ref_d/")
-                    ref_images.append(vision.ImageAnnotation(path=path.image_file(), root=img.root))
+                    ref_images.append(ImageAnnotation(path=path.image_file(), root=img.root))
             self.datapoints["ref_image"] = ref_images
             
 
 @DATASETS.register(name="fivek_e")
-class FiveKE(vision.VisionDataset):
+class FiveKE(VisionDataset):
     """Loads FiveKE dataset from ``root`` dir with Expert E GT.
 
     Args:
@@ -471,11 +479,11 @@ class FiveKE(vision.VisionDataset):
     
     tasks : list[Task]  = [Task.LLIE]
     splits: list[Split] = [Split.TRAIN, Split.TEST]
-    datapoint_attrs     = vision.DatapointAttributes({
-        "image"    : vision.ImageAnnotation,
-        "depth"    : vision.DepthMapAnnotation,
-        "ref_image": vision.ImageAnnotation,
-        "ref_depth": vision.DepthMapAnnotation,
+    datapoint_attrs     = DatapointAttributes({
+        "image"    : ImageAnnotation,
+        "depth"    : DepthMapAnnotation,
+        "ref_image": ImageAnnotation,
+        "ref_depth": DepthMapAnnotation,
     })
     has_test_annotations: bool = False
 
@@ -490,14 +498,14 @@ class FiveKE(vision.VisionDataset):
         """Populates ``datapoints`` with image annotations for split."""
         patterns = [self.root / self.split_str / "image"]
 
-        images: list[vision.ImageAnnotation] = []
+        images: list[ImageAnnotation] = []
         with core.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
                 for path in pbar.track(sequence=paths, description=desc):
                     if path.is_image_file():
-                        images.append(vision.ImageAnnotation(path=path, root=pattern))
+                        images.append(ImageAnnotation(path=path, root=pattern))
 
         self.datapoints["image"] = images
 
@@ -507,25 +515,20 @@ class FiveKE(vision.VisionDataset):
         ref_images = self.datapoints.get("ref_image", [])
 
         if len(ref_images) == 0:
-            ref_images: list[vision.ImageAnnotation] = []
+            ref_images: list[ImageAnnotation] = []
             with core.create_progress_bar(disable=self.disable_pbar) as pbar:
                 desc = f"Listing {self.__class__.__name__} {self.split_str} reference images"
                 for img in pbar.track(sequence=images, description=desc):
                     root_name = img.root.name
                     path      = img.path.replace(f"/{root_name}/", f"/ref_e/")
-                    ref_images.append(vision.ImageAnnotation(path=path.image_file(), root=img.root))
+                    ref_images.append(ImageAnnotation(path=path.image_file(), root=img.root))
             self.datapoints["ref_image"] = ref_images
 
 
 # ----- DataModule -----
 @DATAMODULES.register(name="fivek_init")
 class FiveKInitDataModule(core.DataModule):
-    """Configures FiveKInit datasets for training/testing.
-
-    Args:
-        *args: Additional args for parent class.
-        **kwargs: Additional kwargs for parent class.
-    """
+    """Configures FiveKInit datasets for training/testing."""
     
     tasks: list[Task] = [Task.LLIE]
 
@@ -556,12 +559,7 @@ class FiveKInitDataModule(core.DataModule):
 
 @DATAMODULES.register(name="fivek")
 class FiveKDataModule(core.DataModule):
-    """Configures FiveK datasets for training/testing.
-
-    Args:
-        *args: Additional args for parent class.
-        **kwargs: Additional kwargs for parent class.
-    """
+    """Configures FiveK datasets for training/testing."""
     
     tasks: list[Task] = [Task.LLIE]
 
@@ -592,12 +590,7 @@ class FiveKDataModule(core.DataModule):
 
 @DATAMODULES.register(name="fivek_a")
 class FiveKADataModule(core.DataModule):
-    """Configures FiveKA datasets for training/testing.
-
-    Args:
-        *args: Additional args for parent class.
-        **kwargs: Additional kwargs for parent class.
-    """
+    """Configures FiveKA datasets for training/testing."""
     
     tasks: list[Task] = [Task.LLIE]
 
@@ -628,12 +621,7 @@ class FiveKADataModule(core.DataModule):
 
 @DATAMODULES.register(name="fivek_b")
 class FiveKBDataModule(core.DataModule):
-    """Configures FiveKB datasets for training/testing.
-
-    Args:
-        *args: Additional args for parent class.
-        **kwargs: Additional kwargs for parent class.
-    """
+    """Configures FiveKB datasets for training/testing."""
     
     tasks: list[Task] = [Task.LLIE]
 
@@ -664,12 +652,7 @@ class FiveKBDataModule(core.DataModule):
 
 @DATAMODULES.register(name="fivek_c")
 class FiveKCDataModule(core.DataModule):
-    """Configures FiveKC datasets for training/testing.
-
-    Args:
-        *args: Additional args for parent class.
-        **kwargs: Additional kwargs for parent class.
-    """
+    """Configures FiveKC datasets for training/testing."""
     
     tasks: list[Task] = [Task.LLIE]
 
@@ -700,12 +683,7 @@ class FiveKCDataModule(core.DataModule):
 
 @DATAMODULES.register(name="fivek_d")
 class FiveKDDataModule(core.DataModule):
-    """Configures FiveKD datasets for training/testing.
-
-    Args:
-        *args: Additional args for parent class.
-        **kwargs: Additional kwargs for parent class.
-    """
+    """Configures FiveKD datasets for training/testing."""
     
     tasks: list[Task] = [Task.LLIE]
 
@@ -736,12 +714,7 @@ class FiveKDDataModule(core.DataModule):
 
 @DATAMODULES.register(name="fivek_e")
 class FiveKEDataModule(core.DataModule):
-    """Configures FiveKE datasets for training/testing.
-
-    Args:
-        *args: Additional args for parent class.
-        **kwargs: Additional kwargs for parent class.
-    """
+    """Configures FiveKE datasets for training/testing."""
     
     tasks: list[Task] = [Task.LLIE]
 

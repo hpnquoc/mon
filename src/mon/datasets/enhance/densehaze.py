@@ -13,10 +13,18 @@ from typing import Literal
 from mon import core, vision
 from mon.constants import DATA_DIR, DATAMODULES, DATASETS, Split, Task
 
+# ----- Alias -----
+ClassLabels                    = core.ClassLabels
+DatapointAttributes            = core.DatapointAttributes
+DepthMapAnnotation             = vision.DepthMapAnnotation
+ImageAnnotation                = vision.ImageAnnotation
+SemanticSegmentationAnnotation = vision.SemanticSegmentationAnnotation
+VisionDataset                  = vision.VisionDataset
+
 
 # ----- Dataset -----
 @DATASETS.register(name="densehaze")
-class DenseHaze(vision.VisionDataset):
+class DenseHaze(VisionDataset):
     """Loads Dense-Haze dataset from ``root`` dir.
 
     Args:
@@ -30,9 +38,9 @@ class DenseHaze(vision.VisionDataset):
     
     tasks : list[Task]  = [Task.DEHAZE]
     splits: list[Split] = [Split.TRAIN, Split.VAL, Split.TEST]
-    datapoint_attrs     = vision.DatapointAttributes({
-        "image"    : vision.ImageAnnotation,
-        "ref_image": vision.ImageAnnotation,
+    datapoint_attrs     = DatapointAttributes({
+        "image"    : ImageAnnotation,
+        "ref_image": ImageAnnotation,
     })
     has_test_annotations: bool = True
 
@@ -47,14 +55,14 @@ class DenseHaze(vision.VisionDataset):
         """Populates ``datapoints`` with image annotations for split."""
         patterns = [self.root / self.split_str / "image"]
 
-        images: list[vision.ImageAnnotation] = []
+        images: list[ImageAnnotation] = []
         with core.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
                 for path in pbar.track(sequence=paths, description=desc):
                     if path.is_image_file():
-                        images.append(vision.ImageAnnotation(path=path))
+                        images.append(ImageAnnotation(path=path))
 
         self.datapoints["image"] = images
 
@@ -62,12 +70,7 @@ class DenseHaze(vision.VisionDataset):
 # ----- DataModule -----
 @DATAMODULES.register(name="densehaze")
 class DenseHazeDataModule(core.DataModule):
-    """Configures DenseHaze datasets for training/testing.
-
-    Args:
-        *args: Additional args for parent class.
-        **kwargs: Additional kwargs for parent class.
-    """
+    """Configures DenseHaze datasets for training/testing."""
     
     tasks: list[Task] = [Task.DEHAZE]
 

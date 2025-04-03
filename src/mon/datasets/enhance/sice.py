@@ -19,10 +19,18 @@ from typing import Literal
 from mon import core, vision
 from mon.constants import DATA_DIR, DATAMODULES, DATASETS, Split, Task
 
+# ----- Alias -----
+ClassLabels                    = core.ClassLabels
+DatapointAttributes            = core.DatapointAttributes
+DepthMapAnnotation             = vision.DepthMapAnnotation
+ImageAnnotation                = vision.ImageAnnotation
+SemanticSegmentationAnnotation = vision.SemanticSegmentationAnnotation
+VisionDataset                  = vision.VisionDataset
+
 
 # ----- Dataset -----
 @DATASETS.register(name="sice")
-class SICE(vision.VisionDataset):
+class SICE(VisionDataset):
     """Loads SICE dataset from ``root`` dir.
 
     Args:
@@ -36,11 +44,11 @@ class SICE(vision.VisionDataset):
     
     tasks : list[Task]  = [Task.LLIE]
     splits: list[Split] = [Split.TRAIN, Split.TEST]
-    datapoint_attrs     = vision.DatapointAttributes({
-        "image"    : vision.ImageAnnotation,
-        "depth"    : vision.DepthMapAnnotation,
-        "ref_image": vision.ImageAnnotation,
-        "ref_depth": vision.DepthMapAnnotation,
+    datapoint_attrs     = DatapointAttributes({
+        "image"    : ImageAnnotation,
+        "depth"    : DepthMapAnnotation,
+        "ref_image": ImageAnnotation,
+        "ref_depth": DepthMapAnnotation,
     })
     has_test_annotations: bool = False
     
@@ -55,20 +63,20 @@ class SICE(vision.VisionDataset):
         patterns = [self.root / self.split_str / "image"]
         
         # Images
-        images: list[vision.ImageAnnotation] = []
+        images: list[ImageAnnotation] = []
         with core.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
                 for path in pbar.track(sequence=paths, description=desc):
                     if path.is_image_file():
-                        images.append(vision.ImageAnnotation(path=path, root=pattern))
+                        images.append(ImageAnnotation(path=path, root=pattern))
         
         self.datapoints["image"] = images
         
 
 @DATASETS.register(name="sice_grad")
-class SICEGrad(vision.VisionDataset):
+class SICEGrad(VisionDataset):
     """Loads SICE-Grad dataset from ``root`` dir.
 
     Args:
@@ -82,11 +90,11 @@ class SICEGrad(vision.VisionDataset):
     
     tasks : list[Task]  = [Task.LLIE]
     splits: list[Split] = [Split.TRAIN, Split.TEST]
-    datapoint_attrs     = vision.DatapointAttributes({
-        "image"    : vision.ImageAnnotation,
-        "depth"    : vision.DepthMapAnnotation,
-        "ref_image": vision.ImageAnnotation,
-        "ref_depth": vision.DepthMapAnnotation,
+    datapoint_attrs     = DatapointAttributes({
+        "image"    : ImageAnnotation,
+        "depth"    : DepthMapAnnotation,
+        "ref_image": ImageAnnotation,
+        "ref_depth": DepthMapAnnotation,
     })
     has_test_annotations: bool = False
     
@@ -101,20 +109,20 @@ class SICEGrad(vision.VisionDataset):
         patterns = [self.root / self.split_str / "image"]
         
         # Images
-        images: list[vision.ImageAnnotation] = []
+        images: list[ImageAnnotation] = []
         with core.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
                 for path in pbar.track(sequence=paths, description=desc):
                     if path.is_image_file():
-                        images.append(vision.ImageAnnotation(path=path, root=pattern))
+                        images.append(ImageAnnotation(path=path, root=pattern))
         
         self.datapoints["image"] = images
 
 
 @DATASETS.register(name="sice_me")
-class SICEME(vision.VisionDataset):
+class SICEME(VisionDataset):
     """Loads SICE-ME dataset from ``root`` dir.
 
     Args:
@@ -128,9 +136,9 @@ class SICEME(vision.VisionDataset):
     
     tasks : list[Task]  = [Task.LLIE]
     splits: list[Split] = [Split.TRAIN]
-    datapoint_attrs     = vision.DatapointAttributes({
-        "image": vision.ImageAnnotation,
-        "depth": vision.DepthMapAnnotation,
+    datapoint_attrs     = DatapointAttributes({
+        "image": ImageAnnotation,
+        "depth": DepthMapAnnotation,
     })
     has_test_annotations: bool = False
     
@@ -145,20 +153,20 @@ class SICEME(vision.VisionDataset):
         patterns = [self.root / self.split_str / "image"]
         
         # Images
-        images: list[vision.ImageAnnotation] = []
+        images: list[ImageAnnotation] = []
         with core.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
                 for path in pbar.track(sequence=paths, description=desc):
                     if path.is_image_file():
-                        images.append(vision.ImageAnnotation(path=path, root=pattern))
+                        images.append(ImageAnnotation(path=path, root=pattern))
     
         self.datapoints["image"] = images
 
 
 @DATASETS.register(name="sice_mix")
-class SICEMix(vision.VisionDataset):
+class SICEMix(VisionDataset):
     """Loads SICE-Mix dataset from ``root`` dir.
 
     Args:
@@ -172,11 +180,11 @@ class SICEMix(vision.VisionDataset):
     
     tasks : list[Task]  = [Task.LLIE]
     splits: list[Split] = [Split.TRAIN, Split.TEST]
-    datapoint_attrs     = vision.DatapointAttributes({
-        "image"    : vision.ImageAnnotation,
-        "depth"    : vision.DepthMapAnnotation,
-        "ref_image": vision.ImageAnnotation,
-        "ref_depth": vision.DepthMapAnnotation,
+    datapoint_attrs     = DatapointAttributes({
+        "image"    : ImageAnnotation,
+        "depth"    : DepthMapAnnotation,
+        "ref_image": ImageAnnotation,
+        "ref_depth": DepthMapAnnotation,
     })
     has_test_annotations: bool = False
     
@@ -191,14 +199,14 @@ class SICEMix(vision.VisionDataset):
         patterns = [self.root / self.split_str / "image"]
         
         # Images
-        images: list[vision.ImageAnnotation] = []
+        images: list[ImageAnnotation] = []
         with core.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
                 for path in pbar.track(sequence=paths, description=desc):
                     if path.is_image_file():
-                        images.append(vision.ImageAnnotation(path=path, root=pattern))
+                        images.append(ImageAnnotation(path=path, root=pattern))
         
         self.datapoints["image"] = images
 
@@ -206,12 +214,7 @@ class SICEMix(vision.VisionDataset):
 # ----- DataModule -----
 @DATAMODULES.register(name="sice")
 class SICEDataModule(core.DataModule):
-    """Configures SICE datasets for training/testing.
-
-    Args:
-        *args: Additional args for parent class.
-        **kwargs: Additional kwargs for parent class.
-    """
+    """Configures SICE datasets for training/testing."""
     
     tasks: list[Task] = [Task.LLIE]
     
@@ -242,12 +245,7 @@ class SICEDataModule(core.DataModule):
 
 @DATAMODULES.register(name="sice_grad")
 class SICEGradDataModule(core.DataModule):
-    """Configures SICEGrad datasets for training/testing.
-
-    Args:
-        *args: Additional args for parent class.
-        **kwargs: Additional kwargs for parent class.
-    """
+    """Configures SICEGrad datasets for training/testing."""
     
     tasks: list[Task] = [Task.LLIE]
     
@@ -278,12 +276,7 @@ class SICEGradDataModule(core.DataModule):
 
 @DATAMODULES.register(name="sice_me")
 class SICEMEDataModule(core.DataModule):
-    """Configures SICEME datasets for training/testing.
-
-    Args:
-        *args: Additional args for parent class.
-        **kwargs: Additional kwargs for parent class.
-    """
+    """Configures SICEME datasets for training/testing."""
     
     tasks: list[Task] = [Task.LLIE]
     
@@ -314,12 +307,7 @@ class SICEMEDataModule(core.DataModule):
 
 @DATAMODULES.register(name="sice_mix")
 class SICEMixDataModule(core.DataModule):
-    """Configures SICEMix datasets for training/testing.
-
-    Args:
-        *args: Additional args for parent class.
-        **kwargs: Additional kwargs for parent class.
-    """
+    """Configures SICEMix datasets for training/testing."""
     
     tasks: list[Task] = [Task.LLIE]
     

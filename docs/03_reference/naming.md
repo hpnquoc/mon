@@ -28,24 +28,23 @@
 
 - **Creation:**
     - Use `create` when creating a resource. Ex: `create_dir()`.
-    - `write` when saving to disk. Use together with `read`. 
+    - Use `write` when preserving data to an external source. Use together with `read`.
 
 - **Conversion:**
     - Use `to` when converting a variable from arbitrary types to the desired type. Ex: `to_list()`.
     - Use `x_to_y` when converting a variable from type `a` to type `b`. Ex: `str_to_int()`.
     - Use `X.from()` when creating an instance of class `X` from a value. Ex: `List.from_string()`.
 
-- **Read:**
-    - `get` when retrieving a **stored value or accessing a property**, often implying a simple lookup or minimal computation.
-    - Omitting `get`. Directly names the property (e.g., “area”), implying the function computes or returns it without emphasizing the action of retrieval. Ex: `bbox_area()`.
-    - `read` when acquiring data from disk. Use together with `write`.
+- **Read/Retrieve:**
+    - Use `get` when retrieving a **stored value or accessing a property**, often implying a simple lookup or minimal computation.
+    - Omit `get`. Directly names the property (e.g., “area”), implying the function computes or returns it without emphasizing the action of retrieval. Ex: `bbox_area()`.
+    - Use `list` for retrieving a collection of things. Ex: `list_files()`.
+    - Use `read` when acquiring data from disk. Use together with `write`.
 
 - **Updating:**
-    - Use `change` when a whole thing, such as image, is replaced by something else.
     - Use `update` when one or more of the components is updated as a result, and something new could also be added.
     - Use `add` to add something into a group of the things.
     - Use `append` similar as `add`. It could be used when it doesn't modify the original group of things, but produce the new group.
-    - Use `write` when preserving data to an external source. Use together with `read`.
     - Use `disable` to configure a resource an unavailable or inactive state.
     - Use `split` when separating parts of a resource.
     - Use `merge` when creating a single resource from multiple resources.

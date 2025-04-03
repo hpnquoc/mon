@@ -13,20 +13,28 @@ from typing import Literal
 from mon import core, vision
 from mon.constants import DATA_DIR, DATAMODULES, DATASETS, Split, Task
 
+# ----- Alias -----
+ClassLabels                    = core.ClassLabels
+DatapointAttributes            = core.DatapointAttributes
+DepthMapAnnotation             = vision.DepthMapAnnotation
+ImageAnnotation                = vision.ImageAnnotation
+SemanticSegmentationAnnotation = vision.SemanticSegmentationAnnotation
+VisionDataset                  = vision.VisionDataset
+
 
 # ----- Dataset -----
 @DATASETS.register(name="coco_2017")
-class COCO2017(vision.VisionDataset):
+class COCO2017(VisionDataset):
     """COCO 2017 dataset."""
     
     tasks : list[Task]  = [Task.DETECT]
     splits: list[Split] = [Split.TRAIN, Split.VAL, Split.TEST]
-    datapoint_attrs     = vision.DatapointAttributes({
-        "image": vision.ImageAnnotation,
-        # "bbox" : vision.BBoxesAnnotation,
+    datapoint_attrs     = DatapointAttributes({
+        "image": ImageAnnotation,
+        # "bbox" : BBoxesAnnotation,
     })
     has_test_annotations: bool = False
-    classlabels         : core.ClassLabels = core.ClassLabels([
+    classlabels         : ClassLabels = core.ClassLabels([
         {"name": "background"    , "id": 0 , "supercategory": "background", "color": [0  , 0  ,   0]},
         {"name": "person"        , "id": 1 , "supercategory": "person"    , "color": [81 , 120, 228]},
         {"name": "bicycle"       , "id": 2 , "supercategory": "vehicle"   , "color": [138, 183,  33]},
@@ -129,12 +137,10 @@ class COCO2017(vision.VisionDataset):
         super().__init__(root=root, *args, **kwargs)
     
     def get_data(self):
-        patterns = [
-            self.root / self.split_str / "image",
-        ]
+        patterns = [self.root / self.split_str / "image",]
         
         # Left Images
-        images: list[vision.ImageAnnotation] = []
+        images: list[ImageAnnotation] = []
         with core.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 for path in pbar.track(
@@ -142,7 +148,7 @@ class COCO2017(vision.VisionDataset):
 					description = f"Listing {self.__class__.__name__} {self.split_str} images"
 				):
                     if path.is_image_file():
-                        images.append(vision.ImageAnnotation(path=path))
+                        images.append(ImageAnnotation(path=path))
         
         self.datapoints["image"] = images
 

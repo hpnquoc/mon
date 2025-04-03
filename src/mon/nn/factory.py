@@ -23,11 +23,11 @@ class OptimizerFactory(factory.Factory):
 
     def build(
         self,
-        network            : nn.Module,
-        name               : str  = None,
-        config             : dict = None,
+        network: nn.Module,
+        name   : str  = None,
+        config : dict = None,
         network_params_only: bool = False,
-        to_dict            : bool = False,
+        to_dict: bool = False,
         **kwargs
     ) -> any:
         """Builds an optimizer instance by name or config.
@@ -76,10 +76,10 @@ class OptimizerFactory(factory.Factory):
 
     def build_instances(
         self,
-        network            : nn.Module,
-        configs            : list,
+        network: nn.Module,
+        configs: list,
         network_params_only: bool = True,
-        to_dict            : bool = False,
+        to_dict: bool = False,
         **kwargs
     ) -> any:
         """Builds multiple optimizer instances from configs.

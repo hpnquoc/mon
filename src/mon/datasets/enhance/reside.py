@@ -27,10 +27,18 @@ from typing import Literal
 from mon import core, vision
 from mon.constants import DATA_DIR, DATAMODULES, DATASETS, Split, Task
 
+# ----- Alias -----
+ClassLabels                    = core.ClassLabels
+DatapointAttributes            = core.DatapointAttributes
+DepthMapAnnotation             = vision.DepthMapAnnotation
+ImageAnnotation                = vision.ImageAnnotation
+SemanticSegmentationAnnotation = vision.SemanticSegmentationAnnotation
+VisionDataset                  = vision.VisionDataset
+
 
 # ----- Dataset -----
 @DATASETS.register(name="reside_hsts_real")
-class RESIDE_HSTS_Real(vision.VisionDataset):
+class RESIDE_HSTS_Real(VisionDataset):
     """Loads RESIDE-HSTS-Real dataset from ``root`` dir.
 
     Args:
@@ -44,8 +52,8 @@ class RESIDE_HSTS_Real(vision.VisionDataset):
 
     tasks : list[Task]  = [Task.DEHAZE]
     splits: list[Split] = [Split.TEST]
-    datapoint_attrs     = vision.DatapointAttributes({
-        "image": vision.ImageAnnotation,
+    datapoint_attrs     = DatapointAttributes({
+        "image": ImageAnnotation,
     })
     has_test_annotations: bool = False
     
@@ -60,20 +68,20 @@ class RESIDE_HSTS_Real(vision.VisionDataset):
         """Populates ``datapoints`` with image annotations for split."""
         patterns = [self.root / "hsts" / "real" / self.split_str / "image"]
         
-        images: list[vision.ImageAnnotation] = []
+        images: list[ImageAnnotation] = []
         with core.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
                 for path in pbar.track(sequence=paths, description=desc):
                     if path.is_image_file():
-                        images.append(vision.ImageAnnotation(path=path, root=pattern))
+                        images.append(ImageAnnotation(path=path, root=pattern))
         
         self.datapoints["image"] = images
         
         
 @DATASETS.register(name="reside_hsts_synthetic")
-class RESIDE_HSTS_Synthetic(vision.VisionDataset):
+class RESIDE_HSTS_Synthetic(VisionDataset):
     """Loads RESIDE-HSTS-Synthetic dataset from ``root`` dir.
 
     Args:
@@ -87,9 +95,9 @@ class RESIDE_HSTS_Synthetic(vision.VisionDataset):
 
     tasks : list[Task]  = [Task.DEHAZE]
     splits: list[Split] = [Split.TEST]
-    datapoint_attrs     = vision.DatapointAttributes({
-        "image"    : vision.ImageAnnotation,
-        "ref_image": vision.ImageAnnotation,
+    datapoint_attrs     = DatapointAttributes({
+        "image"    : ImageAnnotation,
+        "ref_image": ImageAnnotation,
     })
     has_test_annotations: bool = False
     
@@ -104,20 +112,20 @@ class RESIDE_HSTS_Synthetic(vision.VisionDataset):
         """Populates ``datapoints`` with image annotations for split."""
         patterns = [self.root / "hsts" / "synthetic" / self.split_str / "image"]
         
-        images: list[vision.ImageAnnotation] = []
+        images: list[ImageAnnotation] = []
         with core.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
                 for path in pbar.track(sequence=paths, description=desc):
                     if path.is_image_file():
-                        images.append(vision.ImageAnnotation(path=path, root=pattern))
+                        images.append(ImageAnnotation(path=path, root=pattern))
         
         self.datapoints["image"] = images
         
 
 @DATASETS.register(name="reside_its")
-class RESIDE_ITS(vision.VisionDataset):
+class RESIDE_ITS(VisionDataset):
     """Loads RESIDE-ITS dataset from ``root`` dir.
 
     Args:
@@ -131,9 +139,9 @@ class RESIDE_ITS(vision.VisionDataset):
 
     tasks : list[Task]  = [Task.DEHAZE]
     splits: list[Split] = [Split.TRAIN, Split.VAL]
-    datapoint_attrs     = vision.DatapointAttributes({
-        "image"    : vision.ImageAnnotation,
-        "ref_image": vision.ImageAnnotation,
+    datapoint_attrs     = DatapointAttributes({
+        "image"    : ImageAnnotation,
+        "ref_image": ImageAnnotation,
     })
     has_test_annotations: bool = False
     
@@ -148,16 +156,16 @@ class RESIDE_ITS(vision.VisionDataset):
         """Populates ``datapoints`` with image and ref annotations."""
         patterns = [self.root / "its" / self.split_str / "image"]
         
-        images: list[vision.ImageAnnotation] = []
+        images: list[ImageAnnotation] = []
         with core.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
                 for path in pbar.track(sequence=paths, description=desc):
                     if path.is_image_file():
-                        images.append(vision.ImageAnnotation(path=path, root=pattern))
+                        images.append(ImageAnnotation(path=path, root=pattern))
         
-        ref_images: list[vision.ImageAnnotation] = []
+        ref_images: list[ImageAnnotation] = []
         with core.create_progress_bar(disable=self.disable_pbar) as pbar:
             for img in pbar.track(
                 sequence=images,
@@ -166,14 +174,14 @@ class RESIDE_ITS(vision.VisionDataset):
                 stem = str(img.path.stem).split("_")[0]
                 path = img.path.replace("/image/", "/ref/")
                 path = path.parent / f"{stem}.{img.path.suffix}"
-                ref_images.append(vision.ImageAnnotation(path=path.image_file(), root=pattern))
+                ref_images.append(ImageAnnotation(path=path.image_file(), root=pattern))
         
         self.datapoints["image"]     = images
         self.datapoints["ref_image"] = ref_images
 
 
 @DATASETS.register(name="reside_ots")
-class RESIDE_OTS(vision.VisionDataset):
+class RESIDE_OTS(VisionDataset):
     """Loads RESIDE-OTS dataset from ``root`` dir.
 
     Args:
@@ -187,9 +195,9 @@ class RESIDE_OTS(vision.VisionDataset):
 
     tasks : list[Task]  = [Task.DEHAZE]
     splits: list[Split] = [Split.TRAIN]
-    datapoint_attrs     = vision.DatapointAttributes({
-        "image"    : vision.ImageAnnotation,
-        "ref_image": vision.ImageAnnotation,
+    datapoint_attrs     = DatapointAttributes({
+        "image"    : ImageAnnotation,
+        "ref_image": ImageAnnotation,
     })
     has_test_annotations: bool = False
     
@@ -204,16 +212,16 @@ class RESIDE_OTS(vision.VisionDataset):
         """Populates ``datapoints`` with image and ref annotations."""
         patterns = [self.root / "ots" / self.split_str / "image"]
         
-        images: list[vision.ImageAnnotation] = []
+        images: list[ImageAnnotation] = []
         with core.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
                 for path in pbar.track(sequence=paths, description=desc):
                     if path.is_image_file():
-                        images.append(vision.ImageAnnotation(path=path, root=pattern))
+                        images.append(ImageAnnotation(path=path, root=pattern))
         
-        ref_images: list[vision.ImageAnnotation] = []
+        ref_images: list[ImageAnnotation] = []
         with core.create_progress_bar(disable=self.disable_pbar) as pbar:
             for img in pbar.track(
                 sequence=images,
@@ -222,14 +230,14 @@ class RESIDE_OTS(vision.VisionDataset):
                 stem = str(img.path.stem).split("_")[0]
                 path = img.path.replace("/image/", "/ref/")
                 path = path.parent / f"{stem}.{img.path.suffix}"
-                ref_images.append(vision.ImageAnnotation(path=path.image_file(), root=pattern))
+                ref_images.append(ImageAnnotation(path=path.image_file(), root=pattern))
         
         self.datapoints["image"]     = images
         self.datapoints["ref_image"] = ref_images
         
 
 @DATASETS.register(name="reside_rtts")
-class RESIDE_RTTS(vision.VisionDataset):
+class RESIDE_RTTS(VisionDataset):
     """Loads RESIDE-RTTS dataset from ``root`` dir.
 
     Args:
@@ -243,8 +251,8 @@ class RESIDE_RTTS(vision.VisionDataset):
 
     tasks : list[Task]  = [Task.DEHAZE]
     splits: list[Split] = [Split.TEST]
-    datapoint_attrs     = vision.DatapointAttributes({
-        "image": vision.ImageAnnotation,
+    datapoint_attrs     = DatapointAttributes({
+        "image": ImageAnnotation,
     })
     has_test_annotations: bool = False
     
@@ -259,20 +267,20 @@ class RESIDE_RTTS(vision.VisionDataset):
         """Populates ``datapoints`` with image annotations for split."""
         patterns = [self.root / "rtts" / self.split_str / "image"]
         
-        images: list[vision.ImageAnnotation] = []
+        images: list[ImageAnnotation] = []
         with core.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
                 for path in pbar.track(sequence=paths, description=desc):
                     if path.is_image_file():
-                        images.append(vision.ImageAnnotation(path=path, root=pattern))
+                        images.append(ImageAnnotation(path=path, root=pattern))
         
         self.datapoints["image"] = images
         
 
 @DATASETS.register(name="reside_sots_indoor")
-class RESIDE_SOTS_Indoor(vision.VisionDataset):
+class RESIDE_SOTS_Indoor(VisionDataset):
     """Loads RESIDE-SOTS-Indoor dataset from ``root`` dir.
 
     Args:
@@ -286,9 +294,9 @@ class RESIDE_SOTS_Indoor(vision.VisionDataset):
 
     tasks : list[Task]  = [Task.DEHAZE]
     splits: list[Split] = [Split.TEST]
-    datapoint_attrs     = vision.DatapointAttributes({
-        "image"    : vision.ImageAnnotation,
-        "ref_image": vision.ImageAnnotation,
+    datapoint_attrs     = DatapointAttributes({
+        "image"    : ImageAnnotation,
+        "ref_image": ImageAnnotation,
     })
     has_test_annotations: bool = True
     
@@ -303,16 +311,16 @@ class RESIDE_SOTS_Indoor(vision.VisionDataset):
         """Populates ``datapoints`` with image and ref annotations."""
         patterns = [self.root / "sots" / "indoor" / self.split_str / "image"]
         
-        images: list[vision.ImageAnnotation] = []
+        images: list[ImageAnnotation] = []
         with core.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
                 for path in pbar.track(sequence=paths, description=desc):
                     if path.is_image_file():
-                        images.append(vision.ImageAnnotation(path=path, root=pattern))
+                        images.append(ImageAnnotation(path=path, root=pattern))
         
-        ref_images: list[vision.ImageAnnotation] = []
+        ref_images: list[ImageAnnotation] = []
         with core.create_progress_bar(disable=self.disable_pbar) as pbar:
             for img in pbar.track(
                 sequence    = images,
@@ -321,14 +329,14 @@ class RESIDE_SOTS_Indoor(vision.VisionDataset):
                 stem = str(img.path.stem).split("_")[0]
                 path = img.path.replace("/image/", "/ref/")
                 path = path.parent / f"{stem}.{img.path.suffix}"
-                ref_images.append(vision.ImageAnnotation(path=path.image_file(), root=pattern))
+                ref_images.append(ImageAnnotation(path=path.image_file(), root=pattern))
         
         self.datapoints["image"]     = images
         self.datapoints["ref_image"] = ref_images
         
 
 @DATASETS.register(name="reside_sots_outdoor")
-class RESIDE_SOTS_Outdoor(vision.VisionDataset):
+class RESIDE_SOTS_Outdoor(VisionDataset):
     """Loads RESIDE-SOTS-Outdoor dataset from ``root`` dir.
 
     Args:
@@ -342,9 +350,9 @@ class RESIDE_SOTS_Outdoor(vision.VisionDataset):
 
     tasks : list[Task]  = [Task.DEHAZE]
     splits: list[Split] = [Split.TEST]
-    datapoint_attrs     = vision.DatapointAttributes({
-        "image"    : vision.ImageAnnotation,
-        "ref_image": vision.ImageAnnotation,
+    datapoint_attrs     = DatapointAttributes({
+        "image"    : ImageAnnotation,
+        "ref_image": ImageAnnotation,
     })
     has_test_annotations: bool = True
     
@@ -359,16 +367,16 @@ class RESIDE_SOTS_Outdoor(vision.VisionDataset):
         """Populates ``datapoints`` with image and ref annotations."""
         patterns = [self.root / "sots" / "outdoor" / self.split_str / "image"]
         
-        images: list[vision.ImageAnnotation] = []
+        images: list[ImageAnnotation] = []
         with core.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
                 for path in pbar.track(sequence=paths, description=desc):
                     if path.is_image_file():
-                        images.append(vision.ImageAnnotation(path=path, root=pattern))
+                        images.append(ImageAnnotation(path=path, root=pattern))
         
-        ref_images: list[vision.ImageAnnotation] = []
+        ref_images: list[ImageAnnotation] = []
         with core.create_progress_bar(disable=self.disable_pbar) as pbar:
             for img in pbar.track(
                 sequence    = images,
@@ -377,14 +385,14 @@ class RESIDE_SOTS_Outdoor(vision.VisionDataset):
                 stem = str(img.path.stem).split("_")[0]
                 path = img.path.replace("/image/", "/ref/")
                 path = path.parent / f"{stem}.{img.path.suffix}"
-                ref_images.append(vision.ImageAnnotation(path=path.image_file(), root=pattern))
+                ref_images.append(ImageAnnotation(path=path.image_file(), root=pattern))
         
         self.datapoints["image"]     = images
         self.datapoints["ref_image"] = ref_images
 
 
 @DATASETS.register(name="reside_urhi")
-class RESIDE_URHI(vision.VisionDataset):
+class RESIDE_URHI(VisionDataset):
     """Loads RESIDE-URHI dataset from ``root`` dir.
 
     Args:
@@ -398,8 +406,8 @@ class RESIDE_URHI(vision.VisionDataset):
 
     tasks : list[Task]  = [Task.DEHAZE]
     splits: list[Split] = [Split.TEST]
-    datapoint_attrs     = vision.DatapointAttributes({
-        "image": vision.ImageAnnotation,
+    datapoint_attrs     = DatapointAttributes({
+        "image": ImageAnnotation,
     })
     has_test_annotations: bool = False
     
@@ -414,14 +422,14 @@ class RESIDE_URHI(vision.VisionDataset):
         """Populates ``datapoints`` with image annotations for split."""
         patterns = [self.root / "urhi" / self.split_str / "image"]
         
-        images: list[vision.ImageAnnotation] = []
+        images: list[ImageAnnotation] = []
         with core.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
                 for path in pbar.track(sequence=paths, description=desc):
                     if path.is_image_file():
-                        images.append(vision.ImageAnnotation(path=path, root=pattern))
+                        images.append(ImageAnnotation(path=path, root=pattern))
         
         self.datapoints["image"] = images
         
@@ -429,12 +437,7 @@ class RESIDE_URHI(vision.VisionDataset):
 # ----- DataModule -----
 @DATAMODULES.register(name="reside_hsts_real")
 class RESIDE_HSTS_Real_DataModule(core.DataModule):
-    """Configures RESIDE_HSTS_Real datasets for training/testing.
-
-    Args:
-        *args: Additional args for parent class.
-        **kwargs: Additional kwargs for parent class.
-    """
+    """Configures RESIDE_HSTS_Real datasets for training/testing."""
 
     tasks: list[Task] = [Task.DEHAZE]
     
@@ -465,12 +468,7 @@ class RESIDE_HSTS_Real_DataModule(core.DataModule):
 
 @DATAMODULES.register(name="reside_hsts_synthetic")
 class RESIDE_HSTS_Synthetic_DataModule(core.DataModule):
-    """Configures RESIDE_HSTS_Synthetic datasets for training/testing.
-
-    Args:
-        *args: Additional args for parent class.
-        **kwargs: Additional kwargs for parent class.
-    """
+    """Configures RESIDE_HSTS_Synthetic datasets for training/testing."""
 
     tasks: list[Task] = [Task.DEHAZE]
     
@@ -501,12 +499,7 @@ class RESIDE_HSTS_Synthetic_DataModule(core.DataModule):
 
 @DATAMODULES.register(name="reside_its")
 class RESIDE_ITS_DataModule(core.DataModule):
-    """Configures RESIDE_ITS datasets for training/testing.
-
-    Args:
-        *args: Additional args for parent class.
-        **kwargs: Additional kwargs for parent class.
-    """
+    """Configures RESIDE_ITS datasets for training/testing."""
 
     tasks: list[Task] = [Task.DEHAZE]
     
@@ -537,12 +530,7 @@ class RESIDE_ITS_DataModule(core.DataModule):
 
 @DATAMODULES.register(name="reside_ots")
 class RESIDE_OTS_DataModule(core.DataModule):
-    """Configures RESIDE_OTS datasets for training/testing.
-
-    Args:
-        *args: Additional args for parent class.
-        **kwargs: Additional kwargs for parent class.
-    """
+    """Configures RESIDE_OTS datasets for training/testing."""
 
     tasks: list[Task] = [Task.DEHAZE]
     
@@ -573,12 +561,7 @@ class RESIDE_OTS_DataModule(core.DataModule):
 
 @DATAMODULES.register(name="reside_rtts")
 class RESIDE_RTTS_DataModule(core.DataModule):
-    """Configures RESIDE_RTTS datasets for training/testing.
-
-    Args:
-        *args: Additional args for parent class.
-        **kwargs: Additional kwargs for parent class.
-    """
+    """Configures RESIDE_RTTS datasets for training/testing."""
 
     tasks: list[Task] = [Task.DEHAZE]
     
@@ -609,12 +592,7 @@ class RESIDE_RTTS_DataModule(core.DataModule):
 
 @DATAMODULES.register(name="reside_sots_indoor")
 class RESIDE_SOTS_Indoor_DataModule(core.DataModule):
-    """Configures RESIDE_SOTS_Indoor datasets for training/testing.
-
-    Args:
-        *args: Additional args for parent class.
-        **kwargs: Additional kwargs for parent class.
-    """
+    """Configures RESIDE_SOTS_Indoor datasets for training/testing."""
 
     tasks: list[Task] = [Task.DEHAZE]
     
@@ -645,12 +623,7 @@ class RESIDE_SOTS_Indoor_DataModule(core.DataModule):
 
 @DATAMODULES.register(name="reside_sots_outdoor")
 class RESIDE_SOTS_Outdoor_DataModule(core.DataModule):
-    """Configures RESIDE_SOTS_Outdoor datasets for training/testing.
-
-    Args:
-        *args: Additional args for parent class.
-        **kwargs: Additional kwargs for parent class.
-    """
+    """Configures RESIDE_SOTS_Outdoor datasets for training/testing."""
 
     tasks: list[Task] = [Task.DEHAZE]
     
@@ -681,12 +654,7 @@ class RESIDE_SOTS_Outdoor_DataModule(core.DataModule):
 
 @DATAMODULES.register(name="reside_urhi")
 class RESIDE_URHI_DataModule(core.DataModule):
-    """Configures RESIDE_URHI datasets for training/testing.
-
-    Args:
-        *args: Additional args for parent class.
-        **kwargs: Additional kwargs for parent class.
-    """
+    """Configures RESIDE_URHI datasets for training/testing."""
 
     tasks: list[Task] = [Task.DEHAZE]
     

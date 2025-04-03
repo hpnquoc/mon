@@ -23,10 +23,18 @@ import cv2
 from mon import core, vision
 from mon.constants import DATA_DIR, DATAMODULES, DATASETS, Split, Task
 
+# ----- Alias -----
+ClassLabels                    = core.ClassLabels
+DatapointAttributes            = core.DatapointAttributes
+DepthMapAnnotation             = vision.DepthMapAnnotation
+ImageAnnotation                = vision.ImageAnnotation
+SemanticSegmentationAnnotation = vision.SemanticSegmentationAnnotation
+VisionDataset                  = vision.VisionDataset
+
 
 # ----- Dataset -----
 @DATASETS.register(name="nightcity")
-class NightCity(vision.VisionDataset):
+class NightCity(VisionDataset):
     """Loads NightCity dataset from ``root`` dir.
 
     Args:
@@ -40,10 +48,10 @@ class NightCity(vision.VisionDataset):
     
     tasks : list[Task]  = [Task.LLIE, Task.NIGHTTIME, Task.SEGMENT]
     splits: list[Split] = [Split.TRAIN, Split.VAL, Split.TEST]
-    datapoint_attrs     = vision.DatapointAttributes({
-        "image"   : vision.ImageAnnotation,
-        "depth"   : vision.DepthMapAnnotation,
-        "semantic": vision.SemanticSegmentationAnnotation,
+    datapoint_attrs     = DatapointAttributes({
+        "image"   : ImageAnnotation,
+        "depth"   : DepthMapAnnotation,
+        "semantic": SemanticSegmentationAnnotation,
     })
     has_test_annotations: bool = False
     classlabels         : core.ClassLabels = core.ClassLabels([
@@ -98,21 +106,21 @@ class NightCity(vision.VisionDataset):
         else:
             patterns = [self.root / self.split_str / "image"]
 
-        images: list[vision.ImageAnnotation] = []
+        images: list[ImageAnnotation] = []
         with core.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
                 for path in pbar.track(sequence=paths, description=desc):
                     if path.is_image_file():
-                        images.append(vision.ImageAnnotation(path=path, root=pattern))
+                        images.append(ImageAnnotation(path=path, root=pattern))
 
-        semantic: list[vision.SemanticSegmentationAnnotation] = []
+        semantic: list[SemanticSegmentationAnnotation] = []
         with core.create_progress_bar(disable=self.disable_pbar) as pbar:
             desc = f"Listing {self.__class__.__name__} {self.split_str} semantic maps"
             for img in pbar.track(sequence=images, description=desc):
                 path = img.path.replace("/lq/", "/labelIds/")
-                semantic.append(vision.SemanticSegmentationAnnotation(
+                semantic.append(SemanticSegmentationAnnotation(
                     path  = path.image_file(),
                     flags = cv2.IMREAD_GRAYSCALE
                 ))
@@ -124,12 +132,7 @@ class NightCity(vision.VisionDataset):
 # ----- DataModule -----
 @DATAMODULES.register(name="nightcity")
 class NightCityDataModule(core.DataModule):
-    """Configures NightCity datasets for training/testing.
-
-    Args:
-        *args: Additional args for parent class.
-        **kwargs: Additional kwargs for parent class.
-    """
+    """Configures NightCity datasets for training/testing."""
     
     tasks: list[Task] = [Task.LLIE, Task.NIGHTTIME, Task.SEGMENT]
 

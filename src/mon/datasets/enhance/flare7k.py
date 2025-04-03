@@ -17,10 +17,18 @@ from typing import Literal
 from mon import core, vision
 from mon.constants import DATA_DIR, DATAMODULES, DATASETS, Split, Task
 
+# ----- Alias -----
+ClassLabels                    = core.ClassLabels
+DatapointAttributes            = core.DatapointAttributes
+DepthMapAnnotation             = vision.DepthMapAnnotation
+ImageAnnotation                = vision.ImageAnnotation
+SemanticSegmentationAnnotation = vision.SemanticSegmentationAnnotation
+VisionDataset                  = vision.VisionDataset
+
 
 # ----- Dataset -----
 @DATASETS.register(name="flare7k++_real")
-class Flare7KPPReal(vision.VisionDataset):
+class Flare7KPPReal(VisionDataset):
     """Loads Flare7K++Real dataset from ``root`` dir.
 
     Args:
@@ -34,9 +42,9 @@ class Flare7KPPReal(vision.VisionDataset):
     
     tasks : list[Task]  = [Task.NIGHTTIME]
     splits: list[Split] = [Split.TEST]
-    datapoint_attrs     = vision.DatapointAttributes({
-        "image"    : vision.ImageAnnotation,
-        "ref_image": vision.ImageAnnotation,
+    datapoint_attrs     = DatapointAttributes({
+        "image"    : ImageAnnotation,
+        "ref_image": ImageAnnotation,
     })
     has_test_annotations: bool = True
 
@@ -51,20 +59,20 @@ class Flare7KPPReal(vision.VisionDataset):
         """Populates ``datapoints`` with image annotations for split."""
         patterns = [self.root / self.split_str / "real" / "image"]
 
-        images: list[vision.ImageAnnotation] = []
+        images: list[ImageAnnotation] = []
         with core.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
                 for path in pbar.track(sequence=paths, description=desc):
                     if path.is_image_file():
-                        images.append(vision.ImageAnnotation(path=path, root=pattern))
+                        images.append(ImageAnnotation(path=path, root=pattern))
 
         self.datapoints["image"] = images
         
 
 @DATASETS.register(name="flare7k++_synthetic")
-class Flare7KPPSynthetic(vision.VisionDataset):
+class Flare7KPPSynthetic(VisionDataset):
     """Loads Flare7K++Synthetic dataset from ``root`` dir.
 
     Args:
@@ -78,9 +86,9 @@ class Flare7KPPSynthetic(vision.VisionDataset):
     
     tasks : list[Task]  = [Task.NIGHTTIME]
     splits: list[Split] = [Split.TEST]
-    datapoint_attrs     = vision.DatapointAttributes({
-        "image"    : vision.ImageAnnotation,
-        "ref_image": vision.ImageAnnotation,
+    datapoint_attrs     = DatapointAttributes({
+        "image"    : ImageAnnotation,
+        "ref_image": ImageAnnotation,
     })
     has_test_annotations: bool = True
 
@@ -95,20 +103,20 @@ class Flare7KPPSynthetic(vision.VisionDataset):
         """Populates ``datapoints`` with image annotations for split."""
         patterns = [self.root / self.split_str / "synthetic" / "image"]
 
-        images: list[vision.ImageAnnotation] = []
+        images: list[ImageAnnotation] = []
         with core.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
                 for path in pbar.track(sequence=paths, description=desc):
                     if path.is_image_file():
-                        images.append(vision.ImageAnnotation(path=path, root=pattern))
+                        images.append(ImageAnnotation(path=path, root=pattern))
 
         self.datapoints["image"] = images
 
 
 @DATASETS.register(name="flare7k++_extra")
-class Flare7KPPExtra(vision.VisionDataset):
+class Flare7KPPExtra(VisionDataset):
     """Loads Flare7K++Extra dataset from ``root`` dir.
 
     Args:
@@ -122,8 +130,8 @@ class Flare7KPPExtra(vision.VisionDataset):
     
     tasks : list[Task]  = [Task.NIGHTTIME]
     splits: list[Split] = [Split.TEST]
-    datapoint_attrs     = vision.DatapointAttributes({
-        "image": vision.ImageAnnotation,
+    datapoint_attrs     = DatapointAttributes({
+        "image": ImageAnnotation,
     })
     has_test_annotations: bool = False
 
@@ -138,14 +146,14 @@ class Flare7KPPExtra(vision.VisionDataset):
         """Populates ``datapoints`` with image annotations for split."""
         patterns = [self.root / self.split_str / "extra" / "image"]
 
-        images: list[vision.ImageAnnotation] = []
+        images: list[ImageAnnotation] = []
         with core.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
                 for path in pbar.track(sequence=paths, description=desc):
                     if path.is_image_file():
-                        images.append(vision.ImageAnnotation(path=path, root=pattern))
+                        images.append(ImageAnnotation(path=path, root=pattern))
 
         self.datapoints["image"] = images
 
@@ -153,12 +161,7 @@ class Flare7KPPExtra(vision.VisionDataset):
 # ----- DataModule -----
 @DATAMODULES.register(name="flare7k++_real")
 class Flare7KPPRealDataModule(core.DataModule):
-    """Configures Flare7KPPReal datasets for training/testing.
-
-    Args:
-        *args: Additional args for parent class.
-        **kwargs: Additional kwargs for parent class.
-    """
+    """Configures Flare7KPPReal datasets for training/testing."""
     
     tasks: list[Task] = [Task.NIGHTTIME]
 
@@ -189,12 +192,7 @@ class Flare7KPPRealDataModule(core.DataModule):
 
 @DATAMODULES.register(name="flare7k++_synthetic")
 class Flare7KPPSyntheticDataModule(core.DataModule):
-    """Configures Flare7KPPSynthetic datasets for training/testing.
-
-    Args:
-        *args: Additional args for parent class.
-        **kwargs: Additional kwargs for parent class.
-    """
+    """Configures Flare7KPPSynthetic datasets for training/testing."""
     
     tasks: list[Task] = [Task.NIGHTTIME]
 
@@ -225,12 +223,7 @@ class Flare7KPPSyntheticDataModule(core.DataModule):
 
 @DATAMODULES.register(name="flare7k++_extra")
 class Flare7KPPExtraDataModule(core.DataModule):
-    """Configures Flare7KPPExtra datasets for training/testing.
-
-    Args:
-        *args: Additional args for parent class.
-        **kwargs: Additional kwargs for parent class.
-    """
+    """Configures Flare7KPPExtra datasets for training/testing."""
     
     tasks: list[Task] = [Task.NIGHTTIME]
 

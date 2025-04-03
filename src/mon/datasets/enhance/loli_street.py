@@ -15,10 +15,18 @@ from typing import Literal
 from mon import core, vision
 from mon.constants import DATA_DIR, DATAMODULES, DATASETS, Split, Task
 
+# ----- Alias -----
+ClassLabels                    = core.ClassLabels
+DatapointAttributes            = core.DatapointAttributes
+DepthMapAnnotation             = vision.DepthMapAnnotation
+ImageAnnotation                = vision.ImageAnnotation
+SemanticSegmentationAnnotation = vision.SemanticSegmentationAnnotation
+VisionDataset                  = vision.VisionDataset
+
 
 # ----- Dataset -----
 @DATASETS.register(name="loli_street")
-class LoLIStreet(vision.VisionDataset):
+class LoLIStreet(VisionDataset):
     """Loads LoLIStreet dataset from ``root`` dir.
 
     Args:
@@ -32,11 +40,11 @@ class LoLIStreet(vision.VisionDataset):
     
     tasks : list[Task]  = [Task.LLIE]
     splits: list[Split] = [Split.TRAIN, Split.VAL, Split.TEST]
-    datapoint_attrs     = vision.DatapointAttributes({
-        "image"    : vision.ImageAnnotation,
-        "depth"    : vision.DepthMapAnnotation,
-        "ref_image": vision.ImageAnnotation,
-        "ref_depth": vision.DepthMapAnnotation,
+    datapoint_attrs     = DatapointAttributes({
+        "image"    : ImageAnnotation,
+        "depth"    : DepthMapAnnotation,
+        "ref_image": ImageAnnotation,
+        "ref_depth": DepthMapAnnotation,
     })
     has_test_annotations: bool = False
 
@@ -54,20 +62,20 @@ class LoLIStreet(vision.VisionDataset):
         else:
             patterns = [self.root / self.split_str / "image"]
 
-        images: list[vision.ImageAnnotation] = []
+        images: list[ImageAnnotation] = []
         with core.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
                 for path in pbar.track(sequence=paths, description=desc):
                     if path.is_image_file():
-                        images.append(vision.ImageAnnotation(path=path, root=pattern))
+                        images.append(ImageAnnotation(path=path, root=pattern))
 
         self.datapoints["image"] = images
 
 
 @DATASETS.register(name="loli_street_val")
-class LoLIStreetVal(vision.VisionDataset):
+class LoLIStreetVal(VisionDataset):
     """Loads LoLIStreetVal dataset from ``root`` dir.
 
     Args:
@@ -81,11 +89,11 @@ class LoLIStreetVal(vision.VisionDataset):
     
     tasks : list[Task]  = [Task.LLIE]
     splits: list[Split] = [Split.TEST]
-    datapoint_attrs     = vision.DatapointAttributes({
-        "image"    : vision.ImageAnnotation,
-        "depth"    : vision.DepthMapAnnotation,
-        "ref_image": vision.ImageAnnotation,
-        "ref_depth": vision.DepthMapAnnotation,
+    datapoint_attrs     = DatapointAttributes({
+        "image"    : ImageAnnotation,
+        "depth"    : DepthMapAnnotation,
+        "ref_image": ImageAnnotation,
+        "ref_depth": DepthMapAnnotation,
     })
     has_test_annotations: bool = False
 
@@ -100,20 +108,20 @@ class LoLIStreetVal(vision.VisionDataset):
         """Populates ``datapoints`` with image annotations for split."""
         patterns = [self.root / "val" / "image"]
 
-        images: list[vision.ImageAnnotation] = []
+        images: list[ImageAnnotation] = []
         with core.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
                 for path in pbar.track(sequence=paths, description=desc):
                     if path.is_image_file():
-                        images.append(vision.ImageAnnotation(path=path, root=pattern))
+                        images.append(ImageAnnotation(path=path, root=pattern))
 
         self.datapoints["image"] = images
         
 
 @DATASETS.register(name="loli_street_test")
-class LoLIStreetTest(vision.VisionDataset):
+class LoLIStreetTest(VisionDataset):
     """Loads LoLIStreetTest dataset from ``root`` dir.
 
     Args:
@@ -127,9 +135,9 @@ class LoLIStreetTest(vision.VisionDataset):
     
     tasks : list[Task]  = [Task.LLIE]
     splits: list[Split] = [Split.TEST]
-    datapoint_attrs     = vision.DatapointAttributes({
-        "image": vision.ImageAnnotation,
-        "depth": vision.DepthMapAnnotation,
+    datapoint_attrs     = DatapointAttributes({
+        "image": ImageAnnotation,
+        "depth": DepthMapAnnotation,
     })
     has_test_annotations: bool = False
 
@@ -144,14 +152,14 @@ class LoLIStreetTest(vision.VisionDataset):
         """Populates ``datapoints`` with image annotations for split."""
         patterns = [self.root / "test" / "image"]
 
-        images: list[vision.ImageAnnotation] = []
+        images: list[ImageAnnotation] = []
         with core.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
                 for path in pbar.track(sequence=paths, description=desc):
                     if path.is_image_file():
-                        images.append(vision.ImageAnnotation(path=path, root=pattern))
+                        images.append(ImageAnnotation(path=path, root=pattern))
 
         self.datapoints["image"] = images
         
@@ -159,12 +167,7 @@ class LoLIStreetTest(vision.VisionDataset):
 # ----- DataModule -----
 @DATAMODULES.register(name="loli_street")
 class LoLIStreetDataModule(core.DataModule):
-    """Configures LoLIStreet datasets for training/testing.
-
-    Args:
-        *args: Additional args for parent class.
-        **kwargs: Additional kwargs for parent class.
-    """
+    """Configures LoLIStreet datasets for training/testing."""
     
     tasks: list[Task] = [Task.LLIE]
 

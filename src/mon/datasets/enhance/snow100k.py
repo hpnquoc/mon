@@ -13,10 +13,18 @@ from typing import Literal
 from mon import core, vision
 from mon.constants import DATA_DIR, DATAMODULES, DATASETS, Split, Task
 
+# ----- Alias -----
+ClassLabels                    = core.ClassLabels
+DatapointAttributes            = core.DatapointAttributes
+DepthMapAnnotation             = vision.DepthMapAnnotation
+ImageAnnotation                = vision.ImageAnnotation
+SemanticSegmentationAnnotation = vision.SemanticSegmentationAnnotation
+VisionDataset                  = vision.VisionDataset
+
 
 # ----- Dataset -----
 @DATASETS.register(name="snow100k")
-class Snow100K(vision.VisionDataset):
+class Snow100K(VisionDataset):
     """Loads Snow100K dataset from ``root`` dir.
 
     Args:
@@ -30,9 +38,9 @@ class Snow100K(vision.VisionDataset):
 
     tasks : list[Task]  = [Task.DESNOW]
     splits: list[Split] = [Split.TRAIN]
-    datapoint_attrs     = vision.DatapointAttributes({
-        "image"    : vision.ImageAnnotation,
-        "ref_image": vision.ImageAnnotation,
+    datapoint_attrs     = DatapointAttributes({
+        "image"    : ImageAnnotation,
+        "ref_image": ImageAnnotation,
     })
     has_test_annotations: bool = False
     
@@ -47,14 +55,14 @@ class Snow100K(vision.VisionDataset):
         """Populates ``datapoints`` with image annotations for split."""
         patterns = [self.root / self.split_str / "lq"]
         
-        images: list[vision.ImageAnnotation] = []
+        images: list[ImageAnnotation] = []
         with core.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
                 for path in pbar.track(sequence=paths, description=desc):
                     if path.is_image_file():
-                        images.append(vision.ImageAnnotation(path=path, root=pattern))
+                        images.append(ImageAnnotation(path=path, root=pattern))
         
         self.datapoints["image"] = images
         
@@ -62,12 +70,7 @@ class Snow100K(vision.VisionDataset):
 # ----- DataModule -----
 @DATAMODULES.register(name="snow100k")
 class Snow100KDataModule(core.DataModule):
-    """Configures Snow100K datasets for training/testing.
-
-    Args:
-        *args: Additional args for parent class.
-        **kwargs: Additional kwargs for parent class.
-    """
+    """Configures Snow100K datasets for training/testing."""
 
     tasks: list[Task] = [Task.DESNOW]
     

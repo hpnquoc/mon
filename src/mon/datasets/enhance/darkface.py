@@ -15,10 +15,18 @@ from typing import Literal
 from mon import core, vision
 from mon.constants import DATA_DIR, DATAMODULES, DATASETS, Split, Task
 
+# ----- Alias -----
+ClassLabels                    = core.ClassLabels
+DatapointAttributes            = core.DatapointAttributes
+DepthMapAnnotation             = vision.DepthMapAnnotation
+ImageAnnotation                = vision.ImageAnnotation
+SemanticSegmentationAnnotation = vision.SemanticSegmentationAnnotation
+VisionDataset                  = vision.VisionDataset
+
 
 # ----- Dataset -----
 @DATASETS.register(name="darkface")
-class DarkFace(vision.VisionDataset):
+class DarkFace(VisionDataset):
     """Loads DarkFace dataset from ``root`` dir.
 
     Args:
@@ -32,9 +40,9 @@ class DarkFace(vision.VisionDataset):
     
     tasks : list[Task]  = [Task.LLIE, Task.DETECT]
     splits: list[Split] = [Split.TEST]
-    datapoint_attrs     = vision.DatapointAttributes({
-        "image": vision.ImageAnnotation,
-        "depth": vision.DepthMapAnnotation,
+    datapoint_attrs     = DatapointAttributes({
+        "image": ImageAnnotation,
+        "depth": DepthMapAnnotation,
     })
     has_test_annotations: bool = False
 
@@ -49,21 +57,21 @@ class DarkFace(vision.VisionDataset):
         """Populates ``datapoints`` with image annotations for split."""
         patterns = [self.root / self.split_str / "image"]
 
-        images: list[vision.ImageAnnotation] = []
+        images: list[ImageAnnotation] = []
         with core.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
                 for path in pbar.track(sequence=paths, description=desc):
                     if path.is_image_file():
-                        images.append(vision.ImageAnnotation(path=path, root=pattern))
+                        images.append(ImageAnnotation(path=path, root=pattern))
 
         self.datapoints["image"] = images
         
 
 # ----- DataModule -----
 @DATASETS.register(name="darkface_full")
-class DarkFaceFull(vision.VisionDataset):
+class DarkFaceFull(VisionDataset):
     """Loads DarkFaceFull dataset from ``root`` dir.
 
     Args:
@@ -77,9 +85,9 @@ class DarkFaceFull(vision.VisionDataset):
     
     tasks : list[Task]  = [Task.LLIE, Task.DETECT]
     splits: list[Split] = [Split.TEST]
-    datapoint_attrs     = vision.DatapointAttributes({
-        "image": vision.ImageAnnotation,
-        "depth": vision.DepthMapAnnotation,
+    datapoint_attrs     = DatapointAttributes({
+        "image": ImageAnnotation,
+        "depth": DepthMapAnnotation,
     })
     has_test_annotations: bool = False
 
@@ -94,26 +102,21 @@ class DarkFaceFull(vision.VisionDataset):
         """Populates ``datapoints`` with image annotations for split."""
         patterns = [self.root / f"{self.split_str}_full" / "image"]
 
-        images: list[vision.ImageAnnotation] = []
+        images: list[ImageAnnotation] = []
         with core.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
                 for path in pbar.track(sequence=paths, description=desc):
                     if path.is_image_file():
-                        images.append(vision.ImageAnnotation(path=path, root=pattern))
+                        images.append(ImageAnnotation(path=path, root=pattern))
 
         self.datapoints["image"] = images
 
 
 @DATAMODULES.register(name="darkface")
 class DarkFaceDataModule(core.DataModule):
-    """Configures DarkFace datasets for training/testing.
-
-    Args:
-        *args: Additional args for parent class.
-        **kwargs: Additional kwargs for parent class.
-    """
+    """Configures DarkFace datasets for training/testing."""
     
     tasks: list[Task] = [Task.LLIE]
 
@@ -144,12 +147,7 @@ class DarkFaceDataModule(core.DataModule):
 
 @DATAMODULES.register(name="darkface_full")
 class DarkFaceFullDataModule(core.DataModule):
-    """Configures DarkFaceFull datasets for training/testing.
-
-    Args:
-        *args: Additional args for parent class.
-        **kwargs: Additional kwargs for parent class.
-    """
+    """Configures DarkFaceFull datasets for training/testing."""
     
     tasks: list[Task] = [Task.LLIE]
 

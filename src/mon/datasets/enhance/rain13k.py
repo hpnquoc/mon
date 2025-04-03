@@ -14,10 +14,18 @@ from mon import core, vision
 from mon.constants import DATA_DIR, DATAMODULES, DATASETS, Split, Task
 from mon.datasets.enhance.rain100 import Rain100
 
+# ----- Alias -----
+ClassLabels                    = core.ClassLabels
+DatapointAttributes            = core.DatapointAttributes
+DepthMapAnnotation             = vision.DepthMapAnnotation
+ImageAnnotation                = vision.ImageAnnotation
+SemanticSegmentationAnnotation = vision.SemanticSegmentationAnnotation
+VisionDataset                  = vision.VisionDataset
+
 
 # ----- Dataset -----
 @DATASETS.register(name="rain13k")
-class Rain13K(vision.VisionDataset):
+class Rain13K(VisionDataset):
     """Loads Rain13K dataset from ``root`` dir.
 
     Args:
@@ -31,9 +39,9 @@ class Rain13K(vision.VisionDataset):
 
     tasks : list[Task]  = [Task.DERAIN]
     splits: list[Split] = [Split.TRAIN]
-    datapoint_attrs     = vision.DatapointAttributes({
-        "image"    : vision.ImageAnnotation,
-        "ref_image": vision.ImageAnnotation,
+    datapoint_attrs     = DatapointAttributes({
+        "image"    : ImageAnnotation,
+        "ref_image": ImageAnnotation,
     })
     has_test_annotations: bool = False
     
@@ -50,14 +58,14 @@ class Rain13K(vision.VisionDataset):
             self.root / self.split_str / "image",
         ]
         
-        images: list[vision.ImageAnnotation] = []
+        images: list[ImageAnnotation] = []
         with core.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
                 for path in pbar.track(sequence=paths, description=desc):
                     if path.is_image_file():
-                        images.append(vision.ImageAnnotation(path=path, root=pattern))
+                        images.append(ImageAnnotation(path=path, root=pattern))
 
         self.datapoints["image"] = images
         
@@ -65,12 +73,7 @@ class Rain13K(vision.VisionDataset):
 # ----- DataModule -----
 @DATAMODULES.register(name="rain13k")
 class Rain13KDataModule(core.DataModule):
-    """Configures Rain13K datasets for training/testing.
-
-    Args:
-        *args: Additional args for parent class.
-        **kwargs: Additional kwargs for parent class.
-    """
+    """Configures Rain13K datasets for training/testing."""
 
     tasks: list[Task] = [Task.DERAIN]
     

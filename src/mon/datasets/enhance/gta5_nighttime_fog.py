@@ -17,10 +17,18 @@ from typing import Literal
 from mon import core, vision
 from mon.constants import DATA_DIR, DATAMODULES, DATASETS, Split, Task
 
+# ----- Alias -----
+ClassLabels                    = core.ClassLabels
+DatapointAttributes            = core.DatapointAttributes
+DepthMapAnnotation             = vision.DepthMapAnnotation
+ImageAnnotation                = vision.ImageAnnotation
+SemanticSegmentationAnnotation = vision.SemanticSegmentationAnnotation
+VisionDataset                  = vision.VisionDataset
+
 
 # ----- Dataset -----
 @DATASETS.register(name="gta5_nighttime_fog")
-class GTA5NighttimeFog(vision.VisionDataset):
+class GTA5NighttimeFog(VisionDataset):
     """Loads GTA5NighttimeFog dataset from ``root`` dir.
 
     Args:
@@ -34,11 +42,11 @@ class GTA5NighttimeFog(vision.VisionDataset):
     
     tasks : list[Task]  = [Task.DEHAZE, Task.NIGHTTIME]
     splits: list[Split] = [Split.TRAIN, Split.TEST]
-    datapoint_attrs     = vision.DatapointAttributes({
-        "image"    : vision.ImageAnnotation,
-        "depth"    : vision.DepthMapAnnotation,
-        "ref_image": vision.ImageAnnotation,
-        "ref_depth": vision.DepthMapAnnotation,
+    datapoint_attrs     = DatapointAttributes({
+        "image"    : ImageAnnotation,
+        "depth"    : DepthMapAnnotation,
+        "ref_image": ImageAnnotation,
+        "ref_depth": DepthMapAnnotation,
     })
     has_test_annotations: bool = True
 
@@ -53,14 +61,14 @@ class GTA5NighttimeFog(vision.VisionDataset):
         """Populates ``datapoints`` with image annotations for split."""
         patterns = [self.root / self.split_str / "image"]
 
-        images: list[vision.ImageAnnotation] = []
+        images: list[ImageAnnotation] = []
         with core.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
                 for path in pbar.track(sequence=paths, description=desc):
                     if path.is_image_file():
-                        images.append(vision.ImageAnnotation(path=path, root=pattern))
+                        images.append(ImageAnnotation(path=path, root=pattern))
 
         self.datapoints["image"] = images
 
@@ -68,12 +76,7 @@ class GTA5NighttimeFog(vision.VisionDataset):
 # ----- DataModule -----
 @DATAMODULES.register(name="gta5_nighttime_fog")
 class GTA5NighttimeFogDataModule(core.DataModule):
-    """Configures GTA5NighttimeFog datasets for training/testing.
-
-    Args:
-        *args: Additional args for parent class.
-        **kwargs: Additional kwargs for parent class.
-    """
+    """Configures GTA5NighttimeFog datasets for training/testing."""
     
     tasks: list[Task] = [Task.DEHAZE, Task.NIGHTTIME]
     

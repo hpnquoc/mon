@@ -17,10 +17,18 @@ from typing import Literal
 from mon import core, vision
 from mon.constants import DATA_DIR, DATAMODULES, DATASETS, Split, Task
 
+# ----- Alias -----
+ClassLabels                    = core.ClassLabels
+DatapointAttributes            = core.DatapointAttributes
+DepthMapAnnotation             = vision.DepthMapAnnotation
+ImageAnnotation                = vision.ImageAnnotation
+SemanticSegmentationAnnotation = vision.SemanticSegmentationAnnotation
+VisionDataset                  = vision.VisionDataset
+
 
 # ----- Dataset -----
 @DATASETS.register(name="rain100")
-class Rain100(vision.VisionDataset):
+class Rain100(VisionDataset):
     """Loads Rain100 dataset from ``root`` dir.
 
     Args:
@@ -34,9 +42,9 @@ class Rain100(vision.VisionDataset):
 
     tasks : list[Task]  = [Task.DERAIN]
     splits: list[Split] = [Split.TEST]
-    datapoint_attrs     = vision.DatapointAttributes({
-        "image"    : vision.ImageAnnotation,
-        "ref_image": vision.ImageAnnotation,
+    datapoint_attrs     = DatapointAttributes({
+        "image"    : ImageAnnotation,
+        "ref_image": ImageAnnotation,
     })
     has_test_annotations: bool = True
     
@@ -53,20 +61,20 @@ class Rain100(vision.VisionDataset):
             self.root / self.split_str / "image",
         ]
         
-        images: list[vision.ImageAnnotation] = []
+        images: list[ImageAnnotation] = []
         with core.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
                 for path in pbar.track(sequence=paths, description=desc):
                     if path.is_image_file():
-                        images.append(vision.ImageAnnotation(path=path, root=pattern))
+                        images.append(ImageAnnotation(path=path, root=pattern))
         
         self.datapoints["image"] = images
 
 
 @DATASETS.register(name="rain100h")
-class Rain100H(vision.VisionDataset):
+class Rain100H(VisionDataset):
     """Loads Rain100H dataset from ``root`` dir.
 
     Args:
@@ -80,9 +88,9 @@ class Rain100H(vision.VisionDataset):
 
     tasks : list[Task]  = [Task.DERAIN]
     splits: list[Split] = [Split.TRAIN, Split.TEST]
-    datapoint_attrs     = vision.DatapointAttributes({
-        "image"    : vision.ImageAnnotation,
-        "ref_image": vision.ImageAnnotation,
+    datapoint_attrs     = DatapointAttributes({
+        "image"    : ImageAnnotation,
+        "ref_image": ImageAnnotation,
     })
     has_test_annotations: bool = True
     
@@ -99,20 +107,20 @@ class Rain100H(vision.VisionDataset):
             self.root / self.split_str / "image",
         ]
         
-        images: list[vision.ImageAnnotation] = []
+        images: list[ImageAnnotation] = []
         with core.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
                 for path in pbar.track(sequence=paths, description=desc):
                     if path.is_image_file():
-                        images.append(vision.ImageAnnotation(path=path, root=pattern))
+                        images.append(ImageAnnotation(path=path, root=pattern))
         
         self.datapoints["image"] = images
         
 
 @DATASETS.register(name="rain100l")
-class Rain100L(vision.VisionDataset):
+class Rain100L(VisionDataset):
     """Loads Rain100L dataset from ``root`` dir.
 
     Args:
@@ -126,9 +134,9 @@ class Rain100L(vision.VisionDataset):
 
     tasks : list[Task]  = [Task.DERAIN]
     splits: list[Split] = [Split.TRAIN, Split.TEST]
-    datapoint_attrs     = vision.DatapointAttributes({
-        "image"    : vision.ImageAnnotation,
-        "ref_image": vision.ImageAnnotation,
+    datapoint_attrs     = DatapointAttributes({
+        "image"    : ImageAnnotation,
+        "ref_image": ImageAnnotation,
     })
     has_test_annotations: bool = True
     
@@ -145,14 +153,14 @@ class Rain100L(vision.VisionDataset):
             self.root / "rain100l" / self.split_str / "image"
         ]
         
-        images: list[vision.ImageAnnotation] = []
+        images: list[ImageAnnotation] = []
         with core.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
                 for path in pbar.track(sequence=paths, description=desc):
                     if path.is_image_file():
-                        images.append(vision.ImageAnnotation(path=path, root=pattern))
+                        images.append(ImageAnnotation(path=path, root=pattern))
         
         self.datapoints["image"] = images
         
@@ -160,12 +168,7 @@ class Rain100L(vision.VisionDataset):
 # ----- DataModule -----
 @DATAMODULES.register(name="rain100")
 class Rain100DataModule(core.DataModule):
-    """Configures Rain100 datasets for training/testing.
-
-    Args:
-        *args: Additional args for parent class.
-        **kwargs: Additional kwargs for parent class.
-    """
+    """Configures Rain100 datasets for training/testing."""
 
     tasks: list[Task] = [Task.DERAIN]
     
@@ -196,12 +199,7 @@ class Rain100DataModule(core.DataModule):
 
 @DATAMODULES.register(name="rain100h")
 class Rain100HDataModule(core.DataModule):
-    """Configures Rain100H datasets for training/testing.
-
-    Args:
-        *args: Additional args for parent class.
-        **kwargs: Additional kwargs for parent class.
-    """
+    """Configures Rain100H datasets for training/testing."""
 
     tasks: list[Task] = [Task.DERAIN]
     
@@ -232,12 +230,7 @@ class Rain100HDataModule(core.DataModule):
 
 @DATAMODULES.register(name="rain100l")
 class Rain100LDataModule(core.DataModule):
-    """Configures Rain100L datasets for training/testing.
-
-    Args:
-        *args: Additional args for parent class.
-        **kwargs: Additional kwargs for parent class.
-    """
+    """Configures Rain100L datasets for training/testing."""
 
     tasks: list[Task] = [Task.DERAIN]
     

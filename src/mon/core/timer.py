@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Provides utility functions and data structures."""
+"""Implementation of a simple timer class."""
 
 __all__ = [
     "Timer",
