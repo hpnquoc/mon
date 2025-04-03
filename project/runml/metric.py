@@ -100,7 +100,7 @@ def measure_metric_pyiqa(
             # Target
             has_target  = need_target
             target_file = None
-            for ext in mon.ImageExtension:
+            for ext in mon.ImageExtension.values():
                 temp = target_dir / f"{image_file.stem}{ext}"
                 if temp.exists():
                     target_file = temp

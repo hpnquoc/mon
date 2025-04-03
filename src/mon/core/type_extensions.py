@@ -132,7 +132,17 @@ def flatten_models_dict(x: dict) -> dict:
 class Enum(enum.Enum):
     """Extension of Python ``enum.Enum`` with utility methods."""
     
-    def __contains__(self, value: Any) -> bool:
+    @classmethod
+    def __init_subclass__(cls):
+        """Initialize the set of values when the subclass is created."""
+        cls._names         = list(cls)
+        cls._values        = [member.value for member in cls]
+        cls._int_to_enum   = {i: member for i, member in enumerate(cls)}
+        cls._value_to_enum = {member.value: member for member in cls}
+        cls._str_to_enum   = {str(member.name).lower(): member for member in cls}
+        
+    @classmethod
+    def __contains__(cls, value: Any) -> bool:
         """Checks if a value is in the enum.
 
         Args:
@@ -144,7 +154,7 @@ class Enum(enum.Enum):
         Notes:
             Usage: ``if value in EnumClass: ...``
         """
-        return value in set(member.value for member in self)
+        return value in cls or value in cls._values
     
     @classmethod
     def random(cls):
@@ -165,13 +175,13 @@ class Enum(enum.Enum):
         return cls.random().value
     
     @classmethod
-    def names(cls) -> list['Enum']:
+    def names(cls) -> list:
         """Returns all enum members.
 
         Returns:
             List of all enum members.
         """
-        return list(cls)
+        return cls._names
     
     @classmethod
     def values(cls) -> list[Any]:
@@ -180,22 +190,22 @@ class Enum(enum.Enum):
         Returns:
             List of values from all enum members.
         """
-        return [e.value for e in cls]
+        return cls._values
     
     @classmethod
     def int_to_enum(cls) -> dict:
         """Dynamically create a dict mapping Enum indexes to Enum members."""
-        return {i: member for i, member in enumerate(cls)}
+        return cls._int_to_enum
     
     @classmethod
     def value_to_enum(cls) -> dict:
         """Dynamically create a dict mapping Enum values to Enum members."""
-        return {member.value: member for member in cls}
+        return cls._value_to_enum
     
     @classmethod
     def str_to_enum(cls) -> dict:
         """Dynamically create a dict mapping Enum names (lowercase) to Enum members."""
-        return {str(member.name).lower(): member for member in cls}
+        return cls._str_to_enum
     
     @classmethod
     def from_str(cls, value: str):

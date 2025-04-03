@@ -189,7 +189,7 @@ class Path(type(pathlib.Path())):
             ``True`` if path is a video file, ``False`` otherwise.
         """
         from mon.constants import VideoExtension
-        return (not exist or self.is_file()) and self.suffix.lower() in VideoExtension.values()
+        return (not exist or self.is_file()) and self.suffix.lower() in VideoExtension
     
     def is_video_stream(self) -> bool:
         """Checks if the path is a video stream.
@@ -312,7 +312,7 @@ class Path(type(pathlib.Path())):
             Configuration file ``Path``.
         """
         from mon.constants import ConfigExtension
-        for ext in ConfigExtension:
+        for ext in ConfigExtension.values():
             for stem in [self.stem, humps.snakecase(self.stem)]:
                 config_path = self.with_name(f"{stem}{ext}")
                 if config_path.is_file():
@@ -335,7 +335,7 @@ class Path(type(pathlib.Path())):
             Image file ``Path``.
         """
         from mon.constants import ImageExtension
-        for ext in ImageExtension:
+        for ext in ImageExtension.values():
             temp = self.with_suffix(ext)
             if temp.is_file():
                 return temp
