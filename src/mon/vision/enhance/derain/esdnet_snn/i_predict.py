@@ -68,6 +68,7 @@ def merge_image(split_data, starts, crop_size, shape=(1, 3, 80, 80)) -> torch.Te
     return merge_img
 
 
+@torch.no_grad()
 def predict(args: dict) -> str:
     # Parse args
     hostname     = args["hostname"]
@@ -123,45 +124,44 @@ def predict(args: dict) -> str:
         
     # Predicting
     timer = mon.Timer()
-    with torch.no_grad():
-        with mon.create_progress_bar() as pbar:
-            for i, datapoint in pbar.track(
-                sequence    = enumerate(data_loader),
-                total       = len(data_loader),
-                description = f"[bright_yellow] Predicting"
-            ):
-                # Input
-                meta       = datapoint["meta"]
-                image_path = mon.Path(meta["path"])
-                image      = datapoint["image"].to(device)
-                h0, w0     = mon.image_size(image)
-                if resize:
-                    image = mon.resize(image, imgsz)
-                image = F.pad(image, (pad_size, pad_size, pad_size, pad_size), mode="constant", value=0)
-                b, c, h1, w1 = image.shape
-                
-                # Infer
-                timer.tick()
-                split_data, starts = split_image(image, crop_size=crop_size, overlap_size=overlap_size)
-                for j, data in enumerate(split_data):
-                    split_data[j] = model(data).to(device)
-                    split_data[j] = split_data[j].cpu()
-                    functional.reset_net(model)
-                enhanced = merge_image(split_data, starts, crop_size=crop_size, shape=(b, c, h1, w1))
-                enhanced = torch.clamp(enhanced, 0, 1)
-                timer.tock()
-                
-                # Post-processing
-                enhanced = enhanced[:, :, pad_size:-pad_size, pad_size:-pad_size]
-                if h1 != h0 or w1 != w0:
-                    enhanced = mon.resize(enhanced, (h0, w0))
-                
-                # Save
-                if save_image:
-                    output_dir  = mon.parse_output_dir(save_dir, data_name, image_path, keep_subdirs)
-                    output_dir.mkdir(parents=True, exist_ok=True)
-                    output_path = output_dir / f"{image_path.stem}{mon.SAVE_IMAGE_EXT}"
-                    torchvision.utils.save_image(enhanced, str(output_path))
+    with mon.create_progress_bar() as pbar:
+        for i, datapoint in pbar.track(
+            sequence    = enumerate(data_loader),
+            total       = len(data_loader),
+            description = f"[bright_yellow] Predicting"
+        ):
+            # Input
+            meta       = datapoint["meta"]
+            image_path = mon.Path(meta["path"])
+            image      = datapoint["image"].to(device)
+            h0, w0     = mon.image_size(image)
+            if resize:
+                image = mon.resize(image, imgsz)
+            image = F.pad(image, (pad_size, pad_size, pad_size, pad_size), mode="constant", value=0)
+            b, c, h1, w1 = image.shape
+            
+            # Infer
+            timer.tick()
+            split_data, starts = split_image(image, crop_size=crop_size, overlap_size=overlap_size)
+            for j, data in enumerate(split_data):
+                split_data[j] = model(data).to(device)
+                split_data[j] = split_data[j].cpu()
+                functional.reset_net(model)
+            enhanced = merge_image(split_data, starts, crop_size=crop_size, shape=(b, c, h1, w1))
+            enhanced = torch.clamp(enhanced, 0, 1)
+            timer.tock()
+            
+            # Post-processing
+            enhanced = enhanced[:, :, pad_size:-pad_size, pad_size:-pad_size]
+            if h1 != h0 or w1 != w0:
+                enhanced = mon.resize(enhanced, (h0, w0))
+            
+            # Save
+            if save_image:
+                output_dir  = mon.parse_output_dir(save_dir, data_name, image_path, keep_subdirs)
+                output_dir.mkdir(parents=True, exist_ok=True)
+                output_path = output_dir / f"{image_path.stem}{mon.SAVE_IMAGE_EXT}"
+                torchvision.utils.save_image(enhanced, str(output_path))
     
     # Finish
     mon.console.log(f"Average time: {timer.avg_time}")

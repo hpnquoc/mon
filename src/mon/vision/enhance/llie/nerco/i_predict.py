@@ -25,6 +25,7 @@ current_dir  = current_file.parents[0]
 
 
 # ----- Predict -----
+@torch.no_grad()
 def predict(args: dict) -> str:
     # Parse args
     hostname     = args["hostname"]
@@ -90,50 +91,49 @@ def predict(args: dict) -> str:
     
     # Predicting
     timer = mon.Timer()
-    with torch.no_grad():
-        with mon.create_progress_bar() as pbar:
-            for i, datapoint in pbar.track(
-                sequence    = enumerate(data_loader),
-                total       = len(data_loader),
-                description = f"[bright_yellow] Predicting"
-            ):
-                # Input
-                meta       = datapoint["meta"]
-                image_path = mon.Path(meta["path"])
-                indexB     = random.randint(0, testB_size - 1)
-                imageA     = Image.open(image_path).convert("RGB")
-                imageB     = Image.open(testB_files[indexB]).convert("RGB")
-                w0, h0     = imageA.size
-                imageA     = transform_A(imageA).unsqueeze(0).to(device)
-                imageB     = transform_B(imageB).unsqueeze(0).to(device)
-                dp = {
-                    "A"      : imageA,
-                    "B"      : imageB,
-                    "A_paths": image_path,
-                    "B_paths": testB_files[indexB]
-                }
-                
-                # Infer
-                timer.tick()
-                model.set_input(dp)
-                model.test()
-                visuals  = model.get_current_visuals()
-                enhanced = visuals.get("fake_B")
-                timer.tock()
-                
-                # Post-process
-                h1, w1 = mon.image_size(enhanced)
-                if h1 != h0 or w1 != w0:
-                    enhanced = mon.resize(enhanced, (h0, w0))
-                enhanced = util.tensor2im(enhanced)
-                
-                # Save
-                if save_image:
-                    output_dir  = mon.parse_output_dir(save_dir, data_name, image_path, keep_subdirs)
-                    output_dir.mkdir(parents=True, exist_ok=True)
-                    output_path = output_dir / f"{image_path.stem}{mon.SAVE_IMAGE_EXT}"
-                    Image.fromarray(enhanced).save(str(output_path))
-                '''
+    with mon.create_progress_bar() as pbar:
+        for i, datapoint in pbar.track(
+            sequence    = enumerate(data_loader),
+            total       = len(data_loader),
+            description = f"[bright_yellow] Predicting"
+        ):
+            # Input
+            meta       = datapoint["meta"]
+            image_path = mon.Path(meta["path"])
+            indexB     = random.randint(0, testB_size - 1)
+            imageA     = Image.open(image_path).convert("RGB")
+            imageB     = Image.open(testB_files[indexB]).convert("RGB")
+            w0, h0     = imageA.size
+            imageA     = transform_A(imageA).unsqueeze(0).to(device)
+            imageB     = transform_B(imageB).unsqueeze(0).to(device)
+            dp = {
+                "A"      : imageA,
+                "B"      : imageB,
+                "A_paths": image_path,
+                "B_paths": testB_files[indexB]
+            }
+            
+            # Infer
+            timer.tick()
+            model.set_input(dp)
+            model.test()
+            visuals  = model.get_current_visuals()
+            enhanced = visuals.get("fake_B")
+            timer.tock()
+            
+            # Post-process
+            h1, w1 = mon.image_size(enhanced)
+            if h1 != h0 or w1 != w0:
+                enhanced = mon.resize(enhanced, (h0, w0))
+            enhanced = util.tensor2im(enhanced)
+            
+            # Save
+            if save_image:
+                output_dir  = mon.parse_output_dir(save_dir, data_name, image_path, keep_subdirs)
+                output_dir.mkdir(parents=True, exist_ok=True)
+                output_path = output_dir / f"{image_path.stem}{mon.SAVE_IMAGE_EXT}"
+                Image.fromarray(enhanced).save(str(output_path))
+            '''
                 if save_debug:
                     if keep_subdirs:
                         rel_path    = image_path.relative_path(data_name)

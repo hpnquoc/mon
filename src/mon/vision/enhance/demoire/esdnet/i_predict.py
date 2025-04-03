@@ -16,6 +16,7 @@ current_dir  = current_file.parents[0]
 
 
 # ----- Predict -----
+@torch.no_grad()
 def predict(args: dict) -> str:
     # Parse args
     hostname     = args["hostname"]
@@ -85,54 +86,53 @@ def predict(args: dict) -> str:
         
     # Predicting
     timer = mon.Timer()
-    with torch.no_grad():
-        with mon.create_progress_bar() as pbar:
-            for i, datapoint in pbar.track(
-                sequence    = enumerate(data_loader),
-                total       = len(data_loader),
-                description = f"[bright_yellow] Predicting"
-            ):
-                # Input
-                meta       = datapoint["meta"]
-                image_path = mon.Path(meta["path"])
-                image      = datapoint["image"].to(device)
-                
-                # Resize
-                _, _, h0, w0 = image.size()
-                # if h0 != 2000 or w0 != 2992:
-                #     image = mon.resize(image, [2000, 2992])
-                
-                # Infer
-                timer.tick()
-                # Pad image such that the resolution is a multiple of 32
-                b, c, h, w = image.size()
-                w_pad      = (math.ceil(w / 32) * 32 - w) // 2
-                h_pad      = (math.ceil(h / 32) * 32 - h) // 2
-                w_odd_pad  = w_pad
-                h_odd_pad  = h_pad
-                if w % 2 == 1:
-                    w_odd_pad += 1
-                if h % 2 == 1:
-                    h_odd_pad += 1
-                image = img_pad(image, w_pad=w_pad, h_pad=h_pad, w_odd_pad=w_odd_pad, h_odd_pad=h_odd_pad)
-                out_1, out_2, out_3 = model(image)
-                if h_pad != 0:
-                    out_1 = out_1[:, :, h_pad:-h_odd_pad, :]
-                if w_pad != 0:
-                    out_1 = out_1[:, :, :, w_pad:-w_odd_pad]
-                timer.tock()
-                
-                # Post-processing
-                enhanced = out_1.detach().cpu()
-                # if h0 != 2000 or w0 != 2992:
-                #     enhanced = mon.resize(enhanced, [h0, w0])
-                
-                # Save
-                if save_image:
-                    output_dir  = mon.parse_output_dir(save_dir, data_name, image_path, keep_subdirs)
-                    output_dir.mkdir(parents=True, exist_ok=True)
-                    output_path = output_dir / f"{image_path.stem}{mon.SAVE_IMAGE_EXT}"
-                    torchvision.utils.save_image(enhanced, str(output_path))
+    with mon.create_progress_bar() as pbar:
+        for i, datapoint in pbar.track(
+            sequence    = enumerate(data_loader),
+            total       = len(data_loader),
+            description = f"[bright_yellow] Predicting"
+        ):
+            # Input
+            meta       = datapoint["meta"]
+            image_path = mon.Path(meta["path"])
+            image      = datapoint["image"].to(device)
+            
+            # Resize
+            _, _, h0, w0 = image.size()
+            # if h0 != 2000 or w0 != 2992:
+            #     image = mon.resize(image, [2000, 2992])
+            
+            # Infer
+            timer.tick()
+            # Pad image such that the resolution is a multiple of 32
+            b, c, h, w = image.size()
+            w_pad      = (math.ceil(w / 32) * 32 - w) // 2
+            h_pad      = (math.ceil(h / 32) * 32 - h) // 2
+            w_odd_pad  = w_pad
+            h_odd_pad  = h_pad
+            if w % 2 == 1:
+                w_odd_pad += 1
+            if h % 2 == 1:
+                h_odd_pad += 1
+            image = img_pad(image, w_pad=w_pad, h_pad=h_pad, w_odd_pad=w_odd_pad, h_odd_pad=h_odd_pad)
+            out_1, out_2, out_3 = model(image)
+            if h_pad != 0:
+                out_1 = out_1[:, :, h_pad:-h_odd_pad, :]
+            if w_pad != 0:
+                out_1 = out_1[:, :, :, w_pad:-w_odd_pad]
+            timer.tock()
+            
+            # Post-processing
+            enhanced = out_1.detach().cpu()
+            # if h0 != 2000 or w0 != 2992:
+            #     enhanced = mon.resize(enhanced, [h0, w0])
+            
+            # Save
+            if save_image:
+                output_dir  = mon.parse_output_dir(save_dir, data_name, image_path, keep_subdirs)
+                output_dir.mkdir(parents=True, exist_ok=True)
+                output_path = output_dir / f"{image_path.stem}{mon.SAVE_IMAGE_EXT}"
+                torchvision.utils.save_image(enhanced, str(output_path))
     
     # Finish
     mon.console.log(f"Average time: {timer.avg_time}")

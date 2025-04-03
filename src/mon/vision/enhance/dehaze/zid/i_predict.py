@@ -205,6 +205,7 @@ class Dehaze:
             return np.array([np.clip(refine_t, 0, 1)])
 
 
+@torch.no_grad()
 def predict(args: argparse.Namespace):
     # Parse args
     args         = vars(args)
@@ -242,33 +243,32 @@ def predict(args: argparse.Namespace):
     
     # Predicting
     timer = mon.Timer()
-    with torch.no_grad():
-        with mon.create_progress_bar() as pbar:
-            for i, datapoint in pbar.track(
-                sequence    = enumerate(data_loader),
-                total       = len(data_loader),
-                description = f"[bright_yellow] Predicting"
-            ):
-                # Input
-                meta       = datapoint["meta"]
-                image_path = mon.Path(meta["path"])
-                image      = prepare_hazy_image(str(image_path))
-                
-                # Save
-                output_dir = mon.parse_output_dir(save_dir, data_name, image_path, keep_subdirs)
-                debug_dir  = mon.parse_debug_dir(save_dir, data_name, image_path, keep_subdirs)
-                output_dir.mkdir(parents=True, exist_ok=True)
-                debug_dir.mkdir(parents=True, exist_ok=True)
-                (debug_dir /    "t").mkdir(parents=True, exist_ok=True)
-                (debug_dir /    "a").mkdir(parents=True, exist_ok=True)
-                (debug_dir / "mask").mkdir(parents=True, exist_ok=True)
-                
-                # Infer
-                timer.tick()
-                dh = Dehaze(str(image_path.stem), image, epochs, clip=True, output_path=str(output_dir))
-                dh.optimize()
-                dh.finalize()
-                timer.tock()
+    with mon.create_progress_bar() as pbar:
+        for i, datapoint in pbar.track(
+            sequence    = enumerate(data_loader),
+            total       = len(data_loader),
+            description = f"[bright_yellow] Predicting"
+        ):
+            # Input
+            meta       = datapoint["meta"]
+            image_path = mon.Path(meta["path"])
+            image      = prepare_hazy_image(str(image_path))
+            
+            # Save
+            output_dir = mon.parse_output_dir(save_dir, data_name, image_path, keep_subdirs)
+            debug_dir  = mon.parse_debug_dir(save_dir, data_name, image_path, keep_subdirs)
+            output_dir.mkdir(parents=True, exist_ok=True)
+            debug_dir.mkdir(parents=True, exist_ok=True)
+            (debug_dir /    "t").mkdir(parents=True, exist_ok=True)
+            (debug_dir /    "a").mkdir(parents=True, exist_ok=True)
+            (debug_dir / "mask").mkdir(parents=True, exist_ok=True)
+            
+            # Infer
+            timer.tick()
+            dh = Dehaze(str(image_path.stem), image, epochs, clip=True, output_path=str(output_dir))
+            dh.optimize()
+            dh.finalize()
+            timer.tock()
          
     # Finish
     mon.console.log(f"Average time: {timer.avg_time}")

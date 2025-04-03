@@ -79,6 +79,7 @@ def format_measurements(meas):
     return str_out
 
 
+@torch.no_grad()
 def predict(args: dict) -> str:
     # Parse args
     hostname     = args["hostname"]
@@ -131,50 +132,49 @@ def predict(args: dict) -> str:
     
     # Predicting
     timer = mon.Timer()
-    with torch.no_grad():
-        with mon.create_progress_bar() as pbar:
-            for i, datapoint in pbar.track(
-                sequence    = enumerate(data_loader),
-                total       = len(data_loader),
-                description = f"[bright_yellow] Predicting"
-            ):
-                # Input
-                meta       = datapoint["meta"]
-                image_path = mon.Path(meta["path"])
-                image      = datapoint["image"]  # imread(str(image_path))
-                
-                # Infer
-                timer.tick()
-                image, padding_params = auto_padding(image)
-                his = hiseq_color_cv2_img(image)
-                if opt.get("histeq_as_input", False):
-                    image = his
-                lr_t = t(image)
-                if opt["datasets"]["train"].get("log_low", False):
-                    lr_t = torch.log(torch.clamp(lr_t + 1e-3, min=1e-3))
-                if opt.get("concat_histeq", False):
-                    his  = t(his)
-                    lr_t = torch.cat([lr_t, his], dim=1)
-                heat = opt["heat"]
-                
-                with torch.cuda.amp.autocast():
-                    sr_t = model.get_sr(lq=lr_t.to(device), heat=None)
-                sr = rgb(
-                    torch.clamp(sr_t, 0, 1)[
-                        :, :,
-                        padding_params[0]:sr_t.shape[2] - padding_params[1],
-                        padding_params[2]:sr_t.shape[3] - padding_params[3]
-                    ]
-                )
-                # assert raw_shape == sr.shape
-                timer.tock()
-                
-                # Save
-                if save_image:
-                    output_dir  = mon.parse_output_dir(save_dir, data_name, image_path, keep_subdirs)
-                    output_dir.mkdir(parents=True, exist_ok=True)
-                    output_path = output_dir / f"{image_path.stem}{mon.SAVE_IMAGE_EXT}"
-                    imwrite(str(output_path), sr)
+    with mon.create_progress_bar() as pbar:
+        for i, datapoint in pbar.track(
+            sequence    = enumerate(data_loader),
+            total       = len(data_loader),
+            description = f"[bright_yellow] Predicting"
+        ):
+            # Input
+            meta       = datapoint["meta"]
+            image_path = mon.Path(meta["path"])
+            image      = datapoint["image"]  # imread(str(image_path))
+            
+            # Infer
+            timer.tick()
+            image, padding_params = auto_padding(image)
+            his = hiseq_color_cv2_img(image)
+            if opt.get("histeq_as_input", False):
+                image = his
+            lr_t = t(image)
+            if opt["datasets"]["train"].get("log_low", False):
+                lr_t = torch.log(torch.clamp(lr_t + 1e-3, min=1e-3))
+            if opt.get("concat_histeq", False):
+                his  = t(his)
+                lr_t = torch.cat([lr_t, his], dim=1)
+            heat = opt["heat"]
+            
+            with torch.cuda.amp.autocast():
+                sr_t = model.get_sr(lq=lr_t.to(device), heat=None)
+            sr = rgb(
+                torch.clamp(sr_t, 0, 1)[
+                    :, :,
+                    padding_params[0]:sr_t.shape[2] - padding_params[1],
+                    padding_params[2]:sr_t.shape[3] - padding_params[3]
+                ]
+            )
+            # assert raw_shape == sr.shape
+            timer.tock()
+            
+            # Save
+            if save_image:
+                output_dir  = mon.parse_output_dir(save_dir, data_name, image_path, keep_subdirs)
+                output_dir.mkdir(parents=True, exist_ok=True)
+                output_path = output_dir / f"{image_path.stem}{mon.SAVE_IMAGE_EXT}"
+                imwrite(str(output_path), sr)
     
     # Finish
     mon.console.log(f"Average time: {timer.avg_time}")

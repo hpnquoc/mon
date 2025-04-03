@@ -26,6 +26,7 @@ current_dir  = current_file.parents[0]
 
 
 # ----- Predict -----
+@torch.no_grad()
 def predict(args: dict) -> str:
     # Parse args
     hostname     = args["hostname"]
@@ -78,36 +79,35 @@ def predict(args: dict) -> str:
     
     # Predicting
     timer = mon.Timer()
-    with torch.no_grad():
-        with mon.create_progress_bar() as pbar:
-            for i, datapoint in pbar.track(
-                sequence    = enumerate(data_loader),
-                total       = len(data_loader),
-                description = f"[bright_yellow] Predicting"
-            ):
-                # Input
-                meta       = datapoint["meta"]
-                image_path = mon.Path(meta["path"])
-                image      = utils.image_from_path(str(image_path))
-                h0, w0     = mon.image_size(meta["shape"])
-                # Scale image to have the resolution of multiple of 4
-                image      = utils.scale_image(image, scale_factor, device) if scale_factor != 1 else image
-                image      = image.to(device)
-                
-                # Infer
-                timer.tick()
-                enhanced, params_maps = net(image)
-                timer.tock()
-                
-                # Post-processing
-                enhanced = mon.resize(enhanced, (h0, w0), side=None)
-                
-                # Save
-                if save_image:
-                    output_dir  = mon.parse_output_dir(save_dir, data_name, image_path, keep_subdirs)
-                    output_dir.mkdir(parents=True, exist_ok=True)
-                    output_path = output_dir / f"{image_path.stem}{mon.SAVE_IMAGE_EXT}"
-                    torchvision.utils.save_image(enhanced, str(output_path))
+    with mon.create_progress_bar() as pbar:
+        for i, datapoint in pbar.track(
+            sequence    = enumerate(data_loader),
+            total       = len(data_loader),
+            description = f"[bright_yellow] Predicting"
+        ):
+            # Input
+            meta       = datapoint["meta"]
+            image_path = mon.Path(meta["path"])
+            image      = utils.image_from_path(str(image_path))
+            h0, w0     = mon.image_size(meta["shape"])
+            # Scale image to have the resolution of multiple of 4
+            image      = utils.scale_image(image, scale_factor, device) if scale_factor != 1 else image
+            image      = image.to(device)
+            
+            # Infer
+            timer.tick()
+            enhanced, params_maps = net(image)
+            timer.tock()
+            
+            # Post-processing
+            enhanced = mon.resize(enhanced, (h0, w0), side=None)
+            
+            # Save
+            if save_image:
+                output_dir  = mon.parse_output_dir(save_dir, data_name, image_path, keep_subdirs)
+                output_dir.mkdir(parents=True, exist_ok=True)
+                output_path = output_dir / f"{image_path.stem}{mon.SAVE_IMAGE_EXT}"
+                torchvision.utils.save_image(enhanced, str(output_path))
     
     # Finish
     mon.console.log(f"Average time: {timer.avg_time}")

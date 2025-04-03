@@ -106,6 +106,7 @@ def process(
     return results
 
 
+@torch.no_grad()
 def predict(args: dict) -> str:
     # Parse args
     hostname     = args["hostname"]
@@ -182,41 +183,40 @@ def predict(args: dict) -> str:
     
     # Predicting
     timer = mon.Timer()
-    with torch.no_grad():
-        with mon.create_progress_bar() as pbar:
-            for i, datapoint in pbar.track(
-                sequence    = enumerate(data_loader),
-                total       = len(data_loader),
-                description = f"[bright_yellow] Predicting"
-            ):
-                # Input
-                meta        = datapoint["meta"]
-                image_path  = mon.Path(meta["path"])
-                image       = datapoint["image"]
-                h0, w0      = image.shape[0], image.shape[1]
-                
-                # Infer
-                timer.tick()
-                # If you set num_samples > 1, process will return multiple results
-                enhanced = process(
-                    model, diffusion_sampler,
-                    input_image      = image,
-                    num_samples      = 1,
-                    image_resolution = imgsz,
-                    use_float16      = use_float16,
-                )[0]
-                timer.tock()
-                
-                # Post-processing
-                enhanced = mon.resize(enhanced, (h0, w0), interpolation=cv2.INTER_LINEAR)
-                enhanced = cv2.cvtColor(enhanced, cv2.COLOR_BGR2RGB)
-                
-                # Save
-                if save_image:
-                    output_dir  = mon.parse_output_dir(save_dir, data_name, image_path, keep_subdirs)
-                    output_dir.mkdir(parents=True, exist_ok=True)
-                    output_path = output_dir / f"{image_path.stem}{mon.SAVE_IMAGE_EXT}"
-                    cv2.imwrite(str(output_path), enhanced)
+    with mon.create_progress_bar() as pbar:
+        for i, datapoint in pbar.track(
+            sequence    = enumerate(data_loader),
+            total       = len(data_loader),
+            description = f"[bright_yellow] Predicting"
+        ):
+            # Input
+            meta        = datapoint["meta"]
+            image_path  = mon.Path(meta["path"])
+            image       = datapoint["image"]
+            h0, w0      = image.shape[0], image.shape[1]
+            
+            # Infer
+            timer.tick()
+            # If you set num_samples > 1, process will return multiple results
+            enhanced = process(
+                model, diffusion_sampler,
+                input_image      = image,
+                num_samples      = 1,
+                image_resolution = imgsz,
+                use_float16      = use_float16,
+            )[0]
+            timer.tock()
+            
+            # Post-processing
+            enhanced = mon.resize(enhanced, (h0, w0), interpolation=cv2.INTER_LINEAR)
+            enhanced = cv2.cvtColor(enhanced, cv2.COLOR_BGR2RGB)
+            
+            # Save
+            if save_image:
+                output_dir  = mon.parse_output_dir(save_dir, data_name, image_path, keep_subdirs)
+                output_dir.mkdir(parents=True, exist_ok=True)
+                output_path = output_dir / f"{image_path.stem}{mon.SAVE_IMAGE_EXT}"
+                cv2.imwrite(str(output_path), enhanced)
         
     # Finish
     mon.console.log(f"Average time: {timer.avg_time}")

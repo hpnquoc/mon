@@ -17,6 +17,7 @@ current_dir  = current_file.parents[0]
 
 
 # ----- Predict -----
+@torch.no_grad()
 def predict(args: dict) -> str:
     # Parse args
     hostname     = args["hostname"]
@@ -81,61 +82,60 @@ def predict(args: dict) -> str:
     # Predicting
     timer = mon.Timer()
     cmap  = matplotlib.colormaps.get_cmap("Spectral_r")
-    with torch.no_grad():
-        with mon.create_progress_bar() as pbar:
-            for i, datapoint in pbar.track(
-                sequence    = enumerate(data_loader),
-                total       = len(data_loader),
-                description = f"[bright_yellow] Predicting"
-            ):
-                meta       = datapoint["meta"]
-                image_path = mon.Path(meta["path"])
-                image      = datapoint["image"]
+    with mon.create_progress_bar() as pbar:
+        for i, datapoint in pbar.track(
+            sequence    = enumerate(data_loader),
+            total       = len(data_loader),
+            description = f"[bright_yellow] Predicting"
+        ):
+            meta       = datapoint["meta"]
+            image_path = mon.Path(meta["path"])
+            image      = datapoint["image"]
+            
+            # Infer
+            timer.tick()
+            depth = depth_anything.infer_image(image, imgsz)
+            depth = (depth - depth.min()) / (depth.max() - depth.min()) * 255.0
+            depth = depth.astype(np.uint8)
+            timer.tock()
+            
+            # Save
+            if save_image:
+                if keep_subdirs:
+                    rel_path       = image_path.relative_path(data_name)
+                    parent_dir     = rel_path.parent.parent
+                    gray_save_dir  = save_dir / rel_path.parents[1] / f"{parent_dir.name}_dav2_{encoder}_g"
+                    color_save_dir = save_dir / rel_path.parents[1] / f"{parent_dir.name}_dav2_{encoder}_c"
+                    # gray_save_dir  = save_dir / parent_dir.parent / f"{parent_dir.name}_dav2_{encoder}_g" / image_path.relative_path(relative_path.parent.name)
+                    # color_save_dir = save_dir / parent_dir.parent / f"{parent_dir.name}_dav2_{encoder}_c" / image_path.relative_path(relative_path.parent.name)
+                else:
+                    gray_save_dir  = save_dir / data_name / "gray"
+                    color_save_dir = save_dir / data_name / "color"
+                gray    = {
+                    "file": gray_save_dir / f"{image_path.stem}.jpg",
+                    "data": np.repeat(depth[..., np.newaxis], 3, axis=-1),
+                }
+                color   = {
+                    "file": color_save_dir / f"{image_path.stem}.jpg",
+                    "data": (cmap(depth)[:, :, :3] * 255)[:, :, ::-1].astype(np.uint8),
+                }
+                results = []
+                if format in [2, "all"]:
+                    results = [gray, color]
+                elif format in [0, "gray", "grayscale"]:
+                    results = [gray]
+                elif format in [1, "color"]:
+                    results = [color]
                 
-                # Infer
-                timer.tick()
-                depth = depth_anything.infer_image(image, imgsz)
-                depth = (depth - depth.min()) / (depth.max() - depth.min()) * 255.0
-                depth = depth.astype(np.uint8)
-                timer.tock()
-                
-                # Save
-                if save_image:
-                    if keep_subdirs:
-                        rel_path       = image_path.relative_path(data_name)
-                        parent_dir     = rel_path.parent.parent
-                        gray_save_dir  = save_dir / rel_path.parents[1] / f"{parent_dir.name}_dav2_{encoder}_g"
-                        color_save_dir = save_dir / rel_path.parents[1] / f"{parent_dir.name}_dav2_{encoder}_c"
-                        # gray_save_dir  = save_dir / parent_dir.parent / f"{parent_dir.name}_dav2_{encoder}_g" / image_path.relative_path(relative_path.parent.name)
-                        # color_save_dir = save_dir / parent_dir.parent / f"{parent_dir.name}_dav2_{encoder}_c" / image_path.relative_path(relative_path.parent.name)
-                    else:
-                        gray_save_dir  = save_dir / data_name / "gray"
-                        color_save_dir = save_dir / data_name / "color"
-                    gray    = {
-                        "file": gray_save_dir / f"{image_path.stem}.jpg",
-                        "data": np.repeat(depth[..., np.newaxis], 3, axis=-1),
-                    }
-                    color   = {
-                        "file": color_save_dir / f"{image_path.stem}.jpg",
-                        "data": (cmap(depth)[:, :, :3] * 255)[:, :, ::-1].astype(np.uint8),
-                    }
-                    results = []
-                    if format in [2, "all"]:
-                        results = [gray, color]
-                    elif format in [0, "gray", "grayscale"]:
-                        results = [gray]
-                    elif format in [1, "color"]:
-                        results = [color]
-                    
-                    for result in results:
-                        output_path = result["file"]
-                        output      = result["data"]
-                        output_path.parent.mkdir(parents=True, exist_ok=True)
-                        if not pred_only:
-                            split_region    = np.ones((image.shape[0], 50, 3), dtype=np.uint8) * 255
-                            combined_result = cv2.hconcat([image, split_region, output])
-                            output          = combined_result
-                        cv2.imwrite(str(output_path), output)
+                for result in results:
+                    output_path = result["file"]
+                    output      = result["data"]
+                    output_path.parent.mkdir(parents=True, exist_ok=True)
+                    if not pred_only:
+                        split_region    = np.ones((image.shape[0], 50, 3), dtype=np.uint8) * 255
+                        combined_result = cv2.hconcat([image, split_region, output])
+                        output          = combined_result
+                    cv2.imwrite(str(output_path), output)
     
     # Finish
     mon.console.log(f"Average time: {timer.avg_time}")

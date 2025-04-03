@@ -12,8 +12,8 @@ from abc import ABC
 import cv2
 
 from mon import nn
-from mon.vision import model, types
 from mon.constants import SAVE_IMAGE_EXT
+from mon.vision import model, types
 
 
 # ----- Image Enhancement Model -----

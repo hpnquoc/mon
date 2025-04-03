@@ -23,6 +23,7 @@ current_dir  = current_file.parents[0]
 
 
 # ----- Predict -----
+@torch.no_grad()
 def predict(args: dict) -> str:
     # Parse args
     hostname     = args["hostname"]
@@ -74,52 +75,51 @@ def predict(args: dict) -> str:
     
     # Predicting
     timer = mon.Timer()
-    with torch.no_grad():
-        with mon.create_progress_bar() as pbar:
-            for i, datapoint in pbar.track(
-                sequence    = enumerate(data_loader),
-                total       = len(data_loader),
-                description = f"[bright_yellow] Predicting"
-            ):
-                # Input
-                meta       = datapoint["meta"]
-                image_path = mon.Path(meta["path"])
-                image      = dutil.read_img(None, str(image_path))
-                image      = image[:, :, ::-1]
-                h0, w0     = mon.image_size(image)
-                image      = mon.resize(image, divisible_by=32)
-                image_nf   = cv2.blur(image, (5, 5))
-                image_nf   = image_nf * 1.0 / 255.0
-                image_nf   = torch.from_numpy(np.ascontiguousarray(np.transpose(image_nf, (2, 0, 1)))).float()
-                image      = torch.from_numpy(np.ascontiguousarray(np.transpose(image,    (2, 0, 1)))).float()
-                image      = image.unsqueeze(0).to(device)
-                image_nf   = image_nf.unsqueeze(0).to(device)
-                
-                # Infer
-                timer.tick()
-                model.feed_data(
-                    data    = {
-                        "idx"   : i,
-                        "LQs"   : image,
-                        "nf"    : image_nf,
-                        "border": 0,
-                    },
-                    need_GT = False,
-                )
-                model.test()
-                timer.tock()
-                
-                # Post-processing
-                visuals  = model.get_current_visuals(need_GT=False)
-                enhanced = util.tensor2img(visuals["rlt"])  # uint8
-                enhanced = cv2.resize(enhanced, (w0, h0))
-                
-                # Save
-                if save_image:
-                    output_dir  = mon.parse_output_dir(save_dir, data_name, image_path, keep_subdirs)
-                    output_dir.mkdir(parents=True, exist_ok=True)
-                    output_path = output_dir / f"{image_path.stem}{mon.SAVE_IMAGE_EXT}"
-                    cv2.imwrite(str(output_path), enhanced)
+    with mon.create_progress_bar() as pbar:
+        for i, datapoint in pbar.track(
+            sequence    = enumerate(data_loader),
+            total       = len(data_loader),
+            description = f"[bright_yellow] Predicting"
+        ):
+            # Input
+            meta       = datapoint["meta"]
+            image_path = mon.Path(meta["path"])
+            image      = dutil.read_img(None, str(image_path))
+            image      = image[:, :, ::-1]
+            h0, w0     = mon.image_size(image)
+            image      = mon.resize(image, divisible_by=32)
+            image_nf   = cv2.blur(image, (5, 5))
+            image_nf   = image_nf * 1.0 / 255.0
+            image_nf   = torch.from_numpy(np.ascontiguousarray(np.transpose(image_nf, (2, 0, 1)))).float()
+            image      = torch.from_numpy(np.ascontiguousarray(np.transpose(image,    (2, 0, 1)))).float()
+            image      = image.unsqueeze(0).to(device)
+            image_nf   = image_nf.unsqueeze(0).to(device)
+            
+            # Infer
+            timer.tick()
+            model.feed_data(
+                data    = {
+                    "idx"   : i,
+                    "LQs"   : image,
+                    "nf"    : image_nf,
+                    "border": 0,
+                },
+                need_GT = False,
+            )
+            model.test()
+            timer.tock()
+            
+            # Post-processing
+            visuals  = model.get_current_visuals(need_GT=False)
+            enhanced = util.tensor2img(visuals["rlt"])  # uint8
+            enhanced = cv2.resize(enhanced, (w0, h0))
+            
+            # Save
+            if save_image:
+                output_dir  = mon.parse_output_dir(save_dir, data_name, image_path, keep_subdirs)
+                output_dir.mkdir(parents=True, exist_ok=True)
+                output_path = output_dir / f"{image_path.stem}{mon.SAVE_IMAGE_EXT}"
+                cv2.imwrite(str(output_path), enhanced)
     
     # Finish
     mon.console.log(f"Average time: {timer.avg_time}")
