@@ -223,7 +223,7 @@ def predict(args: argparse.Namespace):
     benchmark    = args["benchmark"]
     save_image   = args["save_image"]
     save_debug   = args["save_debug"]
-    use_fullpath = args["use_fullpath"]
+    keep_subdirs = args["keep_subdirs"]
     verbose      = args["verbose"]
     
     # Start
@@ -255,13 +255,8 @@ def predict(args: argparse.Namespace):
                 image      = prepare_hazy_image(str(image_path))
                 
                 # Save
-                if use_fullpath:
-                    rel_path   = image_path.relative_path(data_name)
-                    output_dir = save_dir / rel_path.parents[0]
-                    debug_dir  = save_dir / rel_path.parents[1] / f"{rel_path.parent.name}_debug"
-                else:
-                    output_dir = save_dir / data_name
-                    debug_dir  = save_dir / f"{data_name}_debug"
+                output_dir = mon.parse_output_dir(save_dir, data_name, image_path, keep_subdirs)
+                debug_dir  = mon.parse_debug_dir(save_dir, data_name, image_path, keep_subdirs)
                 output_dir.mkdir(parents=True, exist_ok=True)
                 debug_dir.mkdir(parents=True, exist_ok=True)
                 (debug_dir /    "t").mkdir(parents=True, exist_ok=True)

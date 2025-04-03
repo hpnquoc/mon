@@ -107,7 +107,7 @@ def write_to_file(
     path_obj    = pathlib.Path(path) if isinstance(path, (pathlib.Path, str)) else path
     file_format = file_format or (path_obj.suffix if isinstance(path_obj, pathlib.Path) else "")
     if file_format not in SERIALIZERS:
-        raise ValueError(f"[file_format] must be one of {list(SERIALIZERS.keys())}, "
+        raise ValueError(f"[file_format] must be one of {list(SERIALIZERS.names())}, "
                          f"got {file_format}")
     
     handler: BaseSerializer = SERIALIZERS.build(name=file_format)

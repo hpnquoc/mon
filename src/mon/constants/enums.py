@@ -5,18 +5,21 @@
 
 __all__ = [
     "AppleRGB",
-    "BBoxFormat",
     "BasicRGB",
+    "ConfigExtension",
+    "DepthDataSource",
     "Enum",
+    "ImageExtension",
     "LType",
     "MemoryUnit",
     "ShapeCode",
     "Split",
     "Task",
+    "TorchExtension",
     "TrackState",
+    "VideoExtension",
+    "WeightExtension",
 ]
-
-from typing import Any
 
 from mon.core.type_extensions import Enum
 
@@ -229,6 +232,122 @@ class BasicRGB(Enum):
     NAVY    = (0  , 0  , 128)
 
 
+# ----- Device -----
+class MemoryUnit(Enum):
+    """Memory units."""
+    
+    B  = "B"
+    KB = "KB"
+    MB = "MB"
+    GB = "GB"
+    TB = "TB"
+    PB = "PB"
+    
+    @classmethod
+    def str_to_enum(cls) -> dict:
+        """Return a dictionary mapping strings to ``MemoryUnit``
+    
+        This method provides a mapping from string representations of memory units
+        to their corresponding ``MemoryUnit`` enum values. This is useful for
+        converting string inputs to enum values in a consistent manner.
+    
+        Returns:
+            A dictionary where the keys are string representations of memory
+            units and the values are the corresponding ``MemoryUnit`` enum values.
+        """
+        return {
+            "b" : cls.B,
+            "kb": cls.KB,
+            "mb": cls.MB,
+            "gb": cls.GB,
+            "tb": cls.TB,
+            "pb": cls.PB,
+        }
+        
+    @classmethod
+    def name_to_byte(cls):
+        """Return a dictionary mapping memory units to their corresponding
+        number of bytes.
+    
+        This method provides a mapping from ``MemoryUnit`` enum values to their
+        corresponding number of bytes. This is useful for converting memory units
+        to their byte equivalents in a consistent manner.
+    
+        Returns:
+            A dictionary where the keys are ``MemoryUnit`` enum values and the
+            values are the corresponding number of bytes.
+        """
+        return {
+            cls.B : 1024 ** 0,
+            cls.KB: 1024 ** 1,
+            cls.MB: 1024 ** 2,
+            cls.GB: 1024 ** 3,
+            cls.TB: 1024 ** 4,
+            cls.PB: 1024 ** 5,
+        }
+    
+
+# ----- File -----
+class ConfigExtension(Enum):
+    """Configuration file extensions."""
+    
+    CFG    = ".cfg"
+    CONFIG = ".config"
+    JSON   = ".json"
+    NAMES  = ".names"
+    PY     = ".py"
+    TXT    = ".txt"
+    YAML   = ".yaml"
+    YML    = ".yml"
+
+
+class ImageExtension(Enum):
+    """Image file extensions."""
+    
+    ARW  = ".arw"
+    BMP  = ".bmp"
+    DNG  = ".dng"
+    JPEG = ".jpeg"
+    JPG  = ".jpg"
+    PNG  = ".png"
+    PPM  = ".ppm"
+    RAF  = ".raf"
+    TIF  = ".tif"
+    TIFF = ".tiff"
+
+
+class VideoExtension(Enum):
+    """Video file extensions."""
+    
+    AVI  = ".avi"
+    M4V  = ".m4v"
+    MKV  = ".mkv"
+    MOV  = ".mov"
+    MP4  = ".mp4"
+    MPEG = ".mpeg"
+    MPG  = ".mpg"
+    WMV  = ".wmv"
+
+
+class TorchExtension(Enum):
+    """Checkpoint file extensions."""
+    
+    CKPT    = ".ckpt"
+    ONNX    = ".onnx"
+    PT      = ".pt"
+    PTH     = ".pth"
+    TAR     = ".tar"
+    WEIGHTS = ".weights"
+
+
+class WeightExtension(Enum):
+    """Weight file extensions."""
+    
+    ONNX = ".onnx"
+    PT   = ".pt"
+    PTH  = ".pth"
+
+
 # ----- ML/DL -----
 class LType(Enum):
     """Learning types."""
@@ -262,134 +381,36 @@ class Split(Enum):
     PREDICT = "predict"
 
 
-# ----- Vision/DL -----
-class BBoxFormat(Enum):
-    """Bounding box formats.
+# ----- Task -----
+class Task(Enum):
+    """Task types."""
     
-    CX, CY: refers to a center of bounding box.
-    W, H: refers to the width and height of bounding box.
-    N: refers to the normalized value in the range [0.0, 1.0]:
-        x_norm = absolute_x / image_width
-        height_norm = absolute_height / image_height
-    """
-    
-    XYXY    = "pascal_voc"
-    XYWH    = "coco"
-    CXCYWHN = "yolo"
-    XYXYN   = "albumentations"
-    VOC     = "pascal_voc"
-    COCO    = "coco"
-    YOLO    = "yolo"
-    
-    @classmethod
-    def str_mapping(cls) -> dict[str, "BBoxFormat"]:
-        """Returns a dictionary mapping string keys to ``BBoxFormat`` enum values.
-    
-        This method provides a mapping from string representations of bounding
-        box formats to their corresponding ``BBoxFormat`` enum values. This is useful
-        for converting string inputs to enum values in a consistent manner.
-    
-        Returns:
-            A dictionary where the keys are string representations of bounding
-            box formats and the values are the corresponding ``BBoxFormat`` enum values.
-        """
-        return {
-            "xyxy"          : cls.XYXY,
-            "xywh"          : cls.XYWH,
-            "cxcyn"         : cls.CXCYWHN,
-            "albumentations": cls.XYXYN,
-            "pascal_voc"    : cls.VOC,
-            "coco"          : cls.COCO,
-            "yolo"          : cls.YOLO,
-        }
-    
-    @classmethod
-    def int_mapping(cls) -> dict[int, "BBoxFormat"]:
-        """Returns a dictionary mapping integer keys to ``BBoxFormat`` enum values.
+    CLASSIFY  = "classify"              # classification
+    DEBLUR    = "deblur"                # deblurring
+    DEHAZE    = "dehaze"                # dehazing
+    DEMOIRE   = "demoire"               # demoireing
+    DENOISE   = "denoise"               # denoising
+    DEPTH     = "depth"                 # depth estimation
+    DERAIN    = "derain"                # deraining
+    DESNOW    = "desnow"                # desnowing
+    DETECT    = "detect"                # object detection
+    INPAINT   = "inpaint"               # inpainting
+    LLIE      = "llie"                  # low-light image enhancement
+    NIGHTTIME = "nighttime"             # nighttime
+    POSE      = "pose"                  # pose estimation
+    RETOUCH   = "retouch"               # image retouching
+    SEGMENT   = "segment"               # semantic segmentation
+    SR        = "sr"                    # super-resolution
+    TRACK     = "track"                 # object tracking
+    UIE       = "uie"                   # underwater image enhancement
 
-        This method provides a mapping from integer representations of bounding
-        box formats to their corresponding ``BBoxFormat`` enum values. This is
-        useful for converting integer inputs to enum values in a consistent manner.
+
+# ----- Vision -----
+class DepthDataSource(Enum):
+    """Depth data source types."""
     
-        Returns:
-            A dictionary where the keys are integer representations of bounding
-            box formats and the values are the corresponding ``BBoxFormat`` enum values.
-        """
-        return {
-            0: cls.XYXY,
-            1: cls.XYWH,
-            2: cls.CXCYWHN,
-            3: cls.XYXYN,
-            4: cls.VOC,
-            5: cls.COCO,
-            6: cls.YOLO,
-        }
-    
-    @classmethod
-    def from_str(cls, value: str) -> "BBoxFormat":
-        """Converts a string to a ``BBoxFormat`` enum.
-    
-        This method takes a string representation of a bounding box format and
-        converts it to the corresponding ``BBoxFormat`` enum value. If the string
-        is not a valid key in the mapping, a ValueError is raised.
-    
-        Args:
-            value: The string representation of the bounding box format.
-    
-        Returns:
-            The corresponding ``BBoxFormat`` enum value.
-    
-        Raises:
-            ValueError: If the string is not a valid enum key.
-        """
-        value_lower = value.lower()
-        if value_lower not in cls.str_mapping():
-            raise ValueError(f"`value` must be a valid enum key, got {value_lower}.")
-        return cls.str_mapping()[value_lower]
-    
-    @classmethod
-    def from_int(cls, value: int) -> "BBoxFormat":
-        """Convert an integer to a ``BBoxFormat`` enum.
-    
-        This method takes an integer representation of a bounding box format and
-        converts it to the corresponding ``BBoxFormat`` enum value. If the integer
-        is not a valid key in the mapping, a ValueError is raised.
-    
-        Args:
-            value: The integer representation of the bounding box format.
-    
-        Returns:
-            The corresponding ``BBoxFormat`` enum value.
-    
-        Raises:
-            ValueError: If the integer is not a valid enum key.
-        """
-        if value not in cls.int_mapping():
-            raise ValueError(f"`value` must be a valid enum key, got {value}.")
-        return cls.int_mapping()[value]
-    
-    @classmethod
-    def from_value(cls, value: Any) -> "BBoxFormat":
-        """Convert an arbitrary value to a ``BBoxFormat`` enum.
-    
-        This method takes an arbitrary value and attempts to convert it to a
-        ``BBoxFormat`` enum. It supports conversion from ``BBoxFormat``, ``str``,
-        and ``int`` types. If the value is not of a supported type, ``None`` is returned.
-    
-        Args:
-            value: The value to convert to a ``BBoxFormat`` enum.
-    
-        Returns:
-            The corresponding ``BBoxFormat`` enum value, or ``None`` if the value
-            is not of a supported type.
-        """
-        if isinstance(value, BBoxFormat):
-            return value
-        if isinstance(value, str):
-            return cls.from_str(value)
-        if isinstance(value, int):
-            return cls.from_int(value)
-        return None
+    DAv2_ViTB = "dav2_vitb"
+    DAv2_ViTL = "dav2_vitl"
 
 
 class ShapeCode(Enum):
@@ -411,7 +432,7 @@ class ShapeCode(Enum):
     YOLO2COCO  = 12
     
     @classmethod
-    def str_mapping(cls) -> dict[str, "ShapeCode"]:
+    def str_to_enum(cls) -> dict:
         """Returns a dictionary mapping string keys to ``ShapeCode`` enum values.
     
         This method provides a mapping from string representations of shape codes
@@ -439,34 +460,6 @@ class ShapeCode(Enum):
         }
 
     @classmethod
-    def int_mapping(cls) -> dict[int, "ShapeCode"]:
-        """Returns a dictionary mapping integer keys to ``ShapeCode`` enum values.
-    
-        This method provides a mapping from integer representations of shape codes
-        to their corresponding ``ShapeCode`` enum values. This is useful for converting
-        integer inputs to enum values in a consistent manner.
-    
-        Returns:
-            A dictionary where the keys are integer representations of shape
-            codes and the values are the corresponding ``ShapeCode`` enum values.
-        """
-        return {
-            0 : cls.SAME,
-            1 : cls.XYXY2XYWH,
-            2 : cls.XYXY2CXCYN,
-            3 : cls.XYWH2XYXY,
-            4 : cls.XYWH2CXCYN,
-            5 : cls.CXCYN2XYXY,
-            6 : cls.CXCYN2XYWH,
-            7 : cls.VOC2COCO,
-            8 : cls.VOC2YOLO,
-            9 : cls.COCO2VOC,
-            10: cls.COCO2YOLO,
-            11: cls.YOLO2VOC,
-            12: cls.YOLO2COCO,
-        }
-    
-    @classmethod
     def from_str(cls, value: str) -> "ShapeCode":
         """Converts a string to a ``ShapeCode`` enum.
     
@@ -484,56 +477,12 @@ class ShapeCode(Enum):
             ValueError: If the string is not a valid enum key.
         """
         value_lower = value.lower()
-        if value_lower not in cls.str_mapping():
+        if value_lower not in cls.str_to_enum():
             parts = value.split("_to_")
             if parts[0] == parts[1]:
                 return cls.SAME
             raise ValueError(f"`value` must be a valid enum key, got {value_lower}.")
-        return cls.str_mapping()[value_lower]
-
-    @classmethod
-    def from_int(cls, value: int) -> "ShapeCode":
-        """Convert an integer to a ``ShapeCode`` enum.
-    
-        This method takes an integer representation of a shape code and converts it
-        to the corresponding ``ShapeCode`` enum value. If the integer is not a valid key
-        in the mapping, a ValueError is raised.
-    
-        Args:
-            value: The integer representation of the shape code.
-    
-        Returns:
-            The corresponding ``ShapeCode`` enum value.
-    
-        Raises:
-            ValueError: If the integer is not a valid enum key.
-        """
-        if value not in cls.int_mapping():
-            raise ValueError(f"`value` must be a valid enum key, got {value}.")
-        return cls.int_mapping()[value]
-    
-    @classmethod
-    def from_value(cls, value: Any) -> "ShapeCode":
-        """Convert an arbitrary value to a ``ShapeCode`` enum.
-    
-        This method takes an arbitrary value and attempts to convert it to a
-        ``ShapeCode`` enum. It supports conversion from ``ShapeCode``, ``str``,
-        and ``int`` types. If the value is not of a supported type, ``None`` is returned.
-    
-        Args:
-            value: The value to convert to a ``ShapeCode`` enum.
-    
-        Returns:
-            The corresponding ``ShapeCode`` enum value, or ``None`` if the value is not
-            of a supported type.
-        """
-        if isinstance(value, ShapeCode):
-            return value
-        if isinstance(value, str):
-            return cls.from_str(value)
-        if isinstance(value, int):
-            return cls.from_int(value)
-        return None
+        return cls.str_to_enum()[value_lower]
 
 
 class TrackState(Enum):
@@ -551,277 +500,3 @@ class TrackState(Enum):
     REMOVED  = 3
     REPLACED = 4
     COUNTED  = 5
-    
-    @classmethod
-    def str_mapping(cls) -> dict:
-        """Return a dictionary mapping strings to ``TrackState`` 
-    
-        This method provides a mapping from string representations of track states
-        to their corresponding ``TrackState`` enum values. This is useful for converting
-        string inputs to enum values in a consistent manner.
-    
-        Returns:
-            A dictionary where the keys are string representations of track
-            states and the values are the corresponding ``TrackState`` enum values.
-        """
-        return {
-            "new"     : cls.NEW,
-            "tracked" : cls.TRACKED,
-            "lost"    : cls.LOST,
-            "removed" : cls.REMOVED,
-            "replaced": cls.REPLACED,
-            "counted" : cls.COUNTED,
-        }
-    
-    @classmethod
-    def int_mapping(cls) -> dict:
-        """Return a dictionary mapping integers to ``TrackState`` 
-    
-        This method provides a mapping from integer representations of track
-        states to their corresponding ``TrackState`` enum values. This is useful
-        for converting integer inputs to enum values in a consistent manner.
-    
-        Returns:
-            A dictionary where the keys are integer representations of track
-            states and the values are the corresponding ``TrackState`` enum values.
-        """
-        return {
-            0: cls.NEW,
-            1: cls.TRACKED,
-            2: cls.LOST,
-            3: cls.REMOVED,
-            4: cls.REPLACED,
-            5: cls.COUNTED,
-        }
-    
-    @classmethod
-    def from_str(cls, value: str) -> "TrackState":
-        """Convert a string to a ``TrackState`` enum.
-        
-        This method takes a string representation of a track state and converts
-        it to the corresponding ``TrackState`` enum value. If the string is not
-        a valid key in the mapping, a ValueError is raised.
-    
-        Args:
-            value: The string representation of the track state.
-    
-        Returns:
-            The corresponding ``TrackState`` enum value.
-    
-        Raises:
-            ValueError: If the string is not a valid enum key.
-        """
-        value_lower = value.lower()
-        if value_lower not in cls.str_mapping():
-            raise ValueError(f"`value` must be a valid enum key, got {value_lower}.")
-        return cls.str_mapping()[value_lower]
-    
-    @classmethod
-    def from_int(cls, value: int) -> "TrackState":
-        """Convert an integer to a ``TrackState`` enum.
-    
-        This method takes an integer representation of a track state and converts
-        it to the corresponding ``TrackState`` enum value. If the integer is not
-        a valid key in the mapping, a ValueError is raised.
-    
-        Args:
-            value: The integer representation of the track state.
-    
-        Returns:
-            The corresponding ``TrackState`` enum value.
-    
-        Raises:
-            ValueError: If the integer is not a valid enum key.
-        """
-        if value not in cls.int_mapping():
-            raise ValueError(f"`value` must be a valid enum key, got {value}.")
-        return cls.int_mapping()[value]
-    
-    @classmethod
-    def from_value(cls, value: Any) -> "TrackState":
-        """Convert an arbitrary value to a ``TrackState`` enum.
-    
-        This method takes an arbitrary value and attempts to convert it to a
-        ``TrackState`` enum. It supports conversion from ``TrackState``,
-        ``str``, and ``int`` types. If the value is not of a supported type,
-        ``None`` is returned.
-    
-        Args:
-            value: The value to convert to a ``TrackState`` enum.
-    
-        Returns:
-            The corresponding ``TrackState`` enum value, or ``None`` if the value
-            is not of a supported type.
-        """
-        if isinstance(value, TrackState):
-            return value
-        if isinstance(value, str):
-            return cls.from_str(value)
-        if isinstance(value, int):
-            return cls.from_int(value)
-        return None
-
-
-# ----- Device -----
-class MemoryUnit(Enum):
-    """Memory units."""
-    
-    B  = "B"
-    KB = "KB"
-    MB = "MB"
-    GB = "GB"
-    TB = "TB"
-    PB = "PB"
-    
-    @classmethod
-    def str_mapping(cls) -> dict:
-        """Return a dictionary mapping strings to ``MemoryUnit`` 
-    
-        This method provides a mapping from string representations of memory units
-        to their corresponding ``MemoryUnit`` enum values. This is useful for
-        converting string inputs to enum values in a consistent manner.
-    
-        Returns:
-            A dictionary where the keys are string representations of memory
-            units and the values are the corresponding ``MemoryUnit`` enum values.
-        """
-        return {
-            "b" : cls.B,
-            "kb": cls.KB,
-            "mb": cls.MB,
-            "gb": cls.GB,
-            "tb": cls.TB,
-            "pb": cls.PB,
-        }
-    
-    @classmethod
-    def int_mapping(cls) -> dict[int, "MemoryUnit"]:
-        """Return a dictionary mapping integers to ``MemoryUnit`` 
-    
-        This method provides a mapping from integer representations of memory units
-        to their corresponding ``MemoryUnit`` enum values. This is useful for converting
-        integer inputs to enum values in a consistent manner.
-    
-        Returns:
-            A dictionary where the keys are integer representations of memory
-            units and the values are the corresponding MemoryUnit enum values.
-        """
-        return {
-            0: cls.B,
-            1: cls.KB,
-            2: cls.MB,
-            3: cls.GB,
-            4: cls.TB,
-            5: cls.PB,
-        }
-    
-    @classmethod
-    def byte_conversion_mapping(cls) -> dict["MemoryUnit", int]:
-        """Return a dictionary mapping memory units to their corresponding
-        number of bytes.
-    
-        This method provides a mapping from ``MemoryUnit`` enum values to their
-        corresponding number of bytes. This is useful for converting memory units
-        to their byte equivalents in a consistent manner.
-    
-        Returns:
-            A dictionary where the keys are ``MemoryUnit`` enum values and the
-            values are the corresponding number of bytes.
-        """
-        return {
-            cls.B : 1024 ** 0,
-            cls.KB: 1024 ** 1,
-            cls.MB: 1024 ** 2,
-            cls.GB: 1024 ** 3,
-            cls.TB: 1024 ** 4,
-            cls.PB: 1024 ** 5,
-        }
-    
-    @classmethod
-    def from_str(cls, value: str) -> "MemoryUnit":
-        """Convert a string to a ``MemoryUnit`` enum.
-    
-        This method takes a string representation of a memory unit and converts
-        it to the corresponding ``MemoryUnit`` enum value. If the string is not
-        a valid key in the mapping, a ValueError is raised.
-    
-        Args:
-            value: The string representation of the memory unit.
-    
-        Returns:
-            The corresponding ``MemoryUnit`` enum value.
-    
-        Raises:
-            ValueError: If the string is not a valid enum key.
-        """
-        value_lower = value.lower()
-        if value_lower not in cls.str_mapping():
-            raise ValueError(f"`value` must be a valid enum key, got {value_lower}.")
-        return cls.str_mapping()[value_lower]
-    
-    @classmethod
-    def from_int(cls, value: int) -> "MemoryUnit":
-        """Convert an integer to a ``MemoryUnit`` enum.
-    
-        This method takes an integer representation of a memory unit and converts
-        it to the corresponding ``MemoryUnit`` enum value. If the integer is not
-        a valid key in the mapping, a ValueError is raised.
-    
-        Args:
-            value: The integer representation of the memory unit.
-    
-        Returns:
-            The corresponding ``MemoryUnit`` enum value.
-    
-        Raises:
-            ValueError: If the integer is not a valid enum key.
-        """
-        if value not in cls.int_mapping():
-            raise ValueError(f"`value` must be a valid enum key, got {value}.")
-        return cls.int_mapping()[value]
-    
-    @classmethod
-    def from_value(cls, value: Any) -> "MemoryUnit":
-        """Convert an arbitrary value to a ``MemoryUnit`` enum.
-    
-        This method attempts to convert an arbitrary value to a ``MemoryUnit`` enum.
-        It supports conversion from ``MemoryUnit``, ``str``, and ``int`` types.
-        If the value is not of a supported type, ``None`` is returned.
-    
-        Args:
-            value: The value to convert to a ``MemoryUnit`` enum.
-    
-        Returns:
-            The corresponding ``MemoryUnit`` enum value, or ``None`` if the value
-            is not of a supported type.
-        """
-        if isinstance(value, MemoryUnit):
-            return value
-        if isinstance(value, str):
-            return cls.from_str(value)
-        if isinstance(value, int):
-            return cls.from_int(value)
-        return None
-
-
-class Task(Enum):
-    """Task types."""
-    
-    CLASSIFY  = "classify"              # classification
-    DEBLUR    = "deblur"                # deblurring
-    DEHAZE    = "dehaze"                # dehazing
-    DEMOIRE   = "demoire"               # demoireing
-    DENOISE   = "denoise"               # denoising
-    DEPTH     = "depth"                 # depth estimation
-    DERAIN    = "derain"                # deraining
-    DESNOW    = "desnow"                # desnowing
-    DETECT    = "detect"                # object detection
-    INPAINT   = "inpaint"               # inpainting
-    LLIE      = "llie"                  # low-light image enhancement
-    NIGHTTIME = "nighttime"             # nighttime
-    POSE      = "pose"                  # pose estimation
-    RETOUCH   = "retouch"               # image retouching
-    SEGMENT   = "segment"               # semantic segmentation
-    SR        = "sr"                    # super-resolution
-    TRACK     = "track"                 # object tracking
-    UIE       = "uie"                   # underwater image enhancement

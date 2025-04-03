@@ -35,7 +35,7 @@ def predict(args: dict) -> str:
     benchmark    = args["benchmark"]
     save_image   = args["save_image"]
     save_debug   = args["save_debug"]
-    use_fullpath = args["use_fullpath"]
+    keep_subdirs = args["keep_subdirs"]
     verbose      = args["verbose"]
 
     encoder      = args["network"]["encoder"]
@@ -101,7 +101,7 @@ def predict(args: dict) -> str:
                 
                 # Save
                 if save_image:
-                    if use_fullpath:
+                    if keep_subdirs:
                         rel_path       = image_path.relative_path(data_name)
                         parent_dir     = rel_path.parent.parent
                         gray_save_dir  = save_dir / rel_path.parents[1] / f"{parent_dir.name}_dav2_{encoder}_g"

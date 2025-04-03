@@ -52,7 +52,7 @@ def train(args: dict) -> str:
     benchmark    = args["benchmark"]
     save_image   = args["save_image"]
     save_debug   = args["save_debug"]
-    use_fullpath = args["use_fullpath"]
+    keep_subdirs = args["keep_subdirs"]
     verbose      = args["verbose"]
     
     start_lr         = args["optimizer"]["lr"]

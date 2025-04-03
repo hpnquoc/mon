@@ -37,7 +37,7 @@ def predict(args: dict) -> str:
     benchmark    = args["benchmark"]
     save_image   = args["save_image"]
     save_debug   = args["save_debug"]
-    use_fullpath = args["use_fullpath"]
+    keep_subdirs = args["keep_subdirs"]
     verbose      = args["verbose"]
     
     config_file = args["config_file"]
@@ -108,7 +108,7 @@ def predict(args: dict) -> str:
                 
                 # Save
                 if save_image:
-                    if use_fullpath:
+                    if keep_subdirs:
                         relative_path   = image_path.relative_path(data_name)
                         binary_save_dir = save_dir / relative_path.parent / "binary"
                         color_save_dir  = save_dir / relative_path.parent / "color"

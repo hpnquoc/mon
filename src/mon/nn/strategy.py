@@ -43,11 +43,11 @@ from mon import core
 from mon.constants import ACCELERATORS, STRATEGIES
 
 # ----- Accelerator -----
-ACCELERATORS.register(name="cpu" , module=CPUAccelerator)
+ACCELERATORS.register(name="cpu",  module=CPUAccelerator)
 ACCELERATORS.register(name="cuda", module=CUDAAccelerator)
-ACCELERATORS.register(name="gpu" , module=CUDAAccelerator)
-ACCELERATORS.register(name="mps" , module=MPSAccelerator)
-ACCELERATORS.register(name="xla" , module=XLAAccelerator)
+ACCELERATORS.register(name="gpu",  module=CUDAAccelerator)
+ACCELERATORS.register(name="mps",  module=MPSAccelerator)
+ACCELERATORS.register(name="xla",  module=XLAAccelerator)
 
 
 # ----- Strategy -----

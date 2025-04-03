@@ -16,8 +16,7 @@ import mon
 _METRICS = pyiqa.default_model_configs.DEFAULT_CONFIGS
 
 
-# region Metric
-
+# ----- PyIQA -----
 def measure_metric_pyiqa(
     input_dir  : mon.Path,
     target_dir : mon.Path,
@@ -62,7 +61,7 @@ def measure_metric_pyiqa(
     # Parse arguments
     device      = device[0] if len(device) == 1 else device
     device      = torch.device(("cpu" if not torch.cuda.is_available() else device))
-    metric      = list(_METRICS.keys()) if ("all" in metric or "*" in metric) else metric
+    metric      = list(_METRICS.names()) if ("all" in metric or "*" in metric) else metric
     metric      = [m.lower() for m in metric]
     values      = {m: []     for m in metric}
     results     = {}
@@ -101,7 +100,7 @@ def measure_metric_pyiqa(
             # Target
             has_target  = need_target
             target_file = None
-            for ext in mon.IMAGE_FILE_FORMATS:
+            for ext in mon.ImageExtension:
                 temp = target_dir / f"{image_file.stem}{ext}"
                 if temp.exists():
                     target_file = temp
@@ -152,11 +151,8 @@ def update_best_results(results: dict, new_values: dict) -> dict:
                 results[m] = min(results[m], v) if lower_better else max(results[m], v)
     return results
 
-# endregion
 
-
-# region Main
-
+# ----- Main -----
 @click.command(name="metric", context_settings=dict(ignore_unknown_options=True, allow_extra_args=True))
 @click.option("--input-dir",   type=click.Path(exists=True),  default=None, help="Image directory.")
 @click.option("--target-dir",  type=click.Path(exists=False), default=None, help="Ground-truth directory.")
@@ -264,5 +260,3 @@ def main(
 
 if __name__ == "__main__":
     main()
-
-# endregion

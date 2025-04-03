@@ -4,20 +4,18 @@
 """Provides utility functions and data structures."""
 
 __all__ = [
-    "Timer",
     "check_installed_package",
     "download_weights_from_url",
+    "get_cuda_memory_usages",
     "get_epoch_from_checkpoint",
     "get_global_step_from_checkpoint",
-    "get_gpu_memory_usages",
     "get_latest_checkpoint",
-    "get_machine_memory_usages",
+    "get_memory_usages",
     "get_model_device",
     "get_project_default_config",
     "is_extra_model",
     "is_rank_zero",
     "list_archs",
-    "list_config_files",
     "list_configs",
     "list_cuda_devices",
     "list_datasets",
@@ -34,11 +32,13 @@ __all__ = [
     "load_config",
     "parse_config_file",
     "parse_data_dir",
+    "parse_debug_dir",
     "parse_device",
     "parse_menu_string",
     "parse_model_dir",
     "parse_model_fullname",
     "parse_model_name",
+    "parse_output_dir",
     "parse_save_dir",
     "parse_weights_file",
     "pynvml_available",
@@ -50,7 +50,6 @@ import importlib
 import importlib.util
 import os
 import random
-import time
 from typing import Any, Collection, Sequence
 
 import numpy as np
@@ -58,8 +57,8 @@ import psutil
 import torch
 
 from mon.constants import (
-    DATASETS, EXTRA_MODEL_STR, EXTRA_MODELS, LType, MemoryUnit, MODELS, ROOT_DIR, Split,
-    Task, ZOO_DIR,
+    DATASETS, EXTRA_DATASETS, EXTRA_MODELS, EXTRA_STR, LType, MemoryUnit, MODELS,
+    ROOT_DIR, SAVE_IMAGE_EXT, Split, Task, ZOO_DIR,
 )
 from mon.core import humps, pathlib, rich, serializers, type_extensions
 
@@ -161,10 +160,11 @@ def get_project_default_config(project_root: str | pathlib.Path) -> dict:
     }
 
 
-def list_config_files(
-    project_root: str | pathlib.Path,
-    model_root  : str | pathlib.Path = None,
-    model       : str = None
+def list_configs(
+    project_root : str | pathlib.Path,
+    model_root   : str | pathlib.Path = None,
+    model        : str  = None,
+    absolute_path: bool = False,
 ) -> list[pathlib.Path]:
     """Lists configuration files in the project and/or model directory.
 
@@ -172,6 +172,8 @@ def list_config_files(
         project_root: Root directory of the project.
         model_root: Root directory of the model. Default is ``None``.
         model: Name of the model to filter configs. Default is ``None``.
+        absolute_path: If ``True``, returns absolute paths else file names.
+            Default is ``False``.
 
     Returns:
         Sorted list of config file ``Path`` objects.
@@ -182,13 +184,15 @@ def list_config_files(
     def collect_config_files(root: str | pathlib.Path) -> list[pathlib.Path]:
         config_dir = pathlib.Path(root) / "config"
         return list(config_dir.files(recursive=True))
-
+    
+    # List config files in project and model directories
     config_files = []
     if is_valid(project_root):
         config_files += collect_config_files(project_root)
     if is_valid(model_root):
         config_files += collect_config_files(model_root)
     
+    # Filter
     config_files = [
         cf for cf in config_files
         if cf.is_config_file() or (cf.is_py_file() and cf.name != "__init__.py")
@@ -197,34 +201,11 @@ def list_config_files(
     if is_valid(model):
         model_name   = parse_model_name(model)
         config_files = [cf for cf in config_files if model_name in cf.name]
-
+    
+    if not absolute_path:
+        config_files = [cf.name for cf in config_files]
+      
     return sorted(type_extensions.unique(config_files))
-
-
-def list_configs(
-    project_root: str | pathlib.Path,
-    model_root  : str | pathlib.Path = None,
-    model       : str = None
-) -> list[str]:
-    """Lists config file names in the project and/or model directory.
-
-    Args:
-        project_root: Root directory of the project.
-        model_root: Root directory of the model. Default is ``None``.
-        model: Name of the model to filter configs. Default is ``None``.
-
-    Returns:
-        Sorted list of config file names as strings.
-    """
-    config_files = list_config_files(
-        project_root = project_root,
-        model_root   = model_root,
-        model        = model
-    )
-    return sorted(
-        type_extensions.unique([str(cf.name) for cf in config_files]),
-        key = lambda x: (os.path.splitext(x)[1], x)
-    )
 
 
 def parse_config_file(
@@ -350,8 +331,6 @@ def list_extra_datasets(task: str, mode: str) -> list[str]:
     Returns:
         Sorted list of dataset names matching task and mode.
     """
-    from mon.constants import EXTRA_DATASETS, Split, Task
-
     split    = Split("train" if mode == "train" else "test")
     task     = Task(task)
     datasets = EXTRA_DATASETS
@@ -384,10 +363,7 @@ def list_datasets(
     return datasets
 
 
-def parse_data_dir(
-    root    : str | pathlib.Path,
-    data_dir: str | pathlib.Path
-) -> str | pathlib.Path:
+def parse_data_dir(root: str | pathlib.Path, data_dir: str | pathlib.Path) -> str | pathlib.Path:
     """Parses the absolute data directory path from given components.
 
     Args:
@@ -467,25 +443,7 @@ def set_device(device: Any, use_single_device: bool = True) -> torch.device:
     return torch.device(f"cuda:{device}" if torch.cuda.is_available() else "cpu")
 
 
-def get_machine_memory_usages(unit: MemoryUnit = MemoryUnit.GB) -> list[int]:
-    """Gets RAM status as a list of total, used, and free memory.
-
-    Args:
-        unit: Memory unit (e.g., ``GB``). Default is ``MemoryUnit.GB``.
-
-    Returns:
-        List of [total, used, free] memory values in specified unit.
-    """
-    memory = psutil.virtual_memory()
-    ratio  = MemoryUnit.byte_conversion_mapping()[MemoryUnit.from_value(unit)]
-    return [
-        memory.total     / ratio,  # total
-        memory.used      / ratio,  # used
-        memory.available / ratio   # free
-    ]
-
-
-def get_gpu_memory_usages(device: int = 0, unit: MemoryUnit = MemoryUnit.GB) -> list[int]:
+def get_cuda_memory_usages(device: int = 0, unit: MemoryUnit = MemoryUnit.GB) -> list[int]:
     """Gets GPU memory status as a list of total, used, and free memory.
 
     Args:
@@ -498,12 +456,42 @@ def get_gpu_memory_usages(device: int = 0, unit: MemoryUnit = MemoryUnit.GB) -> 
     pynvml.nvmlInit()
     unit  = MemoryUnit.from_value(unit)
     info  = pynvml.nvmlDeviceGetMemoryInfo(pynvml.nvmlDeviceGetHandleByIndex(device))
-    ratio = MemoryUnit.byte_conversion_mapping()[unit]
+    ratio = MemoryUnit.name_to_byte()[unit]
     return [
         info.total / ratio,  # total
         info.used  / ratio,  # used
         info.free  / ratio   # free
     ]
+
+
+def get_memory_usages(unit: MemoryUnit = MemoryUnit.GB) -> list[int]:
+    """Gets RAM status as a list of total, used, and free memory.
+
+    Args:
+        unit: Memory unit (e.g., ``GB``). Default is ``MemoryUnit.GB``.
+
+    Returns:
+        List of [total, used, free] memory values in specified unit.
+    """
+    memory = psutil.virtual_memory()
+    ratio  = MemoryUnit.name_to_byte()[MemoryUnit.from_value(unit)]
+    return [
+        memory.total     / ratio,  # total
+        memory.used      / ratio,  # used
+        memory.available / ratio   # free
+    ]
+
+
+def get_model_device(model: torch.nn.Module) -> torch.device:
+    """Gets the device of a model's parameters.
+
+    Args:
+        model: Model to check.
+
+    Returns:
+        ``torch.device`` where model parameters reside.
+    """
+    return next(model.parameters()).device
 
 
 def parse_device(device: Any) -> list[int] | int | str:
@@ -533,18 +521,6 @@ def parse_device(device: Any) -> list[int] | int | str:
             if "," in device \
             else [0] if not device else device
     return device
-
-
-def get_model_device(model: torch.nn.Module) -> torch.device:
-    """Gets the device of a model's parameters.
-
-    Args:
-        model: Model to check.
-
-    Returns:
-        ``torch.device`` where model parameters reside.
-    """
-    return next(model.parameters()).device
     
 
 # ----- Menu -----
@@ -575,11 +551,11 @@ def is_extra_model(model: str) -> bool:
     Returns:
         ``True`` if model is extra, ``False`` otherwise.
     """
-    model        = model.replace(f" {EXTRA_MODEL_STR}", "").strip()
+    model        = model.replace(f" {EXTRA_STR}", "").strip()
     mon_models   = type_extensions.flatten_models_dict(MODELS)
     extra_models = type_extensions.flatten_models_dict(EXTRA_MODELS)
     return (
-        f"{EXTRA_MODEL_STR}" in model
+        f"{EXTRA_STR}" in model
         or (model not in mon_models and model in extra_models)
     )
 
@@ -670,7 +646,7 @@ def list_models(
         
     for i, m in enumerate(extra_models):
         if m in models:
-            extra_models[i] = f"{m} {EXTRA_MODEL_STR}"
+            extra_models[i] = f"{m} {EXTRA_STR}"
             
     return sorted(models + extra_models)
 
@@ -795,7 +771,7 @@ def parse_model_name(model: str) -> str:
     Returns:
         Parsed model name as a string.
     """
-    return model.replace(f" {EXTRA_MODEL_STR}", "").strip()
+    return model.replace(f" {EXTRA_STR}", "").strip()
 
 
 def parse_model_fullname(name: str, data: str, suffix: str = None) -> str:
@@ -845,7 +821,7 @@ def check_installed_package(package_name: str, verbose: bool = False) -> bool:
         return False
 
 
-# ----- Save Dir -----
+# ----- Saving -----
 def list_train_save_dirs(root: str | pathlib.Path) -> list[pathlib.Path]:
     """Lists all training save directories in the given project.
 
@@ -886,6 +862,54 @@ def parse_save_dir(
     return save_dir
 
 
+def parse_output_dir(
+    root        : str | pathlib.Path,
+    dirname     : str | pathlib.Path,
+    file        : str | pathlib.Path,
+    keep_subdirs: bool = False,
+):
+    """Parses the output directory path from given components.
+    
+    Args:
+        root: Root directory.
+        dirname: Directory name.
+        file: File name.
+        keep_subdirs: If ``True``, keeps subdirectories in the path. Default is ``False``.
+    """
+    root    = pathlib.Path(root)
+    dirname = pathlib.Path(dirname)
+    file    = pathlib.Path(file)
+    if keep_subdirs:
+        rel_path = file.relative_path(dirname)
+        return root / rel_path.parent
+    else:
+        return root / dirname
+
+
+def parse_debug_dir(
+    root        : str | pathlib.Path,
+    dirname     : str | pathlib.Path,
+    file        : str | pathlib.Path,
+    keep_subdirs: bool = False,
+):
+    """Parses the debug directory path from given components.
+    
+    Args:
+        root: Root directory.
+        dirname: Directory name.
+        file: File name.
+        keep_subdirs: If ``True``, keeps subdirectories in the path. Default is ``False``.
+    """
+    root    = pathlib.Path(root)
+    dirname = pathlib.Path(dirname)
+    file    = pathlib.Path(file)
+    if keep_subdirs:
+        rel_path = file.relative_path(dirname)
+        return root / rel_path.parents[1] / f"{rel_path.parent.name}_debug"
+    else:
+        return root / f"{dirname}_debug"
+
+
 # ----- Seed -----
 def set_random_seed(seed: int | list[int] | tuple[int, int]) -> None:
     """Sets random seeds for various libraries.
@@ -913,94 +937,13 @@ def list_tasks(project_root: str | pathlib.Path) -> list[str]:
     Returns:
         Sorted list of task names as strings.
     """
-    tasks = Task.keys()
+    tasks = Task.names()
     
     default_configs = get_project_default_config(project_root)
     if default_configs.get("TASKS"):
         tasks = [t for t in tasks if t in default_configs["TASKS"]]
     
     return sorted(t.value for t in tasks)
-
-
-# ----- Timer -----
-class Timer:
-    """A simple timer.
-    
-    Attributes:
-        start_time: The start time of the current call.
-        end_time: The end time of the current call.
-        total_time: The total time of the timer.
-        calls: The number of calls.
-        diff_time: The difference time of the call.
-        avg_time: The total average time.
-    """
-    
-    def __init__(self):
-        self.start_time = 0.0
-        self.end_time   = 0.0
-        self.total_time = 0.0
-        self.calls      = 0
-        self.diff_time  = 0.0
-        self.avg_time   = 0.0
-        self.duration   = 0.0
-    
-    @property
-    def total_time_m(self) -> float:
-        return self.total_time / 60.0
-    
-    @property
-    def total_time_h(self) -> float:
-        return self.total_time / 3600.0
-    
-    @property
-    def avg_time_m(self) -> float:
-        return self.avg_time / 60.0
-    
-    @property
-    def avg_time_h(self) -> float:
-        return self.avg_time / 3600.0
-    
-    @property
-    def duration_m(self) -> float:
-        return self.duration / 60.0
-    
-    @property
-    def duration_h(self) -> float:
-        return self.duration / 3600.0
-    
-    def start(self):
-        self.clear()
-        self.tick()
-    
-    def end(self) -> float:
-        self.tock()
-        return self.avg_time
-    
-    def tick(self):
-        # using time.time instead of time.clock because time time.clock
-        # does not normalize for multithreading
-        self.start_time = time.time()
-    
-    def tock(self, average: bool = True) -> float:
-        self.end_time    = time.time()
-        self.diff_time   = self.end_time - self.start_time
-        self.total_time += self.diff_time
-        self.calls      += 1
-        self.avg_time    = self.total_time / self.calls
-        if average:
-            self.duration = self.avg_time
-        else:
-            self.duration = self.diff_time
-        return self.duration
-    
-    def clear(self):
-        self.start_time = 0.0
-        self.end_time   = 0.0
-        self.total_time = 0.0
-        self.calls      = 0
-        self.diff_time  = 0.0
-        self.avg_time   = 0.0
-        self.duration   = 0.0
 
 
 # ----- Weights -----

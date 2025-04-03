@@ -1,31 +1,21 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Defines scalar constants.
-
-Notes:
-    * To avoid circular dependency, only define constants of basic/atomic types.
-    * The same goes for type aliases.
-    * The only exception is the enums and factory constants.
-"""
+"""Defines scalar constants."""
 
 __all__ = [
     "ACCELERATORS",
     "CALLBACKS",
-    "CONFIG_FILE_FORMATS",
     "DATAMODULES",
     "DATASETS",
     "DATA_DIR",
-    "DEPTH_DATA_SOURCES",
     "DETECTORS",
     "DISTANCES",
     "EMBEDDERS",
     "EXTRA_DATASETS",
-    "EXTRA_DATASET_STR",
     "EXTRA_MODELS",
-    "EXTRA_MODEL_STR",
+    "EXTRA_STR",
     "Enum",
-    "IMAGE_FILE_FORMATS",
     "LOGGERS",
     "LOSSES",
     "LR_SCHEDULERS",
@@ -37,13 +27,13 @@ __all__ = [
     "OBJECTS",
     "OPTIMIZERS",
     "ROOT_DIR",
+    "SAVE_CKPT_EXT",
+    "SAVE_IMAGE_EXT",
+    "SAVE_WEIGHTS_EXT",
     "SERIALIZERS",
     "STRATEGIES",
-    "TORCH_FILE_FORMATS",
     "TRACKERS",
     "TRANSFORMS",
-    "VIDEO_FILE_FORMATS",
-    "WEIGHTS_FILE_FORMATS",
     "ZOO_DIR",
 ]
 
@@ -81,17 +71,13 @@ if not DATA_DIR.is_dir():
 
 
 # ----- Constants -----
-CONFIG_FILE_FORMATS  = [".config", ".cfg", ".yaml", ".yml", ".py", ".json", ".names", ".txt"]
-IMAGE_FILE_FORMATS   = [".arw", ".bmp", ".dng", ".jpg", ".jpeg", ".png", ".ppm", ".raf", ".tif", ".tiff"]
-VIDEO_FILE_FORMATS   = [".avi", ".m4v", ".mkv", ".mov", ".mp4", ".mpeg", ".mpg", ".wmv"]
-TORCH_FILE_FORMATS   = [".pt", ".pth", ".weights", ".ckpt", ".tar", ".onnx"]
-WEIGHTS_FILE_FORMATS = [".pt", ".pth", ".onnx"]
-DEPTH_DATA_SOURCES   = [None, "dav2_vitb", "dav2_vitl"]
+SAVE_CKPT_EXT    = TorchExtension.CKPT.value
+SAVE_IMAGE_EXT   = ImageExtension.JPG.value
+SAVE_WEIGHTS_EXT = TorchExtension.PT.value
 # List 3rd party modules
-EXTRA_DATASET_STR = "[extra]"
-EXTRA_MODEL_STR   = "[extra]"
-EXTRA_DATASETS    = {}
-EXTRA_MODELS      = {                   # architecture/model (+ variant)
+EXTRA_STR      = "[extra]"
+EXTRA_DATASETS = {}
+EXTRA_MODELS   = {                   # architecture/model (+ variant)
     # region detect
     "yolor" : {
         "yolor_d6": {
@@ -537,7 +523,7 @@ MODELS        = factory.ModelFactory(name="Models")
 MOTIONS       = factory.Factory(name="Motions")
 OBJECTS       = factory.Factory(name="Objects")
 OPTIMIZERS    = factory.Factory(name="Optimizers")
-SERIALIZERS   = factory.Factory(name="FileHandlers")
+SERIALIZERS   = factory.Factory(name="Serializers")
 STRATEGIES    = factory.Factory(name="Strategies")
 TRACKERS      = factory.Factory(name="Trackers")
 TRANSFORMS    = factory.Factory(name="Transforms")

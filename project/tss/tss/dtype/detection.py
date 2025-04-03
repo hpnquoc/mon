@@ -96,13 +96,13 @@ class Detection:
 			self._class_id = class_id
 		# Assert
 		if self._class_id not in ID2CLASS:
-			raise ValueError(f"`class_id` must be one of: {ID2CLASS.keys()}, but got: {self._class_id}")
+			raise ValueError(f"`class_id` must be one of: {ID2CLASS.names()}, but got: {self._class_id}")
 	
 	@property
 	def label(self) -> dict:
 		"""Get the label of the detection."""
 		if self.class_id not in ID2CLASS:
-			raise ValueError(f"`class_id` must be one of: {ID2CLASS.keys()}, but got: {self.class_id}")
+			raise ValueError(f"`class_id` must be one of: {ID2CLASS.names()}, but got: {self.class_id}")
 		return ID2CLASS.get(self.class_id)
 		
 	@property

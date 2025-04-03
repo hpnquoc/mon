@@ -12,7 +12,7 @@ from abc import ABC
 import cv2
 
 from mon import nn
-from mon.constants import Task
+from mon.constants import SAVE_IMAGE_EXT, Task
 from mon.vision import model, types
 
 
@@ -65,14 +65,14 @@ class SegmentationModel(model.VisionModel, ABC):
         return results
     
     # ----- Logging -----
-    def log_images(self, epoch: int, step: int, data: dict, extension: str = ".jpg"):
+    def log_images(self, epoch: int, step: int, data: dict, extension: str = SAVE_IMAGE_EXT):
         """Logs debug images to ``debug_dir``.
     
         Args:
             epoch: Current epoch number.
             step: Current step number.
             data: Dict with images to log.
-            extension: Image file extension. Default is ``".jpg"``.
+            extension: Image file extension. Default is ``SAVE_IMAGE_EXT``.
         """
         epoch    = int(epoch)
         step     = int(step)

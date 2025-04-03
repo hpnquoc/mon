@@ -35,6 +35,7 @@ from mon.core.rich import (
 	print_dict, print_table, set_terminal_size,
 )
 from mon.core.serializers import *
+from mon.core.timer import *
 from mon.core.type_extensions import *
 from mon.core.types import *
 from mon.core.utils import *

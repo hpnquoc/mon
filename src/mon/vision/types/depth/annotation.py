@@ -12,7 +12,7 @@ from typing import Literal
 import cv2
 
 from mon import core
-from mon.constants import DEPTH_DATA_SOURCES
+from mon.constants import DepthDataSource
 from mon.vision.types import image as I
 
 
@@ -40,12 +40,12 @@ class DepthMapAnnotation(I.ImageAnnotation):
         self,
         path  : core.Path | str,
         root  : core.Path | str = None,
-        source: Literal[*DEPTH_DATA_SOURCES] = None,
+        source: Literal[*DepthDataSource.values()] = None,
         flags : int = cv2.IMREAD_COLOR,
         *args, **kwargs
     ):
         super().__init__(path=path, root=root, flags=flags, *args, **kwargs)
-        if source not in DEPTH_DATA_SOURCES:
-            raise ValueError(f"[source] must be one of {DEPTH_DATA_SOURCES}, got {source}.")
+        if source not in DepthDataSource:
+            raise ValueError(f"[source] must be one of {DepthDataSource}, got {source}.")
         self.source = source
         self.flags  = (cv2.IMREAD_GRAYSCALE if source and "g" in source else cv2.IMREAD_COLOR)

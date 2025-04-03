@@ -9,8 +9,7 @@ current_file = mon.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
 
-# region Predict
-
+# ----- Predict -----
 def predict(args: dict) -> str:
     # Parse args
     hostname     = args["hostname"]
@@ -28,7 +27,7 @@ def predict(args: dict) -> str:
     benchmark    = args["benchmark"]
     save_image   = args["save_image"]
     save_debug   = args["save_debug"]
-    use_fullpath = args["use_fullpath"]
+    keep_subdirs = args["keep_subdirs"]
     verbose      = args["verbose"]
     
     # Start
@@ -79,50 +78,35 @@ def predict(args: dict) -> str:
             image_path = mon.Path(meta["path"])
             
             # Infer
-            outputs = model.infer(
-                datapoint  = datapoint,
-                image_size = imgsz,
-                resize     = resize,
-            )
-            time = outputs.pop("time", None)
+            outputs = model.infer(datapoint=datapoint, image_size=imgsz, resize=resize)
+            time    = outputs.pop("time", None)
             if time:
                 run_time.append(time)
             
             # Save image
             if save_image:
-                _, output = outputs.popitem()
-                if use_fullpath:
-                    rel_path   = image_path.relative_path(data_name)
-                    output_dir = save_dir / rel_path.parent
-                else:
-                    output_dir = save_dir / data_name
-                output_path  = output_dir / f"{meta['stem']}.jpg"
-                output_path.parent.mkdir(parents=True, exist_ok=True)
+                _, output   = outputs.popitem()
+                output_dir  = mon.parse_output_dir(save_dir, data_name, image_path, keep_subdirs)
+                output_dir.mkdir(parents=True, exist_ok=True)
+                output_path = output_dir / f"{image_path.stem}{mon.SAVE_IMAGE_EXT}"
                 mon.write_image(output_path, output)
             
             # Save Debug
             if save_debug:
-                if use_fullpath:
-                    rel_path         = image_path.relative_path(data_name)
-                    debug_output_dir = save_dir / rel_path.parents[1] / f"{rel_path.parent.name}_debug"
-                else:
-                    debug_output_dir = save_dir / f"{data_name}_debug"
-                output_path.parent.mkdir(parents=True, exist_ok=True)
+                debug_dir = mon.parse_debug_dir(save_dir, data_name, image_path, keep_subdirs)
+                debug_dir.mkdir(parents=True, exist_ok=True)
                 for k, v in outputs.items():
                     if mon.is_image(v):
-                        path = debug_output_dir / f"{meta['stem']}_{k}.jpg"
+                        path = debug_dir / f"{image_path.stem}_{k}{mon.SAVE_IMAGE_EXT}"
                         mon.write_image(path, v)
     
     # Finish
     avg_time = float(sum(run_time) / len(run_time)) if run_time else 0
     mon.console.log(f"Average time: {avg_time}")
     return str(save_dir)
-        
-# endregion
 
 
-# region Main
-
+# ----- Main -----
 def main():
     args = mon.parse_predict_args()
     predict(args)
@@ -130,5 +114,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-# endregion

@@ -10,8 +10,7 @@ current_file = mon.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
 
-# region Train
-
+# ----- Train -----
 def train(args: dict) -> str:
     # Parse args
     hostname     = args["hostname"]
@@ -29,7 +28,7 @@ def train(args: dict) -> str:
     benchmark    = args["benchmark"]
     save_image   = args["save_image"]
     save_debug   = args["save_debug"]
-    use_fullpath = args["use_fullpath"]
+    keep_subdirs = args["keep_subdirs"]
     verbose      = args["verbose"]
     
     # Start
@@ -112,11 +111,8 @@ def train(args: dict) -> str:
     # Return
     return str(save_dir)
     
-# endregion
 
-
-# region Main
-
+# ----- Main -----
 def main():
     args = mon.parse_train_args()
     train(args)
@@ -124,5 +120,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-# endregion

@@ -157,7 +157,7 @@ def plot_cv2(
                 # Read images
                 for k, _ in image_grid.items():
                     path = None
-                    for ext in mon.IMAGE_FILE_FORMATS:
+                    for ext in mon.ImageExtension:
                         temp = input_dir / k / dn / f"{image_stem}{ext}"
                         if temp.exists():
                             path = temp
@@ -261,7 +261,7 @@ def plot_cv2_diff(
                 # Read images
                 for k, _ in image_grid.items():
                     path = None
-                    for ext in mon.IMAGE_FILE_FORMATS:
+                    for ext in mon.ImageExtension:
                         temp = input_dir / k / dn / f"{image_stem}{ext}"
                         if temp.exists():
                             path = temp
@@ -375,7 +375,7 @@ def plot_matplotlib(
                 image_dtype = None
                 for k, _ in image_grid.items():
                     path = None
-                    for ext in mon.IMAGE_FILE_FORMATS:
+                    for ext in mon.ImageExtension:
                         temp = input_dir / k / dn / f"{image_stem}{ext}"
                         if temp.exists():
                             path = temp

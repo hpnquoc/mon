@@ -22,7 +22,7 @@ benchmark   : False
 save_image  : True
 save_debug  : True
 use_data_dir: False
-use_fullpath: False
+keep_subdirs: False
 use_fullname: True
 exist_ok    : True
 verbose     : True

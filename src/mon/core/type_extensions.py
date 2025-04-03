@@ -132,6 +132,20 @@ def flatten_models_dict(x: dict) -> dict:
 class Enum(enum.Enum):
     """Extension of Python ``enum.Enum`` with utility methods."""
     
+    def __contains__(self, value: Any) -> bool:
+        """Checks if a value is in the enum.
+
+        Args:
+            value: Value to check.
+
+        Returns:
+            ``True`` if value is in the enum, ``False`` otherwise.
+        
+        Notes:
+            Usage: ``if value in EnumClass: ...``
+        """
+        return value in set(member.value for member in self)
+    
     @classmethod
     def random(cls):
         """Returns a random enum member.
@@ -151,7 +165,7 @@ class Enum(enum.Enum):
         return cls.random().value
     
     @classmethod
-    def keys(cls) -> list['Enum']:
+    def names(cls) -> list['Enum']:
         """Returns all enum members.
 
         Returns:
@@ -167,7 +181,70 @@ class Enum(enum.Enum):
             List of values from all enum members.
         """
         return [e.value for e in cls]
-
+    
+    @classmethod
+    def int_to_enum(cls) -> dict:
+        """Dynamically create a dict mapping Enum indexes to Enum members."""
+        return {i: member for i, member in enumerate(cls)}
+    
+    @classmethod
+    def value_to_enum(cls) -> dict:
+        """Dynamically create a dict mapping Enum values to Enum members."""
+        return {member.value: member for member in cls}
+    
+    @classmethod
+    def str_to_enum(cls) -> dict:
+        """Dynamically create a dict mapping Enum names (lowercase) to Enum members."""
+        return {str(member.name).lower(): member for member in cls}
+    
+    @classmethod
+    def from_str(cls, value: str):
+        """Create an Enum member from a string.
+        
+        Args:
+            value: The string representation.
+    
+        Returns:
+            The corresponding Enum member.
+    
+        Raises:
+            ValueError: If the string is not a valid Enum name.
+        """
+        str_to_enum = cls.str_to_enum()
+        value_lower = value.lower()
+        if value_lower not in str_to_enum:
+            raise ValueError(f"`value` must be one of {str_to_enum}, got {value_lower}.")
+        return str_to_enum[value_lower]
+    
+    @classmethod
+    def from_int(cls, value: int):
+        """Create an Enum member from an index.
+        
+        Args:
+            value: The index.
+    
+        Returns:
+            The corresponding Enum member.
+    
+        Raises:
+            ValueError: If the index is not a valid Enum index.
+        """
+        int_to_enum = cls.int_to_enum()
+        if value not in int_to_enum:
+            raise ValueError(f"`value` must be one of {int_to_enum}, got {value}.")
+        return int_to_enum[value]
+    
+    @classmethod
+    def from_value(cls, value: Any):
+        """Create an Enum member from an arbitrary value."""
+        if isinstance(value, cls):
+            return value
+        if isinstance(value, str):
+            return cls.from_str(value)
+        if isinstance(value, int):
+            return cls.from_int(value)
+        return None
+    
 
 # ----- Module -----
 def get_module_vars(module: ModuleType) -> dict:

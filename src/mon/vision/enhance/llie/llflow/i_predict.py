@@ -96,7 +96,7 @@ def predict(args: dict) -> str:
     benchmark    = args["benchmark"]
     save_image   = args["save_image"]
     save_debug   = args["save_debug"]
-    use_fullpath = args["use_fullpath"]
+    keep_subdirs = args["keep_subdirs"]
     verbose      = args["verbose"]
     
     opt_path       = str(current_dir / "options" / args["opt_path"])
@@ -171,12 +171,9 @@ def predict(args: dict) -> str:
                 
                 # Save
                 if save_image:
-                    if use_fullpath:
-                        rel_path    = image_path.relative_path(data_name)
-                        output_path = save_dir / rel_path.parent / f"{image_path.stem}.jpg"
-                    else:
-                        output_path = save_dir / data_name / f"{image_path.stem}.jpg"
-                    output_path.parent.mkdir(parents=True, exist_ok=True)
+                    output_dir  = mon.parse_output_dir(save_dir, data_name, image_path, keep_subdirs)
+                    output_dir.mkdir(parents=True, exist_ok=True)
+                    output_path = output_dir / f"{image_path.stem}{mon.SAVE_IMAGE_EXT}"
                     imwrite(str(output_path), sr)
     
     # Finish

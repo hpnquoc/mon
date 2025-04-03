@@ -75,7 +75,7 @@ def parse_cli_args() -> argparse.Namespace:
     parser.add_argument("--save-image",   action="store_true",             help="Save the output image.")
     parser.add_argument("--save-debug",   action="store_true",             help="Save the debug information.")
     parser.add_argument("--use-fullname", action="store_true",             help="Use the full name for the save_dir.")
-    parser.add_argument("--use-fullpath", action="store_true",             help="Use the full path for the input image.")
+    parser.add_argument("--keep-subdirs", action="store_true",             help="Keep subdirectories in the save_dir.")
     parser.add_argument("--exist-ok",     action="store_true",             help="If ``False``, it will delete the save directory if it already exists.")
     parser.add_argument("--verbose",      action="store_true")
     parser.add_argument("extra_args",     nargs=argparse.REMAINDER,        help="Additional arguments")
@@ -120,7 +120,7 @@ def parse_train_args(model_root: str | pathlib.Path = None) -> dict | argparse.N
     save_image   = cli_args.get("save_image")   or args.get("save_image")
     save_debug   = cli_args.get("save_debug")   or args.get("save_debug")
     use_fullname =                                 args.get("use_fullname", False)
-    use_fullpath = cli_args.get("use_fullpath") or args.get("use_fullpath")
+    keep_subdirs = cli_args.get("keep_subdirs") or args.get("keep_subdirs")
     exist_ok     = cli_args.get("exist_ok")     or args.get("exist_ok")
     verbose      = cli_args.get("verbose")      or args.get("verbose")
     extra_args   = cli_args.get("extra_args")
@@ -156,7 +156,7 @@ def parse_train_args(model_root: str | pathlib.Path = None) -> dict | argparse.N
     args["save_image"]   = save_image
     args["save_debug"]   = save_debug
     args["use_fullname"] = use_fullname
-    args["use_fullpath"] = use_fullpath
+    args["keep_subdirs"] = keep_subdirs
     args["exist_ok"]     = exist_ok
     args["verbose"]      = verbose
     args |= extra_args
@@ -214,7 +214,7 @@ def parse_predict_args(model_root: str | pathlib.Path = None) -> dict | argparse
     save_image   = cli_args.get("save_image")   or args.get("save_image")
     save_debug   = cli_args.get("save_debug")   or args.get("save_debug")
     use_fullname =                                 args.get("use_fullname", False)
-    use_fullpath = cli_args.get("use_fullpath") or args.get("use_fullpath")
+    keep_subdirs = cli_args.get("keep_subdirs") or args.get("keep_subdirs")
     exist_ok     = cli_args.get("exist_ok")     or args.get("exist_ok")
     verbose      = cli_args.get("verbose")      or args.get("verbose")
     extra_args   = cli_args.get("extra_args")
@@ -255,7 +255,7 @@ def parse_predict_args(model_root: str | pathlib.Path = None) -> dict | argparse
     args["save_image"]   = save_image
     args["save_debug"]   = save_debug
     args["use_fullname"] = use_fullname
-    args["use_fullpath"] = use_fullpath
+    args["keep_subdirs"] = keep_subdirs
     args["exist_ok"]     = exist_ok
     args["verbose"]      = verbose
     args |= extra_args

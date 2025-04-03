@@ -12,7 +12,7 @@ from abc import ABC
 from typing import Any, Literal
 
 from mon import core
-from mon.constants import DEPTH_DATA_SOURCES, TRANSFORMS
+from mon.constants import DepthDataSource, TRANSFORMS
 from mon.vision.geometry import albumentation
 from mon.vision.types.depth import DepthMapAnnotation
 from mon.vision.types.image import ImageAnnotation
@@ -37,11 +37,11 @@ class VisionDataset(core.Dataset, ABC):
     
     def __init__(
         self,
-        depth_source: Literal[*DEPTH_DATA_SOURCES] = "dav2_vitb",
+        depth_source: Literal[*DepthDataSource.values()] = "dav2_vitb",
         *args, **kwargs
     ):
-        if depth_source not in DEPTH_DATA_SOURCES:
-            raise ValueError(f"[depth_source] must be one of {DEPTH_DATA_SOURCES}, "
+        if depth_source not in DepthDataSource:
+            raise ValueError(f"[depth_source] must be one of {DepthDataSource}, "
                              f"got {depth_source}.")
         self.depth_source = depth_source
         super().__init__(*args, **kwargs)

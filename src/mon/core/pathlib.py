@@ -37,6 +37,7 @@ class Path(type(pathlib.Path())):
         Methods are kept as methods (not properties) for consistency with ``pathlib.Path``.
     """
     
+    # ----- Check Internal Parts -----
     def is_basename(self) -> bool:
         """Checks if the path is a file basename.
 
@@ -44,18 +45,161 @@ class Path(type(pathlib.Path())):
             ``True`` if path matches its basename, ``False`` otherwise.
         """
         return str(self) == self.name
+     
+    def is_name(self) -> bool:
+        """Checks if the path matches its stem.
+
+        Returns:
+            ``True`` if path equals its stem, ``False`` otherwise.
+        """
+        return str(self) == self.stem
     
-    def is_bmp_file(self, exist: bool = True) -> bool:
-        """Checks if the path is a ``.bmp`` file.
+    def is_stem(self) -> bool:
+        """Checks if the path matches its stem.
+
+        Returns:
+            ``True`` if path equals its stem, ``False`` otherwise.
+        """
+        return str(self) == self.stem
+    
+    def is_url(self) -> bool:
+        """Checks if the path is a valid URL.
+
+        Returns:
+            ``True`` if path is a valid URL, ``False`` otherwise.
+        """
+        return not isinstance(validators.url(str(self)), validators.ValidationError)
+    
+    def is_url_or_file(self, exist: bool = True) -> bool:
+        """Checks if the path is a file or valid URL.
 
         Args:
             exist: If ``True``, verifies file exists. Default is ``True``.
 
         Returns:
-            ``True`` if path is a ``.bmp`` file, ``False`` otherwise.
+            ``True`` if path is a file or valid URL, ``False`` otherwise.
         """
-        return (not exist or self.is_file()) and self.suffix.lower() == ".bmp"
+        return ((not exist or self.is_file()) or
+                not isinstance(validators.url(str(self)), validators.ValidationError))
     
+    def is_file_like(self) -> bool:
+        """"Checks if the path resembles a file format.
+
+        Returns:
+            ``True`` if path has a suffix, ``False`` otherwise.
+        """
+        return "." in self.suffix
+    
+    def is_dir_like(self) -> bool:
+        """Checks if the path resembles a directory format.
+
+        Returns:
+            ``True`` if path has no suffix, ``False`` otherwise.
+        """
+        return self.suffix == ""
+    
+    def has_subdir(self, name: str) -> bool:
+        """Checks if the directory has a subdirectory with the given name.
+
+        Args:
+            name: Subdirectory name to check.
+
+        Returns:
+            ``True`` if subdirectory exists, ``False`` otherwise.
+        """
+        return name in [d.name for d in self.subdirs()]
+    
+    # ----- Check Text File -----
+    def is_json_file(self, exist: bool = True) -> bool:
+        """Checks if the path is a ``.json`` file.
+
+        Args:
+            exist: If ``True``, verifies file exists. Default is ``True``.
+
+        Returns:
+            ``True`` if path is a ``.json`` file, ``False`` otherwise.
+        """
+        return (not exist or self.is_file()) and self.suffix.lower() == ".json"
+    
+    def is_txt_file(self, exist: bool = True) -> bool:
+        """Checks if the path is a ``.txt`` file.
+
+        Args:
+            exist: If ``True``, verifies file exists. Default is ``True``.
+
+        Returns:
+            ``True`` if path is a ``.txt`` file, ``False`` otherwise.
+        """
+        return (not exist or self.is_file()) and self.suffix.lower() == ".txt"
+    
+    def is_xml_file(self, exist: bool = True) -> bool:
+        """Checks if the path is an ``.xml`` file.
+
+        Args:
+            exist: If ``True``, verifies file exists. Default is ``True``.
+
+        Returns:
+            ``True`` if path is an ``.xml`` file, ``False`` otherwise.
+        """
+        return (not exist or self.is_file()) and self.suffix.lower() == ".xml"
+    
+    def is_yaml_file(self, exist: bool = True) -> bool:
+        """Checks if the path is a ``.yaml`` or ``.yml`` file.
+
+        Args:
+            exist: If ``True``, verifies file exists. Default is ``True``.
+
+        Returns:
+            ``True`` if path is a ``.yaml`` or ``.yml`` file, ``False`` otherwise.
+        """
+        return (not exist or self.is_file()) and self.suffix.lower() in [".yaml", ".yml"]
+   
+    # ----- Check Image File -----
+    def is_image_file(self, exist: bool = True) -> bool:
+        """Checks if the path is an image file.
+
+        Args:
+            exist: If ``True``, verifies file exists. Default is ``True``.
+
+        Returns:
+            ``True`` if path is an image file, ``False`` otherwise.
+        """
+        from mon.constants import ImageExtension
+        return (not exist or self.is_file()) and self.suffix.lower() in ImageExtension
+        
+    def is_raw_image_file(self, exist: bool = True) -> bool:
+        """Checks if the path is a raw image file (``.dng`` or ``.arw``).
+
+        Args:
+            exist: If ``True``, verifies file exists. Default is ``True``.
+
+        Returns:
+            ``True`` if path is a raw image file, ``False`` otherwise.
+        """
+        return (not exist or self.is_file()) and self.suffix.lower() in [".dng", ".arw"]
+    
+    # ----- Check Video File -----
+    def is_video_file(self, exist: bool = True) -> bool:
+        """Checks if the path is a video file.
+
+        Args:
+            exist: If ``True``, verifies file exists. Default is ``True``.
+
+        Returns:
+            ``True`` if path is a video file, ``False`` otherwise.
+        """
+        from mon.constants import VideoExtension
+        return (not exist or self.is_file()) and self.suffix.lower() in VideoExtension.values()
+    
+    def is_video_stream(self) -> bool:
+        """Checks if the path is a video stream.
+
+        Returns:
+            ``True`` if path contains ``rtsp``, ``False`` otherwise.
+        """
+        return "rtsp" in str(self).lower()
+    
+    # ----- Check Torch File -----
     def is_cache_file(self, exist: bool = True) -> bool:
         """Checks if the path is a ``.cache`` file.
 
@@ -87,56 +231,9 @@ class Path(type(pathlib.Path())):
         Returns:
             ``True`` if path is a config file, ``False`` otherwise.
         """
-        from mon.constants import CONFIG_FILE_FORMATS
-        return (not exist or self.is_file()) and self.suffix.lower() in CONFIG_FILE_FORMATS
+        from mon.constants import ConfigExtension
+        return (not exist or self.is_file()) and self.suffix.lower() in ConfigExtension
         
-    def is_dir_like(self) -> bool:
-        """Checks if the path resembles a directory format.
-
-        Returns:
-            ``True`` if path has no suffix, ``False`` otherwise.
-        """
-        return self.suffix == ""
-    
-    def is_file_like(self) -> bool:
-        """"Checks if the path resembles a file format.
-
-        Returns:
-            ``True`` if path has a suffix, ``False`` otherwise.
-        """
-        return "." in self.suffix
-    
-    def is_image_file(self, exist: bool = True) -> bool:
-        """Checks if the path is an image file.
-
-        Args:
-            exist: If ``True``, verifies file exists. Default is ``True``.
-
-        Returns:
-            ``True`` if path is an image file, ``False`` otherwise.
-        """
-        from mon.constants import IMAGE_FILE_FORMATS
-        return (not exist or self.is_file()) and self.suffix.lower() in IMAGE_FILE_FORMATS
-    
-    def is_json_file(self, exist: bool = True) -> bool:
-        """Checks if the path is a ``.json`` file.
-
-        Args:
-            exist: If ``True``, verifies file exists. Default is ``True``.
-
-        Returns:
-            ``True`` if path is a ``.json`` file, ``False`` otherwise.
-        """
-        return (not exist or self.is_file()) and self.suffix.lower() == ".json"
-    
-    def is_name(self) -> bool:
-        """Checks if the path matches its stem.
-
-        Returns:
-            ``True`` if path equals its stem, ``False`` otherwise.
-        """
-        return str(self) == self.stem
-    
     def is_py_file(self, exist: bool = True) -> bool:
         """Checks if the path is a ``.py`` file.
 
@@ -148,25 +245,6 @@ class Path(type(pathlib.Path())):
         """
         return (not exist or self.is_file()) and self.suffix.lower() == ".py"
     
-    def is_raw_image_file(self, exist: bool = True) -> bool:
-        """Checks if the path is a raw image file (``.dng`` or ``.arw``).
-
-        Args:
-            exist: If ``True``, verifies file exists. Default is ``True``.
-
-        Returns:
-            ``True`` if path is a raw image file, ``False`` otherwise.
-        """
-        return (not exist or self.is_file()) and self.suffix.lower() in [".dng", ".arw"]
-    
-    def is_stem(self) -> bool:
-        """Checks if the path matches its stem.
-
-        Returns:
-            ``True`` if path equals its stem, ``False`` otherwise.
-        """
-        return str(self) == self.stem
-    
     def is_torch_file(self, exist: bool = True) -> bool:
         """Checks if the path is a Torch-compatible file.
 
@@ -176,59 +254,8 @@ class Path(type(pathlib.Path())):
         Returns:
             ``True`` if path has a Torch extension, ``False`` otherwise.
         """
-        from mon.constants import TORCH_FILE_FORMATS
-        return (not exist or self.is_file()) and self.suffix.lower() in TORCH_FILE_FORMATS
-    
-    def is_txt_file(self, exist: bool = True) -> bool:
-        """Checks if the path is a ``.txt`` file.
-
-        Args:
-            exist: If ``True``, verifies file exists. Default is ``True``.
-
-        Returns:
-            ``True`` if path is a ``.txt`` file, ``False`` otherwise.
-        """
-        return (not exist or self.is_file()) and self.suffix.lower() == ".txt"
-    
-    def is_url(self) -> bool:
-        """Checks if the path is a valid URL.
-
-        Returns:
-            ``True`` if path is a valid URL, ``False`` otherwise.
-        """
-        return not isinstance(validators.url(str(self)), validators.ValidationError)
-    
-    def is_url_or_file(self, exist: bool = True) -> bool:
-        """Checks if the path is a file or valid URL.
-
-        Args:
-            exist: If ``True``, verifies file exists. Default is ``True``.
-
-        Returns:
-            ``True`` if path is a file or valid URL, ``False`` otherwise.
-        """
-        return ((not exist or self.is_file()) or
-                not isinstance(validators.url(str(self)), validators.ValidationError))
-    
-    def is_video_file(self, exist: bool = True) -> bool:
-        """Checks if the path is a video file.
-
-        Args:
-            exist: If ``True``, verifies file exists. Default is ``True``.
-
-        Returns:
-            ``True`` if path is a video file, ``False`` otherwise.
-        """
-        from mon.constants import VIDEO_FILE_FORMATS
-        return (not exist or self.is_file()) and self.suffix.lower() in VIDEO_FILE_FORMATS.values()
-    
-    def is_video_stream(self) -> bool:
-        """Checks if the path is a video stream.
-
-        Returns:
-            ``True`` if path contains ``rtsp``, ``False`` otherwise.
-        """
-        return "rtsp" in str(self).lower()
+        from mon.constants import TorchExtension
+        return (not exist or self.is_file()) and self.suffix.lower() in TorchExtension
     
     def is_weights_file(self, exist: bool = True) -> bool:
         """Checks if the path is a ``.pt`` or ``.pth`` file.
@@ -239,42 +266,10 @@ class Path(type(pathlib.Path())):
         Returns:
             ``True`` if path is a weights file, ``False`` otherwise.
         """
-        from mon.constants import WEIGHTS_FILE_FORMATS
-        return (not exist or self.is_file()) and self.suffix.lower() in WEIGHTS_FILE_FORMATS
+        from mon.constants import WeightExtension
+        return (not exist or self.is_file()) and self.suffix.lower() in WeightExtension
     
-    def is_xml_file(self, exist: bool = True) -> bool:
-        """Checks if the path is an ``.xml`` file.
-
-        Args:
-            exist: If ``True``, verifies file exists. Default is ``True``.
-
-        Returns:
-            ``True`` if path is an ``.xml`` file, ``False`` otherwise.
-        """
-        return (not exist or self.is_file()) and self.suffix.lower() == ".xml"
-    
-    def is_yaml_file(self, exist: bool = True) -> bool:
-        """Checks if the path is a ``.yaml`` or ``.yml`` file.
-
-        Args:
-            exist: If ``True``, verifies file exists. Default is ``True``.
-
-        Returns:
-            ``True`` if path is a ``.yaml`` or ``.yml`` file, ``False`` otherwise.
-        """
-        return (not exist or self.is_file()) and self.suffix.lower() in [".yaml", ".yml"]
-    
-    def has_subdir(self, name: str) -> bool:
-        """Checks if the directory has a subdirectory with the given name.
-
-        Args:
-            name: Subdirectory name to check.
-
-        Returns:
-            ``True`` if subdirectory exists, ``False`` otherwise.
-        """
-        return name in [d.name for d in self.subdirs()]
-    
+    # ----- List -----
     def subdirs(self, recursive: bool = False) -> list["Path"]:
         """Returns a list of subdirectory paths.
 
@@ -316,8 +311,8 @@ class Path(type(pathlib.Path())):
         Returns:
             Configuration file ``Path``.
         """
-        from mon.constants import CONFIG_FILE_FORMATS
-        for ext in CONFIG_FILE_FORMATS:
+        from mon.constants import ConfigExtension
+        for ext in ConfigExtension:
             for stem in [self.stem, humps.snakecase(self.stem)]:
                 config_path = self.with_name(f"{stem}{ext}")
                 if config_path.is_file():
@@ -339,8 +334,8 @@ class Path(type(pathlib.Path())):
         Returns:
             Image file ``Path``.
         """
-        from mon.constants import IMAGE_FILE_FORMATS
-        for ext in IMAGE_FILE_FORMATS:
+        from mon.constants import ImageExtension
+        for ext in ImageExtension:
             temp = self.with_suffix(ext)
             if temp.is_file():
                 return temp
@@ -375,6 +370,7 @@ class Path(type(pathlib.Path())):
         start_idx = path_str.index(start_part)
         return Path(path_str[start_idx:])
     
+    # ----- Creation -----
     def copy_to(self, dst: str, replace: bool = True):
         """Copies the file to a new location.
 

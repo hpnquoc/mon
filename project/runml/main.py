@@ -14,8 +14,7 @@ current_dir  = current_file.parents[0]
 modes 	     = ["train", "predict"]
 
 
-# region Train
-
+# ----- Train -----
 def run_train(args: dict):
     # Get user input
     task         = args["task"]
@@ -37,7 +36,7 @@ def run_train(args: dict):
     save_image   = args["save_image"]
     save_debug   = args["save_debug"]
     # use_fullname = args["use_fullname"]
-    use_fullpath = args["use_fullpath"]
+    keep_subdirs = args["keep_subdirs"]
     exist_ok     = args["exist_ok"]
     verbose      = args["verbose"]
     
@@ -74,7 +73,7 @@ def run_train(args: dict):
     flags  = ["--benchmark"]    if benchmark    else []
     flags += ["--save-image"]   if save_image   else []
     flags += ["--save-debug"]   if save_debug   else []
-    flags += ["--use-fullpath"] if use_fullpath else []
+    flags += ["--keep-subdirs"] if keep_subdirs else []
     flags += ["--exist-ok"]     if exist_ok     else []
     flags += ["--verbose"]      if verbose      else []
     
@@ -121,11 +120,8 @@ def run_train(args: dict):
     else:
         raise ValueError(f"Cannot find Python training script file at: {script_file}.")
     
-# endregion
 
-
-# region Predict
-
+# ----- Predict -----
 def run_predict(args: dict):
     # Get user input
     task         = args["task"]
@@ -147,7 +143,7 @@ def run_predict(args: dict):
     save_image   = args["save_image"]
     save_debug   = args["save_debug"]
     # use_fullname = args["use_fullname"]
-    use_fullpath = args["use_fullpath"]
+    keep_subdirs = args["keep_subdirs"]
     exist_ok     = args["exist_ok"]
     verbose      = args["verbose"]
     
@@ -187,7 +183,7 @@ def run_predict(args: dict):
         flags  += ["--benchmark"]    if benchmark    else []
         flags  += ["--save-image"]   if save_image   else []
         flags  += ["--save-debug"]   if save_debug   else []
-        flags  += ["--use-fullpath"] if use_fullpath else []
+        flags  += ["--keep-subdirs"] if keep_subdirs else []
         flags  += ["--exist-ok"]     if exist_ok     else []
         flags  += ["--verbose"]      if verbose      else []
         
@@ -224,11 +220,8 @@ def run_predict(args: dict):
         else:
             raise ValueError(f"Cannot find Python predicting script file at: {script_file}.")
         
-# endregion
 
-
-# region Main
-
+# ----- Main -----
 @click.command(name="main", context_settings=dict(ignore_unknown_options=True, allow_extra_args=True))
 @click.option("--root",         type=click.Path(exists=True),    help="Project root.")
 @click.option("--task",         type=str,     default=None,      help="Task.")
@@ -249,7 +242,7 @@ def run_predict(args: dict):
 @click.option("--save-image",   is_flag=True,                    help="Save the output image.")
 @click.option("--save-debug",   is_flag=True,                    help="Save the debug information.")
 @click.option("--use-fullname", is_flag=True,                    help="Use the full name for the save_dir.")
-@click.option("--use-fullpath", is_flag=True,                    help="Use the full path for the input image..")
+@click.option("--keep-subdirs", is_flag=True,                    help="Keep subdirectories in the save_dir.")
 @click.option("--exist-ok",     is_flag=True,                    help="Exist OK.")
 @click.option("--verbose",      is_flag=True,                    help="Verbosity.")
 def main(
@@ -272,7 +265,7 @@ def main(
     save_image  : bool,
     save_debug  : bool,
     use_fullname: bool,
-    use_fullpath: bool,
+    keep_subdirs: bool,
     exist_ok    : bool,
     verbose     : bool,
 ):
@@ -354,9 +347,9 @@ def main(
     save_debug   = "y" if save_debug else "n"
     save_debug   = click.prompt(click.style(f"Save debug?   [y/n]", fg="bright_yellow", bold=True), type=str, default=save_debug)
     save_debug   = True if save_debug == "y" else False
-    use_fullpath = "y" if use_fullpath else "n"
-    use_fullpath = click.prompt(click.style(f"Use fullpath? [y/n]", fg="bright_yellow", bold=True), type=str, default=use_fullpath)
-    use_fullpath = True if use_fullpath == "y" else False
+    keep_subdirs = "y" if keep_subdirs else "n"
+    keep_subdirs = click.prompt(click.style(f"Use fullpath? [y/n]", fg="bright_yellow", bold=True), type=str, default=keep_subdirs)
+    keep_subdirs = True if keep_subdirs == "y" else False
     # Common Flags
     # Exist OK?
     exist_ok = "y" if exist_ok else "n"
@@ -388,8 +381,8 @@ def main(
             "benchmark"   : benchmark,
             "save_image"  : save_image,
             "save_debug"  : save_debug,
-            # "use_fullname": use_fullname,
-            "use_fullpath": use_fullpath,
+            "use_fullname": use_fullname,
+            "keep_subdirs": keep_subdirs,
             "exist_ok"    : exist_ok,
             "verbose"     : verbose,
         }
@@ -414,8 +407,8 @@ def main(
             "benchmark"   : benchmark,
             "save_image"  : save_image,
             "save_debug"  : save_debug,
-            # "use_fullname": use_fullname,
-            "use_fullpath": use_fullpath,
+            "use_fullname": use_fullname,
+            "keep_subdirs": keep_subdirs,
             "exist_ok"    : exist_ok,
             "verbose"     : verbose,
         }

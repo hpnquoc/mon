@@ -40,7 +40,7 @@ def train(args: argparse.Namespace):
     benchmark    = args["benchmark"]
     save_image   = args["save_image"]
     save_debug   = args["save_debug"]
-    use_fullpath = args["use_fullpath"]
+    keep_subdirs = args["keep_subdirs"]
     verbose      = args["verbose"]
     
     opt_path = str(current_dir / "options" / "train" / args["opt_path"])

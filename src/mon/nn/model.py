@@ -18,7 +18,9 @@ import lightning.pytorch.utilities.types
 import torch.hub
 
 from mon import core
-from mon.constants import LOSSES, LR_SCHEDULERS, LType, METRICS, OPTIMIZERS, Task
+from mon.constants import (
+    LOSSES, LR_SCHEDULERS, LType, METRICS, OPTIMIZERS, SAVE_IMAGE_EXT, Task,
+)
 from mon.nn import loss as L, metric as M
 
 StepOutput  = lightning.pytorch.utilities.types.STEP_OUTPUT
@@ -796,14 +798,14 @@ class Model(lightning.LightningModule, ABC):
             and self.current_epoch % log_image_every_n_epochs == 0
         )
     
-    def log_images(self, epoch: int, step: int, data: dict, extension: str = ".jpg"):
+    def log_images(self, epoch: int, step: int, data: dict, extension: str = SAVE_IMAGE_EXT):
         """Logs debug images to ``debug_dir``.
     
         Args:
             epoch: Current epoch number.
             step: Current step number.
             data: Dict with images to log.
-            extension: Image file extension. Default is ``'.jpg'``.
+            extension: Image file extension. Default is ``SAVE_IMAGE_EXT``.
         """
         pass
     
