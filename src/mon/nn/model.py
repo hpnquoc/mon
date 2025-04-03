@@ -19,7 +19,8 @@ import torch.hub
 
 from mon import core
 from mon.constants import (
-    LOSSES, LR_SCHEDULERS, LType, METRICS, OPTIMIZERS, SAVE_IMAGE_EXT, Task,
+    LOSSES, LR_SCHEDULERS, LType, METRICS, OPTIMIZERS, SAVE_IMAGE_EXT, SAVE_WEIGHTS_EXT,
+    Task,
 )
 from mon.nn import loss as L, metric as M
 
@@ -773,9 +774,9 @@ class Model(lightning.LightningModule, ABC):
             ValueError: If ``input_dims`` is undefined.
         """
         if not file_path:
-            file_path = self.root / f"{self.fullname}.pt"
-        if ".pt" not in str(file_path):
-            file_path = core.Path(f"{file_path}.pt")
+            file_path = self.root / f"{self.fullname}{SAVE_WEIGHTS_EXT}"
+        if SAVE_WEIGHTS_EXT not in str(file_path):
+            file_path = core.Path(f"{file_path}{SAVE_WEIGHTS_EXT}")
     
         if not input_dims:
             raise ValueError("[input_dims] must be defined.")

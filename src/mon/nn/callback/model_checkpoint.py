@@ -16,6 +16,7 @@ import lightning.pytorch as pl
 import torch
 from lightning.pytorch.callbacks import model_checkpoint
 
+import mon
 from mon import core
 from mon.constants import CALLBACKS
 
@@ -45,7 +46,7 @@ class ModelCheckpoint(model_checkpoint.ModelCheckpoint):
     CHECKPOINT_JOIN_CHAR = "_"
     CHECKPOINT_NAME_LAST = "last"
     CHECKPOINT_NAME_BEST = "best"
-    FILE_EXTENSION       = ".ckpt"
+    FILE_EXTENSION       = ".ckpt"  # mon.SAVE_CKPT_EXT
     STARTING_VERSION     = 1
     
     def __init__(
@@ -193,7 +194,7 @@ class ModelCheckpoint(model_checkpoint.ModelCheckpoint):
             trainer: PyTorch Lightning ``Trainer`` instance.
             filepath: Path to save checkpoint as ``str``.
         """
-        filepath_pt = filepath.replace(self.FILE_EXTENSION, ".pt")
+        filepath_pt = filepath.replace(self.FILE_EXTENSION, mon.SAVE_WEIGHTS_EXT)
         trainer.save_checkpoint(str(filepath_pt), True)
         trainer.save_checkpoint(str(filepath), self.save_weights_only)
         

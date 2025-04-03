@@ -58,7 +58,7 @@ import torch
 
 from mon.constants import (
     DATASETS, EXTRA_DATASETS, EXTRA_MODELS, EXTRA_STR, LType, MemoryUnit, MODELS,
-    ROOT_DIR, SAVE_IMAGE_EXT, Split, Task, ZOO_DIR,
+    ROOT_DIR, Split, Task, ZOO_DIR,
 )
 from mon.core import humps, pathlib, rich, serializers, type_extensions
 
