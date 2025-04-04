@@ -359,7 +359,7 @@ def bbox_center_distance(bbox1: np.ndarray, bbox2: np.ndarray) -> np.ndarray:
     return ct_dist
 
 
-# ----- Conversion -----
+# ----- Convert -----
 def bbox_cxcywhn_to_xywh(bbox: np.ndarray, height: int, width: int) -> np.ndarray:
     """Convert boxes from CXCYWHN to XYWH format.
 

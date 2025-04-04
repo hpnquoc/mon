@@ -33,7 +33,122 @@ import torch
 from mon.vision.types.image import utils
 
 
-# ----- Conversion -----
+# ----- Fuse -----
+def add_images_weighted(
+    image1: torch.Tensor | np.ndarray,
+    image2: torch.Tensor | np.ndarray,
+    alpha : float,
+    beta  : float,
+    gamma : float = 0.0
+) -> torch.Tensor | np.ndarray:
+    """Calculates the weighted sum of two image tensors.
+
+    Args:
+        image1: First image as ``torch.Tensor`` or ``numpy.ndarray``.
+        image2: Second image as ``torch.Tensor`` or ``numpy.ndarray``.
+        alpha: Weight for ``image1``.
+        beta: Weight for ``image2``.
+        gamma: Scalar offset added to the sum. Default is ``0.0``.
+    
+    Returns:
+        Weighted sum as ``torch.Tensor`` or ``numpy.ndarray``.
+    
+    Raises:
+        ValueError: If ``image1`` and ``image2`` differ in shape or type.
+        TypeError: If output type is not ``torch.Tensor`` or ``numpy.ndarray``.
+    """
+    if image1.shape != image2.shape or type(image1) is not type(image2):
+        raise ValueError(f"[image1] and [image2] must have the same shape and type, "
+                         f"got {type(image1).__name__} and {type(image2).__name__}.")
+    
+    output = image1 * alpha + image2 * beta + gamma
+    bound  = 1.0 if utils.is_image_normalized(image1) else 255.0
+    
+    if isinstance(output, torch.Tensor):
+        output = output.clamp(0, bound).to(image1.dtype)
+    elif isinstance(output, np.ndarray):
+        output = np.clip(output, 0, bound).astype(image1.dtype)
+    else:
+        raise TypeError(f"[output] must be a torch.Tensor or numpy.ndarray, got {type(output)}.")
+    return output
+
+
+def blend_images(
+    image1: torch.Tensor | np.ndarray,
+    image2: torch.Tensor | np.ndarray,
+    alpha : float,
+    gamma : float = 0.0
+) -> torch.Tensor | np.ndarray:
+    """Blends two images using a weighted sum.
+
+    Args:
+        image1: First image as ``torch.Tensor`` or ``numpy.ndarray``.
+        image2: Second image as ``torch.Tensor`` or ``numpy.ndarray``.
+        alpha: Weight for ``image1``, with ``image2`` weighted as (1 - ``alpha``).
+        gamma: Scalar offset added to the sum. Default is ``0.0``.
+    
+    Returns:
+        Blended image as ``torch.Tensor`` or ``numpy.ndarray``.
+    """
+    return add_images_weighted(image1=image1, image2=image2, alpha=alpha, beta=1.0 - alpha, gamma=gamma)
+
+
+# ----- Normalize -----
+def normalize_image_by_range(
+    image  : torch.Tensor | np.ndarray,
+    min    : float = 0.0,
+    max    : float = 255.0,
+    new_min: float = 0.0,
+    new_max: float = 1.0
+) -> torch.Tensor | np.ndarray:
+    """Normalizes an image from range [min, max] to [new_min, new_max].
+
+    Args:
+        image: Image as ``torch.Tensor`` [B, C, H, W] or ``numpy.ndarray`` [H, W, C].
+        min: Current minimum pixel value. Default is ``0.0``.
+        max: Current maximum pixel value. Default is ``255.0``.
+        new_min: New minimum pixel value. Default is ``0.0``.
+        new_max: New maximum pixel value. Default is ``1.0``.
+    
+    Returns:
+        Normalized image as ``torch.Tensor`` or ``numpy.ndarray``.
+    
+    Raises:
+        ValueError: If ``image`` dimensions are less than 3.
+        TypeError: If ``image`` is not a ``torch.Tensor`` or ``numpy.ndarray``.
+    """
+    if not image.ndim >= 3:
+        raise ValueError(f"[image]'s number of dimensions must be >= 3, got {image.ndim}.")
+    
+    ratio = (new_max - new_min) / (max - min)
+    if isinstance(image, torch.Tensor):
+        image = image.clone().to(dtype=torch.get_default_dtype())
+    elif isinstance(image, np.ndarray):
+        image = np.copy(image).astype(np.float32)
+    else:
+        raise TypeError(f"[image] must be a torch.Tensor or numpy.ndarray, got {type(image)}.")
+    image = (image - min) * ratio + new_min
+    
+    return image
+
+
+normalize_image = functools.partial(
+    normalize_image_by_range,
+    min     = 0.0,
+    max     = 255.0,
+    new_min = 0.0,
+    new_max = 1.0
+)
+denormalize_image = functools.partial(
+    normalize_image_by_range,
+    min     = 0.0,
+    max     = 1.0,
+    new_min = 0.0,
+    new_max = 255.0
+)
+
+
+# ----- Convert -----
 def image_to_2d(image: torch.Tensor | np.ndarray) -> torch.Tensor | np.ndarray:
     """Converts a 3D or 4D image to 2D.
 
@@ -311,118 +426,3 @@ def image_to_tensor(
     image = image.contiguous()
     
     return image
-
-
-# ----- Fusion -----
-def add_images_weighted(
-    image1: torch.Tensor | np.ndarray,
-    image2: torch.Tensor | np.ndarray,
-    alpha : float,
-    beta  : float,
-    gamma : float = 0.0
-) -> torch.Tensor | np.ndarray:
-    """Calculates the weighted sum of two image tensors.
-
-    Args:
-        image1: First image as ``torch.Tensor`` or ``numpy.ndarray``.
-        image2: Second image as ``torch.Tensor`` or ``numpy.ndarray``.
-        alpha: Weight for ``image1``.
-        beta: Weight for ``image2``.
-        gamma: Scalar offset added to the sum. Default is ``0.0``.
-    
-    Returns:
-        Weighted sum as ``torch.Tensor`` or ``numpy.ndarray``.
-    
-    Raises:
-        ValueError: If ``image1`` and ``image2`` differ in shape or type.
-        TypeError: If output type is not ``torch.Tensor`` or ``numpy.ndarray``.
-    """
-    if image1.shape != image2.shape or type(image1) is not type(image2):
-        raise ValueError(f"[image1] and [image2] must have the same shape and type, "
-                         f"got {type(image1).__name__} and {type(image2).__name__}.")
-    
-    output = image1 * alpha + image2 * beta + gamma
-    bound  = 1.0 if utils.is_image_normalized(image1) else 255.0
-    
-    if isinstance(output, torch.Tensor):
-        output = output.clamp(0, bound).to(image1.dtype)
-    elif isinstance(output, np.ndarray):
-        output = np.clip(output, 0, bound).astype(image1.dtype)
-    else:
-        raise TypeError(f"[output] must be a torch.Tensor or numpy.ndarray, got {type(output)}.")
-    return output
-
-
-def blend_images(
-    image1: torch.Tensor | np.ndarray,
-    image2: torch.Tensor | np.ndarray,
-    alpha : float,
-    gamma : float = 0.0
-) -> torch.Tensor | np.ndarray:
-    """Blends two images using a weighted sum.
-
-    Args:
-        image1: First image as ``torch.Tensor`` or ``numpy.ndarray``.
-        image2: Second image as ``torch.Tensor`` or ``numpy.ndarray``.
-        alpha: Weight for ``image1``, with ``image2`` weighted as (1 - ``alpha``).
-        gamma: Scalar offset added to the sum. Default is ``0.0``.
-    
-    Returns:
-        Blended image as ``torch.Tensor`` or ``numpy.ndarray``.
-    """
-    return add_images_weighted(image1=image1, image2=image2, alpha=alpha, beta=1.0 - alpha, gamma=gamma)
-
-
-# ----- Normalize -----
-def normalize_image_by_range(
-    image  : torch.Tensor | np.ndarray,
-    min    : float = 0.0,
-    max    : float = 255.0,
-    new_min: float = 0.0,
-    new_max: float = 1.0
-) -> torch.Tensor | np.ndarray:
-    """Normalizes an image from range [min, max] to [new_min, new_max].
-
-    Args:
-        image: Image as ``torch.Tensor`` [B, C, H, W] or ``numpy.ndarray`` [H, W, C].
-        min: Current minimum pixel value. Default is ``0.0``.
-        max: Current maximum pixel value. Default is ``255.0``.
-        new_min: New minimum pixel value. Default is ``0.0``.
-        new_max: New maximum pixel value. Default is ``1.0``.
-    
-    Returns:
-        Normalized image as ``torch.Tensor`` or ``numpy.ndarray``.
-    
-    Raises:
-        ValueError: If ``image`` dimensions are less than 3.
-        TypeError: If ``image`` is not a ``torch.Tensor`` or ``numpy.ndarray``.
-    """
-    if not image.ndim >= 3:
-        raise ValueError(f"[image]'s number of dimensions must be >= 3, got {image.ndim}.")
-    
-    ratio = (new_max - new_min) / (max - min)
-    if isinstance(image, torch.Tensor):
-        image = image.clone().to(dtype=torch.get_default_dtype())
-    elif isinstance(image, np.ndarray):
-        image = np.copy(image).astype(np.float32)
-    else:
-        raise TypeError(f"[image] must be a torch.Tensor or numpy.ndarray, got {type(image)}.")
-    image = (image - min) * ratio + new_min
-    
-    return image
-
-
-normalize_image = functools.partial(
-    normalize_image_by_range,
-    min     = 0.0,
-    max     = 255.0,
-    new_min = 0.0,
-    new_max = 1.0
-)
-denormalize_image = functools.partial(
-    normalize_image_by_range,
-    min     = 0.0,
-    max     = 1.0,
-    new_min = 0.0,
-    new_max = 255.0
-)

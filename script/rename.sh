@@ -8,14 +8,36 @@ echo "$HOSTNAME"
 directory="/media/longpham/hdd_01/40_resources/programming_language/ios/ray_wenderlich"
 
 
-# Replace "-" with "_" in filenames (recursively)
-find "$directory" -depth -name '*-*' | while IFS= read -r file; do
-    newname=$(echo "$file" | tr '-' '_')
-    mv -v "$file" "$newname"
+# Validate the directory
+if [ ! -d "$directory" ]; then
+    echo "Error: '$directory' is not a valid directory."
+    exit 1
+fi
+
+# Function to normalize names (lowercase, replace ' ' and '-' with '_', and reduce '__' to '_')
+normalize_name() {
+    echo "$1" | tr '[:upper:]' '[:lower:]' | tr ' ' '_' | tr '-' '_' | sed 's/__\+/_/g'
+}
+
+# Process both files and directories in one pass
+find "$directory" -depth | while IFS= read -r path; do
+    # Skip if it's the target directory itself
+    if [ "$path" = "$directory" ]; then
+        continue
+    fi
+
+    # Extract directory and base name
+    dir=$(dirname "$path")
+    old_name=$(basename "$path")
+
+    # Generate new normalized name
+    new_name=$(normalize_name "$old_name")
+
+    # Rename if the name has changed
+    if [ "$old_name" != "$new_name" ]; then
+        mv -v "$dir/$old_name" "$dir/$new_name"
+    fi
 done
 
-# Replace "-" with "_" in directory names (recursively)
-find "$directory" -depth -type d -name '*-*' | while IFS= read -r dir; do
-    newname=$(echo "$dir" | tr '-' '_')
-    mv -v "$dir" "$newname"
-done
+echo "Renaming process completed."
+exit 0

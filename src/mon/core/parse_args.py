@@ -1,22 +1,171 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Parses user-input and config arguments."""
+"""Parses config arguments and command line arguments."""
 
 __all__ = [
+    "list_configs",
     "parse_cli_args",
+    "parse_config_file",
     "parse_predict_args",
     "parse_train_args",
+    "read_config",
 ]
 
 import argparse
+import importlib.util
 import socket
 from typing import Any
 
-from mon.core import pathlib, utils
+from mon.core import pathlib, rich, serializers, type_extensions
+from mon.core.device import parse_device
 
 
-# ----- Utils -----
+# ----- Retrieve -----
+def list_configs(
+    project_root : str | pathlib.Path,
+    model_root   : str | pathlib.Path = None,
+    model        : str  = None,
+    absolute_path: bool = False,
+) -> list[pathlib.Path]:
+    """Lists configuration files in the project and/or model directory.
+
+    Args:
+        project_root: Root directory of the project.
+        model_root: Root directory of the model. Default is ``None``.
+        model: Name of the model to filter configs. Default is ``None``.
+        absolute_path: If ``True``, returns absolute paths else file names.
+            Default is ``False``.
+
+    Returns:
+        Sorted list of config file ``Path`` objects.
+    """
+    from mon import nn
+    
+    def is_valid(x) -> bool:
+        return x not in [None, "", "None"]
+
+    def collect_config_files(root: str | pathlib.Path) -> list[pathlib.Path]:
+        config_dir = pathlib.Path(root) / "config"
+        return list(config_dir.files(recursive=True))
+    
+    # List config files in project and model directories
+    config_files = []
+    if is_valid(project_root):
+        config_files += collect_config_files(project_root)
+    if is_valid(model_root):
+        config_files += collect_config_files(model_root)
+    
+    # Filter
+    config_files = [
+        cf for cf in config_files
+        if cf.is_config_file() or (cf.is_py_file() and cf.name != "__init__.py")
+    ]
+    
+    if is_valid(model):
+        model_name   = nn.parse_model_name(model)
+        config_files = [cf for cf in config_files if model_name in cf.name]
+    
+    if not absolute_path:
+        config_files = [cf.name for cf in config_files]
+      
+    return sorted(type_extensions.unique(config_files))
+
+
+def read_config(config: Any) -> dict:
+    """Loads configuration from a given source.
+
+    Args:
+        config: Config source (dict, file path, or string).
+
+    Returns:
+        Dict with loaded config, or empty dict if loading fails.
+    """
+    if isinstance(config, dict):
+        data = config
+    elif isinstance(config, (pathlib.Path, str)):
+        config = pathlib.Path(config)
+        if config.is_py_file():
+            spec   = importlib.util.spec_from_file_location(str(config.stem), str(config))
+            module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(module)
+            data   = {key: value for key, value in module.__dict__.items() if not key.startswith("__")}
+        else:
+            data = serializers.read_from_file(path=config)
+    else:
+        data = None
+    
+    if data:
+        rich.console.log(f"Loaded configuration from: {config}.")
+    else:
+        rich.error_console.log(f"Could not load configuration from: {config}. "
+                               f"Returning empty dict.")
+        data = {}
+
+    return data
+
+
+# ----- Parse Config File -----
+def parse_config_file(
+    config      : str | pathlib.Path,
+    project_root: str | pathlib.Path,
+    model_root  : str | pathlib.Path = None,
+    weights_path: str | pathlib.Path = None,
+) -> pathlib.Path | None:
+    """Parses the config file from the given paths.
+
+    Args:
+        config: Config file path or name.
+        project_root: Root directory of the project.
+        model_root: Root directory of the model. Default is ``None``.
+        weights_path: Path to weights file. Default is ``None``.
+
+    Returns:
+        ``Path`` to config file if found, else ``None``.
+    """
+    def find_config_in_dirs(config, dirs):
+        for config_dir in dirs:
+            config_ = (config_dir / config.name).config_file()
+            if config_.is_config_file():
+                return config_
+        return None
+    
+    if config:
+        config = pathlib.Path(config)
+        if config.is_config_file():
+            return config
+        config_ = config.config_file()
+        if config_.is_config_file():
+            return config_
+        if project_root:
+            config_dirs = [pathlib.Path(project_root / "config")] + \
+                          pathlib.Path(project_root / "config").subdirs(recursive=True)
+            config_ = find_config_in_dirs(config, config_dirs)
+            if config_:
+                return config_
+        if model_root:
+            config_dirs = [pathlib.Path(model_root / "config")] + \
+                          pathlib.Path(model_root / "config").subdirs(recursive=True)
+            config_ = find_config_in_dirs(config, config_dirs)
+            if config_:
+                return config_
+    
+    if weights_path:
+        weights_path = pathlib.Path(weights_path[0] if isinstance(weights_path, list) else weights_path)
+        if weights_path.is_weights_file():
+            config_ = (weights_path.parent / "config.py").config_file()
+            if config_.is_config_file():
+                return config_
+    
+    rich.error_console.log(
+        f"Could not find configuration file given: "
+        f"config={config}, project_root={project_root}, "
+        f"model_root={model_root}, weights_path={weights_path}"
+    )
+    return None
+
+
+# ----- Parse Args -----
 def _str_or_none(value: Any) -> str | None:
     """Converts a value to a string or ``None`` if value is ``"None"``.
 
@@ -53,7 +202,6 @@ def _float_or_none(value: Any) -> float | None:
     return None if value == "None" else float(value)
 
 
-# ----- Parse Args -----
 def parse_cli_args() -> argparse.Namespace:
     """Parse CLI arguments."""
     parser = argparse.ArgumentParser(description="predict")
@@ -85,6 +233,8 @@ def parse_cli_args() -> argparse.Namespace:
 
 def parse_train_args(model_root: str | pathlib.Path = None) -> dict | argparse.Namespace:
     """Parse arguments for training."""
+    from mon import nn
+    
     hostname = socket.gethostname().lower()
     
     # Get input args
@@ -95,13 +245,13 @@ def parse_train_args(model_root: str | pathlib.Path = None) -> dict | argparse.N
     weights  = cli_args.get("weights")
     
     # Get config args
-    config = utils.parse_config_file(
+    config = parse_config_file(
         project_root = root,
         model_root   = model_root,
         weights_path = weights,
         config       = config,
     )
-    args   = utils.load_config(config)
+    args   = read_config(config)
     
     # Prioritize cli_args -> args
     root         = root                         or args.get("root")
@@ -127,7 +277,7 @@ def parse_train_args(model_root: str | pathlib.Path = None) -> dict | argparse.N
     
     # Parse arguments
     if save_dir in [None, ""]:
-        save_dir = utils.parse_save_dir(root/"run"/"train", arch, model, data)
+        save_dir = pathlib.parse_save_dir(root/"run"/"train", arch, model, data)
     else:
         save_dir = pathlib.Path(save_dir)
         if str("run/train") not in str(save_dir):
@@ -135,8 +285,8 @@ def parse_train_args(model_root: str | pathlib.Path = None) -> dict | argparse.N
         if str(root) not in str(save_dir):
             save_dir = root / save_dir
             
-    weights = utils.parse_weights_file(root/"run"/"train", weights)
-    device  = utils.parse_device(device)
+    weights = nn.parse_weights_file(root/"run"/"train", weights)
+    device  = parse_device(device)
     
     # Update arguments
     args["hostname"]     = hostname
@@ -177,7 +327,7 @@ def parse_train_args(model_root: str | pathlib.Path = None) -> dict | argparse.N
 
 def parse_predict_args(model_root: str | pathlib.Path = None) -> dict | argparse.Namespace:
     """Parse arguments for predicting."""
-    from mon import vision
+    from mon import vision, nn
     
     hostname = socket.gethostname().lower()
     
@@ -189,13 +339,13 @@ def parse_predict_args(model_root: str | pathlib.Path = None) -> dict | argparse
     weights  = cli_args.get("weights")
     
     # Get config args
-    config = utils.parse_config_file(
+    config = parse_config_file(
         project_root = root,
         model_root   = model_root,
         weights_path = weights,
         config       = config,
     )
-    args   = utils.load_config(config)
+    args   = read_config(config)
     
     # Prioritize cli_args -> args
     root         = root                         or args.get("root")
@@ -222,9 +372,9 @@ def parse_predict_args(model_root: str | pathlib.Path = None) -> dict | argparse
     # Parse arguments
     if save_dir in [None, ""]:
         if use_fullname:
-            save_dir = utils.parse_save_dir(root/"run"/"predict", arch, fullname, None)
+            save_dir = pathlib.parse_save_dir(root/"run"/"predict", arch, fullname, None)
         else:
-            save_dir = utils.parse_save_dir(root/"run"/"predict", arch, model,    None)
+            save_dir = pathlib.parse_save_dir(root/"run"/"predict", arch, model,    None)
     else:
         save_dir = pathlib.Path(save_dir)
         save_dir = save_dir.replace("run/train/", "")
@@ -233,8 +383,8 @@ def parse_predict_args(model_root: str | pathlib.Path = None) -> dict | argparse
         if str(root) not in str(save_dir):
             save_dir = root / save_dir
         
-    weights = utils.parse_weights_file(root, weights)
-    device  = utils.parse_device(device)
+    weights = nn.parse_weights_file(root, weights)
+    device  = parse_device(device)
     imgsz   = vision.image_size(imgsz)
     
     # Update arguments

@@ -55,7 +55,7 @@ def denormalize_contour(contour: np.ndarray, height: int, width: int) -> np.ndar
     return np.stack((x, y), axis=-1)
 
 
-# ----- Conversion -----
+# ----- Convert -----
 contour_voc_to_yolo = normalize_contour
 contour_yolo_to_voc = denormalize_contour
 

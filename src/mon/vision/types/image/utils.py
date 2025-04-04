@@ -32,7 +32,7 @@ import torch
 from mon.nn import _size_2_t
 
 
-# ----- Accessor -----
+# ----- Access -----
 def image_center(image: torch.Tensor | np.ndarray) -> torch.Tensor | np.ndarray:
     """Returns the center of an image as (x=h/2, y=w/2).
 

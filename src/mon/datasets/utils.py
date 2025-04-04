@@ -5,12 +5,79 @@
 
 __all__ = [
     "parse_data_loader",
+    "list_mon_datasets",
+    "list_extra_datasets",
+    "list_datasets",
 ]
 
 from mon import core, vision
-from mon.constants import DATA_DIR, DATASETS, Split
+from mon.constants import DATA_DIR, DATASETS, EXTRA_DATASETS, Split, Task
 
 
+# ----- Retrieve -----
+def list_mon_datasets(task: str, mode: str) -> list[str]:
+    """Lists all available datasets in the ``mon`` framework.
+
+    Args:
+        task: Task for which datasets are listed.
+        mode: Mode of datasets (``train`` or ``test``).
+
+    Returns:
+        Sorted list of dataset names matching task and mode.
+    """
+    split    = Split("train" if mode == "train" else "test")
+    task     = Task(task)
+    datasets = DATASETS
+
+    return sorted([
+        d for d in datasets
+        if task in datasets[d].tasks and split in datasets[d].splits
+    ])
+
+
+def list_extra_datasets(task: str, mode: str) -> list[str]:
+    """Lists all available datasets in the ``extra`` framework.
+
+    Args:
+        task: Task for which datasets are listed.
+        mode: Mode of datasets (``train`` or ``test``).
+
+    Returns:
+        Sorted list of dataset names matching task and mode.
+    """
+    split    = Split("train" if mode == "train" else "test")
+    task     = Task(task)
+    datasets = EXTRA_DATASETS
+
+    return sorted([
+        d for d in datasets
+        if task in datasets[d]["tasks"] and split in datasets[d]["splits"]
+    ])
+
+
+def list_datasets(
+    task: str,
+    mode: str,
+    project_root: str | core.Path = None
+) -> list[str]:
+    """Lists all available datasets.
+
+    Args:
+        task: Task for which datasets are listed.
+        mode: Mode of datasets (``train`` or ``test``).
+        project_root: Root directory of project. Default is ``None``.
+
+    Returns:
+        Sorted list of dataset names matching task and mode.
+    """
+    datasets        = sorted(list_mon_datasets(task, mode) + list_extra_datasets(task, mode))
+    default_configs = core.get_project_defaults(project_root)
+    if default_configs.get("DATASETS"):
+        datasets = [d for d in datasets if d in default_configs["DATASETS"]]
+    return datasets
+
+
+# ----- Convert -----
 def parse_data_loader(
     src      : core.Path | str,
     data_root: core.Path | str = None,

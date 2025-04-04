@@ -16,6 +16,10 @@ __all__ = [
     "delete_files",
     "hash_files",
     "mkdirs",
+    "parse_data_dir",
+    "parse_debug_dir",
+    "parse_output_dir",
+    "parse_save_dir",
     "rmdirs",
 ]
 
@@ -29,7 +33,7 @@ import validators
 from mon.core import humps, type_extensions
 
 
-# ----- Path -----
+# ----- Path Class -----
 class Path(type(pathlib.Path())):
     """Extended ``pathlib.Path`` with additional functionalities.
     
@@ -404,7 +408,7 @@ class Path(type(pathlib.Path())):
         return Path(str(self).replace(old, new, count))
 
 
-# ----- Creation -----
+# ----- Create -----
 def copy_file(src: Path | str, dst: Path | str) -> None:
     """Copies a file to a new location.
 
@@ -418,7 +422,7 @@ def copy_file(src: Path | str, dst: Path | str) -> None:
     shutil.copyfile(src, dst)
 
 
-# ----- Reading -----
+# ----- Read -----
 def hash_files(paths: list[Path | str]) -> int:
     """Calculates the total hash value of files based on their sizes.
 
@@ -432,10 +436,7 @@ def hash_files(paths: list[Path | str]) -> int:
     return sum(f.stat().st_size for f in paths if f.is_file())
 
 
-# ----- Updating -----
-
-
-# ----- Deletion -----
+# ----- Delete -----
 def delete_cache(path: Path | str, recursive: bool = True):
     """Clears cache files in a directory and optionally its subdirs.
 
@@ -531,3 +532,101 @@ def rmdirs(paths: Path | str | list[Path | str]):
             p.rmdir()
         except Exception as err:
             print(f"Cannot delete directory: [err].")
+
+
+# ----- Convert -----
+def parse_data_dir(root: str | pathlib.Path, data_dir: str | pathlib.Path) -> str | pathlib.Path:
+    """Parses the absolute data directory path from given components.
+
+    Args:
+        root: Root directory.
+        data_dir: Data directory.
+
+    Returns:
+        Parsed the absolute path of the data directory.
+    """
+    from mon.constants import ROOT_DIR
+    
+    root     = pathlib.Path(root)
+    data_dir = pathlib.Path(data_dir)
+    if not data_dir.is_dir():
+        if (ROOT_DIR / data_dir).is_dir():
+            data_dir = ROOT_DIR / data_dir
+        elif (root / data_dir).is_dir():
+            data_dir = root / data_dir
+    return data_dir
+
+
+def parse_save_dir(
+    root : str | Path,
+    arch : str = None,
+    model: str = None,
+    data : str = None,
+) -> str | pathlib.Path:
+    """Parses a save dir in format: root/arch/model/data.
+
+    Args:
+        root: Project root.
+        arch: Model architecture. Default is ``None``.
+        model: Model name. Default is ``None``.
+        data: Dataset name. Default is ``None``.
+
+    Returns:
+        Parsed save dir path as ``str`` or ``pathlib.Path``.
+    """
+    save_dir = pathlib.Path(root)
+    if arch:
+        save_dir /= arch
+    if model:
+        save_dir /= model
+        if data:
+            save_dir /= data
+    return save_dir
+
+
+def parse_output_dir(
+    root        : str | Path,
+    dirname     : str | Path,
+    file        : str | Path,
+    keep_subdirs: bool = False,
+):
+    """Parses the output directory path from given components.
+    
+    Args:
+        root: Root directory.
+        dirname: Directory name.
+        file: File name.
+        keep_subdirs: If ``True``, keeps subdirectories in the path. Default is ``False``.
+    """
+    root    = Path(root)
+    dirname = Path(dirname)
+    file    = Path(file)
+    if keep_subdirs:
+        rel_path = file.relative_path(dirname)
+        return root / rel_path.parent
+    else:
+        return root / dirname
+
+
+def parse_debug_dir(
+    root        : str | Path,
+    dirname     : str | Path,
+    file        : str | Path,
+    keep_subdirs: bool = False,
+):
+    """Parses the debug directory path from given components.
+    
+    Args:
+        root: Root directory.
+        dirname: Directory name.
+        file: File name.
+        keep_subdirs: If ``True``, keeps subdirectories in the path. Default is ``False``.
+    """
+    root    = Path(root)
+    dirname = Path(dirname)
+    file    = Path(file)
+    if keep_subdirs:
+        rel_path = file.relative_path(dirname)
+        return root / rel_path.parents[1] / f"{rel_path.parent.name}_debug"
+    else:
+        return root / f"{dirname}_debug"

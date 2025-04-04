@@ -6,16 +6,13 @@
 __all__ = [
     "ExtraModel",
     "Model",
-    "load_weights",
 ]
 
 from abc import ABC, abstractmethod
 from typing import Any, Callable
-from urllib.parse import urlparse  # noqa: F401
 
-import humps
 import lightning.pytorch.utilities.types
-import torch.hub
+import torch
 
 from mon import core
 from mon.constants import (
@@ -23,57 +20,10 @@ from mon.constants import (
     Task,
 )
 from mon.nn import loss as L, metric as M
+from mon.nn.model import utils
 
 StepOutput  = lightning.pytorch.utilities.types.STEP_OUTPUT
 EpochOutput = Any  # lightning.pytorch.utilities.types.EPOCH_OUTPUT
-
-
-# ----- Utils -----
-def is_image(image: torch.Tensor) -> bool:
-    """Checks if input is a valid image tensor.
-
-    Args:
-        image: Tensor to validate.
-    
-    Returns:
-        ``True`` if image is valid, ``False`` otherwise.
-    """
-    from mon import vision
-    return vision.is_image(image)
-    
-    
-# ----- Weights -----
-def load_weights(
-    model       : torch.nn.Module,
-    weights     : dict | str | core.Path,
-    weights_only: bool = False
-) -> dict | None:
-    """Loads state dict from weights into a model.
-
-    Args:
-        model: ``torch.nn.Module`` to load weights into.
-        weights: Weights as ``dict``, ``str`` path, or ``core.Path``.
-        weights_only: Loads only weights if ``True``. Default is ``False``.
-
-    Returns:
-        State ``dict`` if loaded, ``None`` otherwise.
-    """
-    if weights is None:
-        return None
-
-    path       = core.Path(weights["path"]) if isinstance(weights, dict) and "path" in weights     else None
-    state_dict = weights                    if isinstance(weights, dict) and "path" not in weights else None
-
-    if isinstance(weights, (str, core.Path)) and core.Path(weights).is_weights_file():
-        path = core.Path(weights)
-
-    if path and path.is_weights_file():
-        state_dict = torch.load(str(path), map_location=model.device, weights_only=weights_only)
-    elif state_dict is None:
-        core.error_console.log(f"[yellow]Cannot load weights from: {weights}[/yellow]")
-        return None
-
-    return state_dict["state_dict"] if "state_dict" in state_dict else state_dict
 
 
 # ----- Model -----
@@ -273,7 +223,7 @@ class Model(lightning.LightningModule, ABC):
     def init_name(self):
         """Sets the model's name if not already defined."""
         if not self.name:
-            self.name = humps.kebabize(self.__class__.__name__).lower()
+            self.name = core.humps.kebabize(self.__class__.__name__).lower()
     
     def create_dir(self):
         """Creates root, checkpoint, and debug directories."""
@@ -309,7 +259,7 @@ class Model(lightning.LightningModule, ABC):
             url  = weights_dict.get("url",  None)
             path = weights_dict.get("path", None)
             if url and path:
-                core.download_weights_from_url(url, path, overwrite)
+                utils.download_weights_from_url(url, path, overwrite)
             self.weights = weights_dict
         elif isinstance(weights, (str, core.Path)):
             weights_path = core.Path(weights)
@@ -333,7 +283,7 @@ class Model(lightning.LightningModule, ABC):
             overwrite: Overwrites existing weights if ``True``. Default is ``False``.
         """
         self.assign_weights(weights, overwrite)
-        state_dict = load_weights(self, self.weights, weights_only=True)
+        state_dict = utils.load_weights(self, self.weights, weights_only=True)
         if state_dict:
             self.load_state_dict(state_dict)
             if self.verbose:
@@ -426,7 +376,7 @@ class Model(lightning.LightningModule, ABC):
         metrics_ = []
         for m in metrics:
             if isinstance(m, M.Metric):
-                m.name = humps.depascalize(humps.pascalize(m.__class__.__name__))
+                m.name = core.humps.depascalize(core.humps.pascalize(m.__class__.__name__))
                 metrics_.append(m)
             elif isinstance(m, dict) and "name" in m:
                 m_ = METRICS.build(config=m)
@@ -584,7 +534,7 @@ class Model(lightning.LightningModule, ABC):
         log_values |= {
             f"train/{k}": v
             for k, v in outputs.items()
-            if v and not is_image(v)
+            if v and not utils.is_image(v)
         }
         self.log_dict(
             dictionary     = log_values,
@@ -627,7 +577,7 @@ class Model(lightning.LightningModule, ABC):
         log_values |= {
             f"val/{k}": v
             for k, v in outputs.items()
-            if v and not is_image(v)
+            if v and not utils.is_image(v)
         }
         self.log_dict(
             dictionary     = log_values,
@@ -681,7 +631,7 @@ class Model(lightning.LightningModule, ABC):
         log_values |= {
             f"test/{k}": v
             for k, v in outputs.items()
-            if v and not is_image(v)
+            if v and not utils.is_image(v)
         }
         self.log_dict(
             dictionary     = log_values,
@@ -730,7 +680,7 @@ class Model(lightning.LightningModule, ABC):
         self,
         input_dims   : list[int] = None,
         file_path    : core.Path = None,
-        export_params: bool      = True
+        export_params: bool = True
     ):
         """Exports the model to ONNX format.
     
@@ -761,7 +711,7 @@ class Model(lightning.LightningModule, ABC):
         self,
         input_dims: list[int] = None,
         file_path : core.Path = None,
-        method    : str       = "script"
+        method    : str = "script"
     ):
         """Exports the model to ``TorchScript`` format.
     
@@ -833,7 +783,7 @@ class ExtraModel(Model, ABC):
             overwrite: Overwrite existing weights if ``True``. Default is ``False``.
         """
         self.assign_weights(weights, overwrite)
-        state_dict = load_weights(self, self.weights, weights_only=False)
+        state_dict = utils.load_weights(self, self.weights, weights_only=False)
         if state_dict:
             self.model.load_state_dict(state_dict=state_dict)
             if self.verbose:

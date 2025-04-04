@@ -35,7 +35,7 @@ from plum import dispatch
 from rich import panel, pretty, progress, table, text, theme
 
 from mon.constants import MemoryUnit
-from mon.core import type_extensions, utils
+from mon.core import device, type_extensions
 
 
 # ----- Console -----
@@ -251,7 +251,7 @@ class MemoryUsageColumn(progress.ProgressColumn):
         Returns:
             ``rich.text.Text`` with RAM usage status.
         """
-        total, used, _ = utils.get_memory_usages(unit=self.unit)
+        total, used, _ = device.get_memory_usages(unit=self.unit)
         memory_status  = f"{used:.1f}/{total:.1f}{self.unit.value} (CPU)"
         memory_text    = text.Text(memory_status, style="bright_yellow")
         return memory_text
@@ -266,7 +266,7 @@ class MemoryUsageColumn(progress.ProgressColumn):
         num_devices = len(self.devices)
         totals, useds = [], []
         for i in self.devices:
-            total, used, _ = utils.get_cuda_memory_usages(device=i, unit=self.unit)
+            total, used, _ = device.get_cuda_memory_usages(device=i, unit=self.unit)
             totals.append(total)
             useds.append(used)
         total = min(totals)
