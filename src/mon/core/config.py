@@ -5,11 +5,12 @@
 
 __all__ = [
     "list_configs",
+    "load_config",
+    "load_project_defaults",
     "parse_cli_args",
     "parse_config_file",
     "parse_predict_args",
     "parse_train_args",
-    "read_config",
 ]
 
 import argparse
@@ -22,6 +23,34 @@ from mon.core.device import parse_device
 
 
 # ----- Retrieve -----
+def load_project_defaults(project_root: str | pathlib.Path) -> dict:
+    """Gets the default configuration of the project.
+
+    Args:
+        project_root: Root directory of the project.
+
+    Returns:
+        Dict with default config, or empty dict if invalid or not found.
+    """
+    if project_root in [None, "None", ""]:
+        rich.error_console.log(f"[project_root] is not a valid project directory: {project_root}.")
+        return {}
+    
+    config_file = pathlib.Path(project_root) / "config" / "default.py"
+    if not config_file.exists():
+        return {}
+    
+    spec   = importlib.util.spec_from_file_location("default", str(config_file))
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    
+    return {
+        key: value
+        for key, value in module.__dict__.items()
+        if not key.startswith('__')
+    }
+
+
 def list_configs(
     project_root : str | pathlib.Path,
     model_root   : str | pathlib.Path = None,
@@ -72,7 +101,7 @@ def list_configs(
     return sorted(type_extensions.unique(config_files))
 
 
-def read_config(config: Any) -> dict:
+def load_config(config: Any) -> dict:
     """Loads configuration from a given source.
 
     Args:
@@ -91,7 +120,7 @@ def read_config(config: Any) -> dict:
             spec.loader.exec_module(module)
             data   = {key: value for key, value in module.__dict__.items() if not key.startswith("__")}
         else:
-            data = serializers.read_from_file(path=config)
+            data = serializers.load_from_file(path=config)
     else:
         data = None
     
@@ -251,7 +280,7 @@ def parse_train_args(model_root: str | pathlib.Path = None) -> dict | argparse.N
         weights_path = weights,
         config       = config,
     )
-    args   = read_config(config)
+    args   = load_config(config)
     
     # Prioritize cli_args -> args
     root         = root                         or args.get("root")
@@ -345,7 +374,7 @@ def parse_predict_args(model_root: str | pathlib.Path = None) -> dict | argparse
         weights_path = weights,
         config       = config,
     )
-    args   = read_config(config)
+    args   = load_config(config)
     
     # Prioritize cli_args -> args
     root         = root                         or args.get("root")

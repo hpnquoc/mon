@@ -143,8 +143,8 @@ class VisionDataset(core.Dataset, ABC):
         if cache_data and cache_file.is_cache_file():
             self.load_cache(path=cache_file)
         else:
-            self.get_data()
-            self.get_multimodal_data()
+            self.list_data()
+            self.list_multimodal_data()
         
         self.filter_data()
         self.verify_data()
@@ -154,21 +154,21 @@ class VisionDataset(core.Dataset, ABC):
         else:
             core.delete_cache(cache_file)
     
-    def get_multimodal_data(self):
-        """Gets multimodal data for the dataset."""
+    def list_multimodal_data(self):
+        """Lists multimodal data for the dataset."""
         if "depth" in self.datapoint_attrs:
-            self.get_depth_map()
+            self.list_depth_map()
         
         if self.has_annotations:
-            self.get_reference_image()
+            self.list_reference_image()
             if "ref_depth" in self.datapoint_attrs:
-                self.get_reference_depth_map()
+                self.list_reference_depth_map()
         else:
             self.datapoints.pop("ref_image", None)
             self.datapoints.pop("ref_depth", None)
     
-    def get_reference_image(self):
-        """Gets reference images for the dataset."""
+    def list_reference_image(self):
+        """Lists reference images for the dataset."""
         images     = self.datapoints.get("image",     [])
         ref_images = self.datapoints.get("ref_image", [])
         
@@ -188,8 +188,8 @@ class VisionDataset(core.Dataset, ABC):
                     ))
             self.datapoints["ref_image"] = ref_images
     
-    def get_depth_map(self):
-        """Gets depth maps for the dataset."""
+    def list_depth_map(self):
+        """Lists depth maps for the dataset."""
         images = self.datapoints.get("image", [])
         depths = self.datapoints.get("depth", [])
         
@@ -212,8 +212,8 @@ class VisionDataset(core.Dataset, ABC):
                     )
             self.datapoints["depth"] = depths
             
-    def get_reference_depth_map(self):
-        """Gets reference depth maps for the dataset."""
+    def list_reference_depth_map(self):
+        """Lists reference depth maps for the dataset."""
         ref_images = self.datapoints.get("ref_image", [])
         ref_depths = self.datapoints.get("ref_depth", [])
         

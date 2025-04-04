@@ -139,7 +139,7 @@ class SemanticSegmentationAnnotation(core.Annotation):
             return self.mask
         load_path  = path  or self.path
         load_flags = flags or self.flags
-        mask       = I.read_image(load_path, load_flags, False, False)
+        mask       = I.load_image(load_path, load_flags, False, False)
         self.mask = mask if cache else None
         return mask
     

@@ -51,8 +51,8 @@ class GTRain(VisionDataset):
             raise FileNotFoundError(f"[root] directory not found: [{root}].")
         super().__init__(root=root, *args, **kwargs)
 
-    def get_data(self):
-        """Populates ``datapoints`` with image and ref annotations."""
+    def list_data(self):
+        """Lists ``datapoints`` with image and ref annotations."""
         patterns = [self.root / self.split_str / "image"]
 
         images: list[ImageAnnotation] = []

@@ -55,8 +55,8 @@ class Flare7KPPReal(VisionDataset):
             raise FileNotFoundError(f"[root] directory not found: [{root}].")
         super().__init__(root=root, *args, **kwargs)
 
-    def get_data(self):
-        """Populates ``datapoints`` with image annotations for split."""
+    def list_data(self):
+        """Lists ``datapoints`` with image annotations for split."""
         patterns = [self.root / self.split_str / "real" / "image"]
 
         images: list[ImageAnnotation] = []
@@ -99,8 +99,8 @@ class Flare7KPPSynthetic(VisionDataset):
             raise FileNotFoundError(f"[root] directory not found: [{root}].")
         super().__init__(root=root, *args, **kwargs)
 
-    def get_data(self):
-        """Populates ``datapoints`` with image annotations for split."""
+    def list_data(self):
+        """Lists ``datapoints`` with image annotations for split."""
         patterns = [self.root / self.split_str / "synthetic" / "image"]
 
         images: list[ImageAnnotation] = []
@@ -142,8 +142,8 @@ class Flare7KPPExtra(VisionDataset):
             raise FileNotFoundError(f"[root] directory not found: [{root}].")
         super().__init__(root=root, *args, **kwargs)
 
-    def get_data(self):
-        """Populates ``datapoints`` with image annotations for split."""
+    def list_data(self):
+        """Lists ``datapoints`` with image annotations for split."""
         patterns = [self.root / self.split_str / "extra" / "image"]
 
         images: list[ImageAnnotation] = []

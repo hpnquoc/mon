@@ -57,7 +57,7 @@ class ImageLoader(base.VisionDataset):
         )
     
     # ----- Initialization -----
-    def get_data(self):
+    def list_data(self):
         """Gets image data from the root path.
 
         Raises:

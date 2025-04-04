@@ -136,7 +136,7 @@ class COCO2017(VisionDataset):
         # Initialize
         super().__init__(root=root, *args, **kwargs)
     
-    def get_data(self):
+    def list_data(self):
         patterns = [self.root / self.split_str / "image",]
         
         # Left Images

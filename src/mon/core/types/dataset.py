@@ -25,11 +25,11 @@ from torch.utils.data.dataset import (
 
 from mon.constants import Split, Task
 from mon.core import pathlib, rich
-from mon.core.types import annotations
+from mon.core.types.annotations import Annotation, ClassLabels
 
 
 # ----- Datapoint -----
-class DatapointAttributes(dict[str, annotations.Annotation]):
+class DatapointAttributes(dict[str, Annotation]):
     """Holds datapoint attributes as a ``dict``.
 
     Args:
@@ -65,7 +65,7 @@ class Dataset(dataset.Dataset, ABC):
     splits: list[Split] = [Split.TRAIN, Split.VAL, Split.TEST, Split.PREDICT]
     datapoint_attrs     = DatapointAttributes({})
     has_test_annotations: bool = False
-    classlabels: annotations.ClassLabels = None
+    classlabels: ClassLabels   = None
     
     def __init__(
         self,
@@ -276,7 +276,7 @@ class Dataset(dataset.Dataset, ABC):
         if cache_data and cache_file.is_cache_file():
             self.load_cache(path=cache_file)
         else:
-            self.get_data()
+            self.list_data()
         
         self.filter_data()
         self.verify_data()
@@ -287,8 +287,8 @@ class Dataset(dataset.Dataset, ABC):
             pathlib.delete_cache(cache_file)
     
     @abstractmethod
-    def get_data(self):
-        """Gets the base data."""
+    def list_data(self):
+        """Lists all data files in the dataset."""
         pass
     
     def cache_data(self, path: pathlib.Path):

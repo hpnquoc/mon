@@ -55,8 +55,8 @@ class LoLIStreet(VisionDataset):
             raise FileNotFoundError(f"[root] directory not found: [{root}].")
         super().__init__(root=root, *args, **kwargs)
 
-    def get_data(self):
-        """Populates ``datapoints`` with image annotations for split."""
+    def list_data(self):
+        """Lists ``datapoints`` with image annotations for split."""
         if self.split == Split.TEST:
             patterns = [self.root / "val" / "image"]
         else:
@@ -104,8 +104,8 @@ class LoLIStreetVal(VisionDataset):
             raise FileNotFoundError(f"[root] directory not found: [{root}].")
         super().__init__(root=root, *args, **kwargs)
 
-    def get_data(self):
-        """Populates ``datapoints`` with image annotations for split."""
+    def list_data(self):
+        """Lists ``datapoints`` with image annotations for split."""
         patterns = [self.root / "val" / "image"]
 
         images: list[ImageAnnotation] = []
@@ -148,8 +148,8 @@ class LoLIStreetTest(VisionDataset):
             raise FileNotFoundError(f"[root] directory not found: [{root}].")
         super().__init__(root=root, *args, **kwargs)
 
-    def get_data(self):
-        """Populates ``datapoints`` with image annotations for split."""
+    def list_data(self):
+        """Lists ``datapoints`` with image annotations for split."""
         patterns = [self.root / "test" / "image"]
 
         images: list[ImageAnnotation] = []

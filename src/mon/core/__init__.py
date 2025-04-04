@@ -25,11 +25,11 @@ import mon.core.pathlib
 import mon.core.rich
 import mon.core.serializers
 import mon.core.thop
+from mon.core.config import *
 from mon.core.device import *
 from mon.core.factory import *
 from mon.core.humps import *
 from mon.core.logging import *
-from mon.core.parse_args import *
 from mon.core.pathlib import *
 from mon.core.rich import (
 	console, create_download_bar, create_progress_bar, error_console, get_terminal_size,

@@ -58,8 +58,8 @@ class CityscapesFoggy(Cityscapes):
             raise FileNotFoundError(f"[root] must be a directory, got {root}.")
         super().__init__(root=root, *args, **kwargs)
     
-    def get_data(self):
-        """Loads foggy images, reference images, and semantic maps."""
+    def list_data(self):
+        """Lists foggy images, reference images, and semantic maps."""
         patterns = [self.root / self.split_str / "leftImg8bit_foggy"]
         
         images: list[ImageAnnotation] = []

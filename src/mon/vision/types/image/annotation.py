@@ -141,7 +141,7 @@ class ImageAnnotation(core.Annotation):
             return self.image
         load_path  = path or self.path
         load_flags = flags or self.flags
-        image      = io.read_image(load_path, load_flags, False, False)
+        image      = io.load_image(load_path, load_flags, False, False)
         if self._shape != image.shape:
             self._shape = image.shape
         self.image = image if cache else None

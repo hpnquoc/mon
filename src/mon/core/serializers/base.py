@@ -6,7 +6,7 @@
 __all__ = [
     "BaseSerializer",
     "merge_files",
-    "read_from_file",
+    "load_from_file",
     "write_to_file",
 ]
 
@@ -19,10 +19,10 @@ from mon.core import pathlib, type_extensions
 
 # ----- Serializer -----
 class BaseSerializer(ABC):
-    """Base class for reading and writing data in various file formats."""
+    """Base class for loading and writing data in various file formats."""
     
     @abstractmethod
-    def read_from_fileobj(self, path: pathlib.Path | str | TextIO, **kwargs) -> Any:
+    def load_from_fileobj(self, path: pathlib.Path | str | TextIO, **kwargs) -> Any:
         """Loads content from a ``file`` object.
     
         Args:
@@ -58,7 +58,7 @@ class BaseSerializer(ABC):
         """
         pass
     
-    def read_from_file(self, path: pathlib.Path | str, mode: str = "r", **kwargs) -> Any:
+    def load_from_file(self, path: pathlib.Path | str, mode: str = "r", **kwargs) -> Any:
         """Loads content from a ``file``.
 
         Args:
@@ -70,7 +70,7 @@ class BaseSerializer(ABC):
             Content from the ``file``.
         """
         with open(path, mode) as f:
-            return self.read_from_fileobj(path=f, **kwargs)
+            return self.load_from_fileobj(path=f, **kwargs)
     
     def write_to_file(self, obj: Any, path: pathlib.Path | str, mode: str = "w", **kwargs):
         """Writes a serializable object to a ``file``.
@@ -117,7 +117,7 @@ def write_to_file(
         handler.write_to_file(obj=obj, path=path_obj, **kwargs)
 
 
-def read_from_file(
+def load_from_file(
     path       : pathlib.Path | str | TextIO,
     file_format: str = None,
     **kwargs
@@ -141,9 +141,9 @@ def read_from_file(
     
     handler: BaseSerializer = SERIALIZERS.build(name=file_format)
     if hasattr(path, "read"):
-        return handler.read_from_fileobj(path=path, **kwargs)
+        return handler.load_from_fileobj(path=path, **kwargs)
     if isinstance(path_obj, (pathlib.Path, str)):
-        return handler.read_from_file(path=path_obj, **kwargs)
+        return handler.load_from_file(path=path_obj, **kwargs)
     raise TypeError(f"[path] must be str, pathlib.Path, or file-like, "
                     f"got {type(path).__name__}.")
 
@@ -167,7 +167,7 @@ def merge_files(
     in_paths = [pathlib.Path(p) for p in type_extensions.to_list(in_paths)]
     data = None
     for input_path in in_paths:
-        content = read_from_file(path=input_path)
+        content = load_from_file(path=input_path)
         if isinstance(content, list):
             data = data or []
             data.extend(content)

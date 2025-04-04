@@ -37,7 +37,7 @@ class JSONSerializer(base.BaseSerializer):
             return obj.item()
         raise TypeError(f"[obj] type [{type(obj).__name__}] is not JSON-serializable")
     
-    def read_from_fileobj(self, path: pathlib.Path | str | TextIO, **kwargs) -> Any:
+    def load_from_fileobj(self, path: pathlib.Path | str | TextIO, **kwargs) -> Any:
         """Loads data from a ``file`` object.
     
         Args:

@@ -16,7 +16,7 @@ from mon.core.serializers import base
 class XMLSerializer(base.BaseSerializer):
     """Handler for XML file operations."""
     
-    def read_from_fileobj(self, path: TextIO, **kwargs) -> Any:
+    def load_from_fileobj(self, path: TextIO, **kwargs) -> Any:
         """Loads data from a file object.
 
         Args:

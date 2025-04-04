@@ -104,8 +104,8 @@ class Cityscapes(VisionDataset):
         self.use_coarse  = use_coarse
         super().__init__(root=root, *args, **kwargs)
 
-    def get_data(self):
-        """Loads image and semantic segmentation data from the dataset."""
+    def list_data(self):
+        """Lists image and semantic segmentation data from the dataset."""
         image_name = "leftImg8bit_blurred" if self.use_blurred else "leftImg8bit"
         gt_name    = "gtCoarse" if self.use_coarse else "gtFine"
         patterns   = [self.root / self.split_str / image_name]

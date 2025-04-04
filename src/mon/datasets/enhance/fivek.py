@@ -132,8 +132,8 @@ class FiveKInit(VisionDataset):
         """Returns number of datapoints."""
         return len(self.file_keys)
 
-    def get_data(self):
-        """Populates file lists with image annotations for split."""
+    def list_data(self):
+        """Lists file lists with image annotations for split."""
         patterns = [self.root / "retouch_init"]
 
         file_ex = defaultdict(list)
@@ -204,8 +204,8 @@ class FiveK(VisionDataset):
             raise FileNotFoundError(f"[root] directory not found: [{root}].")
         super().__init__(root=root, *args, **kwargs)
 
-    def get_data(self):
-        """Populates ``datapoints`` with image annotations for split."""
+    def list_data(self):
+        """Lists ``datapoints`` with image annotations for split."""
         patterns = [self.root / self.split_str / "image"]
 
         images: list[ImageAnnotation] = []
@@ -250,8 +250,8 @@ class FiveKA(VisionDataset):
             raise FileNotFoundError(f"[root] directory not found: [{root}].")
         super().__init__(root=root, *args, **kwargs)
 
-    def get_data(self):
-        """Populates ``datapoints`` with image annotations for split."""
+    def list_data(self):
+        """Lists ``datapoints`` with image annotations for split."""
         patterns = [self.root / self.split_str / "image"]
 
         images: list[ImageAnnotation] = []
@@ -265,8 +265,8 @@ class FiveKA(VisionDataset):
 
         self.datapoints["image"] = images
 
-    def get_reference_image(self):
-        """Populates ``datapoints`` with reference image annotations."""
+    def list_reference_image(self):
+        """Lists ``datapoints`` with reference image annotations."""
         images     = self.datapoints.get("image",     [])
         ref_images = self.datapoints.get("ref_image", [])
 
@@ -311,8 +311,8 @@ class FiveKB(VisionDataset):
             raise FileNotFoundError(f"[root] directory not found: [{root}].")
         super().__init__(root=root, *args, **kwargs)
 
-    def get_data(self):
-        """Populates ``datapoints`` with image annotations for split."""
+    def list_data(self):
+        """Lists ``datapoints`` with image annotations for split."""
         patterns = [self.root / self.split_str / "image"]
 
         images: list[ImageAnnotation] = []
@@ -326,8 +326,8 @@ class FiveKB(VisionDataset):
 
         self.datapoints["image"] = images
 
-    def get_reference_image(self):
-        """Populates ``datapoints`` with reference image annotations."""
+    def list_reference_image(self):
+        """Lists ``datapoints`` with reference image annotations."""
         images     = self.datapoints.get("image",     [])
         ref_images = self.datapoints.get("ref_image", [])
 
@@ -372,8 +372,8 @@ class FiveKC(VisionDataset):
             raise FileNotFoundError(f"[root] directory not found: [{root}].")
         super().__init__(root=root, *args, **kwargs)
 
-    def get_data(self):
-        """Populates ``datapoints`` with image annotations for split."""
+    def list_data(self):
+        """Lists ``datapoints`` with image annotations for split."""
         patterns = [self.root / self.split_str / "image"]
 
         images: list[ImageAnnotation] = []
@@ -387,8 +387,8 @@ class FiveKC(VisionDataset):
 
         self.datapoints["image"] = images
 
-    def get_reference_image(self):
-        """Populates ``datapoints`` with reference image annotations."""
+    def list_reference_image(self):
+        """Lists ``datapoints`` with reference image annotations."""
         images     = self.datapoints.get("image",     [])
         ref_images = self.datapoints.get("ref_image", [])
 
@@ -433,8 +433,8 @@ class FiveKD(VisionDataset):
             raise FileNotFoundError(f"[root] directory not found: [{root}].")
         super().__init__(root=root, *args, **kwargs)
 
-    def get_data(self):
-        """Populates ``datapoints`` with image annotations for split."""
+    def list_data(self):
+        """Lists ``datapoints`` with image annotations for split."""
         patterns = [self.root / self.split_str / "image"]
 
         images: list[ImageAnnotation] = []
@@ -448,8 +448,8 @@ class FiveKD(VisionDataset):
 
         self.datapoints["image"] = images
 
-    def get_reference_image(self):
-        """Populates ``datapoints`` with reference image annotations."""
+    def list_reference_image(self):
+        """Lists ``datapoints`` with reference image annotations."""
         images     = self.datapoints.get("image",     [])
         ref_images = self.datapoints.get("ref_image", [])
 
@@ -494,8 +494,8 @@ class FiveKE(VisionDataset):
             raise FileNotFoundError(f"[root] directory not found: [{root}].")
         super().__init__(root=root, *args, **kwargs)
 
-    def get_data(self):
-        """Populates ``datapoints`` with image annotations for split."""
+    def list_data(self):
+        """Lists ``datapoints`` with image annotations for split."""
         patterns = [self.root / self.split_str / "image"]
 
         images: list[ImageAnnotation] = []
@@ -509,8 +509,8 @@ class FiveKE(VisionDataset):
 
         self.datapoints["image"] = images
 
-    def get_reference_image(self):
-        """Populates ``datapoints`` with reference image annotations."""
+    def list_reference_image(self):
+        """Lists ``datapoints`` with reference image annotations."""
         images     = self.datapoints.get("image",     [])
         ref_images = self.datapoints.get("ref_image", [])
 

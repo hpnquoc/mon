@@ -644,7 +644,7 @@ def main(
     
     # Get config args
     config = core.parse_config_file(project_root=current_dir / "config", config=config)
-    args   = core.read_config(config)
+    args   = core.load_config(config)
     
     # Prioritize input args --> config file args
     root     = root      or args["root"]

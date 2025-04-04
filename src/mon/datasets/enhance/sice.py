@@ -59,7 +59,7 @@ class SICE(VisionDataset):
             raise FileNotFoundError(f"Directory not found: {root}.")
         super().__init__(root=root, *args, **kwargs)
     
-    def get_data(self):
+    def list_data(self):
         patterns = [self.root / self.split_str / "image"]
         
         # Images
@@ -105,7 +105,7 @@ class SICEGrad(VisionDataset):
             raise FileNotFoundError(f"Directory not found: {root}.")
         super().__init__(root=root, *args, **kwargs)
     
-    def get_data(self):
+    def list_data(self):
         patterns = [self.root / self.split_str / "image"]
         
         # Images
@@ -149,7 +149,7 @@ class SICEME(VisionDataset):
             raise FileNotFoundError(f"Directory not found: {root}.")
         super().__init__(root=root, *args, **kwargs)
     
-    def get_data(self):
+    def list_data(self):
         patterns = [self.root / self.split_str / "image"]
         
         # Images
@@ -195,7 +195,7 @@ class SICEMix(VisionDataset):
             raise FileNotFoundError(f"Directory not found: {root}.")
         super().__init__(root=root, *args, **kwargs)
     
-    def get_data(self):
+    def list_data(self):
         patterns = [self.root / self.split_str / "image"]
         
         # Images

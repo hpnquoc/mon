@@ -99,8 +99,8 @@ class NightCity(VisionDataset):
             raise FileNotFoundError(f"[root] directory not found: [{root}].")
         super().__init__(root=root, *args, **kwargs)
 
-    def get_data(self):
-        """Populates ``datapoints`` with image and semantic annotations."""
+    def list_data(self):
+        """Lists ``datapoints`` with image and semantic annotations."""
         if self.split == Split.TEST:
             patterns = [self.root / "val" / "image"]
         else:

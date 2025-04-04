@@ -17,7 +17,7 @@ from mon.core.serializers import base
 class PickleSerializer(base.BaseSerializer):
     """Handler for Pickle file operations."""
     
-    def read_from_fileobj(self, path: TextIO, **kwargs) -> Any:
+    def load_from_fileobj(self, path: TextIO, **kwargs) -> Any:
         """Loads data from a file object.
 
         Args:
@@ -54,7 +54,7 @@ class PickleSerializer(base.BaseSerializer):
         kwargs.setdefault("protocol", 4)
         return dumps(obj, **kwargs)
     
-    def read_from_file(self, path: pathlib.Path | str, mode: str = "rb", **kwargs) -> Any:
+    def load_from_file(self, path: pathlib.Path | str, mode: str = "rb", **kwargs) -> Any:
         """Loads data from a file.
     
         Args:
@@ -65,7 +65,7 @@ class PickleSerializer(base.BaseSerializer):
         Returns:
             Deserialized Pickle data as ``Any``.
         """
-        return super().read_from_file(path=pathlib.Path(path), mode=mode, **kwargs)
+        return super().load_from_file(path=pathlib.Path(path), mode=mode, **kwargs)
     
     def write_to_file(self, obj: Any, path: pathlib.Path | str, mode: str = "wb", **kwargs):
         """Writes data to a file.

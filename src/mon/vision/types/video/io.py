@@ -7,7 +7,7 @@ __all__ = [
     "VideoWriter",
     "VideoWriterCV",
     "VideoWriterFFmpeg",
-    "read_video_ffmpeg",
+    "load_video_ffmpeg",
     "write_video_ffmpeg",
 ]
 
@@ -24,7 +24,7 @@ from mon.vision.types import image as I
 
 
 # ----- Read -----
-def read_video_ffmpeg(
+def load_video_ffmpeg(
     process,
     height   : int,
     width    : int,

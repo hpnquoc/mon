@@ -27,11 +27,11 @@ with mon.create_progress_bar() as pbar:
         description = "Processing"
     ):
         # Image
-        image     = mon.read_image(path=image_file, to_tensor=True, normalize=True)
+        image     = mon.load_image(path=image_file, to_tensor=True, normalize=True)
         h0, w0    = mon.image_size(image)
         # Ref
         ref_file  = ref_dir / f"{image_file.stem}{ref_ext}"
-        ref       = mon.read_image(path=ref_file, to_tensor=True, normalize=True)
+        ref       = mon.load_image(path=ref_file, to_tensor=True, normalize=True)
         # HSV
         image_hsv = kornia.color.rgb_to_hsv(image)
         ref_hsv   = kornia.color.rgb_to_hsv(ref)

@@ -306,7 +306,7 @@ class VideoLoaderCV(VideoLoader):
         return int(self.video_capture.get(cv2.CAP_PROP_POS_FRAMES))
     
     # ----- Initialization -----
-    def get_data(self):
+    def list_data(self):
         """Gets video data from root path.
 
         Raises:

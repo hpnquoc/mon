@@ -57,8 +57,8 @@ class GTA5NighttimeFog(VisionDataset):
             raise FileNotFoundError(f"[root] directory not found: [{root}].")
         super().__init__(root=root, *args, **kwargs)
 
-    def get_data(self):
-        """Populates ``datapoints`` with image annotations for split."""
+    def list_data(self):
+        """Lists ``datapoints`` with image annotations for split."""
         patterns = [self.root / self.split_str / "image"]
 
         images: list[ImageAnnotation] = []

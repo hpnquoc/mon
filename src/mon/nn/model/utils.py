@@ -48,7 +48,7 @@ def list_tasks(project_root: str | core.Path) -> list[str]:
     """
     tasks = Task.names()
     
-    default_configs = core.get_project_defaults(project_root)
+    default_configs = core.load_project_defaults(project_root)
     if default_configs.get("TASKS"):
         tasks = [t for t in tasks if t in default_configs["TASKS"]]
     
@@ -131,7 +131,7 @@ def list_archs(
     models       = list_mon_models(task=task, mode=mode)
     extra_models = list_extra_models(task=task, mode=mode)
     
-    default_configs = core.get_project_defaults(project_root=project_root)
+    default_configs = core.load_project_defaults(project_root=project_root)
     if default_configs.get("MODELS"):
         project_models = [core.snakecase(m) for m in default_configs["MODELS"]]
         models         = [m for m in models       if core.snakecase(m) in project_models]
@@ -227,7 +227,7 @@ def list_models(
     models       = list_mon_models(task=task, mode=mode, arch=arch)
     extra_models = list_extra_models(task=task, mode=mode, arch=arch)
     
-    default_configs = core.get_project_defaults(project_root=project_root)
+    default_configs = core.load_project_defaults(project_root=project_root)
     if default_configs.get("MODELS"):
         project_models = [core.snakecase(m) for m in default_configs["MODELS"]]
         models         = [m for m in models       if core.snakecase(m) in project_models]

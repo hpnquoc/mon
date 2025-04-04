@@ -55,8 +55,8 @@ class Rain100(VisionDataset):
             raise FileNotFoundError(f"[root] directory not found: [{root}].")
         super().__init__(root=root, *args, **kwargs)
     
-    def get_data(self):
-        """Populates ``datapoints`` with image annotations for split."""
+    def list_data(self):
+        """Lists ``datapoints`` with image annotations for split."""
         patterns = [
             self.root / self.split_str / "image",
         ]
@@ -101,8 +101,8 @@ class Rain100H(VisionDataset):
             raise FileNotFoundError(f"[root] directory not found: [{root}].")
         super().__init__(root=root, *args, **kwargs)
     
-    def get_data(self):
-        """Populates ``datapoints`` with image annotations for split."""
+    def list_data(self):
+        """Lists ``datapoints`` with image annotations for split."""
         patterns = [
             self.root / self.split_str / "image",
         ]
@@ -147,8 +147,8 @@ class Rain100L(VisionDataset):
             raise FileNotFoundError(f"[root] directory not found: [{root}].")
         super().__init__(root=root, *args, **kwargs)
 
-    def get_data(self):
-        """Populates ``datapoints`` with image annotations for split."""
+    def list_data(self):
+        """Lists ``datapoints`` with image annotations for split."""
         patterns = [
             self.root / "rain100l" / self.split_str / "image"
         ]

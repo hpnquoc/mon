@@ -71,7 +71,7 @@ def list_datasets(
         Sorted list of dataset names matching task and mode.
     """
     datasets        = sorted(list_mon_datasets(task, mode) + list_extra_datasets(task, mode))
-    default_configs = core.get_project_defaults(project_root)
+    default_configs = core.load_project_defaults(project_root)
     if default_configs.get("DATASETS"):
         datasets = [d for d in datasets if d in default_configs["DATASETS"]]
     return datasets

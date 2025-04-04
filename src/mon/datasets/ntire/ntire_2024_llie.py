@@ -54,8 +54,8 @@ class NTIRE2024LLIE(VisionDataset):
             raise FileNotFoundError(f"[root] directory not found: [{root}].")
         super().__init__(root=root, *args, **kwargs)
 
-    def get_data(self):
-        """Populates ``datapoints`` with image annotations for split.
+    def list_data(self):
+        """Lists ``datapoints`` with image annotations for split.
 
         Raises:
             ValueError: If ``split`` is invalid.

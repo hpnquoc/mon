@@ -17,7 +17,7 @@ from mon.core.serializers import base
 class YAMLSerializer(base.BaseSerializer):
     """Handler for YAML file operations."""
     
-    def read_from_fileobj(self, path: TextIO, **kwargs) -> Any:
+    def load_from_fileobj(self, path: TextIO, **kwargs) -> Any:
         """Loads data from a file object.
 
         Args:

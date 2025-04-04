@@ -64,8 +64,8 @@ class RESIDE_HSTS_Real(VisionDataset):
             raise FileNotFoundError(f"[root] directory not found: [{root}].")
         super().__init__(root=root, *args, **kwargs)
     
-    def get_data(self):
-        """Populates ``datapoints`` with image annotations for split."""
+    def list_data(self):
+        """Lists ``datapoints`` with image annotations for split."""
         patterns = [self.root / "hsts" / "real" / self.split_str / "image"]
         
         images: list[ImageAnnotation] = []
@@ -108,8 +108,8 @@ class RESIDE_HSTS_Synthetic(VisionDataset):
             raise FileNotFoundError(f"[root] directory not found: [{root}].")
         super().__init__(root=root, *args, **kwargs)
     
-    def get_data(self):
-        """Populates ``datapoints`` with image annotations for split."""
+    def list_data(self):
+        """Lists ``datapoints`` with image annotations for split."""
         patterns = [self.root / "hsts" / "synthetic" / self.split_str / "image"]
         
         images: list[ImageAnnotation] = []
@@ -152,8 +152,8 @@ class RESIDE_ITS(VisionDataset):
             raise FileNotFoundError(f"[root] directory not found: [{root}].")
         super().__init__(root=root, *args, **kwargs)
     
-    def get_data(self):
-        """Populates ``datapoints`` with image and ref annotations."""
+    def list_data(self):
+        """Lists ``datapoints`` with image and ref annotations."""
         patterns = [self.root / "its" / self.split_str / "image"]
         
         images: list[ImageAnnotation] = []
@@ -208,8 +208,8 @@ class RESIDE_OTS(VisionDataset):
             raise FileNotFoundError(f"[root] directory not found: [{root}].")
         super().__init__(root=root, *args, **kwargs)
     
-    def get_data(self):
-        """Populates ``datapoints`` with image and ref annotations."""
+    def list_data(self):
+        """Lists ``datapoints`` with image and ref annotations."""
         patterns = [self.root / "ots" / self.split_str / "image"]
         
         images: list[ImageAnnotation] = []
@@ -263,8 +263,8 @@ class RESIDE_RTTS(VisionDataset):
             raise FileNotFoundError(f"[root] directory not found: [{root}].")
         super().__init__(root=root, *args, **kwargs)
     
-    def get_data(self):
-        """Populates ``datapoints`` with image annotations for split."""
+    def list_data(self):
+        """Lists ``datapoints`` with image annotations for split."""
         patterns = [self.root / "rtts" / self.split_str / "image"]
         
         images: list[ImageAnnotation] = []
@@ -307,8 +307,8 @@ class RESIDE_SOTS_Indoor(VisionDataset):
             raise FileNotFoundError(f"[root] directory not found: [{root}].")
         super().__init__(root=root, *args, **kwargs)
     
-    def get_data(self):
-        """Populates ``datapoints`` with image and ref annotations."""
+    def list_data(self):
+        """Lists ``datapoints`` with image and ref annotations."""
         patterns = [self.root / "sots" / "indoor" / self.split_str / "image"]
         
         images: list[ImageAnnotation] = []
@@ -363,8 +363,8 @@ class RESIDE_SOTS_Outdoor(VisionDataset):
             raise FileNotFoundError(f"[root] directory not found: [{root}].")
         super().__init__(root=root, *args, **kwargs)
     
-    def get_data(self):
-        """Populates ``datapoints`` with image and ref annotations."""
+    def list_data(self):
+        """Lists ``datapoints`` with image and ref annotations."""
         patterns = [self.root / "sots" / "outdoor" / self.split_str / "image"]
         
         images: list[ImageAnnotation] = []
@@ -418,8 +418,8 @@ class RESIDE_URHI(VisionDataset):
             raise FileNotFoundError(f"[root] directory not found: [{root}].")
         super().__init__(root=root, *args, **kwargs)
     
-    def get_data(self):
-        """Populates ``datapoints`` with image annotations for split."""
+    def list_data(self):
+        """Lists ``datapoints`` with image annotations for split."""
         patterns = [self.root / "urhi" / self.split_str / "image"]
         
         images: list[ImageAnnotation] = []

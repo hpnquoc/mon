@@ -61,7 +61,7 @@ class Detector(ABC):
             if not config.is_yaml():
                 raise ValueError(f"`config` must be a valid path to a YAML "
                                  f"file, got {config}.")
-            self._config = core.read_from_file(config)
+            self._config = core.load_from_file(config)
         else:
             self._config = {}
     

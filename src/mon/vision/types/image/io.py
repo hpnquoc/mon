@@ -11,7 +11,7 @@ Common Tasks:
 """
 
 __all__ = [
-    "read_image",
+    "load_image",
     "read_image_shape",
     "write_image",
 ]
@@ -30,14 +30,14 @@ from mon.vision.types.image import processing, utils
 
 
 # ----- Read -----
-def read_image(
+def load_image(
     path     : core.Path,
     flags    : int  = cv2.IMREAD_COLOR,
     to_tensor: bool = False,
     normalize: bool = False,
     device   : Any  = None
 ) -> torch.Tensor | np.ndarray:
-    """Reads an image from a file path using OpenCV.
+    """Loads an image from a file path using OpenCV.
 
     Args:
         path: Image file path as ``core.Path`` or ``str``.
