@@ -35,11 +35,7 @@ class PseudoGTGenerator:
         self.gamma_lower = gamma_lower
         self.iqa         = nn.metric.iqa.ImageQualityAssessment(exposed_level=exposed_level, pool_size=pool_size)
     
-    def __call__(
-        self,
-        image      : torch.Tensor,
-        prev_output: torch.Tensor = None,
-    ) -> torch.Tensor:
+    def __call__(self, image: torch.Tensor, prev_output: torch.Tensor = None) -> torch.Tensor:
         b, c, h, w           = image.shape
         underexposed_ranges  = torch.linspace(0, self.gamma_upper, steps=self.number_refs + 1).to(image.device)[:-1]
         step_size            = self.gamma_upper / self.number_refs
@@ -57,11 +53,10 @@ class PseudoGTGenerator:
             references  = torch.cat([image[:, None], prev_output[:, None], synthetic_references], dim=1)
         else:
             references  = torch.cat([image[:, None], synthetic_references], dim=1)
-	       
-        nref       = references.shape[1]
-        scores     = self.iqa(references.view(b * nref, c, h, w))
-        scores     = scores.view(b, nref, 1, h, w)
-        max_idx    = torch.argmax(scores, dim=1)
-        max_idx    = max_idx.repeat(1, c, 1, 1)[:, None]
-        pseudo_gt  = torch.gather(references, 1, max_idx)
-        return pseudo_gt.squeeze(1)
+	        
+        nref    = references.shape[1]
+        scores  = self.iqa(references.view(b * nref, c, h, w))
+        scores  = scores.view(b, nref, 1, h, w)
+        max_idx = torch.argmax(scores, dim=1)
+        max_idx = max_idx.repeat(1, c, 1, 1)[:, None]
+        return torch.gather(references, 1, max_idx).squeeze(1)

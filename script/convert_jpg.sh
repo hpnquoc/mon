@@ -8,14 +8,14 @@
 
 run_on_linux() {
     cd "${directory}" || exit
-    find . -type f -regex ".*\.\(bmp\|png\|webp\)" -exec mogrify -format jpg {} \; -print
-    find . -type f -regex ".*\.\(bmp\|png\|webp\)" -exec rm {} \; -print
+    find . -type f -regex ".*\.\(bmp\|heic\|png\|webp\)" -exec mogrify -format jpg {} \; -print
+    find . -type f -regex ".*\.\(bmp\|heic\|png\|webp\)" -exec rm {} \; -print
 }
 
 run_on_darwin() {
     cd "${directory}" || exit
-    find . -type f \( -iname "*.bmp" -o -iname "*.png" -o -iname "*.webp" \) -exec mogrify -format jpg {} \; -print
-    find . -type f \( -iname "*.bmp" -o -iname "*.png" -o -iname "*.webp" \) -exec rm {} \; -print
+    find . -type f \( -iname "*.bmp" -o -iname "*.heic" -o -iname "*.png" -o -iname "*.webp" \) -exec mogrify -format jpg {} \; -print
+    find . -type f \( -iname "*.bmp" -o -iname "*.heic" -o -iname "*.png" -o -iname "*.webp" \) -exec rm {} \; -print
 }
 
 # Main
@@ -31,7 +31,7 @@ data_dir="${mon_dir}/data"              # mon/data/
 
 # Define the directory where you want to perform the recursive image conversion
 # directory="${data_dir}/"
-directory="/Users/longpham/Downloads/image_enhancement"
+directory="/media/longpham/hdd_01/30_areas/academia/"
 
 case "$OSTYPE" in
     linux*)

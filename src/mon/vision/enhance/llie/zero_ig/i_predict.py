@@ -74,11 +74,11 @@ def predict(args: dict) -> str:
     # Device
     device = mon.set_device(device)
     if torch.cuda.is_available():
-        # torch.set_default_tensor_type("torch.cuda.FloatTensor")
+        torch.set_default_tensor_type("torch.cuda.FloatTensor")
         cudnn.benchmark = True
         cudnn.enabled   = True
     else:
-        # torch.set_default_tensor_type('torch.FloatTensor')
+        torch.set_default_tensor_type("torch.FloatTensor")
         logging.info('no gpu device available')
         sys.exit(1)
     
