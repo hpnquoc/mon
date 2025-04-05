@@ -20,13 +20,13 @@ from mon.vision import types
 def draw_bbox(
     image     : np.ndarray,
     bbox      : np.ndarray | list,
-    label     : int | str    = None,
-    color     : list[int]    = [255, 255, 255],
-    thickness : int          = 1,
-    line_type : int          = cv2.LINE_8,
-    shift     : int          = 0,
-    font_face : int          = cv2.FONT_HERSHEY_DUPLEX,
-    font_scale: float        = 0.8,
+    label     : int | str = None,
+    color     : list[int] = [255, 255, 255],
+    thickness : int   = 1,
+    line_type : int   = cv2.LINE_8,
+    shift     : int   = 0,
+    font_face : int   = cv2.FONT_HERSHEY_DUPLEX,
+    font_scale: float = 0.8,
     fill      : bool | float = False
 ) -> np.ndarray:
     """Draw bounding box on image.
@@ -141,10 +141,10 @@ def draw_trajectory(
     image     : np.ndarray,
     trajectory: np.ndarray | list,
     color     : list[int] = [255, 255, 255],
-    thickness : int       = 1,
-    line_type : int       = cv2.LINE_8,
-    point     : bool      = False,
-    radius    : int       = 3
+    thickness : int  = 1,
+    line_type : int  = cv2.LINE_8,
+    point     : bool = False,
+    radius    : int  = 3
 ) -> np.ndarray:
     """Draw trajectory path on image.
 

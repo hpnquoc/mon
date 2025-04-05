@@ -216,9 +216,9 @@ class ConvGuidedFilter(nn.Module):
 
     def __init__(
         self,
-        radius   : int       = 1,
+        radius   : int = 1,
         norm     : nn.Module = nn.BatchNorm2d,
-        downscale: int       = 8
+        downscale: int = 8
     ):
         super().__init__()
         self.box_filter = nn.Conv2d(3, 3, 3, padding=radius, dilation=radius, bias=False, groups=3)
@@ -308,10 +308,10 @@ def weights_init_identity(m):
         
         
 def build_lr_net(
-    in_channels : int       = 3,
-    mid_channels: int       = 24,
-    layers      : int       = 5,
-    relu_slope  : float     = 0.2,
+    in_channels : int   = 3,
+    mid_channels: int   = 24,
+    layers      : int   = 5,
+    relu_slope  : float = 0.2,
     norm        : nn.Module = nn.BatchNorm2d  # Corrected from AdaptiveBatchNorm2d
 ) -> nn.Sequential:
     """Builds a low-resolution network.
@@ -368,14 +368,14 @@ class DeepGuidedFilter(nn.Module):
 
     def __init__(
         self,
-        radius         : int       = 1,
-        eps            : float     = 1e-8,
-        lr_channels    : int       = 24,
-        lr_layers      : int       = 5,
-        lr_relu_slope  : float     = 0.2,
+        radius         : int   = 1,
+        eps            : float = 1e-8,
+        lr_channels    : int   = 24,
+        lr_layers      : int   = 5,
+        lr_relu_slope  : float = 0.2,
         lr_norm        : nn.Module = nn.BatchNorm2d,
-        use_guided_map : bool      = False,
-        guided_channels: int       = 64
+        use_guided_map : bool  = False,
+        guided_channels: int   = 64
     ):
         super().__init__()
         self.lr_net = build_lr_net(
@@ -441,14 +441,14 @@ class DeepConvGuidedFilter(nn.Module):
 
     def __init__(
         self,
-        radius         : int       = 1,
-        lr_channels    : int       = 24,
-        lr_layers      : int       = 5,
-        lr_relu_slope  : float     = 0.2,
+        radius         : int   = 1,
+        lr_channels    : int   = 24,
+        lr_layers      : int   = 5,
+        lr_relu_slope  : float = 0.2,
         lr_norm        : nn.Module = nn.BatchNorm2d, # Corrected from AdaptiveBatchNorm2d
-        use_guided_map : bool      = False,
-        guided_channels: int       = 64,
-        guided_dilation: int       = 0,
+        use_guided_map : bool  = False,
+        guided_channels: int   = 64,
+        guided_dilation: int   = 0,
     ):
         super().__init__()
         self.lr = build_lr_net(

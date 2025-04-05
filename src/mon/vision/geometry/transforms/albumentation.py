@@ -152,7 +152,7 @@ class ResizeMultipleOf(DualTransform):
 		interpolation    : int   = cv2.INTER_AREA,
 		p                : float = 1,
 	):
-		super().__init__(p)
+		super().__init__(p=p)
 		self.height            = height
 		self.width             = width
 		self.keep_aspect_ratio = keep_aspect_ratio
@@ -331,7 +331,7 @@ class NormalizeImageMeanStd(DualTransform):
 		self,
 		mean: Sequence[float] = [0.485, 0.456, 0.406],
 		std : Sequence[float] = [0.229, 0.224, 0.225],
-		p   : float           = 1.0,
+		p   : float = 1.0,
 	):
 		super().__init__(p=p)
 		self.mean = mean

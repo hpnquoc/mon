@@ -56,10 +56,10 @@ include       = [
 exclude       = []
 
 [tool.poetry.dependencies]
-python       = ">=3.11, <3.13"
-snntorch     = {path="src/mon/extra/snntorch",     develop=true}
-spikingjelly = {path="src/mon/extra/spikingjelly", develop=true}
-ultralytics  = {path="src/mon/extra/ultralytics",  develop=true}
+python        = ">=3.11, <3.13"
+snntorch      = {path="src/mon/extra/snntorch",     develop=true}
+spikingjelly  = {path="src/mon/extra/spikingjelly", develop=true}
+ultralytics   = {path="src/mon/extra/ultralytics",  develop=true}
 
 [tool.poetry.extras]
 dev = [

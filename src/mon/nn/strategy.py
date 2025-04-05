@@ -8,20 +8,17 @@ References:
 """
 
 __all__ = [
-    # Accelerator
     "Accelerator",
     "CPUAccelerator",
     "CUDAAccelerator",
-    "MPSAccelerator",
-    "XLAAccelerator",
-    # Strategy
     "DDPStrategy",
     "DeepSpeedStrategy",
     "FSDPStrategy",
+    "MPSAccelerator",
     "ParallelStrategy",
     "SingleDeviceStrategy",
     "Strategy",
-    "XLAStrategy",
+    "XLAAccelerator",
 ]
 
 import os
@@ -35,7 +32,7 @@ from lightning.pytorch.accelerators import (
 )
 from lightning.pytorch.strategies import (
     DDPStrategy, DeepSpeedStrategy, FSDPStrategy, ParallelStrategy,
-    SingleDeviceStrategy, Strategy, XLAStrategy,
+    SingleDeviceStrategy, Strategy,
 )
 from torch import distributed
 
@@ -56,7 +53,6 @@ STRATEGIES.register(name="deepspeed",     module=DeepSpeedStrategy)
 STRATEGIES.register(name="fsdp",          module=FSDPStrategy)
 STRATEGIES.register(name="parallel",      module=ParallelStrategy)
 STRATEGIES.register(name="single_device", module=SingleDeviceStrategy)
-STRATEGIES.register(name="xla",           module=XLAStrategy)
 
 
 # ----- Utils -----

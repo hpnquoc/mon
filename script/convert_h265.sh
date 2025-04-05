@@ -49,7 +49,7 @@ data_dir="${mon_dir}/data"              # mon/data/
 
 # Define the directory where you want to perform the recursive video conversion
 # directory="${data_dir}/"
-directory="/media/longpham/hdd_01/30_areas/academia/conferences/cvpr_2024"
+directory="/media/longpham/hdd_01/40_resources/coding/ios/ray_wenderlich"
 
 case "$OSTYPE" in
     linux*)

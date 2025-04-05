@@ -47,7 +47,7 @@ class VisionModel(nn.Model, ABC):
         self,
         datapoint : dict,
         image_size: _size_2_t = 512,
-        resize    : bool      = False,
+        resize    : bool = False,
         *args, **kwargs
     ) -> dict:
         """Infers model output with optional processing.

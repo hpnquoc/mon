@@ -180,10 +180,10 @@ def resize(
         fx = kwargs.pop("fx", None)
         fy = kwargs.pop("fy", None)
         return cv2.resize(
-            src           = image,
-            dsize         = (size[1], size[0]),
-            fx            = fx,
-            fy            = fy,
+            src   = image,
+            dsize = (size[1], size[0]),
+            fx    = fx,
+            fy    = fy,
             interpolation = interpolation,
         )
     else:

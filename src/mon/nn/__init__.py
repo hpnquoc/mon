@@ -5,8 +5,8 @@
 ``Lightning``.
 """
 
-# Interface to `torch.nn`. We import commonly used components so that
-# everything can be accessed under one single import of ``from mon import nn``.
+# Interface to `torch.nn`. We import commonly used components so that everything can be
+# accessed under one single import of ``from mon import nn``.
 # noinspection PyUnresolvedReferences
 from torch.nn import (
     common_types, Container, functional, init, Module, ModuleDict, ModuleList,
@@ -32,6 +32,7 @@ from mon.nn.callback import *
 from mon.nn.factory import *
 from mon.nn.logger import *
 from mon.nn.loss import *
+from mon.nn.lr_scheduler import *
 from mon.nn.metric import *
 from mon.nn.model import *
 from mon.nn.modules import *
