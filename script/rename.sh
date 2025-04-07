@@ -5,7 +5,7 @@ clear
 echo "$HOSTNAME"
 
 # Define the directory where you want to perform the recursive renaming
-directory="/media/longpham/hdd_01/30_areas/academia/conferences/"
+directory="/media/longpham/hdd_01/30_areas/family/photos"
 
 
 # Validate the directory

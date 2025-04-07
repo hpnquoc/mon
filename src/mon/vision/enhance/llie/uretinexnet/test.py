@@ -12,6 +12,7 @@ from utils import *
 def one2three(x):
     return torch.cat([x, x, x], dim=1).to(x)
 
+
 class Inference(nn.Module):
     def __init__(self, opts):
         super().__init__()
@@ -73,8 +74,6 @@ class Inference(nn.Module):
         save_path = os.path.join(self.opts.output, file_name.replace(name, "%s_%d_URetinexNet"%(name, self.opts.ratio)))
         np_save_TensorImg(enhance, save_path)  
         print("================================= time for %s: %f============================"%(file_name, p_time))
-
-
 
     
 if __name__ == "__main__":

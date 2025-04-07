@@ -154,7 +154,7 @@ class SemanticSegmentationAnnotation(core.Annotation):
         Returns:
             ``torch.Tensor`` of converted data.
         """
-        return I.convert_image_to_tensor(data, normalize)
+        return I.image_to_tensor(data, normalize)
     
     @staticmethod
     def collate_fn(batch: list[torch.Tensor | np.ndarray]) -> torch.Tensor | np.ndarray | None:
@@ -168,4 +168,4 @@ class SemanticSegmentationAnnotation(core.Annotation):
         """
         if not batch:
             return None
-        return I.convert_image_to_4d(batch)
+        return I.image_to_4d(batch)

@@ -5,10 +5,12 @@
 
 from mon.vision.types.bbox import *
 from mon.vision.types.contour import *
-from mon.vision.types.datasets import *
 from mon.vision.types.depth import *
 from mon.vision.types.event import *
 from mon.vision.types.image import *
 from mon.vision.types.label_map import *
 from mon.vision.types.thermal import *
 from mon.vision.types.video import *
+
+# noinspection PyUnresolvedReferences
+from mon.vision.types.datasets import *

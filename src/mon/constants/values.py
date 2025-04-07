@@ -362,6 +362,13 @@ EXTRA_MODELS   = {                   # architecture/model (+ variant)
             "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "uretinexnet",
         },
     },
+    "uretinexnet++": {
+        "uretinexnet++": {
+            "tasks"    : [Task.LLIE],
+            "ltypes"   : [LType.SUPERVISED],
+            "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "uretinexnet++",
+        },
+    },
     "utvnet"       : {
         "utvnet": {
             "tasks"    : [Task.LLIE],

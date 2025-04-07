@@ -31,7 +31,7 @@ data_dir="${mon_dir}/data"              # mon/data/
 
 # Define the directory where you want to perform the recursive image conversion
 # directory="${data_dir}/"
-directory="/media/longpham/hdd_01/30_areas/academia/"
+directory="/media/longpham/hdd_01/30_areas/family/photos"
 
 case "$OSTYPE" in
     linux*)

@@ -142,7 +142,7 @@ def predict(args: dict) -> str:
         mon.console.log(f"Params: {params:.4f}")
     
     # Predicting
-    sum_time = 0
+    timer = mon.Timer()
     with mon.create_progress_bar() as pbar:
         for i, datapoint in pbar.track(
             sequence    = enumerate(data_loader),
@@ -154,8 +154,9 @@ def predict(args: dict) -> str:
             image_path = meta["path"]
             
             # Infer
-            enhanced, run_time = model.run(image_path)
-            sum_time += run_time
+            timer.tick()
+            enhanced, _ = model.run(image_path)
+            timer.tock()
             
             # Save
             if save_image:
@@ -165,8 +166,7 @@ def predict(args: dict) -> str:
                 torchvision.utils.save_image(enhanced, str(output_path))
         
     # Finish
-    avg_time = float(sum_time / len(data_loader))
-    mon.console.log(f"Average time: {avg_time}")
+    mon.console.log(f"Average time: {timer.avg_time}")
 
 
 # ----- Main -----

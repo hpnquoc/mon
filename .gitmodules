@@ -1,3 +1,9 @@
+[submodule "src/mon/extra/snntorch"]
+	path = src/mon/extra/snntorch
+	url  = https://github.com/phlong3105/snntorch
+[submodule "src/mon/extra/spikingjelly"]
+	path = src/mon/extra/spikingjelly
+	url  = https://github.com/phlong3105/spikingjelly
 [submodule "src/mon/extra/ultralytics"]
 	path = src/mon/extra/ultralytics
 	url  = https://github.com/phlong3105/ultralytics
