@@ -11,8 +11,8 @@ runml_dir="${project_dir}/runml"
 data_dir="${mon_dir}/data/enhance"
 
 # Input
-arch="ruas"
-model="ruas_lol_v1"
+arch="fourllie"
+model="fourllie_lol_v2_real"
 data=(
     ### Unpaired Set
     "dicm"

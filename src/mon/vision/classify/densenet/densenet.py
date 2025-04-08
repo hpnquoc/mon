@@ -17,7 +17,7 @@ from torchvision.models import (
 )
 
 from mon import core, nn
-from mon.constants import LType, MODELS, ZOO_DIR
+from mon.constants import MLType, MODELS, ZOO_DIR
 from mon.vision.classify import base
 
 current_file = core.Path(__file__).absolute()
@@ -32,10 +32,10 @@ class DenseNet(nn.ExtraModel, base.ImageClassificationModel, ABC):
         - https://arxiv.org/pdf/1608.06993.pdf
     """
     
-    arch     : str         = "densenet"
-    ltypes   : list[LType] = [LType.SUPERVISED]
-    model_dir: core.Path   = current_dir
-    zoo      : dict        = {}
+    arch     : str          = "densenet"
+    mltypes  : list[MLType] = [MLType.SUPERVISED]
+    model_dir: core.Path    = current_dir
+    zoo      : dict         = {}
     
     # ----- Initialization -----
     def init_weights(self, m: nn.Module):

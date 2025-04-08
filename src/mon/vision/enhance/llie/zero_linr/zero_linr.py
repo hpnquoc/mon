@@ -16,7 +16,7 @@ import numpy as np
 import torch
 
 from mon import core, nn
-from mon.constants import LType, MODELS, Task
+from mon.constants import MLType, MODELS, Task
 from mon.nn import functional as F
 from mon.vision import filtering, types
 from mon.vision.enhance import base
@@ -475,12 +475,12 @@ class INF4(nn.Module):
 class ZeroLINR(base.ImageEnhancementModel):
 	"""Zero-LINR model for low-light image enhancement."""
 	
-	arch     : str         = "zero_linr"
-	name     : str         = "zero_linr"
-	tasks    : list[Task]  = [Task.LLIE]
-	ltypes   : list[LType] = [LType.ZERO_SHOT]
-	model_dir: core.Path   = current_dir
-	zoo      : dict        = {}
+	arch     : str          = "zero_linr"
+	name     : str          = "zero_linr"
+	tasks    : list[Task]   = [Task.LLIE]
+	mltypes  : list[MLType] = [MLType.ZERO_SHOT]
+	model_dir: core.Path    = current_dir
+	zoo      : dict         = {}
 	
 	def __init__(
 		self,

@@ -20,7 +20,7 @@ import torch
 from torch.nn import functional as F
 
 from mon import core, nn
-from mon.constants import LType, MODELS, Task
+from mon.constants import MLType, MODELS, Task
 from mon.vision import filtering, types
 from mon.vision.enhance import base
 
@@ -81,12 +81,12 @@ class CoLIE_RE(base.ImageEnhancementModel):
         - https://github.com/ctom2/colie
     """
     
-    arch     : str         = "colie"
-    name     : str         = "colie_re"
-    tasks    : list[Task]  = [Task.LLIE]
-    ltypes   : list[LType] = [LType.ZERO_SHOT]
-    model_dir: core.Path   = current_dir
-    zoo      : dict        = {}
+    arch     : str          = "colie"
+    name     : str          = "colie_re"
+    tasks    : list[Task]   = [Task.LLIE]
+    mltypes  : list[MLType] = [MLType.ZERO_SHOT]
+    model_dir: core.Path    = current_dir
+    zoo      : dict         = {}
     
     def __init__(
         self,

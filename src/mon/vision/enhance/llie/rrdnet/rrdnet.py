@@ -20,7 +20,7 @@ import torch
 from torch.nn import functional as F
 
 from mon import core, nn
-from mon.constants import LType, MODELS, Task
+from mon.constants import MLType, MODELS, Task
 from mon.vision.enhance import base
 
 current_file = core.Path(__file__).absolute()
@@ -174,12 +174,12 @@ class Loss(nn.Loss):
 class RRDNet(base.ImageEnhancementModel):
     """RRDNet model for low-light image enhancement."""
     
-    arch     : str         = "rrdnet"
-    name     : str         = "rrdnet"
-    tasks    : list[Task]  = [Task.LLIE]
-    ltypes   : list[LType] = [LType.ZERO_SHOT]
-    model_dir: core.Path   = current_dir
-    zoo      : dict        = {}
+    arch     : str          = "rrdnet"
+    name     : str          = "rrdnet"
+    tasks    : list[Task]   = [Task.LLIE]
+    mltypes  : list[MLType] = [MLType.ZERO_SHOT]
+    model_dir: core.Path    = current_dir
+    zoo      : dict         = {}
     
     def __init__(
         self,

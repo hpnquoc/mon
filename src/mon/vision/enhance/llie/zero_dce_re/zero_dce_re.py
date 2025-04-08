@@ -17,7 +17,7 @@ from typing import Literal
 import torch
 
 from mon import core, nn
-from mon.constants import LType, MODELS, Task
+from mon.constants import MLType, MODELS, Task
 from mon.vision.enhance import base
 
 current_file = core.Path(__file__).absolute()
@@ -88,12 +88,12 @@ class ZeroDCE_RE(base.ImageEnhancementModel):
         - https://github.com/Li-Chongyi/Zero-DCE
     """
 
-    arch     : str         = "zero_dce"
-    name     : str         = "zero_dce_re"
-    tasks    : list[Task]  = [Task.LLIE]
-    ltypes   : list[LType] = [LType.UNSUPERVISED]
-    model_dir: core.Path   = current_dir
-    zoo      : dict        = {}
+    arch     : str          = "zero_dce"
+    name     : str          = "zero_dce_re"
+    tasks    : list[Task]   = [Task.LLIE]
+    mltypes  : list[MLType] = [MLType.UNSUPERVISED]
+    model_dir: core.Path    = current_dir
+    zoo      : dict         = {}
     
     def __init__(
         self,

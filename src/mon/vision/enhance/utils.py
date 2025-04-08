@@ -14,9 +14,9 @@ from mon import nn
 
 # ----- Pseudo-GT Image Generator -----
 class PseudoGTGenerator:
-    """To create the pseudo GT image, we compare and combine the 2N generated
-    reference images, the original image, and the output of the enhancement
-    network of the same image in the previous epoch.
+    """To create the pseudo GT image, we compare and combine the 2N generated reference
+    images, the original image, and the output of the enhancement network of the same
+    image in the previous epoch.
     
     References:
         - https://github.com/VinAIResearch/PSENet-Image-Enhancement/blob/main/source/framework.py

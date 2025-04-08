@@ -10,7 +10,7 @@ __all__ = [
     "DepthDataSource",
     "Enum",
     "ImageExtension",
-    "LType",
+    "MLType",
     "MemoryUnit",
     "ShapeCode",
     "Split",
@@ -349,8 +349,8 @@ class WeightExtension(Enum):
 
 
 # ----- ML/DL -----
-class LType(Enum):
-    """Learning types."""
+class MLType(Enum):
+    """Machine Learning types."""
     
     INFERENCE    = "inference"          # Inference Only: we don't have training code.
     TRADITIONAL  = "traditional"        # Traditional Method (non-learning)
@@ -359,7 +359,7 @@ class LType(Enum):
     ZERO_SHOT    = "zero_shot"          # Zero-Shot Learning.
     
     @classmethod
-    def trainable(cls) -> list["LType"]:
+    def trainable(cls) -> list["MLType"]:
         """Return a list of trainable learning types."""
         return [cls.SUPERVISED, cls.UNSUPERVISED]
 

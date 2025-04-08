@@ -12,7 +12,7 @@ from typing import Any
 import torch
 
 from mon import core, nn
-from mon.constants import LType, MODELS, Task, ZOO_DIR
+from mon.constants import MLType, MODELS, Task, ZOO_DIR
 from mon.vision.types.depth import base
 from .src import depth_pro
 
@@ -27,12 +27,12 @@ class DepthPro(nn.ExtraModel, base.DepthEstimationModel):
     defined in `mon_extra.vision.depth.depth_anything_v2`.
     """
     
-    arch     : str         = "depth_pro"
-    name     : str         = "depth_pro"
-    tasks    : list[Task]  = [Task.DEPTH]
-    ltypes   : list[LType] = [LType.INFERENCE]
-    model_dir: core.Path   = current_dir
-    zoo      : dict        = {
+    arch     : str          = "depth_pro"
+    name     : str          = "depth_pro"
+    tasks    : list[Task]   = [Task.DEPTH]
+    mltypes  : list[MLType] = [MLType.INFERENCE]
+    model_dir: core.Path    = current_dir
+    zoo      : dict         = {
         "pretrained": {
             "url"        : None,
             "path"       : ZOO_DIR / "vision/dtype/depth/depth_pro/depth_pro/pretrained/depth_pro.pt",

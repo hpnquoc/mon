@@ -15,7 +15,7 @@ __all__ = [
 import torch
 
 from mon import core, nn
-from mon.constants import LType, MODELS, Task
+from mon.constants import MLType, MODELS, Task
 from mon.nn import _size_2_t
 from mon.vision import geometry, types
 from mon.vision.enhance import base
@@ -37,12 +37,12 @@ class ZSN2N(base.ImageEnhancementModel):
         - https://colab.research.google.com/drive/1i82nyizTdszyHkaHBuKPbWnTzao8HF9b?usp=sharing#scrollTo=Srf0GQTYrkxA
     """
     
-    arch     : str         = "zsn2n"
-    name     : str         = "zsn2n"
-    tasks    : list[Task]  = [Task.DENOISE]
-    ltypes   : list[LType] = [LType.ZERO_SHOT]
-    model_dir: core.Path   = current_dir
-    zoo      : dict        = {}
+    arch     : str          = "zsn2n"
+    name     : str          = "zsn2n"
+    tasks    : list[Task]   = [Task.DENOISE]
+    mltypes  : list[MLType] = [MLType.ZERO_SHOT]
+    model_dir: core.Path    = current_dir
+    zoo      : dict         = {}
     
     def __init__(
         self,

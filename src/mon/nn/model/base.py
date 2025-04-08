@@ -16,7 +16,7 @@ import torch
 
 from mon import core
 from mon.constants import (
-    LOSSES, LR_SCHEDULERS, LType, METRICS, OPTIMIZERS, SAVE_IMAGE_EXT, SAVE_WEIGHTS_EXT,
+    LOSSES, LR_SCHEDULERS, MLType, METRICS, OPTIMIZERS, SAVE_IMAGE_EXT, SAVE_WEIGHTS_EXT,
     Task,
 )
 from mon.nn import loss as L, metric as M
@@ -36,7 +36,7 @@ class Model(lightning.LightningModule, ABC):
         name: The model's name. Default: ``None`` mean it will be
             `self.__class__.__name__`.
         tasks: A list of tasks that the model can perform.
-        ltypes: A list of learning schemes that the model can perform.
+        mltypes: A list of machine learning schemes that the model can perform.
         model_dir: The model's directory. Default: ``None``.
         zoo: A `dict` containing all pretrained weights of the model.
         
@@ -82,12 +82,12 @@ class Model(lightning.LightningModule, ABC):
             >>> )
     """
     
-    arch     : str         = ""         # The model's architecture.
-    name     : str         = ""         # The model's name.
-    tasks    : list[Task]  = []         # A list of tasks that the model can perform.
-    ltypes   : list[LType] = []         # A list of learning types that the model can perform.
-    model_dir: core.Path   = None
-    zoo      : dict        = {}         # A dictionary containing all pretrained weights of the model.
+    arch     : str          = ""        # The model's architecture.
+    name     : str          = ""        # The model's name.
+    tasks    : list[Task]   = []        # A list of tasks that the model can perform.
+    mltypes  : list[MLType] = []        # A list of learning types that the model can perform.
+    model_dir: core.Path    = None
+    zoo      : dict         = {}        # A dictionary containing all pretrained weights of the model.
     
     def __init__(
         self,

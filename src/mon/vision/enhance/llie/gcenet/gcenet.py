@@ -20,7 +20,7 @@ import torch
 from fvcore.nn import parameter_count
 
 from mon import core, nn
-from mon.constants import LType, MODELS, Task
+from mon.constants import MLType, MODELS, Task
 from mon.nn import init
 from mon.vision import filtering, geometry, types
 from mon.vision.enhance import base
@@ -326,11 +326,11 @@ class DenoiseNet(nn.Module):
 class GCENet(base.ImageEnhancementModel):
     """Guided Curve Estimation Network for Low-Light Image Enhancement."""
     
-    arch     : str         = "gcenet"
-    name     : str         = "gcenet"
-    tasks    : list[Task]  = [Task.LLIE]
-    ltypes   : list[LType] = [LType.UNSUPERVISED]
-    model_dir: core.Path   = current_dir
+    arch     : str          = "gcenet"
+    name     : str          = "gcenet"
+    tasks    : list[Task]   = [Task.LLIE]
+    mltypes  : list[MLType] = [MLType.UNSUPERVISED]
+    model_dir: core.Path    = current_dir
     zoo      : dict         = {}
     
     def __init__(

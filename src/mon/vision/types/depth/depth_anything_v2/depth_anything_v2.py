@@ -15,7 +15,7 @@ from typing import Any, Literal
 
 from depth_anything_v2 import dpt
 from mon import core, nn
-from mon.constants import LType, MODELS, Task, ZOO_DIR
+from mon.constants import MLType, MODELS, Task, ZOO_DIR
 from mon.vision.types.depth import base
 
 current_file = core.Path(__file__).absolute()
@@ -28,11 +28,11 @@ class DepthAnythingV2(nn.ExtraModel, base.DepthEstimationModel, ABC):
     defined in `mon_extra.vision.depth.depth_anything_v2`.
     """
     
-    arch     : str         = "depth_anything_v2"
-    tasks    : list[Task]  = [Task.DEPTH]
-    ltypes   : list[LType] = [LType.INFERENCE]
-    model_dir: core.Path   = current_dir
-    zoo      : dict        = {}
+    arch     : str          = "depth_anything_v2"
+    tasks    : list[Task]   = [Task.DEPTH]
+    mltypes  : list[MLType] = [MLType.INFERENCE]
+    model_dir: core.Path    = current_dir
+    zoo      : dict         = {}
     
     # ----- Initialization -----
     def init_weights(self, m: nn.Module):

@@ -1,4 +1,4 @@
-# Vision Deep Learning Workflow: CPU vs GPU Guide
+# How to choose: CPU vs GPU
 
 Choosing the right device (CPU or GPU) for each step in a vision deep learning pipeline can greatly improve performance and resource efficiency.
 

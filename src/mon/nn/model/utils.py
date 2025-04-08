@@ -32,7 +32,7 @@ import torch
 
 from mon import core
 from mon.constants import (
-    EXTRA_MODELS, EXTRA_STR, LType, MODELS, ROOT_DIR, Task, ZOO_DIR,
+    EXTRA_MODELS, EXTRA_STR, MLType, MODELS, ROOT_DIR, Task, ZOO_DIR,
 )
 
 
@@ -77,7 +77,7 @@ def list_mon_archs(task: str = None, mode: str = None) -> list[str]:
     
     if mode == "train":
         models = [m for m in models
-                  if any(lt in LType.trainable() for lt in flatten_models[m].ltypes)]
+                  if any(lt in MLType.trainable() for lt in flatten_models[m].mltypes)]
     
     archs = [flatten_models[m].arch.strip()
              for m in models
@@ -105,7 +105,7 @@ def list_extra_archs(task: str = None, mode: str = None) -> list[str]:
     
     if mode == "train":
         models = [m for m in models
-                  if any(lt in LType.trainable() for lt in flatten_models[m]["ltypes"])]
+                  if any(lt in MLType.trainable() for lt in flatten_models[m]["mltypes"])]
     
     archs = [flatten_models[m]["arch"].strip()
              for m in models if flatten_models[m]["arch"] not in [None, "None", ""]]
@@ -169,7 +169,7 @@ def list_mon_models(task: str = None, mode: str = None, arch: str = None) -> lis
    
     if mode == "train":
         models = [m for m in models
-                  if any(lt in LType.trainable() for lt in flatten_models[m].ltypes)]
+                  if any(lt in MLType.trainable() for lt in flatten_models[m].mltypes)]
     
     if arch:
         models = [m for m in models if arch in flatten_models[m].arch]
@@ -199,7 +199,7 @@ def list_extra_models(task: str = None, mode: str = None, arch: str = None) -> l
    
     if mode == "train":
         models = [m for m in models
-                  if any(lt in LType.trainable() for lt in flatten_models[m]["ltypes"])]
+                  if any(lt in MLType.trainable() for lt in flatten_models[m]["mltypes"])]
     
     if arch:
         models = [m for m in models if arch in flatten_models[m]["arch"]]

@@ -17,7 +17,7 @@ import random
 import torch
 
 from mon import core, nn
-from mon.constants import LType, MODELS, Task
+from mon.constants import MLType, MODELS, Task
 from mon.vision import geometry, types
 from mon.vision.enhance import base
 
@@ -185,12 +185,12 @@ class ZeroRestoreUIE(base.ImageEnhancementModel):
 	    - https://github.com/aupendu/zero-restore
     """
     
-    arch     : str         = "zero_restore"
-    name     : str         = "zero_restore_uie"
-    tasks    : list[Task]  = [Task.UIE]
-    ltypes   : list[LType] = [LType.ZERO_SHOT]
-    model_dir: core.Path   = current_dir
-    zoo      : dict        = {}
+    arch     : str          = "zero_restore"
+    name     : str          = "zero_restore_uie"
+    tasks    : list[Task]   = [Task.UIE]
+    mltypes  : list[MLType] = [MLType.ZERO_SHOT]
+    model_dir: core.Path    = current_dir
+    zoo      : dict         = {}
     
     def __init__(
         self,

@@ -1,4 +1,4 @@
-# Naming
+# How to Name Things
 
 ## Standard Conventions
 

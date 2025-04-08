@@ -17,7 +17,7 @@ from typing import Literal
 import torch
 
 from mon import core, nn
-from mon.constants import LType, MODELS, Task
+from mon.constants import MLType, MODELS, Task
 from mon.nn import functional as F
 from mon.vision.enhance import base
 
@@ -90,12 +90,12 @@ class ZeroDCEpp_RE(base.ImageEnhancementModel):
         - https://github.com/Li-Chongyi/Zero-DCE_extension
     """
     
-    arch     : str         = "zero_dce++"
-    name     : str         = "zero_dce++_re"
-    tasks    : list[Task]  = [Task.LLIE]
-    ltypes   : list[LType] = [LType.UNSUPERVISED]
-    model_dir: core.Path   = current_dir
-    zoo      : dict        = {}
+    arch     : str          = "zero_dce++"
+    name     : str          = "zero_dce++_re"
+    tasks    : list[Task]   = [Task.LLIE]
+    mltypes  : list[MLType] = [MLType.UNSUPERVISED]
+    model_dir: core.Path    = current_dir
+    zoo      : dict         = {}
 
     def __init__(
         self,

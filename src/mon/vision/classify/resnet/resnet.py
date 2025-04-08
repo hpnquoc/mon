@@ -25,7 +25,7 @@ from torchvision.models import (
 )
 
 from mon import core, nn
-from mon.constants import LType, MODELS, ZOO_DIR
+from mon.constants import MLType, MODELS, ZOO_DIR
 from mon.vision.classify import base
 
 current_file = core.Path(__file__).absolute()
@@ -40,10 +40,10 @@ class ResNet(nn.ExtraModel, base.ImageClassificationModel, ABC):
         - https://arxiv.org/abs/1512.03385
     """
     
-    arch     : str         = "resnet"
-    ltypes   : list[LType] = [LType.SUPERVISED]
-    model_dir: core.Path   = current_dir
-    zoo      : dict        = {}
+    arch     : str          = "resnet"
+    mltypes  : list[MLType] = [MLType.SUPERVISED]
+    model_dir: core.Path    = current_dir
+    zoo      : dict         = {}
     
     # ----- Initialization -----
     def init_weights(self, m: nn.Module):

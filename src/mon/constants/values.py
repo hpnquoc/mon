@@ -82,66 +82,66 @@ EXTRA_MODELS   = {                   # architecture/model (+ variant)
     "yolor" : {
         "yolor_d6": {
             "tasks"    : [Task.DETECT],
-            "ltypes"   : [LType.SUPERVISED],
+            "mltypes"  : [MLType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "detect" / "yolor",
         },
         "yolor_e6": {
             "tasks"    : [Task.DETECT],
-            "ltypes"   : [LType.SUPERVISED],
+            "mltypes"  : [MLType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "detect" / "yolor",
         },
         "yolor_p6": {
             "tasks"    : [Task.DETECT],
-            "ltypes"   : [LType.SUPERVISED],
+            "mltypes"  : [MLType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "detect" / "yolor",
         },
         "yolor_w6": {
             "tasks"    : [Task.DETECT],
-            "ltypes"   : [LType.SUPERVISED],
+            "mltypes"  : [MLType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "detect" / "yolor",
         },
     },
     "yolov7": {
         "yolov7"    : {
             "tasks"    : [Task.DETECT],
-            "ltypes"   : [LType.SUPERVISED],
+            "mltypes"  : [MLType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "detect" / "yolov7",
         },
         "yolov7_d6" : {
             "tasks"    : [Task.DETECT],
-            "ltypes"   : [LType.SUPERVISED],
+            "mltypes"  : [MLType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "detect" / "yolov7",
         },
         "yolov7_e6" : {
             "tasks"    : [Task.DETECT],
-            "ltypes"   : [LType.SUPERVISED],
+            "mltypes"  : [MLType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "detect" / "yolov7",
         },
         "yolov7_e6e": {
             "tasks"    : [Task.DETECT],
-            "ltypes"   : [LType.SUPERVISED],
+            "mltypes"  : [MLType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "detect" / "yolov7",
         },
         "yolov7_w6" : {
             "tasks"    : [Task.DETECT],
-            "ltypes"   : [LType.SUPERVISED],
+            "mltypes"  : [MLType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "detect" / "yolov7",
         },
         "yolov7x"   : {
             "tasks"    : [Task.DETECT],
-            "ltypes"   : [LType.SUPERVISED],
+            "mltypes"  : [MLType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "detect" / "yolov7",
         },
     },
     "yolov8": {
         "yolov8n": {
             "tasks"    : [Task.DETECT],
-            "ltypes"   : [LType.SUPERVISED],
+            "mltypes"  : [MLType.SUPERVISED],
             "model_dir": MON_EXTRA_DIR / "vision" / "ultralytics",
         },
         "yolov8s": {
             "tasks"    : [Task.DETECT],
-            "ltypes"   : [LType.SUPERVISED],
+            "mltypes"  : [MLType.SUPERVISED],
             "model_dir": MON_EXTRA_DIR / "vision" / "ultralytics",
         },
         "yolov8m": {
@@ -150,34 +150,34 @@ EXTRA_MODELS   = {                   # architecture/model (+ variant)
         },
         "yolov8l": {
             "tasks"    : [Task.DETECT],
-            "ltypes"   : [LType.SUPERVISED],
+            "mltypes"  : [MLType.SUPERVISED],
             "model_dir": MON_EXTRA_DIR / "vision" / "ultralytics",
         },
         "yolov8x": {
             "tasks"    : [Task.DETECT],
-            "ltypes"   : [LType.SUPERVISED],
+            "mltypes"  : [MLType.SUPERVISED],
             "model_dir": MON_EXTRA_DIR / "vision" / "ultralytics",
         },
     },
     "yolov9": {
         "gelan_c" : {
             "tasks"    : [Task.DETECT],
-            "ltypes"   : [LType.SUPERVISED],
+            "mltypes"  : [MLType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "detect" / "yolov9",
         },
         "gelan_e" : {
             "tasks"    : [Task.DETECT],
-            "ltypes"   : [LType.SUPERVISED],
+            "mltypes"  : [MLType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "detect" / "yolov9",
         },
         "yolov9_c": {
             "tasks"    : [Task.DETECT],
-            "ltypes"   : [LType.SUPERVISED],
+            "mltypes"  : [MLType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "detect" / "yolov9",
         },
         "yolov9_e": {
             "tasks"    : [Task.DETECT],
-            "ltypes"   : [LType.SUPERVISED],
+            "mltypes"  : [MLType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "detect" / "yolov9",
         },
     },
@@ -186,7 +186,7 @@ EXTRA_MODELS   = {                   # architecture/model (+ variant)
     "zid"   : {
         "zid": {
             "tasks"    : [Task.DEHAZE],
-            "ltypes"   : [LType.ZERO_SHOT],
+            "mltypes"  : [MLType.ZERO_SHOT],
             "model_dir": MON_DIR / "vision" / "enhance" / "dehaze" / "zid",
         },
     },
@@ -195,12 +195,12 @@ EXTRA_MODELS   = {                   # architecture/model (+ variant)
     "esdnet": {
         "esdnet": {
             "tasks"    : [Task.DEMOIRE, Task.LLIE],
-            "ltypes"   : [LType.SUPERVISED],
+            "mltypes"  : [MLType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "enhance" / "demoire" / "esdnet",
         },
         "esdnet_l": {
             "tasks"    : [Task.DEMOIRE, Task.LLIE],
-            "ltypes"   : [LType.SUPERVISED],
+            "mltypes"  : [MLType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "enhance" / "demoire" / "esdnet",
         },
     },
@@ -209,7 +209,7 @@ EXTRA_MODELS   = {                   # architecture/model (+ variant)
     "esdnet_snn": {
         "esdnet_snn": {
             "tasks"    : [Task.DERAIN, Task.LLIE],
-            "ltypes"   : [LType.SUPERVISED],
+            "mltypes"  : [MLType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "enhance" / "derain" / "esdnet_snn",
         },
     },
@@ -218,189 +218,189 @@ EXTRA_MODELS   = {                   # architecture/model (+ variant)
     "colie"        : {
         "colie": {
             "tasks"    : [Task.LLIE],
-            "ltypes"   : [LType.ZERO_SHOT],
+            "mltypes"  : [MLType.ZERO_SHOT],
             "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "colie",
         },
     },
     "dccnet"       : {
         "dccnet": {
             "tasks"    : [Task.LLIE],
-            "ltypes"   : [LType.SUPERVISED],
+            "mltypes"  : [MLType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "dccnet",
         },
     },
     "enlightengan" : {
         "enlightengan": {
             "tasks"    : [Task.LLIE],
-            "ltypes"   : [LType.UNSUPERVISED],
+            "mltypes"  : [MLType.UNSUPERVISED],
             "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "enlightengan",
         },
     },
     "fourllie"     : {
         "fourllie": {
             "tasks"    : [Task.LLIE],
-            "ltypes"   : [LType.SUPERVISED],
+            "mltypes"  : [MLType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "fourllie",
         },
     },
     "hvi_cidnet"   : {
         "hvi_cidnet": {
             "tasks"    : [Task.LLIE],
-            "ltypes"   : [LType.SUPERVISED],
+            "mltypes"  : [MLType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "hvi_cidnet",
         },
     },
     "lime"         : {
         "lime": {
             "tasks"    : [Task.LLIE],
-            "ltypes"   : [LType.TRADITIONAL],
+            "mltypes"  : [MLType.TRADITIONAL],
             "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "lime",
         },
     },
     "llflow"       : {
         "llflow": {
             "tasks"    : [Task.LLIE],
-            "ltypes"   : [LType.SUPERVISED],
+            "mltypes"  : [MLType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "llflow",
         },
     },
     "llunet++"     : {
         "llunet++": {
             "tasks"    : [Task.LLIE],
-            "ltypes"   : [LType.SUPERVISED],
+            "mltypes"  : [MLType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "llunetpp",
         },
     },
     "nerco"        : {
         "nerco": {
             "tasks"    : [Task.LLIE],
-            "ltypes"   : [LType.UNSUPERVISED],
+            "mltypes"  : [MLType.UNSUPERVISED],
             "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "nerco",
         },
     },
     "pairlie"      : {
         "pairlie": {
             "tasks"    : [Task.LLIE],
-            "ltypes"   : [LType.UNSUPERVISED],
+            "mltypes"  : [MLType.UNSUPERVISED],
             "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "pairlie",
         },
     },
     "pie"          : {
         "pie": {
             "tasks"    : [Task.LLIE],
-            "ltypes"   : [LType.TRADITIONAL],
+            "mltypes"  : [MLType.TRADITIONAL],
             "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "pie",
         },
     },
     "psenet"       : {
         "psenet": {
             "tasks"    : [Task.LLIE],
-            "ltypes"   : [LType.SUPERVISED],
+            "mltypes"  : [MLType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "psenet",
         },
     },
     "quadprior"    : {
         "quadprior": {
             "tasks"    : [Task.LLIE],
-            "ltypes"   : [LType.ZERO_SHOT],
+            "mltypes"  : [MLType.ZERO_SHOT],
             "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "quadprior",
         }
     },
     "retinexformer": {
         "retinexformer": {
             "tasks"    : [Task.LLIE],
-            "ltypes"   : [LType.SUPERVISED],
+            "mltypes"  : [MLType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "retinexformer",
         },
     },
     "retinexnet"   : {
         "retinexnet": {
             "tasks"    : [Task.LLIE],
-            "ltypes"   : [LType.SUPERVISED],
+            "mltypes"  : [MLType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "retinexnet",
         },
     },
     "rsfnet"       : {
         "rsfnet": {
             "tasks"    : [Task.LLIE],
-            "ltypes"   : [LType.UNSUPERVISED],
+            "mltypes"  : [MLType.UNSUPERVISED],
             "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "rsfnet",
         },
     },
     "ruas"         : {
         "ruas": {
             "tasks"    : [Task.LLIE],
-            "ltypes"   : [LType.UNSUPERVISED],
+            "mltypes"  : [MLType.UNSUPERVISED],
             "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "ruas",
         },
     },
     "sci"          : {
         "sci": {
             "tasks"    : [Task.LLIE],
-            "ltypes"   : [LType.UNSUPERVISED],
+            "mltypes"  : [MLType.UNSUPERVISED],
             "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "sci",
         },
     },
     "sgz"          : {
         "sgz": {
             "tasks"    : [Task.LLIE],
-            "ltypes"   : [LType.UNSUPERVISED],
+            "mltypes"  : [MLType.UNSUPERVISED],
             "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "sgz",
         },
     },
     "snr_net"      : {
         "snr_net": {
             "tasks"    : [Task.LLIE],
-            "ltypes"   : [LType.SUPERVISED],
+            "mltypes"  : [MLType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "snr_net",
         },
     },
     "uretinexnet"  : {
         "uretinexnet": {
             "tasks"    : [Task.LLIE],
-            "ltypes"   : [LType.SUPERVISED],
+            "mltypes"  : [MLType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "uretinexnet",
         },
     },
     "uretinexnet++": {
         "uretinexnet++": {
             "tasks"    : [Task.LLIE],
-            "ltypes"   : [LType.SUPERVISED],
+            "mltypes"  : [MLType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "uretinexnet++",
         },
     },
     "utvnet"       : {
         "utvnet": {
             "tasks"    : [Task.LLIE],
-            "ltypes"   : [LType.SUPERVISED],
+            "mltypes"  : [MLType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "utvnet",
         },
     },
     "zero_dce"     : {
         "zero_dce"  : {
             "tasks"    : [Task.LLIE],
-            "ltypes"   : [LType.UNSUPERVISED],
+            "mltypes"  : [MLType.UNSUPERVISED],
             "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "zero_dce",
         },
     },
     "zero_dce++"   : {
         "zero_dce++": {
             "tasks"    : [Task.LLIE],
-            "ltypes"   : [LType.UNSUPERVISED],
+            "mltypes"  : [MLType.UNSUPERVISED],
             "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "zero_dce++",
         },
     },
     "zero_didce"   : {
         "zero_didce": {
             "tasks"    : [Task.LLIE],
-            "ltypes"   : [LType.UNSUPERVISED],
+            "mltypes"  : [MLType.UNSUPERVISED],
             "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "zero_didce",
         },
     },
     "zero_ig"      : {
         "zero_ig": {
             "tasks"    : [Task.LLIE],
-            "ltypes"   : [LType.ZERO_SHOT],
+            "mltypes"  : [MLType.ZERO_SHOT],
             "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "zero_ig",
         },
     },
@@ -409,14 +409,14 @@ EXTRA_MODELS   = {                   # architecture/model (+ variant)
     "airnet"   : {
         "airnet": {
             "tasks"    : [Task.DENOISE, Task.DERAIN, Task.DEHAZE],
-            "ltypes"   : [LType.SUPERVISED],
+            "mltypes"  : [MLType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "enhance" / "multitask" / "airnet",
         },
     },
     "restormer": {
         "restormer": {
             "tasks"    : [Task.DEBLUR, Task.DENOISE, Task.DERAIN, Task.DESNOW, Task.LLIE],
-            "ltypes"   : [LType.SUPERVISED],
+            "mltypes"  : [MLType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "enhance" / "multitask" / "restormer",
         },
     },
@@ -425,7 +425,7 @@ EXTRA_MODELS   = {                   # architecture/model (+ variant)
     "neurop": {
         "neurop": {
             "tasks"    : [Task.RETOUCH, Task.LLIE],
-            "ltypes"   : [LType.SUPERVISED],
+            "mltypes"  : [MLType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "enhance" / "retouch" / "neurop",
         },
     },
@@ -434,7 +434,7 @@ EXTRA_MODELS   = {                   # architecture/model (+ variant)
     "sronet": {
         "sronet": {
             "tasks"    : [Task.SR],
-            "ltypes"   : [LType.SUPERVISED],
+            "mltypes"  : [MLType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "enhance" / "sr" / "sronet",
         },
     },
@@ -443,39 +443,39 @@ EXTRA_MODELS   = {                   # architecture/model (+ variant)
     "sam" : {
         "sam_vit_b": {
             "tasks"    : [Task.SEGMENT],
-            "ltypes"   : [LType.SUPERVISED],
+            "mltypes"  : [MLType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "segment" / "sam",
         },
         "sam_vit_h": {
             "tasks"    : [Task.SEGMENT],
-            "ltypes"   : [LType.SUPERVISED],
+            "mltypes"  : [MLType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "segment" / "sam",
         },
         "sam_vit_l": {
             "tasks"    : [Task.SEGMENT],
-            "ltypes"   : [LType.SUPERVISED],
+            "mltypes"  : [MLType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "segment" / "sam",
         },
     },
     "sam2": {
         "sam2_hiera_b+": {
             "tasks"    : [Task.SEGMENT],
-            "ltypes"   : [LType.SUPERVISED],
+            "mltypes"  : [MLType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "segment" / "sam2",
         },
         "sam2_hiera_l" : {
             "tasks"    : [Task.SEGMENT],
-            "ltypes"   : [LType.SUPERVISED],
+            "mltypes"  : [MLType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "segment" / "sam2",
         },
         "sam2_hiera_s" : {
             "tasks"    : [Task.SEGMENT],
-            "ltypes"   : [LType.SUPERVISED],
+            "mltypes"  : [MLType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "segment" / "sam2",
         },
         "sam2_hiera_t" : {
             "tasks"    : [Task.SEGMENT],
-            "ltypes"   : [LType.SUPERVISED],
+            "mltypes"  : [MLType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "segment" / "sam2",
         },
     },
@@ -484,29 +484,29 @@ EXTRA_MODELS   = {                   # architecture/model (+ variant)
     "depth_anything_v2": {
         "depth_anything_v2_vitb": {
             "tasks"    : [Task.DEPTH],
-            "ltypes"   : [LType.SUPERVISED],
+            "mltypes"  : [MLType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "types" / "depth" / "depth_anything_v2",
         },
         "depth_anything_v2_vits": {
             "tasks"    : [Task.DEPTH],
-            "ltypes"   : [LType.SUPERVISED],
+            "mltypes"  : [MLType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "types" / "depth" / "depth_anything_v2",
         },
         "depth_anything_v2_vitl": {
             "tasks"    : [Task.DEPTH],
-            "ltypes"   : [LType.SUPERVISED],
+            "mltypes"  : [MLType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "types" / "depth" / "depth_anything_v2",
         },
         "depth_anything_v2_vitg": {
             "tasks"    : [Task.DEPTH],
-            "ltypes"   : [LType.SUPERVISED],
+            "mltypes"  : [MLType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "types" / "depth" / "depth_anything_v2",
         },
     },
     "depth_pro"        : {
         "depth_pro": {
             "tasks"    : [Task.DEPTH],
-            "ltypes"   : [LType.ZERO_SHOT],
+            "mltypes"  : [MLType.ZERO_SHOT],
             "model_dir": MON_DIR / "vision" / "types" / "depth" / "depth_pro",
         },
     },

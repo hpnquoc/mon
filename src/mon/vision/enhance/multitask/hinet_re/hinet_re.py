@@ -17,7 +17,7 @@ from typing import Any
 import torch
 
 from mon import core, nn
-from mon.constants import LType, MODELS, Task
+from mon.constants import MLType, MODELS, Task
 from mon.nn import _size_2_t
 from mon.vision.enhance import base
 
@@ -209,13 +209,12 @@ class HINet_RE(base.ImageEnhancementModel):
         - https://github.com/megvii-model/HINet
     """
     
-    arch     : str         = "hinet"
-    name     : str         = "hinet_re"
-    tasks    : list[Task]  = [Task.DEBLUR, Task.DENOISE, Task.DERAIN,
-                                   Task.DESNOW, Task.LLIE]
-    ltypes   : list[LType] = [LType.SUPERVISED]
-    model_dir: core.Path   = current_dir
-    zoo      : dict        = {}
+    arch     : str          = "hinet"
+    name     : str          = "hinet_re"
+    tasks    : list[Task]   = [Task.DEBLUR, Task.DENOISE, Task.DERAIN, Task.DESNOW, Task.LLIE]
+    mltypes  : list[MLType] = [MLType.SUPERVISED]
+    model_dir: core.Path    = current_dir
+    zoo      : dict         = {}
     
     def __init__(
         self,

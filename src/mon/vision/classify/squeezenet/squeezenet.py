@@ -13,7 +13,7 @@ from abc import ABC
 from torchvision.models import squeezenet1_0, squeezenet1_1
 
 from mon import core, nn
-from mon.constants import LType, MODELS, ZOO_DIR
+from mon.constants import MLType, MODELS, ZOO_DIR
 from mon.vision.classify import base
 
 current_file = core.Path(__file__).absolute()
@@ -28,10 +28,10 @@ class SqueezeNet(nn.ExtraModel, base.ImageClassificationModel, ABC):
         - https://arxiv.org/abs/1602.07360
     """
     
-    arch     : str         = "squeezenet"
-    ltypes   : list[LType] = [LType.SUPERVISED]
-    model_dir: core.Path   = current_dir
-    zoo      : dict        = {}
+    arch     : str          = "squeezenet"
+    mltypes  : list[MLType] = [MLType.SUPERVISED]
+    model_dir: core.Path    = current_dir
+    zoo      : dict         = {}
 
     # ----- Initialization -----
     def init_weights(self, m: nn.Module):

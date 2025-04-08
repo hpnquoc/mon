@@ -118,9 +118,12 @@ def measure_metric_pyiqa(
             if use_gt_mean and has_target:
                 image = mon.scale_gt_mean(image, target)
             
+            # Move to device
+            image = image.to(device=device)
+            if has_target:
+                target = target.to(device=device)
+            
             # Measure metric
-            image  = image.to(device=device)
-            target = target.to(device=device)
             for m in metric:
                 if m not in _METRICS:
                     continue

@@ -10,7 +10,7 @@ __all__ = [
 from torchvision.models import alexnet
 
 from mon import core, nn
-from mon.constants import LType, MODELS, ZOO_DIR
+from mon.constants import MLType, MODELS, ZOO_DIR
 from mon.vision.classify import base
 
 current_file = core.Path(__file__).absolute()
@@ -27,11 +27,11 @@ class AlexNet(nn.ExtraModel, base.ImageClassificationModel):
         dropout: Dropout rate for the model. Default is ``0.5``.
     """
     
-    arch     : str         = "alexnet"
-    name     : str         = "alexnet",
-    ltypes   : list[LType] = [LType.SUPERVISED]
-    model_dir: core.Path   = current_dir
-    zoo      : dict        = {
+    arch     : str          = "alexnet"
+    name     : str          = "alexnet",
+    mltypes  : list[MLType] = [MLType.SUPERVISED]
+    model_dir: core.Path    = current_dir
+    zoo      : dict         = {
         "imagenet1k_v1": {
             "url"        : "https://download.pytorch.org/models/alexnet-owt-7be5be79.pth",
             "path"       : ZOO_DIR / "vision/classify/alexnet/alexnet/imagenet1k_v1/alexnet_imagenet1k_v1.pth",
