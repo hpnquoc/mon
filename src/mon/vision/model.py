@@ -63,15 +63,15 @@ class VisionModel(nn.Model, ABC):
         Notes:
             Override for custom pre/post-processing; defaults to ``self.forward()``.
         """
-        from mon import vision
+        from mon.vision import types, transforms
         
         # Input
         image  = datapoint["image"]
-        h0, w0 = vision.image_size(image)
+        h0, w0 = types.image_size(image)
         for k, v in datapoint.items():
-            if vision.is_image(v):
+            if types.is_image(v):
                 size         = image_size if resize else 32 * ((max(h0, w0) + 31) // 32)
-                datapoint[k] = vision.resize(v, size)
+                datapoint[k] = transforms.resize(v, size)
             if isinstance(v, torch.Tensor):
                 datapoint[k] = v.to(self.device)
         
@@ -83,10 +83,10 @@ class VisionModel(nn.Model, ABC):
     
         # Post-processing
         for k, v in outputs.items():
-            if vision.is_image(v):
-                h1, w1 = v.image_size(v)
+            if types.is_image(v):
+                h1, w1 = types.image_size(v)
                 if h1 != h0 or w1 != w0:
-                    outputs[k] = vision.resize(v, (h0, w0))
+                    outputs[k] = transforms.resize(v, (h0, w0))
         
         # Return
         return outputs | {

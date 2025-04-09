@@ -1,7 +1,12 @@
+import torch
 import torch.nn.functional as F
 
+import genotypes
 import mon
 from operations import *
+
+current_file = mon.Path(__file__).absolute()
+current_dir  = current_file.parents[0]
 
 
 def conv_layer(in_channels, out_channels, kernel_size, stride=1, dilation=1, groups=1):
@@ -55,6 +60,7 @@ class SearchBlock(nn.Module):
 
 
 class IEM(nn.Module):
+    
     def __init__(self, channel, genetype):
         super(IEM, self).__init__()
         self.channel = channel
@@ -151,12 +157,14 @@ class Network(nn.Module):
         self._criterion         = LossFunction()
         self._denoise_criterion = DenoiseLossFunction()
 
-        enhance_genname  = 'IEM'
-        enhance_genotype = eval("genotypes.%s" % enhance_genname)
-
-        denoise_genname  = 'NRM'
-        denoise_genotype = eval("genotypes.%s" % denoise_genname)
-
+        # enhance_genname  = 'IEM'
+        # enhance_genotype = eval("genotypes.%s" % enhance_genname)
+        enhance_genotype = genotypes.IEM
+        
+        # denoise_genname  = 'NRM'
+        # denoise_genotype = eval("genotypes.%s" % denoise_genname)
+        denoise_genotype = genotypes.NRM
+        
         self.enhance_net = EnhanceNetwork(
             iteratioin = self.iem_nums,
             channel    = self.enhance_channel,
@@ -185,7 +193,8 @@ class Network(nn.Module):
         self._init_weights()
 
     def _init_weights(self):
-        model_dict = torch.load(mon.ZOO_DIR / "vision/enhance/llie/ruas/ruas/lol_v1/denoise.pt", weights_only=True)
+        # model_dict = torch.load(mon.ZOO_DIR / "vision/enhance/llie/ruas/ruas/lol_v1/denoise.pt", weights_only=True)
+        model_dict = torch.load(current_dir / "pretrained/denoise.pt", weights_only=True)
         self.denoise_net.load_state_dict(model_dict)
 
     def forward(self, input):
@@ -232,6 +241,7 @@ class Network(nn.Module):
 
 
 class DenoiseLossFunction(nn.Module):
+    
     def __init__(self):
         super(DenoiseLossFunction, self).__init__()
         self.l2_loss = nn.MSELoss()
@@ -243,6 +253,7 @@ class DenoiseLossFunction(nn.Module):
 
 
 class TVLoss(nn.Module):
+    
     def __init__(self, TVLoss_weight=1):
         super(TVLoss, self).__init__()
         self.TVLoss_weight = TVLoss_weight
@@ -262,6 +273,7 @@ class TVLoss(nn.Module):
 
 
 class LossFunction(nn.Module):
+    
     def __init__(self):
         super(LossFunction, self).__init__()
         self.l2_loss = nn.MSELoss()
@@ -290,6 +302,7 @@ class LossFunction(nn.Module):
 
 
 class SmoothLoss(nn.Module):
+    
     def __init__(self):
         super(SmoothLoss, self).__init__()
         self.sigma = 0.1
@@ -415,6 +428,7 @@ class SmoothLoss(nn.Module):
 
 
 class IlluLoss(nn.Module):
+    
     def __init__(self):
         super(IlluLoss, self).__init__()
 

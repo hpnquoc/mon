@@ -105,7 +105,8 @@ class Model(lightning.LightningModule, ABC):
         verbose  : bool = True,
         *args, **kwargs
     ):
-        super().__init__(*args, **kwargs)
+        # super().__init__(*args, **kwargs)
+        super().__init__()
         # Misc
         self.debug         = debug
         self.verbose       = verbose

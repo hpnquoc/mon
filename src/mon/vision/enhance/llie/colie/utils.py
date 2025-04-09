@@ -11,7 +11,7 @@ def get_image(path):
     """
     Reads and returns RGB image, (1,3,H,W).
     """
-    image = torch.from_numpy(np.array(Image.open(path))).float()
+    image = torch.from_numpy(np.array(Image.open(path).convert("RGB"))).float()
     image = image / torch.max(image)
     image = torch.movedim(image, -1, 0).unsqueeze(0)
     return image
@@ -44,7 +44,7 @@ def get_coords(H, W):
     Creates a coordinates grid for INF.
     """
     coords = np.dstack(np.meshgrid(np.linspace(0, 1, H), np.linspace(0, 1, W)))
-    coords = torch.from_numpy(coords).float().cuda()
+    coords = torch.from_numpy(coords).float()
     return coords
 
 
@@ -52,11 +52,11 @@ def get_patches(img, KERNEL_SIZE):
     """
     Creates a tensor where the channel contains patch information.
     """
-    kernel = torch.zeros((KERNEL_SIZE ** 2, 1, KERNEL_SIZE, KERNEL_SIZE)).cuda()
+    kernel = torch.zeros((KERNEL_SIZE ** 2, 1, KERNEL_SIZE, KERNEL_SIZE)).to(img.device)
 
     for i in range(KERNEL_SIZE):
         for j in range(KERNEL_SIZE):
-            kernel[int(torch.sum(kernel).item()),0,i,j] = 1
+            kernel[int(torch.sum(kernel).item()), 0, i, j] = 1
 
     pad = nn.ReflectionPad2d(KERNEL_SIZE//2)
     im_padded = pad(img)

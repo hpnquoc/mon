@@ -20,6 +20,7 @@ OPS = {
     'resdilconv_7x7': lambda C_in, C_out: ResBlock(C_in, C_out, 7, dilation=2),
 }
 
+
 class ConvBlock(nn.Module):
 
     def __init__(self, C_in, C_out, kernel_size, stride=1, dilation=1, groups=1):
@@ -29,6 +30,7 @@ class ConvBlock(nn.Module):
 
     def forward(self, x):
         return self.op(x)
+
 
 class ResBlock(nn.Module):
 

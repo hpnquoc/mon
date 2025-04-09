@@ -12,7 +12,7 @@ data_dir="${mon_dir}/data/enhance"
 
 # Input
 arch="fourllie"
-model="fourllie_lol_v2_real"
+model="fourllie_lsrw_nikon"
 data=(
     ### Unpaired Set
     "dicm"

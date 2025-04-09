@@ -10,7 +10,9 @@ References:
 
 from typing import Sequence
 
+import thop
 import torch.optim
+from fvcore.nn import FlopCountAnalysis, parameter_count
 
 import mon
 from color import hsv2rgb_torch, rgb2hsv_torch
@@ -23,6 +25,28 @@ current_dir  = current_file.parents[0]
 
 
 # ----- Predict -----
+def compute_efficiency_score(model: torch.nn.Module, image_size: int = 512) -> tuple[float, float]:
+    """Computes FLOPs and parameters for a model.
+
+    Args:
+        model: PyTorch model to profile.
+        image_size: Input image size (H, W) or single int. Default is ``512``.
+
+    Returns:
+        Tuple of (FLOPs, parameters) as floats.
+    """
+    patches = torch.rand(image_size, image_size, 49).to(mon.get_model_device(model))
+    coords  = torch.rand(image_size, image_size,  2).to(mon.get_model_device(model))
+    
+    flops, params = thop.profile(model, inputs=(patches, coords,), verbose=False)
+    flops   = FlopCountAnalysis(model, input).total() if flops == 0 else flops
+    params  = model.params           if hasattr(model, "params") and params == 0 else params
+    params  = parameter_count(model) if hasattr(model, "params") else params
+    params  = sum(params.values())   if isinstance(params, dict) else params
+
+    return flops, params
+
+
 def predict(args: dict) -> str:
     # Parse args
     hostname     = args["hostname"]
@@ -73,7 +97,7 @@ def predict(args: dict) -> str:
     # Benchmark
     if benchmark:
         model = INF(patch_dim=window ** 2, num_layers=num_layers, hidden_dim=hidden_dim, add_layer=add_layer)
-        flops, params = mon.compute_efficiency_score(model=model, image_size=512)
+        flops, params = compute_efficiency_score(model=model, image_size=imgsz)
         mon.console.log(f"FLOPs : {flops:.4f}")
         mon.console.log(f"Params: {params:.4f}")
     
@@ -88,13 +112,13 @@ def predict(args: dict) -> str:
             # Input
             meta       = datapoint["meta"]
             image_path = mon.Path(meta["path"])
-            img_rgb    = get_image(str(image_path))
-            img_hsv    = rgb2hsv_torch(img_rgb)
-            img_v      = get_v_component(img_hsv)
-            img_v_lr   = interpolate_image(img_v, imgsz, imgsz)
-            coords     = get_coords(imgsz, imgsz)
-            patches    = get_patches(img_v_lr, window)
-            
+            img_rgb    = get_image(str(image_path)).to(device)
+            img_hsv    = rgb2hsv_torch(img_rgb).to(device)
+            img_v      = get_v_component(img_hsv).to(device)
+            img_v_lr   = interpolate_image(img_v, imgsz, imgsz).to(device)
+            coords     = get_coords(imgsz, imgsz).to(device)
+            patches    = get_patches(img_v_lr, window).to(device)
+
             # Model
             img_siren  = INF(patch_dim=window ** 2, num_layers=num_layers, hidden_dim=hidden_dim, add_layer=add_layer)
             img_siren  = img_siren.to(device)

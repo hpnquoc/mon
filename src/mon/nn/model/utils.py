@@ -172,7 +172,7 @@ def list_mon_models(task: str = None, mode: str = None, arch: str = None) -> lis
                   if any(lt in MLType.trainable() for lt in flatten_models[m].mltypes)]
     
     if arch:
-        models = [m for m in models if arch in flatten_models[m].arch]
+        models = [m for m in models if arch == flatten_models[m].arch]
         
     return sorted(models)
 
@@ -202,7 +202,7 @@ def list_extra_models(task: str = None, mode: str = None, arch: str = None) -> l
                   if any(lt in MLType.trainable() for lt in flatten_models[m]["mltypes"])]
     
     if arch:
-        models = [m for m in models if arch in flatten_models[m]["arch"]]
+        models = [m for m in models if arch == flatten_models[m]["arch"]]
    
     return sorted(models)
 
@@ -316,14 +316,17 @@ def list_weights_files(model: str, project_root: str | core.Path = None) -> list
     def collect_weights_files(root: core.Path) -> list[core.Path]:
         return sorted(f for f in root.rglob("*") if f.is_weights_file())
     
-    weights_files = []
+    # List all weights files in the project root and ``zoo`` directories.
+    weights_files: list[core.Path] = []
     if project_root not in [None, "None", ""]:
         weights_files += collect_weights_files(core.Path(project_root) / "run" / "train")
-    
     weights_files += collect_weights_files(ZOO_DIR)
     
-    model_name = parse_model_name(model)
-    return sorted(core.unique([f for f in weights_files if model_name in str(f)]))
+    # Filter weights files by model name.
+    model_name    = parse_model_name(model)
+    weights_files = [f for f in weights_files if model_name in f.parts]
+    
+    return sorted(core.unique(weights_files))
 
 
 def download_weights_from_url(url: str, path: core.Path, overwrite: bool = False) -> core.Path:
@@ -454,15 +457,12 @@ def parse_weights_file(
     Returns:
         Parsed weights path(s) as single path or sequence, or ``None`` if empty.
     """
-    root = core.Path(root)
+    root    = core.Path(root)
     weights = core.to_list(weights)
     
     for i, w in enumerate(weights):
-        w = core.Path(w)
-        if not w.is_weights_file(exist=True):
-            weights[i] = (ROOT_DIR / w) \
-                if (ROOT_DIR / w).is_weights_file(exist=True) \
-                else (root / w)
+        if not core.Path(w).exists():
+            weights[i] = (ROOT_DIR / w) if (ROOT_DIR / w).exists() else (root / w)
     
     if len(weights) == 1:
         return weights[0]

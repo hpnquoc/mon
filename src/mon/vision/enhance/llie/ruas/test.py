@@ -59,7 +59,6 @@ def main():
     model_dict = torch.load('./ckpt/'+args.model+'.pt')
     model.load_state_dict(model_dict)
 
-
     for p in model.parameters():
         p.requires_grad = False
 

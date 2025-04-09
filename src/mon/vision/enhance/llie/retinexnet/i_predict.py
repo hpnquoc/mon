@@ -57,7 +57,7 @@ def predict(args: dict) -> str:
         for i, datapoint in pbar.track(
             sequence    = enumerate(data_loader),
             total       = len(data_loader),
-            description = f"[bright_yellow] Predicting"
+            description = f"[bright_yellow] Listing images",
         ):
             meta        = datapoint["meta"]
             image_path  = meta["path"]
@@ -65,6 +65,7 @@ def predict(args: dict) -> str:
     
     # Predicting
     timer = mon.Timer()
+    timer.tick()
     model.predict(
         image_paths,
         res_dir  = str(save_dir),

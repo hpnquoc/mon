@@ -13,6 +13,8 @@ import torch
 
 import mon
 
+mon.disable_print()
+
 _METRICS = pyiqa.default_model_configs.DEFAULT_CONFIGS
 
 
@@ -68,8 +70,7 @@ def measure_metric_pyiqa(
     h, w        = mon.image_size(imgsz)
     
     # Parse metrics
-    metric_f    = {}
-    mon.disable_print()
+    metric_f = {}
     for i, m in enumerate(metric):
         if m not in _METRICS:
             continue
@@ -78,7 +79,6 @@ def measure_metric_pyiqa(
             as_loss     = False,
             device      = device,
         )
-    mon.enable_print()
     need_target = any(_METRICS[m]["metric_mode"] == "FR" for m in metric)
     
     # Measuring
