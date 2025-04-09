@@ -354,10 +354,12 @@ class MLType(Enum):
     
     INFERENCE       = "inference"        # Inference Only: we don't have training code.
     TRADITIONAL     = "traditional"      # Traditional Method (non-learning).
-    SUPERVISED      = "supervised"       # Supervised Learning.
-    UNSUPERVISED    = "unsupervised"     # Unsupervised Learning.
-    SELF_SUPERVISED = "self_supervised"  # Self-Supervised Learning.
-    ZERO_SHOT       = "zero_shot"        # Zero-Shot Learning.
+    SUPERVISED      = "supervised"       # Supervised learning with labeled data.
+    UNSUPERVISED    = "unsupervised"     # Unsupervised learning with unlabeled data.
+    UNPAIRED        = "unpaired"         # Unpaired learning with varying reference data of the same input (e.g., varying illumination within the same scene).
+    SELF_SUPERVISED = "self_supervised"  # Self-Supervised learning with self-generated supervision.
+    ZERO_REFERENCE  = "zero_reference"   # Zero-Reference learning without any reference (e.g., mixing arbitrary low and normal-light images).
+    ZERO_SHOT       = "zero_shot"        # Zero-Shot learning without any training data.
     
     @classmethod
     def trainable(cls) -> list:

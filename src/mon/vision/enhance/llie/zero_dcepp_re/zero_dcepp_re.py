@@ -93,7 +93,7 @@ class ZeroDCEpp_RE(base.ImageEnhancementModel):
     arch     : str          = "zero_dce++"
     name     : str          = "zero_dce++_re"
     tasks    : list[Task]   = [Task.LLIE]
-    mltypes  : list[MLType] = [MLType.UNSUPERVISED]
+    mltypes  : list[MLType] = [MLType.ZERO_REFERENCE]
     model_dir: core.Path    = current_dir
     zoo      : dict         = {}
 

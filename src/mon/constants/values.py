@@ -193,7 +193,7 @@ EXTRA_MODELS   = {                   # architecture/model (+ variant)
     # endregion
     # region enhance/demoire
     "esdnet": {
-        "esdnet": {
+        "esdnet"  : {
             "tasks"    : [Task.DEMOIRE, Task.LLIE],
             "mltypes"  : [MLType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "enhance" / "demoire" / "esdnet",
@@ -232,7 +232,7 @@ EXTRA_MODELS   = {                   # architecture/model (+ variant)
     "enlightengan" : {
         "enlightengan": {
             "tasks"    : [Task.LLIE],
-            "mltypes"  : [MLType.UNSUPERVISED],
+            "mltypes"  : [MLType.UNPAIRED],
             "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "enlightengan",
         },
     },
@@ -274,14 +274,14 @@ EXTRA_MODELS   = {                   # architecture/model (+ variant)
     "nerco"        : {
         "nerco": {
             "tasks"    : [Task.LLIE],
-            "mltypes"  : [MLType.UNSUPERVISED],
+            "mltypes"  : [MLType.UNPAIRED],
             "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "nerco",
         },
     },
     "pairlie"      : {
         "pairlie": {
             "tasks"    : [Task.LLIE],
-            "mltypes"  : [MLType.UNSUPERVISED],
+            "mltypes"  : [MLType.UNPAIRED],
             "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "pairlie",
         },
     },
@@ -323,28 +323,28 @@ EXTRA_MODELS   = {                   # architecture/model (+ variant)
     "rsfnet"       : {
         "rsfnet": {
             "tasks"    : [Task.LLIE],
-            "mltypes"  : [MLType.UNSUPERVISED],
+            "mltypes"  : [MLType.ZERO_REFERENCE],
             "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "rsfnet",
         },
     },
     "ruas"         : {
         "ruas": {
             "tasks"    : [Task.LLIE],
-            "mltypes"  : [MLType.UNSUPERVISED],
+            "mltypes"  : [MLType.ZERO_REFERENCE],
             "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "ruas",
         },
     },
     "sci"          : {
         "sci": {
             "tasks"    : [Task.LLIE],
-            "mltypes"  : [MLType.UNSUPERVISED],
+            "mltypes"  : [MLType.ZERO_REFERENCE],
             "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "sci",
         },
     },
     "sgz"          : {
         "sgz": {
             "tasks"    : [Task.LLIE],
-            "mltypes"  : [MLType.UNSUPERVISED],
+            "mltypes"  : [MLType.ZERO_REFERENCE],
             "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "sgz",
         },
     },
@@ -379,21 +379,21 @@ EXTRA_MODELS   = {                   # architecture/model (+ variant)
     "zero_dce"     : {
         "zero_dce"  : {
             "tasks"    : [Task.LLIE],
-            "mltypes"  : [MLType.UNSUPERVISED],
+            "mltypes"  : [MLType.ZERO_REFERENCE],
             "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "zero_dce",
         },
     },
     "zero_dce++"   : {
         "zero_dce++": {
             "tasks"    : [Task.LLIE],
-            "mltypes"  : [MLType.UNSUPERVISED],
+            "mltypes"  : [MLType.ZERO_REFERENCE],
             "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "zero_dce++",
         },
     },
     "zero_didce"   : {
         "zero_didce": {
             "tasks"    : [Task.LLIE],
-            "mltypes"  : [MLType.UNSUPERVISED],
+            "mltypes"  : [MLType.ZERO_REFERENCE],
             "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "zero_didce",
         },
     },
