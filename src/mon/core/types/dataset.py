@@ -246,7 +246,7 @@ class Dataset(dataset.Dataset, ABC):
         """
         return self.split.value
     
-    # ----- Initialization -----
+    # ----- Initialize -----
     @abstractmethod
     def init_transform(self, transform: Any = None):
         """Initializes transformation operations.

@@ -24,7 +24,7 @@ from mon.constants import CALLBACKS
 from mon.nn.callback import base
 
 
-# ----- Logging -----
+# ----- Log -----
 # noinspection PyMethodMayBeStatic
 @CALLBACKS.register(name="log_training_progress")
 class LogTrainingProgress(base.Callback):

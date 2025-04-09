@@ -172,7 +172,7 @@ class DataModule(lightning.LightningDataModule, ABC):
         """
         return self.verbose and (self.trainer is None or self.trainer.global_rank == 0)
     
-    # ----- Initialization -----
+    # ----- Initialize -----
     @abstractmethod
     def prepare_data(self, *args, **kwargs):
         """Prepares data for disk or single-GPU tasks.

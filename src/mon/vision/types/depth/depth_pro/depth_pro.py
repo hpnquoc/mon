@@ -70,7 +70,7 @@ class DepthPro(nn.ExtraModel, base.DepthEstimationModel):
         else:
             self.apply(self.init_weights)
     
-    # ----- Initialization -----
+    # ----- Initialize -----
     def init_weights(self, m: nn.Module):
         pass
     
@@ -84,7 +84,7 @@ class DepthPro(nn.ExtraModel, base.DepthEstimationModel):
             "depth"         : outputs["depth"],
         }
     
-    # ----- Predicting -----
+    # ----- Predict -----
     def infer(self, datapoint : dict, *args, **kwargs) -> dict:
         # Pre-processing
         meta               = datapoint["meta"]

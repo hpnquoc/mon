@@ -100,7 +100,7 @@ class VisionDataset(core.Dataset, ABC):
         target_types.pop("meta", None)
         return target_types
     
-    # ----- Initialization -----
+    # ----- Initialize -----
     def init_transform(self, transform: albumentation.Compose | Any = None):
         """Initializes transformations with multimodal support.
 

@@ -220,7 +220,7 @@ class Model(lightning.LightningModule, ABC):
         """
         self._debug = debug
     
-    # ----- Initialization -----
+    # ----- Initialize -----
     def init_name(self):
         """Sets the model's name if not already defined."""
         if not self.name:
@@ -507,7 +507,7 @@ class Model(lightning.LightningModule, ABC):
         """
         pass
     
-    # ----- Training -----
+    # ----- Train -----
     def on_fit_start(self):
         """Runs at the start of model fitting."""
         self.create_dir()
@@ -659,7 +659,7 @@ class Model(lightning.LightningModule, ABC):
             for metric in self.test_metrics:
                 metric.reset()
     
-    # ----- Predicting -----
+    # ----- Predict -----
     def infer(self, datapoint: dict, *args, **kwargs) -> dict:
         """Infers model output with optional processing.
     
@@ -676,7 +676,7 @@ class Model(lightning.LightningModule, ABC):
         """
         return self.forward(datapoint, *args, **kwargs)
     
-    # ----- Exporting -----
+    # ----- Export -----
     def export_to_onnx(
         self,
         input_dims   : list[int] = None,
@@ -736,7 +736,7 @@ class Model(lightning.LightningModule, ABC):
         script       = self.to_torchscript(method=method, example_inputs=input_sample)
         torch.jit.save(script, file_path)
     
-    # ----- Logging -----
+    # ----- Log -----
     def should_log_images(self) -> bool:
         """Checks if debug images should be logged.
     

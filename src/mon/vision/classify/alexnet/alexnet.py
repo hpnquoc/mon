@@ -52,7 +52,7 @@ class AlexNet(nn.ExtraModel, base.ImageClassificationModel):
         else:
             self.apply(self.init_weights)
     
-    # ----- Initialization -----
+    # ----- Initialize -----
     def init_weights(self, m: nn.Module):
         """Initializes weights for the model.
     

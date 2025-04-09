@@ -245,7 +245,7 @@ class RRDNet(base.ImageEnhancementModel):
             self.apply(self.init_weights)
         self.initial_state_dict = self.state_dict()
     
-    # ----- Initialization -----
+    # ----- Initialize -----
     def init_weights(self, m: nn.Module):
         """Initializes the model's weights.
     
@@ -298,7 +298,7 @@ class RRDNet(base.ImageEnhancementModel):
             "enhanced"    : enhanced
         }
     
-    # ----- Predicting -----
+    # ----- Predict -----
     def infer(self, datapoint: dict, reset_weights: bool = True, *args, **kwargs) -> dict:
         """Infers model output with optional processing.
     

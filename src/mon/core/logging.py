@@ -26,7 +26,7 @@ from rich import logging as r_logging
 from mon.core import pathlib
 
 
-# ----- Logging -----
+# ----- Log -----
 logging.basicConfig(
     level    = logging.INFO,
     format   = "%(message)s",

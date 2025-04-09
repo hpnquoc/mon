@@ -20,7 +20,7 @@ class ImageClassificationModel(model.VisionModel, ABC):
 
     tasks: list[Task] = [Task.CLASSIFY]
     
-    # ----- Initialization -----
+    # ----- Initialize -----
     def parse_num_classes(self, num_classes: int) -> int:
         """Updates num_classes from pretrained weights if needed.
 

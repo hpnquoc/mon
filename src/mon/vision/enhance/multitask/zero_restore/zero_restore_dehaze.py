@@ -217,7 +217,7 @@ class ZeroRestoreDehaze(base.ImageEnhancementModel):
             self.apply(self.init_weights)
         self.initial_state_dict = self.state_dict()
     
-    # ----- Initialization -----
+    # ----- Initialize -----
     def init_weights(self, m: nn.Module):
         """Initializes the model's weights.
     
@@ -309,7 +309,7 @@ class ZeroRestoreDehaze(base.ImageEnhancementModel):
             image = image.flip(3)
         return image
     
-    # ----- Predicting -----
+    # ----- Predict -----
     def infer(self, datapoint: dict, reset_weights: bool = True, *args, **kwargs) -> dict:
         """Infers model output with optional processing.
     

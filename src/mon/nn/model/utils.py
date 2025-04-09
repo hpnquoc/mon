@@ -5,6 +5,7 @@
 
 __all__ = [
     "download_weights_from_url",
+    "flatten_models_dict",
     "get_epoch_from_checkpoint",
     "get_global_step_from_checkpoint",
     "get_latest_checkpoint",
@@ -66,9 +67,7 @@ def list_mon_archs(task: str = None, mode: str = None) -> list[str]:
     Returns:
         Sorted list of unique arch names matching task and mode.
     """
-    from mon.constants import MODELS
-    
-    flatten_models = core.flatten_models_dict(MODELS)
+    flatten_models = flatten_models_dict(MODELS)
     models         = list(flatten_models.keys())
     
     if task in Task.values():
@@ -96,7 +95,7 @@ def list_extra_archs(task: str = None, mode: str = None) -> list[str]:
     Returns:
         Sorted list of unique arch names matching task and mode.
     """
-    flatten_models = core.flatten_models_dict(EXTRA_MODELS)
+    flatten_models = flatten_models_dict(EXTRA_MODELS)
     models         = list(flatten_models.keys())
     
     if task in Task.values():
@@ -137,8 +136,8 @@ def list_archs(
         models         = [m for m in models       if core.snakecase(m) in project_models]
         extra_models   = [m for m in extra_models if core.snakecase(m) in project_models]
     
-    flatten_mon_models   = core.flatten_models_dict(MODELS)
-    flatten_extra_models = core.flatten_models_dict(EXTRA_MODELS)
+    flatten_mon_models   = flatten_models_dict(MODELS)
+    flatten_extra_models = flatten_models_dict(EXTRA_MODELS)
     archs = (
         [flatten_mon_models[m].arch      for m in models] +
         [flatten_extra_models[m]["arch"] for m in extra_models]
@@ -160,7 +159,7 @@ def list_mon_models(task: str = None, mode: str = None, arch: str = None) -> lis
     Returns:
         Sorted list of model names matching task, mode, and arch.
     """
-    flatten_models = core.flatten_models_dict(MODELS)
+    flatten_models = flatten_models_dict(MODELS)
     models         = list(flatten_models.keys())
     
     if task in Task.values():
@@ -188,9 +187,7 @@ def list_extra_models(task: str = None, mode: str = None, arch: str = None) -> l
     Returns:
         Sorted list of model names matching task, mode, and arch.
     """
-    from mon.constants import EXTRA_MODELS
-    
-    flatten_models = core.flatten_models_dict(EXTRA_MODELS)
+    flatten_models = flatten_models_dict(EXTRA_MODELS)
     models         = list(flatten_models.keys())
    
     if task in Task.values():
@@ -251,7 +248,7 @@ def get_latest_checkpoint(dirpath: core.Path) -> str | None:
         Path to latest checkpoint as string, or ``None`` if none found.
     """
     dirpath = core.Path(dirpath)
-    ckpts = sorted(
+    ckpts   = sorted(
         (ckpt for ckpt in dirpath.files(recursive=True) if ckpt.is_torch_file()),
         key=lambda x: x.stat().st_mtime,
         reverse=True
@@ -469,6 +466,23 @@ def parse_weights_file(
     return weights or None
 
 
+def flatten_models_dict(x: dict) -> dict:
+    """Flattens a nested dictionary of models.
+
+    Args:
+        x: Nested ``dict`` of models.
+
+    Returns:
+        Flattened ``dict`` with inner keys and values, adding ``arch`` key to nested
+        dicts.
+    """
+    return {
+        k2: {**v2, "arch": k1} if isinstance(v2, dict) else v2
+        for k1, v1 in x.items()
+        for k2, v2 in v1.items()
+    }
+
+
 # ----- Validity Check -----
 def is_extra_model(model: str) -> bool:
     """Checks if a model is an extra model.
@@ -480,8 +494,8 @@ def is_extra_model(model: str) -> bool:
         ``True`` if model is extra, ``False`` otherwise.
     """
     model        = model.replace(f" {EXTRA_STR}", "").strip()
-    mon_models   = core.flatten_models_dict(MODELS)
-    extra_models = core.flatten_models_dict(EXTRA_MODELS)
+    mon_models   = flatten_models_dict(MODELS)
+    extra_models = flatten_models_dict(EXTRA_MODELS)
     return (
         f"{EXTRA_STR}" in model
         or (model not in mon_models and model in extra_models)

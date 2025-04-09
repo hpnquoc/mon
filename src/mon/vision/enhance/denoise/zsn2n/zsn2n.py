@@ -70,7 +70,7 @@ class ZSN2N(base.ImageEnhancementModel):
             self.apply(self.init_weights)
         self.initial_state_dict = self.state_dict()
     
-    # ----- Initialization -----
+    # ----- Initialize -----
     def init_weights(self, m: nn.Module):
         """Initializes the model's weights.
     
@@ -129,7 +129,7 @@ class ZSN2N(base.ImageEnhancementModel):
             y = torch.clamp(y, 0, 1)
         return {"enhanced": y}
     
-    # ----- Predicting -----
+    # ----- Predict -----
     def infer(
         self,
         datapoint    : dict,

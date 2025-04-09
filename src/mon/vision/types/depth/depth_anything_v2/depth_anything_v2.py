@@ -34,7 +34,7 @@ class DepthAnythingV2(nn.ExtraModel, base.DepthEstimationModel, ABC):
     model_dir: core.Path    = current_dir
     zoo      : dict         = {}
     
-    # ----- Initialization -----
+    # ----- Initialize -----
     def init_weights(self, m: nn.Module):
         pass
     

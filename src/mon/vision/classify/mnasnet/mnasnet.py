@@ -35,7 +35,7 @@ class MNASNet(nn.ExtraModel, base.ImageClassificationModel, ABC):
     model_dir: core.Path    = current_dir
     zoo      : dict         = {}
     
-    # ----- Initialization -----
+    # ----- Initialize -----
     def init_weights(self, m: nn.Module):
         """Initializes weights for the model.
     

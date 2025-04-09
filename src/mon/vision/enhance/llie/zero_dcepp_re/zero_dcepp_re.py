@@ -129,7 +129,7 @@ class ZeroDCEpp_RE(base.ImageEnhancementModel):
         else:
             self.apply(self.init_weights)
     
-    # ----- Initialization -----
+    # ----- Initialize -----
     def init_weights(self, m: nn.Module):
         """Initializes the model's weights.
     

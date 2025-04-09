@@ -7,11 +7,12 @@
 
 __all__ = [
     "Enum",
+    "are_all_items_in_dict",
     "concat_lists",
-    "flatten_models_dict",
     "get_module_vars",
     "intersect_dicts",
     "intersect_ordered_dicts",
+    "is_any_item_in_dict",
     "is_float",
     "is_int",
     "iter_to_iter",
@@ -60,256 +61,7 @@ import numpy as np
 import torch
 
 
-# ----- Collection -----
-def intersect_dicts(x: dict, y: dict, exclude: list = []) -> dict:
-    """Finds the intersection between two dictionaries.
-
-    Args:
-        x: First dictionary.
-        y: Second dictionary.
-        exclude: List of keys to exclude. Default is [].
-
-    Returns:
-        Dict with keys in both ``x`` and ``y``, excluding ``exclude``, where values
-        match.
-    """
-    return {k: v for k, v in x.items() if k in y and k not in exclude and v == y[k]}
-
-
-def intersect_ordered_dicts(
-    x: OrderedDict,
-    y: OrderedDict,
-    exclude: list = []
-) -> OrderedDict:
-    """Finds the intersection between two OrderedDict instances.
-
-    Args:
-        x: First ``OrderedDict``.
-        y: Second ``OrderedDict``.
-        exclude: List of keys to exclude. Default is [].
-
-    Returns:
-        ``OrderedDict`` with keys in both ``x`` and ``y``, excluding ``exclude``, where
-        values match.
-    """
-    return OrderedDict(
-        (k, v) for k, v in x.items() if k in y and k not in exclude and v == y[k]
-    )
-
-
-def shuffle_dict(x: dict) -> dict:
-    """Shuffles a dictionary's keys randomly.
-
-    Args:
-        x: Dictionary to shuffle.
-
-    Returns:
-        New dictionary with keys in random order.
-    """
-    keys = list(x.keys())
-    random.shuffle(keys)
-    return dict((key, x[key]) for key in keys)
-
-
-def flatten_models_dict(x: dict) -> dict:
-    """Flattens a nested dictionary of models.
-
-    Args:
-        x: Nested ``dict`` of models.
-
-    Returns:
-        Flattened ``dict`` with inner keys and values, adding ``arch`` key to nested
-        dicts.
-    """
-    return {
-        k2: {**v2, "arch": k1} if isinstance(v2, dict) else v2
-        for k1, v1 in x.items()
-        for k2, v2 in v1.items()
-    }
-
-
-# ----- Enum -----
-class Enum(enum.Enum):
-    """Extension of Python ``enum.Enum`` with utility methods."""
-    
-    @classmethod
-    def __init_subclass__(cls):
-        """Initialize the set of values when the subclass is created."""
-        cls._names         = list(cls)
-        cls._values        = [member.value for member in cls]
-        cls._int_to_enum   = {i: member for i, member in enumerate(cls)}
-        cls._value_to_enum = {member.value: member for member in cls}
-        cls._str_to_enum   = {str(member.name).lower(): member for member in cls}
-        
-    @classmethod
-    def __contains__(cls, value: Any) -> bool:
-        """Checks if a value is in the enum.
-
-        Args:
-            value: Value to check.
-
-        Returns:
-            ``True`` if value is in the enum, ``False`` otherwise.
-        
-        Notes:
-            Usage: ``if value in EnumClass: ...``
-        """
-        return value in cls or value in cls._values
-    
-    @classmethod
-    def random(cls):
-        """Returns a random enum member.
-
-        Returns:
-            Random member of the enum class.
-        """
-        return random.choice(list(cls))
-    
-    @classmethod
-    def random_value(cls):
-        """Returns a random enum value.
-
-        Returns:
-            Value of a random enum member.
-        """
-        return cls.random().value
-    
-    @classmethod
-    def names(cls) -> list:
-        """Returns all enum members.
-
-        Returns:
-            List of all enum members.
-        """
-        return cls._names
-    
-    @classmethod
-    def values(cls) -> list[Any]:
-        """Returns all enum values.
-
-        Returns:
-            List of values from all enum members.
-        """
-        return cls._values
-    
-    @classmethod
-    def int_to_enum(cls) -> dict:
-        """Dynamically create a dict mapping Enum indexes to Enum members."""
-        return cls._int_to_enum
-    
-    @classmethod
-    def value_to_enum(cls) -> dict:
-        """Dynamically create a dict mapping Enum values to Enum members."""
-        return cls._value_to_enum
-    
-    @classmethod
-    def str_to_enum(cls) -> dict:
-        """Dynamically create a dict mapping Enum names (lowercase) to Enum members."""
-        return cls._str_to_enum
-    
-    @classmethod
-    def from_str(cls, value: str):
-        """Create an Enum member from a string.
-        
-        Args:
-            value: The string representation.
-    
-        Returns:
-            The corresponding Enum member.
-    
-        Raises:
-            ValueError: If the string is not a valid Enum name.
-        """
-        str_to_enum = cls.str_to_enum()
-        value_lower = value.lower()
-        if value_lower not in str_to_enum:
-            raise ValueError(f"`value` must be one of {str_to_enum}, got {value_lower}.")
-        return str_to_enum[value_lower]
-    
-    @classmethod
-    def from_int(cls, value: int):
-        """Create an Enum member from an index.
-        
-        Args:
-            value: The index.
-    
-        Returns:
-            The corresponding Enum member.
-    
-        Raises:
-            ValueError: If the index is not a valid Enum index.
-        """
-        int_to_enum = cls.int_to_enum()
-        if value not in int_to_enum:
-            raise ValueError(f"`value` must be one of {int_to_enum}, got {value}.")
-        return int_to_enum[value]
-    
-    @classmethod
-    def from_value(cls, value: Any):
-        """Create an Enum member from an arbitrary value."""
-        if isinstance(value, cls):
-            return value
-        if isinstance(value, str):
-            return cls.from_str(value)
-        if isinstance(value, int):
-            return cls.from_int(value)
-        return None
-    
-
-# ----- Module -----
-def get_module_vars(module: ModuleType) -> dict:
-    """Returns public variables of a module as a dictionary.
-
-    Args:
-        module: Module to inspect for public variables.
-
-    Returns:
-        Dict of public vars, excluding private, callable, or module types.
-    """
-    return {
-        k: v for k, v in vars(module).items()
-        if not (
-            k.startswith(("_", "annotations"))
-            or k == "__init__"
-            or callable(v)
-            or isinstance(v, ModuleType)
-        )
-    }
-
-
 # ----- Numeric -----
-def is_int(x: Any) -> bool:
-    """Checks if a value can be converted to an integer.
-
-    Args:
-        x: Value to check.
-
-    Returns:
-        ``True`` if convertible to ``int``, ``False`` otherwise.
-    """
-    try:
-        int(x)
-        return True
-    except (ValueError, TypeError):
-        return False
-
-
-def is_float(x: Any) -> bool:
-    """Checks if a value can be converted to a float.
-
-    Args:
-        x: Value to check.
-
-    Returns:
-        ``True`` if convertible to ``float``, ``False`` otherwise.
-    """
-    try:
-        float(x)
-        return True
-    except (ValueError, TypeError):
-        return False
-
-
 def to_int(x: Any) -> int | None:
     """Converts a value to an integer.
 
@@ -350,43 +102,58 @@ def to_float(x: Any) -> float | None:
         raise ValueError(f"[x] must be convertible to float, got {x} ({type(x).__name__}).")
 
 
-# ----- Parsing -----
-def upcast(
-    x        : torch.Tensor | np.ndarray,
-    keep_type: bool = False
-) -> torch.Tensor | np.ndarray:
-    """Upcasts an array or tensor to a higher type to prevent overflows.
+def is_int(x: Any) -> bool:
+    """Checks if a value can be converted to an integer.
 
     Args:
-        x: Input as ``torch.Tensor`` or ``numpy.ndarray``.
-        keep_type: If ``True``, upcasts to higher int type. Default is ``False``.
+        x: Value to check.
 
     Returns:
-        Upcasted ``torch.Tensor`` or ``numpy.ndarray``.
+        ``True`` if convertible to ``int``, ``False`` otherwise.
     """
-    is_tensor = isinstance(x, torch.Tensor)
+    try:
+        int(x)
+        return True
+    except (ValueError, TypeError):
+        return False
+
+
+def is_float(x: Any) -> bool:
+    """Checks if a value can be converted to a float.
+
+    Args:
+        x: Value to check.
+
+    Returns:
+        ``True`` if convertible to ``float``, ``False`` otherwise.
+    """
+    try:
+        float(x)
+        return True
+    except (ValueError, TypeError):
+        return False
+
+
+# ----- String -----
+def to_str(x: Any, sep: str = ",") -> str:
+    """Converts a value to a string, joining iterable elements with a delimiter.
+
+    Args:
+        x: Value to convert.
+        sep: Delimiter for separating elements. Default is ``","``.
+
+    Returns:
+        String representation of ``x``, with elements joined by ``sep`` if iterable.
+    """
+    if isinstance(x, dict):
+        items = x.values()
+    elif isinstance(x, (list, tuple)):
+        items = x
+    else:
+        return str(x) if x else ""
     
-    match x.dtype:
-        case torch.float16 | np.float16:
-            return x.to(torch.float32) if is_tensor else x.astype(np.float32)
-        case torch.float32 | np.float32:
-            return x
-        case torch.int8 | np.int8:
-            return (
-                x.to(torch.int16) if keep_type and is_tensor else
-                x.to(torch.float16) if is_tensor else
-                x.astype(np.float32)
-            )
-        case torch.int16 | np.int16:
-            return (
-                x.to(torch.int32) if keep_type and is_tensor else
-                x.to(torch.float32) if is_tensor else
-                x.astype(np.float32)
-            )
-        case torch.int32 | np.int32:
-            return x if is_tensor else x.astype(np.float32)
-        case _:
-            return x
+    items = [str(item) for item in items]
+    return sep.join(items) if items else ""
 
 
 # ----- Sequence -----
@@ -625,23 +392,260 @@ def unique(x: list | tuple) -> list | tuple:
     return type(x)(set(x))
 
 
-# ----- String -----
-def to_str(x: Any, sep: str = ",") -> str:
-    """Converts a value to a string, joining iterable elements with a delimiter.
+# ----- Collection -----
+def intersect_dicts(x: dict, y: dict, exclude: list = []) -> dict:
+    """Finds the intersection between two dictionaries.
 
     Args:
-        x: Value to convert.
-        sep: Delimiter for separating elements. Default is ``","``.
+        x: First dictionary.
+        y: Second dictionary.
+        exclude: List of keys to exclude. Default is [].
 
     Returns:
-        String representation of ``x``, with elements joined by ``sep`` if iterable.
+        Dict with keys in both ``x`` and ``y``, excluding ``exclude``, where values
+        match.
     """
-    if isinstance(x, dict):
-        items = x.values()
-    elif isinstance(x, (list, tuple)):
-        items = x
-    else:
-        return str(x) if x else ""
+    return {k: v for k, v in x.items() if k in y and k not in exclude and v == y[k]}
+
+
+def intersect_ordered_dicts(x: OrderedDict, y: OrderedDict, exclude: list = []) -> OrderedDict:
+    """Finds the intersection between two OrderedDict instances.
+
+    Args:
+        x: First ``OrderedDict``.
+        y: Second ``OrderedDict``.
+        exclude: List of keys to exclude. Default is [].
+
+    Returns:
+        ``OrderedDict`` with keys in both ``x`` and ``y``, excluding ``exclude``, where
+        values match.
+    """
+    return OrderedDict((k, v) for k, v in x.items() if k in y and k not in exclude and v == y[k])
+
+
+def shuffle_dict(x: dict) -> dict:
+    """Shuffles a dictionary's keys randomly.
+
+    Args:
+        x: Dictionary to shuffle.
+
+    Returns:
+        New dictionary with keys in random order.
+    """
+    keys = list(x.keys())
+    random.shuffle(keys)
+    return dict((key, x[key]) for key in keys)
+
+
+def is_any_item_in_dict(items: list, d: dict) -> bool:
+    """Check if any item in the list is a key in the dictionary.
     
-    items = [str(item) for item in items]
-    return sep.join(items) if items else ""
+    Args:
+        items: List of items to check (e.g., strings, ints).
+        d: Dictionary to check against (keys can be any type).
+
+    Returns:
+        bool: ``True`` if at least one item is a key in the dictionary, ``False`` otherwise.
+    """
+    return any(item in d for item in items)
+
+
+def are_all_items_in_dict(items: list, d: dict) -> bool:
+    """Check if all items in the list are keys in the dictionary.
+    
+    Args:
+        items: List of items to check (e.g., strings, ints).
+        d: Dictionary to check against (keys can be any type).
+
+    Returns:
+        bool: ``True`` if all items are keys in the dictionary, ``False`` otherwise.
+    """
+    return all(item in d for item in items)
+
+
+# ----- Enum -----
+class Enum(enum.Enum):
+    """Extension of Python ``enum.Enum`` with utility methods."""
+    
+    @classmethod
+    def __init_subclass__(cls):
+        """Initialize the set of values when the subclass is created."""
+        cls._names         = list(cls)
+        cls._values        = [member.value for member in cls]
+        cls._int_to_enum   = {i: member for i, member in enumerate(cls)}
+        cls._value_to_enum = {member.value: member for member in cls}
+        cls._str_to_enum   = {str(member.name).lower(): member for member in cls}
+        
+    @classmethod
+    def __contains__(cls, value: Any) -> bool:
+        """Checks if a value is in the enum.
+
+        Args:
+            value: Value to check.
+
+        Returns:
+            ``True`` if value is in the enum, ``False`` otherwise.
+        
+        Notes:
+            Usage: ``if value in EnumClass: ...``
+        """
+        return value in cls or value in cls._values
+    
+    @classmethod
+    def random(cls):
+        """Returns a random enum member.
+
+        Returns:
+            Random member of the enum class.
+        """
+        return random.choice(list(cls))
+    
+    @classmethod
+    def random_value(cls):
+        """Returns a random enum value.
+
+        Returns:
+            Value of a random enum member.
+        """
+        return cls.random().value
+    
+    @classmethod
+    def names(cls) -> list:
+        """Returns all enum members.
+
+        Returns:
+            List of all enum members.
+        """
+        return cls._names
+    
+    @classmethod
+    def values(cls) -> list[Any]:
+        """Returns all enum values.
+
+        Returns:
+            List of values from all enum members.
+        """
+        return cls._values
+    
+    @classmethod
+    def int_to_enum(cls) -> dict:
+        """Dynamically create a dict mapping Enum indexes to Enum members."""
+        return cls._int_to_enum
+    
+    @classmethod
+    def value_to_enum(cls) -> dict:
+        """Dynamically create a dict mapping Enum values to Enum members."""
+        return cls._value_to_enum
+    
+    @classmethod
+    def str_to_enum(cls) -> dict:
+        """Dynamically create a dict mapping Enum names (lowercase) to Enum members."""
+        return cls._str_to_enum
+    
+    @classmethod
+    def from_str(cls, value: str):
+        """Create an Enum member from a string.
+        
+        Args:
+            value: The string representation.
+    
+        Returns:
+            The corresponding Enum member.
+    
+        Raises:
+            ValueError: If the string is not a valid Enum name.
+        """
+        str_to_enum = cls.str_to_enum()
+        value_lower = value.lower()
+        if value_lower not in str_to_enum:
+            raise ValueError(f"`value` must be one of {str_to_enum}, got {value_lower}.")
+        return str_to_enum[value_lower]
+    
+    @classmethod
+    def from_int(cls, value: int):
+        """Create an Enum member from an index.
+        
+        Args:
+            value: The index.
+    
+        Returns:
+            The corresponding Enum member.
+    
+        Raises:
+            ValueError: If the index is not a valid Enum index.
+        """
+        int_to_enum = cls.int_to_enum()
+        if value not in int_to_enum:
+            raise ValueError(f"`value` must be one of {int_to_enum}, got {value}.")
+        return int_to_enum[value]
+    
+    @classmethod
+    def from_value(cls, value: Any):
+        """Create an Enum member from an arbitrary value."""
+        if isinstance(value, cls):
+            return value
+        if isinstance(value, str):
+            return cls.from_str(value)
+        if isinstance(value, int):
+            return cls.from_int(value)
+        return None
+    
+
+# ----- Module -----
+def get_module_vars(module: ModuleType) -> dict:
+    """Returns public variables of a module as a dictionary.
+
+    Args:
+        module: Module to inspect for public variables.
+
+    Returns:
+        Dict of public vars, excluding private, callable, or module types.
+    """
+    return {
+        k: v for k, v in vars(module).items()
+        if not (
+            k.startswith(("_", "annotations"))
+            or k == "__init__"
+            or callable(v)
+            or isinstance(v, ModuleType)
+        )
+    }
+
+
+# ----- Parsing -----
+def upcast(
+    x        : torch.Tensor | np.ndarray,
+    keep_type: bool = False
+) -> torch.Tensor | np.ndarray:
+    """Upcasts an array or tensor to a higher type to prevent overflows.
+
+    Args:
+        x: Input as ``torch.Tensor`` or ``numpy.ndarray``.
+        keep_type: If ``True``, upcasts to higher int type. Default is ``False``.
+
+    Returns:
+        Upcasted ``torch.Tensor`` or ``numpy.ndarray``.
+    """
+    is_tensor = isinstance(x, torch.Tensor)
+    
+    match x.dtype:
+        case torch.float16 | np.float16:
+            return x.to(torch.float32) if is_tensor else x.astype(np.float32)
+        case torch.float32 | np.float32:
+            return x
+        case torch.int8 | np.int8:
+            return (
+                x.to(torch.int16) if keep_type and is_tensor else
+                x.to(torch.float16) if is_tensor else
+                x.astype(np.float32)
+            )
+        case torch.int16 | np.int16:
+            return (
+                x.to(torch.int32) if keep_type and is_tensor else
+                x.to(torch.float32) if is_tensor else
+                x.astype(np.float32)
+            )
+        case torch.int32 | np.int32:
+            return x if is_tensor else x.astype(np.float32)
+        case _:
+            return x

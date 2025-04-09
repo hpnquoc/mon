@@ -352,16 +352,17 @@ class WeightExtension(Enum):
 class MLType(Enum):
     """Machine Learning types."""
     
-    INFERENCE    = "inference"          # Inference Only: we don't have training code.
-    TRADITIONAL  = "traditional"        # Traditional Method (non-learning)
-    SUPERVISED   = "supervised"         # Supervised Learning.
-    UNSUPERVISED = "unsupervised"       # Unsupervised Learning.
-    ZERO_SHOT    = "zero_shot"          # Zero-Shot Learning.
+    INFERENCE       = "inference"        # Inference Only: we don't have training code.
+    TRADITIONAL     = "traditional"      # Traditional Method (non-learning).
+    SUPERVISED      = "supervised"       # Supervised Learning.
+    UNSUPERVISED    = "unsupervised"     # Unsupervised Learning.
+    SELF_SUPERVISED = "self_supervised"  # Self-Supervised Learning.
+    ZERO_SHOT       = "zero_shot"        # Zero-Shot Learning.
     
     @classmethod
-    def trainable(cls) -> list["MLType"]:
-        """Return a list of trainable learning types."""
-        return [cls.SUPERVISED, cls.UNSUPERVISED]
+    def trainable(cls) -> list:
+        """Return a list of trainable machine learning types."""
+        return [cls.SUPERVISED, cls.UNSUPERVISED, cls.SELF_SUPERVISED]
 
 
 class RunMode(Enum):

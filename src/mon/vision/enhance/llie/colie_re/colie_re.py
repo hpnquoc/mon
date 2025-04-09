@@ -149,7 +149,7 @@ class CoLIE_RE(base.ImageEnhancementModel):
             self.apply(self.init_weights)
         self.initial_state_dict = self.state_dict()
     
-    # ----- Initialization -----
+    # ----- Initialize -----
     def init_weights(self, m: nn.Module):
         """Initializes weights for the model.
     
@@ -214,42 +214,57 @@ class CoLIE_RE(base.ImageEnhancementModel):
             ``dict`` of predictions with ``"enhanced"`` keys.
         """
         # Input
-        image_rgb   = datapoint["image"]
-        image_hsv   = kornia.color.rgb_to_hsv(image_rgb)
-        image_v     = image_hsv.clone()[:, 2:3, :, :]
-        image_v_lr  = self.interpolate_image(image_v)
+        if not core.are_all_items_in_dict(
+            ["image_hsv", "image_v", "image_v_lr", "patch", "spatial"],
+            datapoint
+        ):
+            datapoint = self.prepare_input(datapoint)
+        image_v_lr  = datapoint["image_v_lr"]
+        patch       = datapoint["patch"]
+        spatial     = datapoint["spatial"]
         
         # Mapping
-        patch       = self.get_patches(image_v_lr)
-        spatial     = self.get_coords()
         illu_res_lr = self.output_net(torch.cat([self.patch_net(patch), self.spatial_net(spatial)], -1))
         illu_res_lr = illu_res_lr.view(1, 1, self.down_size, self.down_size)
         
         # Enhance
         illu_lr          = illu_res_lr + image_v_lr
         image_v_fixed_lr = image_v_lr / (illu_lr + 1e-4)
-        image_v_fixed    = self.filter_up(image_v_lr, image_v_fixed_lr, image_v)
-        image_hsv_fixed  = self.replace_v_component(image_hsv, image_v_fixed)
-        image_rgb_fixed  = kornia.color.hsv_to_rgb(image_hsv_fixed)
-        image_rgb_fixed  = image_rgb_fixed / torch.max(image_rgb_fixed)
         
-        if self.debug:
-            return {
-                "illu_lr"         : illu_lr,
-                "image_v_lr"      : image_v_lr,
-                "image_v_fixed_lr": image_v_fixed_lr,
-                "enhanced"        : image_rgb_fixed,
-            }
-        else:
-            return {
-                "enhanced": image_rgb_fixed,
-            }
+        return {
+            "illu_lr"         : illu_lr,
+            "image_v_lr"      : image_v_lr,
+            "image_v_fixed_lr": image_v_fixed_lr,
+        }
+        
+    def prepare_input(self, datapoint: dict) -> dict:
+        """Prepares input for the model.
+    
+        Args:
+            datapoint: ``dict`` with datapoint attributes.
+    
+        Returns:
+            ``dict`` of prepared inputs.
+        """
+        image_rgb  = datapoint["image"]
+        image_hsv  = kornia.color.rgb_to_hsv(image_rgb)
+        image_v    = image_hsv.clone()[:, 2:3, :, :]
+        image_v_lr = self.interpolate_image(image_v)
+        patch      = self.create_patches(image_v_lr)
+        spatial    = self.create_coords()
+        return datapoint | {
+            "image_hsv" : image_hsv,
+            "image_v"   : image_v,
+            "image_v_lr": image_v_lr,
+            "patch"     : patch,
+            "spatial"   : spatial,
+        }
     
     def interpolate_image(self, image: torch.Tensor) -> torch.Tensor:
         """Reshapes the image based on new resolution."""
         return F.interpolate(image, size=(self.down_size, self.down_size), mode="bicubic")
     
-    def get_patches(self, image: torch.Tensor) -> torch.Tensor:
+    def create_patches(self, image: torch.Tensor) -> torch.Tensor:
         """Creates a tensor where the channel contains patch information."""
         num_channels = types.image_num_channels(image)
         kernel       = torch.zeros((self.window_size ** 2, num_channels, self.window_size, self.window_size)).to(self.device)
@@ -262,7 +277,7 @@ class CoLIE_RE(base.ImageEnhancementModel):
         extracted = F.conv2d(im_padded, kernel, padding=0).squeeze(0)
         return torch.movedim(extracted, 0, -1)
     
-    def get_coords(self) -> torch.Tensor:
+    def create_coords(self) -> torch.Tensor:
         """Creates a coordinates grid."""
         coords = np.dstack(
             np.meshgrid(
@@ -293,7 +308,7 @@ class CoLIE_RE(base.ImageEnhancementModel):
         image_hvi[:, 2, :, :] = i_new
         return image_hvi
     
-    # ----- Predicting -----
+    # ----- Predict -----
     def infer(self, datapoint: dict, reset_weights: bool = True, *args, **kwargs) -> dict:
         """Infers model output with optional processing.
     
@@ -311,12 +326,13 @@ class CoLIE_RE(base.ImageEnhancementModel):
         if reset_weights:
             self.load_state_dict(self.initial_state_dict, strict=False)
         optimizer = self.optimizer.get("optimizer", None)
-        optimizer = optimizer or nn.Adam(self, lr=1e-5, weight_decay=3e-4)
+        optimizer = optimizer or nn.Adam(self, lr=0.00001, weight_decay=0.0003)
         
         # Input
         for k, v in datapoint.items():
             if isinstance(v, torch.Tensor):
                 datapoint[k] = v.to(self.device)
+        datapoint = self.prepare_input(datapoint)
         
         # Optimize
         timer = core.Timer()
@@ -330,9 +346,18 @@ class CoLIE_RE(base.ImageEnhancementModel):
             optimizer.step()
         self.eval()
         outputs = self.forward(datapoint=datapoint)
+        image_hsv        = datapoint["image_hsv"].clone()
+        image_v          = datapoint["image_v"]
+        image_v_lr       = outputs["image_v_lr"]
+        image_v_fixed_lr = outputs["image_v_fixed_lr"]
+        image_v_fixed    = self.filter_up(image_v_lr, image_v_fixed_lr, image_v)
+        image_hsv_fixed  = self.replace_v_component(image_hsv, image_v_fixed)
+        image_rgb_fixed  = kornia.color.hsv_to_rgb(image_hsv_fixed)
+        image_rgb_fixed  = image_rgb_fixed / torch.max(image_rgb_fixed)
         timer.tock()
         
         # Return
         return outputs | {
-            "time": timer.avg_time,
+            "enhanced": image_rgb_fixed,
+            "time"    : timer.avg_time,
         }

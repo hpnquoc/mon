@@ -62,7 +62,7 @@ class ImageEnhancementModel(model.VisionModel, ABC):
                 results[metric_name] = metric(pred, target)
         return results
     
-    # ----- Logging -----
+    # ----- Log -----
     def log_images(self, epoch: int, step: int, data: dict, extension: str = SAVE_IMAGE_EXT):
         """Logs debug images to ``debug_dir``.
     

@@ -20,7 +20,7 @@ from mon.nn import _size_2_t
 class VisionModel(nn.Model, ABC):
     """Base class for vision models with image/video input."""
     
-    # ----- Initialization -----
+    # ----- Initialize -----
     def compute_efficiency_score(self, image_size: _size_2_t = 512, channels: int = 3) -> tuple[float, float]:
         """Compute model efficiency score (FLOPs, params).
 
@@ -42,7 +42,7 @@ class VisionModel(nn.Model, ABC):
         params        = sum(params.values())  if isinstance(params, dict) else params
         return flops, params
         
-    # ----- Predicting -----
+    # ----- Predict -----
     def infer(
         self,
         datapoint : dict,
