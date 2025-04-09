@@ -364,7 +364,11 @@ class MLType(Enum):
     @classmethod
     def trainable(cls) -> list:
         """Return a list of batch-training machine learning types."""
-        return [cls.SUPERVISED, cls.UNSUPERVISED, cls.SELF_SUPERVISED, cls.ZERO_REFERENCE]
+        return [
+            cls.SUPERVISED,
+            cls.UNSUPERVISED, cls.UNPAIRED,
+            cls.SELF_SUPERVISED, cls.ZERO_REFERENCE,
+        ]
 
 
 class RunMode(Enum):

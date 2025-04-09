@@ -1,18 +1,18 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Implements the paper: "Learning a Simple Low-light Image Enhancer from Paired
-Low-light Instances," CVPR 2023.
+"""Implements the paper: "Interpretable Unsupervised Joint Denoising and Enhancement for
+Real-World low-light Scenarios," ICLR 2025.
 
 References:
-    - https://github.com/zhenqifu/PairLIE
+    - https://github.com/huaqlili/unsupervised-light-enhance-ICLR2025
 """
 
 import torch.optim
 import torchvision
 
 import mon
-from net.net import net
+from net.lformer import net
 from utils import *
 
 current_file = mon.Path(__file__).absolute()
@@ -81,16 +81,18 @@ def predict(args: dict) -> str:
             
             # Infer
             timer.tick()
-            L, R, X = model(image)
-            D       = image - X
-            I       = torch.pow(L, 0.2) * R  # default=0.2, LOL=0.14.
+            L, _, R, X, I = model(input)
+            D = image - X
+            I = torch.clamp(I, 0, 1)
+            R = torch.clamp(R, 0, 1)
+            L = torch.clamp(L, 0, 1)
             timer.tock()
             
             # Post-process
-            L     = L.cpu()
-            R     = R.cpu()
-            I     = I.cpu()
-            D     = D.cpu()
+            L = L.cpu()
+            R = R.cpu()
+            I = I.cpu()
+            D = D.cpu()
             # L_img = transforms.ToPILImage()(L.squeeze(0))
             # R_img = transforms.ToPILImage()(R.squeeze(0))
             # I_img = transforms.ToPILImage()(I.squeeze(0))
@@ -105,7 +107,7 @@ def predict(args: dict) -> str:
             
             # Save Debug
             if save_debug:
-                debug_dir  = mon.parse_debug_dir(save_dir, data_name, image_path, keep_subdirs)
+                debug_dir = mon.parse_debug_dir(save_dir, data_name, image_path, keep_subdirs)
                 debug_dir.mkdir(parents=True, exist_ok=True)
                 torchvision.utils.save_image(L, str(debug_dir / f"{image_path.stem}_L{mon.SAVE_IMAGE_EXT}"))
                 torchvision.utils.save_image(R, str(debug_dir / f"{image_path.stem}_R{mon.SAVE_IMAGE_EXT}"))

@@ -77,7 +77,7 @@ SAVE_WEIGHTS_EXT = TorchExtension.PT.value
 # List 3rd party modules
 EXTRA_STR      = "[extra]"
 EXTRA_DATASETS = {}
-EXTRA_MODELS   = {                   # architecture/model (+ variant)
+EXTRA_MODELS   = {  # architecture/model (+ variant)
     # region detect
     "yolor" : {
         "yolor_d6": {
@@ -248,6 +248,13 @@ EXTRA_MODELS   = {                   # architecture/model (+ variant)
             "tasks"    : [Task.LLIE],
             "mltypes"  : [MLType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "hvi_cidnet",
+        },
+    },
+    "li2025"   : {
+        "li2025": {
+            "tasks"    : [Task.LLIE],
+            "mltypes"  : [MLType.UNPAIRED],
+            "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "li2025",
         },
     },
     "lime"         : {
