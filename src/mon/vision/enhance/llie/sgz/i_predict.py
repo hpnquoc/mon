@@ -9,10 +9,10 @@ References:
 """
 
 import os
+from typing import Sequence
 
 import torch
 import torchvision
-from numba import Sequence
 
 import mon
 import utils

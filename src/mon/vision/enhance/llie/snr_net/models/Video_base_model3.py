@@ -257,7 +257,7 @@ class VideoBaseModel(BaseModel):
 
     def load(self):
         load_path_G = self.opt["path"]["pretrain_model_G"]
-        if load_path_G is not None and mon.Path(load_path_G).is_weights_file():
+        if load_path_G is not None:
             logger.info("Loading model for G [{:s}] ...".format(load_path_G))
             self.load_network(load_path_G, self.netG, self.opt["path"]["strict_load"])
 
@@ -270,14 +270,14 @@ class VideoBaseModel(BaseModel):
         self.test()
     
     def measure_efficiency_score(self, image_size: int = 512, channels: int = 3) -> tuple[float, float]:
-        from mon import image_size
-        h, w  = image_size(image_size)
+        import mon
+        h, w  = mon.image_size(image_size)
         input = torch.rand(1, channels, h, w).to(self.device)
         data  = {
             "idx": 0,
             "LQs": input,
             "nf" : input,
         }
-        self.feed_data(data)
+        self.feed_data(data, False)
         flops, params = profile(self, inputs=(), verbose=False)
         return flops, params

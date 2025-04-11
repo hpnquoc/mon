@@ -23,6 +23,7 @@ def find_model_using_name(model_name):
 
     return model
 
+
 def define_Flow(opt, step):
     opt_net = opt['network_G']
     which_model = opt_net['which_model_G']

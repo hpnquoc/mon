@@ -60,7 +60,7 @@ def predict(args: dict) -> str:
     
     # Data I/O
     mon.console.log(f"[bold red]{data}")
-    data_name, data_loader = mon.parse_data_loader(data, root, True, verbose=False)
+    data_name, data_loader = mon.parse_data_loader(data, root, False, verbose=False)
     
     # Load model
     opt["path"]["pretrain_model_G"] = str(weights)
@@ -68,7 +68,7 @@ def predict(args: dict) -> str:
     
     # Measure efficiency score
     if benchmark:
-        flops, params = model.measure_efficiency_score(image_size=imgsz)
+        flops, params = model.measure_efficiency_score(image_size=512)
         mon.console.log(f"FLOPs : {flops:.4f}")
         mon.console.log(f"Params: {params:.4f}")
     
@@ -84,8 +84,12 @@ def predict(args: dict) -> str:
             meta       = datapoint["meta"]
             image_path = mon.Path(meta["path"])
             image      = dutil.read_img(None, str(image_path))
-            h, w       = mon.image_size(image)
-            image      = mon.resize(image, divisible_by=32)
+            # image      = datapoint["image"]
+            h0, w0     = mon.image_size(image)
+            if resize:
+                image = mon.resize(image, imgsz, divisible_by=32)
+            else:
+                image = mon.resize(image, divisible_by=32)
             image_nf   = cv2.blur(image, (5, 5))
             image_nf   = image_nf * 1.0 / 255.0
             image_nf   = torch.from_numpy(np.ascontiguousarray(np.transpose(image_nf, (2, 0, 1)))).float()
@@ -109,7 +113,7 @@ def predict(args: dict) -> str:
             # Post-processing
             visuals  = model.get_current_visuals(need_GT=False)
             enhanced = util.tensor2img(visuals["rlt"])  # uint8
-            enhanced = cv2.resize(enhanced, (w, h))
+            enhanced = cv2.resize(enhanced, (w0, h0))
             
             # Save
             if save_image:

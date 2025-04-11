@@ -54,14 +54,15 @@ def predict(args: dict) -> str:
     opt.serial_batches = True    # disable data shuffling; comment this line if results on randomly chosen images are needed.
     opt.no_flip        = True    # no flip; comment this line if results on flipped images are needed.
     opt.display_id     = -1      # no visdom display; the test code saves the results to a HTML file.
-    opt.device         = device
+    
     
     # Start
     mon.console.rule(f"[bold red] {fullname}")
     mon.console.log(f"Machine: {hostname}")
     
     # Device
-    device = mon.set_device(device)
+    device     = mon.set_device(device)
+    opt.device = device
     
     # Seed
     mon.set_random_seed(seed)

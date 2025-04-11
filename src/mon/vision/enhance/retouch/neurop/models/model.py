@@ -19,7 +19,8 @@ class InitModel(nn.Module):
         self.training = False
         
         self.opt    = opt
-        self.device = torch.device(opt["device"])
+        # self.device = torch.device(opt["device"])
+        self.device = opt["device"]
         self.name   = "neurop_initialization"
         net_opt     = opt["network_G"]
         self.netG   = Renderer(net_opt["in_nc"], net_opt["out_nc"], net_opt["base_nf"]).to(self.device)
@@ -173,7 +174,7 @@ class InitModel(nn.Module):
     
     def measure_efficiency_score(self, image_size: int = 512, channels: int = 3) -> tuple[float, float]:
         h, w  = mon.image_size(image_size)
-        input = torch.rand(1, channels, h, w).to(self.netG.device)
+        input = torch.rand(1, channels, h, w).to(self.device)
         data  = {
             "idx": 0,
             "LQ" : input,
@@ -192,7 +193,8 @@ class FinetuneModel(nn.Module):
         self.training = False
         
         self.opt    = opt
-        self.device = torch.device(opt["device"])
+        # self.device = torch.device(opt["device"])
+        self.device = opt["device"]
         self.name   = "neurop_"+opt["datasets"]["name"]
         net_opt     = opt["network_G"]
         self.netG   = NeurOP(net_opt["in_nc"], net_opt["out_nc"], net_opt["base_nf"], net_opt["cond_nf"], net_opt["init_model"])
@@ -286,7 +288,7 @@ class FinetuneModel(nn.Module):
         
     def measure_efficiency_score(self, image_size: int = 512, channels: int = 3):
         h, w  = mon.image_size(image_size)
-        input = torch.rand(1, channels, h, w).to(self.netG.device)
+        input = torch.rand(1, channels, h, w).to(self.device)
         data  = {
             "idx": 0,
             "LQ" : input,

@@ -148,8 +148,6 @@ def correct_underexposure(im: np.ndarray, gamma: float, lambda_: float, kernel: 
     im_corrected = im / L_refined_3d
     return im_corrected
 
-# TODO: resize image if too large, optimization take too much time
-
 
 def enhance_image_exposure(im: np.ndarray, gamma: float, lambda_: float, dual: bool = True, sigma: int = 3,
                            bc: float = 1, bs: float = 1, be: float = 1, eps: float = 1e-3):
@@ -175,7 +173,7 @@ def enhance_image_exposure(im: np.ndarray, gamma: float, lambda_: float, dual: b
     kernel = create_spacial_affinity_kernel(sigma)
 
     # correct underexposudness
-    im_normalized = im.astype(float) / 255.
+    im_normalized = im.astype(float) / 255.0
     under_corrected = correct_underexposure(im_normalized, gamma, lambda_, kernel, eps)
 
     if dual:

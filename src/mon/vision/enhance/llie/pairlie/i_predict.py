@@ -87,10 +87,10 @@ def predict(args: dict) -> str:
             timer.tock()
             
             # Post-process
-            L     = L.cpu()
-            R     = R.cpu()
-            I     = I.cpu()
-            D     = D.cpu()
+            L = L.cpu()
+            R = R.cpu()
+            I = I.cpu()
+            D = D.cpu()
             # L_img = transforms.ToPILImage()(L.squeeze(0))
             # R_img = transforms.ToPILImage()(R.squeeze(0))
             # I_img = transforms.ToPILImage()(I.squeeze(0))

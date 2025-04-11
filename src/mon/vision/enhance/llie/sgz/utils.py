@@ -4,10 +4,9 @@ from PIL import Image
 
 
 def image_from_path(image_path):
-    data_lowlight = Image.open(image_path)
+    data_lowlight = Image.open(image_path).convert("RGB")
     data_lowlight = (np.asarray(data_lowlight) / 255.0)
     data_lowlight = torch.from_numpy(data_lowlight).float()
-
     return data_lowlight
 
 

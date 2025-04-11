@@ -1,11 +1,10 @@
 import argparse
 
-from mon import RUN_DIR, ZOO_DIR
 
 parser = argparse.ArgumentParser(description="Train_Test")
 parser.add_argument("--input-dir",        type=str,   default="data/train_data/")
-parser.add_argument("--output-dir",       type=str,   default=RUN_DIR / "predict/vision/enhance/llie/sgz")
-parser.add_argument("--weights",          type=str,   default=ZOO_DIR / "vision/enhance/llie/sgz/sgz-lol.pt")
+parser.add_argument("--output-dir",       type=str,   default="predict/vision/enhance/llie/sgz")
+parser.add_argument("--weights",          type=str,   default="vision/enhance/llie/sgz/sgz-lol.pt")
 parser.add_argument("--load-pretrain",    type=bool,  default=False)
 parser.add_argument("--image-size",       type=int,   default=512)
 parser.add_argument("--lr",               type=float, default=0.0001)

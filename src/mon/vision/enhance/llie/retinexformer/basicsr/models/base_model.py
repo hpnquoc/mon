@@ -13,10 +13,11 @@ from ..utils.dist_util import master_only
 logger = logging.getLogger('basicsr')
 
 
-class BaseModel():
+class BaseModel(torch.nn.Module):
     """Base model."""
 
     def __init__(self, opt):
+        super().__init__()
         self.opt        = opt
         self.device     = opt["device"]
         self.is_train   = opt["is_train"]
@@ -73,7 +74,6 @@ class BaseModel():
         Args:
             net (nn.Module)
         """
-
         net = net.to(self.device)
         if self.opt['dist']:
             find_unused_parameters = self.opt.get('find_unused_parameters', False)

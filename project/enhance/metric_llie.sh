@@ -11,8 +11,8 @@ runml_dir="${project_dir}/runml"
 data_dir="${mon_dir}/data/enhance"
 
 # Input
-arch="fourllie"
-model="fourllie_lsrw_nikon"
+arch="snr_net"
+model="snr_net_lol_v2_synthetic"
 data=(
     ### Unpaired Set
     "dicm"

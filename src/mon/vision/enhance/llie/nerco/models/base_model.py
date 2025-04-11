@@ -140,7 +140,7 @@ class BaseModel(nn.Module, ABC):
                 # print('loading the model from %s' % load_path)
                 # if you are using PyTorch newer than 0.4 (e.g., built from
                 # GitHub source), you can remove str() on self.device
-                state_dict = torch.load(load_path, map_location=str(self.device), weights_only=True)
+                state_dict = torch.load(load_path, weights_only=False)
                 if hasattr(state_dict, '_metadata'):
                     del state_dict._metadata
                 

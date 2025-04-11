@@ -46,7 +46,7 @@ def predict(args: dict) -> str:
     keep_subdirs = args["keep_subdirs"]
     verbose      = args["verbose"]
     
-    opt_path     = str(current_dir / "model_config" / args["opt_path"])
+    opt_path     = str(current_dir / "options" / args["opt_path"])
     opt          = parse(opt_path, is_train=False)
     
     # Start
@@ -57,9 +57,10 @@ def predict(args: dict) -> str:
     # gpu_list = ",".join(str(x) for x in args.gpus)
     # os.environ["CUDA_VISIBLE_DEVICES"] = gpu_list
     # print("export CUDA_VISIBLE_DEVICES=" + gpu_list)
+    device = mon.set_device(device)
     opt["dist"]   = False
     opt["device"] = device
-    
+
     # Seed
     mon.set_random_seed(seed)
     
@@ -83,10 +84,10 @@ def predict(args: dict) -> str:
     model.eval()
     
     # Benchmark
-    # if benchmark:
-    #     flops, params = model.measure_efficiency_score(image_size=imgsz)
-    #     mon.console.log(f"FLOPs : {flops:.4f}")
-    #     mon.console.log(f"Params: {params:.4f}")
+    if benchmark:
+        flops, params = mon.compute_efficiency_score(model=model, image_size=imgsz)
+        mon.console.log(f"FLOPs : {flops:.4f}")
+        mon.console.log(f"Params: {params:.4f}")
     
     # Predicting
     timer  = mon.Timer()

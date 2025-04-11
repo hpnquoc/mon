@@ -250,7 +250,7 @@ EXTRA_MODELS   = {  # architecture/model (+ variant)
             "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "hvi_cidnet",
         },
     },
-    "li2025"   : {
+    "li2025"       : {
         "li2025": {
             "tasks"    : [Task.LLIE],
             "mltypes"  : [MLType.UNPAIRED],
@@ -275,7 +275,7 @@ EXTRA_MODELS   = {  # architecture/model (+ variant)
         "llunet++": {
             "tasks"    : [Task.LLIE],
             "mltypes"  : [MLType.SUPERVISED],
-            "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "llunetpp",
+            "model_dir": MON_DIR / "vision" / "enhance" / "llie" / "llunet++",
         },
     },
     "nerco"        : {

@@ -20,6 +20,7 @@ from functools import partial
 
 
 class Mixing_Augment:
+    
     def __init__(self, mixup_beta, use_identity, device):
         self.dist = torch.distributions.beta.Beta(
             torch.tensor([mixup_beta]), torch.tensor([mixup_beta]))
@@ -217,8 +218,7 @@ class ImageCleanModel(BaseModel):
         else:
             return 0.
 
-    def nondist_validation(self, dataloader, current_iter, tb_logger,
-                           save_img, rgb2bgr, use_image):
+    def nondist_validation(self, dataloader, current_iter, tb_logger, save_img, rgb2bgr, use_image):
         dataset_name = dataloader.dataset.opt['name']
         with_metrics = self.opt['val'].get('metrics') is not None
         if with_metrics:
@@ -303,8 +303,7 @@ class ImageCleanModel(BaseModel):
                                                tb_logger)
         return current_metric
 
-    def _log_validation_metric_values(self, current_iter, dataset_name,
-                                      tb_logger):
+    def _log_validation_metric_values(self, current_iter, dataset_name, tb_logger):
         log_str = f'Validation {dataset_name},\t'
         for metric, value in self.metric_results.items():
             log_str += f'\t # {metric}: {value:.4f}'

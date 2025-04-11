@@ -10,16 +10,44 @@ References:
 
 import torch.utils
 import torchvision
+from fvcore.nn import FlopCountAnalysis, parameter_count
 from torch.autograd import Variable
 
 import mon
 from model import Finetunemodel
+from mon.nn import _size_2_t
 
 current_file = mon.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
 
 # ----- Predict -----
+def compute_efficiency_score(
+    model     : torch.nn.Module,
+    image_size: _size_2_t = 512,
+    channels  : int       = 3
+) -> tuple[float, float]:
+    """Computes FLOPs and parameters for a model.
+
+    Args:
+        model: PyTorch model to profile.
+        image_size: Input image size (H, W) or single int. Default is ``512``.
+        channels: Number of input channels. Default is ``3``.
+
+    Returns:
+        Tuple of (FLOPs, parameters) as floats.
+    """
+    from mon import vision
+
+    h, w   = vision.image_size(image_size)
+    input  = torch.rand(1, channels, h, w).to(mon.get_model_device(model))
+
+    flops  = FlopCountAnalysis(model, input).total()
+    params = sum(p.numel() for p in model.parameters())
+
+    return flops, params
+
+
 @torch.no_grad()
 def predict(args: dict) -> str:
     # Parse args
@@ -61,7 +89,7 @@ def predict(args: dict) -> str:
     
     # Benchmark
     if benchmark:
-        flops, params = mon.compute_efficiency_score(model=model, image_size=512)
+        flops, params = compute_efficiency_score(model=model, image_size=512)
         mon.console.log(f"FLOPs : {flops:.4f}")
         mon.console.log(f"Params: {params:.4f}")
     

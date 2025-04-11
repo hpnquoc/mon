@@ -45,7 +45,7 @@ def deriveScaleFromSize(img_shape_in, img_shape_out):
 
 
 def triangle(x):
-    x = np.array(x).astype(np.float64)
+    x = np.array(x).astype(np.float32)
     lessthanzero = np.logical_and((x >= -1), x < 0)
     greaterthanzero = np.logical_and((x <= 1), x >= 0)
     f = np.multiply((x + 1), lessthanzero) + np.multiply((1 - x), greaterthanzero)
@@ -53,7 +53,7 @@ def triangle(x):
 
 
 def cubic(x):
-    x = np.array(x).astype(np.float64)
+    x = np.array(x).astype(np.float32)
     absx = np.absolute(x)
     absx2 = np.multiply(absx, absx)
     absx3 = np.multiply(absx2, absx)
@@ -69,7 +69,7 @@ def contributions(in_length, out_length, scale, kernel, k_width):
     else:
         h = kernel
         kernel_width = k_width
-    x = np.arange(1, out_length + 1).astype(np.float64)
+    x = np.arange(1, out_length + 1).astype(np.float32)
     u = x / scale + 0.5 * (1 - 1 / scale)
     left = np.floor(u - kernel_width / 2)
     P = int(ceil(kernel_width)) + 2
@@ -96,14 +96,14 @@ def imresizemex(inimg, weights, indices, dim):
             for i_w in range(w_shape[0]):
                 w = weights[i_w, :]
                 ind = indices[i_w, :]
-                im_slice = inimg[ind, i_img].astype(np.float64)
+                im_slice = inimg[ind, i_img].astype(np.float32)
                 outimg[i_w, i_img] = np.sum(np.multiply(np.squeeze(im_slice, axis=0), w.T), axis=0)
     elif dim == 1:
         for i_img in range(in_shape[0]):
             for i_w in range(w_shape[0]):
                 w = weights[i_w, :]
                 ind = indices[i_w, :]
-                im_slice = inimg[i_img, ind].astype(np.float64)
+                im_slice = inimg[i_img, ind].astype(np.float32)
                 outimg[i_img, i_w] = np.sum(np.multiply(np.squeeze(im_slice, axis=0), w.T), axis=0)
     if inimg.dtype == np.uint8:
         outimg = np.clip(outimg, 0, 255)
@@ -116,10 +116,10 @@ def imresizevec(inimg, weights, indices, dim):
     wshape = weights.shape
     if dim == 0:
         weights = weights.reshape((wshape[0], wshape[2], 1, 1))
-        outimg = np.sum(weights * ((inimg[indices].squeeze(axis=1)).astype(np.float64)), axis=1)
+        outimg = np.sum(weights * ((inimg[indices].squeeze(axis=1)).astype(np.float32)), axis=1)
     elif dim == 1:
         weights = weights.reshape((1, wshape[0], wshape[2], 1))
-        outimg = np.sum(weights * ((inimg[:, indices].squeeze(axis=2)).astype(np.float64)), axis=2)
+        outimg = np.sum(weights * ((inimg[:, indices].squeeze(axis=2)).astype(np.float32)), axis=2)
     if inimg.dtype == np.uint8:
         outimg = np.clip(outimg, 0, 255)
         return np.around(outimg).astype(np.uint8)

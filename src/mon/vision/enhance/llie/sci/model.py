@@ -10,8 +10,8 @@ class EnhanceNetwork(nn.Module):
         super(EnhanceNetwork, self).__init__()
 
         kernel_size = 3
-        dilation = 1
-        padding = int((kernel_size - 1) / 2) * dilation
+        dilation    = 1
+        padding     = int((kernel_size - 1) / 2) * dilation
 
         self.in_conv = nn.Sequential(
             nn.Conv2d(in_channels=3, out_channels=channels, kernel_size=kernel_size, stride=1, padding=padding),
@@ -134,12 +134,12 @@ class Finetunemodel(nn.Module):
 
     def __init__(self, weights):
         super(Finetunemodel, self).__init__()
-        self.enhance = EnhanceNetwork(layers=1, channels=3)
+        self.enhance    = EnhanceNetwork(layers=1, channels=3)
         self._criterion = LossFunction()
 
-        base_weights = torch.load(weights, weights_only=True)
+        base_weights    = torch.load(weights, weights_only=True)
         pretrained_dict = base_weights
-        model_dict = self.state_dict()
+        model_dict      = self.state_dict()
         pretrained_dict = {k: v for k, v in pretrained_dict.items() if k in model_dict}
         model_dict.update(pretrained_dict)
         self.load_state_dict(model_dict)

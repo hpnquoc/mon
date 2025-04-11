@@ -48,7 +48,6 @@ def predict(args: dict) -> str:
     opt            = parse(opt_path)
     opt            = dict_to_nonedict(opt)
     opt["dist"]    = False
-    opt["device"]  = device
     opt["weights"] = weights
     
     # Start
@@ -57,6 +56,7 @@ def predict(args: dict) -> str:
     
     # Device
     device = mon.set_device(device)
+    opt["device"] = device
     
     # Seed
     mon.set_random_seed(seed)

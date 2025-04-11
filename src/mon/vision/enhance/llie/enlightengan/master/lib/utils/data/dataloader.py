@@ -307,7 +307,6 @@ class DataLoaderIter(object):
         return batch
 
     def __getstate__(self):
-        # TODO: add limited pickling support for sharing an iterator
         # across multiple threads for HOGWILD.
         # Probably the best way to do this is by moving the sample pushing
         # to a separate thread and then just sharing the data queue

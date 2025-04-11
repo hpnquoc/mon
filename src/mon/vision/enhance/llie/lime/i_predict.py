@@ -60,7 +60,7 @@ def predict(args: dict) -> str:
     
     # Data I/O
     mon.console.log(f"[bold red]{data}")
-    data_name, data_loader = mon.parse_data_loader(data, root, True, verbose=False)
+    data_name, data_loader = mon.parse_data_loader(data, root, False, verbose=False)
     
     # Predicting
     timer = mon.Timer()
