@@ -86,7 +86,7 @@ def predict(args: dict) -> str:
     
     # Benchmark
     if benchmark:
-        flops, params = model.measure_efficiency_score()
+        flops, params = model.compute_efficiency_score()
         mon.console.log(f"FLOPs : {flops:.4f}")
         mon.console.log(f"Params: {params:.4f}")
     

@@ -172,7 +172,7 @@ class InitModel(nn.Module):
     def forward(self):
         self.test()
     
-    def measure_efficiency_score(self, image_size: int = 512, channels: int = 3) -> tuple[float, float]:
+    def compute_efficiency_score(self, image_size: int = 512, channels: int = 3) -> tuple[float, float]:
         h, w  = mon.image_size(image_size)
         input = torch.rand(1, channels, h, w).to(self.device)
         data  = {
@@ -286,7 +286,7 @@ class FinetuneModel(nn.Module):
     def forward(self):
         self.test()
         
-    def measure_efficiency_score(self, image_size: int = 512, channels: int = 3):
+    def compute_efficiency_score(self, image_size: int = 512, channels: int = 3):
         h, w  = mon.image_size(image_size)
         input = torch.rand(1, channels, h, w).to(self.device)
         data  = {
