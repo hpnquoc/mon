@@ -103,7 +103,7 @@ def predict(args: dict) -> str:
             
             # Post-processing
             enhanced = torch.clamp(enhanced, 0, 1)
-            enhanced = cv2.resize(enhanced, (w0, h0))
+            enhanced = mon.resize(enhanced, (h0, w0))
             enhanced = torchvision.transforms.ToPILImage()(enhanced.squeeze(0))
             
             # Save
