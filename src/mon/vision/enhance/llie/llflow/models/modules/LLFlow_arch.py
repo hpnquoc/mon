@@ -20,6 +20,7 @@ from utils.util import opt_get
 
 
 class LLFlow(nn.Module):
+    
     def __init__(self, in_nc, out_nc, nf, nb, gc=32, scale=4, K=None, opt=None, step=None):
         super(LLFlow, self).__init__()
         self.crop_size = opt['datasets']['train']['GT_size']
@@ -83,7 +84,6 @@ class LLFlow(nn.Module):
         rgb = torch.tensordot(yuv_, self.A_yuv2rgb, 1).transpose(1, 3)
         return rgb
 
-    @autocast()
     def forward(self, gt=None, lr=None, z=None, eps_std=None, reverse=False, epses=None, reverse_with_grad=False,
                 lr_enc=None,
                 add_gt_noise=False, step=None, y_label=None, align_condition_feature=False, get_color_map=False):
@@ -205,7 +205,6 @@ class LLFlow(nn.Module):
         return -score_real
 
     def reverse_flow(self, lr, z, y_onehot, eps_std, epses=None, lr_enc=None, add_gt_noise=True):
-
         logdet = torch.zeros_like(lr[:, 0, 0, 0])
         pixels = thops.pixels(lr) * self.opt['scale'] ** 2
 

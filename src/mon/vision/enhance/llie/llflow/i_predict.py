@@ -117,12 +117,12 @@ def predict(args: dict) -> str:
     
     # Data I/O
     mon.console.log(f"[bold red]{data}")
-    data_name, data_loader = mon.parse_data_loader(data, root, True, verbose=False)
+    data_name, data_loader = mon.parse_data_loader(data, root, False, verbose=False)
     
     # Model
-    model      = create_model(opt)
+    model = create_model(opt)
     model.load_network(load_path=weights, network=model.netG)
-    model.netG = model.netG.to(device)
+    model.to(device)
     
     # Benchmark
     if benchmark:
@@ -157,8 +157,7 @@ def predict(args: dict) -> str:
                 lr_t = torch.cat([lr_t, his], dim=1)
             heat = opt["heat"]
             
-            with torch.cuda.amp.autocast():
-                sr_t = model.get_sr(lq=lr_t.to(device), heat=None)
+            sr_t = model.get_sr(lq=lr_t.to(device), heat=None)
             sr = rgb(
                 torch.clamp(sr_t, 0, 1)[
                     :, :,

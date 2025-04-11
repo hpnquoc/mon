@@ -101,7 +101,7 @@ class ConEncoder1(nn.Module):
         dx, dy = self.gradient(color_map)
         noise_map = torch.max(torch.stack([dx.abs(), dy.abs()], dim=0), dim=0)[0]
         # color_map = self.fine_tune_color_map(torch.cat([color_map, noise_map], dim=1))
-
+        
         fea = self.conv_first(torch.cat([x, color_map, noise_map], dim=1))
         fea = self.lrelu(fea)
         fea = self.conv_second(fea)
