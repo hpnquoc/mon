@@ -94,7 +94,10 @@ def predict(args: dict) -> str:
             image_path = mon.Path(meta["path"])
             image      = datapoint["image"].to(device)
             h0, w0     = mon.image_size(image)
-            image      = mon.resize(image, divisible_by=32)
+            if resize:
+                image = mon.resize(image, imgsz)
+            else:
+                image = mon.resize(image, divisible_by=32)
             
             # Infer
             timer.tick()
