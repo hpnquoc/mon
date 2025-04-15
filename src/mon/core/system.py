@@ -5,7 +5,7 @@
 
 __all__ = [
     "check_installed_package",
-    "clear_shell",
+    "clear_terminal",
     "get_terminal_size",
     "set_random_seed",
     "set_terminal_size",
@@ -66,8 +66,9 @@ def set_random_seed(seed: int | list[int] | tuple[int, int]) -> None:
     os.environ["PYTHONHASHSEED"] = str(seed)
 
 
-# ----- Shell -----
-def clear_shell():
+# ----- Terminal -----
+def clear_terminal():
+    """Clears the terminal screen."""
     if platform.system() == "Windows":
         os.system("cls")
     elif platform.system() in ["Darwin", "Linux"]:

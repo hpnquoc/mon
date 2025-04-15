@@ -21,13 +21,13 @@ def run_train(args: dict):
     root         = mon.Path(args["root"])
     arch         = args["arch"]
     model        = args["model"]
-    # data         = args["data"]
+    data         = args["data"]
     fullname     = args["fullname"]
     save_dir     = args["save_dir"]
     weights      = args["weights"]
     device       = args["device"]
-    # imgsz        = args["imgsz"]
-    # resize       = args["resize"]
+    imgsz        = args["imgsz"]
+    resize       = args["resize"]
     epochs       = args["epochs"]
     steps        = args["steps"]
     benchmark    = args["benchmark"]
@@ -46,10 +46,10 @@ def run_train(args: dict):
     model           = mon.parse_model_name(model)
     fullname        = fullname if fullname not in [None, "None", ""] else config.stem
     config          = mon.parse_config_file(
+        config       = config,
         project_root = root,
         model_root   = model_root,
         weights_path = weights,
-        config       = config,
     )
     assert config not in [None, "None", ""]
     # save_dir = save_dir or mon.parse_save_dir(root/"run"/"train", arch, model, data, project, variant)
@@ -135,12 +135,12 @@ def run_predict(args: dict):
     device       = args["device"]
     imgsz        = args["imgsz"]
     resize       = args["resize"]
-    # epochs       = args["epochs"]
-    # steps        = args["steps"]
+    epochs       = args["epochs"]
+    steps        = args["steps"]
     benchmark    = args["benchmark"]
     save_image   = args["save_image"]
     save_debug   = args["save_debug"]
-    # use_fullname = args["use_fullname"]
+    use_fullname = args["use_fullname"]
     keep_subdirs = args["keep_subdirs"]
     exist_ok     = args["exist_ok"]
     verbose      = args["verbose"]
@@ -159,8 +159,8 @@ def run_predict(args: dict):
         config       = config,
     )
     # assert config not in [None, "None", ""]
-    config   = config or ""
-    weights  = mon.to_str(weights, ",")
+    config  = config or ""
+    weights = mon.to_str(weights, ",")
     
     for d in data:
         kwargs  = {

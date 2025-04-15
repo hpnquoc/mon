@@ -16,8 +16,7 @@ from mon import CLI_OPTIONS, DEFAULT_ARGS, rich
 
 # ----- Base Prompts -----
 class Prompt:
-    """Base class for menu prompt. Wrap around ``mon.core.rich.prompt`` with additional
-    values parsing functionality.
+    """Wrap around ``mon.core.rich.prompt`` with additional values parsing functionality.
     """
     
     def __init__(self, text: str, default: str, choices: Sequence | Collection = None):
@@ -76,6 +75,8 @@ class Prompt:
 
 
 class Confirm:
+    """Wrap around ``mon.core.rich.prompt`` with additional values parsing functionality.
+    """
     
     def __init__(self, text: str, default: bool = True):
         self.text    = text
@@ -88,6 +89,8 @@ class Confirm:
 
 
 class NumberPrompt:
+    """Wrap around ``mon.core.rich.prompt`` with additional values parsing functionality.
+    """
     
     def __init__(self, text: str, default: int = -1):
         self.text    = text
@@ -96,12 +99,10 @@ class NumberPrompt:
     
     @property
     def default(self):
-        """Returns the default value."""
         return self._default
     
     @default.setter
     def default(self, default: int):
-        """Sets the default value."""
         self._default = default or -1
     
     @property
@@ -270,18 +271,18 @@ class RunmlCLI:
         self.args  = DEFAULT_ARGS
         self.args.update(defaults or {})
         self.config_args = {}
-        
+
     def __len__(self):
         return 20
-        
+
     def cycle_next(self):
         """Move to the next option, wrapping around if needed."""
         self.index = (self.index + 1) % self.__len__()
-        
+
     def cycle_prev(self):
         """Move to the previous option, wrapping around if needed."""
         self.index = (self.index - 1) % self.__len__()
-    
+
     def display_prompt(self):
         mon.console.rule()
         
@@ -414,12 +415,11 @@ class RunmlCLI:
             if finish:
                 self.index = self.__len__()
             else:
-                mon.clear_shell()
-            
+                mon.clear_terminal()
+
     def select(self) -> str:
         """Run the interactive menu and return the selected option."""
-        mon.clear_shell()
-        
+        mon.clear_terminal()
         while True:
             self.display_prompt()
             self.cycle_next()

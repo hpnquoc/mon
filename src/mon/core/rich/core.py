@@ -74,7 +74,7 @@ def get_console() -> rich.console.Console:
     if console is None:
         console = rich.console.Console(
             color_system    = "auto",
-            log_time_format = "[%m/%d/%Y %H:%M:%S]",
+            log_time_format = "[%X]",  # "[%m/%d/%Y %H:%M:%S]",
             soft_wrap       = False,
             width           = 150,
             theme           = rich_console_theme,
@@ -92,7 +92,7 @@ def get_error_console() -> rich.console.Console:
     if error_console is None:
         error_console = rich.console.Console(
             color_system    = "auto",
-            log_time_format = "[%m/%d/%Y %H:%M:%S]",
+            log_time_format = "[%X]",  # "[%m/%d/%Y %H:%M:%S]",
             soft_wrap       = False,
             width           = 150,
             stderr          = True,
