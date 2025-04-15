@@ -11,8 +11,8 @@ runml_dir="${project_dir}/runml"
 data_dir="${mon_dir}/data/enhance"
 
 # Input
-arch="hvi_cidnet"
-model="hvi_cidnet_lol_v1"
+arch="li2025"
+model="li2025_lol_v1"
 data=(
     ### Unpaired Set
     "dicm"

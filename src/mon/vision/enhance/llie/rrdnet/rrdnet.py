@@ -304,8 +304,6 @@ class RRDNet(base.ImageEnhancementModel):
     
         Args:
             datapoint: ``dict`` with datapoint attributes.
-            image_size: Input size as ``int`` or [H, W]. Default is ``512``.
-            resize: Resize input to ``image_size`` if ``True``. Default is ``False``.
             reset_weights: Whether to reset the weights before training. Default is ``True``.
             
         Returns:

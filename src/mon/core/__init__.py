@@ -32,8 +32,8 @@ from mon.core.humps import *
 from mon.core.logging import *
 from mon.core.pathlib import *
 from mon.core.rich import (
-	console, create_download_bar, create_progress_bar, error_console, get_terminal_size,
-	print_dict, print_table, set_terminal_size,
+	console, create_download_bar, create_progress_bar, error_console, print_dict,
+	print_table,
 )
 from mon.core.serializers import *
 from mon.core.system import *

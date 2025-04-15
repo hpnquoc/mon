@@ -12,6 +12,7 @@ __all__ = [
     "ImageExtension",
     "MLType",
     "MemoryUnit",
+    "RunMode",
     "ShapeCode",
     "Split",
     "Task",

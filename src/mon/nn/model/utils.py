@@ -9,6 +9,7 @@ __all__ = [
     "get_epoch_from_checkpoint",
     "get_global_step_from_checkpoint",
     "get_latest_checkpoint",
+    "get_weights_file_from_config",
     "is_extra_model",
     "is_image",
     "list_archs",
@@ -38,7 +39,7 @@ from mon.constants import (
 
 
 # ----- Retrieve (Tasks) -----
-def list_tasks(project_root: str | core.Path) -> list[str]:
+def list_tasks(project_root: str | core.Path = None) -> list[str]:
     """Lists all available tasks in the project.
 
     Args:
@@ -49,9 +50,10 @@ def list_tasks(project_root: str | core.Path) -> list[str]:
     """
     tasks = Task.names()
     
-    default_configs = core.load_project_defaults(project_root)
-    if default_configs.get("TASKS"):
-        tasks = [t for t in tasks if t in default_configs["TASKS"]]
+    if project_root:
+        default_configs = core.load_project_defaults(project_root)
+        if default_configs.get("TASKS"):
+            tasks = [t for t in tasks if t in default_configs["TASKS"]]
     
     return sorted(t.value for t in tasks)
 
@@ -300,6 +302,26 @@ def get_global_step_from_checkpoint(ckpt: core.Path) -> int:
  
  
 # ----- Retrieve (Weights) -----
+def get_weights_file_from_config(config: str | core.Path) -> core.Path | None:
+    """Gets the weights file path from a config file.
+    
+    Args:
+        config: Path to the config file or a dictionary containing weights info.
+    
+    Returns:
+        Path to the weights file as ``Path`` object.
+    """
+    if config is None:
+        return None
+    
+    if not core.Path(config).is_config_file(exist=True):
+        return None
+        
+    args    = core.load_config(config, False)
+    weights = args.get("weights", None)
+    return core.Path(weights) if weights else None
+
+
 def list_weights_files(model: str, project_root: str | core.Path = None) -> list[core.Path]:
     """Lists weights files for a model in project and ``zoo`` dirs.
 
@@ -458,7 +480,7 @@ def parse_weights_file(
     weights = core.to_list(weights)
     
     for i, w in enumerate(weights):
-        if not core.Path(w).exists():
+        if w is not None and not core.Path(w).exists():
             weights[i] = (ROOT_DIR / w) if (ROOT_DIR / w).exists() else (root / w)
     
     if len(weights) == 1:

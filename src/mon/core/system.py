@@ -5,13 +5,23 @@
 
 __all__ = [
     "check_installed_package",
+    "clear_shell",
+    "get_terminal_size",
     "set_random_seed",
+    "set_terminal_size",
 ]
 
+import fcntl
 import importlib
 import importlib.util
 import os
+import platform
 import random
+import shutil
+import struct
+import subprocess
+import sys
+import termios
 
 import numpy as np
 import torch
@@ -54,3 +64,34 @@ def set_random_seed(seed: int | list[int] | tuple[int, int]) -> None:
     torch.cuda.manual_seed(seed)
     torch.cuda.manual_seed_all(seed)
     os.environ["PYTHONHASHSEED"] = str(seed)
+
+
+# ----- Shell -----
+def clear_shell():
+    if platform.system() == "Windows":
+        os.system("cls")
+    elif platform.system() in ["Darwin", "Linux"]:
+        os.system("clear")
+
+
+def get_terminal_size() -> tuple[int, int]:
+    """Gets the size of the terminal window in columns and rows.
+
+    Returns:
+        Tuple of ``(columns, rows)`` as integers.
+    """
+    size = shutil.get_terminal_size(fallback=(100, 40))
+    return size.columns, size.lines
+
+
+def set_terminal_size(rows: int = 40, cols: int = 100):
+    """Sets the terminal window size to specified rows and columns.
+
+    Args:
+        rows: Number of rows for terminal. Default is ``40``.
+        cols: Number of columns for terminal. Default is ``100``.
+    """
+    fd   = sys.stdout.fileno()
+    size = struct.pack("HHHH", rows, cols, 0, 0)
+    fcntl.ioctl(fd, termios.TIOCSWINSZ, size)
+    subprocess.run(["stty", "rows", str(rows), "cols", str(cols)])

@@ -150,7 +150,12 @@ def image_size(
         TypeError: If ``input`` type is not supported.
     """
     if isinstance(input, (list, tuple)):
-        size = input[:2] if len(input) == 3 and input[0] >= input[2] else input[-2:]
+        if len(input) == 1:
+            size = (input[0], input[0])
+        elif len(input) == 2:
+            size = input
+        elif len(input) == 3:
+            size = input[:2] if len(input) == 3 and input[0] >= input[2] else input[-2:]
     elif isinstance(input, (int, float)):
         size = (input, input)
     elif isinstance(input, (torch.Tensor, np.ndarray)):

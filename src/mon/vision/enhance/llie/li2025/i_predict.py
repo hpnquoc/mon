@@ -78,10 +78,10 @@ def predict(args: dict) -> str:
             meta       = datapoint["meta"]
             image_path = mon.Path(meta["path"])
             image      = datapoint["image"].to(device)
-            
+
             # Infer
             timer.tick()
-            L, _, R, X, I = model(input)
+            L, _, R, X, I = model(image)
             D = image - X
             I = torch.clamp(I, 0, 1)
             R = torch.clamp(R, 0, 1)

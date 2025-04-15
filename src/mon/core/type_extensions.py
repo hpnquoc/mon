@@ -47,6 +47,7 @@ __all__ = [
     "to_tuple",
     "unique",
     "upcast",
+    "wrap_str",
 ]
 
 import enum
@@ -146,14 +147,61 @@ def to_str(x: Any, sep: str = ",") -> str:
         String representation of ``x``, with elements joined by ``sep`` if iterable.
     """
     if isinstance(x, dict):
-        items = x.values()
+        items = [str(item) for item in x.values()]
     elif isinstance(x, (list, tuple)):
-        items = x
+        items = [str(item) for item in x]
     else:
         return str(x) if x else ""
     
-    items = [str(item) for item in items]
     return sep.join(items) if items else ""
+
+
+def wrap_str(text: str, max_length: int = 80, indent: str = None) -> str:
+    """Wrap a comma-separated string if it exceeds ``max_length``, keeping words intact.
+
+    Args:
+        text: Input string.
+        max_length: Maximum line length. Default is ``80``.
+        indent: Indent for continuation lines. Default is ``None``.
+
+    Returns:
+        Wrapped string with lines ≤ ``max_length``.
+    """
+    if len(text) <= max_length:
+        return text
+
+    words = [w.strip() for w in text.split(",")]
+    lines = []
+    current_line   = []
+    current_length = 0
+    indent_len     = len(indent or "")
+
+    for word in words:
+        # Include ", " for all but the first word in line
+        word_length   = len(word)
+        separator     = ", " if current_line else ""
+        separator_len = len(separator)
+        
+        # Check if adding word exceeds max_length
+        if current_length + separator_len + word_length <= max_length - indent_len:
+            current_line.append(word)
+            current_length += separator_len + word_length
+        else:
+            # Finalize current line
+            if current_line:
+                lines.append(", ".join(current_line))
+            # Start new line
+            current_line   = [word]
+            current_length = word_length
+
+    # Add final line
+    if current_line:
+        lines.append(", ".join(current_line))
+
+    # Apply an indent to continuation lines
+    if indent:
+        return "\n".join([lines[0]] + [indent + line for line in lines[1:]])
+    return "\n".join(lines)
 
 
 # ----- Sequence -----

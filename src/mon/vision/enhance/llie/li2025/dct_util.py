@@ -1,6 +1,7 @@
 import numpy as np
 import torch
-from torchvision import transforms
+from PIL import Image
+from torchvision.transforms import Compose, ToTensor
 
 
 def dct(x, norm=None):
@@ -179,11 +180,6 @@ def high_pass(dct, threshold):
     return dct
 
 
-import os
-from PIL import Image
-from torchvision.transforms import Compose, ToTensor
-
-
 def load_img(filepath):
     img = Image.open(filepath).convert('RGB')
     return img
@@ -216,6 +212,7 @@ def save_image(img_data, save_path):
     img.save(save_path)
 
 
+"""
 path   = './results/filter/'
 a_path = '/data2/lhq/dataset/LOLv1/Test/testA/22.png'
 b_path = '/data2/lhq/dataset/LOLv1/Test/target/1.png'
@@ -256,14 +253,15 @@ a4 = idct_2d(a4, norm='ortho')
 save_path = path+'lq_high_'+os.path.basename(a_path)
 save_image(a4, save_path)
 
-
 a5 = torch.mean(a, dim = 1).squeeze(0)
 to_pil = transforms.ToPILImage()
 img = to_pil(a5)
 save_path = path+'lq_illu_'+os.path.basename(a_path)
 img.save(save_path)
+"""
 
-""" b1 = low_pass(b0, 120).cuda()
+"""
+b1 = low_pass(b0, 120).cuda()
 b1 = idct_2d(b1, norm='ortho')
 save_path = path+'hq_low_'+os.path.basename(b_path)
 save_image(b1, save_path)
@@ -278,4 +276,5 @@ save_image(b3, save_path)
 b4 = high_pass(b0, 200).cuda()
 b4 = idct_2d(b4, norm='ortho')
 save_path = path+'hq_high_'+os.path.basename(b_path)
-save_image(b4, save_path) """
+save_image(b4, save_path)
+"""

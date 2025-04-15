@@ -145,7 +145,7 @@ def predict(args: dict) -> str:
     
     # Data I/O
     mon.console.log(f"[bold red]{data}")
-    data_name, data_loader = mon.parse_data_loader(data, root, True, verbose=False)
+    data_name, data_loader = mon.parse_data_loader(data, root, False, verbose=False)
     
     # Model
     model          = create_model(config_path=config_path).cpu()
@@ -202,7 +202,7 @@ def predict(args: dict) -> str:
                 model, diffusion_sampler,
                 input_image      = image,
                 num_samples      = 1,
-                image_resolution = imgsz,
+                image_resolution = imgsz[0],
                 use_float16      = use_float16,
             )[0]
             timer.tock()
