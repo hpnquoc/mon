@@ -26,7 +26,6 @@ dependencies:
       - poetry                 # Python packaging and dependency management made easy.
       - setuptools             # Easily download, build, install, upgrade, and uninstall Python packages
       # Required: Python Basic
-      - click                  # Click is a Python package for creating beautiful command line interfaces.
       - emoji                  # Emoji for Python.
       - numpy                  # The fundamental package for scientific computing with Python.
       - plum-dispatch          # Multiple dispatch in Python.

@@ -34,12 +34,14 @@ def parse_default_args(name: str = "main") -> argparse.Namespace:
         
         if prompt_only:
             continue
+        '''
         if opt_type == bool and default is None:
             default = False
         if action == "store_true" and default is None:
             default = False
         if action == "store_false" and default is None:
             default = True
+        '''
         
         kwargs = {
             "action"  : action,
@@ -47,6 +49,8 @@ def parse_default_args(name: str = "main") -> argparse.Namespace:
             "required": required,
             "help"    : help_text,
         }
+        if action in ["store_true", "store_false"]:
+            kwargs.pop("default")
         if opt_type:
             kwargs["type"] = opt_type
         if choices:
