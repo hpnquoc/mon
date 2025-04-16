@@ -7,7 +7,6 @@ __all__ = [
     "RunmlCLI",
 ]
 
-from os import system
 from typing import Any, Collection, Sequence
 
 import mon
@@ -16,8 +15,7 @@ from mon import CLI_OPTIONS, DEFAULT_ARGS, rich
 
 # ----- Base Prompts -----
 class Prompt:
-    """Wrap around ``mon.core.rich.prompt`` with additional values parsing functionality.
-    """
+    """Wrap around ``mon.core.rich.prompt`` with additional values parsing functionality."""
     
     def __init__(self, text: str, default: str, choices: Sequence | Collection = None):
         self.text    = text
@@ -47,7 +45,11 @@ class Prompt:
         If the choice is an integer (i.e., list index), it returns the corresponding
         option from the list of options. Otherwise, it returns the choice as is.
         """
-        self._value = value or ""
+        if value:
+            value = value[0] if isinstance(value, (list, tuple)) and len(value) == 1 else value
+        else:
+            value = ""
+        self._value = value
         
     @property
     def choices(self) -> list[str]:
@@ -75,8 +77,7 @@ class Prompt:
 
 
 class Confirm:
-    """Wrap around ``mon.core.rich.prompt`` with additional values parsing functionality.
-    """
+    """Wrap around ``mon.core.rich.prompt`` with additional values parsing functionality."""
     
     def __init__(self, text: str, default: bool = True):
         self.text    = text
@@ -89,8 +90,7 @@ class Confirm:
 
 
 class NumberPrompt:
-    """Wrap around ``mon.core.rich.prompt`` with additional values parsing functionality.
-    """
+    """Wrap around ``mon.core.rich.prompt`` with additional values parsing functionality."""
     
     def __init__(self, text: str, default: int = -1):
         self.text    = text
@@ -229,6 +229,18 @@ class DataPrompt(Prompt):
         # default = mon.wrap_str(default, max_length=mon.get_terminal_size()[0])
         choices = choices or mon.list_datasets(task=task, mode="predict", project_root=project_root)
         super().__init__(text=text, default=default, choices=choices)
+    
+    @property
+    def value(self):
+        return self._value
+    
+    @value.setter
+    def value(self, value: str):
+        if value:
+            value = mon.to_list(value)
+        else:
+            value = []
+        self._value = value
 
 
 class FullnamePrompt(Prompt):
@@ -284,6 +296,9 @@ class RunmlCLI:
         self.index = (self.index - 1) % self.__len__()
 
     def display_prompt(self):
+        if self.index == 0:
+            mon.clear_terminal()
+            rich.print(rich.Text("Input Prompts", "default on white"))
         mon.console.rule()
         
         if self.index == 0:  # Task
@@ -411,17 +426,14 @@ class RunmlCLI:
             ).prompt()
         if self.index == 19:  # Finish
             rich.print_dict(self.args, title="Arguments")
-            finish = Confirm(text="Finish/Retry ", default=True).prompt()
+            finish = Confirm(text="Finish/Re-input", default=True).prompt()
             if finish:
                 self.index = self.__len__()
-            else:
-                mon.clear_terminal()
-
-    def select(self) -> str:
+            
+    def prompt_args(self) -> str:
         """Run the interactive menu and return the selected option."""
-        mon.clear_terminal()
         while True:
             self.display_prompt()
-            self.cycle_next()
             if self.index == self.__len__():
                 return self.args
+            self.cycle_next()

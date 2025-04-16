@@ -6,7 +6,7 @@
 import subprocess
 
 import mon
-import rich_cli
+import menu_rich
 
 current_file = mon.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
@@ -151,6 +151,7 @@ def run_predict(args: dict):
     use_extra_model = mon.is_extra_model(model)
     model_root      = mon.parse_model_dir(arch, model)
     model           = mon.parse_model_name(model)
+    data            = mon.to_list(data)
     fullname        = fullname if fullname not in [None, "None", ""] else model
     config          = mon.parse_config_file(
         project_root = root,
@@ -222,8 +223,8 @@ def run_predict(args: dict):
 # ----- Main -----
 def main():
     defaults = vars(mon.parse_default_args(name="main"))
-    menu     = rich_cli.RunmlCLI(defaults=defaults)
-    args     = menu.select()
+    menu     = menu_rich.RunmlCLI(defaults=defaults)
+    args     = menu.prompt_args()
     
     # Run
     if args["mode"] in ["train"]:

@@ -31,8 +31,15 @@ def parse_default_args(name: str = "main") -> argparse.Namespace:
         required    = opt_params.get("required",    False)
         help_text   = opt_params.get("help",        "")
         prompt_only = opt_params.get("prompt_only", False)  # Use in interactive CLI only, not parse_args
+        
         if prompt_only:
             continue
+        if opt_type == bool and default is None:
+            default = False
+        if action == "store_true" and default is None:
+            default = False
+        if action == "store_false" and default is None:
+            default = True
         
         kwargs = {
             "action"  : action,
@@ -98,25 +105,25 @@ def parse_train_args(model_root: str | pathlib.Path = None) -> dict | argparse.N
     args   = utils.load_config(config)
     
     # Prioritize cli_args -> args
-    root         = root                         or args.get("root")
-    arch         = cli_args.get("arch")         or args.get("arch")
-    model        = cli_args.get("model")        or args.get("model")
-    data         = cli_args.get("data")         or args.get("data")
-    fullname     = cli_args.get("fullname")     or args.get("fullname")
-    save_dir     = cli_args.get("save_dir")     or args.get("save_dir")
-    weights      = cli_args.get("weights")      or args.get("weights")
-    device       = cli_args.get("device")       or args.get("device")
-    imgsz        = cli_args.get("imgsz")        or args.get("imgsz")
-    resize       = cli_args.get("resize")       or args.get("resize")
-    epochs       = cli_args.get("epochs")       or args.get("epochs")
-    steps        = cli_args.get("steps")        or args.get("steps")
-    benchmark    = cli_args.get("benchmark")    or args.get("benchmark")
-    save_image   = cli_args.get("save_image")   or args.get("save_image")
-    save_debug   = cli_args.get("save_debug")   or args.get("save_debug")
-    use_fullname =                                 args.get("use_fullname", False)
-    keep_subdirs = cli_args.get("keep_subdirs") or args.get("keep_subdirs")
-    exist_ok     = cli_args.get("exist_ok")     or args.get("exist_ok")
-    verbose      = cli_args.get("verbose")      or args.get("verbose")
+    root         = root                     or args["root"]
+    arch         = cli_args["arch"]         or args["arch"]
+    model        = cli_args["model"]        or args["model"]
+    data         = cli_args["data"]         or args["data"]
+    fullname     = cli_args["fullname"]     or args["fullname"]
+    save_dir     = cli_args["save_dir"]     or args["save_dir"]
+    weights      = cli_args["weights"]      or args["weights"]
+    device       = cli_args["device"]       or args["device"]
+    imgsz        = cli_args["imgsz"]        or args["imgsz"]
+    resize       = cli_args["resize"]       or args["resize"]
+    epochs       = cli_args["epochs"]       or args["epochs"]
+    steps        = cli_args["steps"]        or args["steps"]
+    benchmark    = cli_args["benchmark"]    or args["benchmark"]
+    save_image   = cli_args["save_image"]   or args["save_image"]
+    save_debug   = cli_args["save_debug"]   or args["save_debug"]
+    use_fullname =                             args["use_fullname"]
+    keep_subdirs = cli_args["keep_subdirs"] or args["keep_subdirs"]
+    exist_ok     = cli_args["exist_ok"]     or args["exist_ok"]
+    verbose      = cli_args["verbose"]      or args["verbose"]
     extra_args   = cli_args.get("extra_args")
     
     # Parse arguments
@@ -192,25 +199,25 @@ def parse_predict_args(model_root: str | pathlib.Path = None) -> dict | argparse
     args   = utils.load_config(config)
     
     # Prioritize cli_args -> args
-    root         = root                         or args.get("root")
-    arch         = cli_args.get("arch")         or args.get("arch")
-    model        = cli_args.get("model")        or args.get("model")
-    data         = cli_args.get("data")         or args.get("data")
-    fullname     = cli_args.get("fullname")     or args.get("fullname")
-    save_dir     = cli_args.get("save_dir")     or args.get("save_dir")
-    weights      = cli_args.get("weights")      or args.get("weights")
-    device       = cli_args.get("device")       or args.get("device")
-    imgsz        = cli_args.get("imgsz")        or args.get("imgsz")
-    resize       = cli_args.get("resize")       or args.get("resize")
-    epochs       = cli_args.get("epochs")       or args.get("epochs")
-    steps        = cli_args.get("steps")        or args.get("steps")
-    benchmark    = cli_args.get("benchmark")    or args.get("benchmark")
-    save_image   = cli_args.get("save_image")   or args.get("save_image")
-    save_debug   = cli_args.get("save_debug")   or args.get("save_debug")
-    use_fullname =                                 args.get("use_fullname", False)
-    keep_subdirs = cli_args.get("keep_subdirs") or args.get("keep_subdirs")
-    exist_ok     = cli_args.get("exist_ok")     or args.get("exist_ok")
-    verbose      = cli_args.get("verbose")      or args.get("verbose")
+    root         = root                     or args["root"]
+    arch         = cli_args["arch"]         or args["arch"]
+    model        = cli_args["model"]        or args["model"]
+    data         = cli_args["data"]         or args["data"]
+    fullname     = cli_args["fullname"]     or args["fullname"]
+    save_dir     = cli_args["save_dir"]     or args["save_dir"]
+    weights      = cli_args["weights"]      or args["weights"]
+    device       = cli_args["device"]       or args["device"]
+    imgsz        = cli_args["imgsz"]        or args["imgsz"]
+    resize       = cli_args["resize"]       or args["resize"]
+    epochs       = cli_args["epochs"]       or args["epochs"]
+    steps        = cli_args["steps"]        or args["steps"]
+    benchmark    = cli_args["benchmark"]    or args["benchmark"]
+    save_image   = cli_args["save_image"]   or args["save_image"]
+    save_debug   = cli_args["save_debug"]   or args["save_debug"]
+    use_fullname =                             args["use_fullname"]
+    keep_subdirs = cli_args["keep_subdirs"] or args["keep_subdirs"]
+    exist_ok     = cli_args["exist_ok"]     or args["exist_ok"]
+    verbose      = cli_args["verbose"]      or args["verbose"]
     extra_args   = cli_args.get("extra_args")
     
     # Parse arguments

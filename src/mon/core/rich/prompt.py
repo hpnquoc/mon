@@ -112,7 +112,7 @@ class SelectionOrInputPrompt(Prompt):
                     # return the original choice, not the lower case version
                     value[i] = self.choices[[choice.lower() for choice in self.choices].index(v.lower())]
             
-            value = value[0] if len(value) == 1 else value
+            # value = value[0] if len(value) == 1 else value
             
         return value
     
