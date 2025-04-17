@@ -12,7 +12,7 @@ data_dir="${mon_dir}/data/enhance"
 
 # Input
 arch="li2025"
-model="li2025_lol_v1"
+model="li2025_sice"
 data=(
     ### Unpaired Set
     "dicm"

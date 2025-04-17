@@ -40,4 +40,3 @@ from mon.core.system import *
 from mon.core.timer import *
 from mon.core.type_extensions import *
 from mon.core.types import *
-from mon.core.utils import *

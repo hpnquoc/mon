@@ -31,7 +31,7 @@ class Prompt:
     @default.setter
     def default(self, default: str):
         """Sets the default value."""
-        self._default = default or ""
+        self._default = str(default) or ""
     
     @property
     def value(self):
@@ -194,6 +194,8 @@ class WeightsPrompt(Prompt):
         default     : str = CLI_OPTIONS["weights"]["default"],
         choices     : Sequence | Collection = None,
     ):
+        default = (mon.parse_weights_file(project_root, default))
+        default = str(default)
         choices = choices or mon.list_weights_files(model=model, project_root=project_root)
         choices = [str(c) for c in choices]
         super().__init__(text=text, default=default, choices=choices)

@@ -4,6 +4,7 @@
 """Implements main running pipeline."""
 
 import subprocess
+from typing import Collection, Sequence
 
 import click
 
@@ -12,6 +13,24 @@ import mon
 current_file = mon.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 modes 	     = ["train", "predict"]
+
+
+# ----- Utils -----
+def parse_menu_string(items: Sequence | Collection, num_columns: int = 4) -> str:
+    """Parses a list of items into a formatted menu string.
+
+    Args:
+        items: Items to display in the menu.
+        num_columns: Number of columns for menu layout. Default is ``4``.
+
+    Returns:
+        Formatted menu string.
+    """
+    s = "\n  "
+    for i, item in enumerate(items):
+        s += f"{f'{i}.':>6} {item}\n  "
+    s += f"{f'Other.':} (please specify)\n  "
+    return s
 
 
 # ----- Train -----
@@ -273,33 +292,33 @@ def main(
     click.echo(click.style(f"\nInput Prompt:", fg="white", bg="red", bold=True))
     # Task
     tasks_       = mon.list_tasks(project_root=root)
-    tasks_str_   = mon.parse_menu_string(tasks_)
+    tasks_str_   = parse_menu_string(tasks_)
     task         = click.prompt(click.style(f"Task {tasks_str_}", fg="bright_green", bold=True), default=task)
     task         = tasks_[int(task)] if mon.is_int(task) else task
     # Mode
-    mode         = click.prompt(click.style(f"Mode {mon.parse_menu_string(modes)}", fg="bright_green", bold=True), default=mode)
+    mode         = click.prompt(click.style(f"Mode {parse_menu_string(modes)}", fg="bright_green", bold=True), default=mode)
     mode         = modes[int(mode)] if mon.is_int(mode) else mode
     # Architecture
     archs_       = mon.list_archs(project_root=root, task=task, mode=mode)
-    archs_str_   = mon.parse_menu_string(archs_)
+    archs_str_   = parse_menu_string(archs_)
     arch	     = click.prompt(click.style(f"Architecture {archs_str_}", fg="bright_green", bold=True), type=str, default=arch)
     arch 	     = archs_[int(arch)] if mon.is_int(arch) else arch
     # Model
     models_      = mon.list_models(project_root=root, task=task, mode=mode, arch=arch)
-    models_str_  = mon.parse_menu_string(models_)
+    models_str_  = parse_menu_string(models_)
     model	     = click.prompt(click.style(f"Model {models_str_}", fg="bright_green", bold=True), type=str, default=model)
     model 	     = models_[int(model)] if mon.is_int(model) else model
     model_name   = mon.parse_model_name(model)
     # Config
     model_dir    = mon.parse_model_dir(arch, model)
     configs_     = mon.list_configs(project_root=root, model_root=model_dir, model=model, absolute_path=True)
-    configs_str_ = mon.parse_menu_string(configs_)
+    configs_str_ = parse_menu_string(configs_)
     config	     = click.prompt(click.style(f"Config {configs_str_}", fg="bright_green", bold=True), type=str, default="")
     config       = configs_[int(config)] if mon.is_int(config) else config
     config_args  = mon.load_config(config, False)
     # Weights
     weights_     = mon.list_weights_files(project_root=root, model=model)
-    weights_str_ = mon.parse_menu_string(weights_)
+    weights_str_ = parse_menu_string(weights_)
     weights      = weights or config_args.get("weights", "")
     weights      = click.prompt(click.style(f"Weights {weights_str_}", fg="bright_green", bold=True), type=str, default=weights)
     weights      = weights if weights not in [None, ""] else None
@@ -311,7 +330,7 @@ def main(
     # Data (predict)
     if mode in ["predict"]:
         data_     = mon.list_datasets(project_root=root, task=task, mode="predict")
-        data_str_ = mon.parse_menu_string(data_)
+        data_str_ = parse_menu_string(data_)
         data      = data.replace(",", ",\n    ") if isinstance(data, str) else data
         data	  = click.prompt(click.style(f"Predict(s) {data_str_}", fg="bright_green", bold=True), type=str, default=data)
         data 	  = mon.to_list(data)
@@ -321,7 +340,7 @@ def main(
     fullname    = click.prompt(click.style(f"Fullname: {fullname}", fg="bright_green", bold=True), type=str, default=fullname)
     # Device
     devices_    = mon.list_devices()
-    devices_str = mon.parse_menu_string(devices_)
+    devices_str = parse_menu_string(devices_)
     device      = "auto" if model_name in mon.list_mon_models(mode=mode, task=task) and mode == "train" else device
     device      = click.prompt(click.style(f"Device {devices_str}", fg="bright_green", bold=True), type=str, default=device or "cuda:0")
     device	    = devices_[int(device)] if mon.is_int(device) else device
