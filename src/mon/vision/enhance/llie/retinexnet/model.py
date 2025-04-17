@@ -377,22 +377,24 @@ class RetinexNet(nn.Module):
         self.train_phase     = "decom"
         load_model_status, _ = self.load(ckpt_dir)
         if load_model_status:
-            print(self.train_phase, "  : Model restore success!")
+            # print(self.train_phase, "  : Model restore success!")
+            pass
         else:
             weights_file = str(mon.Path(ckpt_dir) / "retinexnet_lol_v1_decom_9200.tar")
             ckpt_dict    = torch.load(weights_file, weights_only=True)
             self.DecomNet.load_state_dict(ckpt_dict)
-            print(f"No pretrained model to restore! Use default pretrained weights: {weights_file}")
+            # print(f"No pretrained model to restore! Use default pretrained weights: {weights_file}")
         
         self.train_phase     = "relight"
         load_model_status, _ = self.load(ckpt_dir)
         if load_model_status:
-            print(self.train_phase, ": Model restore success!")
+            # print(self.train_phase, ": Model restore success!")
+            pass
         else:
             weights_file = str(mon.Path(ckpt_dir) / "retinexnet_lol_v1_relight_9200.tar")
             ckpt_dict    = torch.load(weights_file, weights_only=True)
             self.RelightNet.load_state_dict(ckpt_dict)
-            print(f"No pretrained model to restore! Use default pretrained weights: {weights_file}")
+            # print(f"No pretrained model to restore! Use default pretrained weights: {weights_file}")
             
         # Set this switch to True to also save the reflectance and shading maps
         save_R_L = False

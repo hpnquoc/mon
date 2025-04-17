@@ -52,7 +52,8 @@ def predict(args: dict) -> str:
     # Model
     model = RetinexNet(imgsz, benchmark).to(device)
     
-    image_paths = []
+    # Predicting
+    timer = mon.Timer()
     with mon.create_progress_bar() as pbar:
         for i, datapoint in pbar.track(
             sequence    = enumerate(data_loader),
@@ -61,17 +62,11 @@ def predict(args: dict) -> str:
         ):
             meta        = datapoint["meta"]
             image_path  = meta["path"]
-            image_paths.append(image_path)
-    
-    # Predicting
-    timer = mon.Timer()
-    timer.tick()
-    model.predict(
-        image_paths,
-        res_dir  = str(save_dir),
-        ckpt_dir = str(weights),
-    )
-    timer.tock()
+            output_dir  = mon.parse_output_dir(save_dir, data_name, image_path, keep_subdirs)
+            output_dir.mkdir(parents=True, exist_ok=True)
+            timer.tick()
+            model.predict([image_path], res_dir=str(output_dir), ckpt_dir=str(weights))
+            timer.tock()
     
     # Finish
     mon.console.log(f"Average time: {timer.avg_time}")

@@ -79,7 +79,7 @@ def predict(args: dict) -> str:
         cudnn.enabled   = True
     else:
         torch.set_default_tensor_type("torch.FloatTensor")
-        logging.info('no gpu device available')
+        logging.info("no gpu device available")
         sys.exit(1)
     
     # Seed
