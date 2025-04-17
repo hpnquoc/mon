@@ -21,6 +21,7 @@ from torch.nn import functional as F
 
 from mon import core, nn
 from mon.constants import MLType, MODELS, Task
+from mon.nn import _size_2_t
 from mon.vision import filtering, types
 from mon.vision.enhance import base
 
@@ -158,7 +159,7 @@ class CoLIE_RE(base.ImageEnhancementModel):
         """
         pass
     
-    def compute_efficiency_score(self, image_size: int = 512) -> tuple[float, float]:
+    def compute_efficiency_score(self, image_size: _size_2_t = 512) -> tuple[float, float]:
         """Compute model efficiency score (FLOPs, params).
 
         Args:

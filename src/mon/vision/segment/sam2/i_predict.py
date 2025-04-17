@@ -93,7 +93,7 @@ def predict(args: dict) -> str:
     
     # Benchmark
     if benchmark:
-        flops, params = mon.compute_efficiency_score(model=sam2, image_size=512)
+        flops, params = mon.compute_efficiency_score(model=sam2)
         mon.console.log(f"FLOPs : {flops:.4f}")
         mon.console.log(f"Params: {params:.4f}")
       

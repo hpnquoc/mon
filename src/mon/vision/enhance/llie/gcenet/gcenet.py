@@ -21,7 +21,7 @@ from fvcore.nn import parameter_count
 
 from mon import core, nn
 from mon.constants import MLType, MODELS, Task
-from mon.nn import init
+from mon.nn import _size_2_t, init
 from mon.vision import filtering, geometry, types
 from mon.vision.enhance import base
 
@@ -384,11 +384,7 @@ class GCENet(base.ImageEnhancementModel):
     def init_weights(self, m: nn.Module):
         pass
     
-    def compute_efficiency_score(
-        self,
-        image_size: int  = 512,
-        channels  : int  = 3,
-    ) -> tuple[float, float]:
+    def compute_efficiency_score(self, image_size: _size_2_t = 512, channels: int  = 3) -> tuple[float, float]:
         """Compute the efficiency score of the model, including FLOPs, number
         of parameters, and runtime.
         """

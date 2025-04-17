@@ -14,6 +14,7 @@ from torch.nn.parallel import DataParallel, DistributedDataParallel
 from utils.util import get_resume_paths, opt_get
 
 import mon
+from mon.nn import _size_2_t
 from .base_model import BaseModel
 
 logger = logging.getLogger('base')
@@ -369,7 +370,7 @@ class LLFlowModel(BaseModel):
     def forward(self, lq, heat=None, seed=None, z=None, epses=None):
         return self.get_sr(lq, heat, seed, z, epses)[0]
     
-    def compute_efficiency_score(self, image_size: int = 512, channels: int = 6) -> tuple[float, float]:
+    def compute_efficiency_score(self, image_size: _size_2_t = 512, channels: int = 6) -> tuple[float, float]:
         h, w          = mon.image_size(image_size)
         input         = torch.rand(1, channels, h, w).to(self.device)
         flops, params = profile(self, inputs=(input, ), verbose=False)

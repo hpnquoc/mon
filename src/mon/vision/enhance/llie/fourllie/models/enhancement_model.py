@@ -10,6 +10,7 @@ from models.loss import CharbonnierLoss, VGGLoss
 from thop import profile
 
 import mon
+from mon.nn import _size_2_t
 
 logger = logging.getLogger('base')
 
@@ -228,7 +229,7 @@ class enhancement_model(BaseModel):
     def forward(self):
         self.test()
         
-    def compute_efficiency_score(self, image_size: int = 512, channels: int = 3) -> tuple[float, float]:
+    def compute_efficiency_score(self, image_size: _size_2_t = 512, channels: int = 3) -> tuple[float, float]:
         h, w  = mon.image_size(image_size)
         input = torch.rand(1, channels, h, w).to(self.device)
         data  = {

@@ -17,6 +17,7 @@ from fvcore.nn import FlopCountAnalysis, parameter_count
 import mon
 from color import hsv2rgb_torch, rgb2hsv_torch
 from loss import *
+from mon.nn import _size_2_t
 from siren import INF
 from utils import *
 
@@ -25,7 +26,7 @@ current_dir  = current_file.parents[0]
 
 
 # ----- Predict -----
-def compute_efficiency_score(model: torch.nn.Module, image_size: int = 512) -> tuple[float, float]:
+def compute_efficiency_score(model: torch.nn.Module, image_size: _size_2_t = 512) -> tuple[float, float]:
     """Computes FLOPs and parameters for a model.
 
     Args:
@@ -97,7 +98,7 @@ def predict(args: dict) -> str:
     # Benchmark
     if benchmark:
         model = INF(patch_dim=window ** 2, num_layers=num_layers, hidden_dim=hidden_dim, add_layer=add_layer)
-        flops, params = compute_efficiency_score(model=model, image_size=imgsz)
+        flops, params = compute_efficiency_score(model=model)
         mon.console.log(f"FLOPs : {flops:.4f}")
         mon.console.log(f"Params: {params:.4f}")
     

@@ -31,7 +31,7 @@ class Prompt:
     @default.setter
     def default(self, default: str):
         """Sets the default value."""
-        self._default = str(default) or ""
+        self._default = default or ""
     
     @property
     def value(self):

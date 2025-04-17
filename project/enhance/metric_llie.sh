@@ -11,8 +11,8 @@ runml_dir="${project_dir}/runml"
 data_dir="${mon_dir}/data/enhance"
 
 # Input
-arch="li2025"
-model="li2025_sice"
+arch="quadprior"
+model="quadprior_coco"
 data=(
     ### Unpaired Set
     "dicm"
