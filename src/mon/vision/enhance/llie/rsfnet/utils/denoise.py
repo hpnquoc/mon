@@ -9,6 +9,7 @@ from experiment_funcs import get_experiment_noise
 
 eps = np.finfo(float).eps
 
+
 def normalizeMinMax(I):
     mn = np.min(np.matrix.flatten(I))
     mx = np.max(np.matrix.flatten(I))
@@ -43,6 +44,7 @@ def denoiseCBM3D(p_Imat):
     # Igrwf.save(os.path.join(p_Iin,Inum+'_Igrwf.png'))
     
     print('Denoising COMPLETE \n')
+
 
 p_Imat = sys.argv[1]
 denoiseCBM3D(p_Imat)

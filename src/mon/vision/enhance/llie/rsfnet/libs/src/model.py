@@ -1,75 +1,74 @@
-import libs.full.utils.losses as MyLoss
+import libs.utils.losses as MyLoss
 import torch
 import torch.linalg as la
 import torch.nn as nn
-# from kornia.color import rgb_to_hls, hls_to_rgb, rgb_to_ycbcr, ycbcr_to_rgb, rgb_to_grayscale, rgb_to_lab, lab_to_rgb, rgb_to_xyz, xyz_to_rgb
 from kornia.filters import bilateral_blur
 from torch.autograd import Variable
 
 eps = torch.finfo(torch.float32).eps
 
 
-########## MODULE 1
+# ----- MODULE 1 -----
 class Factorization(nn.Module):
     
-    def __init__(self, config):
+    def __init__(self, mode, factors, max_iters, freeze, etaA, device):
         super().__init__()
-        self.factors      = config.factors
-        self.maxIt        = config.maxIter
-        self.device       = config.device
-        self.Etmean       = [[] for i in range(self.factors)]
-        self.relu         = nn.ReLU(inplace=True)
-        self.etaA         = config.etaA
-        self.epoch        = 0
-        self.freeze       = config.freeze
-        # self.p_resDir     = config.p_resDir
-        self.mode         = config.mode
-        self.dataMean     = config.dataMean
+        self.mode      = mode
+        self.factors   = factors
+        self.max_iters = max_iters
+        self.freeze    = freeze
+        self.etaA      = etaA
+        self.device    = device
+        self.Etmean    = [[] for _ in range(self.factors)]
+        self.relu      = nn.ReLU(inplace=True)
+        self.epoch     = 0
         self.f_initialize = True
-
+        
         self.lmbda_A = nn.ModuleList()
         self.lmbda_E = nn.ModuleList()
         self.step    = nn.ModuleList()
         self.Xmean   = 0
         for i in range(self.factors):
-            self.lmbda_A.append((nn.ParameterList([nn.Parameter(Variable(torch.tensor(0.0, dtype=torch.float32, device=self.device), requires_grad=True)) for t in range(self.maxIt)])))
-            self.lmbda_E.append((nn.ParameterList([nn.Parameter(Variable(torch.tensor(0.0, dtype=torch.float32, device=self.device), requires_grad=True)) for t in range(self.maxIt)])))
-            self.step.append((nn.ParameterList([nn.Parameter(Variable(torch.tensor(1.0, dtype=torch.float32, device=self.device), requires_grad=True)) for t in range(self.maxIt)])))
-        self.lmbda_A_backup = [[torch.tensor(0.0, dtype=torch.float32, device=self.device, requires_grad=False) for t in range(self.maxIt)] for tt in range(self.factors)]
-        self.step_backup    = [[torch.tensor(0.0, dtype=torch.float32, device=self.device, requires_grad=False) for t in range(self.maxIt)] for tt in range(self.factors)]
-        self.lmbda_E_backup = [[torch.tensor(0.0, dtype=torch.float32, device=self.device, requires_grad=False) for t in range(self.maxIt)] for tt in range(self.factors)]
+            self.lmbda_A.append((nn.ParameterList([nn.Parameter(Variable(torch.tensor(0.0, dtype=torch.float32, device=self.device), requires_grad=True)) for _ in range(self.max_iters)])))
+            self.lmbda_E.append((nn.ParameterList([nn.Parameter(Variable(torch.tensor(0.0, dtype=torch.float32, device=self.device), requires_grad=True)) for _ in range(self.max_iters)])))
+            self.step.append(   (nn.ParameterList([nn.Parameter(Variable(torch.tensor(1.0, dtype=torch.float32, device=self.device), requires_grad=True)) for _ in range(self.max_iters)])))
+        self.lmbda_A_backup = [[torch.tensor(0.0, dtype=torch.float32, device=self.device, requires_grad=False) for _ in range(self.max_iters)] for _ in range(self.factors)]
+        self.lmbda_E_backup = [[torch.tensor(0.0, dtype=torch.float32, device=self.device, requires_grad=False) for _ in range(self.max_iters)] for _ in range(self.factors)]
+        self.step_backup    = [[torch.tensor(0.0, dtype=torch.float32, device=self.device, requires_grad=False) for _ in range(self.max_iters)] for _ in range(self.factors)]
 
-    def thresE(self, inputs, threshold):
+    def thres_E(self, inputs, threshold):
         normed_inputs = la.vector_norm(inputs, dim=1)
-        out           = torch.max(1 - torch.div(threshold, (normed_inputs + eps)), torch.zeros([1, 1], device=self.device)).unsqueeze(1).repeat(1, inputs.shape[1], 1, 1) * inputs
-        return out
+        return (torch.max(
+            1 - torch.div(threshold, (normed_inputs + eps)), torch.zeros([1, 1], device=self.device)
+        ).unsqueeze(1).repeat(1, inputs.shape[1], 1, 1) * inputs)
 
-    def thresA(self, inputs, threshold):
+    def thres_A(self, inputs, threshold):
         normed_inputs      = la.vector_norm(inputs, dim=1)
         normed_inputs_norm = torch.sqrt(torch.sum(normed_inputs, dim=[1, 2]) + eps)
-        out                = torch.max(1 - torch.div(threshold, (normed_inputs_norm + eps)), torch.zeros([1, 1], device=self.device)).t().repeat(1, inputs.shape[1]).unsqueeze(2).unsqueeze(3) * inputs
-        return out
+        return (torch.max(
+            1 - torch.div(threshold, (normed_inputs_norm + eps)), torch.zeros([1, 1], device=self.device)
+        ).t().repeat(1, inputs.shape[1]).unsqueeze(2).unsqueeze(3) * inputs)
     
-    def CheckNegative(self, f):
+    def check_negative(self, f):
         isNegative = False
         if self.mode is "train":
-            for t in range(self.maxIt):
+            for t in range(self.max_iters):
                 if (self.lmbda_A[f][t].data < 0) or (self.lmbda_E[f][t].data < 0): 
                     isNegative = True
                     # print("Negative detected")
             if isNegative:
-                for t in range(self.maxIt):
+                for t in range(self.max_iters):
                     self.lmbda_A[f][t].data = self.lmbda_A_backup[f][t]
                     self.lmbda_E[f][t].data = self.lmbda_E_backup[f][t]
                     self.step[f][t].data    = self.step_backup[f][t]
             else:
-                for t in range(self.maxIt):
+                for t in range(self.max_iters):
                     self.lmbda_A_backup[f][t] = self.lmbda_A[f][t].data
                     self.lmbda_E_backup[f][t] = self.lmbda_E[f][t].data
                     self.step_backup[f][t]    = self.step[f][t].data
         return isNegative
     
-    def InitializeThs(self, f, s, X_mean=None):
+    def initialize_ths(self, f, s, X_mean=None):
         eta_a = self.etaA
         eta_b = (f + 1) / self.factors
         if s == 0:
@@ -85,7 +84,6 @@ class Factorization(nn.Module):
             if s == self.maxIt-1:  # last stage
                 self.f_initialize = False
                 # print("SWITCHING OFF INITIALIZATION !!!")
-
         if self.epoch > self.freeze:
             self.lmbda_A[f][s].requires_grad_ = False
             self.lmbda_E[f][s].requires_grad_ = False
@@ -97,18 +95,18 @@ class Factorization(nn.Module):
         X_2    = la.vector_norm(X, ord=2)
         X_mean = torch.mean(torch.ravel(X))
 
-        self.InitializeThs(f, 0, X_mean)
+        self.initialize_ths(f, 0, X_mean)
         Eths = self.lmbda_E[f][0] / self.step[f][0]
-        E_t  = self.thresE(X, Eths)
+        E_t  = self.thres_E(X, Eths)
         Aths = self.lmbda_A[f][0] / self.step[f][0]
-        A_t  = self.thresA(X - E_t, Aths)
+        A_t  = self.thres_A(X - E_t, Aths)
         Y_t  = torch.div(X, X_2 + eps)
         for t in range(1, self.maxIt):            
-            self.InitializeThs(f, t)
+            self.initialize_ths(f, t)
             Eths = self.lmbda_E[f][t] / self.step[f][t]
-            E_t  = self.thresE(X - A_t - Y_t / self.step[f][t], Eths)
+            E_t  = self.thres_E(X - A_t - Y_t / self.step[f][t], Eths)
             Aths = self.lmbda_A[f][t]/self.step[f][t]
-            A_t  = self.thresA(X - E_t - Y_t / self.step[f][t], Aths)
+            A_t  = self.thres_A(X - E_t - Y_t / self.step[f][t], Aths)
             Y_t  = Y_t + self.step[f][t] * (E_t + A_t - X)
 
         E_t  = self.relu(E_t)
@@ -141,38 +139,38 @@ class Factorization(nn.Module):
         return allE, loss
 
 
-########## MODULE 2
+# ----- MODULE 2 -----
 class Fusion(nn.Module):
     
-    def __init__(self, config):
+    def __init__(self, mode, factors, device):
         super().__init__()
-        self.relu     = nn.ReLU(inplace=True)
-        self.sigmoid  = nn.Sigmoid()
-        self.factors  = config.factors
-        # self.p_resDir = config.p_resDir
-        self.device   = config.device
-        self.mode     = config.mode
-        n_filters     = 3
+        self.mode    = mode
+        self.factors = factors
+        self.device  = device
+        self.relu    = nn.ReLU(inplace=True)
+        self.sigmoid = nn.Sigmoid()
+        
         # Encoder
-        Hin  = 3 * (self.factors + 1)
-        Hout = 3 * (self.factors + 1)
+        n_filters = 3
+        Hin       = 3 * (self.factors + 1)
+        Hout      = 3 * (self.factors + 1)
         # Hout = self.factors+1
         self.e_conv1 = nn.Conv2d(Hin,       n_filters, 3, 1, 1, bias=True)
         self.e_conv2 = nn.Conv2d(n_filters, n_filters, 3, 1, 1, bias=True)
         self.e_conv3 = nn.Conv2d(n_filters, n_filters, 3, 1, 1, bias=True)
         self.e_conv4 = nn.Conv2d(n_filters, n_filters, 3, 1, 1, bias=True)
-        
+        self.encoder = nn.ModuleList([self.e_conv1, self.e_conv2, self.e_conv3, self.e_conv4])
+        # Decoder
         self.d_conv5 = nn.Conv2d(n_filters * 2, n_filters, 3, 1, 1, bias=True)
         self.d_conv6 = nn.Conv2d(n_filters * 2, n_filters, 3, 1, 1, bias=True)
         self.d_conv7 = nn.Conv2d(n_filters * 2, Hout,      3, 1, 1, bias=True)
-        self.encoder = nn.ModuleList([self.e_conv1, self.e_conv2, self.e_conv3, self.e_conv4])
         self.decoder = nn.ModuleList([self.d_conv5, self.d_conv6, self.d_conv7])
     
-    def forward(self, S, imNum=None):
-        s = list(torch.split(S, 3, dim=1))
-        w = [1, 1, 1, 1, 1, 1]
-        # w = [1, 4, 4, 4, 4, 4]  #<-- GOLD lolsyn <---- <---- <----- <-----
-        # w = [0.5, 8, 4, 2, 1, 1]    #<--GOLD qual
+    def forward(self, S):
+        s  = list(torch.split(S, 3, dim=1))
+        w  = [1, 1, 1, 1, 1, 1]
+        # w = [1, 4, 4, 4, 4, 4]      #<-- GOLD lolsyn
+        # w = [0.5, 8, 4, 2, 1, 1]    #<-- GOLD qual
         for i in range(len(s)):
             s[i] = s[i] * w[i]
         S  = torch.cat(s, dim=1)
@@ -208,7 +206,7 @@ class Fusion(nn.Module):
         #     # y = 0.5*(y + (s[j+1]))
         #     # y[:,0,:,:] = alpha*y[:,0,:,:] + (1-alpha)*torch.squeeze(gaussian_blur2d(torch.unsqueeze(rgb_to_lab(s[j+1])[:,0,:,:],dim=1), (25,25), (1,1)),dim=1)
         #     # y = alpha*y + (1-alpha)*gaussian_blur2d(rgb_to_lab(s[j+1]), (5,5), (1,1))
-            
+        
         #     filtSize = 4*j+1
         #     y = (1-w1[j])*y + w1[j]*gaussian_blur2d(rgb_to_lab(s[j+1]), (filtSize,filtSize), (1,1))
         #     ye   = lab_to_rgb(y)
@@ -218,37 +216,40 @@ class Fusion(nn.Module):
         #     y = rgb_to_lab(ye)
         #     save_image(ye, os.path.join(self.p_resDir, "baseline1" , imNum+"_"+str(j)+".jpg"))
         # x = lab_to_rgb(y)
-        #         
+        
         return x
 
 
-############### FULL ARCH
+# ----- FULL ARCH -----
 class RRNet(nn.Module):
     
-    def __init__(self, config):
+    def __init__(self, mode, factors, max_iters, freeze, etaA, f_denoise, device, wc, we, wt, wf):
         super().__init__()
-        self.factNet   = Factorization(config)
-        self.fuseNet   = Fusion(config)
+        self.mode      = mode
+        self.factors   = factors
+        self.max_iters = max_iters
+        self.freeze    = freeze
+        self.f_denoise = f_denoise
+        self.device    = device
+        self.wc        = wc
+        self.we        = we
+        self.wt        = wt
+        self.wf        = wf
+        
+        self.factNet   = Factorization(mode, factors, max_iters, freeze, etaA, device)
+        self.fuseNet   = Fusion(mode, factors, device)
+        
         self.L_color   = MyLoss.L_color()
         self.L_exp     = MyLoss.L_exp(16, 0.6)
         self.L_TV      = MyLoss.L_TV()
         self.L         = dict.fromkeys(("L_color", "L_exp", "L_TV", "L_fact"))
-        self.wc        = config.wc
-        self.we        = config.we
-        self.wt        = config.wt
-        self.wf        = config.wf
-        self.freeze    = config.freeze
-        self.factors   = config.factors
-        self.maxIt     = config.maxIter
-        self.f_denoise = config.f_denoise
-        self.mode      = config.mode
-    
+        
     def RRLoss(self, Xout, L_fact, epoch):
         if epoch > self.freeze:
             L_color = self.wc * torch.mean(self.L_color(Xout))
             L_exp   = self.we * torch.mean(self.L_exp(Xout))
             L_TV    = self.wt * self.L_TV(Xout)
-            L_fact  = 0.0  # self.wf*L_fact
+            L_fact  = 0.0  # self.wf * L_fact
             Floss   = L_color + L_exp + L_TV + L_fact
             self.L["L_color"] = L_color.item()
             self.L["L_exp"]   = L_exp.item()
@@ -263,10 +264,10 @@ class RRNet(nn.Module):
             self.L["L_fact"]  = L_fact.item()
         return Floss
     
-    def freezeFact(self, epoch):
+    def freeze_fact(self, epoch):
         if epoch > self.freeze:
             for i in range(self.factors):
-                for j in range(self.maxIt):
+                for j in range(self.max_iters):
                     self.factNet.lmbda_A[i][j].requires_grad = False
                     self.factNet.lmbda_E[i][j].requires_grad = False
                     self.factNet.step[i][j].requires_grad    = False
@@ -274,15 +275,14 @@ class RRNet(nn.Module):
                 param.requires_grad = True
         return
     
-    def forward(self, Xin, epoch=0, imNum=None):
-        loss = 0
-        # Xfact,L_fact       = self.factNet(Xin, epoch, imNum)
+    def forward(self, Xin, epoch=0):
+        loss    = 0
         XfuseIn = torch.cat([Xin, Xin, Xin, Xin, Xin, Xin], dim=1)
-        Xfuse   = self.fuseNet(XfuseIn, imNum)
+        Xfuse   = self.fuseNet(XfuseIn)
         L_fact  = torch.tensor(0.0, dtype=torch.float32, requires_grad=True)
         if self.f_denoise:
-            Xfuse = bilateral_blur(Xfuse,(5, 5), 0.5, (1, 1))
-            # Xfuse = bilateral_blur(Xfuse,(5,5), 0.1, (0.1,0.1))
+            Xfuse = bilateral_blur(Xfuse, (5, 5), 0.5, (1, 1))
+            # Xfuse = bilateral_blur(Xfuse, (5, 5), 0.1, (0.1, 0.1))
         if self.mode == "train":
             loss += self.RRLoss(Xfuse, L_fact, epoch)
         return Xfuse, loss

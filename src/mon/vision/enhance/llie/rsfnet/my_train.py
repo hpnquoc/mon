@@ -11,7 +11,7 @@ import torch.nn as nn
 import torch.optim
 
 import mon
-from libs.full.src.v8.model import RRNet
+from libs.src.model import RRNet
 from mon import albumentation as A
 
 torch.autograd.set_detect_anomaly(True)
@@ -24,7 +24,6 @@ current_dir  = current_file.parents[0]
 
 
 # ----- Train -----
-
 def weights_init(m):
     if isinstance(m, nn.Conv2d):
         m.weight.data.normal_(0.0, 0.02)
@@ -116,7 +115,7 @@ def train(args: argparse.Namespace):
                 dic["L_TV"]       += (model.L["L_TV"]    / len(train_dataloader))
                 dic["L_fact"]     += (model.L["L_fact"]  / len(train_dataloader))
                 
-                model.freezeFact(epoch)
+                model.freeze_fact(epoch)
                 loss.backward()
                 torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)  # for LOLv1, LOLv2, LOLsyn
                 optimizer.step()
@@ -134,8 +133,6 @@ def train(args: argparse.Namespace):
             """
             torch.save(model.state_dict(), weights_dir / f"{fullname}_last.pt")
             
-
-
 
 # ----- Main -----
 

@@ -9,8 +9,8 @@ from datetime import datetime
 import numpy as np
 import torch
 import torch.nn as nn
-from libs.full.datasets.datasets import MyDataset
-from libs.full.src.v8.model import RRNet
+from libs.datasets.datasets import MyDataset
+from libs.src.model import RRNet
 from torch.utils.data import DataLoader
 from tqdm.auto import tqdm
 
@@ -64,7 +64,7 @@ def train(args):
         optimizer.add_param_group({"params": model.factNet.lmbda_A[i].parameters(), "lr": 0.01})  # 0.01
         optimizer.add_param_group({"params": model.factNet.lmbda_E[i].parameters(), "lr": 0.01})  # 0.01
         optimizer.add_param_group({"params": model.factNet.step[i].parameters(),    "lr": 0.01})  # 0.01
-
+    
     # RESUME -----------------------------------------------
     if args.resume:
         if os.path.exists(args.p_model):
@@ -73,10 +73,10 @@ def train(args):
             else:
                 model.load_state_dict(torch.load(args.p_model))
             print(f'Model state resumed from {args.p_model}')
-            p_resume_json       = os.path.splitext(args.p_model)[0] + '.json'
+            p_resume_json = os.path.splitext(args.p_model)[0] + '.json'
             with open(p_resume_json,'r') as f:
-                resume_json     = json.load(f)
-                n_epochs        = args.epochs - resume_json['epoch'] + 1
+                resume_json   = json.load(f)
+                n_epochs      = args.epochs - resume_json['epoch'] + 1
                 args.__dict__ = resume_json['config']
                 optimizer.param_groups[0]['lr'] = resume_json['lr']               
         else:
@@ -84,28 +84,28 @@ def train(args):
 
     # TRAIN -------------------------------------------------
     for epoch in tqdm(range(n_epochs), leave=True, colour='GREEN'):
-        dic   = {'train_loss':0, 'L_color':0, 'L_exp':0, 'L_TV':0, 'L_fact':0}
+        dic = {'train_loss': 0, 'L_color': 0, 'L_exp': 0, 'L_TV': 0, 'L_fact': 0}
         model.train()
-        print(f'*'*75)
-        model.factNet.et_mean  = [[] for i in range(args.factors)]
-        model.L               = dict.fromkeys(('L_color','L_exp','L_TV','L_fact'))
-        if epoch>args.freeze+25:
-            optimizer.param_groups[0]['lr']   = optimizer.param_groups[0]['lr'] * args.lr_decay
-            optimizer.param_groups[1]['lr']   = optimizer.param_groups[1]['lr'] * args.lr_decay
+        print(f'*' * 75)
+        model.factNet.et_mean = [[] for i in range(args.factors)]
+        model.L = dict.fromkeys(('L_color', 'L_exp', 'L_TV', 'L_fact'))
+        if epoch > args.freeze + 25:
+            optimizer.param_groups[0]['lr'] = optimizer.param_groups[0]['lr'] * args.lr_decay
+            optimizer.param_groups[1]['lr'] = optimizer.param_groups[1]['lr'] * args.lr_decay
                 
         for _, data in tqdm(enumerate(loader_train), total=len(loader_train), leave=False, colour='BLUE'):
-            imNum, y_labels, imlow  = data['imNum'], data['gtdata'], data['imlow']
-            y_labels, imlow         = y_labels.to(device).type(torch.float32), imlow.to(device).type(torch.float32)
+            imNum, y_labels, imlow = data['imNum'], data['gtdata'], data['imlow']
+            y_labels, imlow        = y_labels.to(device).type(torch.float32), imlow.to(device).type(torch.float32)
             optimizer.zero_grad()
 
-            pred,loss               = model(imlow,epoch,imNum=imNum[0])
+            pred, loss = model(imlow,epoch,imNum=imNum[0])
             if args.f_OverExp:
-                pred = 1-pred
-            dic['train_loss']       += (loss.item()/len(loader_train))
-            dic['L_color']          += (model.L['L_color']/len(loader_train))
-            dic['L_exp']            += (model.L['L_exp']/len(loader_train))
-            dic['L_TV']             += (model.L['L_TV']/len(loader_train))
-            dic['L_fact']           += (model.L['L_fact']/len(loader_train))
+                pred = 1 - pred
+            dic["train_loss"] += (loss.item() / len(loader_train))
+            dic["L_color"]    += (model.L["L_color"] / len(loader_train))
+            dic["L_exp"]      += (model.L["L_exp"]   / len(loader_train))
+            dic["L_TV"]       += (model.L["L_TV"]    / len(loader_train))
+            dic["L_fact"]     += (model.L["L_fact"]  / len(loader_train))
             model.freezeFact(epoch)
             loss.backward()
             torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)   #for LOLv1, LOLv2, LOLsyn
@@ -123,6 +123,6 @@ def train(args):
         else:
             torch.save(model.state_dict(), p_model)
         with open(os.path.join(p_resDir,model_name+'.json'), 'w') as f:
-            json.dump({'epoch':epoch, 'lr':optimizer.param_groups[0]['lr'], 'config': args.__dict__}, f, indent=4)
+            json.dump({'epoch': epoch, 'lr': optimizer.param_groups[0]['lr'], 'config': args.__dict__}, f, indent=4)
 
     print(f'COMPLETED TRAINING. SAVED @ {p_resDir}')

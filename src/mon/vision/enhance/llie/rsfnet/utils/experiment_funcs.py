@@ -100,8 +100,7 @@ def get_experiment_kernel(noise_type: str, noise_var: float, sz: tuple = np.arra
     return kernel
 
 
-def get_experiment_noise(noise_type: str, noise_var: float, realization: int, sz: tuple)\
-        -> (np.ndarray, np.ndarray, np.ndarray):
+def get_experiment_noise(noise_type: str, noise_var: float, realization: int, sz: tuple) -> (np.ndarray, np.ndarray, np.ndarray):
     """
     Generate noise for experiment with specified kernel, variance, seed and size.
     Return noise and relevant parameters.

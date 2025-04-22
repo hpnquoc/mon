@@ -1,57 +1,51 @@
 # Basic
-hostname    : ~
-config      : ~
-arch        : "rsfnet"
-model       : "rsfnet"
-data        : "lol_v1"
-data_dir    : "data/enhance/lol_v1"
-root        : ~
-project     : ~
-variant     : ~
-fullname    : "rsfnet"
-save_dir    : ~
-weights     : "zoo/vision/enhance/llie/rsfnet/rsfnet/lol_v1/rsfnet_lol_v1.pt"
-device      : 0
-local_rank  : -1
-launcher    : ~
-epochs      : 25
-steps       : ~
-imgsz       : 512
-resize      : ~
-benchmark   : False
-save_image  : True
-save_debug  : False
-use_data_dir: False
-keep_subdirs: False
-use_fullname: False
-exist_ok    : True
-verbose     : True
+root        : ~                                                                 # Root directory of the current run.
+arch        : "rsfnet"                                                          # Model architecture or family (e.g., resnet).
+model       : &model "rsfnet"                                                   # Model name (e.g., resnet50).
+data        : &data "lol_v1"                                                    # Dataset name (e.g., cifar10) or directory (e.g., data/cifar10).
+fullname    : &fullname "rsfnet_lol_v1"                                         # Full name of the current run (e.g., resnet50_cifar10_01). If not set, it will be this file's name.
+save_dir    : &save_dir ~                                                       # Saving directory. If not set, it will be `root/arch/model/data`.
+weights     : &weights "zoo/vision/enhance/llie/rsfnet/rsfnet/lol_v1/rsfnet_lol_v1.pth" # Path to the pretrained weights.
+device      : 0                                                                 # Running device (i.e., cuda:0 | cuda:0,1,2,3 | cpu).
+seed        : 2                                                                 # Random seed.
+imgsz       : &imgsz 256                                                        # Image size for the model.
+resize      : False                                                             # Resize the input image to `imgsz`.
+epochs      : &epochs 50                                                        # Training epochs.
+steps       : &steps ~                                                          # Training steps.
+benchmark   : False                                                             # Benchmark the model.
+save_image  : True                                                              # Save the output image.
+save_debug  : &save_debug True                                                  # Save the debug information.
+use_fullname: True                                                              # Use the full name for the save_dir.
+keep_subdirs: False                                                             # Keep subdirectories in the save_dir.
+exist_ok    : True                                                              # If ``False``, it will delete the save directory if it already exists.
+verbose     : &verbose True                                                     # Verbosity.
 
-# Misc
-# Setup
-num_workers : 10
-# Flags
-f_valFromTrain: False
-f_OverExp     : False
-f_saveRes     : False
-f_RGB         : True
-f_eval        : True
-f_denoise     : True
-# Optim params
-lr          : 0.01
-lr_step     : 1
-lr_decay    : 0.9
-batch_size  : 8
-maxIter     : 3
-factors     : 5
-dataMean    : 0.05
-seed        : 2
-# Loss params
-freeze      : 25
-etaA        : 0.5
-wc          : 10
-ws          : 0
-we          : 2
-wt          : 2
-wf          : 2
-wd          : 0
+# Network
+network: &network                                                               # Network architecture.
+  factors  : 5
+  max_iters: 3
+  freeze   : 0
+  etaA     : 0.1
+  f_denoise: True
+  wc       : 10
+  we       : 2
+  wf       : 2
+  wt       : 2
+  
+# Optimizer
+optimizer: &optimizer                                                           # Optimizer(s).
+  lr      : 0.01
+  lr_step : 1
+  lr_decay: 1.0
+
+# Datamodule
+datamodule:
+  name      : *data                                                             # Data module name (e.g., cifar10).
+  root      : "data/enhance/lol_v1"                                             # Root directory of the dataset.
+  transform :
+    - {name: "resize", height: *imgsz, width : *imgsz}
+  to_tensor : True                                                              # If ``True``, convert the data to tensor.
+  batch_size: 10                                                                # Batch size.
+  cache_data: False                                                             # If ``True``, cache the data.
+  shuffle   : True                                                              # If ``True``, shuffle the data.
+  verbose   : *verbose                                                          # Verbosity.
