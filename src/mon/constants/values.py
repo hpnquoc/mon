@@ -437,6 +437,15 @@ EXTRA_MODELS   = {  # architecture/model (+ variant)
         },
     },
     # endregion
+    # region enhance/rr
+    "rdnet": {
+        "rdnet": {
+            "tasks"    : [Task.RR],
+            "mltypes"  : [MLType.SUPERVISED],
+            "model_dir": MON_DIR / "vision" / "enhance" / "rr" / "rdnet",
+        },
+    },
+    # endregion
     # region enhance/sr
     "sronet": {
         "sronet": {

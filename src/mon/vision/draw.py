@@ -79,11 +79,11 @@ def draw_bbox(
 
 
 def draw_heatmap(
-    image     : np.ndarray,
-    heatmap   : np.ndarray,
-    color_map : int   = cv2.COLORMAP_JET,
-    alpha     : float = 0.5,
-    use_rgb   : bool  = False
+    image    : np.ndarray,
+    heatmap  : np.ndarray,
+    color_map: int   = cv2.COLORMAP_JET,
+    alpha    : float = 0.5,
+    use_rgb  : bool  = False
 ) -> np.ndarray:
     """Overlay heatmap on image.
 

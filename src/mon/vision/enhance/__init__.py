@@ -12,4 +12,5 @@ from mon.vision.enhance.llie import *
 from mon.vision.enhance.multitask import *
 from mon.vision.enhance.nighttime import *
 from mon.vision.enhance.retouch import *
+from mon.vision.enhance.rr import *
 from mon.vision.enhance.utils import *
