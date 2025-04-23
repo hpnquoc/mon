@@ -59,6 +59,7 @@ class RESIDE_HSTS_Real(VisionDataset):
     
     def __init__(self, root: core.Path = DATA_DIR / "enhance", *args, **kwargs):
         """Initializes dataset with ``root`` path and parent args."""
+        root = core.Path(root)
         root = root / "reside" if root.name != "reside" else root
         if not root.is_dir():
             raise FileNotFoundError(f"[root] directory not found: [{root}].")
@@ -103,6 +104,7 @@ class RESIDE_HSTS_Synthetic(VisionDataset):
     
     def __init__(self, root: core.Path = DATA_DIR / "enhance", *args, **kwargs):
         """Initializes dataset with ``root`` path and parent args."""
+        root = core.Path(root)
         root = root / "reside" if root.name != "reside" else root
         if not root.is_dir():
             raise FileNotFoundError(f"[root] directory not found: [{root}].")
@@ -147,6 +149,7 @@ class RESIDE_ITS(VisionDataset):
     
     def __init__(self, root: core.Path = DATA_DIR / "enhance", *args, **kwargs):
         """Initializes dataset with ``root`` path and parent args."""
+        root = core.Path(root)
         root = root / "reside" if root.name != "reside" else root
         if not root.is_dir():
             raise FileNotFoundError(f"[root] directory not found: [{root}].")
@@ -203,6 +206,7 @@ class RESIDE_OTS(VisionDataset):
     
     def __init__(self, root: core.Path = DATA_DIR / "enhance", *args, **kwargs):
         """Initializes dataset with ``root`` path and parent args."""
+        root = core.Path(root)
         root = root / "reside" if root.name != "reside" else root
         if not root.is_dir():
             raise FileNotFoundError(f"[root] directory not found: [{root}].")
@@ -258,6 +262,7 @@ class RESIDE_RTTS(VisionDataset):
     
     def __init__(self, root: core.Path = DATA_DIR / "enhance", *args, **kwargs):
         """Initializes dataset with ``root`` path and parent args."""
+        root = core.Path(root)
         root = root / "reside" if root.name != "reside" else root
         if not root.is_dir():
             raise FileNotFoundError(f"[root] directory not found: [{root}].")
@@ -302,6 +307,7 @@ class RESIDE_SOTS_Indoor(VisionDataset):
     
     def __init__(self, root: core.Path = DATA_DIR / "enhance", *args, **kwargs):
         """Initializes dataset with ``root`` path and parent args."""
+        root = core.Path(root)
         root = root / "reside" if root.name != "reside" else root
         if not root.is_dir():
             raise FileNotFoundError(f"[root] directory not found: [{root}].")
@@ -358,6 +364,7 @@ class RESIDE_SOTS_Outdoor(VisionDataset):
     
     def __init__(self, root: core.Path = DATA_DIR / "enhance", *args, **kwargs):
         """Initializes dataset with ``root`` path and parent args."""
+        root = core.Path(root)
         root = root / "reside" if root.name != "reside" else root
         if not root.is_dir():
             raise FileNotFoundError(f"[root] directory not found: [{root}].")
@@ -413,6 +420,7 @@ class RESIDE_URHI(VisionDataset):
     
     def __init__(self, root: core.Path = DATA_DIR / "enhance", *args, **kwargs):
         """Initializes dataset with ``root`` path and parent args."""
+        root = core.Path(root)
         root = root / "reside" if root.name != "reside" else root
         if not root.is_dir():
             raise FileNotFoundError(f"[root] directory not found: [{root}].")

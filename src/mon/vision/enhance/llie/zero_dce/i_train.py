@@ -73,6 +73,10 @@ def train(args: dict) -> str:
         ])
     }
     '''
+    args["datamodule"] |= {
+        "root"   : mon.parse_data_dir(root, data_dir=args["datamodule"]["root"]),
+        "devices": device,
+    }
     datamodule: mon.DataModule = mon.DATAMODULES.build(config=args["datamodule"])
     datamodule.setup(stage="train")
     train_dataloader = datamodule.train_dataloader

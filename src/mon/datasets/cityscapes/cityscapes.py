@@ -96,6 +96,7 @@ class Cityscapes(VisionDataset):
         use_coarse : bool = False,
         *args, **kwargs
     ):
+        root = core.Path(root)
         root = root / "cityscapes" if root.name != "cityscapes" else root
         if not root.is_dir():
             raise FileNotFoundError(f"[root] must be a directory, got {root}.")

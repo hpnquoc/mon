@@ -46,6 +46,7 @@ class NHHaze(VisionDataset):
 
     def __init__(self, root: core.Path = DATA_DIR / "enhance", *args, **kwargs):
         """Initializes dataset with ``root`` path and parent args."""
+        root = core.Path(root)
         root = root / "nhhaze" if root.name != "nhhaze" else root
         if not root.is_dir():
             raise FileNotFoundError(f"[root] directory not found: [{root}].")

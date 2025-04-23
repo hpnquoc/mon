@@ -53,6 +53,7 @@ class CityscapesRain(Cityscapes):
     has_test_annotations: bool = True
     
     def __init__(self, root: core.Path = DATA_DIR / "cityscapes", *args, **kwargs):
+        root = core.Path(root)
         root = root / "cityscapes" if root.name != "cityscapes" else root
         if not root.is_dir():
             raise FileNotFoundError(f"[root] must be a directory, got {root}.")

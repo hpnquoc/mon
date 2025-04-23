@@ -4,7 +4,6 @@
 """Trains a model on a given dataset."""
 
 import mon
-import mon.core.utils
 
 current_file = mon.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
@@ -43,9 +42,9 @@ def train(args: dict) -> str:
     mon.set_random_seed(seed)
     
     # Data I/O
-    data_root = mon.parse_data_dir(root, args["datamodule"].get("root", ""))
     args["datamodule"] |= {
-        "root": data_root,
+        "root"   : mon.parse_data_dir(root, args["datamodule"].get("root", "")),
+        "devices": device,
     }
     datamodule: mon.DataModule = mon.DATAMODULES.build(config=args["datamodule"])
     datamodule.prepare_data()

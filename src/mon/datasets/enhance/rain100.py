@@ -50,6 +50,7 @@ class Rain100(VisionDataset):
     
     def __init__(self, root: core.Path = DATA_DIR / "enhance", *args, **kwargs):
         """Initializes dataset with ``root`` path and parent args."""
+        root = core.Path(root)
         root = root / "rain100" if root.name != "rain100" else root
         if not root.is_dir():
             raise FileNotFoundError(f"[root] directory not found: [{root}].")
@@ -96,6 +97,7 @@ class Rain100H(VisionDataset):
     
     def __init__(self, root: core.Path = DATA_DIR / "enhance", *args, **kwargs):
         """Initializes dataset with ``root`` path and parent args."""
+        root = core.Path(root)
         root = root / "rain100h" if root.name != "rain100h" else root
         if not root.is_dir():
             raise FileNotFoundError(f"[root] directory not found: [{root}].")
@@ -142,6 +144,7 @@ class Rain100L(VisionDataset):
     
     def __init__(self, root: core.Path = DATA_DIR / "enhance", *args, **kwargs):
         """Initializes dataset with ``root`` path and parent args."""
+        root = core.Path(root)
         root = root / "rain100l" if root.name != "rain100l" else root
         if not root.is_dir():
             raise FileNotFoundError(f"[root] directory not found: [{root}].")

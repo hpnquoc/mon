@@ -165,7 +165,7 @@ class ImageAnnotation(core.Annotation):
         return processing.image_to_tensor(data, normalize)
     
     @staticmethod
-    def collate_fn(batch: list[torch.Tensor | np.ndarray]) -> torch.Tensor | np.ndarray | None:
+    def collate_fn(batch: list) -> torch.Tensor | np.ndarray | None:
         """Collates batch data for ``torch.utils.data.DataLoader``.
 
         Args:

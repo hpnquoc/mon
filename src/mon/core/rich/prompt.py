@@ -100,18 +100,19 @@ class SelectionOrInputPrompt(Prompt):
                 return value
             if len(self.choices) > 0 and value == "":
                 raise InvalidResponse(self.illegal_choice_message)
-            
+                
             # Convert index (if any) to choice
             value = type_extensions.to_list(value, sep=[",", ";"])
-            value = [self.choices[int(d)] if type_extensions.is_int(d) else d for d in value]
+            value = [self.choices[int(v)] if type_extensions.is_int(v) else v for v in value]
             
+            '''
             for i, v in enumerate(value):
                 if not self.check_choice(v):
                     raise InvalidResponse(self.illegal_choice_message)
                 if not self.case_sensitive:
                     # return the original choice, not the lower case version
                     value[i] = self.choices[[choice.lower() for choice in self.choices].index(v.lower())]
-            
+            '''
             # value = value[0] if len(value) == 1 else value
             
         return value

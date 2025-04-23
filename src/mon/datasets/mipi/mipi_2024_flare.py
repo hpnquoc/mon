@@ -49,6 +49,7 @@ class MIPI2024Flare(VisionDataset):
 
     def __init__(self, root: core.Path = DATA_DIR / "mipi", *args, **kwargs):
         """Initializes dataset with ``root`` path and parent args."""
+        root = core.Path(root)
         root = root / "mipi_2024_flare" if root.name != "mipi_2024_flare" else root
         if not root.is_dir():
             raise FileNotFoundError(f"[root] directory not found: [{root}].")

@@ -48,6 +48,7 @@ class DarkFace(VisionDataset):
 
     def __init__(self, root: core.Path = DATA_DIR / "enhance", *args, **kwargs):
         """Initializes dataset with ``root`` path and parent args."""
+        root = core.Path(root)
         root = root / "darkface" if root.name != "darkface" else root
         if not root.is_dir():
             raise FileNotFoundError(f"[root] directory not found: [{root}].")
@@ -93,6 +94,7 @@ class DarkFaceFull(VisionDataset):
 
     def __init__(self, root: core.Path = DATA_DIR / "enhance", *args, **kwargs):
         """Initializes dataset with ``root`` path and parent args."""
+        root = core.Path(root)
         root = root / "darkface" if root.name != "darkface" else root
         if not root.is_dir():
             raise FileNotFoundError(f"[root] directory not found: [{root}].")

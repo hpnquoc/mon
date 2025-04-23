@@ -46,6 +46,7 @@ class Rain1200(VisionDataset):
     
     def __init__(self, root: core.Path = DATA_DIR / "enhance", *args, **kwargs):
         """Initializes dataset with ``root`` path and parent args."""
+        root = core.Path(root)
         root = root / "rain1200" if root.name != "rain1200" else root
         if not root.is_dir():
             raise FileNotFoundError(f"[root] directory not found: [{root}].")

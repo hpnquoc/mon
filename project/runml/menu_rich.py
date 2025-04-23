@@ -111,7 +111,7 @@ class NumberPrompt:
     
     @value.setter
     def value(self, value: int):
-        self._value = None if value < 0 else value
+        self._value = None if isinstance(value, (int, float)) and value < 0 else value
         
     def prompt(self) -> int:
         self.value = rich.IntPrompt().ask(prompt=self.text, default=self.default)
@@ -346,11 +346,12 @@ class RunmlCLI:
         if self.index == 6:  # Data
             if self.args["mode"] not in ["predict"]:
                 self.cycle_next()
-            self.args["data"] = DataPrompt(
-                task         = self.args["task"],
-                project_root = self.args["root"],
-                default      = self.args["data"],
-            ).prompt()
+            else:
+                self.args["data"] = DataPrompt(
+                    task         = self.args["task"],
+                    project_root = self.args["root"],
+                    default      = self.args["data"],
+                ).prompt()
         if self.index == 7:  # Fullname
             self.args["fullname"] = FullnamePrompt(
                 config  = self.args["config"],

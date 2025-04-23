@@ -130,6 +130,7 @@ class COCO2017(VisionDataset):
     ])
     
     def __init__(self, root: core.Path = DATA_DIR / "coco", *args, **kwargs):
+        root = core.Path(root)
         root = root / "coco_2017" if root.name != "coco_2017" else root
         if not root.is_dir():
             raise FileNotFoundError(f"Directory not found: {root}.")

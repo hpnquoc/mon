@@ -98,7 +98,7 @@ def train(args):
             y_labels, imlow        = y_labels.to(device).type(torch.float32), imlow.to(device).type(torch.float32)
             optimizer.zero_grad()
 
-            pred, loss = model(imlow,epoch,imNum=imNum[0])
+            pred, loss = model(imlow, epoch, imNum=imNum[0])
             if args.f_OverExp:
                 pred = 1 - pred
             dic["train_loss"] += (loss.item() / len(loader_train))

@@ -50,6 +50,7 @@ class LOLv2Real(VisionDataset):
 
     def __init__(self, root: core.Path = DATA_DIR / "enhance", *args, **kwargs):
         """Initializes dataset with ``root`` path and parent args."""
+        root = core.Path(root)
         root = root / "lol_v2_real" if root.name != "lol_v2_real" else root
         if not root.is_dir():
             raise FileNotFoundError(f"[root] directory not found: [{root}].")
@@ -96,6 +97,7 @@ class LOLv2Synthetic(VisionDataset):
 
     def __init__(self, root: core.Path = DATA_DIR / "enhance", *args, **kwargs):
         """Initializes dataset with ``root`` path and parent args."""
+        root = core.Path(root)
         root = root / "lol_v2_synthetic" if root.name != "lol_v2_synthetic" else root
         if not root.is_dir():
             raise FileNotFoundError(f"[root] directory not found: [{root}].")

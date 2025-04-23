@@ -162,9 +162,11 @@ def image_to_2d(image: torch.Tensor | np.ndarray) -> torch.Tensor | np.ndarray:
         ValueError: If ``image`` dimensions are not 3 or 4.
         TypeError: If ``image`` is not a ``torch.Tensor`` or ``numpy.ndarray``.
     """
+    '''
     if not 3 <= image.ndim <= 4:
         raise ValueError(f"[image]'s number of dimensions must be between 3 and 4, "
                          f"got {image.ndim}.")
+    '''
     
     if isinstance(image, torch.Tensor):
         if image.ndim == 3:
@@ -195,10 +197,12 @@ def image_to_3d(image: torch.Tensor | np.ndarray) -> torch.Tensor | np.ndarray:
         ValueError: If ``image`` dimensions are not 2, 3, or 4.
         TypeError: If ``image`` is not a ``torch.Tensor`` or ``numpy.ndarray``.
     """
+    '''
     if not 2 <= image.ndim <= 4:
         raise ValueError(f"[image]'s number of dimensions must be between 2 and 4, "
                          f"got {image.ndim}.")
-
+    '''
+    
     if isinstance(image, torch.Tensor):
         if image.ndim == 2:
             image = image.unsqueeze(0)
@@ -232,10 +236,12 @@ def image_to_4d(
         ValueError: If ``image`` dimensions are not 2, 3, or 4.
         TypeError: If ``image`` type is not supported.
     """
+    '''
     if not 2 <= image.ndim <= 4:
         raise ValueError(f"[image]'s number of dimensions must be between 2 and 4, "
                          f"got {image.ndim}.")
-
+    '''
+    
     if isinstance(image, torch.Tensor):
         if image.ndim == 2:  # [H, W] -> [1, 1, H, W]
             image = image.unsqueeze(0).unsqueeze(0)

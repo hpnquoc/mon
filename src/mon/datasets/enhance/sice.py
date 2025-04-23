@@ -54,6 +54,7 @@ class SICE(VisionDataset):
     
     def __init__(self, root: core.Path = DATA_DIR / "enhance", *args, **kwargs):
         """Initializes dataset with ``root`` path and parent args."""
+        root = core.Path(root)
         root = root / "sice" if root.name != "sice" else root
         if not root.is_dir():
             raise FileNotFoundError(f"Directory not found: {root}.")
@@ -100,6 +101,7 @@ class SICEGrad(VisionDataset):
     
     def __init__(self, root: core.Path = DATA_DIR / "enhance", *args, **kwargs):
         """Initializes dataset with ``root`` path and parent args."""
+        root = core.Path(root)
         root = root / "sice_grad" if root.name != "sice_grad" else root
         if not root.is_dir():
             raise FileNotFoundError(f"Directory not found: {root}.")
@@ -144,6 +146,7 @@ class SICEME(VisionDataset):
     
     def __init__(self, root: core.Path = DATA_DIR / "enhance", *args, **kwargs):
         """Initializes dataset with ``root`` path and parent args."""
+        root = core.Path(root)
         root = root / "sice_me" if root.name != "sice_me" else root
         if not root.is_dir():
             raise FileNotFoundError(f"Directory not found: {root}.")
@@ -190,6 +193,7 @@ class SICEMix(VisionDataset):
     
     def __init__(self, root: core.Path = DATA_DIR / "enhance", *args, **kwargs):
         """Initializes dataset with ``root`` path and parent args."""
+        root = core.Path(root)
         root = root / "sice_mix" if root.name != "sice_mix" else root
         if not root.is_dir():
             raise FileNotFoundError(f"Directory not found: {root}.")

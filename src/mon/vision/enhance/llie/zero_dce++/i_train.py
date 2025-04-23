@@ -67,6 +67,10 @@ def train(args: dict) -> str:
     mon.set_random_seed(seed)
     
     # Data I/O
+    args["datamodule"] |= {
+        "root"   : mon.parse_data_dir(root, data_dir=args["datamodule"]["root"]),
+        "devices": device,
+    }
     datamodule: mon.DataModule = mon.DATAMODULES.build(config=vars(args["datamodule"]))
     datamodule.setup(stage="train")
     train_dataloader = datamodule.train_dataloader

@@ -81,7 +81,7 @@ class Factorization(nn.Module):
             self.lmbda_A[f][s].data = torch.clone(self.lmbda_A[f][s - 1].data)
             self.lmbda_E[f][s].data = torch.clone(self.lmbda_E[f][s - 1].data)
             self.step[f][s].data    = torch.clone(self.step[f][s - 1].data)
-            if s == self.maxIt-1:  # last stage
+            if s == self.max_iters - 1:  # last stage
                 self.f_initialize = False
                 # print("SWITCHING OFF INITIALIZATION !!!")
         if self.epoch > self.freeze:
@@ -101,7 +101,7 @@ class Factorization(nn.Module):
         Aths = self.lmbda_A[f][0] / self.step[f][0]
         A_t  = self.thres_A(X - E_t, Aths)
         Y_t  = torch.div(X, X_2 + eps)
-        for t in range(1, self.maxIt):            
+        for t in range(1, self.max_iters):
             self.initialize_ths(f, t)
             Eths = self.lmbda_E[f][t] / self.step[f][t]
             E_t  = self.thres_E(X - A_t - Y_t / self.step[f][t], Eths)
@@ -280,10 +280,12 @@ class RRNet(nn.Module):
         return
     
     def forward(self, Xin, epoch=0):
-        loss    = 0
-        XfuseIn = torch.cat([Xin, Xin, Xin, Xin, Xin, Xin], dim=1)
-        Xfuse   = self.fuseNet(XfuseIn)
-        L_fact  = torch.tensor(0.0, dtype=torch.float32, requires_grad=True)
+        loss = 0
+        Xfact, L_fact = self.factNet(Xin, epoch)
+        # XfuseIn = torch.cat([Xin, Xin, Xin, Xin, Xin, Xin], dim=1)
+        XfuseIn = torch.cat([Xin, Xfact], dim=1)
+        Xfuse = self.fuseNet(XfuseIn)
+        # L_fact  = torch.tensor(0.0, dtype=torch.float32, requires_grad=True)
         if self.f_denoise:
             Xfuse = bilateral_blur(Xfuse, (5, 5), 0.5, (1, 1))
             # Xfuse = bilateral_blur(Xfuse, (5, 5), 0.1, (0.1, 0.1))
