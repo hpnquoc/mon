@@ -407,6 +407,7 @@ class Task(Enum):
     NIGHTTIME = "nighttime"             # nighttime
     POSE      = "pose"                  # pose estimation
     RETOUCH   = "retouch"               # image retouching
+    RGB2TIR   = "rgb2tir"               # RGB-to-TIR image translation
     RR        = "rr"                    # reflection removal
     SEGMENT   = "segment"               # semantic segmentation
     SR        = "sr"                    # super-resolution

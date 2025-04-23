@@ -15,6 +15,10 @@ from mon import Task
 
 # List all tasks that are performed in this project.
 TASKS = [
+	Task.RETOUCH,
+	Task.RGB2TIR,
+	Task.SR,
+	Task.UIE,
     Task.DEBLUR,
     Task.DEHAZE,
     Task.DENOISE,
@@ -22,12 +26,9 @@ TASKS = [
     Task.DERAIN,
     Task.DESNOW,
     Task.INPAINT,
-    Task.NIGHTTIME,
     Task.LLIE,
-	Task.RETOUCH,
+    Task.NIGHTTIME,
     Task.SEGMENT,
-	Task.SR,
-	Task.UIE,
 ]
 
 # List all models that are used in this project.

@@ -183,7 +183,7 @@ EXTRA_MODELS   = {  # architecture/model (+ variant)
     },
     # endregion
     # region enhance/dehaze
-    "zid"   : {
+    "zid": {
         "zid": {
             "tasks"    : [Task.DEHAZE],
             "mltypes"  : [MLType.ZERO_SHOT],
@@ -522,8 +522,17 @@ EXTRA_MODELS   = {  # architecture/model (+ variant)
     "depth_pro"        : {
         "depth_pro": {
             "tasks"    : [Task.DEPTH],
-            "mltypes"  : [MLType.ZERO_SHOT],
+            "mltypes"  : [MLType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "types" / "depth" / "depth_pro",
+        },
+    },
+    # endregion
+    # region types/thermal
+    "srgb_tir": {
+        "srgb_tir": {
+            "tasks"    : [Task.RGB2TIR],
+            "mltypes"  : [MLType.SUPERVISED],
+            "model_dir": MON_DIR / "vision" / "types" / "thermal" / "srgb_tir",
         },
     },
     # endregion
