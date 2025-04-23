@@ -2,10 +2,10 @@
 root        : ~                                                                 # Root directory of the current run.
 arch        : "rsfnet"                                                          # Model architecture or family (e.g., resnet).
 model       : &model "rsfnet"                                                   # Model name (e.g., resnet50).
-data        : &data "lol_v1"                                                    # Dataset name (e.g., cifar10) or directory (e.g., data/cifar10).
-fullname    : &fullname "rsfnet_lol_v1"                                         # Full name of the current run (e.g., resnet50_cifar10_01). If not set, it will be this file's name.
+data        : &data "lol_v2_real"                                               # Dataset name (e.g., cifar10) or directory (e.g., data/cifar10).
+fullname    : &fullname "rsfnet_lol_v2_real"                                    # Full name of the current run (e.g., resnet50_cifar10_01). If not set, it will be this file's name.
 save_dir    : &save_dir ~                                                       # Saving directory. If not set, it will be `root/arch/model/data`.
-weights     : &weights "zoo/vision/enhance/llie/rsfnet/rsfnet/lol_v1/rsfnet_lol_v1.pth" # Path to the pretrained weights.
+weights     : &weights "zoo/vision/enhance/llie/rsfnet/rsfnet/lol_v2_real/rsfnet_lol_v2_real.pth" # Path to the pretrained weights.
 device      : 0                                                                 # Running device (i.e., cuda:0 | cuda:0,1,2,3 | cpu).
 seed        : 2                                                                 # Random seed.
 imgsz       : &imgsz 512                                                        # Image size for the model.
@@ -24,7 +24,7 @@ verbose     : &verbose True                                                     
 network: &network                                                               # Network architecture.
   factors   : 5
   max_iters : 3
-  freeze    : 0
+  freeze    : 25
   etaA      : 0.1
   f_rgb     : True
   f_denoise : True
@@ -43,7 +43,7 @@ optimizer: &optimizer                                                           
 # Datamodule
 datamodule:
   name      : *data                                                             # Data module name (e.g., cifar10).
-  root      : "data/enhance/lol_v1"                                             # Root directory of the dataset.
+  root      : "data/enhance/lol_v2_real"                                        # Root directory of the dataset.
   transform :
     - {name: "resize", height: 256, width : 256}
   to_tensor : True                                                              # If ``True``, convert the data to tensor.

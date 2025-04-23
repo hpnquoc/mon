@@ -223,7 +223,11 @@ class Fusion(nn.Module):
 # ----- FULL ARCH -----
 class RRNet(nn.Module):
     
-    def __init__(self, mode, factors, max_iters, freeze, etaA, f_denoise, device, wc, we, wt, wf):
+    def __init__(
+        self, mode, factors, max_iters, freeze, etaA, f_rgb, f_denoise, f_over_exp,
+        device, wc, we, wf, wt,
+        *args, **kwargs
+    ):
         super().__init__()
         self.mode      = mode
         self.factors   = factors
@@ -233,8 +237,8 @@ class RRNet(nn.Module):
         self.device    = device
         self.wc        = wc
         self.we        = we
-        self.wt        = wt
         self.wf        = wf
+        self.wt        = wt
         
         self.factNet   = Factorization(mode, factors, max_iters, freeze, etaA, device)
         self.fuseNet   = Fusion(mode, factors, device)

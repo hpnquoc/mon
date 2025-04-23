@@ -5,11 +5,9 @@
 Enhancement," CVPR 2020.
 
 References:
-    - https://github.com/Li-Chongyi/Zero-DCE
+    - https://github.com/sophont01/RSFNet
 """
 
-import argparse
-import random
 import warnings
 
 import numpy as np
@@ -19,7 +17,6 @@ import torch.optim
 
 import mon
 from libs.src.model import RRNet
-from mon import albumentation as A
 
 torch.autograd.set_detect_anomaly(True)
 warnings.filterwarnings("ignore", category=FutureWarning)
@@ -55,10 +52,12 @@ def train(args: dict) -> str:
     keep_subdirs = args["keep_subdirs"]
     verbose      = args["verbose"]
     
-    factors  = args["network"]["factors"]
-    lr       = args["optimizer"]["lr"]
-    lr_step  = args["optimizer"]["lr_step"]
-    lr_decay = args["optimizer"]["lr_decay"]
+    factors      = args["network"]["factors"]
+    freeze       = args["network"]["freeze"]
+    f_over_exp   = args["network"]["f_over_exp"]
+    lr           = args["optimizer"]["lr"]
+    lr_decay     = args["optimizer"]["lr_decay"]
+    max_norm     = args["optimizer"]["max_norm"]
     
     # Start
     mon.console.rule(f"[bold red] {fullname}")
@@ -92,34 +91,43 @@ def train(args: dict) -> str:
         optimizer.add_param_group({"params": model.factNet.step[i].parameters(),    "lr": 0.01})  # 0.01
         
     # Training
-    with mon.create_progress_bar() as pbar:
-        for _ in pbar.track(
-            sequence    = range(epochs),
-            total       = epochs,
-            description = f"[bright_yellow] Training"
-        ):
-            for i, datapoint in enumerate(train_dataloader):
-                image          = datapoint["image"].to(device)
-                _, enhanced, r = dce_net(image)
+    for epoch in range(epochs):
+        model.train()
+        model.factNet.et_mean = [[] for _ in range(factors)]
+        model.L = dict.fromkeys(("L_color", "L_exp", "L_TV", "L_fact"))
+        
+        if epoch > freeze + 25:
+            optimizer.param_groups[0]["lr"] = optimizer.param_groups[0]["lr"] * lr_decay
+            optimizer.param_groups[1]["lr"] = optimizer.param_groups[1]["lr"] * lr_decay
+            
+        with mon.create_progress_bar() as pbar:
+            for i, datapoint in pbar.track(
+                sequence    = enumerate(train_dataloader),
+                total       = len(train_dataloader),
+                description = f"[bright_yellow] Training"
+            ):
+                image = datapoint["image"].to(device)
+
+                enhanced, loss = model(image)
+                if f_over_exp:
+                    enhanced = 1 - enhanced
+                model.freeze_fact(epoch)
                 
-                loss_tv  = 200 * L_tv(r)
-                loss_spa = torch.mean(L_spa(enhanced, image))
-                loss_col =   5 * torch.mean(L_color(enhanced))
-                loss_exp =  10 * torch.mean(L_exp(enhanced))
-                loss     = loss_tv + loss_spa + loss_col + loss_exp
-    
                 optimizer.zero_grad()
                 loss.backward()
-                torch.nn.utils.clip_grad_norm_(dce_net.parameters(), grad_clip_norm)
+                torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm)  # LOL-v1, LOL-v2-real, LOL-v2-synthetic
                 optimizer.step()
                 
-                # Log
-                if ((i + 1) % display_iter) == 0:
-                    print("Loss at iteration", i + 1, ":", loss.item())
-                
-                # Save
-                if ((i + 1) % checkpoints_iter) == 0:
-                    torch.save(dce_net.state_dict(), save_dir / "best.pt")
+                del enhanced, loss
+        
+        # Log
+        for i in range(factors):
+            print(f"\t E[{i}][0]={model.factNet.lmbda_E[i][0].item():0.9f} "
+                  f"\t A[{i}][0]={model.factNet.lmbda_A[i][0].item():0.9f} "
+                  f"\t step[{i}][0]={model.factNet.step[i][0].item():0.9f} ")
+            
+        # Save
+        torch.save(model.state_dict(), save_dir / f"{fullname}_last.pt")
 
 
 # ----- Main -----
