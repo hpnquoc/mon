@@ -214,7 +214,7 @@ class ZeroRestoreLLIE(base.ImageEnhancementModel):
     
     arch     : str          = "zero_restore"
     name     : str          = "zero_restore_llie"
-    tasks    : list[Task]   = [Task.LLIE]
+    tasks    : list[Task]   = [Task.LLE]
     mltypes  : list[MLType] = [MLType.ZERO_SHOT]
     model_dir: core.Path    = current_dir
     zoo      : dict         = {}

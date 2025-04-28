@@ -20,7 +20,7 @@ import cv2
 import numpy as np
 
 import mon
-from tss.globals import AppleRGB
+from tss.constants import AppleRGB
 
 
 class ROI:

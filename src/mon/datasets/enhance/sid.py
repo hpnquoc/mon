@@ -36,7 +36,7 @@ class SIDSony(VisionDataset):
         FileNotFoundError: If ``root`` directory does not exist.
     """
 
-    tasks : list[Task]  = [Task.LLIE]
+    tasks : list[Task]  = [Task.LLE]
     splits: list[Split] = [Split.TRAIN, Split.VAL, Split.TEST]
     datapoint_attrs     = DatapointAttributes({
         "image"    : ImageAnnotation,
@@ -75,7 +75,7 @@ class SIDSony(VisionDataset):
 class SIDSonyDataModule(core.DataModule):
     """Configures SIDSony datasets for training/testing."""
 
-    tasks: list[Task] = [Task.LLIE]
+    tasks: list[Task] = [Task.LLE]
     
     def prepare_data(self, *args, **kwargs):
         """Prepares data (placeholder, no action taken)."""

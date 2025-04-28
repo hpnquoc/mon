@@ -42,7 +42,7 @@ class SICE(VisionDataset):
         FileNotFoundError: If ``root`` directory does not exist.
     """
     
-    tasks : list[Task]  = [Task.LLIE]
+    tasks : list[Task]  = [Task.LLE]
     splits: list[Split] = [Split.TRAIN, Split.TEST]
     datapoint_attrs     = DatapointAttributes({
         "image"    : ImageAnnotation,
@@ -89,7 +89,7 @@ class SICEGrad(VisionDataset):
         FileNotFoundError: If ``root`` directory does not exist.
     """
     
-    tasks : list[Task]  = [Task.LLIE]
+    tasks : list[Task]  = [Task.LLE]
     splits: list[Split] = [Split.TRAIN, Split.TEST]
     datapoint_attrs     = DatapointAttributes({
         "image"    : ImageAnnotation,
@@ -136,7 +136,7 @@ class SICEME(VisionDataset):
         FileNotFoundError: If ``root`` directory does not exist.
     """
     
-    tasks : list[Task]  = [Task.LLIE]
+    tasks : list[Task]  = [Task.LLE]
     splits: list[Split] = [Split.TRAIN]
     datapoint_attrs     = DatapointAttributes({
         "image": ImageAnnotation,
@@ -181,7 +181,7 @@ class SICEMix(VisionDataset):
         FileNotFoundError: If ``root`` directory does not exist.
     """
     
-    tasks : list[Task]  = [Task.LLIE]
+    tasks : list[Task]  = [Task.LLE]
     splits: list[Split] = [Split.TRAIN, Split.TEST]
     datapoint_attrs     = DatapointAttributes({
         "image"    : ImageAnnotation,
@@ -220,7 +220,7 @@ class SICEMix(VisionDataset):
 class SICEDataModule(core.DataModule):
     """Configures SICE datasets for training/testing."""
     
-    tasks: list[Task] = [Task.LLIE]
+    tasks: list[Task] = [Task.LLE]
     
     def prepare_data(self, *args, **kwargs):
         """Prepares data (placeholder, no action taken)."""
@@ -251,7 +251,7 @@ class SICEDataModule(core.DataModule):
 class SICEGradDataModule(core.DataModule):
     """Configures SICEGrad datasets for training/testing."""
     
-    tasks: list[Task] = [Task.LLIE]
+    tasks: list[Task] = [Task.LLE]
     
     def prepare_data(self, *args, **kwargs):
         """Prepares data (placeholder, no action taken)."""
@@ -282,7 +282,7 @@ class SICEGradDataModule(core.DataModule):
 class SICEMEDataModule(core.DataModule):
     """Configures SICEME datasets for training/testing."""
     
-    tasks: list[Task] = [Task.LLIE]
+    tasks: list[Task] = [Task.LLE]
     
     def prepare_data(self, *args, **kwargs):
         """Prepares data (placeholder, no action taken)."""
@@ -313,7 +313,7 @@ class SICEMEDataModule(core.DataModule):
 class SICEMixDataModule(core.DataModule):
     """Configures SICEMix datasets for training/testing."""
     
-    tasks: list[Task] = [Task.LLIE]
+    tasks: list[Task] = [Task.LLE]
     
     def prepare_data(self, *args, **kwargs):
         """Prepares data (placeholder, no action taken)."""

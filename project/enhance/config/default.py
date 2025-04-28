@@ -26,7 +26,7 @@ TASKS = [
     Task.DERAIN,
     Task.DESNOW,
     Task.INPAINT,
-    Task.LLIE,
+    Task.LLE,
     Task.NIGHTTIME,
     Task.SEGMENT,
 ]

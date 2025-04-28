@@ -22,7 +22,7 @@ import numpy as np
 
 import mon
 from tss.dtype import detection as D
-from tss.globals import AppleRGB, ID2CLASS
+from tss.constants import AppleRGB, ID2CLASS
 
 Detection = D.Detection
 

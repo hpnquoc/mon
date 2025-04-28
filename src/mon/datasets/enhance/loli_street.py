@@ -38,7 +38,7 @@ class LoLIStreet(VisionDataset):
         FileNotFoundError: If ``root`` directory does not exist.
     """
     
-    tasks : list[Task]  = [Task.LLIE]
+    tasks : list[Task]  = [Task.LLE]
     splits: list[Split] = [Split.TRAIN, Split.VAL, Split.TEST]
     datapoint_attrs     = DatapointAttributes({
         "image"    : ImageAnnotation,
@@ -88,7 +88,7 @@ class LoLIStreetVal(VisionDataset):
         FileNotFoundError: If ``root`` directory does not exist.
     """
     
-    tasks : list[Task]  = [Task.LLIE]
+    tasks : list[Task]  = [Task.LLE]
     splits: list[Split] = [Split.TEST]
     datapoint_attrs     = DatapointAttributes({
         "image"    : ImageAnnotation,
@@ -135,7 +135,7 @@ class LoLIStreetTest(VisionDataset):
         FileNotFoundError: If ``root`` directory does not exist.
     """
     
-    tasks : list[Task]  = [Task.LLIE]
+    tasks : list[Task]  = [Task.LLE]
     splits: list[Split] = [Split.TEST]
     datapoint_attrs     = DatapointAttributes({
         "image": ImageAnnotation,
@@ -172,7 +172,7 @@ class LoLIStreetTest(VisionDataset):
 class LoLIStreetDataModule(core.DataModule):
     """Configures LoLIStreet datasets for training/testing."""
     
-    tasks: list[Task] = [Task.LLIE]
+    tasks: list[Task] = [Task.LLE]
 
     def prepare_data(self, *args, **kwargs):
         """Prepares data (placeholder, no action taken)."""

@@ -22,7 +22,7 @@ import cv2
 import numpy as np
 
 import mon
-from tss.globals import AppleRGB, ID2CLASS
+from tss.constants import AppleRGB, ID2CLASS
 
 
 class Detection:

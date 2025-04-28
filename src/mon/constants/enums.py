@@ -403,7 +403,7 @@ class Task(Enum):
     DESNOW    = "desnow"                # desnowing
     DETECT    = "detect"                # object detection
     INPAINT   = "inpaint"               # inpainting
-    LLIE      = "llie"                  # low-light image enhancement
+    LLE       = "lle"                  # low-light enhancement
     NIGHTTIME = "nighttime"             # nighttime
     POSE      = "pose"                  # pose estimation
     RETOUCH   = "retouch"               # image retouching

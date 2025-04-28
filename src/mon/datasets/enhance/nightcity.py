@@ -46,7 +46,7 @@ class NightCity(VisionDataset):
         FileNotFoundError: If ``root`` directory does not exist.
     """
     
-    tasks : list[Task]  = [Task.LLIE, Task.NIGHTTIME, Task.SEGMENT]
+    tasks : list[Task]  = [Task.LLE, Task.NIGHTTIME, Task.SEGMENT]
     splits: list[Split] = [Split.TRAIN, Split.VAL, Split.TEST]
     datapoint_attrs     = DatapointAttributes({
         "image"   : ImageAnnotation,
@@ -135,7 +135,7 @@ class NightCity(VisionDataset):
 class NightCityDataModule(core.DataModule):
     """Configures NightCity datasets for training/testing."""
     
-    tasks: list[Task] = [Task.LLIE, Task.NIGHTTIME, Task.SEGMENT]
+    tasks: list[Task] = [Task.LLE, Task.NIGHTTIME, Task.SEGMENT]
 
     def prepare_data(self, *args, **kwargs):
         """Prepares data (placeholder, no action taken)."""

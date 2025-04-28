@@ -36,7 +36,7 @@ class VV(VisionDataset):
         FileNotFoundError: If ``root`` directory does not exist.
     """
 
-    tasks : list[Task]  = [Task.LLIE]
+    tasks : list[Task]  = [Task.LLE]
     splits: list[Split] = [Split.TEST]
     datapoint_attrs     = DatapointAttributes({
         "image": ImageAnnotation,
@@ -73,7 +73,7 @@ class VV(VisionDataset):
 class VVDataModule(core.DataModule):
     """Configures VV datasets for training/testing."""
 
-    tasks: list[Task] = [Task.LLIE]
+    tasks: list[Task] = [Task.LLE]
     
     def prepare_data(self, *args, **kwargs):
         """Prepares data (placeholder, no action taken)."""

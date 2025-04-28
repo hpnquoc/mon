@@ -39,7 +39,7 @@ class NTIRE2025LLIE(VisionDataset):
     Raises:
         FileNotFoundError: If ``root`` directory does not exist.
     """
-    tasks : list[Task]  = [Task.LLIE]
+    tasks : list[Task]  = [Task.LLE]
     splits: list[Split] = [Split.TRAIN, Split.VAL, Split.TEST]
     datapoint_attrs     = DatapointAttributes({
         "image"    : ImageAnnotation,
@@ -82,7 +82,7 @@ class NTIRE2025LLIE(VisionDataset):
 @DATAMODULES.register(name="ntire_2025_llie")
 class NTIRE2025LLIEDataModule(core.DataModule):
     """Configures NTIRE 2025 LLIE datasets for training/testing."""
-    tasks: list[Task] = [Task.LLIE]
+    tasks: list[Task] = [Task.LLE]
 
     def prepare_data(self, *args, **kwargs):
         """Prepares data (placeholder, no action taken)."""

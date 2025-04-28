@@ -38,7 +38,7 @@ class ExDark(VisionDataset):
         FileNotFoundError: If ``root`` directory does not exist.
     """
     
-    tasks : list[Task]  = [Task.LLIE, Task.DETECT]
+    tasks : list[Task]  = [Task.LLE, Task.DETECT]
     splits: list[Split] = [Split.TEST]
     datapoint_attrs     = DatapointAttributes({
         "image": ImageAnnotation,
@@ -82,7 +82,7 @@ class ExDarkFull(VisionDataset):
         FileNotFoundError: If ``root`` directory does not exist.
     """
     
-    tasks : list[Task]  = [Task.LLIE, Task.DETECT]
+    tasks : list[Task]  = [Task.LLE, Task.DETECT]
     splits: list[Split] = [Split.TEST]
     datapoint_attrs     = DatapointAttributes({
         "image": ImageAnnotation,
@@ -118,7 +118,7 @@ class ExDarkFull(VisionDataset):
 class ExDarkDataModule(core.DataModule):
     """Configures ExDark datasets for training/testing."""
     
-    tasks: list[Task] = [Task.LLIE]
+    tasks: list[Task] = [Task.LLE]
     
     def prepare_data(self, *args, **kwargs):
         """Prepares data (placeholder, no action taken)."""
@@ -149,7 +149,7 @@ class ExDarkDataModule(core.DataModule):
 class ExDarkFullDataModule(core.DataModule):
     """Configures ExDarkFull datasets for training/testing."""
     
-    tasks: list[Task] = [Task.LLIE]
+    tasks: list[Task] = [Task.LLE]
     
     def prepare_data(self, *args, **kwargs):
         """Prepares data (placeholder, no action taken)."""
