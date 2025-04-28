@@ -64,7 +64,7 @@ update_base_env() {
 }
 
 create_mon_env_linux() {
-  echo -e "\nCreating 'mon' environment"
+  echo -e "\nCreating 'mon' environment:"
   # Install gcc and g++
   if sudo -n true 2>/dev/null; then
     sudo apt-get install gcc g++
@@ -82,13 +82,12 @@ create_mon_env_linux() {
 }
 
 create_mon_env_darwin() {
-  echo -e "\nCreating 'mon' environment"
+  echo -e "\nCreating 'mon' environment:"
   # Must be called before installing PyTorch Lightning
   export GRPC_PYTHON_BUILD_SYSTEM_OPENSSL=1
   export GRPC_PYTHON_BUILD_SYSTEM_ZLIB=1
   # Create `mon` env
   env_yaml_path=$(get_env_yaml_path)
-  echo -e "\nCreating 'mon' environment:"
   conda env create -f "${env_yaml_path}"
   echo "conda activate mon" >> ~/.bash_profile
   source ~/.bash_profile

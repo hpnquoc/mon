@@ -51,7 +51,6 @@ dependencies    = [
     "filterpy",                         # Kalman filters and other optimal and non-optimal estimation filters in Python.
     "numpy",                            # The fundamental package for scientific computing with Python.
     "protobuf",                         # Protocol Buffers - Google's data interchange format.
-    "pylib-openblas",                   # OpenBLAS is an optimized BLAS library.
     "scipy",                            # Scientific Library for Python.
     "xmltodict",                        # Makes working with XML feel like you are working with JSON.
     # AI
@@ -81,6 +80,8 @@ dependencies    = [
     "scikit-image",                     # Image processing in Python.
     "torchvision",                      # Image and video datasets and models for Torch deep learning.
     "ultralytics",
+    # Temporary Fix
+    "bitsandbytes==0.42.0"              # Fix for MacOS: 0.45.5 error
 ]
 # dynamic         = ["dependencies"]
 
