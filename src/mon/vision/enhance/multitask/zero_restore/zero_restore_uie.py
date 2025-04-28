@@ -187,7 +187,7 @@ class ZeroRestoreUIE(base.ImageEnhancementModel):
     
     arch     : str          = "zero_restore"
     name     : str          = "zero_restore_uie"
-    tasks    : list[Task]   = [Task.UIE]
+    tasks    : list[Task]   = [Task.UE]
     mltypes  : list[MLType] = [MLType.ZERO_SHOT]
     model_dir: core.Path    = current_dir
     zoo      : dict         = {}

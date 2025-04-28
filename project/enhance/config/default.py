@@ -18,7 +18,7 @@ TASKS = [
 	Task.RETOUCH,
 	Task.RGB2TIR,
 	Task.SR,
-	Task.UIE,
+	Task.UE,
     Task.DEBLUR,
     Task.DEHAZE,
     Task.DENOISE,

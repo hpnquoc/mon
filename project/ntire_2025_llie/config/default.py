@@ -27,7 +27,7 @@ TASKS = [
 	Task.RETOUCH,
     Task.SEGMENT,
 	Task.SR,
-	Task.UIE,
+	Task.UE,
 ]
 
 # List all models that are used in this project.

@@ -403,16 +403,17 @@ class Task(Enum):
     DESNOW    = "desnow"                # desnowing
     DETECT    = "detect"                # object detection
     INPAINT   = "inpaint"               # inpainting
-    LLE       = "lle"                  # low-light enhancement
+    LLE       = "lle"                   # low-light enhancement
     NIGHTTIME = "nighttime"             # nighttime
     POSE      = "pose"                  # pose estimation
-    RETOUCH   = "retouch"               # image retouching
-    RGB2TIR   = "rgb2tir"               # RGB-to-TIR image translation
+    RETOUCH   = "retouch"               # Retouching
+    RGB2TIR   = "rgb2tir"               # RGB-to-TIR translation
     RR        = "rr"                    # reflection removal
     SEGMENT   = "segment"               # semantic segmentation
     SR        = "sr"                    # super-resolution
     TRACK     = "track"                 # object tracking
-    UIE       = "uie"                   # underwater image enhancement
+    UE        = "ue"                    # underwater enhancement
+    VIDEO     = "video"                 # video processing
 
 
 # ----- Vision -----
