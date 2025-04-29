@@ -42,14 +42,13 @@ echo "$HOSTNAME"
 
 # Directories
 current_file=$(readlink -f "$0")
-current_dir=$(dirname "$current_file")  # mon/tool/script/
-tool_dir=$(dirname "$current_dir")      # mon/tool/
-mon_dir=$(dirname "$tool_dir")          # mon/
+current_dir=$(dirname "$current_file")  # mon/script/
+mon_dir=$(dirname "$current_dir")       # mon/
 data_dir="${mon_dir}/data"              # mon/data/
 
 # Define the directory where you want to perform the recursive video conversion
 # directory="${data_dir}/"
-directory="/media/longpham/hdd_01/10_workspace/12_data/tsd"
+directory="/home/longpham/Downloads/flow"
 
 case "$OSTYPE" in
     linux*)

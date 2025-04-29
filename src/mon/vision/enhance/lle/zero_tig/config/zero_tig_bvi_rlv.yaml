@@ -24,7 +24,6 @@ verbose     : &verbose True                                                     
 network: &network                                                               # Network architecture.
   raft_model: "zoo/vision/enhance/lle/zero_tig/zero_tig/pretrained/raft_sintel.pth"
   of_scale  : 3                                                                 # Downscale size when compute OF
-  is_video  : True                                                              # A video or a bunch of images
 
 # Optimizer
 optimizer: &optimizer                                                           # Optimizer(s).

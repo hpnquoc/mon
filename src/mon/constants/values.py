@@ -413,7 +413,7 @@ EXTRA_MODELS   = {  # architecture/model (+ variant)
     },
     "zero_tig"     : {
         "zero_tig": {
-            "tasks"    : [Task.LLE],
+            "tasks"    : [Task.LLE, Task.VIDEO],
             "mltypes"  : [MLType.ZERO_SHOT],
             "model_dir": MON_DIR / "vision" / "enhance" / "lle" / "zero_tig",
         },

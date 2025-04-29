@@ -69,7 +69,6 @@ def predict(args: dict) -> str:
     
     raft_model = mon.ROOT_DIR / args["network"]["raft_model"]
     of_scale   = args["network"]["raft_model"]
-    is_video   = args["network"]["is_video"]
     
     # Start
     mon.console.rule(f"[bold red] {fullname}")
@@ -92,7 +91,8 @@ def predict(args: dict) -> str:
     # Data I/O
     mon.console.log(f"[bold red]{data}")
     data_name, data_loader = mon.parse_data_loader(data, root, True, verbose=False)
-    
+    is_video = mon.is_video_dataset(data_loader)
+
     # Model
     model = Finetunemodel(weights, raft_model, of_scale, device).to(device)
     model.eval()

@@ -65,7 +65,7 @@ def list_datasets(
     Args:
         task: Task for which datasets are listed.
         mode: Mode of datasets (``train`` or ``test``).
-        project_root: Root directory of project. Default is ``None``.
+        project_root: Root directory of the project. Default is ``None``.
 
     Returns:
         Sorted list of dataset names matching task and mode.
