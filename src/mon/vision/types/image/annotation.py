@@ -139,7 +139,7 @@ class ImageAnnotation(core.Annotation):
         """
         if self.image is not None:
             return self.image
-        load_path  = path or self.path
+        load_path  = path  or self.path
         load_flags = flags or self.flags
         image      = io.load_image(load_path, load_flags, False, False)
         if self._shape != image.shape:

@@ -20,6 +20,7 @@ ClassLabels                    = core.ClassLabels
 DatapointAttributes            = core.DatapointAttributes
 DepthMapAnnotation             = vision.DepthMapAnnotation
 ImageAnnotation                = vision.ImageAnnotation
+InfraredAnnotation             = vision.InfraredAnnotation
 SemanticSegmentationAnnotation = vision.SemanticSegmentationAnnotation
 VisionDataset                  = vision.VisionDataset
 
@@ -122,7 +123,7 @@ class LOLv2Synthetic(VisionDataset):
 # ----- DataModule -----
 @DATAMODULES.register(name="lol_v2_real")
 class LOLv2RealDataModule(core.DataModule):
-    """Configures LOLv2Real datasets for training/testing."""
+    """Configures LOL-v2 Real datasets for training/testing."""
     
     tasks: list[Task] = [Task.LLE]
 
@@ -153,7 +154,7 @@ class LOLv2RealDataModule(core.DataModule):
 
 @DATAMODULES.register(name="lol_v2_synthetic")
 class LOLv2SyntheticDataModule(core.DataModule):
-    """Configures LOLv2Synthetic datasets for training/testing."""
+    """Configures LOL-v2 Synthetic datasets for training/testing."""
     
     tasks: list[Task] = [Task.LLE]
 

@@ -28,24 +28,26 @@ class STASUNet(nn.Module):
         window_size (int): Window size. Default: 7
     """
 
-    def __init__(self,
-                 num_in_ch=3,
-                 num_out_ch=3,
-                 num_feat=64,
-                 num_frame=5,
-                 deformable_groups=8,
-                 num_extract_block=5,
-                 num_reconstruct_block=10,
-                 center_frame_idx=None,
-                 hr_in=True,
-                 img_size=224,
-                 patch_size=4,
-                 embed_dim=64, 
-                 depths=[2, 2, 2, 2],
-                 num_heads=[3, 6, 12, 24],
-                 window_size = 7,
-                 patch_norm=False,
-                 final_upsample="Dual up-sample"):
+    def __init__(
+        self,
+        num_in_ch             = 3,
+        num_out_ch            = 3,
+        num_feat              = 64,
+        num_frame             = 5,
+        deformable_groups     = 8,
+        num_extract_block     = 5,
+        num_reconstruct_block = 10,
+        center_frame_idx      = None,
+        hr_in                 = True,
+        img_size              = 224,
+        patch_size            = 4,
+        embed_dim             = 64,
+        depths                = [2, 2, 2 , 2],
+        num_heads             = [3, 6, 12, 24],
+        window_size           = 7,
+        patch_norm            = False,
+        final_upsample        = "Dual up-sample"
+    ):
         super(STASUNet, self).__init__()
         if center_frame_idx is None:
             self.center_frame_idx = num_frame // 2
@@ -65,36 +67,39 @@ class STASUNet(nn.Module):
 
         '''Feature alignment module'''
         self.pcd_align = PCDAlignment(num_feat=num_feat, deformable_groups=deformable_groups)
-        self.fusion = nn.Conv2d(num_frame * num_feat, num_feat, 1, 1)
+        self.fusion    = nn.Conv2d(num_frame * num_feat, num_feat, 1, 1)
 
         # reconstruction
         self.reconstruction = make_layer(ResidualBlockNoBN, num_reconstruct_block, num_feat=num_feat)
         # upsample
-        self.upconv1 = nn.Conv2d(num_feat, num_feat, 3, 1, 1)
-        self.upconv2 = nn.Conv2d(num_feat, num_feat, 3, 1, 1)
+        self.upconv1       = nn.Conv2d(num_feat, num_feat, 3, 1, 1)
+        self.upconv2       = nn.Conv2d(num_feat, num_feat, 3, 1, 1)
         self.pixel_shuffle = nn.PixelShuffle(2)
-        self.conv_hr = nn.Conv2d(num_feat, num_feat, 3, 1, 1)
-        self.conv_last = nn.Conv2d(num_feat, 3, 3, 1, 1)
+        self.conv_hr       = nn.Conv2d(num_feat, num_feat, 3, 1, 1)
+        self.conv_last     = nn.Conv2d(num_feat, 3       , 3, 1, 1)
 
         # activation function
         self.lrelu = nn.LeakyReLU(negative_slope=0.1, inplace=True)
         
-
         '''Enhancement module SUNet'''
         # add
-        self.num_layers = len(depths)
-        self.patch_norm = patch_norm
-        self.embed_dim = embed_dim
+        self.num_layers     = len(depths)
+        self.patch_norm     = patch_norm
+        self.embed_dim      = embed_dim
         self.final_upsample = final_upsample
-        self.out_chans = num_out_ch
-        norm_layer=nn.LayerNorm
+        self.out_chans      = num_out_ch
+        norm_layer          = nn.LayerNorm
 
         # split image into non-overlapping patches
         self.patch_embed = PatchEmbedding(
-            img_size=img_size, patch_size=patch_size, in_chans=embed_dim, embed_dim=embed_dim,
-            norm_layer=norm_layer if self.patch_norm else None)
-        num_patches = self.patch_embed.num_patches
-        patches_resolution = self.patch_embed.patches_resolution
+            img_size   = img_size,
+            patch_size = patch_size,
+            in_chans   = embed_dim,
+            embed_dim  = embed_dim,
+            norm_layer = norm_layer if self.patch_norm else None
+        )
+        num_patches             = self.patch_embed.num_patches
+        patches_resolution      = self.patch_embed.patches_resolution
         self.patches_resolution = patches_resolution
 
         self.pos_drop = nn.Dropout(p=0)
@@ -106,59 +111,69 @@ class STASUNet(nn.Module):
         # build encoder and bottleneck layers
         self.layers = nn.ModuleList()
         for i_layer in range(self.num_layers):
-            layer = BasicLayer(dim=int(embed_dim * 2 ** i_layer),
-                               input_resolution=(patches_resolution[0] // (2 ** i_layer),
-                                                 patches_resolution[1] // (2 ** i_layer)),
-                               depth=depths[i_layer],
-                               num_heads=num_heads[i_layer],
-                               window_size=window_size,
-                               mlp_ratio=4.,
-                               qkv_bias=True, qk_scale=None,
-                               drop=0, attn_drop=0,
-                               drop_path=dpr[sum(depths[:i_layer]):sum(depths[:i_layer + 1])],
-                               norm_layer=norm_layer,
-                               downsample=PatchMerging if (i_layer < self.num_layers - 1) else None,
-                               use_checkpoint=False)
+            layer = BasicLayer(
+                dim              = int(embed_dim * 2 ** i_layer),
+                input_resolution = (patches_resolution[0] // (2 ** i_layer), patches_resolution[1] // (2 ** i_layer)),
+                depth            = depths[i_layer],
+                num_heads        = num_heads[i_layer],
+                window_size      = window_size,
+                mlp_ratio        = 4.0,
+                qkv_bias         = True,
+                qk_scale         = None,
+                drop             = 0,
+                attn_drop        = 0,
+                drop_path        = dpr[sum(depths[:i_layer]):sum(depths[:i_layer + 1])],
+                norm_layer       = norm_layer,
+                downsample       = PatchMerging if (i_layer < self.num_layers - 1) else None,
+                use_checkpoint   = False
+            )
             self.layers.append(layer)
 
-
         # build decoder layers
-        self.layers_up = nn.ModuleList()
+        self.layers_up       = nn.ModuleList()
         self.concat_back_dim = nn.ModuleList()
         for i_layer in range(self.num_layers):
-            concat_linear = nn.Linear(2 * int(embed_dim * 2 ** (self.num_layers - 1 - i_layer)),
-                                      int(embed_dim * 2 ** (
-                                              self.num_layers - 1 - i_layer))) if i_layer > 0 else nn.Identity()
+            concat_linear = nn.Linear(
+                2 * int(embed_dim * 2 ** (self.num_layers - 1 - i_layer)),
+                    int(embed_dim * 2 ** (self.num_layers - 1 - i_layer))
+            ) if i_layer > 0 else nn.Identity()
             if i_layer == 0:
-                layer_up = UpSample(input_resolution=patches_resolution[0] // (2 ** (self.num_layers - 1 - i_layer)),
-                                    in_channels=int(embed_dim * 2 ** (self.num_layers - 1 - i_layer)), scale_factor=2)
+                layer_up = UpSample(
+                    input_resolution = patches_resolution[0] // (2 ** (self.num_layers - 1 - i_layer)),
+                    in_channels      = int(embed_dim * 2 ** (self.num_layers - 1 - i_layer)),
+                    scale_factor     = 2
+                )
             else:
-                layer_up = BasicLayerUp(dim=int(embed_dim * 2 ** (self.num_layers - 1 - i_layer)),
-                                         input_resolution=(
-                                             patches_resolution[0] // (2 ** (self.num_layers - 1 - i_layer)),
-                                             patches_resolution[1] // (2 ** (self.num_layers - 1 - i_layer))),
-                                         depth=depths[(self.num_layers - 1 - i_layer)],
-                                         num_heads=num_heads[(self.num_layers - 1 - i_layer)],
-                                         window_size=window_size,
-                                         mlp_ratio=4.,
-                                         qkv_bias=True, qk_scale=None,
-                                         drop=0, attn_drop=0,
-                                         drop_path=dpr[sum(depths[:(self.num_layers - 1 - i_layer)]):sum(
-                                             depths[:(self.num_layers - 1 - i_layer) + 1])],
-                                         norm_layer=norm_layer,
-                                         upsample=UpSample if (i_layer < self.num_layers - 1) else None,
-                                         use_checkpoint=False)
+                layer_up = BasicLayerUp(
+                    dim              = int(embed_dim * 2 ** (self.num_layers - 1 - i_layer)),
+                    input_resolution = (patches_resolution[0] // (2 ** (self.num_layers - 1 - i_layer)),
+                                        patches_resolution[1] // (2 ** (self.num_layers - 1 - i_layer))),
+                    depth            = depths[(self.num_layers - 1 - i_layer)],
+                    num_heads        = num_heads[(self.num_layers - 1 - i_layer)],
+                    window_size      = window_size,
+                    mlp_ratio        = 4.0,
+                    qkv_bias         = True,
+                    qk_scale         = None,
+                    drop             = 0,
+                    attn_drop        = 0,
+                    drop_path        = dpr[sum(depths[:(self.num_layers - 1 - i_layer)]):sum(depths[:(self.num_layers - 1 - i_layer) + 1])],
+                    norm_layer       = norm_layer,
+                    upsample         = UpSample if (i_layer < self.num_layers - 1) else None,
+                    use_checkpoint   = False
+                )
             self.layers_up.append(layer_up)
             self.concat_back_dim.append(concat_linear)
 
-        self.norm = norm_layer(int(embed_dim * 2 ** (self.num_layers - 1)))
+        self.norm    = norm_layer(int(embed_dim * 2 ** (self.num_layers - 1)))
         self.norm_up = norm_layer(self.embed_dim)
 
         if self.final_upsample == "Dual up-sample":
-            self.up = UpSample(input_resolution=(img_size // patch_size, img_size // patch_size),
-                               in_channels=embed_dim, scale_factor=4)
-            self.output = nn.Conv2d(in_channels=embed_dim, out_channels=self.out_chans, kernel_size=3, stride=1,
-                                    padding=1, bias=False)  # kernel = 1
+            self.up = UpSample(
+                input_resolution = (img_size // patch_size, img_size // patch_size),
+                in_channels      = embed_dim,
+                scale_factor     = 4
+            )
+            self.output = nn.Conv2d(in_channels=embed_dim, out_channels=self.out_chans, kernel_size=3, stride=1, padding=1, bias=False)  # kernel = 1
 
         self.apply(self._init_weights)
 
@@ -170,7 +185,6 @@ class STASUNet(nn.Module):
         elif isinstance(m, nn.LayerNorm):
             nn.init.constant_(m.bias, 0)
             nn.init.constant_(m.weight, 1.0)
-
 
     # Encoder and Bottleneck
     def forward_features(self, x):
@@ -204,7 +218,7 @@ class STASUNet(nn.Module):
         return x
 
     def up_x4(self, x):
-        H, W = self.patches_resolution
+        H, W    = self.patches_resolution
         B, L, C = x.shape
         assert L == H * W, "input features has wrong size"
 
@@ -214,7 +228,6 @@ class STASUNet(nn.Module):
             x = x.permute(0, 3, 1, 2)  # B,C,H,W
 
         return x
-
 
     def forward(self, x):
         b, t, c, h, w = x.size()
@@ -258,8 +271,8 @@ class STASUNet(nn.Module):
         # fuse frames together
         feat = self.fusion(aligned_feat)
         # reconstruction and upsample
-        out = self.reconstruction(feat)
-        out = self.conv_last(out)
+        out  = self.reconstruction(feat)
+        out  = self.conv_last(out)
         if self.hr_in:
             base = x_center
         else:
@@ -267,10 +280,10 @@ class STASUNet(nn.Module):
         out += base
 
         # SUNet enhencement module
-        sunet_x = self.conv_first(out)
+        sunet_x   = self.conv_first(out)
         sunet_x, residual, x_downsample = self.forward_features(sunet_x)
-        sunet_x = self.forward_up_features(sunet_x, x_downsample)
-        sunet_x = self.up_x4(sunet_x)
+        sunet_x   = self.forward_up_features(sunet_x, x_downsample)
+        sunet_x   = self.up_x4(sunet_x)
         out_sunet = self.output(sunet_x)
 
         return out_sunet

@@ -17,9 +17,8 @@ python -W ignore main.py \
     --task "depth" \
     --mode "predict" \
     --arch "depth_anything_v2" \
-    --model 4 \
+    --model "depth_anything_v2_vitb" \
     --config 0 \
-    --weights 0 \
     --data "" \
     --verbose \
     "$@"

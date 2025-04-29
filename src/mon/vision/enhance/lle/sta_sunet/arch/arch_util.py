@@ -1,15 +1,10 @@
-import collections.abc
-import math
 import torch
 import torchvision
-import warnings
+from dcn import modulated_deform_conv, ModulatedDeformConvPack
 from distutils.version import LooseVersion
-from itertools import repeat
 from torch import nn as nn
-from torch.nn import functional as F
 from torch.nn import init as init
 from torch.nn.modules.batchnorm import _BatchNorm
-from dcn import ModulatedDeformConvPack, modulated_deform_conv
 
 # The code is originally sourced from and adapted from:
 # @misc{wang2020basicsr,
@@ -20,6 +15,7 @@ from dcn import ModulatedDeformConvPack, modulated_deform_conv
 #  year =         {2020}
 # }
 # https://github.com/xinntao/EDVR
+
 
 @torch.no_grad()
 def default_init_weights(module_list, scale=1, bias_fill=0, **kwargs):
@@ -84,19 +80,20 @@ class ResidualBlockNoBN(nn.Module):
     """
 
     def __init__(self, num_feat=64, res_scale=1, pytorch_init=False):
-        super(ResidualBlockNoBN, self).__init__()
+        super().__init__()
         self.res_scale = res_scale
-        self.conv1 = nn.Conv2d(num_feat, num_feat, 3, 1, 1, bias=True)
-        self.conv2 = nn.Conv2d(num_feat, num_feat, 3, 1, 1, bias=True)
-        self.relu = nn.ReLU(inplace=True)
+        self.conv1     = nn.Conv2d(num_feat, num_feat, 3, 1, 1, bias=True)
+        self.conv2     = nn.Conv2d(num_feat, num_feat, 3, 1, 1, bias=True)
+        self.relu      = nn.ReLU(inplace=True)
 
         if not pytorch_init:
             default_init_weights([self.conv1, self.conv2], 0.1)
 
     def forward(self, x):
         identity = x
-        out = self.conv2(self.relu(self.conv1(x)))
+        out      = self.conv2(self.relu(self.conv1(x)))
         return identity + out * self.res_scale
+
 
 class DCNv2Pack(ModulatedDeformConvPack):
     """Modulated deformable conv for deformable alignment.
@@ -110,10 +107,10 @@ class DCNv2Pack(ModulatedDeformConvPack):
     """
 
     def forward(self, x, feat):
-        out = self.conv_offset(feat)
+        out          = self.conv_offset(feat)
         o1, o2, mask = torch.chunk(out, 3, dim=1)
         offset = torch.cat((o1, o2), dim=1)
-        mask = torch.sigmoid(mask)
+        mask   = torch.sigmoid(mask)
 
         offset_absmean = torch.mean(torch.abs(offset))
         # if offset_absmean > 50:
@@ -121,9 +118,6 @@ class DCNv2Pack(ModulatedDeformConvPack):
         #     logger.warning(f'Offset abs mean is {offset_absmean}, larger than 50.')
 
         if LooseVersion(torchvision.__version__) >= LooseVersion('0.9.0'):
-            return torchvision.ops.deform_conv2d(x, offset, self.weight, self.bias, self.stride, self.padding,
-                                                 self.dilation, mask)
+            return torchvision.ops.deform_conv2d(x, offset, self.weight, self.bias, self.stride, self.padding, self.dilation, mask)
         else:
-            return modulated_deform_conv(x, offset, mask, self.weight, self.bias, self.stride, self.padding,
-                                         self.dilation, self.groups, self.deformable_groups)
-
+            return modulated_deform_conv(x, offset, mask, self.weight, self.bias, self.stride, self.padding, self.dilation, self.groups, self.deformable_groups)

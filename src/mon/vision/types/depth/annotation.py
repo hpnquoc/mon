@@ -25,8 +25,8 @@ class DepthMapAnnotation(I.ImageAnnotation):
     
     Args:
         path: Path to depth map file as ``core.Path`` or ``str``.
-        root: Root dir as ``core.Path`` or ``str``. Default is ``None``.
-        source: Source of depth data from ``DEPTH_DATA_SOURCES``. Default is ``None``.
+        root: Root dir as ``core.Path`` or ``str``. Default is ``'dav2_vitb'``.
+        source: Source of depth data from ``DepthDataSource``. Default is ``None``.
         flags: Flag to read image (e.g., ``cv2.IMREAD_COLOR``).
             Default is ``cv2.IMREAD_COLOR``.
 
@@ -40,12 +40,13 @@ class DepthMapAnnotation(I.ImageAnnotation):
         self,
         path  : core.Path | str,
         root  : core.Path | str = None,
-        source: Literal[*DepthDataSource.values()] = None,
-        flags : int = cv2.IMREAD_COLOR,
+        source: Literal[*DepthDataSource.values()] = "dav2_vitb",
+        flags : int = cv2.IMREAD_GRAYSCALE,
         *args, **kwargs
     ):
         super().__init__(path=path, root=root, flags=flags, *args, **kwargs)
         if source not in DepthDataSource:
             raise ValueError(f"[source] must be one of {DepthDataSource}, got {source}.")
         self.source = source
-        self.flags  = (cv2.IMREAD_GRAYSCALE if source and "g" in source else cv2.IMREAD_COLOR)
+        # self.flags  = (cv2.IMREAD_GRAYSCALE if source and "g" in source else cv2.IMREAD_COLOR)
+        self.flags  = (cv2.IMREAD_COLOR if source and "c" in source else cv2.IMREAD_GRAYSCALE)

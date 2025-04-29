@@ -19,6 +19,7 @@ from mon.datasets.enhance.ihaze import *
 from mon.datasets.enhance.ledlight import *
 from mon.datasets.enhance.lighteffect import *
 from mon.datasets.enhance.lime import *
+from mon.datasets.enhance.llvip import *
 from mon.datasets.enhance.lol_blur import *
 from mon.datasets.enhance.lol_v1 import *
 from mon.datasets.enhance.lol_v2 import *

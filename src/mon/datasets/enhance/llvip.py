@@ -1,11 +1,16 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Implements MEF datasets."""
+"""Implements LLVIP datasets from that paper: "LLVIP: A Visible-infrared Paired Dataset
+for Low-light Vision," ICCV 2021.
+
+References:
+    - https://github.com/bupt-ai-cz/LLVIP
+"""
 
 __all__ = [
-    "MEF",
-    "MEFDataModule",
+    "LLVIP",
+    "LLVIPDataModule",
 ]
 
 from typing import Literal
@@ -24,9 +29,9 @@ VisionDataset                  = vision.VisionDataset
 
 
 # ----- Dataset -----
-@DATASETS.register(name="mef")
-class MEF(VisionDataset):
-    """Loads MEF dataset from ``root`` dir.
+@DATASETS.register(name="llvip")
+class LLVIP(VisionDataset):
+    """Loads LLVIP dataset from ``root`` dir.
 
     Args:
         root: Directory path to dataset. Default is ``DATA_DIR / "enhance"``.
@@ -37,18 +42,19 @@ class MEF(VisionDataset):
         FileNotFoundError: If ``root`` directory does not exist.
     """
     
-    tasks : list[Task]  = [Task.LLE]
-    splits: list[Split] = [Split.TEST]
+    tasks : list[Task]  = [Task.LLE, Task.DETECT]
+    splits: list[Split] = [Split.TRAIN, Split.TEST]
     datapoint_attrs     = DatapointAttributes({
-        "image": ImageAnnotation,
-        "depth": DepthMapAnnotation,
+        "image"   : ImageAnnotation,
+        "depth"   : DepthMapAnnotation,
+        "infrared": InfraredAnnotation,
     })
-    has_test_annotations: bool = False
+    has_test_annotations: bool = True
 
     def __init__(self, root: core.Path = DATA_DIR / "enhance", *args, **kwargs):
         """Initializes dataset with ``root`` path and parent args."""
         root = core.Path(root)
-        root = root / "mef" if root.name != "mef" else root
+        root = root / "llvip" if root.name != "llvip" else root
         if not root.is_dir():
             raise FileNotFoundError(f"[root] directory not found: [{root}].")
         super().__init__(root=root, *args, **kwargs)
@@ -70,16 +76,16 @@ class MEF(VisionDataset):
 
 
 # ----- DataModule -----
-@DATAMODULES.register(name="mef")
-class MEFDataModule(core.DataModule):
-    """Configures MEF datasets for training/testing."""
+@DATAMODULES.register(name="llvip")
+class LLVIPDataModule(core.DataModule):
+    """Configures LLVIP datasets for training/testing."""
     
     tasks: list[Task] = [Task.LLE]
-
+    
     def prepare_data(self, *args, **kwargs):
         """Prepares data (placeholder, no action taken)."""
         pass
-
+    
     def setup(self, stage: Literal["train", "test", "predict", None] = None):
         """Sets up datasets for specified ``stage``.
 
@@ -89,13 +95,13 @@ class MEFDataModule(core.DataModule):
         """
         if self.can_log:
             core.console.log(f"Setup [red]{self.__class__.__name__}[/red].")
-
+        
         if stage in [None, "train"]:
-            self.train = MEF(split=Split.TEST, **self.dataset_kwargs)
-            self.val   = MEF(split=Split.TEST, **self.dataset_kwargs)
+            self.train = LLVIP(split=Split.TRAIN, **self.dataset_kwargs)
+            self.val   = LLVIP(split=Split.TEST,  **self.dataset_kwargs)
         if stage in [None, "test"]:
-            self.test  = MEF(split=Split.TEST, **self.dataset_kwargs)
-
+            self.test  = LLVIP(split=Split.TEST,  **self.dataset_kwargs)
+        
         self.get_classlabels()
         if self.can_log:
             self.summarize()

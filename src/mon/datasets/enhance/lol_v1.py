@@ -18,6 +18,7 @@ ClassLabels                    = core.ClassLabels
 DatapointAttributes            = core.DatapointAttributes
 DepthMapAnnotation             = vision.DepthMapAnnotation
 ImageAnnotation                = vision.ImageAnnotation
+InfraredAnnotation             = vision.InfraredAnnotation
 SemanticSegmentationAnnotation = vision.SemanticSegmentationAnnotation
 VisionDataset                  = vision.VisionDataset
 
@@ -73,7 +74,7 @@ class LOLv1(VisionDataset):
 # ----- DataModule -----
 @DATAMODULES.register(name="lol_v1")
 class LOLv1DataModule(core.DataModule):
-    """Configures LOLv1 datasets for training/testing."""
+    """Configures LOL-v1 datasets for training/testing."""
     
     tasks: list[Task] = [Task.LLE]
     

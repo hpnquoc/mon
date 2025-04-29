@@ -10,6 +10,7 @@ __all__ = [
     "DepthDataSource",
     "Enum",
     "ImageExtension",
+    "InfraredDataSource",
     "MLType",
     "MemoryUnit",
     "RunMode",
@@ -422,7 +423,14 @@ class DepthDataSource(Enum):
     
     DAv2_ViTB = "dav2_vitb"
     DAv2_ViTL = "dav2_vitl"
+    DEPTH     = "depth"
 
+
+class InfraredDataSource(Enum):
+    """Infrared data source types."""
+    
+    INFRARED = "infrared"
+    
 
 class ShapeCode(Enum):
     """Shape conversion code."""

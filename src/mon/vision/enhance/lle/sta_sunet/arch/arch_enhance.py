@@ -34,19 +34,20 @@ class SwinTransformerBlock(nn.Module):
         norm_layer (nn.Module, optional): Normalization layer.  Default: None (or nn.LayerNorm)
     """
 
-    def __init__(self, dim, input_resolution, num_heads, window_size=7, shift_size=0,
-                 mlp_ratio=4., qkv_bias=True, qk_scale=None, drop=0., attn_drop=0., drop_path=0.,
-                 act_layer=nn.GELU, norm_layer=None):
+    def __init__(
+        self, dim, input_resolution, num_heads, window_size=7, shift_size=0, mlp_ratio=4.0,
+        qkv_bias=True, qk_scale=None, drop=0.0, attn_drop=0.0, drop_path=0.0, act_layer=nn.GELU, norm_layer=None
+    ):
         super().__init__()
-        self.dim = dim
+        self.dim              = dim
         self.input_resolution = input_resolution
-        self.num_heads = num_heads
-        self.window_size = window_size
-        self.shift_size = shift_size
-        self.mlp_ratio = mlp_ratio
+        self.num_heads        = num_heads
+        self.window_size      = window_size
+        self.shift_size       = shift_size
+        self.mlp_ratio        = mlp_ratio
         if min(self.input_resolution) <= self.window_size:
             # if window size is larger than input resolution, we don't partition windows
-            self.shift_size = 0
+            self.shift_size  = 0
             self.window_size = min(self.input_resolution)
         assert 0 <= self.shift_size < self.window_size, "shift_size must in 0-window_size"
 
@@ -55,10 +56,16 @@ class SwinTransformerBlock(nn.Module):
         else:
             self.norm1 = None 
         self.attn = WindowAttention(
-            dim, window_size=to_2tuple(self.window_size), num_heads=num_heads,
-            qkv_bias=qkv_bias, qk_scale=qk_scale, attn_drop=attn_drop, proj_drop=drop)
+            dim,
+            window_size = to_2tuple(self.window_size),
+            num_heads   = num_heads,
+            qkv_bias    = qkv_bias,
+            qk_scale    = qk_scale,
+            attn_drop   = attn_drop,
+            proj_drop   = drop
+        )
 
-        self.drop_path = DropPath(drop_path) if drop_path > 0. else nn.Identity()
+        self.drop_path = DropPath(drop_path) if drop_path > 0.0 else nn.Identity()
         if norm_layer is not None:
             self.norm2 = norm_layer(dim)
         else: 
@@ -68,7 +75,7 @@ class SwinTransformerBlock(nn.Module):
 
         if self.shift_size > 0:
             # calculate attention mask for SW-MSA
-            H, W = self.input_resolution
+            H, W     = self.input_resolution
             img_mask = torch.zeros((1, H, W, 1))  # 1 H W 1
 
             h_slices = (slice(0, -self.window_size),
@@ -85,8 +92,8 @@ class SwinTransformerBlock(nn.Module):
 
             mask_windows = window_partition(img_mask, self.window_size)  # nW, window_size, window_size, 1
             mask_windows = mask_windows.view(-1, self.window_size * self.window_size)
-            attn_mask = mask_windows.unsqueeze(1) - mask_windows.unsqueeze(2)
-            attn_mask = attn_mask.masked_fill(attn_mask != 0, float(-100.0)).masked_fill(attn_mask == 0, float(0.0))
+            attn_mask    = mask_windows.unsqueeze(1) - mask_windows.unsqueeze(2)
+            attn_mask    = attn_mask.masked_fill(attn_mask != 0, float(-100.0)).masked_fill(attn_mask == 0, float(0.0))
         else:
             attn_mask = None
 
@@ -117,7 +124,7 @@ class SwinTransformerBlock(nn.Module):
 
         # merge windows
         attn_windows = attn_windows.view(-1, self.window_size, self.window_size, C)
-        shifted_x = window_reverse(attn_windows, self.window_size, H, W)  # B H' W' C
+        shifted_x    = window_reverse(attn_windows, self.window_size, H, W)  # B H' W' C
 
         # reverse cyclic shift
         if self.shift_size > 0:
@@ -135,14 +142,15 @@ class SwinTransformerBlock(nn.Module):
 
 
 class Mlp(nn.Module):
-    def __init__(self, in_features, hidden_features=None, out_features=None, act_layer=nn.GELU, drop=0.):
+
+    def __init__(self, in_features, hidden_features=None, out_features=None, act_layer=nn.GELU, drop=0.0):
         super().__init__()
-        out_features = out_features or in_features
+        out_features    = out_features or in_features
         hidden_features = hidden_features or in_features
-        self.fc1 = nn.Linear(in_features, hidden_features)
-        self.act = act_layer()
-        self.fc2 = nn.Linear(hidden_features, out_features)
-        self.drop = nn.Dropout(drop)
+        self.fc1        = nn.Linear(in_features, hidden_features)
+        self.act        = act_layer()
+        self.fc2        = nn.Linear(hidden_features, out_features)
+        self.drop       = nn.Dropout(drop)
 
     def forward(self, x):
         x = self.fc1(x)
@@ -163,8 +171,8 @@ def window_partition(x, window_size):
         windows: (num_windows*B, window_size, window_size, C)
     """
     B, H, W, C = x.shape
-    x = x.view(B, H // window_size, window_size, W // window_size, window_size, C)
-    windows = x.permute(0, 1, 3, 2, 4, 5).contiguous().view(-1, window_size, window_size, C)
+    x          = x.view(B, H // window_size, window_size, W // window_size, window_size, C)
+    windows    = x.permute(0, 1, 3, 2, 4, 5).contiguous().view(-1, window_size, window_size, C)
     return windows
 
 
@@ -199,14 +207,14 @@ class WindowAttention(nn.Module):
         proj_drop (float, optional): Dropout ratio of output. Default: 0.0
     """
 
-    def __init__(self, dim, window_size, num_heads, qkv_bias=True, qk_scale=None, attn_drop=0., proj_drop=0.):
+    def __init__(self, dim, window_size, num_heads, qkv_bias=True, qk_scale=None, attn_drop=0.0, proj_drop=0.0):
 
         super().__init__()
-        self.dim = dim
+        self.dim         = dim
         self.window_size = window_size  # Wh, Ww
-        self.num_heads = num_heads
-        head_dim = dim // num_heads
-        self.scale = qk_scale or head_dim ** -0.5
+        self.num_heads   = num_heads
+        head_dim         = dim // num_heads
+        self.scale       = qk_scale or head_dim ** -0.5
 
         # define a parameter table of relative position bias
         self.relative_position_bias_table = nn.Parameter(
@@ -308,8 +316,6 @@ class PatchMerging(nn.Module):
 
         return x
 
-
-
     def forward(self, x):
         """
         x: B, H*W, C
@@ -332,6 +338,7 @@ class PatchMerging(nn.Module):
         x = self.reduction(x)
 
         return x
+
 
 class PatchEmbedding(nn.Module):
     """Image to Patch Embedding
@@ -365,6 +372,7 @@ class UpSample(nn.Module):
     '''Using both pixel shuffle and bilinear interpolation 
        to increase the spatial resolution of an input feature map
     '''
+    
     def __init__(self, input_resolution, in_channels, scale_factor):
         super(UpSample, self).__init__()
         self.input_resolution = input_resolution
@@ -520,6 +528,3 @@ class BasicLayerUp(nn.Module):
             x = checkpoint(blk, x) if self.use_checkpoint else blk(x)
         x = self.upsample(x) if self.upsample else x
         return x
-
-
-
