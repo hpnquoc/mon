@@ -48,7 +48,7 @@ data_dir="${mon_dir}/data"              # mon/data/
 
 # Define the directory where you want to perform the recursive video conversion
 # directory="${data_dir}/"
-directory="/home/longpham/Downloads/flow"
+directory="/home/longpham/Downloads/weather"
 
 case "$OSTYPE" in
     linux*)

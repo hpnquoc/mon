@@ -30,7 +30,7 @@ data_dir="${mon_dir}/data"              # mon/data/
 
 # Define the directory where you want to perform the recursive image conversion
 # directory="${data_dir}/"
-directory="/home/longpham/Downloads/flow"
+directory="/home/longpham/10_workspace/11_code/mon/data/enhance/bvi_rlv"
 
 case "$OSTYPE" in
     linux*)
