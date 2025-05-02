@@ -30,7 +30,7 @@ MODELS = [
 
 # List all datasets that are used in this project.
 DATASETS = [
-    "aicity_2024_fisheye8k",
+    "aicity_2025_fisheye8k",
 ]
 # If unsure, run the following script:
 # mon.print_table(mon.DATASETS | mon.DATASETS_EXTRA)

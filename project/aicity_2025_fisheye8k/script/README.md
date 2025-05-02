@@ -25,12 +25,15 @@ https://github.com/MoyoG/FishEye8K/assets/73123564/f7dd27db-7613-4e2c-b5f0-ec33c
 
 # Dataset
 - [Click to download the Fisheye8K dataset](https://scidm.nchc.org.tw/en/dataset/fisheye8k)
-- To download the whole dataset, choose **Fisheye8K_all_including_train&test_update_2024Jan Update.zip**
+- If you want to download whole dataset at once, choose **Fisheye8K_all_including_train_test.zip**
 - Click on "**Explore**" and "**Go to resource**"
 
-![FishEye8K download](https://github.com/MoyoG/FishEye8K/assets/10125947/a647e24c-e716-4317-8dc5-0dc31f369ee2)
+<p align="center" width="100%">
+    <img src="https://github.com/MoyoG/FishEye8K/assets/73123564/847fca10-d970-4ccc-96cf-dd1de68df624">
+</p>
 
-- Note: If you downloaded the older version **Fisheye8K_all_including_train&test_1.zip** before Jan 28, **MS COCO (train.json and test.json) labels should be replaced** with these updated versions [Click here to download correct MS COCO labels](https://drive.google.com/drive/folders/1J4nYmTwXoDc47_2tq4aSCXBkkrCxTCP3?usp=sharing)
+- Note: **MS COCO (train.json and test.json) labels should be replaced** with these updated versions [Click here to download correct MS COCO labels](https://alumniuaeuac-my.sharepoint.com/personal/omunkuush_uaeu_ac_ae/_layouts/15/onedrive.aspx?id=%2Fpersonal%2Fomunkuush%5Fuaeu%5Fac%5Fae%2FDocuments%2Freplace&ga=1&CT=1706349075947&OR=OWA%2DNT&CID=7d1da4c9%2Da35d%2Daa48%2D186d%2D9eea13f5dac2)
+
 
 # Paper
 - [Click to download the paper](https://openaccess.thecvf.com/content/CVPR2023W/AICity/html/Gochoo_FishEye8K_A_Benchmark_and_Dataset_for_Fisheye_Camera_Object_Detection_CVPRW_2023_paper.html?fbclid=IwAR2UCUtrPydcCFxRjN67d7RyAyX-dNJAEi7mWPJjWhX3kTUA_SQ4AJyaFWc)

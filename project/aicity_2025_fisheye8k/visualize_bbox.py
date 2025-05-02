@@ -5,53 +5,23 @@
 
 from __future__ import annotations
 
-import click
 import cv2
 import numpy as np
 
 import mon
 
-_bbox_formats = ["voc", "coco", "yolo"]
-_extensions   = ["jpg", "png"]
+current_file = mon.Path(__file__).absolute()
+current_dir  = current_file.parents[0]
 
 
-# region Function
-
-@click.command(name="main", context_settings=dict(ignore_unknown_options=True, allow_extra_args=True))
-@click.option("--image-dir",  type=click.Path(exists=True),  default=mon.DATA_DIR/"aicity/aicity_2024_fisheye8k/val", help="Image directory.")
-@click.option("--label-dir",  type=click.Path(exists=True),  default=mon.DATA_DIR/"aicity/aicity_2024_fisheye8k/val", help="Bounding bbox directory.")
-@click.option("--output-dir", type=click.Path(exists=False), default=None,                                            help="Output directory.")
-@click.option("--format",     type=click.Choice(_bbox_formats, case_sensitive=False), default="voc",                  help="Bounding bbox format.")
-@click.option("--ext",        type=click.Choice(_extensions,   case_sensitive=False), default="jpg",                  help="Image extension.")
-@click.option("--thickness",  type=int,                      default=1,                                               help="The thickness of the bounding box border line in px.")
-@click.option("--fill",       is_flag=True,                                                                           help="Fill the region inside the bounding box with transparent color.")
-@click.option("--show-label", is_flag=True)
-@click.option("--save",       is_flag=True)
-@click.option("--verbose",    is_flag=True)
-def visualize_bbox(
-	image_dir : mon.Path,
-	label_dir : mon.Path,
-	output_dir: mon.Path,
-	format    : str,
-	ext       : str,
-	thickness : int,
-	fill      : bool,
-	show_label: bool,
-	save      : bool,
-	verbose   : bool,
-):
-	assert image_dir is not None and mon.Path(image_dir).is_dir()
-	assert label_dir is not None and mon.Path(label_dir).is_dir()
+def visualize_bbox(data: str, fill: bool = False):
+	image_dir = current_dir / "data" / data / "images"
+	label_dir = current_dir / "data" / data / "labels"
 	
-	image_dir  = mon.Path(image_dir)
-	label_dir  = mon.Path(label_dir)
-	data_name  = image_dir.name
-	output_dir = output_dir or label_dir.parent / "visualize"
-	output_dir = mon.Path(output_dir)
-	# if save:
-		# output_dir.mkdir(parents=True, exist_ok=True)
+	assert mon.Path(image_dir).is_dir()
+	assert mon.Path(label_dir).is_dir()
 	
-	code   = mon.ShapeCode.from_value(value=f"{format}_to_voc")
+	code   = mon.ShapeCode.from_value(value=f"yolo_to_voc")
 	colors = [
 		[  0,   0, 255],
 		[255,   0,   0],
@@ -61,39 +31,43 @@ def visualize_bbox(
 	]
 	
 	image_files = list(image_dir.rglob("*"))
-	image_files = [f for f in image_files if f.is_image_file()]
-	image_files = sorted(image_files)
+	image_files = sorted([f for f in image_files if f.is_image_file()])
 	with mon.create_progress_bar() as pbar:
-		for i in pbar.track(
-			sequence    = range(len(image_files)),
+		for image_file in pbar.track(
+			sequence    = image_files,
 			total       = len(image_files),
-			description = f"[bright_yellow] Processing {data_name}"
+			description = f"[bright_yellow] Processing"
 		):
-			image   = cv2.imread(str(image_files[i]))
-			h, w, c = image.shape
+			image      = cv2.imread(str(image_file))
+			h, w, c    = image.shape
 			
-			label_file = label_dir / f"{image_files[i].stem}.txt"
-			if label_file.is_txt_file():
-				with open(label_file, "r") as in_file:
-					l = in_file.read().splitlines()
-				l = [x.strip().split(" ") for x in l]
-				l = [x for x in l if len(x) >= 5]
-				b = np.array([list(map(float, x[1:])) for x in l])
-				b = mon.convert_bbox(bbox=b, code=code, height=h, width=w)
+			label_file = label_dir / f"{image_file.stem}.txt"
+			if not label_file.is_txt_file(exist=True):
+				continue
+			
+			with open(label_file, "r") as f:
+				bboxes = f.readlines()
+			
+			bboxes = [b.strip().split(" ") for b in bboxes]
+			b = np.array([list(map(float, b[1:])) for b in bboxes])
+			if len(b) == 0:
+				continue
+			b = mon.convert_bbox(bbox=b, code=code, height=h, width=w)
+			
+			for j, x in enumerate(b):
+				image = mon.draw_bbox(
+					image     = image,
+					bbox      = x,
+					label     = None,  # l[j] if show_label else None,
+					color     = colors[int(bboxes[j][0])],
+					thickness = 1,
+					fill      = fill,
+				)
 				
-				for j, x in enumerate(b):
-					image = mon.draw_bbox(
-						image     = image,
-						bbox      = x,
-						label     = l[j] if show_label else None,
-						color     = colors[int(l[j][0])],
-						thickness = thickness,
-						fill      = fill,
-					)
-			
+			'''
 			image = cv2.putText(
 				img       = image,
-				text      = f"{image_files[i].stem}",
+				text      = f"{image_file.stem}",
 				org       = [50, 50],
 				fontFace  = cv2.FONT_HERSHEY_SIMPLEX,
 				fontScale = 1,
@@ -101,22 +75,14 @@ def visualize_bbox(
 				thickness = 3,
 				lineType  = cv2.LINE_AA,
 			)
-			if save:
-				output_file = image_files[i].replace("images", "visualize")
-				output_file = output_file.parent / f"{image_files[i].stem}.jpg"
-				output_file.parent.mkdir(parents=True, exist_ok=True)
-				# output_file = output_dir / f"{image_files[i].stem}.{ext}"
-				cv2.imwrite(str(output_file), image)
-			if verbose:
-				cv2.imshow("Image", image)
-				cv2.waitKey(0)
+			'''
+			output_file = image_file.replace("images", "visualize")
+			output_file = output_file.parent / f"{image_file.stem}.jpg"
+			output_file.parent.mkdir(parents=True, exist_ok=True)
+			cv2.imwrite(str(output_file), image)
 
-# endregion
-
-
-# region Main
 
 if __name__ == "__main__":
-	visualize_bbox()
-
-# endregion
+	visualize_bbox(data="visdrone/train")
+	visualize_bbox(data="visdrone/val")
+	visualize_bbox(data="visdrone/test_dev")
