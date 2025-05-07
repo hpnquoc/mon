@@ -78,7 +78,7 @@ class LoLIStreet(VisionDataset):
 
 @DATASETS.register(name="loli_street_val")
 class LoLIStreetVal(VisionDataset):
-    """Loads LoLIStreetVal dataset from ``root`` dir.
+    """Loads LoLIStreet-Val dataset from ``root`` dir.
 
     Args:
         root: Directory path to dataset. Default is ``DATA_DIR / "enhance"``.
@@ -125,7 +125,7 @@ class LoLIStreetVal(VisionDataset):
 
 @DATASETS.register(name="loli_street_test")
 class LoLIStreetTest(VisionDataset):
-    """Loads LoLIStreetTest dataset from ``root`` dir.
+    """Loads LoLIStreet-Test dataset from ``root`` dir.
 
     Args:
         root: Directory path to dataset. Default is ``DATA_DIR / "enhance"``.
@@ -194,6 +194,68 @@ class LoLIStreetDataModule(core.DataModule):
             self.val   = LoLIStreet(split=Split.VAL,   **self.dataset_kwargs)
         if stage in [None, "test"]:
             self.test  = LoLIStreet(split=Split.TEST,  **self.dataset_kwargs)
+
+        self.get_classlabels()
+        if self.can_log:
+            self.summarize()
+
+
+@DATAMODULES.register(name="loli_street_val")
+class LoLIStreetValDataModule(core.DataModule):
+    """Configures LoLIStreet-Val datasets for training/testing."""
+    
+    tasks: list[Task] = [Task.LLE]
+
+    def prepare_data(self, *args, **kwargs):
+        """Prepares data (placeholder, no action taken)."""
+        pass
+
+    def setup(self, stage: Literal["train", "test", "predict", None] = None):
+        """Sets up datasets for specified ``stage``.
+
+        Args:
+            stage: Stage to setup, one of ``"train"``, ``"test"``, ``"predict"``,
+                or ``None``. Default is ``None``.
+        """
+        if self.can_log:
+            core.console.log(f"Setup [red]{self.__class__.__name__}[/red].")
+
+        if stage in [None, "train"]:
+            self.train = LoLIStreet(split=Split.VAL, **self.dataset_kwargs)
+            self.val   = LoLIStreet(split=Split.VAL, **self.dataset_kwargs)
+        if stage in [None, "test"]:
+            self.test  = LoLIStreet(split=Split.VAL, **self.dataset_kwargs)
+
+        self.get_classlabels()
+        if self.can_log:
+            self.summarize()
+
+
+@DATAMODULES.register(name="loli_street_test")
+class LoLIStreetTestDataModule(core.DataModule):
+    """Configures LoLIStreet-Test datasets for training/testing."""
+    
+    tasks: list[Task] = [Task.LLE]
+
+    def prepare_data(self, *args, **kwargs):
+        """Prepares data (placeholder, no action taken)."""
+        pass
+
+    def setup(self, stage: Literal["train", "test", "predict", None] = None):
+        """Sets up datasets for specified ``stage``.
+
+        Args:
+            stage: Stage to setup, one of ``"train"``, ``"test"``, ``"predict"``,
+                or ``None``. Default is ``None``.
+        """
+        if self.can_log:
+            core.console.log(f"Setup [red]{self.__class__.__name__}[/red].")
+
+        if stage in [None, "train"]:
+            self.train = LoLIStreet(split=Split.TEST, **self.dataset_kwargs)
+            self.val   = LoLIStreet(split=Split.TEST, **self.dataset_kwargs)
+        if stage in [None, "test"]:
+            self.test  = LoLIStreet(split=Split.TEST, **self.dataset_kwargs)
 
         self.get_classlabels()
         if self.can_log:

@@ -35,12 +35,7 @@ def create_coords(down_size: int) -> torch.Tensor:
         down_size: The size of the coordinates grid.
     """
     h, w   = down_size, down_size
-    coords = np.dstack(
-	    np.meshgrid(
-		    np.linspace(0, 1, h),
-		    np.linspace(0, 1, w)
-	    )
-    )
+    coords = np.dstack(np.meshgrid(np.linspace(0, 1, h), np.linspace(0, 1, w)))
     coords = torch.from_numpy(coords).float()
     return coords
 
@@ -163,12 +158,12 @@ class Loss(nn.Loss):
         loss_tv = self.loss_w_tv * self.loss_tv(x_lr)
         loss_c  = self.loss_w_c  * self.loss_c(enhanced)
         loss_de = 0.0
-        if d_lr:
+        if d_lr is not None:
             loss_de += self.loss_depth(x_lr, d_lr)
-        if e_lr:
+        if e_lr is not None:
             loss_de += self.loss_edge(x_lr, e_lr)
         loss_de = self.loss_w_de * loss_de
-        loss = loss_f + loss_s + loss_e + loss_tv + loss_de + loss_c
+        loss    = loss_f + loss_s + loss_e + loss_tv + loss_de + loss_c
         
         if self.verbose:
             core.console.log(
@@ -505,9 +500,9 @@ class ZeroLINR(base.ImageEnhancementModel):
         # Post-process
         gf_radius        : int          = 7,
         use_denoise      : bool         = False,
-        denoise_ksize    : list[float]  = [3, 3],
+        denoise_ksize    : _size_2_t    = (3, 3),
         denoise_color    : float        = 0.5,
-        denoise_space    : list[float]  = [1.5, 1.5],
+        denoise_space    : _size_2_t    = (1.5, 1.5),
         iters            : int          = 100,
         *args, **kwargs
     ):
@@ -518,35 +513,35 @@ class ZeroLINR(base.ImageEnhancementModel):
         self.edge_threshold  = edge_threshold
         self.gf_radius       = gf_radius
         self.use_denoise     = use_denoise
-        self.denoise_ksize   = denoise_ksize
+        self.denoise_ksize   = tuple(denoise_ksize)
         self.denoise_color   = denoise_color
-        self.denoise_space   = denoise_space
+        self.denoise_space   = tuple(denoise_space)
         self.iters           = iters
         weight_decay         = [0.1, 0.0001, 0.001]
         
         # Model
         loss_w_de = self.loss["loss_w_de"]
         if mapping_func in ["p"]:
-            inf = INF1_P
+            inf       = INF1_P
             loss_w_de = 0.0
         elif mapping_func in ["v"]:
-            inf = INF1_V
+            inf       = INF1_V
             loss_w_de = 0.0
         elif mapping_func in ["d"]:
-            inf = INF1_V
+            inf       = INF1_V
         elif mapping_func in ["e"]:
-            inf = INF1_V
+            inf       = INF1_V
             loss_w_de = 0.0
         elif mapping_func in ["pv"]:
-            inf = INF2
+            inf       = INF2
             loss_w_de = 0.0
         elif mapping_func in ["pd"]:
-            inf = INF2
+            inf       = INF2
         elif mapping_func in ["pe"]:
-            inf = INF2
+            inf       = INF2
             loss_w_de = 0.0
         elif mapping_func in ["pvde"]:
-            inf = INF4
+            inf       = INF4
         else:
             raise ValueError(f"[mapping_func] must be one of {MAPPING_FUNC}, got {mapping_func}.")
         self.inf = inf(
@@ -632,7 +627,6 @@ class ZeroLINR(base.ImageEnhancementModel):
         outputs  = self.forward(datapoint=datapoint, *args, **kwargs)
         
         # Loss
-        image    = datapoint["image"]
         v_lr     = datapoint["v_lr"]
         d_lr     = datapoint["d_lr"]
         e_lr     = datapoint["e_lr"]
@@ -666,7 +660,7 @@ class ZeroLINR(base.ImageEnhancementModel):
         v_lr = datapoint["v_lr"]
         d_lr = datapoint["d_lr"]
         e_lr = datapoint["e_lr"]
-        
+
         # Mapping
         if self.mapping_func in ["p", "v", "pv"]:
             r = self.inf(p, v_lr)
@@ -692,7 +686,7 @@ class ZeroLINR(base.ImageEnhancementModel):
         z   = filter_up(v_lr, z_lr, v, self.gf_radius)
         hsv = replace_v_component(hsv, z)
         rgb = kornia.color.hsv_to_rgb(hsv)
-        
+
         return {
             "r_lr"    : r_lr,
             "x_lr"    : x_lr,
@@ -714,19 +708,19 @@ class ZeroLINR(base.ImageEnhancementModel):
         p     = create_coords(self.down_size).to(image.device)
         v     = kornia.color.rgb_to_hsv(image)[:, 2:3, :, :]
         d     = datapoint.get("depth", None)
-        e     = types.boundary_aware_prior(d, self.edge_threshold) if d else None
+        e     = types.boundary_aware_prior(d, self.edge_threshold) if d is not None else None
         v_lr  = interpolate_image(v, self.down_size)
-        d_lr  = interpolate_image(d, self.down_size) if d else None
-        e_lr  = interpolate_image(e, self.down_size) if e else None
+        d_lr  = interpolate_image(d, self.down_size) if d is not None else None
+        e_lr  = interpolate_image(e, self.down_size) if e is not None else None
         return datapoint | {
             "hsv" : hsv,
             "p"   : p,
-	        "v"   : v,
-	        "d"   : d,
-	        "e"   : e,
-	        "v_lr": v_lr,
-	        "d_lr": d_lr,
-	        "e_lr": e_lr,
+            "v"   : v,
+            "d"   : d,
+            "e"   : e,
+            "v_lr": v_lr,
+            "d_lr": d_lr,
+            "e_lr": e_lr,
         }
     
     # ----- Predict -----
@@ -748,7 +742,7 @@ class ZeroLINR(base.ImageEnhancementModel):
             self.load_state_dict(self.initial_state_dict, strict=False)
         optimizer = self.optimizer.get("optimizer", None)
         optimizer = optimizer or nn.Adam(self.parameters(), lr=0.00001, weight_decay=0.0003)
-        
+
         # Input
         for k, v in datapoint.items():
             if isinstance(v, torch.Tensor):
@@ -756,16 +750,17 @@ class ZeroLINR(base.ImageEnhancementModel):
         datapoint = self.prepare_input(datapoint)
         
         # Optimize
-        timer = core.Timer()
-        timer.tick()
         self.train()
         for _ in range(self.iters):
             outputs = self.forward_loss(datapoint=datapoint)
             optimizer.zero_grad()
             loss = outputs["loss"]
-            loss.backward(retain_graph=True)
-            optimizer.step()
+            if loss is not None:
+                loss.backward(retain_graph=True)
+                optimizer.step()
         self.eval()
+        timer = core.Timer()
+        timer.tick()
         outputs = self.forward(datapoint=datapoint)
         timer.tock()
         

@@ -176,6 +176,32 @@ install_mon_package() {
   conda clean  --a --y
 }
 
+install_xanylabeling() {
+  echo -e "\nInstall X-AnyLabeling"
+
+  tool_dir="${root_dir}/tool"
+  cd "${tool_dir}" || exit
+  xanylabeling_dir="${tool_dir}/X-AnyLabeling"
+  if [ ! -d "$xanylabeling_dir" ]; then
+    git clone https://github.com/CVHub520/X-AnyLabeling.git
+  fi
+  cd "${xanylabeling_dir}" || exit
+
+  conda create --name Xanylabeling python=3.9 --y
+  conda activate Xanylabeling
+  if check_cuda; then
+    pip install onnxruntime-gpu --extra-index-url https://aiinfra.pkgs.visualstudio.com/PublicPackages/_packaging/onnxruntime-cuda-12/pypi/simple/
+  fi
+
+  pip install -U pip
+  pip install -r requirements-dev.txt
+  if sudo -n true 2>/dev/null; then
+    sudo apt-get install libxcb-xinerama0
+  else
+    apt-get install libxcb-xinerama0
+  fi
+}
+
 setup_data_dir() {
   echo -e "\nSetting DATA_DIR"
   root_dir=$1
@@ -195,7 +221,7 @@ setup_data_dir() {
 setup_resilio_sync() {
   rsync_dir="${root_dir}/.sync"
   mkdir -p "${rsync_dir}"
-  cp "env/IgnoreList" "${rsync_dir}/IgnoreList"
+  cp "${root_dir}/env/IgnoreList" "${rsync_dir}/IgnoreList"
   echo -e "... Done"
 }
 
@@ -213,6 +239,7 @@ update_base_env
 create_mon_env
 install_ffmpeg
 install_mon_package
+install_xanylabeling
 
 # Setup environment variables
 # shellcheck disable=SC2162

@@ -1,11 +1,11 @@
 # Basic
 root        : ~                                                                 # Root directory of the current run.
 arch        : "zero_ig"                                                         # Model architecture or family (e.g., resnet).
-model       : &model "zero_ig_zsl"                                              # Model name (e.g., resnet50).
-data        : &data ~                                                           # Dataset name (e.g., cifar10) or directory (e.g., data/cifar10).
-fullname    : &fullname "zero_ig_zsl"                                           # Full name of the current run (e.g., resnet50_cifar10_01). If not set, it will be this file's name.
+model       : &model "zero_ig"                                                  # Model name (e.g., resnet50).
+data        : &data "dicm"                                                      # Dataset name (e.g., cifar10) or directory (e.g., data/cifar10).
+fullname    : &fullname "zero_ig_dicm"                                          # Full name of the current run (e.g., resnet50_cifar10_01). If not set, it will be this file's name.
 save_dir    : &save_dir ~                                                       # Saving directory. If not set, it will be `root/arch/model/data`.
-weights     : &weights "zoo/vision/enhance/lle/zero_ig/zero_ig/pretrained/zero_ig_lol.pt"  # Path to the pretrained weights.
+weights     : &weights "zoo/vision/enhance/lle/zero_ig/zero_ig/dicm/zero_ig_dicm.pt"  # Path to the pretrained weights.
 device      : 0                                                                 # Running device (i.e., cuda:0 | cuda:0,1,2,3 | cpu).
 seed        : 2                                                                 # Random seed.
 imgsz       : &imgsz 512                                                        # Image size for the model.
@@ -24,3 +24,14 @@ verbose     : &verbose True                                                     
 optimizer: &optimizer                                                           # Optimizer(s).
   lr          : 0.0003
   weight_decay: 0.0003
+
+# Datamodule
+datamodule:
+  name      : *data                                                             # Data module name (e.g., cifar10).
+  root      : "data/enhance/dicm"                                               # Root directory of the dataset.
+  transform : ~                                                                 # Data augmentation.
+  to_tensor : True                                                              # If ``True``, convert the data to tensor.
+  batch_size: 1                                                                 # Batch size.
+  cache_data: False                                                             # If ``True``, cache the data.
+  shuffle   : True                                                              # If ``True``, shuffle the data.
+  verbose   : *verbose                                                          # Verbosity.

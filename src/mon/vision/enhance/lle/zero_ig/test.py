@@ -76,12 +76,12 @@ def main():
         p.requires_grad = False
     with torch.no_grad():
         for _, (input,  img_name) in enumerate(test_queue):
-            input = Variable(input, volatile=True).cuda()
+            input      = Variable(input, volatile=True).cuda()
             input_name = img_name[0].split('/')[-1].split('.')[0]
-            enhance,output = model(input)
+            enhance, output = model(input)
             input_name = '%s' % (input_name)
-            enhance=save_images(enhance)
-            output = save_images(output)
+            enhance    = save_images(enhance)
+            output     = save_images(output)
             os.makedirs(args.save + '/result', exist_ok=True)
             Image.fromarray(output).save(args.save + '/result/' +input_name + '_denoise' + '.png', 'PNG')
             Image.fromarray(enhance).save(args.save + '/result/'+ input_name + '_enhance'  + '.png', 'PNG')

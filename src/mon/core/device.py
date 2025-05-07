@@ -122,14 +122,17 @@ def set_device(device: Any, use_single_device: bool = True) -> torch.device:
     Returns:
         Selected ``torch.device``, defaults to ``cpu`` if CUDA unavailable.
     """
+    if isinstance(device, torch.device):
+        return device
+
     device = parse_device(device)
-    if isinstance(device, list) and use_single_device:
+    if isinstance(device, (list, tuple)) and use_single_device:
         device = device[0]
     return torch.device(f"cuda:{device}" if torch.cuda.is_available() else "cpu")
 
 
 # ----- Convert -----
-def parse_device(device: Any) -> list[int] | int | str:
+def parse_device(device: Any) -> list[int] | int | str | torch.device:
     """Parses a device spec into a list, integer, or string.
 
     Args:
@@ -140,7 +143,6 @@ def parse_device(device: Any) -> list[int] | int | str:
     """
     if isinstance(device, torch.device):
         return device
-    
     if not device or device in ["", "cpu"]:
         return "cpu"
     if device in ["mps", "mps:0"]:

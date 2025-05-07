@@ -228,7 +228,7 @@ class SICEDataModule(core.DataModule):
         pass
     
     def setup(self, stage: Literal["train", "test", "predict", None] = None):
-        """Sets up datasets for specified ``stage``.
+        """Sets up datasets for a specified ``stage``.
 
         Args:
             stage: Stage to setup, one of ``"train"``, ``"test"``, ``"predict"``,
@@ -259,7 +259,7 @@ class SICEGradDataModule(core.DataModule):
         pass
     
     def setup(self, stage: Literal["train", "test", "predict", None] = None):
-        """Sets up datasets for specified ``stage``.
+        """Sets up datasets for a specified ``stage``.
 
         Args:
             stage: Stage to setup, one of ``"train"``, ``"test"``, ``"predict"``,
@@ -290,7 +290,7 @@ class SICEMEDataModule(core.DataModule):
         pass
     
     def setup(self, stage: Literal["train", "test", "predict", None] = None):
-        """Sets up datasets for specified ``stage``.
+        """Sets up datasets for a specified ``stage``.
 
         Args:
             stage: Stage to setup, one of ``"train"``, ``"test"``, ``"predict"``,
@@ -321,7 +321,7 @@ class SICEMixDataModule(core.DataModule):
         pass
     
     def setup(self, stage: Literal["train", "test", "predict", None] = None):
-        """Sets up datasets for specified ``stage``.
+        """Sets up datasets for a specified ``stage``.
 
         Args:
             stage: Stage to setup, one of ``"train"``, ``"test"``, ``"predict"``,

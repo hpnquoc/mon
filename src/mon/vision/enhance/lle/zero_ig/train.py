@@ -96,7 +96,7 @@ def main():
         pin_memory   = True,
         num_workers  = 0,
         shuffle      = False,
-        generator    = torch.Generator(device = 'cuda')
+        generator    = torch.Generator(device='cuda')
     )
     test_queue   = torch.utils.data.DataLoader(
         TestDataset,
@@ -104,7 +104,7 @@ def main():
         pin_memory  = True,
         num_workers = 0,
         shuffle     = False,
-        generator   = torch.Generator(device = 'cuda')
+        generator   = torch.Generator(device='cuda')
     )
 
     total_step = 0

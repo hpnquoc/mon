@@ -11,6 +11,7 @@ PI  = 22.0 / 7.0
 
 
 class LossFunction(nn.Module):
+    
     def __init__(self):
         super(LossFunction, self).__init__()
         self._l2_loss           = nn.MSELoss()
@@ -164,6 +165,8 @@ class Blur(nn.Module):
     def forward(self, x):
         if x.size(1) != self.nc:
             raise RuntimeError("The channel of input [%d] does not match the preset channel [%d]" % (x.size(1), self.nc))
+        if self.weight.device != x.device:
+            self.weight = self.weight.to(x.device)
         x = F.conv2d(x, self.weight, stride=1, padding=10, groups=self.nc)
         return x
 
@@ -177,19 +180,19 @@ class SmoothLoss(nn.Module):
     def rgb2yCbCr(self, input_im):
         im_flat = input_im.contiguous().view(-1, 3).float()
         # [w,h,3] => [w*h,3]
-        mat = torch.Tensor([[0.257, -0.148, 0.439], [0.564, -0.291, -0.368], [0.098, 0.439, -0.071]]).cuda()
+        mat  = torch.Tensor([[0.257, -0.148, 0.439], [0.564, -0.291, -0.368], [0.098, 0.439, -0.071]]).to(input_im.device)
         # [3,3]
-        bias = torch.Tensor([16.0 / 255.0, 128.0 / 255.0, 128.0 / 255.0]).cuda()
+        bias = torch.Tensor([16.0 / 255.0, 128.0 / 255.0, 128.0 / 255.0]).to(input_im.device)
         # [1,3]
         temp = im_flat.mm(mat) + bias
         # [w*h,3]*[3,3]+[1,3] => [w*h,3]
-        out = temp.view(input_im.shape[0], 3, input_im.shape[2], input_im.shape[3])
+        out  = temp.view(input_im.shape[0], 3, input_im.shape[2], input_im.shape[3])
         return out
 
     # output: output      input:input
     def forward(self, input, output):
         self.output = output
-        self.input = self.rgb2yCbCr(input)
+        self.input  = self.rgb2yCbCr(input)
         sigma_color = -1.0 / (2 * self.sigma * self.sigma)
         w1 = torch.exp(torch.sum(torch.pow(self.input[:, :, 1:, :] - self.input[:, :, :-1, :], 2), dim=1,
                                  keepdim=True) * sigma_color)

@@ -13,16 +13,14 @@ import sys
 
 import cv2
 import numpy as np
-import torch
 import torch.backends.cudnn as cudnn
 import torch.optim
-import torch.utils
 import torch.utils
 from thop import profile
 from torch.autograd import Variable
 
 import mon
-from model.model import Finetunemodel
+from model import *
 
 current_file = mon.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
@@ -46,7 +44,6 @@ def calculate_model_flops(model, input_tensor):
     return flops_in_gigaflops
 
 
-@torch.no_grad()
 def predict(args: dict) -> str:
     # Parse args
     hostname     = args["hostname"]
@@ -67,8 +64,8 @@ def predict(args: dict) -> str:
     keep_subdirs = args["keep_subdirs"]
     verbose      = args["verbose"]
     
-    raft_model = mon.ROOT_DIR / args["network"]["raft_model"]
-    of_scale   = args["network"]["raft_model"]
+    lr           = args["optimizer"]["lr"]
+    weight_decay = args["optimizer"]["weight_decay"]
     
     # Start
     mon.console.rule(f"[bold red] {fullname}")
@@ -91,20 +88,16 @@ def predict(args: dict) -> str:
     # Data I/O
     mon.console.log(f"[bold red]{data}")
     data_name, data_loader = mon.parse_data_loader(data, root, True, verbose=False)
-    is_video = mon.is_video_dataset(data_loader)
-
-    # Model
-    model = Finetunemodel(weights, raft_model, of_scale, device).to(device)
-    model.eval()
     
     # Benchmark
     if benchmark:
+        model = Network()
         # flops, params = mon.compute_efficiency_score(model=model)
+        total_params  = calculate_model_parameters(model)
         # mon.console.log(f"FLOPs : {flops:.4f}")
         # mon.console.log(f"Params: {params:.4f}")
-        total_params = calculate_model_parameters(model)
         mon.console.log(f"Total Params = {total_params:.4f}")
-
+        
     # Predicting
     timer = mon.Timer()
     with mon.create_progress_bar() as pbar:
@@ -118,26 +111,33 @@ def predict(args: dict) -> str:
             image_path = mon.Path(meta["path"])
             image      = datapoint["image"]
             
-            if resize:
-                h0, w0 = mon.image_size(image)
-                image  = mon.resize(image, (1080, 1920))
-            input = Variable(image).to(device)
-            
             # Optimize
             timer.tick()
-            enhance, denoise, illum = model(input)
-            if not is_video:
-                enhance, denoise, illum = model(input)
+            model = Network()
+            model.enhance.in_conv.apply(model.enhance_weights_init)
+            model.enhance.conv.apply(model.enhance_weights_init)
+            model.enhance.out_conv.apply(model.enhance_weights_init)
+            model = model.to(device)
+            model.train()
+            optimizer = torch.optim.Adam(model.parameters(), lr=lr, weight_decay=weight_decay)
+            input     = Variable(image, requires_grad=False).to(device)
+            for _ in range(epochs):
+                optimizer.zero_grad()
+                optimizer.param_groups[0]["capturable"] = True
+                loss = model._loss(input)
+                loss.backward()
+                nn.utils.clip_grad_norm_(model.parameters(), 5)
+                optimizer.step()
+            model = Finetunemodel(model.state_dict())
+            input = Variable(image).to(device)
+            enhance, output = model(input)
             timer.tock()
             
             # Post-processing
-            if resize:
-                enhance = mon.resize(enhance, (h0, w0))
-                denoise = mon.resize(denoise, (h0, w0))
             enhance = save_images(enhance)
-            denoise = save_images(denoise)
+            output  = save_images(output)
             enhance = cv2.cvtColor(enhance, cv2.COLOR_BGR2RGB)
-            denoise = cv2.cvtColor(denoise, cv2.COLOR_BGR2RGB)
+            output  = cv2.cvtColor(output,  cv2.COLOR_BGR2RGB)
             
             # Save
             if save_image:
@@ -153,7 +153,7 @@ def predict(args: dict) -> str:
                     debug_dir =  save_dir / f"{data_name}_denoise"
                 output_path   = debug_dir / f"{image_path.stem}{mon.SAVE_IMAGE_EXT}"
                 output_path.parent.mkdir(parents=True, exist_ok=True)
-                cv2.imwrite(str(output_path), denoise)
+                cv2.imwrite(str(output_path), output)
     
     # Finish
     mon.console.log(f"Average time: {timer.avg_time}")

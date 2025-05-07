@@ -24,10 +24,11 @@ except:
 
 class RAFT(nn.Module):
     
-    def __init__(self, args: dict):
+    def __init__(self, args: dict = None):
         super().__init__()
         self.hidden_dim  = hdim = 128
         self.context_dim = cdim = 128
+        args = args or {}
         args["corr_levels"] = 4
         args["corr_radius"] = 4
         self.args = args

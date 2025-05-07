@@ -214,7 +214,7 @@ EXTRA_MODELS   = {  # architecture/model (+ variant)
         },
     },
     # endregion
-    # region enhance/low_light
+    # region enhance/lle
     "colie"        : {
         "colie": {
             "tasks"    : [Task.LLE],
@@ -407,7 +407,7 @@ EXTRA_MODELS   = {  # architecture/model (+ variant)
     "zero_ig"      : {
         "zero_ig": {
             "tasks"    : [Task.LLE],
-            "mltypes"  : [MLType.ZERO_SHOT],
+            "mltypes"  : [MLType.ZERO_SHOT, MLType.ZERO_REFERENCE],
             "model_dir": MON_DIR / "vision" / "enhance" / "lle" / "zero_ig",
         },
     },
