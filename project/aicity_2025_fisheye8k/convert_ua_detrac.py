@@ -13,10 +13,10 @@ current_file = mon.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
 map_classes  = {
-    "0": 0,    # UA-DETRAC bus   -> Fisheye8K bus
+    "0": 4,    # UA-DETRAC truck -> Fisheye8K truck
     "1": 2,    # UA-DETRAC car   -> Fisheye8K car
-    "2": 4,    # UA-DETRAC truck -> Fisheye8K bus
-    "3": 2,    # UA-DETRAC van   -> Fisheye8K truck
+    "2": 2,    # UA-DETRAC van   -> Fisheye8K car
+    "3": 0,    # UA-DETRAC bus   -> Fisheye8K bus
 }
 
 
