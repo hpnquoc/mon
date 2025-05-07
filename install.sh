@@ -99,29 +99,29 @@ create_mon_env_darwin() {
 create_mon_env() {
   case "$OSTYPE" in
     linux*)
-        create_mon_env_linux
-        ;;
+      create_mon_env_linux
+      ;;
     darwin*)
-        create_mon_env_darwin
-        ;;
+      create_mon_env_darwin
+      ;;
     win*)
-        echo -e "\nWindows"
-        ;;
+      echo -e "\nWindows"
+      ;;
     msys*)
-        echo -e "\nMSYS / MinGW / Git Bash"
-        ;;
+      echo -e "\nMSYS / MinGW / Git Bash"
+      ;;
     cygwin*)
-        echo -e "\nCygwin"
-        ;;
+      echo -e "\nCygwin"
+      ;;
     bsd*)
-        echo -e "\nBSD"
-        ;;
+      echo -e "\nBSD"
+      ;;
     solaris*)
-        echo -e "\nSolaris"
-        ;;
+      echo -e "\nSolaris"
+      ;;
     *)
-        echo -e "\nunknown: $OSTYPE"
-        ;;
+      echo -e "\nunknown: $OSTYPE"
+      ;;
   esac
 }
 
@@ -194,12 +194,22 @@ install_xanylabeling() {
   fi
 
   pip install -U pip
-  pip install -r requirements-dev.txt
-  if sudo -n true 2>/dev/null; then
-    sudo apt-get install libxcb-xinerama0
-  else
-    apt-get install libxcb-xinerama0
-  fi
+  case "$OSTYPE" in
+    linux*)
+      pip install -r requirements-dev.txt
+      if sudo -n true 2>/dev/null; then
+        sudo apt-get install libxcb-xinerama0
+      else
+        apt-get install libxcb-xinerama0
+      fi
+      ;;
+    darwin*)
+      pip install -r requirements-macos-dev.txt
+      ;;
+    *)
+      echo -e "\nunknown: $OSTYPE"
+      ;;
+  esac
 }
 
 setup_data_dir() {
