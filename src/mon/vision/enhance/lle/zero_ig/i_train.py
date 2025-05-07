@@ -74,7 +74,7 @@ def train(args: dict) -> str:
     }
     datamodule: mon.DataModule = mon.DATAMODULES.build(config=args["datamodule"])
     datamodule.setup(stage="test")
-    train_dataloader = datamodule.test_dataloader
+    test_dataloader = datamodule.test_dataloader
     
     # Model
     model = Network()
@@ -94,7 +94,7 @@ def train(args: dict) -> str:
             total       = epochs,
             description = f"[bright_yellow] Training"
         ):
-            for i, datapoint in enumerate(train_dataloader):
+            for i, datapoint in enumerate(test_dataloader):
                 # Input
                 image = datapoint["image"]
                 input = Variable(image).to(device)

@@ -35,7 +35,7 @@ class ImageAnnotation(core.Annotation):
         self,
         path : core.Path | str,
         root : core.Path | str = None,
-        flags: int = cv2.IMREAD_COLOR,
+        flags: int = cv2.IMREAD_COLOR_BGR,
         *args, **kwargs
     ):
         super().__init__(*args, **kwargs)
@@ -104,7 +104,7 @@ class ImageAnnotation(core.Annotation):
         Returns:
             ``numpy.ndarray`` of image data or ``None`` if not loaded.
         """
-        return self.image if self.image is not None else self.load(cache=False)
+        return self.image if self.image is not None else self.load(flags=self.flags, cache=False)
     
     @property
     def meta(self) -> dict:
@@ -150,7 +150,7 @@ class ImageAnnotation(core.Annotation):
         # Cache the image if needed
         self.image = image if cache else None
         if path:
-            self.path = load_path
+            self.path  = load_path
         if flags:
             self.flags = load_flags
         return image

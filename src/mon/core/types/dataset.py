@@ -210,7 +210,7 @@ class Dataset(dataset.Dataset, ABC):
         Returns:
             Dict with attribute keys set to ``None``.
         """
-        return {k: None for k in self.datapoint_attrs.keys()}
+        return {k: None for k in self.datapoints.keys()}
     
     @property
     def split(self) -> Split:

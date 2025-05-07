@@ -59,11 +59,12 @@ class LoLIStreet(VisionDataset):
 
     def list_data(self):
         """Lists ``datapoints`` with image annotations for split."""
-        if self.split == Split.TEST:
-            patterns = [self.root / "val" / "image"]
-        else:
-            patterns = [self.root / self.split_str / "image"]
-
+        # if self.split == Split.TEST:
+        #     patterns = [self.root / "val" / "image"]
+        # else:
+        #     patterns = [self.root / self.split_str / "image"]
+        patterns = [self.root / self.split_str / "image"]
+        
         images: list[ImageAnnotation] = []
         with core.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
@@ -90,14 +91,14 @@ class LoLIStreetVal(VisionDataset):
     """
     
     tasks : list[Task]  = [Task.LLE]
-    splits: list[Split] = [Split.TEST]
+    splits: list[Split] = [Split.VAL, Split.TEST]
     datapoint_attrs     = DatapointAttributes({
         "image"    : ImageAnnotation,
         "depth"    : DepthMapAnnotation,
         "ref_image": ImageAnnotation,
         "ref_depth": DepthMapAnnotation,
     })
-    has_test_annotations: bool = False
+    has_test_annotations: bool = True
 
     def __init__(self, root: core.Path = DATA_DIR / "enhance", *args, **kwargs):
         """Initializes dataset with ``root`` path and parent args."""
@@ -110,7 +111,7 @@ class LoLIStreetVal(VisionDataset):
     def list_data(self):
         """Lists ``datapoints`` with image annotations for split."""
         patterns = [self.root / "val" / "image"]
-
+        
         images: list[ImageAnnotation] = []
         with core.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
@@ -221,10 +222,10 @@ class LoLIStreetValDataModule(core.DataModule):
             core.console.log(f"Setup [red]{self.__class__.__name__}[/red].")
 
         if stage in [None, "train"]:
-            self.train = LoLIStreet(split=Split.VAL, **self.dataset_kwargs)
-            self.val   = LoLIStreet(split=Split.VAL, **self.dataset_kwargs)
+            self.train = LoLIStreetVal(split=Split.VAL, **self.dataset_kwargs)
+            self.val   = LoLIStreetVal(split=Split.VAL, **self.dataset_kwargs)
         if stage in [None, "test"]:
-            self.test  = LoLIStreet(split=Split.VAL, **self.dataset_kwargs)
+            self.test  = LoLIStreetVal(split=Split.VAL, **self.dataset_kwargs)
 
         self.get_classlabels()
         if self.can_log:
@@ -252,10 +253,10 @@ class LoLIStreetTestDataModule(core.DataModule):
             core.console.log(f"Setup [red]{self.__class__.__name__}[/red].")
 
         if stage in [None, "train"]:
-            self.train = LoLIStreet(split=Split.TEST, **self.dataset_kwargs)
-            self.val   = LoLIStreet(split=Split.TEST, **self.dataset_kwargs)
+            self.train = LoLIStreetTest(split=Split.TEST, **self.dataset_kwargs)
+            self.val   = LoLIStreetTest(split=Split.TEST, **self.dataset_kwargs)
         if stage in [None, "test"]:
-            self.test  = LoLIStreet(split=Split.TEST, **self.dataset_kwargs)
+            self.test  = LoLIStreetTest(split=Split.TEST, **self.dataset_kwargs)
 
         self.get_classlabels()
         if self.can_log:

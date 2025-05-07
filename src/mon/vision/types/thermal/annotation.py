@@ -27,7 +27,7 @@ class InfraredAnnotation(I.ImageAnnotation):
         path: Path to infrared map file as ``core.Path`` or ``str``.
         root: Root dir as ``core.Path`` or ``str``. Default is ``'infrared'``.
         source: Source of depth data from ``InfraredDataSource``. Default is ``None``.
-        flags: Flag to read image (e.g., ``cv2.IMREAD_COLOR``).
+        flags: Flag to read image (e.g., ``cv2.IMREAD_GRAYSCALE``).
             Default is ``cv2.IMREAD_GRAYSCALE``.
     """
     

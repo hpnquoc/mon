@@ -51,7 +51,7 @@ class SICE(VisionDataset):
         "ref_image": ImageAnnotation,
         "ref_depth": DepthMapAnnotation,
     })
-    has_test_annotations: bool = False
+    has_test_annotations: bool = True
     
     def __init__(self, root: core.Path = DATA_DIR / "enhance", *args, **kwargs):
         """Initializes dataset with ``root`` path and parent args."""
@@ -98,7 +98,7 @@ class SICEGrad(VisionDataset):
         "ref_image": ImageAnnotation,
         "ref_depth": DepthMapAnnotation,
     })
-    has_test_annotations: bool = False
+    has_test_annotations: bool = True
     
     def __init__(self, root: core.Path = DATA_DIR / "enhance", *args, **kwargs):
         """Initializes dataset with ``root`` path and parent args."""
@@ -190,7 +190,7 @@ class SICEMix(VisionDataset):
         "ref_image": ImageAnnotation,
         "ref_depth": DepthMapAnnotation,
     })
-    has_test_annotations: bool = False
+    has_test_annotations: bool = True
     
     def __init__(self, root: core.Path = DATA_DIR / "enhance", *args, **kwargs):
         """Initializes dataset with ``root`` path and parent args."""

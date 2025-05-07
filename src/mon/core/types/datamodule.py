@@ -93,14 +93,14 @@ class DataModule(lightning.LightningDataModule, ABC):
         
         self.classlabels = getattr(self.train, "classlabels", self.classlabels)
         return data.DataLoader(
-            dataset     = self.train,
-            batch_size  = self.batch_size,
-            shuffle     = self.shuffle,
-            num_workers = self.num_workers,
-            pin_memory  = True,
-            drop_last   = False,
-            collate_fn  = getattr(self.train, "collate_fn", self.collate_fn),
-            generator   = torch.Generator(device=self.devices),
+            dataset            = self.train,
+            batch_size         = self.batch_size,
+            shuffle            = self.shuffle,
+            num_workers        = self.num_workers,
+            pin_memory         = True,
+            drop_last          = False,
+            collate_fn         = getattr(self.train, "collate_fn", self.collate_fn),
+            generator          = torch.Generator(device=self.devices),
             persistent_workers = True
         )
     
@@ -115,14 +115,14 @@ class DataModule(lightning.LightningDataModule, ABC):
             return None
         
         return data.DataLoader(
-            dataset     = self.val,
-            batch_size  = self.batch_size,
-            shuffle     = False,
-            num_workers = self.num_workers,
-            pin_memory  = True,
-            drop_last   = False,
-            collate_fn  = getattr(self.val, "collate_fn", self.collate_fn),
-            generator   = torch.Generator(device=self.devices),
+            dataset            = self.val,
+            batch_size         = self.batch_size,
+            shuffle            = False,
+            num_workers        = self.num_workers,
+            pin_memory         = True,
+            drop_last          = False,
+            collate_fn         = getattr(self.val, "collate_fn", self.collate_fn),
+            generator          = torch.Generator(device=self.devices),
             persistent_workers = True
         )
     
@@ -137,14 +137,14 @@ class DataModule(lightning.LightningDataModule, ABC):
             return None
         
         return data.DataLoader(
-            dataset     = self.test,
-            batch_size  = 1,
-            shuffle     = False,
-            num_workers = self.num_workers,
-            pin_memory  = True,
-            drop_last   = False,
-            collate_fn  = getattr(self.test, "collate_fn", self.collate_fn),
-            generator   = torch.Generator(device=self.devices),
+            dataset            = self.test,
+            batch_size         = 1,
+            shuffle            = False,
+            num_workers        = self.num_workers,
+            pin_memory         = True,
+            drop_last          = False,
+            collate_fn         = getattr(self.test, "collate_fn", self.collate_fn),
+            generator          = torch.Generator(device=self.devices),
             persistent_workers = True
         )
     
@@ -159,14 +159,14 @@ class DataModule(lightning.LightningDataModule, ABC):
             return None
         
         return data.DataLoader(
-            dataset     = self.predict,
-            batch_size  = self.batch_size,
-            shuffle     = False,
-            num_workers = self.num_workers,
-            pin_memory  = True,
-            drop_last   = True,
-            collate_fn  = self.collate_fn,
-            generator   = torch.Generator(device=self.devices),
+            dataset            = self.predict,
+            batch_size         = self.batch_size,
+            shuffle            = False,
+            num_workers        = self.num_workers,
+            pin_memory         = True,
+            drop_last          = True,
+            collate_fn         = self.collate_fn,
+            generator          = torch.Generator(device=self.devices),
             persistent_workers = True
         )
     
@@ -197,6 +197,7 @@ class DataModule(lightning.LightningDataModule, ABC):
         Args:
             stage: Running stage (``train``, ``test``, ``predict``, or ``None``).
         """
+        pass
     
     def get_classlabels(self):
         """Loads class labels from datasets."""
