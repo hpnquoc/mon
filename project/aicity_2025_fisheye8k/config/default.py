@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""This module defines all common configuration settings used in this project."""
+"""Project-level configurations."""
 
 from __future__ import annotations
 
@@ -20,10 +20,7 @@ TASKS = [
 
 # List all models that are used in this project.
 MODELS = [
-    "yolor_d6",
-    "yolov7_e6e",
-    "yolov8x",
-    "yolov9_e",
+
 ]
 # If unsure, run the following script:
 # mon.print_table(mon.MODELS | mon.EXTRA_MODELS)

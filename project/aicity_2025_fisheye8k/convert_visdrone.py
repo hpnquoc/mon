@@ -62,10 +62,10 @@ map_classes  = {
 }
 
 
-def visdrone_to_fisheye8k(split: str):
-    images_dir     = current_dir / "data" / "visdrone" / split / "images"
-    labels_old_dir = current_dir / "data" / "visdrone" / split / "labels_old_dir"
-    label_dir      = current_dir / "data" / "visdrone" / split / "labels"
+def convert_visdrone_to_fisheye8k(split: str):
+    images_dir     = current_dir / "data" / "visdrone" / "images"
+    labels_old_dir = current_dir / "data" / "visdrone" / "labels_old_dir"
+    label_dir      = current_dir / "data" / "visdrone" / "labels"
     
     assert mon.Path(images_dir).is_dir()
     assert mon.Path(labels_old_dir).is_dir()
@@ -118,6 +118,6 @@ def visdrone_to_fisheye8k(split: str):
 
 
 if __name__ == "__main__":
-    visdrone_to_fisheye8k("train")
-    visdrone_to_fisheye8k("val")
-    visdrone_to_fisheye8k("test_dev")
+    convert_visdrone_to_fisheye8k("train")
+    #convert_visdrone_to_fisheye8k("val")
+    #convert_visdrone_to_fisheye8k("test_dev")

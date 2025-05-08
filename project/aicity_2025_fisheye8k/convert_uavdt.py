@@ -19,11 +19,11 @@ map_classes  = {
 }
 
 
-def uavdt_to_fisheye8k(split: str):
-    images_old_dir = current_dir / "data" / "uavdt" / split / "images_old"
-    labels_old_dir = current_dir / "data" / "uavdt" / split / "labels_old_cls"
-    images_dir     = current_dir / "data" / "uavdt" / split / "images"
-    label_dir      = current_dir / "data" / "uavdt" / split / "labels"
+def convert_uavdt_to_fisheye8k(split: str):
+    images_old_dir = current_dir / "data" / "uavdt" / "images_old"
+    labels_old_dir = current_dir / "data" / "uavdt" / "labels_old_cls"
+    images_dir     = current_dir / "data" / "uavdt" / "images"
+    label_dir      = current_dir / "data" / "uavdt" / "labels"
     
     assert mon.Path(images_old_dir).is_dir()
     assert mon.Path(labels_old_dir).is_dir()
@@ -74,5 +74,5 @@ def uavdt_to_fisheye8k(split: str):
             
 
 if __name__ == "__main__":
-    uavdt_to_fisheye8k("train")
-    uavdt_to_fisheye8k("test")
+    convert_uavdt_to_fisheye8k("train")
+    #convert_uavdt_to_fisheye8k("test")

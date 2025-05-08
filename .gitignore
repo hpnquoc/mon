@@ -7,8 +7,11 @@
 *.pt
 *.pth
 *.py[cod]
+*.rar
 *.so
+*.tar
 *.xlsx
+*.zip
 *~
 .idea/
 .sync/

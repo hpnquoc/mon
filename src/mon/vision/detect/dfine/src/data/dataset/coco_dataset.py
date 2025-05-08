@@ -50,8 +50,8 @@ class CocoDetection(torchvision.datasets.CocoDetection, DetDataset):
 
     def load_item(self, idx):
         image, target = super(CocoDetection, self).__getitem__(idx)
-        image_id = self.ids[idx]
-        image_path = os.path.join(self.img_folder, self.coco.loadImgs(image_id)[0]["file_name"])
+        image_id      = self.ids[idx]
+        image_path    = os.path.join(self.img_folder, self.coco.loadImgs(image_id)[0]["file_name"])
         target = {"image_id": image_id, "image_path": image_path, "annotations": target}
 
         if self.remap_mscoco_category:
@@ -81,27 +81,19 @@ class CocoDetection(torchvision.datasets.CocoDetection, DetDataset):
         return s
 
     @property
-    def categories(
-        self,
-    ):
+    def categories(self):
         return self.coco.dataset["categories"]
 
     @property
-    def category2name(
-        self,
-    ):
+    def category2name(self):
         return {cat["id"]: cat["name"] for cat in self.categories}
 
     @property
-    def category2label(
-        self,
-    ):
+    def category2label(self):
         return {cat["id"]: i for i, cat in enumerate(self.categories)}
 
     @property
-    def label2category(
-        self,
-    ):
+    def label2category(self):
         return {i: cat["id"] for i, cat in enumerate(self.categories)}
 
 

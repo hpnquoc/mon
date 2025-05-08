@@ -20,11 +20,11 @@ map_classes  = {
 }
 
 
-def ua_detrac_to_fisheye8k(split: str):
-    images_old_dir = current_dir / "data" / "ua_detrac" / split / "images_old"
-    labels_old_dir = current_dir / "data" / "ua_detrac" / split / "labels_old_cls"
-    images_dir     = current_dir / "data" / "ua_detrac" / split / "images"
-    label_dir      = current_dir / "data" / "ua_detrac" / split / "labels"
+def convert_ua_detrac_to_fisheye8k(split: str):
+    images_old_dir = current_dir / "data" / "ua_detrac" / "images_old"
+    labels_old_dir = current_dir / "data" / "ua_detrac" / "labels_old_cls"
+    images_dir     = current_dir / "data" / "ua_detrac" / "images"
+    label_dir      = current_dir / "data" / "ua_detrac" / "labels"
     
     assert mon.Path(images_old_dir).is_dir()
     assert mon.Path(labels_old_dir).is_dir()
@@ -75,5 +75,5 @@ def ua_detrac_to_fisheye8k(split: str):
             
 
 if __name__ == "__main__":
-    ua_detrac_to_fisheye8k("train")
-    ua_detrac_to_fisheye8k("val")
+    convert_ua_detrac_to_fisheye8k("train")
+    # convert_ua_detrac_to_fisheye8k("val")
