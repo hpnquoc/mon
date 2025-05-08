@@ -32,26 +32,26 @@ gated2: True
 alpha : 0.8
 
 # Data
-data_train_lol_blur        : "data/enhance/lol_blur/train"
-data_train_lol_v1          : "data/enhance/lol_v1/train"
-data_train_lol_v2_real     : "data/enhance/lol_v2_real/train"
-data_train_lol_v2_synthetic: "data/enhance/lol_v2_synthetic/train"
-data_train_sid             : "data/enhance/sid/train"
-data_train_sice            : "data/enhance/sice/train"
+data_train_lol_blur        : "data/lol_blur/train"
+data_train_lol_v1          : "data/lol_v1/train"
+data_train_lol_v2_real     : "data/lol_v2_real/train"
+data_train_lol_v2_synthetic: "data/lol_v2_synthetic/train"
+data_train_sid             : "data/sid/train"
+data_train_sice            : "data/sice/train"
 
-data_val_lol_blur          : "data/enhance/lol_blur/test/lq"
-data_val_lol_v1            : "data/enhance/lol_v1/test/lq"
-data_val_lol_v2_real       : "data/enhance/lol_v2_real/test/lq"
-data_val_lol_v2_synthetic  : "data/enhance/lol_v2_synthetic/test/lq"
-data_val_sid               : "data/enhance/sid/test/lq"
-data_val_sice              : "data/enhance/sice/test/lq"
+data_val_lol_blur          : "data/lol_blur/test/lq"
+data_val_lol_v1            : "data/lol_v1/test/lq"
+data_val_lol_v2_real       : "data/lol_v2_real/test/lq"
+data_val_lol_v2_synthetic  : "data/lol_v2_synthetic/test/lq"
+data_val_sid               : "data/sid/test/lq"
+data_val_sice              : "data/sice/test/lq"
 
-data_valgt_lol_blur        : "data/enhance/lol_blur/test/hq"
-data_valgt_lol_v1          : "data/enhance/lol_v1/test/hq"
-data_valgt_lol_v2_real     : "data/enhance/lol_v2_real/test/hq"
-data_valgt_lol_v2_synthetic: "data/enhance/lol_v2_synthetic/test/hq"
-data_valgt_sid             : "data/enhance/sid/test/hq"
-data_valgt_sice            : "data/enhance/sice/test/hq"
+data_valgt_lol_blur        : "data/lol_blur/test/hq"
+data_valgt_lol_v1          : "data/lol_v1/test/hq"
+data_valgt_lol_v2_real     : "data/lol_v2_real/test/hq"
+data_valgt_lol_v2_synthetic: "data/lol_v2_synthetic/test/hq"
+data_valgt_sid             : "data/sid/test/hq"
+data_valgt_sice            : "data/sice/test/hq"
 
 lol_blur          : False
 lol_v1            : False

@@ -23,7 +23,7 @@ verbose     : &verbose True                                                     
 # Datamodule
 datamodule:
   name      : *data                                                             # Data module name (e.g., cifar10).
-  root      : "data/enhance/darkface"                                           # Root directory of the dataset.
+  root      : "data/darkface"                                                   # Root directory of the dataset.
   transform : ~
   to_tensor : True                                                              # If ``True``, convert the data to tensor.
   batch_size: 1                                                                 # Batch size.

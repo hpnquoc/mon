@@ -43,7 +43,7 @@ optimizer: &optimizer                                                           
 # Datamodule
 datamodule:
   name      : *data                                                             # Data module name (e.g., cifar10).
-  root      : "data/enhance/lol_v1"                                             # Root directory of the dataset.
+  root      : "data/lol_v1"                                                     # Root directory of the dataset.
   transform :
     - {name: "resize", height: 256, width : 256}
   to_tensor : True                                                              # If ``True``, convert the data to tensor.

@@ -27,7 +27,7 @@ optimizer: &optimizer                                                           
 # Datamodule
 datamodule:
   name      : *data                                                             # Data module name (e.g., cifar10).
-  root      : "data/enhance/fivek"                                              # Root directory of the dataset.
+  root      : "data/fivek"                                                      # Root directory of the dataset.
   transform : ~
   to_tensor : True                                                              # If ``True``, convert the data to tensor.
   batch_size: 1                                                                 # Batch size.

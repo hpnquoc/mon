@@ -28,7 +28,7 @@ optimizer: &optimizer                                                           
 # Datamodule
 datamodule:
   name      : *data                                                             # Data module name (e.g., cifar10).
-  root      : "data/enhance/sid_sony"                                           # Root directory of the dataset.
+  root      : "data/sid_sony"                                                   # Root directory of the dataset.
   transform : ~                                                                 # Data augmentation.
   to_tensor : True                                                              # If ``True``, convert the data to tensor.
   batch_size: 1                                                                 # Batch size.
