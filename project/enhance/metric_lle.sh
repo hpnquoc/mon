@@ -1,16 +1,9 @@
 #!/bin/bash
+
 echo "$HOSTNAME"
 clear
 
-# Directories
-current_file=$(readlink -f "$0")
-current_dir=$(dirname "$current_file")
-project_dir=$(dirname "$current_dir")
-mon_dir=$(dirname "$project_dir")
-runml_dir="${project_dir}/runml"
-data_dir="${mon_dir}/data/enhance"
-
-# Input
+# ----- Input -----
 arch="zero_ig"
 model="zero_ig_zsl_denoise"
 data=(
@@ -48,97 +41,101 @@ data=(
 )
 device="cuda:0"
 
-# Run
+# ----- Directory -----
+current_file=$(readlink -f "$0")
+current_dir=$(dirname "$current_file")
+project_dir=$(dirname "$current_dir")
+root_dir=$(dirname "$project_dir")
+runml_dir="${project_dir}/runml"
+
+# ----- Run -----
 cd "${runml_dir}" || exit
 for (( i=0; i<${#data[@]}; i++ )); do
   # Input
   if [ "${data[i]}" == "fivek_a" ]; then
-      input_dir="${current_dir}/run/predict/${arch}/${model}/fivek"
+    input_dir="${current_dir}/run/predict/${arch}/${model}/fivek"
   elif [ "${data[i]}" == "fivek_b" ]; then
-      input_dir="${current_dir}/run/predict/${arch}/${model}/fivek"
+    input_dir="${current_dir}/run/predict/${arch}/${model}/fivek"
   elif [ "${data[i]}" == "fivek_c" ]; then
-      input_dir="${current_dir}/run/predict/${arch}/${model}/fivek"
+    input_dir="${current_dir}/run/predict/${arch}/${model}/fivek"
   elif [ "${data[i]}" == "fivek_d" ]; then
-      input_dir="${current_dir}/run/predict/${arch}/${model}/fivek"
+    input_dir="${current_dir}/run/predict/${arch}/${model}/fivek"
   elif [ "${data[i]}" == "fivek_e" ]; then
-      input_dir="${current_dir}/run/predict/${arch}/${model}/fivek"
+    input_dir="${current_dir}/run/predict/${arch}/${model}/fivek"
   else
-      input_dir="${data_dir}/#predict/${arch}/${model}/${data[i]}"
-      if ! [ -d "${input_dir}" ]; then
-          input_dir="${current_dir}/run/predict/${arch}/${model}/${data[i]}"
-      fi
+    input_dir="${current_dir}/run/predict/${arch}/${model}/${data[i]}"
   fi
   
   # Target
   if [ "${data[i]}" == "fivek_a" ]; then
-      target_dir="${data_dir}/fivek/test/ref_a"
+    target_subdir="fivek/test/ref_a"
   elif [ "${data[i]}" == "fivek_b" ]; then
-      target_dir="${data_dir}/fivek/test/ref_b"
+    target_subdir="fivek/test/ref_b"
   elif [ "${data[i]}" == "fivek_c" ]; then
-      target_dir="${data_dir}/fivek/test/ref_c"
+    target_subdir="fivek/test/ref_c"
   elif [ "${data[i]}" == "fivek_d" ]; then
-      target_dir="${data_dir}/fivek/test/ref_d"
+    target_subdir="fivek/test/ref_d"
   elif [ "${data[i]}" == "fivek_e" ]; then
-      target_dir="${data_dir}/fivek/test/ref_e"
+    target_subdir="fivek/test/ref_e"
   elif [ "${data[i]}" == "loli_street_val" ]; then
-      target_dir="${data_dir}/loli_street/val/ref"
+    target_subdir="loli_street/val/ref"
   elif [ "${data[i]}" == "loli_street_test" ]; then
-      target_dir="${data_dir}/loli_street/test/ref"
+    target_subdir="loli_street/test/ref"
   else
-      target_dir="${data_dir}/${data[i]}/test/ref"
-      if ! [ -d "${target_dir}" ]; then
-          target_dir="${data_dir}/${data[i]}/val/ref"
-      fi
+    target_subdir="${data[i]}/test/ref"
   fi
-  
+  target_dir="${current_dir}/data/${target_subdir}"
+  if ! [ -d "${target_dir}" ]; then
+    target_dir="${root_dir}/data/enhance/${target_subdir}"
+  fi
+
   # Measure FR-IQA
   if [ -d "${target_dir}" ]; then
-      python -W ignore metric.py \
-        --input-dir "${input_dir}" \
-        --target-dir "${target_dir}" \
-        --result-file "${current_dir}" \
-        --arch "${arch}" \
-        --model "${model}" \
-        --data "${data[i]}" \
-        --device "${device}" \
-        --imgsz 512 \
-        --metric "psnr" \
-        --metric "ssimc" \
-        --metric "psnry" \
-        --metric "ssim" \
-        --metric "ms_ssim" \
-        --metric "lpips" \
-        --metric "brisque" \
-        --metric "ilniqe" \
-        --metric "niqe" \
-        --metric "pi" \
-        --backend "pyiqa" \
-        --use-gt-mean
+    python -W ignore metric.py \
+      --input-dir "${input_dir}" \
+      --target-dir "${target_dir}" \
+      --result-file "${current_dir}" \
+      --arch "${arch}" \
+      --model "${model}" \
+      --data "${data[i]}" \
+      --device "${device}" \
+      --imgsz 512 \
+      --metric "psnr" \
+      --metric "ssimc" \
+      --metric "psnry" \
+      --metric "ssim" \
+      --metric "ms_ssim" \
+      --metric "lpips" \
+      --metric "brisque" \
+      --metric "ilniqe" \
+      --metric "niqe" \
+      --metric "pi" \
+      --backend "pyiqa" \
+      --use-gt-mean
   # Measure NR-IQA
   else
-      python -W ignore metric.py \
-        --input-dir "${input_dir}" \
-        --target-dir "${target_dir}" \
-        --result-file "${current_dir}" \
-        --arch "${arch}" \
-        --model "${model}" \
-        --data "${data[i]}" \
-        --device "${device}" \
-        --imgsz 512 \
-        --metric "psnr" \
-        --metric "ssimc" \
-        --metric "psnry" \
-        --metric "ssim" \
-        --metric "ms_ssim" \
-        --metric "lpips" \
-        --metric "brisque" \
-        --metric "ilniqe" \
-        --metric "niqe" \
-        --metric "pi" \
-        --backend "pyiqa"
+    python -W ignore metric.py \
+      --input-dir "${input_dir}" \
+      --target-dir "${target_dir}" \
+      --result-file "${current_dir}" \
+      --arch "${arch}" \
+      --model "${model}" \
+      --data "${data[i]}" \
+      --device "${device}" \
+      --imgsz 512 \
+      --metric "psnr" \
+      --metric "ssimc" \
+      --metric "psnry" \
+      --metric "ssim" \
+      --metric "ms_ssim" \
+      --metric "lpips" \
+      --metric "brisque" \
+      --metric "ilniqe" \
+      --metric "niqe" \
+      --metric "pi" \
+      --backend "pyiqa"
   fi
-  
 done
 
-# Done
+# ----- Done -----
 cd "${current_dir}" || exit

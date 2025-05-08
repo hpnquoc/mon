@@ -21,7 +21,7 @@ from typing import Literal
 import cv2
 
 from mon import core, vision
-from mon.constants import DATA_DIR, DATAMODULES, DATASETS, Split, Task
+from mon.constants import DATAMODULES, DATASETS, Split, Task
 
 # ----- Alias -----
 ClassLabels                    = core.ClassLabels
@@ -39,7 +39,7 @@ class NightCity(VisionDataset):
     """Loads NightCity dataset from ``root`` dir.
 
     Args:
-        root: Directory path to dataset. Default is ``DATA_DIR / "enhance"``.
+        root: Directory path to dataset.
         *args: Additional args for parent class.
         **kwargs: Additional kwargs for parent class.
 
@@ -93,12 +93,12 @@ class NightCity(VisionDataset):
         {"name": "license plate"       , "id": -1, "train_id": -1 , "category": "vehicle"     , "category_id": 7, "ignore_in_eval": True , "color": [0  , 0  , 142]},
     ])
 
-    def __init__(self, root: core.Path = DATA_DIR / "enhance", *args, **kwargs):
-        """Initializes dataset with ``root`` path and parent args."""
+    def __init__(self, root: core.Path, *args, **kwargs):
         root = core.Path(root)
         root = root / "nightcity" if root.name != "nightcity" else root
         if not root.is_dir():
             raise FileNotFoundError(f"[root] directory not found: [{root}].")
+        
         super().__init__(root=root, *args, **kwargs)
 
     def list_data(self):

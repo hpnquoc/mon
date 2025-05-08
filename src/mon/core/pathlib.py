@@ -547,13 +547,13 @@ def parse_data_dir(root: str | pathlib.Path, data_dir: str | pathlib.Path) -> st
     """
     from mon.constants import ROOT_DIR
     
-    root     = pathlib.Path(root)
+    root     = pathlib.Path(root) if root not in [None, "None", ""] else ROOT_DIR
     data_dir = pathlib.Path(data_dir)
     if not data_dir.is_dir():
-        if (ROOT_DIR / data_dir).is_dir():
-            data_dir = ROOT_DIR / data_dir
-        elif (root / data_dir).is_dir():
+        if (root / data_dir).is_dir():
             data_dir = root / data_dir
+        elif (ROOT_DIR / data_dir).is_dir():
+            data_dir = ROOT_DIR / data_dir
     return data_dir
 
 

@@ -63,9 +63,9 @@ map_classes  = {
 
 
 def visdrone_to_fisheye8k(split: str):
-    images_dir     = current_dir / f"data/visdrone/{split}/images"
-    labels_old_dir = current_dir / f"data/visdrone/{split}/labels_old_dir"
-    label_dir      = current_dir / f"data/visdrone/{split}/labels"
+    images_dir     = current_dir / "data" / "visdrone" / split / "images"
+    labels_old_dir = current_dir / "data" / "visdrone" / split / "labels_old_dir"
+    label_dir      = current_dir / "data" / "visdrone" / split / "labels"
     
     assert mon.Path(images_dir).is_dir()
     assert mon.Path(labels_old_dir).is_dir()

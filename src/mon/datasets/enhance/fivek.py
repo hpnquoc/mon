@@ -27,7 +27,7 @@ import numpy as np
 import torch
 
 from mon import core, vision
-from mon.constants import DATA_DIR, DATAMODULES, DATASETS, Split, Task
+from mon.constants import DATAMODULES, DATASETS, Split, Task
 
 # ----- Alias -----
 ClassLabels                    = core.ClassLabels
@@ -45,7 +45,7 @@ class FiveKInit(VisionDataset):
     """Loads FiveKInit dataset from ``root`` dir for model init.
 
     Args:
-        root: Directory path to dataset. Default is ``DATA_DIR / "enhance"``.
+        root: Directory path to dataset.
         *args: Additional args for parent class.
         **kwargs: Additional kwargs for parent class.
 
@@ -65,8 +65,7 @@ class FiveKInit(VisionDataset):
     })
     has_test_annotations: bool = False
 
-    def __init__(self, root: core.Path = DATA_DIR / "enhance", *args, **kwargs):
-        """Initializes dataset with ``root`` path and parent args."""
+    def __init__(self, root: core.Path, *args, **kwargs):
         root = core.Path(root)
         root = root / "fivek" if root.name != "fivek" else root
         if not root.is_dir():
@@ -183,7 +182,7 @@ class FiveK(VisionDataset):
     """Loads FiveK dataset from ``root`` dir with Expert A GT.
 
     Args:
-        root: Directory path to dataset. Default is ``DATA_DIR / "enhance"``.
+        root: Directory path to dataset.
         *args: Additional args for parent class.
         **kwargs: Additional kwargs for parent class.
 
@@ -199,12 +198,12 @@ class FiveK(VisionDataset):
     })
     has_test_annotations: bool = False
 
-    def __init__(self, root: core.Path = DATA_DIR / "enhance", *args, **kwargs):
-        """Initializes dataset with ``root`` path and parent args."""
+    def __init__(self, root: core.Path, *args, **kwargs):
         root = core.Path(root)
         root = root / "fivek" if root.name != "fivek" else root
         if not root.is_dir():
             raise FileNotFoundError(f"[root] directory not found: [{root}].")
+
         super().__init__(root=root, *args, **kwargs)
 
     def list_data(self):
@@ -228,7 +227,7 @@ class FiveKA(VisionDataset):
     """Loads FiveKA dataset from ``root`` dir with Expert A GT.
 
     Args:
-        root: Directory path to dataset. Default is ``DATA_DIR / "enhance"``.
+        root: Directory path to dataset.
         *args: Additional args for parent class.
         **kwargs: Additional kwargs for parent class.
 
@@ -246,12 +245,12 @@ class FiveKA(VisionDataset):
     })
     has_test_annotations: bool = False
 
-    def __init__(self, root: core.Path = DATA_DIR / "enhance", *args, **kwargs):
-        """Initializes dataset with ``root`` path and parent args."""
+    def __init__(self, root: core.Path, *args, **kwargs):
         root = core.Path(root)
         root = root / "fivek" if root.name != "fivek" else root
         if not root.is_dir():
             raise FileNotFoundError(f"[root] directory not found: [{root}].")
+
         super().__init__(root=root, *args, **kwargs)
 
     def list_data(self):
@@ -290,7 +289,7 @@ class FiveKB(VisionDataset):
     """Loads FiveKB dataset from ``root`` dir with Expert B GT.
 
     Args:
-        root: Directory path to dataset. Default is ``DATA_DIR / "enhance"``.
+        root: Directory path to dataset.
         *args: Additional args for parent class.
         **kwargs: Additional kwargs for parent class.
 
@@ -308,12 +307,12 @@ class FiveKB(VisionDataset):
     })
     has_test_annotations: bool = False
 
-    def __init__(self, root: core.Path = DATA_DIR / "enhance", *args, **kwargs):
-        """Initializes dataset with ``root`` path and parent args."""
+    def __init__(self, root: core.Path, *args, **kwargs):
         root = core.Path(root)
         root = root / "fivek" if root.name != "fivek" else root
         if not root.is_dir():
             raise FileNotFoundError(f"[root] directory not found: [{root}].")
+
         super().__init__(root=root, *args, **kwargs)
 
     def list_data(self):
@@ -352,7 +351,7 @@ class FiveKC(VisionDataset):
     """Loads FiveKC dataset from ``root`` dir with Expert C GT.
 
     Args:
-        root: Directory path to dataset. Default is ``DATA_DIR / "enhance"``.
+        root: Directory path to dataset.
         *args: Additional args for parent class.
         **kwargs: Additional kwargs for parent class.
 
@@ -370,12 +369,12 @@ class FiveKC(VisionDataset):
     })
     has_test_annotations: bool = False
 
-    def __init__(self, root: core.Path = DATA_DIR / "enhance", *args, **kwargs):
-        """Initializes dataset with ``root`` path and parent args."""
+    def __init__(self, root: core.Path, *args, **kwargs):
         root = core.Path(root)
         root = root / "fivek" if root.name != "fivek" else root
         if not root.is_dir():
             raise FileNotFoundError(f"[root] directory not found: [{root}].")
+
         super().__init__(root=root, *args, **kwargs)
 
     def list_data(self):
@@ -414,7 +413,7 @@ class FiveKD(VisionDataset):
     """Loads FiveKD dataset from ``root`` dir with Expert D GT.
 
     Args:
-        root: Directory path to dataset. Default is ``DATA_DIR / "enhance"``.
+        root: Directory path to dataset.
         *args: Additional args for parent class.
         **kwargs: Additional kwargs for parent class.
 
@@ -432,12 +431,12 @@ class FiveKD(VisionDataset):
     })
     has_test_annotations: bool = False
 
-    def __init__(self, root: core.Path = DATA_DIR / "enhance", *args, **kwargs):
-        """Initializes dataset with ``root`` path and parent args."""
+    def __init__(self, root: core.Path, *args, **kwargs):
         root = core.Path(root)
         root = root / "fivek" if root.name != "fivek" else root
         if not root.is_dir():
             raise FileNotFoundError(f"[root] directory not found: [{root}].")
+
         super().__init__(root=root, *args, **kwargs)
 
     def list_data(self):
@@ -476,7 +475,7 @@ class FiveKE(VisionDataset):
     """Loads FiveKE dataset from ``root`` dir with Expert E GT.
 
     Args:
-        root: Directory path to dataset. Default is ``DATA_DIR / "enhance"``.
+        root: Directory path to dataset.
         *args: Additional args for parent class.
         **kwargs: Additional kwargs for parent class.
 
@@ -494,12 +493,12 @@ class FiveKE(VisionDataset):
     })
     has_test_annotations: bool = False
 
-    def __init__(self, root: core.Path = DATA_DIR / "enhance", *args, **kwargs):
-        """Initializes dataset with ``root`` path and parent args."""
+    def __init__(self, root: core.Path, *args, **kwargs):
         root = core.Path(root)
         root = root / "fivek" if root.name != "fivek" else root
         if not root.is_dir():
             raise FileNotFoundError(f"[root] directory not found: [{root}].")
+
         super().__init__(root=root, *args, **kwargs)
 
     def list_data(self):

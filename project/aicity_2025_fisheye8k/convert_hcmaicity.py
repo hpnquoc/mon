@@ -55,9 +55,9 @@ map_classes  = {
 
 
 def hcmaicity_to_fisheye8k(split: str):
-    images_dir     = current_dir / f"data/hcmaicity/{split}/images"
-    labels_old_dir = current_dir / f"data/hcmaicity/{split}/labels_old_cls"
-    label_dir      = current_dir / f"data/hcmaicity/{split}/labels"
+    images_dir     = current_dir / "data" / "hcmaicity" / split / "images"
+    labels_old_dir = current_dir / "data" / "hcmaicity" / split / "labels_old_cls"
+    label_dir      = current_dir / "data" / "hcmaicity" / split / "labels"
     
     assert mon.Path(images_dir).is_dir()
     assert mon.Path(labels_old_dir).is_dir()

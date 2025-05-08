@@ -13,7 +13,7 @@ __all__ = [
 from typing import Literal
 
 from mon import core, vision
-from mon.constants import DATA_DIR, DATAMODULES, DATASETS, Split, Task
+from mon.constants import DATAMODULES, DATASETS, Split, Task
 
 # ----- Alias -----
 ClassLabels                    = core.ClassLabels
@@ -31,7 +31,7 @@ class ExDark(VisionDataset):
     """Loads ExDark dataset from ``root`` dir.
 
     Args:
-        root: Directory path to dataset. Default is ``DATA_DIR / "enhance"``.
+        root: Directory path to dataset.
         *args: Additional args for parent class.
         **kwargs: Additional kwargs for parent class.
 
@@ -46,12 +46,12 @@ class ExDark(VisionDataset):
     })
     has_test_annotations: bool = False
 
-    def __init__(self, root: core.Path = DATA_DIR / "enhance", *args, **kwargs):
-        """Initializes dataset with ``root`` path and parent args."""
+    def __init__(self, root: core.Path, *args, **kwargs):
         root = core.Path(root)
         root = root / "exdark" if root.name != "exdark" else root
         if not root.is_dir():
             raise FileNotFoundError(f"[root] directory not found: [{root}].")
+
         super().__init__(root=root, *args, **kwargs)
 
     def list_data(self):
@@ -75,7 +75,7 @@ class ExDarkFull(VisionDataset):
     """Loads ExDarkFull dataset from ``root`` dir.
 
     Args:
-        root: Directory path to dataset. Default is ``DATA_DIR / "enhance"``.
+        root: Directory path to dataset.
         *args: Additional args for parent class.
         **kwargs: Additional kwargs for parent class.
 
@@ -90,12 +90,12 @@ class ExDarkFull(VisionDataset):
     })
     has_test_annotations: bool = False
 
-    def __init__(self, root: core.Path = DATA_DIR / "enhance", *args, **kwargs):
-        """Initializes dataset with ``root`` path and parent args."""
+    def __init__(self, root: core.Path, *args, **kwargs):
         root = core.Path(root)
         root = root / "exdark" if root.name != "exdark" else root
         if not root.is_dir():
             raise FileNotFoundError(f"[root] directory not found: [{root}].")
+
         super().__init__(root=root, *args, **kwargs)
 
     def list_data(self):

@@ -25,7 +25,7 @@ __all__ = [
 from typing import Literal
 
 from mon import core, vision
-from mon.constants import DATA_DIR, DATAMODULES, DATASETS, Split, Task
+from mon.constants import DATAMODULES, DATASETS, Split, Task
 
 # ----- Alias -----
 ClassLabels                    = core.ClassLabels
@@ -43,7 +43,7 @@ class RESIDE_HSTS_Real(VisionDataset):
     """Loads RESIDE-HSTS-Real dataset from ``root`` dir.
 
     Args:
-        root: Directory path to dataset. Default is ``DATA_DIR / "enhance"``.
+        root: Directory path to dataset.
         *args: Additional args for parent class.
         **kwargs: Additional kwargs for parent class.
 
@@ -58,12 +58,12 @@ class RESIDE_HSTS_Real(VisionDataset):
     })
     has_test_annotations: bool = False
     
-    def __init__(self, root: core.Path = DATA_DIR / "enhance", *args, **kwargs):
-        """Initializes dataset with ``root`` path and parent args."""
+    def __init__(self, root: core.Path, *args, **kwargs):
         root = core.Path(root)
         root = root / "reside" if root.name != "reside" else root
         if not root.is_dir():
             raise FileNotFoundError(f"[root] directory not found: [{root}].")
+        
         super().__init__(root=root, *args, **kwargs)
     
     def list_data(self):
@@ -87,7 +87,7 @@ class RESIDE_HSTS_Synthetic(VisionDataset):
     """Loads RESIDE-HSTS-Synthetic dataset from ``root`` dir.
 
     Args:
-        root: Directory path to dataset. Default is ``DATA_DIR / "enhance"``.
+        root: Directory path to dataset.
         *args: Additional args for parent class.
         **kwargs: Additional kwargs for parent class.
 
@@ -103,12 +103,12 @@ class RESIDE_HSTS_Synthetic(VisionDataset):
     })
     has_test_annotations: bool = False
     
-    def __init__(self, root: core.Path = DATA_DIR / "enhance", *args, **kwargs):
-        """Initializes dataset with ``root`` path and parent args."""
+    def __init__(self, root: core.Path, *args, **kwargs):
         root = core.Path(root)
         root = root / "reside" if root.name != "reside" else root
         if not root.is_dir():
             raise FileNotFoundError(f"[root] directory not found: [{root}].")
+        
         super().__init__(root=root, *args, **kwargs)
     
     def list_data(self):
@@ -132,7 +132,7 @@ class RESIDE_ITS(VisionDataset):
     """Loads RESIDE-ITS dataset from ``root`` dir.
 
     Args:
-        root: Directory path to dataset. Default is ``DATA_DIR / "enhance"``.
+        root: Directory path to dataset.
         *args: Additional args for parent class.
         **kwargs: Additional kwargs for parent class.
 
@@ -148,12 +148,12 @@ class RESIDE_ITS(VisionDataset):
     })
     has_test_annotations: bool = False
     
-    def __init__(self, root: core.Path = DATA_DIR / "enhance", *args, **kwargs):
-        """Initializes dataset with ``root`` path and parent args."""
+    def __init__(self, root: core.Path, *args, **kwargs):
         root = core.Path(root)
         root = root / "reside" if root.name != "reside" else root
         if not root.is_dir():
             raise FileNotFoundError(f"[root] directory not found: [{root}].")
+        
         super().__init__(root=root, *args, **kwargs)
     
     def list_data(self):
@@ -189,7 +189,7 @@ class RESIDE_OTS(VisionDataset):
     """Loads RESIDE-OTS dataset from ``root`` dir.
 
     Args:
-        root: Directory path to dataset. Default is ``DATA_DIR / "enhance"``.
+        root: Directory path to dataset.
         *args: Additional args for parent class.
         **kwargs: Additional kwargs for parent class.
 
@@ -205,12 +205,12 @@ class RESIDE_OTS(VisionDataset):
     })
     has_test_annotations: bool = False
     
-    def __init__(self, root: core.Path = DATA_DIR / "enhance", *args, **kwargs):
-        """Initializes dataset with ``root`` path and parent args."""
+    def __init__(self, root: core.Path, *args, **kwargs):
         root = core.Path(root)
         root = root / "reside" if root.name != "reside" else root
         if not root.is_dir():
             raise FileNotFoundError(f"[root] directory not found: [{root}].")
+        
         super().__init__(root=root, *args, **kwargs)
     
     def list_data(self):
@@ -246,7 +246,7 @@ class RESIDE_RTTS(VisionDataset):
     """Loads RESIDE-RTTS dataset from ``root`` dir.
 
     Args:
-        root: Directory path to dataset. Default is ``DATA_DIR / "enhance"``.
+        root: Directory path to dataset.
         *args: Additional args for parent class.
         **kwargs: Additional kwargs for parent class.
 
@@ -261,12 +261,12 @@ class RESIDE_RTTS(VisionDataset):
     })
     has_test_annotations: bool = False
     
-    def __init__(self, root: core.Path = DATA_DIR / "enhance", *args, **kwargs):
-        """Initializes dataset with ``root`` path and parent args."""
+    def __init__(self, root: core.Path, *args, **kwargs):
         root = core.Path(root)
         root = root / "reside" if root.name != "reside" else root
         if not root.is_dir():
             raise FileNotFoundError(f"[root] directory not found: [{root}].")
+        
         super().__init__(root=root, *args, **kwargs)
     
     def list_data(self):
@@ -290,7 +290,7 @@ class RESIDE_SOTS_Indoor(VisionDataset):
     """Loads RESIDE-SOTS-Indoor dataset from ``root`` dir.
 
     Args:
-        root: Directory path to dataset. Default is ``DATA_DIR / "enhance"``.
+        root: Directory path to dataset.
         *args: Additional args for parent class.
         **kwargs: Additional kwargs for parent class.
 
@@ -306,12 +306,12 @@ class RESIDE_SOTS_Indoor(VisionDataset):
     })
     has_test_annotations: bool = True
     
-    def __init__(self, root: core.Path = DATA_DIR / "enhance", *args, **kwargs):
-        """Initializes dataset with ``root`` path and parent args."""
+    def __init__(self, root: core.Path, *args, **kwargs):
         root = core.Path(root)
         root = root / "reside" if root.name != "reside" else root
         if not root.is_dir():
             raise FileNotFoundError(f"[root] directory not found: [{root}].")
+        
         super().__init__(root=root, *args, **kwargs)
     
     def list_data(self):
@@ -347,7 +347,7 @@ class RESIDE_SOTS_Outdoor(VisionDataset):
     """Loads RESIDE-SOTS-Outdoor dataset from ``root`` dir.
 
     Args:
-        root: Directory path to dataset. Default is ``DATA_DIR / "enhance"``.
+        root: Directory path to dataset.
         *args: Additional args for parent class.
         **kwargs: Additional kwargs for parent class.
 
@@ -363,12 +363,12 @@ class RESIDE_SOTS_Outdoor(VisionDataset):
     })
     has_test_annotations: bool = True
     
-    def __init__(self, root: core.Path = DATA_DIR / "enhance", *args, **kwargs):
-        """Initializes dataset with ``root`` path and parent args."""
+    def __init__(self, root: core.Path, *args, **kwargs):
         root = core.Path(root)
         root = root / "reside" if root.name != "reside" else root
         if not root.is_dir():
             raise FileNotFoundError(f"[root] directory not found: [{root}].")
+        
         super().__init__(root=root, *args, **kwargs)
     
     def list_data(self):
@@ -404,7 +404,7 @@ class RESIDE_URHI(VisionDataset):
     """Loads RESIDE-URHI dataset from ``root`` dir.
 
     Args:
-        root: Directory path to dataset. Default is ``DATA_DIR / "enhance"``.
+        root: Directory path to dataset.
         *args: Additional args for parent class.
         **kwargs: Additional kwargs for parent class.
 
@@ -419,12 +419,12 @@ class RESIDE_URHI(VisionDataset):
     })
     has_test_annotations: bool = False
     
-    def __init__(self, root: core.Path = DATA_DIR / "enhance", *args, **kwargs):
-        """Initializes dataset with ``root`` path and parent args."""
+    def __init__(self, root: core.Path, *args, **kwargs):
         root = core.Path(root)
         root = root / "reside" if root.name != "reside" else root
         if not root.is_dir():
             raise FileNotFoundError(f"[root] directory not found: [{root}].")
+        
         super().__init__(root=root, *args, **kwargs)
     
     def list_data(self):

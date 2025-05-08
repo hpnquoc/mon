@@ -11,7 +11,7 @@ __all__ = [
 from typing import Literal
 
 from mon import core, vision
-from mon.constants import DATA_DIR, DATAMODULES, DATASETS, Split, Task
+from mon.constants import DATAMODULES, DATASETS, Split, Task
 
 # ----- Alias -----
 ClassLabels                    = core.ClassLabels
@@ -130,12 +130,12 @@ class COCO2017(VisionDataset):
         {"name": "hair brush"    , "id": 91, "supercategory": "indoor"    , "color": [149, 108,  73]}
     ])
     
-    def __init__(self, root: core.Path = DATA_DIR / "coco", *args, **kwargs):
+    def __init__(self, root: core.Path, *args, **kwargs):
         root = core.Path(root)
         root = root / "coco_2017" if root.name != "coco_2017" else root
         if not root.is_dir():
             raise FileNotFoundError(f"Directory not found: {root}.")
-        # Initialize
+
         super().__init__(root=root, *args, **kwargs)
     
     def list_data(self):

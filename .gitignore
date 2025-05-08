@@ -15,13 +15,9 @@ __pycache__/
 _gsdata_/
 archive/
 build/
-data/*/
-db/
+data/
 dist/
-env/anaconda3.sh
-env/anaconda3_arm64.sh
-project/*/data/*/
-project/*/run/*/
+project/*/data/
+project/*/run/
 project/tss_old
-run/*/
 zoo/*/

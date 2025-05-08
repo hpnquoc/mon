@@ -15,7 +15,7 @@ __all__ = [
 from typing import Literal
 
 from mon import core, vision
-from mon.constants import DATA_DIR, DATAMODULES, DATASETS, Split, Task
+from mon.constants import DATAMODULES, DATASETS, Split, Task
 
 # ----- Alias -----
 ClassLabels                    = core.ClassLabels
@@ -48,12 +48,12 @@ class MIPI2024Flare(VisionDataset):
     })
     has_test_annotations: bool = False
 
-    def __init__(self, root: core.Path = DATA_DIR / "mipi", *args, **kwargs):
-        """Initializes dataset with ``root`` path and parent args."""
+    def __init__(self, root: core.Path, *args, **kwargs):
         root = core.Path(root)
         root = root / "mipi_2024_flare" if root.name != "mipi_2024_flare" else root
         if not root.is_dir():
             raise FileNotFoundError(f"[root] directory not found: [{root}].")
+        
         super().__init__(root=root, *args, **kwargs)
 
     def list_data(self):

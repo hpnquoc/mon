@@ -11,7 +11,7 @@ __all__ = [
 ]
 
 from mon import core, vision
-from mon.constants import DATA_DIR, DATASETS, EXTRA_DATASETS, Split, Task
+from mon.constants import DATASETS, EXTRA_DATASETS, Split, Task, ROOT_DIR
 
 
 # ----- Retrieve -----
@@ -100,9 +100,10 @@ def parse_data_loader(
     """
     src = core.Path(src)
     if src.stem in DATASETS:
-        src = src.stem
-        if (data_root not in [None, "None", ""]
-            and core.Path(data_root / src).is_dir()):
+        src  = src.stem
+        root = core.parse_data_dir(root=data_root, data_dir=src)
+        '''
+        if data_root not in [None, "None", ""] and core.Path(data_root / src).is_dir():
             root = data_root / src
         else:
             defaults_dict = dict(zip(
@@ -110,8 +111,9 @@ def parse_data_loader(
                 DATASETS[src].__init__.__defaults__
             ))
             root = defaults_dict.get("root", None)
+        '''
         if root and not root.is_dir():
-            root = DATA_DIR
+            root = ROOT_DIR / "data"
         
         config = {
             "name"     : src,

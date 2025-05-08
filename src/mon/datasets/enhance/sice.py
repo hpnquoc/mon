@@ -17,7 +17,7 @@ __all__ = [
 from typing import Literal
 
 from mon import core, vision
-from mon.constants import DATA_DIR, DATAMODULES, DATASETS, Split, Task
+from mon.constants import DATAMODULES, DATASETS, Split, Task
 
 # ----- Alias -----
 ClassLabels                    = core.ClassLabels
@@ -35,7 +35,7 @@ class SICE(VisionDataset):
     """Loads SICE dataset from ``root`` dir.
 
     Args:
-        root: Directory path to dataset. Default is ``DATA_DIR / "enhance"``.
+        root: Directory path to dataset.
         *args: Additional args for parent class.
         **kwargs: Additional kwargs for parent class.
 
@@ -53,8 +53,7 @@ class SICE(VisionDataset):
     })
     has_test_annotations: bool = True
     
-    def __init__(self, root: core.Path = DATA_DIR / "enhance", *args, **kwargs):
-        """Initializes dataset with ``root`` path and parent args."""
+    def __init__(self, root: core.Path, *args, **kwargs):
         root = core.Path(root)
         root = root / "sice" if root.name != "sice" else root
         if not root.is_dir():
@@ -82,7 +81,7 @@ class SICEGrad(VisionDataset):
     """Loads SICE-Grad dataset from ``root`` dir.
 
     Args:
-        root: Directory path to dataset. Default is ``DATA_DIR / "enhance"``.
+        root: Directory path to dataset.
         *args: Additional args for parent class.
         **kwargs: Additional kwargs for parent class.
 
@@ -100,8 +99,7 @@ class SICEGrad(VisionDataset):
     })
     has_test_annotations: bool = True
     
-    def __init__(self, root: core.Path = DATA_DIR / "enhance", *args, **kwargs):
-        """Initializes dataset with ``root`` path and parent args."""
+    def __init__(self, root: core.Path, *args, **kwargs):
         root = core.Path(root)
         root = root / "sice_grad" if root.name != "sice_grad" else root
         if not root.is_dir():
@@ -129,7 +127,7 @@ class SICEME(VisionDataset):
     """Loads SICE-ME dataset from ``root`` dir.
 
     Args:
-        root: Directory path to dataset. Default is ``DATA_DIR / "enhance"``.
+        root: Directory path to dataset.
         *args: Additional args for parent class.
         **kwargs: Additional kwargs for parent class.
 
@@ -145,8 +143,7 @@ class SICEME(VisionDataset):
     })
     has_test_annotations: bool = False
     
-    def __init__(self, root: core.Path = DATA_DIR / "enhance", *args, **kwargs):
-        """Initializes dataset with ``root`` path and parent args."""
+    def __init__(self, root: core.Path, *args, **kwargs):
         root = core.Path(root)
         root = root / "sice_me" if root.name != "sice_me" else root
         if not root.is_dir():
@@ -174,7 +171,7 @@ class SICEMix(VisionDataset):
     """Loads SICE-Mix dataset from ``root`` dir.
 
     Args:
-        root: Directory path to dataset. Default is ``DATA_DIR / "enhance"``.
+        root: Directory path to dataset.
         *args: Additional args for parent class.
         **kwargs: Additional kwargs for parent class.
 
@@ -192,8 +189,7 @@ class SICEMix(VisionDataset):
     })
     has_test_annotations: bool = True
     
-    def __init__(self, root: core.Path = DATA_DIR / "enhance", *args, **kwargs):
-        """Initializes dataset with ``root`` path and parent args."""
+    def __init__(self, root: core.Path, *args, **kwargs):
         root = core.Path(root)
         root = root / "sice_mix" if root.name != "sice_mix" else root
         if not root.is_dir():
