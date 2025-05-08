@@ -18,6 +18,7 @@ from .det_engine import evaluate, train_one_epoch
 
 
 class DetSolver(BaseSolver):
+    
     def fit(self):
         self.train()
         args = self.cfg

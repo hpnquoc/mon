@@ -53,6 +53,7 @@ DfsrPrivate
 
 *.cache
 *.lock
-data/
-poetry.lock
-project/*/data/
+__pycache__/
+_gsdata_/
+/data/
+/project/*/data/

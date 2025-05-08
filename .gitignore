@@ -1,3 +1,5 @@
+*.cache
+*.caches
 *.ckpt
 *.egg
 *.egg-info/
@@ -15,9 +17,9 @@ __pycache__/
 _gsdata_/
 archive/
 build/
-data/
 dist/
-project/*/data/
-project/*/run/
-project/tss_old
-zoo/*/
+/data/
+/project/*/data/
+/project/*/run/
+/project/tss_old
+/zoo/*/
