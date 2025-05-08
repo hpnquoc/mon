@@ -73,7 +73,7 @@ def predict(args: dict) -> str:
     if benchmark:
         h = (512 // scale_factor) * scale_factor
         w = (512 // scale_factor) * scale_factor
-        flops, params = mon.compute_efficiency_score(model=net, image_size=[h, w])
+        flops, params = mon.compute_efficiency_score(model=net, image_size=(h, w))
         mon.console.log(f"FLOPs : {flops:.4f}")
         mon.console.log(f"Params: {params:.4f}")
     

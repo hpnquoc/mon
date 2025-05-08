@@ -69,7 +69,7 @@ def train(args: dict) -> str:
     mon.set_random_seed(seed)
 
     # Data I/O
-    data       = mon.DATA_DIR / args["datamodule"]["root"]
+    data       = mon.parse_data_dir(root, data_dir=args["datamodule"]["root"])
     dataset    = create_webdataset(data_dir=str(data))
     dataloader = wds.WebLoader(
         dataset         = dataset,
