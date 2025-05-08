@@ -34,6 +34,34 @@ check_cuda() {
   fi
 }
 
+check_bashrc_line() {
+    local search_line="$1"
+    # echo "Checking .bashrc for line: $search_line" >&2
+    if [ -f ~/.bashrc ] && grep -Fx "$search_line" ~/.bashrc >/dev/null; then
+        # echo "Line found: $search_line" >&2
+        # echo "found"
+        return 0
+    else
+        # echo "Line not found: $search_line" >&2
+        # echo "not_found"
+        return 1
+    fi
+}
+
+check_bash_profile_line() {
+    local search_line="$1"
+    # echo "Checking .bash_profile for line: $search_line" >&2
+    if [ -f ~/.bash_profile ] && grep -Fx "$search_line" ~/.bash_profile >/dev/null; then
+        # echo "Line found: $search_line" >&2
+        # echo "found"
+        return 0
+    else
+        # echo "Line not found: $search_line" >&2
+        # echo "not_found"
+        return 1
+    fi
+}
+
 # ----- Utils -----
 get_env_yaml_path() {
   # echo -e "\nGetting environment YAML path"
@@ -74,8 +102,10 @@ create_mon_env_linux() {
   # Create `mon` env
   env_yaml_path=$(get_env_yaml_path)
   conda env create -f "${env_yaml_path}"
-  echo "conda activate mon" >> ~/.bashrc
-  source ~/.bashrc
+  if [ $(check_bashrc_line "conda activate mon") -ne 0 ]; then
+    echo "conda activate mon" >> ~/.bashrc
+    source ~/.bashrc
+  fi
   echo -e "... Done"
   # Cleanup
   rm -rf $CONDA_PREFIX/lib/python3.12/site-packages/cv2/qt/plugins
@@ -89,8 +119,10 @@ create_mon_env_darwin() {
   # Create `mon` env
   env_yaml_path=$(get_env_yaml_path)
   conda env create -f "${env_yaml_path}"
-  echo "conda activate mon" >> ~/.bash_profile
-  source ~/.bash_profile
+  if [ $(check_bashrc_line "conda activate mon") -ne 0 ]; then
+    echo "conda activate mon" >> ~/.bashrc
+    source ~/.bash_profile
+  fi
   echo -e "... Done"
   # Cleanup
   rm -rf $CONDA_PREFIX/lib/python3.12/site-packages/cv2/qt/plugins

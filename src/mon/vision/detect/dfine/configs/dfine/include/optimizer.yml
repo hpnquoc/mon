@@ -1,36 +1,32 @@
 use_amp: True
 use_ema: True
 ema:
-  type: ModelEMA
-  decay: 0.9999
+  type   : ModelEMA
+  decay  : 0.9999
   warmups: 1000
-  start: 0
+  start  : 0
 
-
-epochs: 72
+epochs       : 72
 clip_max_norm: 0.1
 
-
 optimizer:
-  type: AdamW
+  type  : AdamW
   params:
     -
-      params: '^(?=.*backbone)(?!.*norm).*$'
-      lr: 0.0000125
+      params: "^(?=.*backbone)(?!.*norm).*$"
+      lr    : 0.0000125
     -
-      params: '^(?=.*(?:encoder|decoder))(?=.*(?:norm|bn)).*$'
+      params      : "^(?=.*(?:encoder|decoder))(?=.*(?:norm|bn)).*$"
       weight_decay: 0.
-
-  lr: 0.00025
-  betas: [0.9, 0.999]
+  lr          : 0.00025
+  betas       : [0.9    , 0.999]
   weight_decay: 0.000125
 
-
 lr_scheduler:
-  type: MultiStepLR
+  type      : MultiStepLR
   milestones: [500]
-  gamma: 0.1
+  gamma     : 0.1
 
 lr_warmup_scheduler:
-  type: LinearWarmup
+  type           : LinearWarmup
   warmup_duration: 500

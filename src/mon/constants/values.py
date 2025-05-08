@@ -79,6 +79,33 @@ EXTRA_STR      = "[extra]"
 EXTRA_DATASETS = {}
 EXTRA_MODELS   = {  # architecture/model (+ variant)
     # region detect
+    "dfine" : {
+        "dfine_l": {
+            "tasks"    : [Task.DETECT],
+            "mltypes"  : [MLType.SUPERVISED],
+            "model_dir": MON_DIR / "vision" / "detect" / "dfine",
+        },
+        "dfine_m": {
+            "tasks"    : [Task.DETECT],
+            "mltypes"  : [MLType.SUPERVISED],
+            "model_dir": MON_DIR / "vision" / "detect" / "dfine",
+        },
+        "dfine_n": {
+            "tasks"    : [Task.DETECT],
+            "mltypes"  : [MLType.SUPERVISED],
+            "model_dir": MON_DIR / "vision" / "detect" / "dfine",
+        },
+        "dfine_s": {
+            "tasks"    : [Task.DETECT],
+            "mltypes"  : [MLType.SUPERVISED],
+            "model_dir": MON_DIR / "vision" / "detect" / "dfine",
+        },
+        "dfine_x": {
+            "tasks"    : [Task.DETECT],
+            "mltypes"  : [MLType.SUPERVISED],
+            "model_dir": MON_DIR / "vision" / "detect" / "dfine",
+        },
+    },
     "yolor" : {
         "yolor_d6": {
             "tasks"    : [Task.DETECT],

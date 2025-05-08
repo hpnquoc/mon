@@ -58,6 +58,7 @@ dependencies    = [
     "fvcore",                           # Collection of common code shared among different research projects in FAIR computer vision team.
     "lightning>=2.5.1",                 # The Deep Learning framework to train, deploy, and ship AI products Lightning fast.
     "onnxruntime",                      # ONNX Runtime is a performance-focused scoring engine for Open Neural Network Exchange (ONNX) models.
+    "openvino",                         # OpenVINO™ is a toolkit for optimizing and deploying AI inference.
     "scikit-learn",                     # A set of python modules for machine learning and data mining.
     "snntorch",
     "spikingjelly",
@@ -67,8 +68,10 @@ dependencies    = [
     "torch>=2.7.0",                     # PyTorch is an optimized tensor library for deep learning using GPUs and CPUs.
     "torchfile",
     "torchmetrics>=1.7.1",              # Collection of PyTorch native metrics for easy evaluating machine learning models.
+    "transformers",                     # 🤗 Transformers: State-of-the-art Machine Learning for Pytorch, TensorFlow, and JAX.
     # Vision
     "albumentations",                   # An efficient library for image augmentation, providing extensive transformations to support machine learning and computer vision tasks.
+    "faster-coco-eval",                 # Faster interpretation of the original COCOEval
     "ffmpeg-python",                    # Python bindings for FFmpeg—with complex filtering support.
     "kornia",                           # Kornia is a differentiable computer vision library for PyTorch.
     "opencv-contrib-python",            # Wrapper package for OpenCV python bindings.
