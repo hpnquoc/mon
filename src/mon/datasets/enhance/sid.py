@@ -24,9 +24,9 @@ VisionDataset                  = vision.VisionDataset
 
 
 # ----- Dataset -----
-@DATASETS.register(name="sid_sony")
+@DATASETS.register(name="sidsony")
 class SIDSony(VisionDataset):
-    """Loads SIDSony dataset from ``root`` dir.
+    """Loads SID-Sony dataset from ``root`` dir.
 
     Args:
         root: Directory path to dataset.
@@ -49,7 +49,7 @@ class SIDSony(VisionDataset):
     
     def __init__(self, root: core.Path, *args, **kwargs):
         root = core.Path(root)
-        root = root / "sid_sony" if root.name != "sid_sony" else root
+        root = root / "sid" if root.name != "sid" else root
         if not root.is_dir():
             raise FileNotFoundError(f"[root] directory not found: [{root}].")
         
@@ -57,7 +57,7 @@ class SIDSony(VisionDataset):
     
     def list_data(self):
         """Lists ``datapoints`` with image annotations for split."""
-        patterns = [self.root / self.split_str / "image"]
+        patterns = [self.root / "sony" / self.split_str / "image"]
         
         images: list[ImageAnnotation] = []
         with core.create_progress_bar(disable=self.disable_pbar) as pbar:
@@ -72,9 +72,9 @@ class SIDSony(VisionDataset):
     
 
 # ----- DataModule -----
-@DATAMODULES.register(name="sid_sony")
+@DATAMODULES.register(name="sidsony")
 class SIDSonyDataModule(core.DataModule):
-    """Configures SIDSony datasets for training/testing."""
+    """Configures SID-Sony datasets for training/testing."""
 
     tasks: list[Task] = [Task.LLE]
     

@@ -382,11 +382,11 @@ EXTRA_MODELS   = {  # architecture/model (+ variant)
             "model_dir": MON_DIR / "vision" / "enhance" / "lle" / "sgz",
         },
     },
-    "snr_net"      : {
-        "snr_net": {
+    "snr"          : {
+        "snr": {
             "tasks"    : [Task.LLE],
             "mltypes"  : [MLType.SUPERVISED],
-            "model_dir": MON_DIR / "vision" / "enhance" / "lle" / "snr_net",
+            "model_dir": MON_DIR / "vision" / "enhance" / "lle" / "snr",
         },
     },
     "uretinexnet"  : {
@@ -410,39 +410,39 @@ EXTRA_MODELS   = {  # architecture/model (+ variant)
             "model_dir": MON_DIR / "vision" / "enhance" / "lle" / "utvnet",
         },
     },
-    "zero_dce"     : {
-        "zero_dce"  : {
+    "zerodce"      : {
+        "zerodce"  : {
             "tasks"    : [Task.LLE],
             "mltypes"  : [MLType.ZERO_REFERENCE],
-            "model_dir": MON_DIR / "vision" / "enhance" / "lle" / "zero_dce",
+            "model_dir": MON_DIR / "vision" / "enhance" / "lle" / "zerodce",
         },
     },
-    "zero_dce++"   : {
-        "zero_dce++": {
+    "zerodce++"    : {
+        "zerodce++": {
             "tasks"    : [Task.LLE],
             "mltypes"  : [MLType.ZERO_REFERENCE],
-            "model_dir": MON_DIR / "vision" / "enhance" / "lle" / "zero_dce++",
+            "model_dir": MON_DIR / "vision" / "enhance" / "lle" / "zerodce++",
         },
     },
-    "zero_didce"   : {
-        "zero_didce": {
+    "zerodidce"    : {
+        "zerodidce": {
             "tasks"    : [Task.LLE],
             "mltypes"  : [MLType.ZERO_REFERENCE],
-            "model_dir": MON_DIR / "vision" / "enhance" / "lle" / "zero_didce",
+            "model_dir": MON_DIR / "vision" / "enhance" / "lle" / "zerodidce",
         },
     },
-    "zero_ig"      : {
-        "zero_ig": {
+    "zeroig"       : {
+        "zeroig": {
             "tasks"    : [Task.LLE],
             "mltypes"  : [MLType.ZERO_SHOT, MLType.ZERO_REFERENCE],
-            "model_dir": MON_DIR / "vision" / "enhance" / "lle" / "zero_ig",
+            "model_dir": MON_DIR / "vision" / "enhance" / "lle" / "zeroig",
         },
     },
-    "zero_tig"     : {
-        "zero_tig": {
+    "zerotig"      : {
+        "zerotig": {
             "tasks"    : [Task.LLE, Task.VIDEO],
             "mltypes"  : [MLType.ZERO_SHOT],
-            "model_dir": MON_DIR / "vision" / "enhance" / "lle" / "zero_tig",
+            "model_dir": MON_DIR / "vision" / "enhance" / "lle" / "zerotig",
         },
     },
     # endregion

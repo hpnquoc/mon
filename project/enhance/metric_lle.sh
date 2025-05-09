@@ -4,8 +4,8 @@ echo "$HOSTNAME"
 clear
 
 # ----- Input -----
-arch="zero_ig"
-model="zero_ig_zsl_denoise"
+arch="zeroig"
+model="zeroig_zsl_denoise"
 data=(
   ### Unpaired Set
   "dicm"
@@ -14,29 +14,27 @@ data=(
   "npe"
   "vv"
   ### LOLs Set
-  "lol_v1"
-  "lol_v2_real"
-  "lol_v2_synthetic"
+  "lolv1"
+  "lolv2real"
+  "lolv2syn"
   ### FiveK Set
-  # "fivek_a"
-  # "fivek_b"
-  "fivek_c"
-  # "fivek_d"
-  "fivek_e"
+  #"fiveka"
+  #"fivekb"
+  "fivekc"
+  #"fivekd"
+  "fiveke"
   ### SICE Set
   "sice"
-  "sice_grad"
-  "sice_mix"
+  "sicegrad"
+  "sicemix"
   ### Camera-Specific Set
-  "sid_sony"
+  "sidsony"
   ### Real-World Set
   "darkcityscapes"
   "darkface"
-  # "darkface_full"
   "exdark"
-  # "exdark_full"
-  "loli_street_test"
-  "loli_street_val"
+  "lolistreettest"
+  "lolistreetval"
   "nightcity"
 )
 device="cuda:0"
@@ -52,35 +50,47 @@ runml_dir="${project_dir}/runml"
 cd "${runml_dir}" || exit
 for (( i=0; i<${#data[@]}; i++ )); do
   # Input
-  if [ "${data[i]}" == "fivek_a" ]; then
+  if [ "${data[i]}" == "fiveka" ]; then
     input_dir="${current_dir}/run/predict/${arch}/${model}/fivek"
-  elif [ "${data[i]}" == "fivek_b" ]; then
+  elif [ "${data[i]}" == "fivekb" ]; then
     input_dir="${current_dir}/run/predict/${arch}/${model}/fivek"
-  elif [ "${data[i]}" == "fivek_c" ]; then
+  elif [ "${data[i]}" == "fivekc" ]; then
     input_dir="${current_dir}/run/predict/${arch}/${model}/fivek"
-  elif [ "${data[i]}" == "fivek_d" ]; then
+  elif [ "${data[i]}" == "fivekd" ]; then
     input_dir="${current_dir}/run/predict/${arch}/${model}/fivek"
-  elif [ "${data[i]}" == "fivek_e" ]; then
+  elif [ "${data[i]}" == "fiveke" ]; then
     input_dir="${current_dir}/run/predict/${arch}/${model}/fivek"
   else
     input_dir="${current_dir}/run/predict/${arch}/${model}/${data[i]}"
   fi
   
   # Target
-  if [ "${data[i]}" == "fivek_a" ]; then
+  if [ "${data[i]}" == "lolv2real" ]; then
+    target_subdir="lolv2/real/test/ref"
+  elif [ "${data[i]}" == "lolv2syn" ]; then
+    target_subdir="lolv2/syn/test/ref"
+  elif [ "${data[i]}" == "fiveka" ]; then
     target_subdir="fivek/test/ref_a"
-  elif [ "${data[i]}" == "fivek_b" ]; then
+  elif [ "${data[i]}" == "fivekb" ]; then
     target_subdir="fivek/test/ref_b"
-  elif [ "${data[i]}" == "fivek_c" ]; then
+  elif [ "${data[i]}" == "fivekc" ]; then
     target_subdir="fivek/test/ref_c"
-  elif [ "${data[i]}" == "fivek_d" ]; then
+  elif [ "${data[i]}" == "fivekd" ]; then
     target_subdir="fivek/test/ref_d"
-  elif [ "${data[i]}" == "fivek_e" ]; then
+  elif [ "${data[i]}" == "fiveke" ]; then
     target_subdir="fivek/test/ref_e"
-  elif [ "${data[i]}" == "loli_street_val" ]; then
-    target_subdir="loli_street/val/ref"
-  elif [ "${data[i]}" == "loli_street_test" ]; then
-    target_subdir="loli_street/test/ref"
+  elif [ "${data[i]}" == "sice" ]; then
+    target_subdir="sice/sice/test/ref"
+  elif [ "${data[i]}" == "sicegrad" ]; then
+    target_subdir="sice/grad/test/ref"
+  elif [ "${data[i]}" == "sicemix" ]; then
+    target_subdir="sice/mix/test/ref"
+  elif [ "${data[i]}" == "sidsony" ]; then
+    target_subdir="sid/sony/test/ref"
+  elif [ "${data[i]}" == "lolistreetval" ]; then
+    target_subdir="lolistreet/val/ref"
+  elif [ "${data[i]}" == "lolistreettest" ]; then
+    target_subdir="lolistreet/test/ref"
   else
     target_subdir="${data[i]}/test/ref"
   fi

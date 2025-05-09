@@ -40,7 +40,7 @@ VisionDataset                  = vision.VisionDataset
 
 
 # ----- Dataset -----
-@DATASETS.register(name="fivek_init")
+@DATASETS.register(name="fivekinit")
 class FiveKInit(VisionDataset):
     """Loads FiveKInit dataset from ``root`` dir for model init.
 
@@ -222,7 +222,7 @@ class FiveK(VisionDataset):
         self.datapoints["image"] = images
         
 
-@DATASETS.register(name="fivek_a")
+@DATASETS.register(name="fiveka")
 class FiveKA(VisionDataset):
     """Loads FiveKA dataset from ``root`` dir with Expert A GT.
 
@@ -284,7 +284,7 @@ class FiveKA(VisionDataset):
             self.datapoints["ref_image"] = ref_images
     
 
-@DATASETS.register(name="fivek_b")
+@DATASETS.register(name="fivekb")
 class FiveKB(VisionDataset):
     """Loads FiveKB dataset from ``root`` dir with Expert B GT.
 
@@ -346,7 +346,7 @@ class FiveKB(VisionDataset):
             self.datapoints["ref_image"] = ref_images
             
 
-@DATASETS.register(name="fivek_c")
+@DATASETS.register(name="fivekc")
 class FiveKC(VisionDataset):
     """Loads FiveKC dataset from ``root`` dir with Expert C GT.
 
@@ -408,7 +408,7 @@ class FiveKC(VisionDataset):
             self.datapoints["ref_image"] = ref_images
             
 
-@DATASETS.register(name="fivek_d")
+@DATASETS.register(name="fivekd")
 class FiveKD(VisionDataset):
     """Loads FiveKD dataset from ``root`` dir with Expert D GT.
 
@@ -470,7 +470,7 @@ class FiveKD(VisionDataset):
             self.datapoints["ref_image"] = ref_images
             
 
-@DATASETS.register(name="fivek_e")
+@DATASETS.register(name="fiveke")
 class FiveKE(VisionDataset):
     """Loads FiveKE dataset from ``root`` dir with Expert E GT.
 
@@ -533,7 +533,7 @@ class FiveKE(VisionDataset):
 
 
 # ----- DataModule -----
-@DATAMODULES.register(name="fivek_init")
+@DATAMODULES.register(name="fivekinit")
 class FiveKInitDataModule(core.DataModule):
     """Configures FiveKInit datasets for training/testing."""
     
@@ -595,7 +595,7 @@ class FiveKDataModule(core.DataModule):
             self.summarize()
 
 
-@DATAMODULES.register(name="fivek_a")
+@DATAMODULES.register(name="fiveka")
 class FiveKADataModule(core.DataModule):
     """Configures FiveKA datasets for training/testing."""
     
@@ -626,7 +626,7 @@ class FiveKADataModule(core.DataModule):
             self.summarize()
 
 
-@DATAMODULES.register(name="fivek_b")
+@DATAMODULES.register(name="fivekb")
 class FiveKBDataModule(core.DataModule):
     """Configures FiveKB datasets for training/testing."""
     
@@ -657,7 +657,7 @@ class FiveKBDataModule(core.DataModule):
             self.summarize()
 
 
-@DATAMODULES.register(name="fivek_c")
+@DATAMODULES.register(name="fivekc")
 class FiveKCDataModule(core.DataModule):
     """Configures FiveKC datasets for training/testing."""
     
@@ -688,7 +688,7 @@ class FiveKCDataModule(core.DataModule):
             self.summarize()
 
 
-@DATAMODULES.register(name="fivek_d")
+@DATAMODULES.register(name="fivekd")
 class FiveKDDataModule(core.DataModule):
     """Configures FiveKD datasets for training/testing."""
     
@@ -719,7 +719,7 @@ class FiveKDDataModule(core.DataModule):
             self.summarize()
 
 
-@DATAMODULES.register(name="fivek_e")
+@DATAMODULES.register(name="fiveke")
 class FiveKEDataModule(core.DataModule):
     """Configures FiveKE datasets for training/testing."""
     

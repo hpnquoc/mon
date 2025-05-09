@@ -1,9 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Convert YOLO bbox to COCO format.
-
-Example COCO JSON format:
+"""Convert YOLO bbox to COCO format:
 {
     "info": {
         "year": "2020",
@@ -85,6 +83,7 @@ Example COCO JSON format:
 }
 """
 
+import argparse
 import json
 
 import cv2
@@ -98,14 +97,14 @@ current_dir  = current_file.parents[0]
 
 def convert_yolo_to_coco(split: str):
     code        = mon.ShapeCode.from_value(value=f"yolo_to_coco")
-    images_dir  = current_dir / "data" / split / "images"
-    label_dir   = current_dir / "data" / split / "labels"
+    image_dir   = current_dir / "data" / split / "image"
+    label_dir   = current_dir / "data" / split / "label"
     json_file   = current_dir / "data" / split / f"{split}.json"
     
-    assert mon.Path(images_dir).is_dir()
+    assert mon.Path(image_dir).is_dir()
     assert mon.Path(label_dir).is_dir()
     
-    image_files = list(images_dir.rglob("*"))
+    image_files = list(image_dir.rglob("*"))
     image_files = sorted([f for f in image_files if f.is_image_file()])
     
     # COCO JSON Format
@@ -144,7 +143,7 @@ def convert_yolo_to_coco(split: str):
             # Append annotations
             label_file = None
             for j in range(0, 4):
-                file = image_file.parents[j] / "labels" / f"{image_file.stem}.txt"
+                file = image_file.parents[j] / "label" / f"{image_file.stem}.txt"
                 if file.is_txt_file():
                     label_file = file
                     break
@@ -184,4 +183,8 @@ def convert_yolo_to_coco(split: str):
 
 
 if __name__ == "__main__":
-    convert_yolo_to_coco("val")
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--split", type=str, default="train", required=True)
+    args = parser.parse_args()
+    
+    convert_yolo_to_coco(args.split)

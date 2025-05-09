@@ -4,7 +4,7 @@ echo "$HOSTNAME"
 clear
 
 # ----- Input -----
-data="dicm, fusion, lime, mef, npe, vv, lol_v1, lol_v2_real, lol_v2_synthetic, fivek, sice, sice_grad, sice_mix, sid_sony, darkcityscapes, darkface, exdark, loli_street_test, loli_street_val, nightcity"
+data="dicm, fusion, lime, mef, npe, vv, lolv1, lolv2real, lolv2syn, fivek, sice, sicegrad, sicemix, sidsony, darkcityscapes, darkface, exdark, lolistreettest, lolistreetval, nightcity"
 
 # ----- Directory -----
 current_file=$(readlink -f "$0")
