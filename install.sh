@@ -204,7 +204,7 @@ install_mon_package() {
     poetry install --extras "docs"
   fi
   rm -rf poetry.lock
-  conda update --a --y
+  # conda update --a --y
   conda clean  --a --y
 }
 

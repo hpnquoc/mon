@@ -89,16 +89,15 @@ def run_train(args: dict):
         if torchrun:
             device_     = mon.parse_device(device)
             python_call = [
-                "python",
+                sys.executable,
                 "-m",
                 "torch.distributed.run",
                 f"--nproc_per_node={len(device_)}",
                 f"--master_port={master_port}",
                 f"--master_addr={master_addr}",
             ]
-            if torch.cuda.is_available():
-                # Assign GPUs to ranks (e.g., rank 0 -> GPU 0, rank 1 -> GPU 1)
-                env["CUDA_VISIBLE_DEVICES"] = ",".join(device_)
+            os.environ["CUDA_VISIBLE_DEVICES"] = ",".join(device_)
+            env = {**os.environ, "CUDA_VISIBLE_DEVICES": ",".join(device_), **env}
     else:
         script_file = current_dir / "train.py"
 

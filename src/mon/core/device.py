@@ -22,12 +22,15 @@ import psutil
 import torch
 
 from mon.constants import MemoryUnit
+from mon.core.type_extensions import generate_combinations
 
 try:
     import pynvml
     pynvml_available = True
 except ImportError:
     pynvml_available = False
+
+CUDA_PREFIX = "cuda:"
 
 
 # ----- Retrieve -----
@@ -52,11 +55,13 @@ def list_devices() -> list[str]:
     """
     devices = ["auto", "cpu"]
     if torch.cuda.is_available():
-        num_devices  = torch.cuda.device_count()
-        devices.extend(f"cuda:{i}" for i in range(num_devices))
-        all_cuda_str = "cuda:" + ",".join(str(i) for i in range(num_devices))
-        if all_cuda_str != "cuda:0":
-            devices.append(all_cuda_str)
+        num_devices = torch.cuda.device_count()
+        if num_devices <= 0:
+            return devices
+        # Add all CUDA device combinations (e.g., ``cuda:0``, ``cuda:1``, ``cuda:0,1``, etc.)
+        cuda_indices      = list(range(num_devices))
+        cuda_combinations = generate_combinations(cuda_indices)
+        devices.extend([f"{CUDA_PREFIX}{','.join(str(i) for i in comb)}" for comb in cuda_combinations])
     return devices
 
 

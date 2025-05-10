@@ -185,43 +185,43 @@ CLI_OPTIONS = {
         "action"     : "store_true",
         "help"       : "Enable benchmark mode.",
         "prompt_only": False,
-        "prompt_text": "Benchmark?   ",
+        "prompt_text": "Benchmark?    ",
     },
     "save_image"  : {
         "action"     : "store_true",
         "help"       : "Save the output images.",
         "prompt_only": False,
-        "prompt_text": "Save image?  ",
+        "prompt_text": "Save image?   ",
     },
     "save_debug"  : {
         "action"     : "store_true",
         "help"       : "Save debug information.",
         "prompt_only": False,
-        "prompt_text": "Save debug?  ",
+        "prompt_text": "Save debug?   ",
     },
     "use_fullname": {
         "action"     : "store_true",
         "help"       : "Use the ``fullname`` for the ``save_dir``.",
         "prompt_only": False,
-        "prompt_text": "Use Fullname?",
+        "prompt_text": "Use Fullname? ",
     },
     "keep_subdirs": {
         "action"     : "store_true",
         "help"       : "Keep subdirectories in the ``save_dir``.",
         "prompt_only": False,
-        "prompt_text": "Keep Subdirs?",
+        "prompt_text": "Keep Subdirs? ",
     },
     "exist_ok"    : {
         "action"     : "store_true",
         "help"       : "Keep existing directories.",
         "prompt_only": False,
-        "prompt_text": "Exist OK?    ",
+        "prompt_text": "Exist OK?     ",
     },
     "verbose"     : {
         "action"     : "store_true",
         "help"       : "Verbose mode.",
         "prompt_only": False,
-        "prompt_text": "Verbosity?   ",
+        "prompt_text": "Verbosity?    ",
     },
     # Distributed Training
     "torchrun"    : {
@@ -244,6 +244,13 @@ CLI_OPTIONS = {
         "help"       : "Master node address.",
         "prompt_only": False,
         "prompt_text": "Master Address",
+    },
+    "local-rank" : {
+        "default"    : 0,
+        "type"       : _int_or_none,
+        "help"       : "Local rank for distributed training.",
+        "prompt_only": False,
+        "prompt_text": "Local Rank    ",
     },
 }
 

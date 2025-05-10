@@ -69,7 +69,7 @@ class Prompt:
             "show_default"  : True,
             "show_choices"  : True,
             "allow_empty"   : False,
-            "parse_response": True,
+            "column_first"  : False,
             "default"       : self.default,
         }
         if self._choices and len(self._choices) > 0:

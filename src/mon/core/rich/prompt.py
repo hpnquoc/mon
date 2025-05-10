@@ -12,8 +12,21 @@ from mon.core import type_extensions
 
 # ----- Prompt Class -----
 class SelectionOrInputPrompt(Prompt):
-    """Extend ``rich.prompt.Prompt`` to allow for either selecting an index or directly
-    entering value.
+    """Extend ``rich.prompt.Prompt`` to allow for either selecting an index or
+    directly entering value.
+
+    Args:
+        prompt: Prompt text. Defaults to "".
+        console: A Console instance or None to use global console. Defaults to None.
+        password: Enable password input. Defaults to False.
+        choices: A list of valid choices. Defaults to None.
+        case_sensitive: Matching of choices should be case-sensitive. Defaults to True.
+        show_default: Show default in prompt. Defaults to True.
+        show_choices: Show choices in prompt. Defaults to True.
+        allow_empty: Allow empty input. Defaults to False.
+        column_first: Align Align items from top to bottom (rather than left to right).
+            Defaults to False.
+        stream: Optional text file open for reading to get input. Defaults to None.
     """
     
     response_type: type = str
@@ -28,11 +41,11 @@ class SelectionOrInputPrompt(Prompt):
         case_sensitive: bool                = True,
         show_default  : bool                = True,
         show_choices  : bool                = True,
+        column_first  : bool                = False,
         allow_empty   : bool                = False,
-        parse_response: bool                = True,
     ):
-        self.allow_empty    = allow_empty
-        self.parse_response = parse_response
+        self.allow_empty  = allow_empty
+        self.column_first = column_first
         super().__init__(
             prompt         = prompt,
             console        = console,
@@ -48,7 +61,7 @@ class SelectionOrInputPrompt(Prompt):
         choices_ = []
         for i, choice in enumerate(self.choices):
             choices_.append(f"{f'{i}.':>6} {choice}")
-        columns = Columns(choices_, equal=True, column_first=True)
+        columns = Columns(choices_, equal=True, column_first=self.column_first)
         rich.print(columns)
 
     @classmethod
@@ -63,7 +76,7 @@ class SelectionOrInputPrompt(Prompt):
         show_default  : bool                = True,
         show_choices  : bool                = True,
         allow_empty   : bool                = False,
-        parse_response: bool                = True,
+        column_first  : bool                = False,
         default       : Any                 = ...,
         stream        : Optional[TextIO]    = None,
     ) -> Any:
@@ -73,16 +86,17 @@ class SelectionOrInputPrompt(Prompt):
             >>> filename = Prompt.ask("Enter a filename")
 
         Args:
-            prompt (TextType, optional): Prompt text. Defaults to "".
-            console (Console, optional): A Console instance or None to use global console. Defaults to None.
-            password (bool, optional): Enable password input. Defaults to False.
-            choices (List[str], optional): A list of valid choices. Defaults to None.
-            case_sensitive (bool, optional): Matching of choices should be case-sensitive. Defaults to True.
-            show_default (bool, optional): Show default in prompt. Defaults to True.
-            show_choices (bool, optional): Show choices in prompt. Defaults to True.
-            allow_empty (bool, optional): Allow empty input. Defaults to False.
-            parse_response (bool, optional): Parse prompt text. Defaults to True.
-            stream (TextIO, optional): Optional text file open for reading to get input. Defaults to None.
+            prompt: Prompt text. Defaults to "".
+            console: A Console instance or None to use global console. Defaults to None.
+            password: Enable password input. Defaults to False.
+            choices: A list of valid choices. Defaults to None.
+            case_sensitive: Matching of choices should be case-sensitive. Defaults to True.
+            show_default: Show default in prompt. Defaults to True.
+            show_choices: Show choices in prompt. Defaults to True.
+            allow_empty: Allow empty input. Defaults to False.
+            column_first: Align Align items from top to bottom (rather than left to right).
+                Defaults to False.
+            stream: Optional text file open for reading to get input. Defaults to None.
         """
         _prompt = cls(
             prompt,
@@ -93,7 +107,7 @@ class SelectionOrInputPrompt(Prompt):
             show_default   = show_default,
             show_choices   = show_choices,
             allow_empty    = allow_empty,
-            parse_response = parse_response,
+            column_first   = column_first,
         )
         return _prompt(default=default, stream=stream)
 
@@ -173,9 +187,8 @@ class SelectionOrInputPrompt(Prompt):
                 raise InvalidResponse(self.illegal_choice_message)
                 
             # Convert index (if any) to choice
-            if self.parse_response:
-                value = type_extensions.to_list(value, sep=[",", ";"])
-                value = [self.choices[int(v)] if type_extensions.is_int(v) else v for v in value]
+            value = type_extensions.to_list(value, sep=[",", ";"])
+            value = [self.choices[int(v)] if type_extensions.is_int(v) else v for v in value]
             
             '''
             for i, v in enumerate(value):

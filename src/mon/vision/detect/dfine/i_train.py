@@ -104,7 +104,7 @@ def train(args: dict) -> str:
         "test_only"    : test_only,
         "print_method" : print_method,
         "print_rank"   : print_rank,
-        "local_rank"   : local_rank,
+        # "local_rank"   : local_rank,
         "epochs"       : epochs,
         "__include__"  : args.get("__include__", None),
     }

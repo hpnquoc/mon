@@ -22,7 +22,7 @@ __all__ = [
 INCLUDE_KEY = "__include__"
 
 
-def load_config(file_path, cfg=dict()):
+def load_config(file_path, cfg=dict(), updated_include: list = None) -> Dict:
     """load config"""
     _, ext = os.path.splitext(file_path)
     assert ext in [".yml", ".yaml"], "only support yaml files"
@@ -32,6 +32,7 @@ def load_config(file_path, cfg=dict()):
         if file_cfg is None:
             return {}
 
+    '''
     if INCLUDE_KEY in file_cfg:
         base_yamls = list(file_cfg[INCLUDE_KEY])
         for base_yaml in base_yamls:
@@ -44,6 +45,22 @@ def load_config(file_path, cfg=dict()):
             with open(base_yaml) as f:
                 base_cfg = load_config(base_yaml, cfg)
                 merge_dict(cfg, base_cfg)
+    '''
+
+    # My Modification 01: Update '__include__' in yaml
+    base_yamls = []
+    if updated_include not in [None, "None", ""]:
+        base_yamls = list(updated_include)
+    elif INCLUDE_KEY in file_cfg:
+        base_yamls = list(file_cfg[INCLUDE_KEY])
+    for base_yaml in base_yamls:
+        if base_yaml.startswith("~"):
+            base_yaml = os.path.expanduser(base_yaml)
+        if not base_yaml.startswith("/"):
+            base_yaml = os.path.join(os.path.dirname(file_path), base_yaml)
+        with open(base_yaml) as f:
+            base_cfg = load_config(base_yaml, cfg)
+            merge_dict(cfg, base_cfg)
 
     return merge_dict(cfg, file_cfg)
 
