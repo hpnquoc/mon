@@ -126,13 +126,16 @@ def set_device(device: Any, use_single_device: bool = True) -> torch.device:
         return device
 
     device = parse_device(device)
-    if isinstance(device, (list, tuple)) and use_single_device:
-        device = device[0]
+    if isinstance(device, (list, tuple)):
+        if use_single_device:
+            device = device[0]
+        else:
+            device = ",".join(device)
     return torch.device(f"cuda:{device}" if torch.cuda.is_available() else "cpu")
 
 
 # ----- Convert -----
-def parse_device(device: Any) -> list[int] | int | str | torch.device:
+def parse_device(device: Any) -> list[str] | str | torch.device:
     """Parses a device spec into a list, integer, or string.
 
     Args:
@@ -148,15 +151,13 @@ def parse_device(device: Any) -> list[int] | int | str | torch.device:
     if device in ["mps", "mps:0"]:
         return device
     if isinstance(device, int):
-        return [device]
+        return [str(device)]
     if isinstance(device, str):
         device = (device.lower()
                   .replace("cuda:", "")
-                  .replace("none", "")
+                  .replace("none",  "")
                   .translate(str.maketrans("", "", "()[ ]' ")))
-        return [int(x) for x in device.split(",")] \
-            if "," in device \
-            else [0] if not device else device
+        return device.split(",") if "," in device else [str(device)]
     return device
 
 

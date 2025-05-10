@@ -43,7 +43,7 @@ def predict(args: dict) -> str:
     keep_subdirs = args["keep_subdirs"]
     verbose      = args["verbose"]
     
-    opt_path     = str(current_dir / "model_config" / args["opt_path"])
+    opt_path     = str(current_dir / "options" / "test" / args["opt_path"])
     opt          = option.parse(opt_path, is_train=False)
     opt          = option.dict_to_nonedict(opt)
     

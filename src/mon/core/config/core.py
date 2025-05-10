@@ -70,6 +70,7 @@ parser.add_argument(
 )
 """
 CLI_OPTIONS = {
+    # Basic
     "root"        : {
         "default"    : None,
         "type"       : _str_or_none,
@@ -221,6 +222,28 @@ CLI_OPTIONS = {
         "help"       : "Verbose mode.",
         "prompt_only": False,
         "prompt_text": "Verbosity?   ",
+    },
+    # Distributed Training
+    "torchrun"    : {
+        "default"    : False,
+        "action"     : "store_true",
+        "help"       : "Distributed training.",
+        "prompt_only": False,
+        "prompt_text": "Use torchrun? ",
+    },
+    "master_port" : {
+        "default"    : 7777,
+        "type"       : _int_or_none,
+        "help"       : "Port for distributed communication.",
+        "prompt_only": False,
+        "prompt_text": "Master Port   ",
+    },
+    "master_addr" : {
+        "default"    : "localhost",
+        "type"       : _str_or_none,
+        "help"       : "Master node address.",
+        "prompt_only": False,
+        "prompt_text": "Master Address",
     },
 }
 

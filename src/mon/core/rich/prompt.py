@@ -17,7 +17,32 @@ class SelectionOrInputPrompt(Prompt):
     """
     
     response_type: type = str
-    
+
+    def __init__(
+        self,
+        prompt        : TextType            = "",
+        *,
+        console       : Optional[Console]   = None,
+        password      : bool                = False,
+        choices       : Optional[List[str]] = None,
+        case_sensitive: bool                = True,
+        show_default  : bool                = True,
+        show_choices  : bool                = True,
+        allow_empty   : bool                = False,
+        parse_response: bool                = True,
+    ):
+        self.allow_empty    = allow_empty
+        self.parse_response = parse_response
+        super().__init__(
+            prompt         = prompt,
+            console        = console,
+            password       = password,
+            choices        = choices,
+            case_sensitive = case_sensitive,
+            show_default   = show_default,
+            show_choices   = show_choices,
+        )
+
     def print_choices(self):
         """Print columns of choices to the console."""
         choices_ = []
@@ -25,7 +50,53 @@ class SelectionOrInputPrompt(Prompt):
             choices_.append(f"{f'{i}.':>6} {choice}")
         columns = Columns(choices_, equal=True, column_first=True)
         rich.print(columns)
-    
+
+    @classmethod
+    def ask(
+        cls,
+        prompt        : TextType            = "",
+        *,
+        console       : Optional[Console]   = None,
+        password      : bool                = False,
+        choices       : Optional[List[str]] = None,
+        case_sensitive: bool                = True,
+        show_default  : bool                = True,
+        show_choices  : bool                = True,
+        allow_empty   : bool                = False,
+        parse_response: bool                = True,
+        default       : Any                 = ...,
+        stream        : Optional[TextIO]    = None,
+    ) -> Any:
+        """Shortcut to construct and run a prompt loop and return the result.
+
+        Example:
+            >>> filename = Prompt.ask("Enter a filename")
+
+        Args:
+            prompt (TextType, optional): Prompt text. Defaults to "".
+            console (Console, optional): A Console instance or None to use global console. Defaults to None.
+            password (bool, optional): Enable password input. Defaults to False.
+            choices (List[str], optional): A list of valid choices. Defaults to None.
+            case_sensitive (bool, optional): Matching of choices should be case-sensitive. Defaults to True.
+            show_default (bool, optional): Show default in prompt. Defaults to True.
+            show_choices (bool, optional): Show choices in prompt. Defaults to True.
+            allow_empty (bool, optional): Allow empty input. Defaults to False.
+            parse_response (bool, optional): Parse prompt text. Defaults to True.
+            stream (TextIO, optional): Optional text file open for reading to get input. Defaults to None.
+        """
+        _prompt = cls(
+            prompt,
+            console        = console,
+            password       = password,
+            choices        = choices,
+            case_sensitive = case_sensitive,
+            show_default   = show_default,
+            show_choices   = show_choices,
+            allow_empty    = allow_empty,
+            parse_response = parse_response,
+        )
+        return _prompt(default=default, stream=stream)
+
     def render_default(self, default: DefaultType) -> Text:
         """Turn the supplied default in to a Text instance.
 
@@ -94,16 +165,17 @@ class SelectionOrInputPrompt(Prompt):
             The value to be returned from ask method.
         """
         value = value.strip() if isinstance(value, str) else value
-        
+
         if self.choices is not None:
             if len(self.choices) == 0:
                 return value
-            if len(self.choices) > 0 and value == "":
+            if len(self.choices) > 0 and value == "" and not self.allow_empty:
                 raise InvalidResponse(self.illegal_choice_message)
                 
             # Convert index (if any) to choice
-            value = type_extensions.to_list(value, sep=[",", ";"])
-            value = [self.choices[int(v)] if type_extensions.is_int(v) else v for v in value]
+            if self.parse_response:
+                value = type_extensions.to_list(value, sep=[",", ";"])
+                value = [self.choices[int(v)] if type_extensions.is_int(v) else v for v in value]
             
             '''
             for i, v in enumerate(value):

@@ -21,4 +21,4 @@ exist_ok    : True                                                              
 verbose     : &verbose True                                                     # Verbosity.
 
 # Misc
-opt_path: "lolv2real.yaml"
+opt_path: "snr_lolv2real.yaml"

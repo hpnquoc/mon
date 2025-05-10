@@ -3,7 +3,11 @@
 
 """Implements main running pipeline."""
 
+import os
 import subprocess
+import sys
+
+import torch
 
 import mon
 import menu_rich
@@ -37,6 +41,9 @@ def run_train(args: dict):
     keep_subdirs = args["keep_subdirs"]
     exist_ok     = args["exist_ok"]
     verbose      = args["verbose"]
+    torchrun     = args["torchrun"]
+    master_port  = args["master_port"]
+    master_addr  = args["master_addr"]
     
     assert root.exists()
     
@@ -76,23 +83,27 @@ def run_train(args: dict):
     flags += ["--verbose"]      if verbose      else []
     
     # Parse script file
+    python_call = ["python"]
+    env         = {**os.environ}
     if use_extra_model:
-        # torch_distributed_launch = mon.EXTRA_MODELS[arch][model]["torch_distributed_launch"]
         script_file = mon.EXTRA_MODELS[arch][model]["model_dir"] / "i_train.py"
-        python_call = ["python"]
-        # device      = mon.parse_device(device)
-        # if isinstance(device, list) and torch_distributed_launch:
-        #     python_call = [
-        #         f"python",
-        #         f"-m",
-        #         f"torch.distributed.launch",
-        #         f"--nproc_per_node={str(len(device))}",
-        #         f"--master_port=9527"
-        #     ]
+        if torchrun:
+            device_ = mon.parse_device(device)
+            python_call = [
+                "python",
+                "-m",
+                "torch.distributed.run",
+                f"--nproc_per_node={len(device_)}",
+                f"--master_port={master_port}",
+                f"--master_addr={master_addr}",
+            ]
+
+            if torch.cuda.is_available():
+                # Assign GPUs to ranks (e.g., rank 0 -> GPU 0, rank 1 -> GPU 1)
+                env["CUDA_VISIBLE_DEVICES"] = ",".join(device_)
     else:
         script_file = current_dir / "train.py"
-        python_call = ["python"]
-    
+
     # Parse arguments
     args_call: list[str] = []
     for k, v in kwargs.items():
@@ -113,7 +124,7 @@ def run_train(args: dict):
             args_call +
             flags
         )
-        result = subprocess.run(command, cwd=current_dir)
+        result = subprocess.run(command, cwd=current_dir, env=env)
         print(result)
     else:
         raise ValueError(f"Cannot find Python training script file at: {script_file}.")

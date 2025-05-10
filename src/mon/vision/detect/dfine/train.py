@@ -40,20 +40,14 @@ def main(args) -> None:
     """main"""
     dist_utils.setup_distributed(args.print_rank, args.print_method, seed=args.seed)
 
-    assert not all(
-        [args.tuning, args.resume]
-    ), "Only support from_scrach or resume or tuning at one time"
+    assert not all([args.tuning, args.resume]), "Only support from scratch or resume or tuning at one time"
 
     update_dict = yaml_utils.parse_cli(args.update)
     update_dict.update(
         {
             k: v
             for k, v in args.__dict__.items()
-            if k
-            not in [
-                "update",
-            ]
-            and v is not None
+            if k not in ["update",] and v is not None
         }
     )
 

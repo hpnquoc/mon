@@ -173,6 +173,7 @@ EXTRA_MODELS   = {  # architecture/model (+ variant)
         },
         "yolov8m": {
             "tasks"    : [Task.DETECT],
+            "mltypes"  : [MLType.SUPERVISED],
             "model_dir": MON_EXTRA_DIR / "vision" / "ultralytics",
         },
         "yolov8l": {

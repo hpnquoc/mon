@@ -195,10 +195,9 @@ def list_extra_models(task: str = None, mode: str = None, arch: str = None) -> l
     if task in Task.values():
         task   = Task(task)
         models = [m for m in models if task in flatten_models[m]["tasks"]]
-   
+
     if mode == "train":
-        models = [m for m in models
-                  if any(lt in MLType.trainable() for lt in flatten_models[m]["mltypes"])]
+        models = [m for m in models if any(lt in MLType.trainable() for lt in flatten_models[m]["mltypes"])]
     
     if arch:
         models = [m for m in models if arch == flatten_models[m]["arch"]]

@@ -5,6 +5,7 @@ Copyright(c) 2023 lyuwenyu. All Rights Reserved.
 
 import copy
 import re
+from pathlib import Path
 
 import torch
 import torch.nn as nn
@@ -17,11 +18,21 @@ from .yaml_utils import load_config, merge_config, merge_dict
 
 
 class YAMLConfig(BaseConfig):
-    def __init__(self, cfg_path: str, **kwargs) -> None:
+
+    def __init__(self, cfg_path: str, root: str = None, **kwargs) -> None:
         super().__init__()
+        root = str(root) if root not in [None, "None", ""] else None
+        self.root = root
 
         cfg = load_config(cfg_path)
         cfg = merge_dict(cfg, kwargs)
+
+        # My Modification
+        if root:
+            cfg["train_dataloader"]["dataset"]["img_folder"] = root + cfg["train_dataloader"]["dataset"]["img_folder"]
+            cfg["train_dataloader"]["dataset"]["ann_file"]   = root + cfg["train_dataloader"]["dataset"]["ann_file"]
+            cfg["val_dataloader"]["dataset"]["img_folder"]   = root + cfg["val_dataloader"]["dataset"]["img_folder"]
+            cfg["val_dataloader"]["dataset"]["ann_file"]     = root + cfg["val_dataloader"]["dataset"]["ann_file"]
 
         self.yaml_cfg = copy.deepcopy(cfg)
 

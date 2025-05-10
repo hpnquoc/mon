@@ -68,6 +68,8 @@ class Prompt:
             "case_sensitive": True,
             "show_default"  : True,
             "show_choices"  : True,
+            "allow_empty"   : False,
+            "parse_response": True,
             "default"       : self.default,
         }
         if self._choices and len(self._choices) > 0:
@@ -216,6 +218,21 @@ class WeightsPrompt(Prompt):
             value = value[0] if len(value) == 1 else value
         self._value = value
 
+    def prompt(self) -> Any:
+        """Prompts the user for a choice."""
+        kwargs = {
+            "prompt"        : self.text,
+            "case_sensitive": True,
+            "show_default"  : True,
+            "show_choices"  : True,
+            "allow_empty"   : True,
+            "default"       : self.default,
+        }
+        if self._choices and len(self._choices) > 0:
+            kwargs["choices"] = self._choices
+        self.value = rich.SelectionOrInputPrompt().ask(**kwargs)
+        return self.value
+    
 
 class DataPrompt(Prompt):
     
@@ -287,7 +304,7 @@ class RunmlCLI:
         self.config_args = {}
 
     def __len__(self):
-        return 20
+        return 23
 
     def cycle_next(self):
         """Move to the next option, wrapping around if needed."""
@@ -302,7 +319,7 @@ class RunmlCLI:
             mon.clear_terminal()
             rich.print(rich.Text("Input Prompts", "default on white"))
         mon.console.rule()
-        
+
         if self.index == 0:  # Task
             self.args["task"] = TaskPrompt(
                 project_root = self.args["root"],
@@ -427,7 +444,31 @@ class RunmlCLI:
                 text    = CLI_OPTIONS["verbose"]["prompt_text"],
                 default = self.args["verbose"] or self.config_args.get("verbose"),
             ).prompt()
-        if self.index == 19:  # Finish
+        if self.index == 19:  # Distributed Training
+            if self.args["mode"] not in ["train"]:
+                self.cycle_next()
+            else:
+                self.args["torchrun"] = Confirm(
+                    text    = CLI_OPTIONS["torchrun"]["prompt_text"],
+                    default = CLI_OPTIONS["torchrun"]["default"],
+                ).prompt()
+        if self.index == 20:  # Master Port
+            if self.args["mode"] not in ["train"] or not self.args["torchrun"]:
+                self.cycle_next()
+            else:
+                self.args["master_port"] = NumberPrompt(
+                    text    = CLI_OPTIONS["master_port"]["prompt_text"],
+                    default = self.args["master_port"] or self.config_args.get("master_port"),
+                ).prompt()
+        if self.index == 21:  # Master Address
+            if self.args["mode"] not in ["train"] or not self.args["torchrun"]:
+                self.cycle_next()
+            else:
+                self.args["master_addr"] = NumberPrompt(
+                    text    = CLI_OPTIONS["master_addr"]["prompt_text"],
+                    default = self.args["master_addr"] or self.config_args.get("master_addr"),
+                ).prompt()
+        if self.index == 22:  # Finish
             rich.print_dict(self.args, title="Arguments")
             finish = Confirm(text="Finish/Re-input", default=True).prompt()
             if finish:

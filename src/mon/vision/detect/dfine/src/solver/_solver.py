@@ -27,6 +27,7 @@ def remove_module_prefix(state_dict):
 
 
 class BaseSolver(object):
+
     def __init__(self, cfg: BaseConfig) -> None:
         self.cfg = cfg
         self.obj365_ids = [
@@ -164,7 +165,7 @@ class BaseSolver(object):
 
     def train(self):
         self._setup()
-        self.optimizer = self.cfg.optimizer
+        self.optimizer    = self.cfg.optimizer
         self.lr_scheduler = self.cfg.lr_scheduler
         self.lr_warmup_scheduler = self.cfg.lr_warmup_scheduler
 

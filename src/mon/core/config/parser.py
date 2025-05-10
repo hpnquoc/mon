@@ -132,7 +132,10 @@ def parse_train_args(model_root: str | pathlib.Path = None) -> dict | argparse.N
     
     # Parse arguments
     if save_dir in [None, ""]:
-        save_dir = pathlib.parse_save_dir(root/"run"/"train", arch, model, data)
+        if use_fullname:
+            save_dir = pathlib.parse_save_dir(root/"run"/"train", arch, fullname, None)
+        else:
+            save_dir = pathlib.parse_save_dir(root/"run"/"train", arch, model, data)
     else:
         save_dir = pathlib.Path(save_dir)
         if str("run/train") not in str(save_dir):
