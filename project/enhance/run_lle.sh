@@ -13,19 +13,20 @@ project_dir=$(dirname "$current_dir")
 root_dir=$(dirname "$project_dir")
 runml_dir="${project_dir}/runml"
 
-# ----- Run -----
+# ----- Main -----
 cd "${runml_dir}" || exit
 python -W ignore main.py \
-  --root "${current_dir}" \
-  --task "lle" \
-  --mode "predict" \
-  --data "${data}" \
-  --benchmark \
-  --save-image \
-  --save-debug \
-  --exist-ok \
-  --verbose \
-  "$@"
+    --root "${current_dir}" \
+    --task "lle" \
+    --mode "predict" \
+    --data "${data}" \
+    --benchmark \
+    --save-image \
+    --save-debug \
+    --exist-ok \
+    --verbose \
+    "$@"
 
 # ----- Done -----
 cd "${current_dir}" || exit
+exit 0

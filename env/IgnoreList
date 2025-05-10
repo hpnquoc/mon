@@ -52,6 +52,7 @@ lost+found
 DfsrPrivate
 
 *.cache
+*.deb
 *.lock
 __pycache__/
 _gsdata_/

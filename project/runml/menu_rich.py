@@ -450,7 +450,7 @@ class RunmlCLI:
             else:
                 self.args["torchrun"] = Confirm(
                     text    = CLI_OPTIONS["torchrun"]["prompt_text"],
-                    default = CLI_OPTIONS["torchrun"]["default"],
+                    default = self.args["torchrun"] or self.config_args.get("torchrun"),
                 ).prompt()
         if self.index == 20:  # Master Port
             if self.args["mode"] not in ["train"] or not self.args["torchrun"]:

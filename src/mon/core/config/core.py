@@ -245,8 +245,8 @@ CLI_OPTIONS = {
         "prompt_only": False,
         "prompt_text": "Master Address",
     },
-    "local-rank" : {
-        "default"    : 0,
+    "local_rank"  : {
+        # "default"    : 0,
         "type"       : _int_or_none,
         "help"       : "Local rank for distributed training.",
         "prompt_only": False,

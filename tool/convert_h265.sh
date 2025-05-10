@@ -4,8 +4,19 @@
 # sudo apt-get install ffmpeg
 # brew install ffmpeg
 
-# Functions
+clear
+echo "$HOSTNAME"
 
+# ----- Input -----
+directory="/home/longpham/10_workspace/11_code/mon"
+
+# ----- Globals -----
+# Directory
+current_file=$(readlink -f "$0")
+current_dir=$(dirname "$current_file")  # mon/tool/
+root_dir=$(dirname "$current_dir")      # mon/
+
+# ----- Functions -----
 run_on_linux() {
     cd "${directory}" || exit
     for i in $(find . -type f -regex ".*\.\(mp4\|MP4\|avi\|m4v\|mkv\|mov\|mpeg\|mpg\|wmv\)" | sort -h); do
@@ -36,21 +47,8 @@ run_on_darwin() {
     done
 }
 
-# Main
-clear
-echo "$HOSTNAME"
-
-# Directories
-current_file=$(readlink -f "$0")
-current_dir=$(dirname "$current_file")  # mon/script/
-mon_dir=$(dirname "$current_dir")       # mon/
-data_dir="${mon_dir}/data"              # mon/data/
-
-# Define the directory where you want to perform the recursive video conversion
-# directory="${data_dir}/"
-directory="/home/longpham/Downloads/weather"
-
-case "$OSTYPE" in
+run() {
+    case "$OSTYPE" in
     linux*)
         run_on_linux
         ;;
@@ -76,3 +74,10 @@ case "$OSTYPE" in
         echo -e "\nunknown: $OSTYPE"
         ;;
 esac
+}
+
+# ----- Main -----
+run
+
+# ----- Done -----
+exit 0

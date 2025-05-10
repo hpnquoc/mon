@@ -1,6 +1,7 @@
 *.cache
 *.caches
 *.ckpt
+*.deb
 *.egg
 *.egg-info/
 *.lock

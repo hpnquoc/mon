@@ -89,9 +89,7 @@ def run_train(args: dict):
         if torchrun:
             device_     = mon.parse_device(device)
             python_call = [
-                sys.executable,
-                "-m",
-                "torch.distributed.run",
+                "python", "-m", "torch.distributed.run",
                 f"--nproc_per_node={len(device_)}",
                 f"--master_port={master_port}",
                 f"--master_addr={master_addr}",

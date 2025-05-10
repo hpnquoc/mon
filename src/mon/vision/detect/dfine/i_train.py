@@ -24,10 +24,10 @@ import mon
 current_file = mon.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
-os.environ["CUDA_LAUNCH_BLOCKING"] = "1"
-os.environ["CUDA_VISIBLE_DEVICES"] = "0"
-os.environ["TORCH_USE_CUDA_DSA"]   = "1"
-torch.multiprocessing.set_sharing_strategy("file_system")
+# os.environ["CUDA_LAUNCH_BLOCKING"] = "1"
+# os.environ["CUDA_VISIBLE_DEVICES"] = "0,1,2,3"
+# os.environ["TORCH_USE_CUDA_DSA"]   = "1"
+# torch.multiprocessing.set_sharing_strategy("file_system")
 
 
 # ----- Train -----
@@ -96,7 +96,7 @@ def train(args: dict) -> str:
     update_dict = {
         "resume"       : resume,
         "tuning"       : tuning,
-        "device"       : device,
+        # "device"       : device,
         "seed"         : seed,
         "use_amp"      : use_amp,
         "output_dir"   : str(save_dir),

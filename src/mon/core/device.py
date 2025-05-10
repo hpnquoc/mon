@@ -8,7 +8,6 @@ __all__ = [
     "get_memory_usages",
     "get_model_device",
     "is_rank_zero",
-    "list_cuda_devices",
     "list_devices",
     "parse_device",
     "pynvml_available",
@@ -22,6 +21,7 @@ import psutil
 import torch
 
 from mon.constants import MemoryUnit
+from mon.core.rich import console
 from mon.core.type_extensions import generate_combinations
 
 try:
@@ -34,19 +34,6 @@ CUDA_PREFIX = "cuda:"
 
 
 # ----- Retrieve -----
-def list_cuda_devices() -> str | None:
-    """Lists all available CUDA devices on the machine.
-
-    Returns:
-        String of CUDA devices (e.g., ``cuda:0,1,2``) or ``None`` if none.
-    """
-    if torch.cuda.is_available():
-        num_devices = torch.cuda.device_count()
-        cuda_str    = "cuda:" + ",".join(str(i) for i in range(num_devices))
-        return cuda_str
-    return None
-
-
 def list_devices() -> list[str]:
     """Lists all available devices on the machine.
 
@@ -117,12 +104,11 @@ def get_model_device(model: torch.nn.Module) -> torch.device:
 
 
 # ----- Update -----
-def set_device(device: Any, use_single_device: bool = True) -> torch.device:
+def set_device(device: Any) -> torch.device | str:
     """Sets the device for the current process.
 
     Args:
         device: Device to set (e.g., CUDA index, list, or string).
-        use_single_device: If ``True``, uses first device from list. Default is ``True``.
 
     Returns:
         Selected ``torch.device``, defaults to ``cpu`` if CUDA unavailable.
@@ -131,38 +117,45 @@ def set_device(device: Any, use_single_device: bool = True) -> torch.device:
         return device
 
     device = parse_device(device)
-    if isinstance(device, (list, tuple)):
-        if use_single_device:
-            device = device[0]
-        else:
-            device = ",".join(device)
-    return torch.device(f"cuda:{device}" if torch.cuda.is_available() else "cpu")
+
+    if device in ["auto", "cuda"]:
+        return device
+    if device == "cpu":
+        return torch.device("cpu")
+    if isinstance(device, list):
+        console.log(f"Using first device in {device}: {device[0]}")
+        device = device[0]
+    return torch.device(f"cuda:{device[0]}")
 
 
 # ----- Convert -----
-def parse_device(device: Any) -> list[str] | str | torch.device:
-    """Parses a device spec into a list, integer, or string.
+def parse_device(device: Any) -> torch.device | str | list[str]:
+    """Parses a device spec into a list or string.
 
     Args:
         device: Device to parse (e.g., ``torch.device``, int, str, or ``None``).
 
     Returns:
-        List of ints for multi-device, int for single, or str (``cpu`` or ``mps``).
+        torch.device.
+        str: ``auto``, ``cpu``, or ``cuda``.
+        list[str]: List of cuda device indices (e.g., ``['0', '1']``).
     """
     if isinstance(device, torch.device):
         return device
-    if not device or device in ["", "cpu"]:
+    if device in [None, "", "cpu"]:
         return "cpu"
-    if device in ["mps", "mps:0"]:
+    if device in ["auto", "cuda"]:
         return device
+
     if isinstance(device, int):
-        return [str(device)]
+        device = [str(device)]
     if isinstance(device, str):
         device = (device.lower()
                   .replace("cuda:", "")
-                  .replace("none",  "")
                   .translate(str.maketrans("", "", "()[ ]' ")))
-        return device.split(",") if "," in device else [str(device)]
+        device = device.split(",")
+        device = [str(i) for i in device]
+
     return device
 
 
