@@ -1,16 +1,16 @@
 # Basic
 root        : ~                                                                 # Root directory of the current run.
 arch        : "dfine"                                                           # Model architecture or family (e.g., resnet).
-model       : &model "dfine_x"                                                  # Model name (e.g., resnet50).
-data        : &data "fisheye8k"                                                 # Dataset name (e.g., cifar10) or directory (e.g., data/cifar10).
-fullname    : &fullname "dfine_x_fisheye8k"                                     # Full name of the current run (e.g., resnet50_cifar10_01). If not set, it will be this file's name.
+model       : &model "dfine_l"                                                  # Model name (e.g., resnet50).
+data        : &data "fisheye8kv1"                                               # Dataset name (e.g., cifar10) or directory (e.g., data/cifar10).
+fullname    : &fullname "dfine_l_obj2fisheye8kv1"                               # Full name of the current run (e.g., resnet50_cifar10_01). If not set, it will be this file's name.
 save_dir    : &save_dir ~                                                       # Saving directory. If not set, it will be `root/arch/model/data`.
 weights     : &weights ~                                                        # Path to the pretrained weights.
 device      : 0                                                                 # Running device (i.e., cuda:0 | cuda:0,1,2,3 | cpu).
 seed        : 0                                                                 # Random seed.
 imgsz       : &imgsz ~                                                          # Image size for the model.
 resize      : False                                                             # Resize the input image to `imgsz`.
-epochs      : &epochs 36                                                        # Training epochs.
+epochs      : &epochs 100                                                       # Training epochs.
 steps       : &steps ~                                                          # Training steps.
 benchmark   : False                                                             # Benchmark the model.
 save_image  : True                                                              # Save the output image.
@@ -21,11 +21,15 @@ exist_ok    : True                                                              
 verbose     : &verbose True                                                     # Verbosity.
 
 # Misc
-cfg_path    : "fisheye8k/dfine_hgnetv2_x_obj2fisheye8k.yaml"                    # Fine-tuning from Objects365 pre-trained weights.
+cfg_path    : "custom/dfine_hgnetv2_l_obj2custom.yaml"                          # Fine-tuning from Objects365 pre-trained weights.
 resume      : *weights                                                          # Resume from checkpoint
-tuning      : "zoo/vision/detect/dfine/dfine_x/objects365/dfine_x_objects365.pth" # Fine-tuning from checkpoint
+tuning      : "zoo/vision/detect/dfine/dfine_l/objects365/dfine_l_objects365_e25.pth" # Fine-tuning from checkpoint
 use_amp     : False                                                             # Use automatic mixed precision (AMP) for training.
 test_only   : False                                                             # Test only.
 print_method: "builtin"                                                         # Print method.
 print_rank  : 0                                                                 # Print rank ID.
 local_rank  : ~                                                                 # Local rank ID.
+
+__include__: [
+  "../../dataset/fisheye8kv1_detection.yaml",
+]

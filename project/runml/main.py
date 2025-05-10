@@ -59,10 +59,9 @@ def run_train(args: dict):
         weights_path = weights,
     )
     assert config not in [None, "None", ""]
-    # save_dir = save_dir or mon.parse_save_dir(root/"run"/"train", arch, model, data, project, variant)
-    weights  = mon.to_str(weights, ",")
+    weights = mon.to_str(weights, ",")
     
-    kwargs   = {
+    kwargs  = {
         "--config"  : config,
         "--root"    : str(root),
         "--arch"    : arch,
@@ -75,12 +74,12 @@ def run_train(args: dict):
         "--epochs"  : epochs,
         "--steps"   : steps,
     }
-    flags  = ["--benchmark"]    if benchmark    else []
-    flags += ["--save-image"]   if save_image   else []
-    flags += ["--save-debug"]   if save_debug   else []
-    flags += ["--keep-subdirs"] if keep_subdirs else []
-    flags += ["--exist-ok"]     if exist_ok     else []
-    flags += ["--verbose"]      if verbose      else []
+    flags   = ["--benchmark"]    if benchmark    else []
+    flags  += ["--save-image"]   if save_image   else []
+    flags  += ["--save-debug"]   if save_debug   else []
+    flags  += ["--keep-subdirs"] if keep_subdirs else []
+    flags  += ["--exist-ok"]     if exist_ok     else []
+    flags  += ["--verbose"]      if verbose      else []
     
     # Parse script file
     python_call = ["python"]
@@ -88,7 +87,7 @@ def run_train(args: dict):
     if use_extra_model:
         script_file = mon.EXTRA_MODELS[arch][model]["model_dir"] / "i_train.py"
         if torchrun:
-            device_ = mon.parse_device(device)
+            device_     = mon.parse_device(device)
             python_call = [
                 "python",
                 "-m",
@@ -97,7 +96,6 @@ def run_train(args: dict):
                 f"--master_port={master_port}",
                 f"--master_addr={master_addr}",
             ]
-
             if torch.cuda.is_available():
                 # Assign GPUs to ranks (e.g., rank 0 -> GPU 0, rank 1 -> GPU 1)
                 env["CUDA_VISIBLE_DEVICES"] = ",".join(device_)

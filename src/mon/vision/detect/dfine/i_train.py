@@ -78,7 +78,7 @@ def train(args: dict) -> str:
     print_method = args["print_method"]
     print_rank   = args["print_rank"]
     local_rank   = args["local_rank"]
-    
+
     # Device
     dist_utils.setup_distributed(print_rank, print_method, seed=seed)
     device = mon.set_device(device)
@@ -89,7 +89,7 @@ def train(args: dict) -> str:
     # Start
     mon.console.rule(f"[bold red] {fullname}")
     mon.console.log(f"Machine: {hostname}")
-    
+
     # Trainer
     assert not all([tuning, resume]), "Only support from scratch or resume or tuning at one time."
     cfg_path    = str(current_dir / "options" / "dfine" / args["cfg_path"])
@@ -106,6 +106,7 @@ def train(args: dict) -> str:
         "print_rank"   : print_rank,
         "local_rank"   : local_rank,
         "epochs"       : epochs,
+        "__include__"  : args.get("__include__", None),
     }
     cfg = YAMLConfig(cfg_path=cfg_path, root=root, **update_dict)
 

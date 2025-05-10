@@ -4,8 +4,8 @@ Copyright(c) 2023 lyuwenyu. All Rights Reserved.
 """
 
 import copy
+import os
 import re
-from pathlib import Path
 
 import torch
 import torch.nn as nn
@@ -19,15 +19,29 @@ from .yaml_utils import load_config, merge_config, merge_dict
 
 class YAMLConfig(BaseConfig):
 
-    def __init__(self, cfg_path: str, root: str = None, **kwargs) -> None:
+    def __init__(self, cfg_path: str | dict, root: str = None, **kwargs) -> None:
         super().__init__()
-        root = str(root) if root not in [None, "None", ""] else None
+        root      = str(root) if root not in [None, "None", ""] else None
         self.root = root
 
         cfg = load_config(cfg_path)
+
+        # My Modification 01: Update '__include__' in yaml
+        updated_include = kwargs.pop("__include__", None)
+        if updated_include not in [None, "None", ""]:
+            base_yamls = list(updated_include)
+            for base_yaml in base_yamls:
+                if base_yaml.startswith("~"):
+                    base_yaml = os.path.expanduser(base_yaml)
+                if not base_yaml.startswith("/"):
+                    base_yaml = os.path.join(os.path.dirname(cfg_path), base_yaml)
+                with open(base_yaml) as f:
+                    base_cfg = load_config(base_yaml, cfg)
+                    merge_dict(cfg, base_cfg)
+
         cfg = merge_dict(cfg, kwargs)
 
-        # My Modification
+        # My Modification 02: Update dataset's img_folder and ann_file paths
         if root:
             cfg["train_dataloader"]["dataset"]["img_folder"] = root + cfg["train_dataloader"]["dataset"]["img_folder"]
             cfg["train_dataloader"]["dataset"]["ann_file"]   = root + cfg["train_dataloader"]["dataset"]["ann_file"]
