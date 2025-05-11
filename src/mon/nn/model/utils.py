@@ -481,7 +481,8 @@ def parse_weights_file(
     for i, w in enumerate(weights):
         if w is not None and not core.Path(w).exists():
             weights[i] = (ROOT_DIR / w) if (ROOT_DIR / w).exists() else (root / w)
-    
+    weights = [core.Path(w) for w in weights if w not in [None, "None", ""]]
+
     if len(weights) == 1:
         return weights[0]
     return weights or None

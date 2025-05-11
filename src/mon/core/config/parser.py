@@ -133,7 +133,7 @@ def parse_train_args(model_root: str | pathlib.Path = None) -> dict | argparse.N
     # Parse arguments
     if save_dir in [None, ""]:
         if use_fullname:
-            save_dir = pathlib.parse_save_dir(root/"run"/"train", arch, fullname, None)
+            save_dir = pathlib.parse_save_dir(root/"run"/"train", arch, model, fullname)
         else:
             save_dir = pathlib.parse_save_dir(root/"run"/"train", arch, model, data)
     else:
@@ -143,7 +143,8 @@ def parse_train_args(model_root: str | pathlib.Path = None) -> dict | argparse.N
         if str(root) not in str(save_dir):
             save_dir = root / save_dir
             
-    weights = nn.parse_weights_file(root/"run"/"train", weights)
+    # weights = nn.parse_weights_file(root/"run"/"train", weights)
+    weights = nn.parse_weights_file(root, weights)
     device  = parse_device(device)
     
     # Update arguments

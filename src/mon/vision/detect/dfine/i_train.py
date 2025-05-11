@@ -69,15 +69,16 @@ def train(args: dict) -> str:
     verbose      = args["verbose"]
 
     # Misc
-    resume       = args["resume"]
-    resume       = str(mon.parse_weights_file(root, args["resume"])) if resume else None
-    tuning       = args["tuning"]
-    tuning       = str(mon.parse_weights_file(root, args["tuning"])) if tuning else None
+    if weights and weights.is_weights_file(exist=True):
+        resume = weights
+        tuning = None
+    else:
+        resume = None
+        tuning = mon.parse_weights_file(root, args["tuning"]) if args["tuning"] else None
     use_amp      = args["use_amp"]
     test_only    = args["test_only"]
     print_method = args["print_method"]
     print_rank   = args["print_rank"]
-    local_rank   = args["local_rank"]
 
     # Device
     dist_utils.setup_distributed(print_rank, print_method, seed=seed)
@@ -92,11 +93,10 @@ def train(args: dict) -> str:
 
     # Trainer
     assert not all([tuning, resume]), "Only support from scratch or resume or tuning at one time."
-    cfg_path    = str(current_dir / "options" / "dfine" / args["cfg_path"])
-    update_dict = {
-        "resume"       : resume,
-        "tuning"       : tuning,
-        # "device"       : device,
+    cfg_path     = current_dir / "options" / "dfine" / args["cfg_path"]
+    update_dict  = {"tuning": str(tuning)} if tuning else {}
+    update_dict  = {"resume": str(resume)} if resume else update_dict
+    update_dict |= {
         "seed"         : seed,
         "use_amp"      : use_amp,
         "output_dir"   : str(save_dir),
@@ -104,11 +104,10 @@ def train(args: dict) -> str:
         "test_only"    : test_only,
         "print_method" : print_method,
         "print_rank"   : print_rank,
-        # "local_rank"   : local_rank,
         "epochs"       : epochs,
         "__include__"  : args.get("__include__", None),
     }
-    cfg = YAMLConfig(cfg_path=cfg_path, root=root, **update_dict)
+    cfg = YAMLConfig(cfg_path=str(cfg_path), root=str(root), **update_dict)
 
     if safe_get_rank() == 0:
         print("cfg: ")

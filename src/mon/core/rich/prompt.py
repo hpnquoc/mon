@@ -185,7 +185,10 @@ class SelectionOrInputPrompt(Prompt):
                 return value
             if len(self.choices) > 0 and value == "" and not self.allow_empty:
                 raise InvalidResponse(self.illegal_choice_message)
-                
+            # If the whole value is a choice, return it
+            if value in self.choices:
+                return value
+
             # Convert index (if any) to choice
             value = type_extensions.to_list(value, sep=[",", ";"])
             value = [self.choices[int(v)] if type_extensions.is_int(v) else v for v in value]
