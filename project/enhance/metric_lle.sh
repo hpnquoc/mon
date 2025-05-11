@@ -4,8 +4,8 @@ echo "$HOSTNAME"
 clear
 
 # ----- Input -----
-arch="zeroig"
-model="zeroig_zsl_denoise"
+arch="lightendiffusion"
+model="lightendiffusion"
 data=(
     ### Unpaired Set
     "dicm"

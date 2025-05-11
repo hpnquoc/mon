@@ -99,22 +99,12 @@ def parse_data_loader(
         ValueError: If ``src`` is invalid.
     """
     src = core.Path(src)
+
     if src.stem in DATASETS:
         src  = src.stem
         root = core.parse_data_dir(root=data_root, data_dir=src)
-        '''
-        if data_root not in [None, "None", ""] and core.Path(data_root / src).is_dir():
-            root = data_root / src
-        else:
-            defaults_dict = dict(zip(
-                DATASETS[src].__init__.__code__.co_varnames[1:],
-                DATASETS[src].__init__.__defaults__
-            ))
-            root = defaults_dict.get("root", None)
-        '''
-        if root and not root.is_dir():
-            root = ROOT_DIR / "data"
-        
+        # if root and not root.is_dir():
+        #     root = root / "data"
         config = {
             "name"     : src,
             "root"     : root,

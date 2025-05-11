@@ -51,7 +51,7 @@ class LoLIStreet(VisionDataset):
 
     def __init__(self, root: core.Path, *args, **kwargs):
         root = core.Path(root)
-        root = root / "loli_street" if root.name != "loli_street" else root
+        root = root / "lolistreet" if root.name != "lolistreet" else root
         if not root.is_dir():
             raise FileNotFoundError(f"[root] directory not found: [{root}].")
         
@@ -102,7 +102,7 @@ class LoLIStreetVal(VisionDataset):
 
     def __init__(self, root: core.Path, *args, **kwargs):
         root = core.Path(root)
-        root = root / "loli_street" if root.name != "loli_street" else root
+        root = root / "lolistreet" if root.name != "lolistreet" else root
         if not root.is_dir():
             raise FileNotFoundError(f"[root] directory not found: [{root}].")
         
@@ -147,7 +147,7 @@ class LoLIStreetTest(VisionDataset):
 
     def __init__(self, root: core.Path, *args, **kwargs):
         root = core.Path(root)
-        root = root / "loli_street" if root.name != "loli_street" else root
+        root = root / "lolistreet" if root.name != "lolistreet" else root
         if not root.is_dir():
             raise FileNotFoundError(f"[root] directory not found: [{root}].")
         

@@ -1,14 +1,15 @@
 import os
+
 import numpy as np
-import tqdm
 import torch
+import torch.fft
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.utils.data as data
-import torch.fft
+import torchvision.utils as tvu
+import tqdm
 from datasets import get_dataset
 from functions.ckpt_util import download
-import torchvision.utils as tvu
 from guided_diffusion.script_util import create_model
 from numpy import arange
 
@@ -20,19 +21,24 @@ def check_image_size(x, down_factor):
     x = F.pad(x, (0, mod_pad_w, 0, mod_pad_h), 'reflect')
     return x
 
+
 class mix_x0that(nn.Module):
+
     def __init__(self):
         super(mix_x0that, self).__init__()
         self.level = nn.Parameter(torch.tensor([1.]), requires_grad=True)
+
     def forward(self, y_frequency, x0_t_frequency):
         return y_frequency + self.level * x0_t_frequency
 
 
 class L_bri(nn.Module):
+
     def __init__(self, patch_size=16, mean_val=0.5):
         super(L_bri, self).__init__()
         self.pool = nn.AvgPool2d(patch_size)
         self.mean_val = mean_val
+
     def forward(self, x):
         x = torch.mean(x, 1, keepdim=True)
         mean = self.pool(x)
@@ -76,8 +82,10 @@ def get_beta_schedule(beta_schedule, *, beta_start, beta_end, num_diffusion_time
     assert betas.shape == (num_diffusion_timesteps,)
     return betas
 
+
 # Code based on DDNM
 class Diffusion(object):
+
     def __init__(self, args, config, device=None):
         self.args = args
         self.config = config
@@ -341,6 +349,7 @@ def get_schedule_jump(T_sampling, travel_length, travel_repeat):
     _check_times(ts, -1, T_sampling)
     return ts
 
+
 def _check_times(times, t_0, T_sampling):
     # Check end
     assert times[0] > times[1], (times[0], times[1])
@@ -356,7 +365,8 @@ def _check_times(times, t_0, T_sampling):
     for t in times:
         assert t >= t_0, (t, t_0)
         assert t <= T_sampling, (t, T_sampling)
-        
+
+
 def compute_alpha(beta, t):
     beta = torch.cat([torch.zeros(1).to(beta.device), beta], dim=0)
     a = (1 - beta).cumprod(dim=0).index_select(0, t + 1).view(-1, 1, 1, 1)

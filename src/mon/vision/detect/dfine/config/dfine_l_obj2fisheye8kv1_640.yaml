@@ -36,5 +36,5 @@ __include__: [
   "../../runtime.yaml",
   "../include/dataloader_640.yaml",
   "../include/optimizer.yaml",
-  "../include/dfine_hgnetv2.yaml",
+  "../include/dfine_hgnetv2_640.yaml",
 ]
