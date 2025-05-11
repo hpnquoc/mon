@@ -552,8 +552,12 @@ def parse_data_dir(root: str | pathlib.Path, data_dir: str | pathlib.Path) -> st
     if not data_dir.is_dir():
         if (root / data_dir).is_dir():
             data_dir = root / data_dir
+        elif (root / "data" / data_dir).is_dir():
+            data_dir = root / "data" / data_dir
         elif (ROOT_DIR / data_dir).is_dir():
             data_dir = ROOT_DIR / data_dir
+        elif (ROOT_DIR / "data" / data_dir).is_dir():
+            data_dir = ROOT_DIR / "data" / data_dir
     return data_dir
 
 

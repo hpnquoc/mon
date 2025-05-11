@@ -11,6 +11,7 @@ from models.decom import CTDN
 
 
 class EMAHelper(object):
+
     def __init__(self, mu=0.9999):
         self.mu = mu
         self.shadow = {}
@@ -77,24 +78,25 @@ def get_beta_schedule(beta_schedule, *, beta_start, beta_end, num_diffusion_time
 
 
 class Net(nn.Module):
+
     def __init__(self, args, config):
         super(Net, self).__init__()
 
-        self.args = args
+        self.args   = args
         self.config = config
         self.device = config.device
 
         self.Unet = DiffusionUNet(config)
-        if self.args.mode == 'training':
+        if self.args.mode == "training":
             self.decom = self.load_stage1(CTDN(), 'ckpt/stage1')
         else:
             self.decom = CTDN()
 
         betas = get_beta_schedule(
-            beta_schedule=config.diffusion.beta_schedule,
-            beta_start=config.diffusion.beta_start,
-            beta_end=config.diffusion.beta_end,
-            num_diffusion_timesteps=config.diffusion.num_diffusion_timesteps,
+            beta_schedule           = config.diffusion.beta_schedule,
+            beta_start              = config.diffusion.beta_start,
+            beta_end                = config.diffusion.beta_end,
+            num_diffusion_timesteps = config.diffusion.num_diffusion_timesteps,
         )
 
         self.betas = torch.from_numpy(betas).float()
@@ -183,6 +185,7 @@ class Net(nn.Module):
 
 
 class DenoisingDiffusion(object):
+
     def __init__(self, args, config):
         super().__init__()
         self.args = args
@@ -191,7 +194,8 @@ class DenoisingDiffusion(object):
 
         self.model = Net(args, config)
         self.model.to(self.device)
-        self.model = torch.nn.DataParallel(self.model, device_ids=range(torch.cuda.device_count()))
+        if self.args.mode == "training":
+            self.model = torch.nn.DataParallel(self.model, device_ids=range(torch.cuda.device_count()))
 
         self.ema_helper = EMAHelper()
         self.ema_helper.register(self.model)
@@ -204,7 +208,16 @@ class DenoisingDiffusion(object):
 
     def load_ddm_ckpt(self, load_path, ema=False):
         checkpoint = utils.logging.load_checkpoint(load_path, None)
-        self.model.load_state_dict(checkpoint['state_dict'], strict=True)
+
+        # My Modification
+        if self.args.mode == "evaluation":
+            state_dict = {}
+            for k, v in checkpoint["state_dict"].items():
+                state_dict[k.replace("module.", "")] = v
+        else:
+            state_dict = checkpoint["state_dict"]
+
+        self.model.load_state_dict(state_dict, strict=True)
         if ema:
             self.ema_helper.ema(self.model)
         print("=> loaded checkpoint {} step {}".format(load_path, self.step))

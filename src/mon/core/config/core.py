@@ -165,7 +165,7 @@ CLI_OPTIONS = {
         "action"     : "store_true",
         "help"       : "Resize the input image.",
         "prompt_only": False,
-        "prompt_text": "Resize?      ",
+        "prompt_text": "Resize?       ",
     },
     "epochs"      : {
         "default"    : None,

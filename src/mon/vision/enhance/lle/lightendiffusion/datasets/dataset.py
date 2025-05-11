@@ -6,6 +6,7 @@ from datasets.data_augment import PairCompose, PairToTensor, PairRandomHorizonta
 
 
 class LLdataset:
+
     def __init__(self, config):
         self.config = config
 
@@ -28,6 +29,7 @@ class LLdataset:
 
 
 class AllWeatherDataset(torch.utils.data.Dataset):
+
     def __init__(self, dir, patch_size, filelist=None, train=True):
         super().__init__()
 

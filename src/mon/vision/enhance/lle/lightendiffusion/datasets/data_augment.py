@@ -26,6 +26,7 @@ class PairRandomCrop(transforms.RandomCrop):
 
 
 class PairCompose(transforms.Compose):
+
     def __call__(self, image, label):
         for t in self.transforms:
             image, label = t(image, label)
@@ -33,6 +34,7 @@ class PairCompose(transforms.Compose):
 
 
 class PairRandomHorizontalFilp(transforms.RandomHorizontalFlip):
+
     def __call__(self, img, label):
         """
         Args:
@@ -47,6 +49,7 @@ class PairRandomHorizontalFilp(transforms.RandomHorizontalFlip):
 
 
 class PairRandomVerticalFlip(transforms.RandomVerticalFlip):
+
     def __call__(self, img, label):
         """
         Args:
@@ -61,6 +64,7 @@ class PairRandomVerticalFlip(transforms.RandomVerticalFlip):
 
 
 class PairToTensor(transforms.ToTensor):
+
     def __call__(self, pic, label):
         """
         Args:

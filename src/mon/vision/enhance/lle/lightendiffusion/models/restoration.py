@@ -7,6 +7,7 @@ import torch.nn.functional as F
 
 
 class DiffusiveRestoration:
+
     def __init__(self, diffusion, args, config):
         super(DiffusiveRestoration, self).__init__()
         self.args = args
@@ -31,12 +32,8 @@ class DiffusiveRestoration:
                 x_cond = F.pad(x_cond, (0, img_w_64 - w, 0, img_h_64 - h), 'reflect')
 
                 t1 = time.time()
-                pred_x = self.diffusion.model(torch.cat((x_cond, x_cond),
-                                                        dim=1))["pred_x"][:, :, :h, :w]
+                pred_x = self.diffusion.model(torch.cat((x_cond, x_cond), dim=1))["pred_x"][:, :, :h, :w]
                 t2 = time.time()
 
                 utils.logging.save_image(pred_x, os.path.join(image_folder, f"{y[0]}"))
                 print(f"processing image {y[0]}, time={t2 - t1}")
-
-
-

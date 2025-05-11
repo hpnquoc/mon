@@ -243,203 +243,210 @@ EXTRA_MODELS   = {  # architecture/model (+ variant)
     },
     # endregion
     # region enhance/lle
-    "colie"        : {
+    "colie"           : {
         "colie": {
             "tasks"    : [Task.LLE],
             "mltypes"  : [MLType.ZERO_SHOT],
             "model_dir": MON_DIR / "vision" / "enhance" / "lle" / "colie",
         },
     },
-    "dccnet"       : {
+    "dccnet"          : {
         "dccnet": {
             "tasks"    : [Task.LLE],
             "mltypes"  : [MLType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "enhance" / "lle" / "dccnet",
         },
     },
-    "enlightengan" : {
+    "enlightengan"    : {
         "enlightengan": {
             "tasks"    : [Task.LLE],
             "mltypes"  : [MLType.UNPAIRED],
             "model_dir": MON_DIR / "vision" / "enhance" / "lle" / "enlightengan",
         },
     },
-    "fourllie"     : {
+    "fourllie"        : {
         "fourllie": {
             "tasks"    : [Task.LLE],
             "mltypes"  : [MLType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "enhance" / "lle" / "fourllie",
         },
     },
-    "hvi_cidnet"   : {
+    "hvi_cidnet"      : {
         "hvi_cidnet": {
             "tasks"    : [Task.LLE],
             "mltypes"  : [MLType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "enhance" / "lle" / "hvi_cidnet",
         },
     },
-    "li2025"       : {
+    "li2025"          : {
         "li2025": {
             "tasks"    : [Task.LLE],
             "mltypes"  : [MLType.UNPAIRED],
             "model_dir": MON_DIR / "vision" / "enhance" / "lle" / "li2025",
         },
     },
-    "lime"         : {
+    "lightendiffusion": {
+        "lightendiffusion": {
+            "tasks"    : [Task.LLE],
+            "mltypes"  : [MLType.UNPAIRED],
+            "model_dir": MON_DIR / "vision" / "enhance" / "lle" / "lightendiffusion",
+        },
+    },
+    "lime"            : {
         "lime": {
             "tasks"    : [Task.LLE],
             "mltypes"  : [MLType.TRADITIONAL],
             "model_dir": MON_DIR / "vision" / "enhance" / "lle" / "lime",
         },
     },
-    "llflow"       : {
+    "llflow"          : {
         "llflow": {
             "tasks"    : [Task.LLE],
             "mltypes"  : [MLType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "enhance" / "lle" / "llflow",
         },
     },
-    "llunet++"     : {
+    "llunet++"        : {
         "llunet++": {
             "tasks"    : [Task.LLE],
             "mltypes"  : [MLType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "enhance" / "lle" / "llunet++",
         },
     },
-    "nerco"        : {
+    "nerco"           : {
         "nerco": {
             "tasks"    : [Task.LLE],
             "mltypes"  : [MLType.UNPAIRED],
             "model_dir": MON_DIR / "vision" / "enhance" / "lle" / "nerco",
         },
     },
-    "pairlie"      : {
+    "pairlie"         : {
         "pairlie": {
             "tasks"    : [Task.LLE],
             "mltypes"  : [MLType.UNPAIRED],
             "model_dir": MON_DIR / "vision" / "enhance" / "lle" / "pairlie",
         },
     },
-    "pie"          : {
+    "pie"             : {
         "pie": {
             "tasks"    : [Task.LLE],
             "mltypes"  : [MLType.TRADITIONAL],
             "model_dir": MON_DIR / "vision" / "enhance" / "lle" / "pie",
         },
     },
-    "psenet"       : {
+    "psenet"          : {
         "psenet": {
             "tasks"    : [Task.LLE],
             "mltypes"  : [MLType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "enhance" / "lle" / "psenet",
         },
     },
-    "quadprior"    : {
+    "quadprior"       : {
         "quadprior": {
             "tasks"    : [Task.LLE],
             "mltypes"  : [MLType.ZERO_SHOT],
             "model_dir": MON_DIR / "vision" / "enhance" / "lle" / "quadprior",
         }
     },
-    "retinexformer": {
+    "retinexformer"   : {
         "retinexformer": {
             "tasks"    : [Task.LLE],
             "mltypes"  : [MLType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "enhance" / "lle" / "retinexformer",
         },
     },
-    "retinexnet"   : {
+    "retinexnet"      : {
         "retinexnet": {
             "tasks"    : [Task.LLE],
             "mltypes"  : [MLType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "enhance" / "lle" / "retinexnet",
         },
     },
-    "rsfnet"       : {
+    "rsfnet"          : {
         "rsfnet": {
             "tasks"    : [Task.LLE],
             "mltypes"  : [MLType.ZERO_REFERENCE],
             "model_dir": MON_DIR / "vision" / "enhance" / "lle" / "rsfnet",
         },
     },
-    "ruas"         : {
+    "ruas"            : {
         "ruas": {
             "tasks"    : [Task.LLE],
             "mltypes"  : [MLType.ZERO_REFERENCE],
             "model_dir": MON_DIR / "vision" / "enhance" / "lle" / "ruas",
         },
     },
-    "sci"          : {
+    "sci"             : {
         "sci": {
             "tasks"    : [Task.LLE],
             "mltypes"  : [MLType.ZERO_REFERENCE],
             "model_dir": MON_DIR / "vision" / "enhance" / "lle" / "sci",
         },
     },
-    "sgz"          : {
+    "sgz"             : {
         "sgz": {
             "tasks"    : [Task.LLE],
             "mltypes"  : [MLType.ZERO_REFERENCE],
             "model_dir": MON_DIR / "vision" / "enhance" / "lle" / "sgz",
         },
     },
-    "snr"          : {
+    "snr"             : {
         "snr": {
             "tasks"    : [Task.LLE],
             "mltypes"  : [MLType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "enhance" / "lle" / "snr",
         },
     },
-    "uretinexnet"  : {
+    "uretinexnet"     : {
         "uretinexnet": {
             "tasks"    : [Task.LLE],
             "mltypes"  : [MLType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "enhance" / "lle" / "uretinexnet",
         },
     },
-    "uretinexnet++": {
+    "uretinexnet++"   : {
         "uretinexnet++": {
             "tasks"    : [Task.LLE],
             "mltypes"  : [MLType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "enhance" / "lle" / "uretinexnet++",
         },
     },
-    "utvnet"       : {
+    "utvnet"          : {
         "utvnet": {
             "tasks"    : [Task.LLE],
             "mltypes"  : [MLType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "enhance" / "lle" / "utvnet",
         },
     },
-    "zerodce"      : {
+    "zerodce"         : {
         "zerodce"  : {
             "tasks"    : [Task.LLE],
             "mltypes"  : [MLType.ZERO_REFERENCE],
             "model_dir": MON_DIR / "vision" / "enhance" / "lle" / "zerodce",
         },
     },
-    "zerodce++"    : {
+    "zerodce++"       : {
         "zerodce++": {
             "tasks"    : [Task.LLE],
             "mltypes"  : [MLType.ZERO_REFERENCE],
             "model_dir": MON_DIR / "vision" / "enhance" / "lle" / "zerodce++",
         },
     },
-    "zerodidce"    : {
+    "zerodidce"       : {
         "zerodidce": {
             "tasks"    : [Task.LLE],
             "mltypes"  : [MLType.ZERO_REFERENCE],
             "model_dir": MON_DIR / "vision" / "enhance" / "lle" / "zerodidce",
         },
     },
-    "zeroig"       : {
+    "zeroig"          : {
         "zeroig": {
             "tasks"    : [Task.LLE],
             "mltypes"  : [MLType.ZERO_SHOT, MLType.ZERO_REFERENCE],
             "model_dir": MON_DIR / "vision" / "enhance" / "lle" / "zeroig",
         },
     },
-    "zerotig"      : {
+    "zerotig"         : {
         "zerotig": {
             "tasks"    : [Task.LLE, Task.VIDEO],
             "mltypes"  : [MLType.ZERO_SHOT],

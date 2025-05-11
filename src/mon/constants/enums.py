@@ -348,6 +348,7 @@ class WeightExtension(Enum):
     ONNX = ".onnx"
     PT   = ".pt"
     PTH  = ".pth"
+    TAR  = ".tar"
 
 
 # ----- ML/DL -----
@@ -360,7 +361,7 @@ class MLType(Enum):
     UNSUPERVISED    = "unsupervised"     # Unsupervised learning with unlabeled data.
     UNPAIRED        = "unpaired"         # Unpaired learning with varying reference data of the same input (e.g., varying illumination within the same scene).
     SELF_SUPERVISED = "self_supervised"  # Self-Supervised learning with self-generated supervision.
-    ZERO_REFERENCE  = "zero_reference"   # Zero-Reference learning without any reference (e.g., mixing arbitrary low and normal-light images).
+    ZERO_REFERENCE  = "zero_reference"   # Zero-Reference learning without any reference (e.g., mixing different low and normal-light images).
     ZERO_SHOT       = "zero_shot"        # Zero-Shot learning without any training data.
     
     @classmethod

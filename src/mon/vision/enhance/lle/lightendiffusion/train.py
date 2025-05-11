@@ -1,33 +1,25 @@
 import argparse
 import os
-import random
-import socket
-import yaml
-import torch
-import torch.backends.cudnn as cudnn
-import torch.utils.data
+
 import numpy as np
-import torchvision
-import models
+import torch
+import torch.utils.data
+import yaml
+
 import datasets
-import utils
 from models import DenoisingDiffusion
 
 
 def parse_args_and_config():
-    parser = argparse.ArgumentParser(description='Latent-Retinex Diffusion Models')
-    parser.add_argument("--config", default='unsupervised.yml', type=str,
-                        help="Path to the config file")
-    parser.add_argument('--mode', type=str, default='training', help='training or evaluation')
-    parser.add_argument('--resume', default='', type=str,
-                        help='Path for checkpoint to load and resume')
-    parser.add_argument("--image_folder", default='results/', type=str,
-                        help="Location to save restored validation image patches")
-    parser.add_argument('--seed', default=230, type=int, metavar='N',
-                        help='Seed for initializing training (default: 230)')
+    parser = argparse.ArgumentParser(description="Latent-Retinex Diffusion Models")
+    parser.add_argument("--config",       type=str, default="unsupervised.yml", help="Path to the config file")
+    parser.add_argument("--mode",         type=str, default="training",         help="training or evaluation")
+    parser.add_argument("--resume",       type=str, default="",                 help="Path for checkpoint to load and resume")
+    parser.add_argument("--image_folder", type=str, default="results/",         help="Location to save restored validation image patches")
+    parser.add_argument("--seed",         type=int, default=230, metavar="N",   help="Seed for initializing training (default: 230)")
     args = parser.parse_args()
 
-    with open(os.path.join("configs", args.config), "r") as f:
+    with open(os.path.join("options", args.config), "r") as f:
         config = yaml.safe_load(f)
     new_config = dict2namespace(config)
 

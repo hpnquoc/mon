@@ -1,30 +1,22 @@
 import argparse
 import os
-import random
-import socket
-import yaml
+
 import torch
-import torch.backends.cudnn as cudnn
-import numpy as np
-import torchvision
-import models
+import yaml
+
 import datasets
-import utils
 from models import DenoisingDiffusion, DiffusiveRestoration
 
 
 def parse_args_and_config():
-    parser = argparse.ArgumentParser(description='Latent-Retinex Diffusion Models')
-    parser.add_argument("--config", default='unsupervised.yml', type=str,
-                        help="Path to the config file")
-    parser.add_argument('--mode', type=str, default='evaluation', help='training or evaluation')
-    parser.add_argument('--resume', default='ckpt/stage2/stage2_weight.pth.tar', type=str,
-                        help='Path for the diffusion model checkpoint to load for evaluation')
-    parser.add_argument("--image_folder", default='results/', type=str,
-                        help="Location to save restored images")
+    parser = argparse.ArgumentParser(description="Latent-Retinex Diffusion Models")
+    parser.add_argument("--config",       type=str, default="unsupervised.yml", help="Path to the config file")
+    parser.add_argument("--mode",         type=str, default="evaluation",       help="training or evaluation")
+    parser.add_argument("--resume",       type=str, default="ckpt/stage2/stage2_weight.pth.tar", help="Path for the diffusion model checkpoint to load for evaluation")
+    parser.add_argument("--image_folder", type=str, default="results/",         help="Location to save restored images")
     args = parser.parse_args()
 
-    with open(os.path.join("configs", args.config), "r") as f:
+    with open(os.path.join("options", args.config), "r") as f:
         config = yaml.safe_load(f)
     new_config = dict2namespace(config)
 
@@ -51,7 +43,7 @@ def main():
     config.device = device
 
     if torch.cuda.is_available():
-        print('Note: Currently supports evaluations (restoration) when run only on a single GPU!')
+        print("Note: Currently supports evaluations (restoration) when run only on a single GPU!")
 
     print("=> using dataset '{}'".format(config.data.val_dataset))
     DATASET = datasets.__dict__[config.data.type](config)
@@ -64,5 +56,5 @@ def main():
     model.restore(val_loader)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
