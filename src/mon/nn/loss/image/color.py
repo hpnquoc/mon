@@ -57,7 +57,10 @@ class ColorConstancyLoss(base.Loss):
         d_rg       = torch.pow(mr - mg, 2)
         d_rb       = torch.pow(mr - mb, 2)
         d_gb       = torch.pow(mb - mg, 2)
-        loss       = torch.pow(torch.pow(d_rg, 2) + torch.pow(d_rb, 2) + torch.pow(d_gb, 2), 0.5)
+        d_rg2      = torch.pow(d_rg, 2)
+        d_rb2      = torch.pow(d_rb, 2)
+        d_gb2      = torch.pow(d_gb, 2)
+        loss       = torch.pow(d_rg2 + d_rb2 + d_gb2, 0.5)
         loss       = base.reduce_loss(loss=loss, reduction=self.reduction)
         return loss
     
