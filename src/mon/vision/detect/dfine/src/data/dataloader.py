@@ -4,16 +4,11 @@ Copyright(c) 2023 lyuwenyu. All Rights Reserved.
 """
 
 import random
-from functools import partial
 
 import torch
 import torch.nn.functional as F
 import torch.utils.data as data
 import torchvision
-import torchvision.transforms.v2 as VT
-from torch.utils.data import default_collate
-from torchvision.transforms.v2 import InterpolationMode
-from torchvision.transforms.v2 import functional as VF
 
 from ..core import register
 

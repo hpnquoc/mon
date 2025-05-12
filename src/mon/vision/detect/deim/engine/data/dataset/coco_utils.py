@@ -31,6 +31,7 @@ def convert_coco_poly_to_mask(segmentations, height, width):
 
 
 class ConvertCocoPolysToMask:
+
     def __call__(self, image, target):
         w, h = image.size
 

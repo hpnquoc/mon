@@ -5,15 +5,12 @@ Copyright(c) 2023 lyuwenyu. All Rights Reserved.
 
 from typing import Any, Dict, List, Optional
 
-import PIL
 import PIL.Image
 import torch
-import torch.nn as nn
 import torchvision
 import torchvision.transforms.v2 as T
 import torchvision.transforms.v2.functional as F
 
-from ...core import register
 from .._misc import (
     BoundingBoxes,
     Image,
@@ -23,6 +20,7 @@ from .._misc import (
     _boxes_keys,
     convert_to_tv_tensor,
 )
+from ...core import register
 
 torchvision.disable_beta_transforms_warning()
 

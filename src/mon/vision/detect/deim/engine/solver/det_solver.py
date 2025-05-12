@@ -181,7 +181,6 @@ class DetSolver(BaseSolver):
         total_time_str = str(datetime.timedelta(seconds=int(total_time)))
         print('Training time {}'.format(total_time_str))
 
-
     def val(self, ):
         self.eval()
 

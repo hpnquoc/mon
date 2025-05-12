@@ -22,8 +22,8 @@ verbose     : &verbose True                                                     
 
 # Misc
 cfg_path    : "deim_dfine/coco/deim_hgnetv2_l_coco.yaml"                        # Fine-tuning from Objects365 pre-trained weights.
-resume      : "run/train/deim/deim_dfine_l/deim_dfine_l_fisheye8kv1_640/last.pth"  # Resume from checkpoint
-tuning      : "zoo/vision/detect/deim/deim_dfine_l/coco/deim_dfine_hgnetv2_l_coco_e50.pth"  # Fine-tuning from checkpoint
+resume      : "run/train/deim/deim_dfine_l/deim_dfine_l_fisheye8kv1_640/last.pth"   # Resume from checkpoint
+tuning      : "zoo/vision/detect/deim/deim_dfine_l/coco/deim_dfine_l_coco_e50.pth"  # Fine-tuning from checkpoint
 use_amp     : False                                                             # Use automatic mixed precision (AMP) for training.
 test_only   : False                                                             # Test only.
 print_method: "builtin"                                                         # Print method.

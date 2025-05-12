@@ -76,6 +76,8 @@ def train(args: dict) -> str:
         tuning = None
     elif resume and resume.is_weights_file(exist=True):
         tuning = None
+    else:
+        resume = None
     use_amp      = args["use_amp"]
     test_only    = args["test_only"]
     print_method = args["print_method"]

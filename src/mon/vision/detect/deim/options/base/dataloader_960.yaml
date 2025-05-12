@@ -12,9 +12,9 @@ train_dataloader:
         - {type: ConvertPILImage, dtype: "float32", scale: True}
         - {type: ConvertBoxes, fmt: "cxcywh", normalize: True}
       policy:
-        name: stop_epoch
+        name : stop_epoch
         epoch: 72 # epoch in [71, ~) stop `ops`
-        ops: ["Mosaic", "RandomPhotometricDistort", "RandomZoomOut", "RandomIoUCrop"]
+        ops  : ["Mosaic", "RandomPhotometricDistort", "RandomZoomOut", "RandomIoUCrop"]
 
   collate_fn:
     type            : BatchImageCollateFunction
