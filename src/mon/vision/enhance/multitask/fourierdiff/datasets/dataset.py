@@ -181,6 +181,7 @@ class ConcatDataset(Dataset[T_co]):
     Arguments:
         datasets (sequence): List of datasets to be concatenated
     """
+
     datasets: List[Dataset[T_co]]
     cumulative_sizes: List[int]
 
@@ -276,8 +277,7 @@ class Subset(Dataset[T_co]):
         return len(self.indices)
 
 
-def random_split(dataset: Dataset[T], lengths: Sequence[int],
-                 generator: Optional[Generator] = default_generator) -> List[Subset[T]]:
+def random_split(dataset: Dataset[T], lengths: Sequence[int],  generator: Optional[Generator] = default_generator) -> List[Subset[T]]:
     r"""
     Randomly split a dataset into non-overlapping new datasets of given lengths.
     Optionally fix the generator for reproducible results, e.g.:

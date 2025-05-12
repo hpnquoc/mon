@@ -9,8 +9,8 @@ data:
     rescaled               : true
     num_workers            : 1
     #worm-start (code from pec)
-    INDICATOR              : 0.4  # c
-    OUTER_ITERN            : 3  # T
+    INDICATOR              : 0.4        # c
+    OUTER_ITERN            : 3          # T
     INNER_ITERN            : [3, 3, 3]  # K
     ISINNER                : 1
 
@@ -28,7 +28,7 @@ model:
     use_fp16               : true
     resblock_updown        : true
     num_heads_upsample     : -1
-    var_type               : 'fixedsmall'
+    var_type               : "fixedsmall"
     num_head_channels      : 64
     image_size             : 256
     class_cond             : false

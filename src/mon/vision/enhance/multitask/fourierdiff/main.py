@@ -18,7 +18,6 @@ torch.set_printoptions(sci_mode=False)
 # Code based on DDNM
 def parse_args_and_config():
     parser = argparse.ArgumentParser(description=globals()["__doc__"])
-
     parser.add_argument("--config",             type=str,   required=True,                     help="Path to the config file")
     parser.add_argument("--seed",               type=int,                  default=1234,       help="Set different seeds for diverse results")
     parser.add_argument("--exp",                type=str,                  default="exp",      help="Path for saving running related data.")
@@ -35,7 +34,7 @@ def parse_args_and_config():
     args = parser.parse_args()
 
     # parse config file
-    with open(os.path.join("configs", args.config), "r") as f:
+    with open(os.path.join("options", args.config), "r") as f:
         config = yaml.safe_load(f)
     new_config = dict2namespace(config)
 

@@ -150,9 +150,9 @@ class Diffusion(object):
               f'travel_length = {self.config.time_travel.travel_length},',
               f'travel_repeat = {self.config.time_travel.travel_repeat}.'
              )
-        self.FourierDiff(model,cls_fn)
+        self.FourierDiff(model, cls_fn)
 
-    def FourierDiff(self, model,cls_fn):
+    def FourierDiff(self, model, cls_fn):
         args, config = self.args, self.config
 
         dataset, test_dataset = get_dataset(args, config)
@@ -162,7 +162,7 @@ class Diffusion(object):
             test_dataset = torch.utils.data.Subset(test_dataset, range(args.subset_start, args.subset_end))
         else:
             args.subset_start = 0
-            args.subset_end = len(test_dataset)
+            args.subset_end   = len(test_dataset)
 
         print(f'Dataset has size {len(test_dataset)}')
 
@@ -170,10 +170,10 @@ class Diffusion(object):
         g.manual_seed(args.seed)
         val_loader = data.DataLoader(
             test_dataset,
-            batch_size=config.sampling.batch_size,
-            shuffle=True,
-            num_workers=config.data.num_workers,
-            generator=g,
+            batch_size  = config.sampling.batch_size,
+            shuffle     = True,
+            num_workers = config.data.num_workers,
+            generator   = g,
         )
 
         args.sigma_y = 2 * args.sigma_y #to account for scaling to [-1,1]
@@ -182,18 +182,18 @@ class Diffusion(object):
         print(f'Start from {args.subset_start}')
 
         pbar = tqdm.tqdm(val_loader)
-        for (input_y, classes),name in pbar:
-            mean=torch.mean(input_y)
+        for (input_y, classes), name in pbar:
+            mean = torch.mean(input_y)
             print(mean)
-            if mean<0.1:
+            if mean < 0.1:
                 print("warm-start!")
-                y=input_y
+                y = input_y
                 # warm-start (code from PEC)
-                indicator = config.data.INDICATOR
+                indicator   = config.data.INDICATOR
                 outer_iterN = config.data.OUTER_ITERN
                 inner_iterN = config.data.INNER_ITERN
                 fy = y * (1 - y)
-                x = y + indicator * fy
+                x  = y + indicator * fy
                 Isinner = config.data.ISINNER
                 for outer_iter in arange(outer_iterN):
                     x0 = x
@@ -205,10 +205,10 @@ class Diffusion(object):
                         x = x0
                 input_y=x
 
-            H, W = input_y.shape[2:]
+            H, W    = input_y.shape[2:]
             input_y = check_image_size(input_y, 32)
-            H_, W_ = input_y.shape[2:]
-            name = name[0].split('/')[-1]
+            H_, W_  = input_y.shape[2:]
+            name    = name[0].split('/')[-1]
             input_y = input_y.to(self.device)
             # FFT
             y_frequency = torch.fft.fft2(input_y, dim=(2, 3))
@@ -239,8 +239,7 @@ class Diffusion(object):
                                                config.time_travel.travel_repeat,
                                               )
                 time_pairs = list(zip(times[:-1], times[1:]))
-                
-                
+
                 # reverse diffusion sampling
                 for i, j in tqdm.tqdm(time_pairs):
                     i, j = i*skip, j*skip
