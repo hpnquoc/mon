@@ -1,3 +1,8 @@
+# Fisheye8K-v1 dataset:
+#   - trainv1 = train + val + test: 9000 images
+#   - val  : 2712 images
+#   - test : 1000 images
+
 task: detection
 
 evaluator:
