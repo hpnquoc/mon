@@ -38,7 +38,7 @@ network: &network                                                               
   depth_threshold  : 1.0                                                        # For adjusting the learned residual. Default is ``1.0``.
   edge_threshold   : 0.05                                                       # Edge threshold. Default is ``0.05``.
   gf_radius        : 7                                                          # Radius of the guided filter. Default is ``7``.
-  use_denoise      : False                                                      # Use denoising. Default is ``False``.
+  use_denoise      : True                                                       # Use denoising. Default is ``False``.
   denoise_ksize    : [3, 3]                                                     # For denoising. Default is ``[3, 3]``.
   denoise_color    : 0.1                                                        # For denoising. Default is ``0.1``.
   denoise_space    : [1.5, 1.5]                                                 # For denoising. Default is ``[1.5, 1.5]``.
