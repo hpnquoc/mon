@@ -304,7 +304,7 @@ class RunmlCLI:
         self.config_args = {}
 
     def __len__(self):
-        return 23
+        return 24
 
     def cycle_next(self):
         """Move to the next option, wrapping around if needed."""
@@ -429,22 +429,27 @@ class RunmlCLI:
                 text    = CLI_OPTIONS["save_debug"]["prompt_text"],
                 default = self.args["save_debug"] or self.config_args.get("save_debug"),
             ).prompt()
-        if self.index == 16:  # Keep Subdirs
+        if self.index == 16:  # Use Fullname
+            self.args["use_fullname"] = Confirm(
+                text    = CLI_OPTIONS["use_fullname"]["prompt_text"],
+                default = self.args["use_fullname"] or self.config_args.get("use_fullname"),
+            ).prompt()
+        if self.index == 17:  # Keep Subdirs
             self.args["keep_subdirs"] = Confirm(
                 text    = CLI_OPTIONS["keep_subdirs"]["prompt_text"],
                 default = self.args["keep_subdirs"] or self.config_args.get("keep_subdirs"),
             ).prompt()
-        if self.index == 17:  # Exist OK?
+        if self.index == 18:  # Exist OK?
             self.args["exist_ok"] = Confirm(
                 text    = CLI_OPTIONS["exist_ok"]["prompt_text"],
                 default = self.args["exist_ok"] or self.config_args.get("exist_ok"),
             ).prompt()
-        if self.index == 18:  # Use Verbose
+        if self.index == 19:  # Use Verbose
             self.args["verbose"] = Confirm(
                 text    = CLI_OPTIONS["verbose"]["prompt_text"],
                 default = self.args["verbose"] or self.config_args.get("verbose"),
             ).prompt()
-        if self.index == 19:  # Distributed Training
+        if self.index == 20:  # Distributed Training
             if self.args["mode"] not in ["train"]:
                 self.cycle_next()
             else:
@@ -452,7 +457,7 @@ class RunmlCLI:
                     text    = CLI_OPTIONS["torchrun"]["prompt_text"],
                     default = self.args["torchrun"] or self.config_args.get("torchrun"),
                 ).prompt()
-        if self.index == 20:  # Master Port
+        if self.index == 21:  # Master Port
             if self.args["mode"] not in ["train"] or not self.args["torchrun"]:
                 self.cycle_next()
             else:
@@ -460,7 +465,7 @@ class RunmlCLI:
                     text    = CLI_OPTIONS["master_port"]["prompt_text"],
                     default = self.args["master_port"] or self.config_args.get("master_port"),
                 ).prompt()
-        if self.index == 21:  # Master Address
+        if self.index == 22:  # Master Address
             if self.args["mode"] not in ["train"] or not self.args["torchrun"]:
                 self.cycle_next()
             else:
@@ -468,7 +473,7 @@ class RunmlCLI:
                     text    = CLI_OPTIONS["master_addr"]["prompt_text"],
                     default = self.args["master_addr"] or self.config_args.get("master_addr"),
                 ).prompt()
-        if self.index == 22:  # Finish
+        if self.index == 23:  # Finish
             rich.print_dict(self.args, title="Arguments")
             finish = Confirm(text="Finish/Re-input", default=True).prompt()
             if finish:
