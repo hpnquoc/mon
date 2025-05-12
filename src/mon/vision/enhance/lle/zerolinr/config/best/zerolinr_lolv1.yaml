@@ -62,6 +62,7 @@ loss: &loss                                                                     
   loss_w_tv  : 20                                                               # Default is ``20``.
   loss_w_de  : 1                                                                # Default is ``1``.
   loss_w_c   : 5                                                                # Default is ``5``.
+  verbose    : False                                                            # Verbosity.
 
 # Metric
 metrics: &metrics                                                               # Metrics for evaluation.
