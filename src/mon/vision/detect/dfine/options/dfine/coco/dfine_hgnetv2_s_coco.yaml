@@ -1,9 +1,9 @@
 __include__: [
-  "../dataset/coco_detection.yaml",
-  "../runtime.yaml",
-  "./include/dataloader.yaml",
-  "./include/optimizer.yaml",
-  "./include/dfine_hgnetv2.yaml",
+  "../../dataset/coco_detection.yaml",
+  "../../runtime.yaml",
+  "../include/dataloader.yaml",
+  "../include/optimizer.yaml",
+  "../include/dfine_hgnetv2.yaml",
 ]
 
 output_dir: ./output/dfine_hgnetv2_s_coco

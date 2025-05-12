@@ -21,8 +21,8 @@ exist_ok    : True                                                              
 verbose     : &verbose True                                                     # Verbosity.
 
 # Misc
-cfg_path    : "custom/dfine_hgnetv2_l_obj2custom.yaml"                          # Fine-tuning from Objects365 pre-trained weights.
-# resume      : *weights                                                          # Resume from checkpoint
+cfg_path    : "dfine/custom/dfine_hgnetv2_l_obj2custom.yaml"                    # Fine-tuning from Objects365 pre-trained weights.
+resume      : "run/train/dfine/dfine_l/dfine_l_obj2fisheye8k_640/last.pth"      # Resume from checkpoint
 tuning      : "zoo/vision/detect/dfine/dfine_l/objects365/dfine_l_objects365_e25.pth"  # Fine-tuning from checkpoint
 use_amp     : False                                                             # Use automatic mixed precision (AMP) for training.
 test_only   : False                                                             # Test only.

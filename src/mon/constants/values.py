@@ -79,6 +79,58 @@ EXTRA_STR      = "[extra]"
 EXTRA_DATASETS = {}
 EXTRA_MODELS   = {  # architecture/model (+ variant)
     # region detect
+    "deim"  : {
+        "deim_dfine_l": {
+            "tasks"    : [Task.DETECT],
+            "mltypes"  : [MLType.SUPERVISED],
+            "model_dir": MON_DIR / "vision" / "detect" / "deim",
+        },
+        "deim_dfine_m": {
+            "tasks"    : [Task.DETECT],
+            "mltypes"  : [MLType.SUPERVISED],
+            "model_dir": MON_DIR / "vision" / "detect" / "deim",
+        },
+        "deim_dfine_n": {
+            "tasks"    : [Task.DETECT],
+            "mltypes"  : [MLType.SUPERVISED],
+            "model_dir": MON_DIR / "vision" / "detect" / "deim",
+        },
+        "deim_dfine_s": {
+            "tasks"    : [Task.DETECT],
+            "mltypes"  : [MLType.SUPERVISED],
+            "model_dir": MON_DIR / "vision" / "detect" / "deim",
+        },
+        "deim_dfine_x": {
+            "tasks"    : [Task.DETECT],
+            "mltypes"  : [MLType.SUPERVISED],
+            "model_dir": MON_DIR / "vision" / "detect" / "deim",
+        },
+        "deim_rtdetrv2_r18vd": {
+            "tasks"    : [Task.DETECT],
+            "mltypes"  : [MLType.SUPERVISED],
+            "model_dir": MON_DIR / "vision" / "detect" / "deim",
+        },
+        "deim_rtdetrv2_r34vd": {
+            "tasks"    : [Task.DETECT],
+            "mltypes"  : [MLType.SUPERVISED],
+            "model_dir": MON_DIR / "vision" / "detect" / "deim",
+        },
+        "deim_rtdetrv2_r50vd": {
+            "tasks"    : [Task.DETECT],
+            "mltypes"  : [MLType.SUPERVISED],
+            "model_dir": MON_DIR / "vision" / "detect" / "deim",
+        },
+        "deim_rtdetrv2_r50vd_m": {
+            "tasks"    : [Task.DETECT],
+            "mltypes"  : [MLType.SUPERVISED],
+            "model_dir": MON_DIR / "vision" / "detect" / "deim",
+        },
+        "deim_rtdetrv2_r101vd": {
+            "tasks"    : [Task.DETECT],
+            "mltypes"  : [MLType.SUPERVISED],
+            "model_dir": MON_DIR / "vision" / "detect" / "deim",
+        },
+    },
     "dfine" : {
         "dfine_l": {
             "tasks"    : [Task.DETECT],
