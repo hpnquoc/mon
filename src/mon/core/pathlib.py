@@ -604,6 +604,11 @@ def parse_output_dir(
     keep_subdirs: bool = False,
 ):
     """Parses the output directory path from given components.
+
+    It should be in this pattern:
+        ``root/dirname/file``.
+        where:
+            root = ``parse_save_dir()``
     
     Args:
         root: Root directory.
