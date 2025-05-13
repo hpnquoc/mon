@@ -52,17 +52,17 @@ cd "${runml_dir}" || exit
 for (( i=0; i<${#data[@]}; i++ )); do
     # Input
     if [ "${data[i]}" == "fiveka" ]; then
-        input_dir="${current_dir}/run/predict/${arch}/${model}/fivek"
+        input_dir="${current_dir}/run/predict/${arch}/${model}/fivek/predict"
     elif [ "${data[i]}" == "fivekb" ]; then
-        input_dir="${current_dir}/run/predict/${arch}/${model}/fivek"
+        input_dir="${current_dir}/run/predict/${arch}/${model}/fivek/predict"
     elif [ "${data[i]}" == "fivekc" ]; then
-        input_dir="${current_dir}/run/predict/${arch}/${model}/fivek"
+        input_dir="${current_dir}/run/predict/${arch}/${model}/fivek/predict"
     elif [ "${data[i]}" == "fivekd" ]; then
-        input_dir="${current_dir}/run/predict/${arch}/${model}/fivek"
+        input_dir="${current_dir}/run/predict/${arch}/${model}/fivek/predict"
     elif [ "${data[i]}" == "fiveke" ]; then
-        input_dir="${current_dir}/run/predict/${arch}/${model}/fivek"
+        input_dir="${current_dir}/run/predict/${arch}/${model}/fivek/predict"
     else
-        input_dir="${current_dir}/run/predict/${arch}/${model}/${data[i]}"
+        input_dir="${current_dir}/run/predict/${arch}/${model}/${data[i]}/predict"
     fi
 
     # Target

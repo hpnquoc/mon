@@ -16,8 +16,8 @@ train_dataloader:
   type: DataLoader
   dataset:
     type        : CocoDetection
-    img_folder  : /data/trainv1/image
-    ann_file    : /data/trainv1/trainv1.json
+    img_folder  : /data/fisheye8k/trainv1/image
+    ann_file    : /data/fisheye8k/trainv1/trainv1.json
     return_masks: False
     transforms:
       type: Compose
@@ -32,8 +32,8 @@ val_dataloader:
   type: DataLoader
   dataset:
     type        : CocoDetection
-    img_folder  : /data/val/image
-    ann_file    : /data/val/val.json
+    img_folder  : /data/fisheye8k/val/image
+    ann_file    : /data/fisheye8k/val/val.json
     return_masks: False
     transforms:
       type: Compose

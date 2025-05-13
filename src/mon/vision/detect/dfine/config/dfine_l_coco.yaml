@@ -1,20 +1,20 @@
 # Basic
 root        : ~                                                                 # Root directory of the current run.
-arch        : "pairlie"                                                         # Model architecture or family (e.g., resnet).
-model       : &model "pairlie"                                                  # Model name (e.g., resnet50).
-data        : &data "sice"                                                      # Dataset name (e.g., cifar10) or directory (e.g., data/cifar10).
-fullname    : &fullname "pairlie_sice"                                          # Full name of the current run (e.g., resnet50_cifar10_01). If not set, it will be this file's name.
+arch        : "dfine"                                                           # Model architecture or family (e.g., resnet).
+model       : &model "dfine_l"                                                  # Model name (e.g., resnet50).
+data        : &data "coco"                                                      # Dataset name (e.g., cifar10) or directory (e.g., data/cifar10).
+fullname    : &fullname "dfine_l_coco"                                          # Full name of the current run (e.g., resnet50_cifar10_01). If not set, it will be this file's name.
 save_dir    : &save_dir ~                                                       # Saving directory. If not set, it will be `root/arch/model/data`.
-weights     : &weights "zoo/vision/enhance/lle/pairlie/pairlie/sice/pairlie_sice.pth" # Path to the pretrained weights.
+weights     : &weights "zoo/vision/detect/dfine/dfine_l/coco/dfine_l_coco.pth"  # Path to the pretrained weights.
 device      : 0                                                                 # Running device (i.e., cuda:0 | cuda:0,1,2,3 | cpu).
 torchrun    : False                                                             # If ``True``, use torch.distributed.run to run the training script.
 master_port : 7777                                                              # Master port for distributed training.
 master_addr : "localhost"                                                       # Master address for distributed training.
 local_rank  : -1                                                                # Local rank for distributed training.
-epochs      : &epochs 400                                                       # Training epochs.
+epochs      : &epochs 100                                                       # Training epochs.
 steps       : &steps ~                                                          # Training steps.
-seed        : 123456789                                                         # Random seed.
-imgsz       : &imgsz 512                                                        # Image size for the model.
+seed        : 0                                                                 # Random seed.
+imgsz       : &imgsz 640                                                        # Image size for the model.
 resize      : False                                                             # Resize the input image to `imgsz`.
 benchmark   : False                                                             # Benchmark the model.
 save_result : True                                                              # Save the result of the model.
@@ -25,20 +25,12 @@ keep_subdirs: False                                                             
 exist_ok    : True                                                              # If ``False``, it will delete the save directory if it already exists.
 verbose     : &verbose True                                                     # Verbosity.
 
-# Optimizer
-optimizer: &optimizer                                                           # Optimizer(s).
-  lr: 0.0001
-  scheduler:
-    decay: 100
-    gamma: 0.5
-
-# Datamodule
-datamodule:
-  name      : *data                                                             # Data module name (e.g., cifar10).
-  root      : "data/sice"                                                       # Root directory of the dataset.
-  transform : ~                                                                 # Data augmentation.
-  to_tensor : True                                                              # If ``True``, convert the data to tensor.
-  batch_size: 1                                                                 # Batch size.
-  cache_data: False                                                             # If ``True``, cache the data.
-  shuffle   : True                                                              # If ``True``, shuffle the data.
-  verbose   : *verbose                                                          # Verbosity.
+# Misc
+cfg_path    : "dfine/coco/dfine_hgnetv2_l_coco.yaml"                            # Fine-tuning from Objects365 pre-trained weights.
+resume      : "run/train/dfine/dfine_l/dfine_l_coco/last.pth"                   # Resume from checkpoint
+tuning      : "zoo/vision/detect/dfine/dfine_l/coco/dfine_l_coco.pth"           # Fine-tuning from checkpoint
+use_amp     : False                                                             # Use automatic mixed precision (AMP) for training.
+test_only   : False                                                             # Test only.
+print_method: "builtin"                                                         # Print method.
+print_rank  : 0                                                                 # Print rank ID.
+thres_conf  : 0.6                                                               # Confidence threshold for detection.

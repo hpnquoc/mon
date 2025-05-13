@@ -304,7 +304,7 @@ class RunmlCLI:
         self.config_args = {}
 
     def __len__(self):
-        return 24
+        return 26
 
     def cycle_next(self):
         """Move to the next option, wrapping around if needed."""
@@ -382,74 +382,7 @@ class RunmlCLI:
                 task    = self.args["task"],
                 default = self.args["device"],
             ).prompt()
-        if self.index == 9:  # Image Size
-            if self.args["mode"] not in ["predict"]:
-                self.cycle_next()
-            else:
-                self.args["imgsz"] = NumberPrompt(
-                    text    = CLI_OPTIONS["imgsz"]["prompt_text"],
-                    default = self.args["imgsz"] or self.config_args.get("imgsz"),
-                ).prompt()
-        if self.index == 10:  # Resize
-            if self.args["mode"] not in ["predict"]:
-                self.cycle_next()
-            else:
-                self.args["resize"] = Confirm(
-                    text    = CLI_OPTIONS["resize"]["prompt_text"],
-                    default = self.args["resize"] or self.config_args.get("resize"),
-                ).prompt()
-        if self.index == 11:  # Epochs
-            if self.args["mode"] not in ["train"]:
-                self.cycle_next()
-            else:
-                self.args["epochs"] = NumberPrompt(
-                    text    = CLI_OPTIONS["epochs"]["prompt_text"],
-                    default = self.args["epochs"] or self.config_args.get("epochs"),
-                ).prompt()
-        if self.index == 12:  # Steps
-            if self.args["mode"] not in ["train"]:
-                self.cycle_next()
-            else:
-                self.args["steps"] = NumberPrompt(
-                    text    = CLI_OPTIONS["steps"]["prompt_text"],
-                    default = self.args["steps"] or self.config_args.get("steps"),
-                ).prompt()
-        if self.index == 13:  # Benchmark
-            self.args["benchmark"] = Confirm(
-                text    = CLI_OPTIONS["benchmark"]["prompt_text"],
-                default = self.args["benchmark"] or self.config_args.get("benchmark"),
-            ).prompt()
-        if self.index == 14:  # Save Image
-            self.args["save_image"] = Confirm(
-                text    = CLI_OPTIONS["save_image"]["prompt_text"],
-                default = self.args["save_image"] or self.config_args.get("save_image"),
-            ).prompt()
-        if self.index == 15:  # Save Debug
-            self.args["save_debug"] = Confirm(
-                text    = CLI_OPTIONS["save_debug"]["prompt_text"],
-                default = self.args["save_debug"] or self.config_args.get("save_debug"),
-            ).prompt()
-        if self.index == 16:  # Use Fullname
-            self.args["use_fullname"] = Confirm(
-                text    = CLI_OPTIONS["use_fullname"]["prompt_text"],
-                default = self.args["use_fullname"] or self.config_args.get("use_fullname"),
-            ).prompt()
-        if self.index == 17:  # Keep Subdirs
-            self.args["keep_subdirs"] = Confirm(
-                text    = CLI_OPTIONS["keep_subdirs"]["prompt_text"],
-                default = self.args["keep_subdirs"] or self.config_args.get("keep_subdirs"),
-            ).prompt()
-        if self.index == 18:  # Exist OK?
-            self.args["exist_ok"] = Confirm(
-                text    = CLI_OPTIONS["exist_ok"]["prompt_text"],
-                default = self.args["exist_ok"] or self.config_args.get("exist_ok"),
-            ).prompt()
-        if self.index == 19:  # Use Verbose
-            self.args["verbose"] = Confirm(
-                text    = CLI_OPTIONS["verbose"]["prompt_text"],
-                default = self.args["verbose"] or self.config_args.get("verbose"),
-            ).prompt()
-        if self.index == 20:  # Distributed Training
+        if self.index == 9:  # Distributed Training
             if self.args["mode"] not in ["train"]:
                 self.cycle_next()
             else:
@@ -457,7 +390,7 @@ class RunmlCLI:
                     text    = CLI_OPTIONS["torchrun"]["prompt_text"],
                     default = self.args["torchrun"] or self.config_args.get("torchrun"),
                 ).prompt()
-        if self.index == 21:  # Master Port
+        if self.index == 10:  # Master Port
             if self.args["mode"] not in ["train"] or not self.args["torchrun"]:
                 self.cycle_next()
             else:
@@ -465,7 +398,7 @@ class RunmlCLI:
                     text    = CLI_OPTIONS["master_port"]["prompt_text"],
                     default = self.args["master_port"] or self.config_args.get("master_port"),
                 ).prompt()
-        if self.index == 22:  # Master Address
+        if self.index == 11:  # Master Address
             if self.args["mode"] not in ["train"] or not self.args["torchrun"]:
                 self.cycle_next()
             else:
@@ -473,7 +406,84 @@ class RunmlCLI:
                     text    = CLI_OPTIONS["master_addr"]["prompt_text"],
                     default = self.args["master_addr"] or self.config_args.get("master_addr"),
                 ).prompt()
-        if self.index == 23:  # Finish
+        if self.index == 12:  # Epochs
+            if self.args["mode"] not in ["train"]:
+                self.cycle_next()
+            else:
+                self.args["epochs"] = NumberPrompt(
+                    text    = CLI_OPTIONS["epochs"]["prompt_text"],
+                    default = self.args["epochs"] or self.config_args.get("epochs"),
+                ).prompt()
+        if self.index == 13:  # Steps
+            if self.args["mode"] not in ["train"]:
+                self.cycle_next()
+            else:
+                self.args["steps"] = NumberPrompt(
+                    text    = CLI_OPTIONS["steps"]["prompt_text"],
+                    default = self.args["steps"] or self.config_args.get("steps"),
+                ).prompt()
+        if self.index == 14:  # Seed
+            self.args["seed"] = NumberPrompt(
+                text    = CLI_OPTIONS["seed"]["prompt_text"],
+                default = self.args["seed"] or self.config_args.get("seed"),
+            ).prompt()
+        if self.index == 15:  # Image Size
+            if self.args["mode"] not in ["predict"]:
+                self.cycle_next()
+            else:
+                self.args["imgsz"] = NumberPrompt(
+                    text    = CLI_OPTIONS["imgsz"]["prompt_text"],
+                    default = self.args["imgsz"] or self.config_args.get("imgsz"),
+                ).prompt()
+        if self.index == 16:  # Resize
+            if self.args["mode"] not in ["predict"]:
+                self.cycle_next()
+            else:
+                self.args["resize"] = Confirm(
+                    text    = CLI_OPTIONS["resize"]["prompt_text"],
+                    default = self.args["resize"] or self.config_args.get("resize"),
+                ).prompt()
+        if self.index == 17:  # Benchmark
+            self.args["benchmark"] = Confirm(
+                text    = CLI_OPTIONS["benchmark"]["prompt_text"],
+                default = self.args["benchmark"] or self.config_args.get("benchmark"),
+            ).prompt()
+        if self.index == 18:  # Save Result
+            self.args["save_result"] = Confirm(
+                text    = CLI_OPTIONS["save_result"]["prompt_text"],
+                default = self.args["save_result"] or self.config_args.get("save_result"),
+            ).prompt()
+        if self.index == 19:  # Save Image
+            self.args["save_image"] = Confirm(
+                text    = CLI_OPTIONS["save_image"]["prompt_text"],
+                default = self.args["save_image"] or self.config_args.get("save_image"),
+            ).prompt()
+        if self.index == 20:  # Save Debug
+            self.args["save_debug"] = Confirm(
+                text    = CLI_OPTIONS["save_debug"]["prompt_text"],
+                default = self.args["save_debug"] or self.config_args.get("save_debug"),
+            ).prompt()
+        if self.index == 21:  # Use Fullname
+            self.args["use_fullname"] = Confirm(
+                text    = CLI_OPTIONS["use_fullname"]["prompt_text"],
+                default = self.args["use_fullname"] or self.config_args.get("use_fullname"),
+            ).prompt()
+        if self.index == 22:  # Keep Subdirs
+            self.args["keep_subdirs"] = Confirm(
+                text    = CLI_OPTIONS["keep_subdirs"]["prompt_text"],
+                default = self.args["keep_subdirs"] or self.config_args.get("keep_subdirs"),
+            ).prompt()
+        if self.index == 23:  # Exist OK?
+            self.args["exist_ok"] = Confirm(
+                text    = CLI_OPTIONS["exist_ok"]["prompt_text"],
+                default = self.args["exist_ok"] or self.config_args.get("exist_ok"),
+            ).prompt()
+        if self.index == 24:  # Use Verbose
+            self.args["verbose"] = Confirm(
+                text    = CLI_OPTIONS["verbose"]["prompt_text"],
+                default = self.args["verbose"] or self.config_args.get("verbose"),
+            ).prompt()
+        if self.index == 25:  # Finish
             rich.print_dict(self.args, title="Arguments")
             finish = Confirm(text="Finish/Re-input", default=True).prompt()
             if finish:
