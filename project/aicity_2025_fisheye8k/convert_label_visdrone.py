@@ -39,33 +39,31 @@ VisDrone format:
 
 from __future__ import annotations
 
-import cv2
-
 import mon
 
 current_file = mon.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
 map_classes  = {
-    "0":  -1,    # VisDrone ignored regions  -> ignore
-    "1":   3,    # VisDrone pedestrian       -> Fisheye8K pedestrian
-    "2":  -1,    # VisDrone human            -> ignore
-    "3":  -1,    # VisDrone bicycle          -> ignore
-    "4":   2,    # VisDrone car              -> Fisheye8K car
-    "5":   2,    # VisDrone van              -> Fisheye8K car
-    "6":   4,    # VisDrone truck            -> Fisheye8K truck
-    "7":  -1,    # VisDrone tricycle         -> ignore
-    "8":  -1,    # VisDrone awning-tricycle  -> ignore
-    "9":   0,    # VisDrone bus              -> Fisheye8K bus
-    "10":  1,    # VisDrone motor            -> Fisheye8K bike
-    "11": -1,    # VisDrone others           -> ignore
+    "0":  -1,  # VisDrone ignored regions  -> ignore
+    "1":   3,  # VisDrone pedestrian       -> Fisheye8K pedestrian
+    "2":  -1,  # VisDrone human            -> ignore
+    "3":  -1,  # VisDrone bicycle          -> ignore
+    "4":   2,  # VisDrone car              -> Fisheye8K car
+    "5":   2,  # VisDrone van              -> Fisheye8K car
+    "6":   4,  # VisDrone truck            -> Fisheye8K truck
+    "7":  -1,  # VisDrone tricycle         -> ignore
+    "8":  -1,  # VisDrone awning-tricycle  -> ignore
+    "9":   0,  # VisDrone bus              -> Fisheye8K bus
+    "10":  1,  # VisDrone motor            -> Fisheye8K bike
+    "11": -1,  # VisDrone others           -> ignore
 }
 
 
-def convert_visdrone_to_fisheye8k(split: str):
-    images_dir     = current_dir / "data" / "visdrone" / "images"
-    labels_old_dir = current_dir / "data" / "visdrone" / "labels_old_dir"
-    label_dir      = current_dir / "data" / "visdrone" / "labels"
+def convert_label_visdrone2fisheye8k(split: str):
+    images_dir     = current_dir / "data" / "fisheye8k" / "extra" / "visdrone" / "images"
+    labels_old_dir = current_dir / "data" / "fisheye8k" / "extra" / "visdrone" / "labels_old_dir"
+    label_dir      = current_dir / "data" / "fisheye8k" / "extra" / "visdrone" / "labels"
     
     assert mon.Path(images_dir).is_dir()
     assert mon.Path(labels_old_dir).is_dir()
@@ -78,8 +76,7 @@ def convert_visdrone_to_fisheye8k(split: str):
             total       = len(image_files),
             description = f"[bright_yellow] Processing"
         ):
-            image   = cv2.imread(str(image_file))
-            h, w, c = image.shape
+            h, w, c = mon.read_image_shape(image_file)
             
             labels_old_file = labels_old_dir / f"{image_file.stem}.txt"
             label_file      = label_dir      / f"{image_file.stem}.txt"
@@ -118,6 +115,6 @@ def convert_visdrone_to_fisheye8k(split: str):
 
 
 if __name__ == "__main__":
-    convert_visdrone_to_fisheye8k("train")
+    convert_label_visdrone2fisheye8k("train")
     #convert_visdrone_to_fisheye8k("val")
     #convert_visdrone_to_fisheye8k("test_dev")

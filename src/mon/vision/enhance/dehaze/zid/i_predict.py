@@ -259,8 +259,8 @@ def predict(args: argparse.Namespace):
             
             # Save
             output_dir = mon.parse_output_dir(save_dir, data_name, image_path, keep_subdirs)
-            debug_dir  = output_dir / "debug"
-            output_dir = output_dir / "predict"
+            debug_dir  = output_dir / mon.SAVE_DEBUG_DIR
+            output_dir = output_dir / mon.SAVE_IMAGE_DIR
             output_dir.mkdir(parents=True, exist_ok=True)
             debug_dir.mkdir(parents=True, exist_ok=True)
             (debug_dir /    "t").mkdir(parents=True, exist_ok=True)

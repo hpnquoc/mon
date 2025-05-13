@@ -91,7 +91,7 @@ def predict(args: dict) -> str:
             if save_image:
                 _, output   = outputs.popitem()
                 output_dir  = mon.parse_output_dir(save_dir, data_name, image_path, keep_subdirs)
-                output_path = output_dir / "predict" / f"{image_path.stem}{mon.SAVE_IMAGE_EXT}"
+                output_path = output_dir / mon.SAVE_IMAGE_DIR / f"{image_path.stem}{mon.SAVE_IMAGE_EXT}"
                 output_path.parent.mkdir(parents=True, exist_ok=True)
                 mon.write_image(output_path, output)
             
@@ -100,7 +100,7 @@ def predict(args: dict) -> str:
                 debug_dir = mon.parse_output_dir(save_dir, data_name, image_path, keep_subdirs)
                 for k, v in outputs.items():
                     if mon.is_image(v):
-                        path = debug_dir / "debug" / f"{image_path.stem}_{k}{mon.SAVE_IMAGE_EXT}"
+                        path = debug_dir / mon.SAVE_DEBUG_DIR / f"{image_path.stem}_{k}{mon.SAVE_IMAGE_EXT}"
                         path.parent.mkdir(parents=True, exist_ok=True)
                         mon.write_image(path, v)
     

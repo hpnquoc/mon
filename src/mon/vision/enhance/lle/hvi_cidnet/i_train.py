@@ -201,9 +201,9 @@ def train(args: dict) -> str:
                 if j == train_len:
                     enhanced_img = torchvision.transforms.ToPILImage()(enhanced_rgb[0].squeeze(0))
                     ref_img      = torchvision.transforms.ToPILImage()(ref_rgb[0].squeeze(0))
-                    (save_dir / "debug").mkdir(parents=True, exist_ok=True)
-                    enhanced_img.save(str(save_dir / "debug" / "enhanced.jpg"))
-                    ref_img.save(str(save_dir / "debug" / "ref.jpg"))
+                    (save_dir / mon.SAVE_DEBUG_DIR).mkdir(parents=True, exist_ok=True)
+                    enhanced_img.save(str(save_dir / mon.SAVE_DEBUG_DIR / "enhanced.jpg"))
+                    ref_img.save(str(save_dir / mon.SAVE_DEBUG_DIR / "ref.jpg"))
             
             scheduler.step()
             

@@ -233,7 +233,7 @@ def predict(args: dict) -> str:
             # Save
             if save_image:
                 output_dir  = mon.parse_output_dir(save_dir, data_name, image_path, keep_subdirs)
-                output_path = output_dir / "predict" / f"{image_path.stem}{mon.SAVE_IMAGE_EXT}"
+                output_path = output_dir / mon.SAVE_IMAGE_DIR / f"{image_path.stem}{mon.SAVE_IMAGE_EXT}"
                 output_path.parent.mkdir(parents=True, exist_ok=True)
                 torchvision.utils.save_image(enhanced, str(output_path))
         

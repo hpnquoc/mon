@@ -39,25 +39,23 @@ VisDrone format:
 
 from __future__ import annotations
 
-import cv2
-
 import mon
 
 current_file = mon.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
 map_classes  = {
-    "0": 1,    # HCM AICity bike, bicycle    -> ignore bicycle, Fisheye8K bike
-    "1": 2,    # HCM AICity car              -> Fisheye8K car
-    "2": 0,    # HCM AICity bus              -> Fisheye8K bus
-    "3": 4,    # HCM AICity truck            -> Fisheye8K truck
+    "0": 1,  # HCM AICity bike, bicycle -> ignore bicycle, Fisheye8K bike
+    "1": 2,  # HCM AICity car           -> Fisheye8K car
+    "2": 0,  # HCM AICity bus           -> Fisheye8K bus
+    "3": 4,  # HCM AICity truck         -> Fisheye8K truck
 }
 
 
-def convert_hcmaicity_to_fisheye8k(split: str):
-    images_dir     = current_dir / "data" / "hcmaicity" / "images"
-    labels_old_dir = current_dir / "data" / "hcmaicity" / "labels_old_cls"
-    label_dir      = current_dir / "data" / "hcmaicity" / "labels"
+def convert_label_hcmaicity2fisheye8k(split: str):
+    images_dir     = current_dir / "data" / "fisheye8k" / "extra" / "hcmaicity" / "images"
+    labels_old_dir = current_dir / "data" / "fisheye8k" / "extra" / "hcmaicity" / "labels_old_cls"
+    label_dir      = current_dir / "data" / "fisheye8k" / "extra" / "hcmaicity" / "labels"
     
     assert mon.Path(images_dir).is_dir()
     assert mon.Path(labels_old_dir).is_dir()
@@ -70,8 +68,7 @@ def convert_hcmaicity_to_fisheye8k(split: str):
             total       = len(image_files),
             description = f"[bright_yellow] Processing"
         ):
-            image   = cv2.imread(str(image_file))
-            h, w, c = image.shape
+            h, w, c  = mon.read_image_shape(image_file)
             
             label_old_file = labels_old_dir / f"{image_file.stem}.txt"
             label_file     = label_dir      / f"{image_file.stem}.txt"
@@ -99,4 +96,4 @@ def convert_hcmaicity_to_fisheye8k(split: str):
 
 
 if __name__ == "__main__":
-    convert_hcmaicity_to_fisheye8k("train")
+    convert_label_hcmaicity2fisheye8k("train")

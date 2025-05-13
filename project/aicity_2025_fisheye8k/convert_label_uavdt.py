@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Convert UA-DETRAC bbox to yolo format."""
+"""Convert UAVDT bbox to yolo format."""
 
 from __future__ import annotations
 
@@ -13,18 +13,17 @@ current_file = mon.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
 map_classes  = {
-    "0": 4,    # UA-DETRAC truck -> Fisheye8K truck
-    "1": 2,    # UA-DETRAC car   -> Fisheye8K car
-    "2": 2,    # UA-DETRAC van   -> Fisheye8K car
-    "3": 0,    # UA-DETRAC bus   -> Fisheye8K bus
+    "0": 2,  # UAVDT car   -> Fisheye8K car
+    "1": 4,  # UAVDT truck -> Fisheye8K truck
+    "2": 0,  # UAVDT bus   -> Fisheye8K bus
 }
 
 
-def convert_ua_detrac_to_fisheye8k(split: str):
-    images_old_dir = current_dir / "data" / "ua_detrac" / "images_old"
-    labels_old_dir = current_dir / "data" / "ua_detrac" / "labels_old_cls"
-    images_dir     = current_dir / "data" / "ua_detrac" / "images"
-    label_dir      = current_dir / "data" / "ua_detrac" / "labels"
+def convert_label_uavdt2fisheye8k(split: str):
+    images_old_dir = current_dir / "data" / "fisheye8k" / "extra" / "uavdt" / "images_old"
+    labels_old_dir = current_dir / "data" / "fisheye8k" / "extra" / "uavdt" / "labels_old_cls"
+    images_dir     = current_dir / "data" / "fisheye8k" / "extra" / "uavdt" / "images"
+    label_dir      = current_dir / "data" / "fisheye8k" / "extra" / "uavdt" / "labels"
     
     assert mon.Path(images_old_dir).is_dir()
     assert mon.Path(labels_old_dir).is_dir()
@@ -37,7 +36,7 @@ def convert_ua_detrac_to_fisheye8k(split: str):
             total       = len(image_files),
             description = f"[bright_yellow] Processing"
         ):
-            if i % 25 != 0:  # The video is recorded at 25 fps -> Every second takes 1 frame.
+            if i % 15 != 0:  # The video is recorded at 30 fps -> Every second takes 2 frames.
                 continue
                 
             image   = cv2.imread(str(image_file))
@@ -75,5 +74,5 @@ def convert_ua_detrac_to_fisheye8k(split: str):
             
 
 if __name__ == "__main__":
-    convert_ua_detrac_to_fisheye8k("train")
-    # convert_ua_detrac_to_fisheye8k("val")
+    convert_label_uavdt2fisheye8k("train")
+    #convert_uavdt_to_fisheye8k("test")

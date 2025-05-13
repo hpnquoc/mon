@@ -136,7 +136,7 @@ def predict(args: dict) -> str:
             # Save Result
             if save_result:
                 output_dir = mon.parse_output_dir(save_dir, data_name, image_path, keep_subdirs)
-                label_path = output_dir / "label" / f"{image_path.stem}.txt"
+                label_path = output_dir / mon.SAVE_LABEL_DIR / f"{image_path.stem}.txt"
                 label_path.parent.mkdir(parents=True, exist_ok=True)
                 with open(str(label_path), "w") as f:
                     for j, img in enumerate(image):

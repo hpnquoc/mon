@@ -602,7 +602,7 @@ def parse_output_dir(
     dirname     : str | Path,
     file        : str | Path,
     keep_subdirs: bool = False,
-):
+) -> pathlib.Path:
     """Parses the output directory path from given components.
 
     It should be in this pattern:

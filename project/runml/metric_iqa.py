@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Measures metrics for a given model and dataset."""
+"""Measures image quality assessment metrics for a given model and dataset."""
 
+import argparse
 import logging
 
-import click
 import pyiqa
 import pyiqa.default_model_configs
 import pyiqa.models.inference_model
@@ -22,7 +22,6 @@ _METRICS = pyiqa.default_model_configs.DEFAULT_CONFIGS
 def measure_metric_pyiqa(
     input_dir  : mon.Path,
     target_dir : mon.Path,
-    result_file: mon.Path | str,
     arch       : str,
     model      : str,
     data       : str,
@@ -31,29 +30,13 @@ def measure_metric_pyiqa(
     resize     : bool,
     metric     : list[str],
     use_gt_mean: bool,
-    save_txt   : bool,
     verbose    : bool,
 ) -> dict:
     """Measure metrics using :mod:`pyiqa` package."""
-    assert input_dir and mon.Path(input_dir).is_dir()
-    # if target_dir:
-    #     assert mon.Path(target_dir).is_dir()
-    if result_file:
-        assert (mon.Path(result_file).is_dir()
-                or mon.Path(result_file).is_file()
-                or isinstance(result_file, str))
-        result_file = mon.Path(result_file)
-    
     # Parse input and target directories
     input_dir  = mon.Path(input_dir)
     target_dir = mon.Path(target_dir) if target_dir else input_dir.replace("image", "ref")
-    
-    # Parse result file
-    result_file = mon.Path(result_file) if result_file else None
-    if save_txt and result_file and result_file.is_dir():
-        result_file /= "metric.txt"
-        result_file.parent.mkdir(parents=True, exist_ok=True)
-    
+
     # List image files
     image_files = list(input_dir.rglob("*"))
     image_files = [f for f in image_files if f.is_image_file()]
@@ -156,25 +139,25 @@ def update_best_results(results: dict, new_values: dict) -> dict:
 
 
 # ----- Main -----
-@click.command(name="metric", context_settings=dict(ignore_unknown_options=True, allow_extra_args=True))
-@click.option("--input-dir",   type=click.Path(exists=True),  default=None, help="Image directory.")
-@click.option("--target-dir",  type=click.Path(exists=False), default=None, help="Ground-truth directory.")
-@click.option("--result-file", type=str,                      default=None, help="Result file.")
-@click.option("--arch",        type=str,                      default=None, help="Model's architecture.")
-@click.option("--model",       type=str,                      default=None, help="Model's fullname.")
-@click.option("--data",        type=str,                      default=None, help="Source data.")
-@click.option("--device",      type=str,                      default=None, help="Running devices.")
-@click.option("--imgsz",       type=int,                      default=512)
-@click.option("--resize",      is_flag=True)
-@click.option("--metric",      type=str, multiple=True, help="Measuring metric.")
-@click.option("--use-gt-mean", is_flag=True)
-@click.option("--backend",     type=click.Choice(["pyiqa"], case_sensitive=False), default=["pyiqa"], multiple=True)
-@click.option("--save-txt",    is_flag=True)
-@click.option("--verbose",     is_flag=True)
+# @click.command(name="metric", context_settings=dict(ignore_unknown_options=True, allow_extra_args=True))
+# @click.option("--input-dir",   type=click.Path(exists=True),  default=None, help="Image directory.")
+# @click.option("--target-dir",  type=click.Path(exists=False), default=None, help="Ground-truth directory.")
+# @click.option("--result-file", type=str,                      default=None, help="Result file.")
+# @click.option("--arch",        type=str,                      default=None, help="Model's architecture.")
+# @click.option("--model",       type=str,                      default=None, help="Model's fullname.")
+# @click.option("--data",        type=str,                      default=None, help="Source data.")
+# @click.option("--device",      type=str,                      default=None, help="Running devices.")
+# @click.option("--imgsz",       type=int,                      default=512)
+# @click.option("--resize",      is_flag=True)
+# @click.option("--metric",      type=str, multiple=True, help="Measuring metric.")
+# @click.option("--use-gt-mean", is_flag=True)
+# @click.option("--backend",     type=click.Choice(["pyiqa"], case_sensitive=False), default=["pyiqa"], multiple=True)
+# @click.option("--save-txt",    is_flag=True)
+# @click.option("--verbose",     is_flag=True)
 def main(
     input_dir  : mon.Path,
     target_dir : mon.Path,
-    result_file: mon.Path | str,
+    result_file: mon.Path,
     arch       : str,
     model      : str,
     data       : str,
@@ -187,11 +170,16 @@ def main(
     save_txt   : bool,
     verbose    : bool,
 ):
-    input_dir       = mon.Path(input_dir)
-    target_dir      = mon.Path(target_dir)
+    input_dir  = mon.Path(input_dir)  if input_dir  else None
+    target_dir = mon.Path(target_dir) if target_dir else None
+
+    assert input_dir and input_dir.is_dir()
+
     results         = {}
     results_gt_mean = {}
-    
+    backend         = [backend] if not isinstance(backend, list) else backend
+    backend         = [str(b).lower() for b in backend]
+
     if not verbose:
         logger = logging.getLogger()
         logger.disabled = True
@@ -202,7 +190,6 @@ def main(
             metric_values = measure_metric_pyiqa(
                 input_dir   = input_dir,
                 target_dir  = target_dir,
-                result_file = result_file,
                 arch        = arch,
                 model       = model,
                 data        = data,
@@ -211,7 +198,6 @@ def main(
                 resize      = resize,
                 metric      = metric,
                 use_gt_mean = False,
-                save_txt    = save_txt,
                 verbose     = verbose,
             )
             results = update_best_results(results, metric_values)
@@ -219,7 +205,6 @@ def main(
                 metric_values_gt_mean = measure_metric_pyiqa(
                     input_dir   = input_dir,
                     target_dir  = target_dir,
-                    result_file = result_file,
                     arch        = arch,
                     model       = model,
                     data        = data,
@@ -228,7 +213,6 @@ def main(
                     resize      = resize,
                     metric      = metric,
                     use_gt_mean = True,
-                    save_txt    = save_txt,
                     verbose     = verbose,
                 )
                 results_gt_mean = update_best_results(results_gt_mean, metric_values_gt_mean)
@@ -262,4 +246,20 @@ def main(
 
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser(description="metric")
+    parser.add_argument("--input-dir",   type=str, help="Input image directory.")
+    parser.add_argument("--target-dir",  type=str, help="Ground-truth image directory.")
+    parser.add_argument("--result-file", type=str, help="Result file.")
+    parser.add_argument("--arch",        type=str, help="Model's architecture.")
+    parser.add_argument("--model",       type=str, help="Model's fullname.")
+    parser.add_argument("--data",        type=str, help="Source data name.")
+    parser.add_argument("--device",      type=str, help="Running devices.")
+    parser.add_argument("--imgsz",       type=int, default=512)
+    parser.add_argument("--resize",      action="store_true")
+    parser.add_argument("--metric",      type=str, action="append", help="Measuring metric.")
+    parser.add_argument("--use-gt-mean", action="store_true")
+    parser.add_argument("--backend",     choices=["pyiqa"], default="pyiqa")
+    parser.add_argument("--save-txt",    action="store_true")
+    parser.add_argument("--verbose",     action="store_true")
+    args = parser.parse_args()
+    main(**vars(args))

@@ -86,7 +86,6 @@
 import argparse
 import json
 
-import cv2
 import numpy as np
 
 import mon
@@ -95,7 +94,7 @@ current_file = mon.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
 
-def convert_yolo_to_coco(split: str):
+def convert_label_to_coco(split: str):
     code        = mon.ShapeCode.from_value(value=f"yolo_to_coco")
     image_dir   = current_dir / "data" / split / "image"
     label_dir   = current_dir / "data" / split / "label"
@@ -135,9 +134,8 @@ def convert_yolo_to_coco(split: str):
             description = f"[bright_yellow] Processing"
         ):
             # Append image
-            image      = cv2.imread(str(image_file))
-            h, w, c    = image.shape
-            image_id   = i
+            h, w, c  = mon.read_image_shape(image_file)
+            image_id = i
             images.append({"id": image_id, "file_name": image_file.name, "height": h, "width": w})
             
             # Append annotations
@@ -187,4 +185,4 @@ if __name__ == "__main__":
     parser.add_argument("--split", type=str, default="train", required=True)
     args = parser.parse_args()
     
-    convert_yolo_to_coco(args.split)
+    convert_label_to_coco(args.split)

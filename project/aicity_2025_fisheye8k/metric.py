@@ -11,8 +11,7 @@ from pycocotools.cocoeval import COCOeval
 import mon
 
 
-# region Main
-
+# ----- Main -----
 @click.command(name="metric", context_settings=dict(ignore_unknown_options=True, allow_extra_args=True))
 @click.option("--result-file", type=click.Path(exists=True),  default=None, help="Result .json file.")
 @click.option("--gt-file",     type=click.Path(exists=False), default=None, help="Groundtruth .json file.")
@@ -52,5 +51,3 @@ def measure_metric(
 
 if __name__ == "__main__":
     measure_metric()
-
-# endregion
