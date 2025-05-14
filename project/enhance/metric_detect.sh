@@ -4,14 +4,14 @@ echo "$HOSTNAME"
 clear
 
 # ----- Input -----
-arch="lightendiffusion"
-model="lightendiffusion"
+arch="io"
+model="ref_v_gf"
 detector="dfine_s_coco80"
 data=(
     ### Real-World Set
     # "darkface"
-    "exdark"
-    # "lolistreetval"
+    # "exdark"
+    "lolistreetval"
 )
 device="cuda:0"
 bbox_format="yolo"
@@ -40,6 +40,9 @@ for (( i=0; i<${#data[@]}; i++ )); do
     if [ "${data[i]}" == "exdark" ]; then
         target_json="${current_dir}/data/exdark/test/test.json"
         remap_classes="${current_dir}/data/exdark/remap_coco802exdark.yaml"
+    elif [ "${data[i]}" == "lolistreetval" ]; then
+        target_json="${current_dir}/data/lolistreet/val/ref.json"
+        remap_classes=""
     else
         target_json="${current_dir}/data/${data[i]}/test/test.json"
         remap_classes=""
