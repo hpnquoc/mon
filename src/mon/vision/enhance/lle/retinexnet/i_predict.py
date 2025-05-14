@@ -36,6 +36,7 @@ def predict(args: dict) -> str:
     save_debug   = args["save_debug"]
     use_fullname = args["use_fullname"]
     keep_subdirs = args["keep_subdirs"]
+    save_nearby  = args["save_nearby"]
     exist_ok     = args["exist_ok"]
     verbose      = args["verbose"]
     
@@ -66,7 +67,7 @@ def predict(args: dict) -> str:
         ):
             meta        = datapoint["meta"]
             image_path  = meta["path"]
-            output_dir  = mon.parse_output_dir(save_dir, data_name, image_path, keep_subdirs)
+            output_dir  = mon.parse_output_dir(save_dir, data_name, mon.SAVE_IMAGE_DIR, image_path, keep_subdirs, save_nearby)
             output_dir  = output_dir / mon.SAVE_IMAGE_DIR
             output_dir.mkdir(parents=True, exist_ok=True)
             timer.tick()
