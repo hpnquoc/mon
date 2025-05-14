@@ -170,6 +170,13 @@ def main(
     save_txt   : bool,
     verbose    : bool,
 ):
+    if not verbose:
+        logger = logging.getLogger()
+        logger.disabled = True
+    mon.console.rule(f"[bold red] {model}")
+    mon.console.log(f"[bold green]Model: {model}")
+    mon.console.log(f"[bold red]Data : {data}")
+
     input_dir  = mon.Path(input_dir)  if input_dir  else None
     target_dir = mon.Path(target_dir) if target_dir else None
 
@@ -180,11 +187,6 @@ def main(
     backend         = [backend] if not isinstance(backend, list) else backend
     backend         = [str(b).lower() for b in backend]
 
-    if not verbose:
-        logger = logging.getLogger()
-        logger.disabled = True
-    mon.console.rule(f"[bold red] {model}")
-    
     for b in backend:
         if b in ["pyiqa"]:
             metric_values = measure_metric_pyiqa(
@@ -220,9 +222,6 @@ def main(
             mon.console.log(f"`{backend}` is not supported!")
     
     # Show results
-    # console.rule(f"[bold red] {model}")
-    mon.console.log(f"[bold green]Model: {model}")
-    mon.console.log(f"[bold red]Data : {data}")
     message = ""
     # Headers
     for m, v in results.items():

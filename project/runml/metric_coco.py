@@ -144,6 +144,13 @@ def main(
     exist_ok     : bool,
     verbose      : bool,
 ):
+    if not verbose:
+        logger = logging.getLogger()
+        logger.disabled = True
+    mon.console.rule(f"[bold red] {model}")
+    mon.console.log(f"[bold green]Model: {model}")
+    mon.console.log(f"[bold red]Data : {data}")
+
     input_dir     = mon.Path(input_dir)     if input_dir     else None
     label_dir     = mon.Path(label_dir)     if label_dir     else None
     input_json    = mon.Path(input_json)    if input_json    else None
@@ -152,11 +159,6 @@ def main(
     remap_classes = mon.Path(remap_classes) if remap_classes else None
 
     assert target_json and mon.Path(target_json).is_json_file()
-
-    if not verbose:
-        logger = logging.getLogger()
-        logger.disabled = True
-    mon.console.rule(f"[bold red] {model}")
 
     if not exist_ok and input_json and input_json.is_json_file():
         mon.delete_files(input_json)
@@ -180,8 +182,6 @@ def main(
         )
 
     # Show results
-    mon.console.log(f"[bold green]Model: {model}")
-    mon.console.log(f"[bold red]Data : {data}")
     message = ""
     # Headers
     for m, v in results.items():

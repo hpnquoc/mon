@@ -4,9 +4,9 @@ echo "$HOSTNAME"
 clear
 
 # ----- Input -----
-arch="io"
-model="image"
-detector="dfine_l_coco80"
+arch="lightendiffusion"
+model="lightendiffusion"
+detector="dfine_s_coco80"
 data=(
     ### Real-World Set
     # "darkface"
@@ -29,8 +29,12 @@ cd "${runml_dir}" || exit
 for (( i=0; i<${#data[@]}; i++ )); do
     # Input
     input_dir="${current_dir}/run/predict/${arch}/${model}/${data[i]}/pred"
-    label_dir="${current_dir}/run/predict/${arch}/${model}/${data[i]}/pred_${detector}"
-    input_json="${label_dir}.json"
+    label_dir="${current_dir}/run/predict/${arch}/${model}/${data[i]}/pred_${detector}/label"
+    if ! [ -d "${label_dir}" ]; then
+        label_dir="${current_dir}/run/predict/${arch}/${model}/${data[i]}/pred_${detector}"
+    fi
+    # input_json="${label_dir}.json"
+    input_json="${current_dir}/run/predict/${arch}/${model}/${data[i]}/pred_${detector}.json"
 
     # Target
     if [ "${data[i]}" == "exdark" ]; then

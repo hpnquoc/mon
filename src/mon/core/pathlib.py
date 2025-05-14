@@ -587,13 +587,17 @@ def parse_save_dir(
     Returns:
         Parsed save dir path as ``str`` or ``pathlib.Path``.
     """
-    save_dir = pathlib.Path(root)
+    save_dir = Path(root)
+    data     = Path(data) if data not in [None, "None", ""] else None
     if arch:
         save_dir /= arch
     if model:
         save_dir /= model
         if data:
-            save_dir /= data
+            if data.is_dir() or data.is_file():
+                save_dir /= data.stem
+            else:
+                save_dir /= data
     return save_dir
 
 
@@ -632,6 +636,7 @@ def parse_output_dir(
     root        = Path(root)
     dirname     = Path(dirname)
     subdir_name = subdir_name if subdir_name not in [None, "None", ""] else None
+    subdir_name = None if save_nearby else subdir_name
     src_path    = Path(src_path)
 
     # Update root and dirname
