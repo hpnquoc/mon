@@ -30,7 +30,8 @@ data=(
     ### Real-World Set
     "darkcityscapes"
     "darkface"
-    "exdark"
+    # "exdark"
+    "exdark1200"
     "lolistreettest"
     "lolistreetval"
     "nightcity"

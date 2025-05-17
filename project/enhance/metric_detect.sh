@@ -4,13 +4,14 @@ echo "$HOSTNAME"
 clear
 
 # ----- Input -----
-arch="io"
-model="ref_v_gf"
+arch="zerolinr"
+model="zerolinr"
 detector="dfine_s_coco80"
 data=(
     ### Real-World Set
     # "darkface"
     # "exdark"
+    "exdark1200"
     "lolistreetval"
 )
 device="cuda:0"
@@ -39,6 +40,9 @@ for (( i=0; i<${#data[@]}; i++ )); do
     # Target
     if [ "${data[i]}" == "exdark" ]; then
         target_json="${current_dir}/data/exdark/test/test.json"
+        remap_classes="${current_dir}/data/exdark/remap_coco802exdark.yaml"
+    elif [ "${data[i]}" == "exdark1200" ]; then
+        target_json="${current_dir}/data/exdark/test1200/test1200.json"
         remap_classes="${current_dir}/data/exdark/remap_coco802exdark.yaml"
     elif [ "${data[i]}" == "lolistreetval" ]; then
         target_json="${current_dir}/data/lolistreet/val/ref.json"

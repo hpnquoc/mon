@@ -380,7 +380,7 @@ class RetinexNet(nn.Module):
             # print(self.train_phase, "  : Model restore success!")
             pass
         else:
-            weights_file = str(mon.Path(ckpt_dir) / "retinexnet_lol_v1_decom_9200.tar")
+            weights_file = str(mon.Path(ckpt_dir) / "retinexnet_lolv1_decom_9200.tar")
             ckpt_dict    = torch.load(weights_file, weights_only=True)
             self.DecomNet.load_state_dict(ckpt_dict)
             # print(f"No pretrained model to restore! Use default pretrained weights: {weights_file}")
@@ -391,7 +391,7 @@ class RetinexNet(nn.Module):
             # print(self.train_phase, ": Model restore success!")
             pass
         else:
-            weights_file = str(mon.Path(ckpt_dir) / "retinexnet_lol_v1_relight_9200.tar")
+            weights_file = str(mon.Path(ckpt_dir) / "retinexnet_lolv1_relight_9200.tar")
             ckpt_dict    = torch.load(weights_file, weights_only=True)
             self.RelightNet.load_state_dict(ckpt_dict)
             # print(f"No pretrained model to restore! Use default pretrained weights: {weights_file}")
