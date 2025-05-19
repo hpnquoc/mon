@@ -13,6 +13,8 @@ from functions.ckpt_util import download
 from guided_diffusion.script_util import create_model
 from numpy import arange
 
+import mon
+
 
 def check_image_size(x, down_factor):
     _, _, h, w = x.size()
@@ -113,12 +115,14 @@ class Diffusion(object):
         elif self.model_var_type == "fixedsmall":
             self.logvar = posterior_variance.clamp(min=1e-20).log()
 
-    def sample(self):
-        cls_fn = None
+    def sample(self, weights, data_name, data_loader, save_image, save_dir, keep_subdirs, save_nearby):
+        cls_fn      = None
         config_dict = vars(self.config.model)
-        model = create_model(**config_dict)
+        model       = create_model(**config_dict)
         if self.config.model.use_fp16:
             model.convert_to_fp16()
+
+        '''
         if self.config.model.class_cond:
             ckpt = os.path.join(self.args.exp, 'logs/imagenet/%dx%d_diffusion.pt' % (
             self.config.data.image_size, self.config.data.image_size))
@@ -131,8 +135,9 @@ class Diffusion(object):
             ckpt = os.path.join(self.args.exp, "logs/imagenet/256x256_diffusion_uncond.pt")
             if not os.path.exists(ckpt):
                 download('https://openaipublic.blob.core.windows.net/diffusion/jul-2021/256x256_diffusion_uncond.pt', ckpt)
+        '''
 
-        model.load_state_dict(torch.load(ckpt, map_location=self.device),strict=False)
+        model.load_state_dict(torch.load(str(weights), map_location=self.device), strict=False)
         model.to(self.device)
         model.eval()
 
@@ -141,20 +146,19 @@ class Diffusion(object):
             f'travel_length = {self.config.time_travel.travel_length},',
             f'travel_repeat = {self.config.time_travel.travel_repeat}.'
         )
-        self.FourierDiff(model, cls_fn)
+        self.FourierDiff(model, cls_fn, data_name, data_loader, save_image, save_dir, keep_subdirs, save_nearby)
 
-    def FourierDiff(self, model, cls_fn):
+    def FourierDiff(self, model, cls_fn, data_name, data_loader, save_image, save_dir, keep_subdirs, save_nearby):
         args, config = self.args, self.config
 
+        '''
         dataset, test_dataset = get_dataset(args, config)
-
         if args.subset_start >= 0 and args.subset_end > 0:
             assert args.subset_end > args.subset_start
             test_dataset = torch.utils.data.Subset(test_dataset, range(args.subset_start, args.subset_end))
         else:
             args.subset_start = 0
             args.subset_end   = len(test_dataset)
-
         print(f'Dataset has size {len(test_dataset)}')
 
         g = torch.Generator()
@@ -166,40 +170,45 @@ class Diffusion(object):
             num_workers = config.data.num_workers,
             generator   = g,
         )
+        '''
 
-        args.sigma_y = 2 * args.sigma_y #to account for scaling to [-1,1]
-        sigma_y = args.sigma_y
+        args.sigma_y = 2 * args.sigma_y  # to account for scaling to [-1,1]
+        sigma_y      =     args.sigma_y
         
-        print(f'Start from {args.subset_start}')
+        # print(f'Start from {args.subset_start}')
 
-        pbar = tqdm.tqdm(val_loader)
-        for (input_y, classes), name in pbar:
+        pbar = tqdm.tqdm(data_loader)
+        for datapoint in pbar:
+            # Input
+            meta       = datapoint["meta"]
+            image_path = mon.Path(meta["path"])
+            input_y    = datapoint["image"]
+
             mean = torch.mean(input_y)
-            print(mean)
+            # print(mean)
             if mean < 0.1:
-                print("warm-start!")
+                # print("warm-start!")
                 y = input_y
                 # warm-start (code from PEC)
                 indicator   = config.data.INDICATOR
                 outer_iterN = config.data.OUTER_ITERN
                 inner_iterN = config.data.INNER_ITERN
-                fy = y * (1 - y)
-                x  = y + indicator * fy
+                fy      = y * (1 - y)
+                x       = y + indicator * fy
                 Isinner = config.data.ISINNER
                 for outer_iter in arange(outer_iterN):
                     x0 = x
                     if Isinner == 1:
                         for inner_iter in arange(inner_iterN[outer_iter]):
                             fx = x * (1 - x)
-                            x = x0 + indicator * fx
+                            x  = x0 + indicator * fx
                     else:
                         x = x0
-                input_y=x
+                input_y = x
 
             H, W    = input_y.shape[2:]
             input_y = check_image_size(input_y, 32)
             H_, W_  = input_y.shape[2:]
-            name    = name[0].split('/')[-1]
             input_y = input_y.to(self.device)
             # FFT
             y_frequency = torch.fft.fft2(input_y, dim=(2, 3))
@@ -207,7 +216,7 @@ class Diffusion(object):
             y_m = torch.abs(y_frequency)
             y_p = torch.angle(y_frequency)
 
-            if config.sampling.batch_size!=1:
+            if config.sampling.batch_size != 1:
                 raise ValueError("please change the config file to set batch size as 1")
 
             # init x_T
@@ -233,7 +242,7 @@ class Diffusion(object):
                 time_pairs = list(zip(times[:-1], times[1:]))
 
                 # reverse diffusion sampling
-                for i, j in tqdm.tqdm(time_pairs):
+                for i, j in time_pairs:
                     i, j = i * skip, j * skip
                     if j < 0:
                         j = -1
@@ -281,11 +290,11 @@ class Diffusion(object):
                             x0_t_hat = torch.abs(torch.fft.ifft2(x0_t_hat, dim=(2, 3)))
 
                         if sigma_t >= at_next*sigma_y:
-                            lambda_t = 1.
-                            gamma_t = (sigma_t**2 - (at_next*sigma_y)**2).sqrt()
+                            lambda_t = 1.0
+                            gamma_t  = (sigma_t ** 2 - (at_next * sigma_y) ** 2).sqrt()
                         else:
-                            lambda_t = (sigma_t)/(at_next*sigma_y)
-                            gamma_t = 0.
+                            lambda_t = (sigma_t) / (at_next * sigma_y)
+                            gamma_t  = 0.0
 
                         eta = self.args.eta
 
@@ -300,7 +309,7 @@ class Diffusion(object):
                     else:  # time-travel back
                         next_t  = (torch.ones(n) * j).to(x.device)
                         at_next = compute_alpha(self.betas, next_t.long())
-                        x0_t    = x0_preds[-1].to('cuda')
+                        x0_t    = x0_preds[-1].to("cuda")
                         xt_next = at_next.sqrt() * x0_t + torch.randn_like(x0_t) * (1 - at_next).sqrt()
                         xs.append(xt_next.to('cpu'))
 
@@ -308,7 +317,12 @@ class Diffusion(object):
             x = torch.clamp(x, 0.0, 1.0)
             x = x[:, :, :H, :W]
 
-            tvu.save_image(x[0], os.path.join(self.args.image_folder, f"{name}"))
+            # tvu.save_image(x[0], os.path.join(self.args.image_folder, f"{name}"))
+            if save_image:
+                output_dir  = mon.parse_output_dir(save_dir, data_name, mon.SAVE_IMAGE_DIR, image_path, keep_subdirs, save_nearby)
+                output_path = output_dir / f"{image_path.stem}{mon.SAVE_IMAGE_EXT}"
+                output_path.parent.mkdir(parents=True, exist_ok=True)
+                tvu.save_image(x[0], str(output_path))
 
 
 # Code form RePaint   
