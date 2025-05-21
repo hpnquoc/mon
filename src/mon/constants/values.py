@@ -522,6 +522,18 @@ EXTRA_MODELS   = {  # architecture/model (+ variant)
             "model_dir": MON_DIR / "vision" / "enhance" / "multitask" / "airnet",
         },
     },
+    "darkir"     : {
+        "darkir_l": {
+            "tasks"    : [Task.DEBLUR, Task.DENOISE, Task.LLE],
+            "mltypes"  : [MLType.SUPERVISED],
+            "model_dir": MON_DIR / "vision" / "enhance" / "multitask" / "darkir",
+        },
+        "darkir_m": {
+            "tasks"    : [Task.DEBLUR, Task.DENOISE, Task.LLE],
+            "mltypes"  : [MLType.SUPERVISED],
+            "model_dir": MON_DIR / "vision" / "enhance" / "multitask" / "darkir",
+        },
+    },
     "fourierdiff": {
         "fourierdiff": {
             "tasks"    : [Task.DEBLUR, Task.LLE],

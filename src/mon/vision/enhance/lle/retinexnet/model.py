@@ -409,7 +409,8 @@ class RetinexNet(nn.Module):
             test_low_img   = np.array(test_low_img, dtype="float32") / 255.0
             if resize:
                 h, w, c      = test_low_img.shape
-                test_low_img = cv2.resize(test_low_img, (imgsz, imgsz))
+                imgsz        = (imgsz, imgsz) if isinstance(imgsz, (int, float)) else imgsz
+                test_low_img = cv2.resize(test_low_img, imgsz)
             test_low_img   = np.transpose(test_low_img, (2, 0, 1))
             input_low_test = np.expand_dims(test_low_img, axis=0)
 

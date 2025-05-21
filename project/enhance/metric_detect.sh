@@ -4,8 +4,8 @@ echo "$HOSTNAME"
 clear
 
 # ----- Input -----
-arch="zerolinr"
-model="zerolinr"
+arch="retinexnet"
+model="retinexnet_lolv1"
 detector="dfine_s_coco80"
 data=(
     ### Real-World Set
