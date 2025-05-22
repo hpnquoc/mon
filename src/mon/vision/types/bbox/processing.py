@@ -561,13 +561,13 @@ def bbox_xywh_to_xyxyn(bbox: np.ndarray, height: int, width: int) -> np.ndarray:
         Boxes as ``np.ndarray`` in [N, 4+], XYXYN format, normalized.
     """
     x, y, w, h, *rest = bbox.T
-    x2      = x + w
-    y2      = y + h
-    x1_norm = x / width
-    y1_norm = y / height
-    x2_norm = x2 / width
-    y2_norm = y2 / height
-    return np.stack((x1_norm, y1_norm, x2_norm, y2_norm), axis=-1)
+    x2   = x + w
+    y2   = y + h
+    x1_n = x / width
+    y1_n = y / height
+    x2_n = x2 / width
+    y2_n = y2 / height
+    return np.stack([x1_n, y1_n, x2_n, y2_n] + rest, axis=-1)
 
 
 def bbox_xyxy_to_cxcywhn(bbox: np.ndarray, height: int, width: int) -> np.ndarray:

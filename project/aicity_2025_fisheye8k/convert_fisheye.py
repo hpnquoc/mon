@@ -135,7 +135,12 @@ def transform_bbox(bboxes, image_width, image_height, distortion, padding_factor
 '''
 
 
-def convert_fisheye(data: str, distortion: float = 1.0):
+def convert_fisheye(
+    data        : str,
+    distortion  : float = 1.0,
+    area_thres  : int   = 32,
+    aspect_thres: float = 0.1
+):
     image_dir         = current_dir / "data" / "fisheye8k" / "extra" / data / "image"
     label_dir         = current_dir / "data" / "fisheye8k" / "extra" / data / "label"
     fisheye_image_dir = current_dir / "data" / "fisheye8k" / "extra" / data / "image_fisheye"
@@ -144,7 +149,7 @@ def convert_fisheye(data: str, distortion: float = 1.0):
     assert mon.Path(image_dir).is_dir()
     assert mon.Path(label_dir).is_dir()
 
-    transform = mon.FisheyeTransform(distortion, p=1)
+    transform = mon.FisheyeTransform(distortion, area_thres, aspect_thres, p=1)
 
     image_files = sorted([f for f in list(image_dir.rglob("*")) if f.is_image_file()])
     with mon.create_progress_bar() as pbar:
@@ -155,6 +160,7 @@ def convert_fisheye(data: str, distortion: float = 1.0):
         ):
             # Input
             image = cv2.imread(str(image_file))
+            image = mon.resize(image, 1920, side="long", interpolation="bicubic")
 
             label_file = label_dir / f"{image_file.stem}.txt"
             if not label_file.is_txt_file(exist=True):
@@ -193,4 +199,4 @@ def convert_fisheye(data: str, distortion: float = 1.0):
 
 
 if __name__ == "__main__":
-    convert_fisheye("visdrone", distortion=1.5)
+    convert_fisheye("visdrone", distortion=0.5, area_thres=10, aspect_thres=0.3)

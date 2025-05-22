@@ -90,7 +90,7 @@ def predict(args: dict) -> str:
     timer = mon.Timer()
     # Infer
     timer.tick()
-    runner.sample(weights, data_name, data_loader, save_image, save_dir, keep_subdirs, save_nearby)
+    runner.sample(weights, data_name, data_loader, imgsz, resize, save_image, save_dir, keep_subdirs, save_nearby)
     timer.tock()
 
     # Finish

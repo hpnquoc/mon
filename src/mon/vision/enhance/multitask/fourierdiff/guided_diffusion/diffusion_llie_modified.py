@@ -115,7 +115,7 @@ class Diffusion(object):
         elif self.model_var_type == "fixedsmall":
             self.logvar = posterior_variance.clamp(min=1e-20).log()
 
-    def sample(self, weights, data_name, data_loader, save_image, save_dir, keep_subdirs, save_nearby):
+    def sample(self, weights, data_name, data_loader, imgsz, resize, save_image, save_dir, keep_subdirs, save_nearby):
         cls_fn      = None
         config_dict = vars(self.config.model)
         model       = create_model(**config_dict)
@@ -146,9 +146,9 @@ class Diffusion(object):
             f'travel_length = {self.config.time_travel.travel_length},',
             f'travel_repeat = {self.config.time_travel.travel_repeat}.'
         )
-        self.FourierDiff(model, cls_fn, data_name, data_loader, save_image, save_dir, keep_subdirs, save_nearby)
+        self.FourierDiff(model, cls_fn, data_name, data_loader, imgsz, resize, save_image, save_dir, keep_subdirs, save_nearby)
 
-    def FourierDiff(self, model, cls_fn, data_name, data_loader, save_image, save_dir, keep_subdirs, save_nearby):
+    def FourierDiff(self, model, cls_fn, data_name, data_loader, imgsz, resize, save_image, save_dir, keep_subdirs, save_nearby):
         args, config = self.args, self.config
 
         '''
@@ -183,6 +183,9 @@ class Diffusion(object):
             meta       = datapoint["meta"]
             image_path = mon.Path(meta["path"])
             input_y    = datapoint["image"]
+            h0, w0     = mon.image_size(input_y)
+            if resize:
+                input_y = mon.resize(input_y, imgsz)
 
             mean = torch.mean(input_y)
             # print(mean)
@@ -316,6 +319,9 @@ class Diffusion(object):
                 x = xs[-1]
             x = torch.clamp(x, 0.0, 1.0)
             x = x[:, :, :H, :W]
+
+            if resize:
+                x = mon.resize(x, (h0, w0))
 
             # tvu.save_image(x[0], os.path.join(self.args.image_folder, f"{name}"))
             if save_image:
