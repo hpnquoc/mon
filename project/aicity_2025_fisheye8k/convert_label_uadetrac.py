@@ -5,6 +5,8 @@
 
 from __future__ import annotations
 
+import cv2
+
 import mon
 
 current_file = mon.Path(__file__).absolute()
@@ -19,16 +21,15 @@ map_classes  = {
 
 
 def convert_label_uadetrac2fisheye8k(split: str):
-    images_old_dir = current_dir / "data" / "fisheye8k" / "extra" / "ua_detrac" / "images_old"
-    labels_old_dir = current_dir / "data" / "fisheye8k" / "extra" / "ua_detrac" / "labels_old_cls"
-    images_dir     = current_dir / "data" / "fisheye8k" / "extra" / "ua_detrac" / "images"
-    label_dir      = current_dir / "data" / "fisheye8k" / "extra" / "ua_detrac" / "labels"
+    image_old_dir = current_dir / "data" / "fisheye8k" / "extra" / "ua_detrac" / "image_old"
+    label_old_dir = current_dir / "data" / "fisheye8k" / "extra" / "ua_detrac" / "label_old_cls"
+    image_dir     = current_dir / "data" / "fisheye8k" / "extra" / "ua_detrac" / "image"
+    label_dir     = current_dir / "data" / "fisheye8k" / "extra" / "ua_detrac" / "label"
     
-    assert mon.Path(images_old_dir).is_dir()
-    assert mon.Path(labels_old_dir).is_dir()
+    assert mon.Path(image_old_dir).is_dir()
+    assert mon.Path(label_old_dir).is_dir()
     
-    image_files = list(images_old_dir.rglob("*"))
-    image_files = sorted([f for f in image_files if f.is_image_file()])
+    image_files = sorted([f for f in list(image_old_dir.rglob("*")) if f.is_image_file()])
     with mon.create_progress_bar() as pbar:
         for i, image_file in pbar.track(
             sequence    = enumerate(image_files),
@@ -41,8 +42,8 @@ def convert_label_uadetrac2fisheye8k(split: str):
             image   = cv2.imread(str(image_file))
             h, w, c = image.shape
 
-            label_old_file = labels_old_dir / f"{image_file.stem}.txt"
-            label_file     = label_dir      / f"{image_file.stem}.txt"
+            label_old_file = label_old_dir / f"{image_file.stem}.txt"
+            label_file     = label_dir     / f"{image_file.stem}.txt"
             label_file.parent.mkdir(parents=True, exist_ok=True)
             if not label_old_file.is_file():
                 continue
@@ -68,8 +69,8 @@ def convert_label_uadetrac2fisheye8k(split: str):
             f.close()
             
             # Save image
-            images_dir.mkdir(parents=True, exist_ok=True)
-            cv2.imwrite(str(images_dir / f"{image_file.stem}.jpg"), image)
+            image_dir.mkdir(parents=True, exist_ok=True)
+            cv2.imwrite(str(image_dir / f"{image_file.stem}.jpg"), image)
             
 
 if __name__ == "__main__":

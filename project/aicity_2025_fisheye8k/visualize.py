@@ -15,8 +15,8 @@ current_dir  = current_file.parents[0]
 
 
 def visualize_bbox(data: str, fill: bool = False):
-	image_dir = current_dir / "data" / data / "images"
-	label_dir = current_dir / "data" / data / "labels"
+	image_dir = current_dir / "data" / "fisheye8k" / data / "image"
+	label_dir = current_dir / "data" / "fisheye8k" / data / "label"
 	
 	assert mon.Path(image_dir).is_dir()
 	assert mon.Path(label_dir).is_dir()
@@ -73,7 +73,7 @@ def visualize_bbox(data: str, fill: bool = False):
 				thickness = 3,
 				lineType  = cv2.LINE_AA,
 			)
-			output_file = image_file.replace("images", "visualize")
+			output_file = image_file.replace("image", "visualize")
 			output_file = output_file.parent / f"{image_file.stem}.jpg"
 			output_file.parent.mkdir(parents=True, exist_ok=True)
 			cv2.imwrite(str(output_file), image)

@@ -103,8 +103,7 @@ def convert_label_to_coco(split: str):
     assert mon.Path(image_dir).is_dir()
     assert mon.Path(label_dir).is_dir()
     
-    image_files = list(image_dir.rglob("*"))
-    image_files = sorted([f for f in image_files if f.is_image_file()])
+    image_files = sorted([f for f in list(image_dir.rglob("*")) if f.is_image_file()])
     
     # COCO JSON Format
     info        = {
@@ -153,6 +152,8 @@ def convert_label_to_coco(split: str):
                 l = f.readlines()
             l = [x.strip().split(" ") for x in l]
             l = [x for x in l if len(x) >= 5]
+            if len(l) == 0:
+                continue
             b = np.array([list(map(float, x[1:5])) for x in l])
             b = mon.convert_bbox(bbox=b, code=code, height=h, width=w)
             assert len(b) == len(l)

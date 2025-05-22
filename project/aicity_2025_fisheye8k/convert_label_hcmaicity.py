@@ -53,15 +53,14 @@ map_classes  = {
 
 
 def convert_label_hcmaicity2fisheye8k(split: str):
-    images_dir     = current_dir / "data" / "fisheye8k" / "extra" / "hcmaicity" / "images"
-    labels_old_dir = current_dir / "data" / "fisheye8k" / "extra" / "hcmaicity" / "labels_old_cls"
-    label_dir      = current_dir / "data" / "fisheye8k" / "extra" / "hcmaicity" / "labels"
+    image_dir     = current_dir / "data" / "fisheye8k" / "extra" / "hcmaicity" / "image"
+    label_old_dir = current_dir / "data" / "fisheye8k" / "extra" / "hcmaicity" / "label_old_cls"
+    label_dir     = current_dir / "data" / "fisheye8k" / "extra" / "hcmaicity" / "label"
     
-    assert mon.Path(images_dir).is_dir()
-    assert mon.Path(labels_old_dir).is_dir()
+    assert mon.Path(image_dir).is_dir()
+    assert mon.Path(label_old_dir).is_dir()
     
-    image_files = list(images_dir.rglob("*"))
-    image_files = sorted([f for f in image_files if f.is_image_file()])
+    image_files = sorted([f for f in list(image_dir.rglob("*")) if f.is_image_file()])
     with mon.create_progress_bar() as pbar:
         for i, image_file in pbar.track(
             sequence    = enumerate(image_files),
@@ -70,8 +69,8 @@ def convert_label_hcmaicity2fisheye8k(split: str):
         ):
             h, w, c  = mon.read_image_shape(image_file)
             
-            label_old_file = labels_old_dir / f"{image_file.stem}.txt"
-            label_file     = label_dir      / f"{image_file.stem}.txt"
+            label_old_file = label_old_dir / f"{image_file.stem}.txt"
+            label_file     = label_dir     / f"{image_file.stem}.txt"
             label_file.parent.mkdir(parents=True, exist_ok=True)
             
             # Read the annotation file
