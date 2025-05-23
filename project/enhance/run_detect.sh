@@ -30,6 +30,7 @@ python -W ignore main.py \
     --model "dfine_s" \
     --data "${data_str}" \
     --benchmark \
+    --save-result \
     --save-image \
     --save-debug \
     --use-fullname \

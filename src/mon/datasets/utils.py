@@ -93,8 +93,10 @@ def parse_data_name(src: core.Path | str) -> str:
     """
     src = core.Path(src)
 
+    # Existing dataset
     if src.stem in DATASETS:
-        data_name = src.stem
+        return src.stem
+    # Direct input directory or file
     elif src.is_dir():
         data_name = src.stem
     elif src.is_video_file():

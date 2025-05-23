@@ -18,6 +18,7 @@ python -W ignore main.py \
     --root "${current_dir}" \
     --task "detect" \
     --mode "train" \
+    --save-result \
     --save-image \
     --save-debug \
     --exist-ok \

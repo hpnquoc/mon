@@ -3,6 +3,7 @@
 
 """Implements various datasets."""
 
+from mon.datasets.aicity import *
 from mon.datasets.cityscapes import *
 from mon.datasets.coco import *
 from mon.datasets.enhance import *

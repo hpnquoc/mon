@@ -75,7 +75,7 @@ def convert_label_visdrone2fisheye8k(split: str):
             total       = len(image_files),
             description = f"[bright_yellow] Processing"
         ):
-            h, w, c = mon.read_image_shape(image_file)
+            h, w, _ = mon.read_image_shape(image_file)
             
             labels_old_file = label_old_dir / f"{image_file.stem}.txt"
             label_file      = label_dir     / f"{image_file.stem}.txt"
@@ -83,33 +83,33 @@ def convert_label_visdrone2fisheye8k(split: str):
             
             # Read the annotation file
             with open(labels_old_file, "r") as f:
-                bboxes = f.readlines()
+                bs = f.readlines()
             
             # Open the new label file
             f = open(label_file, "w")
-            for bbox in bboxes:
-                args     = bbox.split(",")
-                left     = int(args[0])
-                top      = int(args[1])
-                bbox_w   = int(args[2])
-                bbox_h   = int(args[3])
-                score    = int(args[4])
-                category = str(args[5])
-                category = map_classes[category]
+            for b in bs:
+                args = b.split(",")
+                x1   = int(args[0])
+                y1   = int(args[1])
+                b_w  = int(args[2])
+                b_h  = int(args[3])
+                s    = int(args[4])
+                c    = str(args[5])
+                c    = map_classes[c]
                 # Ignored classes
-                if category == -1:
+                if c == -1:
                     continue
                 # VisDrone Ignored bounding boxes
-                if score == 0:
+                if s == 0:
                     continue
                 # Convert
-                center_x = left + bbox_w // 2
-                center_y = top  + bbox_h // 2
-                center_x = round(float(center_x) / w, 6)
-                center_y = round(float(center_y) / h, 6)
-                bbox_w   = round(float(bbox_w)   / w, 6)
-                bbox_h   = round(float(bbox_h)   / h, 6)
-                f.write("{} {} {} {} {}\n".format(category, center_x, center_y, bbox_w, bbox_h))
+                cx  = x1 + b_w // 2
+                cy  = y1 + b_h // 2
+                cx  = round(float(cx)  / w, 6)
+                cy  = round(float(cy)  / h, 6)
+                b_w = round(float(b_w) / w, 6)
+                b_h = round(float(b_h) / h, 6)
+                f.write("{} {} {} {} {}\n".format(c, cx, cy, b_w, b_h))
             f.close()
 
 

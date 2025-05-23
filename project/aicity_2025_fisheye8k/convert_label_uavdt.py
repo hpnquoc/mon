@@ -39,7 +39,7 @@ def convert_label_uavdt2fisheye8k(split: str):
                 continue
                 
             image   = cv2.imread(str(image_file))
-            h, w, c = image.shape
+            h, w, _ = image.shape
 
             label_old_file = label_old_dir / f"{image_file.stem}.txt"
             label_file     = label_dir     / f"{image_file.stem}.txt"
@@ -49,22 +49,22 @@ def convert_label_uavdt2fisheye8k(split: str):
             
             # Read the annotation file
             with open(label_old_file, "r") as f:
-                bboxes = f.readlines()
+                bs = f.readlines()
             
             # Open the new label file
             f = open(label_file, "w")
-            for bbox in bboxes:
-                args     = bbox.split(" ")
-                category = str(args[0])
-                category = map_classes[category]
-                b1       = round(float(args[1]), 6)
-                b2       = round(float(args[2]), 6)
-                b3       = round(float(args[3]), 6)
-                b4       = round(float(args[4]), 6)
+            for b in bs:
+                args = b.split(" ")
+                c    = str(args[0])
+                c    = map_classes[c]
+                b1   = round(float(args[1]), 6)
+                b2   = round(float(args[2]), 6)
+                b3   = round(float(args[3]), 6)
+                b4   = round(float(args[4]), 6)
                 # Ignored classes
-                if category == -1:
+                if c == -1:
                     continue
-                f.write("{} {} {} {} {}\n".format(category, b1, b2, b3, b4))
+                f.write("{} {} {} {} {}\n".format(c, b1, b2, b3, b4))
             f.close()
             
             # Save image

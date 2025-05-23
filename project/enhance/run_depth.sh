@@ -27,6 +27,7 @@ python -W ignore main.py \
     --model "depth_anything_v2_vitb" \
     --config 0 \
     --data "${data_str}" \
+    --save-result \
     --save-image \
     --save-debug \
     --use-fullname \

@@ -96,9 +96,9 @@ current_dir  = current_file.parents[0]
 
 def convert_label_to_coco(split: str):
     code        = mon.ShapeCode.from_value(value=f"yolo_to_coco")
-    image_dir   = current_dir / "data" / split / "image"
-    label_dir   = current_dir / "data" / split / "label"
-    json_file   = current_dir / "data" / split / f"{split}.json"
+    image_dir   = current_dir / "data" / "fisheye8k" / split / "image"
+    label_dir   = current_dir / "data" / "fisheye8k" / split / "label"
+    json_file   = current_dir / "data" / "fisheye8k" / split / f"{split}.json"
     
     assert mon.Path(image_dir).is_dir()
     assert mon.Path(label_dir).is_dir()
@@ -133,7 +133,7 @@ def convert_label_to_coco(split: str):
             description = f"[bright_yellow] Processing"
         ):
             # Append image
-            h, w, c  = mon.read_image_shape(image_file)
+            h, w, _  = mon.read_image_shape(image_file)
             image_id = i
             images.append({"id": image_id, "file_name": image_file.name, "height": h, "width": w})
             
@@ -147,24 +147,24 @@ def convert_label_to_coco(split: str):
             if label_file is None or not label_file.is_txt_file(exist=True):
                 continue
             
-            # Read the yolo label file and convert bbox format
+            # Read the YOLO label file and convert bbox format
             with open(label_file, "r") as f:
-                l = f.readlines()
-            l = [x.strip().split(" ") for x in l]
-            l = [x for x in l if len(x) >= 5]
-            if len(l) == 0:
+                ls = f.readlines()
+            ls = [l.strip().split(" ") for l in ls]
+            ls = [l for l in ls if len(l) >= 5]
+            if len(ls) == 0:
                 continue
-            b = np.array([list(map(float, x[1:5])) for x in l])
-            b = mon.convert_bbox(bbox=b, code=code, height=h, width=w)
-            assert len(b) == len(l)
+            bs = np.array([list(map(float, l[1:5])) for l in ls])
+            bs = mon.convert_bbox(bbox=bs, code=code, height=h, width=w)
+            assert len(bs) == len(ls)
             
-            for l_, b_ in zip(l, b):
+            for l, b in zip(ls, bs):
                 annotations.append({
                     "id"         : ann_id,
                     "image_id"   : image_id,
-                    "category_id": int(l_[0]),
-                    "bbox"       : [int(b_[0]), int(b_[1]), int(b_[2]), int(b_[3])],
-                    "area"       : int(b_[2] * b_[3]),
+                    "category_id": int(l[0]),
+                    "bbox"       : [int(b[0]), int(b[1]), int(b[2]), int(b[3])],
+                    "area"       : int(b[2] * b[3]),
                     "iscrowd"    : 0,
                 })
                 ann_id += 1
@@ -183,7 +183,7 @@ def convert_label_to_coco(split: str):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--split", type=str, default="train", required=True)
+    parser.add_argument("--split", type=str, default="trainv3", required=True)
     args = parser.parse_args()
     
     convert_label_to_coco(args.split)

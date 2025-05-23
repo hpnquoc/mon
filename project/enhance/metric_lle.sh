@@ -4,8 +4,8 @@ echo "$HOSTNAME"
 clear
 
 # ----- Input -----
-arch="retinexnet"
-model="retinexnet_lolv1"
+arch="zerolinr"
+model="zerolinr"
 data=(
     ### Unpaired Set
     "dicm"

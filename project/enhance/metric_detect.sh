@@ -4,8 +4,8 @@ echo "$HOSTNAME"
 clear
 
 # ----- Input -----
-arch="retinexnet"
-model="retinexnet_lolv1"
+arch="fourierdiff"
+model="fourierdiff"
 detector="dfine_s_coco80"
 data=(
     ### Real-World Set

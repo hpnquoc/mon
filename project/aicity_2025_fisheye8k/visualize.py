@@ -38,28 +38,28 @@ def visualize_bbox(data: str, fill: bool = False):
 			total       = len(image_files),
 			description = f"[bright_yellow] Processing"
 		):
-			image      = cv2.imread(str(image_file))
-			h, w, c    = image.shape
+			image   = cv2.imread(str(image_file))
+			h, w, _ = image.shape
 			
 			label_file = label_dir / f"{image_file.stem}.txt"
 			if not label_file.is_txt_file(exist=True):
 				continue
 			
 			with open(label_file, "r") as f:
-				bboxes = f.readlines()
+				bs = f.readlines()
 			
-			bboxes = [b.strip().split(" ") for b in bboxes]
-			b = np.array([list(map(float, b[1:])) for b in bboxes])
-			if len(b) == 0:
+			bs = [b.strip().split(" ") for b in bs]
+			bs = np.array([list(map(float, b[1:])) for b in bs])
+			if len(bs) == 0:
 				continue
-			b = mon.convert_bbox(bbox=b, code=code, height=h, width=w)
+			bs = mon.convert_bbox(bbox=bs, code=code, height=h, width=w)
 			
-			for j, x in enumerate(b):
+			for j, x in enumerate(bs):
 				image = mon.draw_bbox(
 					image     = image,
 					bbox      = x,
 					label     = None,  # l[j] if show_label else None,
-					color     = colors[int(bboxes[j][0])],
+					color     = colors[int(bs[j][0])],
 					thickness = 1,
 					fill      = fill,
 				)

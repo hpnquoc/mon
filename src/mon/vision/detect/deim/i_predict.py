@@ -10,12 +10,12 @@ References:
 
 import os
 import sys
+
+import torch
+
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 
-from src.core import YAMLConfig
-import torch
-import torch.optim
-
+from engine.core import YAMLConfig
 import mon
 
 current_file = mon.Path(__file__).absolute()
@@ -62,7 +62,7 @@ def predict(args: dict) -> str:
     exist_ok     = args["exist_ok"]
     verbose      = args["verbose"]
 
-    thres_conf   = args["thres_conf"]
+    conf_thres   = args["conf_thres"]
 
     # Start
     mon.console.rule(f"[bold red] {fullname}")
@@ -141,12 +141,14 @@ def predict(args: dict) -> str:
                 label_path.parent.mkdir(parents=True, exist_ok=True)
                 with open(str(label_path), "w") as f:
                     for j, img in enumerate(image):
-                        score = scores[j]
-                        label = labels[j][score > thres_conf]
-                        box   =  boxes[j][score > thres_conf]
-                        box   = mon.convert_bbox(bbox=box, code=mon.ShapeCode.VOC2YOLO, height=h0, width=w0)
-                        for l, b, s in zip(label, box, score):
-                            f.write(f"{l} {b[0]} {b[1]} {b[2]} {b[3]} {s}\n")
+                        ss = scores[j]
+                        cs = labels[j][ss >= conf_thres]
+                        bs =  boxes[j][ss >= conf_thres]
+                        if len(bs) == 0:
+                            continue
+                        bs = mon.convert_bbox(bbox=bs, code=mon.ShapeCode.VOC2YOLO, height=h0, width=w0)
+                        for c, b, s in zip(cs, bs, ss):
+                            f.write(f"{c} {b[0]} {b[1]} {b[2]} {b[3]} {s}\n")
 
             # Save Image
             if save_image:

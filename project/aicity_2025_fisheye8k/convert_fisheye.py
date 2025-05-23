@@ -167,19 +167,19 @@ def convert_fisheye(
                 continue
 
             with open(label_file, "r") as f:
-                l = f.readlines()
-            l = [l_.strip().split(" ") for l_ in l]
-            l = [l_ for l_ in l if len(l_) >= 5]
-            if len(l) == 0:
+                ls = f.readlines()
+            ls = [l.strip().split(" ") for l in ls]
+            ls = [l for l in ls if len(l) >= 5]
+            if len(ls) == 0:
                 continue
-            t = np.array([list(map(float, l_[0:5])) for l_ in l])
-            b = t.copy()
-            b[:, 0:4] = t[:, 1:5]
-            b[:, 4]   = t[:, 0]
-            assert len(l) == len(b)
+            ts = np.array([list(map(float, l[0:5])) for l in ls])
+            bs = ts.copy()
+            bs[:, 0:4] = ts[:, 1:5]
+            bs[:, 4]   = ts[:, 0]
+            assert len(ls) == len(bs)
 
             # Split image and bounding boxes
-            sis, sbs = mon.split_image_and_bboxes(image, b, 2)
+            sis, sbs = mon.split_image_and_bboxes(image, bs, 2)
 
             # Transform each sub-image and bounding box
             for j, (si, sb) in enumerate(zip(sis, sbs)):

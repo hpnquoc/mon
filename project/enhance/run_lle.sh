@@ -55,6 +55,7 @@ python -W ignore main.py \
     --mode "predict" \
     --data "${data_str}" \
     --benchmark \
+    --save-result \
     --save-image \
     --save-debug \
     --exist-ok \

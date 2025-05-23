@@ -1,5 +1,5 @@
-# Fisheye8K-v3 dataset:
-#   - trainv3 = train + val + test + train_syn + val_syn + visdrone: 31093 images
+# Fisheye8K-v0 dataset: Initialized from VisDrone dataset
+#   - trainv0 = visdrone: 17252 images
 #   - val  : 2712 images
 #   - test : 1000 images
 
@@ -16,8 +16,8 @@ train_dataloader:
   type: DataLoader
   dataset:
     type        : CocoDetection
-    img_folder  : /data/fisheye8k/trainv3/image
-    ann_file    : /data/fisheye8k/trainv3/trainv3.json
+    img_folder  : /data/fisheye8k/trainv0/image
+    ann_file    : /data/fisheye8k/trainv0/trainv0.json
     return_masks: False
     transforms:
       type: Compose
