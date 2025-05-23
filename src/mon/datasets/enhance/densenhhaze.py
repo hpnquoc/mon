@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Implements O-Haze datasets."""
+"""Implements Dense-NH-Haze datasets."""
 
 __all__ = [
-    "OHaze",
-    "OHazeDataModule",
+    "DenseNHHaze",
+    "DenseNHHazeDataModule",
 ]
 
 from typing import Literal
@@ -24,9 +24,9 @@ VisionDataset                  = vision.VisionDataset
 
 
 # ----- Dataset -----
-@DATASETS.register(name="ohaze")
-class OHaze(VisionDataset):
-    """Loads O-Haze dataset from ``root`` dir.
+@DATASETS.register(name="densenhhaze")
+class DenseNHHaze(VisionDataset):
+    """Loads Dense-NH-Haze dataset from ``root`` dir.
 
     Args:
         root: Directory path to dataset.
@@ -36,7 +36,7 @@ class OHaze(VisionDataset):
     Raises:
         FileNotFoundError: If ``root`` directory does not exist.
     """
-
+    
     tasks : list[Task]  = [Task.DEHAZE]
     splits: list[Split] = [Split.TRAIN, Split.VAL, Split.TEST]
     datapoint_attrs     = DatapointAttributes({
@@ -45,20 +45,20 @@ class OHaze(VisionDataset):
         "ref_image": ImageAnnotation,
         "ref_depth": DepthMapAnnotation,
     })
-    has_test_annotations: bool = True
-    
+    has_test_annotations: bool = False
+
     def __init__(self, root: core.Path, *args, **kwargs):
         root = core.Path(root)
-        root = root / "ohaze" if root.name != "ohaze" else root
+        root = root / "densenhhaze" if root.name != "densenhhaze" else root
         if not root.is_dir():
             raise FileNotFoundError(f"[root] directory not found: [{root}].")
-        
+
         super().__init__(root=root, *args, **kwargs)
-    
+
     def list_data(self):
         """Lists ``datapoints`` with image annotations for split."""
         patterns = [self.root / self.split_str / "image"]
-        
+
         images: list[ImageAnnotation] = []
         with core.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
@@ -66,22 +66,22 @@ class OHaze(VisionDataset):
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
                 for path in pbar.track(sequence=paths, description=desc):
                     if path.is_image_file():
-                        images.append(ImageAnnotation(path=path, root=pattern))
-        
+                        images.append(ImageAnnotation(path=path))
+
         self.datapoints["image"] = images
 
 
 # ----- DataModule -----
-@DATAMODULES.register(name="ohaze")
-class OHazeDataModule(core.DataModule):
-    """Configures OHaze datasets for training/testing."""
-
-    tasks: list[Task] = [Task.DEHAZE]
+@DATAMODULES.register(name="densenhhaze")
+class DenseNHHazeDataModule(core.DataModule):
+    """Configures DenseHaze datasets for training/testing."""
     
+    tasks: list[Task] = [Task.DEHAZE]
+
     def prepare_data(self, *args, **kwargs):
         """Prepares data (placeholder, no action taken)."""
         pass
-    
+
     def setup(self, stage: Literal["train", "test", "predict", None] = None):
         """Sets up datasets for specified ``stage``.
 
@@ -91,13 +91,13 @@ class OHazeDataModule(core.DataModule):
         """
         if self.can_log:
             core.console.log(f"Setup [red]{self.__class__.__name__}[/red].")
-        
+
         if stage in [None, "train"]:
-            self.train = OHaze(split=Split.TRAIN, **self.dataset_kwargs)
-            self.val   = OHaze(split=Split.VAL,   **self.dataset_kwargs)
+            self.train = DenseNHHaze(split=Split.TRAIN, **self.dataset_kwargs)
+            self.val   = DenseNHHaze(split=Split.VAL,   **self.dataset_kwargs)
         if stage in [None, "test"]:
-            self.test  = OHaze(split=Split.TEST,  **self.dataset_kwargs)
-        
+            self.test  = DenseNHHaze(split=Split.TEST,  **self.dataset_kwargs)
+
         self.get_classlabels()
         if self.can_log:
             self.summarize()

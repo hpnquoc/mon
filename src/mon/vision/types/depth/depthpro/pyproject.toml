@@ -1,5 +1,5 @@
 [project]
-name = "depth_pro"
+name = "depthpro"
 version = "0.1"
 description = "Inference/Network/Model code for Apple Depth Pro monocular depth estimation."
 readme = "README.md"

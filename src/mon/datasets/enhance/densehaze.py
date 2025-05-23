@@ -1,7 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Implements Dense-Haze datasets."""
+"""Implements Dense-Haze datasets.
+
+/home/longpham/10_workspace/11_code/mon/project/enhance/data/nhhaze/test/image, /home/longpham/10_workspace/11_code/mon/project/enhance/data/nhhaze/test/ref, /home/longpham/10_workspace/11_code/mon/project/enhance/data/nhhaze/val/image, /home/longpham/10_workspace/11_code/mon/project/enhance/data/nhhaze/val/ref, /home/longpham/10_workspace/11_code/mon/project/enhance/data/nhhaze/train/image, /home/longpham/10_workspace/11_code/mon/project/enhance/data/nhhaze/train/ref
+"""
 
 __all__ = [
     "DenseHaze",
@@ -41,7 +44,9 @@ class DenseHaze(VisionDataset):
     splits: list[Split] = [Split.TRAIN, Split.VAL, Split.TEST]
     datapoint_attrs     = DatapointAttributes({
         "image"    : ImageAnnotation,
+        "depth"    : DepthMapAnnotation,
         "ref_image": ImageAnnotation,
+        "ref_depth": DepthMapAnnotation,
     })
     has_test_annotations: bool = True
 
