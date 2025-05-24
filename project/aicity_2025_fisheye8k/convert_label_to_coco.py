@@ -85,6 +85,7 @@
 
 import argparse
 import json
+from datetime import datetime
 
 import numpy as np
 
@@ -102,17 +103,15 @@ def convert_label_to_coco(split: str):
     
     assert mon.Path(image_dir).is_dir()
     assert mon.Path(label_dir).is_dir()
-    
-    image_files = sorted([f for f in list(image_dir.rglob("*")) if f.is_image_file()])
-    
+
     # COCO JSON Format
     info        = {
-        "year"        : "2025",
+        "year"        : f"{datetime.now().year}",
         "version"     : "1",
         "description" : "Custom Dataset for AICity Challenge 2025 Track 4 Fisheye8K",
         "contributor" : "Long H. Pham",
         "url"         : "",
-        "date_created": "2025-05-08"
+        "date_created": f"{datetime.now()}"
     }
     licenses    = []
     categories  = [
@@ -125,7 +124,8 @@ def convert_label_to_coco(split: str):
     images      = []
     annotations = []
     ann_id      = 0
-    
+
+    image_files = sorted([f for f in list(image_dir.rglob("*")) if f.is_image_file()])
     with mon.create_progress_bar() as pbar:
         for i, image_file in pbar.track(
             sequence    = enumerate(image_files),

@@ -3,8 +3,6 @@
 
 """Transform normal images with bboxes to fisheye images."""
 
-from __future__ import annotations
-
 import cv2
 import numpy as np
 

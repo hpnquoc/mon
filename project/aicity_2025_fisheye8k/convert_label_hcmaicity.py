@@ -37,8 +37,6 @@ VisDrone format:
                          (occlusion ratio 50% ~ 100%)).
 """
 
-from __future__ import annotations
-
 import mon
 
 current_file = mon.Path(__file__).absolute()
@@ -68,16 +66,17 @@ def convert_label_hcmaicity2fisheye8k(split: str):
             description = f"[bright_yellow] Processing"
         ):
             h, w, _ = mon.read_image_shape(image_file)
-            
-            label_old_file = label_old_dir / f"{image_file.stem}.txt"
-            label_file     = label_dir     / f"{image_file.stem}.txt"
-            label_file.parent.mkdir(parents=True, exist_ok=True)
-            
+
             # Read the annotation file
+            label_old_file = label_old_dir / f"{image_file.stem}.txt"
+            if not label_old_file.is_txt_file(exist=True):
+                continue
             with open(label_old_file, "r") as f:
                 bs = f.readlines()
-            
+
             # Open the new label file
+            label_file = label_dir / f"{image_file.stem}.txt"
+            label_file.parent.mkdir(parents=True, exist_ok=True)
             f = open(label_file, "w")
             for b in bs:
                 args = b.split(" ")

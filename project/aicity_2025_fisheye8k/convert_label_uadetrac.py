@@ -3,8 +3,6 @@
 
 """Convert UA-DETRAC bbox to yolo format."""
 
-from __future__ import annotations
-
 import cv2
 
 import mon
@@ -42,17 +40,16 @@ def convert_label_uadetrac2fisheye8k(split: str):
             image   = cv2.imread(str(image_file))
             h, w, _ = image.shape
 
-            label_old_file = label_old_dir / f"{image_file.stem}.txt"
-            label_file     = label_dir     / f"{image_file.stem}.txt"
-            label_file.parent.mkdir(parents=True, exist_ok=True)
-            if not label_old_file.is_file():
-                continue
-            
             # Read the annotation file
+            label_old_file = label_old_dir / f"{image_file.stem}.txt"
+            if not label_old_file.is_txt_file(exist=True):
+                continue
             with open(label_old_file, "r") as f:
                 bs = f.readlines()
             
             # Open the new label file
+            label_file = label_dir / f"{image_file.stem}.txt"
+            label_file.parent.mkdir(parents=True, exist_ok=True)
             f = open(label_file, "w")
             for b in bs:
                 args = b.split(" ")

@@ -1,10 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Implements Dense-Haze datasets.
-
-/home/longpham/10_workspace/11_code/mon/project/enhance/data/nhhaze/test/image, /home/longpham/10_workspace/11_code/mon/project/enhance/data/nhhaze/test/ref, /home/longpham/10_workspace/11_code/mon/project/enhance/data/nhhaze/val/image, /home/longpham/10_workspace/11_code/mon/project/enhance/data/nhhaze/val/ref, /home/longpham/10_workspace/11_code/mon/project/enhance/data/nhhaze/train/image, /home/longpham/10_workspace/11_code/mon/project/enhance/data/nhhaze/train/ref
-"""
+"""Implements Dense-Haze datasets."""
 
 __all__ = [
     "DenseHaze",

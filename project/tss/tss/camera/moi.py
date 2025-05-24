@@ -6,8 +6,6 @@
 This module implements the Movement of Interest (MOI) class.
 """
 
-from __future__ import annotations
-
 __all__ = [
 	"MOI",
 	"PolygonMOI",

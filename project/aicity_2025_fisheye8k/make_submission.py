@@ -43,7 +43,7 @@ def convert_label_to_coco(predict_dir: str | mon.Path):
         ):
             # Append image
             image    = cv2.imread(str(image_file))
-            h, w, c  = image.shape
+            h, w, _  = image.shape
             image_id = get_image_id(image_file.name)
 
             # Append annotations

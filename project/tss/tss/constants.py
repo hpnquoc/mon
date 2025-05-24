@@ -11,8 +11,6 @@ Notes:
     * The only exception is the enum and factory constants.
 """
 
-from __future__ import annotations
-
 __all__ = [
     "CLASSLABELS",
     "CONFIG_DIR",

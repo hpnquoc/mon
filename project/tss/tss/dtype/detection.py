@@ -8,8 +8,6 @@ detector and the tracker. Additionally, a moving object is represented as a
 list of sequential detections.
 """
 
-from __future__ import annotations
-
 __all__ = [
 	"Detection",
 ]

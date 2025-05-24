@@ -7,8 +7,6 @@ This package contains the camera module, which processes input streams from the
 camera and manages its configuration.
 """
 
-from __future__ import annotations
-
 import tss.camera.camera
 import tss.camera.moi
 import tss.camera.roi

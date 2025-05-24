@@ -7,8 +7,10 @@ clear
 data=(
     ### Real-World Set
     # "darkface"
-    "exdark"
-    # "lolistreetval"
+    "darkface496"
+    # "exdark"
+    "exdark1200"
+    "lolistreetval"
 )
 data_str=$(printf "%s, " "${data[@]}")
 data_str=${data_str%, }  # Remove trailing ", "

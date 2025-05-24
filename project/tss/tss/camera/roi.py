@@ -7,8 +7,6 @@ This module implements the Region of Interest (ROI) class, which represents a
 region of an image that is being processed.
 """
 
-from __future__ import annotations
-
 __all__ = [
 	"ROI",
 	"assign_roi_to_detections",

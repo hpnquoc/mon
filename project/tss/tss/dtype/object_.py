@@ -6,8 +6,6 @@
 This module implements object classes.
 """
 
-from __future__ import annotations
-
 __all__ = [
 	"GeneralObject",
 	"MovingObject"
