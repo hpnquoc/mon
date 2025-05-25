@@ -37,6 +37,7 @@ def predict(args: dict) -> str:
     epochs       = args["epochs"]
     steps        = args["steps"]
     seed         = args["seed"]
+    batch_size   = args["batch_size"]
     imgsz        = args["imgsz"]
     imgsz        = imgsz[0] if isinstance(imgsz, Sequence) else imgsz
     resize       = args["resize"]
@@ -114,9 +115,7 @@ def predict(args: dict) -> str:
             if save_image:
                 output_dir  = mon.parse_output_dir(save_dir, data_name, mon.SAVE_IMAGE_DIR, image_path, keep_subdirs, save_nearby)
                 output_path = output_dir / f"{image_path.stem}{mon.SAVE_IMAGE_EXT}"
-                output_path.parent.mkdir(parents=True, exist_ok=True)
-                gray = (depth_i * 255).astype(np.uint8)
-                cv2.imwrite(str(output_path), gray)
+                mon.save_image((depth_i * 255).astype(np.uint8), output_path)
 
             # Save Debug
             if save_debug:
@@ -124,9 +123,7 @@ def predict(args: dict) -> str:
                 if save_nearby:
                     debug_dir = debug_dir.parent / f"{debug_dir.stem}_c"
                 debug_path = debug_dir / f"{image_path.stem}{mon.SAVE_IMAGE_EXT}"
-                debug_path.parent.mkdir(parents=True, exist_ok=True)
-                color = (cmap(depth_i)[:, :, :3] * 255)[:, :, ::-1].astype(np.uint8)
-                cv2.imwrite(str(debug_path), color)
+                mon.save_image((cmap(depth_i)[:, :, :3] * 255)[:, :, ::-1].astype(np.uint8), debug_path)
 
             '''
             # Save

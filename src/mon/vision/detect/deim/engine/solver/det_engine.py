@@ -21,9 +21,18 @@ from ..data import CocoEvaluator
 from ..misc import MetricLogger, SmoothedValue, dist_utils
 
 
-def train_one_epoch(self_lr_scheduler, lr_scheduler, model: torch.nn.Module, criterion: torch.nn.Module,
-                    data_loader: Iterable, optimizer: torch.optim.Optimizer,
-                    device: torch.device, epoch: int, max_norm: float = 0, **kwargs):
+def train_one_epoch(
+    self_lr_scheduler,
+    lr_scheduler,
+    model       : torch.nn.Module,
+    criterion   : torch.nn.Module,
+    data_loader : Iterable,
+    optimizer   : torch.optim.Optimizer,
+    device      : torch.device,
+    epoch       : int,
+    max_norm    : float = 0,
+    **kwargs
+):
     model.train()
     criterion.train()
     metric_logger = MetricLogger(delimiter="  ")
@@ -33,9 +42,9 @@ def train_one_epoch(self_lr_scheduler, lr_scheduler, model: torch.nn.Module, cri
     print_freq = kwargs.get('print_freq', 10)
     writer: SummaryWriter = kwargs.get('writer', None)
 
-    ema: ModelEMA = kwargs.get('ema', None)
+    ema   : ModelEMA   = kwargs.get('ema',    None)
     scaler: GradScaler = kwargs.get('scaler', None)
-    lr_warmup_scheduler :Warmup = kwargs.get('lr_warmup_scheduler', None)
+    lr_warmup_scheduler: Warmup = kwargs.get('lr_warmup_scheduler', None)
 
     cur_iters = epoch * len(data_loader)
 
@@ -123,7 +132,14 @@ def train_one_epoch(self_lr_scheduler, lr_scheduler, model: torch.nn.Module, cri
 
 
 @torch.no_grad()
-def evaluate(model: torch.nn.Module, criterion: torch.nn.Module, postprocessor, data_loader, coco_evaluator: CocoEvaluator, device):
+def evaluate(
+    model         : torch.nn.Module,
+    criterion     : torch.nn.Module,
+    postprocessor,
+    data_loader,
+    coco_evaluator: CocoEvaluator,
+    device
+):
     model.eval()
     criterion.eval()
     coco_evaluator.cleanup()

@@ -3,9 +3,9 @@ root        : ~                                                                 
 arch        : "dfine"                                                           # Model architecture or family (e.g., resnet).
 model       : &model "dfine_l"                                                  # Model name (e.g., resnet50).
 data        : &data "fisheye8kv1"                                               # Dataset name (e.g., cifar10) or directory (e.g., data/cifar10).
-fullname    : &fullname "dfine_l_objects3652fisheye8kv1_640"                    # Full name of the current run (e.g., resnet50_cifar10_01). If not set, it will be this file's name.
+fullname    : &fullname "dfine_l_fisheye8kv1_640"                               # Full name of the current run (e.g., resnet50_cifar10_01). If not set, it will be this file's name.
 save_dir    : &save_dir ~                                                       # Saving directory. If not set, it will be `root/arch/model/data`.
-weights     : &weights "run/train/dfine/dfine_l/dfine_l_objects3652fisheye8kv1_640/best_stg2.pth"  # Path to the pretrained weights.
+weights     : &weights "run/train/dfine/dfine_l/dfine_l_fisheye8kv1_640/best_stg2.pth"  # Path to the pretrained weights.
 device      : 0                                                                 # Running device (i.e., cuda:0 | cuda:0,1,2,3 | cpu).
 torchrun    : False                                                             # If ``True``, use torch.distributed.run to run the training script.
 master_port : 7777                                                              # Master port for distributed training.
@@ -28,7 +28,7 @@ verbose     : &verbose True                                                     
 
 # Misc
 cfg_path    : "dfine/custom/dfine_hgnetv2_l_objects3652custom.yaml"             # Fine-tuning from Objects365 pre-trained weights.
-resume      : "run/train/dfine/dfine_l/dfine_l_objects3652fisheye8kv1_640/last.pth"  # Resume from checkpoint
+resume      : "run/train/dfine/dfine_l/dfine_l_fisheye8kv1_640/best_stg1.pth"   # Resume from checkpoint
 tuning      : "zoo/vision/detect/dfine/dfine_l/objects365/dfine_l_objects365_e25.pth" # Fine-tuning from checkpoint
 use_amp     : False                                                             # Use automatic mixed precision (AMP) for training.
 test_only   : False                                                             # Test only.

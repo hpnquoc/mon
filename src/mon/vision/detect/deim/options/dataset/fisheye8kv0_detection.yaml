@@ -1,7 +1,7 @@
-# Fisheye8K-v0 dataset: Initialized from VisDrone dataset
-#   - trainv0 = visdrone: 17252 images
-#   - val  : 2712 images
-#   - test : 1000 images
+# Fisheye8Kv0 dataset: Initialized from VisDrone dataset
+#   - trainv0 = visdrone: 17,252 images
+#   - val  : 2,712 images
+#   - test : 1,000 images
 
 task: detection
 

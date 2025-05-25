@@ -38,8 +38,7 @@ class VideoLoader(core.Dataset, ABC):
     
     tasks: list[Task] = [Task.VIDEO]
     datapoint_attrs   = core.DatapointAttributes({
-        # "frame": FrameAnnotation,
-        "image" : FrameAnnotation,
+        "image": FrameAnnotation,
     })
     
     def __init__(

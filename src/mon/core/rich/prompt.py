@@ -96,6 +96,7 @@ class SelectionOrInputPrompt(Prompt):
             allow_empty: Allow empty input. Defaults to False.
             column_first: Align Align items from top to bottom (rather than left to right).
                 Defaults to False.
+            default: Default value to return if no input is given. Defaults to ``...``.
             stream: Optional text file open for reading to get input. Defaults to None.
         """
         _prompt = cls(

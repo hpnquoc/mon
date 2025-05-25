@@ -3,7 +3,7 @@ root        : ~                                                                 
 arch        : "deim"                                                            # Model architecture or family (e.g., resnet).
 model       : &model "deim_dfine_l"                                             # Model name (e.g., resnet50).
 data        : &data "fisheye8kv2"                                               # Dataset name (e.g., cifar10) or directory (e.g., data/cifar10).
-fullname    : &fullname "deim_dfine_l_coco802fisheye8kv2_960"                   # Full name of the current run (e.g., resnet50_cifar10_01). If not set, it will be this file's name.
+fullname    : &fullname "deim_dfine_l_fisheye8kv2_960"                          # Full name of the current run (e.g., resnet50_cifar10_01). If not set, it will be this file's name.
 save_dir    : &save_dir ~                                                       # Saving directory. If not set, it will be `root/arch/model/data`.
 weights     : &weights "run/train/deim/deim_dfine_l/deim_dfine_l_fisheye8kv2_960/best_stg2.pth"  # Path to the pretrained weights.
 device      : cuda:0,1,2,3                                                      # Running device (i.e., cuda:0 | cuda:0,1,2,3 | cpu).
@@ -27,7 +27,7 @@ exist_ok    : True                                                              
 verbose     : &verbose True                                                     # Verbosity.
 
 # Misc
-cfg_path    : "deim_dfine/coco80/deim_hgnetv2_l_coco80.yaml"                    # Fine-tuning from Objects365 pre-trained weights.
+cfg_path    : "deim_dfine/coco80/deim_hgnetv2_l_coco80.yaml"                    # Fine-tuning from COCO80 pre-trained weights.
 resume      : "run/train/deim/deim_dfine_l/deim_dfine_l_fisheye8kv2_960/last.pth"  # Resume from checkpoint
 tuning      : "zoo/vision/detect/deim/deim_dfine_l/coco80/deim_dfine_l_coco80_e50.pth"  # Fine-tuning from checkpoint
 use_amp     : False                                                             # Use automatic mixed precision (AMP) for training.
