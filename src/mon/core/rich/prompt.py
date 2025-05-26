@@ -192,6 +192,8 @@ class SelectionOrInputPrompt(Prompt):
 
             # Convert index (if any) to choice
             value = type_extensions.to_list(value, sep=[",", ";"])
+            if any(v for v in value if type_extensions.is_int(v) and not 0 <= int(v) <= len(self.choices) - 1):
+                raise InvalidResponse(self.illegal_choice_message)
             value = [self.choices[int(v)] if type_extensions.is_int(v) else v for v in value]
             
             '''

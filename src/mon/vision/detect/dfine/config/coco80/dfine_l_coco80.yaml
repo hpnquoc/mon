@@ -27,7 +27,7 @@ exist_ok    : True                                                              
 verbose     : &verbose True                                                     # Verbosity.
 
 # Misc
-cfg_path    : "dfine/coco80/dfine_hgnetv2_l_coco80.yaml"                        # Fine-tuning from Objects365 pre-trained weights.
+cfg_path    : "dfine/coco80/dfine_hgnetv2_l_coco80.yaml"                        # Fine-tuning from COCO80 pre-trained weights.
 resume      : "run/train/dfine/dfine_l/dfine_l_coco80/best_stg1.pth"            # Resume from checkpoint
 tuning      : "zoo/vision/detect/dfine/dfine_l/coco80/dfine_l_coco80.pth"       # Fine-tuning from checkpoint
 use_amp     : False                                                             # Use automatic mixed precision (AMP) for training.

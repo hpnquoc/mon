@@ -28,8 +28,8 @@ verbose     : &verbose True                                                     
 
 # Misc
 cfg_path    : "deim_dfine/coco80/deim_hgnetv2_s_coco80.yaml"                    # Fine-tuning from COCO80 pre-trained weights.
-resume      : "run/train/deim/deim_dfine_s/deim_dfine_s_widerface/best_stg1.pth"        # Resume from checkpoint
-tuning      : "zoo/vision/detect/deim/deim_dfine_s/coco80/deim_dfine_s_coco80_e50.pth"  # Fine-tuning from checkpoint
+resume      : "run/train/deim/deim_dfine_s/deim_dfine_s_widerface/best_stg1.pth"         # Resume from checkpoint
+tuning      : "zoo/vision/detect/deim/deim_dfine_s/coco80/deim_dfine_s_coco80_e120.pth"  # Fine-tuning from checkpoint
 use_amp     : False                                                             # Use automatic mixed precision (AMP) for training.
 test_only   : False                                                             # Test only.
 print_method: "builtin"                                                         # Print method.
@@ -40,7 +40,7 @@ conf_thres  : 0.4                                                               
 __include__: [
   "./dfine_hgnetv2_s_coco80.yaml",
   "../../dataset/widerface_detection.yaml",
-  "../../base/dataloader_640.yaml",
+  "../../base/dataloader_4.yaml",
   "../../base/dfine_hgnetv2_640.yaml",
   "../../base/deim_640.yaml"
 ]
