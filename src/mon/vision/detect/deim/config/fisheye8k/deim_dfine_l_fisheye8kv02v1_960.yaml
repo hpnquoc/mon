@@ -29,7 +29,7 @@ verbose     : &verbose True                                                     
 # Misc
 cfg_path    : "deim_dfine/coco80/deim_hgnetv2_l_coco80.yaml"                    # Fine-tuning from COCO80 pre-trained weights.
 resume      : "run/train/deim/deim_dfine_l/deim_dfine_l_fisheye8kv02v1_960/best_stg1.pth"  # Resume from checkpoint
-tuning      : "run/train/deim/deim_dfine_l/deim_dfine_l_fisheye8kv0_960/best_stg2.pth"  # Fine-tuning from checkpoint
+tuning      : "run/train/deim/deim_dfine_l/deim_dfine_l_fisheye8kv0_960/best_stg2.pth"     # Fine-tuning from checkpoint
 use_amp     : False                                                             # Use automatic mixed precision (AMP) for training.
 test_only   : False                                                             # Test only.
 print_method: "builtin"                                                         # Print method.
