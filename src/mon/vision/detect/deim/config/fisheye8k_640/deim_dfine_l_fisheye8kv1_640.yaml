@@ -11,7 +11,7 @@ torchrun    : True                                                              
 master_port : 7777                                                              # Master port for distributed training.
 master_addr : "localhost"                                                       # Master address for distributed training.
 local_rank  : -1                                                                # Local rank for distributed training.
-epochs      : &epochs 300                                                       # Training epochs.
+epochs      : &epochs 200                                                       # Training epochs.
 steps       : &steps ~                                                          # Training steps.
 seed        : 0                                                                 # Random seed.
 imgsz       : &imgsz 640                                                        # Image size for the model.

@@ -8,7 +8,7 @@ clear
 echo "$HOSTNAME"
 
 # ----- Input -----
-directory="/home/longpham/10_workspace/11_code/mon/project/enhance/data/reside"
+directory="/home/longpham/10_workspace/11_code/mon/project/enhance/data/realblurtele"
 
 # ----- Globals -----
 # Directory

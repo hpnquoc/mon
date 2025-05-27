@@ -37,6 +37,9 @@ from mon.datasets.enhance.rain13k import *
 from mon.datasets.enhance.rain1400 import *
 from mon.datasets.enhance.rain2800 import *
 from mon.datasets.enhance.rain800 import *
+from mon.datasets.enhance.realblur import *
+from mon.datasets.enhance.realblurtele import *
+from mon.datasets.enhance.reallolblur import *
 from mon.datasets.enhance.realnighthaze import *
 from mon.datasets.enhance.reside import *
 from mon.datasets.enhance.sice import *
