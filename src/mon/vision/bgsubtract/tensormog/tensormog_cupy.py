@@ -6,9 +6,13 @@ Dynamic Scene Adaptation for Background Modeling," Sensors 2020.
 """
 
 __all__ = [
-    "TensorMOG",
+    "TensorMOGCuPy"
 ]
 
+from typing import Literal
+
+import cupy as cp
+import numpy as np
 import torch
 
 from mon import core, nn
@@ -31,15 +35,14 @@ class MOG:
         learning_rate: Rate at which model parameters are updated.
         matching_thres: Threshold for matching a pixel to a Gaussian.
         background_thres: Threshold for background classification.
-        device: Device to run the model on (default is CPU).
 
     Attributes:
         min_var: Minimum variance for Gaussian components.
         max_var: Maximum variance for Gaussian components.
-        mix_mu: Mean values of Gaussians ``[1, 3, height, width, num_gaussians]``.
-        mix_var: Variance of Gaussians ``[1, 1, height, width, num_gaussians]``.
-        mix_weight: Weights of Gaussians ``[1, 1, height, width, num_gaussians]``.
-        mix_key: Keys for sorting Gaussians ``[1, 1, height, width, num_gaussians]``.
+        mix_mu: Mean values of Gaussians ``[height, width, 3, num_gaussians]``.
+        mix_var: Variance of Gaussians ``[height, width, 1, num_gaussians]``.
+        mix_weight: Weights of Gaussians ``[height, width, 1, num_gaussians]``.
+        mix_key: Keys for sorting Gaussians ``[height, width, 1, num_gaussians]``.
     """
 
     def __init__(
@@ -50,11 +53,9 @@ class MOG:
         learning_rate   : float = 0.02,
         matching_thres  : float = 2 * 2,
         background_thres: float = 0.6,
-        device          : torch.device = torch.device("cpu"),
     ):
         self.height = height
         self.width  = width
-        self.device = device
 
         # Initialize constant parameters
         self.num_gaussians    = num_gaussians
@@ -65,69 +66,71 @@ class MOG:
         self.max_var          = 8 * 8 * 3
 
         # Initialize the variables
-        self.mix_mu     = torch.zeros((1, 3, self.height, self.width, self.num_gaussians), device=self.device)
-        self.mix_var    = torch.zeros((1, 1, self.height, self.width, self.num_gaussians), device=self.device)
-        self.mix_weight = torch.zeros((1, 1, self.height, self.width, self.num_gaussians), device=self.device)
-        self.mix_key    = torch.zeros((1, 1, self.height, self.width, self.num_gaussians), device=self.device)
+        self.mix_mu     = cp.zeros((self.height, self.width, 3, self.num_gaussians))
+        self.mix_var    = cp.zeros((self.height, self.width, 1, self.num_gaussians))
+        self.mix_weight = cp.zeros((self.height, self.width, 1, self.num_gaussians))
+        self.mix_key    = cp.zeros((self.height, self.width, 1, self.num_gaussians))
 
-    def update(self, image: torch.Tensor):
+    def update(self, image: np.ndarray):
         """Updates the background model."""
-        # Ensure input is in BCHW format and normalized
-        frame = image.to(self.device).float().unsqueeze(-1)      # [1, 3, H, W, 1]
-                                                                 
-        # Compute difference and matching mask                   
-        d     = frame - self.mix_mu                              # [1, 3, H, W, K]
-        d_sum = torch.sum(d * d, dim=1, keepdim=True)            # [1, 1, H, W, K]
-        mask  = d_sum < (self.matching_thres * self.mix_var)     # [1, 1, H, W, K]
+        frame = cp.asarray(image, dtype=cp.float32)[..., None]
+
+        # Compute difference and matching mask
+        d     = frame - self.mix_mu
+        d_sum = cp.sum(d * d, axis=2, keepdims=True)
+        mask  = d_sum < (self.matching_thres * self.mix_var)
 
         # Identify matched and unmatched components
-        taken       = torch.any(mask, dim=-1, keepdim=True)      # [1, 1, H, W, 1]
-        match_idx   = torch.argmax(mask * self.mix_key, dim=-1)  # [1, 1, H, W]
-        replace_idx = torch.argmin(self.mix_key, dim=-1)         # [1, 1, H, W]
-
-        u_mask  = self._one_hot(match_idx, self.num_gaussians)   * taken.float()     # [1, 1, H, W, K]
-        r_mask  = self._one_hot(replace_idx, self.num_gaussians) * (~taken).float()  # [1, 1, H, W, K]
-        nr_mask = 1.0 - r_mask  # [1, 1, H, W, K]
+        taken       = cp.any(mask, axis=-1, keepdims=True)
+        match_idx   = cp.argmax(mask * self.mix_key, axis=-1)
+        replace_idx = cp.argmin(self.mix_key, axis=-1)
+        u_mask      = cp.logical_and(taken, self._one_hot(match_idx, self.num_gaussians))
+        r_mask      = cp.logical_and(~taken, self._one_hot(replace_idx, self.num_gaussians))
+        nr_mask     = ~r_mask
 
         # Update weights
         w_tmp = self.mix_weight * (1.0 - self.learning_rate) + u_mask * self.learning_rate
         w_tmp = nr_mask * w_tmp + r_mask * self.learning_rate
-        self.mix_weight = w_tmp / torch.sum(w_tmp, dim=-1, keepdim=True)
+        self.mix_weight = w_tmp / cp.sum(w_tmp, axis=-1, keepdims=True)
 
         # Update means
-        self.mix_mu = nr_mask * (self.mix_mu + u_mask * d * self.learning_rate) + r_mask * frame
+        self.mix_mu  = nr_mask * (self.mix_mu + u_mask * d * self.learning_rate) + r_mask * frame
 
         # Update variances
-        dv = u_mask * (d_sum - self.mix_var * 3)
-        self.mix_var = torch.clamp(self.mix_var + dv * self.learning_rate, self.min_var, self.max_var)
+        dv           = u_mask * (d_sum - self.mix_var * 3)
+        self.mix_var = cp.clip(self.mix_var + dv * self.learning_rate, self.min_var, self.max_var)
 
         # Update keys
-        self.mix_key = self.mix_weight / torch.sqrt(self.mix_var)
+        self.mix_key = self.mix_weight / cp.sqrt(self.mix_var)
 
-    def get_background(self) -> torch.Tensor:
+    def get_background(self, mode: Literal["numpy", "cupy"] = "numpy") -> np.ndarray:
         """Generate the background image based on the model.
 
-        Returns:
-            Background image of shape ``[1, 3, height, width]``, normalized.
-        """
-        wmax_ind = torch.argmax(self.mix_key, dim=-1)           # [1, 1, H, W]
-        wmax_hot = self._one_hot(wmax_ind, self.num_gaussians)  # [1, 1, H, W, K]
-        bg       = torch.sum(wmax_hot * self.mix_mu, dim=-1)    # [1, 3, H, W]
-        return bg.clamp(0, 1)
+        Args:
+            mode: Output format, either ``"numpy"`` or ``"cupy"``.
+                Defaults to ``"numpy"``.
 
-    def get_foreground(self, image: torch.Tensor, background: torch.Tensor) -> torch.Tensor:
+        Returns:
+            cp.ndarray or np.ndarray: Background image of shape ``[height, width, 3]``.
+        """
+        wmax_ind = cp.argmax(self.mix_key, axis=-1)
+        wmax_hot = self._one_hot(wmax_ind, self.num_gaussians)
+        bg       = cp.sum(wmax_hot * self.mix_mu, axis=-1).astype(cp.uint8)
+        return bg if mode == "cupy" else cp.asnumpy(bg)
+
+    def get_foreground(self, image: np.ndarray, background: np.ndarray) -> np.ndarray:
         """Generate a foreground mask by comparing the image to the background.
 
         Args:
-            image: Input image of shape ``[1, 3, height, width]``, normalized.
-            background: Background image of shape ``[1, 3, height, width]``, normalized.
+            image: Input image of shape ``[height, width, 3]``.
+            background: Background image of shape ``[height, width, 3]``.
 
         Returns:
-            torch.Tensor: Foreground mask of shape ``[1, 1, height, width]``, normalized.
+            np.ndarray: Foreground mask of shape ``[height, width]`` with values ``0`` or ``255``.
         """
-        diff = torch.abs(image - background)                        # [1, 3, H, W]
-        mask = torch.any(diff > (80 / 255.0), dim=1, keepdim=True)  # [1, 1, H, W]
-        return mask.float()
+        diff = cp.abs(cp.asarray(image, dtype=cp.uint8) - cp.asarray(background, dtype=cp.uint8))
+        mask = cp.any(diff > 80, axis=-1)
+        return cp.asnumpy(mask * 255).astype(np.uint8)
 
     def estimate_entropy(self) -> float:
         """Estimate the model's uncertainty (entropy).
@@ -135,19 +138,19 @@ class MOG:
         Returns:
             Average entropy across all pixels.
         """
-        tmp     = self.mix_weight + (torch.abs(self.mix_weight) < 1e-12).float()
-        entropy = -torch.sum(tmp * torch.log(tmp)) / (self.height * self.width)
-        return entropy.item()
+        tmp     = self.mix_weight + (cp.abs(self.mix_weight) < 1e-12)
+        entropy = -cp.sum(tmp * cp.log(tmp)) / (self.height * self.width)
+        return float(cp.asnumpy(entropy))
 
-    def estimate_entropy_mask(self) -> torch.Tensor:
+    def estimate_entropy_mask(self) -> cp.ndarray:
         """Estimate per-pixel entropy of the model.
 
         Returns:
-            Entropy mask of shape ``[1, 1, height, width]``.
+            cp.ndarray: Entropy mask of shape ``[height, width, 1]``.
         """
-        weights = torch.max(self.mix_weight, dim=-1)[0]  # [1, 1, H, W]
-        tmp     = weights + (torch.abs(weights) < 1e-9).float()
-        return -tmp * torch.log(tmp)
+        weights = cp.max(self.mix_weight, axis=-1)
+        tmp = weights + (cp.abs(weights) < 1e-9)
+        return -tmp * cp.log(tmp)
 
     def estimate_noise_ratio(self) -> float:
         """Estimate the noise ratio based on entropy.
@@ -155,31 +158,30 @@ class MOG:
         Returns:
             float: Average noise ratio across all pixels.
         """
-        return torch.sum(self.estimate_entropy_mask()) / (self.height * self.width).item()
+        return float(cp.sum(self.estimate_entropy_mask()) / (self.height * self.width))
 
-    def _one_hot(self, indices: torch.Tensor, depth: int) -> torch.Tensor:
-        """Create a one-hot encoded tensor from indices.
+    def _one_hot(self, indices: cp.ndarray, depth: int) -> cp.ndarray:
+        """Create a one-hot encoded array from indices.
 
         Args:
-            indices: Tensor of indices to encode ``[1, 1, H, W]``.
+            indices: Array of indices to encode.
             depth: Number of classes for one-hot encoding.
 
         Returns:
-            One-hot encoded tensor ``[1, 1, H, W, depth]``.
+            cp.ndarray: One-hot encoded array.
         """
         shape        = indices.shape + (depth,)
-        one_hot      = torch.zeros(shape, device=self.device)
-        indices_flat = indices.flatten()
-        one_hot      = one_hot.reshape(-1, depth).scatter_(1, indices_flat.unsqueeze(-1), 1.0)
-        return one_hot.reshape(shape)
+        one_hot      = cp.zeros(shape, dtype=cp.float32)
+        indices_flat = indices.ravel()
+        one_hot.reshape(-1, depth)[cp.arange(indices_flat.size), indices_flat] = 1.0
+        return one_hot
 
 
 class HVR:
-    """High-Variation Removal background subtraction model using PyTorch.
+    """High-Variation Removal background subtraction model.
 
     Manages a Mixture of Gaussians (MOG) model with state-based updates to handle
-    background stability and anomalies. All image tensors are in BCHW format
-    and normalized to ``[0, 1]``.
+    background stability and anomalies.
 
     Attributes:
         height: Height of the input image.
@@ -191,7 +193,7 @@ class HVR:
         tau: Average entropy (stability line).
         tau_rate: Entropy threshold rate for anomaly detection.
         tau_updating_rate: Rate for updating the stability line.
-        background: Current background image ``[1, 3, height, width]``.
+        background: Current background image.
         background_model: Underlying MOG model for background subtraction.
 
     Args:
@@ -204,7 +206,6 @@ class HVR:
         num_updates: Frames for state transitions. Defaults to ``30``.
         tau_rate: Entropy threshold rate. Defaults to ``0.01``.
         tau_updating_rate: Rate for updating tau. Defaults to ``0.025``.
-        device: Device to run the model on (default is CPU).
     """
 
     class State(core.Enum):
@@ -218,12 +219,11 @@ class HVR:
         width            : int,
         num_gaussians    : int   = 3,
         learning_rate    : float = 0.02,
-        matching_thres   : float = 4.0,
+        matching_thres   : float = 2 * 2,
         background_thres : float = 0.6,
         num_updates      : int   = 30,
         tau_rate         : float = 0.01,
         tau_updating_rate: float = 0.025,
-        device           : torch.device = torch.device("cpu"),
     ):
         self.height            = height
         self.width             = width
@@ -234,33 +234,32 @@ class HVR:
         self.num_updates       = num_updates
         self.tau_rate          = tau_rate
         self.tau_updating_rate = tau_updating_rate
-        self.device            = device
 
         # Initialize state and variables
         self.state      = self.State.UPDATE
         self.counter    = 0
         self.tau        = 0.0
-        self.background = torch.zeros((1, 3, height, width), device=self.device)
+        self.background = np.zeros((self.height, self.width , 3))
         self.background_model = MOG(
-            height           = height,
-            width            = width,
-            num_gaussians    = num_gaussians,
-            learning_rate    = learning_rate,
-            matching_thres   = matching_thres,
-            background_thres = background_thres,
+            height           = self.height,
+            width            = self.width,
+            num_gaussians    = self.num_gaussians,
+            learning_rate    = self.learning_rate,
+            matching_thres   = self.matching_thres,
+            background_thres = self.background_thres,
         )
 
-    def update(self, image: torch.Tensor):
+    def update(self, image: np.ndarray):
         """Update the model with a new image.
 
         Args:
-            image: Input image of shape ``[1, 3, height, width]``, normalized.
+            image: Input image of shape ``[height, width, 3]``.
 
         Raises:
             ValueError: If image shape does not match expected dimensions.
         """
-        if image.shape != (1, 3, self.height, self.width):
-            raise ValueError(f"Expected [image]'s shape (1, 3, {self.height}, {self.width}), got: {image.shape}")
+        if image.shape != (self.height, self.width, 3):
+            raise ValueError(f"Expected [image]'s shape ({self.height}, {self.width}, 3), got {image.shape}")
 
         if self.state == self.State.TRAIN:
             return  # TRAIN state is currently unused
@@ -291,7 +290,7 @@ class HVR:
             if self.counter >= self.num_updates:
                 self.state      = self.State.SUSPENSE
                 self.counter    = 0
-                self.background = self.background_model.get_background()
+                self.background = self.background_model.get_background(mode="cupy")
                 self.background_model.learning_rate = max(self.background_model.learning_rate / 2, 0.001)
         else:
             self.counter = 0
@@ -311,31 +310,33 @@ class HVR:
         else:
             self.counter = 0
 
-    def get_background(self) -> torch.Tensor:
+    def get_background(self) -> np.ndarray:
         """Get the current background image.
 
         Returns:
-            Background image of shape ``[1, 3, height, width]``, normalized.
+            np.ndarray: Background image of shape ``[height, width, 3]`` with dtype uint8.
         """
         if self.state == self.State.UPDATE:
-            self.background = self.background_model.get_background()
-        return self.background
+            self.background = self.background_model.get_background(mode="numpy")
+        if isinstance(self.background, cp.ndarray):
+            self.background = self.background.get().astype(np.uint8)
+        return self.background.astype(np.uint8)
 
-    def get_foreground(self, image: torch.Tensor) -> torch.Tensor:
+    def get_foreground(self, image: np.ndarray) -> np.ndarray:
         """Generate a foreground mask by comparing the image to the background.
 
         Args:
-            image: Input image of shape ``[1, 3, height, width]``, normalized.
+            image: Input image of shape ``[height, width, 3]``.
 
         Returns:
-            Foreground mask of shape ``[1, 1, height, width]``, normalized.
+            np.ndarray: Foreground mask of shape ``[height, width]`` with dtype ``uint8``.
 
         Raises:
             ValueError: If image shape does not match expected dimensions.
         """
-        if image.shape != (1, 3, self.height, self.width):
-            raise ValueError(f"Expected [image]'s shape (1, 3, {self.height}, {self.width}), got: {image.shape}")
-        return self.background_model.get_foreground(image, self.background)
+        if image.shape != (self.height, self.width, 3):
+            raise ValueError(f"Expected [image]'s shape ({self.height}, {self.width}, 3), got {image.shape}")
+        return self.background_model.get_foreground(image, self.get_background())
 
     def estimate_entropy(self) -> float:
         """Estimate the model's uncertainty.
@@ -347,8 +348,8 @@ class HVR:
 
 
 # ----- Model -----
-@MODELS.register(name="tensormog", arch="tensormog")
-class TensorMOG(base.BackgroundSubtractionModel):
+@MODELS.register(name="tensormog_cupy", arch="tensormog")
+class TensorMOGCuPy(base.BackgroundSubtractionModel):
     """TensorMoG: A Tensor-Driven Gaussian Mixture Model with Dynamic Scene
     Adaptation for Background Modeling.
 
@@ -365,7 +366,7 @@ class TensorMOG(base.BackgroundSubtractionModel):
     """
 
     arch     : str          = "tensormog"
-    name     : str          = "tensormog"
+    name     : str          = "tensormog_cupy"
     tasks    : list[Task]   = [Task.BGSUBTRACT, Task.VIDEO]
     mltypes  : list[MLType] = [MLType.INFERENCE]
     model_dir: core.Path    = current_dir
@@ -442,6 +443,8 @@ class TensorMOG(base.BackgroundSubtractionModel):
         """
         # Input
         image = datapoint["image"]
+        if isinstance(image, torch.Tensor):
+            image = types.image_to_array(image, True)
 
         h0, w0 = types.image_size(image)
         if h0 != self.height or w0 != self.width:

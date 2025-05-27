@@ -6,3 +6,4 @@ Dynamic Scene Adaptation for Background Modeling," Sensors 2020.
 """
 
 from mon.vision.bgsubtract.tensormog.tensormog import *
+from mon.vision.bgsubtract.tensormog.tensormog_cupy import *
