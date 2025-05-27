@@ -394,28 +394,29 @@ class Split(Enum):
 # ----- Task -----
 class Task(Enum):
     """Task types."""
-    
-    CLASSIFY  = "classify"              # classification
-    DEBLUR    = "deblur"                # deblurring
-    DEHAZE    = "dehaze"                # dehazing
-    DEMOIRE   = "demoire"               # demoireing
-    DENOISE   = "denoise"               # denoising
-    DEPTH     = "depth"                 # depth estimation
-    DERAIN    = "derain"                # deraining
-    DESNOW    = "desnow"                # desnowing
-    DETECT    = "detect"                # object detection
-    INPAINT   = "inpaint"               # inpainting
-    LLE       = "lle"                   # low-light enhancement
-    NIGHTTIME = "nighttime"             # nighttime
-    POSE      = "pose"                  # pose estimation
-    RETOUCH   = "retouch"               # Retouching
-    RGB2TIR   = "rgb2tir"               # RGB-to-TIR translation
-    RR        = "rr"                    # reflection removal
-    SEGMENT   = "segment"               # semantic segmentation
-    SR        = "sr"                    # super-resolution
-    TRACK     = "track"                 # object tracking
-    UE        = "ue"                    # underwater enhancement
-    VIDEO     = "video"                 # video processing
+
+    BGSUBTRACT = "bgsubtract"            # background subtraction
+    CLASSIFY   = "classify"              # classification
+    DEBLUR     = "deblur"                # deblurring
+    DEHAZE     = "dehaze"                # dehazing
+    DEMOIRE    = "demoire"               # demoireing
+    DENOISE    = "denoise"               # denoising
+    DEPTH      = "depth"                 # depth estimation
+    DERAIN     = "derain"                # deraining
+    DESNOW     = "desnow"                # desnowing
+    DETECT     = "detect"                # object detection
+    INPAINT    = "inpaint"               # inpainting
+    LLE        = "lle"                   # low-light enhancement
+    NIGHTTIME  = "nighttime"             # nighttime
+    POSE       = "pose"                  # pose estimation
+    RETOUCH    = "retouch"               # Retouching
+    RGB2TIR    = "rgb2tir"               # RGB-to-TIR translation
+    RR         = "rr"                    # reflection removal
+    SEGMENT    = "segment"               # semantic segmentation
+    SR         = "sr"                    # super-resolution
+    TRACK      = "track"                 # object tracking
+    UE         = "ue"                    # underwater enhancement
+    VIDEO      = "video"                 # video processing
 
 
 # ----- Vision -----

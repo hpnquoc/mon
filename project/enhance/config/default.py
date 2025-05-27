@@ -17,6 +17,7 @@ TASKS = [
 	Task.RGB2TIR,
 	Task.SR,
 	Task.UE,
+    Task.BGSUBTRACT,
     Task.DEBLUR,
     Task.DEHAZE,
     Task.DENOISE,

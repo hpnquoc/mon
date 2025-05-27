@@ -51,6 +51,7 @@ def parse_default_args(name: str = "main") -> argparse.Namespace:
         }
         if action in ["store_true", "store_false"]:
             kwargs.pop("default")
+            # kwargs["default"] = False if action == "store_true" else True
         if opt_type:
             kwargs["type"] = opt_type
         if choices:

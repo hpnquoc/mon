@@ -235,19 +235,19 @@ CLI_OPTIONS  = {
         "action"     : "store_true",
         "help"       : "Save results.",
         "prompt_only": False,
-        "prompt_text": "Save result?  ",
+        "prompt_text": "Save Result?  ",
     },
     "save_image"  : {
         "action"     : "store_true",
         "help"       : "Save output images.",
         "prompt_only": False,
-        "prompt_text": "Save image?   ",
+        "prompt_text": "Save Image?   ",
     },
     "save_debug"  : {
         "action"     : "store_true",
         "help"       : "Save debug information.",
         "prompt_only": False,
-        "prompt_text": "Save debug?   ",
+        "prompt_text": "Save Debug?   ",
     },
     "use_fullname": {
         "action"     : "store_true",
@@ -283,6 +283,6 @@ CLI_OPTIONS  = {
 
 
 DEFAULT_ARGS = {
-    k: False if v.get("action") == "store_true" else v.get("default", None)
+    k: False if v.get("action") in ["store_true"] else v.get("default", None)
     for k, v in CLI_OPTIONS.items()
 }
