@@ -149,7 +149,7 @@ def to_str(x: Any, sep: str = ",") -> str:
     """
     if isinstance(x, dict):
         items = [str(item) for item in x.values()]
-    elif isinstance(x, (list, tuple)):
+    elif isinstance(x, list |  tuple):
         items = [str(item) for item in x]
     else:
         return str(x) if x else ""
@@ -246,7 +246,7 @@ def iter_to_iter(x: Iterable, item_type: type, return_type: type = None):
     Raises:
         TypeError: If ``x`` is not a ``list``, ``tuple``, or ``dict``.
     """
-    if not isinstance(x, (list, tuple, dict)):
+    if not isinstance(x, list | tuple | dict):
         raise TypeError(f"[x] must be list, tuple, or dict, got {type(x).__name__}.")
     items = map(item_type, x)
     return (list(items) if return_type is list else
@@ -404,7 +404,7 @@ def to_tuple(x: Any) -> tuple:
         return tuple(x)
     if isinstance(x, dict):
         return tuple(x.values())
-    if isinstance(x, Iterable) and not isinstance(x, (str, bytes)):
+    if isinstance(x, Iterable) and not isinstance(x, str | bytes):
         return tuple(x)
     return (x,) if x else ()
 
@@ -419,7 +419,7 @@ def to_ntuple(n: int) -> Callable[[Any], tuple]:
         Function converting input to tuple of length ``n`` via replication or truncation.
     """
     def parse(x: Any) -> tuple:
-        if isinstance(x, Iterable) and not isinstance(x, (str, bytes)):
+        if isinstance(x, Iterable) and not isinstance(x, str | bytes):
             items = tuple(x)
             return tuple(items * (n // len(items) + 1))[:n] if len(items) == 1 else items[:n]
         return tuple(itertools.repeat(x, n))
@@ -450,7 +450,7 @@ def unique(x: list | tuple) -> list | tuple:
     Raises:
         TypeError: If ``x`` is not a ``list`` or ``tuple``.
     """
-    if not isinstance(x, (list, tuple)):
+    if not isinstance(x, list | tuple):
         raise TypeError(f"[x] must be a list or tuple, got {type(x).__name__}.")
     return type(x)(set(x))
 

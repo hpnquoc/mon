@@ -78,7 +78,7 @@ class DataModule(lightning.LightningDataModule, ABC):
         Returns:
             Number of workers (4 times device count).
         """
-        devices = self.devices if isinstance(self.devices, (list, tuple)) else [self.devices]
+        devices = self.devices if isinstance(self.devices, list | tuple) else [self.devices]
         return 4 * len(devices)
     
     @property

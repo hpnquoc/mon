@@ -55,7 +55,7 @@ class Trainer(lightning.Trainer):
             (True, " (mps)") if strategy.MPSAccelerator.is_available() else
             (False, "")
         )
-        gpu_used = isinstance(self.accelerator, (strategy.CUDAAccelerator, strategy.MPSAccelerator))
+        gpu_used = isinstance(self.accelerator, strategy.CUDAAccelerator | strategy.MPSAccelerator)
         core.console.log(f"GPU available: {gpu_available}{gpu_type}, used: {gpu_used}.")
 
         if strategy.CUDAAccelerator.is_available() and not isinstance(self.accelerator, strategy.CUDAAccelerator):

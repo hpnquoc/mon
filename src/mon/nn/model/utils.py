@@ -390,10 +390,10 @@ def load_weights(
     if weights is None:
         return None
 
-    path       = core.Path(weights["path"]) if isinstance(weights, dict) and "path" in weights     else None
+    path       = core.Path(weights["path"]) if isinstance(weights, dict) and "path"     in weights else None
     state_dict = weights                    if isinstance(weights, dict) and "path" not in weights else None
 
-    if isinstance(weights, (str, core.Path)) and core.Path(weights).is_weights_file():
+    if isinstance(weights, str | core.Path) and core.Path(weights).is_weights_file():
         path = core.Path(weights)
 
     if path and path.is_weights_file():

@@ -128,7 +128,7 @@ class VideoLoader(core.Dataset, ABC):
         elif isinstance(transform, albumentation.Compose):
             self.transform = transform
         else:
-            transform  = [transform] if not isinstance(transform, (list, tuple)) else transform
+            transform  = [transform] if not isinstance(transform, list | tuple) else transform
             transform_ = []
             for t in transform:
                 if isinstance(t, albumentation.BasicTransform):
@@ -419,6 +419,6 @@ def is_video_dataset(dataset: core.Dataset) -> bool:
     """
     if dataset is None:
         return False
-    if hasattr(dataset, "tasks") and isinstance(dataset.tasks, (list, tuple)):
+    if hasattr(dataset, "tasks") and isinstance(dataset.tasks, list | tuple):
         return Task.VIDEO in dataset.tasks
     return isinstance(dataset, (VideoLoader, VideoLoaderCV))

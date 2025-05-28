@@ -31,7 +31,7 @@ class JSONSerializer(base.BaseSerializer):
         Raises:
             TypeError: If ``obj`` type is unsupported.
         """
-        if isinstance(obj, (set, range, np.ndarray)):
+        if isinstance(obj, set | range | np.ndarray):
             return list(obj)
         if isinstance(obj, np.generic):
             return obj.item()

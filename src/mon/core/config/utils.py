@@ -107,7 +107,7 @@ def load_config(config: Any, verbose: bool = True) -> dict:
     """
     if isinstance(config, dict):
         data = config
-    elif isinstance(config, (pathlib.Path, str)):
+    elif isinstance(config, pathlib.Path | str):
         config = pathlib.Path(config)
         if config.is_py_file():
             spec   = importlib.util.spec_from_file_location(str(config.stem), str(config))

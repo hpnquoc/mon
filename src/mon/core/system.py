@@ -56,7 +56,7 @@ def set_random_seed(seed: int | list[int] | tuple[int, int]) -> None:
     Args:
         seed: Int, list of ints, or tuple of two ints for range selection.
     """
-    if isinstance(seed, (list, tuple)):
+    if isinstance(seed, list | tuple):
         seed = random.randint(seed[0], seed[1]) if len(seed) == 2 else seed[-1]
     random.seed(seed)
     np.random.seed(seed)

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Implements general-purpose utilities for image tasks.
+"""Implements general-purpose utilities for image processing tasks.
 
 Common Tasks:
     - Property accessors
@@ -149,7 +149,7 @@ def image_size(
     Raises:
         TypeError: If ``input`` type is not supported.
     """
-    if isinstance(input, (list, tuple)):
+    if isinstance(input, list | tuple):
         if len(input) == 1:
             size = (input[0], input[0])
         elif len(input) == 2:
@@ -158,7 +158,7 @@ def image_size(
             size = input[:2] if len(input) == 3 and input[0] >= input[2] else input[-2:]
     elif isinstance(input, (int, float)):
         size = (input, input)
-    elif isinstance(input, (torch.Tensor, np.ndarray)):
+    elif isinstance(input, torch.Tensor | np.ndarray):
         size = (
             (input.shape[-2], input.shape[-1])
             if is_image_channel_first(input)
@@ -184,8 +184,10 @@ def is_image(image: torch.Tensor | np.ndarray) -> bool:
         ``True`` if input is a tensor or array and a color or grayscale image,
         ``False`` otherwise.
     """
-    return (isinstance(image, (torch.Tensor, np.ndarray)) and
-            (is_image_colored(image) or is_image_grayscale(image)))
+    return (
+        isinstance(image, torch.Tensor | np.ndarray)
+        and (is_image_colored(image) or is_image_grayscale(image))
+    )
 
 
 def is_image_channel_first(image: torch.Tensor | np.ndarray) -> bool:

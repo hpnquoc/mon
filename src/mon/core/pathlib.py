@@ -82,8 +82,10 @@ class Path(type(pathlib.Path())):
         Returns:
             ``True`` if path is a file or valid URL, ``False`` otherwise.
         """
-        return ((not exist or self.is_file()) or
-                not isinstance(validators.url(str(self)), validators.ValidationError))
+        return (
+            (not exist or self.is_file())
+            or not isinstance(validators.url(str(self)), validators.ValidationError)
+        )
     
     def is_file_like(self) -> bool:
         """"Checks if the path resembles a file format.

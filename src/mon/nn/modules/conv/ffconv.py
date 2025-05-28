@@ -362,7 +362,7 @@ class FastFourierConv2d(torch.nn.Module):
                       global output ``torch.Tensor`` with shape [B, C_out_g, H_out, W_out]).
         """
         x = input
-        x_l, x_g = x if isinstance(x, (tuple, list)) else (x, 0)
+        x_l, x_g = x if isinstance(x, tuple | list) else (x, 0)
         y_l = self.conv_l2l(x_l) + self.conv_g2l(x_g) if self.ratio_g_out != 1 else 0
         y_g = self.conv_l2g(x_l) + self.conv_g2g(x_g) if self.ratio_g_out != 0 else 0
         return y_l, y_g
@@ -526,7 +526,7 @@ class FastFourierConv2dSE(torch.nn.Module):
                       global output ``torch.Tensor`` with shape [B, C_g, H_out, W_out]).
         """
         x = input
-        x_l, x_g = x if isinstance(x, (tuple, list)) else (x, 0)
+        x_l, x_g = x if isinstance(x, tuple | list) else (x, 0)
         x   = x_l if isinstance(x_g, int) else torch.cat([x_l, x_g], dim=1)
         x   = self.avgpool(x)
         x   = self.relu1(self.conv1(x))

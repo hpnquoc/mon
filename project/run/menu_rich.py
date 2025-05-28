@@ -46,7 +46,7 @@ class Prompt:
         option from the list of options. Otherwise, it returns the choice as is.
         """
         if value:
-            value = value[0] if isinstance(value, (list, tuple)) and len(value) == 1 else value
+            value = value[0] if isinstance(value, list | tuple) and len(value) == 1 else value
         else:
             value = ""
         self._value = value
@@ -113,7 +113,7 @@ class NumberPrompt:
     
     @value.setter
     def value(self, value: int):
-        self._value = None if isinstance(value, (int, float)) and value < 0 else value
+        self._value = None if isinstance(value, int | float) and value < 0 else value
         
     def prompt(self) -> int:
         self.value = rich.IntPrompt().ask(prompt=self.text, default=self.default)

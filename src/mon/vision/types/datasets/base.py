@@ -118,7 +118,7 @@ class VisionDataset(core.Dataset, ABC):
         elif isinstance(transform, albumentation.Compose):
             self.transform = transform
         else:
-            transform  = [transform] if not isinstance(transform, (list, tuple)) else transform
+            transform  = [transform] if not isinstance(transform, list | tuple) else transform
             transform_ = []
             for t in transform:
                 if isinstance(t, albumentation.BasicTransform):

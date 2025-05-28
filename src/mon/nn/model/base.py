@@ -262,7 +262,7 @@ class Model(lightning.LightningModule, ABC):
             if url and path:
                 utils.download_weights_from_url(url, path, overwrite)
             self.weights = weights_dict
-        elif isinstance(weights, (str, core.Path)):
+        elif isinstance(weights, str | core.Path):
             weights_path = core.Path(weights)
             if not weights_path.is_weights_file():
                 raise ValueError(f"[weights] must be a valid path to a weight file, "
@@ -373,7 +373,7 @@ class Model(lightning.LightningModule, ABC):
         if metrics is None:
             return None
         
-        metrics  = [metrics] if not isinstance(metrics, (list, tuple)) else metrics
+        metrics  = [metrics] if not isinstance(metrics, list | tuple) else metrics
         metrics_ = []
         for m in metrics:
             if isinstance(m, M.Metric):

@@ -332,7 +332,7 @@ def image_to_4d(
             image = np.expand_dims(image, axis=(0, -1))
         elif image.ndim == 3:  # [H, W, C] -> [1, H, W, C]
             image = np.expand_dims(image, axis=0)
-    elif isinstance(image, (list, tuple)):
+    elif isinstance(image, list | tuple):
         if all(isinstance(i, torch.Tensor) and i.ndim == 3 for i in image):
             image = torch.stack(image, dim=0)  # Stack 3D tensors to [B, C, H, W]
         elif all(isinstance(i, torch.Tensor) and i.ndim == 4 for i in image):

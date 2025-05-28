@@ -130,7 +130,7 @@ class SupervisedAttentionModule(nn.Module):
         dtype       : Any       = None,
     ):
         super().__init__()
-        padding    = kernel_size[0] // 2 if isinstance(kernel_size, (list, tuple)) else kernel_size // 2
+        padding    = kernel_size[0] // 2 if isinstance(kernel_size, list | tuple) else kernel_size // 2
         self.conv1 = nn.Conv2d(
             in_channels  = channels,
             out_channels = channels,

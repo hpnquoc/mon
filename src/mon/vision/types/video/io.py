@@ -168,14 +168,14 @@ class VideoWriter(ABC):
     @abstractmethod
     def write_batch(
         self,
-        frames     : list[torch.Tensor | np.ndarray],
+        frames     : list[torch.Tensor] | list[np.ndarray],
         paths      : list[core.Path] = None,
         denormalize: bool = False
     ):
         """Write batch of frames to ``dst``.
 
         Args:
-            frames: List of video frames as ``list[torch.Tensor | np.ndarray]``.
+            frames: List of video frames as ``list[torch.Tensor] | list[np.ndarray]``.
             paths: List of file paths as ``list[core.Path]``. Default is ``None``.
             denormalize: Convert to [0, 255] if ``True``. Default is ``False``.
         """
@@ -264,14 +264,14 @@ class VideoWriterCV(VideoWriter):
     
     def write_batch(
         self,
-        frames     : list[torch.Tensor | np.ndarray],
+        frames     : list[torch.Tensor] | list[np.ndarray],
         paths      : list[core.Path] = None,
         denormalize: bool = False
     ):
         """Write batch of frames to video.
 
         Args:
-            frames: List of images as ``list[torch.Tensor | np.ndarray]``.
+            frames: List of images as ``list[torch.Tensor] | list[np.ndarray]``.
             paths: List of file paths as ``list[core.Path]``. Default is ``None``.
             denormalize: Convert to [0, 255] if ``True``. Default is ``False``.
         """
@@ -371,14 +371,14 @@ class VideoWriterFFmpeg(VideoWriter):
     
     def write_batch(
         self,
-        frames     : list[torch.Tensor | np.ndarray],
+        frames     : list[torch.Tensor] | list[np.ndarray],
         paths      : list[core.Path] = None,
         denormalize: bool = False,
     ):
         """Write batch of frames to video.
 
         Args:
-            frames: List of images as ``list[torch.Tensor | np.ndarray]``.
+            frames: List of images as ``list[torch.Tensor] | list[np.ndarray]``.
             paths: List of file paths as ``list[core.Path]``. Default is ``None``.
             denormalize: Convert to [0, 255] if ``True``. Default is ``False``.
         """

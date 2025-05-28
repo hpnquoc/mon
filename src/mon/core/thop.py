@@ -78,7 +78,7 @@ def custom_profile(
         ret_dict     = {}
         for n, m in module.named_children():
             next_dict = {}
-            if m in handler_collection and not isinstance(m, (nn.Sequential, nn.ModuleList)):
+            if m in handler_collection and not isinstance(m, nn.Sequential | nn.ModuleList):
                 m_ops    = m.total_ops.item()
                 m_params = m.total_params.item()
             else:

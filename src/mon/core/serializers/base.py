@@ -104,7 +104,7 @@ def write_to_file(
     Raises:
         ValueError: If ``file_format`` is not supported.
     """
-    path_obj    = pathlib.Path(path) if isinstance(path, (pathlib.Path, str)) else path
+    path_obj    = pathlib.Path(path) if isinstance(path, pathlib.Path | str) else path
     file_format = file_format or (path_obj.suffix if isinstance(path_obj, pathlib.Path) else "")
     if file_format not in SERIALIZERS:
         raise ValueError(f"[file_format] must be one of {list(SERIALIZERS.names())}, "
@@ -136,13 +136,13 @@ def load_from_file(
     Raises:
         TypeError: If ``path`` is not a valid type.
     """
-    path_obj    = pathlib.Path(path) if isinstance(path, (pathlib.Path, str)) else path
+    path_obj    = pathlib.Path(path) if isinstance(path, pathlib.Path | str) else path
     file_format = file_format or (path_obj.suffix if isinstance(path_obj, pathlib.Path) else "")
     
     handler: BaseSerializer = SERIALIZERS.build(name=file_format)
     if hasattr(path, "read"):
         return handler.load_from_fileobj(path=path, **kwargs)
-    if isinstance(path_obj, (pathlib.Path, str)):
+    if isinstance(path_obj, pathlib.Path | str):
         return handler.load_from_file(path=path_obj, **kwargs)
     raise TypeError(f"[path] must be str, pathlib.Path, or file-like, "
                     f"got {type(path).__name__}.")

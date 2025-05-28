@@ -48,7 +48,7 @@ class Annotation(ABC):
         Returns:
             ``numpy.ndarray`` of numeric data or original ``data`` if not convertible.
         """
-        return np.asarray([x for x in self.data if isinstance(x, (int, float))], dtype=np.float32) \
+        return np.asarray([x for x in self.data if isinstance(x, int | float)], dtype=np.float32) \
             if isinstance(self.data, list) else self.data
     
     @property
@@ -58,7 +58,7 @@ class Annotation(ABC):
         Returns:
             ``torch.Tensor`` of numeric data or original ``data`` if not convertible.
         """
-        return torch.as_tensor([x for x in self.data if isinstance(x, (int, float))]) \
+        return torch.as_tensor([x for x in self.data if isinstance(x, int | float)]) \
             if isinstance(self.data, list) else self.data
     
     @staticmethod

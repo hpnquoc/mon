@@ -189,7 +189,7 @@ class ExtractItem(torch.nn.Module):
         """
         if isinstance(input, torch.Tensor):
             return input
-        if isinstance(input, (list, tuple)):
+        if isinstance(input, list | tuple):
             return input[self.index]
         raise TypeError(f"[input] must be tensor, list, or tuple, got {type(input).__name__}.")
 
@@ -220,7 +220,7 @@ class ExtractItems(torch.nn.Module):
         """
         if isinstance(input, torch.Tensor):
             return [input]
-        if isinstance(input, (list, tuple)):
+        if isinstance(input, list | tuple):
             return [input[i] for i in self.indexes]
         raise TypeError(f"[input] must be tensor, list, or tuple, got {type(input).__name__}.")
 
