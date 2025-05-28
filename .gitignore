@@ -24,6 +24,7 @@ build/
 dist/
 /data/
 /project/*/data/
+/project/*/data_zip/
 /project/*/run/
 /project/tss_old
 /zoo/*/

@@ -24,10 +24,10 @@ current_file=$(readlink -f "$0")
 current_dir=$(dirname "$current_file")
 project_dir=$(dirname "$current_dir")
 root_dir=$(dirname "$project_dir")
-runml_dir="${project_dir}/runml"
+run_dir="${project_dir}/run"
 
 # ----- Main -----
-cd "${runml_dir}" || exit
+cd "${run_dir}" || exit
 for (( i=0; i<${#data[@]}; i++ )); do
     # Input
     input_dir="${current_dir}/run/predict/${arch}/${model}/${data[i]}/pred"
