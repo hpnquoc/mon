@@ -282,7 +282,7 @@ class Path(type(pathlib.Path())):
             recursive: If ``True``, includes subdirs recursively. Default is ``False``.
 
         Returns:
-            List of subdirectory ``Path`` objects.
+            List of subdirectory paths.
         """
         path = self.parent if self.is_file_like() else self
         paths = list(path.rglob("*")) if recursive else list(path.iterdir())
@@ -295,7 +295,7 @@ class Path(type(pathlib.Path())):
             recursive: If ``True``, includes files in subdirs. Default is ``False``.
 
         Returns:
-            List of file ``Path`` objects.
+            List of file paths.
         """
         path = self.parent if self.is_file_like() else self
         paths = list(path.rglob("*")) if recursive else list(path.iterdir())
@@ -305,7 +305,7 @@ class Path(type(pathlib.Path())):
         """Returns the checkpoint file path if found.
 
         Returns:
-            Checkpoint file ``Path`` or ``None`` if not found.
+            Checkpoint file path or ``None`` if not found.
         """
         ckpt_path = self.with_suffix(".ckpt")
         return ckpt_path if ckpt_path.is_file() else self
@@ -314,7 +314,7 @@ class Path(type(pathlib.Path())):
         """Returns the configuration file path.
 
         Returns:
-            Configuration file ``Path``.
+            Configuration file path.
         """
         from mon.constants import ConfigExtension
         for ext in ConfigExtension.values():
@@ -328,7 +328,7 @@ class Path(type(pathlib.Path())):
         """Returns the latest file based on creation time.
 
         Returns:
-            Latest file ``Path`` or ``None`` if no files exist.
+            Latest file path or ``None`` if no files exist.
         """
         files = self.files()
         return max(files, key=os.path.getctime) if files else None
@@ -337,7 +337,7 @@ class Path(type(pathlib.Path())):
         """Returns the image file path.
 
         Returns:
-            Image file ``Path``.
+            Image file path.
         """
         from mon.constants import ImageExtension
         for ext in ImageExtension.values():
@@ -350,7 +350,7 @@ class Path(type(pathlib.Path())):
         """Returns the .txt file path.
 
         Returns:
-            YAML file ``Path``.
+            YAML file path.
         """
         for ext in [".txt"]:
             temp = self.with_suffix(ext)
@@ -362,7 +362,7 @@ class Path(type(pathlib.Path())):
         """Returns the YAML file path.
 
         Returns:
-            YAML file ``Path``.
+            YAML file path.
         """
         for ext in [".yaml", ".yml"]:
             temp = self.with_suffix(ext)
@@ -377,7 +377,7 @@ class Path(type(pathlib.Path())):
             start_part: Starting path or string for relativity.
 
         Returns:
-            Relative ``Path`` from ``start_part``.
+            Relative path from ``start_part``.
         """
         path       = Path(self)
         start_part = str(start_part)
@@ -416,13 +416,13 @@ class Path(type(pathlib.Path())):
             count: Max number of replacements. Default is ``1``.
 
         Returns:
-            New ``Path`` with replaced string.
+            New path with replaced string.
         """
         return Path(str(self).replace(old, new, count))
 
 
 # ----- Create -----
-def copy_file(src: Path | str, dst: Path | str) -> None:
+def copy_file(src: Path, dst: Path) -> None:
     """Copies a file to a new location.
 
     Args:
@@ -436,7 +436,7 @@ def copy_file(src: Path | str, dst: Path | str) -> None:
 
 
 # ----- Read -----
-def hash_files(paths: list[Path | str]) -> int:
+def hash_files(paths: list[Path]) -> int:
     """Calculates the total hash value of files based on their sizes.
 
     Args:
@@ -450,7 +450,7 @@ def hash_files(paths: list[Path | str]) -> int:
 
 
 # ----- Delete -----
-def delete_cache(path: Path | str, recursive: bool = True):
+def delete_cache(path: Path, recursive: bool = True):
     """Clears cache files in a directory and optionally its subdirs.
 
     Args:
@@ -460,7 +460,7 @@ def delete_cache(path: Path | str, recursive: bool = True):
     delete_files(path=path, regex=".cache", recursive=recursive)
 
 
-def delete_dir(paths: Path | str | list[Path | str]):
+def delete_dir(paths: Path | list[Path]):
     """Deletes directories and their contents.
 
     Args:
@@ -475,7 +475,7 @@ def delete_dir(paths: Path | str | list[Path | str]):
 
 
 def delete_files(
-    path     : Path | str,
+    path     : Path,
     regex    : str  = None,
     recursive: bool = False
 ):
@@ -500,7 +500,7 @@ def delete_files(
 
 
 def mkdirs(
-    paths   : Path | str | list[Path | str],
+    paths   : Path | list[Path],
     mode    : int  = 0o777,
     parents : bool = True,
     exist_ok: bool = True,
@@ -527,7 +527,7 @@ def mkdirs(
         p.mkdir(mode=mode, parents=parents, exist_ok=exist_ok)
 
 
-def rmdirs(paths: Path | str | list[Path | str]):
+def rmdirs(paths: Path | list[Path]):
     """Deletes directories and their contents.
 
     Args:
@@ -585,11 +585,11 @@ def parse_data_dir(root: str | pathlib.Path, data_dir: str | pathlib.Path = "") 
 
 
 def parse_save_dir(
-    root : str | Path,
+    root : Path,
     arch : str = None,
     model: str = None,
     data : str = None,
-) -> str | pathlib.Path:
+) -> pathlib.Path:
     """Parses a save dir in format: root/arch/model/data.
 
     Args:
@@ -599,7 +599,7 @@ def parse_save_dir(
         data: Dataset name. Default is ``None``.
 
     Returns:
-        Parsed save dir path as ``str`` or ``pathlib.Path``.
+        Parsed ``save_dir`` path.
     """
     save_dir = Path(root)
     data     = Path(data) if data not in [None, "None", ""] else None

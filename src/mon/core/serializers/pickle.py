@@ -54,11 +54,11 @@ class PickleSerializer(base.BaseSerializer):
         kwargs.setdefault("protocol", 4)
         return dumps(obj, **kwargs)
     
-    def load_from_file(self, path: pathlib.Path | str, mode: str = "rb", **kwargs) -> Any:
+    def load_from_file(self, path: pathlib.Path, mode: str = "rb", **kwargs) -> Any:
         """Loads data from a file.
     
         Args:
-            path: File path as ``pathlib.Path`` or ``str``.
+            path: File path.
             mode: File mode. Default is ``rb``.
             **kwargs: Extra args for ``read_from_fileobj()``.
     
@@ -67,12 +67,12 @@ class PickleSerializer(base.BaseSerializer):
         """
         return super().load_from_file(path=pathlib.Path(path), mode=mode, **kwargs)
     
-    def write_to_file(self, obj: Any, path: pathlib.Path | str, mode: str = "wb", **kwargs):
+    def write_to_file(self, obj: Any, path: pathlib.Path, mode: str = "wb", **kwargs):
         """Writes data to a file.
     
         Args:
             obj: Data to serialize as ``Any``.
-            path: File path as ``pathlib.Path`` or ``str``.
+            path: File path.
             mode: File mode. Default is ``wb``.
             **kwargs: Extra args for ``write_to_fileobj()``.
     

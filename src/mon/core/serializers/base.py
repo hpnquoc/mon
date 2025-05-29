@@ -22,11 +22,11 @@ class BaseSerializer(ABC):
     """Base class for loading and writing data in various file formats."""
     
     @abstractmethod
-    def load_from_fileobj(self, path: pathlib.Path | str | TextIO, **kwargs) -> Any:
+    def load_from_fileobj(self, path: pathlib.Path | TextIO, **kwargs) -> Any:
         """Loads content from a ``file`` object.
     
         Args:
-            path: ``pathlib.Path``, ``str``, or ``TextIO`` stream.
+            path: File path or ``TextIO`` stream.
             kwargs: Additional keyword arguments.
         
         Returns:
@@ -35,12 +35,12 @@ class BaseSerializer(ABC):
         pass
     
     @abstractmethod
-    def write_to_fileobj(self, obj: Any, path: pathlib.Path | str | TextIO, **kwargs):
+    def write_to_fileobj(self, obj: Any, path: pathlib.Path | TextIO, **kwargs):
         """Writes a serializable object to a ``file`` object.
 
         Args:
             obj: Serializable object to write.
-            path: ``pathlib.Path``, ``str``, or ``TextIO`` stream.
+            path: File path or ``TextIO`` stream.
             kwargs: Additional keyword arguments.
         """
         pass
@@ -58,11 +58,11 @@ class BaseSerializer(ABC):
         """
         pass
     
-    def load_from_file(self, path: pathlib.Path | str, mode: str = "r", **kwargs) -> Any:
+    def load_from_file(self, path: pathlib.Path, mode: str = "r", **kwargs) -> Any:
         """Loads content from a ``file``.
 
         Args:
-            path: ``pathlib.Path`` or ``str`` file path.
+            path: File path.
             mode: File open ``mode``. Default is ``"r"`` for read-only.
             kwargs: Additional keyword arguments.
     
@@ -72,12 +72,12 @@ class BaseSerializer(ABC):
         with open(path, mode) as f:
             return self.load_from_fileobj(path=f, **kwargs)
     
-    def write_to_file(self, obj: Any, path: pathlib.Path | str, mode: str = "w", **kwargs):
+    def write_to_file(self, obj: Any, path: pathlib.Path, mode: str = "w", **kwargs):
         """Writes a serializable object to a ``file``.
     
         Args:
             obj: Serializable object to write.
-            path: ``pathlib.Path`` or ``str`` file path.
+            path: File path.
             mode: File open ``mode``. Default is ``"w"`` for write-only.
             kwargs: Additional keyword arguments.
         """
@@ -88,7 +88,7 @@ class BaseSerializer(ABC):
 # ----- Functional -----
 def write_to_file(
     obj        : Any,
-    path       : pathlib.Path | str | TextIO,
+    path       : pathlib.Path | TextIO,
     file_format: str = None,
     **kwargs
 ):
@@ -96,9 +96,8 @@ def write_to_file(
 
     Args:
         obj: Object to serialize.
-        path: ``pathlib.Path``, ``str`` path, or ``TextIO`` stream.
-        file_format: File format, inferred from ``path`` if ``None``.
-            Default is ``None``.
+        path: File path or ``TextIO`` stream.
+        file_format: File format, inferred from ``path`` if ``None``. Default is ``None``.
         kwargs: Additional keyword arguments.
 
     Raises:
@@ -118,16 +117,15 @@ def write_to_file(
 
 
 def load_from_file(
-    path       : pathlib.Path | str | TextIO,
+    path       : pathlib.Path | TextIO,
     file_format: str = None,
     **kwargs
 ) -> Any:
     """Loads content from a ``file``.
 
     Args:
-        path: ``pathlib.Path``, ``str`` path, or ``TextIO`` stream.
-        file_format: File format, inferred from ``path`` if ``None``.
-            Default is ``None``.
+        path: File path or ``TextIO`` stream.
+        file_format: File format, inferred from ``path`` if ``None``. Default is ``None``.
         kwargs: Additional keyword arguments.
 
     Returns:
@@ -149,15 +147,15 @@ def load_from_file(
 
 
 def merge_files(
-    in_paths   : list[pathlib.Path | str | TextIO],
-    out_path   : pathlib.Path | str | TextIO,
+    in_paths   : list[pathlib.Path | TextIO],
+    out_path   : pathlib.Path | TextIO,
     file_format: str = None,
 ):
     """Merges content from multiple ``files`` into a single ``file``.
 
     Args:
-        in_paths: List of input ``pathlib.Path``, ``str``, or ``TextIO`` streams.
-        out_path: Output ``pathlib.Path``, ``str`` path, or ``TextIO`` stream.
+        in_paths: List of input file paths or ``TextIO`` streams.
+        out_path: Output file path or ``TextIO`` stream.
         file_format: File format, inferred from ``out_path`` if ``None``.
             Default is ``None``.
 

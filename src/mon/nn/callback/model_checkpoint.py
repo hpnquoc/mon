@@ -298,11 +298,11 @@ class ModelCheckpoint(model_checkpoint.ModelCheckpoint):
             core.Path(dirpath).mkdir(parents=True, exist_ok=True)
             return dirpath
     
-    def __warn_if_dir_not_empty(self, dirpath: core.Path | str):
+    def __warn_if_dir_not_empty(self, dirpath: core.Path):
         """Warns if checkpoint dir is not empty.
     
         Args:
-            dirpath: Checkpoint directory as ``core.Path`` or ``str``.
+            dirpath: Checkpoint directory path.
         """
         if (
             self.save_top_k != 0

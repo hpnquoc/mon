@@ -9,10 +9,10 @@ __all__ = [
 ]
 
 from abc import ABC
-from typing import Any, Literal
+from typing import Any
 
 from mon import core
-from mon.constants import DepthDataSource, InfraredDataSource, TRANSFORMS
+from mon.constants import DepthSource, InfraredSource, TRANSFORMS, BBoxFormat
 from mon.vision.geometry import albumentation
 from mon.vision.types.depth import DepthMapAnnotation
 from mon.vision.types.image import ImageAnnotation
@@ -33,23 +33,36 @@ class VisionDataset(core.Dataset, ABC):
             - ``'ref_depth'``: ``DepthMapAnnotation``
 
     Args:
-        depth_source: Source of depth data. Default is ``'dav2_vitb'``.
-        infrared_source: Source of infrared data. Default is ``'infrared'``.
+        depth_source: Source of depth data from ``'DepthSource'``.
+            Default is ``'DepthSource.DAv2_ViTB'``.
+        infrared_source: Source of infrared data from ``InfraredSource``.
+            Default is ``'InfraredSource.INFRARED'``.
+        bbox_format: Bounding boxes format from ``'BBoxFormat'``.
+            Default is ``'BBoxFormat.YOLO'``.
     """
     
     def __init__(
         self,
-        depth_source   : Literal[*DepthDataSource.values()]    = "dav2_vitb",
-        infrared_source: Literal[*InfraredDataSource.values()] = "infrared",
+        depth_source   : DepthSource    = DepthSource.DAv2_ViTB,
+        infrared_source: InfraredSource = InfraredSource.INFRARED,
+        bbox_format    : BBoxFormat     = BBoxFormat.YOLO,
         *args, **kwargs
     ):
-        if depth_source not in DepthDataSource:
-            raise ValueError(f"[depth_source] must be one of {DepthDataSource}, got {depth_source}.")
+        depth_source = DepthSource.from_value(depth_source)
+        if depth_source not in DepthSource:
+            raise ValueError(f"[depth_source] must be one of {DepthSource}, got {depth_source}.")
         self.depth_source = depth_source
-        
-        if infrared_source not in InfraredDataSource:
-            raise ValueError(f"[infrared_source] must be one of {InfraredDataSource}, got {infrared_source}.")
+
+        infrared_source = InfraredSource.from_value(infrared_source)
+        if infrared_source not in InfraredSource:
+            raise ValueError(f"[infrared_source] must be one of {InfraredSource}, got {infrared_source}.")
         self.infrared_source = infrared_source
+
+        bbox_format = BBoxFormat.from_value(bbox_format)
+        if bbox_format not in BBoxFormat:
+            raise ValueError(f"[bbox_format] must be one of {BBoxFormat}, got {bbox_format}.")
+        self.bbox_format = bbox_format
+
         super().__init__(*args, **kwargs)
     
     # ----- Magic Methods -----
@@ -192,7 +205,7 @@ class VisionDataset(core.Dataset, ABC):
                                   f"{self.split_str} depth maps"
                 ):
                     root_name = img.root.name
-                    path      = img.path.replace(f"/{root_name}/", f"/{root_name}_{self.depth_source}/")
+                    path      = img.path.replace(f"/{root_name}/", f"/{root_name}_{self.depth_source.value}/")
                     depths.append(
                         DepthMapAnnotation(
                             path   = path.image_file(),
@@ -216,7 +229,7 @@ class VisionDataset(core.Dataset, ABC):
                                   f"{self.split_str} infrared maps"
                 ):
                     root_name = img.root.name
-                    path      = img.path.replace(f"/{root_name}/", f"/{root_name}_{self.infrared_source}/")
+                    path      = img.path.replace(f"/{root_name}/", f"/{root_name}_{self.infrared_source.value}/")
                     infrareds.append(
                         InfraredAnnotation(
                             path   = path.image_file(),
@@ -285,7 +298,7 @@ class VisionDataset(core.Dataset, ABC):
                                   f"{self.split_str} reference depth maps"
                 ):
                     root_name = img.root.name
-                    path      = img.path.replace(f"/{root_name}/", f"/{root_name}_{self.depth_source}/")
+                    path      = img.path.replace(f"/{root_name}/", f"/{root_name}_{self.depth_source.value}/")
                     ref_depths.append(
                         DepthMapAnnotation(
                             path   = path.image_file(),
@@ -309,12 +322,12 @@ class VisionDataset(core.Dataset, ABC):
                                   f"{self.split_str} reference infrared maps"
                 ):
                     root_name = img.root.name
-                    path      = img.path.replace(f"/{root_name}/", f"/{root_name}_{self.infrared_source}/")
+                    path      = img.path.replace(f"/{root_name}/", f"/{root_name}_{self.infrared_source.value}/")
                     ref_infrareds.append(
                         InfraredAnnotation(
                             path   = path.image_file(),
                             root   = img.root,
-                            source = self.depth_source
+                            source = self.infrared_source
                         )
                     )
             self.datapoints["ref_infrared"] = ref_infrareds

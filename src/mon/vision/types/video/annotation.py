@@ -25,7 +25,7 @@ class FrameAnnotation(core.Annotation):
     Args:
         index: Integer index of frame in video.
         frame: Ground-truth image as ``numpy.ndarray``.
-        path: Path to video file as ``core.Path`` or ``str``. Default is ``None``.
+        path: Video file path. Default is ``None``.
     """
     
     albumentation_target_type: str = "image"
@@ -34,7 +34,7 @@ class FrameAnnotation(core.Annotation):
         self,
         index: int,
         frame: np.ndarray,
-        path : core.Path | str = None,
+        path : core.Path = None,
         *args, **kwargs
     ):
         super().__init__(*args, **kwargs)
@@ -45,19 +45,15 @@ class FrameAnnotation(core.Annotation):
     
     @property
     def path(self) -> core.Path:
-        """Returns the video file path.
-
-        Returns:
-            ``core.Path`` of video file or ``None`` if not set.
-        """
+        """Returns the video file path."""
         return self._path
     
     @path.setter
-    def path(self, path: core.Path | str | None):
+    def path(self, path: core.Path):
         """Sets the video file path.
 
         Args:
-            path: Path to video file or ``None``.
+            path: Video file path.
 
         Raises:
             ValueError: If ``path`` is not a valid video path when provided.
@@ -72,11 +68,7 @@ class FrameAnnotation(core.Annotation):
 
     @property
     def frame_path(self) -> core.Path:
-        """Returns the path for each frame of the video: <self.path>_<self.index>.
-
-        Returns:
-            ``core.Path`` of video file or ``None`` if not set.
-        """
+        """Returns the path for each frame of the video: <self.path>_<self.index>."""
         if self.path is not None:
             path = self.path
             return path.parent / path.stem / f"{path.stem}_{self.index}{SAVE_IMAGE_EXT}"

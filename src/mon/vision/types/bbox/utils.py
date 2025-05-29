@@ -165,7 +165,7 @@ def check_valid_bbox(bbox: np.ndarray | list | tuple) -> np.ndarray:
     Returns:
         ``True`` if valid, ``False`` otherwise.
     """
-    if isinstance(bbox, (list, tuple)):
+    if isinstance(bbox, list | tuple):
         bbox = np.array(bbox, dtype=np.float32)
     if not isinstance(bbox, np.ndarray):
         raise ValueError(f"[bbox] must be a numpy.ndarray, got {type(bbox)}.")

@@ -41,7 +41,7 @@ import math
 
 import numpy as np
 
-from mon.constants import ShapeCode
+from mon.constants import BBoxFormat
 from mon.vision.types import image as I
 from mon.vision.types.bbox import utils
 
@@ -700,12 +700,12 @@ bbox_yolo_to_coco = bbox_cxcywhn_to_xywh
 bbox_yolo_to_voc  = bbox_cxcywhn_to_xyxy
 
 
-def convert_bbox(bbox: np.ndarray, code: ShapeCode | int, height: int, width: int) -> np.ndarray:
+def convert_bbox(bbox: np.ndarray, code: BBoxFormat, height: int, width: int) -> np.ndarray:
     """Convert bounding box between formats.
 
     Args:
         bbox: Boxes as ``np.ndarray`` in [N, 4+], input format varies by code.
-        code: Conversion code as ``ShapeCode`` or ``int``.
+        code: Conversion code as ``BBoxFormat`` or ``int``.
         height: Image height in pixels as ``int``.
         width: Image width in pixels as ``int``.
 
@@ -715,21 +715,19 @@ def convert_bbox(bbox: np.ndarray, code: ShapeCode | int, height: int, width: in
     Raises:
         ValueError: If ``code`` is invalid.
     """
-    code = ShapeCode.from_value(value=code)
+    code = BBoxFormat.from_value(value=code)
     match code:
-        case ShapeCode.SAME:
-            return bbox
-        case ShapeCode.VOC2COCO | ShapeCode.XYXY2XYWH:
+        case BBoxFormat.VOC2COCO  | BBoxFormat.XYXY2XYWH:
             return bbox_voc_to_coco(bbox, height, width)
-        case ShapeCode.VOC2YOLO | ShapeCode.XYXY2CXCYN:
+        case BBoxFormat.VOC2YOLO  | BBoxFormat.XYXY2CXCYN:
             return bbox_voc_to_yolo(bbox, height, width)
-        case ShapeCode.COCO2VOC | ShapeCode.XYWH2XYXY:
+        case BBoxFormat.COCO2VOC  | BBoxFormat.XYWH2XYXY:
             return bbox_coco_to_voc(bbox, height, width)
-        case ShapeCode.COCO2YOLO | ShapeCode.XYWH2CXCYN:
+        case BBoxFormat.COCO2YOLO | BBoxFormat.XYWH2CXCYN:
             return bbox_coco_to_yolo(bbox, height, width)
-        case ShapeCode.YOLO2VOC | ShapeCode.CXCYN2XYXY:
+        case BBoxFormat.YOLO2VOC  | BBoxFormat.CXCYN2XYXY:
             return bbox_yolo_to_voc(bbox, height, width)
-        case ShapeCode.YOLO2COCO | ShapeCode.CXCYN2XYXY:
+        case BBoxFormat.YOLO2COCO | BBoxFormat.CXCYN2XYXY:
             return bbox_yolo_to_coco(bbox, height, width)
         case _:
-            raise ValueError(f"[code] is invalid: {code}.")
+            raise ValueError(f"[code] must be one of {BBoxFormat.conversion_codes()}, got {code}.")

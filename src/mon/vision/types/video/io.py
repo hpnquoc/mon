@@ -102,7 +102,7 @@ class VideoWriter(ABC):
     """Base class for video writers.
 
     Args:
-        dst: Directory to save images as ``core.Path``.
+        dst: Directory to save images.
         image_size: Output size as ``int`` or ``Sequence[int]`` in [H, W].
             Default is [480, 640].
         frame_rate: Frame rate of output video as ``float``. Default is ``10``.
@@ -160,7 +160,7 @@ class VideoWriter(ABC):
 
         Args:
             frame: Video frame as ``torch.Tensor`` or ``np.ndarray``.
-            path: Image file path as ``core.Path``. Default is ``None``.
+            path: Image file path. Default is ``None``.
             denormalize: Convert to [0, 255] if ``True``. Default is ``False``.
         """
         pass
@@ -186,7 +186,7 @@ class VideoWriterCV(VideoWriter):
     """Write images to video using ``cv2``.
 
     Args:
-        dst: Directory to save video as ``core.Path``.
+        dst: Directory to save video.
         image_size: Output size as ``int`` or ``Sequence[int]`` in [H, W].
             Default is [480, 640].
         frame_rate: Frame rate of video as ``float``. Default is ``30``.
@@ -252,7 +252,7 @@ class VideoWriterCV(VideoWriter):
 
         Args:
             frame: Image as ``torch.Tensor`` or ``np.ndarray``.
-            path: File path as ``core.Path``. Default is ``None``.
+            path: File path. Default is ``None``.
             denormalize: Convert to [0, 255] if ``True``. Default is ``False``.
         """
         denormalize = denormalize or self.denormalize
@@ -285,7 +285,7 @@ class VideoWriterFFmpeg(VideoWriter):
     """Write images to video using ``ffmpeg``.
 
     Args:
-        dst: Directory to save video as ``core.Path``.
+        dst: Directory to save video.
         image_size: Output size as ``int`` or ``Sequence[int]`` in [H, W].
             Default is [480, 640].
         frame_rate: Frame rate of video as ``float``. Default is ``10``.
@@ -362,7 +362,7 @@ class VideoWriterFFmpeg(VideoWriter):
 
         Args:
             frame: Image as ``torch.Tensor`` or ``np.ndarray``.
-            path: File path as ``core.Path``. Default is ``None``.
+            path: File path. Default is ``None``.
             denormalize: Convert to [0, 255] if ``True``. Default is ``False``.
         """
         denormalize = denormalize or self.denormalize

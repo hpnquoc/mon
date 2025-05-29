@@ -5,16 +5,16 @@
 
 __all__ = [
     "AppleRGB",
+    "BBoxFormat",
     "BasicRGB",
     "ConfigExtension",
-    "DepthDataSource",
+    "DepthSource",
     "Enum",
     "ImageExtension",
-    "InfraredDataSource",
+    "InfraredSource",
     "MLType",
     "MemoryUnit",
     "RunMode",
-    "ShapeCode",
     "Split",
     "Task",
     "TorchExtension",
@@ -368,9 +368,11 @@ class MLType(Enum):
     def trainable(cls) -> list:
         """Return a list of batch-training machine learning types."""
         return [
+            cls.SELF_SUPERVISED,
             cls.SUPERVISED,
-            cls.UNSUPERVISED, cls.UNPAIRED,
-            cls.SELF_SUPERVISED, cls.ZERO_REFERENCE,
+            cls.UNPAIRED,
+            cls.UNSUPERVISED,
+            cls.ZERO_REFERENCE,
         ]
 
 
@@ -420,8 +422,63 @@ class Task(Enum):
 
 
 # ----- Vision -----
-class DepthDataSource(Enum):
-    """Depth data source types."""
+class BBoxFormat(Enum):
+    """Bounding box format."""
+
+    # Format
+    XYXY       = "xyxy"                 # VOC  format: [x1, y1, x2, y2]
+    XYWH       = "xywh"                 # COCO format: [ x,  y,  w,  h]
+    CXCYN      = "cxcyn"                # YOLO format: [cx, cy,  w,  h] normalized
+    VOC        = "voc"
+    COCO       = "coco"
+    YOLO       = "yolo"
+    # Format conversion
+    XYXY2XYWH  = "xyxy_to_xywh"         # Convert from VOC to COCO
+    XYXY2CXCYN = "xyxy_to_cxcyn"        # Convert from VOC to YOLO
+    XYWH2XYXY  = "xywh_to_xyxy"         # Convert from COCO to VOC
+    XYWH2CXCYN = "xywh_to_cxcyn"        # Convert from COCO to YOLO
+    CXCYN2XYXY = "cxcyn_to_xyxy"        # Convert from YOLO to VOC
+    CXCYN2XYWH = "cxcyn_to_xywh"        # Convert from YOLO to COCO
+    VOC2COCO   = "voc_to_coco"          # Convert from VOC to COCO
+    VOC2YOLO   = "voc_to_yolo"          # Convert from VOC to YOLO
+    COCO2VOC   = "coco_to_voc"          # Convert from COCO to VOC
+    COCO2YOLO  = "coco_to_yolo"         # Convert from COCO to YOLO
+    YOLO2VOC   = "yolo_to_voc"          # Convert from YOLO to VOC
+    YOLO2COCO  = "yolo_to_coco"         # Convert from YOLO to COCO
+
+    @classmethod
+    def formats(cls) -> list:
+        """Return a list of all bounding box formats."""
+        return [
+            cls.XYXY,
+            cls.XYWH,
+            cls.CXCYN,
+            cls.VOC,
+            cls.COCO,
+            cls.YOLO,
+        ]
+
+    @classmethod
+    def conversion_codes(cls) -> list:
+        """Return a list of all bounding box format conversion codes."""
+        return [
+            cls.XYXY2XYWH,
+            cls.XYXY2CXCYN,
+            cls.XYWH2XYXY,
+            cls.XYWH2CXCYN,
+            cls.CXCYN2XYXY,
+            cls.CXCYN2XYWH,
+            cls.VOC2COCO,
+            cls.VOC2YOLO,
+            cls.COCO2VOC,
+            cls.COCO2YOLO,
+            cls.YOLO2VOC,
+            cls.YOLO2COCO,
+        ]
+
+
+class DepthSource(Enum):
+    """Depth input data sources."""
 
     DAv2_ViTB = "dav2_vitb"             # Depth Anything v2 with ViT-B encoder
     DAv2_ViTL = "dav2_vitl"             # Depth Anything v2 with ViT-L encoder
@@ -430,82 +487,10 @@ class DepthDataSource(Enum):
     DEPTH     = "depth"
 
 
-class InfraredDataSource(Enum):
-    """Infrared data source types."""
+class InfraredSource(Enum):
+    """Infrared input data sources."""
     
     INFRARED = "infrared"
-    
-
-class ShapeCode(Enum):
-    """Shape conversion code."""
-    
-    # Bounding box
-    SAME       = 0
-    XYXY2XYWH  = 1
-    XYXY2CXCYN = 2
-    XYWH2XYXY  = 3
-    XYWH2CXCYN = 4
-    CXCYN2XYXY = 5
-    CXCYN2XYWH = 6
-    VOC2COCO   = 7
-    VOC2YOLO   = 8
-    COCO2VOC   = 9
-    COCO2YOLO  = 10
-    YOLO2VOC   = 11
-    YOLO2COCO  = 12
-    
-    @classmethod
-    def str_to_enum(cls) -> dict:
-        """Returns a dictionary mapping string keys to ``ShapeCode`` enum values.
-    
-        This method provides a mapping from string representations of shape codes
-        to their corresponding ``ShapeCode`` enum values. This is useful for converting
-        string inputs to enum values in a consistent manner.
-    
-        Returns:
-            A dictionary where the keys are string representations of shape
-            codes and the values are the corresponding ``ShapeCode`` enum values.
-        """
-        return {
-            "same"         : cls.SAME,
-            "xyxy_to_xywh" : cls.XYXY2XYWH,
-            "xyxy_to_cxcyn": cls.XYXY2CXCYN,
-            "xywh_to_xyxy" : cls.XYWH2XYXY,
-            "xywh_to_cxcyn": cls.XYWH2CXCYN,
-            "cxcyn_to_xyxy": cls.CXCYN2XYXY,
-            "cxcyn_to_xywh": cls.CXCYN2XYWH,
-            "voc_to_coco"  : cls.VOC2COCO,
-            "voc_to_yolo"  : cls.VOC2YOLO,
-            "coco_to_voc"  : cls.COCO2VOC,
-            "coco_to_yolo" : cls.COCO2YOLO,
-            "yolo_to_voc"  : cls.YOLO2VOC,
-            "yolo_to_coco" : cls.YOLO2COCO,
-        }
-
-    @classmethod
-    def from_str(cls, value: str) -> "ShapeCode":
-        """Converts a string to a ``ShapeCode`` enum.
-    
-        This method takes a string representation of a shape code and converts it
-        to the corresponding ``ShapeCode`` enum value. If the string is not a valid key
-        in the mapping, a ValueError is raised.
-    
-        Args:
-            value: The string representation of the shape code.
-    
-        Returns:
-            The corresponding ``ShapeCode`` enum value.
-    
-        Raises:
-            ValueError: If the string is not a valid enum key.
-        """
-        value_lower = value.lower()
-        if value_lower not in cls.str_to_enum():
-            parts = value.split("_to_")
-            if parts[0] == parts[1]:
-                return cls.SAME
-            raise ValueError(f"`value` must be a valid enum key, got {value_lower}.")
-        return cls.str_to_enum()[value_lower]
 
 
 class TrackState(Enum):

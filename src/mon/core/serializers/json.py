@@ -37,11 +37,11 @@ class JSONSerializer(base.BaseSerializer):
             return obj.item()
         raise TypeError(f"[obj] type [{type(obj).__name__}] is not JSON-serializable")
     
-    def load_from_fileobj(self, path: pathlib.Path | str | TextIO, **kwargs) -> Any:
+    def load_from_fileobj(self, path: pathlib.Path | TextIO, **kwargs) -> Any:
         """Loads data from a ``file`` object.
     
         Args:
-            path: ``pathlib.Path``, ``str`` path, or ``TextIO`` stream.
+            path: File path or ``TextIO`` stream.
             kwargs: Additional arguments for ``json.load``.
     
         Returns:
@@ -49,12 +49,12 @@ class JSONSerializer(base.BaseSerializer):
         """
         return load(path, **kwargs)
     
-    def write_to_fileobj(self, obj: Any, path: pathlib.Path | str | TextIO, **kwargs):
+    def write_to_fileobj(self, obj: Any, path: pathlib.Path | TextIO, **kwargs):
         """Writes data to a ``file`` object.
     
         Args:
             obj: Data to serialize.
-            path: ``pathlib.Path``, ``str`` path, or ``TextIO`` stream.
+            path: File path or ``TextIO`` stream.
             kwargs: Additional arguments for ``json.dump``.
         """
         kwargs.setdefault("default", self.set_default)

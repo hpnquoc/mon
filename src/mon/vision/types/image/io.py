@@ -40,7 +40,7 @@ def load_image(
     """Loads an image from a file path using OpenCV.
 
     Args:
-        path: Image file path as ``core.Path`` or ``str``.
+        path: Image file path.
         flags: OpenCV flag for reading the image. Default is ``cv2.IMREAD_COLOR``.
         to_tensor: Convert to ``torch.Tensor`` if ``True``. Default is ``False``.
         normalize: Normalize to [0.0, 1.0] if ``True``. Default is ``False``.
@@ -48,8 +48,7 @@ def load_image(
             Default is ``None``.
     
     Returns:
-        RGB or grayscale image as ``torch.Tensor`` [B, C, H, W] or
-        ``numpy.ndarray`` [H, W, C].
+        RGB or grayscale image as ``torch.Tensor`` [B, C, H, W] or ``numpy.ndarray`` [H, W, C].
     """
     path = core.Path(path)
     if path.is_raw_image_file():  # Read raw image
@@ -74,7 +73,7 @@ def read_image_shape(path: core.Path) -> tuple[int, int, int]:
     """Reads an image shape from a file path using PIL or rawpy.
 
     Args:
-        path: Image file path as ``core.Path`` or ``str``.
+        path: Image file path.
 
     Returns:
         Tuple of (height, width, channels) in [H, W, C] format.
@@ -104,7 +103,7 @@ def save_image(image: torch.Tensor | np.ndarray, path: core.Path):
 
     Args:
         image: Image as ``torch.Tensor`` [B, C, H, W] or ``numpy.ndarray`` [H, W, C].
-        path: Output file path as ``core.Path`` or ``str``.
+        path: Output file path.
 
     Raises:
         TypeError: If ``image`` is not a ``torch.Tensor`` or ``numpy.ndarray``.

@@ -413,11 +413,11 @@ class DeepGuidedFilter(nn.Module):
             return self.gf(self.guided_map_net(x_lr), self.lr_net(x_lr), self.guided_map_net(x_hr)).clamp(0, 1)
         return self.gf(x_lr, self.lr_net(x_lr), x_hr).clamp(0, 1)
 
-    def load_lr_weights(self, path: str | core.Path):
+    def load_lr_weights(self, path: core.Path):
         """Loads weights for the low-resolution network.
 
         Args:
-            path: Path to the weights file as ``str`` or ``core.Path``.
+            path: Weights file path.
         """
         self.lr_net.load_state_dict(torch.load(str(path)))
 
@@ -494,10 +494,10 @@ class DeepConvGuidedFilter(nn.Module):
             return self.gf(self.guided_map_net(x_lr), self.lr(x_lr), self.guided_map_net(x_hr)).clamp(0, 1)
         return self.gf(x_lr, self.lr(x_lr), x_hr).clamp(0, 1)
 
-    def init_lr(self, path: str | core.Path):
+    def init_lr(self, path: core.Path):
         """Loads weights for the low-resolution network.
 
         Args:
-            path: Path to the weights file as ``str`` or ``core.Path``.
+            path: Weights file path.
         """
         self.lr.load_state_dict(torch.load(str(path)))

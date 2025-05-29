@@ -43,7 +43,7 @@ def convert_bbox(
     label_dir   = mon.Path(label_dir)
     output_dir  = output_dir or label_dir.parent / f"{label_dir.stem}_yolo"
     output_dir  = mon.Path(output_dir)
-    code        = mon.ShapeCode.from_value(value=f"{format}_to_yolo")
+    code        = mon.BBoxFormat.from_value(value=f"{format}_to_yolo")
     
     image_files = list(image_dir.rglob("*"))
     image_files = [f for f in image_files if f.is_image_file()]
@@ -78,7 +78,7 @@ def convert_bbox(
                 cv2.imwrite(output_file, resized)
             
             if verbose:
-                code1      = mon.ShapeCode.from_value(value=f"yolo_to_voc")
+                code1      = mon.BBoxFormat.from_value(value=f"yolo_to_voc")
                 h1, w1, c1 = resized.shape
                 bv         = mon.convert_bbox(bbox=b, code=code1, height=h1, width=w1)
                 for j, x in enumerate(bv):

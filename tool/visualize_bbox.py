@@ -35,7 +35,7 @@ def convert_bbox(
     label_dir   = mon.Path(label_dir)
     output_dir  = output_dir or label_dir.parent / f"{label_dir.stem}_yolo"
     output_dir  = mon.Path(output_dir)
-    code        = mon.ShapeCode.from_value(value=f"{format}_to_voc")
+    code        = mon.BBoxFormat.from_value(value=f"{format}_to_voc")
     
     image_files = list(image_dir.rglob("*"))
     image_files = [f for f in image_files if f.is_image_file()]

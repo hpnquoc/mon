@@ -73,7 +73,7 @@ def convert_label_to_coco(
         remap_classes = None
 
     if bbox_format != "coco":
-        code = mon.ShapeCode.from_value(value=f"{bbox_format}_to_coco")
+        code = mon.BBoxFormat.from_value(value=f"{bbox_format}_to_coco")
     else:
         code = None
     
@@ -94,7 +94,8 @@ def convert_label_to_coco(
             label_file = label_dir / f"{image_file.stem}.txt"
             if not label_file.is_txt_file():
                 continue
-            
+
+            """
             with open(label_file, "r") as f:
                 ls = f.readlines()
             ls = [l_.strip().split(" ") for l_ in ls]
@@ -109,8 +110,14 @@ def convert_label_to_coco(
             assert len(ls) == len(cs)
             assert len(ls) == len(bs)
             assert len(ls) == len(ss)
+            """
+            bs = mon.load_bbox(path=label_file, format=mon.BBoxFormat.YOLO)
+            bs = mon.convert_bbox(bbox=bs, code=code, height=h, width=w)
+            if len(bs) == 0:
+                continue
 
-            for c, b, s in zip(cs, bs, ss):
+            for b in bs:
+                c = int(b[4])  # Class ID
                 if remap_classes:
                     if c in remap_classes:
                         c = int(remap_classes[c])
@@ -120,7 +127,7 @@ def convert_label_to_coco(
                     "image_id"   : image_id,
                     "category_id": c,
                     "bbox"       : [int(b[0]), int(b[1]), int(b[2]), int(b[3])],
-                    "score"      : s,
+                    "score"      : b[5],
                 })
 
     # Write to JSON file

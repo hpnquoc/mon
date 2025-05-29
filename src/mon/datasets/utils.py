@@ -62,7 +62,7 @@ def list_extra_datasets(task: str, mode: str) -> list[str]:
 def list_datasets(
     task: str,
     mode: str,
-    project_root: str | core.Path = None
+    project_root: core.Path = None
 ) -> list[str]:
     """Lists all available datasets.
 
@@ -112,11 +112,11 @@ def parse_data_name(src: core.Path | str) -> str:
 
 def parse_data_loader(
     src       : core.Path | str,
-    data_root : core.Path | str = None,
-    to_tensor : bool            = False,
-    batch_size: int             = 1,
-    device    : torch.device    = None,
-    verbose   : bool            = False,
+    data_root : core.Path     = None,
+    to_tensor : bool          = False,
+    batch_size: int           = 1,
+    device    : torch.device  = None,
+    verbose   : bool          = False,
 ) -> tuple[str, core.Dataset]:
     """Parses I/O worker for data src.
 

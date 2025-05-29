@@ -23,18 +23,17 @@ class SemanticSegmentationAnnotation(core.Annotation):
         albumentation_target_type: Type of target for Albumentations. Default is ``mask``.
 
     Args:
-        path: Path to image file as ``core.Path`` or ``str``.
-        root: Root dir as ``core.Path`` or ``str``. Default is ``None``.
-        flags: Flag to read image (e.g., ``cv2.IMREAD_COLOR_BGR``).
-            Default is ``cv2.IMREAD_COLOR_BGR``.
+        path: Image file path.
+        root: Root directory. Default is ``None``.
+        flags: Flag to read image (e.g., ``cv2.IMREAD_COLOR_BGR``). Default is ``cv2.IMREAD_COLOR_BGR``.
     """
     
     albumentation_target_type: str = "mask"
     
     def __init__(
         self,
-        path : core.Path | str,
-        root : core.Path | str = None,
+        path : core.Path,
+        root : core.Path = None,
         flags: int = cv2.IMREAD_COLOR_BGR,
         *args, **kwargs
     ):
@@ -47,19 +46,15 @@ class SemanticSegmentationAnnotation(core.Annotation):
     
     @property
     def path(self) -> core.Path:
-        """Returns the image file path.
-
-        Returns:
-            ``core.Path`` of the image file path.
-        """
+        """Returns the image file path."""
         return self._path
     
     @path.setter
-    def path(self, path: core.Path | str | None):
+    def path(self, path: core.Path):
         """Sets the image file path.
 
         Args:
-            path: Path to image file or ``None``.
+            path: Image file path.
 
         Raises:
             ValueError: If ``path`` is not a valid image path or is ``None``.
@@ -122,9 +117,9 @@ class SemanticSegmentationAnnotation(core.Annotation):
     
     def load(
         self,
-        path : core.Path | str = None,
-        flags: int  = None,
-        cache: bool = False,
+        path : core.Path = None,
+        flags: int       = None,
+        cache: bool      = False,
     ) -> np.ndarray | None:
         """Loads the mask into memory.
 

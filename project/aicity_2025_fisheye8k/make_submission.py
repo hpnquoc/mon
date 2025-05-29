@@ -24,7 +24,6 @@ def get_image_id(filename: str) -> int:
 
 
 def convert_label_to_coco(predict_dir: str | mon.Path):
-    code        = mon.ShapeCode.from_value(value=f"yolo_to_coco")
     image_dir   = current_dir / "data" / "fisheye8k" / "test" / "image"
     predict_dir = mon.Path(predict_dir)
     json_file   = predict_dir.parent / f"{predict_dir.stem}.json"
@@ -52,6 +51,7 @@ def convert_label_to_coco(predict_dir: str | mon.Path):
                 continue
 
             # Read the YOLO label file and convert bbox format
+            """
             with open(label_file, "r") as f:
                 ls = f.readlines()
             ls = [l.strip().split(" ") for l in ls]
@@ -61,18 +61,23 @@ def convert_label_to_coco(predict_dir: str | mon.Path):
             cs = [int(l[0]) for l in ls]
             bs = np.array([list(map(float, l[1:5])) for l in ls])
             ss = [float(l[5]) for l in ls]
-            if code:
-                bs = mon.convert_bbox(bbox=bs, code=code, height=h, width=w)
+            bs = mon.convert_bbox(bbox=bs, code=mon.BBoxFormat.YOLO2COCO, height=h, width=w)
             assert len(cs) == len(ls)
             assert len(bs) == len(ls)
             assert len(ss) == len(ls)
+            """
+            bs = mon.load_bbox(path=label_file, format=mon.BBoxFormat.YOLO)
+            bs = mon.convert_bbox(bbox=bs, code=mon.BBoxFormat.YOLO2COCO, height=h, width=w)
+            if len(bs) == 0:
+                continue
 
-            for c, b, s in zip(cs, bs, ss):
+            # Append annotations
+            for b in bs:
                 annotations.append({
                     "image_id"   : image_id,
-                    "category_id": c,
+                    "category_id": int(b[4]),
                     "bbox"       : [int(b[0]), int(b[1]), int(b[2]), int(b[3])],
-                    "score"      : s,
+                    "score"      : b[5],
                 })
 
     # Write to JSON file

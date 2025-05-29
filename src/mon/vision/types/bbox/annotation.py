@@ -14,6 +14,9 @@ import numpy as np
 import torch
 
 from mon import core
+from mon.constants import BBoxFormat
+from mon.nn import _size_2_t
+from mon.vision.types import image as I
 
 
 # ----- Annotation -----
@@ -177,23 +180,131 @@ class BBoxesAnnotation(list[BBoxAnnotation]):
 
 
 class BBoxesAnnotation2(core.Annotation):
+    """List of bounding boxes from a label file.
+
+    Attributes:
+        albumentation_target_type: Type of target for Albumentations. Default is ``bboxes``.
+
+    Args:
+        path: Label file path.
+        imgsz : Size of the image as ``_size_2_t``. Default is ``None``.
+        format: Bounding boxes format from ``'BBoxFormat'``. Default is ``'BBoxFormat.YOLO'``.
+    """
+
+    albumentation_target_type: str = "bboxes"
 
     def __init__(
         self,
-
+        path  : core.Path,
+        imgsz : _size_2_t  = None,
+        format: BBoxFormat = BBoxFormat.YOLO,
         *args, **kwargs
     ):
         super().__init__(*args, **kwargs)
-
+        self.path   = path
+        self.imgsz  = I.image_size(imgsz) if imgsz else None
+        self.format = BBoxFormat.from_value(format)
+        self.bboxes: list[BBoxAnnotation] = []
 
     @property
-    def data(self) -> list | None:
+    def path(self) -> core.Path:
+        """Returns the label file path."""
+        return self._path
+
+    @path.setter
+    def path(self, path: core.Path):
+        """Sets the label file path.
+
+        Args:
+            path: Label file path.
+
+        Raises:
+            ValueError: If ``path`` is not a valid label file path.
+        """
+        path_obj = core.Path(path)
+        if not path or not path_obj.is_txt_file():
+            raise ValueError(f"[path] must be a valid image path, got {path}.")
+        self._path = path_obj
+
+    @property
+    def name(self) -> str:
+        """Returns the image file name.
+
+        Returns:
+            ``str`` of the image file name.
+        """
+        return self.path.name
+
+    @property
+    def stem(self) -> str:
+        """Returns the stem of the image file path.
+
+        Returns:
+            ``str`` of the image file path stem.
+        """
+        return self.path.stem
+
+    @property
+    def data(self) -> list:
+        pass
+
+    @property
+    def meta(self) -> dict:
+        """Returns metadata about the bbox annotation.
+
+        Returns:
+            Dict with keys ``name``, ``stem``, ``path``, ``imgsz``, ``num_bboxes``, and ``hash``.
+        """
+        return {
+            "name"      : self.name,
+            "stem"      : self.stem,
+            "path"      : self.path,
+            "imgsz"     : self.imgsz,
+            "num_bboxes": len(self.bboxes),
+            "hash"      : self.path.stat().st_size if isinstance(self.path, core.Path) else None,
+        }
+
+    def load(
+        self,
+        path  : core.Path  = None,
+        imgsz : _size_2_t  = None,
+        format: BBoxFormat = None,
+        cache : bool       = False
+    ) -> np.ndarray:
+        """Loads the image into memory.
+
+        Args:
+            path: Path to image file. Default is ``None``.
+            imgsz: Size of the image as ``_size_2_t``. Default is ``None``.
+            format: Bounding boxes format from ``'BBoxFormat'``. Default is ``None``.
+            cache: If ``True``, caches image. Default is ``False``.
+
+        Returns:
+            ``numpy.ndarray`` in [H, W, C] format, values in [0, 255].
+        """
         pass
 
     @staticmethod
     def to_tensor(data: torch.Tensor | np.ndarray, *args, **kwargs) -> torch.Tensor:
+        """Converts input data to a tensor.
+
+        Args:
+            data: Input as ``torch.Tensor`` or ``numpy.ndarray``.
+            normalize: If ``True``, normalizes data. Default is ``True``.
+
+        Returns:
+            ``torch.Tensor`` of converted data.
+        """
         pass
 
     @staticmethod
     def collate_fn(batch: list[Any]) -> Any:
+        """Collates batch data for ``torch.utils.data.DataLoader``.
+
+        Args:
+            batch: List of images as ``torch.Tensor`` or ``numpy.ndarray``.
+
+        Returns:
+            Collated ``torch.Tensor``, ``numpy.ndarray``, or ``None`` if empty/invalid.
+        """
         pass

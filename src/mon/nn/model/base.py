@@ -150,7 +150,7 @@ class Model(lightning.LightningModule, ABC):
         """Returns the root directory path.
     
         Returns:
-            Root directory as ``core.Path``.
+            Root directory path.
         """
         return self._root
     
@@ -167,22 +167,14 @@ class Model(lightning.LightningModule, ABC):
     
     @property
     def ckpt_dir(self) -> core.Path:
-        """Returns the checkpoint directory path.
-    
-        Returns:
-            Checkpoint directory as ``core.Path``.
-        """
+        """Returns the checkpoint directory path."""
         if self._ckpt_dir is None:
             self._ckpt_dir = self.root
         return self._ckpt_dir
     
     @property
     def debug_dir(self) -> core.Path:
-        """Returns the debug directory path.
-    
-        Returns:
-            Debug directory as ``core.Path``
-        """
+        """Returns the debug directory path. """
         if self._debug_dir is None:
             self._debug_dir = self.root / SAVE_DEBUG_DIR
         return self._debug_dir
@@ -244,7 +236,7 @@ class Model(lightning.LightningModule, ABC):
         """Assigns pretrained weights to the model.
     
         Args:
-            weights: Weights as ``dict``, ``str``, or ``core.Path``; ``None`` to skip.
+            weights: Weights as ``dict``, ``str``, or path; ``None`` to skip.
             overwrite: Overwrites existing weights if ``True``. Default is ``False``.
     
         Raises:
@@ -262,7 +254,7 @@ class Model(lightning.LightningModule, ABC):
             if url and path:
                 utils.download_weights_from_url(url, path, overwrite)
             self.weights = weights_dict
-        elif isinstance(weights, str | core.Path):
+        elif isinstance(weights, core.Path | str):
             weights_path = core.Path(weights)
             if not weights_path.is_weights_file():
                 raise ValueError(f"[weights] must be a valid path to a weight file, "

@@ -49,7 +49,7 @@ class YOLOv8Detector(base.Detector):
     
     def __init__(
         self,
-        config : dict | str | core.Path = current_dir / "config/yolov8.yaml",
+        config : dict | core.Path = current_dir / "config/yolov8.yaml",
         *args, **kwargs
     ):
         super().__init__(config=config, *args, **kwargs)
@@ -58,7 +58,7 @@ class YOLOv8Detector(base.Detector):
     def __call__(
         self,
         indexes: np.ndarray | list[int],
-        images : str | core.Path | list[str] | list[core.Path] | np.ndarray | torch.Tensor,
+        images : core.Path | list[core.Path] | np.ndarray | torch.Tensor,
         **kwargs,
     ) -> np.ndarray:
         """Detect objects in the images.

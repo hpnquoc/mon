@@ -36,7 +36,7 @@ class Detector(ABC):
     
     def __init__(
         self,
-        config : dict | str | core.Path,
+        config : dict | core.Path,
         weights: Any,
         *args, **kwargs
     ):
@@ -53,7 +53,7 @@ class Detector(ABC):
         return self._config
     
     @config.setter
-    def config(self, config: dict | str | core.Path):
+    def config(self, config: dict | core.Path):
         if isinstance(config, dict):
             self._config = config
         elif isinstance(config, core.Path | str):
@@ -95,7 +95,7 @@ class Detector(ABC):
     def __call__(
         self,
         indexes: np.ndarray | list[int],
-        images : str | core.Path | list[str] | list[core.Path] | np.ndarray | torch.Tensor,
+        images : core.Path | list[core.Path] | np.ndarray | torch.Tensor,
         **kwargs,
     ) -> np.ndarray:
         """Detect objects in the images.

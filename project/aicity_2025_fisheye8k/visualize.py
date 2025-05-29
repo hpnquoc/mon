@@ -19,7 +19,6 @@ def visualize_bbox(data: str, fill: bool = False):
 	assert mon.Path(image_dir).is_dir()
 	assert mon.Path(label_dir).is_dir()
 	
-	code   = mon.ShapeCode.from_value(value=f"yolo_to_voc")
 	colors = [
 		[  0,   0, 255],  # 0: bus        - red
 		[255,   0,   0],  # 1: bike       - blue
@@ -50,7 +49,7 @@ def visualize_bbox(data: str, fill: bool = False):
 			bs = np.array([list(map(float, b[1:])) for b in bs])
 			if len(bs) == 0:
 				continue
-			bs = mon.convert_bbox(bbox=bs, code=code, height=h, width=w)
+			bs = mon.convert_bbox(bbox=bs, code=mon.BBoxFormat.YOLO2VOC, height=h, width=w)
 			
 			for j, x in enumerate(bs):
 				image = mon.draw_bbox(

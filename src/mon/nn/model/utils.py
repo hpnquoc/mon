@@ -39,7 +39,7 @@ from mon.constants import (
 
 
 # ----- Retrieve (Tasks) -----
-def list_tasks(project_root: str | core.Path = None) -> list[str]:
+def list_tasks(project_root: core.Path = None) -> list[str]:
     """Lists all available tasks in the project.
 
     Args:
@@ -115,9 +115,9 @@ def list_extra_archs(task: str = None, mode: str = None) -> list[str]:
 
 
 def list_archs(
-    task: str = None,
-    mode: str = None,
-    project_root: str | core.Path = None
+    task        : str       = None,
+    mode        : str       = None,
+    project_root: core.Path = None
 ) -> list[str]:
     """Lists all available architectures in ``mon`` and ``extra`` frameworks.
 
@@ -206,10 +206,10 @@ def list_extra_models(task: str = None, mode: str = None, arch: str = None) -> l
 
 
 def list_models(
-    task: str = None,
-    mode: str = None,
-    arch: str = None,
-    project_root: str | core.Path = None
+    task        : str       = None,
+    mode        : str       = None,
+    arch        : str       = None,
+    project_root: core.Path = None
 ) -> list[str]:
     """Lists all available models in ``mon`` and ``extra`` frameworks.
 
@@ -246,7 +246,7 @@ def get_latest_checkpoint(dirpath: core.Path) -> str | None:
         dirpath: Directory path containing checkpoint files.
 
     Returns:
-        Path to latest checkpoint as string, or ``None`` if none found.
+        Path to latest checkpoint as string, or ``None`` if not found.
     """
     dirpath = core.Path(dirpath)
     ckpts   = sorted(
@@ -301,14 +301,14 @@ def get_global_step_from_checkpoint(ckpt: core.Path) -> int:
  
  
 # ----- Retrieve (Weights) -----
-def get_weights_file_from_config(config: str | core.Path) -> core.Path | None:
+def get_weights_file_from_config(config: core.Path | dict) -> core.Path | None:
     """Gets the weights file path from a config file.
     
     Args:
-        config: Path to the config file or a dictionary containing weights info.
+        config: Config file path or a dictionary containing weights info.
     
     Returns:
-        Path to the weights file as ``Path`` object.
+        Weights file path or ``None`` if not found or invalid.
     """
     if config is None:
         return None
@@ -321,7 +321,7 @@ def get_weights_file_from_config(config: str | core.Path) -> core.Path | None:
     return core.Path(weights) if weights else None
 
 
-def list_weights_files(model: str, project_root: str | core.Path = None) -> list[core.Path]:
+def list_weights_files(model: str, project_root: core.Path = None) -> list[core.Path]:
     """Lists weights files for a model in project and ``zoo`` dirs.
 
     Args:
@@ -329,7 +329,7 @@ def list_weights_files(model: str, project_root: str | core.Path = None) -> list
         project_root: Root dir of project. Default is ``None``.
 
     Returns:
-        Sorted list of weights file ``Path`` objects.
+        Sorted list of weights file paths.
     """
     def collect_weights_files(root: core.Path) -> list[core.Path]:
         return sorted(f for f in root.rglob("*") if f.is_weights_file())
@@ -374,14 +374,14 @@ def download_weights_from_url(url: str, path: core.Path, overwrite: bool = False
 
 def load_weights(
     model       : torch.nn.Module,
-    weights     : dict | str | core.Path,
+    weights     : dict | core.Path,
     weights_only: bool = False
 ) -> dict | None:
     """Loads state dict from weights into a model.
 
     Args:
         model: ``torch.nn.Module`` to load weights into.
-        weights: Weights as ``dict``, ``str`` path, or ``core.Path``.
+        weights: Weights as ``dict`` or file path.
         weights_only: Loads only weights if ``True``. Default is ``False``.
 
     Returns:
@@ -393,7 +393,7 @@ def load_weights(
     path       = core.Path(weights["path"]) if isinstance(weights, dict) and "path"     in weights else None
     state_dict = weights                    if isinstance(weights, dict) and "path" not in weights else None
 
-    if isinstance(weights, str | core.Path) and core.Path(weights).is_weights_file():
+    if isinstance(weights, core.Path | str) and core.Path(weights).is_weights_file():
         path = core.Path(weights)
 
     if path and path.is_weights_file():
@@ -414,7 +414,7 @@ def parse_model_dir(arch: str, model: str) -> core.Path | None:
         model: Name of the model.
 
     Returns:
-        ``Path`` to model dir if found, else ``None``.
+        Model directory path if found, else ``None``.
     """
     model_name = parse_model_name(model)
     model_dir  = (
@@ -463,17 +463,17 @@ def parse_model_fullname(name: str, data: str, suffix: str = None) -> str:
 
 
 def parse_weights_file(
-    root   : str | core.Path,
-    weights: str | core.Path | Sequence[str | core.Path]
-) -> str | core.Path | Sequence[str | core.Path]:
+    root   : core.Path,
+    weights: core.Path | Sequence[core.Path]
+) -> core.Path | Sequence[core.Path]:
     """Parses weights file path(s) from given components.
 
     Args:
         root: Root directory.
-        weights: Weights file(s) to parse (str, ``Path``, or sequence).
+        weights: Weights file(s) to parse (path or sequence of paths).
 
     Returns:
-        Parsed weights path(s) as single path or sequence, or ``None`` if empty.
+        Parsed weights path(s) as a single path or a sequence of paths, or ``None`` if empty.
     """
     root    = core.Path(root)
     weights = core.to_list(weights)

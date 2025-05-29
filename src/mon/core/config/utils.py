@@ -61,7 +61,7 @@ def list_configs(
             Default is ``False``.
 
     Returns:
-        Sorted list of config file ``Path`` objects.
+        Sorted list of config file paths.
     """
     from mon import nn
     
@@ -107,7 +107,7 @@ def load_config(config: Any, verbose: bool = True) -> dict:
     """
     if isinstance(config, dict):
         data = config
-    elif isinstance(config, pathlib.Path | str):
+    elif isinstance(config, pathlib.Path):
         config = pathlib.Path(config)
         if config.is_py_file():
             spec   = importlib.util.spec_from_file_location(str(config.stem), str(config))
@@ -130,10 +130,10 @@ def load_config(config: Any, verbose: bool = True) -> dict:
 
 # ----- Parse Config File -----
 def parse_config_file(
-    config      : str | pathlib.Path,
-    project_root: str | pathlib.Path,
-    model_root  : str | pathlib.Path = None,
-    weights_path: str | pathlib.Path = None,
+    config      : pathlib.Path | str,
+    project_root: pathlib.Path,
+    model_root  : pathlib.Path = None,
+    weights_path: pathlib.Path = None,
 ) -> pathlib.Path | None:
     """Parses the config file from the given paths.
 
@@ -144,7 +144,7 @@ def parse_config_file(
         weights_path: Path to weights file. Default is ``None``.
 
     Returns:
-        ``Path`` to config file if found, else ``None``.
+        Config file path if found, else ``None``.
     """
     def find_config_in_dirs(config, dirs):
         for config_dir in dirs:

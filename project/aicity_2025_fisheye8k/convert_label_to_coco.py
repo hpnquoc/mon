@@ -96,10 +96,9 @@ current_dir  = current_file.parents[0]
 
 
 def convert_label_to_coco(split: str):
-    code        = mon.ShapeCode.from_value(value=f"yolo_to_coco")
-    image_dir   = current_dir / "data" / "fisheye8k" / split / "image"
-    label_dir   = current_dir / "data" / "fisheye8k" / split / "label"
-    json_file   = current_dir / "data" / "fisheye8k" / split / f"{split}.json"
+    image_dir = current_dir / "data" / "fisheye8k" / split / "image"
+    label_dir = current_dir / "data" / "fisheye8k" / split / "label"
+    json_file = current_dir / "data" / "fisheye8k" / split / f"{split}.json"
     
     assert mon.Path(image_dir).is_dir()
     assert mon.Path(label_dir).is_dir()
@@ -148,6 +147,7 @@ def convert_label_to_coco(split: str):
                 continue
             
             # Read the YOLO label file and convert bbox format
+            """
             with open(label_file, "r") as f:
                 ls = f.readlines()
             ls = [l.strip().split(" ") for l in ls]
@@ -155,14 +155,20 @@ def convert_label_to_coco(split: str):
             if len(ls) == 0:
                 continue
             bs = np.array([list(map(float, l[1:5])) for l in ls])
-            bs = mon.convert_bbox(bbox=bs, code=code, height=h, width=w)
+            bs = mon.convert_bbox(bbox=bs, code=mon.BBoxFormat.YOLO2COCO, height=h, width=w)
             assert len(bs) == len(ls)
-            
-            for l, b in zip(ls, bs):
+            """
+            bs = mon.load_bbox(path=label_file, format=mon.BBoxFormat.YOLO)
+            bs = mon.convert_bbox(bbox=bs, code=mon.BBoxFormat.YOLO2COCO, height=h, width=w)
+            if len(bs) == 0:
+                continue
+
+            # Append annotations
+            for b in bs:
                 annotations.append({
                     "id"         : ann_id,
                     "image_id"   : image_id,
-                    "category_id": int(l[0]),
+                    "category_id": int(b[4]),
                     "bbox"       : [int(b[0]), int(b[1]), int(b[2]), int(b[3])],
                     "area"       : int(b[2] * b[3]),
                     "iscrowd"    : 0,
@@ -183,7 +189,7 @@ def convert_label_to_coco(split: str):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--split", type=str, default="trainv3", required=True)
+    parser.add_argument("--split", type=str, default="val", required=True)
     args = parser.parse_args()
     
     convert_label_to_coco(args.split)

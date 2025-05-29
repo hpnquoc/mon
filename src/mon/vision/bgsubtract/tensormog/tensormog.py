@@ -260,7 +260,7 @@ class HVR:
             ValueError: If image shape does not match expected dimensions.
         """
         if image.shape != (1, 3, self.height, self.width):
-            raise ValueError(f"Expected [image]'s shape (1, 3, {self.height}, {self.width}), got: {image.shape}")
+            raise ValueError(f"Expected [image]'s shape (1, 3, {self.height}, {self.width}), got {image.shape}")
 
         if self.state == self.State.TRAIN:
             return  # TRAIN state is currently unused
@@ -334,7 +334,7 @@ class HVR:
             ValueError: If image shape does not match expected dimensions.
         """
         if image.shape != (1, 3, self.height, self.width):
-            raise ValueError(f"Expected [image]'s shape (1, 3, {self.height}, {self.width}), got: {image.shape}")
+            raise ValueError(f"Expected [image]'s shape (1, 3, {self.height}, {self.width}), got {image.shape}")
         return self.background_model.get_foreground(image, self.background)
 
     def estimate_entropy(self) -> float:
