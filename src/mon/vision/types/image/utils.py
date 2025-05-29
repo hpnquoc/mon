@@ -32,7 +32,7 @@ import torch
 from mon.nn import _size_2_t
 
 
-# ----- Access -----
+# ----- Accessing -----
 def image_center(image: torch.Tensor | np.ndarray) -> torch.Tensor | np.ndarray:
     """Returns the center of an image as (x=h/2, y=w/2).
 
@@ -173,7 +173,7 @@ def image_size(
     return size
 
 
-# ----- Validation Check -----
+# ----- Validation -----
 def is_image(image: torch.Tensor | np.ndarray) -> bool:
     """Checks if an input is an image tensor or array.
 

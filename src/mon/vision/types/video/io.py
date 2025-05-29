@@ -23,7 +23,7 @@ from mon.nn import _size_2_t
 from mon.vision.types import image as I
 
 
-# ----- Read -----
+# ----- Reading -----
 def load_video_ffmpeg(
     process,
     height   : int,
@@ -65,7 +65,7 @@ def load_video_ffmpeg(
     return image
 
 
-# ----- Write -----
+# ----- Writing -----
 def write_video_ffmpeg(
     process,
     frame      : torch.Tensor | np.ndarray,

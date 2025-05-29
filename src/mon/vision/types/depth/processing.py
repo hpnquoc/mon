@@ -17,7 +17,7 @@ import numpy as np
 from mon.vision.types import image as I
 
 
-# ----- Convert -----
+# ----- Conversion -----
 def depth_to_color(
     depth    : np.ndarray,
     color_map: int = cv2.COLORMAP_JET,

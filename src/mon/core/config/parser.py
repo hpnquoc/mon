@@ -87,7 +87,7 @@ def parse_default_args(name: str = "main") -> argparse.Namespace:
     return parser.parse_args()
 
 
-def parse_train_args(model_root: str | pathlib.Path = None) -> dict | argparse.Namespace:
+def parse_train_args(model_root: pathlib.Path = None) -> dict | argparse.Namespace:
     """Parse arguments for training."""
     from mon import nn
     
@@ -192,7 +192,7 @@ def parse_train_args(model_root: str | pathlib.Path = None) -> dict | argparse.N
     return args
 
 
-def parse_predict_args(model_root: str | pathlib.Path = None) -> dict | argparse.Namespace:
+def parse_predict_args(model_root: pathlib.Path = None) -> dict | argparse.Namespace:
     """Parse arguments for predicting."""
     from mon import vision, nn
     

@@ -548,7 +548,7 @@ def rmdirs(paths: Path | list[Path]):
 
 
 # ----- Convert -----
-def parse_data_dir(root: str | pathlib.Path, data_dir: str | pathlib.Path = "") -> str | pathlib.Path:
+def parse_data_dir(root: pathlib.Path, data_dir: pathlib.Path = "") -> pathlib.Path:
     """Parses the absolute data directory path from given components.
 
     Args:
@@ -616,10 +616,10 @@ def parse_save_dir(
 
 
 def parse_output_dir(
-    root        : str | Path,
-    dirname     : str | Path,
-    subdir_name : str | Path,
-    src_path    : str | Path,
+    root        : Path,
+    dirname     : Path | str,
+    subdir_name : Path | str,
+    src_path    : Path | str,
     keep_subdirs: bool = False,
     save_nearby : bool = False,
 ) -> pathlib.Path:
@@ -635,10 +635,8 @@ def parse_output_dir(
         src_path: Source file path.
         dirname: Directory name.
         subdir_name: Subdirectory name. Default is ``None``.
-        keep_subdirs: If ``True``, keeps subdirectories in the path.
-            Default is ``False``.
-        save_nearby: If ``True``, saves in the same parent directory as the file.
-            Default is ``False``.
+        keep_subdirs: If ``True``, keeps subdirectories in the path. Default is ``False``.
+        save_nearby: If ``True``, saves in the same parent directory as the file. Default is ``False``.
 
     Example:
         root     = ../enhance/run/predict/zerodce/zerodce/dicm

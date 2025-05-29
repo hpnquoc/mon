@@ -17,7 +17,7 @@ from mon.core import pathlib, rich, serializers, type_extensions
 
 
 # ----- Retrieve -----
-def load_project_defaults(project_root: str | pathlib.Path) -> dict:
+def load_project_defaults(project_root: pathlib.Path) -> dict:
     """Gets the default configuration of the project.
 
     Args:
@@ -46,10 +46,10 @@ def load_project_defaults(project_root: str | pathlib.Path) -> dict:
 
 
 def list_configs(
-    project_root : str | pathlib.Path,
-    model_root   : str | pathlib.Path = None,
-    model        : str  = None,
-    absolute_path: bool = False,
+    project_root : pathlib.Path,
+    model_root   : pathlib.Path = None,
+    model        : str          = None,
+    absolute_path: bool         = False,
 ) -> list[pathlib.Path]:
     """Lists configuration files in the project and/or model directory.
 
@@ -68,7 +68,7 @@ def list_configs(
     def is_valid(x) -> bool:
         return x not in [None, "", "None"]
 
-    def collect_config_files(root: str | pathlib.Path) -> list[pathlib.Path]:
+    def collect_config_files(root: pathlib.Path | str) -> list[pathlib.Path]:
         config_dir = pathlib.Path(root) / "config"
         return list(config_dir.files(recursive=True))
     
@@ -107,7 +107,7 @@ def load_config(config: Any, verbose: bool = True) -> dict:
     """
     if isinstance(config, dict):
         data = config
-    elif isinstance(config, pathlib.Path):
+    elif isinstance(config, pathlib.Path | str):
         config = pathlib.Path(config)
         if config.is_py_file():
             spec   = importlib.util.spec_from_file_location(str(config.stem), str(config))

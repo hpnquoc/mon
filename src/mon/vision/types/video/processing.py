@@ -22,7 +22,7 @@ import torch
 from mon.vision.types.video import utils
 
 
-# ----- Normalize -----
+# ----- Normalization -----
 
 
-# ----- Convert -----
+# ----- Conversion -----

@@ -29,7 +29,7 @@ from mon import core
 from mon.vision.types.image import processing, utils
 
 
-# ----- Read -----
+# ----- Reading -----
 def load_image(
     path     : core.Path,
     flags    : int  = cv2.IMREAD_COLOR,
@@ -97,7 +97,7 @@ def read_image_shape(path: core.Path) -> tuple[int, int, int]:
     return h, w, c
 
 
-# ----- Write -----
+# ----- Writing -----
 def save_image(image: torch.Tensor | np.ndarray, path: core.Path):
     """Save an image to a file path.
 

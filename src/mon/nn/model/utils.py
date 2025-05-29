@@ -129,7 +129,7 @@ def list_archs(
     Returns:
         Sorted list of unique arch names matching task and mode.
     """
-    models       = list_mon_models(task=task, mode=mode)
+    models       =   list_mon_models(task=task, mode=mode)
     extra_models = list_extra_models(task=task, mode=mode)
     
     default_configs = core.load_project_defaults(project_root=project_root)
@@ -222,7 +222,7 @@ def list_models(
     Returns:
         Sorted list of model names matching task, mode, and arch.
     """
-    models       = list_mon_models(task=task, mode=mode, arch=arch)
+    models       =   list_mon_models(task=task, mode=mode, arch=arch)
     extra_models = list_extra_models(task=task, mode=mode, arch=arch)
     
     default_configs = core.load_project_defaults(project_root=project_root)

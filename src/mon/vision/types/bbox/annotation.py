@@ -65,10 +65,10 @@ class BBoxAnnotation(core.Annotation):
         Raises:
             ValueError: If ``bbox`` is not a 1D array of size ``4``.
         """
-        bbox_array = np.asarray(bbox)
-        if bbox_array.ndim != 1 or bbox_array.size != 4:
-            raise ValueError(f"[bbox] must be a 1D array of size 4, got {bbox_array}.")
-        self._bbox = bbox_array
+        b = np.asarray(bbox)
+        if b.ndim != 1 or b.size != 4:
+            raise ValueError(f"[bbox] must be a 1D array of size 4, got {b}.")
+        self._bbox = b
     
     @property
     def confidence(self) -> float:

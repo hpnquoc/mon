@@ -23,7 +23,7 @@ from mon.nn import functional as F
 from mon.vision.types import image as I
 
 
-# ----- Convert -----
+# ----- Conversion -----
 def label_map_id_to_train_id(label_map: np.ndarray, classlabels: core.ClassLabels) -> np.ndarray:
     """Converts label map from IDs to train IDs.
 

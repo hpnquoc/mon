@@ -20,7 +20,7 @@ import numpy as np
 from mon.constants import BBoxFormat
 
 
-# ----- Normalize -----
+# ----- Normalization -----
 def normalize_contour(contour: np.ndarray, height: int, width: int) -> np.ndarray:
     """Normalize contour points to [0.0, 1.0].
 
@@ -55,7 +55,7 @@ def denormalize_contour(contour: np.ndarray, height: int, width: int) -> np.ndar
     return np.stack((x, y), axis=-1)
 
 
-# ----- Convert -----
+# ----- Conversion -----
 contour_voc_to_yolo = normalize_contour
 contour_yolo_to_voc = denormalize_contour
 

@@ -13,6 +13,7 @@ Common Tasks:
 __all__ = [
     "load_bbox",
     "load_bbox_coco",
+    "load_bbox_voc",
     "load_bbox_yolo",
 ]
 
@@ -23,12 +24,22 @@ from mon.core import error_console
 from mon.constants import BBoxFormat
 
 
-# ----- Read -----
+# ----- Reading -----
 def load_bbox_coco(path: core.Path, verbose: bool = True) -> np.ndarray:
     """Load COCO-format bounding boxes from a ``.json`` file.
 
     Args:
         path: Label file path (one ``.json`` file for each image).
+        verbose: Verbosity. Defaults is ``True``.
+    """
+    raise NotImplementedError
+
+
+def load_bbox_voc(path: core.Path, verbose: bool = True) -> np.ndarray:
+    """Load VOC-format bounding boxes from a ``.xml`` file.
+
+    Args:
+        path: Label file path (one ``.xml`` file for each image).
         verbose: Verbosity. Defaults is ``True``.
     """
     raise NotImplementedError
@@ -82,16 +93,18 @@ def load_bbox(path: core.Path, format: BBoxFormat, verbose: bool = True) -> np.n
         Boxes as ``np.ndarray`` in [N, 4+], output format varies by code.
 
     Raises:
-        ValueError: If ``code`` is invalid.
+        ValueError: If ``format`` is invalid.
     """
-    code = BBoxFormat.from_value(value=format)
-    match code:
+    format = BBoxFormat.from_value(value=format)
+    match format:
         case BBoxFormat.COCO | BBoxFormat.XYWH:
             return load_bbox_coco(path, verbose)
+        case BBoxFormat.VOC  | BBoxFormat.XYXY:
+            return load_bbox_voc(path, verbose)
         case BBoxFormat.YOLO | BBoxFormat.CXCYN:
             return load_bbox_yolo(path, verbose)
         case _:
-            raise ValueError(f"[code] must be one of {BBoxFormat.formats()}, got {code}.")
+            raise ValueError(f"[code] must be one of {BBoxFormat.formats()}, got {format}.")
 
 
-# ----- Write -----
+# ----- Writing -----

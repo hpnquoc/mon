@@ -161,7 +161,7 @@ def fisheye_transform_bbox0(
         aspect_thres: Minimum height-to-width ratio threshold for bounding boxes.
             Default is ``0.0``.
     """
-    bbox        = types.check_valid_bbox(bbox)
+    bbox        = types.bbox_to_2d(bbox)
     w0, h0      = old_size
     w1, h1      = new_size
     left_margin = int((w0 - w1) // 2)
@@ -248,7 +248,7 @@ def fisheye_transform_bbox1(
         aspect_thres: Minimum height-to-width ratio threshold for bounding boxes.
             Default is ``0.0``.
     """
-    bbox        = types.check_valid_bbox(bbox)
+    bbox        = types.bbox_to_2d(bbox)
     w0, h0      = old_size
     w1, h1      = new_size
     left_margin = int((w0 - w1) // 2)
@@ -344,7 +344,7 @@ def fisheye_transform_bbox2(
         grid_points: Number of points per axis for sampling within each box.
             Default is ``5``.
     """
-    bbox        = types.check_valid_bbox(bbox)
+    bbox        = types.bbox_to_2d(bbox)
     w0, h0      = old_size
     w1, h1      = new_size
     left_margin = int((w0 - w1) // 2)
