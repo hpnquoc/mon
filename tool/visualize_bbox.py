@@ -56,7 +56,7 @@ def convert_bbox(
                 l = [x.strip().split(" ") for x in l]
                 l = [x for x in l if len(x) >= 2]
                 b = np.array([list(map(float, x[0:])) for x in l])
-                b = mon.convert_bbox(bbox=b, code=code, height=h, width=w)
+                b = mon.convert_bbox(bbox=b, fmt=code, height=h, width=w)
             
             if verbose:
                 for j, x in enumerate(b):

@@ -24,8 +24,9 @@ class ImageAnnotation(core.Annotation):
 
     Args:
         path: Image file path.
-        root: Root directory. Default is ``None``.
+        root: Root directory for the image. Default is ``None``.
         flags: Flag to read image (e.g., ``cv2.IMREAD_COLOR``). Default is ``cv2.IMREAD_COLOR``.
+        cache: If ``True``, caches image. Default is ``False``.
     """
     
     albumentation_target_type: str = "image"
@@ -35,15 +36,17 @@ class ImageAnnotation(core.Annotation):
         path : core.Path,
         root : core.Path = None,
         flags: int       = cv2.IMREAD_COLOR_BGR,
+        cache: bool      = False,
         *args, **kwargs
     ):
         super().__init__(*args, **kwargs)
-        self.root   = root
         self.path   = path
+        self.root   = root
         self.flags  = flags
-        self.image  = None
+        self.cache  = cache
+        self._image = None
         self._shape = None
-    
+
     @property
     def path(self) -> core.Path:
         """Returns the image file path."""
@@ -59,12 +62,12 @@ class ImageAnnotation(core.Annotation):
         Raises:
             ValueError: If ``path`` is not a valid image path.
         """
-        path_obj = core.Path(path)
-        if not path or not path_obj.is_image_file():
+        if path and core.Path(path).is_image_file():
+            self._path  = core.Path(path)
+            self._shape = io.read_image_shape(path=self.path)
+        else:
             raise ValueError(f"[path] must be a valid image path, got {path}.")
-        self._path  = path_obj
-        self._shape = io.read_image_shape(path=self._path)
-    
+
     @property
     def name(self) -> str:
         """Returns the image file name.
@@ -93,13 +96,13 @@ class ImageAnnotation(core.Annotation):
         return self._shape
     
     @property
-    def data(self) -> np.ndarray | None:
+    def data(self) -> np.ndarray:
         """Returns the image data.
 
         Returns:
             ``numpy.ndarray`` of image data or ``None`` if not loaded.
         """
-        return self.image if self.image is not None else self.load(flags=self.flags, cache=False)
+        return self._image if self._image is not None else self.load()
     
     @property
     def meta(self) -> dict:
@@ -116,42 +119,33 @@ class ImageAnnotation(core.Annotation):
             "hash" : self.path.stat().st_size if isinstance(self.path, core.Path) else None,
         }
     
-    def load(
-        self,
-        path : core.Path = None,
-        flags: int       = None,
-        cache: bool      = False
-    ) -> np.ndarray:
+    def load(self, reload: bool = False) -> np.ndarray:
         """Loads the image into memory.
 
         Args:
-            path: Path to image file. Default is ``None``.
-            flags: Flag to read image. Default is ``None``.
-            cache: If ``True``, caches image. Default is ``False``.
+            reload: If ``True``, reloads the image even if already cached. Default is ``False``.
 
         Returns:
             ``numpy.ndarray`` in [H, W, C] format, values in [0, 255].
         """
         # Return the image if it is already loaded
-        if self.image is not None:
-            return self.image
+        if not reload and self._image is not None:
+            return self._image
         # Load the image
-        load_path  = path  or self.path
-        load_flags = flags or self.flags
-        image      = io.load_image(load_path, load_flags, False, False)
+        image = io.load_image(self.path, self.flags, False, False)
         # Update the shape of the image
         if self._shape != image.shape:
             self._shape = image.shape
         # Cache the image if needed
-        self.image = image if cache else None
-        if path:
-            self.path  = load_path
-        if flags:
-            self.flags = load_flags
+        self._image = image if self.cache else None
         return image
     
     @staticmethod
-    def to_tensor(data: torch.Tensor | np.ndarray, normalize: bool = True) -> torch.Tensor:
+    def to_tensor(
+        data     : torch.Tensor | np.ndarray,
+        normalize: bool = True,
+        *args, **kwargs
+    ) -> torch.Tensor:
         """Converts input data to a tensor.
 
         Args:

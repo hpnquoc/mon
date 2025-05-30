@@ -7,8 +7,6 @@ __all__ = [
     "DepthMapAnnotation",
 ]
 
-from typing import Literal
-
 import cv2
 
 from mon import core
@@ -28,6 +26,7 @@ class DepthMapAnnotation(I.ImageAnnotation):
         root: Root directory. Default is ``None``.
         source: Source of depth data from ``DepthSource``. Default is ``DepthSource.DAv2_ViTB``.
         flags: Flag to read image (e.g., ``cv2.IMREAD_GRAYSCALE``). Default is ``cv2.IMREAD_GRAYSCALE``.
+        cache: If ``True``, caches image. Default is ``False``.
 
     Raises:
         ValueError: If ``source`` is not in ``DepthSource``.
@@ -41,9 +40,10 @@ class DepthMapAnnotation(I.ImageAnnotation):
         root  : core.Path   = None,
         source: DepthSource = DepthSource.DAv2_ViTB,
         flags : int         = cv2.IMREAD_GRAYSCALE,
+        cache : bool = False,
         *args, **kwargs
     ):
-        super().__init__(path=path, root=root, flags=flags, *args, **kwargs)
+        super().__init__(path=path, root=root, flags=flags, cache=cache, *args, **kwargs)
         source = DepthSource.from_value(source)
         if source not in DepthSource:
             raise ValueError(f"[source] must be one of {DepthSource}, got {source}.")

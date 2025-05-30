@@ -111,8 +111,9 @@ def convert_label_to_coco(
             assert len(ls) == len(bs)
             assert len(ls) == len(ss)
             """
-            bs = mon.load_bbox(path=label_file, format=mon.BBoxFormat.YOLO)
-            bs = mon.convert_bbox(bbox=bs, code=code, height=h, width=w)
+            # bs = mon.load_bbox(path=label_file, format=mon.BBoxFormat.YOLO)
+            # bs = mon.convert_bbox(bbox=bs, code=code, height=h, width=w)
+            bs = mon.load_bbox(path=label_file, fmt=code, height=h, width=w)
             if len(bs) == 0:
                 continue
 

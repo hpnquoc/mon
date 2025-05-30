@@ -426,23 +426,23 @@ class BBoxFormat(Enum):
     """Bounding box format."""
 
     # Format
-    XYXY       = "xyxy"                 # VOC  format: [x1, y1, x2, y2]
     XYWH       = "xywh"                 # COCO format: [ x,  y,  w,  h]
+    XYXY       = "xyxy"                 # VOC  format: [x1, y1, x2, y2]
     CXCYN      = "cxcyn"                # YOLO format: [cx, cy,  w,  h] normalized
-    VOC        = "voc"
     COCO       = "coco"
+    VOC        = "voc"
     YOLO       = "yolo"
     # Format conversion
-    XYXY2XYWH  = "xyxy_to_xywh"         # Convert from VOC to COCO
-    XYXY2CXCYN = "xyxy_to_cxcyn"        # Convert from VOC to YOLO
     XYWH2XYXY  = "xywh_to_xyxy"         # Convert from COCO to VOC
     XYWH2CXCYN = "xywh_to_cxcyn"        # Convert from COCO to YOLO
+    XYXY2XYWH  = "xyxy_to_xywh"         # Convert from VOC  to COCO
+    XYXY2CXCYN = "xyxy_to_cxcyn"        # Convert from VOC  to YOLO
     CXCYN2XYXY = "cxcyn_to_xyxy"        # Convert from YOLO to VOC
     CXCYN2XYWH = "cxcyn_to_xywh"        # Convert from YOLO to COCO
-    VOC2COCO   = "voc_to_coco"          # Convert from VOC to COCO
-    VOC2YOLO   = "voc_to_yolo"          # Convert from VOC to YOLO
     COCO2VOC   = "coco_to_voc"          # Convert from COCO to VOC
     COCO2YOLO  = "coco_to_yolo"         # Convert from COCO to YOLO
+    VOC2COCO   = "voc_to_coco"          # Convert from VOC  to COCO
+    VOC2YOLO   = "voc_to_yolo"          # Convert from VOC  to YOLO
     YOLO2VOC   = "yolo_to_voc"          # Convert from YOLO to VOC
     YOLO2COCO  = "yolo_to_coco"         # Convert from YOLO to COCO
 

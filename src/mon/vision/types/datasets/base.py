@@ -11,9 +11,12 @@ __all__ = [
 from abc import ABC
 from typing import Any
 
+import cv2
+
 from mon import core
 from mon.constants import DepthSource, InfraredSource, TRANSFORMS, BBoxFormat
 from mon.vision.geometry import albumentation
+from mon.vision.types.bbox import BBoxesAnnotation
 from mon.vision.types.depth import DepthMapAnnotation
 from mon.vision.types.image import ImageAnnotation
 from mon.vision.types.thermal import InfraredAnnotation
@@ -210,7 +213,8 @@ class VisionDataset(core.Dataset, ABC):
                         DepthMapAnnotation(
                             path   = path.image_file(),
                             root   = img.root,
-                            source = self.depth_source
+                            source = self.depth_source,
+                            flags  = cv2.IMREAD_GRAYSCALE,
                         )
                     )
             self.datapoints["depth"] = depths
@@ -234,7 +238,8 @@ class VisionDataset(core.Dataset, ABC):
                         InfraredAnnotation(
                             path   = path.image_file(),
                             root   = img.root,
-                            source = self.infrared_source
+                            source = self.infrared_source,
+                            flags  = cv2.IMREAD_GRAYSCALE,
                         )
                     )
             self.datapoints["infrared"] = infrareds
@@ -245,7 +250,7 @@ class VisionDataset(core.Dataset, ABC):
         bboxes = self.datapoints.get("bboxes", [])
 
         if len(images) > 0 and len(bboxes) == 0:
-            bboxes: list[InfraredAnnotation] = []
+            bboxes: list[BBoxesAnnotation] = []
             with core.create_progress_bar(disable=self.disable_pbar) as pbar:
                 for img in pbar.track(
                     sequence    = images,
@@ -255,10 +260,11 @@ class VisionDataset(core.Dataset, ABC):
                     root_name = img.root.name
                     path      = img.path.replace(f"/{root_name}/", f"/label/")
                     bboxes.append(
-                        InfraredAnnotation(
-                            path   = path.txt_file(),
-                            root   = img.root,
-                            source = self.infrared_source
+                        BBoxesAnnotation(
+                            path  = path.txt_file(),
+                            root  = img.root,
+                            fmt   = self.bbox_format,
+                            imgsz = img.size,
                         )
                     )
             self.datapoints["bboxes"] = bboxes
@@ -278,10 +284,12 @@ class VisionDataset(core.Dataset, ABC):
                 ):
                     root_name = img.root.name
                     path      = img.path.replace(f"/{root_name}/", f"/ref/")
-                    ref_images.append(ImageAnnotation(
-                        path = path.image_file(),
-                        root = img.root
-                    ))
+                    ref_images.append(
+                        ImageAnnotation(
+                            path = path.image_file(),
+                            root = img.root,
+                        )
+                    )
             self.datapoints["ref_image"] = ref_images
 
     def list_reference_depth_map(self):
@@ -303,7 +311,8 @@ class VisionDataset(core.Dataset, ABC):
                         DepthMapAnnotation(
                             path   = path.image_file(),
                             root   = img.root,
-                            source = self.depth_source
+                            source = self.depth_source,
+                            flags  = cv2.IMREAD_GRAYSCALE,
                         )
                     )
             self.datapoints["ref_depth"] = ref_depths
@@ -327,7 +336,8 @@ class VisionDataset(core.Dataset, ABC):
                         InfraredAnnotation(
                             path   = path.image_file(),
                             root   = img.root,
-                            source = self.infrared_source
+                            source = self.infrared_source,
+                            flags  = cv2.IMREAD_GRAYSCALE,
                         )
                     )
             self.datapoints["ref_infrared"] = ref_infrareds

@@ -19,28 +19,26 @@ __all__ = [
     "bbox_corners_pts",
     "bbox_cxcywhn_to_xywh",
     "bbox_cxcywhn_to_xyxy",
-    "bbox_cxcywhn_to_xyxyn",
     "bbox_diou",
     "bbox_giou",
     "bbox_iou",
     "bbox_to_2d",
     "bbox_to_3d",
+    "bbox_to_array",
+    "bbox_to_tensor",
     "bbox_voc_to_coco",
     "bbox_voc_to_yolo",
     "bbox_xywh_to_cxcywhn",
     "bbox_xywh_to_xyxy",
-    "bbox_xywh_to_xyxyn",
     "bbox_xyxy_to_cxcywhn",
     "bbox_xyxy_to_xywh",
     "bbox_xyxy_to_xywh",
-    "bbox_xyxy_to_xyxyn",
-    "bbox_xyxyn_to_cxcywhn",
-    "bbox_xyxyn_to_xywh",
-    "bbox_xyxyn_to_xyxy",
     "bbox_yolo_to_coco",
     "bbox_yolo_to_voc",
     "convert_bbox",
+    "denormalize_bbox",
     "enclosing_bbox",
+    "normalize_bbox",
     "split_image_and_bboxes",
 ]
 
@@ -51,6 +49,7 @@ import torch
 
 from mon.constants import BBoxFormat
 from mon.vision.types import image as I
+from mon.vision.types.bbox import utils
 
 
 # ----- Splitting -----
@@ -581,6 +580,53 @@ def enclosing_bbox(bbox: np.ndarray) -> np.ndarray:
     return np.hstack((x1, y1, x2, y2, bbox[:, 8:]))
 
 
+# ----- Normalization -----
+def normalize_bbox(bbox: np.ndarray , height: int, width: int) -> np.ndarray:
+    """Normalize bounding box(s) according to image dimensions.
+
+    Args:
+        bbox: Box(es) as ``np.ndarray`` in [4+] or [N, 4+].
+        height: Image height.
+        width: Image width.
+    """
+    if height <= 0 or width <= 0:
+        raise ValueError(f"[height] and [width] must be positive integers, got {height}, {width}.")
+
+    bbox = bbox_to_2d(bbox)
+    if utils.is_bbox_normalized(bbox):
+        return bbox
+
+    b1, b2, b3, b4, *rest = bbox.T
+    b1 = b1 / width
+    b2 = b2 / height
+    b3 = b3 / width
+    b4 = b4 / height
+    return np.stack((b1, b2, b3, b4, *rest), axis=-1)
+
+
+def denormalize_bbox(bbox: np.ndarray, height: int, width: int) -> np.ndarray:
+    """Denormalize bounding box(s) according to image dimensions.
+
+    Args:
+        bbox: Box(es) as ``np.ndarray`` in [4+] or [N, 4+].
+        height: Image height.
+        width: Image width.
+    """
+    if height <= 0 or width <= 0:
+        raise ValueError(f"[height] and [width] must be positive integers, got {height}, {width}.")
+
+    bbox = bbox_to_2d(bbox)
+    if not utils.is_bbox_normalized(bbox):
+        return bbox
+
+    b1, b2, b3, b4, *rest = bbox.T
+    b1 = b1 * width
+    b2 = b2 * height
+    b3 = b3 * width
+    b4 = b4 * height
+    return np.stack((b1, b2, b3, b4, *rest), axis=-1)
+
+
 # ----- Conversion -----
 def bbox_to_2d(bbox: torch.Tensor | np.ndarray | list | tuple) -> torch.Tensor | np.ndarray:
     """Convert a 1D, 2D, or 3D box(es) to 2D.
@@ -630,7 +676,7 @@ def bbox_to_2d(bbox: torch.Tensor | np.ndarray | list | tuple) -> torch.Tensor |
     return bbox
 
 
-def bbox_to_3d(bbox: torch.Tensor | np.ndarray) -> torch.Tensor | np.ndarray:
+def bbox_to_3d(bbox: torch.Tensor | np.ndarray | list | tuple) -> torch.Tensor | np.ndarray:
     """Convert a 1D, 2D, or 3D box(es) to 3D.
 
     Args:
@@ -684,67 +730,6 @@ def bbox_to_3d(bbox: torch.Tensor | np.ndarray) -> torch.Tensor | np.ndarray:
     return bbox
 
 
-def bbox_cxcywhn_to_xywh(bbox: np.ndarray, height: int, width: int) -> np.ndarray:
-    """Convert boxes from CXCYWHN to XYWH format.
-
-    Args:
-        bbox: Boxes as ``np.ndarray`` in [N, 4+], CXCYWHN format, normalized.
-        height: Image height in pixels as ``int``.
-        width: Image width in pixels as ``int``.
-
-    Returns:
-        Boxes as ``np.ndarray`` in [N, 4+], XYWH format, pixel coordinates.
-    """
-    bbox = bbox_to_2d(bbox)
-    cx_n, cy_n, w_n, h_n, *rest = bbox.T
-    w = w_n * width
-    h = h_n * height
-    x = (cx_n * width)  - (w / 2.0)
-    y = (cy_n * height) - (h / 2.0)
-    # Combine processed columns with rest
-    return np.stack([x, y, w, h] + rest, axis=-1)
-
-
-def bbox_cxcywhn_to_xyxy(bbox: np.ndarray, height: int, width: int) -> np.ndarray:
-    """Convert boxes from CXCYWHN to XYXY format.
-
-    Args:
-        bbox: Boxes as ``np.ndarray`` in [N, 4+], CXCYWHN format, normalized.
-        height: Image height in pixels as ``int``.
-        width: Image width in pixels as ``int``.
-
-    Returns:
-        Boxes as ``np.ndarray`` in [N, 4+], XYXY format, pixel coordinates.
-    """
-    bbox = bbox_to_2d(bbox)
-    cx_n, cy_n, w_n, h_n, *rest = bbox.T
-    x1 = width  * (cx_n - w_n / 2)
-    y1 = height * (cy_n - h_n / 2)
-    x2 = width  * (cx_n + w_n / 2)
-    y2 = height * (cy_n + h_n / 2)
-    return np.stack([x1, y1, x2, y2] + rest, axis=-1)
-
-
-def bbox_cxcywhn_to_xyxyn(bbox: np.ndarray, height: int, width: int) -> np.ndarray:
-    """Convert boxes from CXCYWHN to XYXYN format.
-
-    Args:
-        bbox: Boxes as ``np.ndarray`` in [N, 4+], CXCYWHN format, normalized.
-        height: Image height in pixels as ``int``.
-        width: Image width in pixels as ``int``.
-
-    Returns:
-        Boxes as ``np.ndarray`` in [N, 4+], XYXYN format, normalized.
-    """
-    bbox = bbox_to_2d(bbox)
-    cx_n, cy_n, w_n, h_n, *rest = bbox.T
-    x1 = (cx_n - w_n / 2)
-    y1 = (cy_n - h_n / 2)
-    x2 = (cx_n + w_n / 2)
-    y2 = (cy_n + h_n / 2)
-    return np.stack([x1, y1, x2, y2] + rest, axis=-1)
-
-
 def bbox_xywh_to_cxcywhn(bbox: np.ndarray, height: int, width: int) -> np.ndarray:
     """Convert boxes from XYWH to CXCYWHN format.
 
@@ -764,7 +749,7 @@ def bbox_xywh_to_cxcywhn(bbox: np.ndarray, height: int, width: int) -> np.ndarra
     cy_n = cy / height
     w_n  = w  / width
     h_n  = h  / height
-    return np.stack([cx_n, cy_n, w_n, h_n] + rest, axis=-1)
+    return np.stack((cx_n, cy_n, w_n, h_n, *rest), axis=-1)
 
 
 def bbox_xywh_to_xyxy(bbox: np.ndarray, height: int, width: int) -> np.ndarray:
@@ -782,29 +767,7 @@ def bbox_xywh_to_xyxy(bbox: np.ndarray, height: int, width: int) -> np.ndarray:
     x, y, w, h, *rest = bbox.T
     x2 = x + w
     y2 = y + h
-    return np.stack([x, y, x2, y2] + rest, axis=-1)
-
-
-def bbox_xywh_to_xyxyn(bbox: np.ndarray, height: int, width: int) -> np.ndarray:
-    """Convert boxes from XYWH to XYXYN format.
-
-    Args:
-        bbox: Boxes as ``np.ndarray`` in [N, 4+], XYWH format, pixel coordinates.
-        height: Image height in pixels as ``int``.
-        width: Image width in pixels as ``int``.
-
-    Returns:
-        Boxes as ``np.ndarray`` in [N, 4+], XYXYN format, normalized.
-    """
-    bbox = bbox_to_2d(bbox)
-    x, y, w, h, *rest = bbox.T
-    x2   = x + w
-    y2   = y + h
-    x1_n = x / width
-    y1_n = y / height
-    x2_n = x2 / width
-    y2_n = y2 / height
-    return np.stack([x1_n, y1_n, x2_n, y2_n] + rest, axis=-1)
+    return np.stack((x, y, x2, y2, *rest), axis=-1)
 
 
 def bbox_xyxy_to_cxcywhn(bbox: np.ndarray, height: int, width: int) -> np.ndarray:
@@ -828,7 +791,7 @@ def bbox_xyxy_to_cxcywhn(bbox: np.ndarray, height: int, width: int) -> np.ndarra
     cy_n = cy / height
     w_n  = w  / width
     h_n  = h  / height
-    return np.stack([cx_n, cy_n, w_n, h_n] + rest, axis=-1)
+    return np.stack((cx_n, cy_n, w_n, h_n, *rest), axis=-1)
 
 
 def bbox_xyxy_to_xywh(bbox: np.ndarray, height: int, width: int) -> np.ndarray:
@@ -846,54 +809,14 @@ def bbox_xyxy_to_xywh(bbox: np.ndarray, height: int, width: int) -> np.ndarray:
     x1, y1, x2, y2, *rest = bbox.T
     w = x2 - x1
     h = y2 - y1
-    return np.stack((x1, y1, w, h), axis=-1)
+    return np.stack((x1, y1, w, h, *rest), axis=-1)
 
 
-def bbox_xyxy_to_xyxyn(bbox: np.ndarray, height: int, width: int) -> np.ndarray:
-    """Convert boxes from XYXY to XYXYN format.
-
-    Args:
-        bbox: Boxes as ``np.ndarray`` in [N, 4+], XYXY format, pixel coordinates.
-        height: Image height in pixels as ``int``.
-        width: Image width in pixels as ``int``.
-
-    Returns:
-        Boxes as ``np.ndarray`` in [N, 4+], XYXYN format, normalized.
-    """
-    bbox = bbox_to_2d(bbox)
-    x1, y1, x2, y2, *rest = bbox.T
-    x1_n = x1 / width
-    y1_n = y1 / height
-    x2_n = x2 / width
-    y2_n = y2 / height
-    return np.stack([x1_n, y1_n, x2_n, y2_n] + rest, axis=-1)
-
-
-def bbox_xyxyn_to_cxcywhn(bbox: np.ndarray, height: int, width: int) -> np.ndarray:
-    """Convert boxes from XYXYN to CXCYWHN format.
+def bbox_cxcywhn_to_xywh(bbox: np.ndarray, height: int, width: int) -> np.ndarray:
+    """Convert boxes from CXCYWHN to XYWH format.
 
     Args:
-        bbox: Boxes as ``np.ndarray`` in [N, 4+], XYXYN format, normalized.
-        height: Image height in pixels as ``int``.
-        width: Image width in pixels as ``int``.
-
-    Returns:
-        Boxes as ``np.ndarray`` in [N, 4+], CXCYWHN format, normalized.
-    """
-    bbox = bbox_to_2d(bbox)
-    x1, y1, x2, y2, *rest = bbox.T
-    w_norm  = x2 - x1
-    h_norm  = y2 - y1
-    cx_norm = x1 + (w_norm / 2.0)
-    cy_norm = y1 + (h_norm / 2.0)
-    return np.stack((cx_norm, cy_norm, w_norm, h_norm), axis=-1)
-
-
-def bbox_xyxyn_to_xywh(bbox: np.ndarray, height: int, width: int) -> np.ndarray:
-    """Convert boxes from XYXYN to XYWH format.
-
-    Args:
-        bbox: Boxes as ``np.ndarray`` in [N, 4+], XYXYN format, normalized.
+        bbox: Boxes as ``np.ndarray`` in [N, 4+], CXCYWHN format, normalized.
         height: Image height in pixels as ``int``.
         width: Image width in pixels as ``int``.
 
@@ -901,21 +824,20 @@ def bbox_xyxyn_to_xywh(bbox: np.ndarray, height: int, width: int) -> np.ndarray:
         Boxes as ``np.ndarray`` in [N, 4+], XYWH format, pixel coordinates.
     """
     bbox = bbox_to_2d(bbox)
-    x1, y1, x2, y2, *rest = bbox.T
-    x1 = x1 * width
-    x2 = x2 * width
-    y1 = y1 * height
-    y2 = y2 * height
-    w  = x2 - x1
-    h  = y2 - y1
-    return np.stack([x1, y1, w, h] + rest, axis=-1)
+    cx_n, cy_n, w_n, h_n, *rest = bbox.T
+    w = w_n * width
+    h = h_n * height
+    x = (cx_n * width)  - (w / 2.0)
+    y = (cy_n * height) - (h / 2.0)
+    # Combine processed columns with rest
+    return np.stack((x, y, w, h, *rest), axis=-1)
 
 
-def bbox_xyxyn_to_xyxy(bbox: np.ndarray, height: int, width: int) -> np.ndarray:
-    """Convert boxes from XYXYN to XYXY format.
+def bbox_cxcywhn_to_xyxy(bbox: np.ndarray, height: int, width: int) -> np.ndarray:
+    """Convert boxes from CXCYWHN to XYXY format.
 
     Args:
-        bbox: Boxes as ``np.ndarray`` in [N, 4+], XYXYN format, normalized.
+        bbox: Boxes as ``np.ndarray`` in [N, 4+], CXCYWHN format, normalized.
         height: Image height in pixels as ``int``.
         width: Image width in pixels as ``int``.
 
@@ -923,12 +845,12 @@ def bbox_xyxyn_to_xyxy(bbox: np.ndarray, height: int, width: int) -> np.ndarray:
         Boxes as ``np.ndarray`` in [N, 4+], XYXY format, pixel coordinates.
     """
     bbox = bbox_to_2d(bbox)
-    x1, y1, x2, y2, *rest = bbox.T
-    x1 = x1 * width
-    x2 = x2 * width
-    y1 = y1 * height
-    y2 = y2 * height
-    return np.stack([x1, y1, x2, y2] + rest, axis=-1)
+    cx_n, cy_n, w_n, h_n, *rest = bbox.T
+    x1 = width  * (cx_n - w_n / 2)
+    y1 = height * (cy_n - h_n / 2)
+    x2 = width  * (cx_n + w_n / 2)
+    y2 = height * (cy_n + h_n / 2)
+    return np.stack((x1, y1, x2, y2, *rest), axis=-1)
 
 
 bbox_coco_to_voc  = bbox_xywh_to_xyxy
@@ -939,12 +861,12 @@ bbox_yolo_to_coco = bbox_cxcywhn_to_xywh
 bbox_yolo_to_voc  = bbox_cxcywhn_to_xyxy
 
 
-def convert_bbox(bbox: np.ndarray, code: BBoxFormat, height: int, width: int) -> np.ndarray:
+def convert_bbox(bbox: np.ndarray, fmt: BBoxFormat, height: int, width: int) -> np.ndarray:
     """Convert bounding box between formats.
 
     Args:
         bbox: Boxes as ``np.ndarray`` in [N, 4+], input format varies by code.
-        code: Conversion code as ``BBoxFormat`` or ``int``.
+        fmt: Conversion code as ``BBoxFormat`` or ``int``.
         height: Image height in pixels as ``int``.
         width: Image width in pixels as ``int``.
 
@@ -954,19 +876,108 @@ def convert_bbox(bbox: np.ndarray, code: BBoxFormat, height: int, width: int) ->
     Raises:
         ValueError: If ``code`` is invalid.
     """
-    code = BBoxFormat.from_value(value=code)
-    match code:
-        case BBoxFormat.VOC2COCO  | BBoxFormat.XYXY2XYWH:
-            return bbox_voc_to_coco(bbox, height, width)
-        case BBoxFormat.VOC2YOLO  | BBoxFormat.XYXY2CXCYN:
-            return bbox_voc_to_yolo(bbox, height, width)
+    if len(bbox) == 0:
+        return bbox
+
+    fmt = BBoxFormat.from_value(value=fmt)
+    if fmt in BBoxFormat.formats():
+        return bbox
+    match fmt:
         case BBoxFormat.COCO2VOC  | BBoxFormat.XYWH2XYXY:
             return bbox_coco_to_voc(bbox, height, width)
         case BBoxFormat.COCO2YOLO | BBoxFormat.XYWH2CXCYN:
             return bbox_coco_to_yolo(bbox, height, width)
+        case BBoxFormat.VOC2COCO  | BBoxFormat.XYXY2XYWH:
+            return bbox_voc_to_coco(bbox, height, width)
+        case BBoxFormat.VOC2YOLO  | BBoxFormat.XYXY2CXCYN:
+            return bbox_voc_to_yolo(bbox, height, width)
         case BBoxFormat.YOLO2VOC  | BBoxFormat.CXCYN2XYXY:
             return bbox_yolo_to_voc(bbox, height, width)
         case BBoxFormat.YOLO2COCO | BBoxFormat.CXCYN2XYXY:
             return bbox_yolo_to_coco(bbox, height, width)
         case _:
-            raise ValueError(f"[code] must be one of {BBoxFormat.conversion_codes()}, got {code}.")
+            raise ValueError(f"[code] must be one of {BBoxFormat.conversion_codes()}, got {fmt}.")
+
+
+def bbox_to_array(
+    bbox       : torch.Tensor | np.ndarray,
+    height     : int,
+    width      : int,
+    denormalize: bool = False
+) -> np.ndarray:
+    """Convert bounding box(es) to a NumPy array.
+
+    Args:
+        bbox: Box(es) as ``np.ndarray`` or ``torch.Tensor``, or list/tuple of [4+], [N, 4+], or [B, N, 4+].
+        height: Image height.
+        width: Image width.
+        denormalize: Denormalize according to image dimensions if ``True``. Default is ``False``.
+
+    Returns:
+        Bbox(es) as ``np.ndarray`` in [N, 4+] format.
+
+    Raises:
+        TypeError: If ``bbox`` is not a ``torch.Tensor`` or ``numpy.ndarray``.
+    """
+    # Check shape
+    if not 2 <= bbox.ndim <= 3:
+        raise ValueError(f"[bbox]'s number of dimensions must be between 2 and 3, got {bbox.ndim}.")
+    # Remove batch dimension
+    bbox = bbox_to_2d(bbox)
+    # Detach
+    if isinstance(bbox, torch.Tensor):
+        bbox = bbox.detach().cpu()
+    # Convert to numpy
+    if isinstance(bbox, torch.Tensor):
+        bbox = bbox.numpy()
+    # Denormalize image
+    if denormalize:
+        bbox = denormalize_bbox(bbox, height, width)#.round().astype(np.uint8)
+
+    return bbox
+
+
+def bbox_to_tensor(
+    bbox     : torch.Tensor | np.ndarray | list | tuple,
+    height   : int,
+    width    : int,
+    normalize: bool         = False,
+    device   : torch.device = None
+) -> torch.Tensor:
+    """Convert bounding box(es) to a PyTorch tensor.
+
+    Args:
+        bbox: Box(es) as ``np.ndarray``, ``torch.Tensor``, or list/tuple of [4+] or [N, 4+].
+        height: Image height.
+        width: Image width.
+        normalize: Normalize according to image dimensions if ``True``. Default is ``False``.
+        device: Device to place tensor on, e.g., ``'cuda'`` or ``None`` for CPU.
+            Default is ``None``.
+
+    Returns:
+        Bbox(es) as ``torch.Tensor`` in [B, N, 4+] format.
+
+    Raises:
+        TypeError: If ``bbox`` is not a ``torch.Tensor`` or ``numpy.ndarray``.
+    """
+    # Add batch dimension
+    bbox = bbox_to_3d(bbox)
+    # Convert to tensor
+    if isinstance(bbox, np.ndarray):
+        bbox = torch.from_numpy(bbox).float()
+    elif isinstance(bbox, torch.Tensor):
+        bbox = bbox.float()
+    else:
+        raise TypeError(f"[bbox] must be a torch.Tensor or numpy.ndarray, got {type(bbox)}.")
+    # Ensure float32 for model input.
+    if bbox.dtype != torch.float32:
+        bbox = bbox.float()
+    # Normalize image
+    if normalize:
+        bbox = normalize_bbox(bbox, height, width)
+    # Move to device
+    if device is not None:
+        bbox = bbox.to(device)
+    bbox = bbox.contiguous()
+
+    return bbox

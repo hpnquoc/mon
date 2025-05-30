@@ -66,8 +66,9 @@ def convert_label_to_coco(predict_dir: str | mon.Path):
             assert len(bs) == len(ls)
             assert len(ss) == len(ls)
             """
-            bs = mon.load_bbox(path=label_file, format=mon.BBoxFormat.YOLO)
-            bs = mon.convert_bbox(bbox=bs, code=mon.BBoxFormat.YOLO2COCO, height=h, width=w)
+            # bs = mon.load_bbox(path=label_file, format=mon.BBoxFormat.YOLO)
+            # bs = mon.convert_bbox(bbox=bs, code=mon.BBoxFormat.YOLO2COCO, height=h, width=w)
+            bs = mon.load_bbox(path=label_file, fmt=mon.BBoxFormat.YOLO2COCO, height=h, width=w)
             if len(bs) == 0:
                 continue
 

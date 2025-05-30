@@ -442,7 +442,6 @@ def image_to_array(image: torch.Tensor | np.ndarray, denormalize: bool = False) 
     # Check shape
     if not 3 <= image.ndim <= 4:
         raise ValueError(f"[image]'s number of dimensions must be between 3 and 4, got {image.ndim}.")
-    
     # Remove batch dimension
     image = image_to_3d(image)
     # Detach
@@ -456,7 +455,8 @@ def image_to_array(image: torch.Tensor | np.ndarray, denormalize: bool = False) 
     # Rearrange
     image = image_to_channel_last(image)
     # Convert to numpy
-    image = image.numpy() if isinstance(image, torch.Tensor) else image
+    if isinstance(image, torch.Tensor):
+        image = image.numpy()
     # Denormalize
     if denormalize:
         image = denormalize_image(image).round().astype(np.uint8)
@@ -466,8 +466,8 @@ def image_to_array(image: torch.Tensor | np.ndarray, denormalize: bool = False) 
 
 def image_to_tensor(
     image    : torch.Tensor | np.ndarray,
-    normalize: bool = False,
-    device   : Any  = None
+    normalize: bool         = False,
+    device   : torch.device = None
 ) -> torch.Tensor:
     """Converts an image to a ``torch.Tensor`` with optional normalization.
 
@@ -484,8 +484,11 @@ def image_to_tensor(
         TypeError: If ``image`` is not a ``torch.Tensor`` or ``numpy.ndarray``.
         
     Recommend order:
-        image = torch.from_numpy(image).permute(2, 0, 1).float().div(255.0).unsqueeze(0).to(device)
+            image = torch.from_numpy(image).permute(2, 0, 1).float().div(255.0).unsqueeze(0).to(device)
+        But we add batch dimension first to avoid issues with single images.
     """
+    # Add batch dimension
+    image = image_to_4d(image)
     # Convert to tensor
     if isinstance(image, np.ndarray):
         image = torch.from_numpy(image).contiguous()
@@ -493,16 +496,15 @@ def image_to_tensor(
         image = image.clone()
     else:
         raise TypeError(f"[image] must be a torch.Tensor or numpy.ndarray, got {type(image)}.")
-        
     # Rearrange before sending to GPU for better memory layout.
     image = image_to_channel_first(image)
     # Ensure float32 for model input.
-    image = image.float()
+    if image.dtype != torch.float32:
+        image = image.float()
     # Normalize image
-    image = normalize_image(image) if normalize else image
-    # Add batch dimension
-    image = image_to_4d(image)
-    # Place on device
+    if normalize:
+        image = normalize_image(image)
+    # Move to device
     if device:
         image = image.to(device)
     image = image.contiguous()

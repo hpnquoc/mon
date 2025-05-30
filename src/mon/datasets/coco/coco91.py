@@ -150,7 +150,7 @@ class COCO91(VisionDataset):
 					description = f"Listing {self.__class__.__name__} {self.split_str} images"
 				):
                     if path.is_image_file():
-                        images.append(ImageAnnotation(path=path))
+                        images.append(ImageAnnotation(path=path, root=pattern))
         
         self.datapoints["image"] = images
 

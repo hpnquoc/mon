@@ -127,11 +127,13 @@ class Cityscapes(VisionDataset):
             for img in pbar.track(sequence=images, description=desc):
                 path = img.path.replace(image_name, gt_name)
                 path = path.parent / f"{path.stem}_labelIds{path.suffix}"
-                semantic.append(SemanticSegmentationAnnotation(
-                    path  = path.image_file(),
-                    root  = img.root,
-                    flags = cv2.IMREAD_GRAYSCALE
-                ))
+                semantic.append(
+                    SemanticSegmentationAnnotation(
+                        path  = path.image_file(),
+                        root  = img.root,
+                        flags = cv2.IMREAD_GRAYSCALE
+                    )
+                )
 
         self.datapoints["image"]    = images
         self.datapoints["semantic"] = semantic

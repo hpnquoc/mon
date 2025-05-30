@@ -26,6 +26,7 @@ class FrameAnnotation(core.Annotation):
         index: Integer index of frame in video.
         frame: Ground-truth image as ``numpy.ndarray``.
         path: Video file path. Default is ``None``.
+        root: Root directory for the video. Default is ``None``.
     """
     
     albumentation_target_type: str = "image"
@@ -35,13 +36,15 @@ class FrameAnnotation(core.Annotation):
         index: int,
         frame: np.ndarray,
         path : core.Path = None,
+        root : core.Path = None,
         *args, **kwargs
     ):
         super().__init__(*args, **kwargs)
-        self.index = index
-        self.frame = frame
-        self.path  = path
-        self.shape = I.image_shape(image=frame)
+        self.index  = index
+        self.frame  = frame
+        self.path   = path
+        self.root   = root
+        self._shape = I.image_shape(image=frame)
     
     @property
     def path(self) -> core.Path:
@@ -92,7 +95,16 @@ class FrameAnnotation(core.Annotation):
             ``str`` from ``path.stem`` or ``index`` if path is unset.
         """
         return self.path.stem if self.path else str(self.index)
-    
+
+    @property
+    def shape(self) -> tuple[int, int, int]:
+        """Returns the image shape.
+
+        Returns:
+            Tuple of [H, W, C] for image dimensions.
+        """
+        return self._shape
+
     @property
     def data(self) -> np.ndarray:
         """Returns the frame data.
@@ -121,7 +133,11 @@ class FrameAnnotation(core.Annotation):
         }
     
     @staticmethod
-    def to_tensor(data: torch.Tensor | np.ndarray, normalize: bool = True) -> torch.Tensor:
+    def to_tensor(
+        data     : torch.Tensor | np.ndarray,
+        normalize: bool = True,
+        *args, **kwargs
+    ) -> torch.Tensor:
         """Converts input data to a tensor.
 
         Args:
@@ -134,7 +150,7 @@ class FrameAnnotation(core.Annotation):
         return I.image_to_tensor(data, normalize)
     
     @staticmethod
-    def collate_fn(batch: list[torch.Tensor] | list[np.ndarray]) -> torch.Tensor | np.ndarray | None:
+    def collate_fn(batch: list) -> torch.Tensor | np.ndarray | None:
         """Collates batch data for ``torch.utils.data.DataLoader``.
 
         Args:

@@ -24,8 +24,9 @@ class SemanticSegmentationAnnotation(core.Annotation):
 
     Args:
         path: Image file path.
-        root: Root directory. Default is ``None``.
+        root: Root directory for the image. Default is ``None``.
         flags: Flag to read image (e.g., ``cv2.IMREAD_COLOR_BGR``). Default is ``cv2.IMREAD_COLOR_BGR``.
+        cache: If ``True``, caches image. Default is ``False``.
     """
     
     albumentation_target_type: str = "mask"
@@ -34,14 +35,16 @@ class SemanticSegmentationAnnotation(core.Annotation):
         self,
         path : core.Path,
         root : core.Path = None,
-        flags: int = cv2.IMREAD_COLOR_BGR,
+        flags: int       = cv2.IMREAD_COLOR_BGR,
+        cache: bool      = False,
         *args, **kwargs
     ):
         super().__init__(*args, **kwargs)
-        self.root   = root
         self.path   = path
+        self.root   = root
         self.flags  = flags
-        self.mask   = None
+        self.cache  = cache
+        self._mask  = None
         self._shape = None
     
     @property
@@ -59,10 +62,11 @@ class SemanticSegmentationAnnotation(core.Annotation):
         Raises:
             ValueError: If ``path`` is not a valid image path or is ``None``.
         """
-        if path is None or not core.Path(path).is_image_file():
+        if path and core.Path(path).is_image_file():
+            self._path  = core.Path(path)
+            self._shape = I.read_image_shape(path=self.path)
+        else:
             raise ValueError(f"[path] must be a valid image path, got {path}.")
-        self._path  = core.Path(path)
-        self._shape = I.read_image_shape(path=self._path)
     
     @property
     def name(self) -> str:
@@ -98,7 +102,7 @@ class SemanticSegmentationAnnotation(core.Annotation):
         Returns:
             ``numpy.ndarray`` of mask data or ``None`` if not loaded.
         """
-        return self.mask if self.mask is not None else self.load()
+        return self._mask if self._mask is not None else self.load()
     
     @property
     def meta(self) -> dict:
@@ -114,33 +118,34 @@ class SemanticSegmentationAnnotation(core.Annotation):
             "shape": self.shape,
             "hash" : self.path.stat().st_size if isinstance(self.path, core.Path) else None,
         }
-    
-    def load(
-        self,
-        path : core.Path = None,
-        flags: int       = None,
-        cache: bool      = False,
-    ) -> np.ndarray | None:
+
+    def load(self, reload: bool = False) -> np.ndarray:
         """Loads the mask into memory.
 
         Args:
-            path: Path to image file. Default is ``None``.
-            flags: Flag to read image. Default is ``None``.
-            cache: If ``True``, caches mask. Default is ``False``.
+            reload: If ``True``, reloads the image even if already cached. Default is ``False``.
 
         Returns:
-            ``numpy.ndarray`` in [H, W, C], values in [0, 255], or ``None``.
+            ``numpy.ndarray`` in [H, W, C], values in [0, 255].
         """
-        if self.mask is not None:
-            return self.mask
-        load_path  = path  or self.path
-        load_flags = flags or self.flags
-        mask       = I.load_image(load_path, load_flags, False, False)
-        self.mask = mask if cache else None
+        # Return the image if it is already loaded
+        if not reload and self._mask is not None:
+            return self._mask
+        # Load the mask
+        mask = I.load_image(self.path, self.flags, False, False)
+        # Update the shape of the image
+        if self._shape != mask.shape:
+            self._shape = mask.shape
+        # Cache the image if needed
+        self._mask = mask if self.cache else None
         return mask
     
     @staticmethod
-    def to_tensor(data: torch.Tensor | np.ndarray, normalize: bool = True) -> torch.Tensor:
+    def to_tensor(
+        data     : torch.Tensor | np.ndarray,
+        normalize: bool = True,
+        *args, **kwargs
+    ) -> torch.Tensor:
         """Converts input data to a tensor.
 
         Args:
@@ -153,7 +158,7 @@ class SemanticSegmentationAnnotation(core.Annotation):
         return I.image_to_tensor(data, normalize)
     
     @staticmethod
-    def collate_fn(batch: list[torch.Tensor] | list[np.ndarray]) -> torch.Tensor | np.ndarray | None:
+    def collate_fn(batch: list) -> torch.Tensor | np.ndarray | None:
         """Collates batch data for ``torch.utils.data.DataLoader``.
 
         Args:

@@ -8,8 +8,6 @@ __all__ = [
     "BBoxesAnnotation",
 ]
 
-from typing import Any
-
 import numpy as np
 import torch
 
@@ -17,6 +15,7 @@ from mon import core
 from mon.constants import BBoxFormat
 from mon.nn import _size_2_t
 from mon.vision.types import image as I
+from mon.vision.types.bbox import processing, io
 
 
 # ----- Annotation -----
@@ -133,78 +132,47 @@ class BBoxAnnotation(core.Annotation):
         return None
 
 
-class BBoxesAnnotation(list[BBoxAnnotation]):
-    """List of bounding box annotations in an image.
-    
-    Attributes:
-        albumentation_target_type: Type of target for Albumentations. Default is ``bboxes``.
-    """
-    
-    albumentation_target_type: str = "bboxes"
-    
-    @property
-    def data(self) -> list[list[float | int]] | None:
-        """Returns data of all bounding box annotations.
-
-        Returns:
-            List of [x_min, y_min, x_max, y_max, confidence, class_id] or ``None`` if empty.
-        """
-        return [item.data for item in self] if self else None
-    
-    @property
-    def class_ids(self) -> list[int]:
-        """Returns class IDs of all bounding box annotations.
-
-        Returns:
-            List of ``class_id`` values.
-        """
-        return [item.class_id for item in self]
-    
-    @property
-    def bboxes(self) -> list[np.ndarray]:
-        """Returns bounding boxes of all bounding box annotations.
-
-        Returns:
-            List of ``numpy.ndarray`` coordinates, each shape [4].
-        """
-        return [item.bbox for item in self]
-    
-    @property
-    def confidences(self) -> list[float]:
-        """Returns confidence scores of all bounding box annotations.
-
-        Returns:
-            List of ``confidence`` values in [0.0, 1.0].
-        """
-        return [item.confidence for item in self]
-
-
-class BBoxesAnnotation2(core.Annotation):
-    """List of bounding boxes from a label file.
+class BBoxesAnnotation(core.Annotation):
+    """List of bounding boxes annotation for a single image.
 
     Attributes:
         albumentation_target_type: Type of target for Albumentations. Default is ``bboxes``.
 
     Args:
         path: Label file path.
-        imgsz : Size of the image as ``_size_2_t``. Default is ``None``.
-        format: Bounding boxes format from ``'BBoxFormat'``. Default is ``'BBoxFormat.YOLO'``.
+        root: Root directory. Default is ``None``.
+        fmt: Bounding box format from ``'BBoxFormat'``. Default is ``'BBoxFormat.YOLO'``.
+        imgsz: Image size. Default is ``None``.
     """
 
     albumentation_target_type: str = "bboxes"
 
     def __init__(
         self,
-        path  : core.Path,
-        imgsz : _size_2_t  = None,
-        format: BBoxFormat = BBoxFormat.YOLO,
+        path : core.Path,
+        root : core.Path  = None,
+        fmt  : BBoxFormat = BBoxFormat.YOLO,
+        imgsz: _size_2_t  = None,
+        cache: bool       = True,
         *args, **kwargs
     ):
         super().__init__(*args, **kwargs)
-        self.path   = path
-        self.imgsz  = I.image_size(imgsz) if imgsz else None
-        self.format = BBoxFormat.from_value(format)
-        self.bboxes: list[BBoxAnnotation] = []
+        self.path    = path
+        self.root    = root
+        self.imgsz   = imgsz
+        self.cache   = cache
+        self._bboxes = None
+
+        fmt = BBoxFormat.from_value(fmt)
+        if fmt in BBoxFormat.conversion_codes():
+            src_fmt, dst_fmt = fmt.value.split("_to_")
+            src_fmt = BBoxFormat.from_value(value=src_fmt)
+            dst_fmt = BBoxFormat.from_value(value=dst_fmt)
+        else:
+            src_fmt = dst_fmt = fmt
+        self._fmt     = fmt
+        self._src_fmt = src_fmt
+        self._dst_fmt = dst_fmt
 
     @property
     def path(self) -> core.Path:
@@ -221,10 +189,31 @@ class BBoxesAnnotation2(core.Annotation):
         Raises:
             ValueError: If ``path`` is not a valid label file path.
         """
-        path_obj = core.Path(path)
-        if not path or not path_obj.is_txt_file():
-            raise ValueError(f"[path] must be a valid image path, got {path}.")
-        self._path = path_obj
+        if path and core.Path(path).is_file():
+            self._path = core.Path(path)
+        else:
+            raise ValueError(f"[path] must be a valid file path, got {path}.")
+
+    @property
+    def imgsz(self) -> tuple[int, int] | None:
+        """Returns the image size.
+
+        Returns:
+            Tuple of [H, W] for image dimensions.
+        """
+        return self._imgsz
+
+    @imgsz.setter
+    def imgsz(self, imgsz: _size_2_t):
+        """Sets the image size.
+
+        Args:
+            imgsz: Image size as [H, W] tuple or list.
+
+        Raises:
+            ValueError: If ``imgsz`` is not a valid size.
+        """
+        self._imgsz = I.image_size(imgsz) if imgsz else None
 
     @property
     def name(self) -> str:
@@ -245,8 +234,13 @@ class BBoxesAnnotation2(core.Annotation):
         return self.path.stem
 
     @property
-    def data(self) -> list:
-        pass
+    def data(self) -> np.ndarray | None:
+        """Returns the bbox labels.
+
+        Returns:
+            ``numpy.ndarray`` of image data or ``None`` if not loaded.
+        """
+        return self._bboxes if self._bboxes is not None else self.load()
 
     @property
     def meta(self) -> dict:
@@ -260,45 +254,58 @@ class BBoxesAnnotation2(core.Annotation):
             "stem"      : self.stem,
             "path"      : self.path,
             "imgsz"     : self.imgsz,
-            "num_bboxes": len(self.bboxes),
-            "hash"      : self.path.stat().st_size if isinstance(self.path, core.Path) else None,
+            "num_bboxes": len(self._bboxes)        if isinstance(self._bboxes, np.ndarray) else None,
+            "hash"      : self.path.stat().st_size if isinstance(self.path,    core.Path)  else None,
         }
 
-    def load(
-        self,
-        path  : core.Path  = None,
-        imgsz : _size_2_t  = None,
-        format: BBoxFormat = None,
-        cache : bool       = False
-    ) -> np.ndarray:
-        """Loads the image into memory.
+    def load(self, reload: bool = False) -> np.ndarray:
+        """Loads the bboxes into memory.
 
         Args:
-            path: Path to image file. Default is ``None``.
-            imgsz: Size of the image as ``_size_2_t``. Default is ``None``.
-            format: Bounding boxes format from ``'BBoxFormat'``. Default is ``None``.
-            cache: If ``True``, caches image. Default is ``False``.
+            reload: If ``True``, reloads the image even if already cached. Default is ``False``.
 
         Returns:
             ``numpy.ndarray`` in [H, W, C] format, values in [0, 255].
         """
-        pass
+        # Return the bboxes if it is already loaded
+        if not reload and self._bboxes is not None:
+            return self._bboxes
+        # Load the bboxes from label file
+        bboxes = io.load_bbox(
+            path      = self.path,
+            fmt       = self._fmt,
+            height    = self.imgsz[0] if self.imgsz else None,
+            width     = self.imgsz[1] if self.imgsz else None,
+            to_tensor = False,
+            normalize = False
+        )
+        # Cache the bboxes if needed
+        self._bboxes = bboxes if self.cache else None
+        return bboxes
 
     @staticmethod
-    def to_tensor(data: torch.Tensor | np.ndarray, *args, **kwargs) -> torch.Tensor:
+    def to_tensor(
+        data     : torch.Tensor | np.ndarray,
+        height   : int  = None,
+        width    : int  = None,
+        normalize: bool = True,
+        *args, **kwargs
+    ) -> torch.Tensor:
         """Converts input data to a tensor.
 
         Args:
             data: Input as ``torch.Tensor`` or ``numpy.ndarray``.
+            height: Image height. Default is ``None``.
+            width: Image width. Default is ``None``.
             normalize: If ``True``, normalizes data. Default is ``True``.
 
         Returns:
             ``torch.Tensor`` of converted data.
         """
-        pass
+        return processing.bbox_to_tensor(data, height, width, normalize)
 
     @staticmethod
-    def collate_fn(batch: list[Any]) -> Any:
+    def collate_fn(batch: list) -> torch.Tensor | np.ndarray | None:
         """Collates batch data for ``torch.utils.data.DataLoader``.
 
         Args:
@@ -307,4 +314,6 @@ class BBoxesAnnotation2(core.Annotation):
         Returns:
             Collated ``torch.Tensor``, ``numpy.ndarray``, or ``None`` if empty/invalid.
         """
-        pass
+        if not batch:
+            return None
+        return processing.bbox_to_3d(batch)

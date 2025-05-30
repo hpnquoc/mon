@@ -18,10 +18,12 @@ __all__ = [
 ]
 
 import numpy as np
+import torch
 
 from mon import core
-from mon.core import error_console
 from mon.constants import BBoxFormat
+from mon.core import error_console
+from mon.vision.types.bbox import processing
 
 
 # ----- Reading -----
@@ -81,13 +83,28 @@ def load_bbox_yolo(path: core.Path, verbose: bool = True) -> np.ndarray:
     return np.stack([cx_n, cy_n, w_n, h_n, c] + rest, axis=-1)
 
 
-def load_bbox(path: core.Path, format: BBoxFormat, verbose: bool = True) -> np.ndarray:
+def load_bbox(
+    path     : core.Path,
+    fmt      : BBoxFormat,
+    height   : int          = None,
+    width    : int          = None,
+    to_tensor: bool         = False,
+    normalize: bool         = False,
+    device   : torch.device = None,
+    verbose  : bool         = False
+) -> np.ndarray:
     """Load bounding boxes from a label file.
 
     Args:
         path: Label file path.
-        format: Bounding box format of the label file.
-        verbose: Verbosity. Defaults is ``True``.
+        fmt: Bounding box format of the label file.
+        height: Image height. Default is ``None``.
+        width: Image width. Default is ``None``.
+        to_tensor: Convert to ``torch.Tensor`` if ``True``. Default is ``False``.
+        normalize: Normalize bounding boxes to [0.0, 1.0] if ``True``. Default is ``False``.
+        device: Device to place tensor on, e.g., ``'cuda'`` or ``None`` for CPU.
+            Default is ``None``.
+        verbose: Verbosity. Defaults is ``False``.
 
     Returns:
         Boxes as ``np.ndarray`` in [N, 4+], output format varies by code.
@@ -95,16 +112,40 @@ def load_bbox(path: core.Path, format: BBoxFormat, verbose: bool = True) -> np.n
     Raises:
         ValueError: If ``format`` is invalid.
     """
-    format = BBoxFormat.from_value(value=format)
-    match format:
+    fmt = BBoxFormat.from_value(value=fmt)
+    if fmt in BBoxFormat.conversion_codes():
+        src_fmt = fmt.value.split("_to_")[0]
+        src_fmt = BBoxFormat.from_value(value=src_fmt)
+    else:
+        fmt     = None
+        src_fmt = fmt
+
+    match src_fmt:
         case BBoxFormat.COCO | BBoxFormat.XYWH:
-            return load_bbox_coco(path, verbose)
+            bbox = load_bbox_coco(path, verbose)
         case BBoxFormat.VOC  | BBoxFormat.XYXY:
-            return load_bbox_voc(path, verbose)
+            bbox = load_bbox_voc(path, verbose)
         case BBoxFormat.YOLO | BBoxFormat.CXCYN:
-            return load_bbox_yolo(path, verbose)
+            bbox = load_bbox_yolo(path, verbose)
         case _:
-            raise ValueError(f"[code] must be one of {BBoxFormat.formats()}, got {format}.")
+            raise ValueError(f"[src_fmt] must be one of {BBoxFormat.formats()}, got {src_fmt}.")
+
+    if (fmt or to_tensor) and (height is None or width is None):
+        raise ValueError("[height] and [width] must be provided when converting bounding boxes.")
+
+    if fmt:
+        bbox = processing.convert_bbox(bbox=bbox, fmt=fmt, height=height, width=width)
+
+    if to_tensor:
+        bbox = processing.bbox_to_tensor(
+            bbox      = bbox,
+            height    = height,
+            width     = width,
+            normalize = normalize,
+            device    = device
+        )
+
+    return bbox
 
 
 # ----- Writing -----

@@ -28,6 +28,7 @@ class InfraredAnnotation(I.ImageAnnotation):
         root: Root directory. Default is ``None``.
         source: Source of depth data from ``InfraredSource``. Default is ``InfraredSource.INFRARED``.
         flags: Flag to read image (e.g., ``cv2.IMREAD_GRAYSCALE``). Default is ``cv2.IMREAD_GRAYSCALE``.
+        cache: If ``True``, caches image. Default is ``False``.
     """
     
     albumentation_target_type: str = "image"
@@ -38,9 +39,10 @@ class InfraredAnnotation(I.ImageAnnotation):
         root  : core.Path      = None,
         source: InfraredSource = InfraredSource.INFRARED,
         flags : int            = cv2.IMREAD_GRAYSCALE,
+        cache : bool           = False,
         *args, **kwargs
     ):
-        super().__init__(path=path, root=root, flags=flags, *args, **kwargs)
+        super().__init__(path=path, root=root, flags=flags, cache=cache, *args, **kwargs)
         source = InfraredSource.from_value(source)
         if source not in InfraredSource:
             raise ValueError(f"[source] must be one of {InfraredSource}, got {source}.")

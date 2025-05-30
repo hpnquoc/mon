@@ -122,10 +122,13 @@ class NightCity(VisionDataset):
             desc = f"Listing {self.__class__.__name__} {self.split_str} semantic maps"
             for img in pbar.track(sequence=images, description=desc):
                 path = img.path.replace("/lq/", "/labelIds/")
-                semantic.append(SemanticSegmentationAnnotation(
-                    path  = path.image_file(),
-                    flags = cv2.IMREAD_GRAYSCALE
-                ))
+                semantic.append(
+                    SemanticSegmentationAnnotation(
+                        path  = path.image_file(),
+                        root  = img.root,
+                        flags = cv2.IMREAD_GRAYSCALE
+                    )
+                )
 
         self.datapoints["image"]    = images
         self.datapoints["semantic"] = semantic

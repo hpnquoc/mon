@@ -33,34 +33,10 @@ class Annotation(ABC):
     
     @property
     @abstractmethod
-    def data(self) -> list | None:
-        """Returns the annotation's data.
-
-        Returns:
-            List of annotation data or ``None`` if unavailable.
-        """
+    def data(self) -> Any:
+        """Returns the annotation's data."""
         pass
-    
-    @property
-    def nparray(self) -> np.ndarray | None:
-        """Returns annotation data as a NumPy array.
 
-        Returns:
-            ``numpy.ndarray`` of numeric data or original ``data`` if not convertible.
-        """
-        return np.asarray([x for x in self.data if isinstance(x, int | float)], dtype=np.float32) \
-            if isinstance(self.data, list) else self.data
-    
-    @property
-    def tensor(self) -> torch.Tensor | None:
-        """Returns annotation data as a PyTorch tensor.
-
-        Returns:
-            ``torch.Tensor`` of numeric data or original ``data`` if not convertible.
-        """
-        return torch.as_tensor([x for x in self.data if isinstance(x, int | float)]) \
-            if isinstance(self.data, list) else self.data
-    
     @staticmethod
     @abstractmethod
     def to_tensor(data: torch.Tensor | np.ndarray, *args, **kwargs) -> torch.Tensor:

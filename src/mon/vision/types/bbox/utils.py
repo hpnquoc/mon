@@ -10,7 +10,6 @@ Common Tasks:
 """
 
 __all__ = [
-    "check_valid_bbox",
     "is_bbox_coco",
     "is_bbox_cxcywhn",
     "is_bbox_normalized",
@@ -21,36 +20,12 @@ __all__ = [
 ]
 
 import numpy as np
-import torch
 
 
 # ----- Accessing -----
 
 
 # ----- Validation -----
-def check_valid_bbox(bbox: torch.Tensor | np.ndarray | list | tuple) -> torch.Tensor | np.ndarray:
-    """Check if a bounding box is valid.
-
-    Args:
-        bbox: Box(es) as ``np.ndarray`` or ``torch.Tensor`` in [4] or [N, 4].
-
-    Returns:
-        ``True`` if valid, ``False`` otherwise.
-    """
-    if isinstance(bbox, list | tuple):
-        bbox = np.array(bbox, dtype=np.float32)
-    if not isinstance(bbox, torch.Tensor | np.ndarray):
-        raise ValueError(f"[bbox] must be a torch.Tensor or numpy.ndarray, got {type(bbox)}.")
-    if bbox.ndim == 1:
-        if isinstance(bbox, np.ndarray):
-            bbox = bbox.reshape(1, -1)
-        else:  # torch.Tensor
-            bbox = bbox.unsqueeze(0)
-    if bbox.ndim != 2 or bbox.shape[1] < 4:
-        raise ValueError(f"[bbox] must be a 2D array [N, M] with M >= 4 or a 1D array [M] with M >= 4, got {bbox.shape}.")
-    return bbox
-
-
 def is_bbox_normalized(bbox: np.ndarray) -> bool:
     """Check if a bounding box is normalized to range [0.0, 1.0].
 
@@ -60,7 +35,9 @@ def is_bbox_normalized(bbox: np.ndarray) -> bool:
     Returns:
         ``True`` if normalized, ``False`` otherwise.
     """
-    bbox = check_valid_bbox(bbox)
+    if not (bbox.ndim >= 2 and bbox.shape[-1] < 4):
+        raise ValueError("[bbox] must be in [N, 4+] format.")
+
     return np.all((bbox[:, :4] >= 0) & (bbox[:, :4] <= 1))
 
 
@@ -75,7 +52,9 @@ def is_bbox_cxcywhn(bbox: np.ndarray, height: int, width: int) -> bool:
     Returns:
         ``True`` if in CXCYWHN format, ``False`` otherwise.
     """
-    bbox = check_valid_bbox(bbox)
+    if not (bbox.ndim >= 2 and bbox.shape[-1] < 4):
+        raise ValueError("[bbox] must be in [N, 4+] format.")
+
     return (
         np.all((bbox[:, :4] >= 0) & (bbox[:, :4] <= 1))
         and np.all((bbox[:, 2:4] > 0))  # Width and height must be positive
@@ -93,7 +72,9 @@ def is_bbox_xyxy(bbox: np.ndarray, height: int, width: int) -> bool:
     Returns:
         ``True`` if in XYXY format, ``False`` otherwise.
     """
-    bbox = check_valid_bbox(bbox)
+    if not (bbox.ndim >= 2 and bbox.shape[-1] < 4):
+        raise ValueError("[bbox] must be in [N, 4+] format.")
+
     if is_bbox_cxcywhn(bbox, height, width):
         return False
 
@@ -116,7 +97,9 @@ def is_bbox_xywh(bbox: np.ndarray, height: int, width: int) -> bool:
     Returns:
         ``True`` if in XYWH format, ``False`` otherwise.
     """
-    bbox = check_valid_bbox(bbox)
+    if not (bbox.ndim >= 2 and bbox.shape[-1] < 4):
+        raise ValueError("[bbox] must be in [N, 4+] format.")
+
     if is_bbox_cxcywhn(bbox, height, width):
         return False
 

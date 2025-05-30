@@ -147,7 +147,7 @@ def predict(args: dict) -> str:
                         bs =  boxes[j][ss >= conf_thres]
                         if len(bs) == 0:
                             continue
-                        bs = mon.convert_bbox(bbox=bs, code=mon.BBoxFormat.VOC2YOLO, height=h0, width=w0)
+                        bs = mon.convert_bbox(bbox=bs, fmt=mon.BBoxFormat.VOC2YOLO, height=h0, width=w0)
                         for c, b, s in zip(cs, bs, ss):
                             f.write(f"{c} {b[0]} {b[1]} {b[2]} {b[3]} {s}\n")
 

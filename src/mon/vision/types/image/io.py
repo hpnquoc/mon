@@ -16,8 +16,6 @@ __all__ = [
     "save_image",
 ]
 
-from typing import Any
-
 import cv2
 import numpy as np
 import rawpy
@@ -32,10 +30,10 @@ from mon.vision.types.image import processing, utils
 # ----- Reading -----
 def load_image(
     path     : core.Path,
-    flags    : int  = cv2.IMREAD_COLOR,
-    to_tensor: bool = False,
-    normalize: bool = False,
-    device   : Any  = None
+    flags    : int          = cv2.IMREAD_COLOR,
+    to_tensor: bool         = False,
+    normalize: bool         = False,
+    device   : torch.device = None
 ) -> torch.Tensor | np.ndarray:
     """Loads an image from a file path using OpenCV.
 

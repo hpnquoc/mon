@@ -183,7 +183,7 @@ class LoLIStreetVal(LoLIStreet):
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
                 for path in pbar.track(sequence=paths, description=desc):
                     if path.is_image_file():
-                        images.append(ImageAnnotation(path=path, root=pattern))
+                        images.append(ImageAnnotation(path=path))
 
         self.datapoints["image"] = images
         
@@ -212,7 +212,7 @@ class LoLIStreetTest(LoLIStreet):
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
                 for path in pbar.track(sequence=paths, description=desc):
                     if path.is_image_file():
-                        images.append(ImageAnnotation(path=path, root=pattern))
+                        images.append(ImageAnnotation(path=path))
 
         self.datapoints["image"] = images
         

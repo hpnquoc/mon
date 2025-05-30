@@ -81,7 +81,7 @@ class CityscapesFoggy(Cityscapes):
                 path = img.path.replace("/leftImg8bit_foggy/", "/leftImg8bit/")
                 stem = path.stem.split("leftImg8bit")[0]
                 path = path.parent / f"{stem}leftImg8bit{path.suffix}"
-                ref_images.append(ImageAnnotation(path=path.image_file(), root=img.root))
+                ref_images.append(ImageAnnotation(path=path.image_file()))
         
         # Semantic segmentation maps
         semantic: list[SemanticSegmentationAnnotation] = []
@@ -89,11 +89,13 @@ class CityscapesFoggy(Cityscapes):
             desc = f"Listing {self.__class__.__name__} {self.split_str} semantic maps"
             for img in pbar.track(sequence=ref_images, description=desc):
                 path = img.path.replace("/leftImg8bit/", "/gtFine/")
-                semantic.append(SemanticSegmentationAnnotation(
-                    path  = path.image_file(),
-                    root  = img.root,
-                    flags = cv2.IMREAD_GRAYSCALE
-                ))
+                semantic.append(
+                    SemanticSegmentationAnnotation(
+                        path  = path.image_file(),
+                        root  = img.root,
+                        flags = cv2.IMREAD_GRAYSCALE
+                    )
+                )
         
         self.datapoints["image"]     = images
         self.datapoints["ref_image"] = ref_images

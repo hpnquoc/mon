@@ -64,7 +64,7 @@ def convert_bbox(
                 l = [x.strip().split(" ") for x in l]
                 l = [x for x in l if len(x) >= 2]
                 b = np.array([list(map(float, x[0:])) for x in l])
-                b = mon.convert_bbox(bbox=b, code=code, height=h, width=w)
+                b = mon.convert_bbox(bbox=b, fmt=code, height=h, width=w)
             
             resized = mon.resize(image, imgsz, divisible_by, side, cv2.INTER_AREA)
             if replace:
@@ -80,7 +80,7 @@ def convert_bbox(
             if verbose:
                 code1      = mon.BBoxFormat.from_value(value=f"yolo_to_voc")
                 h1, w1, c1 = resized.shape
-                bv         = mon.convert_bbox(bbox=b, code=code1, height=h1, width=w1)
+                bv         = mon.convert_bbox(bbox=b, fmt=code1, height=h1, width=w1)
                 for j, x in enumerate(bv):
                     resized = mon.draw_bbox(
                         image = resized,

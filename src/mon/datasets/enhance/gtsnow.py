@@ -74,7 +74,7 @@ class GTSnow(VisionDataset):
                 path = path[:-9] + "C-000.png"
                 path = path.replace("/image/", "/ref/")
                 path = core.Path(path)
-                ref_images.append(ImageAnnotation(path=path.image_file()))
+                ref_images.append(ImageAnnotation(path=path.image_file(), root=img.root))
 
         self.datapoints["image"]     = images
         self.datapoints["ref_image"] = ref_images

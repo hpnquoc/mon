@@ -80,6 +80,6 @@ class ImageLoader(base.VisionDataset):
                               f"{self.split_str} images"
             ):
                 if path.is_image_file():
-                    images.append(ImageAnnotation(path=path))
+                    images.append(ImageAnnotation(path=path, root=self.root))
         
         self.datapoints["image"] = images

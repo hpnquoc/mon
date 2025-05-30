@@ -81,18 +81,20 @@ class CityscapesRain(Cityscapes):
                 path = img.path.replace("/leftImg8bit_rain/", "/leftImg8bit/")
                 stem = path.stem.split("leftImg8bit")[0]
                 path = path.parent / f"{stem}leftImg8bit{path.suffix}"
-                ref_images.append(ImageAnnotation(path=path.image_file(), root=img.root))
+                ref_images.append(ImageAnnotation(path=path.image_file(), root=pattern))
         
         semantic: list[SemanticSegmentationAnnotation] = []
         with core.create_progress_bar(disable=self.disable_pbar) as pbar:
             desc = f"Listing {self.__class__.__name__} {self.split_str} semantic maps"
             for img in pbar.track(sequence=images, description=desc):
                 path = img.path.replace("/leftImg8bit_rain/", "/gtFine/")
-                semantic.append(SemanticSegmentationAnnotation(
-                    path  = path.image_file(),
-                    root  = img.root,
-                    flags = cv2.IMREAD_GRAYSCALE
-                ))
+                semantic.append(
+                    SemanticSegmentationAnnotation(
+                        path  = path.image_file(),
+                        root  = img.root,
+                        flags = cv2.IMREAD_GRAYSCALE
+                    )
+                )
         
         self.datapoints["image"]     = images
         self.datapoints["ref_image"] = ref_images
