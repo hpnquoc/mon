@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Implements the paper: "D-FINE: Redefine Regression Task of DETRs as
-Fine-grained Distribution Refinement," ICLR 2025.
+"""Implements the paper: "DEIM: DETR with Improved Matching for Fast
+Convergence," CVPR 2025.
 
 References:
-    - https://github.com/Peterande/D-FINE
+    - https://github.com/ShihuaHuang95/DEIM
 """
 
 import os

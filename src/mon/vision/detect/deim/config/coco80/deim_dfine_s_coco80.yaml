@@ -35,4 +35,4 @@ use_amp     : False                                                             
 test_only   : False                                                             # Test only.
 print_method: "builtin"                                                         # Print method.
 print_rank  : 0                                                                 # Print rank ID.
-conf_thres  : 0.4                                                               # Confidence threshold for detection.
+conf_thres  : 0.25                                                              # Confidence threshold for detection.
