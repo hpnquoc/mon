@@ -91,29 +91,30 @@ def train(args: dict) -> str:
     else:
         resume = None
     assert not all([tuning, resume]), "Only support from scratch or resume or tuning at one time."
-    use_amp      = args["use_amp"]
+    # use_amp      = args["use_amp"]
     test_only    = args["test_only"]
     print_method = args["print_method"]
     print_rank   = args["print_rank"]
 
     dist_utils.setup_distributed(print_rank, print_method, seed=seed)
 
-    cfg_path     = current_dir / "options" / args["cfg_path"]
-    update_dict  = {"tuning": str(tuning)} if tuning       else {}
-    update_dict  = {"resume": str(resume)} if resume       else update_dict
-    update_dict |= {"device": device}      if not torchrun else {}
-    update_dict |= {
+    cfg_path    = current_dir / "options" / args["cfg_path"]
+    update_cfg  = args.get("update_cfg", {})
+    update_cfg |= {"tuning": str(tuning)} if tuning       else {}
+    update_cfg |= {"resume": str(resume)} if resume       else update_cfg
+    update_cfg |= {"device": device}      if not torchrun else {}
+    update_cfg |= {
         "seed"        : seed,
-        "use_amp"     : use_amp,
+        # "use_amp"     : use_amp,
         "output_dir"  : str(save_dir),
         "summary_dir" : str(save_dir),
         "test_only"   : test_only,
         "print_method": print_method,
         "print_rank"  : print_rank,
-        "epoches"     : epochs,  # Don't know why they use "epoches" instead of "epochs"?
-        "__include__" : args.get("__include__", None),
+        # "epoches"     : epochs,  # Don't know why they use "epoches" instead of "epochs"?
+        # "__include__" : args.get("__include__", None),
     }
-    cfg = YAMLConfig(cfg_path=str(cfg_path), root=str(root), **update_dict)
+    cfg = YAMLConfig(cfg_path=str(cfg_path), root=str(root), **update_cfg)
 
     if resume or tuning:
         if "HGNetv2" in cfg.yaml_cfg:

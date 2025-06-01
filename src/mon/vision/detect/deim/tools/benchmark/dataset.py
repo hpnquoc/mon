@@ -3,19 +3,21 @@ Copied from RT-DETR (https://github.com/lyuwenyu/RT-DETR)
 Copyright(c) 2023 lyuwenyu. All Rights Reserved.
 """
 
-import os
 import glob
-from PIL import Image
+import os
 
 import torch
 import torch.utils.data as data
 import torchvision
 import torchvision.transforms as T
 import torchvision.transforms.functional as F
+from PIL import Image
 
 Image.MAX_IMAGE_PIXELS = None
 
+
 class ToTensor(T.ToTensor):
+
     def __init__(self) -> None:
         super().__init__()
 
@@ -24,7 +26,9 @@ class ToTensor(T.ToTensor):
             return pic
         return super().__call__(pic)
 
+
 class PadToSize(T.Pad):
+
     def __init__(self, size, fill=0, padding_mode='constant'):
         super().__init__(0, fill, padding_mode)
         self.size = size
@@ -44,20 +48,21 @@ class PadToSize(T.Pad):
 
 
 class Dataset(data.Dataset):
-    def __init__(self, img_dir: str='', preprocess: T.Compose=None, device='cuda:0') -> None:
+
+    def __init__(self, img_dir: str = '', preprocess: T.Compose = None, device = 'cuda:0') -> None:
         super().__init__()
 
         self.device = device
-        self.size = 640
+        self.size   = 640
 
         self.im_path_list = list(glob.glob(os.path.join(img_dir, '*.jpg')))
 
         if preprocess is None:
             self.preprocess = T.Compose([
-                    T.Resize(size=639, max_size=640),
-                    PadToSize(size=(640, 640), fill=114),
-                    ToTensor(),
-                    T.ConvertImageDtype(torch.float),
+                T.Resize(size=639, max_size=640),
+                PadToSize(size=(640, 640), fill=114),
+                ToTensor(),
+                T.ConvertImageDtype(torch.float),
             ])
         else:
             self.preprocess = preprocess

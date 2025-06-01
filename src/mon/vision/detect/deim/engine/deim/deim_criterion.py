@@ -27,19 +27,20 @@ class DEIMCriterion(nn.Module):
     __share__ = ['num_classes', ]
     __inject__ = ['matcher', ]
 
-    def __init__(self, \
+    def __init__(
+        self,
         matcher,
         weight_dict,
         losses,
-        alpha=0.2,
-        gamma=2.0,
-        num_classes=80,
-        reg_max=32,
-        boxes_weight_format=None,
-        share_matched_indices=False,
-        mal_alpha=None,
-        use_uni_set=True,
-        ):
+        alpha                 = 0.2,
+        gamma                 = 2.0,
+        num_classes           = 80,
+        reg_max               = 32,
+        boxes_weight_format   = None,
+        share_matched_indices = False,
+        mal_alpha             = None,
+        use_uni_set           = True,
+    ):
         """Create the criterion.
         Parameters:
             matcher: module able to compute a matching between targets and proposals.
@@ -50,20 +51,20 @@ class DEIMCriterion(nn.Module):
             boxes_weight_format: format for boxes weight (iou, ).
         """
         super().__init__()
-        self.num_classes = num_classes
-        self.matcher = matcher
-        self.weight_dict = weight_dict
-        self.losses = losses
-        self.boxes_weight_format = boxes_weight_format
+        self.num_classes           = num_classes
+        self.matcher               = matcher
+        self.weight_dict           = weight_dict
+        self.losses                = losses
+        self.boxes_weight_format   = boxes_weight_format
         self.share_matched_indices = share_matched_indices
-        self.alpha = alpha
-        self.gamma = gamma
+        self.alpha                 = alpha
+        self.gamma                 = gamma
         self.fgl_targets, self.fgl_targets_dn = None, None
         self.own_targets, self.own_targets_dn = None, None
-        self.reg_max = reg_max
+        self.reg_max               = reg_max
         self.num_pos, self.num_neg = None, None
-        self.mal_alpha = mal_alpha
-        self.use_uni_set = use_uni_set
+        self.mal_alpha             = mal_alpha
+        self.use_uni_set           = use_uni_set
 
     def loss_labels_focal(self, outputs, targets, indices, num_boxes):
         assert 'pred_logits' in outputs
@@ -456,11 +457,9 @@ class DEIMCriterion(nn.Module):
 
         return dn_match_indices
 
-
     def feature_loss_function(self, fea, target_fea):
         loss = (fea - target_fea) ** 2 * ((fea > 0) | (target_fea > 0)).float()
         return torch.abs(loss)
-
 
     def unimodal_distribution_focal_loss(self, pred, label, weight_right, weight_left, weight=None, reduction='sum', avg_factor=None):
         dis_left = label.long()

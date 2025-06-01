@@ -19,7 +19,7 @@ HGNetv2:
   use_lab    : True
 
 DFINETransformer:
-  num_layers: 4   # 5 6
+  num_layers:  4  # 5 6
   eval_idx  : -1  # -2 -3
 
 HybridEncoder:
@@ -40,8 +40,8 @@ optimizer:
     -
       params      : "^(?=.*(?:encoder|decoder))(?=.*(?:norm|bn|bias)).*$"
       weight_decay: 0.
-  lr: 0.0002
-  betas: [0.9, 0.999]
+  lr          : 0.0002
+  betas       : [0.9, 0.999]
   weight_decay: 0.0001
 
 # Increase to search for the optimal ema

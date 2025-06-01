@@ -1,12 +1,12 @@
-import torch
-import torchvision.transforms.functional as F
-
-from packaging import version
 from typing import Optional, List
-from torch import Tensor
 
+import torch
 # needed due to empty tensor bug in pytorch and torchvision 0.5
 import torchvision
+import torchvision.transforms.functional as F
+from packaging import version
+from torch import Tensor
+
 if version.parse(torchvision.__version__) < version.parse('0.7'):
     from torchvision.ops import _new_empty_tensor
     from torchvision.ops.misc import _output_size
@@ -32,7 +32,6 @@ def interpolate(input, size=None, scale_factor=None, mode="nearest", align_corne
         return torchvision.ops.misc.interpolate(input, size, scale_factor, mode, align_corners)
 
 
-
 def crop(image, target, region):
     cropped_image = F.crop(image, *region)
 
@@ -45,14 +44,14 @@ def crop(image, target, region):
     fields = ["labels", "area", "iscrowd"]
 
     if "boxes" in target:
-        boxes = target["boxes"]
-        max_size = torch.as_tensor([w, h], dtype=torch.float32)
-        cropped_boxes = boxes - torch.as_tensor([j, i, j, i])
-        cropped_boxes = torch.min(cropped_boxes.reshape(-1, 2, 2), max_size)
-        cropped_boxes = cropped_boxes.clamp(min=0)
-        area = (cropped_boxes[:, 1, :] - cropped_boxes[:, 0, :]).prod(dim=1)
+        boxes           = target["boxes"]
+        max_size        = torch.as_tensor([w, h], dtype=torch.float32)
+        cropped_boxes   = boxes - torch.as_tensor([j, i, j, i])
+        cropped_boxes   = torch.min(cropped_boxes.reshape(-1, 2, 2), max_size)
+        cropped_boxes   = cropped_boxes.clamp(min=0)
+        area            = (cropped_boxes[:, 1, :] - cropped_boxes[:, 0, :]).prod(dim=1)
         target["boxes"] = cropped_boxes.reshape(-1, 4)
-        target["area"] = area
+        target["area"]  = area
         fields.append("boxes")
 
     if "masks" in target:

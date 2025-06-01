@@ -13,13 +13,13 @@ DEIM:
 
 HGNetv2:
   name       : "B0"
-  return_idx : [1 , 2, 3]
+  return_idx : [1, 2, 3]
   freeze_at  : -1
   freeze_norm: False
   use_lab    : True
 
 DFINETransformer:
-  num_layers: 3   # 4 5 6
+  num_layers:  3  # 4 5 6
   eval_idx  : -1  # -2 -3 -4
 
 HybridEncoder:

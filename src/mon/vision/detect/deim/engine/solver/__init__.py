@@ -13,5 +13,5 @@ from typing import Dict
 
 TASKS :Dict[str, BaseSolver] = {
     'classification': ClasSolver,
-    'detection': DetSolver,
+    'detection'     : DetSolver,
 }

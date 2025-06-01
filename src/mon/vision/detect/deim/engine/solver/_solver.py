@@ -29,7 +29,7 @@ def remove_module_prefix(state_dict):
 class BaseSolver(object):
 
     def __init__(self, cfg: BaseConfig) -> None:
-        self.cfg = cfg
+        self.cfg        = cfg
         self.obj365_ids = [
             0, 46, 5, 58, 114, 55, 116, 65, 21, 40, 176, 127, 249, 24, 56, 139, 92, 78, 99, 96,
             144, 295, 178, 180, 38, 39, 13, 43, 120, 219, 148, 173, 165, 154, 137, 113, 145, 146,
@@ -57,13 +57,13 @@ class BaseSolver(object):
             self.model.to(device), sync_bn=cfg.sync_bn, find_unused_parameters=cfg.find_unused_parameters
         )
 
-        self.criterion = self.to(cfg.criterion, device)
+        self.criterion     = self.to(cfg.criterion, device)
         self.postprocessor = self.to(cfg.postprocessor, device)
 
-        self.ema = self.to(cfg.ema, device)
+        self.ema    = self.to(cfg.ema, device)
         self.scaler = cfg.scaler
 
-        self.device = device
+        self.device     = device
         self.last_epoch = self.cfg.last_epoch
 
         self.output_dir = Path(cfg.output_dir)
@@ -190,9 +190,9 @@ class BaseSolver(object):
 
     @staticmethod
     def _matched_state(state: Dict[str, torch.Tensor], params: Dict[str, torch.Tensor]):
-        missed_list = []
+        missed_list    = []
         unmatched_list = []
-        matched_state = {}
+        matched_state  = {}
         for k, v in state.items():
             if k in params:
                 if v.shape == params[k].shape:

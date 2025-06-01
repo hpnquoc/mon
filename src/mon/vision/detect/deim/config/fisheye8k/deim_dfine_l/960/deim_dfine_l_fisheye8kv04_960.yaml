@@ -31,17 +31,57 @@ verbose     : &verbose True                                                     
 cfg_path    : "deim_dfine/coco80/deim_hgnetv2_l_coco80.yaml"                    # Fine-tuning from COCO80 pre-trained weights.
 resume      : "run/train/deim/deim_dfine_l/deim_dfine_l_fisheye8kv04_960/best_stg1.pth"  # Resume from checkpoint
 tuning      : "zoo/vision/detect/deim/deim_dfine_l/coco80/deim_dfine_l_coco80.pth"  # Fine-tuning from checkpoint
-use_amp     : False                                                             # Use automatic mixed precision (AMP) for training.
 test_only   : False                                                             # Test only.
 print_method: "builtin"                                                         # Print method.
 print_rank  : 0                                                                 # Print rank ID.
-conf_thres  : 0.25                                                              # Confidence threshold for detection.
+conf_thres  : 0.50                                                              # Confidence threshold for detection.
 
-# We only need to change the '__include__' part in the original config file.
-__include__: [
-  "./dfine_hgnetv2_l_coco80.yaml",
-  "../../dataset/fisheye8kv04_detection.yaml",
-  "../../base/dataloader_960.yaml",
-  "../../base/dfine_hgnetv2_960.yaml",
-  "../../base/deim_960.yaml"
-]
+# Update the configurations (customized training).
+update_cfg:
+  # File: deim_hgnetv2_m_coco80.yaml
+  __include__: [
+    "./dfine_hgnetv2_l_coco80.yaml",
+    "../../dataset/fisheye8kv04_detection.yaml",
+    "../../base/dataloader.yaml",
+    "../../base/dfine_hgnetv2.yaml",
+    "../../base/deim.yaml"
+  ]
+
+  epoches: *epochs  # Training epochs.
+
+  # File: runtime.yaml
+  use_amp: False                                                                # Use automatic mixed precision (AMP) for training.
+
+  # File: dfine_hgnetv2.yaml
+  eval_spatial_size: [*imgsz, *imgsz]  # h w
+
+  # File: dataloader.yaml
+  train_dataloader:
+    dataset:
+      transforms:
+        # File: deim.yaml
+        ops:
+          - { type: Mosaic, output_size: 320, rotation_range: 10, translation_range: [ 0.1, 0.1 ], scaling_range: [ 0.5, 1.5 ],
+              probability: 1.0, fill_value: 0, use_cache: False, max_cached_images: 50, random_pop: True }
+          - { type: RandomPhotometricDistort, p: 0.5 }
+          - { type: RandomZoomOut, fill: 0 }
+          - { type: RandomIoUCrop, p: 0.8 }
+          - { type: SanitizeBoundingBoxes, min_size: 1 }
+          - { type: RandomHorizontalFlip }
+          - { type: Resize, size: [ *imgsz, *imgsz ], }
+          - { type: SanitizeBoundingBoxes, min_size: 1 }
+          - { type: ConvertPILImage, dtype: "float32", scale: True }
+          - { type: ConvertBoxes, fmt: "cxcywh", normalize: True }
+
+    collate_fn:
+      base_size: *imgsz
+
+    total_batch_size: 32  # total batch size equals to 32 (4 * 8)
+
+  val_dataloader:
+    dataset:
+      transforms:
+        ops:
+          - { type: Resize, size: [ *imgsz, *imgsz ], }
+          - { type: ConvertPILImage, dtype: "float32", scale: True }
+    total_batch_size: 64

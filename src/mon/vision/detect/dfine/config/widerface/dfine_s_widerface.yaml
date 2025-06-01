@@ -31,17 +31,55 @@ verbose     : &verbose True                                                     
 cfg_path    : "dfine/custom/dfine_hgnetv2_s_objects3652custom.yaml"             # Fine-tuning from Objects365 pre-trained weights.
 resume      : "run/train/dfine/dfine_s/dfine_s_widerface/best_stg1.pth"         # Resume from checkpoint
 tuning      : "zoo/vision/detect/dfine/dfine_s/objects365/dfine_s_objects365.pth"  # Fine-tuning from checkpoint
-use_amp     : False                                                             # Use automatic mixed precision (AMP) for training.
 test_only   : False                                                             # Test only.
 print_method: "builtin"                                                         # Print method.
 print_rank  : 0                                                                 # Print rank ID.
-conf_thres  : 0.25                                                             # Confidence threshold for detection.
+conf_thres  : 0.25                                                              # Confidence threshold for detection.
 
-# We only need to change the '__include__' part in the original config file.
-__include__: [
-  "../../dataset/widerface_detection.yaml",
-  "../../runtime.yaml",
-  "../include/dataloader_4.yaml",
-  "../include/optimizer.yaml",
-  "../include/dfine_hgnetv2_640.yaml",
-]
+# Update the configurations (customized training).
+update_cfg:
+  # File: deim_hgnetv2_m_coco80.yaml
+  __include__: [
+    "../../dataset/widerface_detection.yaml",
+    "../../runtime.yaml",
+    "../include/dataloader.yaml",
+    "../include/optimizer.yaml",
+    "../include/dfine_hgnetv2.yaml",
+  ]
+
+  epoches: *epochs  # Training epochs.
+
+  # File: runtime.yaml
+  use_amp: False                                                                # Use automatic mixed precision (AMP) for training.
+
+  # File: dfine_hgnetv2.yaml
+  eval_spatial_size: [*imgsz, *imgsz]  # h w
+
+  # File: dataloader.yaml
+  train_dataloader:
+    dataset:
+      transforms:
+        # File: deim.yaml
+        ops:
+          - {type: RandomPhotometricDistort, p: 0.5}
+          - {type: RandomZoomOut, fill: 0}
+          - {type: RandomIoUCrop, p: 0.8}
+          - {type: SanitizeBoundingBoxes, min_size: 1}
+          - {type: RandomHorizontalFlip}
+          - {type: Resize, size: [*imgsz, *imgsz], }
+          - {type: SanitizeBoundingBoxes, min_size: 1}
+          - {type: ConvertPILImage, dtype: "float32", scale: True}
+          - {type: ConvertBoxes, fmt: "cxcywh", normalize: True}
+
+    collate_fn:
+      base_size: *imgsz
+
+    total_batch_size: 4  # total batch size equals to 32 (4 * 8)
+
+  val_dataloader:
+    dataset:
+      transforms:
+        ops:
+          - { type: Resize, size: [ *imgsz, *imgsz ], }
+          - { type: ConvertPILImage, dtype: "float32", scale: True }
+    total_batch_size: 4

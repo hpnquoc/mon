@@ -31,8 +31,12 @@ verbose     : &verbose True                                                     
 cfg_path    : "dfine/coco80/dfine_hgnetv2_n_coco80.yaml"                        # Fine-tuning from COCO80 pre-trained weights.
 resume      : "run/train/dfine/dfine_n/dfine_n_coco80/best_stg1.pth"            # Resume from checkpoint
 tuning      : "zoo/vision/detect/dfine/dfine_n/coco80/dfine_n_coco80.pth"       # Fine-tuning from checkpoint
-use_amp     : False                                                             # Use automatic mixed precision (AMP) for training.
 test_only   : False                                                             # Test only.
 print_method: "builtin"                                                         # Print method.
 print_rank  : 0                                                                 # Print rank ID.
-conf_thres  : 0.25                                                             # Confidence threshold for detection.
+conf_thres  : 0.25                                                              # Confidence threshold for detection.
+
+# Update the configurations (customized training).
+update_cfg:
+  # File: runtime.yaml
+  use_amp: False                                                                # Use automatic mixed precision (AMP) for training.

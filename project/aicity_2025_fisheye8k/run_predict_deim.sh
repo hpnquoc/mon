@@ -6,7 +6,8 @@ clear
 # ----- Input -----
 arch="deim"
 model="deim_dfine_l"
-fullname="${model}_coco802fisheye8kv2_1280"
+imgsz=960
+fullname="${model}_fisheye8kvD8_${imgsz}"
 data="fisheye8ktest"
 
 # ----- Directory -----
@@ -18,7 +19,7 @@ run_dir="${project_dir}/run"
 deim_dir="${root_dir}/src/mon/vision/detect/deim"
 
 # ----- Main -----
-config="${deim_dir}/config/${fullname}.yaml"
+config="${deim_dir}/config/fisheye8k/${model}/${imgsz}/${fullname}.yaml"
 # save_dir="${current_dir}/run/predict/${arch}/${model}/${fullname}"
 save_dir="${current_dir}/run/predict/${arch}/${fullname}"
 weights="${current_dir}/run/train/${arch}/${model}/${fullname}/best_stg2.pth"

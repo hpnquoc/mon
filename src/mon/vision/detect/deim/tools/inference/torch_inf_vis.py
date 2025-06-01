@@ -141,6 +141,7 @@ def process_video(model, file_path):
     out.release()
     print("Video processing complete. Result saved as 'results_video.mp4'.")
 
+
 def process_dataset(model, dataset_path, output_path, thrh=0.5):
     os.makedirs(output_path, exist_ok=True)
     image_paths = [os.path.join(dataset_path, f) for f in os.listdir(dataset_path) if f.endswith(('.jpg', '.png'))]

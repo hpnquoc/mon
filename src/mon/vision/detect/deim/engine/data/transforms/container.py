@@ -6,22 +6,22 @@ Modified from D-FINE (https://github.com/Peterande/D-FINE)
 Copyright (c) 2024 D-FINE authors. All Rights Reserved.
 """
 
-import torch
-import torch.nn as nn
+from typing import Any
 
+import torch.nn as nn
 import torchvision
 import torchvision.transforms.v2 as T
 
-from typing import Any, Dict, List, Optional
-
 from ._transforms import EmptyTransform
 from ...core import register, GLOBAL_CONFIG
+
 torchvision.disable_beta_transforms_warning()
 import random
 
 
 @register()
 class Compose(T.Compose):
+
     def __init__(self, ops, policy=None, mosaic_prob=-0.1) -> None:
         transforms = []
         if ops is not None:
@@ -106,7 +106,6 @@ class Compose(T.Compose):
                     sample = transform(sample)
 
         return sample
-
 
     def stop_sample_forward(self, *inputs: Any):
         sample = inputs if len(inputs) > 1 else inputs[0]

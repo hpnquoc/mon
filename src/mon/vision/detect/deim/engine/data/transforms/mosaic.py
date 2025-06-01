@@ -20,9 +20,19 @@ class Mosaic(T.Transform):
     into a single composite image with randomized transformations.
     """
 
-    def __init__(self, output_size=320, max_size=None, rotation_range=0, translation_range=(0.1, 0.1),
-                 scaling_range=(0.5, 1.5), probability=1.0, fill_value=114, use_cache=True, max_cached_images=50,
-                 random_pop=True) -> None:
+    def __init__(
+        self,
+        output_size       = 320,
+        max_size          = None,
+        rotation_range    = 0,
+        translation_range = (0.1, 0.1),
+        scaling_range     = (0.5, 1.5),
+        probability       = 1.0,
+        fill_value        = 114,
+        use_cache         = True,
+        max_cached_images = 50,
+        random_pop        = True
+    ) -> None:
         """
         Args:
             output_size (int): Target size for resizing individual images.
@@ -36,14 +46,18 @@ class Mosaic(T.Transform):
             random_pop (bool): Whether to randomly pop a result from the cache.
         """
         super().__init__()
-        self.resize = T.Resize(size=output_size, max_size=max_size)
-        self.probability = probability
-        self.affine_transform = T.RandomAffine(degrees=rotation_range, translate=translation_range,
-                                               scale=scaling_range, fill=fill_value)
-        self.use_cache = use_cache
-        self.mosaic_cache = []
+        self.resize           = T.Resize(size=output_size, max_size=max_size)
+        self.probability      = probability
+        self.affine_transform = T.RandomAffine(
+            degrees   = rotation_range,
+            translate = translation_range,
+            scale     = scaling_range,
+            fill      = fill_value
+        )
+        self.use_cache         = use_cache
+        self.mosaic_cache      = []
         self.max_cached_images = max_cached_images
-        self.random_pop = random_pop
+        self.random_pop        = random_pop
 
     def load_samples_from_dataset(self, image, target, dataset):
         """Loads and resizes a set of images and their corresponding targets."""
@@ -157,8 +171,11 @@ class Mosaic(T.Transform):
 
         # Clamp boxes and convert target formats
         if 'boxes' in mosaic_target:
-            mosaic_target['boxes'] = convert_to_tv_tensor(mosaic_target['boxes'], 'boxes', box_format='xyxy',
-                                                          spatial_size=mosaic_image.size[::-1])
+            mosaic_target['boxes'] = convert_to_tv_tensor(
+                mosaic_target['boxes'], 'boxes',
+                box_format   = 'xyxy',
+                spatial_size = mosaic_image.size[::-1]
+            )
         if 'masks' in mosaic_target:
             mosaic_target['masks'] = convert_to_tv_tensor(mosaic_target['masks'], 'masks')
 

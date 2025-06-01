@@ -37,7 +37,7 @@ DFINETransformer:
   num_levels     : 2
   num_layers     : 3
   eval_idx       : -1
-  num_points     : [6  , 6]
+  num_points     : [6, 6]
 
 optimizer:
   type: AdamW

@@ -78,7 +78,7 @@ def convert_label_to_coco(predict_dir: str | mon.Path):
                     "image_id"   : image_id,
                     "category_id": int(b[4]),
                     "bbox"       : [int(b[0]), int(b[1]), int(b[2]), int(b[3])],
-                    "score"      : b[5],
+                    "score"      : float(b[5]),
                 })
 
     # Write to JSON file
