@@ -24,4 +24,4 @@ dependencies:
     # Building Tools
     - poetry                            # Python packaging and dependency management made easy.
     # AI
-    - tensorrt                          # # TensorRT is a high-performance deep learning inference library and runtime.
+    - tensorrt                          # TensorRT is a high-performance deep learning inference library and runtime.

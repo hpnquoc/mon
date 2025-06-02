@@ -6,7 +6,6 @@ Modified from DETR (https://github.com/facebookresearch/detr/blob/main/engine.py
 Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved.
 """
 
-
 import sys
 import math
 from typing import Iterable
@@ -85,7 +84,7 @@ def train_one_epoch(
             optimizer.zero_grad()
 
         else:
-            outputs = model(samples, targets=targets)
+            outputs   = model(samples, targets=targets)
             loss_dict = criterion(outputs, targets, **metas)
 
             loss : torch.Tensor = sum(loss_dict.values())

@@ -4,6 +4,10 @@ echo "$HOSTNAME"
 clear
 
 # ----- Input -----
+task="lle"
+mode="predict"
+arch=""
+model=""
 data=(
     ### Unpaired Set
     "dicm"
@@ -52,8 +56,10 @@ run_dir="${project_dir}/run"
 cd "${run_dir}" || exit
 python -W ignore main.py \
     --root "${current_dir}" \
-    --task "lle" \
-    --mode "predict" \
+    --task "${task}" \
+    --mode "${mode}" \
+    --arch "${arch}" \
+    --model "${model}" \
     --data "${data_str}" \
     --save-result \
     --save-image \

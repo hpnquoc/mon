@@ -5,12 +5,13 @@ Copyright(c) 2023 lyuwenyu. All Rights Reserved.
 """
 
 
+import faster_coco_eval.core.mask as coco_mask
 import torch
 import torch.utils.data
 import torchvision
-import torchvision.transforms.functional as TVF
-import faster_coco_eval.core.mask as coco_mask
 from faster_coco_eval import COCO
+
+from ...core import GLOBAL_DTYPE
 
 
 def convert_coco_poly_to_mask(segmentations, height, width):
@@ -43,7 +44,7 @@ class ConvertCocoPolysToMask:
 
         boxes = [obj["bbox"] for obj in anno]
         # guard against no boxes via resizing
-        boxes = torch.as_tensor(boxes, dtype=torch.float32).reshape(-1, 4)
+        boxes = torch.as_tensor(boxes, dtype=GLOBAL_DTYPE).reshape(-1, 4)
         boxes[:, 2:] += boxes[:, :2]
         boxes[:, 0::2].clamp_(min=0, max=w)
         boxes[:, 1::2].clamp_(min=0, max=h)
@@ -57,7 +58,7 @@ class ConvertCocoPolysToMask:
         keypoints = None
         if anno and "keypoints" in anno[0]:
             keypoints = [obj["keypoints"] for obj in anno]
-            keypoints = torch.as_tensor(keypoints, dtype=torch.float32)
+            keypoints = torch.as_tensor(keypoints, dtype=GLOBAL_DTYPE)
             num_keypoints = keypoints.shape[0]
             if num_keypoints:
                 keypoints = keypoints.view(num_keypoints, -1, 3)

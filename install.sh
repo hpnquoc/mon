@@ -6,6 +6,9 @@
 clear
 echo "$HOSTNAME"
 
+# ----- Input -----
+
+
 # ----- Globals -----
 # Directory
 current_file=$(readlink -f "$0")
@@ -174,6 +177,40 @@ install_imagemagick() {
     esac
 }
 
+install_turbojpeg() {
+    echo -e "\nInstalling ffmpeg"
+    case "$OSTYPE" in
+        linux*)
+            if sudo -n true 2>/dev/null; then
+                sudo apt-get install libturbojpeg
+            else
+                apt-get install libturbojpeg
+            fi
+            ;;
+        darwin*)
+            brew install jpeg-turbo
+            ;;
+        win*)
+            echo -e "\nWindows"
+            ;;
+        msys*)
+            echo -e "\nMSYS / MinGW / Git Bash"
+            ;;
+        cygwin*)
+            echo -e "\nCygwin"
+            ;;
+        bsd*)
+            echo -e "\nBSD"
+            ;;
+        solaris*)
+            echo -e "\nSolaris"
+            ;;
+        *)
+            echo -e "\nunknown: $OSTYPE"
+            ;;
+    esac
+}
+
 setup_resilio_sync() {
     rsync_dir="${root_dir}/.sync"
     mkdir -p "${rsync_dir}"
@@ -186,6 +223,7 @@ update_system() {
     update_base_env
     install_ffmpeg
     install_imagemagick
+    install_turbojpeg
     setup_resilio_sync
 }
 

@@ -39,8 +39,8 @@ class HungarianMatcher(nn.Module):
         """
         super().__init__()
         self.cost_class = weight_dict['cost_class']
-        self.cost_bbox = weight_dict['cost_bbox']
-        self.cost_giou = weight_dict['cost_giou']
+        self.cost_bbox  = weight_dict['cost_bbox']
+        self.cost_giou  = weight_dict['cost_giou']
 
         self.use_focal_loss = use_focal_loss
         self.alpha = alpha
@@ -50,7 +50,7 @@ class HungarianMatcher(nn.Module):
 
     @torch.no_grad()
     def forward(self, outputs: Dict[str, torch.Tensor], targets, return_topk=False):
-        """ Performs the matching
+        """Performs the matching
 
         Params:
             outputs: This is a dict that contains at least these entries:
@@ -80,14 +80,14 @@ class HungarianMatcher(nn.Module):
         out_bbox = outputs["pred_boxes"].flatten(0, 1)  # [batch_size * num_queries, 4]
 
         # Also concat the target labels and boxes
-        tgt_ids = torch.cat([v["labels"] for v in targets])
+        tgt_ids  = torch.cat([v["labels"] for v in targets])
         tgt_bbox = torch.cat([v["boxes"] for v in targets])
 
         # Compute the classification cost. Contrary to the loss, we don't use the NLL,
         # but approximate it in 1 - proba[target class].
         # The 1 is a constant that doesn't change the matching, it can be ommitted.
         if self.use_focal_loss:
-            out_prob = out_prob[:, tgt_ids]
+            out_prob       = out_prob[:, tgt_ids]
             neg_cost_class = (1 - self.alpha) * (out_prob ** self.gamma) * (-(1 - out_prob + 1e-8).log())
             pos_cost_class = self.alpha * ((1 - out_prob) ** self.gamma) * (-(out_prob + 1e-8).log())
             cost_class = pos_cost_class - neg_cost_class
@@ -108,7 +108,7 @@ class HungarianMatcher(nn.Module):
         # FIXME，RT-DETR, different way to set NaN
         C = torch.nan_to_num(C, nan=1.0)
         indices_pre = [linear_sum_assignment(c[i]) for i, c in enumerate(C.split(sizes, -1))]
-        indices = [(torch.as_tensor(i, dtype=torch.int64), torch.as_tensor(j, dtype=torch.int64)) for i, j in indices_pre]
+        indices     = [(torch.as_tensor(i, dtype=torch.int64), torch.as_tensor(j, dtype=torch.int64)) for i, j in indices_pre]
 
         # Compute topk indices
         if return_topk:

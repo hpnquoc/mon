@@ -16,7 +16,8 @@ import faster_coco_eval
 import faster_coco_eval.core.mask as coco_mask
 from ._dataset import DetDataset
 from .._misc import convert_to_tv_tensor
-from ...core import register
+from ...core import register, GLOBAL_DTYPE
+
 
 torchvision.disable_beta_transforms_warning()
 faster_coco_eval.init_as_pycocotools()
@@ -128,7 +129,7 @@ class ConvertCocoPolysToMask(object):
 
         boxes = [obj["bbox"] for obj in anno]
         # guard against no boxes via resizing
-        boxes = torch.as_tensor(boxes, dtype=torch.float32).reshape(-1, 4)
+        boxes = torch.as_tensor(boxes, dtype=GLOBAL_DTYPE).reshape(-1, 4)
         boxes[:, 2:] += boxes[:, :2]
         boxes[:, 0::2].clamp_(min=0, max=w)
         boxes[:, 1::2].clamp_(min=0, max=h)
@@ -148,7 +149,7 @@ class ConvertCocoPolysToMask(object):
         keypoints = None
         if anno and "keypoints" in anno[0]:
             keypoints = [obj["keypoints"] for obj in anno]
-            keypoints = torch.as_tensor(keypoints, dtype=torch.float32)
+            keypoints = torch.as_tensor(keypoints, dtype=GLOBAL_DTYPE)
             num_keypoints = keypoints.shape[0]
             if num_keypoints:
                 keypoints = keypoints.view(num_keypoints, -1, 3)

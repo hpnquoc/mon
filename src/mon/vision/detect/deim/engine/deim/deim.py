@@ -6,13 +6,13 @@ import torch.nn as nn
 from ..core import register
 
 
-__all__ = ['DEIM', ]
+__all__ = ["DEIM", ]
 
 
 @register()
 class DEIM(nn.Module):
 
-    __inject__ = ['backbone', 'encoder', 'decoder', ]
+    __inject__ = ["backbone", "encoder", "decoder", ]
 
     def __init__(
         self,
@@ -34,6 +34,6 @@ class DEIM(nn.Module):
     def deploy(self, ):
         self.eval()
         for m in self.modules():
-            if hasattr(m, 'convert_to_deploy'):
+            if hasattr(m, "convert_to_deploy"):
                 m.convert_to_deploy()
         return self

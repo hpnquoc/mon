@@ -28,9 +28,9 @@ exist_ok    : True                                                              
 verbose     : &verbose True                                                     # Verbosity.
 
 # Misc
-cfg_path    : "dfine/custom/dfine_hgnetv2_n_objects3652custom.yaml"             # Fine-tuning from Objects365 pre-trained weights.
+cfg_path    : "dfine/custom/dfine_hgnetv2_n_custom.yaml"                        # Fine-tuning from Objects365 pre-trained weights.
 resume      : "run/train/dfine/dfine_n/dfine_n_widerface/best_stg1.pth"         # Resume from checkpoint
-tuning      : "zoo/vision/detect/dfine/dfine_n/objects365/dfine_n_objects365.pth"  # Fine-tuning from checkpoint
+tuning      : "zoo/vision/detect/dfine/dfine_n/coco80/dfine_n_coco80.pth"       # Fine-tuning from checkpoint
 test_only   : False                                                             # Test only.
 print_method: "builtin"                                                         # Print method.
 print_rank  : 0                                                                 # Print rank ID.
@@ -74,7 +74,7 @@ update_cfg:
     collate_fn:
       base_size: *imgsz
 
-    total_batch_size: 8  # total batch size equals to 32 (4 * 8)
+    total_batch_size: 4  # total batch size equals to 32 (4 * 8)
 
   val_dataloader:
     dataset:
@@ -82,4 +82,4 @@ update_cfg:
         ops:
           - { type: Resize, size: [ *imgsz, *imgsz ], }
           - { type: ConvertPILImage, dtype: "float32", scale: True }
-    total_batch_size: 8
+    total_batch_size: 4

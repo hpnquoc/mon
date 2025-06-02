@@ -3,13 +3,16 @@ Copied from RT-DETR (https://github.com/lyuwenyu/RT-DETR)
 Copyright(c) 2023 lyuwenyu. All Rights Reserved.
 """
 
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Sequence, Union
 
 import PIL.Image
+import cv2
+import numpy as np
 import torch
 import torchvision
 import torchvision.transforms.v2 as T
 import torchvision.transforms.v2.functional as F
+from torchvision import transforms as _transforms
 
 from .._misc import (
     BoundingBoxes,
@@ -22,23 +25,65 @@ from .._misc import (
 )
 from ...core import register
 
+cv2.setNumThreads(0)
 torchvision.disable_beta_transforms_warning()
 
 
 RandomPhotometricDistort = register()(T.RandomPhotometricDistort)
-RandomZoomOut = register()(T.RandomZoomOut)
-RandomHorizontalFlip = register()(T.RandomHorizontalFlip)
-Resize = register()(T.Resize)
+RandomZoomOut            = register()(T.RandomZoomOut)
+RandomHorizontalFlip     = register()(T.RandomHorizontalFlip)
+Resize                   = register()(T.Resize)
 # ToImageTensor = register()(T.ToImageTensor)
 # ConvertDtype = register()(T.ConvertDtype)
 # PILToTensor = register()(T.PILToTensor)
-SanitizeBoundingBoxes = register(name="SanitizeBoundingBoxes")(SanitizeBoundingBoxes)
-RandomCrop = register()(T.RandomCrop)
-Normalize = register()(T.Normalize)
+SanitizeBoundingBoxes    = register(name="SanitizeBoundingBoxes")(SanitizeBoundingBoxes)
+RandomCrop               = register()(T.RandomCrop)
+Normalize                = register()(T.Normalize)
+
+
+@register()
+class ResizeCV(T.Transform):
+    """Resize the input to the given size using cv2."""
+
+    _v1_transform_cls = _transforms.Resize
+
+    def __init__(
+        self,
+        size         : Union[int, Sequence[int], None],
+        interpolation: int            = cv2.INTER_AREA,
+        max_size     : Optional[int]  = None,
+        antialias    : Optional[bool] = True,
+    ) -> None:
+        super().__init__()
+
+        if isinstance(size, int):
+            size = [size]
+        elif isinstance(size, Sequence) and len(size) in {1, 2}:
+            size = list(size)
+        elif size is None:
+            if not isinstance(max_size, int):
+                raise ValueError(f"max_size must be an integer when size is None, but got {max_size} instead.")
+        else:
+            raise ValueError(f"size can be an integer, a sequence of one or two integers, or None, but got {size} instead.")
+        self.size          = size
+        self.interpolation = interpolation
+        self.max_size      = max_size
+        self.antialias     = antialias
+        cv2.setNumThreads(0)  # Disable multithreading in OpenCV to avoid potential issues with parallel processing
+
+    def transform(self, inpt: Any, params: Dict[str, Any]) -> Any:
+        if isinstance(inpt, PIL.Image.Image):
+            inpt = np.array(inpt)
+            inpt = cv2.resize(inpt, self.size, interpolation=self.interpolation)
+            # print(inpt.shape)
+            return inpt
+        else:
+            return inpt
 
 
 @register()
 class EmptyTransform(T.Transform):
+
     def __init__(
         self,
     ) -> None:
@@ -51,6 +96,7 @@ class EmptyTransform(T.Transform):
 
 @register()
 class PadToSize(T.Pad):
+
     _transformed_types = (
         PIL.Image.Image,
         Image,
@@ -85,6 +131,7 @@ class PadToSize(T.Pad):
 
 @register()
 class RandomIoUCrop(T.RandomIoUCrop):
+
     def __init__(
         self,
         min_scale: float = 0.3,
@@ -109,6 +156,7 @@ class RandomIoUCrop(T.RandomIoUCrop):
 
 @register()
 class ConvertBoxes(T.Transform):
+
     _transformed_types = (BoundingBoxes,)
 
     def __init__(self, fmt="", normalize=False) -> None:
@@ -136,6 +184,7 @@ class ConvertBoxes(T.Transform):
 
 @register()
 class ConvertPILImage(T.Transform):
+
     _transformed_types = (PIL.Image.Image,)
 
     def __init__(self, dtype="float32", scale=True) -> None:
@@ -153,6 +202,36 @@ class ConvertPILImage(T.Transform):
 
         if self.scale:
             inpt = inpt / 255.0
+
+        inpt = Image(inpt)
+
+        return inpt
+
+
+@register()
+class ConvertNumpyImage(T.Transform):
+
+    _transformed_types = (
+        np.ndarray,
+    )
+
+    def __init__(self, dtype='float32', scale=True) -> None:
+        super().__init__()
+        self.dtype = dtype
+        self.scale = scale
+
+    def transform(self, inpt: Any, params: Dict[str, Any]) -> Any:
+        return self._transform(inpt, params)
+
+    def _transform(self, inpt: Any, params: Dict[str, Any]) -> Any:
+        inpt = torch.from_numpy(inpt).contiguous()
+        inpt = inpt.permute(2, 0, 1)
+
+        if self.dtype == 'float32':
+            inpt = inpt.float()
+
+        if self.scale:
+            inpt = inpt / 255.
 
         inpt = Image(inpt)
 

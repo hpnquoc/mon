@@ -47,6 +47,7 @@ class BaseSolver(object):
             device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
         self.model = cfg.model
+        print(f"Model is set to {next(self.model.parameters()).dtype}")
 
         # NOTE: Must load_tuning_state before EMA instance building
         if self.cfg.tuning:
@@ -81,15 +82,17 @@ class BaseSolver(object):
 
     def train(self):
         self._setup()
-        self.optimizer = self.cfg.optimizer
-        self.lr_scheduler = self.cfg.lr_scheduler
+        self.optimizer           = self.cfg.optimizer
+        self.lr_scheduler        = self.cfg.lr_scheduler
         self.lr_warmup_scheduler = self.cfg.lr_warmup_scheduler
 
         self.train_dataloader = dist_utils.warp_loader(
-            self.cfg.train_dataloader, shuffle=self.cfg.train_dataloader.shuffle
+            self.cfg.train_dataloader,
+            shuffle=self.cfg.train_dataloader.shuffle
         )
         self.val_dataloader = dist_utils.warp_loader(
-            self.cfg.val_dataloader, shuffle=self.cfg.val_dataloader.shuffle
+            self.cfg.val_dataloader,
+            shuffle=self.cfg.val_dataloader.shuffle
         )
 
         self.evaluator = self.cfg.evaluator

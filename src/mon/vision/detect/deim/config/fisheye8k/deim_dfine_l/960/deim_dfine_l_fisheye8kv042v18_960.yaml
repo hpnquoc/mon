@@ -34,7 +34,10 @@ tuning      : "run/train/deim/deim_dfine_l/deim_dfine_l_fisheye8kv04_960/best_st
 test_only   : False                                                             # Test only.
 print_method: "builtin"                                                         # Print method.
 print_rank  : 0                                                                 # Print rank ID.
-conf_thres  : 0.5                                                               # Confidence threshold for detection.
+dtype       : &dtype "float32"                                                  # Data type for the model.
+check       : True                                                              # Check the model when exporting.
+simplify    : False                                                             # Simplify the model when exporting.
+conf_thres  : 0.60                                                              # Confidence threshold for detection.
 
 # Update the configurations (customized training).
 update_cfg:
@@ -55,6 +58,9 @@ update_cfg:
   # File: dfine_hgnetv2.yaml
   eval_spatial_size: [*imgsz, *imgsz]  # h w
 
+  PostProcessor:
+    num_top_queries: 300                                                        # max_dets
+
   # File: dataloader.yaml
   train_dataloader:
     dataset:
@@ -70,7 +76,7 @@ update_cfg:
           - { type: RandomHorizontalFlip }
           - { type: Resize, size: [ *imgsz, *imgsz ], }
           - { type: SanitizeBoundingBoxes, min_size: 1 }
-          - { type: ConvertPILImage, dtype: "float32", scale: True }
+          - { type: ConvertPILImage, dtype: *dtype, scale: True }
           - { type: ConvertBoxes, fmt: "cxcywh", normalize: True }
 
     collate_fn:
@@ -83,5 +89,5 @@ update_cfg:
       transforms:
         ops:
           - { type: Resize, size: [ *imgsz, *imgsz ], }
-          - { type: ConvertPILImage, dtype: "float32", scale: True }
+          - { type: ConvertPILImage, dtype: *dtype, scale: True }
     total_batch_size: 64

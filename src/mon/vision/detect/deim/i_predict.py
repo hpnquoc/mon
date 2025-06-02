@@ -15,6 +15,7 @@ import torch
 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 
+import engine.core.workspace
 from engine.core import YAMLConfig
 import mon
 
@@ -84,13 +85,17 @@ def predict(args: dict) -> str:
     if weights and weights.is_weights_file(exist=True):
         resume = weights
 
+    dtype = args.get("dtype")
+    if dtype in ["float16"]:
+        engine.core.workspace.GLOBAL_DTYPE = torch.float16
+        torch.set_default_dtype(torch.float16)
+
     cfg_path    = current_dir / "options" / args["cfg_path"]
     update_cfg  = args.get("update_cfg", {})
     update_cfg |= {"resume": str(resume)} if resume else {}
     update_cfg |= {
-        "device"      : device,
-        "seed"        : seed,
-        # "__include__" : args.get("__include__", None),
+        "device": device,
+        "seed"  : seed,
     }
     cfg = YAMLConfig(cfg_path=str(cfg_path), root=str(root), **update_cfg)
 

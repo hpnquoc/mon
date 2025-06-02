@@ -4,10 +4,12 @@ echo "$HOSTNAME"
 clear
 
 # ----- Input -----
+task="detect"
+mode="predict"
 arch="deim"
 model="deim_dfine_l"
 imgsz=960
-fullname="${model}_fisheye8kvD8_${imgsz}"
+fullname="${model}_fisheye8kv042vD8_${imgsz}"
 data="fisheye8ktest"
 
 # ----- Directory -----
@@ -15,12 +17,10 @@ current_file=$(readlink -f "$0")
 current_dir=$(dirname "$current_file")
 project_dir=$(dirname "$current_dir")
 root_dir=$(dirname "$project_dir")
-run_dir="${project_dir}/run"
 deim_dir="${root_dir}/src/mon/vision/detect/deim"
 
 # ----- Main -----
 config="${deim_dir}/config/fisheye8k/${model}/${imgsz}/${fullname}.yaml"
-# save_dir="${current_dir}/run/predict/${arch}/${model}/${fullname}"
 save_dir="${current_dir}/run/predict/${arch}/${fullname}"
 weights="${current_dir}/run/train/${arch}/${model}/${fullname}/best_stg2.pth"
 

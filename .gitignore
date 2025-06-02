@@ -26,5 +26,6 @@ dist/
 /project/*/data/
 /project/*/data_zip/
 /project/*/run/
-/project/tss_old
+/project/team15/
+/project/tss/tss_old/
 /zoo/*/

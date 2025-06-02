@@ -14,13 +14,13 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 from .utils import get_activation
-
-from ..core import register
+from ..core import register, GLOBAL_DTYPE
 
 __all__ = ['HybridEncoder']
 
 
 class ConvNormLayer_fuse(nn.Module):
+
     def __init__(self, ch_in, ch_out, kernel_size, stride, g=1, padding=None, bias=False, act=None):
         super().__init__()
         padding = (kernel_size-1)//2 if padding is None else padding
@@ -79,6 +79,7 @@ class ConvNormLayer_fuse(nn.Module):
 
 
 class ConvNormLayer(nn.Module):
+
     def __init__(self, ch_in, ch_out, kernel_size, stride, g=1, padding=None, bias=False, act=None):
         super().__init__()
         padding = (kernel_size-1)//2 if padding is None else padding
@@ -101,6 +102,7 @@ class ConvNormLayer(nn.Module):
 # self.cv1 = Conv(c1, c2, 1, 1)
 # self.cv2 = Conv(c2, c2, k=k, s=s, g=c2, act=False)
 class SCDown(nn.Module):
+
     def __init__(self, c1, c2, k, s, act=None):
         super().__init__()
         self.cv1 = ConvNormLayer_fuse(c1, c2, 1, 1)
@@ -111,6 +113,7 @@ class SCDown(nn.Module):
 
 
 class VGGBlock(nn.Module):
+
     def __init__(self, ch_in, ch_out, act='relu'):
         super().__init__()
         self.ch_in = ch_in
@@ -164,14 +167,17 @@ class VGGBlock(nn.Module):
 
 
 class CSPLayer(nn.Module):
-    def __init__(self,
-                 in_channels,
-                 out_channels,
-                 num_blocks=3,
-                 expansion=1.0,
-                 bias=False,
-                 act="silu",
-                 bottletype=VGGBlock):
+
+    def __init__(
+        self,
+        in_channels,
+        out_channels,
+        num_blocks   = 3,
+        expansion    = 1.0,
+        bias         = False,
+        act          = "silu",
+        bottletype   = VGGBlock
+    ):
         super(CSPLayer, self).__init__()
         hidden_channels = int(out_channels * expansion)
         self.conv1 = ConvNormLayer_fuse(in_channels, hidden_channels, 1, 1, bias=bias, act=act)
@@ -190,11 +196,15 @@ class CSPLayer(nn.Module):
         x_1 = self.bottlenecks(x_1)
         return self.conv3(x_1 + x_2)
 
+
 class RepNCSPELAN4(nn.Module):
     # csp-elan
-    def __init__(self, c1, c2, c3, c4, n=3,
-                 bias=False,
-                 act="silu"):
+
+    def __init__(
+        self, c1, c2, c3, c4, n = 3,
+        bias = False,
+        act  = "silu"
+    ):
         super().__init__()
         self.c = c3//2
         self.cv1 = ConvNormLayer_fuse(c1, c3, 1, 1, bias=bias, act=act)
@@ -215,13 +225,16 @@ class RepNCSPELAN4(nn.Module):
 
 # transformer
 class TransformerEncoderLayer(nn.Module):
-    def __init__(self,
-                 d_model,
-                 nhead,
-                 dim_feedforward=2048,
-                 dropout=0.1,
-                 activation="relu",
-                 normalize_before=False):
+
+    def __init__(
+        self,
+        d_model,
+        nhead,
+        dim_feedforward  = 2048,
+        dropout          = 0.1,
+        activation       = "relu",
+        normalize_before = False
+    ):
         super().__init__()
         self.normalize_before = normalize_before
 
@@ -282,25 +295,27 @@ class TransformerEncoder(nn.Module):
 
 @register()
 class HybridEncoder(nn.Module):
+
     __share__ = ['eval_spatial_size', ]
 
-    def __init__(self,
-                 in_channels=[512, 1024, 2048],
-                 feat_strides=[8, 16, 32],
-                 hidden_dim=256,
-                 nhead=8,
-                 dim_feedforward = 1024,
-                 dropout=0.0,
-                 enc_act='gelu',
-                 use_encoder_idx=[2],
-                 num_encoder_layers=1,
-                 pe_temperature=10000,
-                 expansion=1.0,
-                 depth_mult=1.0,
-                 act='silu',
-                 eval_spatial_size=None,
-                 version='dfine',
-                 ):
+    def __init__(
+        self,
+        in_channels        = [512, 1024, 2048],
+        feat_strides       = [8,   16  , 32],
+        hidden_dim         = 256,
+        nhead              = 8,
+        dim_feedforward    = 1024,
+        dropout            = 0.0,
+        enc_act            = 'gelu',
+        use_encoder_idx    = [2],
+        num_encoder_layers = 1,
+        pe_temperature     = 10000,
+        expansion          = 1.0,
+        depth_mult         = 1.0,
+        act                = 'silu',
+        eval_spatial_size  = None,
+        version            = 'dfine',
+    ):
         super().__init__()
         self.in_channels = in_channels
         self.feat_strides = feat_strides
@@ -378,13 +393,13 @@ class HybridEncoder(nn.Module):
     def build_2d_sincos_position_embedding(w, h, embed_dim=256, temperature=10000.):
         """
         """
-        grid_w = torch.arange(int(w), dtype=torch.float32)
-        grid_h = torch.arange(int(h), dtype=torch.float32)
+        grid_w = torch.arange(int(w), dtype=GLOBAL_DTYPE)
+        grid_h = torch.arange(int(h), dtype=GLOBAL_DTYPE)
         grid_w, grid_h = torch.meshgrid(grid_w, grid_h, indexing='ij')
         assert embed_dim % 4 == 0, \
             'Embed dimension must be divisible by 4 for 2D sin-cos position embedding'
         pos_dim = embed_dim // 4
-        omega = torch.arange(pos_dim, dtype=torch.float32) / pos_dim
+        omega = torch.arange(pos_dim, dtype=GLOBAL_DTYPE) / pos_dim
         omega = 1. / (temperature ** omega)
 
         out_w = grid_w.flatten()[..., None] @ omega[None]

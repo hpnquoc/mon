@@ -4,9 +4,9 @@ https://github.com/facebookresearch/detr/blob/main/util/misc.py
 Mostly copy-paste from torchvision references.
 """
 
-import time
-import pickle
 import datetime
+import pickle
+import time
 from collections import defaultdict, deque
 from typing import Dict
 
@@ -14,6 +14,7 @@ import torch
 import torch.distributed as tdist
 
 from .dist_utils import is_dist_available_and_initialized, get_world_size
+from ..core import GLOBAL_DTYPE
 
 
 class SmoothedValue(object):
@@ -40,7 +41,7 @@ class SmoothedValue(object):
         """
         if not is_dist_available_and_initialized():
             return
-        t = torch.tensor([self.count, self.total], dtype=torch.float64, device='cuda')
+        t = torch.tensor([self.count, self.total], dtype=GLOBAL_DTYPE, device='cuda')
         tdist.barrier()
         tdist.all_reduce(t)
         t = t.tolist()
@@ -54,7 +55,7 @@ class SmoothedValue(object):
 
     @property
     def avg(self):
-        d = torch.tensor(list(self.deque), dtype=torch.float32)
+        d = torch.tensor(list(self.deque), dtype=GLOBAL_DTYPE)
         return d.mean().item()
 
     @property

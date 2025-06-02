@@ -2,27 +2,27 @@
 Modifications Copyright (c) 2024 The DEIM Authors. All Rights Reserved.
 """
 
-import math 
-import copy 
+import copy
 import functools
+import math
 from collections import OrderedDict
-
-import torch 
-import torch.nn as nn 
-import torch.nn.functional as F 
-import torch.nn.init as init 
 from typing import List
+
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+import torch.nn.init as init
 
 from .denoising import get_contrastive_denoising_training_group
 from .utils import bias_init_with_prob, get_activation, inverse_sigmoid
 from .utils import deformable_attention_core_func_v2
-
-from ..core import register
+from ..core import register, GLOBAL_DTYPE
 
 __all__ = ['RTDETRTransformerv2']
 
 
 class MLP(nn.Module):
+
     def __init__(self, input_dim, hidden_dim, output_dim, num_layers, act='relu'):
         super().__init__()
         self.num_layers = num_layers
@@ -37,15 +37,16 @@ class MLP(nn.Module):
 
 
 class MSDeformableAttention(nn.Module):
+
     def __init__(
         self, 
-        embed_dim=256, 
-        num_heads=8, 
-        num_levels=4, 
-        num_points=4, 
-        method='default',
-        offset_scale=0.5,
-        value_shape='default',
+        embed_dim    = 256,
+        num_heads    = 8,
+        num_levels   = 4,
+        num_points   = 4,
+        method       = 'default',
+        offset_scale = 0.5,
+        value_shape  = 'default',
     ):
         """Multi-Scale Deformable Attention
         """
@@ -64,7 +65,7 @@ class MSDeformableAttention(nn.Module):
         self.num_points_list = num_points_list
         
         num_points_scale = [1/n for n in num_points_list for _ in range(n)]
-        self.register_buffer('num_points_scale', torch.tensor(num_points_scale, dtype=torch.float32))
+        self.register_buffer('num_points_scale', torch.tensor(num_points_scale, dtype=GLOBAL_DTYPE))
 
         self.total_points = num_heads * sum(num_points_list)
         self.method = method
@@ -89,7 +90,7 @@ class MSDeformableAttention(nn.Module):
     def _reset_parameters(self):
         # sampling_offsets
         init.constant_(self.sampling_offsets.weight, 0)
-        thetas = torch.arange(self.num_heads, dtype=torch.float32) * (2.0 * math.pi / self.num_heads)
+        thetas = torch.arange(self.num_heads, dtype=GLOBAL_DTYPE) * (2.0 * math.pi / self.num_heads)
         grid_init = torch.stack([thetas.cos(), thetas.sin()], -1)
         grid_init = grid_init / grid_init.abs().max(-1, keepdim=True).values
         grid_init = grid_init.reshape(self.num_heads, 1, 2).tile([1, sum(self.num_points_list), 1])
@@ -107,13 +108,14 @@ class MSDeformableAttention(nn.Module):
         init.xavier_uniform_(self.output_proj.weight)
         init.constant_(self.output_proj.bias, 0)
 
-
-    def forward(self,
-                query: torch.Tensor,
-                reference_points: torch.Tensor,
-                value: torch.Tensor,
-                value_spatial_shapes: List[int],
-                value_mask: torch.Tensor=None):
+    def forward(
+        self,
+        query               : torch.Tensor,
+        reference_points    : torch.Tensor,
+        value               : torch.Tensor,
+        value_spatial_shapes: List[int],
+        value_mask          : torch.Tensor = None
+    ):
         """
         Args:
             query (Tensor): [bs, query_length, C]
@@ -127,7 +129,7 @@ class MSDeformableAttention(nn.Module):
             output (Tensor): [bs, Length_{query}, C]
         """
         bs, Len_q = query.shape[:2]
-        Len_v = value.shape[1]
+        Len_v     = value.shape[1]
 
         value = self.value_proj(value)
         if value_mask is not None:
@@ -157,43 +159,44 @@ class MSDeformableAttention(nn.Module):
                 format(reference_points.shape[-1]))
 
         output = self.ms_deformable_attn_core(value, value_spatial_shapes, sampling_locations, attention_weights, self.num_points_list)
-
         output = self.output_proj(output)
 
         return output
 
 
 class TransformerDecoderLayer(nn.Module):
-    def __init__(self,
-                 d_model=256,
-                 n_head=8,
-                 dim_feedforward=1024,
-                 dropout=0.,
-                 activation='relu',
-                 n_levels=4,
-                 n_points=4,
-                 cross_attn_method='default',
-                 value_shape='default',
-                 ):
+
+    def __init__(
+        self,
+        d_model           = 256,
+        n_head            = 8,
+        dim_feedforward   = 1024,
+        dropout           = 0.,
+        activation        = 'relu',
+        n_levels          = 4,
+        n_points          = 4,
+        cross_attn_method = 'default',
+        value_shape       = 'default',
+    ):
         super(TransformerDecoderLayer, self).__init__()
 
         # self attention
         self.self_attn = nn.MultiheadAttention(d_model, n_head, dropout=dropout, batch_first=True)
-        self.dropout1 = nn.Dropout(dropout)
-        self.norm1 = nn.LayerNorm(d_model)
+        self.dropout1  = nn.Dropout(dropout)
+        self.norm1     = nn.LayerNorm(d_model)
 
         # cross attention
         self.cross_attn = MSDeformableAttention(d_model, n_head, n_levels, n_points, method=cross_attn_method, value_shape=value_shape)
-        self.dropout2 = nn.Dropout(dropout)
-        self.norm2 = nn.LayerNorm(d_model)
+        self.dropout2   = nn.Dropout(dropout)
+        self.norm2      = nn.LayerNorm(d_model)
 
         # ffn
-        self.linear1 = nn.Linear(d_model, dim_feedforward)
+        self.linear1    = nn.Linear(d_model, dim_feedforward)
         self.activation = get_activation(activation)
-        self.dropout3 = nn.Dropout(dropout)
-        self.linear2 = nn.Linear(dim_feedforward, d_model)
-        self.dropout4 = nn.Dropout(dropout)
-        self.norm3 = nn.LayerNorm(d_model)
+        self.dropout3   = nn.Dropout(dropout)
+        self.linear2    = nn.Linear(dim_feedforward, d_model)
+        self.dropout4   = nn.Dropout(dropout)
+        self.norm3      = nn.LayerNorm(d_model)
         
         self._reset_parameters()
 
@@ -207,14 +210,16 @@ class TransformerDecoderLayer(nn.Module):
     def forward_ffn(self, tgt):
         return self.linear2(self.dropout3(self.activation(self.linear1(tgt))))
 
-    def forward(self,
-                target,
-                reference_points,
-                memory,
-                memory_spatial_shapes,
-                attn_mask=None,
-                memory_mask=None,
-                query_pos_embed=None):
+    def forward(
+        self,
+        target,
+        reference_points,
+        memory,
+        memory_spatial_shapes,
+        attn_mask             = None,
+        memory_mask           = None,
+        query_pos_embed       = None
+    ):
         # self attention
         q = k = self.with_pos_embed(target, query_pos_embed)
 
@@ -241,6 +246,7 @@ class TransformerDecoderLayer(nn.Module):
 
 
 class TransformerDecoder(nn.Module):
+
     def __init__(self, hidden_dim, decoder_layer, num_layers, eval_idx=-1):
         super(TransformerDecoder, self).__init__()
         self.layers = nn.ModuleList([copy.deepcopy(decoder_layer) for _ in range(num_layers)])
@@ -248,16 +254,18 @@ class TransformerDecoder(nn.Module):
         self.num_layers = num_layers
         self.eval_idx = eval_idx if eval_idx >= 0 else num_layers + eval_idx
 
-    def forward(self,
-                target,
-                ref_points_unact,
-                memory,
-                memory_spatial_shapes,
-                bbox_head,
-                score_head,
-                query_pos_head,
-                attn_mask=None,
-                memory_mask=None):
+    def forward(
+        self,
+        target,
+        ref_points_unact,
+        memory,
+        memory_spatial_shapes,
+        bbox_head,
+        score_head,
+        query_pos_head,
+        attn_mask   = None,
+        memory_mask = None
+    ):
         dec_out_bboxes = []
         dec_out_logits = []
         ref_points_detach = F.sigmoid(ref_points_unact)
@@ -291,35 +299,37 @@ class TransformerDecoder(nn.Module):
 
 @register()
 class RTDETRTransformerv2(nn.Module):
+
     __share__ = ['num_classes', 'eval_spatial_size']
 
-    def __init__(self,
-                 num_classes=80,
-                 hidden_dim=256,
-                 num_queries=300,
-                 feat_channels=[512, 1024, 2048],
-                 feat_strides=[8, 16, 32],
-                 num_levels=3,
-                 num_points=4,
-                 nhead=8,
-                 num_layers=6,
-                 dim_feedforward=1024,
-                 dropout=0.,
-                 activation="relu",
-                 num_denoising=100,
-                 label_noise_ratio=0.5,
-                 box_noise_scale=1.0,
-                 learn_query_content=False,
-                 eval_spatial_size=None,
-                 eval_idx=-1,
-                 eps=1e-2, 
-                 aux_loss=True, 
-                 cross_attn_method='default', 
-                 query_select_method='default',
-                 value_shape='reshape',
-                 mlp_act='relu',
-                 query_pos_method='default',
-                 ):
+    def __init__(
+        self,
+        num_classes         = 80,
+        hidden_dim          = 256,
+        num_queries         = 300,
+        feat_channels       = [512, 1024, 2048],
+        feat_strides        = [8  , 16  , 32],
+        num_levels          = 3,
+        num_points          = 4,
+        nhead               = 8,
+        num_layers          = 6,
+        dim_feedforward     = 1024,
+        dropout             = 0.,
+        activation          = "relu",
+        num_denoising       = 100,
+        label_noise_ratio   = 0.5,
+        box_noise_scale     = 1.0,
+        learn_query_content = False,
+        eval_spatial_size   = None,
+        eval_idx            = -1,
+        eps                 = 1e-2,
+        aux_loss            = True,
+        cross_attn_method   = 'default',
+        query_select_method = 'default',
+        value_shape         = 'reshape',
+        mlp_act             = 'relu',
+        query_pos_method    = 'default',
+    ):
         super().__init__()
         assert len(feat_channels) <= num_levels
         assert len(feat_strides) == len(feat_channels)
@@ -466,11 +476,13 @@ class RTDETRTransformerv2(nn.Module):
         feat_flatten = torch.concat(feat_flatten, 1)
         return feat_flatten, spatial_shapes
 
-    def _generate_anchors(self,
-                          spatial_shapes=None,
-                          grid_size=0.05,
-                          dtype=torch.float32,
-                          device='cpu'):
+    def _generate_anchors(
+        self,
+        spatial_shapes = None,
+        grid_size      = 0.05,
+        dtype          = GLOBAL_DTYPE,
+        device         = 'cpu'
+    ):
         if spatial_shapes is None:
             spatial_shapes = []
             eval_h, eval_w = self.eval_spatial_size
@@ -493,12 +505,13 @@ class RTDETRTransformerv2(nn.Module):
 
         return anchors, valid_mask
 
-
-    def _get_decoder_input(self,
-                           memory: torch.Tensor,
-                           spatial_shapes,
-                           denoising_logits=None,
-                           denoising_bbox_unact=None):
+    def _get_decoder_input(
+        self,
+        memory: torch.Tensor,
+        spatial_shapes,
+        denoising_logits     = None,
+        denoising_bbox_unact = None
+    ):
 
         # prepare input for decoder
         if self.training or self.eval_spatial_size is None:
@@ -564,7 +577,6 @@ class RTDETRTransformerv2(nn.Module):
 
         return topk_memory, topk_logits, topk_coords
 
-
     def forward(self, feats, targets=None):
         # input projection and embedding
         memory, spatial_shapes = self._get_encoder_input(feats)
@@ -612,7 +624,6 @@ class RTDETRTransformerv2(nn.Module):
                 out['dn_meta'] = dn_meta
 
         return out
-
 
     @torch.jit.unused
     def _set_aux_loss(self, outputs_class, outputs_coord):

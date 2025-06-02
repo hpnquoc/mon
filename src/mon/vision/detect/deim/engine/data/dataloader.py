@@ -6,19 +6,15 @@ Modified from D-FINE (https://github.com/Peterande/D-FINE)
 Copyright (c) 2024 D-FINE authors. All Rights Reserved.
 """
 
-import torch
-import torch.utils.data as data
-import torch.nn.functional as F
-from torch.utils.data import default_collate
-
-import torchvision
-import torchvision.transforms.v2 as VT
-from torchvision.transforms.v2 import functional as VF, InterpolationMode
-
 import random
-from functools import partial
 
-from ..core import register
+import torch
+import torch.nn.functional as F
+import torch.utils.data as data
+import torchvision
+
+from ..core import register, GLOBAL_DTYPE
+
 torchvision.disable_beta_transforms_warning()
 from copy import deepcopy
 from PIL import Image, ImageDraw
@@ -158,8 +154,8 @@ class BatchImageCollateFunction(BaseCollateFunction):
                 # Add mixup ratio to targets
                 updated_targets[i]['mixup'] = torch.tensor(
                     [beta] * len(targets[i]['labels']) + [1.0 - beta] * len(shifted_targets[i]['labels']), 
-                    dtype=torch.float32
-                    )
+                    dtype=GLOBAL_DTYPE
+                )
             targets = updated_targets
 
             if self.data_vis:

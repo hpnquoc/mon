@@ -4,6 +4,7 @@ Copyright (c) 2024 The D-FINE Authors. All Rights Reserved.
 
 import torch
 from .box_ops import box_xyxy_to_cxcywh
+from ..core import GLOBAL_DTYPE
 
 
 def weighting_function(reg_max, up, reg_scale, deploy=False):
@@ -70,7 +71,7 @@ def translate_gt(gt, reg_max, reg_scale, up):
     closest_left_indices = torch.sum(mask, dim=1) - 1
 
     # Calculate the weights for the interpolation
-    indices = closest_left_indices.float()
+    indices = closest_left_indices.to(GLOBAL_DTYPE)
 
     weight_right = torch.zeros_like(indices)
     weight_left = torch.zeros_like(indices)

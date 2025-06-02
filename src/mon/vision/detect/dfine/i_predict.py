@@ -84,14 +84,15 @@ def predict(args: dict) -> str:
     if weights and weights.is_weights_file(exist=True):
         resume = weights
 
-    cfg_path     = current_dir / "options" / args["cfg_path"]
-    update_dict  = {"resume": str(resume)} if resume else {}
-    update_dict |= {
-        "device"      : device,
-        "seed"        : seed,
-        "__include__" : args.get("__include__", None),
+    cfg_path    = current_dir / "options" / args["cfg_path"]
+    update_cfg  = args.get("update_cfg", {})
+    update_cfg |= {"resume": str(resume)} if resume else {}
+    update_cfg |= {
+        "device": device,
+        "seed"  : seed,
+        # "__include__" : args.get("__include__", None),
     }
-    cfg = YAMLConfig(cfg_path=str(cfg_path), root=str(root), **update_dict)
+    cfg = YAMLConfig(cfg_path=str(cfg_path), root=str(root), **update_cfg)
 
     if "HGNetv2" in cfg.yaml_cfg:
         cfg.yaml_cfg["HGNetv2"]["pretrained"] = False

@@ -4,6 +4,10 @@ echo "$HOSTNAME"
 clear
 
 # ----- Input -----
+task="depth"
+mode="predict"
+arch="depthanythingv2"
+model="depthanythingv2_vitb"
 data=(
 
 )
@@ -21,10 +25,10 @@ run_dir="${project_dir}/run"
 cd "${run_dir}" || exit
 python -W ignore main.py \
     --root "${current_dir}" \
-    --task "depth" \
-    --mode "predict" \
-    --arch "depthanythingv2" \
-    --model "depthanythingv2_vitb" \
+    --task "${task}" \
+    --mode "${mode}" \
+    --arch "${arch}" \
+    --model "${model}" \
     --config 0 \
     --data "${data_str}" \
     --save-result \

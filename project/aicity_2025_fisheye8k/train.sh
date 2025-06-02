@@ -4,7 +4,10 @@ echo "$HOSTNAME"
 clear
 
 # ----- Input -----
-
+task="detect"
+mode="train"
+arch=""
+model=""
 
 # ----- Directory -----
 current_file=$(readlink -f "$0")
@@ -17,8 +20,10 @@ run_dir="${project_dir}/run"
 cd "${run_dir}" || exit
 python -W ignore main.py \
     --root "${current_dir}" \
-    --task "detect" \
-    --mode "train" \
+    --task "${task}" \
+    --mode "${mode}" \
+    --arch "${arch}" \
+    --model "${model}" \
     --save-result \
     --save-image \
     --save-debug \

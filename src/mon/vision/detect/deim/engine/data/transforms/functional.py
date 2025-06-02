@@ -6,6 +6,7 @@ import torchvision
 import torchvision.transforms.functional as F
 from packaging import version
 from torch import Tensor
+from ...core import GLOBAL_DTYPE
 
 if version.parse(torchvision.__version__) < version.parse('0.7'):
     from torchvision.ops import _new_empty_tensor
@@ -45,7 +46,7 @@ def crop(image, target, region):
 
     if "boxes" in target:
         boxes           = target["boxes"]
-        max_size        = torch.as_tensor([w, h], dtype=torch.float32)
+        max_size        = torch.as_tensor([w, h], dtype=GLOBAL_DTYPE)
         cropped_boxes   = boxes - torch.as_tensor([j, i, j, i])
         cropped_boxes   = torch.min(cropped_boxes.reshape(-1, 2, 2), max_size)
         cropped_boxes   = cropped_boxes.clamp(min=0)
@@ -150,7 +151,7 @@ def resize(image, target, size, max_size=None):
 
     if "masks" in target:
         target['masks'] = interpolate(
-            target['masks'][:, None].float(), size, mode="nearest")[:, 0] > 0.5
+            target['masks'][:, None].to(GLOBAL_DTYPE), size, mode="nearest")[:, 0] > 0.5
 
     return rescaled_image, target
 

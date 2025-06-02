@@ -3,17 +3,19 @@ Copied from RT-DETR (https://github.com/lyuwenyu/RT-DETR)
 Copyright(c) 2023 lyuwenyu. All Rights Reserved.
 """
 
-import inspect
-import importlib
 import functools
+import importlib
+import inspect
 from collections import defaultdict
-from typing import Any, Dict, Optional, List
+from typing import Any
 
+import torch
 
+GLOBAL_DTYPE  = torch.float32
 GLOBAL_CONFIG = defaultdict(dict)
 
 
-def register(dct :Any=GLOBAL_CONFIG, name=None, force=False):
+def register(dct: Any = GLOBAL_CONFIG, name=None, force=False):
     """
         dct:
             if dct is Dict, register foo into dct as key-value pair
@@ -54,7 +56,6 @@ def register(dct :Any=GLOBAL_CONFIG, name=None, force=False):
     return decorator
 
 
-
 def extract_schema(module: type):
     """
     Args:
@@ -62,37 +63,33 @@ def extract_schema(module: type):
     Return:
         Dict,
     """
-    argspec = inspect.getfullargspec(module.__init__)
-    arg_names = [arg for arg in argspec.args if arg != 'self']
+    argspec      = inspect.getfullargspec(module.__init__)
+    arg_names    = [arg for arg in argspec.args if arg != 'self']
     num_defualts = len(argspec.defaults) if argspec.defaults is not None else 0
     num_requires = len(arg_names) - num_defualts
 
     schame = dict()
-    schame['_name'] = module.__name__
+    schame['_name']     = module.__name__
     schame['_pymodule'] = importlib.import_module(module.__module__)
-    schame['_inject'] = getattr(module, '__inject__', [])
-    schame['_share'] = getattr(module, '__share__', [])
-    schame['_kwargs'] = {}
+    schame['_inject']   = getattr(module, '__inject__', [])
+    schame['_share']    = getattr(module, '__share__', [])
+    schame['_kwargs']   = {}
     for i, name in enumerate(arg_names):
         if name in schame['_share']:
             assert i >= num_requires, 'share config must have default value.'
             value = argspec.defaults[i - num_requires]
-
         elif i >= num_requires:
             value = argspec.defaults[i - num_requires]
-
         else:
             value = None
 
-        schame[name] = value
+        schame[name]            = value
         schame['_kwargs'][name] = value
 
     return schame
 
 
 def create(type_or_name, global_cfg=GLOBAL_CONFIG, **kwargs):
-    """
-    """
     assert type(type_or_name) in (type, str), 'create should be modules or name.'
 
     name = type_or_name if isinstance(type_or_name, str) else type_or_name.__name__
@@ -111,10 +108,10 @@ def create(type_or_name, global_cfg=GLOBAL_CONFIG, **kwargs):
         _keys = [k for k in _cfg.keys() if not k.startswith('_')]
         for _arg in _keys:
             del _cfg[_arg]
-        _cfg.update(_cfg['_kwargs']) # restore default args
-        _cfg.update(cfg) # load config args
-        _cfg.update(kwargs) # TODO recive extra kwargs
-        name = _cfg.pop('type') # pop extra key `type` (from cfg)
+        _cfg.update(_cfg['_kwargs'])  # restore default args
+        _cfg.update(cfg)              # load config args
+        _cfg.update(kwargs)           # TODO recive extra kwargs
+        name = _cfg.pop('type')       # pop extra key `type` (from cfg)
 
         return create(name, global_cfg)
 

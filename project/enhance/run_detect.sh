@@ -4,6 +4,10 @@ echo "$HOSTNAME"
 clear
 
 # ----- Input -----
+task="detect"
+mode="predict"
+arch="dfine"
+model="dfine_s"
 data=(
     ### Real-World Set
     # "darkface"
@@ -26,10 +30,10 @@ run_dir="${project_dir}/run"
 cd "${run_dir}" || exit
 python -W ignore main.py \
     --root "${current_dir}" \
-    --task "detect" \
-    --mode "predict" \
-    --arch "dfine" \
-    --model "dfine_s" \
+    --task "${task}" \
+    --mode "${mode}" \
+    --arch "${arch}" \
+    --model "${model}" \
     --data "${data_str}" \
     --save-result \
     --save-image \

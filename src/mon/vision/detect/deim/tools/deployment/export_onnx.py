@@ -16,9 +16,8 @@ import torch.nn as nn
 from engine.core import YAMLConfig
 
 
-def main(args, ):
-    """main
-    """
+def main(args):
+    """main"""
     cfg = YAMLConfig(args.config, resume=args.resume)
 
     if 'HGNetv2' in cfg.yaml_cfg:
@@ -39,9 +38,9 @@ def main(args, ):
         print('not load model.state_dict, use default init state dict...')
 
     class Model(nn.Module):
-        def __init__(self, ) -> None:
+        def __init__(self):
             super().__init__()
-            self.model = cfg.model.deploy()
+            self.model         = cfg.model.deploy()
             self.postprocessor = cfg.postprocessor.deploy()
 
         def forward(self, images, orig_target_sizes):
@@ -53,10 +52,10 @@ def main(args, ):
 
     data = torch.rand(32, 3, 640, 640)
     size = torch.tensor([[640, 640]])
-    _ = model(data, size)
+    _    = model(data, size)
 
     dynamic_axes = {
-        'images': {0: 'N', },
+        'images'           : {0: 'N'},
         'orig_target_sizes': {0: 'N'}
     }
 
@@ -66,12 +65,12 @@ def main(args, ):
         model,
         (data, size),
         output_file,
-        input_names=['images', 'orig_target_sizes'],
-        output_names=['labels', 'boxes', 'scores'],
-        dynamic_axes=dynamic_axes,
-        opset_version=16,
-        verbose=False,
-        do_constant_folding=True,
+        input_names         = ['images', 'orig_target_sizes'],
+        output_names        = ['labels', 'boxes', 'scores'],
+        dynamic_axes        = dynamic_axes,
+        opset_version       = 16,
+        verbose             = False,
+        do_constant_folding = True,
     )
 
     if args.check:
@@ -92,12 +91,11 @@ def main(args, ):
 
 
 if __name__ == '__main__':
-
     import argparse
     parser = argparse.ArgumentParser()
-    parser.add_argument('--config', '-c', default='configs/dfine/dfine_hgnetv2_l_coco.yml', type=str, )
-    parser.add_argument('--resume', '-r', type=str, )
-    parser.add_argument('--check',  action='store_true', default=True,)
-    parser.add_argument('--simplify',  action='store_true', default=True,)
+    parser.add_argument("--config", "-c", type=str, default="options/deim_dfine/dfine_hgnetv2_l_coco80.yml")
+    parser.add_argument("--resume", "-r", type=str)
+    parser.add_argument("--check",        action="store_true", default=True)
+    parser.add_argument("--simplify",     action="store_true", default=True)
     args = parser.parse_args()
     main(args)

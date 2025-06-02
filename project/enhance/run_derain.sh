@@ -4,6 +4,10 @@ echo "$HOSTNAME"
 clear
 
 # ----- Input -----
+task="derain"
+mode="predict"
+arch=""
+model=""
 data=(
     "rain100"
     "rain100l"
@@ -29,9 +33,15 @@ run_dir="${project_dir}/run"
 cd "${run_dir}" || exit
 python -W ignore main.py \
     --root "${current_dir}" \
-    --task "derain" \
-    --mode "predict" \
+    --task "${task}" \
+    --mode "${mode}" \
+    --arch "${arch}" \
+    --model "${model}" \
     --data "${data_str}" \
+    --save-result \
+    --save-image \
+    --save-debug \
+    --exist-ok \
     --verbose \
     "$@"
 

@@ -17,14 +17,14 @@ import copy
 from .dfine_utils import bbox2distance
 from .box_ops import box_cxcywh_to_xyxy, box_iou, generalized_box_iou
 from ..misc.dist_utils import get_world_size, is_dist_available_and_initialized
-from ..core import register
+from ..core import register, GLOBAL_DTYPE
 
 
 @register()
 class DEIMCriterion(nn.Module):
-    """ This class computes the loss for DEIM.
-    """
-    __share__ = ['num_classes', ]
+    """ This class computes the loss for DEIM."""
+
+    __share__  = ['num_classes', ]
     __inject__ = ['matcher', ]
 
     def __init__(
@@ -294,7 +294,7 @@ class DEIMCriterion(nn.Module):
             indices_go = self._get_go_indices(indices, indices_aux_list)
 
             num_boxes_go = sum(len(x[0]) for x in indices_go)
-            num_boxes_go = torch.as_tensor([num_boxes_go], dtype=torch.float, device=next(iter(outputs.values())).device)
+            num_boxes_go = torch.as_tensor([num_boxes_go], dtype=GLOBAL_DTYPE, device=next(iter(outputs.values())).device)
             if is_dist_available_and_initialized():
                 torch.distributed.all_reduce(num_boxes_go)
             num_boxes_go = torch.clamp(num_boxes_go / get_world_size(), min=1).item()
@@ -303,7 +303,7 @@ class DEIMCriterion(nn.Module):
 
         # Compute the average number of target boxes accross all nodes, for normalization purposes
         num_boxes = sum(len(t["labels"]) for t in targets)
-        num_boxes = torch.as_tensor([num_boxes], dtype=torch.float, device=next(iter(outputs.values())).device)
+        num_boxes = torch.as_tensor([num_boxes], dtype=GLOBAL_DTYPE, device=next(iter(outputs.values())).device)
         if is_dist_available_and_initialized():
             torch.distributed.all_reduce(num_boxes)
         num_boxes = torch.clamp(num_boxes / get_world_size(), min=1).item()
@@ -458,7 +458,7 @@ class DEIMCriterion(nn.Module):
         return dn_match_indices
 
     def feature_loss_function(self, fea, target_fea):
-        loss = (fea - target_fea) ** 2 * ((fea > 0) | (target_fea > 0)).float()
+        loss = (fea - target_fea) ** 2 * ((fea > 0) | (target_fea > 0)).to(GLOBAL_DTYPE)
         return torch.abs(loss)
 
     def unimodal_distribution_focal_loss(self, pred, label, weight_right, weight_left, weight=None, reduction='sum', avg_factor=None):
@@ -469,8 +469,8 @@ class DEIMCriterion(nn.Module):
              + F.cross_entropy(pred, dis_right, reduction='none') * weight_right.reshape(-1)
 
         if weight is not None:
-            weight = weight.float()
-            loss = loss * weight
+            weight = weight.to(GLOBAL_DTYPE)
+            loss   = loss * weight
 
         if avg_factor is not None:
             loss = loss.sum() / avg_factor

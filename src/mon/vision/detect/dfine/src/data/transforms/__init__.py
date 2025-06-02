@@ -5,6 +5,7 @@ Copyright(c) 2023 lyuwenyu. All Rights Reserved.
 
 from ._transforms import (
     ConvertBoxes,
+    ConvertNumpyImage,
     ConvertPILImage,
     EmptyTransform,
     Normalize,
@@ -15,6 +16,7 @@ from ._transforms import (
     RandomPhotometricDistort,
     RandomZoomOut,
     Resize,
+    ResizeCV,
     SanitizeBoundingBoxes,
 )
 from .container import Compose

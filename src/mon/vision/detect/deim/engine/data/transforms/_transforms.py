@@ -17,7 +17,7 @@ from torchvision import transforms as _transforms
 from .._misc import Image, Video, Mask, BoundingBoxes
 from .._misc import SanitizeBoundingBoxes
 from .._misc import convert_to_tv_tensor, _boxes_keys
-from ...core import register
+from ...core import register, GLOBAL_DTYPE
 
 cv2.setNumThreads(0)
 torchvision.disable_beta_transforms_warning()
@@ -170,7 +170,7 @@ class ConvertPILImage(T.Transform):
         PIL.Image.Image,
     )
 
-    def __init__(self, dtype='float32', scale=True) -> None:
+    def __init__(self, dtype="float32", scale=True) -> None:
         super().__init__()
         self.dtype = dtype
         self.scale = scale
@@ -180,8 +180,8 @@ class ConvertPILImage(T.Transform):
 
     def _transform(self, inpt: Any, params: Dict[str, Any]) -> Any:
         inpt = F.pil_to_tensor(inpt)
-        if self.dtype == 'float32':
-            inpt = inpt.float()
+        if self.dtype in ["float16", "float32", "float64"]:
+            inpt = inpt.to(GLOBAL_DTYPE)
 
         if self.scale:
             inpt = inpt / 255.
@@ -198,7 +198,7 @@ class ConvertNumpyImage(T.Transform):
         np.ndarray,
     )
 
-    def __init__(self, dtype='float32', scale=True) -> None:
+    def __init__(self, dtype="float32", scale=True) -> None:
         super().__init__()
         self.dtype = dtype
         self.scale = scale
@@ -210,8 +210,8 @@ class ConvertNumpyImage(T.Transform):
         inpt = torch.from_numpy(inpt).contiguous()
         inpt = inpt.permute(2, 0, 1)
 
-        if self.dtype == 'float32':
-            inpt = inpt.float()
+        if self.dtype == ["float16", "float32", "float64"]:
+            inpt = inpt.to(GLOBAL_DTYPE)
 
         if self.scale:
             inpt = inpt / 255.

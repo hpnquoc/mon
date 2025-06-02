@@ -58,7 +58,9 @@ dependencies    = [
     "einops",                           # A new flavor of deep learning operations.
     "fvcore",                           # Collection of common code shared among different research projects in FAIR computer vision team.
     "lightning>=2.5.1",                 # The Deep Learning framework to train, deploy, and ship AI products Lightning fast.
+    "onnx",                             # Open Neural Network Exchange.
     "onnxruntime",                      # ONNX Runtime is a performance-focused scoring engine for Open Neural Network Exchange (ONNX) models.
+    "onnxsim",                          # Simplify your ONNX model.
     "openvino",                         # OpenVINO™ is a toolkit for optimizing and deploying AI inference.
     "scikit-learn",                     # A set of python modules for machine learning and data mining.
     "snntorch",
@@ -77,6 +79,7 @@ dependencies    = [
     "kornia",                           # Kornia is a differentiable computer vision library for PyTorch.
     "opencv-contrib-python",            # Wrapper package for OpenCV python bindings.
     "opencv-python",                    # Computer vision and machine learning software library.
+    "PyTurboJPEG",                      # A Python wrapper of libjpeg-turbo for decoding and encoding JPEG image.
     "pillow_heif",                      # Python interface for libheif library.
     "pycocotools",                      # COCO dataset and evaluation metrics for object detection, instance segmentation, and person keypoint detection.
     "pyiqa",                            # PyTorch Toolbox for Image Quality Assessment.
