@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# https://medium.com/@moshiur.faisal01/install-tensorrt-with-command-line-wrapper-trtexec-on-ununtu-20-04-lts-3e44f4f36a2b
+
 clear
 echo "$HOSTNAME"
 
@@ -38,12 +40,14 @@ install_tensorrt() {
     fi
 
     # Install TensorRT
+    sudo apt-get update
     sudo apt-get install tensorrt
     sudo apt-get install onnx-graphsurgeon
+    sudo apt autoremove
 
     # Build trtexec
     cd /usr/src/tensorrt/samples/trtexec || exit
-    make TRT_LIB_DIR=/usr/src/tensorrt/bin
+    sudo make CUDA_INSTALL_DIR=/usr/local/cuda/bin TRT_LIB_DIR=/usr/src/tensorrt/bin
     sudo cp /usr/src/tensorrt/bin/trtexec /usr/local/bin/
 }
 

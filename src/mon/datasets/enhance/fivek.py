@@ -20,6 +20,7 @@ __all__ = [
     "FiveKInitDataModule",
 ]
 
+import os
 from collections import defaultdict
 from typing import Literal
 
@@ -279,7 +280,7 @@ class FiveKA(VisionDataset):
                 desc = f"Listing {self.__class__.__name__} {self.split_str} reference images"
                 for img in pbar.track(sequence=images, description=desc):
                     root_name = img.root.name
-                    path      = img.path.replace(f"/{root_name}/", f"/ref_a/")
+                    path      = img.path.replace(f"{os.sep}{root_name}{os.sep}", f"{os.sep}ref_a{os.sep}")
                     ref_images.append(ImageAnnotation(path=path.image_file(), root=img.root))
             self.datapoints["ref_image"] = ref_images
     
@@ -341,7 +342,7 @@ class FiveKB(VisionDataset):
                 desc = f"Listing {self.__class__.__name__} {self.split_str} reference images"
                 for img in pbar.track(sequence=images, description=desc):
                     root_name = img.root.name
-                    path      = img.path.replace(f"/{root_name}/", f"/ref_b/")
+                    path      = img.path.replace(f"{os.sep}{root_name}{os.sep}", f"{os.sep}ref_b{os.sep}")
                     ref_images.append(ImageAnnotation(path=path.image_file(), root=img.root))
             self.datapoints["ref_image"] = ref_images
             
@@ -403,7 +404,7 @@ class FiveKC(VisionDataset):
                 desc = f"Listing {self.__class__.__name__} {self.split_str} reference images"
                 for img in pbar.track(sequence=images, description=desc):
                     root_name = img.root.name
-                    path      = img.path.replace(f"/{root_name}/", f"/ref_c/")
+                    path      = img.path.replace(f"{os.sep}{root_name}{os.sep}", f"{os.sep}ref_c{os.sep}")
                     ref_images.append(ImageAnnotation(path=path.image_file(), root=img.root))
             self.datapoints["ref_image"] = ref_images
             
@@ -465,7 +466,7 @@ class FiveKD(VisionDataset):
                 desc = f"Listing {self.__class__.__name__} {self.split_str} reference images"
                 for img in pbar.track(sequence=images, description=desc):
                     root_name = img.root.name
-                    path      = img.path.replace(f"/{root_name}/", f"/ref_d/")
+                    path      = img.path.replace(f"{os.sep}{root_name}{os.sep}", f"{os.sep}ref_d{os.sep}")
                     ref_images.append(ImageAnnotation(path=path.image_file(), root=img.root))
             self.datapoints["ref_image"] = ref_images
             
@@ -527,7 +528,7 @@ class FiveKE(VisionDataset):
                 desc = f"Listing {self.__class__.__name__} {self.split_str} reference images"
                 for img in pbar.track(sequence=images, description=desc):
                     root_name = img.root.name
-                    path      = img.path.replace(f"/{root_name}/", f"/ref_e/")
+                    path      = img.path.replace(f"{os.sep}{root_name}{os.sep}", f"{os.sep}ref_e{os.sep}")
                     ref_images.append(ImageAnnotation(path=path.image_file(), root=img.root))
             self.datapoints["ref_image"] = ref_images
 

@@ -16,6 +16,7 @@ __all__ = [
 	"NightCityDataModule",
 ]
 
+import os
 from typing import Literal
 
 import cv2
@@ -121,7 +122,7 @@ class NightCity(VisionDataset):
         with core.create_progress_bar(disable=self.disable_pbar) as pbar:
             desc = f"Listing {self.__class__.__name__} {self.split_str} semantic maps"
             for img in pbar.track(sequence=images, description=desc):
-                path = img.path.replace("/lq/", "/labelIds/")
+                path = img.path.replace(f"{os.sep}lq{os.sep}", f"{os.sep}labelIds{os.sep}")
                 semantic.append(
                     SemanticSegmentationAnnotation(
                         path  = path.image_file(),

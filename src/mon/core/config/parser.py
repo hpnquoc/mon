@@ -56,7 +56,7 @@ def parse_default_args(name: str = "main") -> argparse.Namespace:
             kwargs["type"] = opt_type
         if choices:
             kwargs["choices"] = choices
-        flag = f"--{opt_name.replace("_", "-")}"
+        flag = f"--{opt_name.replace('_', '-')}"
         parser.add_argument(flag, **kwargs)
     
     '''

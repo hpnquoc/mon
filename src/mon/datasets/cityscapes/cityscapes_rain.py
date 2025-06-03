@@ -12,6 +12,7 @@ __all__ = [
     "CityscapesRainDataModule",
 ]
 
+import os
 from typing import Literal
 
 import cv2
@@ -78,7 +79,7 @@ class CityscapesRain(Cityscapes):
         with core.create_progress_bar(disable=self.disable_pbar) as pbar:
             desc = f"Listing {self.__class__.__name__} {self.split_str} reference images"
             for img in pbar.track(sequence=images, description=desc):
-                path = img.path.replace("/leftImg8bit_rain/", "/leftImg8bit/")
+                path = img.path.replace(f"{os.sep}leftImg8bit_rain{os.sep}", f"{os.sep}leftImg8bit{os.sep}")
                 stem = path.stem.split("leftImg8bit")[0]
                 path = path.parent / f"{stem}leftImg8bit{path.suffix}"
                 ref_images.append(ImageAnnotation(path=path.image_file(), root=pattern))
@@ -87,7 +88,7 @@ class CityscapesRain(Cityscapes):
         with core.create_progress_bar(disable=self.disable_pbar) as pbar:
             desc = f"Listing {self.__class__.__name__} {self.split_str} semantic maps"
             for img in pbar.track(sequence=images, description=desc):
-                path = img.path.replace("/leftImg8bit_rain/", "/gtFine/")
+                path = img.path.replace(f"{os.sep}leftImg8bit_rain{os.sep}", f"{os.sep}gtFine{os.sep}")
                 semantic.append(
                     SemanticSegmentationAnnotation(
                         path  = path.image_file(),

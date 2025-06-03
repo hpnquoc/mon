@@ -8,6 +8,7 @@ __all__ = [
     "GTRainDataModule",
 ]
 
+import os
 from typing import Literal
 
 from mon import core, vision
@@ -75,7 +76,7 @@ class GTRain(VisionDataset):
                     path = path.replace("-R-", "-C-")
                 else:
                     path = path[:-9] + "C-000.png"
-                path = path.replace("/image/", "/ref/")
+                path = path.replace(f"{os.sep}image{os.sep}", f"{os.sep}ref{os.sep}")
                 path = core.Path(path)
                 ref_images.append(ImageAnnotation(path=path.image_file(), root=img.root))
 

@@ -8,6 +8,7 @@ __all__ = [
     "VisionDataset",
 ]
 
+import os
 from abc import ABC
 from typing import Any
 
@@ -208,7 +209,8 @@ class VisionDataset(core.Dataset, ABC):
                                   f"{self.split_str} depth maps"
                 ):
                     root_name = img.root.name
-                    path      = img.path.replace(f"/{root_name}/", f"/{root_name}_{self.depth_source.value}/")
+                    path      = img.path.replace(f"{os.sep}{root_name}{os.sep}",
+                                                 f"{os.sep}{root_name}_{self.depth_source.value}{os.sep}")
                     depths.append(
                         DepthMapAnnotation(
                             path   = path.image_file(),
@@ -233,7 +235,8 @@ class VisionDataset(core.Dataset, ABC):
                                   f"{self.split_str} infrared maps"
                 ):
                     root_name = img.root.name
-                    path      = img.path.replace(f"/{root_name}/", f"/{root_name}_{self.infrared_source.value}/")
+                    path      = img.path.replace(f"{os.sep}{root_name}{os.sep}",
+                                                 f"{os.sep}{root_name}_{self.infrared_source.value}{os.sep}")
                     infrareds.append(
                         InfraredAnnotation(
                             path   = path.image_file(),
@@ -258,7 +261,8 @@ class VisionDataset(core.Dataset, ABC):
                                   f"{self.split_str} bboxes"
                 ):
                     root_name = img.root.name
-                    path      = img.path.replace(f"/{root_name}/", f"/label/")
+                    path      = img.path.replace(f"{os.sep}{root_name}{os.sep}",
+                                                 f"{os.sep}label{os.sep}")
                     bboxes.append(
                         BBoxesAnnotation(
                             path  = path.txt_file(),
@@ -283,7 +287,8 @@ class VisionDataset(core.Dataset, ABC):
                                   f"{self.split_str} reference images"
                 ):
                     root_name = img.root.name
-                    path      = img.path.replace(f"/{root_name}/", f"/ref/")
+                    path      = img.path.replace(f"{os.sep}{root_name}{os.sep}",
+                                                 f"{os.sep}ref{os.sep}")
                     ref_images.append(
                         ImageAnnotation(
                             path = path.image_file(),
@@ -306,7 +311,8 @@ class VisionDataset(core.Dataset, ABC):
                                   f"{self.split_str} reference depth maps"
                 ):
                     root_name = img.root.name
-                    path      = img.path.replace(f"/{root_name}/", f"/{root_name}_{self.depth_source.value}/")
+                    path      = img.path.replace(f"{os.sep}{root_name}{os.sep}",
+                                                 f"{os.sep}{root_name}_{self.depth_source.value}{os.sep}")
                     ref_depths.append(
                         DepthMapAnnotation(
                             path   = path.image_file(),
@@ -331,7 +337,8 @@ class VisionDataset(core.Dataset, ABC):
                                   f"{self.split_str} reference infrared maps"
                 ):
                     root_name = img.root.name
-                    path      = img.path.replace(f"/{root_name}/", f"/{root_name}_{self.infrared_source.value}/")
+                    path      = img.path.replace(f"{os.sep}{root_name}{os.sep}",
+                                                 f"{os.sep}{root_name}_{self.infrared_source.value}{os.sep}")
                     ref_infrareds.append(
                         InfraredAnnotation(
                             path   = path.image_file(),

@@ -60,7 +60,6 @@ dependencies    = [
     "lightning>=2.5.1",                 # The Deep Learning framework to train, deploy, and ship AI products Lightning fast.
     "onnx",                             # Open Neural Network Exchange.
     "onnxruntime",                      # ONNX Runtime is a performance-focused scoring engine for Open Neural Network Exchange (ONNX) models.
-    "onnxsim",                          # Simplify your ONNX model.
     "openvino",                         # OpenVINO™ is a toolkit for optimizing and deploying AI inference.
     "scikit-learn",                     # A set of python modules for machine learning and data mining.
     "snntorch",
@@ -70,7 +69,7 @@ dependencies    = [
     "torch-fidelity",
     "torch>=2.7.0",                     # PyTorch is an optimized tensor library for deep learning using GPUs and CPUs.
     "torchfile",
-    "torchmetrics>=1.7.1",              # Collection of PyTorch native metrics for easy evaluating machine learning models.
+    "torchmetrics>=1.7.2",              # Collection of PyTorch native metrics for easy evaluating machine learning models.
     "transformers",                     # 🤗 Transformers: State-of-the-art Machine Learning for Pytorch, TensorFlow, and JAX.
     # Vision
     "albumentations",                   # An efficient library for image augmentation, providing extensive transformations to support machine learning and computer vision tasks.

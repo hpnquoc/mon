@@ -23,6 +23,7 @@ archive/
 build/
 dist/
 /data/
+/project/*/archive/
 /project/*/data/
 /project/*/data_zip/
 /project/*/run/
