@@ -5,17 +5,17 @@ task        : &task "detect"                                                    
 mode        : &mode "train"                                                     # Mode name (e.g., train, val, test, predict, export).
 arch        : &arch "deim"                                                      # Model architecture or family (e.g., resnet).
 model       : &model "deim_dfine_l"                                             # Model name (e.g., resnet50).
-data        : &data "fisheye8kv04"                                              # Dataset name (e.g., cifar10) or directory (e.g., data/cifar10).
-fullname    : &fullname "deim_dfine_l_fisheye8kv04_960"                         # Full name of the current run (e.g., resnet50_cifar10_01). If not set, it will be this file's name.
+data        : &data "fisheye8kvKD"                                              # Dataset name (e.g., cifar10) or directory (e.g., data/cifar10).
+fullname    : &fullname "deim_dfine_l_fisheye8kvAA2vKD_640_cv2"                 # Full name of the current run (e.g., resnet50_cifar10_01). If not set, it will be this file's name.
 save_dir    : &save_dir ~                                                       # Saving directory. If not set, it will be `root/arch/model/data`.
-weights     : &weights "run/train/deim/deim_dfine_l/deim_dfine_l_fisheye8kv04_960/best_stg2.pth"  # Path to the pretrained weights.
+weights     : &weights "run/train/deim/deim_dfine_l/deim_dfine_l_fisheye8kvAA2vKD_640_cv2/best_stg2.pth"  # Path to the pretrained weights.
 device      : &device cuda:0,1,2,3                                              # Running device (i.e., cuda:0 | cuda:0,1,2,3 | cpu).
 seed        : &seed 0                                                           # Random seed.
-imgsz       : &imgsz 960                                                        # Image size for the model.
+imgsz       : &imgsz 640                                                        # Image size for the model.
 # Train
-resume      : &resume "run/train/deim/deim_dfine_l/deim_dfine_l_fisheye8kv04_960/best_stg1.pth"  # Resume from interrupted training.
-tuning      : &tuning "zoo/vision/detect/deim/deim_dfine_l/coco80/deim_dfine_l_coco80.pth"  # Fine-tuning from a pretrained model.
-epochs      : &epochs 50                                                        # Training epochs.
+resume      : &resume "run/train/deim/deim_dfine_l/deim_dfine_l_fisheye8kvAA2vKD_640_cv2/best_stg1.pth"  # Resume from interrupted training.
+tuning      : &tuning "run/train/deim/deim_dfine_l/deim_dfine_l_fisheye8kvAA_640_cv2/best_stg1.pth"  # Fine-tuning from a pretrained model.
+epochs      : &epochs 200                                                       # Training epochs.
 batch_size  : &batch_size 32                                                    # Batch size.
 torchrun    : True                                                              # If ``True``, use torch.distributed.run to run the training script.
 master_port : 7777                                                              # Master port for distributed training.
@@ -50,7 +50,7 @@ updated_cfg:
   # File: deim_hgnetv2_l_coco80.yaml
   __include__: [
     "./dfine_hgnetv2_l_coco80.yaml",
-    "../../dataset/fisheye8kv04_detection.yaml",
+    "../../dataset/fisheye8kvKD_detection.yaml",
     "../../base/dataloader.yaml",
     "../../base/dfine_hgnetv2.yaml",
     "../../base/deim.yaml"
@@ -80,9 +80,9 @@ updated_cfg:
           - { type: RandomIoUCrop, p: 0.8 }
           - { type: SanitizeBoundingBoxes, min_size: 1 }
           - { type: RandomHorizontalFlip }
-          - { type: Resize, size: [ *imgsz, *imgsz ], }
+          - { type: ResizeCV, size: [ *imgsz, *imgsz ], }
           - { type: SanitizeBoundingBoxes, min_size: 1 }
-          - { type: ConvertPILImage, dtype: "float32", scale: True }
+          - { type: ConvertNumpyImage, dtype: "float32", scale: True }
           - { type: ConvertBoxes, fmt: "cxcywh", normalize: True }
 
     collate_fn:
@@ -94,6 +94,6 @@ updated_cfg:
     dataset:
       transforms:
         ops:
-          - { type: Resize, size: [ *imgsz, *imgsz ], }
-          - { type: ConvertPILImage, dtype: "float32", scale: True }
+          - { type: ResizeCV, size: [ *imgsz, *imgsz ], }
+          - { type: ConvertNumpyImage, dtype: "float32", scale: True }
     total_batch_size: *batch_size

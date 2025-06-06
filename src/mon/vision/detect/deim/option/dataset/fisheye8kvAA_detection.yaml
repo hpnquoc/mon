@@ -1,5 +1,5 @@
-# Fisheye8Kv04 dataset:
-#   - trainv04: 17,252 images (visdrone)
+# Fisheye8KvAA dataset:
+#   - trainvAA: 17,252 images (visdrone)
 #   - val     :  2,712 images
 #   - test    :  1,000 images
 
@@ -16,8 +16,8 @@ train_dataloader:
   type: DataLoader
   dataset:
     type        : CocoDetection
-    img_folder  : /data/fisheye8k/trainv04/image
-    ann_file    : /data/fisheye8k/trainv04/trainv04.json
+    img_folder  : /data/fisheye8k/trainvAA/image
+    ann_file    : /data/fisheye8k/trainvAA/trainvAA.json
     return_masks: False
     transforms:
       type: Compose
