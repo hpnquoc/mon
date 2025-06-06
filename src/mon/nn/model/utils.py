@@ -250,7 +250,7 @@ def get_latest_checkpoint(dirpath: core.Path) -> str | None:
     """
     dirpath = core.Path(dirpath)
     ckpts   = sorted(
-        (ckpt for ckpt in dirpath.files(recursive=True) if ckpt.is_torch_file()),
+        (ckpt for ckpt in dirpath.files(recursive=True) if ckpt.is_weights_file()),
         key=lambda x: x.stat().st_mtime,
         reverse=True
     )
@@ -275,7 +275,7 @@ def get_epoch_from_checkpoint(ckpt: core.Path) -> int:
         return 0
     
     ckpt = core.Path(ckpt)
-    if ckpt.is_torch_file():
+    if ckpt.is_weights_file():
         return torch.load(ckpt).get("epoch", 0)
     
     return 0
@@ -294,7 +294,7 @@ def get_global_step_from_checkpoint(ckpt: core.Path) -> int:
         return 0
     
     ckpt = core.Path(ckpt)
-    if ckpt.is_torch_file():
+    if ckpt.is_weights_file():
         return torch.load(ckpt).get("global_step", 0)
     
     return 0

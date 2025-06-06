@@ -84,25 +84,23 @@ class DepthPro(nn.ExtraModel, base.DepthEstimationModel):
         }
     
     # ----- Predict -----
-    def infer(self, datapoint : dict, *args, **kwargs) -> dict:
-        # Pre-processing
-        meta               = datapoint["meta"]
-        image_path         = core.Path(meta["path"])
-        image, _, f_px     = depth_pro.load_rgb(str(image_path))
+    def infer(self, datapoint: dict, timers: core.TimeProfiler = None, *args, **kwargs) -> dict:
+        # Preprocess
+        timers.preprocess.tick() if timers is not None else None
+        path               = core.Path(datapoint["meta"]["path"])
+        image, _, f_px     = depth_pro.load_rgb(str(path))
         image              = self.transform(image)
         datapoint["image"] = image
         datapoint["f_px"]  = f_px
         for k, v in datapoint.items():
             if isinstance(v, torch.Tensor):
                 datapoint[k] = v.to(self.device)
-        
+        timers.preprocess.tock()
+
         # Forward
-        timer = core.Timer()
-        timer.tick()
+        timers.postprocess.tick()
         outputs = self.forward(datapoint, *args, **kwargs)
-        timer.tock()
+        timers.postprocess.tock()
         
         # Return
-        return outputs | {
-            "time": timer.avg_time
-        }
+        return outputs

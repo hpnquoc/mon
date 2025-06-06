@@ -384,12 +384,12 @@ class GCENet(base.ImageEnhancementModel):
     def init_weights(self, m: nn.Module):
         pass
     
-    def compute_efficiency_score(self, image_size: _size_2_t = 512, channels: int  = 3) -> tuple[float, float]:
+    def compute_efficiency_score(self, imgsz: _size_2_t = 512, channels: int  = 3) -> tuple[float, float]:
         """Compute the efficiency score of the model, including FLOPs, number
         of parameters, and runtime.
         """
         # Define input tensor
-        h, w      = types.image_size(image_size)
+        h, w      = types.image_size(imgsz)
         datapoint = {
             "image": torch.rand(1, channels, h, w).to(self.device),
             "depth": torch.rand(1,        1, h, w).to(self.device)

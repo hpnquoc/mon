@@ -14,7 +14,7 @@
 
 [project]
 name            = "mon"
-version         = "2.7.0"
+version         = "2.7.1"
 authors         = [
     {name="Long H. Pham", email="longpham3105@gmail.com"},
 ]
@@ -40,6 +40,7 @@ dependencies    = [
     "psutil",                           # Cross-platform lib for process and system monitoring in Python.
     "pyhumps",                          # Convert strings between snake case, camel case and pascal case in Python.
     "pytest",                           # Simple powerful testing with Python.
+    "python-box",                       # Advanced Python dictionaries with dot notation access.
     "requests",                         # Requests is an elegant and simple HTTP library for Python, built with ♥.
     "rich",                             # Render rich text, tables, progress bars, syntax highlighting, markdown and more to the terminal.
     "tabulate",                         # Pretty-print tabular data in Python, a library and a command-line utility.
@@ -47,7 +48,6 @@ dependencies    = [
     "typing-extensions",                # Backported and Experimental Type Hints for Python 3.7+.
     "validators",                       # Python Data Validation for Humans.
     # DSA
-    "Pillow",                           # Python Imaging Library (Fork).
     "PyYAML",                           # YAML parser and emitter for Python.
     "filterpy",                         # Kalman filters and other optimal and non-optimal estimation filters in Python.
     "numpy",                            # The fundamental package for scientific computing with Python.
@@ -67,18 +67,19 @@ dependencies    = [
     "tensorboard",                      # TensorFlow's Visualization Toolkit.
     "thop",                             # Count the MACs / FLOPs of your PyTorch model.
     "torch-fidelity",
-    "torch>=2.7.0",                     # PyTorch is an optimized tensor library for deep learning using GPUs and CPUs.
+    "torch>=2.7.1",                     # PyTorch is an optimized tensor library for deep learning using GPUs and CPUs.
     "torchfile",
     "torchmetrics>=1.7.2",              # Collection of PyTorch native metrics for easy evaluating machine learning models.
     "transformers",                     # 🤗 Transformers: State-of-the-art Machine Learning for Pytorch, TensorFlow, and JAX.
     # Vision
+    "Pillow",                           # Python Imaging Library (Fork).
+    "PyTurboJPEG",                      # A Python wrapper of libjpeg-turbo for decoding and encoding JPEG image.
     "albumentations",                   # An efficient library for image augmentation, providing extensive transformations to support machine learning and computer vision tasks.
     "faster-coco-eval",                 # Faster interpretation of the original COCOEval
     "ffmpeg-python",                    # Python bindings for FFmpeg—with complex filtering support.
     "kornia",                           # Kornia is a differentiable computer vision library for PyTorch.
     "opencv-contrib-python",            # Wrapper package for OpenCV python bindings.
     "opencv-python",                    # Computer vision and machine learning software library.
-    "PyTurboJPEG",                      # A Python wrapper of libjpeg-turbo for decoding and encoding JPEG image.
     "pillow_heif",                      # Python interface for libheif library.
     "pycocotools",                      # COCO dataset and evaluation metrics for object detection, instance segmentation, and person keypoint detection.
     "pyiqa",                            # PyTorch Toolbox for Image Quality Assessment.
@@ -122,7 +123,6 @@ include  = [
     "install.sh",
     "mkdocs.yml",
     "pyproject.toml",
-    "rlsync.sh",
     {path="docs"  },
     {path="env"   },
     {path="script"},

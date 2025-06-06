@@ -299,12 +299,19 @@ class RRDNet(base.ImageEnhancementModel):
         }
     
     # ----- Predict -----
-    def infer(self, datapoint: dict, reset_weights: bool = True, *args, **kwargs) -> dict:
+    def infer(
+        self,
+        datapoint: dict,
+        reset    : bool              = True,
+        timers   : core.TimeProfiler = None,
+        *args, **kwargs
+    ) -> dict:
         """Infers model output with optional processing.
     
         Args:
             datapoint: ``dict`` with datapoint attributes.
-            reset_weights: Whether to reset the weights before training. Default is ``True``.
+            reset: Whether to reset the weights before training. Default is ``True``.
+            timers: ``TimeProfiler`` for measuring time.
             
         Returns:
             ``dict`` of model predictions.
@@ -313,19 +320,20 @@ class RRDNet(base.ImageEnhancementModel):
             Override for custom pre/post-processing; defaults to ``self.forward()``.
         """
         # Initialize training components
-        if reset_weights:
+        if reset:
             self.load_state_dict(self.initial_state_dict, strict=False)
         optimizer = self.optimizer.get("optimizer", None)
         optimizer = optimizer or nn.Adam(self.parameters(), lr=0.001)
             
-        # Input
+        # Preprocess
+        timers.preprocess.tick() if timers is not None else None
         for k, v in datapoint.items():
             if isinstance(v, torch.Tensor):
                 datapoint[k] = v.to(self.device)
-        
+        timers.preprocess.tock() if timers is not None else None
+
         # Optimize
-        timer = core.Timer()
-        timer.tick()
+        timers.infer.tick() if timers is not None else None
         self.train()
         for _ in range(self.iters):
             outputs = self.forward_loss(datapoint=datapoint)
@@ -336,9 +344,7 @@ class RRDNet(base.ImageEnhancementModel):
             optimizer.step()
         self.eval()
         outputs = self.forward(datapoint=datapoint)
-        timer.tock()
+        timers.infer.tock() if timers is not None else None
         
         # Return
-        return outputs | {
-            "time": timer.avg_time,
-        }
+        return outputs

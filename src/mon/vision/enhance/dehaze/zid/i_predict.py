@@ -7,11 +7,10 @@ References:
     - https://github.com/XLearning-SCU/2020-TIP-ZID
 """
 
-import argparse
-import pathlib
 import sys
 from collections import namedtuple
 
+import box
 import torch.nn as nn
 import torch.optim
 from cv2.ximgproc import guidedFilter
@@ -24,13 +23,20 @@ from utils.dcp import get_atmosphere
 from utils.image_io import *
 from utils.imresize import np_imresize
 
-_root = pathlib.Path(__file__).resolve().parents[0]  # root directory
+_root = mon.Path(__file__).resolve().parents[0]  # root directory
 if str(_root) not in sys.path:
     sys.path.append(str(_root))  # add ROOT to PATH
 
 current_file = mon.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 DehazeResult = namedtuple("DehazeResult", ["learned", "t", "a"])
+
+
+# ----- Utils -----
+def benchmark(model: torch.nn.Module):
+    flops, params = mon.compute_efficiency_score(model=model)
+    mon.console.log(f"FLOPs : {flops:.4f}")
+    mon.console.log(f"Params: {params:.4f}")
 
 
 # ----- Predict -----
@@ -206,77 +212,55 @@ class Dehaze:
 
 
 @torch.no_grad()
-def predict(args: argparse.Namespace):
-    # Parse args
-    hostname     = args["hostname"]
-    root         = args["root"]
-    data         = args["data"]
-    fullname     = args["fullname"]
-    save_dir     = args["save_dir"]
-    weights      = args["weights"]
-    device       = args["device"]
-    torchrun     = args["torchrun"]
-    epochs       = args["epochs"]
-    steps        = args["steps"]
-    seed         = args["seed"]
-    batch_size   = args["batch_size"]
-    imgsz        = args["imgsz"]
-    resize       = args["resize"]
-    benchmark    = args["benchmark"]
-    save_result  = args["save_result"]
-    save_image   = args["save_image"]
-    save_debug   = args["save_debug"]
-    use_fullname = args["use_fullname"]
-    keep_subdirs = args["keep_subdirs"]
-    save_nearby  = args["save_nearby"]
-    exist_ok     = args["exist_ok"]
-    verbose      = args["verbose"]
-    
+def predict(args: dict | box.Box) -> str:
     # Start
-    mon.console.rule(f"[bold red] {fullname}")
-    mon.console.log(f"Machine: {hostname}")
-    
+    mon.print_run_summary(args)
+
     # Device
-    device = mon.set_device(device)
-    
+    device = mon.set_device(args.device)
+
     # Seed
-    mon.set_random_seed(seed)
+    mon.set_random_seed(args.seed)
     
     # Data I/O
-    mon.console.log(f"[bold red]{data}")
-    data_name, data_loader = mon.parse_data_loader(data, root, True, verbose=False)
+    data_name, data_loader = mon.parse_data_loader(args.data, args.root, True, verbose=False)
     
-    # Predicting
-    timer = mon.Timer()
+    # Predict
+    timers = mon.TimeProfiler()
     with mon.create_progress_bar() as pbar:
         for i, datapoint in pbar.track(
             sequence    = enumerate(data_loader),
             total       = len(data_loader),
             description = f"[bright_yellow] Predicting"
         ):
-            # Input
-            meta       = datapoint["meta"]
-            image_path = mon.Path(meta["path"])
-            image      = prepare_hazy_image(str(image_path))
-            
+            # Preprocess
+            timers.preprocess.tick()
+            path   = mon.Path(datapoint["meta"]["path"])
+            image  = prepare_hazy_image(str(path))
+            h0, w0 = mon.image_size(image)
+            if args.resize and h0 != args.imgsz[0] and w0 != args.imgsz[1]:
+                image = mon.resize(image, size=args.imgsz)
+            timers.preprocess.tock()
+
             # Save
-            output_dir = mon.parse_output_dir(save_dir, data_name, mon.SAVE_IMAGE_DIR, image_path, keep_subdirs, save_nearby)
-            debug_dir  = mon.parse_output_dir(save_dir, data_name, mon.SAVE_DEBUG_DIR, image_path, keep_subdirs, save_nearby)
-            output_dir.mkdir(parents=True, exist_ok=True)
+            out_dir   = mon.parse_output_dir(args.save_dir, data_name, mon.SAVE_IMAGE_DIR, path, args.keep_subdirs, args.save_nearby)
+            debug_dir = mon.parse_output_dir(args.save_dir, data_name, mon.SAVE_DEBUG_DIR, path, args.keep_subdirs, args.save_nearby)
+            out_dir.mkdir(parents=True, exist_ok=True)
             debug_dir.mkdir(parents=True, exist_ok=True)
             (debug_dir /    "t").mkdir(parents=True, exist_ok=True)
             (debug_dir /    "a").mkdir(parents=True, exist_ok=True)
             (debug_dir / "mask").mkdir(parents=True, exist_ok=True)
             
             # Infer
-            timer.tick()
-            dh = Dehaze(str(image_path.stem), image, epochs, clip=True, output_path=str(output_dir))
+            timers.infer.tick()
+            dh = Dehaze(str(path.stem), image, args.epochs, clip=True, output_path=str(out_dir))
             dh.optimize()
             dh.finalize()
-            timer.tock()
+            timers.infer.tock()
          
     # Finish
-    mon.console.log(f"Average time: {timer.avg_time}")
+    timers.print()
+    return str(args.save_dir)
 
 
 # ----- Main -----

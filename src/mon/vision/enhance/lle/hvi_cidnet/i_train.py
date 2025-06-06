@@ -10,6 +10,7 @@ References:
 
 import random
 
+import box
 import torch.backends.cudnn as cudnn
 import torch.optim
 import torchvision
@@ -24,77 +25,68 @@ current_dir  = current_file.parents[0]
 
 
 # ----- Train -----
-def train(args: dict) -> str:
-    # Parse args
-    hostname     = args["hostname"]
-    root         = args["root"]
-    data         = args["data"]
-    fullname     = args["fullname"]
-    save_dir     = args["save_dir"]
-    weights      = args["weights"]
-    device       = args["device"]
-    torchrun     = args["torchrun"]
-    epochs       = args["epochs"]
-    steps        = args["steps"]
-    seed         = args["seed"]
-    batch_size   = args["batch_size"]
-    imgsz        = args["imgsz"]
-    resize       = args["resize"]
-    benchmark    = args["benchmark"]
-    save_result  = args["save_result"]
-    save_image   = args["save_image"]
-    save_debug   = args["save_debug"]
-    use_fullname = args["use_fullname"]
-    keep_subdirs = args["keep_subdirs"]
-    save_nearby  = args["save_nearby"]
-    exist_ok     = args["exist_ok"]
-    verbose      = args["verbose"]
-    
-    gamma              = args["network"]["gamma"]
-    start_gamma        = args["network"]["start_gamma"]
-    end_gamma          = args["network"]["end_gamma"]
-    lr                 = args["optimizer"]["lr"]
-    cos_restart_cyclic = args["optimizer"]["cos_restart_cyclic"]
-    cos_restart        = args["optimizer"]["cos_restart"]
-    HVI_weight         = args["loss"]["HVI_weight"]
-    L1_weight          = args["loss"]["L1_weight"]
-    D_weight           = args["loss"]["D_weight"]
-    E_weight           = args["loss"]["E_weight"]
-    P_weight           = args["loss"]["P_weight"]
+def train(args: dict | box.Box) -> str:
+    gamma              = args.network.gamma
+    start_gamma        = args.network.start_gamma
+    end_gamma          = args.network.end_gamma
+    lr                 = args.optimizer.lr
+    cos_restart_cyclic = args.optimizer.cos_restart_cyclic
+    cos_restart        = args.optimizer.cos_restart
+    HVI_weight         = args.loss.HVI_weight
+    L1_weight          = args.loss.L1_weight
+    D_weight           = args.loss.D_weight
+    E_weight           = args.loss.E_weight
+    P_weight           = args.loss.P_weight
     start_epoch        = 0
-    warmup_epochs      = args["trainer"]["warmup_epochs"]
-    start_warmup       = args["trainer"]["start_warmup"]
-    grad_detect        = args["trainer"]["grad_detect"]
-    grad_clip          = args["trainer"]["grad_clip"]
-    
+    warmup_epochs      = args.trainer.warmup_epochs
+    start_warmup       = args.trainer.start_warmup
+    grad_detect        = args.trainer.grad_detect
+    grad_clip          = args.trainer.grad_clip
+
     # Start
-    mon.console.rule(f"[bold red] {fullname}")
-    mon.console.log(f"Machine: {hostname}")
-    
+    mon.print_run_summary(args)
+
     # Device
-    device = mon.set_device(device)
+    device = mon.set_device(args.device)
     cudnn.benchmark = True
 
     # Seed
-    mon.set_random_seed(seed)
-    
+    mon.set_random_seed(args.seed)
+
     # Data I/O
-    datamodule: mon.DataModule = mon.DATAMODULES.build(config=args["datamodule"])
+    args["datamodule"] |= {
+        "root"   : mon.parse_data_dir(args.root, args.datamodule.get("root", "")),
+        "devices": device,
+    }
+    datamodule: mon.DataModule = mon.DATAMODULES.build(config=args.datamodule)
+    datamodule.prepare_data()
     datamodule.setup(stage="train")
     train_dataloader = datamodule.train_dataloader
-    
+
+    # Pretrained
+    pretrained = args.tuning
+    if args.resume and args.resume.is_weights_file(exist=True):
+        pretrained = args.resume
+    if args.weights and args.weights.is_weights_file(exist=True):
+        pretrained = args.weights
+    if pretrained and pretrained.is_weights_file(exist=True):
+        mon.console.log(f"Pretrained: {pretrained}.")
+    else:
+        mon.console.log(f"Pretrained: {None}, training from scratch.")
+
     # Model
-    model = CIDNet().to(device)
-    if weights and mon.Path(weights).is_weights_file():
-        model.load_state_dict(torch.load(weights, map_location=lambda storage, loc: storage))
-    
+    model = CIDNet()
+    if pretrained and pretrained.is_weights_file():
+        model.load_state_dict(torch.load(pretrained, map_location=lambda storage, loc: storage))
+    model = model.to(device)
+
     # Optimizer
     optimizer = torch.optim.Adam(model.parameters(), lr=lr)
     if cos_restart_cyclic:
         if start_warmup:
             scheduler_step = CosineAnnealingRestartCyclicLR(
                 optimizer       = optimizer,
-                periods         = [(epochs // 4) - warmup_epochs, (epochs * 3) // 4],
+                periods         = [(args.epochs // 4) - warmup_epochs, (args.epochs * 3) // 4],
                 restart_weights = [1, 1],
                 eta_mins        = [0.0002, 0.0000001]
             )
@@ -107,7 +99,7 @@ def train(args: dict) -> str:
         else:
             scheduler = CosineAnnealingRestartCyclicLR(
                 optimizer       = optimizer,
-                periods         = [epochs // 4, (epochs * 3) // 4],
+                periods         = [args.epochs // 4, (args.epochs * 3) // 4],
                 restart_weights = [1, 1],
                 eta_mins        = [0.0002, 0.0000001]
             )
@@ -115,7 +107,7 @@ def train(args: dict) -> str:
         if start_warmup:
             scheduler_step = CosineAnnealingRestartLR(
                 optimizer       = optimizer,
-                periods         = [epochs - warmup_epochs - start_epoch],
+                periods         = [args.epochs - warmup_epochs - start_epoch],
                 restart_weights = [1],
                 eta_min         = 1e-7
             )
@@ -128,7 +120,7 @@ def train(args: dict) -> str:
         else:
             scheduler = CosineAnnealingRestartLR(
                 optimizer       = optimizer,
-                periods         = [epochs - start_epoch],
+                periods         = [args.epochs - start_epoch],
                 restart_weights = [1],
                 eta_min         = 1e-7
             )
@@ -148,8 +140,8 @@ def train(args: dict) -> str:
     # Training
     with mon.create_progress_bar() as pbar:
         for i in pbar.track(
-            sequence    = range(epochs),
-            total       = epochs,
+            sequence    = range(args.epochs),
+            total       = args.epochs,
             description = f"[bright_yellow] Training"
         ):
             model.train()
@@ -203,9 +195,9 @@ def train(args: dict) -> str:
                 if j == train_len:
                     enhanced_img = torchvision.transforms.ToPILImage()(enhanced_rgb[0].squeeze(0))
                     ref_img      = torchvision.transforms.ToPILImage()(ref_rgb[0].squeeze(0))
-                    (save_dir / mon.SAVE_DEBUG_DIR).mkdir(parents=True, exist_ok=True)
-                    enhanced_img.save(str(save_dir / mon.SAVE_DEBUG_DIR / "enhanced.jpg"))
-                    ref_img.save(str(save_dir / mon.SAVE_DEBUG_DIR / "ref.jpg"))
+                    (args.save_dir / mon.SAVE_DEBUG_DIR).mkdir(parents=True, exist_ok=True)
+                    enhanced_img.save(str(args.save_dir / mon.SAVE_DEBUG_DIR / "enhanced.jpg"))
+                    ref_img.save(str(args.save_dir / mon.SAVE_DEBUG_DIR / "ref.jpg"))
             
             scheduler.step()
             
@@ -215,7 +207,7 @@ def train(args: dict) -> str:
                             f"Learning rate: lr={optimizer.param_groups[0]['lr']}.")
             
             # Save the latest model
-            torch.save(model.state_dict(), str(save_dir / "last.pt"))
+            torch.save(model.state_dict(), str(args.save_dir / "last.pt"))
             
 
 # ----- Main -----

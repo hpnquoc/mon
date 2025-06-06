@@ -33,7 +33,6 @@ current_dir  = current_file.parents[0]
 
 
 # ----- Train -----
-
 def init_loggers(opt):
     log_file      = osp.join(opt['path']['log'], f"train_{opt['name']}_{get_time_str()}.log")
     logger        = get_root_logger( logger_name='basicsr', log_level=logging.INFO, log_file=log_file)
@@ -374,8 +373,6 @@ def train(args: argparse.Namespace):
         model.validation(val_loader, current_iter, tb_logger, opt["val"]["save_img"])
     if tb_logger:
         tb_logger.close()
-
-
 
 
 # ----- Main -----

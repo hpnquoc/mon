@@ -11,6 +11,7 @@ __all__ = [
 from abc import ABC, abstractmethod
 from typing import Any, Callable
 
+import box
 import lightning.pytorch.utilities.types
 import torch
 
@@ -87,7 +88,7 @@ class Model(lightning.LightningModule, ABC):
     tasks    : list[Task]   = []        # A list of tasks that the model can perform.
     mltypes  : list[MLType] = []        # A list of learning types that the model can perform.
     model_dir: core.Path    = None
-    zoo      : dict         = {}        # A dictionary containing all pretrained weights of the model.
+    zoo      : dict         = box.Box() # A dictionary containing all pretrained weights of the model.
     
     def __init__(
         self,
@@ -96,7 +97,7 @@ class Model(lightning.LightningModule, ABC):
         fullname : str  = None,
         # Network
         weights  : Any  = None,
-        # Training
+        # Train
         optimizer: Any  = None,
         loss     : Any  = None,
         metrics  : Any  = None,
@@ -117,7 +118,7 @@ class Model(lightning.LightningModule, ABC):
         # Network
         self.weights       = None
         self.assign_weights(weights)
-        # Training
+        # Train
         self.optimizer     = optimizer
         self.loss          = None
         self.train_metrics = None
@@ -125,7 +126,7 @@ class Model(lightning.LightningModule, ABC):
         self.test_metrics  = None
         self.init_loss(loss)
         self.init_metrics(metrics)
-        
+
     # ----- Properties -----
     @property
     def fullname(self) -> str:
@@ -652,11 +653,12 @@ class Model(lightning.LightningModule, ABC):
                 metric.reset()
     
     # ----- Predict -----
-    def infer(self, datapoint: dict, *args, **kwargs) -> dict:
+    def infer(self, datapoint: dict, timers: core.TimeProfiler = None, *args, **kwargs) -> dict | box.Box:
         """Infers model output with optional processing.
     
         Args:
             datapoint: ``dict`` with datapoint attributes.
+            timers: ``TimeProfiler`` for measuring time.
             args: Additional positional arguments.
             kwargs: Additional keyword arguments.
     

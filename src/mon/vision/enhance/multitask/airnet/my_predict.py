@@ -48,7 +48,7 @@ def predict(args: argparse.Namespace):
     if benchmark:
         flops, params, avg_time = mon.compute_efficiency_score(
             model      = model,
-            image_size = imgsz,
+            imgsz= imgsz,
             channels   = 3,
             runs       = 1000,
             use_cuda   = True,

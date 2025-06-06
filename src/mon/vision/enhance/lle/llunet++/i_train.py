@@ -10,6 +10,7 @@ References:
 
 from collections import OrderedDict
 
+import box
 import pandas as pd
 import torch
 import torch.backends.cudnn as cudnn
@@ -71,69 +72,56 @@ def val_epoch(val_dataloader, model, criterion, device):
     return loss_meters.avg, psnr_meters.compute(), ssim_meters.compute()
 
 
-def train(args: dict) -> str:
-    # Parse args
-    hostname     = args["hostname"]
-    root         = args["root"]
-    data         = args["data"]
-    fullname     = args["fullname"]
-    save_dir     = args["save_dir"]
-    weights      = args["weights"]
-    device       = args["device"]
-    torchrun     = args["torchrun"]
-    epochs       = args["epochs"]
-    steps        = args["steps"]
-    seed         = args["seed"]
-    batch_size   = args["batch_size"]
-    imgsz        = args["imgsz"]
-    resize       = args["resize"]
-    benchmark    = args["benchmark"]
-    save_result  = args["save_result"]
-    save_image   = args["save_image"]
-    save_debug   = args["save_debug"]
-    use_fullname = args["use_fullname"]
-    keep_subdirs = args["keep_subdirs"]
-    save_nearby  = args["save_nearby"]
-    exist_ok     = args["exist_ok"]
-    verbose      = args["verbose"]
-    
-    lr           = args["optimizer"]["lr"]
-    weight_decay = args["optimizer"]["weight_decay"]
-    loss_weights = args["loss"]["loss_weights"]
-    
+def train(args: dict | box.Box) -> str:
     # Start
-    mon.console.rule(f"[bold red] {fullname}")
-    mon.console.log(f"Machine: {hostname}")
+    mon.print_run_summary(args)
     
     # Device
-    device = mon.set_device(device)
+    device = mon.set_device(args.device)
     cudnn.benchmark = True
     
     # Seed
-    mon.set_random_seed(seed)
+    mon.set_random_seed(args.seed)
     
     # Data I/O
-    datamodule: mon.DataModule = mon.DATAMODULES.build(config=args["datamodule"])
+    args["datamodule"] |= {
+        "root"   : mon.parse_data_dir(args.root, args.datamodule.get("root", "")),
+        "devices": device,
+    }
+    datamodule: mon.DataModule = mon.DATAMODULES.build(config=args.datamodule)
+    datamodule.prepare_data()
     datamodule.setup(stage="train")
     train_dataloader = datamodule.train_dataloader
     val_dataloader   = datamodule.val_dataloader
-    
+
+    # Pretrained
+    pretrained = args.tuning
+    if args.resume and args.resume.is_weights_file(exist=True):
+        pretrained = args.resume
+    if args.weights and args.weights.is_weights_file(exist=True):
+        pretrained = args.weights
+    if pretrained and pretrained.is_weights_file(exist=True):
+        mon.console.log(f"Pretrained: {pretrained}.")
+    else:
+        mon.console.log(f"Pretrained: {None}, training from scratch.")
+
     # Model
-    model = NestedUNet().to(device)
+    model = NestedUNet()
+    model.load_state_dict(torch.load(pretrained, weights_only=True))
+    model = model.to(device)
     model.train()
     
     # Optimizer
-    optimizer = optim.Adam(model.parameters(), lr=lr, weight_decay=weight_decay)
+    optimizer = optim.Adam(model.parameters(), **args.optimizer)
     scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, 0.99)
     
     # Loss
-    criterion = Loss(*loss_weights).to(device)
+    criterion = Loss(*args.loss.loss_weights).to(device)
     
-    # Logging
-    writer = SummaryWriter(log_dir=str(save_dir))
+    # Log
+    writer = SummaryWriter(log_dir=str(args.save_dir))
     log    = OrderedDict([
         ("epoch"     , []),
-        ("lr"        , []),
         ("train/loss", []),
         ("val/loss"  , []),
         ("val/psnr"  , []),
@@ -143,8 +131,8 @@ def train(args: dict) -> str:
     best_psnr = 0
     best_ssim = 0
     
-    # Training
-    for epoch in range(epochs):
+    # Train
+    for epoch in range(args.epochs):
         train_loss  = train_epoch(train_dataloader, model, criterion, optimizer, device)
         val_results = val_epoch(val_dataloader,     model, criterion, device)
         val_loss    = float(val_results[0])
@@ -153,17 +141,16 @@ def train(args: dict) -> str:
         scheduler.step()
         mon.console.log(
             "Epoch [%d/%d] train/loss %.4f - val/loss %.4f - val/psnr %.4f - val/ssim %.4f\n"
-            % (epoch, epochs, train_loss, val_loss, val_psnr, val_ssim)
+            % (epoch, args.epochs, train_loss, val_loss, val_psnr, val_ssim)
         )
         
         # Log
         log["epoch"].append(epoch)
-        log["lr"].append(lr)
         log["train/loss"].append(train_loss)
         log["val/loss"].append(val_loss)
         log["val/psnr"].append(val_psnr)
         log["val/ssim"].append(val_ssim)
-        pd.DataFrame(log).to_csv(str(save_dir / "log.csv"))
+        pd.DataFrame(log).to_csv(str(args.save_dir / "log.csv"))
         writer.add_scalars(
             "train",
             {"train/loss": train_loss},
@@ -181,15 +168,15 @@ def train(args: dict) -> str:
         
         # Save
         if val_loss < best_loss:
-            torch.save(model.state_dict(), str(save_dir / "best.pt"))
+            torch.save(model.state_dict(), str(args.save_dir / "best.pt"))
             best_loss = val_loss
         if val_psnr > best_psnr:
-            torch.save(model.state_dict(), str(save_dir / "best_psnr.pt"))
+            torch.save(model.state_dict(), str(args.save_dir / "best_psnr.pt"))
             best_psnr = val_psnr
         if val_ssim > best_ssim:
-            torch.save(model.state_dict(), str(save_dir / "best_ssim.pt"))
+            torch.save(model.state_dict(), str(args.save_dir / "best_ssim.pt"))
             best_ssim = val_ssim
-        torch.save(model.state_dict(), str(save_dir / "last.pt"))
+        torch.save(model.state_dict(), str(args.save_dir / "last.pt"))
         torch.cuda.empty_cache()
    
     writer.close()

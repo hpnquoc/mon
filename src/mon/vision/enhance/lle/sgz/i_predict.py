@@ -9,10 +9,9 @@ References:
 """
 
 import os
-from typing import Sequence
 
+import box
 import torch
-import torchvision
 
 import mon
 import utils
@@ -25,97 +24,88 @@ current_file = mon.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
 
+# ----- Utils -----
+def benchmark(model: torch.nn.Module, imgsz: tuple[int, int]):
+    flops, params = mon.compute_efficiency_score(model=model, imgsz=imgsz)
+    mon.console.log(f"FLOPs : {flops:.4f}")
+    mon.console.log(f"Params: {params:.4f}")
+
+
 # ----- Predict -----
 @torch.no_grad()
-def predict(args: dict) -> str:
-    # Parse args
-    hostname     = args["hostname"]
-    root         = args["root"]
-    data         = args["data"]
-    fullname     = args["fullname"]
-    save_dir     = args["save_dir"]
-    weights      = args["weights"]
-    device       = args["device"]
-    torchrun     = args["torchrun"]
-    epochs       = args["epochs"]
-    steps        = args["steps"]
-    seed         = args["seed"]
-    batch_size   = args["batch_size"]
-    imgsz        = args["imgsz"]
-    imgsz        = imgsz[0] if isinstance(imgsz, Sequence) else imgsz
-    resize       = args["resize"]
-    benchmark    = args["benchmark"]
-    save_result  = args["save_result"]
-    save_image   = args["save_image"]
-    save_debug   = args["save_debug"]
-    use_fullname = args["use_fullname"]
-    keep_subdirs = args["keep_subdirs"]
-    save_nearby  = args["save_nearby"]
-    exist_ok     = args["exist_ok"]
-    verbose      = args["verbose"]
-
-    scale_factor = args["network"]["scale_factor"]
-    
+def predict(args: dict | box.Box) -> str:
     # Start
-    mon.console.rule(f"[bold red] {fullname}")
-    mon.console.log(f"Machine: {hostname}")
-    
+    mon.print_run_summary(args)
+
     # Device
-    device = mon.set_device(device)
-    
+    device = mon.set_device(args.device)
+
     # Seed
-    mon.set_random_seed(seed)
+    mon.set_random_seed(args.seed)
     
     # Data I/O
-    mon.console.log(f"[bold red]{data}")
-    data_name, data_loader = mon.parse_data_loader(data, root, True, verbose=False)
-    
+    data_name, data_loader = mon.parse_data_loader(args.data, args.root, True, verbose=False)
+
+    # Pretrained
+    pretrained = args.resume
+    if args.weights and args.weights.is_weights_file(exist=True):
+        pretrained = args.weights
+    if pretrained and pretrained.is_weights_file(exist=True):
+        mon.console.log(f"Pretrained: {pretrained}.")
+    else:
+        raise ValueError(f"Invalid weights file: {pretrained}.")
+
     # Model
-    net = mmodel.enhance_net_nopool(scale_factor, conv_type="dsc").to(device)
-    net.load_state_dict(torch.load(weights, map_location=device, weights_only=True))
-    net.eval()
+    scale_factor = args.network.scale_factor
+    model = mmodel.enhance_net_nopool(scale_factor, conv_type="dsc")
+    model.load_state_dict(torch.load(pretrained, weights_only=True))
+    model = model.to(device)
+    model.eval()
     
     # Benchmark
     if benchmark:
         h = (512 // scale_factor) * scale_factor
         w = (512 // scale_factor) * scale_factor
-        flops, params = mon.compute_efficiency_score(model=net, image_size=(h, w))
-        mon.console.log(f"FLOPs : {flops:.4f}")
-        mon.console.log(f"Params: {params:.4f}")
+        benchmark(model, imgsz=(h, w))
     
-    # Predicting
-    timer = mon.Timer()
+    # Predict
+    timers = mon.TimeProfiler()
     with mon.create_progress_bar() as pbar:
         for i, datapoint in pbar.track(
             sequence    = enumerate(data_loader),
             total       = len(data_loader),
             description = f"[bright_yellow] Predicting"
         ):
-            # Input
-            meta       = datapoint["meta"]
-            image_path = mon.Path(meta["path"])
-            image      = utils.image_from_path(str(image_path))
-            h0, w0     = mon.image_size(meta["shape"])
+            # Preprocess
+            timers.preprocess.tick()
+            path    = mon.Path(datapoint["meta"]["path"])
+            image   = utils.image_from_path(str(path))
+            h0, w0  = mon.image_size(image)
             # Scale image to have the resolution of multiple of 4
-            image      = utils.scale_image(image, scale_factor, device) if scale_factor != 1 else image
-            image      = image.to(device)
-            
+            image   = utils.scale_image(image, scale_factor, device) if scale_factor != 1 else image
+            image   = image.to(device)
+            timers.preprocess.tock()
+
             # Infer
-            timer.tick()
-            enhanced, params_maps = net(image)
-            timer.tock()
-            
-            # Post-processing
-            enhanced = mon.resize(enhanced, (h0, w0), side=None)
-            
+            timers.infer.tick()
+            outputs = model(image)
+            timers.infer.tock()
+
+            # Postprocess
+            timers.postprocess.tick()
+            enhanced, _ = outputs
+            enhanced    = mon.resize(enhanced, (h0, w0), side=None)
+            timers.postprocess.tock()
+
             # Save
-            if save_image:
-                output_dir  = mon.parse_output_dir(save_dir, data_name, mon.SAVE_IMAGE_DIR, image_path, keep_subdirs, save_nearby)
-                output_path = output_dir / f"{image_path.stem}{mon.SAVE_IMAGE_EXT}"
-                mon.save_image(enhanced, output_path)
+            if args.save_image:
+                out_dir  = mon.parse_output_dir(args.save_dir, data_name, mon.SAVE_IMAGE_DIR, path, args.keep_subdirs, args.save_nearby)
+                out_path = out_dir / f"{path.stem}{mon.SAVE_IMAGE_EXT}"
+                mon.save_image(enhanced, out_path)
     
     # Finish
-    mon.console.log(f"Average time: {timer.avg_time}")
+    timers.print()
+    return str(args.save_dir)
         
 
 # ----- Main -----

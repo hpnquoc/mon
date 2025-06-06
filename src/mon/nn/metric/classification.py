@@ -22,7 +22,6 @@ __all__ = [
 	"ROC",
 	"Recall",
 	"RecallAtFixedPrecision",
-	"SensitivityAtSpecificity",
 	"Specificity",
 	"SpecificityAtSensitivity",
 	"StatScores",
@@ -33,8 +32,7 @@ from torchmetrics.classification import (
 	Accuracy, AUROC, AveragePrecision, CalibrationError, CohenKappa, ConfusionMatrix,
 	ExactMatch, F1Score, FBetaScore, HammingDistance, HingeLoss, JaccardIndex,
 	MatthewsCorrCoef, Precision, PrecisionAtFixedRecall, PrecisionRecallCurve, Recall,
-	RecallAtFixedPrecision, ROC, SensitivityAtSpecificity, Specificity,
-	SpecificityAtSensitivity, StatScores,
+	RecallAtFixedPrecision, ROC, Specificity, SpecificityAtSensitivity, StatScores,
 )
 
 from mon.constants import METRICS
@@ -59,7 +57,6 @@ METRICS.register(name="precision_recall_curve",     module=PrecisionRecallCurve)
 METRICS.register(name="roc",                        module=ROC)
 METRICS.register(name="recall",                     module=Recall)
 METRICS.register(name="recall_at_fixed_precision",  module=RecallAtFixedPrecision)
-METRICS.register(name="sensitivity_at_specificity", module=SensitivityAtSpecificity)
 METRICS.register(name="specificity",                module=Specificity)
 METRICS.register(name="specificity_at_sensitivity", module=SpecificityAtSensitivity)
 METRICS.register(name="stat_scores",                module=StatScores)

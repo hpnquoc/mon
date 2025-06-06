@@ -9,6 +9,8 @@ __all__ = [
 
 from typing import Any, Collection, Sequence
 
+import box
+
 import mon
 from mon import CLI_OPTIONS, DEFAULT_ARGS, rich
 
@@ -105,8 +107,8 @@ class NumberPrompt:
     
     @default.setter
     def default(self, default: int):
-        self._default = default or -1
-    
+        self._default = default if isinstance(default, int | float) else -1
+
     @property
     def value(self):
         return self._value
@@ -304,7 +306,7 @@ class RunmlCLI:
         self.config_args = {}
 
     def __len__(self):
-        return 28
+        return 27
 
     def cycle_next(self):
         """Move to the next option, wrapping around if needed."""
@@ -317,8 +319,9 @@ class RunmlCLI:
     def display_prompt(self):
         if self.index == 0:
             mon.clear_terminal()
-            rich.print(rich.Text("Input Prompts", "default on white"))
-        mon.console.rule()
+            mon.console.rule(f"[bold red]Input Prompts")
+        else:
+            mon.console.rule()
 
         if self.index == 0:  # Task
             self.args["task"] = TaskPrompt(
@@ -382,60 +385,12 @@ class RunmlCLI:
                 task    = self.args["task"],
                 default = self.args["device"],
             ).prompt()
-        if self.index == 9:  # Distributed Training
-            if self.args["mode"] not in ["train"]:
-                self.cycle_next()
-            else:
-                self.args["torchrun"] = Confirm(
-                    text    = CLI_OPTIONS["torchrun"]["prompt_text"],
-                    default = self.args["torchrun"] or self.config_args.get("torchrun", False),
-                ).prompt()
-        if self.index == 10:  # Master Port
-            if self.args["mode"] not in ["train"] or not self.args["torchrun"]:
-                self.cycle_next()
-            else:
-                self.args["master_port"] = NumberPrompt(
-                    text    = CLI_OPTIONS["master_port"]["prompt_text"],
-                    default = self.args["master_port"] or self.config_args.get("master_port"),
-                ).prompt()
-        if self.index == 11:  # Master Address
-            if self.args["mode"] not in ["train"] or not self.args["torchrun"]:
-                self.cycle_next()
-            else:
-                self.args["master_addr"] = NumberPrompt(
-                    text    = CLI_OPTIONS["master_addr"]["prompt_text"],
-                    default = self.args["master_addr"] or self.config_args.get("master_addr"),
-                ).prompt()
-        if self.index == 12:  # Epochs
-            if self.args["mode"] not in ["train"]:
-                self.cycle_next()
-            else:
-                self.args["epochs"] = NumberPrompt(
-                    text    = CLI_OPTIONS["epochs"]["prompt_text"],
-                    default = self.args["epochs"] or self.config_args.get("epochs"),
-                ).prompt()
-        if self.index == 13:  # Steps
-            if self.args["mode"] not in ["train"]:
-                self.cycle_next()
-            else:
-                self.args["steps"] = NumberPrompt(
-                    text    = CLI_OPTIONS["steps"]["prompt_text"],
-                    default = self.args["steps"] or self.config_args.get("steps"),
-                ).prompt()
-        if self.index == 14:  # Seed
+        if self.index == 9:  # Seed
             self.args["seed"] = NumberPrompt(
                 text    = CLI_OPTIONS["seed"]["prompt_text"],
                 default = self.args["seed"] or self.config_args.get("seed"),
             ).prompt()
-        if self.index == 15:  # Batch Size
-            if self.args["mode"] not in ["predict"]:
-                self.cycle_next()
-            else:
-                self.args["batch_size"] = NumberPrompt(
-                    text    = CLI_OPTIONS["batch_size"]["prompt_text"],
-                    default = self.args["batch_size"] or self.config_args.get("batch_size"),
-                ).prompt()
-        if self.index == 16:  # Image Size
+        if self.index == 10:  # Image Size
             if self.args["mode"] not in ["predict"]:
                 self.cycle_next()
             else:
@@ -443,7 +398,47 @@ class RunmlCLI:
                     text    = CLI_OPTIONS["imgsz"]["prompt_text"],
                     default = self.args["imgsz"] or self.config_args.get("imgsz"),
                 ).prompt()
-        if self.index == 17:  # Resize
+        if self.index == 11:  # Epochs
+            if self.args["mode"] not in ["train"]:
+                self.cycle_next()
+            else:
+                self.args["epochs"] = NumberPrompt(
+                    text    = CLI_OPTIONS["epochs"]["prompt_text"],
+                    default = self.args["epochs"] or self.config_args.get("epochs"),
+                ).prompt()
+        if self.index == 12:  # Batch Size
+            if self.args["mode"] not in ["train"]:
+                self.cycle_next()
+            else:
+                self.args["batch_size"] = NumberPrompt(
+                    text    = CLI_OPTIONS["batch_size"]["prompt_text"],
+                    default = self.args["batch_size"] or self.config_args.get("batch_size"),
+                ).prompt()
+        if self.index == 13:  # torchrun
+            if self.args["mode"] not in ["train"]:
+                self.cycle_next()
+            else:
+                self.args["torchrun"] = Confirm(
+                    text    = CLI_OPTIONS["torchrun"]["prompt_text"],
+                    default = self.args["torchrun"] or self.config_args.get("torchrun", False),
+                ).prompt()
+        if self.index == 14:  # Master Port
+            if self.args["mode"] not in ["train"] or not self.args["torchrun"]:
+                self.cycle_next()
+            else:
+                self.args["master_port"] = NumberPrompt(
+                    text    = CLI_OPTIONS["master_port"]["prompt_text"],
+                    default = self.args["master_port"] or self.config_args.get("master_port"),
+                ).prompt()
+        if self.index == 15:  # Master Address
+            if self.args["mode"] not in ["train"] or not self.args["torchrun"]:
+                self.cycle_next()
+            else:
+                self.args["master_addr"] = Prompt(
+                    text    = CLI_OPTIONS["master_addr"]["prompt_text"],
+                    default = self.args["master_addr"] or self.config_args.get("master_addr"),
+                ).prompt()
+        if self.index == 16:  # Resize
             if self.args["mode"] not in ["predict"]:
                 self.cycle_next()
             else:
@@ -451,37 +446,37 @@ class RunmlCLI:
                     text    = CLI_OPTIONS["resize"]["prompt_text"],
                     default = self.args["resize"] or self.config_args.get("resize", False),
                 ).prompt()
-        if self.index == 18:  # Benchmark
+        if self.index == 17:  # Benchmark
             self.args["benchmark"] = Confirm(
                 text    = CLI_OPTIONS["benchmark"]["prompt_text"],
                 default = self.args["benchmark"] or self.config_args.get("benchmark", False),
             ).prompt()
-        if self.index == 19:  # Save Result
+        if self.index == 18:  # Save Result
             self.args["save_result"] = Confirm(
                 text    = CLI_OPTIONS["save_result"]["prompt_text"],
                 default = self.args["save_result"] or self.config_args.get("save_result", False),
             ).prompt()
-        if self.index == 20:  # Save Image
+        if self.index == 19:  # Save Image
             self.args["save_image"] = Confirm(
                 text    = CLI_OPTIONS["save_image"]["prompt_text"],
                 default = self.args["save_image"] or self.config_args.get("save_image", False),
             ).prompt()
-        if self.index == 21:  # Save Debug
+        if self.index == 20:  # Save Debug
             self.args["save_debug"] = Confirm(
                 text    = CLI_OPTIONS["save_debug"]["prompt_text"],
                 default = self.args["save_debug"] or self.config_args.get("save_debug", False),
             ).prompt()
-        if self.index == 22:  # Use Fullname
+        if self.index == 21:  # Use Fullname
             self.args["use_fullname"] = Confirm(
                 text    = CLI_OPTIONS["use_fullname"]["prompt_text"],
                 default = self.args["use_fullname"] or self.config_args.get("use_fullname", False),
             ).prompt()
-        if self.index == 23:  # Keep Subdirs
+        if self.index == 22:  # Keep Subdirs
             self.args["keep_subdirs"] = Confirm(
                 text    = CLI_OPTIONS["keep_subdirs"]["prompt_text"],
                 default = self.args["keep_subdirs"] or self.config_args.get("keep_subdirs", False),
             ).prompt()
-        if self.index == 24:  # Save Nearby
+        if self.index == 23:  # Save Nearby
             if self.args["mode"] not in ["predict"]:
                 self.cycle_next()
             else:
@@ -489,23 +484,23 @@ class RunmlCLI:
                     text    = CLI_OPTIONS["save_nearby"]["prompt_text"],
                     default = self.args["save_nearby"] or self.config_args.get("save_nearby", False),
                 ).prompt()
-        if self.index == 25:  # Exist OK?
+        if self.index == 24:  # Exist OK?
             self.args["exist_ok"] = Confirm(
                 text    = CLI_OPTIONS["exist_ok"]["prompt_text"],
                 default = self.args["exist_ok"] or self.config_args.get("exist_ok", False),
             ).prompt()
-        if self.index == 26:  # Use Verbose
+        if self.index == 25:  # Use Verbose
             self.args["verbose"] = Confirm(
                 text    = CLI_OPTIONS["verbose"]["prompt_text"],
                 default = self.args["verbose"] or self.config_args.get("verbose", False),
             ).prompt()
-        if self.index == 27:  # Finish
-            rich.print_dict(self.args, title="Arguments")
+        if self.index == 26:  # Finish
+            rich.print_table(self.args, title="Input Arguments")
             finish = Confirm(text="Finish/Re-input", default=True).prompt()
             if finish:
                 self.index = self.__len__()
             
-    def prompt_args(self) -> str:
+    def prompt_args(self) -> dict | box.Box:
         """Run the interactive menu and return the selected option."""
         while True:
             self.display_prompt()

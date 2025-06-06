@@ -8,6 +8,7 @@ References:
     - https://github.com/Li-Chongyi/Zero-DCE
 """
 
+import box
 import torch
 import torch.optim
 
@@ -29,73 +30,47 @@ def weights_init(m):
         m.bias.data.fill_(0)
 
 
-def train(args: dict) -> str:
-    # Parse args
-    hostname     = args["hostname"]
-    root         = args["root"]
-    data         = args["data"]
-    fullname     = args["fullname"]
-    save_dir     = args["save_dir"]
-    weights      = args["weights"]
-    device       = args["device"]
-    torchrun     = args["torchrun"]
-    epochs       = args["epochs"]
-    steps        = args["steps"]
-    seed         = args["seed"]
-    batch_size   = args["batch_size"]
-    imgsz        = args["imgsz"]
-    resize       = args["resize"]
-    benchmark    = args["benchmark"]
-    save_result  = args["save_result"]
-    save_image   = args["save_image"]
-    save_debug   = args["save_debug"]
-    use_fullname = args["use_fullname"]
-    keep_subdirs = args["keep_subdirs"]
-    save_nearby  = args["save_nearby"]
-    exist_ok     = args["exist_ok"]
-    verbose      = args["verbose"]
-    
-    lr               = args["optimizer"]["lr"]
-    weight_decay     = args["optimizer"]["weight_decay"]
-    grad_clip_norm   = args["trainer"]["grad_clip_norm"]
-    display_iter     = args["trainer"]["display_iter"]
-    checkpoints_iter = args["trainer"]["checkpoints_iter"]
-    
+def train(args: dict | box.Box) -> str:
     # Start
-    mon.console.rule(f"[bold red] {fullname}")
-    mon.console.log(f"Machine: {hostname}")
-    
+    mon.print_run_summary(args)
+
     # Device
-    device = mon.set_device(device)
+    device = mon.set_device(args.device)
 
     # Seed
-    mon.set_random_seed(seed)
-    
+    mon.set_random_seed(args.seed)
+
     # Data I/O
-    '''
     args["datamodule"] |= {
-        "transform": A.Compose(transforms=[
-            A.Resize(width=imgsz, height=imgsz),
-        ])
-    }
-    '''
-    args["datamodule"] |= {
-        "root"   : mon.parse_data_dir(root, data_dir=args["datamodule"]["root"]),
+        "root"   : mon.parse_data_dir(args.root, args.datamodule.get("root", "")),
         "devices": device,
     }
-    datamodule: mon.DataModule = mon.DATAMODULES.build(config=args["datamodule"])
+    datamodule: mon.DataModule = mon.DATAMODULES.build(config=args.datamodule)
+    datamodule.prepare_data()
     datamodule.setup(stage="train")
     train_dataloader = datamodule.train_dataloader
-    
+
+    # Pretrained
+    pretrained = args.tuning
+    if args.resume and args.resume.is_weights_file(exist=True):
+        pretrained = args.resume
+    if args.weights and args.weights.is_weights_file(exist=True):
+        pretrained = args.weights
+    if pretrained and pretrained.is_weights_file(exist=True):
+        mon.console.log(f"Pretrained: {pretrained}.")
+    else:
+        mon.console.log(f"Pretrained: {None}, training from scratch.")
+
     # Model
-    dce_net = mmodel.enhance_net_nopool().to(device)
-    dce_net.apply(weights_init)
-    if weights and mon.Path(weights).is_weights_file():
-        dce_net.load_state_dict(torch.load(weights, map_location=device, weights_only=True))
-    dce_net.train()
+    model = mmodel.enhance_net_nopool()
+    model.apply(weights_init)
+    if pretrained and pretrained.is_weights_file(exist=True):
+        model.load_state_dict(torch.load(pretrained, weights_only=True))
+    model = model.to(device)
+    model.train()
     
     # Optimizer
-    optimizer = torch.optim.Adam(dce_net.parameters(), lr=lr, weight_decay=weight_decay)
+    optimizer = torch.optim.Adam(model.parameters(), **args.optimizer)
     
     # Loss
     L_color = myloss.L_color()
@@ -103,16 +78,19 @@ def train(args: dict) -> str:
     L_exp   = myloss.L_exp(16, 0.6)
     L_tv    = myloss.L_TV()
     
-    # Training
+    # Train
+    grad_clip_norm   = args["trainer"]["grad_clip_norm"]
+    display_iter     = args["trainer"]["display_iter"]
+    checkpoints_iter = args["trainer"]["checkpoints_iter"]
     with mon.create_progress_bar() as pbar:
         for _ in pbar.track(
-            sequence    = range(epochs),
-            total       = epochs,
+            sequence    = range(args.epochs),
+            total       = args.epochs,
             description = f"[bright_yellow] Training"
         ):
             for i, datapoint in enumerate(train_dataloader):
                 image          = datapoint["image"].to(device)
-                _, enhanced, r = dce_net(image)
+                _, enhanced, r = model(image)
                 
                 loss_tv  = 200 * L_tv(r)
                 loss_spa = torch.mean(L_spa(enhanced, image))
@@ -122,7 +100,7 @@ def train(args: dict) -> str:
     
                 optimizer.zero_grad()
                 loss.backward()
-                torch.nn.utils.clip_grad_norm_(dce_net.parameters(), grad_clip_norm)
+                torch.nn.utils.clip_grad_norm_(model.parameters(), grad_clip_norm)
                 optimizer.step()
                 
                 # Log
@@ -131,7 +109,7 @@ def train(args: dict) -> str:
                 
                 # Save
                 if ((i + 1) % checkpoints_iter) == 0:
-                    torch.save(dce_net.state_dict(), save_dir / "best.pt")
+                    torch.save(model.state_dict(), args.save_dir / "best.pt")
 
 
 # ----- Main -----

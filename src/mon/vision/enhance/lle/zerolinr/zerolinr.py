@@ -590,18 +590,18 @@ class ZeroLINR(base.ImageEnhancementModel):
         """
         pass
     
-    def compute_efficiency_score(self, image_size: _size_2_t = 512) -> tuple[float, float]:
+    def compute_efficiency_score(self, imgsz: _size_2_t = 512) -> tuple[float, float]:
         """Compute model efficiency score (FLOPs, params).
 
         Args:
-            image_size: Input size as ``int`` or [H, W]. Default is ``512``.
+            imgsz: Input size as ``int`` or [H, W]. Default is ``512``.
 
         Returns:
             Tuple of (FLOPs, parameter count) as ``float`` values.
         """
         from fvcore.nn import parameter_count
         
-        h, w      = types.image_size(image_size)
+        h, w      = types.image_size(imgsz)
         datapoint = {
             "image": torch.rand(1, 3, h, w).to(self.device),
             "depth": torch.rand(1, 1, h, w).to(self.device)
@@ -725,13 +725,20 @@ class ZeroLINR(base.ImageEnhancementModel):
         }
     
     # ----- Predict -----
-    def infer(self, datapoint: dict, reset_weights: bool = True, *args, **kwargs) -> dict:
+    def infer(
+        self,
+        datapoint: dict,
+        reset    : bool              = True,
+        timers   : core.TimeProfiler = None,
+        *args, **kwargs
+    ) -> dict:
         """Infers model output with optional processing.
     
         Args:
             datapoint: ``dict`` with datapoint attributes.
-            reset_weights: Whether to reset the weights before training. Default is ``True``.
-            
+            reset: Whether to reset the weights before training. Default is ``True``.
+            timers: ``TimeProfiler`` for measuring time.
+
         Returns:
             ``dict`` of model predictions.
     
@@ -739,18 +746,21 @@ class ZeroLINR(base.ImageEnhancementModel):
             Override for custom pre/post-processing; defaults to ``self.forward()``.
         """
         # Initialize training components
-        if reset_weights:
+        if reset:
             self.load_state_dict(self.initial_state_dict, strict=False)
         optimizer = self.optimizer.get("optimizer", None)
         optimizer = optimizer or nn.Adam(self.parameters(), lr=0.00001, weight_decay=0.0003)
 
-        # Input
+        # Preprocess
+        timers.preprocess.tick() if timers is not None else None
         for k, v in datapoint.items():
             if isinstance(v, torch.Tensor):
                 datapoint[k] = v.to(self.device)
         datapoint = self.prepare_input(datapoint)
-        
+        timers.preprocess.tock() if timers is not None else None
+
         # Optimize
+        timers.infer.tick() if timers is not None else None
         self.train()
         for _ in range(self.iters):
             outputs = self.forward_loss(datapoint=datapoint)
@@ -760,12 +770,8 @@ class ZeroLINR(base.ImageEnhancementModel):
                 loss.backward(retain_graph=True)
                 optimizer.step()
         self.eval()
-        timer = core.Timer()
-        timer.tick()
         outputs = self.forward(datapoint=datapoint)
-        timer.tock()
+        timers.infer.tock() if timers is not None else None
         
         # Return
-        return outputs | {
-            "time": timer.avg_time,
-        }
+        return outputs

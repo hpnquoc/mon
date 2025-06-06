@@ -65,7 +65,7 @@ def test(args: argparse.Namespace):
     if args.benchmark:
         flops, params, avg_time = mon.compute_efficiency_score(
             model      = model,
-            image_size = args.image_size,
+            imgsz= args.image_size,
             channels   = 3,
             runs       = 1000,
             use_cuda   = True,

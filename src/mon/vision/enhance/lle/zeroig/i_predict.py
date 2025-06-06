@@ -11,6 +11,7 @@ References:
 import logging
 import sys
 
+import box
 import cv2
 import numpy as np
 import torch.backends.cudnn as cudnn
@@ -26,7 +27,7 @@ current_file = mon.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
 
-# ----- Predict -----
+# ----- Utils -----
 def save_images(tensor):
     image_numpy = tensor[0].detach().cpu().float().numpy()
     image_numpy = (np.transpose(image_numpy, (1, 2, 0)))
@@ -44,41 +45,23 @@ def calculate_model_flops(model, input_tensor):
     return flops_in_gigaflops
 
 
-def predict(args: dict) -> str:
-    # Parse args
-    hostname     = args["hostname"]
-    root         = args["root"]
-    data         = args["data"]
-    fullname     = args["fullname"]
-    save_dir     = args["save_dir"]
-    weights      = args["weights"]
-    device       = args["device"]
-    torchrun     = args["torchrun"]
-    epochs       = args["epochs"]
-    steps        = args["steps"]
-    seed         = args["seed"]
-    batch_size   = args["batch_size"]
-    imgsz        = args["imgsz"]
-    resize       = args["resize"]
-    benchmark    = args["benchmark"]
-    save_result  = args["save_result"]
-    save_image   = args["save_image"]
-    save_debug   = args["save_debug"]
-    use_fullname = args["use_fullname"]
-    keep_subdirs = args["keep_subdirs"]
-    save_nearby  = args["save_nearby"]
-    exist_ok     = args["exist_ok"]
-    verbose      = args["verbose"]
-    
-    lr           = args["optimizer"]["lr"]
-    weight_decay = args["optimizer"]["weight_decay"]
-    
+def benchmark():
+    model = Network()
+    # flops, params = mon.compute_efficiency_score(model=model)
+    total_params  = calculate_model_parameters(model)
+    # mon.console.log(f"FLOPs : {flops:.4f}")
+    # mon.console.log(f"Params: {params:.4f}")
+    mon.console.log(f"Total Params = {total_params:.4f}")
+
+
+# ----- Predict -----
+@torch.no_grad()
+def predict(args: dict | box.Box) -> str:
     # Start
-    mon.console.rule(f"[bold red] {fullname}")
-    mon.console.log(f"Machine: {hostname}")
-    
+    mon.print_run_summary(args)
+
     # Device
-    device = mon.set_device(device)
+    device = mon.set_device(args.device)
     if torch.cuda.is_available():
         torch.set_default_tensor_type("torch.cuda.FloatTensor")
         cudnn.benchmark = True
@@ -87,47 +70,43 @@ def predict(args: dict) -> str:
         torch.set_default_tensor_type("torch.FloatTensor")
         logging.info("no gpu device available")
         sys.exit(1)
-    
+
     # Seed
-    mon.set_random_seed(seed)
-    
+    mon.set_random_seed(args.seed)
+
     # Data I/O
-    mon.console.log(f"[bold red]{data}")
-    data_name, data_loader = mon.parse_data_loader(data, root, True, verbose=False)
-    
+    data_name, data_loader = mon.parse_data_loader(args.data, args.root, True, verbose=False)
+
     # Benchmark
-    if benchmark:
-        model = Network()
-        # flops, params = mon.compute_efficiency_score(model=model)
-        total_params  = calculate_model_parameters(model)
-        # mon.console.log(f"FLOPs : {flops:.4f}")
-        # mon.console.log(f"Params: {params:.4f}")
-        mon.console.log(f"Total Params = {total_params:.4f}")
+    # Benchmark
+    if args.benchmark:
+        benchmark()
         
-    # Predicting
-    timer = mon.Timer()
+    # Predict
+    timers = mon.TimeProfiler()
     with mon.create_progress_bar() as pbar:
         for i, datapoint in pbar.track(
             sequence    = enumerate(data_loader),
             total       = len(data_loader),
             description = f"[bright_yellow] Predicting"
         ):
-            # Input
-            meta       = datapoint["meta"]
-            image_path = mon.Path(meta["path"])
-            image      = datapoint["image"]
-            
+            # Preprocess
+            timers.preprocess.tick()
+            path   = mon.Path(datapoint["meta"]["path"])
+            image  = datapoint["image"]
+            timers.preprocess.tock()
+
             # Optimize
-            timer.tick()
+            timers.infer.tick()
             model = Network()
             model.enhance.in_conv.apply(model.enhance_weights_init)
             model.enhance.conv.apply(model.enhance_weights_init)
             model.enhance.out_conv.apply(model.enhance_weights_init)
             model = model.to(device)
             model.train()
-            optimizer = torch.optim.Adam(model.parameters(), lr=lr, weight_decay=weight_decay)
+            optimizer = torch.optim.Adam(model.parameters(), **args.optimizer)
             input     = Variable(image, requires_grad=False).to(device)
-            for _ in range(epochs):
+            for _ in range(args.epochs):
                 optimizer.zero_grad()
                 optimizer.param_groups[0]["capturable"] = True
                 loss = model._loss(input)
@@ -136,28 +115,33 @@ def predict(args: dict) -> str:
                 optimizer.step()
             model = Finetunemodel(model.state_dict())
             input = Variable(image).to(device)
-            enhanced, output = model(input)
-            timer.tock()
+            outputs = model(input)
+            timers.infer.tock()
             
-            # Post-processing
+            # Postprocess
+            timers.postprocess.tick()
+            enhanced, denoise = outputs
             enhanced = save_images(enhanced)
-            output   = save_images(output)
+            denoise  = save_images(denoise)
             enhanced = cv2.cvtColor(enhanced, cv2.COLOR_BGR2RGB)
-            output   = cv2.cvtColor(output,   cv2.COLOR_BGR2RGB)
-            output   = cv2.cvtColor(output,   cv2.COLOR_BGR2RGB)
+            denoise  = cv2.cvtColor(denoise,  cv2.COLOR_BGR2RGB)
+            denoise  = cv2.cvtColor(denoise,  cv2.COLOR_BGR2RGB)
+            timers.postprocess.tock()
 
             # Save
-            if save_image:
-                output_dir  = mon.parse_output_dir(save_dir, data_name, mon.SAVE_IMAGE_DIR, image_path, keep_subdirs, save_nearby)
-                output_path = output_dir / f"{image_path.stem}{mon.SAVE_IMAGE_EXT}"
-                mon.save_image(enhanced, output_path)
-            if save_debug:
-                output_dir  = mon.parse_output_dir(save_dir, data_name, f"{mon.SAVE_IMAGE_DIR}_denoise", image_path, keep_subdirs, save_nearby)
-                output_path = output_dir / f"{image_path.stem}{mon.SAVE_IMAGE_EXT}"
-                mon.save_image(output, output_path)
+            if args.save_image:
+                out_dir  = mon.parse_output_dir(args.save_dir, data_name, mon.SAVE_IMAGE_DIR, path, args.keep_subdirs, args.save_nearby)
+                out_path = out_dir / f"{path.stem}{mon.SAVE_IMAGE_EXT}"
+                mon.save_image(enhanced, out_path)
+
+            if args.save_debug:
+                out_dir  = mon.parse_output_dir(args.save_dir, data_name, f"{mon.SAVE_IMAGE_DIR}_denoise", path, args.keep_subdirs, args.save_nearby)
+                out_path = out_dir / f"{path.stem}{mon.SAVE_IMAGE_EXT}"
+                mon.save_image(denoise, out_path)
     
     # Finish
-    mon.console.log(f"Average time: {timer.avg_time}")
+    timers.print()
+    return str(args.save_dir)
 
 
 # ----- Main -----

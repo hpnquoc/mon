@@ -8,9 +8,9 @@ References:
     - https://github.com/amberwangyili/neurop
 """
 
-import argparse
 from collections import defaultdict
 
+import box
 import torch
 
 import mon
@@ -23,46 +23,20 @@ current_dir  = current_file.parents[0]
 
 
 # ----- Train -----
-def train(args: argparse.Namespace):
-    # Parse args
-    hostname     = args["hostname"]
-    root         = args["root"]
-    data         = args["data"]
-    fullname     = args["fullname"]
-    save_dir     = args["save_dir"]
-    weights      = args["weights"]
-    device       = args["device"]
-    torchrun     = args["torchrun"]
-    epochs       = args["epochs"]
-    steps        = args["steps"]
-    seed         = args["seed"]
-    batch_size   = args["batch_size"]
-    imgsz        = args["imgsz"]
-    resize       = args["resize"]
-    benchmark    = args["benchmark"]
-    save_result  = args["save_result"]
-    save_image   = args["save_image"]
-    save_debug   = args["save_debug"]
-    use_fullname = args["use_fullname"]
-    keep_subdirs = args["keep_subdirs"]
-    save_nearby  = args["save_nearby"]
-    exist_ok     = args["exist_ok"]
-    verbose      = args["verbose"]
-    
-    opt_path = current_dir / "options" / "train" / args["opt_path"]
-    opt      = parse(str(opt_path))
-    opt      = dict_to_nonedict(opt)
-    opt["network_G"]["init_model"] = mon.ROOT_DIR / opt["network_G"]["init_model"]
+def train(args: dict | box.Box) -> str:
+    cfg_path = current_dir / "option" / "train" / args.cfg
+    cfgs     = parse(str(cfg_path))
+    cfgs     = dict_to_nonedict(cfgs)
+    cfgs["network_G"]["init_model"] = mon.parse_weights_file(mon.ROOT_DIR, cfgs.network_G.init_model)
     
     # Start
-    mon.console.rule(f"[bold red] {fullname}")
-    mon.console.log(f"Machine: {hostname}")
+    mon.print_run_summary(args)
     
     # Device
-    device = mon.set_device(device)
+    device = mon.set_device(args.device)
     
     # Seed
-    seed = opt["train"]["manual_seed"]
+    seed = cfgs["train"]["manual_seed"]
     os.environ["PYTHONHASHSEED"] = str(seed)
     os.environ["PYTORCH_ENABLE_MPS_FALLBACK"] = str(1)
     random.seed(seed)
@@ -70,15 +44,15 @@ def train(args: argparse.Namespace):
     torch.manual_seed(seed)
     
     # Data I/O
-    dataset_opt  = opt["datasets"]
+    dataset_opt  = cfgs["datasets"]
     train_loader = build_train_loader(dataset_opt)
     
     # Model
-    model = build_model(opt)
+    model = build_model(cfgs)
     
     # Training
     current_step = 0
-    total_iters  = opt["train"]["niter"]
+    total_iters  = cfgs["train"]["niter"]
     total_epochs = int(total_iters / len(train_loader))
     with mon.create_progress_bar() as pbar:
         for epoch in pbar.track(
@@ -103,8 +77,11 @@ def train(args: argparse.Namespace):
             model.log_dict = defaultdict(int)
             
             # Save
-            model.save("latest", save_dir=save_dir)
-            
+            model.save("latest", save_dir=args.save_dir)
+
+    # Finish
+    return str(args.save_dir)
+
 
 # ----- Main -----
 def main() -> str:

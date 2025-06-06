@@ -429,11 +429,12 @@ class TensorMOGCuPy(base.BackgroundSubtractionModel):
         }
     
     # ----- Predict -----
-    def infer(self, datapoint: dict, *args, **kwargs) -> dict:
+    def infer(self, datapoint: dict, timers: core.TimeProfiler = None, *args, **kwargs) -> dict:
         """Infers model output with optional processing.
     
         Args:
             datapoint: ``dict`` with datapoint attributes.
+            timers: ``TimeProfiler`` for measuring time.
 
         Returns:
             ``dict`` of model predictions.
@@ -441,7 +442,8 @@ class TensorMOGCuPy(base.BackgroundSubtractionModel):
         Notes:
             Override for custom pre/post-processing; defaults to ``self.forward()``.
         """
-        # Input
+        # Preprocess
+        timers.preprocess.tick() if timers is not None else None
         image = datapoint["image"]
         if isinstance(image, torch.Tensor):
             image = types.image_to_array(image, True)
@@ -449,23 +451,24 @@ class TensorMOGCuPy(base.BackgroundSubtractionModel):
         h0, w0 = types.image_size(image)
         if h0 != self.height or w0 != self.width:
             image = geometry.resize(image, (self.height, self.width))
+        timers.preprocess.tock() if timers is not None else None
 
         # Forward pass
-        timer = core.Timer()
-        timer.tick()
+        timers.infer.tick() if timers is not None else None
         outputs = self.forward(datapoint={"image": image})
-        timer.tock()
+        timers.infer.tock() if timers is not None else None
         
-        # Post-processing
+        # Postprocess
+        timers.postprocess.tick() if timers is not None else None
         foreground = outputs["foreground"]
         background = outputs["background"]
         if h0 != self.height or w0 != self.width:
             foreground = geometry.resize(foreground, (h0, w0))
             background = geometry.resize(background, (h0, w0))
+        timers.postprocess.tock() if timers is not None else None
 
         # Return
         return outputs | {
             "foreground": foreground,
             "background": background,
-            "time"      : timer.avg_time,
         }

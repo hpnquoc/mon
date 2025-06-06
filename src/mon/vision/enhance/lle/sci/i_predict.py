@@ -8,9 +8,9 @@ References:
     - https://github.com/vis-opt-group/SCI
 """
 
+import box
 import torch.utils
-import torchvision
-from fvcore.nn import FlopCountAnalysis, parameter_count
+from fvcore.nn import FlopCountAnalysis
 from torch.autograd import Variable
 
 import mon
@@ -21,17 +21,17 @@ current_file = mon.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
 
-# ----- Predict -----
+# ----- Utils -----
 def compute_efficiency_score(
-    model     : torch.nn.Module,
-    image_size: _size_2_t = 512,
-    channels  : int       = 3
+    model   : torch.nn.Module,
+    imgsz   : _size_2_t = 512,
+    channels: int       = 3
 ) -> tuple[float, float]:
     """Computes FLOPs and parameters for a model.
 
     Args:
         model: PyTorch model to profile.
-        image_size: Input image size (H, W) or single int. Default is ``512``.
+        imgsz: Input image size (H, W) or single int. Default is ``512``.
         channels: Number of input channels. Default is ``3``.
 
     Returns:
@@ -39,7 +39,7 @@ def compute_efficiency_score(
     """
     from mon import vision
 
-    h, w   = vision.image_size(image_size)
+    h, w   = vision.image_size(imgsz)
     input  = torch.rand(1, channels, h, w).to(mon.get_model_device(model))
 
     flops  = FlopCountAnalysis(model, input).total()
@@ -48,84 +48,84 @@ def compute_efficiency_score(
     return flops, params
 
 
+def benchmark(model: torch.nn.Module):
+    flops, params = compute_efficiency_score(model=model)
+    mon.console.log(f"FLOPs : {flops:.4f}")
+    mon.console.log(f"Params: {params:.4f}")
+
+
+# ----- Predict -----
 @torch.no_grad()
-def predict(args: dict) -> str:
-    # Parse args
-    hostname     = args["hostname"]
-    root         = args["root"]
-    data         = args["data"]
-    fullname     = args["fullname"]
-    save_dir     = args["save_dir"]
-    weights      = args["weights"]
-    device       = args["device"]
-    torchrun     = args["torchrun"]
-    epochs       = args["epochs"]
-    steps        = args["steps"]
-    seed         = args["seed"]
-    batch_size   = args["batch_size"]
-    imgsz        = args["imgsz"]
-    resize       = args["resize"]
-    benchmark    = args["benchmark"]
-    save_result  = args["save_result"]
-    save_image   = args["save_image"]
-    save_debug   = args["save_debug"]
-    use_fullname = args["use_fullname"]
-    keep_subdirs = args["keep_subdirs"]
-    save_nearby  = args["save_nearby"]
-    exist_ok     = args["exist_ok"]
-    verbose      = args["verbose"]
-    
+def predict(args: dict | box.Box) -> str:
     # Start
-    mon.console.rule(f"[bold red] {fullname}")
-    mon.console.log(f"Machine: {hostname}")
-    
+    mon.print_run_summary(args)
+
     # Device
-    device = mon.set_device(device)
-    
+    device = mon.set_device(args.device)
+
     # Seed
-    mon.set_random_seed(seed)
-    
+    mon.set_random_seed(args.seed)
+
     # Data I/O
-    mon.console.log(f"[bold red]{data}")
-    data_name, data_loader = mon.parse_data_loader(data, root, True, verbose=False)
-    
+    data_name, data_loader = mon.parse_data_loader(args.data, args.root, True, verbose=False)
+
+    # Pretrained
+    pretrained = args.resume
+    if args.weights and args.weights.is_weights_file(exist=True):
+        pretrained = args.weights
+    if pretrained and pretrained.is_weights_file(exist=True):
+        mon.console.log(f"Pretrained: {pretrained}.")
+    else:
+        raise ValueError(f"Invalid weights file: {pretrained}.")
+
     # Model
-    model = Finetunemodel(weights).to(device)
+    model = Finetunemodel(pretrained)
+    model = model.to(device)
     model.eval()
     
     # Benchmark
-    if benchmark:
-        flops, params = compute_efficiency_score(model=model)
-        mon.console.log(f"FLOPs : {flops:.4f}")
-        mon.console.log(f"Params: {params:.4f}")
+    if args.benchmark:
+        benchmark(model)
     
-    # Predicting
-    timer = mon.Timer()
+    # Predict
+    timers = mon.TimeProfiler()
     with mon.create_progress_bar() as pbar:
         for i, datapoint in pbar.track(
             sequence    = enumerate(data_loader),
             total       = len(data_loader),
             description = f"[bright_yellow] Predicting"
         ):
-            # Input
-            meta       = datapoint["meta"]
-            image_path = mon.Path(meta["path"])
-            image      = datapoint["image"]
-            image      = Variable(image).to(device)
-            
+            # Preprocess
+            timers.preprocess.tick()
+            path   = mon.Path(datapoint["meta"]["path"])
+            image  = datapoint["image"]
+            h0, w0 = mon.image_size(image)
+            if args.resize and h0 != args.imgsz[0] and w0 != args.imgsz[1]:
+                image = mon.resize(image, size=args.imgsz)
+            image = Variable(image).to(device)
+            timers.preprocess.tock()
+
             # Infer
-            timer.tick()
-            i, r = model(image)
-            timer.tock()
-            
+            timers.infer.tick()
+            outputs = model(image)
+            timers.infer.tock()
+
+            # Postprocess
+            timers.postprocess.tick()
+            _, enhanced = outputs
+            if args.resize and h0 != args.imgsz[0] and w0 != args.imgsz[1]:
+                enhanced = mon.resize(enhanced, size=(h0, w0))
+            timers.postprocess.tock()
+
             # Save
-            if save_image:
-                output_dir  = mon.parse_output_dir(save_dir, data_name, mon.SAVE_IMAGE_DIR, image_path, keep_subdirs, save_nearby)
-                output_path = output_dir / f"{image_path.stem}{mon.SAVE_IMAGE_EXT}"
-                mon.save_image(r, output_path)
+            if args.save_image:
+                out_dir  = mon.parse_output_dir(args.save_dir, data_name, mon.SAVE_IMAGE_DIR, path, args.keep_subdirs, args.save_nearby)
+                out_path = out_dir / f"{path.stem}{mon.SAVE_IMAGE_EXT}"
+                mon.save_image(enhanced, out_path)
        
     # Finish
-    mon.console.log(f"Average time: {timer.avg_time}")
+    timers.print()
+    return str(args.save_dir)
 
 
 # ----- Main -----

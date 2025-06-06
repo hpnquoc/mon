@@ -8,6 +8,8 @@ References:
     - https://github.com/daooshee/QuadPrior
 """
 
+import box
+
 from cldm.hack import disable_verbosity
 
 disable_verbosity()
@@ -27,67 +29,34 @@ current_dir  = current_file.parents[0]
 
 
 # ----- Train -----
-def train(args: dict) -> str:
-    # Parse args
-    hostname     = args["hostname"]
-    root         = args["root"]
-    data         = args["data"]
-    fullname     = args["fullname"]
-    save_dir     = args["save_dir"]
-    weights      = args["weights"]
-    device       = args["device"]
-    torchrun     = args["torchrun"]
-    epochs       = args["epochs"]
-    steps        = args["steps"]
-    seed         = args["seed"]
-    batch_size   = args["batch_size"]
-    imgsz        = args["imgsz"]
-    resize       = args["resize"]
-    benchmark    = args["benchmark"]
-    save_result  = args["save_result"]
-    save_image   = args["save_image"]
-    save_debug   = args["save_debug"]
-    use_fullname = args["use_fullname"]
-    keep_subdirs = args["keep_subdirs"]
-    save_nearby  = args["save_nearby"]
-    exist_ok     = args["exist_ok"]
-    verbose      = args["verbose"]
-    
-    sd_locked        = args["network"]["sd_locked"]
-    only_mid_control = args["network"]["only_mid_control"]
-    lr               = args["optimizer"]["lr"]
-    batch_size       = args["datamodule"]["batch_size"]
-    logger_freq      = args["logger_freq"]
-    
-    config_path     = current_dir / args["config_path"]  # "./models/cldm_v15.yaml"
-    init_ckpt       = mon.ZOO_DIR / "vision/enhance/lle/quadprior/quadprior/coco/control_sd15_init.ckpt"
-    pretrained_ckpt = mon.ZOO_DIR / "vision/enhance/lle/quadprior/quadprior/coco/control_sd15_coco_final.ckpt"
-    
+def train(args: dict | box.Box) -> str:
     # Start
-    mon.console.rule(f"[bold red] {fullname}")
-    mon.console.log(f"Machine: {hostname}")
-    
+    mon.print_run_summary(args)
+
     # Device
-    device = mon.parse_device(device)
+    device = mon.parse_device(args.device)
     device = mon.to_int_list(device) if "auto" not in device else device
-    
+
     # Seed
-    mon.set_random_seed(seed)
+    mon.set_random_seed(args.seed)
 
     # Data I/O
-    data       = mon.parse_data_dir(root, data_dir=args["datamodule"]["root"])
+    data       = mon.parse_data_dir(args.root, data_dir=args.datamodule.root)
     dataset    = create_webdataset(data_dir=str(data))
     dataloader = wds.WebLoader(
         dataset         = dataset,
-        batch_size      = batch_size,
+        batch_size      = args.batch_size,
         num_workers     = 2,
         pin_memory      = False,
         prefetch_factor = 2,
     )
     
     # Model
+    cfg_path        = current_dir / args.cfg
+    init_ckpt       = mon.ZOO_DIR / "vision/enhance/lle/quadprior/quadprior/coco/control_sd15_init.ckpt"
+    pretrained_ckpt = mon.ZOO_DIR / "vision/enhance/lle/quadprior/quadprior/coco/control_sd15_coco_final.ckpt"
     # First use cpu to load models. Pytorch Lightning will automatically move it to GPUs.
-    model          = create_model(config_path=config_path).cpu()
+    model          = create_model(config_path=cfg_path).cpu()
     state_dict     = load_state_dict(str(init_ckpt), location="cpu")
     new_state_dict = {}
     for s in state_dict:
@@ -103,16 +72,16 @@ def train(args: dict) -> str:
         if "_forward_module.control_model" in sd_name:
             new_state_dict[sd_name.replace("_forward_module.control_model.", "")] = sd_param
     model.control_model.load_state_dict(new_state_dict)
-    
-    model.learning_rate    = lr
-    model.sd_locked        = sd_locked
-    model.only_mid_control = only_mid_control
+
+    model.learning_rate    = args.optimizer.lr
+    model.sd_locked        = args.network.sd_locked
+    model.only_mid_control = args.network.only_mid_control
     
     # Callback
-    logger = ImageLogger(save_dir=str(save_dir), batch_frequency=logger_freq)
+    logger = ImageLogger(save_dir=str(args.save_dir), batch_frequency=args.logger_freq)
     checkpoint_callback = ModelCheckpoint(
-        dirpath                 = str(save_dir),
-        filename                = fullname + "-{epoch:02d}-{step}",
+        dirpath                 = str(args.save_dir),
+        filename                = args.fullname + "-{epoch:02d}-{step}",
         # filename                = fullname,
         monitor                 = "step",
         save_last               = False,
@@ -129,11 +98,11 @@ def train(args: dict) -> str:
         cpu_checkpointing = True
     )
     trainer = pl.Trainer(
-        default_root_dir = str(save_dir),
+        default_root_dir = str(args.save_dir),
         devices          = device,
         strategy         = "auto",  # strategy,
         # max_epochs       = epochs,
-        max_steps        = steps,
+        max_steps        = args.epochs,
         precision        = 16,
         sync_batchnorm   = True,
         accelerator      = "gpu",
@@ -142,6 +111,9 @@ def train(args: dict) -> str:
     
     # Train
     trainer.fit(model, dataloader)
+
+    # Finish
+    return str(args.save_dir)
 
 
 # ----- Main -----

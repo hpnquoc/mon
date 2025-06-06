@@ -132,19 +132,21 @@ class ZSN2N(base.ImageEnhancementModel):
     # ----- Predict -----
     def infer(
         self,
-        datapoint    : dict,
-        image_size   : _size_2_t = 512,
-        resize       : bool      = False,
-        reset_weights: bool      = True,
+        datapoint: dict,
+        imgsz    : _size_2_t         = 512,
+        resize   : bool              = False,
+        reset    : bool              = True,
+        timers   : core.TimeProfiler = None,
     ) -> dict:
         """Infers model output with optional processing.
     
         Args:
             datapoint: ``dict`` with datapoint attributes.
-            image_size: Input size as ``int`` or [H, W]. Default is ``512``.
+            imgsz: Input size as ``int`` or [H, W]. Default is ``512``.
             resize: Resize input to ``image_size`` if ``True``. Default is ``False``.
-            reset_weights: Whether to reset the weights before training. Default is ``True``.
-            
+            reset: Whether to reset the weights before training. Default is ``True``.
+            timers: ``TimeProfiler`` for measuring time.
+
         Returns:
             ``dict`` of model predictions.
     
@@ -152,25 +154,27 @@ class ZSN2N(base.ImageEnhancementModel):
             Override for custom pre/post-processing; defaults to ``self.forward()``.
         """
         # Initialize training components
-        if reset_weights:
+        if reset:
             self.load_state_dict(self.initial_state_dict, strict=False)
         optimizer    = self.optimizer.get("optimizer",    None)
         lr_scheduler = self.optimizer.get("lr_scheduler", {})
         scheduler    =   lr_scheduler.get("scheduler",    None)
-        optimizer = optimizer or nn.Adam(self, lr=1e-3, weight_decay=0.0001)
-        scheduler = scheduler or nn.StepLR(optimizer, step_size=1000, gamma=0.5)
-        
-        # Input
-        image  = datapoint["image"].to(self.device)
+        optimizer    = optimizer or nn.Adam(self, lr=1e-3, weight_decay=0.0001)
+        scheduler    = scheduler or nn.StepLR(optimizer, step_size=1000, gamma=0.5)
+
+        # Preprocess
+        timers.preprocess.tick() if timers is not None else None
+        image  = datapoint["image"]
         h0, w0 = types.image_size(image)
         if resize:
-            image = geometry.resize(image, image_size)
+            image = geometry.resize(image, imgsz)
         else:
             image = geometry.resize(image, divisible_by=32)
-        
+        image = image.to(self.device)
+        timers.preprocess.tock() if timers is not None else None
+
         # Optimize
-        timer = core.Timer()
-        timer.tick()
+        timers.infer.tick() if timers is not None else None
         self.train()
         for _ in range(self.iters):
             outputs = self.forward_loss(datapoint={"image": image})
@@ -181,14 +185,15 @@ class ZSN2N(base.ImageEnhancementModel):
             scheduler.step()
         self.eval()
         outputs = self.forward(datapoint={"image": image})
-        timer.tock()
+        timers.infer.tock() if timers is not None else None
         
-        # Post-processing
+        # Postprocess
+        timers.postprocess.tick() if timers is not None else None
         enhanced = outputs["enhanced"]
         enhanced = geometry.resize(enhanced, (h0, w0))
-        
+        timers.postprocess.tock() if timers is not None else None
+
         # Return
         return outputs | {
-            "enhanced": enhanced,
-            "time"    : timer.avg_time,
+            "enhanced": enhanced,       # Update ``enhanced``
         }

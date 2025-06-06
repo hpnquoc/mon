@@ -9,7 +9,7 @@ References:
 """
 
 import argparse
-
+import box
 import torch
 import yaml
 
@@ -22,7 +22,13 @@ current_file = mon.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
 
-# ----- Predict -----
+# ----- Utils -----
+def benchmark(model: torch.nn.Module):
+    flops, params = mon.compute_efficiency_score(model=model)
+    mon.console.log(f"FLOPs : {flops:.4f}")
+    mon.console.log(f"Params: {params:.4f}")
+
+
 def dict2namespace(config):
     namespace = argparse.Namespace()
     for key, value in config.items():
@@ -34,68 +40,61 @@ def dict2namespace(config):
     return namespace
 
 
+# ----- Predict -----
 @torch.no_grad()
-def predict(args: dict) -> str:
-    # Parse args
-    hostname     = args["hostname"]
-    root         = args["root"]
-    data         = args["data"]
-    fullname     = args["fullname"]
-    save_dir     = args["save_dir"]
-    weights      = args["weights"]
-    device       = args["device"]
-    seed         = args["seed"]
-    batch_size   = args["batch_size"]
-    imgsz        = args["imgsz"]
-    resize       = args["resize"]
-    epochs       = args["epochs"]
-    steps        = args["steps"]
-    benchmark    = args["benchmark"]
-    save_result  = args["save_result"]
-    save_image   = args["save_image"]
-    save_debug   = args["save_debug"]
-    keep_subdirs = args["keep_subdirs"]
-    save_nearby  = args["save_nearby"]
-    verbose      = args["verbose"]
-
-    opt_path     = current_dir / "options" / args["opt_path"]
-    with open(str(opt_path), "r") as f:
-        config = yaml.safe_load(f)
-    config = dict2namespace(config)
+def predict(args: dict | box.Box) -> str:
+    cfg_path = current_dir / "option" / args.cfg
+    with open(str(cfg_path), "r") as f:
+        cfg = yaml.safe_load(f)
+    cfg = dict2namespace(cfg)
 
     # Start
-    mon.console.rule(f"[bold red] {fullname}")
-    mon.console.log(f"Machine: {hostname}")
+    mon.print_run_summary(args)
     
     # Device
-    device = mon.set_device(device)
-    config.device = device
+    device     = mon.set_device(args.device)
+    cfg.device = device
 
     # Seed
-    mon.set_random_seed(seed)
+    mon.set_random_seed(args.seed)
 
     # Data I/O
-    mon.console.log(f"[bold red]{data}")
-    data_name, data_loader = mon.parse_data_loader(data, root, True, verbose=False)
-    
+    data_name, data_loader = mon.parse_data_loader(args.data, args.root, True, verbose=False)
+
+    # Pretrained
+    pretrained = args.resume
+    if args.weights and args.weights.is_weights_file(exist=True):
+        pretrained = args.weights
+    if pretrained and pretrained.is_weights_file(exist=True):
+        mon.console.log(f"Pretrained: {pretrained}.")
+    else:
+        raise ValueError(f"Invalid weights file: {pretrained}.")
+
     # Model
-    runner = Diffusion(dict2namespace(args), config)
+    runner = Diffusion(dict2namespace(args), cfg)
 
     # Benchmark
-    # if benchmark:
-    #     flops, params = mon.compute_efficiency_score(model=model, image_size=256, channels=3)
-    #     mon.console.log(f"FLOPs : {flops:.4f}")
-    #     mon.console.log(f"Params: {params:.4f}")
+    # if args.benchmark:
+    #     benchmark(model)
     
-    # Predicting
-    timer = mon.Timer()
-    # Infer
-    timer.tick()
-    runner.sample(weights, data_name, data_loader, imgsz, resize, save_image, save_dir, keep_subdirs, save_nearby)
-    timer.tock()
+    # Predict
+    timers = mon.TimeProfiler()
+    runner.sample(
+        pretrained,
+        data_name,
+        data_loader,
+        args.imgsz,
+        args.resize,
+        args.save_image,
+        args.save_dir,
+        args.keep_subdirs,
+        args.save_nearby,
+        timers
+    )
 
     # Finish
-    mon.console.log(f"Average time: {timer.avg_time}")
+    timers.print()
+    return str(args.save_dir)
 
 
 # ----- Main -----

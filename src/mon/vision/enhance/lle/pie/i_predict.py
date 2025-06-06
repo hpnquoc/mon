@@ -8,8 +8,7 @@ References:
     - https://github.com/DavidQiuChao/PIE
 """
 
-from typing import Sequence
-
+import box
 import cv2
 
 import mon
@@ -20,73 +19,58 @@ current_dir  = current_file.parents[0]
 
 
 # ----- Predict -----
-def predict(args: dict) -> str:
-    # Parse args
-    hostname     = args["hostname"]
-    root         = args["root"]
-    data         = args["data"]
-    fullname     = args["fullname"]
-    save_dir     = args["save_dir"]
-    weights      = args["weights"]
-    device       = args["device"]
-    torchrun     = args["torchrun"]
-    epochs       = args["epochs"]
-    steps        = args["steps"]
-    seed         = args["seed"]
-    batch_size   = args["batch_size"]
-    imgsz        = args["imgsz"]
-    imgsz        = imgsz[0] if isinstance(imgsz, Sequence) else imgsz
-    resize       = args["resize"]
-    benchmark    = args["benchmark"]
-    save_result  = args["save_result"]
-    save_image   = args["save_image"]
-    save_debug   = args["save_debug"]
-    use_fullname = args["use_fullname"]
-    keep_subdirs = args["keep_subdirs"]
-    save_nearby  = args["save_nearby"]
-    exist_ok     = args["exist_ok"]
-    verbose      = args["verbose"]
-
+def predict(args: dict | box.Box) -> str:
     # Start
-    mon.console.rule(f"[bold red] {fullname}")
-    mon.console.log(f"Machine: {hostname}")
-    
+    mon.print_run_summary(args)
+
+    # Device
+    device = mon.set_device(args.device)
+
     # Seed
-    mon.set_random_seed(seed)
-    
+    mon.set_random_seed(args.seed)
+
     # Data I/O
-    mon.console.log(f"[bold red]{data}")
-    data_name, data_loader = mon.parse_data_loader(data, root, False, verbose=False)
-    
-    # Predicting
-    timer = mon.Timer()
+    data_name, data_loader = mon.parse_data_loader(args.data, args.root, False, verbose=False)
+
+    # Predict
+    timers = mon.TimeProfiler()
     with mon.create_progress_bar() as pbar:
         for i, datapoint in pbar.track(
             sequence    = enumerate(data_loader),
             total       = len(data_loader),
             description = f"[bright_yellow] Predicting"
         ):
-            # Input
-            meta       = datapoint["meta"]
-            image_path = mon.Path(meta["path"])
-            image      = datapoint["image"]
+            # Preprocess
+            timers.preprocess.tick()
+            path   = mon.Path(datapoint["meta"]["path"])
+            image  = datapoint["image"]
+            h0, w0 = mon.image_size(image)
+            if args.resize and h0 != args.imgsz[0] and w0 != args.imgsz[1]:
+                image = mon.resize(image, size=args.imgsz)
+            timers.preprocess.tock()
            
             # Infer
-            timer.tick()
-            enhanced = pie.PIE(image)
-            timer.tock()
-            
-            # Post-processing
+            timers.infer.tick()
+            outputs = pie.PIE(image)
+            timers.infer.tock()
+
+            # Postprocess
+            timers.postprocess.tick()
+            enhanced = outputs
+            if args.resize and h0 != args.imgsz[0] and w0 != args.imgsz[1]:
+                enhanced = mon.resize(enhanced, size=(h0, w0))
             enhanced = cv2.cvtColor(enhanced, cv2.COLOR_RGB2BGR)
-            
+            timers.postprocess.tock()
+
             # Save
-            if save_image:
-                output_dir  = mon.parse_output_dir(save_dir, data_name, mon.SAVE_IMAGE_DIR, image_path, keep_subdirs, save_nearby)
-                output_path = output_dir / f"{image_path.stem}{mon.SAVE_IMAGE_EXT}"
-                mon.save_image(enhanced, output_path)
-    
+            if args.save_image:
+                out_dir  = mon.parse_output_dir(args.save_dir, data_name, mon.SAVE_IMAGE_DIR, path, args.keep_subdirs, args.save_nearby)
+                out_path = out_dir / f"{path.stem}{mon.SAVE_IMAGE_EXT}"
+                mon.save_image(enhanced, out_path)
+
     # Finish
-    mon.console.log(f"Average time: {timer.avg_time}")
+    timers.print()
+    return str(args.save_dir)
 
 
 # ----- Main -----

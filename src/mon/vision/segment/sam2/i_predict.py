@@ -1,10 +1,15 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import logging
-from typing import Sequence
+"""Implements the paper: "SAM 2: Segment Anything in Images and Videos," arXiv 2024.
 
-import cv2
+References:
+    https://github.com/facebookresearch/sam2
+"""
+
+import logging
+
+import box
 import numpy as np
 import torch.optim
 
@@ -16,140 +21,113 @@ current_file = mon.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
 
+# ----- Utils -----
+def benchmark(model: torch.nn.Module):
+    flops, params = mon.compute_efficiency_score(model=model)
+    mon.console.log(f"FLOPs : {flops:.4f}")
+    mon.console.log(f"Params: {params:.4f}")
+
+
 # ----- Predict -----
 @torch.no_grad()
-def predict(args: dict) -> str:
-    # Parse args
-    hostname     = args["hostname"]
-    root         = args["root"]
-    data         = args["data"]
-    fullname     = args["fullname"]
-    save_dir     = args["save_dir"]
-    weights      = args["weights"]
-    device       = args["device"]
-    torchrun     = args["torchrun"]
-    epochs       = args["epochs"]
-    steps        = args["steps"]
-    seed         = args["seed"]
-    batch_size   = args["batch_size"]
-    imgsz        = args["imgsz"]
-    imgsz        = imgsz[0] if isinstance(imgsz, Sequence) else imgsz
-    resize       = args["resize"]
-    benchmark    = args["benchmark"]
-    save_result  = args["save_result"]
-    save_image   = args["save_image"]
-    save_debug   = args["save_debug"]
-    use_fullname = args["use_fullname"]
-    keep_subdirs = args["keep_subdirs"]
-    save_nearby  = args["save_nearby"]
-    exist_ok     = args["exist_ok"]
-    verbose      = args["verbose"]
-
-    points_per_side                = args["network"]["points_per_side"]
-    points_per_batch               = args["network"]["points_per_batch"]
-    pred_iou_thresh                = args["network"]["pred_iou_thresh"]
-    stability_score_thresh         = args["network"]["stability_score_thresh"]
-    stability_score_offset         = args["network"]["stability_score_offset"]
-    mask_threshold                 = args["network"]["mask_threshold"]
-    box_nms_thresh                 = args["network"]["box_nms_thresh"]
-    crop_n_layers                  = args["network"]["crop_n_layers"]
-    crop_nms_thresh                = args["network"]["crop_nms_thresh"]
-    crop_n_points_downscale_factor = args["network"]["crop_n_points_downscale_factor"]
-    min_mask_region_area           = args["network"]["min_mask_region_area"]
-    output_mode                    = args["network"]["output_mode"]
-    use_m2m                        = args["network"]["use_m2m"]
-    multimask_output               = args["network"]["multimask_output"]
-    
-    config_file = args["config_file"]
-    # config_file = current_dir / "sam2_configs" / config_file
-    
+def predict(args: dict | box.Box) -> str:
     # Start
-    mon.console.rule(f"[bold red] {fullname}")
-    mon.console.log(f"Machine: {hostname}")
-    
+    mon.print_run_summary(args)
+
     # Device
-    device = mon.set_device(device)
-    
+    device = mon.set_device(args.device)
+
     # Seed
-    mon.set_random_seed(seed)
-    
+    mon.set_random_seed(args.seed)
+
     # Data I/O
-    mon.console.log(f"[bold red]{data}")
-    data_name, data_loader = mon.parse_data_loader(data, root, True, verbose=False)
-    
+    data_name, data_loader = mon.parse_data_loader(args.data, args.root, True, verbose=False)
+
+    # Pretrained
+    pretrained = args.resume
+    if args.weights and args.weights.is_weights_file(exist=True):
+        pretrained = args.weights
+    if pretrained and pretrained.is_weights_file(exist=True):
+        mon.console.log(f"Pretrained: {pretrained}.")
+    else:
+        raise ValueError(f"Invalid weights file: {pretrained}.")
+
     # Model
-    sam2 = build_sam2(str(config_file), str(weights), device="cuda", apply_postprocessing=False)
+    model = build_sam2(str(args.cfg), str(pretrained), device="cuda", apply_postprocessing=False)
     mask_generator = SAM2AutomaticMaskGenerator(
-        model                          = sam2,
-        points_per_side                = points_per_side,
-        points_per_batch               = points_per_batch,
-        pred_iou_thresh                = pred_iou_thresh,
-        stability_score_thresh         = stability_score_thresh,
-        stability_score_offset         = stability_score_offset,
-        mask_threshold                 = mask_threshold,
-        box_nms_thresh                 = box_nms_thresh,
-        crop_n_layers                  = crop_n_layers,
-        crop_nms_thresh                = crop_nms_thresh,
-        crop_n_points_downscale_factor = crop_n_points_downscale_factor,
-        min_mask_region_area           = min_mask_region_area,
-        output_mode                    = output_mode,
-        use_m2m                        = use_m2m,
-        multimask_output               = multimask_output,
+        model                          = model,
+        points_per_side                = args.network.points_per_side,
+        points_per_batch               = args.network.points_per_batch,
+        pred_iou_thresh                = args.network.pred_iou_thresh,
+        stability_score_thresh         = args.network.stability_score_thresh,
+        stability_score_offset         = args.network.stability_score_offset,
+        mask_threshold                 = args.network.mask_threshold,
+        box_nms_thresh                 = args.network.box_nms_thresh,
+        crop_n_layers                  = args.network.crop_n_layers,
+        crop_nms_thresh                = args.network.crop_nms_thresh,
+        crop_n_points_downscale_factor = args.network.crop_n_points_downscale_factor,
+        min_mask_region_area           = args.network.min_mask_region_area,
+        output_mode                    = args.network.output_mode,
+        use_m2m                        = args.network.use_m2m,
+        multimask_output               = args.network.multimask_output,
     )
     
     # Benchmark
-    if benchmark:
-        flops, params = mon.compute_efficiency_score(model=sam2)
-        mon.console.log(f"FLOPs : {flops:.4f}")
-        mon.console.log(f"Params: {params:.4f}")
-      
+    if args.benchmark:
+        benchmark(model)
+
     # Disable logging
     for handler in logging.root.handlers[:]:
         logging.root.removeHandler(handler)
         
-    # Predicting
-    timer = mon.Timer()
+    # Predict
+    timers = mon.TimeProfiler()
     with mon.create_progress_bar() as pbar:
         for i, datapoint in pbar.track(
             sequence    = enumerate(data_loader),
             total       = len(data_loader),
             description = f"[bright_yellow] Predicting"
         ):
-            # Input
-            meta       = datapoint["meta"]
-            image_path = mon.Path(meta["path"])
-            image      = datapoint["image"]
+            # Preprocess
+            timers.preprocess.tick()
+            path   = mon.Path(datapoint["meta"]["path"])
+            image  = datapoint["image"]
+            h0, w0 = mon.image_size(image)
+            if args.resize and h0 != args.imgsz[0] and w0 != args.imgsz[1]:
+                image = mon.resize(image, size=args.imgsz)
+            image  = image.to(device)
+            timers.preprocess.tock()
             
             # Infer
-            timer.tick()
+            timers.infer.tick()
             masks = mask_generator.generate(image)
-            timer.tock()
+            timers.infer.tock()
             
             # Save
-            if save_image:
-                if keep_subdirs:
-                    relative_path   = image_path.relative_path(data_name)
-                    binary_save_dir = save_dir / relative_path.parent / "binary"
-                    color_save_dir  = save_dir / relative_path.parent / "color"
-                else:
-                    binary_save_dir = save_dir / data_name / "binary"
-                    color_save_dir  = save_dir / data_name / "color"
+            if args.save_image:
+                out_dir = mon.parse_output_dir(args.save_dir, data_name, mon.SAVE_IMAGE_DIR, path, args.keep_subdirs, args.save_nearby)
                 # Binary
-                for i, mask in enumerate(masks):
-                    output_path = binary_save_dir / f"{image_path.stem}_mask_{i}.jpg"
-                    mon.save_image(np.uint8(mask["segmentation"]) * 255, output_path)
+                for j, mask in enumerate(masks):
+                    out_path = out_dir / f"{path.stem}_mask_{j}{mon.SAVE_IMAGE_EXT}"
+                    mon.save_image(np.uint8(mask["segmentation"]) * 255, out_path)
+
+            if args.save_debug:
+                debug_dir = mon.parse_output_dir(args.save_dir, data_name, mon.SAVE_DEBUG_DIR, path, args.keep_subdirs, args.save_nearby)
+                if args.save_nearby:
+                    debug_dir = debug_dir.parent / f"{debug_dir.stem}_c"
                 # Color
-                output          = np.ones((masks[0]["segmentation"].shape[0], masks[0]["segmentation"].shape[1], 4))
+                output = np.ones((masks[0]["segmentation"].shape[0], masks[0]["segmentation"].shape[1], 4))
                 output[:, :, 3] = 0
-                for i, mask in enumerate(masks):
+                for _, mask in enumerate(masks):
                     mask_bool         = mask["segmentation"]
                     color_mask        = np.concatenate([np.random.random(3), [1.0]])  # 0.35
                     output[mask_bool] = color_mask
-                output_path = color_save_dir / f"{image_path.stem}.jpg"
-                mon.save_image(np.uint8(output * 255), output_path)
-    
+                debug_path = debug_dir / f"{path.stem}{mon.SAVE_IMAGE_EXT}"
+                mon.save_image(np.uint8(output * 255), debug_path)
+
     # Finish
-    mon.console.log(f"Average time: {timer.avg_time}")
+    timers.print()
+    return str(args.save_dir)
 
 
 # ----- Main -----

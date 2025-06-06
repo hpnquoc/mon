@@ -73,14 +73,14 @@ class Detector(ABC):
     def weights(self, weights: Any):
         if isinstance(weights, core.Path | str):
             weights = core.Path(weights)
-            if not weights.is_torch_file():
+            if not weights.is_weights_file():
                 raise ValueError(
                     f"`weights` must be a valid path to a torch saved "
                     f"file, got {weights}."
                 )
         elif isinstance(weights, dict):
             weights = [core.Path(w) for w in weights]
-            if not all(w.is_torch_file for w in weights):
+            if not all(w.is_weights_file() for w in weights):
                 raise ValueError(
                     f"`weights` must be a valid path to a torch saved file, "
                     f"got {weights}."
@@ -175,14 +175,14 @@ class Detector1(ABC):
     def weights(self, weights: Any):
         if isinstance(weights, core.Path | str):
             weights = core.Path(weights)
-            if not weights.is_torch_file():
+            if not weights.is_weights_file():
                 raise ValueError(
                     f"weights must be a valid path to a torch saved file, but "
                     f"got {weights}."
                 )
         elif isinstance(weights, list | tuple):
             weights = [core.Path(w) for w in weights]
-            if not all(w.is_torch_file for w in weights):
+            if not all(w.is_weights_file() for w in weights):
                 raise ValueError(
                     f"weights must be a valid path to a torch saved file, but "
                     f"got {weights}."

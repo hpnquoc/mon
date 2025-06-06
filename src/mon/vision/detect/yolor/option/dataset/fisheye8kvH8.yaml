@@ -1,0 +1,30 @@
+# Fisheye8KvH8 dataset:
+#   - trainvH8:  9,000 images (train + val + test_result)
+#   - val     :  2,712 images
+#   - test    :  1,000 images
+
+# Train/val/test sets as 1) dir: path/to/imgs, 2) file: path/to/imgs.txt, or 3) list: [path/to/imgs1, path/to/imgs2, ..]
+train: fisheye8k/trainvH8/image         # train images (relative to 'path')
+val  : fisheye8k/val/image              # val images (relative to 'path')
+test :                                  # test images (optional)
+
+# Number of classes
+nc: 5
+
+# Classes
+names: [
+    "bus",
+    "bike",
+    "car",
+    "pedestrian",
+    "truck",
+]
+
+# Colors
+colors: [
+    [255, 128,   0],
+    [128, 255,   0],
+    [255,  64,   0],
+    [128, 128, 255],
+    [ 72, 153, 152],
+]

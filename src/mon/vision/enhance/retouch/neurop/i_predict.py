@@ -8,8 +8,7 @@ References:
     - https://github.com/amberwangyili/neurop
 """
 
-from typing import Sequence
-
+import box
 import imageio
 import torch
 
@@ -21,108 +20,91 @@ current_file = mon.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
 
+# ----- Utils -----
+def benchmark(model: torch.nn.Module):
+    flops, params = mon.compute_efficiency_score(model=model)
+    mon.console.log(f"FLOPs : {flops:.4f}")
+    mon.console.log(f"Params: {params:.4f}")
+
+
 # ----- Predict -----
 @torch.no_grad()
-def predict(args: dict) -> str:
-    # Parse args
-    hostname     = args["hostname"]
-    root         = args["root"]
-    data         = args["data"]
-    fullname     = args["fullname"]
-    save_dir     = args["save_dir"]
-    weights      = args["weights"]
-    device       = args["device"]
-    torchrun     = args["torchrun"]
-    epochs       = args["epochs"]
-    steps        = args["steps"]
-    seed         = args["seed"]
-    batch_size   = args["batch_size"]
-    imgsz        = args["imgsz"]
-    imgsz        = imgsz[0] if isinstance(imgsz, Sequence) else imgsz
-    resize       = args["resize"]
-    benchmark    = args["benchmark"]
-    save_result  = args["save_result"]
-    save_image   = args["save_image"]
-    save_debug   = args["save_debug"]
-    use_fullname = args["use_fullname"]
-    keep_subdirs = args["keep_subdirs"]
-    save_nearby  = args["save_nearby"]
-    exist_ok     = args["exist_ok"]
-    verbose      = args["verbose"]
+def predict(args: dict | box.Box) -> str:
+    cfg_path        = current_dir / "option" / "test" / args.cfg
+    cfgs            = parse(str(cfg_path))
+    cfgs            = dict_to_nonedict(cfgs)
+    cfgs["dist"]    = False
+    cfgs["weights"] = args.weights
 
-    opt_path       = str(current_dir / "options" / "test" / args["opt_path"])
-    opt            = parse(opt_path)
-    opt            = dict_to_nonedict(opt)
-    opt["dist"]    = False
-    opt["weights"] = weights
-    
     # Start
-    mon.console.rule(f"[bold red] {fullname}")
-    mon.console.log(f"Machine: {hostname}")
-    
+    mon.print_run_summary(args)
+
     # Device
-    device = mon.set_device(device)
-    opt["device"] = device
-    
+    device = mon.set_device(args.device)
+    cfgs["device"] = device
+
     # Seed
-    mon.set_random_seed(seed)
-    
+    mon.set_random_seed(args.seed)
+
     # Data I/O
-    mon.console.log(f"[bold red]{data}")
-    data_name, data_loader = mon.parse_data_loader(data, root, True, verbose=False)
-    
+    data_name, data_loader = mon.parse_data_loader(args.data, args.root, True, verbose=False)
+
     # Model
-    model = build_model(opt)
+    model = build_model(cfgs)
     
     # Benchmark
-    if benchmark:
-        flops, params = model.compute_efficiency_score()
-        mon.console.log(f"FLOPs : {flops:.4f}")
-        mon.console.log(f"Params: {params:.4f}")
+    if args.benchmark:
+        benchmark(model)
     
     # Predicting
-    timer = mon.Timer()
+    timers = mon.TimeProfiler()
     with mon.create_progress_bar() as pbar:
         for i, datapoint in pbar.track(
             sequence    = enumerate(data_loader),
             total       = len(data_loader),
             description = f"[bright_yellow] Predicting"
         ):
-            # Input
-            meta       = datapoint["meta"]
-            image_path = mon.Path(meta["path"])
-            image      = datapoint["image"].to(device)
-            h0, w0     = mon.image_size(image)
-            if resize:
-                image = mon.resize(image, imgsz)
+            # Preprocess
+            timers.preprocess.tick()
+            path   = mon.Path(datapoint["meta"]["path"])
+            image  = datapoint["image"]
+            h0, w0 = mon.image_size(image)
+            if args.resize and h0 != args.imgsz[0] and w0 != args.imgsz[1]:
+                image = mon.resize(image, size=args.imgsz)
             else:
                 image = mon.resize(image, divisible_by=32)
-            
+            image  = image.to(device)
+            timers.preprocess.tock()
+
             # Infer
-            timer.tick()
+            timers.infer.tick()
             model.feed_data(data = {
                 "LQ": image,
                 "GT": image,
             })
             model.test()
-            timer.tock()
+            timers.infer.tock()
             
-            # Post-processing
-            visuals = model.get_current_visuals()
-            sr_img  = visuals["rlt"]
-            h1, w1  = mon.image_size(sr_img)
+            # Postprocess
+            timers.postprocess.tick()
+            outputs  = model.get_current_visuals()
+            enhanced = outputs["rlt"]
+            h1, w1   = mon.image_size(enhanced)
             if h1 != h0 or w1 != w0:
-                sr_img = mon.resize(sr_img, (h0, w0))
-                
+                enhanced = mon.resize(enhanced, (h0, w0))
+            enhanced = (255.0 * enhanced).astype("uint8")
+            timers.postprocess.tock()
+
             # Save
-            if save_image:
-                output_dir  = mon.parse_output_dir(save_dir, data_name, mon.SAVE_IMAGE_DIR, image_path, keep_subdirs, save_nearby)
-                output_path = output_dir / f"{image_path.stem}{mon.SAVE_IMAGE_EXT}"
-                output_path.parent.mkdir(parents=True, exist_ok=True)
-                imageio.imwrite(str(output_path), (255.0 * sr_img).astype("uint8"))
+            if args.save_image:
+                out_dir  = mon.parse_output_dir(args.save_dir, data_name, mon.SAVE_IMAGE_DIR, path, args.keep_subdirs, args.save_nearby)
+                out_path = out_dir / f"{path.stem}{mon.SAVE_IMAGE_EXT}"
+                out_path.parent.mkdir(parents=True, exist_ok=True)
+                imageio.imwrite(str(out_path), enhanced)
         
     # Finish
-    mon.console.log(f"Average time: {timer.avg_time}")
+    timers.print()
+    return str(args.save_dir)
     
 
 # ----- Main -----

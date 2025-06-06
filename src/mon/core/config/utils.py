@@ -8,10 +8,13 @@ __all__ = [
     "load_config",
     "load_project_defaults",
     "parse_config_file",
+    "print_run_summary",
 ]
 
 import importlib.util
 from typing import Any
+
+import box
 
 from mon.core import pathlib, rich, serializers, type_extensions
 
@@ -95,18 +98,21 @@ def list_configs(
     return sorted(type_extensions.unique(config_files))
 
 
-def load_config(config: Any, verbose: bool = True) -> dict:
+def load_config(config: Any, verbose: bool = True) -> dict | box.Box:
     """Loads configuration from a given source.
 
     Args:
         config: Config source (dict, file path, or string).
+        as_dict: If ``True``, returns config as a dict. Default is ``False``.
         verbose: If ``True``, prints verbose messages when loading.
 
     Returns:
         Dict with loaded config, or empty dict if loading fails.
     """
-    if isinstance(config, dict):
+    if isinstance(config, box.Box):
         data = config
+    elif isinstance(config, dict):
+        data = box.Box(config)
     elif isinstance(config, pathlib.Path | str):
         config = pathlib.Path(config)
         if config.is_py_file():
@@ -125,7 +131,8 @@ def load_config(config: Any, verbose: bool = True) -> dict:
         else:
             rich.error_console.log(f"Could not load configuration from: {config}. Returning empty dict.")
 
-    return data or {}
+    data = data or {}
+    return box.Box(data)
 
 
 # ----- Parse Config File -----
@@ -186,3 +193,24 @@ def parse_config_file(
         f"model_root={model_root}, weights_path={weights_path}"
     )
     return None
+
+
+# ----- Print -----
+def print_run_summary(args: dict | box.Box, full: bool = False):
+    """Prints a summary of the run configuration.
+
+    Args:
+        args: Configuration arguments.
+        full: If ``True``, prints all details. Default is ``False``.
+    """
+    if full:
+        rich.print_dict(args.to_dict() if isinstance(args, box.Box) else args)
+    else:
+        rich.console.rule(f"[bold red]{args.fullname}")
+        rich.console.log(f"Machine   : {args.hostname}")
+        rich.console.log(f"Task      : {args.task}")
+        rich.console.log(f"Mode      : {args.mode}")
+        rich.console.log(f"Model     : {args.fullname}")
+        rich.console.log(f"Data      : {args.data}")
+        rich.console.log(f"Save Dir  : {args.save_dir}")
+        rich.console.log(f"Config    : {args.config}")

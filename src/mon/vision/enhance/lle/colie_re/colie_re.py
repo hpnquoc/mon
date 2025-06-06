@@ -159,11 +159,11 @@ class CoLIE_RE(base.ImageEnhancementModel):
         """
         pass
     
-    def compute_efficiency_score(self, image_size: _size_2_t = 512) -> tuple[float, float]:
+    def compute_efficiency_score(self, imgsz: _size_2_t = 512) -> tuple[float, float]:
         """Compute model efficiency score (FLOPs, params).
 
         Args:
-            image_size: Input size as ``int`` or [H, W]. Default is ``512``.
+            imgsz: Input size as ``int`` or [H, W]. Default is ``512``.
             channels: Number of input channels as ``int``. Default is ``3``.
 
         Returns:
@@ -171,7 +171,7 @@ class CoLIE_RE(base.ImageEnhancementModel):
         """
         from fvcore.nn import parameter_count
         
-        h, w      = types.image_size(image_size)
+        h, w      = types.image_size(imgsz)
         datapoint = {"image": torch.rand(1, 3, h, w).to(self.device)}
         
         flops, params = core.thop.custom_profile(self, inputs=datapoint, verbose=False)
@@ -310,13 +310,21 @@ class CoLIE_RE(base.ImageEnhancementModel):
         return image_hvi
     
     # ----- Predict -----
-    def infer(self, datapoint: dict, reset_weights: bool = True, *args, **kwargs) -> dict:
+    def infer(
+        self,
+        datapoint: dict,
+        reset    : bool              = True,
+        timers   : core.TimeProfiler = None,
+        *args, **kwargs
+    ) -> (
+        dict):
         """Infers model output with optional processing.
     
         Args:
             datapoint: ``dict`` with datapoint attributes.
-            reset_weights: Whether to reset the weights before training. Default is ``True``.
-            
+            reset: Whether to reset the weights before training. Default is ``True``.
+            timers: ``TimeProfiler`` for measuring time.
+
         Returns:
             ``dict`` of model predictions.
     
@@ -324,20 +332,21 @@ class CoLIE_RE(base.ImageEnhancementModel):
             Override for custom pre/post-processing; defaults to ``self.forward()``.
         """
         # Initialize training components
-        if reset_weights:
+        if reset:
             self.load_state_dict(self.initial_state_dict, strict=False)
         optimizer = self.optimizer.get("optimizer", None)
         optimizer = optimizer or nn.Adam(self, lr=0.00001, weight_decay=0.0003)
         
-        # Input
+        # Preprocess
+        timers.preprocess.tick() if timers is not None else None
         for k, v in datapoint.items():
             if isinstance(v, torch.Tensor):
                 datapoint[k] = v.to(self.device)
         datapoint = self.prepare_input(datapoint)
-        
+        timers.preprocess.tock() if timers is not None else None
+
         # Optimize
-        timer = core.Timer()
-        timer.tick()
+        timers.infer.tick() if timers is not None else None
         self.train()
         for _ in range(self.iters):
             outputs = self.forward_loss(datapoint=datapoint)
@@ -347,6 +356,10 @@ class CoLIE_RE(base.ImageEnhancementModel):
             optimizer.step()
         self.eval()
         outputs = self.forward(datapoint=datapoint)
+        timers.infer.tock() if timers is not None else None
+
+        # Postprocess
+        timers.postprocess.tick() if timers is not None else None
         image_hsv        = datapoint["image_hsv"].clone()
         image_v          = datapoint["image_v"]
         image_v_lr       = outputs["image_v_lr"]
@@ -355,10 +368,9 @@ class CoLIE_RE(base.ImageEnhancementModel):
         image_hsv_fixed  = self.replace_v_component(image_hsv, image_v_fixed)
         image_rgb_fixed  = kornia.color.hsv_to_rgb(image_hsv_fixed)
         image_rgb_fixed  = image_rgb_fixed / torch.max(image_rgb_fixed)
-        timer.tock()
+        timers.postprocess.tock() if timers is not None else None
         
         # Return
         return outputs | {
             "enhanced": image_rgb_fixed,
-            "time"    : timer.avg_time,
         }

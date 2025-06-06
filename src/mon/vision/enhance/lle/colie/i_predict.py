@@ -8,8 +8,7 @@ References:
     - https://github.com/ctom2/colie
 """
 
-from typing import Sequence
-
+import box
 import thop
 import torch.optim
 from fvcore.nn import FlopCountAnalysis, parameter_count
@@ -25,7 +24,7 @@ current_file = mon.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
 
-# ----- Predict -----
+# ----- Utils -----
 def compute_efficiency_score(model: torch.nn.Module, image_size: _size_2_t = 512) -> tuple[float, float]:
     """Computes FLOPs and parameters for a model.
 
@@ -48,83 +47,64 @@ def compute_efficiency_score(model: torch.nn.Module, image_size: _size_2_t = 512
     return flops, params
 
 
-def predict(args: dict) -> str:
-    # Parse args
-    hostname     = args["hostname"]
-    root         = args["root"]
-    data         = args["data"]
-    fullname     = args["fullname"]
-    save_dir     = args["save_dir"]
-    weights      = args["weights"]
-    device       = args["device"]
-    torchrun     = args["torchrun"]
-    epochs       = args["epochs"]
-    steps        = args["steps"]
-    seed         = args["seed"]
-    batch_size   = args["batch_size"]
-    imgsz        = args["imgsz"]
-    imgsz        = imgsz[0] if isinstance(imgsz, Sequence) else imgsz
-    resize       = args["resize"]
-    benchmark    = args["benchmark"]
-    save_result  = args["save_result"]
-    save_image   = args["save_image"]
-    save_debug   = args["save_debug"]
-    use_fullname = args["use_fullname"]
-    keep_subdirs = args["keep_subdirs"]
-    save_nearby  = args["save_nearby"]
-    exist_ok     = args["exist_ok"]
-    verbose      = args["verbose"]
+def benchmark(model: torch.nn.Module):
+    flops, params = compute_efficiency_score(model=model)
+    mon.console.log(f"FLOPs : {flops:.4f}")
+    mon.console.log(f"Params: {params:.4f}")
 
-    window       = args["network"]["window"]
-    num_layers   = args["network"]["num_layers"]
-    hidden_dim   = args["network"]["hidden_dim"]
-    add_layer    = args["network"]["add_layer"]
-    lr           = args["optimizer"]["lr"]
-    weight_decay = args["optimizer"]["weight_decay"]
-    L            = args["loss"]["L"]
-    alpha        = args["loss"]["alpha"]
-    beta         = args["loss"]["beta"]
-    gamma        = args["loss"]["gamma"]
-    delta        = args["loss"]["delta"]
+
+# ----- Predict -----
+def predict(args: dict | box.Box) -> str:
+    window       = args.network.window
+    num_layers   = args.network.num_layers
+    hidden_dim   = args.network.hidden_dim
+    add_layer    = args.network.add_layer
+    lr           = args.optimizer.lr
+    weight_decay = args.optimizer.weight_decay
+    L            = args.loss.L
+    alpha        = args.loss.alpha
+    beta         = args.loss.beta
+    gamma        = args.loss.gamma
+    delta        = args.loss.delta
     
     # Start
-    mon.console.rule(f"[bold red] {fullname}")
-    mon.console.log(f"Machine: {hostname}")
-    
+    mon.print_run_summary(args)
+
     # Device
-    device = mon.set_device(device)
-    
+    device = mon.set_device(args.device)
+
     # Seed
-    mon.set_random_seed(seed)
-    
+    mon.set_random_seed(args.seed)
+
     # Data I/O
-    mon.console.log(f"[bold red]{data}")
-    data_name, data_loader = mon.parse_data_loader(data, root, True, verbose=False)
-    
+    data_name, data_loader = mon.parse_data_loader(args.data, args.root, True, verbose=False)
+
     # Benchmark
     if benchmark:
         model = INF(patch_dim=window ** 2, num_layers=num_layers, hidden_dim=hidden_dim, add_layer=add_layer)
         flops, params = compute_efficiency_score(model=model)
         mon.console.log(f"FLOPs : {flops:.4f}")
         mon.console.log(f"Params: {params:.4f}")
-    
-    # Predicting
-    timer = mon.Timer()
+
+    # Predict
+    timers = mon.TimeProfiler()
     with mon.create_progress_bar() as pbar:
         for i, datapoint in pbar.track(
             sequence    = enumerate(data_loader),
             total       = len(data_loader),
             description = f"[bright_yellow] Predicting"
         ):
-            # Input
-            meta       = datapoint["meta"]
-            image_path = mon.Path(meta["path"])
-            img_rgb    = get_image(str(image_path)).to(device)
-            img_hsv    = rgb2hsv_torch(img_rgb).to(device)
-            img_v      = get_v_component(img_hsv).to(device)
-            img_v_lr   = interpolate_image(img_v, imgsz, imgsz).to(device)
-            coords     = get_coords(imgsz, imgsz).to(device)
-            patches    = get_patches(img_v_lr, window).to(device)
+            # Preprocess
+            timers.preprocess.tick()
+            meta     = datapoint["meta"]
+            path     = mon.Path(datapoint["meta"]["path"])
+            img_rgb  = get_image(str(path)).to(device)
+            img_hsv  = rgb2hsv_torch(img_rgb).to(device)
+            img_v    = get_v_component(img_hsv).to(device)
+            img_v_lr = interpolate_image(img_v, args.imgsz[0], args.imgsz[1]).to(device)
+            coords   = get_coords(args.imgsz[0], args.imgsz[1]).to(device)
+            patches  = get_patches(img_v_lr, window).to(device)
+            timers.preprocess.tock()
 
             # Model
             img_siren  = INF(patch_dim=window ** 2, num_layers=num_layers, hidden_dim=hidden_dim, add_layer=add_layer)
@@ -136,13 +116,13 @@ def predict(args: dict) -> str:
             l_TV  = L_TV()
 
             # Optimize
-            timer.tick()
-            for epoch in range(epochs):
+            timers.infer.tick()
+            for epoch in range(args.epochs):
                 img_siren.train()
                 optimizer.zero_grad()
                 #
                 illu_res_lr    = img_siren(patches, coords)
-                illu_res_lr    = illu_res_lr.view(1, 1, imgsz, imgsz)
+                illu_res_lr    = illu_res_lr.view(1, 1,  args.imgsz[0], args.imgsz[1])
                 illu_lr        = illu_res_lr + img_v_lr
                 img_v_fixed_lr = img_v_lr / (illu_lr + 1e-4)
                 #
@@ -158,16 +138,17 @@ def predict(args: dict) -> str:
             img_rgb_fixed = hsv2rgb_torch(img_hsv_fixed)
             img_rgb_fixed = img_rgb_fixed / torch.max(img_rgb_fixed)
             enhanced      = (torch.movedim(img_rgb_fixed, 1, -1)[0].detach().cpu().numpy() * 255).astype(np.uint8)
-            timer.tock()
+            timers.infer.tock()
             
             # Save
-            if save_image:
-                output_dir  = mon.parse_output_dir(save_dir, data_name, mon.SAVE_IMAGE_DIR, image_path, keep_subdirs, save_nearby)
-                output_path = output_dir / f"{image_path.stem}{mon.SAVE_IMAGE_EXT}"
-                mon.save_image(enhanced, output_path)
+            if args.save_image:
+                out_dir  = mon.parse_output_dir(args.save_dir, data_name, mon.SAVE_IMAGE_DIR, path, args.keep_subdirs, args.save_nearby)
+                out_path = out_dir / f"{path.stem}{mon.SAVE_IMAGE_EXT}"
+                mon.save_image(enhanced, out_path)
     
     # Finish
-    mon.console.log(f"Average time: {timer.avg_time}")
+    timers.print()
+    return str(args.save_dir)
 
 
 # ----- Main -----

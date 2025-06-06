@@ -484,7 +484,7 @@ def image_to_tensor(
         TypeError: If ``image`` is not a ``torch.Tensor`` or ``numpy.ndarray``.
         
     Recommend order:
-            image = torch.from_numpy(image).permute(2, 0, 1).float().div(255.0).unsqueeze(0).to(device)
+            image = torch.from_numpy(image).permute(2, 0, 1).contiguous().float().div(255.0).unsqueeze(0).to(device)
         But we add batch dimension first to avoid issues with single images.
     """
     # Add batch dimension
@@ -507,6 +507,6 @@ def image_to_tensor(
     # Move to device
     if device:
         image = image.to(device)
-    image = image.contiguous()
+    image = image.contiguous()  # Just to ensure memory layout is contiguous
     
     return image

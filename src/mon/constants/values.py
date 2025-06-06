@@ -79,9 +79,9 @@ SAVE_DEBUG_DIR     = "debug"
 SAVE_IMAGE_DIR     = "pred"
 SAVE_LABEL_DIR     = "label"
 SAVE_VISUALIZE_DIR = "visualize"
-SAVE_CKPT_EXT      = TorchExtension.CKPT.value
+SAVE_CKPT_EXT      = WeightExtension.CKPT.value
 SAVE_IMAGE_EXT     = ImageExtension.JPG.value
-SAVE_WEIGHTS_EXT   = TorchExtension.PT.value
+SAVE_WEIGHTS_EXT   = WeightExtension.PT.value
 # List 3rd party modules
 EXTRA_STR      = "[extra]"
 EXTRA_DATASETS = {}
@@ -447,13 +447,6 @@ EXTRA_MODELS   = {  # architecture/model (+ variant)
             "tasks"    : [Task.LLE],
             "mltypes"  : [MLType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "enhance" / "lle" / "retinexnet",
-        },
-    },
-    "rsfnet"          : {
-        "rsfnet": {
-            "tasks"    : [Task.LLE],
-            "mltypes"  : [MLType.ZERO_REFERENCE],
-            "model_dir": MON_DIR / "vision" / "enhance" / "lle" / "rsfnet",
         },
     },
     "ruas"            : {

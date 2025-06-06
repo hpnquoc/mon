@@ -10,6 +10,7 @@ __all__ = [
 from abc import ABC
 from copy import deepcopy
 
+import box
 import torch
 
 from mon import core, nn
@@ -21,11 +22,11 @@ class VisionModel(nn.Model, ABC):
     """Base class for vision models with image/video input."""
     
     # ----- Initialize -----
-    def compute_efficiency_score(self, image_size: _size_2_t = 512, channels: int = 3) -> tuple[float, float]:
+    def compute_efficiency_score(self, imgsz: _size_2_t = 512, channels: int = 3) -> tuple[float, float]:
         """Compute model efficiency score (FLOPs, params).
 
         Args:
-            image_size: Input size as ``int`` or [H, W]. Default is ``512``.
+            imgsz: Input size as ``int`` or [H, W]. Default is ``512``.
             channels: Number of input channels as ``int``. Default is ``3``.
 
         Returns:
@@ -34,7 +35,7 @@ class VisionModel(nn.Model, ABC):
         from fvcore.nn import parameter_count
         from mon import vision
         
-        h, w      = vision.image_size(image_size)
+        h, w      = vision.image_size(imgsz)
         datapoint = {"image": torch.rand(1, channels, h, w).to(self.device)}
         flops, params = core.thop.custom_profile(deepcopy(self), inputs=datapoint, verbose=False)
         params        = self.params if hasattr(self, "params") and params == 0 else params
@@ -45,18 +46,20 @@ class VisionModel(nn.Model, ABC):
     # ----- Predict -----
     def infer(
         self,
-        datapoint : dict,
-        image_size: _size_2_t = 512,
-        resize    : bool = False,
+        datapoint: dict,
+        imgsz    : _size_2_t         = 512,
+        resize   : bool              = False,
+        timers   : core.TimeProfiler = None,
         *args, **kwargs
     ) -> dict:
         """Infers model output with optional processing.
     
         Args:
             datapoint: ``dict`` with datapoint attributes.
-            image_size: Input size as ``int`` or [H, W]. Default is ``512``.
+            imgsz: Input size as ``int`` or [H, W]. Default is ``512``.
             resize: Resize input to ``image_size`` if ``True``. Default is ``False``.
-    
+            timers: ``TimeProfiler`` for measuring time.
+
         Returns:
             ``dict`` of model predictions with inference time.
     
@@ -64,31 +67,32 @@ class VisionModel(nn.Model, ABC):
             Override for custom pre/post-processing; defaults to ``self.forward()``.
         """
         from mon.vision import types, transforms
-        
-        # Input
+
+        # Preprocess
+        timers.preprocess.tick() if timers is not None else None
         image  = datapoint["image"]
         h0, w0 = types.image_size(image)
         for k, v in datapoint.items():
             if types.is_image(v):
-                size         = image_size if resize else 32 * ((max(h0, w0) + 31) // 32)
+                size         = imgsz if resize else 32 * ((max(h0, w0) + 31) // 32)
                 datapoint[k] = transforms.resize(v, size)
             if isinstance(v, torch.Tensor):
                 datapoint[k] = v.to(self.device)
-        
+        timers.preprocess.tock() if timers is not None else None
+
         # Infer
-        timer = core.Timer()
-        timer.tick()
+        timers.infer.tick() if timers is not None else None
         outputs = self.forward(datapoint, *args, **kwargs)
-        timer.tock()
+        timers.infer.tock() if timers is not None else None
     
-        # Post-processing
+        # Postprocess
+        timers.postprocess.tick() if timers is not None else None
         for k, v in outputs.items():
             if types.is_image(v):
                 h1, w1 = types.image_size(v)
                 if h1 != h0 or w1 != w0:
                     outputs[k] = transforms.resize(v, (h0, w0))
-        
+        timers.postprocess.tock() if timers is not None else None
+
         # Return
-        return outputs | {
-            "time": timer.avg_time
-        }
+        return outputs

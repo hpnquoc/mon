@@ -9,10 +9,11 @@ Copyright (c) 2023 lyuwenyu. All Rights Reserved.
 import os
 import sys
 
+import box
+
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 
 import torch
-import engine.core.workspace
 from engine.core import YAMLConfig
 import mon
 
@@ -35,58 +36,40 @@ class Model(torch.nn.Module):
 
 
 @torch.no_grad()
-def export(args: dict) -> str:
-    # Parse args
-    hostname     = args["hostname"]
-    root         = args["root"]
-    data         = args["data"]
-    fullname     = args["fullname"]
-    save_dir     = args["save_dir"]
-    weights      = args["weights"]
-    device       = args["device"]
-    torchrun     = args["torchrun"]
-    epochs       = args["epochs"]
-    steps        = args["steps"]
-    seed         = args["seed"]
-    batch_size   = args["batch_size"]
-    imgsz        = args["imgsz"]
-    resize       = args["resize"]
-    benchmark    = args["benchmark"]
-    save_result  = args["save_result"]
-    save_image   = args["save_image"]
-    save_debug   = args["save_debug"]
-    use_fullname = args["use_fullname"]
-    keep_subdirs = args["keep_subdirs"]
-    save_nearby  = args["save_nearby"]
-    exist_ok     = args["exist_ok"]
-    verbose      = args["verbose"]
+def export(args: dict | box.Box) -> str:
+    # Start
+    mon.print_run_summary(args)
 
-    imgsz        = imgsz[0] if isinstance(imgsz, (list, tuple)) else imgsz
+    # Device
+    device = mon.set_device(args.device)
+
+    # Seed
+    mon.set_random_seed(args.seed)
+
+    # Pretrained
+    pretrained = args.resume
+    if args.weights and args.weights.is_weights_file(exist=True):
+        pretrained = args.weights
+    if pretrained and pretrained.is_weights_file(exist=True):
+        mon.console.log(f"Pretrained: {pretrained}.")
+    else:
+        raise ValueError(f"Invalid weights file: {pretrained}.")
 
     # Model
-    resume = mon.parse_weights_file(root, args["resume"]) if args["resume"] else None
-    if weights and weights.is_weights_file(exist=True):
-        resume = weights
-
-    dtype = args.get("dtype")
-    if dtype in ["float16"]:
-        engine.core.workspace.GLOBAL_DTYPE = torch.float16
-        torch.set_default_dtype(torch.float16)
-
-    cfg_path    = current_dir / "options" / args["cfg_path"]
-    update_cfg  = args.get("update_cfg", {})
-    update_cfg |= {"resume": str(resume)} if resume else {}
-    update_cfg |= {
+    cfg_path     = current_dir / "option" / args.cfg
+    updated_cfg  = args.updated_cfg
+    updated_cfg |= {"resume": str(pretrained)} if pretrained else {}
+    updated_cfg |= {
         "device": device,
-        "seed"  : seed,
+        "seed"  : args.seed,
     }
-    cfg = YAMLConfig(cfg_path=str(cfg_path), root=str(root), **update_cfg)
+    cfg = YAMLConfig(cfg_path=str(cfg_path), root=str(args.root), **updated_cfg)
 
     if "HGNetv2" in cfg.yaml_cfg:
         cfg.yaml_cfg["HGNetv2"]["pretrained"] = False
 
-    if resume:
-        checkpoint = torch.load(resume, map_location="cpu")
+    if pretrained:
+        checkpoint = torch.load(pretrained, map_location="cpu")
         if "ema" in checkpoint:
             state = checkpoint["ema"]["module"]
         else:
@@ -99,14 +82,15 @@ def export(args: dict) -> str:
     model = Model(cfg)
 
     # Export ONNX model
-    data = torch.rand(32, 3, imgsz, imgsz)
-    size = torch.tensor([[imgsz, imgsz]])
-    _    = model(data, size)
+    imgsz = args.imgsz[0] if isinstance(args.imgsz, list | tuple) else args.imgsz
+    data  = torch.rand(32, 3, imgsz, imgsz)
+    size  = torch.tensor([[imgsz, imgsz]])
+    _     = model(data, size)
     dynamic_axes = {
         "images"           : {0: "N"},
         "orig_target_sizes": {0: "N"}
     }
-    output_file  = resume.parent / f"{resume.stem}.onnx"
+    output_file  = pretrained.parent / f"{pretrained.stem}.onnx"
     
     torch.onnx.export(
         model,
@@ -120,7 +104,8 @@ def export(args: dict) -> str:
         do_constant_folding = True,
     )
 
-    if args["check"]:
+    check = True
+    if check:
         import onnx
         onnx_model = onnx.load(output_file)
         onnx.checker.check_model(onnx_model)

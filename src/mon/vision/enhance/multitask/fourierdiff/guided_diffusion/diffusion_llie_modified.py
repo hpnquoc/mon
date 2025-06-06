@@ -1,11 +1,8 @@
-import os
-
 import numpy as np
 import torch
 import torch.fft
 import torch.nn as nn
 import torch.nn.functional as F
-import torch.utils.data as data
 import torchvision.utils as tvu
 import tqdm
 from datasets import get_dataset
@@ -115,7 +112,8 @@ class Diffusion(object):
         elif self.model_var_type == "fixedsmall":
             self.logvar = posterior_variance.clamp(min=1e-20).log()
 
-    def sample(self, weights, data_name, data_loader, imgsz, resize, save_image, save_dir, keep_subdirs, save_nearby):
+    def sample(self, weights, data_name, data_loader, imgsz, resize, save_image,
+               save_dir, keep_subdirs, save_nearby, timers):
         cls_fn      = None
         config_dict = vars(self.config.model)
         model       = create_model(**config_dict)
@@ -146,9 +144,11 @@ class Diffusion(object):
             f'travel_length = {self.config.time_travel.travel_length},',
             f'travel_repeat = {self.config.time_travel.travel_repeat}.'
         )
-        self.FourierDiff(model, cls_fn, data_name, data_loader, imgsz, resize, save_image, save_dir, keep_subdirs, save_nearby)
+        self.FourierDiff(model, cls_fn, data_name, data_loader, imgsz, resize,
+                         save_image, save_dir, keep_subdirs, save_nearby, timers)
 
-    def FourierDiff(self, model, cls_fn, data_name, data_loader, imgsz, resize, save_image, save_dir, keep_subdirs, save_nearby):
+    def FourierDiff(self, model, cls_fn, data_name, data_loader, imgsz, resize,
+                    save_image, save_dir, keep_subdirs, save_nearby, timers):
         args, config = self.args, self.config
 
         '''
@@ -179,16 +179,18 @@ class Diffusion(object):
 
         pbar = tqdm.tqdm(data_loader)
         for datapoint in pbar:
-            # Input
-            meta       = datapoint["meta"]
-            image_path = mon.Path(meta["path"])
-            input_y    = datapoint["image"]
-            h0, w0     = mon.image_size(input_y)
-            if resize:
+            # Preprocess
+            timers.preprocess.tick()
+            path    = mon.Path(datapoint["meta"]["path"])
+            input_y = datapoint["image"]
+            h0, w0  = mon.image_size(input_y)
+            if resize and h0 != imgsz[0] and w0 != imgsz[1]:
                 input_y = mon.resize(input_y, imgsz)
+            timers.preprocess.tock()
 
+            # Infer
+            timers.infer.tick()
             mean = torch.mean(input_y)
-            # print(mean)
             if mean < 0.1:
                 # print("warm-start!")
                 y = input_y
@@ -317,16 +319,20 @@ class Diffusion(object):
                         xs.append(xt_next.to('cpu'))
 
                 x = xs[-1]
+            timers.infer.tock()
+
+            # Postprocess
+            timers.postprocess.tick()
             x = torch.clamp(x, 0.0, 1.0)
             x = x[:, :, :H, :W]
-
-            if resize:
+            if resize and h0 != imgsz[0] and w0 != imgsz[1]:
                 x = mon.resize(x, (h0, w0))
+            timers.postprocess.tock()
 
             # tvu.save_image(x[0], os.path.join(self.args.image_folder, f"{name}"))
             if save_image:
-                output_dir  = mon.parse_output_dir(save_dir, data_name, mon.SAVE_IMAGE_DIR, image_path, keep_subdirs, save_nearby)
-                output_path = output_dir / f"{image_path.stem}{mon.SAVE_IMAGE_EXT}"
+                output_dir  = mon.parse_output_dir(save_dir, data_name, mon.SAVE_IMAGE_DIR, path, keep_subdirs, save_nearby)
+                output_path = output_dir / f"{path.stem}{mon.SAVE_IMAGE_EXT}"
                 output_path.parent.mkdir(parents=True, exist_ok=True)
                 tvu.save_image(x[0], str(output_path))
 

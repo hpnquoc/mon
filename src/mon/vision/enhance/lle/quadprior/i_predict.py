@@ -8,6 +8,8 @@ References:
     - https://github.com/daooshee/QuadPrior
 """
 
+import box
+
 from cldm.hack import disable_verbosity
 
 disable_verbosity()
@@ -31,9 +33,13 @@ current_file = mon.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
 
-# ----- Predict -----
-def calculate_model_parameters(model):
-    return sum(p.numel() for p in model.parameters())
+# ----- Utils -----
+def benchmark(model: torch.nn.Module):
+    flops, params = mon.compute_efficiency_score(model=model)
+    total_params  = sum(p.numel() for p in model.parameters())
+    mon.console.log(f"FLOPs       : {flops:.4f}")
+    mon.console.log(f"Params      : {params:.4f}")
+    mon.console.log(f"Total Params: {total_params:.4f}")
 
 
 def process(
@@ -106,125 +112,105 @@ def process(
     return results
 
 
+# ----- Predict -----
 @torch.no_grad()
-def predict(args: dict) -> str:
-    # Parse args
-    hostname     = args["hostname"]
-    root         = args["root"]
-    data         = args["data"]
-    fullname     = args["fullname"]
-    save_dir     = args["save_dir"]
-    weights      = args["weights"]
-    device       = args["device"]
-    torchrun     = args["torchrun"]
-    epochs       = args["epochs"]
-    steps        = args["steps"]
-    seed         = args["seed"]
-    batch_size   = args["batch_size"]
-    imgsz        = args["imgsz"]
-    resize       = args["resize"]
-    benchmark    = args["benchmark"]
-    save_result  = args["save_result"]
-    save_image   = args["save_image"]
-    save_debug   = args["save_debug"]
-    use_fullname = args["use_fullname"]
-    keep_subdirs = args["keep_subdirs"]
-    save_nearby  = args["save_nearby"]
-    exist_ok     = args["exist_ok"]
-    verbose      = args["verbose"]
-    
-    use_float16  = args["use_float16"]
-    
-    config_path  = current_dir / args["config_path"]  # "./models/cldm_v15.yaml"
-    init_ckpt    = mon.ZOO_DIR / "vision/enhance/lle/quadprior/quadprior/coco/control_sd15_init.ckpt"
-    ae_ckpt      = mon.ZOO_DIR / "vision/enhance/lle/quadprior/quadprior/coco/ae_epoch=00_step=7000.ckpt"
-    
+def predict(args: dict | box.Box) -> str:
     # Start
-    mon.console.rule(f"[bold red] {fullname}")
-    mon.console.log(f"Machine: {hostname}")
-    
+    mon.print_run_summary(args)
+
     # Device
-    device = mon.set_device(device)
-    
+    device = mon.set_device(args.device)
+
     # Seed
-    mon.set_random_seed(seed)
-    
+    mon.set_random_seed(args.seed)
+
     # Data I/O
-    mon.console.log(f"[bold red]{data}")
-    data_name, data_loader = mon.parse_data_loader(data, root, False, verbose=False)
-    
+    data_name, data_loader = mon.parse_data_loader(args.data, args.root, False, verbose=False)
+
+    # Pretrained
+    pretrained = args.resume
+    if args.weights and args.weights.is_weights_file(exist=True):
+        pretrained = args.weights
+    if pretrained and pretrained.is_weights_file(exist=True):
+        mon.console.log(f"Pretrained: {pretrained}.")
+    else:
+        raise ValueError(f"Invalid weights file: {pretrained}.")
+
     # Model
-    model          = create_model(config_path=config_path).cpu()
+    cfg_path  = current_dir / args.cfg
+    init_ckpt = mon.ZOO_DIR / "vision/enhance/lle/quadprior/quadprior/coco/control_sd15_init.ckpt"
+    ae_ckpt   = mon.ZOO_DIR / "vision/enhance/lle/quadprior/quadprior/coco/ae_epoch=00_step=7000.ckpt"
+
+    model          = create_model(config_path=cfg_path).cpu()
     state_dict     = load_state_dict(str(init_ckpt), location="cpu")
     new_state_dict = {}
     for s in state_dict:
         if "cond_stage_model.transformer" not in s:
             new_state_dict[s] = state_dict[s]
     model.load_state_dict(new_state_dict)
-    # Insert new layers in ControlNet (sorry for the ugliness)
-    model.add_new_layers()
+    model.add_new_layers()  # Insert new layers in ControlNet (sorry for the ugliness)
+
     # Load trained checkpoint
-    state_dict     = load_state_dict(weights, location="cpu")
+    state_dict     = load_state_dict(pretrained, location="cpu")
     new_state_dict = {}
     for sd_name, sd_param in state_dict.items():
         if "_forward_module.control_model" in sd_name:
             new_state_dict[sd_name.replace("_forward_module.control_model.", "")] = sd_param
     model.control_model.load_state_dict(new_state_dict)
-    # Load bypass decoder
-    model.change_first_stage(ae_ckpt)
+    model.change_first_stage(ae_ckpt)  # Load bypass decoder
     
-    if use_float16:
+    if args.use_float16:
         model = model.to(device).to(dtype=torch.float16)
     else:
         model = model.to(device)
     diffusion_sampler = DPMSolverSampler(model)
     
     # Benchmark
-    if benchmark:
-        flops, params = mon.compute_efficiency_score(model=model)
-        total_params  = calculate_model_parameters(model)
-        mon.console.log(f"FLOPs        = {flops:.4f}")
-        mon.console.log(f"Params       = {params:.4f}")
-        mon.console.log(f"Total Params = {total_params:.4f}")
+    if args.benchmark:
+        benchmark(model)
     
-    # Predicting
-    timer = mon.Timer()
+    # Predict
+    timers = mon.TimeProfiler()
     with mon.create_progress_bar() as pbar:
         for i, datapoint in pbar.track(
             sequence    = enumerate(data_loader),
             total       = len(data_loader),
             description = f"[bright_yellow] Predicting"
         ):
-            # Input
-            meta        = datapoint["meta"]
-            image_path  = mon.Path(meta["path"])
-            image       = datapoint["image"]
-            h0, w0      = image.shape[0], image.shape[1]
-            
+            # Preprocess
+            timers.preprocess.tick()
+            path   = mon.Path(datapoint["meta"]["path"])
+            image  = datapoint["image"]
+            h0, w0 = mon.image_size(image)
+            timers.preprocess.tock()
+
             # Infer
-            timer.tick()
+            timers.infer.tick()
             # If you set num_samples > 1, process will return multiple results
-            enhanced = process(
+            outputs = process(
                 model, diffusion_sampler,
                 input_image      = image,
                 num_samples      = 1,
-                image_resolution = imgsz[0],
-                use_float16      = use_float16,
+                image_resolution = args.imgsz[0],
+                use_float16      = args.use_float16,
             )[0]
-            timer.tock()
+            timers.infer.tock()
             
-            # Post-processing
-            enhanced = mon.resize(enhanced, (h0, w0), interpolation=cv2.INTER_LINEAR)
+            # Postprocess
+            timers.postprocess.tick()
+            enhanced = mon.resize(outputs, (h0, w0), interpolation=cv2.INTER_LINEAR)
             enhanced = cv2.cvtColor(enhanced, cv2.COLOR_BGR2RGB)
+            timers.postprocess.tock()
             
             # Save
-            if save_image:
-                output_dir  = mon.parse_output_dir(save_dir, data_name, mon.SAVE_IMAGE_DIR, image_path, keep_subdirs, save_nearby)
-                output_path = output_dir / f"{image_path.stem}{mon.SAVE_IMAGE_EXT}"
-                mon.save_image(enhanced, output_path)
+            if args.save_image:
+                out_dir  = mon.parse_output_dir(args.save_dir, data_name, mon.SAVE_IMAGE_DIR, path, args.keep_subdirs, args.save_nearby)
+                out_path = out_dir / f"{path.stem}{mon.SAVE_IMAGE_EXT}"
+                mon.save_image(enhanced, out_path)
         
     # Finish
-    mon.console.log(f"Average time: {timer.avg_time}")
+    timers.print()
+    return str(args.save_dir)
 
 
 # ----- Main -----

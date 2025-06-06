@@ -10,9 +10,9 @@ References:
 
 import argparse
 
+import box
 import numpy as np
 import torch
-import torchvision
 import yaml
 
 import mon
@@ -23,7 +23,13 @@ current_file = mon.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
 
-# ----- Predict -----
+# ----- Utils -----
+def benchmark(model: torch.nn.Module):
+    flops, params = mon.compute_efficiency_score(model=model, channels=6)
+    mon.console.log(f"FLOPs : {flops:.4f}")
+    mon.console.log(f"Params: {params:.4f}")
+
+
 def dict2namespace(config):
     namespace = argparse.Namespace()
     for key, value in config.items():
@@ -35,104 +41,88 @@ def dict2namespace(config):
     return namespace
 
 
+# ----- Predict -----
 @torch.no_grad()
-def predict(args: dict) -> str:
-    # Parse args
-    hostname     = args["hostname"]
-    root         = args["root"]
-    data         = args["data"]
-    fullname     = args["fullname"]
-    save_dir     = args["save_dir"]
-    weights      = args["weights"]
-    device       = args["device"]
-    torchrun     = args["torchrun"]
-    epochs       = args["epochs"]
-    steps        = args["steps"]
-    seed         = args["seed"]
-    batch_size   = args["batch_size"]
-    imgsz        = args["imgsz"]
-    resize       = args["resize"]
-    benchmark    = args["benchmark"]
-    save_result  = args["save_result"]
-    save_image   = args["save_image"]
-    save_debug   = args["save_debug"]
-    use_fullname = args["use_fullname"]
-    keep_subdirs = args["keep_subdirs"]
-    save_nearby  = args["save_nearby"]
-    exist_ok     = args["exist_ok"]
-    verbose      = args["verbose"]
-
-    opt_path     = current_dir / "options" / args["opt_path"]
-    with open(str(opt_path), "r") as f:
-        config = yaml.safe_load(f)
-    config = dict2namespace(config)
+def predict(args: dict | box.Box) -> str:
+    cfg_path = current_dir / "option" / args.cfg
+    with open(str(cfg_path), "r") as f:
+        cfgs = yaml.safe_load(f)
+    cfgs = dict2namespace(cfgs)
 
     # Start
-    mon.console.rule(f"[bold red] {fullname}")
-    mon.console.log(f"Machine: {hostname}")
-    
+    mon.print_run_summary(args)
+
     # Device
-    device = mon.set_device(device)
-    config.device = device
+    device      = mon.set_device(args.device)
+    cfgs.device = device
 
     # Seed
-    mon.set_random_seed(seed)
-    
+    mon.set_random_seed(args.seed)
+
     # Data I/O
-    mon.console.log(f"[bold red]{data}")
-    data_name, data_loader = mon.parse_data_loader(data, root, True, verbose=False)
+    data_name, data_loader = mon.parse_data_loader(args.data, args.root, True, verbose=False)
     
+    # Pretrained
+    pretrained = args.resume
+    if args.weights and args.weights.is_weights_file(exist=True):
+        pretrained = args.weights
+    if pretrained and pretrained.is_weights_file(exist=True):
+        mon.console.log(f"Pretrained: {pretrained}.")
+    else:
+        raise ValueError(f"Invalid weights file: {pretrained}.")
+
     # Model
     model_args = argparse.Namespace(**{
         "mode"        : "evaluation",
-        "resume"      : str(weights),
-        "image_folder": str(save_dir),
+        "resume"      : str(pretrained),
+        "image_folder": str(args.save_dir),
     })
-    diffusion = DenoisingDiffusion(model_args, config)
-    if weights.is_weights_file(exist=True):
-        diffusion.load_ddm_ckpt(str(weights), ema=False)
-    else:
-        mon.console.log(f"Pre-trained model path is missing!")
+    diffusion = DenoisingDiffusion(model_args, cfgs)
+    diffusion.load_ddm_ckpt(str(pretrained), ema=False)
     diffusion.model.eval()
 
     # Benchmark
-    if benchmark:
-        flops, params = mon.compute_efficiency_score(model=diffusion.model, channels=6)
-        mon.console.log(f"FLOPs : {flops:.4f}")
-        mon.console.log(f"Params: {params:.4f}")
+    if args.benchmark:
+        benchmark(diffusion.model)
     
-    # Predicting
-    timer = mon.Timer()
+    # Predict
+    timers = mon.TimeProfiler()
     with mon.create_progress_bar() as pbar:
         for i, datapoint in pbar.track(
             sequence    = enumerate(data_loader),
             total       = len(data_loader),
             description = f"[bright_yellow] Predicting"
         ):
-            # Input
-            meta       = datapoint["meta"]
-            image_path = mon.Path(meta["path"])
-            image      = datapoint["image"].to(device)
-
-            h0, w0     = mon.image_size(image)
-            img_h_64   = int(64 * np.ceil(h0 / 64.0))
-            img_w_64   = int(64 * np.ceil(w0 / 64.0))
-            x_cond     = F.pad(image, (0, img_w_64 - w0, 0, img_h_64 - h0), 'reflect')
+             # Preprocess
+            timers.preprocess.tick()
+            path     = mon.Path(datapoint["meta"]["path"])
+            image    = datapoint["image"]
+            h0, w0   = mon.image_size(image)
+            img_h_64 = int(64 * np.ceil(h0 / 64.0))
+            img_w_64 = int(64 * np.ceil(w0 / 64.0))
+            x_cond   = F.pad(image, (0, img_w_64 - w0, 0, img_h_64 - h0), "reflect")
+            image    = image.to(device)
+            timers.preprocess.tock()
 
             # Infer
-            timer.tick()
-            enhanced = diffusion.model(torch.cat((x_cond, x_cond), dim=1))["pred_x"]
-            enhanced = enhanced[:, :, :h0, :w0]
-            timer.tock()
-            
+            timers.infer.tick()
+            outputs = diffusion.model(torch.cat((x_cond, x_cond), dim=1))["pred_x"]
+            timers.infer.tock()
+
+            # Postprocess
+            timers.postprocess.tick()
+            enhanced = outputs[:, :, :h0, :w0]
+            timers.postprocess.tock()
+
             # Save
-            if save_image:
-                output_dir  = mon.parse_output_dir(save_dir, data_name, mon.SAVE_IMAGE_DIR, image_path, keep_subdirs, save_nearby)
-                output_path = output_dir / f"{image_path.stem}{mon.SAVE_IMAGE_EXT}"
-                mon.save_image(enhanced, output_path)
+            if args.save_image:
+                out_dir  = mon.parse_output_dir(args.save_dir, data_name, mon.SAVE_IMAGE_DIR, path, args.keep_subdirs, args.save_nearby)
+                out_path = out_dir / f"{path.stem}{mon.SAVE_IMAGE_EXT}"
+                mon.save_image(enhanced, out_path)
         
     # Finish
-    mon.console.log(f"Average time: {timer.avg_time}")
+    timers.print()
+    return str(args.save_dir)
 
 
 # ----- Main -----

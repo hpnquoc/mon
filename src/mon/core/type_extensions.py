@@ -19,6 +19,7 @@ __all__ = [
     "iter_to_iter",
     "iter_to_list",
     "iter_to_tuple",
+    "merge_dicts",
     "shuffle_dict",
     "split_list",
     "to_1list",
@@ -59,6 +60,7 @@ from collections import OrderedDict
 from types import ModuleType
 from typing import Any, Callable, Iterable
 
+import box
 import numpy as np
 import torch
 
@@ -455,7 +457,7 @@ def unique(x: list | tuple) -> list | tuple:
     return type(x)(set(x))
 
 
-# ----- Collection -----
+# ----- Dictionary -----
 def intersect_dicts(x: dict, y: dict, exclude: list = []) -> dict:
     """Finds the intersection between two dictionaries.
 
@@ -484,6 +486,16 @@ def intersect_ordered_dicts(x: OrderedDict, y: OrderedDict, exclude: list = []) 
         values match.
     """
     return OrderedDict((k, v) for k, v in x.items() if k in y and k not in exclude and v == y[k])
+
+
+def merge_dicts(*ds: dict | box.Box) -> dict | box.Box:
+    """Merges multiple dictionaries, prioritizing later dictionaries."""
+    merged = ds[0]
+    for i in range(1, len(ds)):
+        # Filter out None, "None", and empty string values
+        ns_d = {k: v for k, v in ds[i].items() if v not in [None, "None", ""]}
+        merged.update(ns_d)
+    return box.Box(**merged)
 
 
 def shuffle_dict(x: dict) -> dict:

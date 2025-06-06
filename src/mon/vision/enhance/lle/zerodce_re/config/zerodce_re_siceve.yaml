@@ -1,33 +1,45 @@
-# Basic
+# ----- Global Settings & Hyperparameters -----
+# These settings can be overridden by the CLI.
 root        : ~                                                                 # Root directory of the current run.
-arch        : "zerodce"                                                         # Model architecture or family (e.g., resnet).
+task        : &task "lle"                                                       # Task name (e.g., detect, segment, classify).
+mode        : &mode "train"                                                     # Mode name (e.g., train, val, test, predict, export).
+arch        : &arch "zerodce"                                                   # Model architecture or family (e.g., resnet).
 model       : &model "zerodce_re"                                               # Model name (e.g., resnet50).
 data        : &data "siceve"                                                    # Dataset name (e.g., cifar10) or directory (e.g., data/cifar10).
 fullname    : &fullname "zerodce_re_siceve"                                     # Full name of the current run (e.g., resnet50_cifar10_01). If not set, it will be this file's name.
 save_dir    : &save_dir ~                                                       # Saving directory. If not set, it will be `root/arch/model/data`.
-weights     : &weights "zoo/vision/enhance/lle/zerodce/zerodce_re/siceve/zerodce_re_siceve.pt" # Path to the pretrained weights.
-device      : 0                                                                 # Running device (i.e., cuda:0 | cuda:0,1,2,3 | cpu).
+weights     : &weights "zoo/vision/enhance/lle/zerodce/zerodce_re/siceve/zerodce_re_siceve.pt"  # Path to the pretrained weights.
+device      : &device 0                                                         # Running device (i.e., cuda:0 | cuda:0,1,2,3 | cpu).
+seed        : &seed 100                                                         # Random seed.
+imgsz       : &imgsz 256                                                        # Image size for the model.
+# Train
+resume      : &resume ~                                                         # Resume from interrupted training.
+tuning      : &tuning ~                                                         # Fine-tuning from a pretrained model.
+epochs      : &epochs 200                                                       # Training epochs.
+batch_size  : &batch_size 8                                                     # Batch size.
 torchrun    : False                                                             # If ``True``, use torch.distributed.run to run the training script.
 master_port : 7777                                                              # Master port for distributed training.
 master_addr : "localhost"                                                       # Master address for distributed training.
 local_rank  : -1                                                                # Local rank for distributed training.
-epochs      : &epochs 200                                                       # Training epochs.
-steps       : &steps ~                                                          # Training steps.
-seed        : 100                                                               # Random seed.
-batch_size  : &batch_size 1                                                     # Batch size for prediction.
-imgsz       : &imgsz 256                                                        # Image size for the model.
+# Predict
 resize      : False                                                             # Resize the input image to `imgsz`.
 benchmark   : False                                                             # Benchmark the model.
-save_result : True                                                              # Save the result of the model.
-save_image  : True                                                              # Save the output image.
-save_debug  : &save_debug True                                                  # Save the debug information.
+# Save & Visualize
+save_result : &save_result True                                                 # Save the result of the model.
+save_image  : &save_image True                                                  # Save the output image.
+save_debug  : &save_debug False                                                 # Save the debug information.
 use_fullname: True                                                              # Use the full name for the save_dir.
 keep_subdirs: False                                                             # Keep subdirectories in the save_dir.
 save_nearby : False                                                             # Save outputs nearby the source.
-exist_ok    : True                                                              # If ``False``, it will delete the save directory if it already exists.
+exist_ok    : &exist_ok True                                                    # If ``False``, it will delete the save directory if it already exists.
 verbose     : &verbose True                                                     # Verbosity.
+# Export
+format      : "onnx"                                                            # Export format (e.g., onnx, torchscript, coreml, tflite, openvino).
+simplify    : False                                                             # Simplify model using `onnxslim`.
+# Custom config.yaml
+cfg         : ~                                                                 # For overriding settings defined in this file.
 
-### For ``mon`` Framework ###
+# ----- Modules -----
 # Network
 network: &network                                                               # Network architecture.
   in_channels : 3
@@ -75,9 +87,9 @@ datamodule:
   name      : *data                                                             # Data module name (e.g., cifar10).
   root      : "data/sice"                                                       # Root directory of the dataset.
   transform :                                                                   # Data augmentation.
-    - {name: "resize", height: *imgsz, width : *imgsz}
+    - {name: "resize", height: *imgsz, width: *imgsz}
   to_tensor : True                                                              # If ``True``, convert the data to tensor.
-  batch_size: 8                                                                 # Batch size.
+  batch_size: *batch_size                                                       # Batch size.
   cache_data: False                                                             # If ``True``, cache the data.
   shuffle   : True                                                              # If ``True``, shuffle the data.
   verbose   : *verbose                                                          # Verbosity.
@@ -102,6 +114,5 @@ trainer:
   log_every_n_steps      : 1                                                    # How often to log within steps.
   logger                 : True                                                 # Logger (or iterable collection of loggers) for experiment tracking (True = `TensorBoardLogger`).
   max_epochs             : *epochs                                              # -1: infinite training.
-  max_steps              : *steps                                               # -1: infinite training.
   precision              : 32                                                   # Double precision (64), full precision (32), half precision (16) or bfloat16 precision (bf16).
   strategy               : "auto"                                               # 'ddp', 'ddp_spawn', 'ddp2', 'ddp_cpu', 'ddp2_cpu', 'ddp_spawn_cpu', 'horovod', 'tpu', 'tpu_spawn', 'auto'.

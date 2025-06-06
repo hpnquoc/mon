@@ -3,105 +3,84 @@
 
 """Trains a model on a given dataset."""
 
+import box
+
 import mon
-from mon.vision.enhance.derain.esdnet_snn.test import batch_size
 
 current_file = mon.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
 
 # ----- Train -----
-def train(args: dict) -> str:
-    # Parse args
-    hostname     = args["hostname"]
-    root         = args["root"]
-    data         = args["data"]
-    fullname     = args["fullname"]
-    save_dir     = args["save_dir"]
-    weights      = args["weights"]
-    device       = args["device"]
-    torchrun     = args["torchrun"]
-    epochs       = args["epochs"]
-    steps        = args["steps"]
-    seed         = args["seed"]
-    # batch_size   = args["batch_size"]
-    # imgsz        = args["imgsz"]
-    # resize       = args["resize"]
-    benchmark    = args["benchmark"]
-    save_result  = args["save_result"]
-    save_image   = args["save_image"]
-    save_debug   = args["save_debug"]
-    use_fullname = args["use_fullname"]
-    keep_subdirs = args["keep_subdirs"]
-    save_nearby  = args["save_nearby"]
-    exist_ok     = args["exist_ok"]
-    verbose      = args["verbose"]
-
+def train(args: dict | box.Box) -> str:
     # Start
     if mon.is_rank_zero():
-        mon.console.rule("[bold red] INITIALIZATION")
-        mon.console.log(f"Machine: {hostname}")
+        mon.print_run_summary(args)
     
     # Device
-    # device = mon.set_device(device)
+    device = mon.set_device(args.device)
     
     # Seed
-    mon.set_random_seed(seed)
+    mon.set_random_seed(args.seed)
     
     # Data I/O
     args["datamodule"] |= {
-        "root"   : mon.parse_data_dir(root, args["datamodule"].get("root", "")),
+        "root"   : mon.parse_data_dir(args.root, args.datamodule.get("root", "")),
         "devices": device,
     }
-    datamodule: mon.DataModule = mon.DATAMODULES.build(config=args["datamodule"])
+    datamodule: mon.DataModule = mon.DATAMODULES.build(config=args.datamodule)
     datamodule.prepare_data()
     datamodule.setup(stage="train")
     
+    # Pretrained
+    pretrained = args.tuning
+    if args.resume and args.resume.is_weights_file(exist=True):
+        pretrained = args.resume
+    if args.weights and args.weights.is_weights_file(exist=True):
+        pretrained = args.weights
+    if pretrained and pretrained.is_weights_file(exist=True):
+        mon.console.log(f"Pretrained: {pretrained}.")
+    else:
+        mon.console.log(f"Pretrained: {None}, training from scratch.")
+
     # Model
     args["modelmodule"] |= {
-        "fullname": fullname,
-        "root"    : save_dir,
-        "weights" : weights,
-        "debug"   : save_debug,
-        "verbose" : verbose,
+        "fullname": args.fullname,
+        "root"    : args.save_dir,
+        "weights" : pretrained,
+        "debug"   : args.save_debug,
+        "verbose" : args.verbose,
     }
-    model: mon.Model = mon.MODELS.build(config=args["modelmodule"])
+    model: mon.Model = mon.MODELS.build(config=args.modelmodule)
     if mon.is_rank_zero():
-        mon.print_dict(args, title=fullname)
-        mon.console.log("[green]Done")
-    
+        mon.print_dict(args, title=args.fullname)
+
     # Trainer
-    if mon.is_rank_zero():
-        mon.console.rule("[bold red] SETUP TRAINER")
-    
-    callbacks = args["trainer"]["callbacks"]
+    callbacks = args.trainer.callbacks
     for i, callback in enumerate(callbacks):
-        if callback["name"] == "model_checkpoint":
-            callbacks[i] |= {"filename": fullname}
-    callbacks = mon.CALLBACKS.build_instances(configs=args["trainer"]["callbacks"])
+        if callback.name == "model_checkpoint":
+            callbacks[i] |= {"filename": args.fullname}
+    callbacks = mon.CALLBACKS.build_instances(configs=args.trainer.callbacks)
     ckpt      = mon.get_latest_checkpoint(dirpath=model.ckpt_dir)
     devices   = mon.to_int_list(device) if "auto" not in device else "auto"
-    if args["trainer"]["logger"]:
-        logger = [mon.TensorBoardLogger(save_dir=save_dir)]
+    if args.trainer.logger:
+        logger = [mon.TensorBoardLogger(save_dir=args.save_dir)]
     else:
         logger = False
     
     args["trainer"] |= {
         "callbacks"           : callbacks,
         "devices"             : devices,
-        "default_root_dir"    : save_dir,
+        "default_root_dir"    : args.save_dir,
         "logger"              : logger,
-        "max_epochs"          : epochs,
-        "max_steps"           : steps,
+        "max_epochs"          : args.epochs,
         "num_sanity_val_steps": 0,
     }
-    trainer               = mon.Trainer(**args["trainer"])
+    trainer               = mon.Trainer(**args.trainer)
     trainer.current_epoch = mon.get_epoch_from_checkpoint(ckpt=ckpt)
     trainer.global_step   = mon.get_global_step_from_checkpoint(ckpt=ckpt)
-    if mon.is_rank_zero():
-        mon.console.log("[green]Done")
-    
-    # Training
+
+    # Train
     if mon.is_rank_zero():
         mon.console.rule("[bold red] TRAINING")
     trainer.fit(
@@ -110,12 +89,9 @@ def train(args: dict) -> str:
         val_dataloaders   = datamodule.val_dataloader,
         ckpt_path         = ckpt,
     )
-    if mon.is_rank_zero():
-        mon.console.log(f"Model: {fullname}")  # Log
-        mon.console.log("[green]Done")
-    
-    # Return
-    return str(save_dir)
+
+    # Finish
+    return str(args.save_dir)
     
 
 # ----- Main -----

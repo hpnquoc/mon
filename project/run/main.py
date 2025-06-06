@@ -6,6 +6,8 @@
 import os
 import subprocess
 
+import box
+
 import menu_rich
 import mon
 
@@ -14,91 +16,58 @@ current_dir  = current_file.parents[0]
 
 
 # ----- Train -----
-def run_train(args: dict):
-    # Get user input
-    root         = mon.Path(args["root"])
-    task         = args["task"]
-    mode         = args["mode"]
-    arch         = args["arch"]
-    model        = args["model"]
-    config       = args["config"]
-    data         = args["data"]
-    fullname     = args["fullname"]
-    save_dir     = args["save_dir"]
-    weights      = args["weights"]
-    device       = args["device"]
-    torchrun     = args["torchrun"]
-    master_port  = args["master_port"]
-    master_addr  = args["master_addr"]
-    epochs       = args["epochs"]
-    steps        = args["steps"]
-    seed         = args["seed"]
-    imgsz        = args["imgsz"]
-    resize       = args["resize"]
-    benchmark    = args["benchmark"]
-    save_result  = args["save_result"]
-    save_image   = args["save_image"]
-    save_debug   = args["save_debug"]
-    use_fullname = args["use_fullname"]
-    keep_subdirs = args["keep_subdirs"]
-    save_nearby  = args["save_nearby"]
-    exist_ok     = args["exist_ok"]
-    verbose      = args["verbose"]
-
-    assert root.exists()
+def run_train(args: dict | box.Box):
+    # Get args
+    args.root = mon.Path(args.root)
+    assert args.root.exists()
     
     # Parse arguments
-    use_extra_model = mon.is_extra_model(model)
-    model_root      = mon.parse_model_dir(arch, model)
-    model           = mon.parse_model_name(model)
-    fullname        = fullname if fullname not in [None, "None", ""] else config.stem
-    config          = mon.parse_config_file(
-        config       = config,
-        project_root = root,
-        model_root   = model_root,
-        weights_path = weights,
-    )
-    assert config not in [None, "None", ""]
-    weights = mon.to_str(weights, ",")
+    use_extra_model = mon.is_extra_model(args.model)
+    model_root      = mon.parse_model_dir(args.arch, args.model)
+    args.model      = mon.parse_model_name(args.model)
+    args.fullname   = args.fullname if args.fullname not in [None, "None", ""] else mon.Path(args.config).stem
+    args.config     = mon.parse_config_file(args.config, args.root, model_root=model_root, weights_path=args.weights)
+    assert args.config not in [None, "None", ""]
+    args.weights    = mon.to_str(args.weights, ",")
 
-    kwargs  = {}
-    flags   = []
-    kwargs |= {"--root"    : str(root)}
-    kwargs |= {"--arch"    : arch}
-    kwargs |= {"--model"   : model}
-    kwargs |= {"--config"  : config}
-    # kwargs |= {"--data"    : data}
-    kwargs |= {"--fullname": fullname}
-    kwargs |= {"--save-dir": str(save_dir)}
-    kwargs |= {"--weights" : weights}
-    kwargs |= {"--device"  : device}
-    flags  += ["--torchrun"]     if torchrun     else []
-    kwargs |= {"--epochs"  : epochs}
-    kwargs |= {"--steps"   : steps}
-    kwargs |= {"--seed"    : seed}
-    # kwargs |= {"--imgsz"   : imgsz}
-    # flags  += ["--resize"]       if resize       else []
-    flags  += ["--benchmark"]    if benchmark    else []
-    flags  += ["--save-image"]   if save_image   else []
-    flags  += ["--save-debug"]   if save_debug   else []
-    flags  += ["--use-fullname"] if use_fullname else []
-    flags  += ["--keep-subdirs"] if keep_subdirs else []
-    flags  += ["--save-nearby"]  if save_nearby  else []
-    flags  += ["--exist-ok"]     if exist_ok     else []
-    flags  += ["--verbose"]      if verbose      else []
+    kwargs, flags = {}, []
+    kwargs |= {"--root"           : str(args.root)}
+    kwargs |= {"--task"           : str(args.task)}
+    kwargs |= {"--mode"           : args.mode}
+    kwargs |= {"--arch"           : args.arch}
+    kwargs |= {"--model"          : args.model}
+    kwargs |= {"--config"         : args.config}
+    # kwargs |= {"--data"           : args.data}
+    kwargs |= {"--fullname"       : args.fullname}
+    kwargs |= {"--save-dir"       : str(args.save_dir)}
+    kwargs |= {"--weights"        : args.weights}
+    kwargs |= {"--device"         : args.device}
+    kwargs |= {"--seed"           : args.seed}
+    # kwargs |= {"--imgsz"          : args.imgsz}
+    kwargs |= {"--epochs"         : args.epochs}
+    kwargs |= {"--batch-size"     : args.batch_size}
+    flags  += ["--torchrun"]     if args.torchrun     else []
+    flags  += ["--save-result"]  if args.save_result  else []
+    flags  += ["--save-image"]   if args.save_image   else []
+    flags  += ["--save-debug"]   if args.save_debug   else []
+    flags  += ["--use-fullname"] if args.use_fullname else []
+    flags  += ["--keep-subdirs"] if args.keep_subdirs else []
+    flags  += ["--save-nearby"]  if args.save_nearby  else []
+    flags  += ["--exist-ok"]     if args.exist_ok     else []
+    flags  += ["--verbose"]      if args.verbose      else []
 
     # Parse script file
     python_call = ["python"]
     env         = {**os.environ}
     if use_extra_model:
-        script_file = mon.EXTRA_MODELS[arch][model]["model_dir"] / "i_train.py"
-        if torchrun:
-            device_     = mon.parse_device(device)
+        script_file = mon.EXTRA_MODELS[args.arch][args.model]["model_dir"] / "i_train.py"
+        if args.torchrun:
+            device_     = mon.parse_device(args.device)
             python_call = [
                 "python", "-m", "torch.distributed.run",
                 f"--nproc_per_node={len(device_)}",
-                f"--master_port={master_port}",
-                f"--master_addr={master_addr}",
+                f"--master_port={args.master_port}",
+                f"--master_addr={args.master_addr}",
             ]
             os.environ["CUDA_VISIBLE_DEVICES"] = ",".join(device_)
             env = {**os.environ, "CUDA_VISIBLE_DEVICES": ",".join(device_), **env}
@@ -132,85 +101,50 @@ def run_train(args: dict):
     
 
 # ----- Predict -----
-def run_predict(args: dict):
-    # Get user input
-    root         = mon.Path(args["root"])
-    task         = args["task"]
-    mode         = args["mode"]
-    arch         = args["arch"]
-    model        = args["model"]
-    config       = args["config"]
-    data         = args["data"]
-    fullname     = args["fullname"]
-    save_dir     = args["save_dir"]
-    weights      = args["weights"]
-    device       = args["device"]
-    torchrun     = args["torchrun"]
-    master_port  = args["master_port"]
-    master_addr  = args["master_addr"]
-    epochs       = args["epochs"]
-    steps        = args["steps"]
-    seed         = args["seed"]
-    imgsz        = args["imgsz"]
-    resize       = args["resize"]
-    benchmark    = args["benchmark"]
-    save_result  = args["save_result"]
-    save_image   = args["save_image"]
-    save_debug   = args["save_debug"]
-    use_fullname = args["use_fullname"]
-    keep_subdirs = args["keep_subdirs"]
-    save_nearby  = args["save_nearby"]
-    exist_ok     = args["exist_ok"]
-    verbose      = args["verbose"]
-    
-    assert root.exists()
-    
+def run_predict(args: dict | box.Box):
+    # Get args
+    args.root = mon.Path(args.root)
+    assert args.root.exists()
+
     # Parse arguments
-    use_extra_model = mon.is_extra_model(model)
-    model_root      = mon.parse_model_dir(arch, model)
-    model           = mon.parse_model_name(model)
-    data            = mon.to_list(data)
-    fullname        = fullname if fullname not in [None, "None", ""] else model
-    config          = mon.parse_config_file(
-        project_root = root,
-        model_root   = model_root,
-        weights_path = weights,
-        config       = config,
-    )
-    # assert config not in [None, "None", ""]
-    config  = config or ""
-    weights = mon.to_str(weights, ",")
+    use_extra_model = mon.is_extra_model(args.model)
+    model_root      = mon.parse_model_dir(args.arch, args.model)
+    args.model      = mon.parse_model_name(args.model)
+    args.data       = mon.to_list(args.data)
+    args.fullname   = args.fullname if args.fullname not in [None, "None", ""] else args.model
+    args.config     = mon.parse_config_file(args.config, args.root, model_root=model_root, weights_path=args.weights)
+    args.config     = args.config or ""
+    args.weights    = mon.to_str(args.weights, ",")
     
-    for d in data:
-        kwargs  = {}
-        flags   = []
-        kwargs |= {"--root"    : str(root)}
-        kwargs |= {"--arch"    : arch}
-        kwargs |= {"--model"   : model}
-        kwargs |= {"--config"  : config}
-        kwargs |= {"--data"    : d}
-        kwargs |= {"--fullname": fullname}
-        kwargs |= {"--save-dir": str(save_dir)}
-        kwargs |= {"--weights" : weights}
-        kwargs |= {"--device"  : device}
-        # flags  += ["--torchrun"]     if torchrun     else []
-        # kwargs |= {"--epochs"  : epochs}
-        # kwargs |= {"--steps"   : steps}
-        kwargs |= {"--seed"    : seed}
-        kwargs |= {"--imgsz"   : imgsz}
-        flags  += ["--resize"]       if resize       else []
-        flags  += ["--benchmark"]    if benchmark    else []
-        flags  += ["--save-image"]   if save_image   else []
-        flags  += ["--save-debug"]   if save_debug   else []
-        flags  += ["--use-fullname"] if use_fullname else []
-        flags  += ["--keep-subdirs"] if keep_subdirs else []
-        flags  += ["--save-nearby"]  if save_nearby  else []
-        flags  += ["--exist-ok"]     if exist_ok     else []
-        flags  += ["--verbose"]      if verbose      else []
+    for d in args.data:
+        kwargs, flags = {}, []
+        kwargs |= {"--root"           : str(args.root)}
+        kwargs |= {"--task"           : str(args.task)}
+        kwargs |= {"--mode"           : args.mode}
+        kwargs |= {"--arch"           : args.arch}
+        kwargs |= {"--model"          : args.model}
+        kwargs |= {"--config"         : args.config}
+        kwargs |= {"--data"           : d}
+        kwargs |= {"--fullname"       : args.fullname}
+        kwargs |= {"--save-dir"       : str(args.save_dir)}
+        kwargs |= {"--weights"        : args.weights}
+        kwargs |= {"--device"         : args.device}
+        kwargs |= {"--seed"           : args.seed}
+        kwargs |= {"--imgsz"          : args.imgsz}
+        flags  += ["--resize"]       if args.resize       else []
+        flags  += ["--benchmark"]    if args.benchmark    else []
+        flags  += ["--save-result"]  if args.save_result  else []
+        flags  += ["--save-image"]   if args.save_image   else []
+        flags  += ["--save-debug"]   if args.save_debug   else []
+        flags  += ["--use-fullname"] if args.use_fullname else []
+        flags  += ["--keep-subdirs"] if args.keep_subdirs else []
+        flags  += ["--save-nearby"]  if args.save_nearby  else []
+        flags  += ["--exist-ok"]     if args.exist_ok     else []
+        flags  += ["--verbose"]      if args.verbose      else []
 
         # Parse script file
         if use_extra_model:
-            script_file = mon.EXTRA_MODELS[arch][model]["model_dir"] / "i_predict.py"
+            script_file = mon.EXTRA_MODELS[args.arch][args.model]["model_dir"] / "i_predict.py"
             python_call = ["python"]
         else:
             script_file = current_dir / "predict.py"
@@ -244,17 +178,17 @@ def run_predict(args: dict):
 
 # ----- Main -----
 def main():
-    defaults = vars(mon.parse_default_args(name="main"))
-    menu     = menu_rich.RunmlCLI(defaults=defaults)
+    defaults = mon.parse_default_args("main")
+    menu     = menu_rich.RunmlCLI(defaults)
     args     = menu.prompt_args()
     
     # Run
-    if args["mode"] in ["train"]:
+    if args.mode in ["train"]:
         run_train(args=args)
-    elif args["mode"] in ["predict"]:
+    elif args.mode in ["predict"]:
         run_predict(args=args)
     else:
-        raise ValueError(f"Unknown mode: {args['mode']}.")
+        raise ValueError(f"Unknown mode: {args.mode}.")
         
 
 if __name__ == "__main__":

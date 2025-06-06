@@ -17,7 +17,6 @@ __all__ = [
     "RunMode",
     "Split",
     "Task",
-    "TorchExtension",
     "TrackState",
     "VideoExtension",
     "WeightExtension",
@@ -331,24 +330,15 @@ class VideoExtension(Enum):
     WMV  = ".wmv"
 
 
-class TorchExtension(Enum):
-    """Checkpoint file extensions."""
-    
+class WeightExtension(Enum):
+    """Weight file extensions."""
+
     CKPT    = ".ckpt"
     ONNX    = ".onnx"
     PT      = ".pt"
     PTH     = ".pth"
     TAR     = ".tar"
     WEIGHTS = ".weights"
-
-
-class WeightExtension(Enum):
-    """Weight file extensions."""
-    
-    ONNX = ".onnx"
-    PT   = ".pt"
-    PTH  = ".pth"
-    TAR  = ".tar"
 
 
 # ----- ML/DL -----

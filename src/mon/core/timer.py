@@ -5,9 +5,12 @@
 
 __all__ = [
     "Timer",
+    "TimeProfiler",
 ]
 
 import time
+
+from mon.core.rich import console
 
 
 # ----- Timer -----
@@ -89,3 +92,25 @@ class Timer:
         self.diff_time  = 0.0
         self.avg_time   = 0.0
         self.duration   = 0.0
+
+
+# ----- Time Profiler -----
+class TimeProfiler:
+    """A simple timer profiler for measuring the time taken by different parts of a process."""
+
+    def __init__(self):
+        self.preprocess  = Timer()
+        self.infer       = Timer()
+        self.postprocess = Timer()
+
+    @property
+    def total_avg_time(self) -> float:
+        """Returns the average time taken by the profiler."""
+        return self.preprocess.avg_time + self.infer.avg_time + self.postprocess.avg_time
+
+    def print(self):
+        console.log(f"Timer Profiler:")
+        console.log(f"  - Preprocess : {self.preprocess.avg_time:.12f} (s).")
+        console.log(f"  - Infer      : {self.infer.avg_time:.12f} (s).")
+        console.log(f"  - Postprocess: {self.postprocess.avg_time:.12f} (s).")
+        console.log(f"  - Total      : {self.total_avg_time:.12f} (s).")

@@ -16,15 +16,15 @@ from mon import core
 
 # ----- Efficiency -----
 def compute_efficiency_score(
-    model     : torch.nn.Module,
-    image_size: _size_2_t = 512,
-    channels  : int       = 3
+    model   : torch.nn.Module,
+    imgsz   : _size_2_t = 512,
+    channels: int       = 3
 ) -> tuple[float, float]:
     """Computes FLOPs and parameters for a model.
 
     Args:
         model: PyTorch model to profile.
-        image_size: Input image size (H, W) or single int. Default is ``512``.
+        imgsz: Input image size (H, W) or single int. Default is ``512``.
         channels: Number of input channels. Default is ``3``.
 
     Returns:
@@ -32,7 +32,7 @@ def compute_efficiency_score(
     """
     from mon import vision
 
-    h, w   = vision.image_size(image_size)
+    h, w   = vision.image_size(imgsz)
     input  = torch.rand(1, channels, h, w).to(core.get_model_device(model))
     flops, params = core.thop.profile(model, inputs=(input,), verbose=False)
 

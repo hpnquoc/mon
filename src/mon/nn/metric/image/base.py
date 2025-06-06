@@ -13,7 +13,6 @@ __all__ = [
     "PeakSignalNoiseRatio",
     "PeakSignalNoiseRatioWithBlockedEffect",
     "PerceptualPathLength",
-    "QualityWithNoReference",
     "RelativeAverageSpectralError",
     "RootMeanSquaredErrorUsingSlidingWindow",
     "SpatialCorrelationCoefficient",
@@ -29,12 +28,10 @@ __all__ = [
 from torchmetrics.image import (
     ErrorRelativeGlobalDimensionlessSynthesis, InceptionScore, KernelInceptionDistance,
     LearnedPerceptualImagePatchSimilarity, MemorizationInformedFrechetInceptionDistance,
-    MultiScaleStructuralSimilarityIndexMeasure, PeakSignalNoiseRatio,
-    PeakSignalNoiseRatioWithBlockedEffect, PerceptualPathLength, QualityWithNoReference,
-    RelativeAverageSpectralError, RootMeanSquaredErrorUsingSlidingWindow,
-    SpatialCorrelationCoefficient, SpatialDistortionIndex, SpectralAngleMapper,
-    SpectralDistortionIndex, StructuralSimilarityIndexMeasure, TotalVariation,
-    UniversalImageQualityIndex, VisualInformationFidelity,
+    MultiScaleStructuralSimilarityIndexMeasure, PeakSignalNoiseRatio, PeakSignalNoiseRatioWithBlockedEffect,
+    PerceptualPathLength, RelativeAverageSpectralError, RootMeanSquaredErrorUsingSlidingWindow,
+    SpatialCorrelationCoefficient, SpatialDistortionIndex, SpectralAngleMapper, SpectralDistortionIndex,
+    StructuralSimilarityIndexMeasure, TotalVariation, UniversalImageQualityIndex, VisualInformationFidelity,
 )
 
 from mon.constants import METRICS
@@ -52,7 +49,6 @@ METRICS.register(name="peak_signal_noise_ratio",                          module
 METRICS.register(name="peak_signal_noise_ratio_with_blocked_effect",      module=PeakSignalNoiseRatioWithBlockedEffect)
 METRICS.register(name="perceptual_path_length",                           module=PerceptualPathLength)
 METRICS.register(name="psnr",                                             module=PeakSignalNoiseRatio)
-METRICS.register(name="quality_with_no_reference",                        module=QualityWithNoReference)
 METRICS.register(name="relative_average_spectral_error",                  module=RelativeAverageSpectralError)
 METRICS.register(name="root_mean_squared_error_using_sliding_window",     module=RootMeanSquaredErrorUsingSlidingWindow)
 METRICS.register(name="spatial_correlation_coefficient",                  module=SpatialCorrelationCoefficient)

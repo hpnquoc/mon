@@ -8,14 +8,11 @@ References:
     - https://github.com/caiyuanhao1998/Retinexformer
 """
 
-from typing import Sequence
-
+import box
 import torch
 import torch.nn.functional as F
-from skimage.util import img_as_ubyte
 
 import mon
-import utils
 from basicsr.models import create_model
 from basicsr.utils.options import parse
 
@@ -23,60 +20,48 @@ current_file = mon.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
 
+# ----- Utils -----
+def benchmark(model: torch.nn.Module):
+    flops, params = mon.compute_efficiency_score(model=model)
+    mon.console.log(f"FLOPs : {flops:.4f}")
+    mon.console.log(f"Params: {params:.4f}")
+
+
 # ----- Predict -----
 @torch.no_grad()
-def predict(args: dict) -> str:
-    # Parse args
-    hostname     = args["hostname"]
-    root         = args["root"]
-    data         = args["data"]
-    fullname     = args["fullname"]
-    save_dir     = args["save_dir"]
-    weights      = args["weights"]
-    device       = args["device"]
-    torchrun     = args["torchrun"]
-    epochs       = args["epochs"]
-    steps        = args["steps"]
-    seed         = args["seed"]
-    batch_size   = args["batch_size"]
-    imgsz        = args["imgsz"]
-    imgsz        = imgsz[0] if isinstance(imgsz, Sequence) else imgsz
-    resize       = args["resize"]
-    benchmark    = args["benchmark"]
-    save_result  = args["save_result"]
-    save_image   = args["save_image"]
-    save_debug   = args["save_debug"]
-    use_fullname = args["use_fullname"]
-    keep_subdirs = args["keep_subdirs"]
-    save_nearby  = args["save_nearby"]
-    exist_ok     = args["exist_ok"]
-    verbose      = args["verbose"]
-
-    opt_path     = str(current_dir / "options" / args["opt_path"])
-    opt          = parse(opt_path, is_train=False)
+def predict(args: dict | box.Box) -> str:
+    cfg_path = current_dir / "option" / args.cfg
+    cfgs     = parse(str(cfg_path), is_train=False)
     
     # Start
-    mon.console.rule(f"[bold red] {fullname}")
-    mon.console.log(f"Machine: {hostname}")
+    mon.print_run_summary(args)
     
     # Device
     # gpu_list = ",".join(str(x) for x in args.gpus)
     # os.environ["CUDA_VISIBLE_DEVICES"] = gpu_list
     # print("export CUDA_VISIBLE_DEVICES=" + gpu_list)
-    device = mon.set_device(device)
-    opt["dist"]   = False
-    opt["device"] = device
+    device = mon.set_device(args.device)
+    cfgs["dist"]   = False
+    cfgs["device"] = device
 
     # Seed
-    mon.set_random_seed(seed)
+    mon.set_random_seed(args.seed)
     
     # Data I/O
-    mon.console.log(f"[bold red]{data}")
-    data_name, data_loader = mon.parse_data_loader(data, root, True, verbose=False)
+    data_name, data_loader = mon.parse_data_loader(args.data, args.root, True, verbose=False)
     
+    # Pretrained
+    pretrained = args.resume
+    if args.weights and args.weights.is_weights_file(exist=True):
+        pretrained = args.weights
+    if pretrained and pretrained.is_weights_file(exist=True):
+        mon.console.log(f"Pretrained: {pretrained}.")
+        checkpoint = torch.load(pretrained)
+    else:
+        raise ValueError(f"Invalid weights file: {pretrained}.")
+
     # Model
-    model      = create_model(opt).net_g
-    checkpoint = torch.load(weights)
+    model = create_model(cfgs).net_g
     try:
         model.load_state_dict(checkpoint["params"])
     except:
@@ -84,19 +69,15 @@ def predict(args: dict) -> str:
         for k in checkpoint["params"]:
             new_checkpoint["module." + k] = checkpoint["params"][k]
         model.load_state_dict(new_checkpoint)
-    # print("===>Testing using weights: ", weights)
-    model.to(device)
-    # model = nn.DataParallel(model)
+    model = model.to(device)
     model.eval()
     
     # Benchmark
-    if benchmark:
-        flops, params = mon.compute_efficiency_score(model=model)
-        mon.console.log(f"FLOPs : {flops:.4f}")
-        mon.console.log(f"Params: {params:.4f}")
-    
-    # Predicting
-    timer  = mon.Timer()
+    if args.benchmark:
+        benchmark(model)
+
+    # Predict
+    timers = mon.TimeProfiler()
     factor = 4
     with mon.create_progress_bar() as pbar:
         for i, datapoint in pbar.track(
@@ -104,47 +85,51 @@ def predict(args: dict) -> str:
             total       = len(data_loader),
             description = f"[bright_yellow] Predicting"
         ):
-            # Input
-            meta       = datapoint["meta"]
-            image_path = mon.Path(meta["path"])
-            image      = datapoint["image"]
-            
             if torch.cuda.is_available():
                 torch.cuda.ipc_collect()
                 torch.cuda.empty_cache()
-            if resize:
-                h0, w0 = mon.image_size(image)
-                image  = mon.resize(image, imgsz)
-                mon.console.log("Resizing images to: ", image.shape[2], image.shape[3])
+
+            # Preprocess
+            timers.preprocess.tick()
+            path   = mon.Path(datapoint["meta"]["path"])
+            image  = datapoint["image"]
+            h0, w0 = mon.image_size(image)
+            if args.resize and h0 != args.imgsz[0] and w0 != args.imgsz[1]:
+                image = mon.resize(image, args.imgsz)
+                # mon.console.log("Resizing images to: ", image.shape[2], image.shape[3])
                 # images = proc.resize(input=images, size=[1000, 666])
             # Padding in case images are not multiples of 4
             h, w  = mon.image_size(image)
             H, W  = ((h + factor) // factor) * factor, ((w + factor) // factor) * factor
             padh  = H - h if h % factor != 0 else 0
             padw  = W - w if w % factor != 0 else 0
-            input = F.pad(image, (0, padw, 0, padh), 'reflect')
-            input = input.to(device)
-            
+            image = F.pad(image, (0, padw, 0, padh), 'reflect')
+            image = image.to(device)
+            timers.preprocess.tock()
+
             # Infer
-            timer.tick()
-            enhanced = model(input)
-            timer.tock()
+            timers.infer.tick()
+            outputs = model(image)
+            timers.infer.tock()
             
-            # Post-processing
+            # Postprocess
+            timers.postprocess.tick()
             # Unpad images to original dimensions
-            enhanced = enhanced[:, :, :h, :w]
-            if resize:
+            enhanced = outputs[:, :, :h, :w]
+            if args.resize and h0 != args.imgsz[0] and w0 != args.imgsz[1]:
                 enhanced = mon.resize(enhanced, (h0, w0))
             enhanced = torch.clamp(enhanced, 0, 1).cpu().detach().permute(0, 2, 3, 1).squeeze(0).numpy()
-            
+            timers.postprocess.tock()
+
             # Save
-            if save_image:
-                output_dir  = mon.parse_output_dir(save_dir, data_name, mon.SAVE_IMAGE_DIR, image_path, keep_subdirs, save_nearby)
-                output_path = output_dir / f"{image_path.stem}{mon.SAVE_IMAGE_EXT}"
-                mon.save_image(enhanced, output_path)
+            if args.save_image:
+                out_dir  = mon.parse_output_dir(args.save_dir, data_name, mon.SAVE_IMAGE_DIR, path, args.keep_subdirs, args.save_nearby)
+                out_path = out_dir / f"{path.stem}{mon.SAVE_IMAGE_EXT}"
+                mon.save_image(enhanced, out_path)
         
     # Finish
-    mon.console.log(f"Average time: {timer.avg_time}")
+    timers.print()
+    return str(args.save_dir)
 
 
 # ----- Main -----

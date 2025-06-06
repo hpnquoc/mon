@@ -249,19 +249,7 @@ class Path(type(pathlib.Path())):
             ``True`` if path is a ``.py`` file, ``False`` otherwise.
         """
         return (not exist or self.is_file()) and self.suffix.lower() == ".py"
-    
-    def is_torch_file(self, exist: bool = True) -> bool:
-        """Checks if the path is a Torch-compatible file.
 
-        Args:
-            exist: If ``True``, verifies file exists. Default is ``True``.
-
-        Returns:
-            ``True`` if path has a Torch extension, ``False`` otherwise.
-        """
-        from mon.constants import TorchExtension
-        return (not exist or self.is_file()) and self.suffix.lower() in TorchExtension
-    
     def is_weights_file(self, exist: bool = True) -> bool:
         """Checks if the path is a ``.pt`` or ``.pth`` file.
 

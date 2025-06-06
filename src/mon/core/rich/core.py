@@ -15,6 +15,7 @@ __all__ = [
     "rich_console_theme",
 ]
 
+import box
 import rich
 from plum import dispatch
 from rich import panel, pretty, table, theme
@@ -103,7 +104,7 @@ def get_error_console() -> rich.console.Console:
 
 
 # ----- Print -----
-def print_dict(x: dict, title: str = ""):
+def print_dict(x: dict | box.Box, title: str = ""):
     """Prints a dictionary with a title using ``rich.pretty.Pretty`` format.
 
     Args:
@@ -114,6 +115,8 @@ def print_dict(x: dict, title: str = ""):
     Raises:
         TypeError: If ``x`` is not a dictionary.
     """
+    if isinstance(x, box.Box):
+        x = x.to_dict()
     if not isinstance(x, dict):
         raise TypeError(f"[x] must be a dict, got {type(x).__name__}.")
     pr = pretty.Pretty(
@@ -154,18 +157,27 @@ def print_table(x: list[dict]):
 
 
 @dispatch
-def print_table(x: dict):
+def print_table(x: dict, title: str = ""):
     """Prints a dictionary as a ``rich.table.Table``.
 
     Args:
         x: Dictionary to print as a table.
+        title: Title above the table. Default is ``""``.
 
     Raises:
         TypeError: If ``x`` is not a dictionary.
     """
+    if isinstance(x, box.Box):
+        x = x.to_dict()
     if not isinstance(x, dict):
         raise TypeError(f"[x] must be a dict, got {type(x).__name__}.")
-    tab = table.Table(show_header=True, header_style="bold magenta")
+    tab = table.Table(
+        title        = title,
+        show_header  = True,
+        row_styles   = ["dim", ""],
+        header_style = "bold magenta",
+        highlight    = True,
+    )
     tab.add_column("Key")
     tab.add_column("Value")
     for k, v in x.items():

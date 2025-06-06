@@ -1,0 +1,80 @@
+# Basic
+root        : ~                                                                 # Root directory of the current run.
+arch        : "yolor"                                                           # Model architecture or family (e.g., resnet).
+model       : &model "yolor_d6"                                                 # Model name (e.g., resnet50).
+data        : &data "coco80"                                                    # Dataset name (e.g., cifar10) or directory (e.g., data/cifar10).
+fullname    : &fullname "yolor_d6_coco80"                                       # Full name of the current run (e.g., resnet50_cifar10_01). If not set, it will be this file's name.
+save_dir    : &save_dir ~                                                       # Saving directory. If not set, it will be `root/arch/model/data`.
+weights     : &weights "run/train/yolor/yolor_d6/yolor_d6_coco80/best.pt"       # Path to the pretrained weights.
+device      : &device cuda:0,1                                                  # Running device (i.e., cuda:0 | cuda:0,1,2,3 | cpu).
+torchrun    : False                                                             # If ``True``, use torch.distributed.run to run the training script.
+master_port : 7777                                                              # Master port for distributed training.
+master_addr : "localhost"                                                       # Master address for distributed training.
+local_rank  : -1                                                                # Local rank for distributed training.
+epochs      : &epochs 200                                                       # Training epochs.
+steps       : &steps ~                                                          # Training steps.
+seed        : &seed 0                                                           # Random seed.
+batch_size  : &batch_size 1                                                     # Batch size for prediction.
+imgsz       : &imgsz 640                                                        # Image size for the model.
+resize      : False                                                             # Resize the input image to `imgsz`.
+benchmark   : False                                                             # Benchmark the model.
+save_result : &save_result True                                                 # Save the result of the model.
+save_image  : &save_image True                                                  # Save the output image.
+save_debug  : &save_debug True                                                  # Save the debug information.
+use_fullname: True                                                              # Use the full name for the save_dir.
+keep_subdirs: False                                                             # Keep subdirectories in the save_dir.
+save_nearby : False                                                             # Save outputs nearby the source.
+exist_ok    : &exist_ok True                                                    # If ``False``, it will delete the save directory if it already exists.
+verbose     : &verbose True                                                     # Verbosity.
+
+# YOLO configs ---------------------------------------------------------------------------------------------------------
+option:
+  # Train settings -------------------------------------------------------------------------------------------------------
+  model        : "yolor_d6.yaml"                                                # *.cfg path (yolor_p6.yaml, yolor_e6.yaml, yolor_p6.yaml, yolor_w6.yaml)
+  data         : "coco.yaml"                                                    # data.yaml path
+  project      :                                                                # (str, optional) project name
+  name         : *fullname                                                      # (str, optional) experiment name, results saved to 'project/name' directory
+  weights      : "zoo/extra/ultralytics/yolor/yolor_d6/coco80/yolor_d6_coco80.pt" # Initial weights path
+  device       : *device                                                        # (int | str | list, optional) device to run on, i.e. cuda device=0 or device=0,1,2,3 or device=cpu
+  hyp          : "hyp.scratch.1280.yaml"                                        # path to hyperparameters file
+  epochs       : *epochs                                                        # (int) number of epochs to train for
+  batch_size   : 16                                                             # (int) number of images per batch (-1 for AutoBatch)
+  imgsz        : *imgsz                                                         # (int | list) input images size as int for train and val modes, or list[w,h] for predict and export modes
+  cache_images : False                                                          # (bool) True/ram, disk or False. Use cache for data loading
+  rect         : False                                                          # (bool) rectangular training if mode='train' or rectangular validation if mode='val'
+  noautoanchor : False                                                          # (bool) disable autoanchor check
+  image_weights: False                                                          # (bool) use weighted image selection for training
+  multi_scale  : False                                                          # (bool) use multi-scale training
+  single_cls   : False                                                          # (bool) train multi-class data as single-class
+  adam         : False                                                          # (bool) use Adam optimizer
+  sync_bn      : False                                                          # (bool) use SyncBatchNorm, only available in DDP mode
+  evolve       : False                                                          # (bool) evolve hyperparameters
+  bucket       :                                                                # (str, optional) gsutil bucket
+  local_rank   : -1                                                             # (int, optional) DDP parameter, do not modify
+  log_imgs     : 10                                                             # (int) number of images to save in log
+  workers      : 8                                                              # (int) number of worker threads for data loading (per RANK if DDP)
+  nosave       : False                                                          # (bool) only save final checkpoint
+  notest       : False                                                          # (bool) only test final epoch
+  resume       : False                                                          # (bool) resume training from last checkpoint
+  exist_ok     : *exist_ok                                                      # (bool) whether to overwrite existing experiment
+  verbose      : *verbose                                                       # (bool) whether to print verbose output
+
+  # Val/Test settings ----------------------------------------------------------------------------------------------------
+  task         : val                                                            # (str) 'val', 'test', 'study'
+  names        : "coco.names"                                                   # (str) class names
+  save_json    : False                                                          # (bool) save results to JSON file
+  conf         : 0.60                                                           # (float, optional) object confidence threshold for detection (default 0.25 predict, 0.001 val)
+  iou          : 0.50                                                           # (float) intersection over union (IoU) threshold for NMS
+  max_det      : 300                                                            # (int) maximum number of detections per image
+
+  # Predict settings -----------------------------------------------------------------------------------------------------
+  source       :                                                                # (str, optional) source directory for images or videos
+  augment      : False                                                          # (bool) apply image augmentation to prediction sources
+  agnostic_nms : False                                                          # (bool) class-agnostic NMS
+  classes      :                                                                # (int | list[int], optional) filter results by class, i.e. classes=0, or classes=[0,2,3]
+  update       : False                                                          # (bool) update all models
+
+  # Visualize settings ---------------------------------------------------------------------------------------------------
+  view_img     : False                                                          # (bool) show predicted images and videos if environment allows
+  save_txt     : *save_result                                                   # (bool) save results as .txt file
+  save_conf    : True                                                           # (bool) save results with confidence scores

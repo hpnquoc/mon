@@ -341,33 +341,42 @@ class ZeroRestoreLLIE(base.ImageEnhancementModel):
         return image
     
     # ----- Predict -----
-    def infer(self, datapoint: dict, reset_weights: bool = True, *args, **kwargs) -> dict:
+    def infer(
+        self,
+        datapoint: dict,
+        reset    : bool              = True,
+        timers   : core.TimeProfiler = None,
+        *args, **kwargs
+    ) -> dict:
         """Infers model output with optional processing.
-    
+
         Args:
             datapoint: ``dict`` with datapoint attributes.
-            reset_weights: Whether to reset the weights before training. Default is ``True``.
-            
+            reset: Whether to reset the weights before training. Default is ``True``.
+            timers: ``TimeProfiler`` for measuring time.
+
         Returns:
             ``dict`` of model predictions.
-    
+
         Notes:
             Override for custom pre/post-processing; defaults to ``self.forward()``.
         """
         # Initialize training components
-        if reset_weights:
-            self.load_state_dict(self.initial_state_dict, strict=False)
+        if reset:
+            self.load_state_dict(self.initial_state_dict)
         optimizer = self.optimizer.get("optimizer", None)
         optimizer = optimizer or nn.Adam(self, lr=1e-3, weight_decay=1e-2)
-        
-        # Input
-        image  = datapoint["image"].to(self.device)
+
+        # Preprocess
+        timers.preprocess.tick() if timers is not None else None
+        image  = datapoint["image"]
         h0, w0 = types.image_size(image)
         image  = geometry.resize(image, divisible_by=32)
-        
+        image  = image.to(self.device)
+        timers.preprocess.tock() if timers is not None else None
+
         # Optimize
-        timer = core.Timer()
-        timer.tick()
+        timers.infer.tick() if timers is not None else None
         self.train()
         for _ in range(self.iters):
             image_  = self.augment(image)
@@ -378,15 +387,16 @@ class ZeroRestoreLLIE(base.ImageEnhancementModel):
             optimizer.step()
         self.eval()
         outputs = self.forward(datapoint={"image": image})
-        timer.tock()
-        
-        # Post-processing
+        timers.infer.tock() if timers is not None else None
+
+        # Postprocess
+        timers.postprocess.tick() if timers is not None else None
         enhanced = outputs["enhanced"]
         enhanced = geometry.resize(enhanced, (h0, w0))
         enhanced = torch.clamp(enhanced, 0, 1)
-        
+        timers.postprocess.tock() if timers is not None else None
+
         # Return
         return outputs | {
             "enhanced": enhanced,
-            "time"    : timer.avg_time,
         }

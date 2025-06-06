@@ -10,7 +10,9 @@ __all__ = [
 
 from typing import Any
 
-from mon.constants import RunMode, Task
+import box
+
+from mon.constants import Task
 from mon.core import device
 
 
@@ -24,7 +26,7 @@ def _str_or_none(value: Any) -> str | None:
     Returns:
         String of ``value`` or ``None`` if ``value`` is ``"None"``.
     """
-    return None if value in ["None", ""] else str(value)
+    return None if value in [None, "None", ""] else str(value)
 
 
 def _int_or_none(value: Any) -> int | None:
@@ -36,7 +38,7 @@ def _int_or_none(value: Any) -> int | None:
     Returns:
         Integer of ``value`` or ``None`` if ``value`` is ``"None"``.
     """
-    return None if value in ["None", ""] else int(value)
+    return None if value in [None, "None", ""] else int(value)
 
 
 def _float_or_none(value: Any) -> float | None:
@@ -48,7 +50,7 @@ def _float_or_none(value: Any) -> float | None:
     Returns:
         Float of ``value`` or ``None`` if ``value`` is ``"None"``.
     """
-    return None if value in ["None", ""] else float(value)
+    return None if value in [None, "None", ""] else float(value)
 
 
 # ----- Default CLI Options -----
@@ -145,7 +147,6 @@ CLI_OPTIONS  = {
         "prompt_only": False,
         "prompt_text": "Weights",
     },
-    # Training
     "device"      : {
         "default"    : None,
         "type"       : _str_or_none,
@@ -153,6 +154,36 @@ CLI_OPTIONS  = {
         "help"       : f"Running device: {device.list_devices()}.",
         "prompt_only": False,
         "prompt_text": "Device",
+    },
+    "seed"        : {
+        "default"    : None,
+        "type"       : _int_or_none,
+        "help"       : "Seed.",
+        "prompt_only": False,
+        "prompt_text": "Seed         ",
+    },
+    "imgsz"       : {
+        "action"     : "append",
+        "default"    : None,
+        "type"       : _int_or_none,
+        "help"       : "Image size.",
+        "prompt_only": False,
+        "prompt_text": "Image Size   ",
+    },
+    # Train
+    "epochs"      : {
+        "default"    : None,
+        "type"       : _int_or_none,
+        "help"       : "Training epochs.",
+        "prompt_only": False,
+        "prompt_text": "Epochs       ",
+    },
+    "batch_size"  : {
+        "default"    : None,
+        "type"       : _int_or_none,
+        "help"       : "Batch size.",
+        "prompt_only": False,
+        "prompt_text": "Batch Size   ",
     },
     "torchrun"    : {
         "default"    : False,
@@ -176,113 +207,80 @@ CLI_OPTIONS  = {
         "prompt_text": "Master Address",
     },
     "local_rank"  : {
-        # "default"    : 0,
         "type"       : _int_or_none,
         "help"       : "Local rank for distributed training.",
         "prompt_only": False,
-        "prompt_text": "Local Rank",
+        "prompt_text": "Local Rank   ",
     },
-    "epochs"      : {
-        "default"    : None,
-        "type"       : _int_or_none,
-        "help"       : "Training epochs.",
-        "prompt_only": False,
-        "prompt_text": "Epochs",
-    },
-    "steps"       : {
-        "default"    : None,
-        "type"       : _int_or_none,
-        "help"       : "Training steps.",
-        "prompt_only": False,
-        "prompt_text": "Steps",
-    },
-    # Prediction
-    "seed"        : {
-        "default"    : None,
-        "type"       : _int_or_none,
-        "help"       : "Seed.",
-        "prompt_only": False,
-        "prompt_text": "Seed ",
-    },
-    "batch_size"  : {
-        "default"    : 1,
-        "type"       : _int_or_none,
-        "help"       : "Batch size for prediction.",
-        "prompt_only": False,
-        "prompt_text": "Batch Size",
-    },
-    "imgsz"       : {
-        "action"     : "append",
-        "default"    : None,
-        "type"       : _int_or_none,
-        "help"       : "Image size.",
-        "prompt_only": False,
-        "prompt_text": "Image Size",
-    },
+    # Predict
     "resize"      : {
         "action"     : "store_true",
         "help"       : "Resize the input image.",
         "prompt_only": False,
-        "prompt_text": "Resize?       ",
+        "prompt_text": "Resize?      ",
     },
     "benchmark"   : {
         "action"     : "store_true",
         "help"       : "Enable benchmark mode.",
         "prompt_only": False,
-        "prompt_text": "Benchmark?    ",
+        "prompt_text": "Benchmark?   ",
     },
+    # Save & Visualize
     "save_result" : {
         "action"     : "store_true",
         "help"       : "Save results.",
         "prompt_only": False,
-        "prompt_text": "Save Result?  ",
+        "prompt_text": "Save Result? ",
     },
     "save_image"  : {
         "action"     : "store_true",
         "help"       : "Save output images.",
         "prompt_only": False,
-        "prompt_text": "Save Image?   ",
+        "prompt_text": "Save Image?  ",
     },
     "save_debug"  : {
         "action"     : "store_true",
         "help"       : "Save debug information.",
         "prompt_only": False,
-        "prompt_text": "Save Debug?   ",
+        "prompt_text": "Save Debug?  ",
     },
     "use_fullname": {
         "action"     : "store_true",
         "help"       : "Use the ``fullname`` for the ``save_dir``.",
         "prompt_only": False,
-        "prompt_text": "Use Fullname? ",
+        "prompt_text": "Use Fullname?",
     },
     "keep_subdirs": {
         "action"     : "store_true",
         "help"       : "Keep subdirectories in the ``save_dir``.",
         "prompt_only": False,
-        "prompt_text": "Keep Subdirs? ",
+        "prompt_text": "Keep Subdirs?",
     },
     "save_nearby" : {
         "action"     : "store_true",
         "help"       : "Save outputs nearby the source.",
         "prompt_only": False,
-        "prompt_text": "Save Nearby?  ",
+        "prompt_text": "Save Nearby? ",
     },
     "exist_ok"    : {
         "action"     : "store_true",
         "help"       : "Keep existing directories.",
         "prompt_only": False,
-        "prompt_text": "Exist OK?     ",
+        "prompt_text": "Exist OK?    ",
     },
     "verbose"     : {
         "action"     : "store_true",
         "help"       : "Verbose mode.",
         "prompt_only": False,
-        "prompt_text": "Verbosity?    ",
+        "prompt_text": "Verbosity?   ",
     },
-}
+    # Export
 
+}
+CLI_OPTIONS  = box.Box(CLI_OPTIONS)
 
 DEFAULT_ARGS = {
     k: False if v.get("action") in ["store_true"] else v.get("default", None)
     for k, v in CLI_OPTIONS.items()
 }
+DEFAULT_ARGS = box.Box(DEFAULT_ARGS)
