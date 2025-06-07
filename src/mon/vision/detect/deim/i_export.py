@@ -16,6 +16,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."
 import torch
 from engine.core import YAMLConfig
 import mon
+import tensorrt as trt
 
 current_file = mon.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
@@ -33,6 +34,127 @@ class Model(torch.nn.Module):
         outputs = self.model(images)
         outputs = self.postprocessor(outputs, orig_target_sizes)
         return outputs
+
+
+def export_onnx(model: Model, path: mon.Path, args: dict | box.Box) -> mon.Path:
+    imgsz = args.imgsz[0] if isinstance(args.imgsz, list | tuple) else args.imgsz
+    data  = torch.rand(32, 3, imgsz, imgsz)
+    size  = torch.tensor([[imgsz, imgsz]])
+    _     = model(data, size)
+    dynamic_axes = {
+        "images"           : {0: "N"},
+        "orig_target_sizes": {0: "N"}
+    }
+
+    torch.onnx.export(
+        model,
+        (data, size),
+        path,
+        input_names         = ["images", "orig_target_sizes"],
+        output_names        = ["labels", "boxes", "scores"],
+        dynamic_axes        = dynamic_axes,
+        opset_version       = args.opset_version,
+        verbose             = False,
+        do_constant_folding = True,
+    )
+
+    check = True
+    if check:
+        import onnx
+        onnx_model = onnx.load(path)
+        onnx.checker.check_model(onnx_model)
+        print("Check export onnx model done...")
+
+    if args.simplify:
+        import onnx
+        import onnxsim
+        dynamic = True
+        # input_shapes = {'images': [1, 3, 640, 640], 'orig_target_sizes': [1, 2]} if dynamic else None
+        input_shapes = {"images": data.shape, "orig_target_sizes": size.shape} if dynamic else None
+        onnx_model_simplify, check = onnxsim.simplify(path, test_input_shapes=input_shapes)
+        onnx.save(onnx_model_simplify, path)
+        print(f"Simplify onnx model {check}...")
+
+
+def export_trt(onnx_path: mon.Path, path: mon.Path, args: dict | box.Box) -> mon.Path:
+    if not onnx_path.is_onnx_file(exist=True):
+        raise FileNotFoundError(f"Invalid ONNX model: {onnx_path}.")
+
+    # Setup
+    logger        = trt.Logger(trt.Logger.VERBOSE if True else trt.Logger.INFO)
+    builder       = trt.Builder(logger)
+    network_flags = 1 << int(trt.NetworkDefinitionCreationFlag.EXPLICIT_BATCH)
+    network       = builder.create_network(network_flags)
+    parser        = trt.OnnxParser(network, logger)
+
+    # Load ONNX model
+    mon.console.log(f"Loading ONNX model from: {onnx_path}.")
+    with open(onnx_path, "rb") as f:
+        if not parser.parse(f.read()):
+            for error in range(parser.num_errors):
+                mon.error_console.log(parser.get_error(error))
+            raise RuntimeError("Failed to parse ONNX file!")
+
+    # Create builder config
+    config = builder.create_builder_config()
+    memory_pool_limit = 8 << 30  # 1 << 30  1GB
+    config.set_memory_pool_limit(trt.MemoryPoolType.WORKSPACE, memory_pool_limit)
+
+    if args.use_fp16:
+        if builder.platform_has_fast_fp16:
+            config.set_flag(trt.BuilderFlag.FP16)
+            mon.console.log("Apply FP16 optimization.")
+        else:
+            mon.console.log("Apply FP32 optimization.")
+
+    # Create optimization profile
+    imgsz   = args.imgsz[0] if isinstance(args.imgsz, list | tuple) else args.imgsz
+    profile = builder.create_optimization_profile()
+    profile.set_shape(
+        "images",
+        min=(args.min_batch_size, 3, imgsz, imgsz),
+        opt=(args.opt_batch_size, 3, imgsz, imgsz),
+        max=(args.max_batch_size, 3, imgsz, imgsz)
+    )
+    profile.set_shape("orig_target_sizes", min=(1, 2), opt=(1, 2), max=(1, 2))
+    config.add_optimization_profile(profile)
+
+    # Customize layer precision
+    if args.opset_version == 16:
+        for i in range(network.num_layers):
+            layer = network.get_layer(i)
+            # Heuristic: match common LayerNorm-related names
+            if any(kw in layer.name.lower() for kw in ["layernorm", "norm", "rms"]):
+                mon.console.log(f"Apply FP32 on LayerNorm-related layer: {layer.name}.")
+                layer.precision = trt.DataType.FLOAT
+                layer.set_output_type(0, trt.DataType.FLOAT)
+    elif args.opset_version == 17:
+        force_fp32_types = [
+            trt.LayerType.REDUCE,
+            trt.LayerType.ELEMENTWISE,
+            trt.LayerType.UNARY,
+            trt.LayerType.NORMALIZATION,
+        ]
+        for i in range(network.num_layers):
+            layer = network.get_layer(i)
+            if layer.type in force_fp32_types:
+                layer.precision = trt.DataType.FLOAT
+                layer.set_output_type(0, trt.DataType.FLOAT)
+
+    # Debug
+    # for i in range(network.num_layers):
+    #     layer = network.get_layer(i)
+    #     mon.console.log(f"Layer {i}: {layer.name} | Type: {layer.type}")
+
+    mon.console.log("Building TensorRT engine...")
+    serialized_engine = builder.build_serialized_network(network, config)
+    if serialized_engine is None:
+        raise RuntimeError("Failed to build the engine.")
+
+    mon.console.log(f"Saving engine to {path}")
+    with open(path, "wb") as f:
+        f.write(serialized_engine)
+    mon.console.log("Engine export complete.")
 
 
 @torch.no_grad()
@@ -82,44 +204,13 @@ def export(args: dict | box.Box) -> str:
     model = Model(cfg)
 
     # Export ONNX model
-    imgsz = args.imgsz[0] if isinstance(args.imgsz, list | tuple) else args.imgsz
-    data  = torch.rand(32, 3, imgsz, imgsz)
-    size  = torch.tensor([[imgsz, imgsz]])
-    _     = model(data, size)
-    dynamic_axes = {
-        "images"           : {0: "N"},
-        "orig_target_sizes": {0: "N"}
-    }
-    output_file  = pretrained.parent / f"{pretrained.stem}.onnx"
-    
-    torch.onnx.export(
-        model,
-        (data, size),
-        output_file,
-        input_names         = ["images", "orig_target_sizes"],
-        output_names        = ["labels", "boxes", "scores"],
-        dynamic_axes        = dynamic_axes,
-        opset_version       = 16,
-        verbose             = False,
-        do_constant_folding = True,
-    )
+    onnx_file = pretrained.parent / f"{pretrained.stem}.onnx"
+    export_onnx(model, onnx_file, args)
 
-    check = True
-    if check:
-        import onnx
-        onnx_model = onnx.load(output_file)
-        onnx.checker.check_model(onnx_model)
-        print("Check export onnx model done...")
-
-    if args["simplify"]:
-        import onnx
-        import onnxsim
-        dynamic = True
-        # input_shapes = {'images': [1, 3, 640, 640], 'orig_target_sizes': [1, 2]} if dynamic else None
-        input_shapes = {"images": data.shape, "orig_target_sizes": size.shape} if dynamic else None
-        onnx_model_simplify, check = onnxsim.simplify(output_file, test_input_shapes=input_shapes)
-        onnx.save(onnx_model_simplify, output_file)
-        print(f"Simplify onnx model {check}...")
+    # Export TensorRT engine
+    if args.export in ["engine", "trt"]:
+        engine_file = pretrained.parent / f"{pretrained.stem}.engine"
+        export_trt(onnx_file, engine_file, args)
 
 
 # ----- Main -----

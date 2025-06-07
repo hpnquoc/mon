@@ -34,7 +34,7 @@ save_nearby : False                                                             
 exist_ok    : &exist_ok True                                                    # If ``False``, it will delete the save directory if it already exists.
 verbose     : &verbose True                                                     # Verbosity.
 # Export
-format      : "onnx"                                                            # Export format (e.g., onnx, torchscript, coreml, tflite, openvino).
-simplify    : False                                                             # Simplify model using `onnxslim`.
+format      : "onnx"                                                            # Export format (e.g., onnx, engine, torchscript, coreml, tflite, openvino).
+simplify    : False                                                             # ONNX: Simplify model using `onnxslim`.
 # Custom config.yaml
 cfg         : "neurop_ppr10ka.yaml"                                             # For overriding settings defined in this file.

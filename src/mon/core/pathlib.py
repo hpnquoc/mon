@@ -204,7 +204,7 @@ class Path(type(pathlib.Path())):
         """
         return "rtsp" in str(self).lower()
     
-    # ----- Check Torch File -----
+    # ----- Check DL File -----
     def is_cache_file(self, exist: bool = True) -> bool:
         """Checks if the path is a ``.cache`` file.
 
@@ -238,7 +238,18 @@ class Path(type(pathlib.Path())):
         """
         from mon.constants import ConfigExtension
         return (not exist or self.is_file()) and self.suffix.lower() in ConfigExtension
-        
+
+    def is_onnx_file(self, exist: bool = True) -> bool:
+        """Checks if the path is a ``.onnx`` file.
+
+        Args:
+            exist: If ``True``, verifies file exists. Default is ``True``.
+
+        Returns:
+            ``True`` if path is a ``.onnx`` file, ``False`` otherwise.
+        """
+        return (not exist or self.is_file()) and self.suffix.lower() == ".onnx"
+
     def is_py_file(self, exist: bool = True) -> bool:
         """Checks if the path is a ``.py`` file.
 

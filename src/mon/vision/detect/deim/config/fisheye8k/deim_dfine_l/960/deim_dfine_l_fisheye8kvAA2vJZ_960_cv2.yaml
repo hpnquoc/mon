@@ -15,7 +15,7 @@ imgsz       : &imgsz 960                                                        
 # Train
 resume      : &resume "run/train/deim/deim_dfine_l/deim_dfine_l_fisheye8kvAA2vJZ_960_cv2/best_stg1.pth"  # Resume from interrupted training.
 tuning      : &tuning "run/train/deim/deim_dfine_l/deim_dfine_l_fisheye8kvAA_960_cv2/best_stg1.pth"  # Fine-tuning from a pretrained model.
-epochs      : &epochs 200                                                       # Training epochs.
+epochs      : &epochs 300                                                       # Training epochs.
 batch_size  : &batch_size 32                                                    # Batch size.
 torchrun    : True                                                              # If ``True``, use torch.distributed.run to run the training script.
 master_port : 7777                                                              # Master port for distributed training.
@@ -34,8 +34,13 @@ save_nearby : False                                                             
 exist_ok    : &exist_ok True                                                    # If ``False``, it will delete the save directory if it already exists.
 verbose     : &verbose True                                                     # Verbosity.
 # Export
-format      : "onnx"                                                            # Export format (e.g., onnx, torchscript, coreml, tflite, openvino).
-simplify    : False                                                             # Simplify model using `onnxslim`.
+format        : "engine"                                                        # Export format (e.g., onnx, engine, torchscript, coreml, tflite, openvino).
+opset_version : 16                                                              # ONNX: opset version.
+simplify      : False                                                           # ONNX: Simplify model using `onnxslim`.
+use_fp16      : True                                                            # TRT: Use FP16 for export.
+max_batch_size: 32                                                              # TRT: Max batch size for export.
+opt_batch_size: 16                                                              # TRT: Optimize batch size for export.
+min_batch_size: 1                                                               # TRT: Min batch size for export.
 # Custom config.yaml
 cfg         : "deim_dfine/coco80/deim_hgnetv2_l_coco80.yaml"                    # For overriding settings defined in this file.
 
