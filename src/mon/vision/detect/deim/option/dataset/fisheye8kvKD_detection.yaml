@@ -1,5 +1,5 @@
-# Fisheye8Kv08 dataset:
-#   - trainv08:  5,288 images (train)
+# Fisheye8KvKD dataset:
+#   - trainvKD:  9,000 images (train_fixed + val_fixed + test2)
 #   - val     :  2,712 images
 #   - test    :  1,000 images
 
@@ -16,8 +16,8 @@ train_dataloader:
   type: DataLoader
   dataset:
     type        : CocoDetection
-    img_folder  : /data/fisheye8k/trainv08/image
-    ann_file    : /data/fisheye8k/trainv08/trainv08.json
+    img_folder  : /data/fisheye8k/trainvKD/image
+    ann_file    : /data/fisheye8k/trainvKD/trainvKD.json
     return_masks: False
     transforms:
       type: Compose

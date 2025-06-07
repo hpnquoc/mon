@@ -16,7 +16,7 @@ imgsz       : &imgsz 640                                                        
 resume      : &resume "run/train/deim/deim_dfine_l/deim_dfine_l_fisheye8kvAA_640_cv2/best_stg1.pth"  # Resume from interrupted training.
 tuning      : &tuning "zoo/vision/detect/deim/deim_dfine_l/coco80/deim_dfine_l_coco80.pth"  # Fine-tuning from a pretrained model.
 epochs      : &epochs 50                                                        # Training epochs.
-batch_size  : &batch_size 32                                                    # Batch size.
+batch_size  : &batch_size 64                                                    # Batch size.
 torchrun    : True                                                              # If ``True``, use torch.distributed.run to run the training script.
 master_port : 7777                                                              # Master port for distributed training.
 master_addr : "localhost"                                                       # Master address for distributed training.

@@ -64,7 +64,7 @@ class Dataset(dataset.Dataset, ABC):
     tasks : list[Task]  = []
     splits: list[Split] = [Split.TRAIN, Split.VAL, Split.TEST, Split.PREDICT]
     datapoint_attrs     = DatapointAttributes({})
-    has_test_annotations: bool = False
+    has_test_annotations: bool        = False
     classlabels         : ClassLabels = None
     
     def __init__(
