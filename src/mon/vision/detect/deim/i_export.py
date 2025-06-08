@@ -81,7 +81,7 @@ def export_trt(onnx_path: mon.Path, path: mon.Path, args: dict | box.Box) -> mon
         raise FileNotFoundError(f"Invalid ONNX model: {onnx_path}.")
 
     # Setup
-    logger        = trt.Logger(trt.Logger.VERBOSE if True else trt.Logger.INFO)
+    logger        = trt.Logger(trt.Logger.VERBOSE if args.verbose else trt.Logger.INFO)
     builder       = trt.Builder(logger)
     network_flags = 1 << int(trt.NetworkDefinitionCreationFlag.EXPLICIT_BATCH)
     network       = builder.create_network(network_flags)
@@ -203,12 +203,12 @@ def export(args: dict | box.Box) -> str:
     cfg.model.load_state_dict(state)
     model = Model(cfg)
 
-    # Export ONNX model
+    # Export ONNX model (always export ONNX first)
     onnx_file = pretrained.parent / f"{pretrained.stem}.onnx"
     export_onnx(model, onnx_file, args)
 
     # Export TensorRT engine
-    if args.export in ["engine", "trt"]:
+    if args.format in ["engine", "trt"]:
         engine_file = pretrained.parent / f"{pretrained.stem}.engine"
         export_trt(onnx_file, engine_file, args)
 
