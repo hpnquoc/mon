@@ -11,10 +11,10 @@ Common Tasks:
 """
 
 __all__ = [
-    "load_bbox",
-    "load_bbox_coco",
-    "load_bbox_voc",
-    "load_bbox_yolo",
+    "load_hbb",
+    "load_hbb_coco",
+    "load_hbb_voc",
+    "load_hbb_yolo",
 ]
 
 import numpy as np
@@ -23,12 +23,12 @@ import torch
 from mon import core
 from mon.constants import BBoxFormat
 from mon.core import error_console
-from mon.vision.types.bbox import processing
+from mon.vision.types.bbox.hbb import processing
 
 
 # ----- Reading -----
-def load_bbox_coco(path: core.Path, verbose: bool = True) -> np.ndarray:
-    """Load COCO-format bounding boxes from a ``.json`` file.
+def load_hbb_coco(path: core.Path, verbose: bool = True) -> np.ndarray:
+    """Load COCO-format HBBs from a ``.json`` file.
 
     Args:
         path: Label file path (one ``.json`` file for each image).
@@ -37,8 +37,8 @@ def load_bbox_coco(path: core.Path, verbose: bool = True) -> np.ndarray:
     raise NotImplementedError
 
 
-def load_bbox_voc(path: core.Path, verbose: bool = True) -> np.ndarray:
-    """Load VOC-format bounding boxes from a ``.xml`` file.
+def load_hbb_voc(path: core.Path, verbose: bool = True) -> np.ndarray:
+    """Load VOC-format HBBs from a ``.xml`` file.
 
     Args:
         path: Label file path (one ``.xml`` file for each image).
@@ -47,8 +47,8 @@ def load_bbox_voc(path: core.Path, verbose: bool = True) -> np.ndarray:
     raise NotImplementedError
 
 
-def load_bbox_yolo(path: core.Path, verbose: bool = True) -> np.ndarray:
-    """Load YOLO-format bounding boxes from a ``.txt`` file.
+def load_hbb_yolo(path: core.Path, verbose: bool = True) -> np.ndarray:
+    """Load YOLO-format HBBs from a ``.txt`` file.
 
     Each line in the file should contain:
         <class_id> <center_x> <center_y> <width> <height> <confidence (optional)>
@@ -75,7 +75,7 @@ def load_bbox_yolo(path: core.Path, verbose: bool = True) -> np.ndarray:
 
     if len(ls) == 0:
         if verbose:
-            error_console.print(f"No bounding boxes found in {path}.")
+            error_console.print(f"No HBBs found in {path}.")
         return np.empty((0, 6), dtype=np.float32)
 
     ls = np.array(ls, dtype=np.float32)
@@ -83,7 +83,7 @@ def load_bbox_yolo(path: core.Path, verbose: bool = True) -> np.ndarray:
     return np.stack([cx_n, cy_n, w_n, h_n, c] + rest, axis=-1)
 
 
-def load_bbox(
+def load_hbb(
     path     : core.Path,
     fmt      : BBoxFormat,
     height   : int          = None,
@@ -93,7 +93,7 @@ def load_bbox(
     device   : torch.device = None,
     verbose  : bool         = False
 ) -> np.ndarray:
-    """Load bounding boxes from a label file.
+    """Load HBBs from a label file.
 
     Args:
         path: Label file path.
@@ -101,13 +101,13 @@ def load_bbox(
         height: Image height. Default is ``None``.
         width: Image width. Default is ``None``.
         to_tensor: Convert to ``torch.Tensor`` if ``True``. Default is ``False``.
-        normalize: Normalize bounding boxes to [0.0, 1.0] if ``True``. Default is ``False``.
+        normalize: Normalize HBBs to [0.0, 1.0] if ``True``. Default is ``False``.
         device: Device to place tensor on, e.g., ``'cuda'`` or ``None`` for CPU.
             Default is ``None``.
         verbose: Verbosity. Defaults is ``False``.
 
     Returns:
-        Boxes as ``np.ndarray`` in [N, 4+], output format varies by code.
+        HBBs as ``np.ndarray`` in [N, 4+], output format varies by code.
 
     Raises:
         ValueError: If ``format`` is invalid.
@@ -122,22 +122,22 @@ def load_bbox(
 
     match src_fmt:
         case BBoxFormat.COCO | BBoxFormat.XYWH:
-            bbox = load_bbox_coco(path, verbose)
+            bbox = load_hbb_coco(path, verbose)
         case BBoxFormat.VOC  | BBoxFormat.XYXY:
-            bbox = load_bbox_voc(path, verbose)
+            bbox = load_hbb_voc(path, verbose)
         case BBoxFormat.YOLO | BBoxFormat.CXCYN:
-            bbox = load_bbox_yolo(path, verbose)
+            bbox = load_hbb_yolo(path, verbose)
         case _:
             raise ValueError(f"[src_fmt] must be one of {BBoxFormat.formats()}, got {src_fmt}.")
 
     if (fmt or to_tensor) and (height is None or width is None):
-        raise ValueError("[height] and [width] must be provided when converting bounding boxes.")
+        raise ValueError("[height] and [width] must be provided when converting HBBs.")
 
     if fmt:
-        bbox = processing.convert_bbox(bbox=bbox, fmt=fmt, height=height, width=width)
+        bbox = processing.convert_hbb(bbox=bbox, fmt=fmt, height=height, width=width)
 
     if to_tensor:
-        bbox = processing.bbox_to_tensor(
+        bbox = processing.hbb_to_tensor(
             bbox      = bbox,
             height    = height,
             width     = width,

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Implements bounding box manipulation and preprocessing functions.
+"""Implements HBBs manipulation and preprocessing functions.
 
 Common Tasks:
     - Format conversions.
@@ -9,37 +9,37 @@ Common Tasks:
 """
 
 __all__ = [
-    "bbox_area",
-    "bbox_center",
-    "bbox_center_distance",
-    "bbox_ciou",
-    "bbox_coco_to_voc",
-    "bbox_coco_to_yolo",
-    "bbox_corners",
-    "bbox_corners_pts",
-    "bbox_cxcywhn_to_xywh",
-    "bbox_cxcywhn_to_xyxy",
-    "bbox_diou",
-    "bbox_giou",
-    "bbox_iou",
-    "bbox_to_2d",
-    "bbox_to_3d",
-    "bbox_to_array",
-    "bbox_to_tensor",
-    "bbox_voc_to_coco",
-    "bbox_voc_to_yolo",
-    "bbox_xywh_to_cxcywhn",
-    "bbox_xywh_to_xyxy",
-    "bbox_xyxy_to_cxcywhn",
-    "bbox_xyxy_to_xywh",
-    "bbox_xyxy_to_xywh",
-    "bbox_yolo_to_coco",
-    "bbox_yolo_to_voc",
-    "convert_bbox",
-    "denormalize_bbox",
-    "enclosing_bbox",
-    "normalize_bbox",
-    "split_image_and_bboxes",
+    "hbb_area",
+    "hbb_center",
+    "hbb_center_distance",
+    "hbb_ciou",
+    "hbb_coco_to_voc",
+    "hbb_coco_to_yolo",
+    "hbb_corners",
+    "hbb_corners_pts",
+    "hbb_cxcywhn_to_xywh",
+    "hbb_cxcywhn_to_xyxy",
+    "hbb_diou",
+    "hbb_giou",
+    "hbb_iou",
+    "hbb_to_2d",
+    "hbb_to_3d",
+    "hbb_to_array",
+    "hbb_to_tensor",
+    "hbb_voc_to_coco",
+    "hbb_voc_to_yolo",
+    "hbb_xywh_to_cxcywhn",
+    "hbb_xywh_to_xyxy",
+    "hbb_xyxy_to_cxcywhn",
+    "hbb_xyxy_to_xywh",
+    "hbb_xyxy_to_xywh",
+    "hbb_yolo_to_coco",
+    "hbb_yolo_to_voc",
+    "convert_hbb",
+    "denormalize_hbb",
+    "enclosing_hbb",
+    "normalize_hbb",
+    "split_image_and_hbbs",
 ]
 
 import math
@@ -49,20 +49,20 @@ import torch
 
 from mon.constants import BBoxFormat
 from mon.vision.types import image as I
-from mon.vision.types.bbox import utils
+from mon.vision.types.bbox.hbb import utils
 
 
 # ----- Splitting -----
-def split_image_and_bboxes(
+def split_image_and_hbbs(
     image : np.ndarray,
-    bboxes: np.ndarray,
+    bbox  : np.ndarray,
     n     : int = 2
 ) -> tuple[list[np.ndarray], list[np.ndarray]]:
-    """Split an image into ``n`` equal parts and adjust YOLO-format bboxes accordingly.
+    """Split an image into ``n`` equal parts and adjust YOLO-format hbbs accordingly.
 
     Args:
         image: Image as ``numpy.ndarray`` [H, W, C].
-        bboxes: Boxes as ``np.ndarray`` in [N, 4+], CXCYWHN format (YOLO), normalized.
+        bbox: HBBs as ``np.ndarray`` in [N, 4+], CXCYWHN format (YOLO), normalized.
         n: Number of parts to split into (positive integer). Default is ``2``.
 
     Raises:
@@ -70,8 +70,8 @@ def split_image_and_bboxes(
     """
     if not isinstance(image, np.ndarray) or len(image.shape) != 3:
         raise ValueError(f"[image] must be a 3D numpy array [H, W, C], got {image.shape}.")
-    if not isinstance(bboxes, np.ndarray) or bboxes.ndim != 2 or bboxes.shape[1] < 4:
-        raise ValueError(f"[bboxes] must be a 2D numpy array [N, M] with M >= 4, got {bboxes.shape}.")
+    if not isinstance(bbox, np.ndarray)  or bbox.ndim != 2 or bbox.shape[1] < 4:
+        raise ValueError(f"[bboxes] must be a 2D numpy array [N, M] with M >= 4, got {bbox.shape}.")
     if n < 1:
         raise ValueError(f"[n] must be a positive integer, got {n}.")
 
@@ -132,7 +132,7 @@ def split_image_and_bboxes(
             # Adjust bboxes
             sub_bboxes_i     = []
             sub_h_i, sub_w_i = sub_image.shape[:2]
-            for bbox in bboxes:
+            for bbox in bbox:
                 cx_n, cy_n, w_n, h_n = bbox[:4]
                 cx = cx_n * w
                 cy = cy_n * h
@@ -155,23 +155,23 @@ def split_image_and_bboxes(
                     if w_n_new > 0 and h_n_new > 0:
                         bbox_new = np.concatenate(([cx_n_new, cy_n_new, w_n_new, h_n_new], bbox[4:]))
                         sub_bboxes_i.append(bbox_new)
-            sub_bboxes.append(np.array(sub_bboxes_i) if sub_bboxes_i else np.zeros((0, bboxes.shape[1]), dtype=np.float32))
+            sub_bboxes.append(np.array(sub_bboxes_i) if sub_bboxes_i else np.zeros((0, bbox.shape[1]), dtype=np.float32))
 
     # Pad with empty sub-images/bboxes if needed
     while len(sub_images) < n:
         sub_images.append(np.zeros_like(sub_images[0]))
-        sub_bboxes.append(np.zeros((0, bboxes.shape[1]), dtype=np.float32))
+        sub_bboxes.append(np.zeros((0, bbox.shape[1]), dtype=np.float32))
 
     return sub_images, sub_bboxes
 
 
 # ----- IoU Calculation -----
-def bbox_iou(bbox1: np.ndarray, bbox2: np.ndarray) -> np.ndarray:
-    """Compute IoU between two sets of bounding boxes.
+def hbb_iou(bbox1: np.ndarray, bbox2: np.ndarray) -> np.ndarray:
+    """Compute IoU between two sets of HBBs.
 
     Args:
-        bbox1: Boxes as ``np.ndarray`` in [4+] or [N, 4+], XYXY format.
-        bbox2: Boxes as ``np.ndarray`` in [4+] or [M, 4+], XYXY format.
+        bbox1: HBBs as ``np.ndarray`` in [4+] or [N, 4+], XYXY format.
+        bbox2: HBBs as ``np.ndarray`` in [4+] or [M, 4+], XYXY format.
 
     Returns:
         Pairwise IoU values as ``np.ndarray`` in [N, M].
@@ -180,8 +180,8 @@ def bbox_iou(bbox1: np.ndarray, bbox2: np.ndarray) -> np.ndarray:
         ValueError: If ``bbox1`` or ``bbox2`` is not 1D or 2D.
     """
     # Ensure 2D arrays
-    bbox1 = bbox_to_2d(bbox1)
-    bbox2 = bbox_to_2d(bbox2)
+    bbox1 = hbb_to_2d(bbox1)
+    bbox2 = hbb_to_2d(bbox2)
 
     # Expand the dimensions of the bboxes to calculate pairwise IoU values.
     bbox1 = np.expand_dims(bbox1, 1)
@@ -200,17 +200,17 @@ def bbox_iou(bbox1: np.ndarray, bbox2: np.ndarray) -> np.ndarray:
     
     # Union area
     union = ((bbox1[..., 2] - bbox1[..., 0]) * (bbox1[..., 3] - bbox1[..., 1])
-           + (bbox2[..., 2] - bbox2[..., 0]) * (bbox2[..., 3] - bbox2[..., 1]) - wh)
+             + (bbox2[..., 2] - bbox2[..., 0]) * (bbox2[..., 3] - bbox2[..., 1]) - wh)
     iou   = wh / union
     return iou
 
 
-def bbox_giou(bbox1: np.ndarray, bbox2: np.ndarray) -> np.ndarray:
+def hbb_giou(bbox1: np.ndarray, bbox2: np.ndarray) -> np.ndarray:
     """Compute generalized IoU between two sets of boxes.
 
     Args:
-        bbox1: Boxes as ``np.ndarray`` in [4+] or [N, 4+], XYXY format.
-        bbox2: Boxes as ``np.ndarray`` in [4+] or [M, 4+], XYXY format.
+        bbox1: HBBs as ``np.ndarray`` in [4+] or [N, 4+], XYXY format.
+        bbox2: HBBs as ``np.ndarray`` in [4+] or [M, 4+], XYXY format.
 
     Returns:
         Pairwise GIoU values as ``np.ndarray`` in [N, M].
@@ -222,8 +222,8 @@ def bbox_giou(bbox1: np.ndarray, bbox2: np.ndarray) -> np.ndarray:
         - https://arxiv.org/pdf/1902.09630.pdf
     """
     # Ensure 2D arrays
-    bbox1 = bbox_to_2d(bbox1)
-    bbox2 = bbox_to_2d(bbox2)
+    bbox1 = hbb_to_2d(bbox1)
+    bbox2 = hbb_to_2d(bbox2)
     
     # Expand dimensions for pairwise computation
     bbox1 = np.expand_dims(bbox1, 1)
@@ -266,12 +266,12 @@ def bbox_giou(bbox1: np.ndarray, bbox2: np.ndarray) -> np.ndarray:
     return giou
 
 
-def bbox_diou(bbox1: np.ndarray,  bbox2: np.ndarray) -> np.ndarray:
+def hbb_diou(bbox1: np.ndarray, bbox2: np.ndarray) -> np.ndarray:
     """Compute distance IoU between two sets of boxes.
 
     Args:
-        bbox1: Boxes as ``np.ndarray`` in [4+] or [N, 4+], XYXY format.
-        bbox2: Boxes as ``np.ndarray`` in [4+] or [M, 4+], XYXY format.
+        bbox1: HBBs as ``np.ndarray`` in [4+] or [N, 4+], XYXY format.
+        bbox2: HBBs as ``np.ndarray`` in [4+] or [M, 4+], XYXY format.
 
     Returns:
         Pairwise DIoU values as ``np.ndarray`` in [N, M].
@@ -283,8 +283,8 @@ def bbox_diou(bbox1: np.ndarray,  bbox2: np.ndarray) -> np.ndarray:
         - https://arxiv.org/pdf/1902.09630.pdf
     """
     # Ensure 2D arrays
-    bbox1 = bbox_to_2d(bbox1)
-    bbox2 = bbox_to_2d(bbox2)
+    bbox1 = hbb_to_2d(bbox1)
+    bbox2 = hbb_to_2d(bbox2)
 
     # Expand dimensions for pairwise computation
     bbox1 = np.expand_dims(bbox1, 1)
@@ -330,12 +330,12 @@ def bbox_diou(bbox1: np.ndarray,  bbox2: np.ndarray) -> np.ndarray:
     return diou
 
 
-def bbox_ciou(bbox1: np.ndarray, bbox2: np.ndarray) -> np.ndarray:
+def hbb_ciou(bbox1: np.ndarray, bbox2: np.ndarray) -> np.ndarray:
     """Compute complete IoU between two sets of boxes.
 
     Args:
-        bbox1: Boxes as ``np.ndarray`` in [4+] or [N, 4+], XYXY format.
-        bbox2: Boxes as ``np.ndarray`` in [4+] or [M, 4+], XYXY format.
+        bbox1: HBBs as ``np.ndarray`` in [4+] or [N, 4+], XYXY format.
+        bbox2: HBBs as ``np.ndarray`` in [4+] or [M, 4+], XYXY format.
 
     Returns:
         Pairwise CIoU values as ``np.ndarray`` in [N, M].
@@ -347,8 +347,8 @@ def bbox_ciou(bbox1: np.ndarray, bbox2: np.ndarray) -> np.ndarray:
         - https://arxiv.org/pdf/1902.09630.pdf
     """
     # Ensure 2D arrays
-    bbox1 = bbox_to_2d(bbox1)
-    bbox2 = bbox_to_2d(bbox2)
+    bbox1 = hbb_to_2d(bbox1)
+    bbox2 = hbb_to_2d(bbox2)
 
     # Expand dimensions for pairwise computation
     bbox1 = np.expand_dims(bbox1, 1)
@@ -407,12 +407,12 @@ def bbox_ciou(bbox1: np.ndarray, bbox2: np.ndarray) -> np.ndarray:
 
 
 # ----- Properties Calculation -----
-def bbox_center_distance(bbox1: np.ndarray, bbox2: np.ndarray) -> np.ndarray:
+def hbb_center_distance(bbox1: np.ndarray, bbox2: np.ndarray) -> np.ndarray:
     """Measure center distance(s) between two sets of boxes.
 
     Args:
-        bbox1: Boxes as ``np.ndarray`` in [4+] or [N, 4+], XYXY format.
-        bbox2: Boxes as ``np.ndarray`` in [4+] or [M, 4+], XYXY format.
+        bbox1: HBBs as ``np.ndarray`` in [4+] or [N, 4+], XYXY format.
+        bbox2: HBBs as ``np.ndarray`` in [4+] or [M, 4+], XYXY format.
 
     Returns:
         Pairwise center distances as ``np.ndarray`` in [N, M].
@@ -424,8 +424,8 @@ def bbox_center_distance(bbox1: np.ndarray, bbox2: np.ndarray) -> np.ndarray:
         Coarse implementation, not recommended alone for association due to instability.
     """
     # Ensure 2D arrays
-    bbox1 = bbox_to_2d(bbox1)
-    bbox2 = bbox_to_2d(bbox2)
+    bbox1 = hbb_to_2d(bbox1)
+    bbox2 = hbb_to_2d(bbox2)
 
     # Expand dimensions for pairwise computation
     bbox1 = np.expand_dims(bbox1, 1)
@@ -454,11 +454,11 @@ def bbox_center_distance(bbox1: np.ndarray, bbox2: np.ndarray) -> np.ndarray:
     return ct_dist
 
 
-def bbox_area(bbox: np.ndarray) -> np.ndarray:
-    """Compute area of bounding box(es).
+def hbb_area(bbox: np.ndarray) -> np.ndarray:
+    """Compute area of HBBs.
 
     Args:
-        bbox: Box(es) as ``np.ndarray`` in [4+] or [N, 4+], XYXY format.
+        bbox: HBBs as ``np.ndarray`` in [4+] or [N, 4+], XYXY format.
 
     Returns:
         Area(s) as ``np.ndarray`` in [1] or [N] shape.
@@ -466,7 +466,7 @@ def bbox_area(bbox: np.ndarray) -> np.ndarray:
     Raises:
         ValueError: If ``bbox`` is not 1D or 2D.
     """
-    bbox = bbox_to_2d(bbox)
+    bbox = hbb_to_2d(bbox)
     x1   = bbox[..., 0]
     y1   = bbox[..., 1]
     x2   = bbox[..., 2]
@@ -474,11 +474,11 @@ def bbox_area(bbox: np.ndarray) -> np.ndarray:
     return (x2 - x1) * (y2 - y1)
 
 
-def bbox_center(bbox: np.ndarray) -> np.ndarray:
-    """Compute center(s) of bounding box(es).
+def hbb_center(bbox: np.ndarray) -> np.ndarray:
+    """Compute center(s) of HBBs.
 
     Args:
-        bbox: Box(es) as ``np.ndarray`` in [4+] or [N, 4+], XYXY format.
+        bbox: HBBs as ``np.ndarray`` in [4+] or [N, 4+], XYXY format.
 
     Returns:
         Center(s) as ``np.ndarray`` in [1, 2] or [N, 2], [cx, cy] format.
@@ -486,7 +486,7 @@ def bbox_center(bbox: np.ndarray) -> np.ndarray:
     Raises:
         ValueError: If bbox is not 1D or 2D.
     """
-    bbox = bbox_to_2d(bbox)
+    bbox = hbb_to_2d(bbox)
     x1   = bbox[..., 0]
     y1   = bbox[..., 1]
     x2   = bbox[..., 2]
@@ -496,11 +496,11 @@ def bbox_center(bbox: np.ndarray) -> np.ndarray:
     return np.stack((cx, cy), -1)
 
 
-def bbox_corners(bbox: np.ndarray) -> np.ndarray:
-    """Get corner(s) of bounding box(es).
+def hbb_corners(bbox: np.ndarray) -> np.ndarray:
+    """Get corner(s) of HBBs.
 
     Args:
-        bbox: Box(es) as ``np.ndarray`` in [4+] or [N, 4+], XYXY format
+        bbox: HBBs as ``np.ndarray`` in [4+] or [N, 4+], XYXY format
 
     Returns:
         Corners as ``np.ndarray`` in [N, 8], [x1, y1, x2, y2, x3, y3, x4, y4] format
@@ -508,7 +508,7 @@ def bbox_corners(bbox: np.ndarray) -> np.ndarray:
     Raises:
         ValueError: If ``bbox`` is not 1D or 2D.
     """
-    bbox = bbox_to_2d(bbox)
+    bbox = hbb_to_2d(bbox)
     x1   = bbox[..., 0]
     y1   = bbox[..., 1]
     x2   = bbox[..., 2]
@@ -526,11 +526,11 @@ def bbox_corners(bbox: np.ndarray) -> np.ndarray:
     return np.hstack((c_x1, c_y1, c_x2, c_y2, c_x3, c_y3, c_x4, c_y4))
 
 
-def bbox_corners_pts(bbox: np.ndarray) -> np.ndarray:
-    """Get corner(s) of bounding box(es) as points.
+def hbb_corners_pts(bbox: np.ndarray) -> np.ndarray:
+    """Get corner(s) of HBBs as points.
 
     Args:
-        bbox: Box(es) as ``np.ndarray`` in [4+] or [N, 4+], XYXY format.
+        bbox: HBBs as ``np.ndarray`` in [4+] or [N, 4+], XYXY format.
 
     Returns:
         Corners as ``np.ndarray`` in
@@ -539,7 +539,7 @@ def bbox_corners_pts(bbox: np.ndarray) -> np.ndarray:
     Raises:
         ValueError: If ``bbox`` is not 1D or 2D.
     """
-    bbox = bbox_to_2d(bbox)
+    bbox = hbb_to_2d(bbox)
     x1   = bbox[..., 0]
     y1   = bbox[..., 1]
     x2   = bbox[..., 2]
@@ -557,14 +557,14 @@ def bbox_corners_pts(bbox: np.ndarray) -> np.ndarray:
     return np.array([[c_x1, c_y1], [c_x2, c_y2], [c_x3, c_y3], [c_x4, c_y4]], np.int32)
 
 
-def enclosing_bbox(bbox: np.ndarray) -> np.ndarray:
+def enclosing_hbb(bbox: np.ndarray) -> np.ndarray:
     """Get enclosing box(es) for rotated corners.
 
     Args:
-        bbox: Box(es) as ``np.ndarray`` in [..., 8], [x1, y1, x2, y2, x3, y3, x4, y4] format.
+        bbox: HBBs as ``np.ndarray`` in [..., 8], [x1, y1, x2, y2, x3, y3, x4, y4] format.
 
     Returns:
-        Box(es) as ``np.ndarray`` in [..., 4], XYXY format.
+        HBBs as ``np.ndarray`` in [..., 4], XYXY format.
 
     Raises:
         ValueError: If bbox last dimension is not 8.
@@ -581,19 +581,19 @@ def enclosing_bbox(bbox: np.ndarray) -> np.ndarray:
 
 
 # ----- Normalization -----
-def normalize_bbox(bbox: np.ndarray , height: int, width: int) -> np.ndarray:
-    """Normalize bounding box(s) according to image dimensions.
+def normalize_hbb(bbox: np.ndarray, height: int, width: int) -> np.ndarray:
+    """Normalize HBBs according to image dimensions.
 
     Args:
-        bbox: Box(es) as ``np.ndarray`` in [4+] or [N, 4+].
+        bbox: HBBs as ``np.ndarray`` in [4+] or [N, 4+].
         height: Image height.
         width: Image width.
     """
     if height <= 0 or width <= 0:
         raise ValueError(f"[height] and [width] must be positive integers, got {height}, {width}.")
 
-    bbox = bbox_to_2d(bbox)
-    if utils.is_bbox_normalized(bbox):
+    bbox = hbb_to_2d(bbox)
+    if utils.is_hbb_normalized(bbox):
         return bbox
 
     b1, b2, b3, b4, *rest = bbox.T
@@ -604,19 +604,19 @@ def normalize_bbox(bbox: np.ndarray , height: int, width: int) -> np.ndarray:
     return np.stack((b1, b2, b3, b4, *rest), axis=-1)
 
 
-def denormalize_bbox(bbox: np.ndarray, height: int, width: int) -> np.ndarray:
-    """Denormalize bounding box(s) according to image dimensions.
+def denormalize_hbb(bbox: np.ndarray, height: int, width: int) -> np.ndarray:
+    """Denormalize HBBs according to image dimensions.
 
     Args:
-        bbox: Box(es) as ``np.ndarray`` in [4+] or [N, 4+].
+        bbox: HBBs as ``np.ndarray`` in [4+] or [N, 4+].
         height: Image height.
         width: Image width.
     """
     if height <= 0 or width <= 0:
         raise ValueError(f"[height] and [width] must be positive integers, got {height}, {width}.")
 
-    bbox = bbox_to_2d(bbox)
-    if not utils.is_bbox_normalized(bbox):
+    bbox = hbb_to_2d(bbox)
+    if not utils.is_hbb_normalized(bbox):
         return bbox
 
     b1, b2, b3, b4, *rest = bbox.T
@@ -628,14 +628,14 @@ def denormalize_bbox(bbox: np.ndarray, height: int, width: int) -> np.ndarray:
 
 
 # ----- Conversion -----
-def bbox_to_2d(bbox: torch.Tensor | np.ndarray | list | tuple) -> torch.Tensor | np.ndarray:
+def hbb_to_2d(bbox: torch.Tensor | np.ndarray | list | tuple) -> torch.Tensor | np.ndarray:
     """Convert a 1D, 2D, or 3D box(es) to 2D.
 
     Args:
-        bbox: Box(es) as ``np.ndarray``, ``torch.Tensor``, or list/tuple of [4+] or [N, 4+].
+        bbox: HBBs as ``np.ndarray``, ``torch.Tensor``, or list/tuple of [4+] or [N, 4+].
 
     Returns:
-        Bbox(es) as ``np.ndarray`` or ``torch.Tensor`` in [N, 4+] format.
+        HBBs as ``np.ndarray`` or ``torch.Tensor`` in [N, 4+] format.
 
     Raises:
         TypeError: If ``bbox`` is not a ``torch.Tensor`` or ``numpy.ndarray``.
@@ -646,7 +646,7 @@ def bbox_to_2d(bbox: torch.Tensor | np.ndarray | list | tuple) -> torch.Tensor |
         elif bbox.ndim == 3:                                                    # [B, N, 4+]
             if bbox.shape[0] == 1:                                              # [1, N, 4+]
                 bbox = bbox.squeeze(0)                                          # [1, N, 4+] -> [N, 4+]
-    elif isinstance(bbox, np.ndarray):                                          
+    elif isinstance(bbox, np.ndarray):
         if bbox.ndim == 1:                                                      # [4+]
             bbox = np.expand_dims(bbox, axis=0)                                 # [4+]       -> [1, 4+]
         elif bbox.ndim == 3:                                                    # [B, N, 4+]
@@ -676,15 +676,15 @@ def bbox_to_2d(bbox: torch.Tensor | np.ndarray | list | tuple) -> torch.Tensor |
     return bbox
 
 
-def bbox_to_3d(bbox: torch.Tensor | np.ndarray | list | tuple) -> torch.Tensor | np.ndarray:
+def hbb_to_3d(bbox: torch.Tensor | np.ndarray | list | tuple) -> torch.Tensor | np.ndarray:
     """Convert a 1D, 2D, or 3D box(es) to 3D.
 
     Args:
-        bbox: Box(es) as ``np.ndarray``, ``torch.Tensor``, or list/tuple of
+        bbox: HBBs as ``np.ndarray``, ``torch.Tensor``, or list/tuple of
             [4+], [N, 4+], or [B, N, 4+].
 
     Returns:
-        Bbox(es) as ``np.ndarray`` or ``torch.Tensor`` in [B, N, 4+] format.
+        HBBs as ``np.ndarray`` or ``torch.Tensor`` in [B, N, 4+] format.
 
     Raises:
         TypeError: If ``bbox`` is not a ``torch.Tensor`` or ``numpy.ndarray``.
@@ -730,18 +730,18 @@ def bbox_to_3d(bbox: torch.Tensor | np.ndarray | list | tuple) -> torch.Tensor |
     return bbox
 
 
-def bbox_xywh_to_cxcywhn(bbox: np.ndarray, height: int, width: int) -> np.ndarray:
+def hbb_xywh_to_cxcywhn(bbox: np.ndarray, height: int, width: int) -> np.ndarray:
     """Convert boxes from XYWH to CXCYWHN format.
 
     Args:
-        bbox: Boxes as ``np.ndarray`` in [N, 4+], XYWH format, pixel coordinates.
+        bbox: HBBs as ``np.ndarray`` in [N, 4+], XYWH format, pixel coordinates.
         height: Image height in pixels as ``int``.
         width: Image width in pixels as ``int``.
 
     Returns:
-        Boxes as ``np.ndarray`` in [N, 4+], CXCYWHN format, normalized.
+        HBBs as ``np.ndarray`` in [N, 4+], CXCYWHN format, normalized.
     """
-    bbox = bbox_to_2d(bbox)
+    bbox = hbb_to_2d(bbox)
     x, y, w, h, *rest = bbox.T
     cx   = x + (w / 2.0)
     cy   = y + (h / 2.0)
@@ -752,36 +752,36 @@ def bbox_xywh_to_cxcywhn(bbox: np.ndarray, height: int, width: int) -> np.ndarra
     return np.stack((cx_n, cy_n, w_n, h_n, *rest), axis=-1)
 
 
-def bbox_xywh_to_xyxy(bbox: np.ndarray, height: int, width: int) -> np.ndarray:
+def hbb_xywh_to_xyxy(bbox: np.ndarray, height: int, width: int) -> np.ndarray:
     """Convert boxes from XYWH to XYXY format.
 
     Args:
-        bbox: Boxes as ``np.ndarray`` in [N, 4+], XYWH format, pixel coordinates.
+        bbox: HBBs as ``np.ndarray`` in [N, 4+], XYWH format, pixel coordinates.
         height: Image height in pixels as ``int``.
         width: Image width in pixels as ``int``.
 
     Returns:
-        Boxes as ``np.ndarray`` in [N, 4+], XYXY format, pixel coordinates.
+        HBBs as ``np.ndarray`` in [N, 4+], XYXY format, pixel coordinates.
     """
-    bbox = bbox_to_2d(bbox)
+    bbox = hbb_to_2d(bbox)
     x, y, w, h, *rest = bbox.T
     x2 = x + w
     y2 = y + h
     return np.stack((x, y, x2, y2, *rest), axis=-1)
 
 
-def bbox_xyxy_to_cxcywhn(bbox: np.ndarray, height: int, width: int) -> np.ndarray:
+def hbb_xyxy_to_cxcywhn(bbox: np.ndarray, height: int, width: int) -> np.ndarray:
     """Convert boxes from XYXY to CXCYWHN format.
 
     Args:
-        bbox: Boxes as ``np.ndarray`` in [N, 4+], XYXY format, pixel coordinates.
+        bbox: HBBs as ``np.ndarray`` in [N, 4+], XYXY format, pixel coordinates.
         height: Image height in pixels as ``int``.
         width: Image width in pixels as ``int``.
 
     Returns:
-        Boxes as ``np.ndarray`` in [N, 4+], CXCYWHN format, normalized.
+        HBBs as ``np.ndarray`` in [N, 4+], CXCYWHN format, normalized.
     """
-    bbox = bbox_to_2d(bbox)
+    bbox = hbb_to_2d(bbox)
     x1, y1, x2, y2, *rest = bbox.T
     w    = x2 - x1
     h    = y2 - y1
@@ -794,36 +794,36 @@ def bbox_xyxy_to_cxcywhn(bbox: np.ndarray, height: int, width: int) -> np.ndarra
     return np.stack((cx_n, cy_n, w_n, h_n, *rest), axis=-1)
 
 
-def bbox_xyxy_to_xywh(bbox: np.ndarray, height: int, width: int) -> np.ndarray:
+def hbb_xyxy_to_xywh(bbox: np.ndarray, height: int, width: int) -> np.ndarray:
     """Convert boxes from XYXY to XYWH format.
 
     Args:
-        bbox: Boxes as ``np.ndarray`` in [N, 4+], XYXY format, pixel coordinates.
+        bbox: HBBs as ``np.ndarray`` in [N, 4+], XYXY format, pixel coordinates.
         height: Image height in pixels as ``int``.
         width: Image width in pixels as ``int``.
 
     Returns:
-        Boxes as ``np.ndarray`` in [N, 4], XYWH format, pixel coordinates.
+        HBBs as ``np.ndarray`` in [N, 4], XYWH format, pixel coordinates.
     """
-    bbox = bbox_to_2d(bbox)
+    bbox = hbb_to_2d(bbox)
     x1, y1, x2, y2, *rest = bbox.T
     w = x2 - x1
     h = y2 - y1
     return np.stack((x1, y1, w, h, *rest), axis=-1)
 
 
-def bbox_cxcywhn_to_xywh(bbox: np.ndarray, height: int, width: int) -> np.ndarray:
+def hbb_cxcywhn_to_xywh(bbox: np.ndarray, height: int, width: int) -> np.ndarray:
     """Convert boxes from CXCYWHN to XYWH format.
 
     Args:
-        bbox: Boxes as ``np.ndarray`` in [N, 4+], CXCYWHN format, normalized.
+        bbox: HBBs as ``np.ndarray`` in [N, 4+], CXCYWHN format, normalized.
         height: Image height in pixels as ``int``.
         width: Image width in pixels as ``int``.
 
     Returns:
-        Boxes as ``np.ndarray`` in [N, 4+], XYWH format, pixel coordinates.
+        HBBs as ``np.ndarray`` in [N, 4+], XYWH format, pixel coordinates.
     """
-    bbox = bbox_to_2d(bbox)
+    bbox = hbb_to_2d(bbox)
     cx_n, cy_n, w_n, h_n, *rest = bbox.T
     w = w_n * width
     h = h_n * height
@@ -833,18 +833,18 @@ def bbox_cxcywhn_to_xywh(bbox: np.ndarray, height: int, width: int) -> np.ndarra
     return np.stack((x, y, w, h, *rest), axis=-1)
 
 
-def bbox_cxcywhn_to_xyxy(bbox: np.ndarray, height: int, width: int) -> np.ndarray:
+def hbb_cxcywhn_to_xyxy(bbox: np.ndarray, height: int, width: int) -> np.ndarray:
     """Convert boxes from CXCYWHN to XYXY format.
 
     Args:
-        bbox: Boxes as ``np.ndarray`` in [N, 4+], CXCYWHN format, normalized.
+        bbox: HBBs as ``np.ndarray`` in [N, 4+], CXCYWHN format, normalized.
         height: Image height in pixels as ``int``.
         width: Image width in pixels as ``int``.
 
     Returns:
-        Boxes as ``np.ndarray`` in [N, 4+], XYXY format, pixel coordinates.
+        HBBs as ``np.ndarray`` in [N, 4+], XYXY format, pixel coordinates.
     """
-    bbox = bbox_to_2d(bbox)
+    bbox = hbb_to_2d(bbox)
     cx_n, cy_n, w_n, h_n, *rest = bbox.T
     x1 = width  * (cx_n - w_n / 2)
     y1 = height * (cy_n - h_n / 2)
@@ -853,25 +853,25 @@ def bbox_cxcywhn_to_xyxy(bbox: np.ndarray, height: int, width: int) -> np.ndarra
     return np.stack((x1, y1, x2, y2, *rest), axis=-1)
 
 
-bbox_coco_to_voc  = bbox_xywh_to_xyxy
-bbox_coco_to_yolo = bbox_xywh_to_cxcywhn
-bbox_voc_to_coco  = bbox_xyxy_to_xywh
-bbox_voc_to_yolo  = bbox_xyxy_to_cxcywhn
-bbox_yolo_to_coco = bbox_cxcywhn_to_xywh
-bbox_yolo_to_voc  = bbox_cxcywhn_to_xyxy
+hbb_coco_to_voc  = hbb_xywh_to_xyxy
+hbb_coco_to_yolo = hbb_xywh_to_cxcywhn
+hbb_voc_to_coco  = hbb_xyxy_to_xywh
+hbb_voc_to_yolo  = hbb_xyxy_to_cxcywhn
+hbb_yolo_to_coco = hbb_cxcywhn_to_xywh
+hbb_yolo_to_voc  = hbb_cxcywhn_to_xyxy
 
 
-def convert_bbox(bbox: np.ndarray, fmt: BBoxFormat, height: int, width: int) -> np.ndarray:
-    """Convert bounding box between formats.
+def convert_hbb(bbox: np.ndarray, fmt: BBoxFormat, height: int, width: int) -> np.ndarray:
+    """Convert HBBs between formats.
 
     Args:
-        bbox: Boxes as ``np.ndarray`` in [N, 4+], input format varies by code.
+        bbox: HBBs as ``np.ndarray`` in [N, 4+], input format varies by code.
         fmt: Conversion code as ``BBoxFormat`` or ``int``.
         height: Image height in pixels as ``int``.
         width: Image width in pixels as ``int``.
 
     Returns:
-        Boxes as ``np.ndarray`` in [N, 4+], output format varies by code.
+        HBBs as ``np.ndarray`` in [N, 4+], output format varies by code.
 
     Raises:
         ValueError: If ``code`` is invalid.
@@ -884,37 +884,37 @@ def convert_bbox(bbox: np.ndarray, fmt: BBoxFormat, height: int, width: int) -> 
         return bbox
     match fmt:
         case BBoxFormat.COCO2VOC  | BBoxFormat.XYWH2XYXY:
-            return bbox_coco_to_voc(bbox, height, width)
+            return hbb_coco_to_voc(bbox, height, width)
         case BBoxFormat.COCO2YOLO | BBoxFormat.XYWH2CXCYN:
-            return bbox_coco_to_yolo(bbox, height, width)
+            return hbb_coco_to_yolo(bbox, height, width)
         case BBoxFormat.VOC2COCO  | BBoxFormat.XYXY2XYWH:
-            return bbox_voc_to_coco(bbox, height, width)
+            return hbb_voc_to_coco(bbox, height, width)
         case BBoxFormat.VOC2YOLO  | BBoxFormat.XYXY2CXCYN:
-            return bbox_voc_to_yolo(bbox, height, width)
+            return hbb_voc_to_yolo(bbox, height, width)
         case BBoxFormat.YOLO2VOC  | BBoxFormat.CXCYN2XYXY:
-            return bbox_yolo_to_voc(bbox, height, width)
+            return hbb_yolo_to_voc(bbox, height, width)
         case BBoxFormat.YOLO2COCO | BBoxFormat.CXCYN2XYXY:
-            return bbox_yolo_to_coco(bbox, height, width)
+            return hbb_yolo_to_coco(bbox, height, width)
         case _:
             raise ValueError(f"[code] must be one of {BBoxFormat.conversion_codes()}, got {fmt}.")
 
 
-def bbox_to_array(
+def hbb_to_array(
     bbox       : torch.Tensor | np.ndarray,
     height     : int,
     width      : int,
     denormalize: bool = False
 ) -> np.ndarray:
-    """Convert bounding box(es) to a NumPy array.
+    """Convert HBBs to a NumPy array.
 
     Args:
-        bbox: Box(es) as ``np.ndarray`` or ``torch.Tensor``, or list/tuple of [4+], [N, 4+], or [B, N, 4+].
+        bbox: HBBs as ``np.ndarray`` or ``torch.Tensor``, or list/tuple of [4+], [N, 4+], or [B, N, 4+].
         height: Image height.
         width: Image width.
         denormalize: Denormalize according to image dimensions if ``True``. Default is ``False``.
 
     Returns:
-        Bbox(es) as ``np.ndarray`` in [N, 4+] format.
+        HBBs as ``np.ndarray`` in [N, 4+] format.
 
     Raises:
         TypeError: If ``bbox`` is not a ``torch.Tensor`` or ``numpy.ndarray``.
@@ -923,7 +923,7 @@ def bbox_to_array(
     if not 2 <= bbox.ndim <= 3:
         raise ValueError(f"[bbox]'s number of dimensions must be between 2 and 3, got {bbox.ndim}.")
     # Remove batch dimension
-    bbox = bbox_to_2d(bbox)
+    bbox = hbb_to_2d(bbox)
     # Detach
     if isinstance(bbox, torch.Tensor):
         bbox = bbox.detach().cpu()
@@ -932,22 +932,22 @@ def bbox_to_array(
         bbox = bbox.numpy()
     # Denormalize image
     if denormalize:
-        bbox = denormalize_bbox(bbox, height, width)#.round().astype(np.uint8)
+        bbox = denormalize_hbb(bbox, height, width)#.round().astype(np.uint8)
 
     return bbox
 
 
-def bbox_to_tensor(
+def hbb_to_tensor(
     bbox     : torch.Tensor | np.ndarray | list | tuple,
     height   : int,
     width    : int,
     normalize: bool         = False,
     device   : torch.device = None
 ) -> torch.Tensor:
-    """Convert bounding box(es) to a PyTorch tensor.
+    """Convert HBBs to a PyTorch tensor.
 
     Args:
-        bbox: Box(es) as ``np.ndarray``, ``torch.Tensor``, or list/tuple of [4+] or [N, 4+].
+        bbox: HBBs as ``np.ndarray``, ``torch.Tensor``, or list/tuple of [4+] or [N, 4+].
         height: Image height.
         width: Image width.
         normalize: Normalize according to image dimensions if ``True``. Default is ``False``.
@@ -955,16 +955,16 @@ def bbox_to_tensor(
             Default is ``None``.
 
     Returns:
-        Bbox(es) as ``torch.Tensor`` in [B, N, 4+] format.
+        HBBs as ``torch.Tensor`` in [B, N, 4+] format.
 
     Raises:
         TypeError: If ``bbox`` is not a ``torch.Tensor`` or ``numpy.ndarray``.
     """
     # Add batch dimension
-    bbox = bbox_to_3d(bbox)
+    bbox = hbb_to_3d(bbox)
     # Convert to tensor
     if isinstance(bbox, np.ndarray):
-        bbox = torch.from_numpy(bbox).float()
+        bbox = torch.from_numpy(bbox).contiguous().float()
     elif isinstance(bbox, torch.Tensor):
         bbox = bbox.float()
     else:
@@ -974,7 +974,7 @@ def bbox_to_tensor(
         bbox = bbox.float()
     # Normalize image
     if normalize:
-        bbox = normalize_bbox(bbox, height, width)
+        bbox = normalize_hbb(bbox, height, width)
     # Move to device
     if device is not None:
         bbox = bbox.to(device)

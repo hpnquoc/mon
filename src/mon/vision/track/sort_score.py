@@ -46,9 +46,9 @@ def associate_detections_to_tracks(
     
     # iou_matrix = iou_batch(detections, tracks)
     if association == "giou":
-        iou_matrix = types.bbox_giou(detections, tracks)
+        iou_matrix = types.hbb_giou(detections, tracks)
     else:
-        iou_matrix = types.bbox_iou(detections, tracks)
+        iou_matrix = types.hbb_iou(detections, tracks)
     
     if min(iou_matrix.shape) > 0:
         a = (iou_matrix > iou_threshold).astype(np.int32)

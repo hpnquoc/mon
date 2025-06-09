@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Implements general-purpose utilities for bounding box.
+"""Implements general-purpose utilities for HBBs.
 
 Common Tasks:
     - Property accessors
@@ -10,13 +10,13 @@ Common Tasks:
 """
 
 __all__ = [
-    "is_bbox_coco",
-    "is_bbox_cxcywhn",
-    "is_bbox_normalized",
-    "is_bbox_voc",
-    "is_bbox_xywh",
-    "is_bbox_xyxy",
-    "is_bbox_yolo",
+    "is_hbb_coco",
+    "is_hbb_cxcywhn",
+    "is_hbb_normalized",
+    "is_hbb_voc",
+    "is_hbb_xywh",
+    "is_hbb_xyxy",
+    "is_hbb_yolo",
 ]
 
 import numpy as np
@@ -26,11 +26,11 @@ import numpy as np
 
 
 # ----- Validation -----
-def is_bbox_normalized(bbox: np.ndarray) -> bool:
-    """Check if a bounding box is normalized to range [0.0, 1.0].
+def is_hbb_normalized(bbox: np.ndarray) -> bool:
+    """Check if a HBBs is normalized to range [0.0, 1.0].
 
     Args:
-        bbox: Box(es) as ``np.ndarray`` in [4] or [N, 4].
+        bbox: HBBs as ``np.ndarray`` in [4] or [N, 4].
 
     Returns:
         ``True`` if normalized, ``False`` otherwise.
@@ -41,11 +41,11 @@ def is_bbox_normalized(bbox: np.ndarray) -> bool:
     return np.all((bbox[:, :4] >= 0) & (bbox[:, :4] <= 1))
 
 
-def is_bbox_cxcywhn(bbox: np.ndarray, height: int, width: int) -> bool:
-    """Check if a bounding box is in CXCYWHN format.
+def is_hbb_cxcywhn(bbox: np.ndarray, height: int, width: int) -> bool:
+    """Check if a HBBs is in CXCYWHN format.
 
     Args:
-        bbox: Box(es) as ``np.ndarray`` in [4] or [N, 4].
+        bbox: HBBs as ``np.ndarray`` in [4] or [N, 4].
         height: Image height in pixels as ``int``.
         width: Image width in pixels as ``int``.
 
@@ -61,36 +61,36 @@ def is_bbox_cxcywhn(bbox: np.ndarray, height: int, width: int) -> bool:
     )
 
 
-def is_bbox_xyxy(bbox: np.ndarray, height: int, width: int) -> bool:
-    """Check if a bounding box is in XYXY format.
+def is_hbb_xyxy(box: np.ndarray, height: int, width: int) -> bool:
+    """Check if a HBBs is in XYXY format.
 
     Args:
-        bbox: Box(es) as ``np.ndarray`` in [4] or [N, 4].
+        box: HBBs as ``np.ndarray`` in [4] or [N, 4].
         height: Image height in pixels as ``int``.
         width: Image width in pixels as ``int``.
 
     Returns:
         ``True`` if in XYXY format, ``False`` otherwise.
     """
-    if not (bbox.ndim >= 2 and bbox.shape[-1] < 4):
+    if not (box.ndim >= 2 and box.shape[-1] < 4):
         raise ValueError("[bbox] must be in [N, 4+] format.")
 
-    if is_bbox_cxcywhn(bbox, height, width):
+    if is_hbb_cxcywhn(box, height, width):
         return False
 
     # Extract first bbox for format checking
-    x, y, w, h = bbox[0, :4]
+    x, y, w, h = box[0, :4]
     if w > x and h > y:  # VOC: x_max > x_min, y_max > y_min
         return True
     else:
         return False
 
 
-def is_bbox_xywh(bbox: np.ndarray, height: int, width: int) -> bool:
-    """Check if a bounding box is in XYWH format.
+def is_hbb_xywh(bbox: np.ndarray, height: int, width: int) -> bool:
+    """Check if a HBBs is in XYWH format.
 
     Args:
-        bbox: Box(es) as ``np.ndarray`` in [4] or [N, 4].
+        bbox: HBBs as ``np.ndarray`` in [4] or [N, 4].
         height: Image height in pixels as ``int``.
         width: Image width in pixels as ``int``.
 
@@ -100,7 +100,7 @@ def is_bbox_xywh(bbox: np.ndarray, height: int, width: int) -> bool:
     if not (bbox.ndim >= 2 and bbox.shape[-1] < 4):
         raise ValueError("[bbox] must be in [N, 4+] format.")
 
-    if is_bbox_cxcywhn(bbox, height, width):
+    if is_hbb_cxcywhn(bbox, height, width):
         return False
 
     # Extract first bbox for format checking
@@ -111,6 +111,6 @@ def is_bbox_xywh(bbox: np.ndarray, height: int, width: int) -> bool:
         return False
 
 
-is_bbox_coco = is_bbox_xywh
-is_bbox_voc  = is_bbox_xyxy
-is_bbox_yolo = is_bbox_cxcywhn
+is_hbb_coco = is_hbb_xywh
+is_hbb_voc  = is_hbb_xyxy
+is_hbb_yolo = is_hbb_cxcywhn

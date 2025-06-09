@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Implements bounding box annotations."""
+"""Implements HBBs annotations."""
 
 __all__ = [
-    "BBoxAnnotation",
-    "BBoxesAnnotation",
+    "HBBAnnotation",
+    "HBBsAnnotation",
 ]
 
 import numpy as np
@@ -15,19 +15,19 @@ from mon import core
 from mon.constants import BBoxFormat
 from mon.nn import _size_2_t
 from mon.vision.types import image as I
-from mon.vision.types.bbox import processing, io
+from mon.vision.types.bbox.hbb import processing, io
 
 
 # ----- Annotation -----
-class BBoxAnnotation(core.Annotation):
-    """Bounding box annotation in an image with coordinates and optional mask.
+class HBBAnnotation(core.Annotation):
+    """HBB annotation in an image with coordinates and optional mask.
     
     Attributes:
         albumentation_target_type: Type of target for Albumentations. Default is ``bboxes``.
     
     Args:
         class_id: Integer class ID, ``-1`` for unknown.
-        bbox: Box coordinates as [4]-shaped array, list, or tuple.
+        bbox: Bounding box coordinates as [4]-shaped array, list, or tuple.
         confidence: Confidence score in [0.0, 1.0]. Default is ``1.0``.
     """
     
@@ -47,7 +47,7 @@ class BBoxAnnotation(core.Annotation):
     
     @property
     def bbox(self) -> np.ndarray:
-        """Returns the bounding box coordinates.
+        """Returns the HBBs coordinates.
 
         Returns:
             ``numpy.ndarray`` of shape [4] with box coordinates.
@@ -56,7 +56,7 @@ class BBoxAnnotation(core.Annotation):
     
     @bbox.setter
     def bbox(self, bbox: np.ndarray | list | tuple):
-        """Sets the bounding box coordinates.
+        """Sets the HBBs coordinates.
 
         Args:
             bbox: Coordinates as ``numpy.ndarray``, list, or tuple of shape [4].
@@ -132,8 +132,8 @@ class BBoxAnnotation(core.Annotation):
         return None
 
 
-class BBoxesAnnotation(core.Annotation):
-    """List of bounding boxes annotation for a single image.
+class HBBsAnnotation(core.Annotation):
+    """List of HBBs annotation for a single image.
 
     Attributes:
         albumentation_target_type: Type of target for Albumentations. Default is ``bboxes``.
@@ -271,7 +271,7 @@ class BBoxesAnnotation(core.Annotation):
         if not reload and self._bboxes is not None:
             return self._bboxes
         # Load the bboxes from label file
-        bboxes = io.load_bbox(
+        bboxes = io.load_hbb(
             path      = self.path,
             fmt       = self._fmt,
             height    = self.imgsz[0] if self.imgsz else None,
@@ -302,7 +302,7 @@ class BBoxesAnnotation(core.Annotation):
         Returns:
             ``torch.Tensor`` of converted data.
         """
-        return processing.bbox_to_tensor(data, height, width, normalize)
+        return processing.hbb_to_tensor(data, height, width, normalize)
 
     @staticmethod
     def collate_fn(batch: list) -> torch.Tensor | np.ndarray | None:
@@ -316,4 +316,4 @@ class BBoxesAnnotation(core.Annotation):
         """
         if not batch:
             return None
-        return processing.bbox_to_3d(batch)
+        return processing.hbb_to_3d(batch)

@@ -7,7 +7,6 @@ import argparse
 import json
 import logging
 
-import numpy as np
 from pycocotools.coco import COCO
 from pycocotools.cocoeval import COCOeval
 
@@ -95,25 +94,7 @@ def convert_label_to_coco(
             if not label_file.is_txt_file():
                 continue
 
-            """
-            with open(label_file, "r") as f:
-                ls = f.readlines()
-            ls = [l_.strip().split(" ") for l_ in ls]
-            ls = [l_ for l_ in ls if len(l_) >= 5]
-            if len(ls) == 0:
-                continue
-            cs = [int(l_[0]) for l_ in ls]
-            bs = np.array([list(map(float, l_[1:5])) for l_ in ls])
-            ss = [float(l_[5]) for l_ in ls]
-            if code:
-                bs = mon.convert_bbox(bbox=bs, code=code, height=h, width=w)
-            assert len(ls) == len(cs)
-            assert len(ls) == len(bs)
-            assert len(ls) == len(ss)
-            """
-            # bs = mon.load_bbox(path=label_file, format=mon.BBoxFormat.YOLO)
-            # bs = mon.convert_bbox(bbox=bs, code=code, height=h, width=w)
-            bs = mon.load_bbox(path=label_file, fmt=code, height=h, width=w)
+            bs = mon.load_hbb(path=label_file, fmt=code, height=h, width=w)
             if len(bs) == 0:
                 continue
 

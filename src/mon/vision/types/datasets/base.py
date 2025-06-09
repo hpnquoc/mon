@@ -17,7 +17,7 @@ import cv2
 from mon import core
 from mon.constants import DepthSource, InfraredSource, TRANSFORMS, BBoxFormat
 from mon.vision.geometry import albumentation
-from mon.vision.types.bbox import BBoxesAnnotation
+from mon.vision.types.bbox.hbb import HBBsAnnotation
 from mon.vision.types.depth import DepthMapAnnotation
 from mon.vision.types.image import ImageAnnotation
 from mon.vision.types.thermal import InfraredAnnotation
@@ -253,7 +253,7 @@ class VisionDataset(core.Dataset, ABC):
         bboxes = self.datapoints.get("bboxes", [])
 
         if len(images) > 0 and len(bboxes) == 0:
-            bboxes: list[BBoxesAnnotation] = []
+            bboxes: list[HBBsAnnotation] = []
             with core.create_progress_bar(disable=self.disable_pbar) as pbar:
                 for img in pbar.track(
                     sequence    = images,
@@ -264,7 +264,7 @@ class VisionDataset(core.Dataset, ABC):
                     path      = img.path.replace(f"{os.sep}{root_name}{os.sep}",
                                                  f"{os.sep}label{os.sep}")
                     bboxes.append(
-                        BBoxesAnnotation(
+                        HBBsAnnotation(
                             path  = path.txt_file(),
                             root  = img.root,
                             fmt   = self.bbox_format,

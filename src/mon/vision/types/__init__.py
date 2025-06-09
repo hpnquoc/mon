@@ -3,7 +3,7 @@
 
 """Implements data types for vision tasks: image, video, pointcloud, etc."""
 
-from mon.vision.types.bbox import *
+from mon.vision.types.bbox.hbb import *
 from mon.vision.types.contour import *
 from mon.vision.types.depth import *
 from mon.vision.types.event import *

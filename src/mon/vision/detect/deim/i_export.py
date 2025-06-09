@@ -204,12 +204,14 @@ def export(args: dict | box.Box) -> str:
     model = Model(cfg)
 
     # Export ONNX model (always export ONNX first)
-    onnx_file = pretrained.parent / f"{pretrained.stem}.onnx"
+    save_dir  = pretrained.parent if args.save_nearby  else args.save_dir
+    file_stem = args.fullname     if args.use_fullname else pretrained.stem
+    onnx_file = save_dir / f"{file_stem}.onnx"
     export_onnx(model, onnx_file, args)
 
     # Export TensorRT engine
     if args.format in ["engine", "trt"]:
-        engine_file = pretrained.parent / f"{pretrained.stem}.engine"
+        engine_file = save_dir / f"{file_stem}.engine"
         export_trt(onnx_file, engine_file, args)
 
 
