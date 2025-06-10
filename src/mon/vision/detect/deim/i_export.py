@@ -10,13 +10,13 @@ import os
 import sys
 
 import box
+import tensorrt as trt
+import torch
+
+import mon
 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
-
-import torch
 from engine.core import YAMLConfig
-import mon
-import tensorrt as trt
 
 current_file = mon.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
@@ -53,7 +53,7 @@ def export_onnx(model: Model, path: mon.Path, args: dict | box.Box) -> mon.Path:
         input_names         = ["images", "orig_target_sizes"],
         output_names        = ["labels", "boxes", "scores"],
         dynamic_axes        = dynamic_axes,
-        opset_version       = args.opset_version,
+        opset_version       = args.opset,
         verbose             = False,
         do_constant_folding = True,
     )
@@ -120,7 +120,7 @@ def export_trt(onnx_path: mon.Path, path: mon.Path, args: dict | box.Box) -> mon
     config.add_optimization_profile(profile)
 
     # Customize layer precision
-    if args.opset_version == 16:
+    if args.opset == 16:
         for i in range(network.num_layers):
             layer = network.get_layer(i)
             # Heuristic: match common LayerNorm-related names
@@ -128,7 +128,7 @@ def export_trt(onnx_path: mon.Path, path: mon.Path, args: dict | box.Box) -> mon
                 mon.console.log(f"Apply FP32 on LayerNorm-related layer: {layer.name}.")
                 layer.precision = trt.DataType.FLOAT
                 layer.set_output_type(0, trt.DataType.FLOAT)
-    elif args.opset_version == 17:
+    elif args.opset == 17:
         force_fp32_types = [
             trt.LayerType.REDUCE,
             trt.LayerType.ELEMENTWISE,

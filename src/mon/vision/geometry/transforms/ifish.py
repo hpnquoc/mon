@@ -9,16 +9,14 @@ References:
 
 __all__ = [
     "iFishTransform",
-    "ifish_transform_bbox",
-    "ifish_transform_image",
-    "ifish_transform_image_bbox",
 ]
 
 from typing import Any
 
 import numpy as np
-from mon.nn import _size_2_t
+
 from mon.constants import TRANSFORMS
+from mon.nn import _size_2_t
 from mon.vision import types
 from mon.vision.geometry.transforms.albumentation import DualTransform, Targets, BaseModel, Field
 
@@ -86,7 +84,7 @@ def reverse_fisheye_xy_n(x_n: float, y_n: float, r: float, d: float) -> tuple[fl
 
 
 # ----- Transformation Functions -----
-def ifish_transform_image(image: np.ndarray, distortion: float) -> np.ndarray:
+def transform_image(image: np.ndarray, distortion: float) -> np.ndarray:
     """Apply fisheye transformation to an image.
 
     Args:
@@ -141,7 +139,7 @@ def ifish_transform_image(image: np.ndarray, distortion: float) -> np.ndarray:
     return crop(transform(image))
 
 
-def ifish_transform_bbox0(
+def transform_bbox0(
     bbox        : np.ndarray,
     old_size    : _size_2_t,
     new_size    : _size_2_t,
@@ -149,17 +147,15 @@ def ifish_transform_bbox0(
     area_thres  : int   = 0,
     aspect_thres: float = 0.0,
 ) -> np.ndarray:
-    """Transform bounding boxes from original image to the corresponding fisheye
-    images.
+    """Transform HBBs from original image to the corresponding fisheye images.
 
     Args:
-        bbox: Boxes as ``np.ndarray`` in [N, 4+], CXCYWHN format (YOLO), normalized.
+        bbox: HBBs as ``np.ndarray`` in [N, 4+], CXCYWHN format (YOLO), normalized.
         old_size: Original image size as [W, H] format.
         new_size: Transformed image size as [W, H] format.
         distortion: Distortion factor.
-        area_thres: Minimum area threshold for bounding boxes. Default is ``0``.
-        aspect_thres: Minimum height-to-width ratio threshold for bounding boxes.
-            Default is ``0.0``.
+        area_thres: Minimum area threshold for HBBs. Default is ``0``.
+        aspect_thres: Minimum height-to-width ratio threshold for HBBs. Default is ``0.0``.
     """
     bbox        = types.hbb_to_2d(bbox)
     w0, h0      = old_size
@@ -228,7 +224,7 @@ def ifish_transform_bbox0(
     return np.array(bbox_new, dtype=np.float32)
 
 
-def ifish_transform_bbox1(
+def transform_bbox1(
     bbox        : np.ndarray,
     old_size    : _size_2_t,
     new_size    : _size_2_t,
@@ -236,17 +232,15 @@ def ifish_transform_bbox1(
     area_thres  : int   = 0,
     aspect_thres: float = 0.0,
 ) -> np.ndarray:
-    """Transform bounding boxes from original image to the corresponding fisheye
-    images.
+    """Transform HBBs from original image to the corresponding fisheye images.
 
     Args:
-        bbox: Boxes as ``np.ndarray`` in [N, 4+], CXCYWHN format (YOLO), normalized.
+        bbox: HBBs as ``np.ndarray`` in [N, 4+], CXCYWHN format (YOLO), normalized.
         old_size: Original image size as [W, H] format.
         new_size: Transformed image size as [W, H] format.
         distortion: Distortion factor.
-        area_thres: Minimum area threshold for bounding boxes. Default is ``0``.
-        aspect_thres: Minimum height-to-width ratio threshold for bounding boxes.
-            Default is ``0.0``.
+        area_thres: Minimum area threshold for HBBs. Default is ``0``.
+        aspect_thres: Minimum height-to-width ratio threshold for HBBs. Default is ``0.0``.
     """
     bbox        = types.hbb_to_2d(bbox)
     w0, h0      = old_size
@@ -321,7 +315,7 @@ def ifish_transform_bbox1(
     return bbox_new
 
 
-def ifish_transform_bbox(
+def transform_bbox(
     bbox        : np.ndarray,
     old_size    : _size_2_t,
     new_size    : _size_2_t,
@@ -330,19 +324,16 @@ def ifish_transform_bbox(
     aspect_thres: float = 0.0,
     grid_points : int   = 5,
 ) -> np.ndarray:
-    """Transform bounding boxes from original image to the corresponding fisheye
-    images.
+    """Transform HBBs from original image to the corresponding fisheye images.
 
     Args:
-        bbox: Boxes as ``np.ndarray`` in [N, 4+], CXCYWHN format (YOLO), normalized.
+        bbox: HBBs as ``np.ndarray`` in [N, 4+], CXCYWHN format (YOLO), normalized.
         old_size: Original image size as [W, H] format.
         new_size: Transformed image size as [W, H] format.
         distortion: Distortion factor.
-        area_thres: Minimum area threshold for bounding boxes. Default is ``0``.
-        aspect_thres: Minimum height-to-width ratio threshold for bounding boxes.
-            Default is ``0.0``.
-        grid_points: Number of points per axis for sampling within each box.
-            Default is ``5``.
+        area_thres: Minimum area threshold for HBBs. Default is ``0``.
+        aspect_thres: Minimum height-to-width ratio threshold for HBBs. Default is ``0.0``.
+        grid_points: Number of points per axis for sampling within each box. Default is ``5``.
     """
     bbox        = types.hbb_to_2d(bbox)
     w0, h0      = old_size
@@ -418,30 +409,6 @@ def ifish_transform_bbox(
     return bbox_new
 
 
-def ifish_transform_image_bbox(
-    image       : np.ndarray,
-    bbox        : np.ndarray,
-    distortion  : float,
-    area_thres  : int   = 0,
-    aspect_thres: float = 0.0,
-) -> tuple[np.ndarray, np.ndarray]:
-    """Apply fisheye transformation to an image and its bounding boxes.
-
-    Args:
-        image: Input image as ``np.ndarray`` in [H, W, C] format.
-        bbox: Boxes as ``np.ndarray`` in [N, 4+], CXCYWHN format (YOLO), normalized.
-        distortion: Distortion factor.
-        area_thres: Minimum area threshold for bounding boxes. Default is ``0``.
-        aspect_thres: Minimum height-to-width ratio threshold for bounding boxes.
-            Default is ``0.0``.
-    """
-    transformed_image  = ifish_transform_image(image, distortion)
-    w0, h0 = types.image_size(image)
-    w1, h1 = types.image_size(transformed_image)
-    transformed_bboxes = ifish_transform_bbox(bbox, (w0, h0), (w1, h1), distortion, area_thres, aspect_thres)
-    return transformed_image, transformed_bboxes
-
-
 # ----- Augmentation -----
 @TRANSFORMS.register(name="ifish_transform")
 class iFishTransform(DualTransform):
@@ -493,7 +460,7 @@ class iFishTransform(DualTransform):
         new_size     : _size_2_t,
         *args: Any, **params: Any
     ) -> np.ndarray:
-        return ifish_transform_image(img, self.distortion)
+        return transform_image(img, self.distortion)
 
     def apply_to_bboxes(
         self,
@@ -503,12 +470,12 @@ class iFishTransform(DualTransform):
         new_size     : _size_2_t,
         *args: Any, **params: Any
     ) -> np.ndarray:
-        return ifish_transform_bbox(bboxes, old_size, new_size, self.distortion, self.area_thres, self.aspect_thres)
+        return transform_bbox(bboxes, old_size, new_size, self.distortion, self.area_thres, self.aspect_thres)
 
     def get_params_dependent_on_data(self, params: dict[str, Any], data: dict[str, Any]) -> dict[str, Any]:
         """Returns parameters dependent on input."""
         image         = data["image"]
-        fisheye_image = ifish_transform_image(image, self.distortion)
+        fisheye_image = transform_image(image, self.distortion)
         h0, w0        = types.image_size(image)
         h1, w1        = types.image_size(fisheye_image)
         return params | {

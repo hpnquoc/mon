@@ -117,8 +117,8 @@ def load_hbb(
         src_fmt = fmt.value.split("_to_")[0]
         src_fmt = BBoxFormat.from_value(value=src_fmt)
     else:
-        fmt     = None
         src_fmt = fmt
+        fmt     = None
 
     match src_fmt:
         case BBoxFormat.COCO | BBoxFormat.XYWH:

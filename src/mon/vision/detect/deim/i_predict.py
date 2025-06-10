@@ -8,15 +8,17 @@ References:
     - https://github.com/ShihuaHuang95/DEIM
 """
 
+import json
 import os
 import sys
-
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
+from datetime import datetime
 
 import box
 import torch
 
 import mon
+
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 from engine.core import YAMLConfig
 
 current_file = mon.Path(__file__).absolute()
@@ -94,6 +96,22 @@ def predict(args: dict | box.Box) -> str:
     model = Model(cfg).to(device)
 
     # Predict
+    # COCO JSON Format
+    json_path   = args.save_dir / f"{data_name}.json"
+    info        = {
+        "year"        : f"{datetime.now().year}",
+        "version"     : "1",
+        "description" : f"{data_name} predictions",
+        "contributor" : "Long H. Pham",
+        "url"         : "",
+        "date_created": f"{datetime.now()}"
+    }
+    licenses    = []
+    categories  = []
+    images      = []
+    annotations = []
+    ann_id      = 0
+
     timers = mon.TimeProfiler()
     with mon.create_progress_bar() as pbar:
         for i, datapoint in pbar.track(
@@ -120,26 +138,50 @@ def predict(args: dict | box.Box) -> str:
             # Postprocess
             timers.postprocess.tick()
             labels, boxes, scores = outputs
-            labels = [l.cpu().numpy() for l in labels]
-            boxes  = [b.cpu().numpy() for b in  boxes]
-            scores = [s.cpu().numpy() for s in scores]
+            scores = [s.cpu().numpy().astype(float) for s in scores][0]  # batch_size = 1
+            labels = [l.cpu().numpy().astype(int)   for l in labels][0]  # batch_size = 1
+            boxes  = [b.cpu().numpy().astype(float) for b in  boxes][0]  # batch_size = 1
+            # Filter by confidence threshold
+            labels = labels[scores >= args.conf_thres]
+            boxes  =  boxes[scores >= args.conf_thres]
             timers.postprocess.tock()
 
-            # Save Result
+            # Save
             if args.save_result:
-                out_dir    = mon.parse_output_dir(args.save_dir, data_name, mon.SAVE_LABEL_DIR, path, args.keep_subdirs, args.save_nearby)
-                label_path = out_dir / f"{path.stem}.txt"
-                label_path.parent.mkdir(parents=True, exist_ok=True)
-                with open(str(label_path), "w") as f:
-                    for j, img in enumerate(image):
-                        ss = scores[j]
-                        cs = labels[j][ss >= args.conf_thres]
-                        bs =  boxes[j][ss >= args.conf_thres]
-                        if len(bs) == 0:
-                            continue
-                        bs = mon.convert_hbb(bbox=bs, fmt=mon.BBoxFormat.VOC2YOLO, height=h0, width=w0)
-                        for c, b, s in zip(cs, bs, ss):
-                            f.write(f"{c} {b[0]} {b[1]} {b[2]} {b[3]} {s}\n")
+                out_dir   = mon.parse_output_dir(args.save_dir, data_name, mon.SAVE_LABEL_DIR, path, args.keep_subdirs, args.save_nearby)
+                json_path = out_dir.parent / f"{data_name}.json"
+
+                # Append image
+                images.append({"id": i, "file_name": path.name, "height": h0, "width": w0})
+
+                # Append annotations
+                if len(boxes) == 0:
+                    continue
+                for j, (c, b, s) in enumerate(zip(labels, boxes, scores)):
+                    annotations.append({
+                        "id"         : ann_id,
+                        "image_id"   : i,
+                        "category_id": c,
+                        "bbox"       : [b[0], b[1], b[2], b[3]],
+                        "area"       : float(b[2] * b[3]),
+                        "score"      : s,
+                        "iscrowd"    : 0,
+                    })
+                    ann_id += 1
+
+    # Save
+    if args.save_result:
+        json_path.parent.mkdir(parents=True, exist_ok=True)
+        # Write to JSON file
+        json_data = {
+            "info"       : info,
+            "licenses"   : licenses,
+            "categories" : categories,
+            "images"     : images,
+            "annotations": annotations
+        }
+        with open(str(json_path), "w") as f:
+            json.dump(json_data, f, indent=None)
 
     # Finish
     timers.print()

@@ -32,8 +32,8 @@ val_dataloader:
   type: DataLoader
   dataset:
     type        : CocoDetection
-    img_folder  : /data/fisheye8k/val/image
-    ann_file    : /data/fisheye8k/val/val.json
+    img_folder  : /data/fisheye8k/test/image
+    ann_file    : /data/fisheye8k/test/test.json
     return_masks: False
     transforms:
       type: Compose

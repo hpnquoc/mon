@@ -1,5 +1,5 @@
-# Fisheye8KvJK dataset:
-#   - trainvJK:  9,000 images (train + val + test1)
+# Fisheye8KvEN dataset:
+#   - trainvEN: 13,840 images (train + val + test2 + syn)
 #   - val     :  2,712 images
 #   - test    :  1,000 images
 
@@ -16,8 +16,8 @@ train_dataloader:
   type: DataLoader
   dataset:
     type        : CocoDetection
-    img_folder  : /data/fisheye8k/trainvJK/image
-    ann_file    : /data/fisheye8k/trainvJK/trainvJK.json
+    img_folder  : /data/fisheye8k/trainvEN/image
+    ann_file    : /data/fisheye8k/trainvEN/trainvEN.json
     return_masks: False
     transforms:
       type: Compose
@@ -32,8 +32,8 @@ val_dataloader:
   type: DataLoader
   dataset:
     type        : CocoDetection
-    img_folder  : /data/fisheye8k/val/image
-    ann_file    : /data/fisheye8k/val/val.json
+    img_folder  : /data/fisheye8k/test/image
+    ann_file    : /data/fisheye8k/test/test.json
     return_masks: False
     transforms:
       type: Compose

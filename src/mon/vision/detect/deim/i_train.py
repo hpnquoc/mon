@@ -10,17 +10,17 @@ References:
 
 import os
 import sys
+from pprint import pprint
 
 import box
 import torch
 
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
-
-from engine.misc import dist_utils
-from engine.core import YAMLConfig
-from engine.solver import TASKS
-from pprint import pprint
 import mon
+
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
+from engine.core import YAMLConfig
+from engine.misc import dist_utils
+from engine.solver import TASKS
 
 current_file = mon.Path(__file__).absolute()
 current_dir  = current_file.parents[0]

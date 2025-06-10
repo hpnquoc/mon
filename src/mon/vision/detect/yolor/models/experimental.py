@@ -126,6 +126,7 @@ class MixConv2d(nn.Module):
 
 class Ensemble(nn.ModuleList):
     # Ensemble of models
+
     def __init__(self):
         super(Ensemble, self).__init__()
 
