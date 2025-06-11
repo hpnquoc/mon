@@ -86,7 +86,7 @@ def train(args: dict | box.Box) -> str:
         for _ in pbar.track(
             sequence    = range(args.epochs),
             total       = args.epochs,
-            description = f"[bright_yellow] Training"
+            description = f"[bright_yellow]Training"
         ):
             for i, datapoint in enumerate(train_dataloader):
                 image          = datapoint["image"].to(device)

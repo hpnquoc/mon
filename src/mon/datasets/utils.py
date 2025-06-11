@@ -112,11 +112,11 @@ def parse_data_name(src: core.Path | str) -> str:
 
 def parse_data_loader(
     src       : core.Path | str,
-    data_root : core.Path     = None,
-    to_tensor : bool          = False,
-    batch_size: int           = 1,
-    device    : torch.device  = None,
-    verbose   : bool          = False,
+    data_root : core.Path    = None,
+    to_tensor : bool         = False,
+    batch_size: int          = 1,
+    device    : torch.device = None,
+    verbose   : bool         = False,
 ) -> tuple[str, core.Dataset]:
     """Parses I/O worker for data src.
 

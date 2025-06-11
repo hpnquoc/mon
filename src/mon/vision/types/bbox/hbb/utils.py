@@ -41,13 +41,12 @@ def is_hbb_normalized(bbox: np.ndarray) -> bool:
     return np.all((bbox[:, :4] >= 0) & (bbox[:, :4] <= 1))
 
 
-def is_hbb_cxcywhn(bbox: np.ndarray, height: int, width: int) -> bool:
+def is_hbb_cxcywhn(bbox: np.ndarray, imgsz: tuple[int, int]) -> bool:
     """Check if a HBBs is in CXCYWHN format.
 
     Args:
         bbox: HBBs as ``np.ndarray`` in [4] or [N, 4].
-        height: Image height in pixels as ``int``.
-        width: Image width in pixels as ``int``.
+        imgsz: Image size in [H, W] format.
 
     Returns:
         ``True`` if in CXCYWHN format, ``False`` otherwise.
@@ -61,13 +60,12 @@ def is_hbb_cxcywhn(bbox: np.ndarray, height: int, width: int) -> bool:
     )
 
 
-def is_hbb_xyxy(box: np.ndarray, height: int, width: int) -> bool:
+def is_hbb_xyxy(box: np.ndarray, imgsz: tuple[int, int]) -> bool:
     """Check if a HBBs is in XYXY format.
 
     Args:
         box: HBBs as ``np.ndarray`` in [4] or [N, 4].
-        height: Image height in pixels as ``int``.
-        width: Image width in pixels as ``int``.
+        imgsz: Image size in [H, W] format.
 
     Returns:
         ``True`` if in XYXY format, ``False`` otherwise.
@@ -75,7 +73,7 @@ def is_hbb_xyxy(box: np.ndarray, height: int, width: int) -> bool:
     if not (box.ndim >= 2 and box.shape[-1] < 4):
         raise ValueError("[bbox] must be in [N, 4+] format.")
 
-    if is_hbb_cxcywhn(box, height, width):
+    if is_hbb_cxcywhn(box, imgsz):
         return False
 
     # Extract first bbox for format checking
@@ -86,13 +84,12 @@ def is_hbb_xyxy(box: np.ndarray, height: int, width: int) -> bool:
         return False
 
 
-def is_hbb_xywh(bbox: np.ndarray, height: int, width: int) -> bool:
+def is_hbb_xywh(bbox: np.ndarray, imgsz: tuple[int, int]) -> bool:
     """Check if a HBBs is in XYWH format.
 
     Args:
         bbox: HBBs as ``np.ndarray`` in [4] or [N, 4].
-        height: Image height in pixels as ``int``.
-        width: Image width in pixels as ``int``.
+        imgsz: Image size in [H, W] format.
 
     Returns:
         ``True`` if in XYWH format, ``False`` otherwise.
@@ -100,7 +97,7 @@ def is_hbb_xywh(bbox: np.ndarray, height: int, width: int) -> bool:
     if not (bbox.ndim >= 2 and bbox.shape[-1] < 4):
         raise ValueError("[bbox] must be in [N, 4+] format.")
 
-    if is_hbb_cxcywhn(bbox, height, width):
+    if is_hbb_cxcywhn(bbox, imgsz):
         return False
 
     # Extract first bbox for format checking

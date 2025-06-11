@@ -92,7 +92,11 @@ def predict(args: dict | box.Box) -> str:
 
     # Load train mode state and convert to deploy mode
     cfg.model.load_state_dict(state)
-    model = Model(cfg).to(device)
+    model = Model(cfg)
+    model = model.to(device)
+    model = model.eval()
+    for param in model.parameters():
+        param.requires_grad = False
 
     # Predict
     timers = mon.TimeProfiler()
@@ -100,7 +104,7 @@ def predict(args: dict | box.Box) -> str:
         for i, datapoint in pbar.track(
             sequence    = enumerate(data_loader),
             total       = len(data_loader),
-            description = f"[bright_yellow] Predicting"
+            description = f"[bright_yellow]Predicting"
         ):
             # Preprocess
             timers.preprocess.tick()

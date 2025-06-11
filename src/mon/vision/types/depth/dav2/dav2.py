@@ -10,7 +10,7 @@ __all__ = [
     "build_depth_anything_v2",
 ]
 
-from abc import ABC
+import abc
 from typing import Any, Literal
 
 from depth_anything_v2 import dpt
@@ -23,7 +23,7 @@ current_dir  = current_file.parents[0]
 
 
 # ----- Model -----
-class DepthAnythingV2(nn.ExtraModel, base.DepthEstimationModel, ABC):
+class DepthAnythingV2(nn.ExtraModel, base.DepthEstimationModel, abc.ABC):
     """This class implements a wrapper for `DepthAnythingV2` models
     defined in `mon_extra.vision.depth.depth_anything_v2`.
     """

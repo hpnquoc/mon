@@ -10,7 +10,7 @@ __all__ = [
     "ConvNeXtTiny",
 ]
 
-from abc import ABC
+import abc
 
 from torchvision.models import (
     convnext_base, convnext_large, convnext_small, convnext_tiny,
@@ -25,7 +25,7 @@ current_dir  = current_file.parents[0]
 
 
 # ----- Model -----
-class ConvNeXt(nn.ExtraModel, base.ImageClassificationModel, ABC):
+class ConvNeXt(nn.ExtraModel, base.ImageClassificationModel, abc.ABC):
     """ConvNeXt model for image classification.
 
     References:

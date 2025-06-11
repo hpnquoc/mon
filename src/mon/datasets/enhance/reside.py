@@ -24,17 +24,8 @@ __all__ = [
 
 from typing import Literal
 
-from mon import core, vision
-from mon.constants import DATAMODULES, DATASETS, Split, Task
-
-# ----- Alias -----
-ClassLabels                    = core.ClassLabels
-DatapointAttributes            = core.DatapointAttributes
-DepthMapAnnotation             = vision.DepthMapAnnotation
-ImageAnnotation                = vision.ImageAnnotation
-InfraredAnnotation             = vision.InfraredAnnotation
-SemanticSegmentationAnnotation = vision.SemanticSegmentationAnnotation
-VisionDataset                  = vision.VisionDataset
+from mon import core
+from mon.datasets.core import *
 
 
 # ----- Dataset -----
@@ -54,8 +45,8 @@ class RESIDE_HSTSReal(VisionDataset):
     tasks : list[Task]  = [Task.DEHAZE]
     splits: list[Split] = [Split.TEST]
     datapoint_attrs     = DatapointAttributes({
-        "image": ImageAnnotation,
-        "depth": DepthMapAnnotation,
+        "image": Image,
+        "depth": DepthMap,
     })
     has_test_annotations: bool = False
     
@@ -71,14 +62,14 @@ class RESIDE_HSTSReal(VisionDataset):
         """Lists ``datapoints`` with image annotations for split."""
         patterns = [self.root / "hsts" / "real" / self.split_str / "image"]
         
-        images: list[ImageAnnotation] = []
+        images: list[Image] = []
         with core.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
                 for path in pbar.track(sequence=paths, description=desc):
                     if path.is_image_file():
-                        images.append(ImageAnnotation(path=path, root=pattern))
+                        images.append(Image(path=path, root=pattern))
         
         self.datapoints["image"] = images
         
@@ -99,10 +90,10 @@ class RESIDE_HSTSSyn(VisionDataset):
     tasks : list[Task]  = [Task.DEHAZE]
     splits: list[Split] = [Split.TEST]
     datapoint_attrs     = DatapointAttributes({
-        "image"    : ImageAnnotation,
-        "depth"    : DepthMapAnnotation,
-        "ref_image": ImageAnnotation,
-        "ref_depth": DepthMapAnnotation,
+        "image"    : Image,
+        "depth"    : DepthMap,
+        "ref_image": Image,
+        "ref_depth": DepthMap,
     })
     has_test_annotations: bool = True
     
@@ -118,14 +109,14 @@ class RESIDE_HSTSSyn(VisionDataset):
         """Lists ``datapoints`` with image annotations for split."""
         patterns = [self.root / "hsts" / "synthetic" / self.split_str / "image"]
         
-        images: list[ImageAnnotation] = []
+        images: list[Image] = []
         with core.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
                 for path in pbar.track(sequence=paths, description=desc):
                     if path.is_image_file():
-                        images.append(ImageAnnotation(path=path, root=pattern))
+                        images.append(Image(path=path, root=pattern))
         
         self.datapoints["image"] = images
         
@@ -146,10 +137,10 @@ class RESIDE_ITS(VisionDataset):
     tasks : list[Task]  = [Task.DEHAZE]
     splits: list[Split] = [Split.TRAIN]
     datapoint_attrs     = DatapointAttributes({
-        "image"    : ImageAnnotation,
-        "depth"    : DepthMapAnnotation,
-        "ref_image": ImageAnnotation,
-        "ref_depth": DepthMapAnnotation,
+        "image"    : Image,
+        "depth"    : DepthMap,
+        "ref_image": Image,
+        "ref_depth": DepthMap,
     })
     has_test_annotations: bool = False
     
@@ -165,14 +156,14 @@ class RESIDE_ITS(VisionDataset):
         """Lists ``datapoints`` with image and ref annotations."""
         patterns = [self.root / "its" / self.split_str / "image"]
         
-        images: list[ImageAnnotation] = []
+        images: list[Image] = []
         with core.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
                 for path in pbar.track(sequence=paths, description=desc):
                     if path.is_image_file():
-                        images.append(ImageAnnotation(path=path, root=pattern))
+                        images.append(Image(path=path, root=pattern))
 
         self.datapoints["image"] = images
 
@@ -193,10 +184,10 @@ class RESIDE_OTS(VisionDataset):
     tasks : list[Task]  = [Task.DEHAZE]
     splits: list[Split] = [Split.TRAIN]
     datapoint_attrs     = DatapointAttributes({
-        "image"    : ImageAnnotation,
-        "depth"    : DepthMapAnnotation,
-        "ref_image": ImageAnnotation,
-        "ref_depth": DepthMapAnnotation,
+        "image"    : Image,
+        "depth"    : DepthMap,
+        "ref_image": Image,
+        "ref_depth": DepthMap,
     })
     has_test_annotations: bool = False
     
@@ -212,14 +203,14 @@ class RESIDE_OTS(VisionDataset):
         """Lists ``datapoints`` with image and ref annotations."""
         patterns = [self.root / "ots" / self.split_str / "image"]
         
-        images: list[ImageAnnotation] = []
+        images: list[Image] = []
         with core.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
                 for path in pbar.track(sequence=paths, description=desc):
                     if path.is_image_file():
-                        images.append(ImageAnnotation(path=path, root=pattern))
+                        images.append(Image(path=path, root=pattern))
 
         self.datapoints["image"] = images
 
@@ -240,8 +231,8 @@ class RESIDE_RTTS(VisionDataset):
     tasks : list[Task]  = [Task.DEHAZE, Task.DETECT]
     splits: list[Split] = [Split.TEST]
     datapoint_attrs     = DatapointAttributes({
-        "image": ImageAnnotation,
-        "depth": DepthMapAnnotation,
+        "image": Image,
+        "depth": DepthMap,
     })
     has_test_annotations: bool = False
     
@@ -257,14 +248,14 @@ class RESIDE_RTTS(VisionDataset):
         """Lists ``datapoints`` with image annotations for split."""
         patterns = [self.root / "rtts" / self.split_str / "image"]
         
-        images: list[ImageAnnotation] = []
+        images: list[Image] = []
         with core.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
                 for path in pbar.track(sequence=paths, description=desc):
                     if path.is_image_file():
-                        images.append(ImageAnnotation(path=path, root=pattern))
+                        images.append(Image(path=path, root=pattern))
         
         self.datapoints["image"] = images
         
@@ -285,10 +276,10 @@ class RESIDE_SOTSIndoor(VisionDataset):
     tasks : list[Task]  = [Task.DEHAZE]
     splits: list[Split] = [Split.TEST]
     datapoint_attrs     = DatapointAttributes({
-        "image"    : ImageAnnotation,
-        "depth"    : DepthMapAnnotation,
-        "ref_image": ImageAnnotation,
-        "ref_depth": DepthMapAnnotation,
+        "image"    : Image,
+        "depth"    : DepthMap,
+        "ref_image": Image,
+        "ref_depth": DepthMap,
     })
     has_test_annotations: bool = True
     
@@ -304,14 +295,14 @@ class RESIDE_SOTSIndoor(VisionDataset):
         """Lists ``datapoints`` with image and ref annotations."""
         patterns = [self.root / "sots" / "indoor" / self.split_str / "image"]
         
-        images: list[ImageAnnotation] = []
+        images: list[Image] = []
         with core.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
                 for path in pbar.track(sequence=paths, description=desc):
                     if path.is_image_file():
-                        images.append(ImageAnnotation(path=path, root=pattern))
+                        images.append(Image(path=path, root=pattern))
 
         self.datapoints["image"] = images
 
@@ -332,10 +323,10 @@ class RESIDE_SOTSOutdoor(VisionDataset):
     tasks : list[Task]  = [Task.DEHAZE]
     splits: list[Split] = [Split.TEST]
     datapoint_attrs     = DatapointAttributes({
-        "image"    : ImageAnnotation,
-        "depth"    : DepthMapAnnotation,
-        "ref_image": ImageAnnotation,
-        "ref_depth": DepthMapAnnotation,
+        "image"    : Image,
+        "depth"    : DepthMap,
+        "ref_image": Image,
+        "ref_depth": DepthMap,
     })
     has_test_annotations: bool = True
     
@@ -351,14 +342,14 @@ class RESIDE_SOTSOutdoor(VisionDataset):
         """Lists ``datapoints`` with image and ref annotations."""
         patterns = [self.root / "sots" / "outdoor" / self.split_str / "image"]
         
-        images: list[ImageAnnotation] = []
+        images: list[Image] = []
         with core.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
                 for path in pbar.track(sequence=paths, description=desc):
                     if path.is_image_file():
-                        images.append(ImageAnnotation(path=path, root=pattern))
+                        images.append(Image(path=path, root=pattern))
 
         self.datapoints["image"] = images
 
@@ -379,8 +370,8 @@ class RESIDE_URHI(VisionDataset):
     tasks : list[Task]  = [Task.DEHAZE]
     splits: list[Split] = [Split.TEST]
     datapoint_attrs     = DatapointAttributes({
-        "image": ImageAnnotation,
-        "depth": DepthMapAnnotation,
+        "image": Image,
+        "depth": DepthMap,
     })
     has_test_annotations: bool = False
     
@@ -396,14 +387,14 @@ class RESIDE_URHI(VisionDataset):
         """Lists ``datapoints`` with image annotations for split."""
         patterns = [self.root / "urhi" / self.split_str / "image"]
         
-        images: list[ImageAnnotation] = []
+        images: list[Image] = []
         with core.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
                 for path in pbar.track(sequence=paths, description=desc):
                     if path.is_image_file():
-                        images.append(ImageAnnotation(path=path, root=pattern))
+                        images.append(Image(path=path, root=pattern))
         
         self.datapoints["image"] = images
         

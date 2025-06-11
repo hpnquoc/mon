@@ -7,7 +7,7 @@ __all__ = [
     "ImageEnhancementModel",
 ]
 
-from abc import ABC
+import abc
 
 import cv2
 
@@ -17,7 +17,7 @@ from mon.vision import model, types
 
 
 # ----- Image Enhancement Model -----
-class ImageEnhancementModel(model.VisionModel, ABC):
+class ImageEnhancementModel(model.VisionModel, abc.ABC):
     """The base class for all image enhancement models."""
     
     # ----- Forward Pass -----

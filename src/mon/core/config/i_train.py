@@ -63,7 +63,7 @@ def train(args: dict | box.Box) -> str:
         for _ in pbar.track(
             sequence    = range(args.epochs),
             total       = args.epochs,
-            description = f"[bright_yellow] Training"
+            description = f"[bright_yellow]Training"
         ):
             pass
 

@@ -77,7 +77,7 @@ def predict(args: dict | box.Box) -> str:
         for i, datapoint in pbar.track(
             sequence    = enumerate(data_loader),
             total       = len(data_loader),
-            description = f"[bright_yellow] Predicting"
+            description = f"[bright_yellow]Predicting"
         ):
             # Preprocess
             timers.preprocess.tick()

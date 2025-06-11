@@ -32,7 +32,7 @@ __all__ = [
     "reduce_loss",
 ]
 
-from abc import ABC, abstractmethod
+import abc
 from typing import Literal
 
 import torch
@@ -66,7 +66,7 @@ def reduce_loss(
     return {"mean": torch.mean, "sum": torch.sum, "none": lambda x: x}[reduction](loss)
 
 
-class Loss(_Loss, ABC):
+class Loss(_Loss, abc.ABC):
     """The base class for all loss functions.
     
     Args:
@@ -93,7 +93,7 @@ class Loss(_Loss, ABC):
         """
         return core.humps.depascalize(self.__class__.__name__).lower()
     
-    @abstractmethod
+    @abc.abstractmethod
     def forward(self, input: torch.Tensor, target: torch.Tensor) -> torch.Tensor:
         """Performs forward pass with input and target tensors.
     

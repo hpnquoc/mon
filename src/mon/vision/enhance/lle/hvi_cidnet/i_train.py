@@ -142,7 +142,7 @@ def train(args: dict | box.Box) -> str:
         for i in pbar.track(
             sequence    = range(args.epochs),
             total       = args.epochs,
-            description = f"[bright_yellow] Training"
+            description = f"[bright_yellow]Training"
         ):
             model.train()
             loss_print   = 0

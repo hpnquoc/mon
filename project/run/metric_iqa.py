@@ -67,7 +67,7 @@ def measure_metric_pyiqa(
     need_target = any(_METRICS[m]["metric_mode"] == "FR" for m in metric)
     
     # Measuring
-    description = f"[bright_yellow] Measuring {model} | {data} (GT Mean)" if use_gt_mean else f"[bright_yellow] Measuring {model} | {data}"
+    description = f"[bright_yellow]Measuring {model} | {data} (GT Mean)" if use_gt_mean else f"[bright_yellow]Measuring {model} | {data}"
     with mon.create_progress_bar(transient=not verbose) as pbar:
         for image_file in pbar.track(
             sequence    = image_files,

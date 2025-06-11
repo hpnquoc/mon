@@ -21,7 +21,7 @@ __all__ = [
     "RegNet_Y_8GF",
 ]
 
-from abc import ABC
+import abc
 from typing import Any
 
 from torchvision.models import (
@@ -40,7 +40,7 @@ current_dir  = current_file.parents[0]
 
 
 # ----- Model -----
-class RegNet(nn.ExtraModel, base.ImageClassificationModel, ABC):
+class RegNet(nn.ExtraModel, base.ImageClassificationModel, abc.ABC):
     """RegNet model for image classification.
 
     References:

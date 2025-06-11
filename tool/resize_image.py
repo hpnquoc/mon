@@ -44,7 +44,7 @@ def resize_image(
         for i in pbar.track(
             sequence    = range(len(image_files)),
             total       = len(image_files),
-            description = f"[bright_yellow] Converting"
+            description = f"[bright_yellow]Converting"
         ):
             image   = cv2.imread(str(image_files[i]))
             resized = mon.resize(image, imgsz, divisible_by, side, cv2.INTER_AREA)

@@ -7,7 +7,7 @@ __all__ = [
     "DataModule",
 ]
 
-from abc import ABC, abstractmethod
+import abc
 from typing import Any, Callable, Literal
 
 import lightning
@@ -20,7 +20,7 @@ from mon.core.types import dataset
 
 
 # ----- DataModule -----
-class DataModule(lightning.LightningDataModule, ABC):
+class DataModule(lightning.LightningDataModule, abc.ABC):
     """Base class for all datamodules.
 
     Attributes:
@@ -180,7 +180,7 @@ class DataModule(lightning.LightningDataModule, ABC):
         return self.verbose and (self.trainer is None or self.trainer.global_rank == 0)
     
     # ----- Initialize -----
-    @abstractmethod
+    @abc.abstractmethod
     def prepare_data(self, *args, **kwargs):
         """Prepares data for disk or single-GPU tasks.
 
@@ -190,7 +190,7 @@ class DataModule(lightning.LightningDataModule, ABC):
         """
         pass
     
-    @abstractmethod
+    @abc.abstractmethod
     def setup(self, stage: Literal["train", "test", "predict", None] = None):
         """Sets up data for every device.
 

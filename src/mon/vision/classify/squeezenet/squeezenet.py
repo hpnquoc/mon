@@ -8,7 +8,7 @@ __all__ = [
     "SqueezeNet1_1",
 ]
 
-from abc import ABC
+import abc
 
 from torchvision.models import squeezenet1_0, squeezenet1_1
 
@@ -21,7 +21,7 @@ current_dir  = current_file.parents[0]
 
 
 # ----- Model -----
-class SqueezeNet(nn.ExtraModel, base.ImageClassificationModel, ABC):
+class SqueezeNet(nn.ExtraModel, base.ImageClassificationModel, abc.ABC):
     """SqueezeNet model for image classification.
 
     References:

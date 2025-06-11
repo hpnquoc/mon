@@ -14,7 +14,7 @@ __all__ = [
     "VGG19_BN",
 ]
 
-from abc import ABC
+import abc
 
 from torchvision.models import (
     vgg11, vgg11_bn, vgg13, vgg13_bn, vgg16, vgg16_bn, vgg19, vgg19_bn,
@@ -29,7 +29,7 @@ current_dir  = current_file.parents[0]
 
 
 # ----- VGG -----
-class VGG(nn.ExtraModel, base.ImageClassificationModel, ABC):
+class VGG(nn.ExtraModel, base.ImageClassificationModel, abc.ABC):
     """VGG model for image classification.
 
     References:

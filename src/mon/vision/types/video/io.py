@@ -103,8 +103,7 @@ class VideoWriter(ABC):
 
     Args:
         dst: Directory to save images.
-        image_size: Output size as ``int`` or ``Sequence[int]`` in [H, W].
-            Default is [480, 640].
+        imgsz: Output size in [H, W] format. Default is ``[480, 640]``.
         frame_rate: Frame rate of output video as ``float``. Default is ``10``.
         denormalize: Convert to [0, 255] if ``True``. Default is ``False``.
         verbose: Enable verbosity if ``True``. Default is ``False``.
@@ -113,7 +112,7 @@ class VideoWriter(ABC):
     def __init__(
         self,
         dst		   : core.Path,
-        image_size : _size_2_t = [480, 640],
+        imgsz      : tuple[int, int] = [480, 640],
         frame_rate : float = 10,
         denormalize: bool  = False,
         verbose    : bool  = False,
@@ -122,7 +121,7 @@ class VideoWriter(ABC):
         self.dst         = core.Path(dst)
         self.denormalize = denormalize
         self.index       = 0
-        self.image_size  = I.image_size(image_size)
+        self.image_size  = I.image_size(imgsz)
         self.frame_rate  = frame_rate
         self.verbose     = verbose
         self.init()
@@ -187,8 +186,7 @@ class VideoWriterCV(VideoWriter):
 
     Args:
         dst: Directory to save video.
-        image_size: Output size as ``int`` or ``Sequence[int]`` in [H, W].
-            Default is [480, 640].
+        imgsz: Output size in [H, W] format. Default is ``[480, 640]``.
         frame_rate: Frame rate of video as ``float``. Default is ``30``.
         fourcc: Video codec as ``str``. One of ``"mp4v"``, ``"xvid"``, ``"mjpg"``,
             ``"wmv"``. Default is ``"mp4v"``.
@@ -199,7 +197,7 @@ class VideoWriterCV(VideoWriter):
     def __init__(
         self,
         dst		   : core.Path,
-        image_size : _size_2_t = [480, 640],
+        imgsz      : tuple[int, int] = [480, 640],
         frame_rate : float = 30,
         fourcc     : str   = "mp4v",
         denormalize: bool  = False,
@@ -210,7 +208,7 @@ class VideoWriterCV(VideoWriter):
         self.video_writer = None
         super().__init__(
             dst			= dst,
-            image_size  = image_size,
+            imgsz= imgsz,
             frame_rate  = frame_rate,
             denormalize = denormalize,
             verbose     = verbose,
@@ -286,8 +284,7 @@ class VideoWriterFFmpeg(VideoWriter):
 
     Args:
         dst: Directory to save video.
-        image_size: Output size as ``int`` or ``Sequence[int]`` in [H, W].
-            Default is [480, 640].
+        imgsz: Output size in [H, W] format. Default is ``[480, 640]``.
         frame_rate: Frame rate of video as ``float``. Default is ``10``.
         pix_fmt: Video codec as ``str``. Default is ``"yuv420p"``.
         denormalize: Convert to [0, 255] if ``True``. Default is ``False``.
@@ -297,7 +294,7 @@ class VideoWriterFFmpeg(VideoWriter):
     def __init__(
         self,
         dst		   : core.Path,
-        image_size : _size_2_t = [480, 640],
+        imgsz      : tuple[int, int] = [480, 640],
         frame_rate : float = 10,
         pix_fmt    : str   = "yuv420p",
         denormalize: bool  = False,
@@ -309,7 +306,7 @@ class VideoWriterFFmpeg(VideoWriter):
         self.ffmpeg_kwargs  = kwargs
         super().__init__(
             dst			= dst,
-            image_size  = image_size,
+            imgsz= imgsz,
             frame_rate  = frame_rate,
             denormalize = denormalize,
             verbose     = verbose,

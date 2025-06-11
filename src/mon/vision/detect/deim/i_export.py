@@ -1,9 +1,11 @@
-"""
-D-FINE: Redefine Regression Task of DETRs as Fine-grained Distribution Refinement
-Copyright (c) 2024 The D-FINE Authors. All Rights Reserved.
----------------------------------------------------------------------------------
-Modified from RT-DETR (https://github.com/lyuwenyu/RT-DETR)
-Copyright (c) 2023 lyuwenyu. All Rights Reserved.
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+"""Implements the paper: "DEIM: DETR with Improved Matching for Fast
+Convergence," CVPR 2025.
+
+References:
+    - https://github.com/ShihuaHuang95/DEIM
 """
 
 import os
@@ -36,6 +38,7 @@ class Model(torch.nn.Module):
         return outputs
 
 
+@torch.no_grad()
 def export_onnx(model: Model, path: mon.Path, args: dict | box.Box) -> mon.Path:
     imgsz = args.imgsz[0] if isinstance(args.imgsz, list | tuple) else args.imgsz
     data  = torch.rand(32, 3, imgsz, imgsz)
@@ -76,6 +79,7 @@ def export_onnx(model: Model, path: mon.Path, args: dict | box.Box) -> mon.Path:
         print(f"Simplify onnx model {check}...")
 
 
+@torch.no_grad()
 def export_trt(onnx_path: mon.Path, path: mon.Path, args: dict | box.Box) -> mon.Path:
     if not onnx_path.is_onnx_file(exist=True):
         raise FileNotFoundError(f"Invalid ONNX model: {onnx_path}.")
@@ -202,6 +206,9 @@ def export(args: dict | box.Box) -> str:
     # Load train mode state and convert to deploy mode
     cfg.model.load_state_dict(state)
     model = Model(cfg)
+    model = model.eval()
+    for param in model.parameters():
+        param.requires_grad = False
 
     # Export ONNX model (always export ONNX first)
     save_dir  = pretrained.parent if args.save_nearby  else args.save_dir

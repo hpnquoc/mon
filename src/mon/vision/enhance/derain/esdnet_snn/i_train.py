@@ -135,7 +135,7 @@ def train(args: dict | box.Box) -> str:
             for i, data in pbar.track(
                 sequence    = enumerate(train_loader),
                 total       = len(train_loader),
-                description = f"[bright_yellow] Training"
+                description = f"[bright_yellow]Training"
             ):
                 for param in model_.parameters():
                     param.grad = None

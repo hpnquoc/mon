@@ -7,7 +7,7 @@ __all__ = [
     "SegmentationModel",
 ]
 
-from abc import ABC
+import abc
 
 import cv2
 
@@ -17,7 +17,7 @@ from mon.vision import model, types
 
 
 # ----- Segmentation Model -----
-class SegmentationModel(model.VisionModel, ABC):
+class SegmentationModel(model.VisionModel, abc.ABC):
     """The base class for all segmentation models."""
     
     tasks: list[Task] = [Task.SEGMENT]

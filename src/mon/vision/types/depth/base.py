@@ -7,7 +7,7 @@ __all__ = [
     "DepthEstimationModel",
 ]
 
-from abc import ABC
+import abc
 
 from mon import nn
 from mon.constants import Task
@@ -15,7 +15,7 @@ from mon.vision import model
 
 
 # ----- Base Model -----
-class DepthEstimationModel(model.VisionModel, ABC):
+class DepthEstimationModel(model.VisionModel, abc.ABC):
     """Base class for depth estimation models."""
     
     tasks: list[Task] = [Task.DEPTH]

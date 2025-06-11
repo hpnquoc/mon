@@ -10,7 +10,7 @@ __all__ = [
     "DenseNet201",
 ]
 
-from abc import ABC
+import abc
 
 from torchvision.models import (
     densenet121, densenet161, densenet169, densenet201,
@@ -25,7 +25,7 @@ current_dir  = current_file.parents[0]
 
 
 # ----- Model -----
-class DenseNet(nn.ExtraModel, base.ImageClassificationModel, ABC):
+class DenseNet(nn.ExtraModel, base.ImageClassificationModel, abc.ABC):
     """DenseNet model for image classification.
 
     References:

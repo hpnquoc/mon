@@ -10,7 +10,7 @@ __all__ = [
     "MNASNet1_3",
 ]
 
-from abc import ABC
+import abc
 
 from torchvision.models import mnasnet0_5, mnasnet0_75, mnasnet1_0, mnasnet1_3
 
@@ -23,7 +23,7 @@ current_dir  = current_file.parents[0]
 
 
 # ----- Model -----
-class MNASNet(nn.ExtraModel, base.ImageClassificationModel, ABC):
+class MNASNet(nn.ExtraModel, base.ImageClassificationModel, abc.ABC):
     """MNASNet model for image classification.
 
     References:

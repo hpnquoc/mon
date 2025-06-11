@@ -184,7 +184,7 @@ class ConvertCocoPolysToMask(object):
         return image, target
 
 
-mscoco_category2name = {
+mscoco_category2name  = {
     1: "person",
     2: "bicycle",
     3: "car",

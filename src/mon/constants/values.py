@@ -270,28 +270,78 @@ EXTRA_MODELS   = {  # architecture/model (+ variant)
         },
     },
     "yolov11": {
-        "yolov11n": {
+        "yolov11n"    : {
             "tasks"    : [Task.DETECT],
             "mltypes"  : [MLType.SUPERVISED],
             "model_dir": MON_DIR / "extra" / "ultralytics",
         },
-        "yolov11s": {
+        "yolov11s"    : {
             "tasks"    : [Task.DETECT],
             "mltypes"  : [MLType.SUPERVISED],
             "model_dir": MON_DIR / "extra" / "ultralytics",
         },
-        "yolov11m": {
+        "yolov11m"    : {
             "tasks"    : [Task.DETECT],
             "mltypes"  : [MLType.SUPERVISED],
             "model_dir": MON_DIR / "extra" / "ultralytics",
         },
-        "yolov11l": {
+        "yolov11l"    : {
             "tasks"    : [Task.DETECT],
             "mltypes"  : [MLType.SUPERVISED],
             "model_dir": MON_DIR / "extra" / "ultralytics",
         },
-        "yolov11x": {
+        "yolov11x"    : {
             "tasks"    : [Task.DETECT],
+            "mltypes"  : [MLType.SUPERVISED],
+            "model_dir": MON_DIR / "extra" / "ultralytics",
+        },
+        "yolov11n_obb": {
+            "tasks"    : [Task.DETECT],
+            "mltypes"  : [MLType.SUPERVISED],
+            "model_dir": MON_DIR / "extra" / "ultralytics",
+        },
+        "yolov11s_obb": {
+            "tasks"    : [Task.DETECT],
+            "mltypes"  : [MLType.SUPERVISED],
+            "model_dir": MON_DIR / "extra" / "ultralytics",
+        },
+        "yolov11m_obb": {
+            "tasks"    : [Task.DETECT],
+            "mltypes"  : [MLType.SUPERVISED],
+            "model_dir": MON_DIR / "extra" / "ultralytics",
+        },
+        "yolov11l_obb": {
+            "tasks"    : [Task.DETECT],
+            "mltypes"  : [MLType.SUPERVISED],
+            "model_dir": MON_DIR / "extra" / "ultralytics",
+        },
+        "yolov11x_obb": {
+            "tasks"    : [Task.DETECT],
+            "mltypes"  : [MLType.SUPERVISED],
+            "model_dir": MON_DIR / "extra" / "ultralytics",
+        },
+        "yolov11n_seg": {
+            "tasks"    : [Task.SEGMENT],
+            "mltypes"  : [MLType.SUPERVISED],
+            "model_dir": MON_DIR / "extra" / "ultralytics",
+        },
+        "yolov11s_seg": {
+            "tasks"    : [Task.SEGMENT],
+            "mltypes"  : [MLType.SUPERVISED],
+            "model_dir": MON_DIR / "extra" / "ultralytics",
+        },
+        "yolov11m_seg": {
+            "tasks"    : [Task.SEGMENT],
+            "mltypes"  : [MLType.SUPERVISED],
+            "model_dir": MON_DIR / "extra" / "ultralytics",
+        },
+        "yolov11l_seg": {
+            "tasks"    : [Task.SEGMENT],
+            "mltypes"  : [MLType.SUPERVISED],
+            "model_dir": MON_DIR / "extra" / "ultralytics",
+        },
+        "yolov11x_seg": {
+            "tasks"    : [Task.SEGMENT],
             "mltypes"  : [MLType.SUPERVISED],
             "model_dir": MON_DIR / "extra" / "ultralytics",
         },

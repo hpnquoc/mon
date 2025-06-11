@@ -21,7 +21,7 @@ import numpy as np
 import rawpy
 import torch
 import torchvision
-from PIL import Image
+import PIL.Image
 
 from mon import core
 from mon.vision.types.image import processing, utils
@@ -86,7 +86,7 @@ def read_image_shape(path: core.Path) -> tuple[int, int, int]:
         h, w = image.shape
         c = 3
     else:
-        with Image.open(str(path)) as image:
+        with PIL.Image.open(str(path)) as image:
             w, h = image.size
             mode = image.mode
             c = {"RGB": 3, "RGBA": 4, "L": 1}.get(mode, None)
@@ -97,11 +97,12 @@ def read_image_shape(path: core.Path) -> tuple[int, int, int]:
 
 
 # ----- Writing -----
-def save_image(image: torch.Tensor | np.ndarray, path: core.Path):
+def save_image(image: torch.Tensor | np.ndarray | PIL.Image.Image, path: core.Path):
     """Save an image to a file path.
 
     Args:
-        image: Image as ``torch.Tensor`` [B, C, H, W] or ``numpy.ndarray`` [H, W, C].
+        image: Image as ``torch.Tensor`` [B, C, H, W], ``numpy.ndarray`` [H, W, C],
+            or ``PIL.Image.Image``.
         path: Output file path.
 
     Raises:
@@ -114,5 +115,7 @@ def save_image(image: torch.Tensor | np.ndarray, path: core.Path):
         torchvision.utils.save_image(image, str(path))
     elif isinstance(image, np.ndarray):
         cv2.imwrite(str(path), cv2.cvtColor(image, cv2.COLOR_RGB2BGR))
+    elif isinstance(image, PIL.Image.Image):
+        image.save(str(path))
     else:
-        raise TypeError(f"[image] must be a torch.Tensor or numpy.ndarray, got {type(image)}.")
+        raise TypeError(f"[image] must be a torch.Tensor, numpy.ndarray, or PIL.Image, got {type(image)}.")

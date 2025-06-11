@@ -10,7 +10,7 @@ __all__ = [
     "write_to_file",
 ]
 
-from abc import ABC, abstractmethod
+import abc
 from typing import Any, TextIO
 
 from mon.constants import SERIALIZERS
@@ -18,10 +18,10 @@ from mon.core import pathlib, type_extensions
 
 
 # ----- Serializer -----
-class BaseSerializer(ABC):
+class BaseSerializer(abc.ABC):
     """Base class for loading and writing data in various file formats."""
     
-    @abstractmethod
+    @abc.abstractmethod
     def load_from_fileobj(self, path: pathlib.Path | TextIO, **kwargs) -> Any:
         """Loads content from a ``file`` object.
     
@@ -34,7 +34,7 @@ class BaseSerializer(ABC):
         """
         pass
     
-    @abstractmethod
+    @abc.abstractmethod
     def write_to_fileobj(self, obj: Any, path: pathlib.Path | TextIO, **kwargs):
         """Writes a serializable object to a ``file`` object.
 
@@ -45,7 +45,7 @@ class BaseSerializer(ABC):
         """
         pass
     
-    @abstractmethod
+    @abc.abstractmethod
     def write_to_string(self, obj: Any, **kwargs) -> str:
         """Converts a serializable object to a ``str``.
 

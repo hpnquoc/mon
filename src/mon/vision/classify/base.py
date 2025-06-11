@@ -7,7 +7,7 @@ __all__ = [
     "ImageClassificationModel",
 ]
 
-from abc import ABC
+import abc
 
 from mon import core, nn
 from mon.constants import Task
@@ -15,7 +15,7 @@ from mon.vision import model
 
 
 # ----- Classification Model -----
-class ImageClassificationModel(model.VisionModel, ABC):
+class ImageClassificationModel(model.VisionModel, abc.ABC):
     """Base class for image classification models."""
 
     tasks: list[Task] = [Task.CLASSIFY]

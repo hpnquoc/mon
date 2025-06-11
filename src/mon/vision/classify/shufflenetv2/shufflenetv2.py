@@ -10,7 +10,7 @@ __all__ = [
     "ShuffleNetV2_x0_5",
 ]
 
-from abc import ABC
+import abc
 
 from torchvision.models import (
     shufflenet_v2_x0_5, shufflenet_v2_x1_0, shufflenet_v2_x1_5,
@@ -26,7 +26,7 @@ current_dir  = current_file.parents[0]
 
 
 # ----- Model -----
-class ShuffleNetV2(nn.ExtraModel, base.ImageClassificationModel, ABC):
+class ShuffleNetV2(nn.ExtraModel, base.ImageClassificationModel, abc.ABC):
     """ShuffleNetV2 model for image classification.
 
     References:

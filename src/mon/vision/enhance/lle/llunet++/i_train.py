@@ -34,7 +34,7 @@ def train_epoch(train_dataloader, model, criterion, optimizer, device):
         for i, datapoint in pbar.track(
             sequence    = enumerate(train_dataloader),
             total       = len(train_dataloader),
-            description = f"[bright_yellow] Training"
+            description = f"[bright_yellow]Training"
         ):
             input  = datapoint["image"].to(device)
             target = datapoint["ref_image"].to(device)
@@ -58,7 +58,7 @@ def val_epoch(val_dataloader, model, criterion, device):
         for i, datapoint in pbar.track(
             sequence    = enumerate(val_dataloader),
             total       = len(val_dataloader),
-            description = f"[bright_yellow] Validating"
+            description = f"[bright_yellow]Validating"
         ):
             input  = datapoint["image"].to(device)
             target = datapoint["ref_image"].to(device)

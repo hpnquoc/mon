@@ -16,7 +16,7 @@ __all__ = [
     "WideResNet50_2",
 ]
 
-from abc import ABC
+import abc
 
 from torchvision.models import (
     resnet101, resnet152, resnet18, resnet34,
@@ -33,7 +33,7 @@ current_dir  = current_file.parents[0]
 
 
 # ----- ResNet -----
-class ResNet(nn.ExtraModel, base.ImageClassificationModel, ABC):
+class ResNet(nn.ExtraModel, base.ImageClassificationModel, abc.ABC):
     """ResNet model for image classification.
 
     References:

@@ -11,7 +11,7 @@ __all__ = [
     "ViT_L_32",
 ]
 
-from abc import ABC
+import abc
 
 from torchvision.models import vit_b_16, vit_b_32, vit_h_14, vit_l_16, vit_l_32
 
@@ -24,7 +24,7 @@ current_dir  = current_file.parents[0]
 
 
 # ----- Model -----
-class VisionTransformer(base.ImageClassificationModel, ABC):
+class VisionTransformer(base.ImageClassificationModel, abc.ABC):
     """Vision Transformer model for image classification.
 
     References:

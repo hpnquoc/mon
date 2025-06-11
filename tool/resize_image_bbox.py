@@ -52,7 +52,7 @@ def convert_bbox(
         for i in pbar.track(
             sequence    = range(len(image_files)),
             total       = len(image_files),
-            description = f"[bright_yellow] Converting"
+            description = f"[bright_yellow]Converting"
         ):
             image   = cv2.imread(str(image_files[i]))
             h, w, c = image.shape

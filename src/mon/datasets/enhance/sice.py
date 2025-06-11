@@ -16,17 +16,8 @@ __all__ = [
 
 from typing import Literal
 
-from mon import core, vision
-from mon.constants import DATAMODULES, DATASETS, Split, Task
-
-# ----- Alias -----
-ClassLabels                    = core.ClassLabels
-DatapointAttributes            = core.DatapointAttributes
-DepthMapAnnotation             = vision.DepthMapAnnotation
-ImageAnnotation                = vision.ImageAnnotation
-InfraredAnnotation             = vision.InfraredAnnotation
-SemanticSegmentationAnnotation = vision.SemanticSegmentationAnnotation
-VisionDataset                  = vision.VisionDataset
+from mon import core
+from mon.datasets.core import *
 
 
 # ----- Dataset -----
@@ -46,10 +37,10 @@ class SICE(VisionDataset):
     tasks : list[Task]  = [Task.LLE]
     splits: list[Split] = [Split.TRAIN, Split.TEST]
     datapoint_attrs     = DatapointAttributes({
-        "image"    : ImageAnnotation,
-        "depth"    : DepthMapAnnotation,
-        "ref_image": ImageAnnotation,
-        "ref_depth": DepthMapAnnotation,
+        "image"    : Image,
+        "depth"    : DepthMap,
+        "ref_image": Image,
+        "ref_depth": DepthMap,
     })
     has_test_annotations: bool = True
     
@@ -64,14 +55,14 @@ class SICE(VisionDataset):
         patterns = [self.root / "sice" / self.split_str / "image"]
 
         # Images
-        images: list[ImageAnnotation] = []
+        images: list[Image] = []
         with core.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
                 for path in pbar.track(sequence=paths, description=desc):
                     if path.is_image_file():
-                        images.append(ImageAnnotation(path=path, root=pattern))
+                        images.append(Image(path=path, root=pattern))
         
         self.datapoints["image"] = images
         
@@ -92,10 +83,10 @@ class SICEGrad(VisionDataset):
     tasks : list[Task]  = [Task.LLE]
     splits: list[Split] = [Split.TRAIN, Split.TEST]
     datapoint_attrs     = DatapointAttributes({
-        "image"    : ImageAnnotation,
-        "depth"    : DepthMapAnnotation,
-        "ref_image": ImageAnnotation,
-        "ref_depth": DepthMapAnnotation,
+        "image"    : Image,
+        "depth"    : DepthMap,
+        "ref_image": Image,
+        "ref_depth": DepthMap,
     })
     has_test_annotations: bool = True
     
@@ -110,14 +101,14 @@ class SICEGrad(VisionDataset):
         patterns = [self.root / "grad" / self.split_str / "image"]
         
         # Images
-        images: list[ImageAnnotation] = []
+        images: list[Image] = []
         with core.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
                 for path in pbar.track(sequence=paths, description=desc):
                     if path.is_image_file():
-                        images.append(ImageAnnotation(path=path, root=pattern))
+                        images.append(Image(path=path, root=pattern))
         
         self.datapoints["image"] = images
 
@@ -138,10 +129,10 @@ class SICEMix(VisionDataset):
     tasks : list[Task]  = [Task.LLE]
     splits: list[Split] = [Split.TRAIN, Split.TEST]
     datapoint_attrs     = DatapointAttributes({
-        "image"    : ImageAnnotation,
-        "depth"    : DepthMapAnnotation,
-        "ref_image": ImageAnnotation,
-        "ref_depth": DepthMapAnnotation,
+        "image"    : Image,
+        "depth"    : DepthMap,
+        "ref_image": Image,
+        "ref_depth": DepthMap,
     })
     has_test_annotations: bool = True
     
@@ -156,14 +147,14 @@ class SICEMix(VisionDataset):
         patterns = [self.root / "mix" / self.split_str / "image"]
         
         # Images
-        images: list[ImageAnnotation] = []
+        images: list[Image] = []
         with core.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
                 for path in pbar.track(sequence=paths, description=desc):
                     if path.is_image_file():
-                        images.append(ImageAnnotation(path=path, root=pattern))
+                        images.append(Image(path=path, root=pattern))
         
         self.datapoints["image"] = images
 
@@ -184,8 +175,8 @@ class SICEVE(VisionDataset):
     tasks : list[Task]  = [Task.LLE]
     splits: list[Split] = [Split.TRAIN]
     datapoint_attrs     = DatapointAttributes({
-        "image": ImageAnnotation,
-        "depth": DepthMapAnnotation,
+        "image": Image,
+        "depth": DepthMap,
     })
     has_test_annotations: bool = False
     
@@ -200,14 +191,14 @@ class SICEVE(VisionDataset):
         patterns = [self.root / "ve" / self.split_str / "image"]
         
         # Images
-        images: list[ImageAnnotation] = []
+        images: list[Image] = []
         with core.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
                 for path in pbar.track(sequence=paths, description=desc):
                     if path.is_image_file():
-                        images.append(ImageAnnotation(path=path, root=pattern))
+                        images.append(Image(path=path, root=pattern))
     
         self.datapoints["image"] = images
 

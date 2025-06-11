@@ -71,7 +71,7 @@ def predict(args: argparse.Namespace):
         for i, datapoint in pbar.track(
             sequence    = enumerate(data_loader),
             total       = len(data_loader),
-            description = f"[bright_yellow] Predicting"
+            description = f"[bright_yellow]Predicting"
         ):
             image       = datapoint["image"]
             meta        = datapoint["meta"]

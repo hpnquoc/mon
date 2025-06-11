@@ -228,8 +228,8 @@ class MUNIT_Trainer(nn.Module):
     
     # My modification
     
-    def compute_efficiency_score(self, image_size: _size_2_t = 512, channels: int = 3) -> tuple[float, float]:
-        h, w   = mon.image_size(image_size)
+    def compute_efficiency_score(self, imgsz: _size_2_t = 512, channels: int = 3) -> tuple[float, float]:
+        h, w   = mon.image_size(imgsz)
         input  = torch.rand(1, channels, h, w).to(mon.get_model_device(self.gen_a))
         flops, params = thop.profile(self, inputs=(input, input, ), verbose=False)
         
@@ -424,8 +424,8 @@ class UNIT_Trainer(nn.Module):
     
     # My modification
     
-    def compute_efficiency_score(self, image_size: _size_2_t = 512, channels: int = 3) -> tuple[float, float]:
-        h, w   = mon.image_size(image_size)
+    def compute_efficiency_score(self, imgsz: _size_2_t = 512, channels: int = 3) -> tuple[float, float]:
+        h, w   = mon.image_size(imgsz)
         input  = torch.rand(1, channels, h, w).to(mon.get_model_device(self.gen_a))
         flops, params = thop.profile(self, inputs=(input, input, ), verbose=False)
         

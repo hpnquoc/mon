@@ -228,7 +228,7 @@ denormalize_image = functools.partial(
 )
 
 
-# ----- Conversion -----
+# ----- Shape Conversion -----
 def image_to_2d(image: torch.Tensor | np.ndarray) -> torch.Tensor | np.ndarray:
     """Converts a 2D, 3D, or 4D image(s) to 2D.
 
@@ -348,6 +348,7 @@ def image_to_4d(
     return image
 
 
+# ----- Format Conversion -----
 def image_to_channel_first(image: torch.Tensor | np.ndarray) -> torch.Tensor | np.ndarray:
     """Converts an image to channel-first format.
 
@@ -423,6 +424,7 @@ def image_to_channel_last(image: torch.Tensor | np.ndarray) -> torch.Tensor | np
     return image
 
 
+# ----- Type Conversion -----
 def image_to_array(image: torch.Tensor | np.ndarray, denormalize: bool = False) -> np.ndarray:
     """Converts an image to a ``numpy.ndarray``.
     
@@ -491,7 +493,7 @@ def image_to_tensor(
     image = image_to_4d(image)
     # Convert to tensor
     if isinstance(image, np.ndarray):
-        image = torch.from_numpy(image).contiguous()
+        image = torch.from_numpy(image.copy()).contiguous()
     elif isinstance(image, torch.Tensor):
         image = image.clone()
     else:

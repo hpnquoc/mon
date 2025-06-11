@@ -11,7 +11,7 @@ __all__ = [
     "Detector1",
 ]
 
-from abc import ABC, abstractmethod
+import abc
 from typing import Any
 
 import numpy as np
@@ -23,7 +23,7 @@ from mon.vision import track, types
 
 # region Detector
 
-class Detector(ABC):
+class Detector(abc.ABC):
     """The base class for all detectors. It loads create a detection model,
     load weights, and striping off unnecessary training components.
 
@@ -88,10 +88,8 @@ class Detector(ABC):
         else:
             raise ValueError()
         self._weights = weights
-        
-    
-    
-    @abstractmethod
+
+    @abc.abstractmethod
     def __call__(
         self,
         indexes: np.ndarray | list[int],
@@ -119,7 +117,7 @@ class Detector(ABC):
         pass
 
 
-class Detector1(ABC):
+class Detector1(abc.ABC):
     """The base class for all detectors. It loads a detection model, striping
     off unnecessary training components.
 
@@ -189,7 +187,7 @@ class Detector1(ABC):
                 )
         self._weights = weights
     
-    @abstractmethod
+    @abc.abstractmethod
     def init_model(self):
         """Create model."""
         pass
@@ -221,7 +219,7 @@ class Detector1(ABC):
         )
         return instances
     
-    @abstractmethod
+    @abc.abstractmethod
     def preprocess(self, images: np.ndarray) -> torch.Tensor:
         """Preprocessing step.
 
@@ -233,7 +231,7 @@ class Detector1(ABC):
         """
         pass
     
-    @abstractmethod
+    @abc.abstractmethod
     def forward(self, input: torch.Tensor) -> torch.Tensor:
         """Forward pass.
 
@@ -245,7 +243,7 @@ class Detector1(ABC):
         """
         pass
     
-    @abstractmethod
+    @abc.abstractmethod
     def postprocess(
         self,
         indexes: np.ndarray,

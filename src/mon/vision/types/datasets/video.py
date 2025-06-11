@@ -9,7 +9,7 @@ __all__ = [
     "is_video_dataset",
 ]
 
-from abc import ABC
+import abc
 from typing import Any
 
 import cv2
@@ -17,11 +17,11 @@ import cv2
 from mon import core
 from mon.constants import Split, Task, TRANSFORMS, SAVE_IMAGE_EXT
 from mon.vision.geometry import albumentation
-from mon.vision.types.video import FrameAnnotation
+from mon.vision.types.video import Frame
 
 
 # ----- Video Loader -----
-class VideoLoader(core.Dataset, ABC):
+class VideoLoader(core.Dataset, abc.ABC):
     """Base class for video loaders.
 
     Attributes:
@@ -38,7 +38,7 @@ class VideoLoader(core.Dataset, ABC):
     
     tasks: list[Task] = [Task.VIDEO]
     datapoint_attrs   = core.DatapointAttributes({
-        "image": FrameAnnotation,
+        "image": Frame,
     })
     
     def __init__(
@@ -361,7 +361,12 @@ class VideoLoaderCV(VideoLoader):
         
         if frame is not None:
             frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-            frame = FrameAnnotation(index=index, frame=frame, path=self.root)
+            frame = Frame(
+                data       = frame,
+                index      = index,
+                orig_shape = (self.frame_height, self.frame_width),
+                path       = self.root
+            )
 
         datapoint = self.new_datapoint
         for k, v in self.datapoints.items():
@@ -383,27 +388,20 @@ class VideoLoaderCV(VideoLoader):
         """
         path = self.root
         return {
+            "index"        : index,
+            "path"         : path.parent / path.stem / f"{path.stem}_{index}{SAVE_IMAGE_EXT}",
+            "video_path"   : path,
+            "orig_shape"   : (self.frame_height, self.frame_width, 3),
+            "shape"        : (self.frame_height, self.frame_width, 3),
             "format"       : self.format,
             "fourcc"       : self.fourcc,
             "fps"          : self.fps,
-            "frame_height" : self.frame_height,
-            "frame_width"  : self.frame_width,
-            "hash"         : self.root.stat().st_size if isinstance(self.root, core.Path) else None,
-            "image_size"   : (self.frame_height, self.frame_width),
-            "imgsz"        : (self.frame_height, self.frame_width),
-            "index"        : index,
             "mode"         : self.mode,
-            "name"         : str(self.root.name),
             "num_frames"   : self.num_frames,
-            "path"         : path.parent / path.stem / f"{path.stem}_{index}{SAVE_IMAGE_EXT}",
-            "frame_path"   : path.parent / path.stem / f"{path.stem}_{index}{SAVE_IMAGE_EXT}",
-            "video_path"   : path,
             "pos_avi_ratio": self.pos_avi_ratio,
             "pos_frames"   : self.pos_frames,
             "pos_msec"     : self.pos_msec,
-            "shape"        : (self.frame_height, self.frame_width, 3),
-            "split"        : self.split_str,
-            "stem"         : str(self.root.stem),
+            "hash"         : self.root.stat().st_size if isinstance(self.root, core.Path) else None,
         }
 
 
@@ -421,4 +419,4 @@ def is_video_dataset(dataset: core.Dataset) -> bool:
         return False
     if hasattr(dataset, "tasks") and isinstance(dataset.tasks, list | tuple):
         return Task.VIDEO in dataset.tasks
-    return isinstance(dataset, (VideoLoader, VideoLoaderCV))
+    return isinstance(dataset, VideoLoader | VideoLoaderCV)

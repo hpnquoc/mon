@@ -8,7 +8,7 @@ __all__ = [
     "BackgroundSubtractionModel",
 ]
 
-from abc import ABC
+import abc
 
 import cv2
 
@@ -18,7 +18,7 @@ from mon.vision import model, types
 
 
 # ----- Background Subtraction Model -----
-class BackgroundSubtractionModel(model.VisionModel, ABC):
+class BackgroundSubtractionModel(model.VisionModel, abc.ABC):
     """The base class for all background substraction models."""
     
     # ----- Forward Pass -----

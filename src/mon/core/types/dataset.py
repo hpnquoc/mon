@@ -14,7 +14,7 @@ __all__ = [
     "random_split",
 ]
 
-from abc import ABC, abstractmethod
+import abc
 from typing import Any
 
 import torch
@@ -25,11 +25,12 @@ from torch.utils.data.dataset import (
 
 from mon.constants import Split, Task
 from mon.core import pathlib, rich
-from mon.core.types.annotations import Annotation, ClassLabels
+from mon.core.types.classlabel import ClassLabels
+from mon.core.types.datapoint import BaseTensor
 
 
 # ----- Datapoint -----
-class DatapointAttributes(dict[str, Annotation]):
+class DatapointAttributes(dict[str, BaseTensor]):
     """Holds datapoint attributes as a ``dict``.
 
     Args:
@@ -39,10 +40,10 @@ class DatapointAttributes(dict[str, Annotation]):
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        
+
 
 # ----- Dataset -----
-class Dataset(dataset.Dataset, ABC):
+class Dataset(dataset.Dataset, abc.ABC):
     """Base class for all datasets.
 
     Attributes:
@@ -95,7 +96,7 @@ class Dataset(dataset.Dataset, ABC):
         """Closes the dataset."""
         self.close()
     
-    @abstractmethod
+    @abc.abstractmethod
     def __getitem__(self, index: int) -> dict:
         """Gets a datapoint and metadata at given ``index``.
 
@@ -116,7 +117,7 @@ class Dataset(dataset.Dataset, ABC):
         self.reset()
         return self
     
-    @abstractmethod
+    @abc.abstractmethod
     def __len__(self) -> int:
         """Gets the total number of datapoints.
 
@@ -248,7 +249,7 @@ class Dataset(dataset.Dataset, ABC):
         return self.split.value
     
     # ----- Initialize -----
-    @abstractmethod
+    @abc.abstractmethod
     def init_transform(self, transform: Any = None):
         """Initializes transformation operations.
 
@@ -287,7 +288,7 @@ class Dataset(dataset.Dataset, ABC):
         else:
             pathlib.delete_cache(cache_file)
     
-    @abstractmethod
+    @abc.abstractmethod
     def list_data(self):
         """Lists all data files in the dataset."""
         pass
@@ -318,28 +319,28 @@ class Dataset(dataset.Dataset, ABC):
         self.datapoints = torch.load(path)
         self.datapoints.pop("hash", None)
     
-    @abstractmethod
+    @abc.abstractmethod
     def filter_data(self):
         """Filters unwanted datapoints."""
         pass
     
-    @abstractmethod
+    @abc.abstractmethod
     def verify_data(self):
         """Verifies the dataset."""
         pass
     
-    @abstractmethod
+    @abc.abstractmethod
     def reset(self):
         """Resets the dataset."""
         pass
     
-    @abstractmethod
+    @abc.abstractmethod
     def close(self):
         """Closes and releases the dataset."""
         pass
     
     # ----- Data Retrieval -----
-    @abstractmethod
+    @abc.abstractmethod
     def get_datapoint(self, index: int) -> dict:
         """Gets a datapoint at specified index.
 
@@ -351,7 +352,7 @@ class Dataset(dataset.Dataset, ABC):
         """
         pass
     
-    @abstractmethod
+    @abc.abstractmethod
     def get_meta(self, index: int) -> dict:
         """Gets metadata at specified index.
 

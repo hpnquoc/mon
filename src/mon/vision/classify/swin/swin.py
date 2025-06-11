@@ -12,7 +12,7 @@ __all__ = [
     "Swin_V2_T",
 ]
 
-from abc import ABC
+import abc
 
 from torchvision.models import (
     swin_b, swin_s, swin_t, swin_v2_b, swin_v2_s, swin_v2_t,
@@ -27,7 +27,7 @@ current_dir  = current_file.parents[0]
 
 
 # ----- Model -----
-class SwinTransformer(nn.ExtraModel, base.ImageClassificationModel, ABC):
+class SwinTransformer(nn.ExtraModel, base.ImageClassificationModel, abc.ABC):
     """Swin Transformer model for image classification.
 
     References:

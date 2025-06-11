@@ -21,17 +21,8 @@ __all__ = [
 import abc
 from typing import Literal
 
-from mon import core, vision
-from mon.constants import DATAMODULES, DATASETS, Split, Task
-
-# ----- Alias -----
-ClassLabels                    = core.ClassLabels
-DatapointAttributes            = core.DatapointAttributes
-DepthMapAnnotation             = vision.DepthMapAnnotation
-ImageAnnotation                = vision.ImageAnnotation
-InfraredAnnotation             = vision.InfraredAnnotation
-SemanticSegmentationAnnotation = vision.SemanticSegmentationAnnotation
-VisionDataset                  = vision.VisionDataset
+from mon import core
+from mon.datasets.core import *
 
 
 # ----- Dataset -----
@@ -50,10 +41,10 @@ class LOLBlur(VisionDataset, abc.ABC):
     # tasks : list[Task]  = [Task.LLE]
     splits: list[Split] = [Split.TRAIN, Split.TEST]
     datapoint_attrs     = DatapointAttributes({
-        "image"    : ImageAnnotation,
-        "depth"    : DepthMapAnnotation,
-        "ref_image": ImageAnnotation,
-        "ref_depth": DepthMapAnnotation,
+        "image"    : Image,
+        "depth"    : DepthMap,
+        "ref_image": Image,
+        "ref_depth": DepthMap,
     })
     has_test_annotations: bool = True
 
@@ -85,14 +76,14 @@ class LOLBlurB(LOLBlur):
         """Lists ``datapoints`` with image annotations for split."""
         patterns = [self.root / "b" / self.split_str / "image"]
 
-        images: list[ImageAnnotation] = []
+        images: list[Image] = []
         with core.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
                 for path in pbar.track(sequence=paths, description=desc):
                     if path.is_image_file():
-                        images.append(ImageAnnotation(path=path, root=pattern))
+                        images.append(Image(path=path, root=pattern))
 
         self.datapoints["image"] = images
 
@@ -116,14 +107,14 @@ class LOLBlurBN(LOLBlur):
         """Lists ``datapoints`` with image annotations for split."""
         patterns = [self.root / "bn" / self.split_str / "image"]
 
-        images: list[ImageAnnotation] = []
+        images: list[Image] = []
         with core.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
                 for path in pbar.track(sequence=paths, description=desc):
                     if path.is_image_file():
-                        images.append(ImageAnnotation(path=path, root=pattern))
+                        images.append(Image(path=path, root=pattern))
 
         self.datapoints["image"] = images
 
@@ -147,14 +138,14 @@ class LOLBlurL(LOLBlur):
         """Lists ``datapoints`` with image annotations for split."""
         patterns = [self.root / "l" / self.split_str / "image"]
 
-        images: list[ImageAnnotation] = []
+        images: list[Image] = []
         with core.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
                 for path in pbar.track(sequence=paths, description=desc):
                     if path.is_image_file():
-                        images.append(ImageAnnotation(path=path, root=pattern))
+                        images.append(Image(path=path, root=pattern))
 
         self.datapoints["image"] = images
 
@@ -178,14 +169,14 @@ class LOLBlurLB(LOLBlur):
         """Lists ``datapoints`` with image annotations for split."""
         patterns = [self.root / "lb" / self.split_str / "image"]
 
-        images: list[ImageAnnotation] = []
+        images: list[Image] = []
         with core.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
                 for path in pbar.track(sequence=paths, description=desc):
                     if path.is_image_file():
-                        images.append(ImageAnnotation(path=path, root=pattern))
+                        images.append(Image(path=path, root=pattern))
 
         self.datapoints["image"] = images
 
@@ -209,14 +200,14 @@ class LOLBlurLBN(LOLBlur):
         """Lists ``datapoints`` with image annotations for split."""
         patterns = [self.root / "lbn" / self.split_str / "image"]
 
-        images: list[ImageAnnotation] = []
+        images: list[Image] = []
         with core.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
                 for path in pbar.track(sequence=paths, description=desc):
                     if path.is_image_file():
-                        images.append(ImageAnnotation(path=path, root=pattern))
+                        images.append(Image(path=path, root=pattern))
 
         self.datapoints["image"] = images
 
@@ -240,14 +231,14 @@ class LOLBlurN(LOLBlur):
         """Lists ``datapoints`` with image annotations for split."""
         patterns = [self.root / "n" / self.split_str / "image"]
 
-        images: list[ImageAnnotation] = []
+        images: list[Image] = []
         with core.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
                 for path in pbar.track(sequence=paths, description=desc):
                     if path.is_image_file():
-                        images.append(ImageAnnotation(path=path, root=pattern))
+                        images.append(Image(path=path, root=pattern))
 
         self.datapoints["image"] = images
 

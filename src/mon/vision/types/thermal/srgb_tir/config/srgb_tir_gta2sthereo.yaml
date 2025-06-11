@@ -22,7 +22,7 @@ master_port : 7777                                                              
 master_addr : "localhost"                                                       # Master address for distributed training.
 local_rank  : -1                                                                # Local rank for distributed training.
 # Predict
-resize      : True                                                              # Resize the input image to `imgsz`.
+resize      : False                                                             # Resize the input image to `imgsz`.
 benchmark   : False                                                             # Benchmark the model.
 # Save & Visualize
 save_result : &save_result True                                                 # Save the result of the model.

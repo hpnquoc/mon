@@ -581,17 +581,14 @@ def enclosing_hbb(bbox: np.ndarray) -> np.ndarray:
 
 
 # ----- Normalization -----
-def normalize_hbb(bbox: np.ndarray, height: int, width: int) -> np.ndarray:
+def normalize_hbb(bbox: np.ndarray, imgsz: tuple[int, int]) -> np.ndarray:
     """Normalize HBBs according to image dimensions.
 
     Args:
         bbox: HBBs as ``np.ndarray`` in [4+] or [N, 4+].
-        height: Image height.
-        width: Image width.
+        imgsz: Image size in [H, W] format.
     """
-    if height <= 0 or width <= 0:
-        raise ValueError(f"[height] and [width] must be positive integers, got {height}, {width}.")
-
+    height, width = I.image_size(imgsz)
     bbox = hbb_to_2d(bbox)
     if utils.is_hbb_normalized(bbox):
         return bbox
@@ -604,17 +601,14 @@ def normalize_hbb(bbox: np.ndarray, height: int, width: int) -> np.ndarray:
     return np.stack((b1, b2, b3, b4, *rest), axis=-1)
 
 
-def denormalize_hbb(bbox: np.ndarray, height: int, width: int) -> np.ndarray:
+def denormalize_hbb(bbox: np.ndarray, imgsz: tuple[int, int]) -> np.ndarray:
     """Denormalize HBBs according to image dimensions.
 
     Args:
         bbox: HBBs as ``np.ndarray`` in [4+] or [N, 4+].
-        height: Image height.
-        width: Image width.
+        imgsz: Image size in [H, W] format.
     """
-    if height <= 0 or width <= 0:
-        raise ValueError(f"[height] and [width] must be positive integers, got {height}, {width}.")
-
+    height, width = I.image_size(imgsz)
     bbox = hbb_to_2d(bbox)
     if not utils.is_hbb_normalized(bbox):
         return bbox
@@ -627,7 +621,7 @@ def denormalize_hbb(bbox: np.ndarray, height: int, width: int) -> np.ndarray:
     return np.stack((b1, b2, b3, b4, *rest), axis=-1)
 
 
-# ----- Conversion -----
+# ----- Shape Conversion -----
 def hbb_to_2d(bbox: torch.Tensor | np.ndarray | list | tuple) -> torch.Tensor | np.ndarray:
     """Convert a 1D, 2D, or 3D box(es) to 2D.
 
@@ -730,17 +724,18 @@ def hbb_to_3d(bbox: torch.Tensor | np.ndarray | list | tuple) -> torch.Tensor | 
     return bbox
 
 
-def hbb_xywh_to_cxcywhn(bbox: np.ndarray, height: int, width: int) -> np.ndarray:
+# ----- Format Conversion -----
+def hbb_xywh_to_cxcywhn(bbox: np.ndarray, imgsz: tuple[int, int]) -> np.ndarray:
     """Convert boxes from XYWH to CXCYWHN format.
 
     Args:
         bbox: HBBs as ``np.ndarray`` in [N, 4+], XYWH format, pixel coordinates.
-        height: Image height in pixels as ``int``.
-        width: Image width in pixels as ``int``.
+        imgsz: Image size in [H, W] format.
 
     Returns:
         HBBs as ``np.ndarray`` in [N, 4+], CXCYWHN format, normalized.
     """
+    height, width = I.image_size(imgsz)
     bbox = hbb_to_2d(bbox)
     x, y, w, h, *rest = bbox.T
     cx   = x + (w / 2.0)
@@ -752,13 +747,12 @@ def hbb_xywh_to_cxcywhn(bbox: np.ndarray, height: int, width: int) -> np.ndarray
     return np.stack((cx_n, cy_n, w_n, h_n, *rest), axis=-1)
 
 
-def hbb_xywh_to_xyxy(bbox: np.ndarray, height: int, width: int) -> np.ndarray:
+def hbb_xywh_to_xyxy(bbox: np.ndarray, imgsz: tuple[int, int]) -> np.ndarray:
     """Convert boxes from XYWH to XYXY format.
 
     Args:
         bbox: HBBs as ``np.ndarray`` in [N, 4+], XYWH format, pixel coordinates.
-        height: Image height in pixels as ``int``.
-        width: Image width in pixels as ``int``.
+        imgsz: Image size in [H, W] format.
 
     Returns:
         HBBs as ``np.ndarray`` in [N, 4+], XYXY format, pixel coordinates.
@@ -770,17 +764,17 @@ def hbb_xywh_to_xyxy(bbox: np.ndarray, height: int, width: int) -> np.ndarray:
     return np.stack((x, y, x2, y2, *rest), axis=-1)
 
 
-def hbb_xyxy_to_cxcywhn(bbox: np.ndarray, height: int, width: int) -> np.ndarray:
+def hbb_xyxy_to_cxcywhn(bbox: np.ndarray, imgsz: tuple[int, int]) -> np.ndarray:
     """Convert boxes from XYXY to CXCYWHN format.
 
     Args:
         bbox: HBBs as ``np.ndarray`` in [N, 4+], XYXY format, pixel coordinates.
-        height: Image height in pixels as ``int``.
-        width: Image width in pixels as ``int``.
+        imgsz: Image size in [H, W] format.
 
     Returns:
         HBBs as ``np.ndarray`` in [N, 4+], CXCYWHN format, normalized.
     """
+    height, width = I.image_size(imgsz)
     bbox = hbb_to_2d(bbox)
     x1, y1, x2, y2, *rest = bbox.T
     w    = x2 - x1
@@ -794,13 +788,12 @@ def hbb_xyxy_to_cxcywhn(bbox: np.ndarray, height: int, width: int) -> np.ndarray
     return np.stack((cx_n, cy_n, w_n, h_n, *rest), axis=-1)
 
 
-def hbb_xyxy_to_xywh(bbox: np.ndarray, height: int, width: int) -> np.ndarray:
+def hbb_xyxy_to_xywh(bbox: np.ndarray, imgsz: tuple[int, int]) -> np.ndarray:
     """Convert boxes from XYXY to XYWH format.
 
     Args:
         bbox: HBBs as ``np.ndarray`` in [N, 4+], XYXY format, pixel coordinates.
-        height: Image height in pixels as ``int``.
-        width: Image width in pixels as ``int``.
+        imgsz: Image size in [H, W] format.
 
     Returns:
         HBBs as ``np.ndarray`` in [N, 4], XYWH format, pixel coordinates.
@@ -812,17 +805,17 @@ def hbb_xyxy_to_xywh(bbox: np.ndarray, height: int, width: int) -> np.ndarray:
     return np.stack((x1, y1, w, h, *rest), axis=-1)
 
 
-def hbb_cxcywhn_to_xywh(bbox: np.ndarray, height: int, width: int) -> np.ndarray:
+def hbb_cxcywhn_to_xywh(bbox: np.ndarray, imgsz: tuple[int, int]) -> np.ndarray:
     """Convert boxes from CXCYWHN to XYWH format.
 
     Args:
         bbox: HBBs as ``np.ndarray`` in [N, 4+], CXCYWHN format, normalized.
-        height: Image height in pixels as ``int``.
-        width: Image width in pixels as ``int``.
+        imgsz: Image size in [H, W] format.
 
     Returns:
         HBBs as ``np.ndarray`` in [N, 4+], XYWH format, pixel coordinates.
     """
+    height, width = I.image_size(imgsz)
     bbox = hbb_to_2d(bbox)
     cx_n, cy_n, w_n, h_n, *rest = bbox.T
     w = w_n * width
@@ -833,17 +826,17 @@ def hbb_cxcywhn_to_xywh(bbox: np.ndarray, height: int, width: int) -> np.ndarray
     return np.stack((x, y, w, h, *rest), axis=-1)
 
 
-def hbb_cxcywhn_to_xyxy(bbox: np.ndarray, height: int, width: int) -> np.ndarray:
+def hbb_cxcywhn_to_xyxy(bbox: np.ndarray, imgsz: tuple[int, int]) -> np.ndarray:
     """Convert boxes from CXCYWHN to XYXY format.
 
     Args:
         bbox: HBBs as ``np.ndarray`` in [N, 4+], CXCYWHN format, normalized.
-        height: Image height in pixels as ``int``.
-        width: Image width in pixels as ``int``.
+        imgsz: Image size in [H, W] format.
 
     Returns:
         HBBs as ``np.ndarray`` in [N, 4+], XYXY format, pixel coordinates.
     """
+    height, width = I.image_size(imgsz)
     bbox = hbb_to_2d(bbox)
     cx_n, cy_n, w_n, h_n, *rest = bbox.T
     x1 = width  * (cx_n - w_n / 2)
@@ -861,14 +854,13 @@ hbb_yolo_to_coco = hbb_cxcywhn_to_xywh
 hbb_yolo_to_voc  = hbb_cxcywhn_to_xyxy
 
 
-def convert_hbb(bbox: np.ndarray, fmt: BBoxFormat, height: int, width: int) -> np.ndarray:
+def convert_hbb(bbox: np.ndarray, fmt: BBoxFormat, imgsz: tuple[int, int]) -> np.ndarray:
     """Convert HBBs between formats.
 
     Args:
         bbox: HBBs as ``np.ndarray`` in [N, 4+], input format varies by code.
         fmt: Conversion code as ``BBoxFormat`` or ``int``.
-        height: Image height in pixels as ``int``.
-        width: Image width in pixels as ``int``.
+        imgsz: Image size in [H, W] format.
 
     Returns:
         HBBs as ``np.ndarray`` in [N, 4+], output format varies by code.
@@ -884,33 +876,32 @@ def convert_hbb(bbox: np.ndarray, fmt: BBoxFormat, height: int, width: int) -> n
         return bbox
     match fmt:
         case BBoxFormat.COCO2VOC  | BBoxFormat.XYWH2XYXY:
-            return hbb_coco_to_voc(bbox, height, width)
+            return hbb_coco_to_voc(bbox, imgsz)
         case BBoxFormat.COCO2YOLO | BBoxFormat.XYWH2CXCYN:
-            return hbb_coco_to_yolo(bbox, height, width)
+            return hbb_coco_to_yolo(bbox, imgsz)
         case BBoxFormat.VOC2COCO  | BBoxFormat.XYXY2XYWH:
-            return hbb_voc_to_coco(bbox, height, width)
+            return hbb_voc_to_coco(bbox, imgsz)
         case BBoxFormat.VOC2YOLO  | BBoxFormat.XYXY2CXCYN:
-            return hbb_voc_to_yolo(bbox, height, width)
+            return hbb_voc_to_yolo(bbox, imgsz)
         case BBoxFormat.YOLO2VOC  | BBoxFormat.CXCYN2XYXY:
-            return hbb_yolo_to_voc(bbox, height, width)
+            return hbb_yolo_to_voc(bbox, imgsz)
         case BBoxFormat.YOLO2COCO | BBoxFormat.CXCYN2XYXY:
-            return hbb_yolo_to_coco(bbox, height, width)
+            return hbb_yolo_to_coco(bbox, imgsz)
         case _:
             raise ValueError(f"[code] must be one of {BBoxFormat.conversion_codes()}, got {fmt}.")
 
 
+# ----- Type Conversion -----
 def hbb_to_array(
     bbox       : torch.Tensor | np.ndarray,
-    height     : int,
-    width      : int,
+    imgsz      : tuple[int, int],
     denormalize: bool = False
 ) -> np.ndarray:
     """Convert HBBs to a NumPy array.
 
     Args:
         bbox: HBBs as ``np.ndarray`` or ``torch.Tensor``, or list/tuple of [4+], [N, 4+], or [B, N, 4+].
-        height: Image height.
-        width: Image width.
+        imgsz: Image size in [H, W] format.
         denormalize: Denormalize according to image dimensions if ``True``. Default is ``False``.
 
     Returns:
@@ -932,15 +923,14 @@ def hbb_to_array(
         bbox = bbox.numpy()
     # Denormalize image
     if denormalize:
-        bbox = denormalize_hbb(bbox, height, width)#.round().astype(np.uint8)
+        bbox = denormalize_hbb(bbox, imgsz)#.round().astype(np.uint8)
 
     return bbox
 
 
 def hbb_to_tensor(
     bbox     : torch.Tensor | np.ndarray | list | tuple,
-    height   : int,
-    width    : int,
+    imgsz    : tuple[int, int],
     normalize: bool         = False,
     device   : torch.device = None
 ) -> torch.Tensor:
@@ -948,8 +938,7 @@ def hbb_to_tensor(
 
     Args:
         bbox: HBBs as ``np.ndarray``, ``torch.Tensor``, or list/tuple of [4+] or [N, 4+].
-        height: Image height.
-        width: Image width.
+        imgsz: Image size in [H, W] format.
         normalize: Normalize according to image dimensions if ``True``. Default is ``False``.
         device: Device to place tensor on, e.g., ``'cuda'`` or ``None`` for CPU.
             Default is ``None``.
@@ -974,7 +963,7 @@ def hbb_to_tensor(
         bbox = bbox.float()
     # Normalize image
     if normalize:
-        bbox = normalize_hbb(bbox, height, width)
+        bbox = normalize_hbb(bbox, imgsz)
     # Move to device
     if device is not None:
         bbox = bbox.to(device)

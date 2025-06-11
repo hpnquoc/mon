@@ -10,18 +10,9 @@ __all__ = [
 
 from typing import Literal
 
-from mon import core, vision
-from mon.constants import DATAMODULES, DATASETS, Split, Task
+from mon import core
+from mon.datasets.core import *
 from mon.datasets.enhance.rain100 import Rain100
-
-# ----- Alias -----
-ClassLabels                    = core.ClassLabels
-DatapointAttributes            = core.DatapointAttributes
-DepthMapAnnotation             = vision.DepthMapAnnotation
-ImageAnnotation                = vision.ImageAnnotation
-InfraredAnnotation             = vision.InfraredAnnotation
-SemanticSegmentationAnnotation = vision.SemanticSegmentationAnnotation
-VisionDataset                  = vision.VisionDataset
 
 
 # ----- Dataset -----
@@ -41,8 +32,8 @@ class Rain13K(VisionDataset):
     tasks : list[Task]  = [Task.DERAIN]
     splits: list[Split] = [Split.TRAIN]
     datapoint_attrs     = DatapointAttributes({
-        "image"    : ImageAnnotation,
-        "ref_image": ImageAnnotation,
+        "image"    : Image,
+        "ref_image": Image,
     })
     has_test_annotations: bool = False
     
@@ -60,14 +51,14 @@ class Rain13K(VisionDataset):
             self.root / self.split_str / "image",
         ]
         
-        images: list[ImageAnnotation] = []
+        images: list[Image] = []
         with core.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
                 for path in pbar.track(sequence=paths, description=desc):
                     if path.is_image_file():
-                        images.append(ImageAnnotation(path=path, root=pattern))
+                        images.append(Image(path=path, root=pattern))
 
         self.datapoints["image"] = images
         

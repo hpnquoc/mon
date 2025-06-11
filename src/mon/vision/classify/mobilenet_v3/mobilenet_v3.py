@@ -8,7 +8,7 @@ __all__ = [
     "MobileNetV3Small",
 ]
 
-from abc import ABC
+import abc
 
 from torchvision.models import mobilenet_v3_large, mobilenet_v3_small
 
@@ -21,7 +21,7 @@ current_dir  = current_file.parents[0]
 
 
 # ----- Model -----
-class MobileNetV3(nn.ExtraModel, base.ImageClassificationModel, ABC):
+class MobileNetV3(nn.ExtraModel, base.ImageClassificationModel, abc.ABC):
     """MobileNetV3 model for image classification.
 
     References:

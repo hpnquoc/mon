@@ -37,6 +37,7 @@ class Annotation(ABC):
         """Returns the annotation's data."""
         pass
 
+    # ----- DataLoader Interface -----
     @staticmethod
     @abstractmethod
     def to_tensor(data: torch.Tensor | np.ndarray, *args, **kwargs) -> torch.Tensor:

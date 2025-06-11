@@ -322,7 +322,19 @@ class Path(type(pathlib.Path())):
                 if config_path.is_file():
                     return config_path
         return self
-    
+
+    def label_file(self) -> "Path":
+        """Returns the label file path.
+
+        Returns:
+            Label file path.
+        """
+        for ext in [".txt", ".xml", ".json"]:
+            temp = self.with_suffix(ext)
+            if temp.is_file():
+                return temp
+        return self
+
     def latest_file(self) -> "Path":
         """Returns the latest file based on creation time.
 

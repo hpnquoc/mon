@@ -92,7 +92,7 @@ def test(args: argparse.Namespace):
             for ii, data_test in pbar.track(
                 sequence    = enumerate(test_loader),
                 total       = len(test_loader),
-                description = f"[bright_yellow] Inferring"
+                description = f"[bright_yellow]Inferring"
             ):
                 # target          = data_test[0].cuda()
                 # input           = data_test[1].cuda()

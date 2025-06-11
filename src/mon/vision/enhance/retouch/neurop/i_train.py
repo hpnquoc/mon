@@ -58,7 +58,7 @@ def train(args: dict | box.Box) -> str:
         for epoch in pbar.track(
             sequence    = range(total_epochs + 1),
             total       = total_epochs + 1,
-            description = f"[bright_yellow] Training"
+            description = f"[bright_yellow]Training"
         ):
             for _, train_data in enumerate(train_loader):
                 # print(f"{train_data["LQ_path"]} | {train_data["GT_path"]}")

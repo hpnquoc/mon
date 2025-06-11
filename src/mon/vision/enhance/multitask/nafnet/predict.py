@@ -170,7 +170,7 @@ def predict(
         for i in pbar.track(
             sequence    = range(len(source)),
             total       = len(source),
-            description = f"[bright_yellow] Predicting"
+            description = f"[bright_yellow]Predicting"
         ):
             img_input  = imread(str(source[i]))
             inp        = img2tensor(img_input)

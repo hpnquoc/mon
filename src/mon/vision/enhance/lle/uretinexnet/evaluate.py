@@ -100,7 +100,7 @@ class Inference(nn.Module):
             for _, low_image_path in pbar.track(
                 sequence    = enumerate(low_image_paths),
                 total       = len(low_image_paths),
-                description = f"[bright_yellow] Inferring"
+                description = f"[bright_yellow]Inferring"
             ):
                 high_image_path   = self.opts.input_high / low_f"{image_path.stem}.jpg"
                 low_image         = self.transform(Image.open(low_image_path)).unsqueeze(0)

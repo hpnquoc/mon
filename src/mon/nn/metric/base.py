@@ -22,7 +22,7 @@ __all__ = [
     "scale_gt_mean",
 ]
 
-from abc import ABC
+import abc
 from typing import Literal
 
 import cv2
@@ -38,7 +38,7 @@ from torchmetrics import (
 
 
 # ----- Base Metric -----
-class Metric(torchmetrics.Metric, ABC):
+class Metric(torchmetrics.Metric, abc.ABC):
     """Base class for all metrics.
 
     Args:

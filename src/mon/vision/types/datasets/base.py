@@ -8,8 +8,8 @@ __all__ = [
     "VisionDataset",
 ]
 
+import abc
 import os
-from abc import ABC
 from typing import Any
 
 import cv2
@@ -17,16 +17,16 @@ import cv2
 from mon import core
 from mon.constants import DepthSource, InfraredSource, TRANSFORMS, BBoxFormat
 from mon.vision.geometry import albumentation
-from mon.vision.types.bbox.hbb import HBBsAnnotation
-from mon.vision.types.depth import DepthMapAnnotation
-from mon.vision.types.image import ImageAnnotation
-from mon.vision.types.thermal import InfraredAnnotation
+from mon.vision.types.bbox import HBBs
+from mon.vision.types.depth import DepthMap
+from mon.vision.types.image import Image
+from mon.vision.types.thermal import InfraredMap
 
 DatapointAttributes = core.DatapointAttributes
 
 
 # ----- Vision Dataset -----
-class VisionDataset(core.Dataset, ABC):
+class VisionDataset(core.Dataset, abc.ABC):
     """Base class for multimodal, multi-task, multi-label datasets.
 
     Attributes:
@@ -42,14 +42,14 @@ class VisionDataset(core.Dataset, ABC):
         infrared_source: Source of infrared data from ``InfraredSource``.
             Default is ``'InfraredSource.INFRARED'``.
         bbox_format: Bounding boxes format from ``'BBoxFormat'``.
-            Default is ``'BBoxFormat.YOLO'``.
+            Default is ``'BBoxFormat.XYXY'``.
     """
     
     def __init__(
         self,
         depth_source   : DepthSource    = DepthSource.DAv2_ViTB,
         infrared_source: InfraredSource = InfraredSource.INFRARED,
-        bbox_format    : BBoxFormat     = BBoxFormat.YOLO,
+        bbox_format    : BBoxFormat     = BBoxFormat.XYXY,
         *args, **kwargs
     ):
         depth_source = DepthSource.from_value(depth_source)
@@ -95,7 +95,7 @@ class VisionDataset(core.Dataset, ABC):
                 to_tensor_fn = getattr(self.datapoint_attrs[k], "to_tensor", None)
                 if to_tensor_fn and v is not None:
                     datapoint[k] = to_tensor_fn(v, normalize=True)
-        
+
         return datapoint | {"meta": meta}
     
     def __len__(self) -> int:
@@ -201,7 +201,7 @@ class VisionDataset(core.Dataset, ABC):
         depths = self.datapoints.get("depth", [])
         
         if len(images) > 0 and len(depths) == 0:
-            depths: list[DepthMapAnnotation] = []
+            depths: list[DepthMap] = []
             with core.create_progress_bar(disable=self.disable_pbar) as pbar:
                 for img in pbar.track(
                     sequence    = images,
@@ -212,7 +212,7 @@ class VisionDataset(core.Dataset, ABC):
                     path      = img.path.replace(f"{os.sep}{root_name}{os.sep}",
                                                  f"{os.sep}{root_name}_{self.depth_source.value}{os.sep}")
                     depths.append(
-                        DepthMapAnnotation(
+                        DepthMap(
                             path   = path.image_file(),
                             root   = img.root,
                             source = self.depth_source,
@@ -227,7 +227,7 @@ class VisionDataset(core.Dataset, ABC):
         infrareds = self.datapoints.get("infrared", [])
 
         if len(images) > 0 and len(infrareds) == 0:
-            infrareds: list[InfraredAnnotation] = []
+            infrareds: list[InfraredMap] = []
             with core.create_progress_bar(disable=self.disable_pbar) as pbar:
                 for img in pbar.track(
                     sequence    = images,
@@ -238,7 +238,7 @@ class VisionDataset(core.Dataset, ABC):
                     path      = img.path.replace(f"{os.sep}{root_name}{os.sep}",
                                                  f"{os.sep}{root_name}_{self.infrared_source.value}{os.sep}")
                     infrareds.append(
-                        InfraredAnnotation(
+                        InfraredMap(
                             path   = path.image_file(),
                             root   = img.root,
                             source = self.infrared_source,
@@ -253,7 +253,7 @@ class VisionDataset(core.Dataset, ABC):
         bboxes = self.datapoints.get("bboxes", [])
 
         if len(images) > 0 and len(bboxes) == 0:
-            bboxes: list[HBBsAnnotation] = []
+            bboxes: list[HBBs] = []
             with core.create_progress_bar(disable=self.disable_pbar) as pbar:
                 for img in pbar.track(
                     sequence    = images,
@@ -264,11 +264,11 @@ class VisionDataset(core.Dataset, ABC):
                     path      = img.path.replace(f"{os.sep}{root_name}{os.sep}",
                                                  f"{os.sep}label{os.sep}")
                     bboxes.append(
-                        HBBsAnnotation(
-                            path  = path.txt_file(),
-                            root  = img.root,
-                            fmt   = self.bbox_format,
-                            imgsz = img.size,
+                        HBBs(
+                            orig_shape = img.size,
+                            path       = path.label_file(),
+                            root       = img.root,
+                            fmt        = self.bbox_format,
                         )
                     )
             self.datapoints["bboxes"] = bboxes
@@ -279,7 +279,7 @@ class VisionDataset(core.Dataset, ABC):
         ref_images = self.datapoints.get("ref_image", [])
 
         if len(ref_images) == 0:
-            ref_images: list[ImageAnnotation] = []
+            ref_images: list[Image] = []
             with core.create_progress_bar(disable=self.disable_pbar) as pbar:
                 for img in pbar.track(
                     sequence    = images,
@@ -290,7 +290,7 @@ class VisionDataset(core.Dataset, ABC):
                     path      = img.path.replace(f"{os.sep}{root_name}{os.sep}",
                                                  f"{os.sep}ref{os.sep}")
                     ref_images.append(
-                        ImageAnnotation(
+                        Image(
                             path = path.image_file(),
                             root = img.root,
                         )
@@ -303,7 +303,7 @@ class VisionDataset(core.Dataset, ABC):
         ref_depths = self.datapoints.get("ref_depth", [])
         
         if len(ref_images) > 0 and len(ref_depths) == 0:
-            ref_depths: list[DepthMapAnnotation] = []
+            ref_depths: list[DepthMap] = []
             with core.create_progress_bar(disable=self.disable_pbar) as pbar:
                 for img in pbar.track(
                     sequence    = ref_images,
@@ -314,7 +314,7 @@ class VisionDataset(core.Dataset, ABC):
                     path      = img.path.replace(f"{os.sep}{root_name}{os.sep}",
                                                  f"{os.sep}{root_name}_{self.depth_source.value}{os.sep}")
                     ref_depths.append(
-                        DepthMapAnnotation(
+                        DepthMap(
                             path   = path.image_file(),
                             root   = img.root,
                             source = self.depth_source,
@@ -329,7 +329,7 @@ class VisionDataset(core.Dataset, ABC):
         ref_infrareds = self.datapoints.get("ref_infrared", [])
         
         if len(ref_images) > 0 and len(ref_infrareds) == 0:
-            ref_infrareds: list[InfraredAnnotation] = []
+            ref_infrareds: list[InfraredMap] = []
             with core.create_progress_bar(disable=self.disable_pbar) as pbar:
                 for img in pbar.track(
                     sequence    = ref_images,
@@ -340,7 +340,7 @@ class VisionDataset(core.Dataset, ABC):
                     path      = img.path.replace(f"{os.sep}{root_name}{os.sep}",
                                                  f"{os.sep}{root_name}_{self.infrared_source.value}{os.sep}")
                     ref_infrareds.append(
-                        InfraredAnnotation(
+                        InfraredMap(
                             path   = path.image_file(),
                             root   = img.root,
                             source = self.infrared_source,

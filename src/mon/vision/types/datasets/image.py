@@ -13,7 +13,7 @@ from mon import core
 from mon.constants import Split
 from mon.vision.geometry import albumentation
 from mon.vision.types.datasets import base
-from mon.vision.types.image import ImageAnnotation
+from mon.vision.types.image import Image
 
 
 # ----- Image Loader -----
@@ -33,7 +33,7 @@ class ImageLoader(base.VisionDataset):
     """
     
     datapoint_attrs = base.DatapointAttributes({
-        "image": ImageAnnotation,
+        "image": Image,
     })
     
     def __init__(
@@ -41,9 +41,9 @@ class ImageLoader(base.VisionDataset):
         root      : core.Path,
         split     : Split = Split.PREDICT,
         transform : albumentation.Compose = None,
-        to_tensor : bool = False,
-        cache_data: bool = False,
-        verbose   : bool = True,
+        to_tensor : bool  = False,
+        cache_data: bool  = False,
+        verbose   : bool  = True,
         *args, **kwargs
     ):
         super().__init__(
@@ -72,7 +72,7 @@ class ImageLoader(base.VisionDataset):
         else:
             raise IOError(f"Invalid root path: {self.root}")
         
-        images: list[ImageAnnotation] = []
+        images: list[Image] = []
         with core.create_progress_bar() as pbar:
             for path in pbar.track(
                 sequence    = sorted(paths),
@@ -80,6 +80,6 @@ class ImageLoader(base.VisionDataset):
                               f"{self.split_str} images"
             ):
                 if path.is_image_file():
-                    images.append(ImageAnnotation(path=path, root=self.root))
+                    images.append(Image(path=path, root=self.root))
         
         self.datapoints["image"] = images

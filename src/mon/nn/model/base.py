@@ -8,7 +8,7 @@ __all__ = [
     "Model",
 ]
 
-from abc import ABC, abstractmethod
+import abc
 from typing import Any, Callable
 
 import box
@@ -28,7 +28,7 @@ EpochOutput = Any  # lightning.pytorch.utilities.types.EPOCH_OUTPUT
 
 
 # ----- Model -----
-class Model(lightning.LightningModule, ABC):
+class Model(lightning.LightningModule, abc.ABC):
     """The base class for all machine learning models.
     
     Attributes:
@@ -224,7 +224,7 @@ class Model(lightning.LightningModule, ABC):
         for path in [self.root, self.ckpt_dir, self.debug_dir]:
             path.mkdir(parents=True, exist_ok=True)
     
-    @abstractmethod
+    @abc.abstractmethod
     def init_weights(self, m: torch.nn.Module):
         """Initializes the model's weights.
     
@@ -462,7 +462,7 @@ class Model(lightning.LightningModule, ABC):
         return 0.0, 0.0
     
     # ----- Forward Pass -----
-    @abstractmethod
+    @abc.abstractmethod
     def forward_loss(self, datapoint: dict, *args, **kwargs) -> dict:
         """Computes forward pass and loss.
     
@@ -474,7 +474,7 @@ class Model(lightning.LightningModule, ABC):
         """
         pass
     
-    @abstractmethod
+    @abc.abstractmethod
     def compute_metrics(self, datapoint: dict, outputs: dict, metrics: list[M.Metric] = None) -> dict:
         """Computes metrics for given predictions.
     
@@ -488,7 +488,7 @@ class Model(lightning.LightningModule, ABC):
         """
         pass
     
-    @abstractmethod
+    @abc.abstractmethod
     def forward(self, datapoint: dict, *args, **kwargs) -> dict:
         """Performs forward pass of the model.
     
@@ -756,7 +756,7 @@ class Model(lightning.LightningModule, ABC):
         pass
     
 
-class ExtraModel(Model, ABC):
+class ExtraModel(Model, abc.ABC):
     """Wraps a third-party model for mon integration.
 
     Args:

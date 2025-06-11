@@ -7,10 +7,9 @@ __all__ = [
     "VisionModel",
 ]
 
-from abc import ABC
+import abc
 from copy import deepcopy
 
-import box
 import torch
 
 from mon import core, nn
@@ -18,7 +17,7 @@ from mon.nn import _size_2_t
 
 
 # ----- Base Model -----
-class VisionModel(nn.Model, ABC):
+class VisionModel(nn.Model, abc.ABC):
     """Base class for vision models with image/video input."""
     
     # ----- Initialize -----

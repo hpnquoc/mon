@@ -3,4 +3,4 @@
 
 """Implements thermal data types."""
 
-from mon.vision.types.thermal.annotation import *
+from mon.vision.types.thermal.core import *

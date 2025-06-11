@@ -83,7 +83,7 @@ def convert_label_to_coco(
         for i, image_file in pbar.track(
             sequence    = enumerate(image_files),
             total       = len(image_files),
-            description = f"[bright_yellow] Converting"
+            description = f"[bright_yellow]Converting"
         ):
             # Append image
             h, w, _  = mon.read_image_shape(image_file)
@@ -94,7 +94,7 @@ def convert_label_to_coco(
             if not label_file.is_txt_file():
                 continue
 
-            bs = mon.load_hbb(path=label_file, fmt=code, height=h, width=w)
+            bs = mon.load_hbb(path=label_file, fmt=code, imgsz=(h, w))
             if len(bs) == 0:
                 continue
 

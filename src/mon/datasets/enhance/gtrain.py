@@ -11,17 +11,8 @@ __all__ = [
 import os
 from typing import Literal
 
-from mon import core, vision
-from mon.constants import DATAMODULES, DATASETS, Split, Task
-
-# ----- Alias -----
-ClassLabels                    = core.ClassLabels
-DatapointAttributes            = core.DatapointAttributes
-DepthMapAnnotation             = vision.DepthMapAnnotation
-ImageAnnotation                = vision.ImageAnnotation
-InfraredAnnotation             = vision.InfraredAnnotation
-SemanticSegmentationAnnotation = vision.SemanticSegmentationAnnotation
-VisionDataset                  = vision.VisionDataset
+from mon import core
+from mon.datasets.core import *
 
 
 # ----- Dataset -----
@@ -41,8 +32,8 @@ class GTRain(VisionDataset):
     tasks : list[Task]  = [Task.DERAIN]
     splits: list[Split] = [Split.TRAIN, Split.VAL, Split.TEST]
     datapoint_attrs     = DatapointAttributes({
-        "image"    : ImageAnnotation,
-        "ref_image": ImageAnnotation,
+        "image"    : Image,
+        "ref_image": Image,
     })
     has_test_annotations: bool = True
 
@@ -58,16 +49,16 @@ class GTRain(VisionDataset):
         """Lists ``datapoints`` with image and ref annotations."""
         patterns = [self.root / self.split_str / "image"]
 
-        images: list[ImageAnnotation] = []
+        images: list[Image] = []
         with core.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
                 for path in pbar.track(sequence=paths, description=desc):
                     if path.is_image_file():
-                        images.append(ImageAnnotation(path=path, root=pattern))
+                        images.append(Image(path=path, root=pattern))
 
-        ref_images: list[ImageAnnotation] = []
+        ref_images: list[Image] = []
         with core.create_progress_bar(disable=self.disable_pbar) as pbar:
             desc = f"Listing {self.__class__.__name__} {self.split_str} reference images"
             for img in pbar.track(sequence=images, description=desc):
@@ -78,7 +69,7 @@ class GTRain(VisionDataset):
                     path = path[:-9] + "C-000.png"
                 path = path.replace(f"{os.sep}image{os.sep}", f"{os.sep}ref{os.sep}")
                 path = core.Path(path)
-                ref_images.append(ImageAnnotation(path=path.image_file(), root=img.root))
+                ref_images.append(Image(path=path.image_file(), root=img.root))
 
         self.datapoints["image"]     = images
         self.datapoints["ref_image"] = ref_images

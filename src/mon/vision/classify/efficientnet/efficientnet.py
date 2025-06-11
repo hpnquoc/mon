@@ -17,7 +17,7 @@ __all__ = [
     "EfficientNet_V2_S",
 ]
 
-from abc import ABC
+import abc
 
 from torchvision.models import (
     efficientnet_b0, efficientnet_b1, efficientnet_b2, efficientnet_b3,
@@ -34,7 +34,7 @@ current_dir  = current_file.parents[0]
 
 
 # ----- Model -----
-class EfficientNet(nn.ExtraModel, base.ImageClassificationModel, ABC):
+class EfficientNet(nn.ExtraModel, base.ImageClassificationModel, abc.ABC):
     """EfficientNet model for image classification.
 
     References:
