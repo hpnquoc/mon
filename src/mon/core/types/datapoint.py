@@ -9,6 +9,7 @@ __all__ = [
     "BaseTensor",
     "DataLoaderMixin",
     "DatasetMixin",
+    "Probs",
 ]
 
 import abc
@@ -264,3 +265,136 @@ class DataLoaderMixin(abc.ABC):
 
 
 # ----- Basic Datapoints -----
+class Probs(BaseTensor, DatasetMixin, DataLoaderMixin):
+    """A class for storing and manipulating classification probabilities.
+
+    This class extends ``BaseTensor`` and provides methods for accessing and
+    manipulating classification probabilities, including top-1 and top-5 predictions.
+
+    Args:
+        data: Input data as a ``torch.Tensor`` or ``numpy.ndarray`` in [C] format
+            where C is the number of classes. If given an ``int`` representing
+            the class ID, it will convert it to a probability tensor in [``num_classes``]
+            format with the class ID set to 1.0 and others set to 0.0.
+        num_classes: Total number of classes. Default is ``None``.
+        orig_shape: Original shape of the image in [H, W] format. Default is ``None``.
+    """
+
+    albumentation_target_type: str = "values"
+
+    def __init__(
+        self,
+        data       : torch.Tensor | np.ndarray | int,
+        num_classes: int = None,
+        orig_shape : tuple[int, int] = None,
+    ):
+        if isinstance(data, int):
+            if num_classes is None:
+                raise ValueError("If [data] is an int, [num_classes] must be provided.")
+            else:
+                data = Probs.to_probs(data, num_classes)
+        if not isinstance(data, torch.Tensor | np.ndarray):
+            raise TypeError(f"[data] must be a torch.Tensor or numpy.ndarray, got {type(data)}.")
+
+        super().__init__(data, orig_shape)
+
+    @property
+    def top1(self) -> int:
+        """Returns the index of the class with the highest probability.
+
+        Returns:
+            The index of the class with the highest probability.
+        """
+        if isinstance(self.data, torch.Tensor):
+            return int(self.data.argmax())
+        else:
+            return int(np.argmax(self.data))
+
+    @property
+    def top5(self) -> list[int]:
+        """Returns the indices of the top 5 classes with the highest probabilities.
+
+        Returns:
+            A list of indices of the top 5 classes.
+        """
+        if isinstance(self.data, torch.Tensor):
+            return list(self.data.topk(5).indices.cpu().numpy())
+        else:
+            return list(np.argsort(self.data)[-5:][::-1])
+
+    @property
+    def top1_conf(self) -> torch.Tensor | np.ndarray:
+        """Returns the confidence score of the top-1 class.
+
+        Returns:
+            The confidence score of the top-1 class as a tensor or numpy array.
+        """
+        return self.data[self.top1]
+
+    @property
+    def top5_conf(self) -> torch.Tensor | np.ndarray:
+        """Returns the confidence scores of the top-5 classes.
+
+        Returns:
+            A tensor or numpy array containing the confidence scores of the top-5 classes.
+        """
+        return self.data[self.top5]
+
+    @staticmethod
+    def to_probs(class_id: int, num_classes: int) -> np.ndarray:
+        """Converts a class ID to a probability tensor.
+
+        Args:
+            class_id: The class ID.
+            num_classes: Total number of classes.
+
+        Returns:
+            A tensor or numpy array with the class ID set to 1.0 and others set to 0.0.
+        """
+        if not isinstance(class_id, int):
+            raise TypeError(f"[class_id] must be an int, got {type(class_id)}.")
+        if not isinstance(num_classes, int):
+            raise TypeError(f"[num_classes] must be an int, got {type(num_classes)}.")
+
+        probs           = np.zeros(num_classes, dtype=np.float32)
+        probs[class_id] = 1.0
+        return probs
+
+    # ----- DatasetMixin -----
+    @staticmethod
+    def to_tensor(
+        data      : torch.Tensor | np.ndarray,
+        orig_shape: tuple[int, int] = None,
+        normalize : bool            = True,
+        *args, **kwargs
+    ) -> torch.Tensor:
+        """Transforms the underlying data to a tensor.
+
+        Args:
+            data: Input data as a ``torch.Tensor`` or ``numpy.ndarray``.
+            orig_shape: Original shape of the image in [H, W] format. Default is ``None``.
+            normalize: Normalize the underlying data. Default is ``True``.
+
+        Returns:
+            ``torch.Tensor`` of converted data.
+        """
+        return torch.as_tensor(data)
+
+    # ----- DataLoaderMixin -----
+    @staticmethod
+    def collate_fn(batch: list[Any]) -> Any:
+        """Collates batch data for ``torch.utils.data.DataLoader``.
+
+        Args:
+            batch: List of class IDs as ``torch.Tensor`` or ``numpy.ndarray``.
+
+        Returns:
+            Collated ``torch.Tensor``, ``numpy.ndarray``, or ``None`` if empty/mixed.
+        """
+        if not batch:
+            return None
+        if isinstance(batch[0], torch.Tensor):
+            return torch.stack(batch, dim=0)
+        if isinstance(batch[0], np.ndarray):
+            return np.stack(batch, axis=0)
+        return None

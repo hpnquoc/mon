@@ -83,10 +83,10 @@ def parse_train_args(model_root: pathlib.Path = None, verbose: bool = False) -> 
             args.save_dir = pathlib.parse_save_dir(args.root/"run"/"train", args.arch, args.model, args.data)
     else:
         args.save_dir = pathlib.Path(args.save_dir)
-        if str("run/train") not in str(args.save_dir):
-            args.save_dir = pathlib.Path(f"run/train/{args.save_dir}")
-        if str(args.root) not in str(args.save_dir):
-            args.save_dir = args.root / args.save_dir
+        # if str("run/train") not in str(args.save_dir):
+        #     args.save_dir = pathlib.Path(f"run/train/{args.save_dir}")
+        # if str(args.root) not in str(args.save_dir):
+        #     args.save_dir = args.root / args.save_dir
 
     args.hostname = socket.gethostname().lower()
     args.weights  = parse_weights_file(args.root, args.weights)
@@ -124,11 +124,11 @@ def parse_predict_args(model_root: pathlib.Path = None, verbose: bool = False) -
             args.save_dir = pathlib.parse_save_dir(args.root/"run"/"predict", args.arch, args.model, args.data)
     else:
         args.save_dir = pathlib.Path(args.save_dir)
-        args.save_dir = args.save_dir.replace("run/train/", "")
-        if str("run/predict") not in str(args.save_dir):
-            args.save_dir = pathlib.Path(f"run/predict/{args.save_dir}")
-        if str(args.root) not in str(args.save_dir):
-            args.save_dir = args.root / args.save_dir
+        # args.save_dir = args.save_dir.replace("run/train/", "")
+        # if str("run/predict") not in str(args.save_dir):
+        #     args.save_dir = pathlib.Path(f"run/predict/{args.save_dir}")
+        # if str(args.root) not in str(args.save_dir):
+        #     args.save_dir = args.root / args.save_dir
 
     args.hostname = socket.gethostname().lower()
     args.weights  = parse_weights_file(args.root, args.weights)

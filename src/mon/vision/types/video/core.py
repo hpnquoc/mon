@@ -12,6 +12,8 @@ __all__ = [
     "Frame",
 ]
 
+from typing import Any
+
 import numpy as np
 import torch
 
@@ -135,3 +137,32 @@ class Frame(core.BaseTensor, core.DatasetMixin, core.DataLoaderMixin):
             return None
         from mon.vision.types.image import processing
         return processing.image_to_4d(batch)
+
+
+class Frames(core.BaseTensor, core.DatasetMixin, core.DataLoaderMixin):
+    """Frames object.
+
+    Attributes:
+        albumentation_target_type: Type of target for Albumentations. Default is ``image``.
+
+    Args:
+        data: Input data as a ``torch.Tensor`` or ``numpy.ndarray``.
+        indexes: List of indexes of frames in video. Default is ``None``.
+        orig_shape: Original shape of the image in [H, W] format. Default is ``None``.
+        path: Video file path. Default is ``None``.
+        root: Root directory for the video. Default is ``None``.
+    """
+
+    albumentation_target_type: str = "image"
+
+    def __init__(
+        self,
+        data      : torch.Tensor | np.ndarray | list[Any],
+        indexes   : list[int] = None,
+        orig_shape: tuple[int, int, int] = None,
+        path      : core.Path = None,
+        root      : core.Path = None,
+    ):
+        super().__init__(data=data, orig_shape=orig_shape)
+
+        # TODO: continue later

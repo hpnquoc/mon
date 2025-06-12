@@ -66,7 +66,7 @@ def export_onnx(model: Model, path: mon.Path, args: dict | box.Box) -> mon.Path:
         import onnx
         onnx_model = onnx.load(path)
         onnx.checker.check_model(onnx_model)
-        print("Check export onnx model done...")
+        mon.console.log("Check export onnx model done...")
 
     if args.simplify:
         import onnx
@@ -186,8 +186,9 @@ def export(args: dict | box.Box) -> str:
     updated_cfg  = args.updated_cfg
     updated_cfg |= {"resume": str(pretrained)} if pretrained else {}
     updated_cfg |= {
-        "device": device,
-        "seed"  : args.seed,
+        "device" : device,
+        "seed"   : args.seed,
+        "out_fmt": "xywh"
     }
     cfg = YAMLConfig(cfg_path=str(cfg_path), root=str(args.root), **updated_cfg)
 
@@ -215,6 +216,7 @@ def export(args: dict | box.Box) -> str:
     file_stem = args.fullname     if args.use_fullname else pretrained.stem
     onnx_file = save_dir / f"{file_stem}.onnx"
     export_onnx(model, onnx_file, args)
+    mon.console.log(f"Exported ONNX model to: {onnx_file}.")
 
     # Export TensorRT engine
     if args.format in ["engine", "trt"]:

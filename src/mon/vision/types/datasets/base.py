@@ -176,7 +176,7 @@ class VisionDataset(core.Dataset, abc.ABC):
             self.cache_data(path=cache_file)
         else:
             core.delete_cache(cache_file)
-    
+
     def list_multimodal_data(self):
         """Lists multimodal data for the dataset."""
         if "depth" in self.datapoint_attrs:

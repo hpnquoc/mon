@@ -33,13 +33,15 @@ class PostProcessor(nn.Module):
         num_classes           = 80,
         use_focal_loss        = True,
         num_top_queries       = 300,    # max_dets
-        remap_mscoco_category = False
+        remap_mscoco_category = False,
+        deploy_out_fmt        = "xyxy"
     ):
         super().__init__()
         self.use_focal_loss        = use_focal_loss
         self.num_top_queries       = num_top_queries
         self.num_classes           = int(num_classes)
         self.remap_mscoco_category = remap_mscoco_category
+        self.deploy_out_fmt        = deploy_out_fmt
         self.deploy_mode           = False
 
     def extra_repr(self) -> str:
@@ -50,7 +52,11 @@ class PostProcessor(nn.Module):
         logits, boxes = outputs["pred_logits"], outputs["pred_boxes"]
         # orig_target_sizes = torch.stack([t["orig_size"] for t in targets], dim=0)
 
-        bbox_pred  = torchvision.ops.box_convert(boxes, in_fmt="cxcywh", out_fmt="xyxy")
+        # My Modification
+        if self.deploy_mode:
+            bbox_pred = torchvision.ops.box_convert(boxes, in_fmt="cxcywh", out_fmt=self.deploy_out_fmt)
+        else:
+            bbox_pred = torchvision.ops.box_convert(boxes, in_fmt="cxcywh", out_fmt="xyxy")
         bbox_pred *= orig_target_sizes.repeat(1, 2).unsqueeze(1)
 
         if self.use_focal_loss:

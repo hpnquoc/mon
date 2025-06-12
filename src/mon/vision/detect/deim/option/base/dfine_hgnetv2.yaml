@@ -64,6 +64,7 @@ DFINETransformer:
 
 PostProcessor:
   num_top_queries: 300
+  deploy_out_fmt : "xyxy"
 
 DEIMCriterion:
   weight_dict: {loss_vfl: 1, loss_bbox: 5, loss_giou: 2, loss_fgl: 0.15, loss_ddf: 1.5}

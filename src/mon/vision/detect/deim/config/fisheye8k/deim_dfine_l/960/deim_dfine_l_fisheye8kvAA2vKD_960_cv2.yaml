@@ -34,7 +34,7 @@ save_nearby : False                                                             
 exist_ok    : &exist_ok True                                                    # If ``False``, it will delete the save directory if it already exists.
 verbose     : &verbose True                                                     # Verbosity.
 # Export
-format        : "engine"                                                        # Export format (e.g., onnx, engine, torchscript, coreml, tflite, openvino).
+format        : "onnx"                                                          # Export format (e.g., onnx, engine, torchscript, coreml, tflite, openvino).
 opset         : 16                                                              # ONNX: opset version.
 simplify      : False                                                           # ONNX: Simplify model using `onnxslim`.
 use_fp16      : True                                                            # TRT: CoreML/TF FP16 quantization.
@@ -58,7 +58,7 @@ updated_cfg:
     "./dfine_hgnetv2_l_coco80.yaml",
     "../../dataset/fisheye8kvKD_detection.yaml",
     "../../base/dataloader.yaml",
-    "../../base/dfine_hgnetv2.yaml",
+    # "../../base/dfine_hgnetv2.yaml",
     "../../base/deim.yaml"
   ]
 
@@ -72,6 +72,7 @@ updated_cfg:
 
   PostProcessor:
     num_top_queries: 300                                                        # max_dets
+    deploy_out_fmt : "xywh"
 
   # File: dataloader.yaml
   train_dataloader:

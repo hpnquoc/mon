@@ -72,6 +72,7 @@ updated_cfg:
 
   PostProcessor:
     num_top_queries: 300                                                        # max_dets
+    deploy_out_fmt : "xywh"
 
   # File: dataloader.yaml
   train_dataloader:

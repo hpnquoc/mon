@@ -12,6 +12,7 @@ __all__ = [
     "Image",
     "ImageLoader",
     "InfraredMap",
+    "Probs",
     "SemanticMask",
     "Split",
     "Task",
@@ -21,7 +22,7 @@ __all__ = [
 ]
 
 from mon.constants import DATAMODULES, DATASETS, Split, Task
-from mon.core import ClassLabels, DatapointAttributes
+from mon.core import ClassLabels, DatapointAttributes, Probs
 from mon.vision import (
     DepthMap, Image, ImageLoader, InfraredMap, SemanticMask, VisionDataset,
     HBBs, Frame, VideoLoader, VideoLoaderCV
