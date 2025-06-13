@@ -65,7 +65,7 @@ RTDETRTransformerv2:
 
 PostProcessor:
   num_top_queries: 300
-  deploy_out_fmt : "xyxy"
+  deploy_out_fmt : "xywh" # "xyxy"
 
 DEIMCriterion:
   weight_dict: {loss_vfl: 1, loss_bbox: 5, loss_giou: 2, }

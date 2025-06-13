@@ -144,7 +144,7 @@ def predict(args: dict | box.Box) -> str:
             labels, boxes, scores = outputs
             scores = [s.cpu().numpy().astype(float) for s in scores][0]  # batch_size = 1
             labels = [l.cpu().numpy().astype(int)   for l in labels][0]  # batch_size = 1
-            boxes  = [b.cpu().numpy().astype(float) for b in  boxes][0]  # batch_size = 1
+            boxes  = [b.cpu().numpy().astype(float) for b in  boxes][0]  # batch_size = 1, XYWH format, change "deploy_out_fmt" in config file.
             # Filter by confidence threshold
             labels = labels[scores >= args.conf_thres]
             boxes  =  boxes[scores >= args.conf_thres]

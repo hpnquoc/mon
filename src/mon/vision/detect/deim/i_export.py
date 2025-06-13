@@ -186,9 +186,8 @@ def export(args: dict | box.Box) -> str:
     updated_cfg  = args.updated_cfg
     updated_cfg |= {"resume": str(pretrained)} if pretrained else {}
     updated_cfg |= {
-        "device" : device,
-        "seed"   : args.seed,
-        "out_fmt": "xywh"
+        "device": device,
+        "seed"  : args.seed,
     }
     cfg = YAMLConfig(cfg_path=str(cfg_path), root=str(args.root), **updated_cfg)
 

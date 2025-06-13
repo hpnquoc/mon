@@ -78,13 +78,14 @@ def train(args: dict | box.Box) -> str:
     updated_cfg |= {"resume": str(resume)} if resume else {}
     updated_cfg |= {"device": device}      if not args.torchrun else {}
     updated_cfg |= {
-        "seed"        : args.seed,
-        "output_dir"  : str(args.save_dir),
-        "summary_dir" : str(args.save_dir),
-        "test_only"   : args.test_only,
-        "print_method": args.print_method,
-        "print_rank"  : args.print_rank,
-        "epochs"      : args.epochs,
+        "seed"            : args.seed,
+        "output_dir"      : str(args.save_dir),
+        "summary_dir"     : str(args.save_dir),
+        "test_only"       : args.test_only,
+        "print_method"    : args.print_method,
+        "print_rank"      : args.print_rank,
+        "epochs"          : args.epochs,
+        "total_batch_size": args.batch_size,
     }
     cfg = YAMLConfig(cfg_path=str(cfg_path), root=str(args.root), **updated_cfg)
 
