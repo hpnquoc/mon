@@ -38,6 +38,11 @@ class YAMLConfig(BaseConfig):
             cfg["val_dataloader"]["dataset"]["img_folder"]   = root + cfg["val_dataloader"]["dataset"]["img_folder"]
             cfg["val_dataloader"]["dataset"]["ann_file"]     = root + cfg["val_dataloader"]["dataset"]["ann_file"]
 
+        total_batch_size = cfg.get("total_batch_size", None)
+        if total_batch_size:
+            cfg["train_dataloader"]["total_batch_size"] = total_batch_size
+            cfg["val_dataloader"]["total_batch_size"]   = total_batch_size
+
         self.yaml_cfg = copy.deepcopy(cfg)
 
         for k in super().__dict__:

@@ -877,15 +877,15 @@ def convert_hbb(bbox: np.ndarray, fmt: BBoxFormat, imgsz: tuple[int, int]) -> np
     match fmt:
         case BBoxFormat.COCO2VOC  | BBoxFormat.XYWH2XYXY:
             return hbb_coco_to_voc(bbox, imgsz)
-        case BBoxFormat.COCO2YOLO | BBoxFormat.XYWH2CXCYN:
+        case BBoxFormat.COCO2YOLO | BBoxFormat.XYWH2CXCYWHN:
             return hbb_coco_to_yolo(bbox, imgsz)
         case BBoxFormat.VOC2COCO  | BBoxFormat.XYXY2XYWH:
             return hbb_voc_to_coco(bbox, imgsz)
-        case BBoxFormat.VOC2YOLO  | BBoxFormat.XYXY2CXCYN:
+        case BBoxFormat.VOC2YOLO  | BBoxFormat.XYXY2CXCYWHN:
             return hbb_voc_to_yolo(bbox, imgsz)
-        case BBoxFormat.YOLO2VOC  | BBoxFormat.CXCYN2XYXY:
+        case BBoxFormat.YOLO2VOC  | BBoxFormat.CXCYWHN2XYXY:
             return hbb_yolo_to_voc(bbox, imgsz)
-        case BBoxFormat.YOLO2COCO | BBoxFormat.CXCYN2XYXY:
+        case BBoxFormat.YOLO2COCO | BBoxFormat.CXCYWHN2XYXY:
             return hbb_yolo_to_coco(bbox, imgsz)
         case _:
             raise ValueError(f"[code] must be one of {BBoxFormat.conversion_codes()}, got {fmt}.")

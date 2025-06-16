@@ -6,8 +6,8 @@ clear
 # ----- Input -----
 task="depth"
 mode="predict"
-arch="depthanythingv2"
-model="depthanythingv2_vitb"
+arch="dav2"
+model="dav2_vitb"
 data=(
 
 )

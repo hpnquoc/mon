@@ -35,6 +35,7 @@ requires-python = ">=3.10"
 dependencies    = [
     # Python Functionality
     "emoji",                            # Emoji for Python.
+    "fjson",                            # Python JSON writer with formatted floats
     "loguru",                           # Python logging made (stupidly) simple.
     "plum-dispatch",                    # Multiple dispatch in Python.
     "psutil",                           # Cross-platform lib for process and system monitoring in Python.

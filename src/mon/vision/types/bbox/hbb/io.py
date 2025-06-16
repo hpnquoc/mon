@@ -22,6 +22,7 @@ import xml.etree.ElementTree as ET
 
 import numpy as np
 import torch
+from box import box
 
 from mon import core
 from mon.constants import BBoxFormat
@@ -30,11 +31,16 @@ from mon.vision.types.bbox.hbb import processing
 
 
 # ----- Reading -----
-def load_hbb_coco(path: core.Path, verbose: bool = True) -> np.ndarray:
+def load_hbb_coco(
+    path   : core.Path,
+    remap  : dict | box.Box = None,
+    verbose: bool           = True
+) -> np.ndarray:
     """Load COCO-format HBBs from a ``.json`` file.
 
     Args:
         path: Label file path (one ``.json`` file for each image).
+        remap: A dictionary containing class remapping. Default is ``None``.
         verbose: Verbosity. Defaults is ``True``.
     """
     path = core.Path(path)
@@ -57,11 +63,16 @@ def load_hbb_coco(path: core.Path, verbose: bool = True) -> np.ndarray:
             error_console.print(f"No annotations found in {path}.")
 
 
-def load_hbb_voc(path: core.Path, verbose: bool = True) -> np.ndarray:
+def load_hbb_voc(
+    path   : core.Path,
+    remap  : dict | box.Box = None,
+    verbose: bool           = True
+) -> np.ndarray:
     """Load VOC-format HBBs from a ``.xml`` file.
 
     Args:
         path: Label file path (one ``.xml`` file for each image).
+        remap: A dictionary containing class remapping. Default is ``None``.
         verbose: Verbosity. Defaults is ``True``.
     """
     path = core.Path(path)
@@ -119,7 +130,11 @@ def load_hbb_voc(path: core.Path, verbose: bool = True) -> np.ndarray:
     return bs
 
 
-def load_hbb_yolo(path: core.Path, verbose: bool = True) -> np.ndarray:
+def load_hbb_yolo(
+    path   : core.Path,
+    remap  : dict | box.Box = None,
+    verbose: bool           = True
+) -> np.ndarray:
     """Load YOLO-format HBBs from a ``.txt`` file.
 
     Each line in the file should contain:
@@ -132,6 +147,7 @@ def load_hbb_yolo(path: core.Path, verbose: bool = True) -> np.ndarray:
 
     Args:
         path: Label file path (one ``.txt`` for each image).
+        remap: A dictionary containing class remapping. Default is ``None``.
         verbose: Verbosity. Defaults is ``True``.
     """
     path = core.Path(path)
@@ -143,12 +159,19 @@ def load_hbb_yolo(path: core.Path, verbose: bool = True) -> np.ndarray:
     with open(path, "r") as f:
         ls = f.readlines()
     ls = [l.strip().split(" ") for l in ls]
-    ls = [l for l in ls if len(l) >= 5]
+    ls = [l for l in ls if len(l) >= 4]
 
     if len(ls) == 0:
         if verbose:
             error_console.print(f"No HBBs found in {path}.")
         return np.empty((0, 6), dtype=np.float32)
+
+    if len(ls[0]) == 4:
+        # If no class ID, add a dummy class ID of 0
+        ls = [[0] + l for l in ls]
+
+    if remap and isinstance(remap, dict | box.Box):
+        ls = [[remap[l[0]]] + l[1:] for l in ls]
 
     ls = np.array(ls, dtype=np.float32)
     c, cx_n, cy_n, w_n, h_n, *rest = ls.T
@@ -159,10 +182,11 @@ def load_hbb(
     path     : core.Path,
     fmt      : BBoxFormat,
     imgsz    : tuple[int, int],
-    to_tensor: bool         = False,
-    normalize: bool         = False,
-    device   : torch.device = None,
-    verbose  : bool         = False
+    remap    : dict | box.Box = None,
+    to_tensor: bool           = False,
+    normalize: bool           = False,
+    device   : torch.device   = None,
+    verbose  : bool           = False
 ) -> np.ndarray:
     """Load HBBs from a label file.
 
@@ -170,6 +194,7 @@ def load_hbb(
         path: Label file path.
         fmt: Bounding box format of the label file.
         imgsz: Image size in [H, W] format.
+        remap: A dictionary containing class remapping. Default is ``None``.
         to_tensor: Convert to ``torch.Tensor`` if ``True``. Default is ``False``.
         normalize: Normalize HBBs to [0.0, 1.0] if ``True``. Default is ``False``.
         device: Device to place tensor on, e.g., ``'cuda'`` or ``None`` for CPU.
@@ -192,11 +217,11 @@ def load_hbb(
 
     match src_fmt:
         case BBoxFormat.COCO | BBoxFormat.XYWH:
-            bbox = load_hbb_coco(path, verbose)
+            bbox = load_hbb_coco(path, remap, verbose)
         case BBoxFormat.VOC  | BBoxFormat.XYXY:
-            bbox = load_hbb_voc(path, verbose)
-        case BBoxFormat.YOLO | BBoxFormat.CXCYN:
-            bbox = load_hbb_yolo(path, verbose)
+            bbox = load_hbb_voc(path, remap, verbose)
+        case BBoxFormat.YOLO | BBoxFormat.CXCYWHN:
+            bbox = load_hbb_yolo(path, remap, verbose)
         case _:
             raise ValueError(f"[src_fmt] must be one of {BBoxFormat.formats()}, got {src_fmt}.")
 
