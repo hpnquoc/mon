@@ -8,7 +8,6 @@ References:
 """
 
 __all__ = [
-    "FishEyeGenerator",
     "FisheyeTransform"
 ]
 
@@ -20,6 +19,7 @@ import cv2
 import numpy as np
 
 from mon import core
+from mon.constants import BBoxFormat
 from mon.constants import TRANSFORMS
 from mon.nn import _size_2_t, _size_3_t
 from mon.vision import types
@@ -505,6 +505,52 @@ class FisheyeTransform(DualTransform):
         fisheye_image = fisheye_image.reshape(self.imgsz[0], self.imgsz[1], 3)
         return fisheye_image
 
+    def _transform_bbox(self, bbox: np.ndarray, old_size: _size_2_t) -> np.ndarray:
+        imgsz  = self.imgsz
+        h0, w0 = types.image_size(old_size)
+        bbox   = types.convert_hbb(bbox, fmt=BBoxFormat.CXCYWHN2XYXY, imgsz=(h0, w0))
+
+        t_bbox = []
+        for b in bbox:
+            # Convert bbox to XYXY format
+            x1, y1, x2, y2, c = int(b[0]), int(b[1]), int(b[2]), int(b[3]), int(b[4])
+
+            # Create a canvas for the bbox
+            canvas = np.zeros((h0, w0, 3), dtype=np.uint8)
+            canvas[y1:y2, x1:x2, :] = [255, 255, 255]  # White in BGR format # image[y1:y2, x1:x2]
+
+            # Apply fisheye transformation on the canvas
+            t_canvas = self._transform_color_image(image=canvas)
+
+            # Find contours
+            ret, thresh = cv2.threshold(t_canvas, 200, 255, cv2.THRESH_BINARY)
+            thresh      = cv2.cvtColor(thresh, cv2.COLOR_BGR2GRAY)
+            if thresh.dtype != np.uint8:
+                thresh = thresh.astype(np.uint8)
+            contours, hier = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+            # Find the bounding box of the contours
+            min_x = float("inf")
+            min_y = float("inf")
+            max_x = float("-inf")
+            max_y = float("-inf")
+            for contour in contours:
+                x_, y_, w_, h_ = cv2.boundingRect(contour)
+                min_x = min(min_x, x_)
+                min_y = min(min_y, y_)
+                max_x = max(max_x, x_ + w_)
+                max_y = max(max_y, y_ + h_)
+
+            # If no contours found, skip this bbox
+            if any(x == float("inf") or x == float("-inf") for x in [min_x, min_y, max_x, max_y]):
+                continue
+            t_bbox.append([min_x, min_y, max_x, max_y, c])
+
+        # Convert back to YOLO format
+        t_bbox = np.array(t_bbox, dtype=np.float32)
+        t_bbox = types.convert_hbb(t_bbox, fmt=BBoxFormat.XYXY2CXCYWHN, imgsz=imgsz)
+        return t_bbox
+
     # ----- Apply -----
     def apply(self, img: np.ndarray, old_size: _size_2_t, *args: Any, **params: Any) -> np.ndarray:
         return self._transform_color_image(img)
@@ -512,10 +558,13 @@ class FisheyeTransform(DualTransform):
     def apply_to_mask(self, img: np.ndarray, old_size: _size_2_t, *args: Any, **params: Any) -> np.ndarray:
         return self._transform_gray_image(img)
 
+    def apply_to_bboxes(self, bboxes: np.ndarray, old_size: _size_2_t, *args: Any, **params: Any) -> np.ndarray:
+        return self._transform_bbox(bboxes, old_size)
+
     def get_params_dependent_on_data(self, params: dict[str, Any], data: dict[str, Any]) -> dict[str, Any]:
         """Returns parameters dependent on input."""
         image  = data["image"]
         h0, w0 = types.image_size(image)
         return params | {
-            "old_size": (w0, h0),
+            "old_size": (h0, w0),
         }
