@@ -124,10 +124,14 @@ def load_hbb_voc(
     # Extract bounding boxes
     bs = []
     for obj in xml_data["objects"]:
-        bs.append(obj["bbox"] + [obj["name"]])
-    bs = np.array(bs, dtype=np.float32)
+        bs.append([obj["name"]] + obj["bbox"])
 
-    return bs
+    if remap and isinstance(remap, dict | box.Box):
+        bs = [[remap[int(b[0])]] + b[1:] for b in bs]
+
+    bs = np.array(bs, dtype=np.float32)
+    c, x1, y1, x2, y2, *rest = bs.T
+    return np.stack([x1, y1, x2, y2, c] + rest, axis=-1)
 
 
 def load_hbb_yolo(

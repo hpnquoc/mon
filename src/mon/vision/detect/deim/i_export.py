@@ -27,14 +27,18 @@ current_dir  = current_file.parents[0]
 # ----- Export -----
 class Model(torch.nn.Module):
 
-    def __init__(self, cfg):
+    def __init__(self, cfg, export_postprocessor: bool = True):
         super().__init__()
-        self.model         = cfg.model.deploy()
-        self.postprocessor = cfg.postprocessor.deploy()
+        self.model = cfg.model.deploy()
+        if export_postprocessor:
+            self.postprocessor = cfg.postprocessor.deploy()
+        else:
+            self.postprocessor = None
 
     def forward(self, images, orig_target_sizes):
         outputs = self.model(images)
-        outputs = self.postprocessor(outputs, orig_target_sizes)
+        if self.postprocessor is not None:
+            outputs = self.postprocessor(outputs, orig_target_sizes)
         return outputs
 
 
@@ -49,12 +53,17 @@ def export_onnx(model: Model, path: mon.Path, args: dict | box.Box) -> mon.Path:
         "orig_target_sizes": {0: "N"}
     }
 
+    if args.get("export_postprocessor", True):
+        output_names = ["labels", "boxes", "scores"]
+    else:
+        output_names = ["outputs"]
+
     torch.onnx.export(
         model,
         (data, size),
         path,
         input_names         = ["images", "orig_target_sizes"],
-        output_names        = ["labels", "boxes", "scores"],
+        output_names        = output_names,
         dynamic_axes        = dynamic_axes,
         opset_version       = args.opset,
         verbose             = False,
@@ -205,7 +214,7 @@ def export(args: dict | box.Box) -> str:
 
     # Load train mode state and convert to deploy mode
     cfg.model.load_state_dict(state)
-    model = Model(cfg)
+    model = Model(cfg, export_postprocessor=args.export_postprocessor)
     model = model.eval()
     for param in model.parameters():
         param.requires_grad = False

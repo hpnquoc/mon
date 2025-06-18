@@ -63,8 +63,9 @@ DFINETransformer:
   query_select_method: default # default, agnostic
 
 PostProcessor:
-  num_top_queries: 300
-  deploy_out_fmt : "xywh" # "xyxy"
+  num_top_queries       : 300
+  deploy_num_top_queries: 150
+  deploy_out_fmt        : "xywh" # "xyxy"
 
 DEIMCriterion:
   weight_dict: {loss_vfl: 1, loss_bbox: 5, loss_giou: 2, loss_fgl: 0.15, loss_ddf: 1.5}
