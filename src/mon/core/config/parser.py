@@ -140,7 +140,7 @@ def parse_predict_args(model_root: pathlib.Path = None, verbose: bool = False) -
     # Save config file
     if not args.exist_ok:
         pathlib.delete_dir(paths=args.save_dir)
-    if not args.save_nearby:
+    if not args.save_nearby and (args.save_result or args.save_image or args.save_debug):
         args.save_dir.mkdir(parents=True, exist_ok=True)
         if args.config and args.config.is_config_file():
             pathlib.copy_file(src=args.config, dst=args.save_dir / f"{args.config.name}")

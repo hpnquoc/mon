@@ -25,8 +25,8 @@ current_dir  = current_file.parents[0]
 # ----- Utils -----
 def benchmark(model: torch.nn.Module):
     flops, params = mon.compute_efficiency_score(model=model)
-    mon.console.log(f"FLOPs : {flops:.4f}")
     mon.console.log(f"Params: {params:.4f}")
+    mon.console.log(f"FLOPs : {flops:.4f}")
 
 
 def dict2namespace(config):
@@ -79,6 +79,7 @@ def predict(args: dict | box.Box) -> str:
     
     # Predict
     timers = mon.TimeProfiler()
+    timers.total.tick()
     runner.sample(
         pretrained,
         data_name,
@@ -91,6 +92,7 @@ def predict(args: dict | box.Box) -> str:
         args.save_nearby,
         timers
     )
+    timers.total.tock()
 
     # Finish
     timers.print()

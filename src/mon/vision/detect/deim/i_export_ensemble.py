@@ -24,31 +24,11 @@ current_file = mon.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
 
-# ----- Utils -----
+# ----- Export -----
 class Model(torch.nn.Module):
-
-    def __init__(self, cfg, export_postprocessor: bool = True):
-        super().__init__()
-        self.model = cfg.model.deploy()
-        if export_postprocessor:
-            self.postprocessor = cfg.postprocessor.deploy()
-        else:
-            self.postprocessor = None
-
-    def forward(self, images, orig_target_sizes):
-        outputs = self.model(images)
-        if self.postprocessor is not None:
-            outputs = self.postprocessor(outputs, orig_target_sizes)
-        return outputs
-
-
-class ModelEnsemble(torch.nn.Module):
 
     def __init__(self, cfg: list, export_postprocessor: bool = True):
         super().__init__()
-        if not isinstance(cfg, list | tuple):
-            raise TypeError(f"[cfg] must be a list or tuple of configurations, got {type(cfg)}.")
-
         self.models = torch.nn.ModuleList([c.model.deploy() for c in cfg])
         if export_postprocessor:
             self.postprocessor = cfg[0].postprocessor.deploy()
@@ -72,7 +52,6 @@ class ModelEnsemble(torch.nn.Module):
         return outputs
 
 
-# ----- Export -----
 @torch.no_grad()
 def export_onnx(model: Model, path: mon.Path, args: dict | box.Box) -> mon.Path:
     imgsz = args.imgsz[0] if isinstance(args.imgsz, list | tuple) else args.imgsz
@@ -213,36 +192,31 @@ def export(args: dict | box.Box) -> str:
     mon.set_random_seed(args.seed)
 
     # Pretrained
-    pretrained = args.resume
-    if args.weights and (isinstance(args.weights, list | tuple) or args.weights.is_weights_file(exist=True)):
+    pretrained = None
+    if args.weights and isinstance(args.weights, list | tuple):
         pretrained = args.weights
-    if pretrained and (isinstance(pretrained, list | tuple) or pretrained.is_weights_file(exist=True)):
+    if pretrained and isinstance(pretrained, list | tuple):
         mon.console.log(f"Pretrained: {pretrained}.")
     else:
         raise ValueError(f"Invalid weights file: {pretrained}.")
-    if not isinstance(pretrained, list | tuple):
-        pretrained = [pretrained]
 
     # Model
-    cfg         = args.cfg
-    updated_cfg = args.updated_cfg
     if not isinstance(args.cfg, list | tuple):
-        cfg         = [args.cfg]
-        updated_cfg = [args.updated_cfg]
-    if len(cfg) != len(pretrained):
-        raise ValueError(f"Number of configurations ({len(cfg)}) does not match number of pretrained weights ({len(pretrained)}).")
+        raise ValueError(f"Invalid cfg: {args.cfg}.")
 
-    for i in range(len(cfg)):
-        cfg_path        = current_dir / "option" / cfg[i]
-        updated_cfg[i] |= {"resume": str(pretrained[i])} if pretrained[i] else {}
-        updated_cfg[i] |= {
+    cfgs = []
+    for i, cfg in enumerate(args.cfg):
+        cfg_path     = current_dir / "option" / cfg
+        updated_cfg  = args.updated_cfg[i]
+        updated_cfg |= {"resume": str(pretrained[i])} if pretrained[i] else {}
+        updated_cfg |= {
             "device": device,
             "seed"  : args.seed,
         }
-        cfg[i] = YAMLConfig(cfg_path=str(cfg_path), root=str(args.root), **updated_cfg[i])
+        cfg = YAMLConfig(cfg_path=str(cfg_path), root=str(args.root), **updated_cfg)
 
-        if "HGNetv2" in cfg[i].yaml_cfg:
-            cfg[i].yaml_cfg["HGNetv2"]["pretrained"] = False
+        if "HGNetv2" in cfg.yaml_cfg:
+            cfg.yaml_cfg["HGNetv2"]["pretrained"] = False
 
         if pretrained[i]:
             checkpoint = torch.load(pretrained[i], map_location="cpu")
@@ -254,21 +228,17 @@ def export(args: dict | box.Box) -> str:
             raise AttributeError("Only support resume to load model.state_dict by now.")
 
         # Load train mode state and convert to deploy mode
-        cfg[i].model.load_state_dict(state)
+        cfg.model.load_state_dict(state)
+        cfgs.append(cfg)
 
-    if len(cfg) == 1:  # Single model
-        model = Model(cfg[0], export_postprocessor=args.export_postprocessor)
-    else:
-        model = ModelEnsemble(cfg, export_postprocessor=args.export_postprocessor)
+    model = Model(cfgs, export_postprocessor=args.export_postprocessor)
     model = model.eval()
     for param in model.parameters():
         param.requires_grad = False
 
     # Export ONNX model (always export ONNX first)
-    # save_dir  = pretrained.parent if args.save_nearby  else args.save_dir
-    # file_stem = args.fullname     if args.use_fullname else pretrained.stem
-    save_dir  = args.save_dir
-    file_stem = args.fullname
+    save_dir  = pretrained.parent if args.save_nearby  else args.save_dir
+    file_stem = args.fullname     if args.use_fullname else pretrained.stem
     onnx_file = save_dir / f"{file_stem}.onnx"
     export_onnx(model, onnx_file, args)
     mon.console.log(f"Exported ONNX model to: {onnx_file}.")
@@ -286,12 +256,4 @@ def main() -> str:
 
 
 if __name__ == "__main__":
-    # import argparse
-    # parser = argparse.ArgumentParser()
-    # parser.add_argument("--config", "-c", type=str, default="options/deim_dfine/dfine_hgnetv2_l_coco80.yml")
-    # parser.add_argument("--resume", "-r", type=str)
-    # parser.add_argument("--check",        action="store_true", default=True)
-    # parser.add_argument("--simplify",     action="store_true", default=True)
-    # args = parser.parse_args()
-    # main(args)
     main()

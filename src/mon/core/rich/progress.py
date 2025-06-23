@@ -25,7 +25,8 @@ def create_download_bar(transient: bool = False, disable: bool = False) -> Progr
     """
     return Progress(
         TextColumn(
-            console.get_datetime().strftime("[%x %H:%M:%S]"),
+            # console.get_datetime().strftime("[%x %H:%M:%S]"),
+            console.get_datetime().strftime("[%X]"),
             justify="left",
             style="log.time",
         ),
@@ -58,7 +59,8 @@ def create_progress_bar(transient: bool = False, disable: bool = False) -> Progr
     """
     return Progress(
         TextColumn(
-            console.get_datetime().strftime("[%x %H:%M:%S]"),
+            # console.get_datetime().strftime("[%x %H:%M:%S]"),
+            console.get_datetime().strftime("[%X]"),
             justify="left",
             style="log.time"
         ),

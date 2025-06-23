@@ -28,8 +28,8 @@ current_dir  = current_file.parents[0]
 # ----- Utils -----
 def benchmark(model: torch.nn.Module):
     flops, params = mon.compute_efficiency_score(model=model)
-    mon.console.log(f"FLOPs : {flops:.4f}")
     mon.console.log(f"Params: {params:.4f}")
+    mon.console.log(f"FLOPs : {flops:.4f}")
 
 
 # ----- Predict -----
@@ -117,6 +117,7 @@ def predict(args: dict | box.Box) -> str:
     ann_id      = 0
 
     timers = mon.TimeProfiler()
+    timers.total.tick()
     with mon.create_progress_bar() as pbar:
         for i, datapoint in pbar.track(
             sequence    = enumerate(data_loader),
@@ -172,6 +173,7 @@ def predict(args: dict | box.Box) -> str:
                         "iscrowd"    : 0,
                     })
                     ann_id += 1
+    timers.total.tock()
 
     # Save
     if args.save_result:

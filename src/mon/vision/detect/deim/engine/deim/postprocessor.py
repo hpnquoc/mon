@@ -149,7 +149,8 @@ class PostProcessor(nn.Module):
 
     # def forward(self, outputs, orig_target_sizes):
     def forward(self, outputs, orig_target_sizes: torch.Tensor):
-        logits, boxes = outputs["pred_logits"], outputs["pred_boxes"]
+        logits = outputs["pred_logits"]
+        boxes  = outputs["pred_boxes"]
         # orig_target_sizes = torch.stack([t["orig_size"] for t in targets], dim=0)
 
         # My Modification
@@ -165,25 +166,25 @@ class PostProcessor(nn.Module):
             num_top_queries = self.num_top_queries
 
         if self.use_focal_loss:
-            scores        = F.sigmoid(logits)
-            scores_flat   = scores.flatten(1)
-            scores, index = torch.topk(scores_flat, num_top_queries, dim=-1)
+            scores         = F.sigmoid(logits)
+            scores_flat    = scores.flatten(1)
+            scores, index  = torch.topk(scores_flat, num_top_queries, dim=-1)
             # TODO for older tensorrt
             # labels = index % self.num_classes
-            labels = torch.remainder(index, self.num_classes)
-            index  = index // self.num_classes
+            labels         = torch.remainder(index, self.num_classes)
+            index          = index // self.num_classes
             index_expanded = index.unsqueeze(-1).expand(-1, -1, 4)
-            boxes  = bbox_pred.gather(1, index_expanded)
+            boxes          = bbox_pred.gather(1, index_expanded)
         else:
             scores         = F.softmax(logits, dim=-1)[..., :-1]
             scores, labels = scores.max(dim=-1)
             if scores.shape[1] > num_top_queries:
-                scores, index = torch.topk(scores, num_top_queries, dim=-1)
-                labels = torch.gather(labels, dim=1, index=index)
+                scores, index  = torch.topk(scores, num_top_queries, dim=-1)
+                labels         = torch.gather(labels, dim=1, index=index)
                 index_expanded = index.unsqueeze(-1).expand(-1, -1, 4)
-                boxes  = bbox_pred.gather(1, index_expanded)
+                boxes          = bbox_pred.gather(1, index_expanded)
             else:
-                boxes  = bbox_pred[:, :num_top_queries]
+                boxes = bbox_pred[:, :num_top_queries]
 
         # TODO for onnx export
         if self.deploy_mode:

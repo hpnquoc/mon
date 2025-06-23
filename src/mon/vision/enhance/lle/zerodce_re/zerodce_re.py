@@ -18,6 +18,7 @@ import torch
 
 from mon import core, nn
 from mon.constants import MLType, MODELS, Task
+from mon.nn import _size_2_t
 from mon.vision.enhance import base
 
 current_file = core.Path(__file__).absolute()
@@ -198,3 +199,59 @@ class ZeroDCE_RE(base.ImageEnhancementModel):
             "adjust"  : x_r,
             "enhanced": y,
         }
+
+    # ----- Predict -----
+    def infer(
+        self,
+        datapoint: dict,
+        imgsz    : _size_2_t         = 512,
+        resize   : bool              = False,
+        timers   : core.TimeProfiler = None,
+        *args, **kwargs
+    ) -> dict:
+        """Infers model output with optional processing.
+
+        Args:
+            datapoint: ``dict`` with datapoint attributes.
+            imgsz: Input size as ``int`` or [H, W]. Default is ``512``.
+            resize: Resize input to ``image_size`` if ``True``. Default is ``False``.
+            timers: ``TimeProfiler`` for measuring time.
+
+        Returns:
+            ``dict`` of model predictions with inference time.
+
+        Notes:
+            Override for custom pre/post-processing; defaults to ``self.forward()``.
+        """
+        from mon.vision import types, transforms
+        imgsz = types.image_size(imgsz)
+
+        # Preprocess
+        timers.preprocess.tick() if timers is not None else None
+        image  = datapoint["image"]
+        h0, w0 = types.image_size(image)
+        if resize and h0 != imgsz[0] and w0 != imgsz[1]:
+            image = transforms.resize(image, size=imgsz)
+        image  = image.to(self.device)
+        timers.preprocess.tock() if timers is not None else None
+
+        # Infer
+        timers.infer.tick() if timers is not None else None
+        outputs = self.forward(
+            datapoint = {
+                "image": image
+            },
+            *args, **kwargs
+        )
+        timers.infer.tock() if timers is not None else None
+
+        # Postprocess
+        timers.postprocess.tick() if timers is not None else None
+        for k, v in outputs.items():
+            if types.is_image(v):
+                if resize and h0 != imgsz[0] and w0 != imgsz[1]:
+                    outputs[k] = transforms.resize(v, (h0, w0))
+        timers.postprocess.tock() if timers is not None else None
+
+        # Return
+        return outputs

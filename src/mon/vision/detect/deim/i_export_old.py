@@ -42,36 +42,6 @@ class Model(torch.nn.Module):
         return outputs
 
 
-class ModelEnsemble(torch.nn.Module):
-
-    def __init__(self, cfg: list, export_postprocessor: bool = True):
-        super().__init__()
-        if not isinstance(cfg, list | tuple):
-            raise TypeError(f"[cfg] must be a list or tuple of configurations, got {type(cfg)}.")
-
-        self.models = torch.nn.ModuleList([c.model.deploy() for c in cfg])
-        if export_postprocessor:
-            self.postprocessor = cfg[0].postprocessor.deploy()
-        else:
-            self.postprocessor = None
-
-    def forward(self, images, orig_target_sizes):
-        outputs = {
-            "pred_logits": [],
-            "pred_boxes" : [],
-        }
-        for model in self.models:
-            y = model(images)
-            outputs["pred_logits"].append(y["pred_logits"])
-            outputs["pred_boxes"].append(y["pred_boxes"])
-
-        outputs["pred_logits"] = torch.stack(outputs["pred_logits"]).mean(0)    # Mean ensemble
-        outputs["pred_boxes"]  = torch.stack(outputs["pred_boxes"]).mean(0)     # Mean ensemble
-        if self.postprocessor is not None:
-            outputs = self.postprocessor(outputs, orig_target_sizes)
-        return outputs
-
-
 # ----- Export -----
 @torch.no_grad()
 def export_onnx(model: Model, path: mon.Path, args: dict | box.Box) -> mon.Path:
@@ -214,61 +184,46 @@ def export(args: dict | box.Box) -> str:
 
     # Pretrained
     pretrained = args.resume
-    if args.weights and (isinstance(args.weights, list | tuple) or args.weights.is_weights_file(exist=True)):
+    if args.weights and args.weights.is_weights_file(exist=True):
         pretrained = args.weights
-    if pretrained and (isinstance(pretrained, list | tuple) or pretrained.is_weights_file(exist=True)):
+    if pretrained and pretrained.is_weights_file(exist=True):
         mon.console.log(f"Pretrained: {pretrained}.")
     else:
         raise ValueError(f"Invalid weights file: {pretrained}.")
-    if not isinstance(pretrained, list | tuple):
-        pretrained = [pretrained]
 
     # Model
-    cfg         = args.cfg
-    updated_cfg = args.updated_cfg
-    if not isinstance(args.cfg, list | tuple):
-        cfg         = [args.cfg]
-        updated_cfg = [args.updated_cfg]
-    if len(cfg) != len(pretrained):
-        raise ValueError(f"Number of configurations ({len(cfg)}) does not match number of pretrained weights ({len(pretrained)}).")
+    cfg_path     = current_dir / "option" / args.cfg
+    updated_cfg  = args.updated_cfg
+    updated_cfg |= {"resume": str(pretrained)} if pretrained else {}
+    updated_cfg |= {
+        "device": device,
+        "seed"  : args.seed,
+    }
+    cfg = YAMLConfig(cfg_path=str(cfg_path), root=str(args.root), **updated_cfg)
 
-    for i in range(len(cfg)):
-        cfg_path        = current_dir / "option" / cfg[i]
-        updated_cfg[i] |= {"resume": str(pretrained[i])} if pretrained[i] else {}
-        updated_cfg[i] |= {
-            "device": device,
-            "seed"  : args.seed,
-        }
-        cfg[i] = YAMLConfig(cfg_path=str(cfg_path), root=str(args.root), **updated_cfg[i])
+    if "HGNetv2" in cfg.yaml_cfg:
+        cfg.yaml_cfg["HGNetv2"]["pretrained"] = False
 
-        if "HGNetv2" in cfg[i].yaml_cfg:
-            cfg[i].yaml_cfg["HGNetv2"]["pretrained"] = False
-
-        if pretrained[i]:
-            checkpoint = torch.load(pretrained[i], map_location="cpu")
-            if "ema" in checkpoint:
-                state = checkpoint["ema"]["module"]
-            else:
-                state = checkpoint["model"]
+    if pretrained:
+        checkpoint = torch.load(pretrained, map_location="cpu")
+        if "ema" in checkpoint:
+            state = checkpoint["ema"]["module"]
         else:
-            raise AttributeError("Only support resume to load model.state_dict by now.")
-
-        # Load train mode state and convert to deploy mode
-        cfg[i].model.load_state_dict(state)
-
-    if len(cfg) == 1:  # Single model
-        model = Model(cfg[0], export_postprocessor=args.export_postprocessor)
+            state = checkpoint["model"]
     else:
-        model = ModelEnsemble(cfg, export_postprocessor=args.export_postprocessor)
+        raise AttributeError("Only support resume to load model.state_dict by now.")
+
+    # Load train mode state and convert to deploy mode
+    cfg.model.load_state_dict(state)
+
+    model = Model(cfg, export_postprocessor=args.export_postprocessor)
     model = model.eval()
     for param in model.parameters():
         param.requires_grad = False
 
     # Export ONNX model (always export ONNX first)
-    # save_dir  = pretrained.parent if args.save_nearby  else args.save_dir
-    # file_stem = args.fullname     if args.use_fullname else pretrained.stem
-    save_dir  = args.save_dir
-    file_stem = args.fullname
+    save_dir  = pretrained.parent if args.save_nearby  else args.save_dir
+    file_stem = args.fullname     if args.use_fullname else pretrained.stem
     onnx_file = save_dir / f"{file_stem}.onnx"
     export_onnx(model, onnx_file, args)
     mon.console.log(f"Exported ONNX model to: {onnx_file}.")

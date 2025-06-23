@@ -100,13 +100,15 @@ class NumberPrompt:
         self.text    = text
         self.default = default
         self.value   = default
-    
+
     @property
     def default(self):
         return self._default
     
     @default.setter
     def default(self, default: int):
+        default       = default[0] if isinstance(default, list | tuple) else default
+        default       = mon.to_int(default)
         self._default = default if isinstance(default, int | float) else -1
 
     @property
@@ -115,6 +117,8 @@ class NumberPrompt:
     
     @value.setter
     def value(self, value: int):
+        value       = value[0] if isinstance(value, list | tuple) else value
+        value       = mon.to_int(value)
         self._value = None if isinstance(value, int | float) and value < 0 else value
         
     def prompt(self) -> int:
@@ -391,7 +395,7 @@ class RunmlCLI:
                 default = self.args["seed"] or self.config_args.get("seed"),
             ).prompt()
         if self.index == 10:  # Image Size
-            if self.args["mode"] not in ["predict"]:
+            if self.args["mode"] not in ["predict", "speed"]:
                 self.cycle_next()
             else:
                 self.args["imgsz"] = NumberPrompt(
@@ -439,7 +443,7 @@ class RunmlCLI:
                     default = self.args["master_addr"] or self.config_args.get("master_addr"),
                 ).prompt()
         if self.index == 16:  # Resize
-            if self.args["mode"] not in ["predict"]:
+            if self.args["mode"] not in ["predict", "speed"]:
                 self.cycle_next()
             else:
                 self.args["resize"] = Confirm(
@@ -452,20 +456,38 @@ class RunmlCLI:
                 default = self.args["benchmark"] or self.config_args.get("benchmark", False),
             ).prompt()
         if self.index == 18:  # Save Result
-            self.args["save_result"] = Confirm(
-                text    = CLI_OPTIONS["save_result"]["prompt_text"],
-                default = self.args["save_result"] or self.config_args.get("save_result", False),
-            ).prompt()
+            if self.args["mode"] in ["speed"]:
+                self.args["save_result"] = Confirm(
+                    text    = CLI_OPTIONS["save_result"]["prompt_text"],
+                    default = self.args["save_result"],
+                ).prompt()
+            else:
+                self.args["save_result"] = Confirm(
+                    text    = CLI_OPTIONS["save_result"]["prompt_text"],
+                    default = self.args["save_result"] or self.config_args.get("save_result", False),
+                ).prompt()
         if self.index == 19:  # Save Image
-            self.args["save_image"] = Confirm(
-                text    = CLI_OPTIONS["save_image"]["prompt_text"],
-                default = self.args["save_image"] or self.config_args.get("save_image", False),
-            ).prompt()
+            if self.args["mode"] in ["speed"]:
+                self.args["save_image"] = Confirm(
+                    text    = CLI_OPTIONS["save_image"]["prompt_text"],
+                    default = self.args["save_image"],
+                ).prompt()
+            else:
+                self.args["save_image"] = Confirm(
+                    text    = CLI_OPTIONS["save_image"]["prompt_text"],
+                    default = self.args["save_image"] or self.config_args.get("save_image", False),
+                ).prompt()
         if self.index == 20:  # Save Debug
-            self.args["save_debug"] = Confirm(
-                text    = CLI_OPTIONS["save_debug"]["prompt_text"],
-                default = self.args["save_debug"] or self.config_args.get("save_debug", False),
-            ).prompt()
+            if self.args["mode"] in ["speed"]:
+                self.args["save_debug"] = Confirm(
+                    text    = CLI_OPTIONS["save_debug"]["prompt_text"],
+                    default = self.args["save_debug"],
+                ).prompt()
+            else:
+                self.args["save_debug"] = Confirm(
+                    text    = CLI_OPTIONS["save_debug"]["prompt_text"],
+                    default = self.args["save_debug"] or self.config_args.get("save_debug", False),
+                ).prompt()
         if self.index == 21:  # Use Fullname
             self.args["use_fullname"] = Confirm(
                 text    = CLI_OPTIONS["use_fullname"]["prompt_text"],

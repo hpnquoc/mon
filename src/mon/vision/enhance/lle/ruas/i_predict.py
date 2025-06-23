@@ -25,8 +25,8 @@ current_dir  = current_file.parents[0]
 # ----- Utils -----
 def benchmark(model: torch.nn.Module):
     flops, params = mon.compute_efficiency_score(model=model)
-    mon.console.log(f"FLOPs : {flops:.4f}")
     mon.console.log(f"Params: {params:.4f}")
+    mon.console.log(f"FLOPs : {flops:.4f}")
 
 
 def save_images(tensor, path):
@@ -76,6 +76,7 @@ def predict(args: dict | box.Box) -> str:
     
     # Predict
     timers = mon.TimeProfiler()
+    timers.total.tick()
     with mon.create_progress_bar() as pbar:
         for i, datapoint in pbar.track(
             sequence    = enumerate(data_loader),
@@ -124,6 +125,7 @@ def predict(args: dict | box.Box) -> str:
                 out_path = out_dir / f"{path.stem}_dark{mon.SAVE_IMAGE_EXT}"
                 out_path.parent.mkdir(parents=True, exist_ok=True)
                 save_images(u_list[-2], str(out_path))
+    timers.total.tock()
 
     # Finish
     timers.print()

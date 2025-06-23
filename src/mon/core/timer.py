@@ -102,15 +102,46 @@ class TimeProfiler:
         self.preprocess  = Timer()
         self.infer       = Timer()
         self.postprocess = Timer()
+        self.total       = Timer()
 
     @property
-    def total_avg_time(self) -> float:
+    def process_time(self) -> float:
+        """Returns the average time taken by the profiler."""
+        return self.preprocess.total_time + self.infer.total_time + self.postprocess.total_time
+
+    @property
+    def avg_process_time(self) -> float:
         """Returns the average time taken by the profiler."""
         return self.preprocess.avg_time + self.infer.avg_time + self.postprocess.avg_time
 
     def print(self):
-        console.log(f"Timer Profiler:")
-        console.log(f"  - Preprocess : {self.preprocess.avg_time:.12f} (s).")
-        console.log(f"  - Infer      : {self.infer.avg_time:.12f} (s).")
-        console.log(f"  - Postprocess: {self.postprocess.avg_time:.12f} (s).")
-        console.log(f"  - Total      : {self.total_avg_time:.12f} (s).")
+        '''
+        console.log(f"Total Time     : {self.total.total_time:09.6f} (s).")
+        console.log(f"  - Preprocess : {self.preprocess.total_time:09.6f} (s).")
+        console.log(f"  - Infer      : {self.infer.total_time:09.6f} (s).")
+        console.log(f"  - Postprocess: {self.postprocess.total_time:09.6f} (s).")
+        console.log(f"  - -----")
+        console.log(f"  - Process    : {self.process_time:09.6f} (s).")
+        '''
+
+        results = {
+            "Total"      : self.total.total_time,
+            "Preprocess" : self.preprocess.total_time,
+            "Infer"      : self.infer.total_time,
+            "Postprocess": self.postprocess.total_time,
+            "Process"    : self.process_time,
+        }
+        message = "           "
+        # Headers
+        for m, v in results.items():
+            if v:
+                message += f"{f'{m}':<10}\t"
+        message += "\n           "
+        # Values
+        for i, (m, v) in enumerate(results.items()):
+            if v:
+                if i == len(results) - 1:
+                    message += f"{v:<10.6f}\n"
+                else:
+                    message += f"{v:<10.6f}\t"
+        print(f"{message}\n")

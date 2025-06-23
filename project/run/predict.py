@@ -16,8 +16,8 @@ current_dir  = current_file.parents[0]
 def benchmark(model: mon.Model):
     if hasattr(model, "compute_efficiency_score"):
         flops, params = model.compute_efficiency_score()
-        mon.console.log(f"FLOPs : {flops:.4f}")
         mon.console.log(f"Params: {params:.4f}")
+        mon.console.log(f"FLOPs : {flops:.4f}")
 
 
 # ----- Predict -----
@@ -65,6 +65,7 @@ def predict(args: dict | box.Box) -> str:
         
     # Predict
     timers = mon.TimeProfiler()
+    timers.total.tick()
     with mon.create_progress_bar() as pbar:
         for i, datapoint in pbar.track(
             sequence    = enumerate(data_loader),
@@ -81,11 +82,13 @@ def predict(args: dict | box.Box) -> str:
                 resize     = args.resize,
                 timers     = timers,
             )
+            '''
             if "timers" in outputs:
-                timer = outputs.pop("timers")
-                timers.preprocess.append(timer.preprocess.avg_time)
-                timers.infer.append(timer.infer.avg_time)
-                timers.postprocess.append(timer.postprocess.avg_time)
+                t = outputs.pop("timers")
+                timers.preprocess.append(t.preprocess.avg_time)
+                timers.infer.append(t.infer.avg_time)
+                timers.postprocess.append(t.postprocess.avg_time)
+            '''
 
             # Save
             if args.save_image:
@@ -101,7 +104,8 @@ def predict(args: dict | box.Box) -> str:
                     if mon.is_image(v):
                         path = debug_dir / f"{path.stem}_{k}{mon.SAVE_IMAGE_EXT}"
                         mon.save_image(v, path)
-    
+    timers.total.tock()
+
     # Finish
     timers.print()
     return str(args.save_dir)

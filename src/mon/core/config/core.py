@@ -91,7 +91,7 @@ CLI_OPTIONS  = {
     "mode"        : {
         "default"    : None,
         "type"       : _str_or_none,
-        "choices"    : ["train", "predict"],  # RunMode.values(),
+        "choices"    : ["train", "predict", "speed"],  # RunMode.values(),
         "help"       : f"Run mode: {['train', 'predict']}.",
         "prompt_only": False,
         "i_cli_type" : str,

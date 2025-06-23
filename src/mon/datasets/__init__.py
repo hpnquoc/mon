@@ -6,6 +6,7 @@
 from mon.datasets.aicity import *
 from mon.datasets.cityscapes import *
 from mon.datasets.coco import *
+from mon.datasets.efficiency import *
 from mon.datasets.enhance import *
 from mon.datasets.face import *
 from mon.datasets.mipi import *

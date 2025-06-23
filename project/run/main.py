@@ -185,7 +185,7 @@ def main():
     # Run
     if args.mode in ["train"]:
         run_train(args=args)
-    elif args.mode in ["predict"]:
+    elif args.mode in ["predict", "speed"]:
         run_predict(args=args)
     else:
         raise ValueError(f"Unknown mode: {args.mode}.")

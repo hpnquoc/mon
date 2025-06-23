@@ -24,8 +24,8 @@ current_dir  = current_file.parents[0]
 # ----- Utils -----
 def benchmark(model: torch.nn.Module):
     flops, params = mon.compute_efficiency_score(model=model)
-    mon.console.log(f"FLOPs : {flops:.4f}")
     mon.console.log(f"Params: {params:.4f}")
+    mon.console.log(f"FLOPs : {flops:.4f}")
 
 
 # ----- Predict -----
@@ -68,8 +68,9 @@ def predict(args: dict | box.Box) -> str:
         benchmark(model)
     
     # Predict
-    timers = mon.TimeProfiler()
     cmap   = matplotlib.colormaps.get_cmap("Spectral_r")
+    timers = mon.TimeProfiler()
+    timers.total.tick()
     with mon.create_progress_bar() as pbar:
         for i, datapoint in pbar.track(
             sequence    = enumerate(data_loader),
@@ -107,6 +108,7 @@ def predict(args: dict | box.Box) -> str:
                     out_dir = out_dir.parent / f"{out_dir.stem}_c"
                 out_path = out_dir / f"{path.stem}{mon.SAVE_IMAGE_EXT}"
                 mon.save_image(depth_c, out_path)
+    timers.total.tock()
 
     # Finish
     timers.print()

@@ -36,6 +36,7 @@ def predict(args: dict | box.Box) -> str:
     
     # Predict
     timers = mon.TimeProfiler()
+    timers.total.tick()
     with mon.create_progress_bar() as pbar:
         for i, datapoint in pbar.track(
             sequence    = enumerate(data_loader),
@@ -61,7 +62,8 @@ def predict(args: dict | box.Box) -> str:
                 resize   = args.resize
             )
             timers.infer.tock()
-    
+    timers.total.tock()
+
     # Finish
     timers.print()
     return str(args.save_dir)

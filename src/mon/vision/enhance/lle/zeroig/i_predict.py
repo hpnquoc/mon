@@ -84,6 +84,7 @@ def predict(args: dict | box.Box) -> str:
         
     # Predict
     timers = mon.TimeProfiler()
+    timers.total.tick()
     with mon.create_progress_bar() as pbar:
         for i, datapoint in pbar.track(
             sequence    = enumerate(data_loader),
@@ -138,7 +139,8 @@ def predict(args: dict | box.Box) -> str:
                 out_dir  = mon.parse_output_dir(args.save_dir, data_name, f"{mon.SAVE_IMAGE_DIR}_denoise", path, args.keep_subdirs, args.save_nearby)
                 out_path = out_dir / f"{path.stem}{mon.SAVE_IMAGE_EXT}"
                 mon.save_image(denoise, out_path)
-    
+    timers.total.tock()
+
     # Finish
     timers.print()
     return str(args.save_dir)
