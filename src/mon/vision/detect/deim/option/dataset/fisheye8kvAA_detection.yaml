@@ -6,7 +6,7 @@
 task: detection
 
 evaluator:
-  type     : CocoEvaluator
+  type     : CocoEvaluatorFishEye8K
   iou_types: ["bbox", ]
 
 num_classes          : 5 # your dataset classes

@@ -95,9 +95,9 @@ class Mosaic(T.Transform):
         mosaic_samples = [dict(img=image.copy(), labels=self._clone(target))] + mosaic_samples
 
         get_size_func = F.get_size if hasattr(F, "get_size") else F.get_spatial_size
-        sizes = [get_size_func(mosaic_samples[idx]["img"]) for idx in range(4)]
+        sizes      = [get_size_func(mosaic_samples[idx]["img"]) for idx in range(4)]
         max_height = max(size[0] for size in sizes)
-        max_width = max(size[1] for size in sizes)
+        max_width  = max(size[1] for size in sizes)
 
         return mosaic_samples, max_height, max_width
 
@@ -108,7 +108,7 @@ class Mosaic(T.Transform):
 
         mosaic_target = []
         for i, sample in enumerate(mosaic_samples):
-            img = sample["img"]
+            img    = sample["img"]
             target = sample["labels"]
 
             merged_image.paste(img, placement_offsets[i])

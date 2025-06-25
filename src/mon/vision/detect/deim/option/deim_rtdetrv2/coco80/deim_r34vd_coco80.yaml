@@ -1,13 +1,16 @@
 __include__: [
-  "./rtdetrv2_r18vd_coco80_e120.yaml",
+  "./rtdetrv2_r34vd_coco80.yaml",
   "../../base/rt_deim.yaml",
 ]
 
-output_dir: ./output/deim_rtdetrv2_r18vd_coco80_e120
+output_dir: ./outputs/deim_rtdetrv2_r34vd_coco80
 
 optimizer:
   type: AdamW
   params:
+    - 
+      params: "^(?=.*backbone)(?!.*norm).*$"
+      lr    : 0.0001
     - 
       params      : "^(?=.*(?:norm|bn)).*$"
       weight_decay: 0.
@@ -17,7 +20,7 @@ optimizer:
 
 # change part
 epoches     : 120
-flat_epoch  : 64    # 4 + 120 / 2
+flat_epoch  : 64
 no_aug_epoch: 3
 
 train_dataloader: 

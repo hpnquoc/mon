@@ -144,7 +144,7 @@ def center_crop_image_and_hbbs(
         imgsz: Target size as [H, W] format.
     """
     h0, w0 = types.image_size(image)
-    h1, w1 = imgsz
+    h1, w1 = types.image_size(imgsz)
 
     if h1 > h0 or w1 > w0:
         raise ValueError(f"Target size {imgsz} exceeds original image size {image.shape[:2]}.")
@@ -186,9 +186,8 @@ def center_crop_image_and_hbbs(
         if x1 >= x2 or y1 >= y2:
             continue
 
-        adjusted_bbox.append([x1, y1, x2, y2] + b[4:])
+        adjusted_bbox.append(np.concatenate(([x1, y1, x2, y2], b[4:])))
 
     adjusted_bbox = np.array(adjusted_bbox, np.float32)
     adjusted_bbox = types.convert_hbb(adjusted_bbox, fmt=BBoxFormat.XYXY2CXCYWHN, imgsz=(h1, w1))
-
     return cropped_image, adjusted_bbox

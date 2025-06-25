@@ -8,13 +8,13 @@ model       : &model "deim_dfine_s"                                             
 data        : &data "fisheye8kvKD"                                              # Dataset name (e.g., cifar10) or directory (e.g., data/cifar10).
 fullname    : &fullname "deim_dfine_s_fisheye8kvAA2vKD_512_cv2"                 # Full name of the current run (e.g., resnet50_cifar10_01). If not set, it will be this file's name.
 save_dir    : &save_dir ~                                                       # Saving directory. If not set, it will be `root/arch/model/data`.
-weights     : &weights "run/train/deim/deim_dfine_s/deim_dfine_s_fisheye8kvAA2vKD_512_cv2/best_stg2.pth"  # Path to the pretrained weights.
+weights     : &weights "run/train/deim/deim_dfine_s/deim_dfine_s_fisheye8kvAA2vKD_512_cv2/best_stg2_f1.pth"  # Path to the pretrained weights.
 device      : &device cuda:0,1,2,3                                              # Running device (i.e., cuda:0 | cuda:0,1,2,3 | cpu).
 seed        : &seed 0                                                           # Random seed.
 imgsz       : &imgsz 512                                                        # Image size for the model.
 # Train
-resume      : &resume "run/train/deim/deim_dfine_s/deim_dfine_s_fisheye8kvAA2vKD_512_cv2/best_stg1.pth"  # Resume from interrupted training.
-tuning      : &tuning "run/train/deim/deim_dfine_s/deim_dfine_s_fisheye8kvAA_512_cv2/best_stg1.pth"  # Fine-tuning from a pretrained model.
+resume      : &resume "run/train/deim/deim_dfine_s/deim_dfine_s_fisheye8kvAA2vKD_512_cv2/best_stg1_f1.pth"  # Resume from interrupted training.
+tuning      : &tuning "run/train/deim/deim_dfine_s/deim_dfine_s_fisheye8kvAA_512_cv2/best_stg1_f1.pth"  # Fine-tuning from a pretrained model.
 epochs      : &epochs 500                                                       # Training epochs.
 batch_size  : &batch_size 32                                                    # Batch size.
 torchrun    : True                                                              # If ``True``, use torch.distributed.run to run the training script.

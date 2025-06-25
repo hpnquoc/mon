@@ -1,16 +1,16 @@
 __include__: [
-  "./rtdetrv2_r101vd_6x_coco80.yaml",
+  "./rtdetrv2_r50vd_coco80_6x_coco80.yaml",
   "../../base/rt_deim.yaml",
 ]
 
-output_dir: ./outputs/deim_rtdetrv2_r101vd_coco80_e60
+output_dir: ./outputs/deim_rtdetrv2_r50vd_coco80
 
 optimizer:
   type: AdamW
   params: 
     - 
       params: "^(?=.*backbone)(?!.*norm).*$"
-      lr    : 0.000002
+      lr    : 0.00002
     - 
       params      : "^(?=.*(?:norm|bn)).*$"
       weight_decay: 0.

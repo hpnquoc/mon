@@ -1,16 +1,16 @@
 __include__: [
-  "./rtdetrv2_r34vd_coco80_e120.yaml",
+  "./rtdetrv2_r101vd_6x_coco80.yaml",
   "../../base/rt_deim.yaml",
 ]
 
-output_dir: ./outputs/deim_rtdetrv2_r34vd_coco80_e120
+output_dir: ./outputs/deim_rtdetrv2_r101vd_coco80
 
 optimizer:
   type: AdamW
-  params:
+  params: 
     - 
       params: "^(?=.*backbone)(?!.*norm).*$"
-      lr    : 0.0001
+      lr    : 0.000002
     - 
       params      : "^(?=.*(?:norm|bn)).*$"
       weight_decay: 0.
@@ -19,15 +19,15 @@ optimizer:
   weight_decay: 0.0001
 
 # change part
-epoches     : 120
-flat_epoch  : 64
-no_aug_epoch: 3
+epoches     : 60
+flat_epoch  : 34    # 4 + 60 / 2
+no_aug_epoch: 2
 
 train_dataloader: 
   dataset: 
     transforms:
       policy:
-        epoch: [4, 64, 117]   # list
+        epoch: [4, 34, 58]   # list
   collate_fn:
-    mixup_epochs: [4, 64]
-    stop_epoch  : 117
+    mixup_epochs: [4, 34]
+    stop_epoch  : 58
