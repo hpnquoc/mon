@@ -29,13 +29,13 @@ class Rain13K(VisionDataset):
         FileNotFoundError: If ``root`` directory does not exist.
     """
 
-    tasks : list[Task]  = [Task.DERAIN]
-    splits: list[Split] = [Split.TRAIN]
-    datapoint_attrs     = DatapointAttributes({
+    _tasks : list[Task]  = [Task.DERAIN]
+    _splits: list[Split] = [Split.TRAIN]
+    _datapoint_attrs     = DatapointAttributes({
         "image"    : Image,
         "ref_image": Image,
     })
-    has_test_annotations: bool = False
+    _has_test_annotations: bool = False
     
     def __init__(self, root: core.Path, *args, **kwargs):
         root = core.Path(root)
@@ -68,7 +68,7 @@ class Rain13K(VisionDataset):
 class Rain13KDataModule(core.DataModule):
     """Configures Rain13K datasets for training/testing."""
 
-    tasks: list[Task] = [Task.DERAIN]
+    _tasks: list[Task] = [Task.DERAIN]
     
     def prepare_data(self, *args, **kwargs):
         """Prepares data (placeholder, no action taken)."""

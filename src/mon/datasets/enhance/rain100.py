@@ -32,13 +32,13 @@ class Rain100(VisionDataset):
         FileNotFoundError: If ``root`` directory does not exist.
     """
 
-    tasks : list[Task]  = [Task.DERAIN]
-    splits: list[Split] = [Split.TEST]
-    datapoint_attrs     = DatapointAttributes({
+    _tasks : list[Task]  = [Task.DERAIN]
+    _splits: list[Split] = [Split.TEST]
+    _datapoint_attrs     = DatapointAttributes({
         "image"    : Image,
         "ref_image": Image,
     })
-    has_test_annotations: bool = True
+    _has_test_annotations: bool = True
     
     def __init__(self, root: core.Path, *args, **kwargs):
         root = core.Path(root)
@@ -79,13 +79,13 @@ class Rain100H(VisionDataset):
         FileNotFoundError: If ``root`` directory does not exist.
     """
 
-    tasks : list[Task]  = [Task.DERAIN]
-    splits: list[Split] = [Split.TRAIN, Split.TEST]
-    datapoint_attrs     = DatapointAttributes({
+    _tasks : list[Task]  = [Task.DERAIN]
+    _splits: list[Split] = [Split.TRAIN, Split.TEST]
+    _datapoint_attrs     = DatapointAttributes({
         "image"    : Image,
         "ref_image": Image,
     })
-    has_test_annotations: bool = True
+    _has_test_annotations: bool = True
     
     def __init__(self, root: core.Path, *args, **kwargs):
         root = core.Path(root)
@@ -126,13 +126,13 @@ class Rain100L(VisionDataset):
         FileNotFoundError: If ``root`` directory does not exist.
     """
 
-    tasks : list[Task]  = [Task.DERAIN]
-    splits: list[Split] = [Split.TRAIN, Split.TEST]
-    datapoint_attrs     = DatapointAttributes({
+    _tasks : list[Task]  = [Task.DERAIN]
+    _splits: list[Split] = [Split.TRAIN, Split.TEST]
+    _datapoint_attrs     = DatapointAttributes({
         "image"    : Image,
         "ref_image": Image,
     })
-    has_test_annotations: bool = True
+    _has_test_annotations: bool = True
     
     def __init__(self, root: core.Path, *args, **kwargs):
         root = core.Path(root)
@@ -165,7 +165,7 @@ class Rain100L(VisionDataset):
 class Rain100DataModule(core.DataModule):
     """Configures Rain100 datasets for training/testing."""
 
-    tasks: list[Task] = [Task.DERAIN]
+    _tasks: list[Task] = [Task.DERAIN]
     
     def prepare_data(self, *args, **kwargs):
         """Prepares data (placeholder, no action taken)."""
@@ -196,7 +196,7 @@ class Rain100DataModule(core.DataModule):
 class Rain100HDataModule(core.DataModule):
     """Configures Rain100H datasets for training/testing."""
 
-    tasks: list[Task] = [Task.DERAIN]
+    _tasks: list[Task] = [Task.DERAIN]
     
     def prepare_data(self, *args, **kwargs):
         """Prepares data (placeholder, no action taken)."""
@@ -227,7 +227,7 @@ class Rain100HDataModule(core.DataModule):
 class Rain100LDataModule(core.DataModule):
     """Configures Rain100L datasets for training/testing."""
 
-    tasks: list[Task] = [Task.DERAIN]
+    _tasks: list[Task] = [Task.DERAIN]
     
     def prepare_data(self, *args, **kwargs):
         """Prepares data (placeholder, no action taken)."""

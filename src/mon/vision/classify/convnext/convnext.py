@@ -32,10 +32,10 @@ class ConvNeXt(nn.ExtraModel, base.ImageClassificationModel, abc.ABC):
         - https://arxiv.org/abs/2201.03545
     """
     
-    arch     : str          = "convnext"
-    mltypes  : list[MLType] = [MLType.SUPERVISED]
-    model_dir: core.Path    = current_dir
-    zoo      : dict         = {}
+    _arch     : str          = "convnext"
+    _mltypes  : list[MLType] = [MLType.SUPERVISED]
+    _model_dir: core.Path    = current_dir
+    _zoo      : dict         = {}
     
     # ----- Initialize -----
     def init_weights(self, m: nn.Module):
@@ -69,8 +69,8 @@ class ConvNeXtBase(ConvNeXt):
         num_classes: Number of output classes. Default is ``1000``.
     """
     
-    name: str = "convnext_base"
-    zoo : dict = {
+    _name: str = "convnext_base"
+    _zoo : dict = {
         "imagenet1k_v1": {
             "url"        : "https://download.pytorch.org/models/convnext_base-6075fbad.pth",
             "path"       : ZOO_DIR / "vision/classify/convnext/convnext_base/imagenet1k_v1/convnext_base_imagenet1k_v1.pth",
@@ -99,8 +99,8 @@ class ConvNeXtTiny(ConvNeXt):
         num_classes: Number of output classes. Default is 1000.
     """
     
-    name: str = "convnext_tiny"
-    zoo : dict = {
+    _name: str = "convnext_tiny"
+    _zoo : dict = {
         "imagenet1k_v1": {
             "url"        : "https://download.pytorch.org/models/convnext_tiny-983f1562.pth",
             "path"       : ZOO_DIR / "vision/classify/convnext/convnext_tiny/imagenet1k_v1/convnext_tiny_imagenet1k_v1.pth",
@@ -130,8 +130,8 @@ class ConvNeXtSmall(ConvNeXt):
         num_classes: Number of output classes. Default is ``1000``.
     """
     
-    name: str  = "convnext_small"
-    zoo : dict = {
+    _name: str  = "convnext_small"
+    _zoo : dict = {
         "imagenet1k_v1": {
             "url"        : "https://download.pytorch.org/models/convnext_small-0c510722.pth",
             "path"       : ZOO_DIR / "vision/classify/convnext/convnext_small/imagenet1k_v1/convnext_small_imagenet1k_v1.pth",
@@ -161,8 +161,8 @@ class ConvNeXtLarge(ConvNeXt):
         num_classes: Number of output classes. Default is ``1000``.
     """
     
-    name: str  = "convnext_large"
-    zoo : dict = {
+    _name: str  = "convnext_large"
+    _zoo : dict = {
         "imagenet1k_v1": {
             "url"        : "https://download.pytorch.org/models/convnext_large-ea097f82.pth",
             "path"       : ZOO_DIR / "vision/classify/convnext/convnext_large/imagenet1k_v1/convnext_large_imagenet1k_v1.pth",

@@ -34,15 +34,15 @@ class SICE(VisionDataset):
         FileNotFoundError: If ``root`` directory does not exist.
     """
     
-    tasks : list[Task]  = [Task.LLE]
-    splits: list[Split] = [Split.TRAIN, Split.TEST]
-    datapoint_attrs     = DatapointAttributes({
+    _tasks : list[Task]  = [Task.LLE]
+    _splits: list[Split] = [Split.TRAIN, Split.TEST]
+    _datapoint_attrs     = DatapointAttributes({
         "image"    : Image,
         "depth"    : DepthMap,
         "ref_image": Image,
         "ref_depth": DepthMap,
     })
-    has_test_annotations: bool = True
+    _has_test_annotations: bool = True
     
     def __init__(self, root: core.Path, *args, **kwargs):
         root = core.Path(root)
@@ -80,15 +80,15 @@ class SICEGrad(VisionDataset):
         FileNotFoundError: If ``root`` directory does not exist.
     """
     
-    tasks : list[Task]  = [Task.LLE]
-    splits: list[Split] = [Split.TRAIN, Split.TEST]
-    datapoint_attrs     = DatapointAttributes({
+    _tasks : list[Task]  = [Task.LLE]
+    _splits: list[Split] = [Split.TRAIN, Split.TEST]
+    _datapoint_attrs     = DatapointAttributes({
         "image"    : Image,
         "depth"    : DepthMap,
         "ref_image": Image,
         "ref_depth": DepthMap,
     })
-    has_test_annotations: bool = True
+    _has_test_annotations: bool = True
     
     def __init__(self, root: core.Path, *args, **kwargs):
         root = core.Path(root)
@@ -126,15 +126,15 @@ class SICEMix(VisionDataset):
         FileNotFoundError: If ``root`` directory does not exist.
     """
     
-    tasks : list[Task]  = [Task.LLE]
-    splits: list[Split] = [Split.TRAIN, Split.TEST]
-    datapoint_attrs     = DatapointAttributes({
+    _tasks : list[Task]  = [Task.LLE]
+    _splits: list[Split] = [Split.TRAIN, Split.TEST]
+    _datapoint_attrs     = DatapointAttributes({
         "image"    : Image,
         "depth"    : DepthMap,
         "ref_image": Image,
         "ref_depth": DepthMap,
     })
-    has_test_annotations: bool = True
+    _has_test_annotations: bool = True
     
     def __init__(self, root: core.Path, *args, **kwargs):
         root = core.Path(root)
@@ -172,13 +172,13 @@ class SICEVE(VisionDataset):
         FileNotFoundError: If ``root`` directory does not exist.
     """
     
-    tasks : list[Task]  = [Task.LLE]
-    splits: list[Split] = [Split.TRAIN]
-    datapoint_attrs     = DatapointAttributes({
+    _tasks : list[Task]  = [Task.LLE]
+    _splits: list[Split] = [Split.TRAIN]
+    _datapoint_attrs     = DatapointAttributes({
         "image": Image,
         "depth": DepthMap,
     })
-    has_test_annotations: bool = False
+    _has_test_annotations: bool = False
     
     def __init__(self, root: core.Path, *args, **kwargs):
         root = core.Path(root)
@@ -208,7 +208,7 @@ class SICEVE(VisionDataset):
 class SICEDataModule(core.DataModule):
     """Configures SICE datasets for training/testing."""
     
-    tasks: list[Task] = [Task.LLE]
+    _tasks: list[Task] = [Task.LLE]
     
     def prepare_data(self, *args, **kwargs):
         """Prepares data (placeholder, no action taken)."""
@@ -239,7 +239,7 @@ class SICEDataModule(core.DataModule):
 class SICEGradDataModule(core.DataModule):
     """Configures SICE-Grad datasets for training/testing."""
     
-    tasks: list[Task] = [Task.LLE]
+    _tasks: list[Task] = [Task.LLE]
     
     def prepare_data(self, *args, **kwargs):
         """Prepares data (placeholder, no action taken)."""
@@ -270,7 +270,7 @@ class SICEGradDataModule(core.DataModule):
 class SICEMixDataModule(core.DataModule):
     """Configures SICE-Mix datasets for training/testing."""
     
-    tasks: list[Task] = [Task.LLE]
+    _tasks: list[Task] = [Task.LLE]
     
     def prepare_data(self, *args, **kwargs):
         """Prepares data (placeholder, no action taken)."""
@@ -301,7 +301,7 @@ class SICEMixDataModule(core.DataModule):
 class SICEMEDataModule(core.DataModule):
     """Configures SICE-VE datasets for training/testing."""
     
-    tasks: list[Task] = [Task.LLE]
+    _tasks: list[Task] = [Task.LLE]
     
     def prepare_data(self, *args, **kwargs):
         """Prepares data (placeholder, no action taken)."""

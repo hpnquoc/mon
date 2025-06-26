@@ -28,10 +28,10 @@ class SqueezeNet(nn.ExtraModel, base.ImageClassificationModel, abc.ABC):
         - https://arxiv.org/abs/1602.07360
     """
     
-    arch     : str          = "squeezenet"
-    mltypes  : list[MLType] = [MLType.SUPERVISED]
-    model_dir: core.Path    = current_dir
-    zoo      : dict         = {}
+    _arch     : str          = "squeezenet"
+    _mltypes  : list[MLType] = [MLType.SUPERVISED]
+    _model_dir: core.Path    = current_dir
+    _zoo      : dict         = {}
 
     # ----- Initialize -----
     def init_weights(self, m: nn.Module):
@@ -66,8 +66,8 @@ class SqueezeNet1_0(SqueezeNet):
         dropout: Dropout rate for the model. Default is ``0.5``.
     """
     
-    name: str  = "squeezenet1_0"
-    zoo : dict = {
+    _name: str  = "squeezenet1_0"
+    _zoo : dict = {
         "imagenet1k_v1": {
             "url"        : "https://download.pytorch.org/models/squeezenet1_0-b66bff10.pth",
             "path"       : ZOO_DIR / "vision/classify/squeezenet/squeezenet1_0/imagenet1k_v1/squeezenet1_0_imagenet1k_v1.pth",
@@ -98,8 +98,8 @@ class SqueezeNet1_1(SqueezeNet):
         dropout: Dropout rate for the model. Default is ``0.5``.
     """
     
-    name: str  = "squeezenet1_1"
-    zoo : dict = {
+    _name: str  = "squeezenet1_1"
+    _zoo : dict = {
         "imagenet1k_v1": {
             "url"        : "https://download.pytorch.org/models/squeezenet1_1-b8a52dc0.pth",
             "path"       : ZOO_DIR / "vision/classify/squeezenet/squeezenet1_1/imagenet1k_v1/squeezenet1_1_imagenet1k_v1.pth",

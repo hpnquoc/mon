@@ -47,10 +47,10 @@ class RegNet(nn.ExtraModel, base.ImageClassificationModel, abc.ABC):
         - https://arxiv.org/abs/2003.13678
     """
     
-    arch     : str          = "regnet"
-    mltypes  : list[MLType] = [MLType.SUPERVISED]
-    model_dir: core.Path    = current_dir
-    zoo      : dict         = {}
+    _arch     : str          = "regnet"
+    _mltypes  : list[MLType] = [MLType.SUPERVISED]
+    _model_dir: core.Path    = current_dir
+    _zoo      : dict         = {}
     
     # ----- Initialize -----
     def init_weights(self, m: nn.Module):
@@ -84,8 +84,8 @@ class RegNet_Y_400MF(RegNet):
         num_classes: Number of output classes. Default is ``1000``.
     """
     
-    name: str  = "regnet_y_400mf"
-    zoo : dict = {
+    _name: str  = "regnet_y_400mf"
+    _zoo : dict = {
         "imagenet1k_v1": {
             "url"        : "https://download.pytorch.org/models/regnet_y_400mf-c65dace8.pth",
             "path"       : ZOO_DIR / "vision/classify/regnet/regnet_y_400mf/imagenet1k_v1/regnet_y_400mf_imagenet1k_v1.pth",
@@ -120,8 +120,8 @@ class RegNet_Y_800MF(RegNet):
         num_classes: Number of output classes. Default is ``1000``.
     """
     
-    name: str  = "regnet_y_800mf"
-    zoo : dict = {
+    _name: str  = "regnet_y_800mf"
+    _zoo : dict = {
         "imagenet1k_v1": {
             "url"        : "https://download.pytorch.org/models/regnet_y_800mf-1b27b58c.pth",
             "path"       : ZOO_DIR / "vision/classify/regnet/regnet_y_800mf/imagenet1k_v1/regnet_y_800mf_imagenet1k_v1.pth",
@@ -156,8 +156,8 @@ class RegNet_Y_1_6GF(RegNet):
         num_classes: Number of output classes. Default is ``1000``.
     """
     
-    name: str  = "regnet_y_1_6gf"
-    zoo : dict = {
+    _name: str  = "regnet_y_1_6gf"
+    _zoo : dict = {
         "imagenet1k_v1": {
             "url"        : "https://download.pytorch.org/models/regnet_y_1_6gf-b11a554e.pth",
             "path"       : ZOO_DIR / "vision/classify/regnet/regnet_y_1_6gf/imagenet1k_v1/regnet_y_1_6gf_imagenet1k_v1.pth",
@@ -192,8 +192,8 @@ class RegNet_Y_3_2GF(RegNet):
         num_classes: Number of output classes. Default is ``1000``.
     """
     
-    name: str  = "regnet_y_3_2gf"
-    zoo : dict = {
+    _name: str  = "regnet_y_3_2gf"
+    _zoo : dict = {
         "imagenet1k_v1": {
             "url"        : "https://download.pytorch.org/models/regnet_y_3_2gf-b5a9779c.pth",
             "path"       : ZOO_DIR / "vision/classify/regnet/regnet_y_3_2gf/imagenet1k_v1/regnet_y_3_2gf_imagenet1k_v1.pth",
@@ -228,8 +228,8 @@ class RegNet_Y_8GF(RegNet):
         num_classes: Number of output classes. Default is ``1000``.
     """
     
-    name: str  = "regnet_y_8gf"
-    zoo : dict = {
+    _name: str  = "regnet_y_8gf"
+    _zoo : dict = {
         "imagenet1k_v1": {
             "url"        : "https://download.pytorch.org/models/regnet_y_8gf-d0d0e4a8.pth",
             "path"       : ZOO_DIR / "vision/classify/regnet/regnet_y_8gf/imagenet1k_v1/regnet_y_8gf_imagenet1k_v1.pth",
@@ -264,8 +264,8 @@ class RegNet_Y_16GF(RegNet):
         num_classes: Number of output classes. Default is ``1000``.
     """
     
-    name: str  = "regnet_y_16gf"
-    zoo : dict = {
+    _name: str  = "regnet_y_16gf"
+    _zoo : dict = {
         "imagenet1k_v1": {
             "url"        : "https://download.pytorch.org/models/regnet_y_16gf-9e6ed7dd.pth",
             "path"       : ZOO_DIR / "vision/classify/regnet/regnet_y_16gf/imagenet1k_v1/regnet_y_16gf_imagenet1k_v1.pth",
@@ -310,8 +310,8 @@ class RegNet_Y_32GF(RegNet):
         num_classes: Number of output classes. Default is ``1000``.
     """
     
-    name: str  = "regnet_y_32gf"
-    zoo : dict = {
+    _name: str  = "regnet_y_32gf"
+    _zoo : dict = {
         "imagenet1k_v1": {
             "url"        : "https://download.pytorch.org/models/regnet_y_32gf-4dee3f7a.pth",
             "path"       : ZOO_DIR / "vision/classify/regnet/regnet_y_32gf/imagenet1k_v1/regnet_y_32gf_imagenet1k_v1.pth",
@@ -356,8 +356,8 @@ class RegNet_Y_128GF(RegNet):
         num_classes: Number of output classes. Default is ``1000``.
     """
     
-    name: str  = "regnet_y_128gf"
-    zoo : dict = {
+    _name: str  = "regnet_y_128gf"
+    _zoo : dict = {
         "imagenet1k_swag_e2e_v1": {
             "url"        : "https://download.pytorch.org/models/regnet_y_128gf_swag-c8ce3e52.pth",
             "path"       : ZOO_DIR / "vision/classify/regnet/regnet_y_128gf_swag/imagenet1k_v1/regnet_y_128gf_swag_imagenet1k_v1.pth",
@@ -392,8 +392,8 @@ class RegNet_X_400MF(RegNet):
         num_classes: Number of output classes. Default is ``1000``.
     """
     
-    name: str  = "regnet_x_400mf"
-    zoo : dict = {
+    _name: str  = "regnet_x_400mf"
+    _zoo : dict = {
         "imagenet1k_v1": {
             "url"        : "https://download.pytorch.org/models/regnet_x_400mf-adf1edd5.pth",
             "path"       : ZOO_DIR / "vision/classify/regnet/regnet_x_400mf/imagenet1k_v1/regnet_x_400mf_imagenet1k_v1.pth",
@@ -428,8 +428,8 @@ class RegNet_X_800MF(RegNet):
         num_classes: Number of output classes. Default is ``1000``.
     """
     
-    name: str  = "regnet_x_800mf"
-    zoo : dict = {
+    _name: str  = "regnet_x_800mf"
+    _zoo : dict = {
         "imagenet1k_v1": {
             "url"        : "https://download.pytorch.org/models/regnet_x_800mf-ad17e45c.pth",
             "path"       : ZOO_DIR / "vision/classify/regnet/regnet_x_800mf/imagenet1k_v1/regnet_x_800mf_imagenet1k_v1.pth",
@@ -464,8 +464,8 @@ class RegNet_X_1_6GF(RegNet):
         num_classes: Number of output classes. Default is ``1000``.
     """
     
-    name: str  = "regnet_x_1_6gf"
-    zoo : dict = {
+    _name: str  = "regnet_x_1_6gf"
+    _zoo : dict = {
         "imagenet1k_v1": {
             "url"        : "https://download.pytorch.org/models/regnet_x_1_6gf-e3633e7f.pth",
             "path"       : ZOO_DIR / "vision/classify/regnet/regnet_x_1_6gf/imagenet1k_v1/regnet_x_1_6gf_imagenet1k_v1.pth",
@@ -500,8 +500,8 @@ class RegNet_X_3_2GF(RegNet):
         num_classes: Number of output classes. Default is ``1000``.
     """
     
-    name: str  = "regnet_x_3_2gf"
-    zoo : dict = {
+    _name: str  = "regnet_x_3_2gf"
+    _zoo : dict = {
         "imagenet1k_v1": {
             "url"        : "https://download.pytorch.org/models/regnet_x_3_2gf-f342aeae.pth",
             "path"       : ZOO_DIR / "vision/classify/regnet/regnet_x_3_2gf/imagenet1k_v1/regnet_x_3_2gf_imagenet1k_v1.pth",
@@ -552,8 +552,8 @@ class RegNet_X_8GF(RegNet):
         num_classes: Number of output classes. Default is ``1000``.
     """
     
-    name: str  = "regnet_x_8gf"
-    zoo : dict = {
+    _name: str  = "regnet_x_8gf"
+    _zoo : dict = {
         "imagenet1k_v1": {
             "url"        : "https://download.pytorch.org/models/regnet_x_8gf-03ceed89.pth",
             "path"       : ZOO_DIR / "vision/classify/regnet/regnet_x_8gf/imagenet1k_v1/regnet_x_8gf_imagenet1k_v1.pth",
@@ -588,8 +588,8 @@ class RegNet_X_16GF(RegNet):
         num_classes: Number of output classes. Default is ``1000``.
     """
     
-    name: str  = "regnet_x_16gf"
-    zoo : dict = {
+    _name: str  = "regnet_x_16gf"
+    _zoo : dict = {
         "imagenet1k_v1": {
             "url"        : "https://download.pytorch.org/models/regnet_x_16gf-2007eb11.pth",
             "path"       : ZOO_DIR / "vision/classify/regnet/regnet_x_16gf/imagenet1k_v1/regnet_x_16gf_imagenet1k_v1.pth",
@@ -624,8 +624,8 @@ class RegNetX_32GF(RegNet):
         num_classes: Number of output classes. Default is ``1000``.
     """
     
-    name: str  = "regnet_x32gf"
-    zoo : dict = {
+    _name: str  = "regnet_x32gf"
+    _zoo : dict = {
         "imagenet1k_v1": {
             "url"        : "https://download.pytorch.org/models/regnet_x_32gf-9d47f8d0.pth",
             "path"       : ZOO_DIR / "vision/classify/regnet/regnet_x32gf/imagenet1k_v1/regnet_x_32gf_imagenet1k_v1.pth",

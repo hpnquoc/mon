@@ -364,12 +364,12 @@ class TensorMOG(base.BackgroundSubtractionModel):
         tau_updating_rate: Rate for updating tau. Defaults to ``0.025``.
     """
 
-    arch     : str          = "tensormog"
-    name     : str          = "tensormog"
-    tasks    : list[Task]   = [Task.BGSUBTRACT, Task.VIDEO]
-    mltypes  : list[MLType] = [MLType.INFERENCE]
-    model_dir: core.Path    = current_dir
-    zoo      : dict         = {}
+    _arch     : str          = "tensormog"
+    _name     : str          = "tensormog"
+    _tasks    : list[Task]   = [Task.BGSUBTRACT, Task.VIDEO]
+    _mltypes  : list[MLType] = [MLType.INFERENCE]
+    _model_dir: core.Path    = current_dir
+    _zoo      : dict         = {}
     
     def __init__(
         self,

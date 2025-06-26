@@ -34,14 +34,14 @@ class ExDark(VisionDataset):
         FileNotFoundError: If ``root`` directory does not exist.
     """
     
-    tasks : list[Task]  = [Task.LLE, Task.DETECT]
-    splits: list[Split] = [Split.TEST]
-    datapoint_attrs     = DatapointAttributes({
+    _tasks : list[Task]  = [Task.LLE, Task.DETECT]
+    _splits: list[Split] = [Split.TEST]
+    _datapoint_attrs     = DatapointAttributes({
         "image": Image,
         "depth": DepthMap,
     })
-    has_test_annotations: bool = False
-    classlabels         = ClassLabels([
+    _has_test_annotations: bool = False
+    _classes             = ClassLabels([
         {"name": "Bicycle"  , "id":  1, "coco80_id":  2, "color": [138, 183,  33]},
         {"name": "Boat"     , "id":  2, "coco80_id":  9, "color": [ 19,  64,  83]},
         {"name": "Bottle"   , "id":  3, "coco80_id": 40, "color": [139, 160,   1]},
@@ -114,7 +114,7 @@ class ExDark1200(ExDark):
 class ExDarkDataModule(core.DataModule):
     """Configures ExDark datasets for training/testing."""
     
-    tasks: list[Task] = [Task.LLE]
+    _tasks: list[Task] = [Task.LLE]
     
     def prepare_data(self, *args, **kwargs):
         """Prepares data (placeholder, no action taken)."""
@@ -145,7 +145,7 @@ class ExDarkDataModule(core.DataModule):
 class ExDark1200DataModule(core.DataModule):
     """Configures ExDarkFull datasets for training/testing."""
     
-    tasks: list[Task] = [Task.LLE]
+    _tasks: list[Task] = [Task.LLE]
     
     def prepare_data(self, *args, **kwargs):
         """Prepares data (placeholder, no action taken)."""

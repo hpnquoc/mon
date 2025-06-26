@@ -30,10 +30,10 @@ class MNASNet(nn.ExtraModel, base.ImageClassificationModel, abc.ABC):
         - https://arxiv.org/abs/1807.11626
     """
     
-    arch     : str          = "mnasnet"
-    mltypes  : list[MLType] = [MLType.SUPERVISED]
-    model_dir: core.Path    = current_dir
-    zoo      : dict         = {}
+    _arch     : str          = "mnasnet"
+    _mltypes  : list[MLType] = [MLType.SUPERVISED]
+    _model_dir: core.Path    = current_dir
+    _zoo      : dict         = {}
     
     # ----- Initialize -----
     def init_weights(self, m: nn.Module):
@@ -68,8 +68,8 @@ class MNASNet0_5(MNASNet):
         dropout: Dropout rate for the model. Default is ``0.2``.
     """
     
-    name: str  = "mnasnet0_5"
-    zoo : dict = {
+    _name: str  = "mnasnet0_5"
+    _zoo : dict = {
         "imagenet1k_v1": {
             "url"        : "https://download.pytorch.org/models/mnasnet0.5_top1_67.823-3ffadce67e.pth",
             "path"       : ZOO_DIR / "vision/classify/mnasnet/mnasnet0_5/imagenet1k_v1/mnasnet0_5_imagenet1k_v1.pth",
@@ -100,8 +100,8 @@ class MNASNet0_75(MNASNet):
         dropout: Dropout rate for the model. Default is ``0.2``.
     """
     
-    name: str  = "mnasnet0_75"
-    zoo : dict = {
+    _name: str  = "mnasnet0_75"
+    _zoo : dict = {
         "imagenet1k_v1": {
             "url"        : "https://download.pytorch.org/models/mnasnet0_75-7090bc5f.pth",
             "path"       : ZOO_DIR / "vision/classify/mnasnet/mnasnet0_75/imagenet1k_v1/mnasnet0_75_imagenet1k_v1.pth",
@@ -132,8 +132,8 @@ class MNASNet1_0(MNASNet):
         dropout: Dropout rate for the model. Default is ``0.2``.
     """
     
-    name: str  = "mnasnet1_0"
-    zoo : dict = {
+    _name: str  = "mnasnet1_0"
+    _zoo : dict = {
         "imagenet1k_v1": {
             "url"        : "https://download.pytorch.org/models/mnasnet1.0_top1_73.512-f206786ef8.pth",
             "path"       : ZOO_DIR / "vision/classify/mnasnet/mnasnet1_0/imagenet1k_v1/mnasnet1_0_imagenet1k_v1.pth",
@@ -164,8 +164,8 @@ class MNASNet1_3(MNASNet):
         dropout: Dropout rate for the model. Default is ``0.2``.
     """
     
-    name: str  = "mnasnet1_3"
-    zoo : dict = {
+    _name: str  = "mnasnet1_3"
+    _zoo : dict = {
         "imagenet1k_v1": {
             "url"        : "https://download.pytorch.org/models/mnasnet1_3-a4c69d6f.pth",
             "path"       : ZOO_DIR / "vision/classify/mnasnet/mnasnet1_3/imagenet1k_v1/mnasnet1_3_imagenet1k_v1.pth",

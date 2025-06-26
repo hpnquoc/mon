@@ -44,7 +44,7 @@ class HBBs(core.BaseTensor, core.DatasetMixin, core.DataLoaderMixin):
             <id> is the tracking ID (optional).
     """
 
-    albumentation_target_type: str = "bboxes"
+    _albumentation_target_type: str = "bboxes"
 
     def __init__(
         self,
@@ -249,6 +249,3 @@ class HBBs(core.BaseTensor, core.DatasetMixin, core.DataLoaderMixin):
             return None
         from mon.vision.types.bbox.hbb import processing
         return processing.hbb_to_3d(batch)
-
-
-# ----- COCO-Format -----

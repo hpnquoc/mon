@@ -31,11 +31,11 @@ class MobileNetV2(nn.ExtraModel, base.ImageClassificationModel):
         - https://arxiv.org/abs/1801.04381
     """
     
-    arch     : str          = "mobilenet"
-    name     : str          = "mobilenet_v2"
-    mltypes  : list[MLType] = [MLType.SUPERVISED]
-    model_dir: core.Path    = current_dir
-    zoo      : dict         = {
+    _arch     : str          = "mobilenet"
+    _name     : str          = "mobilenet_v2"
+    _mltypes  : list[MLType] = [MLType.SUPERVISED]
+    _model_dir: core.Path    = current_dir
+    _zoo      : dict         = {
         "imagenet1k_v1": {
             "url"        : "https://download.pytorch.org/models/mobilenet_v2-b0353104.pth",
             "path"       : ZOO_DIR / "vision/classify/mobilenet/mobilenet_v2/imagenet1k_v1/mobilenet_v2_imagenet1k_v1.pth",

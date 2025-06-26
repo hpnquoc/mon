@@ -30,15 +30,15 @@ class LOLv2Real(VisionDataset):
         FileNotFoundError: If ``root`` directory does not exist.
     """
     
-    tasks : list[Task]  = [Task.LLE]
-    splits: list[Split] = [Split.TRAIN, Split.TEST]
-    datapoint_attrs     = DatapointAttributes({
+    _tasks : list[Task]  = [Task.LLE]
+    _splits: list[Split] = [Split.TRAIN, Split.TEST]
+    _datapoint_attrs     = DatapointAttributes({
         "image"    : Image,
         "depth"    : DepthMap,
         "ref_image": Image,
         "ref_depth": DepthMap,
     })
-    has_test_annotations: bool = True
+    _has_test_annotations: bool = True
 
     def __init__(self, root: core.Path, *args, **kwargs):
         root = core.Path(root)
@@ -77,15 +77,15 @@ class LOLv2Syn(VisionDataset):
         FileNotFoundError: If ``root`` directory does not exist.
     """
     
-    tasks : list[Task]  = [Task.LLE]
-    splits: list[Split] = [Split.TRAIN, Split.TEST]
-    datapoint_attrs     = DatapointAttributes({
+    _tasks : list[Task]  = [Task.LLE]
+    _splits: list[Split] = [Split.TRAIN, Split.TEST]
+    _datapoint_attrs     = DatapointAttributes({
         "image"    : Image,
         "depth"    : DepthMap,
         "ref_image": Image,
         "ref_depth": DepthMap,
     })
-    has_test_annotations: bool = True
+    _has_test_annotations: bool = True
 
     def __init__(self, root: core.Path, *args, **kwargs):
         root = core.Path(root)
@@ -116,7 +116,7 @@ class LOLv2Syn(VisionDataset):
 class LOLv2RealDataModule(core.DataModule):
     """Configures LOL-v2 Real datasets for training/testing."""
     
-    tasks: list[Task] = [Task.LLE]
+    _tasks: list[Task] = [Task.LLE]
 
     def prepare_data(self, *args, **kwargs):
         """Prepares data (placeholder, no action taken)."""
@@ -147,7 +147,7 @@ class LOLv2RealDataModule(core.DataModule):
 class LOLv2SynDataModule(core.DataModule):
     """Configures LOL-v2 Synthetic datasets for training/testing."""
     
-    tasks: list[Task] = [Task.LLE]
+    _tasks: list[Task] = [Task.LLE]
 
     def prepare_data(self, *args, **kwargs):
         """Prepares data (placeholder, no action taken)."""

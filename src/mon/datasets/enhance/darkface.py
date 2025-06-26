@@ -31,14 +31,14 @@ class DarkFace(VisionDataset):
         FileNotFoundError: If ``root`` directory does not exist.
     """
 
-    tasks : list[Task]  = [Task.LLE, Task.DETECT]
-    splits: list[Split] = [Split.TEST]
-    datapoint_attrs     = DatapointAttributes({
+    _tasks : list[Task]  = [Task.LLE, Task.DETECT]
+    _splits: list[Split] = [Split.TEST]
+    _datapoint_attrs     = DatapointAttributes({
         "image": Image,
         "depth": DepthMap,
     })
-    has_test_annotations: bool = False
-    classlabels = ClassLabels([
+    _has_test_annotations: bool = False
+    _classes = ClassLabels([
         {"name": "face", "id": 0, "color": [ 81, 120, 228]},
     ])
 
@@ -100,7 +100,7 @@ class DarkFace496(DarkFace):
 class DarkFaceDataModule(core.DataModule):
     """Configures DarkFaceFull datasets for training/testing."""
     
-    tasks: list[Task] = [Task.LLE, Task.DETECT]
+    _tasks: list[Task] = [Task.LLE, Task.DETECT]
 
     def prepare_data(self, *args, **kwargs):
         """Prepares data (placeholder, no action taken)."""
@@ -131,7 +131,7 @@ class DarkFaceDataModule(core.DataModule):
 class DarkFace496DataModule(core.DataModule):
     """Configures DarkFace datasets for training/testing."""
 
-    tasks: list[Task] = [Task.LLE, Task.DETECT]
+    _tasks: list[Task] = [Task.LLE, Task.DETECT]
 
     def prepare_data(self, *args, **kwargs):
         """Prepares data (placeholder, no action taken)."""

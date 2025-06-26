@@ -34,10 +34,10 @@ class SwinTransformer(nn.ExtraModel, base.ImageClassificationModel, abc.ABC):
         - https://arxiv.org/pdf/2103.14030
     """
     
-    arch     : str          = "swin"
-    mltypes  : list[MLType] = [MLType.SUPERVISED]
-    model_dir: core.Path    = current_dir
-    zoo      : dict         = {}
+    _arch     : str          = "swin"
+    _mltypes  : list[MLType] = [MLType.SUPERVISED]
+    _model_dir: core.Path    = current_dir
+    _zoo      : dict         = {}
     
     # ----- Initialize -----
     def init_weights(self, m: nn.Module):
@@ -73,8 +73,8 @@ class Swin_T(SwinTransformer):
         attention_dropout: Attention dropout rate. Default is ``0.0``.
     """
     
-    name: str  = "swin_t"
-    zoo : dict = {
+    _name: str  = "swin_t"
+    _zoo : dict = {
         "imagenet1k_v1": {
             "url"        : "https://download.pytorch.org/models/swin_t-704ceda3.pth",
             "path"       : ZOO_DIR / "vision/classify/swin/swin_t/imagenet1k_v1/swin_t_imagenet1k_v1.pth",
@@ -116,8 +116,8 @@ class Swin_S(SwinTransformer):
         attention_dropout: Attention dropout rate. Default is ``0.0``.
     """
     
-    name: str  = "swin_s"
-    zoo : dict = {
+    _name: str  = "swin_s"
+    _zoo : dict = {
         "imagenet1k_v1": {
             "url"        : "https://download.pytorch.org/models/swin_s-5e29d889.pth",
             "path"       : ZOO_DIR / "vision/classify/swin/swin_s/imagenet1k_v1/swin_s_imagenet1k_v1.pth",
@@ -159,8 +159,8 @@ class Swin_B(SwinTransformer):
         attention_dropout: Attention dropout rate. Default is ``0.0``.
     """
     
-    name: str  = "swin_b"
-    zoo : dict = {
+    _name: str  = "swin_b"
+    _zoo : dict = {
         "imagenet1k_v1": {
             "url"        : "https://download.pytorch.org/models/swin_b-68c6b09e.pth",
             "path"       : ZOO_DIR / "vision/classify/swin/swin_b/imagenet1k_v1/swin_b_imagenet1k_v1.pth",
@@ -202,8 +202,8 @@ class Swin_V2_T(SwinTransformer):
         attention_dropout: Attention dropout rate. Default is ``0.0``.
     """
     
-    name: str  = "swin_v2_t"
-    zoo : dict = {
+    _name: str  = "swin_v2_t"
+    _zoo : dict = {
         "imagenet1k_v1": {
             "url"        : "https://download.pytorch.org/models/swin_v2_t-b137f0e2.pth",
             "path"       : ZOO_DIR / "vision/classify/swin/swin_v2_t/imagenet1k_v1/swin_v2_t_imagenet1k_v1.pth",
@@ -245,8 +245,8 @@ class Swin_V2_S(SwinTransformer):
         attention_dropout: Attention dropout rate. Default is ``0.0``.
     """
     
-    name: str  = "swin_v2_s"
-    zoo : dict = {
+    _name: str  = "swin_v2_s"
+    _zoo : dict = {
         "imagenet1k_v1": {
             "url"        : "https://download.pytorch.org/models/swin_v2_s-637d8ceb.pth",
             "path"       : ZOO_DIR / "vision/classify/swin/swin_v2_s/imagenet1k_v1/swin_v2_s_imagenet1k_v1.pth",
@@ -288,8 +288,8 @@ class Swin_V2_B(SwinTransformer):
         attention_dropout: Attention dropout rate. Default is ``0.0``.
     """
     
-    name: str  = "swin_v2_b"
-    zoo : dict = {
+    _name: str  = "swin_v2_b"
+    _zoo : dict = {
         "imagenet1k_v1": {
             "url"        : "https://download.pytorch.org/models/swin_v2_b-781e5279.pth",
             "path"       : ZOO_DIR / "vision/classify/swin/swin_v2_b/imagenet1k_v1/swin_v2_b_imagenet1k_v1.pth",

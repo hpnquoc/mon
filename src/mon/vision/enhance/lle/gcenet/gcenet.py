@@ -326,12 +326,12 @@ class DenoiseNet(nn.Module):
 class GCENet(base.ImageEnhancementModel):
     """Guided Curve Estimation Network for Low-Light Image Enhancement."""
     
-    arch     : str          = "gcenet"
-    name     : str          = "gcenet"
-    tasks    : list[Task]   = [Task.LLE]
-    mltypes  : list[MLType] = [MLType.ZERO_REFERENCE]
-    model_dir: core.Path    = current_dir
-    zoo      : dict         = {}
+    _arch     : str          = "gcenet"
+    _name     : str          = "gcenet"
+    _tasks    : list[Task]   = [Task.LLE]
+    _mltypes  : list[MLType] = [MLType.ZERO_REFERENCE]
+    _model_dir: core.Path    = current_dir
+    _zoo      : dict         = {}
     
     def __init__(
         self,

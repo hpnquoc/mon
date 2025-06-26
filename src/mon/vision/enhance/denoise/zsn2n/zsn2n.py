@@ -37,12 +37,12 @@ class ZSN2N(base.ImageEnhancementModel):
         - https://colab.research.google.com/drive/1i82nyizTdszyHkaHBuKPbWnTzao8HF9b?usp=sharing#scrollTo=Srf0GQTYrkxA
     """
     
-    arch     : str          = "zsn2n"
-    name     : str          = "zsn2n"
-    tasks    : list[Task]   = [Task.DENOISE]
-    mltypes  : list[MLType] = [MLType.ZERO_SHOT]
-    model_dir: core.Path    = current_dir
-    zoo      : dict         = {}
+    _arch     : str          = "zsn2n"
+    _name     : str          = "zsn2n"
+    _tasks    : list[Task]   = [Task.DENOISE]
+    _mltypes  : list[MLType] = [MLType.ZERO_SHOT]
+    _model_dir: core.Path    = current_dir
+    _zoo      : dict         = {}
     
     def __init__(
         self,

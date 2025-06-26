@@ -28,15 +28,15 @@ class DarkCityscapes(VisionDataset):
         FileNotFoundError: If ``root`` directory does not exist.
     """
     
-    tasks : list[Task]  = [Task.LLE, Task.SEGMENT]
-    splits: list[Split] = [Split.TEST]
-    datapoint_attrs     = DatapointAttributes({
+    _tasks : list[Task]  = [Task.LLE, Task.SEGMENT]
+    _splits: list[Split] = [Split.TEST]
+    _datapoint_attrs     = DatapointAttributes({
         "image"    : Image,
         "depth"    : DepthMap,
         "ref_image": Image,
         "ref_depth": DepthMap,
     })
-    has_test_annotations: bool = True
+    _has_test_annotations: bool = True
 
     def __init__(self, root: core.Path, *args, **kwargs):
         root = core.Path(root)
@@ -67,7 +67,7 @@ class DarkCityscapes(VisionDataset):
 class DarkCityscapesDataModule(core.DataModule):
     """Configures DarkCityscapes datasets for training/testing."""
    
-    tasks: list[Task] = [Task.LLE]
+    _tasks: list[Task] = [Task.LLE]
 
     def prepare_data(self, *args, **kwargs) -> None:
         """Prepares data (placeholder, no action taken)."""

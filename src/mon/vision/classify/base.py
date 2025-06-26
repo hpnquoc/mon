@@ -18,7 +18,7 @@ from mon.vision import model
 class ImageClassificationModel(model.VisionModel, abc.ABC):
     """Base class for image classification models."""
 
-    tasks: list[Task] = [Task.CLASSIFY]
+    _tasks: list[Task] = [Task.CLASSIFY]
     
     # ----- Initialize -----
     def parse_num_classes(self, num_classes: int) -> int:

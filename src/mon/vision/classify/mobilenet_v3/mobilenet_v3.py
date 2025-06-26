@@ -28,10 +28,10 @@ class MobileNetV3(nn.ExtraModel, base.ImageClassificationModel, abc.ABC):
         - https://arxiv.org/abs/1905.02244
     """
     
-    arch     : str          = "mobilenet"
-    mltypes  : list[MLType] = [MLType.SUPERVISED]
-    model_dir: core.Path    = current_dir
-    zoo      : dict         = {}
+    _arch     : str          = "mobilenet"
+    _mltypes  : list[MLType] = [MLType.SUPERVISED]
+    _model_dir: core.Path    = current_dir
+    _zoo      : dict         = {}
     
     # ----- Initialize -----
     def init_weights(self, m: nn.Module):
@@ -66,8 +66,8 @@ class MobileNetV3Large(MobileNetV3):
         dropout: Dropout rate for the model. Default is ``0.2``.
     """
     
-    name: str  = "mobilenet_v3_large"
-    zoo : dict = {
+    _name: str  = "mobilenet_v3_large"
+    _zoo : dict = {
         "imagenet1k_v1": {
             "url"        : "https://download.pytorch.org/models/mobilenet_v3_large-8738ca79.pth",
             "path"       : ZOO_DIR / "vision/classify/mobilenet/mobilenet_v3_large/imagenet1k_v1/mobilenet_v3_large_imagenet1k_v1.pth",
@@ -103,8 +103,8 @@ class MobileNetV3Small(MobileNetV3):
         dropout: Dropout rate for the model. Default is ``0.2``.
     """
     
-    name: str  = "mobilenet_v3_small"
-    zoo : dict = {
+    _name: str  = "mobilenet_v3_small"
+    _zoo : dict = {
         "imagenet1k_v1": {
             "url"        : "https://download.pytorch.org/models/mobilenet_v3_small-047dcff4.pth",
             "path"       : ZOO_DIR / "vision/classify/mobilenet/mobilenet_v3_small/imagenet1k_v1/mobilenet_v3_small_imagenet1k_v1.pth",

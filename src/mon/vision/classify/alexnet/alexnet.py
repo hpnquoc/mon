@@ -27,11 +27,11 @@ class AlexNet(nn.ExtraModel, base.ImageClassificationModel):
         dropout: Dropout rate for the model. Default is ``0.5``.
     """
     
-    arch     : str          = "alexnet"
-    name     : str          = "alexnet",
-    mltypes  : list[MLType] = [MLType.SUPERVISED]
-    model_dir: core.Path    = current_dir
-    zoo      : dict         = {
+    _arch     : str          = "alexnet"
+    _name     : str          = "alexnet",
+    _mltypes  : list[MLType] = [MLType.SUPERVISED]
+    _model_dir: core.Path    = current_dir
+    _zoo      : dict         = {
         "imagenet1k_v1": {
             "url"        : "https://download.pytorch.org/models/alexnet-owt-7be5be79.pth",
             "path"       : ZOO_DIR / "vision/classify/alexnet/alexnet/imagenet1k_v1/alexnet_imagenet1k_v1.pth",

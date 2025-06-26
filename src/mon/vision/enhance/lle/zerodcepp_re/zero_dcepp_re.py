@@ -90,12 +90,12 @@ class ZeroDCEpp_RE(base.ImageEnhancementModel):
         - https://github.com/Li-Chongyi/Zero-DCE_extension
     """
     
-    arch     : str          = "zerodce++"
-    name     : str          = "zerodce++_re"
-    tasks    : list[Task]   = [Task.LLE]
-    mltypes  : list[MLType] = [MLType.ZERO_REFERENCE]
-    model_dir: core.Path    = current_dir
-    zoo      : dict         = {}
+    _arch     : str          = "zerodce++"
+    _name     : str          = "zerodce++_re"
+    _tasks    : list[Task]   = [Task.LLE]
+    _mltypes  : list[MLType] = [MLType.ZERO_REFERENCE]
+    _model_dir: core.Path    = current_dir
+    _zoo      : dict         = {}
 
     def __init__(
         self,

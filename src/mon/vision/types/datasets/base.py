@@ -30,7 +30,7 @@ class VisionDataset(core.Dataset, abc.ABC):
     """Base class for multimodal, multi-task, multi-label datasets.
 
     Attributes:
-        datapoint_attrs: Dict of attribute names and types. Common attributes:
+        _datapoint_attrs: Dict of attribute names and types. Common attributes:
             - ``'image'``    : ``ImageAnnotation`` (main attribute)
             - ``'depth'``    : ``DepthMapAnnotation``
             - ``'ref_image'``: ``ImageAnnotation``
@@ -92,7 +92,7 @@ class VisionDataset(core.Dataset, abc.ABC):
         
         if self.to_tensor:
             for k, v in datapoint.items():
-                to_tensor_fn = getattr(self.datapoint_attrs[k], "to_tensor", None)
+                to_tensor_fn = getattr(self._datapoint_attrs[k], "to_tensor", None)
                 if to_tensor_fn and v is not None:
                     datapoint[k] = to_tensor_fn(v, normalize=True)
 
@@ -115,7 +115,7 @@ class VisionDataset(core.Dataset, abc.ABC):
             ``dict`` with keys as attribute names and values as target types.
         """
         target_types = {}
-        for k, v in self.datapoint_attrs.items():
+        for k, v in self._datapoint_attrs.items():
             target_type = getattr(v, "albumentation_target_type", None)
             if target_type:
                 target_types[k] = target_type
@@ -179,16 +179,16 @@ class VisionDataset(core.Dataset, abc.ABC):
 
     def list_multimodal_data(self):
         """Lists multimodal data for the dataset."""
-        if "depth" in self.datapoint_attrs:
+        if "depth" in self._datapoint_attrs:
             self.list_depth_map()
-        if "infrared" in self.datapoint_attrs:
+        if "infrared" in self._datapoint_attrs:
             self.list_infrared_map()
         
         if self.has_annotations:
             self.list_reference_image()
-            if "ref_depth" in self.datapoint_attrs:
+            if "ref_depth" in self._datapoint_attrs:
                 self.list_reference_depth_map()
-            if "ref_infrared" in self.datapoint_attrs:
+            if "ref_infrared" in self._datapoint_attrs:
                 self.list_reference_infrared_map()
         else:
             self.datapoints.pop("ref_image",    None)
@@ -362,10 +362,10 @@ class VisionDataset(core.Dataset, abc.ABC):
         if self.__len__() <= 0:
             raise RuntimeError("No datapoints in the dataset")
         for k, v in self.datapoints.items():
-            if k not in self.datapoint_attrs:
+            if k not in self._datapoint_attrs:
                 raise RuntimeError(f"Attribute [{k}] is not defined in [datapoint_attrs]; "
                                    f"define it in the class if intentional.")
-            if self.datapoint_attrs[k]:
+            if self._datapoint_attrs[k]:
                 if v is None:
                     raise RuntimeError(f"No [{k}] attributes defined")
                 if v is not None and len(v) != self.__len__():

@@ -20,7 +20,7 @@ from mon.vision import model, types
 class SegmentationModel(model.VisionModel, abc.ABC):
     """The base class for all segmentation models."""
     
-    tasks: list[Task] = [Task.SEGMENT]
+    _tasks: list[Task] = [Task.SEGMENT]
     
     # ----- Forward Pass -----
     def forward_loss(self, datapoint: dict, *args, **kwargs) -> dict:

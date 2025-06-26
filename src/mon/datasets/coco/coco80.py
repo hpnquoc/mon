@@ -19,14 +19,14 @@ from mon.datasets.core import *
 class COCO80(VisionDataset):
     """COCO-80-classes dataset."""
     
-    tasks : list[Task]  = [Task.DETECT]
-    splits: list[Split] = [Split.TRAIN, Split.VAL, Split.TEST]
-    datapoint_attrs     = DatapointAttributes({
+    _tasks : list[Task]  = [Task.DETECT]
+    _splits: list[Split] = [Split.TRAIN, Split.VAL, Split.TEST]
+    _datapoint_attrs     = DatapointAttributes({
         "image": Image,
         # "bbox" : BBoxesAnnotation,
     })
-    has_test_annotations: bool = False
-    classlabels         : ClassLabels = ClassLabels([
+    _has_test_annotations: bool = False
+    _classes             = ClassLabels([
         {"name": "background"    , "id":  0, "supercategory": "background", "color": [  0,   0,   0]},
         {"name": "person"        , "id":  1, "supercategory": "person"    , "color": [ 81, 120, 228]},
         {"name": "bicycle"       , "id":  2, "supercategory": "vehicle"   , "color": [138, 183,  33]},
@@ -139,7 +139,7 @@ class COCO80(VisionDataset):
 @DATAMODULES.register(name="coco80")
 class COCO80DataModule(core.DataModule):
     
-    tasks: list[Task] = [Task.DETECT]
+    _tasks: list[Task] = [Task.DETECT]
     
     def prepare_data(self, *args, **kwargs):
         pass

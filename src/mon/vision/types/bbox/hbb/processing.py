@@ -9,6 +9,9 @@ Common Tasks:
 """
 
 __all__ = [
+    "convert_hbb",
+    "denormalize_hbb",
+    "enclosing_hbb",
     "hbb_area",
     "hbb_center",
     "hbb_center_distance",
@@ -20,8 +23,10 @@ __all__ = [
     "hbb_cxcywhn_to_xywh",
     "hbb_cxcywhn_to_xyxy",
     "hbb_diou",
+    "hbb_filter_iou",
     "hbb_giou",
     "hbb_iou",
+    "hbb_iou_matrix",
     "hbb_to_2d",
     "hbb_to_3d",
     "hbb_to_array",
@@ -35,13 +40,8 @@ __all__ = [
     "hbb_xyxy_to_xywh",
     "hbb_yolo_to_coco",
     "hbb_yolo_to_voc",
-    "convert_hbb",
-    "denormalize_hbb",
-    "enclosing_hbb",
     "normalize_hbb",
 ]
-
-import math
 
 import numpy as np
 import torch
@@ -290,6 +290,86 @@ def hbb_ciou(bbox1: np.ndarray, bbox2: np.ndarray) -> np.ndarray:
     ciou = iou - inner_diag / outer_diag - alpha * v
     # ciou = (ciou + 1) / 2.0  # Commented: CIoU typically in [-1, 1], not [0, 1]
     return ciou
+
+
+def hbb_iou_matrix(bbox: np.ndarray) -> np.ndarray:
+    """Calculate pairwise IoU for all pairs of HBBs using matrix operations.
+
+    Args:
+        bbox: HBBs as ``np.ndarray`` in [N, 4+], XYXY format.
+
+    Returns:
+        Pairwise IoU matrix as ``np.ndarray`` in [N, N] where element (i, j) is
+        IoU between boxes i and j.
+    """
+    # Ensure 2D arrays
+    bbox = hbb_to_2d(bbox)
+
+    N = bbox.shape[0]
+    iou_matrix = np.zeros((N, N), dtype=np.float32)
+
+    # Extract coordinates
+    x1 = bbox[:, 0:1]  # Shape (N, 1)
+    y1 = bbox[:, 1:2]
+    x2 = bbox[:, 2:3]
+    y2 = bbox[:, 3:4]
+
+    # Compute intersection coordinates
+    x_left   = np.maximum(x1, x1.T)  # Shape (N, N)
+    y_top    = np.maximum(y1, y1.T)
+    x_right  = np.minimum(x2, x2.T)
+    y_bottom = np.minimum(y2, y2.T)
+
+    # Intersection area
+    intersection = np.maximum(0, x_right - x_left) * np.maximum(0, y_bottom - y_top)
+
+    # Box areas
+    areas = (x2 - x1) * (y2 - y1)  # Shape (N, 1)
+    union = areas + areas.T - intersection
+
+    # Avoid division by zero
+    iou_matrix = np.where(union > 0, intersection / union, 0)
+
+    # Set diagonal to 0 (no self-IoU)
+    np.fill_diagonal(iou_matrix, 0)
+
+    return iou_matrix
+
+
+# ----- Filtering -----
+def hbb_filter_iou(bbox: np.ndarray, iou_thres: float = 0.5) -> np.ndarray:
+    """Filter HBBs that <= IoU threshold.
+
+    Args:
+        bbox: HBBs as ``np.ndarray`` in [N, 4+], XYXY format.
+        iou_thres: IoU threshold for filtering. Default is 0.5.
+
+    Returns:
+        Filtered HBBs as ``np.ndarray`` in [N', 4+], XYXY format.
+    """
+    # Calculate IoU matrix
+    iou_matrix = hbb_iou_matrix(bbox)
+
+    # Initialize keep mask
+    N     = len(bbox)
+    keep  = np.ones(N, dtype=bool)
+    areas = (bbox[:, 2] - bbox[:, 0]) * (bbox[:, 3] - bbox[:, 1])
+
+    # Filter boxes based on IoU
+    for i in range(N):
+        if not keep[i]:
+            continue
+        # Find boxes with high IoU
+        high_iou = iou_matrix[i] >= iou_thres
+        # Compare areas to decide which to keep
+        for j in np.where(high_iou)[0]:
+            if keep[j] and areas[i] <= areas[j]:
+                keep[i] = False
+                break
+            else:
+                keep[j] = False
+
+    return bbox[keep]
 
 
 # ----- Properties Calculation -----

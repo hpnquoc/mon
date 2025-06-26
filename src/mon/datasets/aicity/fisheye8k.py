@@ -32,14 +32,14 @@ class FishEye8K(VisionDataset):
         FileNotFoundError: If ``root`` directory does not exist.
     """
     
-    tasks : list[Task]  = [Task.DETECT]
-    splits: list[Split] = [Split.TRAIN, Split.VAL, Split.TEST]
-    datapoint_attrs     = DatapointAttributes({
+    _tasks : list[Task]  = [Task.DETECT]
+    _splits: list[Split] = [Split.TRAIN, Split.VAL, Split.TEST]
+    _datapoint_attrs     = DatapointAttributes({
         "image": Image,
         # "bbox" : BBoxesAnnotation,
     })
-    has_test_annotations: bool = False
-    classlabels         = ClassLabels([
+    _has_test_annotations: bool = False
+    _classes             = ClassLabels([
         {"name": "bus",        "id": 0, "color": [140,  24, 143]},
         {"name": "bike",       "id": 1, "color": [122,  35,   2]},
         {"name": "car",        "id": 2, "color": [ 49,   3, 150]},
@@ -134,7 +134,7 @@ class FishEye8KTest(FishEye8K):
 class FishEye8KDataModule(core.DataModule):
     """Configures FishEye8K datasets for training/testing."""
     
-    tasks: list[Task] = [Task.DETECT]
+    _tasks: list[Task] = [Task.DETECT]
     
     def prepare_data(self, *args, **kwargs):
         """Prepares data (placeholder, no action taken)."""
@@ -165,7 +165,7 @@ class FishEye8KDataModule(core.DataModule):
 class FishEye8KValDataModule(core.DataModule):
     """Configures FishEye8K-Val datasets for training/testing."""
 
-    tasks: list[Task] = [Task.DETECT]
+    _tasks: list[Task] = [Task.DETECT]
 
     def prepare_data(self, *args, **kwargs):
         """Prepares data (placeholder, no action taken)."""
@@ -196,7 +196,7 @@ class FishEye8KValDataModule(core.DataModule):
 class FishEye8KTestDataModule(core.DataModule):
     """Configures FishEye8K-Test datasets for training/testing."""
 
-    tasks: list[Task] = [Task.DETECT]
+    _tasks: list[Task] = [Task.DETECT]
 
     def prepare_data(self, *args, **kwargs):
         """Prepares data (placeholder, no action taken)."""

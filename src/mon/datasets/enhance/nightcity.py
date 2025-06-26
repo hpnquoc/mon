@@ -39,15 +39,15 @@ class NightCity(VisionDataset):
         FileNotFoundError: If ``root`` directory does not exist.
     """
     
-    tasks : list[Task]  = [Task.LLE, Task.NIGHTTIME, Task.SEGMENT]
-    splits: list[Split] = [Split.TRAIN, Split.VAL, Split.TEST]
-    datapoint_attrs     = DatapointAttributes({
+    _tasks : list[Task]  = [Task.LLE, Task.NIGHTTIME, Task.SEGMENT]
+    _splits: list[Split] = [Split.TRAIN, Split.VAL, Split.TEST]
+    _datapoint_attrs     = DatapointAttributes({
         "image"   : Image,
         "depth"   : DepthMap,
         "semantic": SemanticMask,
     })
-    has_test_annotations: bool = False
-    classlabels         : core.ClassLabels = core.ClassLabels([
+    _has_test_annotations: bool = False
+    _classes         : core.ClassLabels = core.ClassLabels([
         {"name": "unlabeled"           , "id": 0 , "train_id": 255, "category": "void"        , "category_id": 0, "ignore_in_eval": True , "color": [0  , 0  ,   0]},
         {"name": "ego vehicle"         , "id": 1 , "train_id": 255, "category": "void"        , "category_id": 0, "ignore_in_eval": True , "color": [0  , 0  ,   0]},
         {"name": "rectification border", "id": 2 , "train_id": 255, "category": "void"        , "category_id": 0, "ignore_in_eval": True , "color": [0  , 0  ,   0]},
@@ -131,7 +131,7 @@ class NightCity(VisionDataset):
 class NightCityDataModule(core.DataModule):
     """Configures NightCity datasets for training/testing."""
     
-    tasks: list[Task] = [Task.LLE, Task.NIGHTTIME, Task.SEGMENT]
+    _tasks: list[Task] = [Task.LLE, Task.NIGHTTIME, Task.SEGMENT]
 
     def prepare_data(self, *args, **kwargs):
         """Prepares data (placeholder, no action taken)."""

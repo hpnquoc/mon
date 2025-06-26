@@ -41,7 +41,7 @@ def predict(args: dict | box.Box) -> str:
     mon.set_random_seed(args.seed)
 
     # Data I/O
-    data_name, data_loader = mon.parse_data_loader(args.data, args.root, True, verbose=False)
+    data_name, data_loader = mon.parse_data_loader(args.data, args.root, False, verbose=False)
 
     # Pretrained
     pretrained = args.resume
@@ -96,12 +96,12 @@ def predict(args: dict | box.Box) -> str:
             h0, w0 = mon.image_size(image)
             if args.resize and h0 != args.imgsz[0] and w0 != args.imgsz[1]:
                 image = mon.resize(image, size=args.imgsz)
-            image  = image.to(device)
+            # image  = image.to(device)
             timers.preprocess.tock()
             
             # Infer
             timers.infer.tick()
-            masks = mask_generator.generate(image)
+            masks = mask_generator.generate(image.copy())
             timers.infer.tock()
             
             # Save

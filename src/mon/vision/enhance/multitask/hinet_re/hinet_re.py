@@ -209,12 +209,12 @@ class HINet_RE(base.ImageEnhancementModel):
         - https://github.com/megvii-model/HINet
     """
     
-    arch     : str          = "hinet"
-    name     : str          = "hinet_re"
-    tasks    : list[Task]   = [Task.DEBLUR, Task.DENOISE, Task.DERAIN, Task.DESNOW, Task.LLE]
-    mltypes  : list[MLType] = [MLType.SUPERVISED]
-    model_dir: core.Path    = current_dir
-    zoo      : dict         = {}
+    _arch     : str          = "hinet"
+    _name     : str          = "hinet_re"
+    _tasks    : list[Task]   = [Task.DEBLUR, Task.DENOISE, Task.DERAIN, Task.DESNOW, Task.LLE]
+    _mltypes  : list[MLType] = [MLType.SUPERVISED]
+    _model_dir: core.Path    = current_dir
+    _zoo      : dict         = {}
     
     def __init__(
         self,

@@ -34,7 +34,7 @@ class SemanticMask(I.Image):
         cache: If ``True``, caches image in memory. Default is ``False``.
     """
 
-    albumentation_target_type: str = "mask"
+    _albumentation_target_type: str = "mask"
 
     def __init__(
         self,

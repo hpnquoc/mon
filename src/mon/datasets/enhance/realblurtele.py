@@ -30,13 +30,13 @@ class RealBlurTeleJ(VisionDataset):
         FileNotFoundError: If ``root`` directory does not exist.
     """
     
-    tasks : list[Task]  = [Task.DEBLUR, Task.LLE]
-    splits: list[Split] = [Split.TEST]
-    datapoint_attrs     = DatapointAttributes({
+    _tasks : list[Task]  = [Task.DEBLUR, Task.LLE]
+    _splits: list[Split] = [Split.TEST]
+    _datapoint_attrs     = DatapointAttributes({
         "image"    : Image,
         "ref_image": Image,
     })
-    has_test_annotations: bool = False
+    _has_test_annotations: bool = False
 
     def __init__(self, root: core.Path, *args, **kwargs):
         root = core.Path(root)
@@ -75,13 +75,13 @@ class RealBlurTeleR(VisionDataset):
         FileNotFoundError: If ``root`` directory does not exist.
     """
 
-    tasks : list[Task]  = [Task.DEBLUR, Task.LLE]
-    splits: list[Split] = [Split.TEST]
-    datapoint_attrs     = DatapointAttributes({
+    _tasks : list[Task]  = [Task.DEBLUR, Task.LLE]
+    _splits: list[Split] = [Split.TEST]
+    _datapoint_attrs     = DatapointAttributes({
         "image"    : Image,
         "ref_image": Image,
     })
-    has_test_annotations: bool = False
+    _has_test_annotations: bool = False
 
     def __init__(self, root: core.Path, *args, **kwargs):
         root = core.Path(root)
@@ -112,7 +112,7 @@ class RealBlurTeleR(VisionDataset):
 class RealBlurTeleJDataModule(core.DataModule):
     """Configures RealBlurTele-J datasets for training/testing."""
     
-    tasks: list[Task] = [Task.DEBLUR, Task.LLE]
+    _tasks: list[Task] = [Task.DEBLUR, Task.LLE]
 
     def prepare_data(self, *args, **kwargs):
         """Prepares data (placeholder, no action taken)."""
@@ -143,7 +143,7 @@ class RealBlurTeleJDataModule(core.DataModule):
 class RealBlurTeleRDataModule(core.DataModule):
     """Configures RealBlurTele-R datasets for training/testing."""
 
-    tasks: list[Task] = [Task.DEBLUR, Task.LLE]
+    _tasks: list[Task] = [Task.DEBLUR, Task.LLE]
 
     def prepare_data(self, *args, **kwargs):
         """Prepares data (placeholder, no action taken)."""

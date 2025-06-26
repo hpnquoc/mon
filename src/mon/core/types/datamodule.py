@@ -36,7 +36,7 @@ class DataModule(lightning.LightningDataModule, abc.ABC):
         verbose: If ``True``, enables verbose output. Default is ``True``.
     """
     
-    tasks: list[Task] = []
+    _tasks: list[Task] = []
     
     def __init__(
         self,
@@ -71,6 +71,11 @@ class DataModule(lightning.LightningDataModule, abc.ABC):
         self.classlabels = None
     
     # ----- Properties -----
+    @property
+    def tasks(self) -> list[Task]:
+        """Returns a list of supported tasks."""
+        return self._tasks
+
     @property
     def num_workers(self) -> int:
         """Gets the number of workers for data loading.

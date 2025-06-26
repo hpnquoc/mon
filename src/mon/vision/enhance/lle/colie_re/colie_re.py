@@ -82,12 +82,12 @@ class CoLIE_RE(base.ImageEnhancementModel):
         - https://github.com/ctom2/colie
     """
     
-    arch     : str          = "colie"
-    name     : str          = "colie_re"
-    tasks    : list[Task]   = [Task.LLE]
-    mltypes  : list[MLType] = [MLType.ZERO_SHOT]
-    model_dir: core.Path    = current_dir
-    zoo      : dict         = {}
+    _arch     : str          = "colie"
+    _name     : str          = "colie_re"
+    _tasks    : list[Task]   = [Task.LLE]
+    _mltypes  : list[MLType] = [MLType.ZERO_SHOT]
+    _model_dir: core.Path    = current_dir
+    _zoo      : dict         = {}
     
     def __init__(
         self,

@@ -212,12 +212,12 @@ class ZeroRestoreLLIE(base.ImageEnhancementModel):
 	    - https://github.com/aupendu/zero-restore
     """
     
-    arch     : str          = "zerorestore"
-    name     : str          = "zerorestore_lle"
-    tasks    : list[Task]   = [Task.LLE]
-    mltypes  : list[MLType] = [MLType.ZERO_SHOT]
-    model_dir: core.Path    = current_dir
-    zoo      : dict         = {}
+    _arch     : str          = "zerorestore"
+    _name     : str          = "zerorestore_lle"
+    _tasks    : list[Task]   = [Task.LLE]
+    _mltypes  : list[MLType] = [MLType.ZERO_SHOT]
+    _model_dir: core.Path    = current_dir
+    _zoo      : dict         = {}
     
     def __init__(
         self,

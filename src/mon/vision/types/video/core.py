@@ -35,7 +35,7 @@ class Frame(core.BaseTensor, core.DatasetMixin, core.DataLoaderMixin):
         root: Root directory for the video. Default is ``None``.
     """
 
-    albumentation_target_type: str = "image"
+    _albumentation_target_type: str = "image"
 
     def __init__(
         self,
@@ -153,7 +153,7 @@ class Frames(core.BaseTensor, core.DatasetMixin, core.DataLoaderMixin):
         root: Root directory for the video. Default is ``None``.
     """
 
-    albumentation_target_type: str = "image"
+    _albumentation_target_type: str = "image"
 
     def __init__(
         self,

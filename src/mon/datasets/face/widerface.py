@@ -32,14 +32,14 @@ class WiderFace(VisionDataset):
         FileNotFoundError: If ``root`` directory does not exist.
     """
     
-    tasks : list[Task]  = [Task.DETECT]
-    splits: list[Split] = [Split.TRAIN, Split.VAL, Split.TEST]
-    datapoint_attrs     = DatapointAttributes({
+    _tasks : list[Task]  = [Task.DETECT]
+    _splits: list[Split] = [Split.TRAIN, Split.VAL, Split.TEST]
+    _datapoint_attrs     = DatapointAttributes({
         "image": Image,
         # "bbox" : BBoxesAnnotation,
     })
-    has_test_annotations: bool = False
-    classlabels         = ClassLabels([
+    _has_test_annotations: bool = False
+    _classes             = ClassLabels([
         {"name": "face", "id": 0, "color": [ 81, 120, 228]},
     ])
 
@@ -112,7 +112,7 @@ class WiderFaceTest(WiderFace):
 class WiderFaceDataModule(core.DataModule):
     """Configures WiderFace datasets for training/testing."""
     
-    tasks: list[Task] = [Task.DETECT]
+    _tasks: list[Task] = [Task.DETECT]
     
     def prepare_data(self, *args, **kwargs):
         """Prepares data (placeholder, no action taken)."""
@@ -143,7 +143,7 @@ class WiderFaceDataModule(core.DataModule):
 class WiderFaceValDataModule(core.DataModule):
     """Configures WiderFace-Val datasets for training/testing."""
 
-    tasks: list[Task] = [Task.DETECT]
+    _tasks: list[Task] = [Task.DETECT]
 
     def prepare_data(self, *args, **kwargs):
         """Prepares data (placeholder, no action taken)."""
@@ -174,7 +174,7 @@ class WiderFaceValDataModule(core.DataModule):
 class WiderFaceTestDataModule(core.DataModule):
     """Configures WiderFace-Test datasets for training/testing."""
 
-    tasks: list[Task] = [Task.DETECT]
+    _tasks: list[Task] = [Task.DETECT]
 
     def prepare_data(self, *args, **kwargs):
         """Prepares data (placeholder, no action taken)."""

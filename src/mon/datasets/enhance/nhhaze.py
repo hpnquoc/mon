@@ -28,15 +28,15 @@ class NHHaze(VisionDataset):
         FileNotFoundError: If ``root`` directory does not exist.
     """
     
-    tasks : list[Task]  = [Task.DEHAZE]
-    splits: list[Split] = [Split.TRAIN, Split.VAL, Split.TEST]
-    datapoint_attrs     = DatapointAttributes({
+    _tasks : list[Task]  = [Task.DEHAZE]
+    _splits: list[Split] = [Split.TRAIN, Split.VAL, Split.TEST]
+    _datapoint_attrs     = DatapointAttributes({
         "image"    : Image,
         "depth"    : DepthMap,
         "ref_image": Image,
         "ref_depth": DepthMap,
     })
-    has_test_annotations: bool = True
+    _has_test_annotations: bool = True
 
     def __init__(self, root: core.Path, *args, **kwargs):
         root = core.Path(root)
@@ -67,7 +67,7 @@ class NHHaze(VisionDataset):
 class NHHazeDataModule(core.DataModule):
     """Configures NHHaze datasets for training/testing."""
     
-    tasks: list[Task] = [Task.DEHAZE]
+    _tasks: list[Task] = [Task.DEHAZE]
 
     def prepare_data(self, *args, **kwargs):
         """Prepares data (placeholder, no action taken)."""

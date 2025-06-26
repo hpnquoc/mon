@@ -32,11 +32,11 @@ class GoogleNet(nn.ExtraModel, base.ImageClassificationModel):
         - https://arxiv.org/abs/1409.4842
     """
     
-    arch     : str          = "googlenet"
-    name     : str          = "googlenet"
-    mltypes  : list[MLType] = [MLType.SUPERVISED]
-    model_dir: core.Path    = current_dir
-    zoo      : dict         = {
+    _arch     : str          = "googlenet"
+    _name     : str          = "googlenet"
+    _mltypes  : list[MLType] = [MLType.SUPERVISED]
+    _model_dir: core.Path    = current_dir
+    _zoo      : dict         = {
         "imagenet1k_v1": {
             "url"        : "https://download.pytorch.org/models/googlenet-1378be20.pth",
             "path"       : ZOO_DIR / "vision/classify/googlenet/googlenet/imagenet1k_v1/googlenet_imagenet1k_v1.pth",
