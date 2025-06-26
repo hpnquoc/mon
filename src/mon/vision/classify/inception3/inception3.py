@@ -33,11 +33,11 @@ class Inception3(nn.ExtraModel, base.ImageClassificationModel):
         - https://arxiv.org/abs/1512.00567
     """
     
-    _arch     : str          = "inception"
-    _name     : str          = "inception_v3"
-    _mltypes  : list[MLType] = [MLType.SUPERVISED]
-    _model_dir: core.Path    = current_dir
-    _zoo      : dict         = {
+    arch     : str          = "inception"
+    name     : str          = "inception_v3"
+    mltypes  : list[MLType] = [MLType.SUPERVISED]
+    model_dir: core.Path    = current_dir
+    zoo      : dict         = {
         "imagenet1k_v1": {
             "url"        : "https://download.pytorch.org/models/inception_v3_google-0cc3c7bd.pth",
             "path"       : ZOO_DIR / "vision/classify/inception/inception_v3/imagenet1k_v1/inception_v3_imagenet1k_v1.pth",

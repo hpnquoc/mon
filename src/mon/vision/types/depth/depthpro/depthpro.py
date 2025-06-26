@@ -27,12 +27,12 @@ class DepthPro(nn.ExtraModel, base.DepthEstimationModel):
     defined in `mon_extra.vision.depth.depth_anything_v2`.
     """
     
-    _arch     : str          = "depth_pro"
-    _name     : str          = "depth_pro"
-    _tasks    : list[Task]   = [Task.DEPTH]
-    _mltypes  : list[MLType] = [MLType.INFERENCE]
-    _model_dir: core.Path    = current_dir
-    _zoo      : dict         = {
+    arch     : str          = "depth_pro"
+    name     : str          = "depth_pro"
+    tasks    : list[Task]   = [Task.DEPTH]
+    mltypes  : list[MLType] = [MLType.INFERENCE]
+    model_dir: core.Path    = current_dir
+    zoo      : dict         = {
         "pretrained": {
             "url"        : None,
             "path"       : ZOO_DIR / "vision/dtype/depth/depth_pro/depth_pro/pretrained/depth_pro.pt",

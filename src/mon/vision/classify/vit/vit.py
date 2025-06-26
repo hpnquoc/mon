@@ -31,10 +31,10 @@ class VisionTransformer(base.ImageClassificationModel, abc.ABC):
         - https://arxiv.org/abs/2010.11929
     """
     
-    _arch     : str          = "vit"
-    _mltypes  : list[MLType] = [MLType.SUPERVISED]
-    _model_dir: core.Path    = current_dir
-    _zoo      : dict         = {}
+    arch     : str          = "vit"
+    mltypes  : list[MLType] = [MLType.SUPERVISED]
+    model_dir: core.Path    = current_dir
+    zoo      : dict         = {}
     
     # ----- Initialize -----
     def init_weights(self, m: nn.Module):
@@ -70,8 +70,8 @@ class ViT_B_16(VisionTransformer):
         attention_dropout: Attention dropout rate. Default is ``0.0``.
     """
     
-    _name: str  = "vit_b_16"
-    _zoo : dict = {
+    name: str  = "vit_b_16"
+    zoo : dict = {
         "imagenet1k_v1": {
             "url"        : "https://download.pytorch.org/models/vit_b_16-c867db91.pth",
             "path"       : ZOO_DIR / "vision/classify/vit/vit_b_16/imagenet1k_v1/vit_b_16_imagenet1k_v1.pth",
@@ -123,8 +123,8 @@ class ViT_B_32(VisionTransformer):
         attention_dropout: Attention dropout rate. Default is ``0.0``.
     """
     
-    _name: str  = "vit_b_32"
-    _zoo : dict = {
+    name: str  = "vit_b_32"
+    zoo : dict = {
         "imagenet1k_v1": {
             "url"        : "https://download.pytorch.org/models/vit_b_32-d86f8d99.pth",
             "path"       : ZOO_DIR / "vision/classify/vit/vit_b_32/imagenet1k_v1/vit_b_32_imagenet1k_v1.pth",
@@ -166,8 +166,8 @@ class ViT_L_16(VisionTransformer):
         attention_dropout: Attention dropout rate. Default is ``0.0``.
     """
     
-    _name: str  = "vit_l_16"
-    _zoo : dict = {
+    name: str  = "vit_l_16"
+    zoo : dict = {
         "imagenet1k_v1": {
             "url"        : "https://download.pytorch.org/models/vit_l_16-852ce7e3.pth",
             "path"       : ZOO_DIR / "vision/classify/vit/vit_l_16/imagenet1k_v1/vit_l_16_imagenet1k_v1.pth",
@@ -219,8 +219,8 @@ class ViT_L_32(VisionTransformer):
         attention_dropout: Attention dropout rate. Default is ``0.0``.
     """
     
-    _name: str  = "vit_l_32"
-    _zoo : dict = {
+    name: str  = "vit_l_32"
+    zoo : dict = {
         "imagenet1k_v1": {
             "url"        : "https://download.pytorch.org/models/vit_l_32-c7638314.pth",
             "path"       : ZOO_DIR / "vision/classify/vit/vit_l_32/imagenet1k_v1/vit_l_32_imagenet1k_v1.pth",
@@ -262,8 +262,8 @@ class ViT_H_14(VisionTransformer):
         attention_dropout: Attention dropout rate. Default is ``0.0``.
     """
     
-    _name: str  = "vit_h_14"
-    _zoo : dict = {
+    name: str  = "vit_h_14"
+    zoo : dict = {
         "imagenet1k_swag_e2e_v1": {
             "url"        : "https://download.pytorch.org/models/vit_h_14_swag-80465313.pth",
             "path"       : ZOO_DIR / "vision/classify/vit/vit_h_14_swag/imagenet1k_v1/vit_h_14_swag_imagenet1k_v1.pth",

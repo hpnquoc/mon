@@ -32,14 +32,14 @@ class WiderFace(VisionDataset):
         FileNotFoundError: If ``root`` directory does not exist.
     """
     
-    _tasks : list[Task]  = [Task.DETECT]
-    _splits: list[Split] = [Split.TRAIN, Split.VAL, Split.TEST]
-    _datapoint_attrs     = DatapointAttributes({
+    tasks : list[Task]  = [Task.DETECT]
+    splits: list[Split] = [Split.TRAIN, Split.VAL, Split.TEST]
+    datapoint_attrs     = DatapointAttributes({
         "image": Image,
         # "bbox" : BBoxesAnnotation,
     })
-    _has_test_annotations: bool = False
-    _classes             = ClassLabels([
+    has_test_annotations: bool = False
+    classes             = Classes([
         {"name": "face", "id": 0, "color": [ 81, 120, 228]},
     ])
 
@@ -112,7 +112,7 @@ class WiderFaceTest(WiderFace):
 class WiderFaceDataModule(core.DataModule):
     """Configures WiderFace datasets for training/testing."""
     
-    _tasks: list[Task] = [Task.DETECT]
+    tasks: list[Task] = [Task.DETECT]
     
     def prepare_data(self, *args, **kwargs):
         """Prepares data (placeholder, no action taken)."""
@@ -134,7 +134,7 @@ class WiderFaceDataModule(core.DataModule):
         if stage in [None, "test"]:
             self.test  = WiderFace(split=Split.TEST, **self.dataset_kwargs)
         
-        self.get_classlabels()
+        self.get_classes()
         if self.can_log:
             self.summarize()
 
@@ -143,7 +143,7 @@ class WiderFaceDataModule(core.DataModule):
 class WiderFaceValDataModule(core.DataModule):
     """Configures WiderFace-Val datasets for training/testing."""
 
-    _tasks: list[Task] = [Task.DETECT]
+    tasks: list[Task] = [Task.DETECT]
 
     def prepare_data(self, *args, **kwargs):
         """Prepares data (placeholder, no action taken)."""
@@ -165,7 +165,7 @@ class WiderFaceValDataModule(core.DataModule):
         if stage in [None, "test"]:
             self.test  = WiderFaceVal(split=Split.VAL, **self.dataset_kwargs)
 
-        self.get_classlabels()
+        self.get_classes()
         if self.can_log:
             self.summarize()
 
@@ -174,7 +174,7 @@ class WiderFaceValDataModule(core.DataModule):
 class WiderFaceTestDataModule(core.DataModule):
     """Configures WiderFace-Test datasets for training/testing."""
 
-    _tasks: list[Task] = [Task.DETECT]
+    tasks: list[Task] = [Task.DETECT]
 
     def prepare_data(self, *args, **kwargs):
         """Prepares data (placeholder, no action taken)."""
@@ -196,6 +196,6 @@ class WiderFaceTestDataModule(core.DataModule):
         if stage in [None, "test"]:
             self.test  = WiderFaceVal(split=Split.TEST, **self.dataset_kwargs)
 
-        self.get_classlabels()
+        self.get_classes()
         if self.can_log:
             self.summarize()

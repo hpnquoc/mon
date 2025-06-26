@@ -32,14 +32,14 @@ class Model(lightning.LightningModule, abc.ABC):
     """The base class for all machine learning models.
     
     Attributes:
-        _arch: The model's architecture or family. Default: ``None`` mean it will
+        arch: The model's architecture or family. Default: ``None`` mean it will
             be `self.__class__.__name__`.
         name: The model's name. Default: ``None`` mean it will be
             `self.__class__.__name__`.
-        _tasks: A list of tasks that the model can perform.
-        _mltypes: A list of machine learning schemes that the model can perform.
-        _model_dir: The model's directory. Default: ``None``.
-        _zoo: A `dict` containing all pretrained weights of the model.
+        tasks: A list of tasks that the model can perform.
+        mltypes: A list of machine learning schemes that the model can perform.
+        model_dir: The model's directory. Default: ``None``.
+        zoo: A `dict` containing all pretrained weights of the model.
         
     Args:
         root: The root directory of the model. It is used to save the model
@@ -83,12 +83,12 @@ class Model(lightning.LightningModule, abc.ABC):
             >>> )
     """
     
-    _arch     : str          = ""       # The model's architecture.
-    _name     : str          = ""       # The model's name.
-    _tasks    : list[Task]   = []       # A list of tasks that the model can perform.
-    _mltypes  : list[MLType] = []       # A list of learning types that the model can perform.
-    _model_dir: core.Path    = None       
-    _zoo      : dict         = {}       # A dictionary containing all pretrained weights of the model.
+    arch     : str          = ""         # The model's architecture.
+    name     : str          = ""         # The model's name.
+    tasks    : list[Task]   = []         # A list of tasks that the model can perform.
+    mltypes  : list[MLType] = []         # A list of learning types that the model can perform.
+    model_dir: core.Path    = None
+    zoo      : dict         = box.Box()  # A dictionary containing all pretrained weights of the model.
     
     def __init__(
         self,
@@ -128,38 +128,6 @@ class Model(lightning.LightningModule, abc.ABC):
         self.init_metrics(metrics)
 
     # ----- Properties -----
-    @property
-    def arch(self) -> str:
-        """Returns the model's architecture."""
-        return self._arch
-
-    @property
-    def name(self) -> str:
-        """Returns the model's name."""
-        return self._name
-
-    @property
-    def tasks(self) -> list[Task]:
-        """Returns the model's tasks."""
-        return self._tasks
-
-    @property
-    def mltypes(self) -> list[MLType]:
-        """Returns the model's machine learning types."""
-        return self._mltypes
-
-    @property
-    def model_dir(self) -> core.Path:
-        """Returns the model's directory path."""
-        return self._model_dir
-
-    @property
-    def zoo(self) -> box.Box:
-        """Returns the model's zoo of pretrained weights."""
-        if not isinstance(self._zoo, box.Box):
-            self._zoo = box.Box(self._zoo)
-        return self._zoo
-
     @property
     def fullname(self) -> str:
         """Returns the model's full name as name-suffix."""

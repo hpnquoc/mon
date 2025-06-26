@@ -32,7 +32,7 @@ class ImageLoader(base.VisionDataset):
         verbose: If ``True``, enables verbose output. Default is ``True``.
     """
     
-    _datapoint_attrs = base.DatapointAttributes({
+    datapoint_attrs = base.DatapointAttributes({
         "image": Image,
     })
     

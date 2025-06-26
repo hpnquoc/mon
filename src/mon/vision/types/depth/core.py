@@ -36,7 +36,7 @@ class DepthMap(I.Image):
         cache: If ``True``, caches image in memory. Default is ``False``.
     """
 
-    _albumentation_target_type: str = "image"
+    albumentation_target_type: str = "image"
 
     def __init__(
         self,

@@ -40,10 +40,10 @@ class ResNet(nn.ExtraModel, base.ImageClassificationModel, abc.ABC):
         - https://arxiv.org/abs/1512.03385
     """
     
-    _arch     : str          = "resnet"
-    _mltypes  : list[MLType] = [MLType.SUPERVISED]
-    _model_dir: core.Path    = current_dir
-    _zoo      : dict         = {}
+    arch     : str          = "resnet"
+    mltypes  : list[MLType] = [MLType.SUPERVISED]
+    model_dir: core.Path    = current_dir
+    zoo      : dict         = {}
     
     # ----- Initialize -----
     def init_weights(self, m: nn.Module):
@@ -77,8 +77,8 @@ class ResNet18(ResNet):
         num_classes: Number of output classes. Default is ``1000``.
     """
     
-    _name: str  = "resnet18"
-    _zoo : dict = {
+    name: str  = "resnet18"
+    zoo : dict = {
         "imagenet1k_v1": {
             "url"        : "https://download.pytorch.org/models/resnet18-f37072fd.pth",
             "path"       : ZOO_DIR / "vision/classify/resnet/resnet18/imagenet1k_v1/resnet18_imagenet1k_v1.pth",
@@ -108,8 +108,8 @@ class ResNet34(ResNet):
         num_classes: Number of output classes. Default is ``1000``.
     """
     
-    _name: str  = "resnet34"
-    _zoo : dict = {
+    name: str  = "resnet34"
+    zoo : dict = {
         "imagenet1k_v1": {
             "url"        : "https://download.pytorch.org/models/resnet34-b627a593.pth",
             "path"       : ZOO_DIR / "vision/classify/resnet/resnet34/imagenet1k_v1/resnet34_imagenet1k_v1.pth",
@@ -139,8 +139,8 @@ class ResNet50(ResNet):
         num_classes: Number of output classes. Default is ``1000``.
     """
     
-    _name: str  = "resnet50"
-    _zoo : dict = {
+    name: str  = "resnet50"
+    zoo : dict = {
         "imagenet1k_v1": {
             "url"        : "https://download.pytorch.org/models/resnet50-11ad3fa6.pth",
             "path"       : ZOO_DIR / "vision/classify/resnet/resnet50/imagenet1k_v1/resnet50_imagenet1k_v1.pth",
@@ -175,8 +175,8 @@ class ResNet101(ResNet):
         num_classes: Number of output classes. Default is ``1000``.
     """
     
-    _name: str  = "resnet101"
-    _zoo : dict = {
+    name: str  = "resnet101"
+    zoo : dict = {
         "imagenet1k_v1": {
             "url"        : "https://download.pytorch.org/models/resnet101-63fe2227.pth",
             "path"       : ZOO_DIR / "vision/classify/resnet/resnet101/imagenet1k_v1/resnet101_imagenet1k_v1.pth",
@@ -211,8 +211,8 @@ class ResNet152(ResNet):
         num_classes: Number of output classes. Default is ``1000``.
     """
     
-    _name: str  = "resnet152"
-    _zoo : dict = {
+    name: str  = "resnet152"
+    zoo : dict = {
         "imagenet1k_v1": {
             "url"        : "https://download.pytorch.org/models/resnet152-394f9c45.pth",
             "path"       : ZOO_DIR / "vision/classify/resnet/resnet152/imagenet1k_v1/resnet152_imagenet1k_v1.pth",
@@ -248,8 +248,8 @@ class ResNeXt50_32X4D(ResNet):
         num_classes: Number of output classes. Default is ``1000``.
     """
     
-    _name: str  = "resnext50_32x4d"
-    _zoo : dict = {
+    name: str  = "resnext50_32x4d"
+    zoo : dict = {
         "imagenet1k_v1": {
             "url"        : "https://download.pytorch.org/models/resnext50_32x4d-7cdf4587.pth",
             "path"       : ZOO_DIR / "vision/classify/resnet/resnext50_32x4d/imagenet1k_v1/resnext50_32x4d_imagenet1k_v1.pth",
@@ -284,8 +284,8 @@ class ResNeXt101_32X8D(ResNet):
         num_classes: Number of output classes. Default is ``1000``.
     """
     
-    _name: str  = "resnext101_32x8d"
-    _zoo : dict = {
+    name: str  = "resnext101_32x8d"
+    zoo : dict = {
         "imagenet1k_v1": {
             "url"        : "https://download.pytorch.org/models/resnext101_32x8d-8ba56ff5.pth",
             "path"       : ZOO_DIR / "vision/classify/resnet/resnext101_32x8d/imagenet1k_v1/resnext101_32x8d_imagenet1k_v1.pth",
@@ -320,8 +320,8 @@ class ResNeXt101_64X4D(ResNet):
         num_classes: Number of output classes. Default is ``1000``.
     """
     
-    _name: str  = "resnext101_64x4d"
-    _zoo : dict = {
+    name: str  = "resnext101_64x4d"
+    zoo : dict = {
         "imagenet1k_v1": {
             "url"        : "https://download.pytorch.org/models/resnext101_64x4d-173b62eb.pth",
             "path"       : ZOO_DIR / "vision/classify/resnet/resnext101_64x4d/imagenet1k_v1/resnext101_64x4d_imagenet1k_v1.pth",
@@ -352,8 +352,8 @@ class WideResNet50_2(ResNet):
         num_classes: Number of output classes. Default is ``1000``.
     """
     
-    _name: str  = "wide_resnet50_2"
-    _zoo : dict = {
+    name: str  = "wide_resnet50_2"
+    zoo : dict = {
         "imagenet1k_v1": {
             "url"        : "https://download.pytorch.org/models/wide_resnet50_2-95faca4d.pth",
             "path"       : ZOO_DIR / "vision/classify/resnet/wide_resnet50/imagenet1k_v1/wide_resnet50_imagenet1k_v1.pth",
@@ -388,8 +388,8 @@ class WideResNet101_2(ResNet):
         num_classes: Number of output classes. Default is ``1000``.
     """
     
-    _name: str  = "wide_resnet101_2"
-    _zoo : dict = {
+    name: str  = "wide_resnet101_2"
+    zoo : dict = {
         "imagenet1k_v1": {
             "url"        : "https://download.pytorch.org/models/wide_resnet101_2-32ee1156.pth",
             "path"       : ZOO_DIR / "vision/classify/resnet/wide_resnet101/imagenet1k_v1/wide_resnet101_imagenet1k_v1.pth",

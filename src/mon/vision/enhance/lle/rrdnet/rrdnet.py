@@ -174,12 +174,12 @@ class Loss(nn.Loss):
 class RRDNet(base.ImageEnhancementModel):
     """RRDNet model for low-light image enhancement."""
     
-    _arch     : str          = "rrdnet"
-    _name     : str          = "rrdnet"
-    _tasks    : list[Task]   = [Task.LLE]
-    _mltypes  : list[MLType] = [MLType.ZERO_SHOT]
-    _model_dir: core.Path    = current_dir
-    _zoo      : dict         = {}
+    arch     : str          = "rrdnet"
+    name     : str          = "rrdnet"
+    tasks    : list[Task]   = [Task.LLE]
+    mltypes  : list[MLType] = [MLType.ZERO_SHOT]
+    model_dir: core.Path    = current_dir
+    zoo      : dict         = {}
     
     def __init__(
         self,

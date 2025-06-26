@@ -124,7 +124,7 @@ class Detector1(abc.ABC):
     Args:
         config: A detector model's config.
         weights: A path to a pretrained weights file.
-        classlabels: A `list` of all the class-labels defined in a
+        classes: A `list` of all the class-labels defined in a
             dataset.
         image_size: The desired model's input size in [H, W] format.
             Default: ``640``.
@@ -143,7 +143,7 @@ class Detector1(abc.ABC):
         config        : dict | core.Path | None,
         weights       : Any,
         image_size    : int | list[int] = 640,
-        classlabels   : Any   = None,
+        classes       : Any   = None,
         conf_threshold: float = 0.5,
         iou_threshold : float = 0.4,
         max_detections: int   = 300,
@@ -153,7 +153,7 @@ class Detector1(abc.ABC):
         super().__init__()
         self.config         = config
         self.weights        = weights
-        self.classlabels    = datasets.ClassLabels.from_value(value=classlabels)
+        self.classlabels    = datasets.Classes.from_value(value=classes)
         self.allowed_ids    = self.classlabels.ids(key="id", exclude_negative_key=True)
         self.image_size     = types.image_size(image_size)
         self.conf_threshold = conf_threshold

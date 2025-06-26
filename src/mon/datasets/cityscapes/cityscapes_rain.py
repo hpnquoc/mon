@@ -36,14 +36,14 @@ class CityscapesRain(Cityscapes):
         FileNotFoundError: If ``root``/cityscapes directory does not exist.
     """
     
-    _tasks : list[Task]  = [Task.DERAIN]
-    _splits: list[Split] = [Split.TRAIN, Split.VAL]
-    _datapoint_attrs     = DatapointAttributes({
+    tasks : list[Task]  = [Task.DERAIN]
+    splits: list[Split] = [Split.TRAIN, Split.VAL]
+    datapoint_attrs     = DatapointAttributes({
         "image"    : Image,
         "ref_image": Image,
         "semantic" : SemanticMask,  # gtFine
     })
-    _has_test_annotations: bool = True
+    has_test_annotations: bool = True
     
     def __init__(self, root: core.Path, *args, **kwargs):
         root = core.Path(root)
@@ -98,7 +98,7 @@ class CityscapesRain(Cityscapes):
 class CityscapesRainDataModule(core.DataModule):
     """Manages CityscapesRain dataset for training, validation, and testing."""
 
-    _tasks: list[Task] = [Task.DERAIN]
+    tasks: list[Task] = [Task.DERAIN]
 
     def prepare_data(self, *args, **kwargs):
         """Prepares data (placeholder, no action taken)."""
@@ -120,6 +120,6 @@ class CityscapesRainDataModule(core.DataModule):
         if stage in [None, "test"]:
             self.test  = CityscapesRain(split=Split.VAL,   **self.dataset_kwargs)
 
-        self.get_classlabels()
+        self.get_classes()
         if self.can_log:
             self.summarize()

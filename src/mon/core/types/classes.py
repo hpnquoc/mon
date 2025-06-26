@@ -1,17 +1,17 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Implements classlabels in datasets."""
+"""Implements an object to encapsulate all classes in datasets."""
 
 __all__ = [
-    "ClassLabels",
+    "Classes",
 ]
 
 from mon.core import rich
 
 
-# ----- Class-Labels -----
-class ClassLabels(list[dict]):
+# ----- Classes -----
+class Classes(list[dict]):
     """List of class labels defined in a dataset.
 
     Notes:
@@ -19,13 +19,13 @@ class ClassLabels(list[dict]):
     """
     
     @property
-    def trainable_classes(self) -> "ClassLabels":
+    def trainable_classes(self) -> "Classes":
         """Returns all trainable classes.
 
         Returns:
-            New ``ClassLabels`` with classes where ``id`` is in [0, 254].
+            New ``Classes`` with classes where ``id`` is in [0, 254].
         """
-        return ClassLabels([item for item in self if 0 <= item["id"] < 255])
+        return Classes([item for item in self if 0 <= item["id"] < 255])
     
     @property
     def keys(self) -> list[str]:
@@ -117,5 +117,5 @@ class ClassLabels(list[dict]):
         if not self:
             rich.console.log("[yellow]No class is available.")
         else:
-            rich.console.log("Classlabels:")
+            rich.console.log("Classes:")
             rich.print_table(self)

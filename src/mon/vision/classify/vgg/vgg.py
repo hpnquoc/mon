@@ -36,10 +36,10 @@ class VGG(nn.ExtraModel, base.ImageClassificationModel, abc.ABC):
         - https://arxiv.org/abs/1409.1556
     """
     
-    _arch     : str          = "vgg"
-    _mltypes  : list[MLType] = [MLType.SUPERVISED]
-    _model_dir: core.Path    = current_dir
-    _zoo      : dict         = {}
+    arch     : str          = "vgg"
+    mltypes  : list[MLType] = [MLType.SUPERVISED]
+    model_dir: core.Path    = current_dir
+    zoo      : dict         = {}
     
     # ----- Initialize -----
     def init_weights(self, m: nn.Module):
@@ -74,8 +74,8 @@ class VGG11(VGG):
         dropout: Dropout rate for the model. Default is ``0.5``.
     """
     
-    _name: str  = "vgg11"
-    _zoo : dict = {
+    name: str  = "vgg11"
+    zoo : dict = {
         "imagenet1k_v1": {
             "url"        : "https://download.pytorch.org/models/vgg11-8a719046.pth",
             "path"       : ZOO_DIR / "vision/classify/vgg/vgg11/imagenet1k_v1/vgg11_imagenet1k_v1.pth",
@@ -106,8 +106,8 @@ class VGG13(VGG):
         dropout: Dropout rate for the model. Default is ``0.5``.
     """
     
-    _name: str  = "vgg13"
-    _zoo : dict = {
+    name: str  = "vgg13"
+    zoo : dict = {
         "imagenet1k_v1": {
             "url"        : "https://download.pytorch.org/models/vgg13-19584684.pth",
             "path"       : ZOO_DIR / "vision/classify/vgg/vgg13/imagenet1k_v1/vgg13_imagenet1k_v1.pth",
@@ -138,8 +138,8 @@ class VGG16(VGG):
         dropout: Dropout rate for the model. Default is ``0.5``.
     """
     
-    _name: str  = "vgg16"
-    _zoo : dict = {
+    name: str  = "vgg16"
+    zoo : dict = {
         "imagenet1k_v1": {
             "url"        : "https://download.pytorch.org/models/vgg16-397923af.pth",
             "path"       : ZOO_DIR / "vision/classify/vgg/vgg16/imagenet1k_v1/vgg16_imagenet1k_v1.pth",
@@ -170,8 +170,8 @@ class VGG19(VGG):
         dropout: Dropout rate for the model. Default is ``0.5``.
     """
     
-    _name: str  = "vgg19"
-    _zoo : dict = {
+    name: str  = "vgg19"
+    zoo : dict = {
         "imagenet1k_v1": {
             "url"        : "https://download.pytorch.org/models/vgg19-dcbb9e9d.pth",
             "path"       : ZOO_DIR / "vision/classify/vgg/vgg19/imagenet1k_v1/vgg19_imagenet1k_v1.pth",
@@ -203,8 +203,8 @@ class VGG11_BN(VGG):
         dropout: Dropout rate for the model. Default is ``0.5``.
     """
     
-    _name: str  = "vgg11_bn"
-    _zoo : dict = {
+    name: str  = "vgg11_bn"
+    zoo : dict = {
         "imagenet1k_v1": {
             "url"        : "https://download.pytorch.org/models/vgg11_bn-6002323d.pth",
             "path"       : ZOO_DIR / "vision/classify/vgg/vgg11_bn/imagenet1k_v1/vgg11_bn_imagenet1k_v1.pth",
@@ -235,8 +235,8 @@ class VGG13_BN(VGG):
         dropout: Dropout rate for the model. Default is ``0.5``.
     """
     
-    _name: str  = "vgg13_bn"
-    _zoo : dict = {
+    name: str  = "vgg13_bn"
+    zoo : dict = {
         "imagenet1k_v1": {
             "url"        : "https://download.pytorch.org/models/vgg13_bn-abd245e5.pth",
             "path"       : ZOO_DIR / "vision/classify/vgg/vgg13_bn/imagenet1k_v1/vgg13_bn_imagenet1k_v1.pth",
@@ -267,8 +267,8 @@ class VGG16_BN(VGG):
         dropout: Dropout rate for the model. Default is ``0.5``.
     """
     
-    _name: str  = "vgg16_bn"
-    _zoo : dict = {
+    name: str  = "vgg16_bn"
+    zoo : dict = {
         "imagenet1k_v1": {
             "url"        : "https://download.pytorch.org/models/vgg16_bn-6c64b313.pth",
             "path"       : ZOO_DIR / "vision/classify/vgg/vgg16_bn/imagenet1k_v1/vgg16_bn_imagenet1k_v1.pth",
@@ -299,8 +299,8 @@ class VGG19_BN(VGG):
         dropout: Dropout rate for the model. Default is ``0.5``.
     """
     
-    _name: str  = "vgg19_bn"
-    _zoo : dict = {
+    name: str  = "vgg19_bn"
+    zoo : dict = {
         "imagenet1k_v1": {
             "url"        : "https://download.pytorch.org/models/vgg19_bn-c79401a0.pth",
             "path"       : ZOO_DIR / "vision/classify/vgg/vgg19_bn/imagenet1k_v1/vgg19_bn_imagenet1k_v1.pth",

@@ -19,14 +19,14 @@ from mon.datasets.core import *
 class COCO80(VisionDataset):
     """COCO-80-classes dataset."""
     
-    _tasks : list[Task]  = [Task.DETECT]
-    _splits: list[Split] = [Split.TRAIN, Split.VAL, Split.TEST]
-    _datapoint_attrs     = DatapointAttributes({
+    tasks : list[Task]  = [Task.DETECT]
+    splits: list[Split] = [Split.TRAIN, Split.VAL, Split.TEST]
+    datapoint_attrs     = DatapointAttributes({
         "image": Image,
         # "bbox" : BBoxesAnnotation,
     })
-    _has_test_annotations: bool = False
-    _classes             = ClassLabels([
+    has_test_annotations: bool = False
+    classes             = Classes([
         {"name": "background"    , "id":  0, "supercategory": "background", "color": [  0,   0,   0]},
         {"name": "person"        , "id":  1, "supercategory": "person"    , "color": [ 81, 120, 228]},
         {"name": "bicycle"       , "id":  2, "supercategory": "vehicle"   , "color": [138, 183,  33]},
@@ -139,7 +139,7 @@ class COCO80(VisionDataset):
 @DATAMODULES.register(name="coco80")
 class COCO80DataModule(core.DataModule):
     
-    _tasks: list[Task] = [Task.DETECT]
+    tasks: list[Task] = [Task.DETECT]
     
     def prepare_data(self, *args, **kwargs):
         pass
@@ -154,6 +154,6 @@ class COCO80DataModule(core.DataModule):
         if stage in [None, "test"]:
             self.test  = COCO80(split=Split.TEST, **self.dataset_kwargs)
         
-        self.get_classlabels()
+        self.get_classes()
         if self.can_log:
             self.summarize()

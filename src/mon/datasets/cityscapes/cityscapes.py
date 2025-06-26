@@ -36,14 +36,14 @@ class Cityscapes(VisionDataset):
         FileNotFoundError: If ``root``/cityscapes directory does not exist.
     """
 
-    _tasks : list[Task]  = [Task.SEGMENT]
-    _splits: list[Split] = [Split.TRAIN, Split.VAL, Split.TEST]
-    _datapoint_attrs     = DatapointAttributes({
+    tasks : list[Task]  = [Task.SEGMENT]
+    splits: list[Split] = [Split.TRAIN, Split.VAL, Split.TEST]
+    datapoint_attrs     = DatapointAttributes({
         "image"   : Image,
         "semantic": SemanticMask,
     })
-    _has_test_annotations: bool = True
-    _classes             = ClassLabels([
+    has_test_annotations: bool = True
+    classes             = Classes([
         {"name": "unlabeled"           , "id":  0, "train_id": 255, "category": "void"        , "category_id": 0, "ignore_in_eval": True , "color": [  0,   0,   0]},
         {"name": "ego vehicle"         , "id":  1, "train_id": 255, "category": "void"        , "category_id": 0, "ignore_in_eval": True , "color": [  0,   0,   0]},
         {"name": "rectification border", "id":  2, "train_id": 255, "category": "void"        , "category_id": 0, "ignore_in_eval": True , "color": [  0,   0,   0]},
@@ -135,7 +135,7 @@ class Cityscapes(VisionDataset):
 class CityscapesDataModule(core.DataModule):
     """Manages Cityscapes dataset loading and setup for training, validation, and testing."""
 
-    _tasks: list[Task] = [Task.SEGMENT]
+    tasks: list[Task] = [Task.SEGMENT]
 
     def prepare_data(self, *args, **kwargs):
         """Prepares data (placeholder, no action taken)."""
@@ -157,6 +157,6 @@ class CityscapesDataModule(core.DataModule):
         if stage in [None, "test"]:
             self.test  = Cityscapes(split=Split.TEST,  **self.dataset_kwargs)
 
-        self.get_classlabels()
+        self.get_classes()
         if self.can_log:
             self.summarize()

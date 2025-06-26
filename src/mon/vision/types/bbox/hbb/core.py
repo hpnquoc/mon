@@ -44,7 +44,7 @@ class HBBs(core.BaseTensor, core.DatasetMixin, core.DataLoaderMixin):
             <id> is the tracking ID (optional).
     """
 
-    _albumentation_target_type: str = "bboxes"
+    albumentation_target_type: str = "bboxes"
 
     def __init__(
         self,

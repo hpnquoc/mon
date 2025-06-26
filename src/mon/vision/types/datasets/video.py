@@ -36,8 +36,8 @@ class VideoLoader(core.Dataset, abc.ABC):
         verbose: If ``True``, enables verbose output. Default is ``True``.
     """
     
-    _tasks: list[Task] = [Task.VIDEO]
-    _datapoint_attrs   = core.DatapointAttributes({
+    tasks: list[Task] = [Task.VIDEO]
+    datapoint_attrs   = core.DatapointAttributes({
         "image": Frame,
     })
     

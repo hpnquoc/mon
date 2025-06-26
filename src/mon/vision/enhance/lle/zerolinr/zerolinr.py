@@ -474,12 +474,12 @@ class INF4(nn.Module):
 class ZeroLINR(base.ImageEnhancementModel):
     """Zero-LINR model for low-light image enhancement."""
     
-    _arch     : str          = "zerolinr"
-    _name     : str          = "zerolinr"
-    _tasks    : list[Task]   = [Task.LLE]
-    _mltypes  : list[MLType] = [MLType.ZERO_SHOT]
-    _model_dir: core.Path    = current_dir
-    _zoo      : dict         = {}
+    arch     : str          = "zerolinr"
+    name     : str          = "zerolinr"
+    tasks    : list[Task]   = [Task.LLE]
+    mltypes  : list[MLType] = [MLType.ZERO_SHOT]
+    model_dir: core.Path    = current_dir
+    zoo      : dict         = {}
     
     def __init__(
         self,

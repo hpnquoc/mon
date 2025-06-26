@@ -31,13 +31,13 @@ class NTIRE2024LLIE(VisionDataset):
     Raises:
         FileNotFoundError: If ``root`` directory does not exist.
     """
-    _tasks : list[Task]  =  [Task.LLE]
-    _splits: list[Split] = [Split.TRAIN, Split.VAL, Split.TEST]
-    _datapoint_attrs     = DatapointAttributes({
+    tasks : list[Task]  =  [Task.LLE]
+    splits: list[Split] = [Split.TRAIN, Split.VAL, Split.TEST]
+    datapoint_attrs     = DatapointAttributes({
         "image"    : Image,
         "ref_image": Image,
     })
-    _has_test_annotations: bool = False
+    has_test_annotations: bool = False
 
     def __init__(self, root: core.Path, *args, **kwargs):
         root = core.Path(root)
@@ -79,7 +79,7 @@ class NTIRE2024LLIE(VisionDataset):
 class NTIRE2024LLIEDataModule(core.DataModule):
     """Configures NTIRE 2024 LLIE datasets for training/testing."""
     
-    _tasks: list[Task] = [Task.LLE]
+    tasks: list[Task] = [Task.LLE]
     
     def prepare_data(self, *args, **kwargs):
         """Prepares data for disk or single-GPU tasks."""
@@ -101,6 +101,6 @@ class NTIRE2024LLIEDataModule(core.DataModule):
         if stage in [None, "test"]:
             self.test  = NTIRE2024LLIE(split=Split.VAL,   **self.dataset_kwargs)
         
-        self.get_classlabels()
+        self.get_classes()
         if self.can_log:
             self.summarize()

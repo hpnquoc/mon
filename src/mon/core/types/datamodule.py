@@ -36,7 +36,7 @@ class DataModule(lightning.LightningDataModule, abc.ABC):
         verbose: If ``True``, enables verbose output. Default is ``True``.
     """
     
-    _tasks: list[Task] = []
+    tasks: list[Task] = []
     
     def __init__(
         self,
@@ -68,14 +68,9 @@ class DataModule(lightning.LightningDataModule, abc.ABC):
         else:
             self.train = self.val = self.test = self.predict = None
         
-        self.classlabels = None
+        self.classes = None
     
     # ----- Properties -----
-    @property
-    def tasks(self) -> list[Task]:
-        """Returns a list of supported tasks."""
-        return self._tasks
-
     @property
     def num_workers(self) -> int:
         """Gets the number of workers for data loading.
@@ -96,7 +91,7 @@ class DataModule(lightning.LightningDataModule, abc.ABC):
         if not self.train:
             return None
         
-        self.classlabels = getattr(self.train, "classlabels", self.classlabels)
+        self.classes = getattr(self.train, "classes", self.classes)
         return data.DataLoader(
             dataset            = self.train,
             batch_size         = self.batch_size,
@@ -204,13 +199,13 @@ class DataModule(lightning.LightningDataModule, abc.ABC):
         """
         pass
     
-    def get_classlabels(self):
+    def get_classes(self):
         """Loads class labels from datasets."""
         for dataset in [self.train, self.val, self.test, self.predict]:
             if dataset:
-                self.classlabels = getattr(dataset, "classlabels", None)
+                self.classes = getattr(dataset, "classes", None)
                 return
-        rich.console.log("[yellow]No classlabels found")
+        rich.console.log("[yellow]No classes found")
     
     def split_train_val(
         self,
@@ -229,7 +224,7 @@ class DataModule(lightning.LightningDataModule, abc.ABC):
         val_size         = len(dataset) - train_size
         train, self.val  = data.random_split(dataset, [train_size, val_size])
         self.train       = dataset if full_train else train
-        self.classlabels = getattr(dataset, "classlabels", None)
+        self.classes = getattr(dataset, "classes", None)
         self.collate_fn  = getattr(dataset, "collate_fn",  None)
     
     def summarize(self):
@@ -241,10 +236,10 @@ class DataModule(lightning.LightningDataModule, abc.ABC):
         table.add_row("1", "train",       f"{len(self.train) if self.train else None}")
         table.add_row("2", "val",         f"{len(self.val)   if self.val   else None}")
         table.add_row("3", "test",        f"{len(self.test)  if self.test  else None}")
-        table.add_row("4", "classlabels", f"{self.classlabels.num_classes if self.classlabels else None}")
+        table.add_row("4", "classes", f"{self.classes.num_classes if self.classes else None}")
         table.add_row("5", "batch_size",  f"{self.batch_size}")
         table.add_row("6", "num_workers", f"{self.num_workers}")
         rich.console.log(table)
         
-        if self.classlabels:
-            self.classlabels.print()
+        if self.classes:
+            self.classes.print()

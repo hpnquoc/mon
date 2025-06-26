@@ -115,23 +115,23 @@ def draw_heatmap(
 
 
 def draw_semantic(
-    image      : np.ndarray,
-    semantic   : np.ndarray,
-    classlabels: core.ClassLabels,
-    alpha      : float = 0.5
+    image   : np.ndarray,
+    semantic: np.ndarray,
+    classes : core.Classes,
+    alpha   : float = 0.5
 ) -> np.ndarray:
     """Overlay semantic mask on image.
 
     Args:
         image: RGB image as ``np.ndarray`` in [H, W, C], range [0, 255].
         semantic: Semantic mask as ``np.ndarray`` in [H, W, 1].
-        classlabels: List of class labels as ``ClassLabels``.
+        classes: List of class labels as ``Classes``.
         alpha: Transparency ratio (0.0-1.0) as ``float``. Default is ``0.5``.
 
     Returns:
         Image with semantic overlay as ``np.ndarray``.
     """
-    color_map = types.label_map_id_to_color(semantic, classlabels)
+    color_map = types.label_map_id_to_color(semantic, classes)
     drawing   = types.blend_images(image, color_map, alpha)
     drawing   = drawing.astype(np.uint8)
     return drawing

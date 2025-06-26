@@ -39,14 +39,14 @@ class LOLBlur(VisionDataset, abc.ABC):
     """
     
     # tasks : list[Task]  = [Task.LLE]
-    _splits: list[Split] = [Split.TRAIN, Split.TEST]
-    _datapoint_attrs     = DatapointAttributes({
+    splits: list[Split] = [Split.TRAIN, Split.TEST]
+    datapoint_attrs     = DatapointAttributes({
         "image"    : Image,
         "depth"    : DepthMap,
         "ref_image": Image,
         "ref_depth": DepthMap,
     })
-    _has_test_annotations: bool = True
+    has_test_annotations: bool = True
 
     def __init__(self, root: core.Path, *args, **kwargs):
         root = core.Path(root)
@@ -70,7 +70,7 @@ class LOLBlurB(LOLBlur):
         FileNotFoundError: If ``root`` directory does not exist.
     """
 
-    _tasks: list[Task] = [Task.DEBLUR]
+    tasks: list[Task] = [Task.DEBLUR]
 
     def list_data(self):
         """Lists ``datapoints`` with image annotations for split."""
@@ -101,7 +101,7 @@ class LOLBlurBN(LOLBlur):
         FileNotFoundError: If ``root`` directory does not exist.
     """
 
-    _tasks: list[Task] = [Task.DEBLUR, Task.DENOISE]
+    tasks: list[Task] = [Task.DEBLUR, Task.DENOISE]
 
     def list_data(self):
         """Lists ``datapoints`` with image annotations for split."""
@@ -132,7 +132,7 @@ class LOLBlurL(LOLBlur):
         FileNotFoundError: If ``root`` directory does not exist.
     """
 
-    _tasks: list[Task] = [Task.LLE]
+    tasks: list[Task] = [Task.LLE]
 
     def list_data(self):
         """Lists ``datapoints`` with image annotations for split."""
@@ -163,7 +163,7 @@ class LOLBlurLB(LOLBlur):
         FileNotFoundError: If ``root`` directory does not exist.
     """
 
-    _tasks: list[Task] = [Task.DEBLUR, Task.LLE]
+    tasks: list[Task] = [Task.DEBLUR, Task.LLE]
 
     def list_data(self):
         """Lists ``datapoints`` with image annotations for split."""
@@ -194,7 +194,7 @@ class LOLBlurLBN(LOLBlur):
         FileNotFoundError: If ``root`` directory does not exist.
     """
 
-    _tasks: list[Task] = [Task.DEBLUR, Task.DENOISE, Task.LLE]
+    tasks: list[Task] = [Task.DEBLUR, Task.DENOISE, Task.LLE]
 
     def list_data(self):
         """Lists ``datapoints`` with image annotations for split."""
@@ -225,7 +225,7 @@ class LOLBlurN(LOLBlur):
         FileNotFoundError: If ``root`` directory does not exist.
     """
 
-    _tasks: list[Task] = [Task.DENOISE]
+    tasks: list[Task] = [Task.DENOISE]
 
     def list_data(self):
         """Lists ``datapoints`` with image annotations for split."""
@@ -248,7 +248,7 @@ class LOLBlurN(LOLBlur):
 class LOLBlurBDataModule(core.DataModule):
     """Configures LOL-Blur-B (Blur) datasets for training/testing."""
     
-    _tasks: list[Task] = [Task.DEBLUR]
+    tasks: list[Task] = [Task.DEBLUR]
 
     def prepare_data(self, *args, **kwargs):
         """Prepares data (placeholder, no action taken)."""
@@ -270,7 +270,7 @@ class LOLBlurBDataModule(core.DataModule):
         if stage in [None, "test"]:
             self.test  = LOLBlurB(split=Split.TEST,  **self.dataset_kwargs)
 
-        self.get_classlabels()
+        self.get_classes()
         if self.can_log:
             self.summarize()
 
@@ -279,7 +279,7 @@ class LOLBlurBDataModule(core.DataModule):
 class LOLBlurBNDataModule(core.DataModule):
     """Configures LOL-Blur-BN (Blur + Noise) datasets for training/testing."""
 
-    _tasks: list[Task] = [Task.DEBLUR, Task.DENOISE]
+    tasks: list[Task] = [Task.DEBLUR, Task.DENOISE]
 
     def prepare_data(self, *args, **kwargs):
         """Prepares data (placeholder, no action taken)."""
@@ -301,7 +301,7 @@ class LOLBlurBNDataModule(core.DataModule):
         if stage in [None, "test"]:
             self.test  = LOLBlurBN(split=Split.TEST,  **self.dataset_kwargs)
 
-        self.get_classlabels()
+        self.get_classes()
         if self.can_log:
             self.summarize()
 
@@ -310,7 +310,7 @@ class LOLBlurBNDataModule(core.DataModule):
 class LOLBlurLDataModule(core.DataModule):
     """Configures LOL-Blur-L (Low-Light) datasets for training/testing."""
 
-    _tasks: list[Task] = [Task.LLE]
+    tasks: list[Task] = [Task.LLE]
 
     def prepare_data(self, *args, **kwargs):
         """Prepares data (placeholder, no action taken)."""
@@ -332,7 +332,7 @@ class LOLBlurLDataModule(core.DataModule):
         if stage in [None, "test"]:
             self.test  = LOLBlurL(split=Split.TEST,  **self.dataset_kwargs)
 
-        self.get_classlabels()
+        self.get_classes()
         if self.can_log:
             self.summarize()
 
@@ -341,7 +341,7 @@ class LOLBlurLDataModule(core.DataModule):
 class LOLBlurLBDataModule(core.DataModule):
     """Configures LOL-Blur-LB (Low-Light + Blur) datasets for training/testing."""
 
-    _tasks: list[Task] = [Task.DEBLUR, Task.LLE]
+    tasks: list[Task] = [Task.DEBLUR, Task.LLE]
 
     def prepare_data(self, *args, **kwargs):
         """Prepares data (placeholder, no action taken)."""
@@ -363,7 +363,7 @@ class LOLBlurLBDataModule(core.DataModule):
         if stage in [None, "test"]:
             self.test  = LOLBlurLB(split=Split.TEST,  **self.dataset_kwargs)
 
-        self.get_classlabels()
+        self.get_classes()
         if self.can_log:
             self.summarize()
 
@@ -372,7 +372,7 @@ class LOLBlurLBDataModule(core.DataModule):
 class LOLBlurLBNDataModule(core.DataModule):
     """Configures LOL-Blur-LBN (Low-Light + Blur + Noise) datasets for training/testing."""
 
-    _tasks: list[Task] = [Task.DEBLUR, Task.DENOISE, Task.LLE]
+    tasks: list[Task] = [Task.DEBLUR, Task.DENOISE, Task.LLE]
 
     def prepare_data(self, *args, **kwargs):
         """Prepares data (placeholder, no action taken)."""
@@ -394,7 +394,7 @@ class LOLBlurLBNDataModule(core.DataModule):
         if stage in [None, "test"]:
             self.test  = LOLBlurLBN(split=Split.TEST,  **self.dataset_kwargs)
 
-        self.get_classlabels()
+        self.get_classes()
         if self.can_log:
             self.summarize()
 
@@ -403,7 +403,7 @@ class LOLBlurLBNDataModule(core.DataModule):
 class LOLBlurNDataModule(core.DataModule):
     """Configures LOL-Blur-N (Noise) datasets for training/testing."""
 
-    _tasks: list[Task] = [Task.DENOISE]
+    tasks: list[Task] = [Task.DENOISE]
 
     def prepare_data(self, *args, **kwargs):
         """Prepares data (placeholder, no action taken)."""
@@ -425,6 +425,6 @@ class LOLBlurNDataModule(core.DataModule):
         if stage in [None, "test"]:
             self.test  = LOLBlurN(split=Split.TEST,  **self.dataset_kwargs)
 
-        self.get_classlabels()
+        self.get_classes()
         if self.can_log:
             self.summarize()

@@ -185,12 +185,12 @@ class ZeroRestoreDehaze(base.ImageEnhancementModel):
 	    - https://github.com/aupendu/zero-restore
     """
     
-    _arch     : str          = "zerorestore"
-    _name     : str          = "zerorestore_dehaze"
-    _tasks    : list[Task]   = [Task.DEHAZE]
-    _mltypes  : list[MLType] = [MLType.ZERO_SHOT]
-    _model_dir: core.Path    = current_dir
-    _zoo      : dict         = {}
+    arch     : str          = "zerorestore"
+    name     : str          = "zerorestore_dehaze"
+    tasks    : list[Task]   = [Task.DEHAZE]
+    mltypes  : list[MLType] = [MLType.ZERO_SHOT]
+    model_dir: core.Path    = current_dir
+    zoo      : dict         = {}
     
     def __init__(
         self,

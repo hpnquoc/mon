@@ -45,9 +45,9 @@ class FiveKInit(VisionDataset):
         FileNotFoundError: If ``root`` directory does not exist.
     """
     
-    _tasks : list[Task]  = [Task.LLE, Task.RETOUCH]
-    _splits: list[Split] = [Split.TRAIN]
-    _datapoint_attrs     = DatapointAttributes({
+    tasks : list[Task]  = [Task.LLE, Task.RETOUCH]
+    splits: list[Split] = [Split.TRAIN]
+    datapoint_attrs     = DatapointAttributes({
         "image_ex": Image,
         "image_bc": Image,
         "image_vb": Image,
@@ -55,7 +55,7 @@ class FiveKInit(VisionDataset):
         "ref_bc"  : Image,
         "ref_vb"  : Image,
     })
-    _has_test_annotations: bool = False
+    has_test_annotations: bool = False
 
     def __init__(self, root: core.Path, *args, **kwargs):
         root = core.Path(root)
@@ -182,13 +182,13 @@ class FiveK(VisionDataset):
         FileNotFoundError: If ``root`` directory does not exist.
     """
     
-    _tasks : list[Task]  = [Task.LLE]
-    _splits: list[Split] = [Split.TEST]
-    _datapoint_attrs     = DatapointAttributes({
+    tasks : list[Task]  = [Task.LLE]
+    splits: list[Split] = [Split.TEST]
+    datapoint_attrs     = DatapointAttributes({
         "image": Image,
         "depth": DepthMap,
     })
-    _has_test_annotations: bool = False
+    has_test_annotations: bool = False
 
     def __init__(self, root: core.Path, *args, **kwargs):
         root = core.Path(root)
@@ -227,15 +227,15 @@ class FiveKA(VisionDataset):
         FileNotFoundError: If ``root`` directory does not exist.
     """
     
-    _tasks : list[Task]  = [Task.LLE]
-    _splits: list[Split] = [Split.TRAIN, Split.TEST]
-    _datapoint_attrs     = DatapointAttributes({
+    tasks : list[Task]  = [Task.LLE]
+    splits: list[Split] = [Split.TRAIN, Split.TEST]
+    datapoint_attrs     = DatapointAttributes({
         "image"    : Image,
         "depth"    : DepthMap,
         "ref_image": Image,
         "ref_depth": DepthMap,
     })
-    _has_test_annotations: bool = False
+    has_test_annotations: bool = False
 
     def __init__(self, root: core.Path, *args, **kwargs):
         root = core.Path(root)
@@ -289,15 +289,15 @@ class FiveKB(VisionDataset):
         FileNotFoundError: If ``root`` directory does not exist.
     """
     
-    _tasks : list[Task]  = [Task.LLE]
-    _splits: list[Split] = [Split.TRAIN, Split.TEST]
-    _datapoint_attrs     = DatapointAttributes({
+    tasks : list[Task]  = [Task.LLE]
+    splits: list[Split] = [Split.TRAIN, Split.TEST]
+    datapoint_attrs     = DatapointAttributes({
         "image"    : Image,
         "depth"    : DepthMap,
         "ref_image": Image,
         "ref_depth": DepthMap,
     })
-    _has_test_annotations: bool = False
+    has_test_annotations: bool = False
 
     def __init__(self, root: core.Path, *args, **kwargs):
         root = core.Path(root)
@@ -351,15 +351,15 @@ class FiveKC(VisionDataset):
         FileNotFoundError: If ``root`` directory does not exist.
     """
     
-    _tasks : list[Task]  = [Task.LLE]
-    _splits: list[Split] = [Split.TRAIN, Split.TEST]
-    _datapoint_attrs     = DatapointAttributes({
+    tasks : list[Task]  = [Task.LLE]
+    splits: list[Split] = [Split.TRAIN, Split.TEST]
+    datapoint_attrs     = DatapointAttributes({
         "image"    : Image,
         "depth"    : DepthMap,
         "ref_image": Image,
         "ref_depth": DepthMap,
     })
-    _has_test_annotations: bool = False
+    has_test_annotations: bool = False
 
     def __init__(self, root: core.Path, *args, **kwargs):
         root = core.Path(root)
@@ -413,15 +413,15 @@ class FiveKD(VisionDataset):
         FileNotFoundError: If ``root`` directory does not exist.
     """
     
-    _tasks : list[Task]  = [Task.LLE]
-    _splits: list[Split] = [Split.TRAIN, Split.TEST]
-    _datapoint_attrs     = DatapointAttributes({
+    tasks : list[Task]  = [Task.LLE]
+    splits: list[Split] = [Split.TRAIN, Split.TEST]
+    datapoint_attrs     = DatapointAttributes({
         "image"    : Image,
         "depth"    : DepthMap,
         "ref_image": Image,
         "ref_depth": DepthMap,
     })
-    _has_test_annotations: bool = False
+    has_test_annotations: bool = False
 
     def __init__(self, root: core.Path, *args, **kwargs):
         root = core.Path(root)
@@ -475,15 +475,15 @@ class FiveKE(VisionDataset):
         FileNotFoundError: If ``root`` directory does not exist.
     """
     
-    _tasks : list[Task]  = [Task.LLE]
-    _splits: list[Split] = [Split.TRAIN, Split.TEST]
-    _datapoint_attrs     = DatapointAttributes({
+    tasks : list[Task]  = [Task.LLE]
+    splits: list[Split] = [Split.TRAIN, Split.TEST]
+    datapoint_attrs     = DatapointAttributes({
         "image"    : Image,
         "depth"    : DepthMap,
         "ref_image": Image,
         "ref_depth": DepthMap,
     })
-    _has_test_annotations: bool = False
+    has_test_annotations: bool = False
 
     def __init__(self, root: core.Path, *args, **kwargs):
         root = core.Path(root)
@@ -529,7 +529,7 @@ class FiveKE(VisionDataset):
 class FiveKInitDataModule(core.DataModule):
     """Configures FiveKInit datasets for training/testing."""
     
-    _tasks: list[Task] = [Task.LLE]
+    tasks: list[Task] = [Task.LLE]
 
     def prepare_data(self, *args, **kwargs):
         """Prepares data (placeholder, no action taken)."""
@@ -551,7 +551,7 @@ class FiveKInitDataModule(core.DataModule):
         if stage in [None, "test"]:
             self.test  = None
 
-        self.get_classlabels()
+        self.get_classes()
         if self.can_log:
             self.summarize()
 
@@ -560,7 +560,7 @@ class FiveKInitDataModule(core.DataModule):
 class FiveKDataModule(core.DataModule):
     """Configures FiveK datasets for training/testing."""
     
-    _tasks: list[Task] = [Task.LLE]
+    tasks: list[Task] = [Task.LLE]
 
     def prepare_data(self, *args, **kwargs):
         """Prepares data (placeholder, no action taken)."""
@@ -582,7 +582,7 @@ class FiveKDataModule(core.DataModule):
         if stage in [None, "test"]:
             self.test  = FiveK(split=Split.TEST, **self.dataset_kwargs)
 
-        self.get_classlabels()
+        self.get_classes()
         if self.can_log:
             self.summarize()
 
@@ -591,7 +591,7 @@ class FiveKDataModule(core.DataModule):
 class FiveKADataModule(core.DataModule):
     """Configures FiveKA datasets for training/testing."""
     
-    _tasks: list[Task] = [Task.LLE]
+    tasks: list[Task] = [Task.LLE]
 
     def prepare_data(self, *args, **kwargs):
         """Prepares data (placeholder, no action taken)."""
@@ -613,7 +613,7 @@ class FiveKADataModule(core.DataModule):
         if stage in [None, "test"]:
             self.test  = FiveKA(split=Split.TEST,  **self.dataset_kwargs)
 
-        self.get_classlabels()
+        self.get_classes()
         if self.can_log:
             self.summarize()
 
@@ -622,7 +622,7 @@ class FiveKADataModule(core.DataModule):
 class FiveKBDataModule(core.DataModule):
     """Configures FiveKB datasets for training/testing."""
     
-    _tasks: list[Task] = [Task.LLE]
+    tasks: list[Task] = [Task.LLE]
 
     def prepare_data(self, *args, **kwargs):
         """Prepares data (placeholder, no action taken)."""
@@ -644,7 +644,7 @@ class FiveKBDataModule(core.DataModule):
         if stage in [None, "test"]:
             self.test  = FiveKB(split=Split.TEST,  **self.dataset_kwargs)
 
-        self.get_classlabels()
+        self.get_classes()
         if self.can_log:
             self.summarize()
 
@@ -653,7 +653,7 @@ class FiveKBDataModule(core.DataModule):
 class FiveKCDataModule(core.DataModule):
     """Configures FiveKC datasets for training/testing."""
     
-    _tasks: list[Task] = [Task.LLE]
+    tasks: list[Task] = [Task.LLE]
 
     def prepare_data(self, *args, **kwargs):
         """Prepares data (placeholder, no action taken)."""
@@ -675,7 +675,7 @@ class FiveKCDataModule(core.DataModule):
         if stage in [None, "test"]:
             self.test  = FiveKC(split=Split.TEST,  **self.dataset_kwargs)
 
-        self.get_classlabels()
+        self.get_classes()
         if self.can_log:
             self.summarize()
 
@@ -684,7 +684,7 @@ class FiveKCDataModule(core.DataModule):
 class FiveKDDataModule(core.DataModule):
     """Configures FiveKD datasets for training/testing."""
     
-    _tasks: list[Task] = [Task.LLE]
+    tasks: list[Task] = [Task.LLE]
 
     def prepare_data(self, *args, **kwargs):
         """Prepares data (placeholder, no action taken)."""
@@ -706,7 +706,7 @@ class FiveKDDataModule(core.DataModule):
         if stage in [None, "test"]:
             self.test  = FiveKD(split=Split.TEST,  **self.dataset_kwargs)
 
-        self.get_classlabels()
+        self.get_classes()
         if self.can_log:
             self.summarize()
 
@@ -715,7 +715,7 @@ class FiveKDDataModule(core.DataModule):
 class FiveKEDataModule(core.DataModule):
     """Configures FiveKE datasets for training/testing."""
     
-    _tasks: list[Task] = [Task.LLE]
+    tasks: list[Task] = [Task.LLE]
 
     def prepare_data(self, *args, **kwargs):
         """Prepares data (placeholder, no action taken)."""
@@ -737,6 +737,6 @@ class FiveKEDataModule(core.DataModule):
         if stage in [None, "test"]:
             self.test  = FiveKE(split=Split.TEST,  **self.dataset_kwargs)
 
-        self.get_classlabels()
+        self.get_classes()
         if self.can_log:
             self.summarize()

@@ -32,10 +32,10 @@ class DenseNet(nn.ExtraModel, base.ImageClassificationModel, abc.ABC):
         - https://arxiv.org/pdf/1608.06993.pdf
     """
     
-    _arch     : str          = "densenet"
-    _mltypes  : list[MLType] = [MLType.SUPERVISED]
-    _model_dir: core.Path    = current_dir
-    _zoo      : dict         = {}
+    arch     : str          = "densenet"
+    mltypes  : list[MLType] = [MLType.SUPERVISED]
+    model_dir: core.Path    = current_dir
+    zoo      : dict         = {}
     
     # ----- Initialize -----
     def init_weights(self, m: nn.Module):
@@ -69,8 +69,8 @@ class DenseNet121(DenseNet):
         num_classes: Number of output classes. Default is ``1000``.
     """
     
-    _name: str  = "densenet121"
-    _zoo : dict = {
+    name: str  = "densenet121"
+    zoo : dict = {
         "imagenet1k_v1": {
             "url"        : "https://download.pytorch.org/models/densenet121-a639ec97.pth",
             "path"       : ZOO_DIR / "vision/classify/densenet/densenet121/imagenet1k_v1/densenet121_imagenet1k_v1.pth",
@@ -100,8 +100,8 @@ class DenseNet161(DenseNet):
         num_classes: Number of output classes. Default is ``1000``.
     """
     
-    _name: str  = "densenet161"
-    _zoo : dict = {
+    name: str  = "densenet161"
+    zoo : dict = {
         "imagenet1k_v1": {
             "url"        : "https://download.pytorch.org/models/densenet161-8d451a50.pth",
             "path"       : ZOO_DIR / "vision/classify/densenet/densenet161/imagenet1k_v1/densenet161_imagenet1k_v1.pth",
@@ -131,8 +131,8 @@ class DenseNet169(DenseNet):
         num_classes: Number of output classes. Default is ``1000``.
     """
     
-    _name: str  = "densenet169"
-    _zoo : dict = {
+    name: str  = "densenet169"
+    zoo : dict = {
         "imagenet1k_v1": {
             "url"        : "https://download.pytorch.org/models/densenet169-b2777c0a.pth",
             "path"       : ZOO_DIR / "vision/classify/densenet/densenet169/imagenet1k_v1/densenet169_imagenet1k_v1.pth",
@@ -163,8 +163,8 @@ class DenseNet201(DenseNet):
         num_classes: Number of output classes. Default is ``1000``.
     """
     
-    _name: str  = "densenet201"
-    _zoo : dict = {
+    name: str  = "densenet201"
+    zoo : dict = {
         "imagenet1k_v1": {
             "url"        : "https://download.pytorch.org/models/densenet201-c1103571.pth",
             "path"       : ZOO_DIR / "vision/classify/densenet/densenet201/imagenet1k_v1/densenet201_imagenet1k_v1.pth",

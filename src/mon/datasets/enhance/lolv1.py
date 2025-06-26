@@ -28,15 +28,15 @@ class LOLv1(VisionDataset):
         FileNotFoundError: If ``root`` directory does not exist.
     """
     
-    _tasks : list[Task]  = [Task.LLE]
-    _splits: list[Split] = [Split.TRAIN, Split.TEST]
-    _datapoint_attrs     = DatapointAttributes({
+    tasks : list[Task]  = [Task.LLE]
+    splits: list[Split] = [Split.TRAIN, Split.TEST]
+    datapoint_attrs     = DatapointAttributes({
         "image"    : Image,
         "depth"    : DepthMap,
         "ref_image": Image,
         "ref_depth": DepthMap,
     })
-    _has_test_annotations: bool = True
+    has_test_annotations: bool = True
 
     def __init__(self, root: core.Path, *args, **kwargs):
         root = core.Path(root)
@@ -67,7 +67,7 @@ class LOLv1(VisionDataset):
 class LOLv1DataModule(core.DataModule):
     """Configures LOL-v1 datasets for training/testing."""
     
-    _tasks: list[Task] = [Task.LLE]
+    tasks: list[Task] = [Task.LLE]
     
     def prepare_data(self, *args, **kwargs):
         """Prepares data (placeholder, no action taken)."""
@@ -89,6 +89,6 @@ class LOLv1DataModule(core.DataModule):
         if stage in [None, "test"]:
             self.test  = LOLv1(split=Split.TEST,  **self.dataset_kwargs)
         
-        self.get_classlabels()
+        self.get_classes()
         if self.can_log:
             self.summarize()

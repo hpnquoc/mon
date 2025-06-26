@@ -28,13 +28,13 @@ class Rain12(VisionDataset):
         FileNotFoundError: If ``root`` directory does not exist.
     """
 
-    _tasks : list[Task]  = [Task.DERAIN]
-    _splits: list[Split] = [Split.TRAIN]
-    _datapoint_attrs     = DatapointAttributes({
+    tasks : list[Task]  = [Task.DERAIN]
+    splits: list[Split] = [Split.TRAIN]
+    datapoint_attrs     = DatapointAttributes({
         "image"    : Image,
         "ref_image": Image,
     })
-    _has_test_annotations: bool = False
+    has_test_annotations: bool = False
     
     def __init__(self, root: core.Path, *args, **kwargs):
         root = core.Path(root)
@@ -67,7 +67,7 @@ class Rain12(VisionDataset):
 class Rain12DataModule(core.DataModule):
     """Configures Rain12 datasets for training/testing."""
 
-    _tasks: list[Task] = [Task.DERAIN]
+    tasks: list[Task] = [Task.DERAIN]
     
     def prepare_data(self, *args, **kwargs):
         """Prepares data (placeholder, no action taken)."""
@@ -89,6 +89,6 @@ class Rain12DataModule(core.DataModule):
         if stage in [None, "test"]:
             self.test  = Rain12(split=Split.TRAIN, **self.dataset_kwargs)
         
-        self.get_classlabels()
+        self.get_classes()
         if self.can_log:
             self.summarize()

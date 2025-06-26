@@ -29,13 +29,13 @@ class GTSnow(VisionDataset):
         FileNotFoundError: If ``root`` directory does not exist.
     """
     
-    _tasks : list[Task]  = [Task.DESNOW]
-    _splits: list[Split] = [Split.TRAIN]
-    _datapoint_attrs     = DatapointAttributes({
+    tasks : list[Task]  = [Task.DESNOW]
+    splits: list[Split] = [Split.TRAIN]
+    datapoint_attrs     = DatapointAttributes({
         "image"    : Image,
         "ref_image": Image,
     })
-    _has_test_annotations: bool = False
+    has_test_annotations: bool = False
 
     def __init__(self, root: core.Path, *args, **kwargs):
         root = core.Path(root)
@@ -77,7 +77,7 @@ class GTSnow(VisionDataset):
 class GTSnowDataModule(core.DataModule):
     """Configures GTSnow datasets for training/testing."""
     
-    _tasks: list[Task] = [Task.DESNOW]
+    tasks: list[Task] = [Task.DESNOW]
 
     def prepare_data(self, *args, **kwargs):
         """Prepares data (placeholder, no action taken)."""
@@ -99,7 +99,7 @@ class GTSnowDataModule(core.DataModule):
         if stage in [None, "test"]:
             self.test  = GTSnow(split=Split.TRAIN, **self.dataset_kwargs)
 
-        if self.classlabels is None:
-            self.get_classlabels()
+        if self.classes is None:
+            self.get_classes()
 
         self.summarize()

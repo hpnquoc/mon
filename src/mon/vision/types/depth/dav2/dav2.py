@@ -28,11 +28,11 @@ class DepthAnythingV2(nn.ExtraModel, base.DepthEstimationModel, abc.ABC):
     defined in `mon_extra.vision.depth.depth_anything_v2`.
     """
     
-    _arch     : str          = "depth_anything_v2"
-    _tasks    : list[Task]   = [Task.DEPTH]
-    _mltypes  : list[MLType] = [MLType.INFERENCE]
-    _model_dir: core.Path    = current_dir
-    _zoo      : dict         = {}
+    arch     : str          = "depth_anything_v2"
+    tasks    : list[Task]   = [Task.DEPTH]
+    mltypes  : list[MLType] = [MLType.INFERENCE]
+    model_dir: core.Path    = current_dir
+    zoo      : dict         = {}
     
     # ----- Initialize -----
     def init_weights(self, m: nn.Module):
@@ -50,8 +50,8 @@ class DepthAnythingV2(nn.ExtraModel, base.DepthEstimationModel, abc.ABC):
 @MODELS.register(name="depth_anything_v2_vits", arch="depth_anything_v2")
 class DepthAnythingV2_ViTS(DepthAnythingV2):
     
-    _name: str = "depth_anything_v2_vits"
-    _zoo : dict = {
+    name: str = "depth_anything_v2_vits"
+    zoo : dict = {
         "da_2k": {
             "url"        : None,
             "path"       : ZOO_DIR / "vision/dtype/depth/depth_anything_v2/depth_anything_v2_vits/da_2k/depth_anything_v2_vits_da_2k.pth",
@@ -79,8 +79,8 @@ class DepthAnythingV2_ViTS(DepthAnythingV2):
 @MODELS.register(name="depth_anything_v2_vitb", arch="depth_anything_v2")
 class DepthAnythingV2_ViTB(DepthAnythingV2):
     
-    _name: str = "depth_anything_v2_vitb"
-    _zoo : dict = {
+    name: str = "depth_anything_v2_vitb"
+    zoo : dict = {
         "da_2k": {
             "url"        : None,
             "path"       : ZOO_DIR / "vision/dtype/depth/depth_anything_v2/depth_anything_v2_vitb/da_2k/depth_anything_v2_vitb_da_2k.pth",
@@ -108,8 +108,8 @@ class DepthAnythingV2_ViTB(DepthAnythingV2):
 @MODELS.register(name="depth_anything_v2_vitl", arch="depth_anything_v2")
 class DepthAnythingV2_ViTL(DepthAnythingV2):
     
-    _name: str = "depth_anything_v2_vitl"
-    _zoo : dict = {
+    name: str = "depth_anything_v2_vitl"
+    zoo : dict = {
         "da_2k": {
             "url"        : None,
             "path"       : ZOO_DIR / "vision/dtype/depth/depth_anything_v2/depth_anything_v2_vitl/da_2k/depth_anything_v2_vitl_da_2k.pth",

@@ -25,7 +25,7 @@ from torch.utils.data.dataset import (
 
 from mon.constants import Split, Task
 from mon.core import pathlib, rich
-from mon.core.types.classlabel import ClassLabels
+from mon.core.types.classes import Classes
 from mon.core.types.datapoint import BaseTensor
 
 
@@ -47,11 +47,11 @@ class Dataset(dataset.Dataset, abc.ABC):
     """Base class for all datasets.
 
     Attributes:
-        _tasks: List of supported tasks.
-        _splits: List of supported splits.
-        _has_test_annotations: If ``True``, test set has labels. Default is ``False``.
-        _datapoint_attrs: Dict of datapoint attributes (keys: names, values: types).
-        _classes: ``ClassLabels`` with supported labels. Default is ``None``.
+        tasks: List of supported tasks.
+        splits: List of supported splits.
+        has_test_annotations: If ``True``, test set has labels. Default is ``False``.
+        datapoint_attrs: Dict of datapoint attributes (keys: names, values: types).
+        classes: ``Classes`` with supported labels. Default is ``None``.
 
     Args:
         root: Root dir with split subdirs. Default is ``None``.
@@ -62,11 +62,11 @@ class Dataset(dataset.Dataset, abc.ABC):
         verbose: If ``True``, enables verbose output. Default is ``False``.
     """
     
-    _tasks : list[Task]  = []
-    _splits: list[Split] = [Split.TRAIN, Split.VAL, Split.TEST, Split.PREDICT]
-    _datapoint_attrs     = DatapointAttributes({})
-    _has_test_annotations: bool        = False
-    _classes             : ClassLabels = None
+    tasks : list[Task]  = []
+    splits: list[Split] = [Split.TRAIN, Split.VAL, Split.TEST, Split.PREDICT]
+    datapoint_attrs     = DatapointAttributes({})
+    has_test_annotations: bool    = False
+    classes             : Classes = None
     
     def __init__(
         self,
@@ -158,16 +158,6 @@ class Dataset(dataset.Dataset, abc.ABC):
     
     # ----- Properties -----
     @property
-    def tasks(self) -> list[Task]:
-        """Returns a list of supported tasks."""
-        return self._tasks
-
-    @property
-    def splits(self) -> list[Split]:
-        """Returns a list of supported splits."""
-        return self._splits
-
-    @property
     def split(self) -> Split:
         """Gets the current dataset split.
 
@@ -210,16 +200,11 @@ class Dataset(dataset.Dataset, abc.ABC):
         """
         return (
             (
-                self._has_test_annotations
+                self.has_test_annotations
                 and self.split in [Split.TEST, Split.PREDICT]
             )
             or (self.split in [Split.TRAIN, Split.VAL])
         )
-
-    @property
-    def classes(self) -> ClassLabels:
-        """Return ``ClassLabels`` instance with dataset classes."""
-        return self._classes
 
     @property
     def hash(self) -> int:
@@ -243,7 +228,7 @@ class Dataset(dataset.Dataset, abc.ABC):
         Returns:
             First key from ``datapoint_attrs`` as string.
         """
-        return next(iter(self._datapoint_attrs.keys()))
+        return next(iter(self.datapoint_attrs.keys()))
     
     @property
     def new_datapoint(self) -> dict:
@@ -279,9 +264,9 @@ class Dataset(dataset.Dataset, abc.ABC):
         Raises:
             ValueError: If ``datapoint_attrs`` has no attributes.
         """
-        if not self._datapoint_attrs:
+        if not self.datapoint_attrs:
             raise ValueError("[datapoint_attrs] has no defined attributes.")
-        self.datapoints = {k: list[v]() for k, v in self._datapoint_attrs.items()}
+        self.datapoints = {k: list(v) for k, v in self.datapoint_attrs.items()}
 
     def init_data(self, cache_data: bool = False):
         """Initializes dataset data.
@@ -394,9 +379,9 @@ class Dataset(dataset.Dataset, abc.ABC):
             for k, v in zip(batch[0].keys(), zip(*[b.values() for b in batch]))
         }
         for k, v in zipped.items():
-            if k not in cls._datapoint_attrs:
+            if k not in cls.datapoint_attrs:
                 continue
-            collate_fn = getattr(cls._datapoint_attrs[k], "collate_fn", None)
+            collate_fn = getattr(cls.datapoint_attrs[k], "collate_fn", None)
             if collate_fn and v is not None:
                 zipped[k] = collate_fn(batch=v)
         return zipped

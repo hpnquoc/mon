@@ -18,7 +18,7 @@ from mon.vision import model
 class DepthEstimationModel(model.VisionModel, abc.ABC):
     """Base class for depth estimation models."""
     
-    _tasks: list[Task] = [Task.DEPTH]
+    tasks: list[Task] = [Task.DEPTH]
     
     # ----- Forward Pass -----
     def forward_loss(self, datapoint: dict, *args, **kwargs) -> dict:

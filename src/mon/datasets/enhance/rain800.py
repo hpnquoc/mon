@@ -28,13 +28,13 @@ class Rain800(VisionDataset):
         FileNotFoundError: If ``root`` directory does not exist.
     """
 
-    _tasks : list[Task]  = [Task.DERAIN]
-    _splits: list[Split] = [Split.TRAIN, Split.VAL, Split.TEST]
-    _datapoint_attrs     = DatapointAttributes({
+    tasks : list[Task]  = [Task.DERAIN]
+    splits: list[Split] = [Split.TRAIN, Split.VAL, Split.TEST]
+    datapoint_attrs     = DatapointAttributes({
         "image"    : Image,
         "ref_image": Image,
     })
-    _has_test_annotations: bool = True
+    has_test_annotations: bool = True
     
     def __init__(self, root: core.Path, *args, **kwargs):
         root = core.Path(root)
@@ -65,7 +65,7 @@ class Rain800(VisionDataset):
 class Rain800DataModule(core.DataModule):
     """Configures Rain800 datasets for training/testing."""
 
-    _tasks: list[Task] = [Task.DERAIN]
+    tasks: list[Task] = [Task.DERAIN]
     
     def prepare_data(self, *args, **kwargs):
         """Prepares data (placeholder, no action taken)."""
@@ -87,6 +87,6 @@ class Rain800DataModule(core.DataModule):
         if stage in [None, "test"]:
             self.test  = Rain800(split=Split.TEST,  **self.dataset_kwargs)
         
-        self.get_classlabels()
+        self.get_classes()
         if self.can_log:
             self.summarize()

@@ -31,14 +31,14 @@ class DarkFace(VisionDataset):
         FileNotFoundError: If ``root`` directory does not exist.
     """
 
-    _tasks : list[Task]  = [Task.LLE, Task.DETECT]
-    _splits: list[Split] = [Split.TEST]
-    _datapoint_attrs     = DatapointAttributes({
+    tasks : list[Task]  = [Task.LLE, Task.DETECT]
+    splits: list[Split] = [Split.TEST]
+    datapoint_attrs     = DatapointAttributes({
         "image": Image,
         "depth": DepthMap,
     })
-    _has_test_annotations: bool = False
-    _classes = ClassLabels([
+    has_test_annotations: bool = False
+    classes             = Classes([
         {"name": "face", "id": 0, "color": [ 81, 120, 228]},
     ])
 
@@ -100,7 +100,7 @@ class DarkFace496(DarkFace):
 class DarkFaceDataModule(core.DataModule):
     """Configures DarkFaceFull datasets for training/testing."""
     
-    _tasks: list[Task] = [Task.LLE, Task.DETECT]
+    tasks: list[Task] = [Task.LLE, Task.DETECT]
 
     def prepare_data(self, *args, **kwargs):
         """Prepares data (placeholder, no action taken)."""
@@ -122,7 +122,7 @@ class DarkFaceDataModule(core.DataModule):
         if stage in [None, "test"]:
             self.test  = DarkFace(split=Split.TEST, **self.dataset_kwargs)
 
-        self.get_classlabels()
+        self.get_classes()
         if self.can_log:
             self.summarize()
 
@@ -131,7 +131,7 @@ class DarkFaceDataModule(core.DataModule):
 class DarkFace496DataModule(core.DataModule):
     """Configures DarkFace datasets for training/testing."""
 
-    _tasks: list[Task] = [Task.LLE, Task.DETECT]
+    tasks: list[Task] = [Task.LLE, Task.DETECT]
 
     def prepare_data(self, *args, **kwargs):
         """Prepares data (placeholder, no action taken)."""
@@ -153,6 +153,6 @@ class DarkFace496DataModule(core.DataModule):
         if stage in [None, "test"]:
             self.test  = DarkFace496(split=Split.TEST, **self.dataset_kwargs)
 
-        self.get_classlabels()
+        self.get_classes()
         if self.can_log:
             self.summarize()

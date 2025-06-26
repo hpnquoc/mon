@@ -34,14 +34,14 @@ class ExDark(VisionDataset):
         FileNotFoundError: If ``root`` directory does not exist.
     """
     
-    _tasks : list[Task]  = [Task.LLE, Task.DETECT]
-    _splits: list[Split] = [Split.TEST]
-    _datapoint_attrs     = DatapointAttributes({
+    tasks : list[Task]  = [Task.LLE, Task.DETECT]
+    splits: list[Split] = [Split.TEST]
+    datapoint_attrs     = DatapointAttributes({
         "image": Image,
         "depth": DepthMap,
     })
-    _has_test_annotations: bool = False
-    _classes             = ClassLabels([
+    has_test_annotations: bool = False
+    classes             = Classes([
         {"name": "Bicycle"  , "id":  1, "coco80_id":  2, "color": [138, 183,  33]},
         {"name": "Boat"     , "id":  2, "coco80_id":  9, "color": [ 19,  64,  83]},
         {"name": "Bottle"   , "id":  3, "coco80_id": 40, "color": [139, 160,   1]},
@@ -114,7 +114,7 @@ class ExDark1200(ExDark):
 class ExDarkDataModule(core.DataModule):
     """Configures ExDark datasets for training/testing."""
     
-    _tasks: list[Task] = [Task.LLE]
+    tasks: list[Task] = [Task.LLE]
     
     def prepare_data(self, *args, **kwargs):
         """Prepares data (placeholder, no action taken)."""
@@ -136,7 +136,7 @@ class ExDarkDataModule(core.DataModule):
         if stage in [None, "test"]:
             self.test  = ExDark(split=Split.TEST, **self.dataset_kwargs)
         
-        self.get_classlabels()
+        self.get_classes()
         if self.can_log:
             self.summarize()
 
@@ -145,7 +145,7 @@ class ExDarkDataModule(core.DataModule):
 class ExDark1200DataModule(core.DataModule):
     """Configures ExDarkFull datasets for training/testing."""
     
-    _tasks: list[Task] = [Task.LLE]
+    tasks: list[Task] = [Task.LLE]
     
     def prepare_data(self, *args, **kwargs):
         """Prepares data (placeholder, no action taken)."""
@@ -167,6 +167,6 @@ class ExDark1200DataModule(core.DataModule):
         if stage in [None, "test"]:
             self.test  = ExDark1200(split=Split.TEST, **self.dataset_kwargs)
         
-        self.get_classlabels()
+        self.get_classes()
         if self.can_log:
             self.summarize()

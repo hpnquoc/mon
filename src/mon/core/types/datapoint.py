@@ -217,15 +217,10 @@ class DatasetMixin(abc.ABC):
     tensors for use with PyTorch's Dataset.
 
     Attributes:
-        _albumentation_target_type: Type of target for Albumentations. Default is ``None``.
+        albumentation_target_type: Type of target for Albumentations. Default is ``None``.
     """
 
-    _albumentation_target_type: str = None
-
-    @property
-    def albumentation_target_type(self) -> str:
-        """Returns the type of target for Albumentations."""
-        return self._albumentation_target_type
+    albumentation_target_type: str = None
 
     @staticmethod
     @abc.abstractmethod
@@ -285,7 +280,7 @@ class Probs(BaseTensor, DatasetMixin, DataLoaderMixin):
         orig_shape: Original shape of the image in [H, W] format. Default is ``None``.
     """
 
-    _albumentation_target_type: str = "values"
+    albumentation_target_type: str = "values"
 
     def __init__(
         self,
