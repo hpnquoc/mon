@@ -26,11 +26,11 @@ def normalize_contour(contour: np.ndarray, imgsz: tuple[int, int]) -> np.ndarray
     """Normalize contour points to [0.0, 1.0].
 
     Args:
-        contour: Contour points as ``np.ndarray`` in [N, 2] format.
+        contour: Contour points as ``numpy.ndarray`` in [N, 2] format.
         imgsz: Image size in [H, W] format.
 
     Returns:
-        Normalized contour points as ``np.ndarray`` in [N, 2] format.
+        Normalized contour points as ``numpy.ndarray`` in [N, 2] format.
     """
     height, width = I.image_size(imgsz)
     x, y, *_ = contour.T
@@ -43,11 +43,11 @@ def denormalize_contour(contour: np.ndarray, imgsz: tuple[int, int]) -> np.ndarr
     """Denormalize contour points to pixel coordinates.
 
     Args:
-        contour: Normalized points as ``np.ndarray`` in [N, 2], range [0.0, 1.0].
+        contour: Normalized points as ``numpy.ndarray`` in [N, 2], range [0.0, 1.0].
         imgsz: Image size in [H, W] format.
 
     Returns:
-        Denormalized contour points as ``np.ndarray`` in [N, 2].
+        Denormalized contour points as ``numpy.ndarray`` in [N, 2].
     """
     height, width = I.image_size(imgsz)
     x_norm, y_norm, *_ = contour.T

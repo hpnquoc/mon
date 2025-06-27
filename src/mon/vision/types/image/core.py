@@ -4,7 +4,7 @@
 """Implements ``Image`` class and core properties.
 
 Common Tasks:
-    - Define the ``Image`` class (e.g., wrapper for ``np.ndarray`` or ``torch.Tensor``).
+    - Define the ``Image`` class (e.g., wrapper for ``numpy.ndarray`` or ``torch.Tensor``).
     - Access core properties.
 """
 

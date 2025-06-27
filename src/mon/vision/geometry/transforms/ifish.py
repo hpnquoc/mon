@@ -88,7 +88,7 @@ def transform_image(image: np.ndarray, distortion: float) -> np.ndarray:
     """Apply fisheye transformation to an image.
 
     Args:
-        image: Input image as ``np.ndarray`` in [H, W, C] format.
+        image: Input image as ``numpy.ndarray`` in [H, W, C] format.
         distortion: Distortion factor.
 
     Returns:
@@ -150,7 +150,7 @@ def transform_bbox0(
     """Transform HBBs from original image to the corresponding fisheye images.
 
     Args:
-        bbox: HBBs as ``np.ndarray`` in [N, 4+], CXCYWHN format (YOLO), normalized.
+        bbox: HBBs as ``numpy.ndarray`` in [N, 4+], CXCYWHN format (YOLO), normalized.
         old_size: Original image size as [W, H] format.
         new_size: Transformed image size as [W, H] format.
         distortion: Distortion factor.
@@ -235,7 +235,7 @@ def transform_bbox1(
     """Transform HBBs from original image to the corresponding fisheye images.
 
     Args:
-        bbox: HBBs as ``np.ndarray`` in [N, 4+], CXCYWHN format (YOLO), normalized.
+        bbox: HBBs as ``numpy.ndarray`` in [N, 4+], CXCYWHN format (YOLO), normalized.
         old_size: Original image size as [W, H] format.
         new_size: Transformed image size as [W, H] format.
         distortion: Distortion factor.
@@ -327,7 +327,7 @@ def transform_bbox(
     """Transform HBBs from original image to the corresponding fisheye images.
 
     Args:
-        bbox: HBBs as ``np.ndarray`` in [N, 4+], CXCYWHN format (YOLO), normalized.
+        bbox: HBBs as ``numpy.ndarray`` in [N, 4+], CXCYWHN format (YOLO), normalized.
         old_size: Original image size as [W, H] format.
         new_size: Transformed image size as [W, H] format.
         distortion: Distortion factor.

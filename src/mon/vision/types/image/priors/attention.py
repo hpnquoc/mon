@@ -40,14 +40,14 @@ def brightness_attention_map(
     Args:
         image: RGB image as:
             - ``torch.Tensor`` in [B, C, H, W] format with data in range [0.0, 1.0].
-            - ``np.ndarray`` in [H, W, C] format with data in range [0, 255].
+            - ``numpy.ndarray`` in [H, W, C] format with data in range [0, 255].
         gamma: Parameter controlling the curvature of the map as ``float``.
             Default is ``2.5``.
         denoise_ksize: Window size for denoising operation as ``int`` or
             ``tuple[int, int]`` or ``None``. Default is ``None``.
 
     Returns:
-        Brightness enhancement map as ``torch.Tensor`` or ``np.ndarray`` matching
+        Brightness enhancement map as ``torch.Tensor`` or ``numpy.ndarray`` matching
         input type.
     """
     if isinstance(image, torch.Tensor):

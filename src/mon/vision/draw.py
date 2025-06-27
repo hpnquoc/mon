@@ -32,8 +32,8 @@ def draw_bbox(
     """Draw bounding box on image.
 
     Args:
-        image: Image as ``np.ndarray`` in [H, W, C] format, range [0, 255].
-        bbox: Bounding box in XYXY format as ``np.ndarray`` or ``list``.
+        image: Image as ``numpy.ndarray`` in [H, W, C] format, range [0, 255].
+        bbox: Bounding box in XYXY format as ``numpy.ndarray`` or ``list``.
         label: Label for box as ``int`` or ``str``. Default is ``None``.
         color: Box color as ``list[int]``. Default is [255, 255, 255].
         thickness: Border thickness in px as ``int``. Default is ``1``.
@@ -46,7 +46,7 @@ def draw_bbox(
             Default is ``False``.
 
     Returns:
-        Image with drawn bounding box as ``np.ndarray``.
+        Image with drawn bounding box as ``numpy.ndarray``.
     """
     drawing = image.copy()
     color   = color or [255, 255, 255]
@@ -88,14 +88,14 @@ def draw_heatmap(
     """Overlay heatmap on image.
 
     Args:
-        image: RGB/BGR image as ``np.ndarray`` in [H, W, C], range [0.0, 1.0].
-        heatmap: Heatmap mask as ``np.ndarray``.
+        image: RGB/BGR image as ``numpy.ndarray`` in [H, W, C], range [0.0, 1.0].
+        heatmap: Heatmap mask as ``numpy.ndarray``.
         color_map: Heatmap color map as ``int``. Default is ``cv2.COLORMAP_JET``.
         alpha: Transparency ratio (0.0-1.0) as ``float``. Default is ``0.5``.
         use_rgb: Convert heatmap to RGB if ``True``. Default is ``False``.
 
     Returns:
-        Image with heatmap overlay as ``np.ndarray``.
+        Image with heatmap overlay as ``numpy.ndarray``.
 
     Raises:
         ValueError: If image exceeds range [0.0, 1.0] or alpha is invalid.
@@ -123,13 +123,13 @@ def draw_semantic(
     """Overlay semantic mask on image.
 
     Args:
-        image: RGB image as ``np.ndarray`` in [H, W, C], range [0, 255].
-        semantic: Semantic mask as ``np.ndarray`` in [H, W, 1].
+        image: RGB image as ``numpy.ndarray`` in [H, W, C], range [0, 255].
+        semantic: Semantic mask as ``numpy.ndarray`` in [H, W, 1].
         classes: List of class labels as ``Classes``.
         alpha: Transparency ratio (0.0-1.0) as ``float``. Default is ``0.5``.
 
     Returns:
-        Image with semantic overlay as ``np.ndarray``.
+        Image with semantic overlay as ``numpy.ndarray``.
     """
     color_map = types.label_map_id_to_color(semantic, classes)
     drawing   = types.blend_images(image, color_map, alpha)
@@ -149,8 +149,8 @@ def draw_trajectory(
     """Draw trajectory path on image.
 
     Args:
-        image: RGB image as ``np.ndarray`` in [H, W, C], range [0, 255].
-        trajectory: 2D points as ``np.ndarray`` or ``list`` in [(x1, y1), ...] format.
+        image: RGB image as ``numpy.ndarray`` in [H, W, C], range [0, 255].
+        trajectory: 2D points as ``numpy.ndarray`` or ``list`` in [(x1, y1), ...] format.
         color: Path color as ``list[int]``. Default is [255, 255, 255].
         thickness: Path thickness in px as ``int``. Default is ``1``.
         line_type: Line type as ``int`` (e.g., ``cv2.LINE_8``). Default is ``cv2.LINE_8``.
@@ -158,7 +158,7 @@ def draw_trajectory(
         radius: Point radius in px as ``int``. Default is ``3``.
 
     Returns:
-        Image with trajectory as ``np.ndarray``.
+        Image with trajectory as ``numpy.ndarray``.
 
     Raises:
         TypeError: If ``trajectory`` format is invalid.

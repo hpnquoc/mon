@@ -27,7 +27,7 @@ def split_image_and_hbbs(
 
     Args:
         image: Image as ``numpy.ndarray`` [H, W, C].
-        bbox: HBBs as ``np.ndarray`` in [N, 4+], CXCYWHN format (YOLO), normalized.
+        bbox: HBBs as ``numpy.ndarray`` in [N, 4+], CXCYWHN format (YOLO), normalized.
         n: Number of parts to split into (positive integer). Default is ``2``.
 
     Raises:
@@ -140,7 +140,7 @@ def center_crop_image_and_hbbs(
 
     Args:
         image: Image as ``numpy.ndarray`` [H, W, C].
-        bbox: HBBs as ``np.ndarray`` in [N, 4+], CXCYWHN format (YOLO), normalized.
+        bbox: HBBs as ``numpy.ndarray`` in [N, 4+], CXCYWHN format (YOLO), normalized.
         imgsz: Target size as [H, W] format.
     """
     h0, w0 = types.image_size(image)

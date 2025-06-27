@@ -56,11 +56,11 @@ def hbb_iou(bbox1: np.ndarray, bbox2: np.ndarray) -> np.ndarray:
     """Compute IoU between two sets of HBBs.
 
     Args:
-        bbox1: HBBs as ``np.ndarray`` in [4+] or [N, 4+], XYXY format.
-        bbox2: HBBs as ``np.ndarray`` in [4+] or [M, 4+], XYXY format.
+        bbox1: HBBs as ``numpy.ndarray`` in [4+] or [N, 4+], XYXY format.
+        bbox2: HBBs as ``numpy.ndarray`` in [4+] or [M, 4+], XYXY format.
 
     Returns:
-        Pairwise IoU values as ``np.ndarray`` in [N, M].
+        Pairwise IoU values as ``numpy.ndarray`` in [N, M].
 
     Raises:
         ValueError: If ``bbox1`` or ``bbox2`` is not 1D or 2D.
@@ -95,11 +95,11 @@ def hbb_giou(bbox1: np.ndarray, bbox2: np.ndarray) -> np.ndarray:
     """Compute generalized IoU between two sets of boxes.
 
     Args:
-        bbox1: HBBs as ``np.ndarray`` in [4+] or [N, 4+], XYXY format.
-        bbox2: HBBs as ``np.ndarray`` in [4+] or [M, 4+], XYXY format.
+        bbox1: HBBs as ``numpy.ndarray`` in [4+] or [N, 4+], XYXY format.
+        bbox2: HBBs as ``numpy.ndarray`` in [4+] or [M, 4+], XYXY format.
 
     Returns:
-        Pairwise GIoU values as ``np.ndarray`` in [N, M].
+        Pairwise GIoU values as ``numpy.ndarray`` in [N, M].
 
     Raises:
         ValueError: If bbox1 or bbox2 is not 1D or 2D.
@@ -156,11 +156,11 @@ def hbb_diou(bbox1: np.ndarray, bbox2: np.ndarray) -> np.ndarray:
     """Compute distance IoU between two sets of boxes.
 
     Args:
-        bbox1: HBBs as ``np.ndarray`` in [4+] or [N, 4+], XYXY format.
-        bbox2: HBBs as ``np.ndarray`` in [4+] or [M, 4+], XYXY format.
+        bbox1: HBBs as ``numpy.ndarray`` in [4+] or [N, 4+], XYXY format.
+        bbox2: HBBs as ``numpy.ndarray`` in [4+] or [M, 4+], XYXY format.
 
     Returns:
-        Pairwise DIoU values as ``np.ndarray`` in [N, M].
+        Pairwise DIoU values as ``numpy.ndarray`` in [N, M].
 
     Raises:
         ValueError: If bbox1 or bbox2 is not 1D or 2D.
@@ -220,11 +220,11 @@ def hbb_ciou(bbox1: np.ndarray, bbox2: np.ndarray) -> np.ndarray:
     """Compute complete IoU between two sets of boxes.
 
     Args:
-        bbox1: HBBs as ``np.ndarray`` in [4+] or [N, 4+], XYXY format.
-        bbox2: HBBs as ``np.ndarray`` in [4+] or [M, 4+], XYXY format.
+        bbox1: HBBs as ``numpy.ndarray`` in [4+] or [N, 4+], XYXY format.
+        bbox2: HBBs as ``numpy.ndarray`` in [4+] or [M, 4+], XYXY format.
 
     Returns:
-        Pairwise CIoU values as ``np.ndarray`` in [N, M].
+        Pairwise CIoU values as ``numpy.ndarray`` in [N, M].
 
     Raises:
         ValueError: If bbox1 or bbox2 is not 1D or 2D.
@@ -296,10 +296,10 @@ def hbb_iou_matrix(bbox: np.ndarray) -> np.ndarray:
     """Calculate pairwise IoU for all pairs of HBBs using matrix operations.
 
     Args:
-        bbox: HBBs as ``np.ndarray`` in [N, 4+], XYXY format.
+        bbox: HBBs as ``numpy.ndarray`` in [N, 4+], XYXY format.
 
     Returns:
-        Pairwise IoU matrix as ``np.ndarray`` in [N, N] where element (i, j) is
+        Pairwise IoU matrix as ``numpy.ndarray`` in [N, N] where element (i, j) is
         IoU between boxes i and j.
     """
     # Ensure 2D arrays
@@ -341,11 +341,11 @@ def hbb_filter_iou(bbox: np.ndarray, iou_thres: float = 0.5) -> np.ndarray:
     """Filter HBBs that <= IoU threshold.
 
     Args:
-        bbox: HBBs as ``np.ndarray`` in [N, 4+], XYXY format.
+        bbox: HBBs as ``numpy.ndarray`` in [N, 4+], XYXY format.
         iou_thres: IoU threshold for filtering. Default is 0.5.
 
     Returns:
-        Filtered HBBs as ``np.ndarray`` in [N', 4+], XYXY format.
+        Filtered HBBs as ``numpy.ndarray`` in [N', 4+], XYXY format.
     """
     # Calculate IoU matrix
     iou_matrix = hbb_iou_matrix(bbox)
@@ -377,11 +377,11 @@ def hbb_center_distance(bbox1: np.ndarray, bbox2: np.ndarray) -> np.ndarray:
     """Measure center distance(s) between two sets of boxes.
 
     Args:
-        bbox1: HBBs as ``np.ndarray`` in [4+] or [N, 4+], XYXY format.
-        bbox2: HBBs as ``np.ndarray`` in [4+] or [M, 4+], XYXY format.
+        bbox1: HBBs as ``numpy.ndarray`` in [4+] or [N, 4+], XYXY format.
+        bbox2: HBBs as ``numpy.ndarray`` in [4+] or [M, 4+], XYXY format.
 
     Returns:
-        Pairwise center distances as ``np.ndarray`` in [N, M].
+        Pairwise center distances as ``numpy.ndarray`` in [N, M].
 
     Raises:
         ValueError: If bbox1 or bbox2 is not 1D or 2D.
@@ -424,10 +424,10 @@ def hbb_area(bbox: np.ndarray) -> np.ndarray:
     """Compute area of HBBs.
 
     Args:
-        bbox: HBBs as ``np.ndarray`` in [4+] or [N, 4+], XYXY format.
+        bbox: HBBs as ``numpy.ndarray`` in [4+] or [N, 4+], XYXY format.
 
     Returns:
-        Area(s) as ``np.ndarray`` in [1] or [N] shape.
+        Area(s) as ``numpy.ndarray`` in [1] or [N] shape.
 
     Raises:
         ValueError: If ``bbox`` is not 1D or 2D.
@@ -444,10 +444,10 @@ def hbb_center(bbox: np.ndarray) -> np.ndarray:
     """Compute center(s) of HBBs.
 
     Args:
-        bbox: HBBs as ``np.ndarray`` in [4+] or [N, 4+], XYXY format.
+        bbox: HBBs as ``numpy.ndarray`` in [4+] or [N, 4+], XYXY format.
 
     Returns:
-        Center(s) as ``np.ndarray`` in [1, 2] or [N, 2], [cx, cy] format.
+        Center(s) as ``numpy.ndarray`` in [1, 2] or [N, 2], [cx, cy] format.
 
     Raises:
         ValueError: If bbox is not 1D or 2D.
@@ -466,10 +466,10 @@ def hbb_corners(bbox: np.ndarray) -> np.ndarray:
     """Get corner(s) of HBBs.
 
     Args:
-        bbox: HBBs as ``np.ndarray`` in [4+] or [N, 4+], XYXY format
+        bbox: HBBs as ``numpy.ndarray`` in [4+] or [N, 4+], XYXY format
 
     Returns:
-        Corners as ``np.ndarray`` in [N, 8], [x1, y1, x2, y2, x3, y3, x4, y4] format
+        Corners as ``numpy.ndarray`` in [N, 8], [x1, y1, x2, y2, x3, y3, x4, y4] format
 
     Raises:
         ValueError: If ``bbox`` is not 1D or 2D.
@@ -496,10 +496,10 @@ def hbb_corners_pts(bbox: np.ndarray) -> np.ndarray:
     """Get corner(s) of HBBs as points.
 
     Args:
-        bbox: HBBs as ``np.ndarray`` in [4+] or [N, 4+], XYXY format.
+        bbox: HBBs as ``numpy.ndarray`` in [4+] or [N, 4+], XYXY format.
 
     Returns:
-        Corners as ``np.ndarray`` in
+        Corners as ``numpy.ndarray`` in
         [N, 4, 2], [[x1, y1], [x2, y2], [x3, y3], [x4, y4]] format.
 
     Raises:
@@ -527,10 +527,10 @@ def enclosing_hbb(bbox: np.ndarray) -> np.ndarray:
     """Get enclosing box(es) for rotated corners.
 
     Args:
-        bbox: HBBs as ``np.ndarray`` in [..., 8], [x1, y1, x2, y2, x3, y3, x4, y4] format.
+        bbox: HBBs as ``numpy.ndarray`` in [..., 8], [x1, y1, x2, y2, x3, y3, x4, y4] format.
 
     Returns:
-        HBBs as ``np.ndarray`` in [..., 4], XYXY format.
+        HBBs as ``numpy.ndarray`` in [..., 4], XYXY format.
 
     Raises:
         ValueError: If bbox last dimension is not 8.
@@ -551,7 +551,7 @@ def normalize_hbb(bbox: np.ndarray, imgsz: tuple[int, int]) -> np.ndarray:
     """Normalize HBBs according to image dimensions.
 
     Args:
-        bbox: HBBs as ``np.ndarray`` in [4+] or [N, 4+].
+        bbox: HBBs as ``numpy.ndarray`` in [4+] or [N, 4+].
         imgsz: Image size in [H, W] format.
     """
     height, width = I.image_size(imgsz)
@@ -571,7 +571,7 @@ def denormalize_hbb(bbox: np.ndarray, imgsz: tuple[int, int]) -> np.ndarray:
     """Denormalize HBBs according to image dimensions.
 
     Args:
-        bbox: HBBs as ``np.ndarray`` in [4+] or [N, 4+].
+        bbox: HBBs as ``numpy.ndarray`` in [4+] or [N, 4+].
         imgsz: Image size in [H, W] format.
     """
     height, width = I.image_size(imgsz)
@@ -592,10 +592,10 @@ def hbb_to_2d(bbox: torch.Tensor | np.ndarray | list | tuple) -> torch.Tensor | 
     """Convert a 1D, 2D, or 3D box(es) to 2D.
 
     Args:
-        bbox: HBBs as ``np.ndarray``, ``torch.Tensor``, or list/tuple of [4+] or [N, 4+].
+        bbox: HBBs as ``numpy.ndarray``, ``torch.Tensor``, or list/tuple of [4+] or [N, 4+].
 
     Returns:
-        HBBs as ``np.ndarray`` or ``torch.Tensor`` in [N, 4+] format.
+        HBBs as ``numpy.ndarray`` or ``torch.Tensor`` in [N, 4+] format.
 
     Raises:
         TypeError: If ``bbox`` is not a ``torch.Tensor`` or ``numpy.ndarray``.
@@ -640,11 +640,11 @@ def hbb_to_3d(bbox: torch.Tensor | np.ndarray | list | tuple) -> torch.Tensor | 
     """Convert a 1D, 2D, or 3D box(es) to 3D.
 
     Args:
-        bbox: HBBs as ``np.ndarray``, ``torch.Tensor``, or list/tuple of
+        bbox: HBBs as ``numpy.ndarray``, ``torch.Tensor``, or list/tuple of
             [4+], [N, 4+], or [B, N, 4+].
 
     Returns:
-        HBBs as ``np.ndarray`` or ``torch.Tensor`` in [B, N, 4+] format.
+        HBBs as ``numpy.ndarray`` or ``torch.Tensor`` in [B, N, 4+] format.
 
     Raises:
         TypeError: If ``bbox`` is not a ``torch.Tensor`` or ``numpy.ndarray``.
@@ -695,11 +695,11 @@ def hbb_xywh_to_cxcywhn(bbox: np.ndarray, imgsz: tuple[int, int]) -> np.ndarray:
     """Convert boxes from XYWH to CXCYWHN format.
 
     Args:
-        bbox: HBBs as ``np.ndarray`` in [N, 4+], XYWH format, pixel coordinates.
+        bbox: HBBs as ``numpy.ndarray`` in [N, 4+], XYWH format, pixel coordinates.
         imgsz: Image size in [H, W] format.
 
     Returns:
-        HBBs as ``np.ndarray`` in [N, 4+], CXCYWHN format, normalized.
+        HBBs as ``numpy.ndarray`` in [N, 4+], CXCYWHN format, normalized.
     """
     height, width = I.image_size(imgsz)
     bbox = hbb_to_2d(bbox)
@@ -717,11 +717,11 @@ def hbb_xywh_to_xyxy(bbox: np.ndarray, imgsz: tuple[int, int]) -> np.ndarray:
     """Convert boxes from XYWH to XYXY format.
 
     Args:
-        bbox: HBBs as ``np.ndarray`` in [N, 4+], XYWH format, pixel coordinates.
+        bbox: HBBs as ``numpy.ndarray`` in [N, 4+], XYWH format, pixel coordinates.
         imgsz: Image size in [H, W] format.
 
     Returns:
-        HBBs as ``np.ndarray`` in [N, 4+], XYXY format, pixel coordinates.
+        HBBs as ``numpy.ndarray`` in [N, 4+], XYXY format, pixel coordinates.
     """
     bbox = hbb_to_2d(bbox)
     x, y, w, h, *rest = bbox.T
@@ -734,11 +734,11 @@ def hbb_xyxy_to_cxcywhn(bbox: np.ndarray, imgsz: tuple[int, int]) -> np.ndarray:
     """Convert boxes from XYXY to CXCYWHN format.
 
     Args:
-        bbox: HBBs as ``np.ndarray`` in [N, 4+], XYXY format, pixel coordinates.
+        bbox: HBBs as ``numpy.ndarray`` in [N, 4+], XYXY format, pixel coordinates.
         imgsz: Image size in [H, W] format.
 
     Returns:
-        HBBs as ``np.ndarray`` in [N, 4+], CXCYWHN format, normalized.
+        HBBs as ``numpy.ndarray`` in [N, 4+], CXCYWHN format, normalized.
     """
     height, width = I.image_size(imgsz)
     bbox = hbb_to_2d(bbox)
@@ -758,11 +758,11 @@ def hbb_xyxy_to_xywh(bbox: np.ndarray, imgsz: tuple[int, int]) -> np.ndarray:
     """Convert boxes from XYXY to XYWH format.
 
     Args:
-        bbox: HBBs as ``np.ndarray`` in [N, 4+], XYXY format, pixel coordinates.
+        bbox: HBBs as ``numpy.ndarray`` in [N, 4+], XYXY format, pixel coordinates.
         imgsz: Image size in [H, W] format.
 
     Returns:
-        HBBs as ``np.ndarray`` in [N, 4], XYWH format, pixel coordinates.
+        HBBs as ``numpy.ndarray`` in [N, 4], XYWH format, pixel coordinates.
     """
     bbox = hbb_to_2d(bbox)
     x1, y1, x2, y2, *rest = bbox.T
@@ -775,11 +775,11 @@ def hbb_cxcywhn_to_xywh(bbox: np.ndarray, imgsz: tuple[int, int]) -> np.ndarray:
     """Convert boxes from CXCYWHN to XYWH format.
 
     Args:
-        bbox: HBBs as ``np.ndarray`` in [N, 4+], CXCYWHN format, normalized.
+        bbox: HBBs as ``numpy.ndarray`` in [N, 4+], CXCYWHN format, normalized.
         imgsz: Image size in [H, W] format.
 
     Returns:
-        HBBs as ``np.ndarray`` in [N, 4+], XYWH format, pixel coordinates.
+        HBBs as ``numpy.ndarray`` in [N, 4+], XYWH format, pixel coordinates.
     """
     height, width = I.image_size(imgsz)
     bbox = hbb_to_2d(bbox)
@@ -796,11 +796,11 @@ def hbb_cxcywhn_to_xyxy(bbox: np.ndarray, imgsz: tuple[int, int]) -> np.ndarray:
     """Convert boxes from CXCYWHN to XYXY format.
 
     Args:
-        bbox: HBBs as ``np.ndarray`` in [N, 4+], CXCYWHN format, normalized.
+        bbox: HBBs as ``numpy.ndarray`` in [N, 4+], CXCYWHN format, normalized.
         imgsz: Image size in [H, W] format.
 
     Returns:
-        HBBs as ``np.ndarray`` in [N, 4+], XYXY format, pixel coordinates.
+        HBBs as ``numpy.ndarray`` in [N, 4+], XYXY format, pixel coordinates.
     """
     height, width = I.image_size(imgsz)
     bbox = hbb_to_2d(bbox)
@@ -824,12 +824,12 @@ def convert_hbb(bbox: np.ndarray, fmt: BBoxFormat, imgsz: tuple[int, int]) -> np
     """Convert HBBs between formats.
 
     Args:
-        bbox: HBBs as ``np.ndarray`` in [N, 4+], input format varies by code.
+        bbox: HBBs as ``numpy.ndarray`` in [N, 4+], input format varies by code.
         fmt: Conversion code as ``BBoxFormat`` or ``int``.
         imgsz: Image size in [H, W] format.
 
     Returns:
-        HBBs as ``np.ndarray`` in [N, 4+], output format varies by code.
+        HBBs as ``numpy.ndarray`` in [N, 4+], output format varies by code.
 
     Raises:
         ValueError: If ``code`` is invalid.
@@ -866,12 +866,12 @@ def hbb_to_array(
     """Convert HBBs to a NumPy array.
 
     Args:
-        bbox: HBBs as ``np.ndarray`` or ``torch.Tensor``, or list/tuple of [4+], [N, 4+], or [B, N, 4+].
+        bbox: HBBs as ``numpy.ndarray`` or ``torch.Tensor``, or list/tuple of [4+], [N, 4+], or [B, N, 4+].
         imgsz: Image size in [H, W] format.
         denormalize: Denormalize according to image dimensions if ``True``. Default is ``False``.
 
     Returns:
-        HBBs as ``np.ndarray`` in [N, 4+] format.
+        HBBs as ``numpy.ndarray`` in [N, 4+] format.
 
     Raises:
         TypeError: If ``bbox`` is not a ``torch.Tensor`` or ``numpy.ndarray``.
@@ -903,7 +903,7 @@ def hbb_to_tensor(
     """Convert HBBs to a PyTorch tensor.
 
     Args:
-        bbox: HBBs as ``np.ndarray``, ``torch.Tensor``, or list/tuple of [4+] or [N, 4+].
+        bbox: HBBs as ``numpy.ndarray``, ``torch.Tensor``, or list/tuple of [4+] or [N, 4+].
         imgsz: Image size in [H, W] format.
         normalize: Normalize according to image dimensions if ``True``. Default is ``False``.
         device: Device to place tensor on, e.g., ``'cuda'`` or ``None`` for CPU.

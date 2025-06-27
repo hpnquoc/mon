@@ -32,13 +32,13 @@ def boundary_aware_prior(
     Args:
         image: RGB or grayscale image as:
             - ``torch.Tensor`` in [B, C, H, W] format with data in range [0.0, 1.0].
-            - ``np.ndarray`` in [H, W, C] format with data in range [0, 255].
+            - ``numpy.ndarray`` in [H, W, C] format with data in range [0, 255].
         eps: Threshold to remove weak edges as ``float``. Default is ``0.05``.
         as_gradient: Return the gradient image if ``True``. Default is ``False``.
         normalized: L1 norm of the kernel is set to 1 if ``True``. Default is ``False``.
 
     Returns:
-        Boundary-aware prior as ``torch.Tensor`` or ``np.ndarray``:
+        Boundary-aware prior as ``torch.Tensor`` or ``numpy.ndarray``:
             - Binary image if ``as_gradient=False``.
             - Gradient image if ``as_gradient=True``.
 

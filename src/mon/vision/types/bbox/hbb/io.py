@@ -206,7 +206,7 @@ def load_hbb(
         verbose: Verbosity. Defaults is ``False``.
 
     Returns:
-        HBBs as ``np.ndarray`` in [N, 4+], output format varies by code.
+        HBBs as ``numpy.ndarray`` in [N, 4+], output format varies by code.
 
     Raises:
         ValueError: If ``format`` is invalid.

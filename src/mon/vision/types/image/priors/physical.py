@@ -96,14 +96,14 @@ def atmospheric_prior(
     """Get the atmospheric light in an RGB image.
 
     Args:
-        image: RGB image as ``np.ndarray`` in [H, W, C] format with data in range [0, 255].
+        image: RGB image as ``numpy.ndarray`` in [H, W, C] format with data in range [0, 255].
         kernel_size: Window size for the dark channel as ``int`` or ``tuple[int, int]``.
             Default is ``15``.
         p: Percentage of pixels for estimating atmospheric light as ``float``.
             Default is ``0.0001``.
 
     Returns:
-        3-element array of atmospheric light as ``np.ndarray`` in range [0, 255] for each channel.
+        3-element array of atmospheric light as ``numpy.ndarray`` in range [0, 255] for each channel.
     """
     if not isinstance(image, np.ndarray):
         raise ValueError(f"[image] must be numpy.ndarray, got {type(image)}.")

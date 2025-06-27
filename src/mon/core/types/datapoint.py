@@ -148,7 +148,7 @@ class BaseTensor(abc.ABC):
 
         Returns:
             A new ``BaseTensor`` instance with the data moved to GPU memory if
-            it's not already an ``np.ndarray`` array, otherwise returns self.
+            it's not already an ``numpy.ndarray`` array, otherwise returns self.
 
         Examples:
             >>> import torch
@@ -165,7 +165,7 @@ class BaseTensor(abc.ABC):
         """Return a copy of the tensor as a numpy array.
 
         Returns:
-            An ``np.ndarray`` array containing the same data as the original tensor.
+            An ``numpy.ndarray`` array containing the same data as the original tensor.
 
         Examples:
             >>> data        = torch.tensor([[1, 2, 3], [4, 5, 6]])

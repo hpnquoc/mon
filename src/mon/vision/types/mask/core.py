@@ -4,7 +4,7 @@
 """Implements ``Mask`` class and core properties.
 
 Common Tasks:
-    - Define the ``Mask`` class (e.g., wrapper for ``np.ndarray`` or ``torch.Tensor``).
+    - Define the ``Mask`` class (e.g., wrapper for ``numpy.ndarray`` or ``torch.Tensor``).
     - Access core properties.
 """
 

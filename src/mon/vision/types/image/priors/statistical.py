@@ -28,7 +28,7 @@ def blur_spot_prior(image: np.ndarray, threshold: int = 250) -> bool:
     """Detects blur in an image based on Laplacian variance and bright spot thresholding.
 
     Args:
-        image: Input image as ``np.ndarray`` in BGR format with shape [H, W, 3].
+        image: Input image as ``numpy.ndarray`` in BGR format with shape [H, W, 3].
         threshold: Variance threshold for blur detection as ``int``. Default is ``250``.
 
     Returns:
@@ -56,14 +56,14 @@ def bright_spot_prior(image: np.ndarray) -> bool:
     grayscale image.
 
     Args:
-        image: Input image as ``np.ndarray`` in BGR format with shape [H, W, 3].
+        image: Input image as ``numpy.ndarray`` in BGR format with shape [H, W, 3].
 
     Returns:
         ``True`` if bright spots are detected (variance between 5000 and 8500),
         ``False`` otherwise.
 
     Raises:
-        TypeError: If ``image`` is not a ``np.ndarray``.
+        TypeError: If ``image`` is not a ``numpy.ndarray``.
     """
     if not isinstance(image, np.ndarray):
         raise TypeError(f"[image] must be numpy.ndarray, got {type(image)}.")

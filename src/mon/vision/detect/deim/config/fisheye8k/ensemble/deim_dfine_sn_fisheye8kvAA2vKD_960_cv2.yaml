@@ -74,7 +74,7 @@ updated_cfg:
     use_amp: False                                                                # Use automatic mixed precision (AMP) for training.
 
     # File: dfine_hgnetv2.yaml
-    eval_spatial_size: [*imgsz, *imgsz]  # h w
+    eval_spatial_size: [*imgsz, *imgsz]
 
     PostProcessor:
       num_top_queries       : 300                                                 # max_dets
@@ -128,7 +128,7 @@ updated_cfg:
     use_amp: False                                                                # Use automatic mixed precision (AMP) for training.
 
     # File: dfine_hgnetv2.yaml
-    eval_spatial_size: [*imgsz, *imgsz]  # h w
+    eval_spatial_size: [*imgsz, *imgsz]
 
     PostProcessor:
       num_top_queries       : 300                                                 # max_dets

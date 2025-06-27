@@ -30,7 +30,7 @@ def is_hbb_normalized(bbox: np.ndarray) -> bool:
     """Check if a HBBs is normalized to range [0.0, 1.0].
 
     Args:
-        bbox: HBBs as ``np.ndarray`` in [4] or [N, 4].
+        bbox: HBBs as ``numpy.ndarray`` in [4] or [N, 4].
 
     Returns:
         ``True`` if normalized, ``False`` otherwise.
@@ -45,7 +45,7 @@ def is_hbb_cxcywhn(bbox: np.ndarray, imgsz: tuple[int, int]) -> bool:
     """Check if a HBBs is in CXCYWHN format.
 
     Args:
-        bbox: HBBs as ``np.ndarray`` in [4] or [N, 4].
+        bbox: HBBs as ``numpy.ndarray`` in [4] or [N, 4].
         imgsz: Image size in [H, W] format.
 
     Returns:
@@ -64,7 +64,7 @@ def is_hbb_xyxy(box: np.ndarray, imgsz: tuple[int, int]) -> bool:
     """Check if a HBBs is in XYXY format.
 
     Args:
-        box: HBBs as ``np.ndarray`` in [4] or [N, 4].
+        box: HBBs as ``numpy.ndarray`` in [4] or [N, 4].
         imgsz: Image size in [H, W] format.
 
     Returns:
@@ -88,7 +88,7 @@ def is_hbb_xywh(bbox: np.ndarray, imgsz: tuple[int, int]) -> bool:
     """Check if a HBBs is in XYWH format.
 
     Args:
-        bbox: HBBs as ``np.ndarray`` in [4] or [N, 4].
+        bbox: HBBs as ``numpy.ndarray`` in [4] or [N, 4].
         imgsz: Image size in [H, W] format.
 
     Returns:

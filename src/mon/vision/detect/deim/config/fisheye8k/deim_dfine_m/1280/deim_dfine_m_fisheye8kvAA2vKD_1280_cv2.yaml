@@ -69,7 +69,7 @@ updated_cfg:
   use_amp: False                                                                # Use automatic mixed precision (AMP) for training.
 
   # File: dfine_hgnetv2.yaml
-  eval_spatial_size: [*imgsz, *imgsz]  # h w
+  eval_spatial_size: [*imgsz, *imgsz]
 
   DFINETransformer:
     num_queries: 150                                                            # Number of queries.

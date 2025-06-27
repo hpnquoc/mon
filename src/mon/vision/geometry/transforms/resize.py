@@ -66,7 +66,7 @@ def resize(
     
     Args:
         image: Image as ``torch.Tensor`` in [B, C, H, W], range [0.0, 1.0], or
-            ``np.ndarray`` in [H, W, C], range [0, 255].
+            ``numpy.ndarray`` in [H, W, C], range [0, 255].
         size: Target size as ``int`` or ``Sequence[int]``. Default is ``None``.
         divisible_by: If not ``None``, then the image will be resized to a size that is
             divisible by this number. Default: ``None``.
@@ -102,10 +102,10 @@ def resize(
                 downscaling. No effect for upscaling.
     
     Returns:
-        Resized image as ``torch.Tensor`` or ``np.ndarray`` matching input type.
+        Resized image as ``torch.Tensor`` or ``numpy.ndarray`` matching input type.
 
     Raises:
-        TypeError: If image is not a ``torch.Tensor`` or ``np.ndarray``.
+        TypeError: If image is not a ``torch.Tensor`` or ``numpy.ndarray``.
     """
     # Parse size
     if size:

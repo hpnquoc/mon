@@ -119,7 +119,7 @@ def image_shape(image: torch.Tensor | np.ndarray) -> list[int]:
 
     Args:
         image: RGB image as ``torch.Tensor`` with shape [B, C, H, W] or
-            ``np.ndarray`` with shape [H, W, C].
+            ``numpy.ndarray`` with shape [H, W, C].
 
     Returns:
         List of [height, width, channels] as ``list[int]``.
@@ -140,7 +140,7 @@ def image_size(
 
     Args:
         input: RGB image, tensor, array, size, or path as ``torch.Tensor``,
-            ``np.ndarray``, ``int``, or ``Sequence[int]``.
+            ``numpy.ndarray``, ``int``, or ``Sequence[int]``.
         divisor: Divisor to adjust size as ``int`` or ``None``. Default is ``None``.
 
     Returns:
@@ -178,7 +178,7 @@ def is_image(image: torch.Tensor | np.ndarray) -> bool:
     """Checks if an input is an image tensor or array.
 
     Args:
-        image: Input to evaluate as ``torch.Tensor`` or ``np.ndarray``.
+        image: Input to evaluate as ``torch.Tensor`` or ``numpy.ndarray``.
 
     Returns:
         ``True`` if input is a tensor or array and a color or grayscale image,
@@ -194,7 +194,7 @@ def is_image_channel_first(image: torch.Tensor | np.ndarray) -> bool:
     """Checks if an image is in channel-first format.
 
     Args:
-        image: Image as ``torch.Tensor`` or ``np.ndarray`` in [C, H, W] or
+        image: Image as ``torch.Tensor`` or ``numpy.ndarray`` in [C, H, W] or
             [B, C, H, W] format.
 
     Returns:
@@ -202,7 +202,7 @@ def is_image_channel_first(image: torch.Tensor | np.ndarray) -> bool:
         ``False`` if channel-last (e.g., [H, W, C]).
 
     Raises:
-        TypeError: If ``image`` is not a ``torch.Tensor`` or ``np.ndarray``.
+        TypeError: If ``image`` is not a ``torch.Tensor`` or ``numpy.ndarray``.
         ValueError: If ``image`` dimensions are invalid or channel format is ambiguous.
 
     Notes:
@@ -239,7 +239,7 @@ def is_image_channel_last(image: torch.Tensor | np.ndarray) -> bool:
     """Checks if an image is in channel-last format.
 
     Args:
-        image: Image as ``torch.Tensor`` or ``np.ndarray`` in [H, W, C] or
+        image: Image as ``torch.Tensor`` or ``numpy.ndarray`` in [H, W, C] or
             [B, H, W, C] format.
 
     Returns:
@@ -253,7 +253,7 @@ def is_image_colored(image: torch.Tensor | np.ndarray) -> bool:
     """Checks if an image is a color image.
 
     Args:
-        image: Image as ``torch.Tensor`` or ``np.ndarray``.
+        image: Image as ``torch.Tensor`` or ``numpy.ndarray``.
 
     Returns:
         ``True`` if the image has 3 or 4 channels, ``False`` otherwise.

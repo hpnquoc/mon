@@ -4,7 +4,7 @@
 """Implements ``InfraredMap`` class and core properties.
 
 Common Tasks:
-    - Define the ``InfraredMap`` class (e.g., wrapper for ``np.ndarray`` or ``torch.Tensor``).
+    - Define the ``InfraredMap`` class (e.g., wrapper for ``numpy.ndarray`` or ``torch.Tensor``).
     - Access core properties.
 """
 

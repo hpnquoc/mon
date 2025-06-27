@@ -41,7 +41,7 @@ def load_video_ffmpeg(
         normalize: Normalize to [0.0, 1.0] if ``True``. Default is ``False``.
 
     Returns:
-        Frame as ``np.ndarray`` in [H, W, C] with range [0, 255],
+        Frame as ``numpy.ndarray`` in [H, W, C] with range [0, 255],
         ``torch.Tensor`` in [1, C, H, W] with range [0.0, 1.0], or ``None`` if no data.
 
     Raises:
@@ -75,11 +75,11 @@ def write_video_ffmpeg(
 
     Args:
         process: Subprocess managing ``ffmpeg`` as ``subprocess.Popen``.
-        frame: Frame/image as ``torch.Tensor`` or ``np.ndarray`` in [1, C, H, W].
+        frame: Frame/image as ``torch.Tensor`` or ``numpy.ndarray`` in [1, C, H, W].
         denormalize: Convert to [0, 255] if ``True``. Default is ``False``.
 
     Raises:
-        ValueError: If ``frame`` is not a ``torch.Tensor`` or ``np.ndarray``.
+        ValueError: If ``frame`` is not a ``torch.Tensor`` or ``numpy.ndarray``.
     """
     if isinstance(frame, np.ndarray):
         if I.is_image_normalized(frame):
@@ -158,7 +158,7 @@ class VideoWriter(ABC):
         """Write frame to ``dst``.
 
         Args:
-            frame: Video frame as ``torch.Tensor`` or ``np.ndarray``.
+            frame: Video frame as ``torch.Tensor`` or ``numpy.ndarray``.
             path: Image file path. Default is ``None``.
             denormalize: Convert to [0, 255] if ``True``. Default is ``False``.
         """
@@ -249,7 +249,7 @@ class VideoWriterCV(VideoWriter):
         """Write frame to video.
 
         Args:
-            frame: Image as ``torch.Tensor`` or ``np.ndarray``.
+            frame: Image as ``torch.Tensor`` or ``numpy.ndarray``.
             path: File path. Default is ``None``.
             denormalize: Convert to [0, 255] if ``True``. Default is ``False``.
         """
@@ -358,7 +358,7 @@ class VideoWriterFFmpeg(VideoWriter):
         """Write frame to video.
 
         Args:
-            frame: Image as ``torch.Tensor`` or ``np.ndarray``.
+            frame: Image as ``torch.Tensor`` or ``numpy.ndarray``.
             path: File path. Default is ``None``.
             denormalize: Convert to [0, 255] if ``True``. Default is ``False``.
         """
