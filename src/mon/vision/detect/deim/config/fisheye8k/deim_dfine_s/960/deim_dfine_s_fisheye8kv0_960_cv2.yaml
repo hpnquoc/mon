@@ -58,7 +58,6 @@ updated_cfg:
     "./dfine_hgnetv2_s_coco80.yaml",
     "../../dataset/fisheye8kv0_detection.yaml",
     "../../base/dataloader.yaml",
-    # "../../base/dfine_hgnetv2.yaml",
     "../../base/deim.yaml"
   ]
 
