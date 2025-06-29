@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "$HOSTNAME"
+echo "${HOSTNAME}"
 clear
 
 # ----- Input -----
@@ -8,18 +8,31 @@ task="depth"
 mode="predict"
 arch="dav2"
 model="dav2_vitb"
-data=(
+datasets=(
 
 )
-data_str=$(printf "%s, " "${data[@]}")
-data_str=${data_str%, }  # Remove trailing ", "
+data=$(printf "%s, " "${datasets[@]}")
+data=${data%, }  # Remove trailing ", "
 
-# ----- Directory -----
-current_file=$(readlink -f "$0")
-current_dir=$(dirname "$current_file")
-project_dir=$(dirname "$current_dir")
-root_dir=$(dirname "$project_dir")
+# ----- Directory & File -----
+current_file=$(readlink -f "${0}")
+current_dir=$(dirname "${current_file}")
+project_dir=$(dirname "${current_dir}")
+root_dir=$(dirname "${project_dir}")
 run_dir="${project_dir}/run"
+
+# ----- Validation -----
+check_file() {
+    [[ ! -f "$1" ]] && { echo "File not found: $1"; exit 1; }
+}
+
+check_dir() {
+    [[ ! -d "$1" ]] && { echo "Directory not found: $1"; exit 1; }
+}
+
+create_dir() {
+    [[ ! -d "$1" ]] && { echo "Creating directory: $1"; mkdir -p "$1"; }
+}
 
 # ----- Main -----
 cd "${run_dir}" || exit
@@ -30,7 +43,7 @@ python -W ignore main.py \
     --arch "${arch}" \
     --model "${model}" \
     --config 0 \
-    --data "${data_str}" \
+    --data "${data}" \
     --save-result \
     --save-image \
     --save-debug \

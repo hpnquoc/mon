@@ -4,15 +4,15 @@
 # ./install.sh
 
 clear
-echo "$HOSTNAME"
+echo "${HOSTNAME}"
 
 # ----- Input -----
 
 
 # ----- Globals -----
 # Directory
-current_file=$(readlink -f "$0")
-current_dir=$(dirname "$current_file")
+current_file=$(readlink -f "${0}")
+current_dir=$(dirname "${current_file}")
 root_dir=$current_dir
 
 

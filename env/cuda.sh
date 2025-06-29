@@ -3,12 +3,12 @@
 # ubuntu 22.04, nvidia-driver-570, cuda-toolkit-12-6
 
 clear
-echo "$HOSTNAME"
+echo "${HOSTNAME}"
 
 # ----- Globals -----
 # Directory
-current_file=$(readlink -f "$0")
-current_dir=$(dirname "$current_file")
+current_file=$(readlink -f "${0}")
+current_dir=$(dirname "${current_file}")
 root_dir=$current_dir
 
 # ----- Utils -----

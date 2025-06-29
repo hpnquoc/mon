@@ -75,10 +75,12 @@ class ModelEnsemble(torch.nn.Module):
 # ----- Export -----
 @torch.no_grad()
 def export_onnx(model: Model, path: mon.Path, args: dict | box.Box) -> mon.Path:
-    imgsz = args.imgsz[0] if isinstance(args.imgsz, list | tuple) else args.imgsz
-    data  = torch.rand(32, 3, imgsz, imgsz)
-    size  = torch.tensor([[imgsz, imgsz]])
-    _     = model(data, size)
+    opset    = args.opset
+    simplify = args.simplify
+    imgsz    = args.imgsz[0] if isinstance(args.imgsz, list | tuple) else args.imgsz
+    data     = torch.rand(32, 3, imgsz, imgsz)
+    size     = torch.tensor([[imgsz, imgsz]])
+    _        = model(data, size)
     dynamic_axes = {
         "images"           : {0: "N"},
         "orig_target_sizes": {0: "N"}
@@ -96,7 +98,7 @@ def export_onnx(model: Model, path: mon.Path, args: dict | box.Box) -> mon.Path:
         input_names         = ["images", "orig_target_sizes"],
         output_names        = output_names,
         dynamic_axes        = dynamic_axes,
-        opset_version       = args.opset,
+        opset_version       = opset,
         verbose             = False,
         do_constant_folding = True,
     )
@@ -108,7 +110,7 @@ def export_onnx(model: Model, path: mon.Path, args: dict | box.Box) -> mon.Path:
         onnx.checker.check_model(onnx_model)
         mon.console.log("Check export onnx model done...")
 
-    if args.simplify:
+    if simplify:
         import onnx
         import onnxsim
         dynamic = True
@@ -120,9 +122,18 @@ def export_onnx(model: Model, path: mon.Path, args: dict | box.Box) -> mon.Path:
 
 
 @torch.no_grad()
-def export_trt(onnx_path: mon.Path, path: mon.Path, args: dict | box.Box) -> mon.Path:
+def export_trt(onnx_path: mon.Path, engine_path: mon.Path, args: dict | box.Box) -> mon.Path:
+    onnx_path   = mon.Path(onnx_path)
+    engine_path = mon.Path(engine_path)
+    imgsz       = args.imgsz[0] if isinstance(args.imgsz, list | tuple) else args.imgsz
+    opset       = args.opset
+    trt_p       = args.trt_precision
+
     if not onnx_path.is_onnx_file(exist=True):
-        raise FileNotFoundError(f"Invalid ONNX model: {onnx_path}.")
+        raise FileNotFoundError(f"Invalid ONNX file: {onnx_path}.")
+
+    if trt_p not in mon.TRTPrecision:
+        raise ValueError(f"[fp] must be one of {mon.TRTPrecision.values()}, got {trt_p}.")
 
     # Setup
     logger        = trt.Logger(trt.Logger.VERBOSE if args.verbose else trt.Logger.INFO)
@@ -143,16 +154,34 @@ def export_trt(onnx_path: mon.Path, path: mon.Path, args: dict | box.Box) -> mon
     config = builder.create_builder_config()
     memory_pool_limit = 8 << 30  # 1 << 30  1GB
     config.set_memory_pool_limit(trt.MemoryPoolType.WORKSPACE, memory_pool_limit)
+    config.builder_optimization_level = 5   # Maximum optimization level
 
-    if args.use_fp16:
+    if trt_p in ["fp16n32", "fp16"]:
         if builder.platform_has_fast_fp16:
             config.set_flag(trt.BuilderFlag.FP16)
-            mon.console.log("Apply FP16 optimization.")
+            print("Apply FP16 optimization.")
         else:
-            mon.console.log("Apply FP32 optimization.")
+            print("Apply FP32 optimization.")
+    elif trt_p in ["fp8n32", "fp8"]:
+        if builder.platform_has_fast_fp8:
+            config.set_flag(trt.BuilderFlag.FP8)
+            print("Apply FP8 optimization.")
+        else:
+            print("Apply FP32 optimization.")
+    elif trt_p in ["int8n32", "int8"]:
+        if builder.platform_has_fast_int8:
+            config.set_flag(trt.BuilderFlag.INT8)
+            print("Apply INT8 optimization.")
+        else:
+            print("Apply FP32 optimization.")
+    if trt_p in ["fp16n32", "fp16", "fp8n32", "fp8", "int8n32", "int8"]:
+        # if dla_core not in [None, -1]:  # For Jetson devices
+        config.DLA_core = 0
+        config.default_device_type = trt.DeviceType.DLA
+        config.set_flag(trt.BuilderFlag.GPU_FALLBACK)
+        print("Apply DLA core.")
 
     # Create optimization profile
-    imgsz   = args.imgsz[0] if isinstance(args.imgsz, list | tuple) else args.imgsz
     profile = builder.create_optimization_profile()
     profile.set_shape(
         "images",
@@ -163,40 +192,64 @@ def export_trt(onnx_path: mon.Path, path: mon.Path, args: dict | box.Box) -> mon
     profile.set_shape("orig_target_sizes", min=(1, 2), opt=(1, 2), max=(1, 2))
     config.add_optimization_profile(profile)
 
-    # Customize layer precision
-    if args.opset == 16:
-        for i in range(network.num_layers):
-            layer = network.get_layer(i)
-            # Heuristic: match common LayerNorm-related names
-            if any(kw in layer.name.lower() for kw in ["layernorm", "norm", "rms"]):
-                mon.console.log(f"Apply FP32 on LayerNorm-related layer: {layer.name}.")
-                layer.precision = trt.DataType.FLOAT
-                layer.set_output_type(0, trt.DataType.FLOAT)
-    elif args.opset == 17:
-        force_fp32_types = [
-            trt.LayerType.REDUCE,
-            trt.LayerType.ELEMENTWISE,
-            trt.LayerType.UNARY,
-            trt.LayerType.NORMALIZATION,
-        ]
-        for i in range(network.num_layers):
-            layer = network.get_layer(i)
-            if layer.type in force_fp32_types:
-                layer.precision = trt.DataType.FLOAT
-                layer.set_output_type(0, trt.DataType.FLOAT)
-
-    # Debug
-    # for i in range(network.num_layers):
-    #     layer = network.get_layer(i)
-    #     mon.console.log(f"Layer {i}: {layer.name} | Type: {layer.type}")
+    # Retain FP32 for specific layers
+    if opset == 16:
+        if trt_p in ["fp16n32", "fp8n32", "int8n32"]:
+            layer_names = ["layernorm", "norm", "rms"]
+            norm_layers = [
+                #                Function name                                Weights name
+                # Encoder
+                # "/model/encoder/encoder.0/layers.0/norm1",      "model.encoder.encoder.0.layers.0.norm1",
+                # "/model/encoder/encoder.0/layers.0/norm2",      "model.encoder.encoder.0.layers.0.norm2",
+                # Decoder
+                "/model/decoder/enc_output/norm",               "model.decoder.enc_output.norm",
+                # Decoder block 0
+                # "/model/decoder/decoder/layers.0/norm1",        "model.decoder.decoder.layers.0.norm1",
+                # "/model/decoder/decoder/layers.0/gateway/norm", "model.decoder.decoder.layers.0.gateway.norm",
+                "/model/decoder/decoder/layers.0/norm3",        "model.decoder.decoder.layers.0.norm3",
+                # Decoder block 1
+                # "/model/decoder/decoder/layers.1/norm1",        "model.decoder.decoder.layers.1.norm1",
+                # "/model/decoder/decoder/layers.1/gateway/norm", "model.decoder.decoder.layers.1.gateway.norm",
+                "/model/decoder/decoder/layers.1/norm3",        "model.decoder.decoder.layers.1.norm3",
+                # Decoder block 2
+                # "/model/decoder/decoder/layers.2/norm1",        "model.decoder.decoder.layers.2.norm1",
+                # "/model/decoder/decoder/layers.2/gateway/norm", "model.decoder.decoder.layers.2.gateway.norm",
+                "/model/decoder/decoder/layers.2/norm3",        "model.decoder.decoder.layers.2.norm3"
+                # Decoder block 3
+                # "/model/decoder/decoder/layers.3/norm1",        "model.decoder.decoder.layers.3.norm1",
+                # "/model/decoder/decoder/layers.3/gateway/norm", "model.decoder.decoder.layers.3.gateway.norm",
+                "/model/decoder/decoder/layers.3/norm3",        "model.decoder.decoder.layers.3.norm3",
+                # Decoder block 4
+                # "/model/decoder/decoder/layers.4/norm1",        "model.decoder.decoder.layers.4.norm1",
+                # "/model/decoder/decoder/layers.4/gateway/norm", "model.decoder.decoder.layers.4.gateway.norm",
+                "/model/decoder/decoder/layers.4/norm3",        "model.decoder.decoder.layers.4.norm3",
+                # Decoder block 5
+                # "/model/decoder/decoder/layers.5/norm1",        "model.decoder.decoder.layers.5.norm1",
+                # "/model/decoder/decoder/layers.5/gateway/norm", "model.decoder.decoder.layers.5.gateway.norm",
+                "/model/decoder/decoder/layers.5/norm3",        "model.decoder.decoder.layers.5.norm3",
+            ]
+            for i in range(network.num_layers):
+                layer = network.get_layer(i)
+                # Heuristic: match common LayerNorm-related names
+                if any(kw in layer.name.lower() for kw in layer_names):
+                    if any(nl in layer.name for nl in norm_layers):
+                        print(f"Apply FP32 on LayerNorm-related layer: {layer.name}.")
+                        layer.precision = trt.DataType.FLOAT
+                        layer.set_output_type(0, trt.DataType.FLOAT)
+                """Old method
+                if any(kw in layer.name.lower() for kw in ["layernorm", "norm", "rms"]):
+                    print(f"Apply FP32 on LayerNorm-related layer: {layer.name}.")
+                    layer.precision = trt.DataType.FLOAT
+                    layer.set_output_type(0, trt.DataType.FLOAT)
+                """
 
     mon.console.log("Building TensorRT engine...")
     serialized_engine = builder.build_serialized_network(network, config)
     if serialized_engine is None:
         raise RuntimeError("Failed to build the engine.")
 
-    mon.console.log(f"Saving engine to {path}")
-    with open(path, "wb") as f:
+    mon.console.log(f"Saving engine to {engine_path}")
+    with open(engine_path, "wb") as f:
         f.write(serialized_engine)
     mon.console.log("Engine export complete.")
 

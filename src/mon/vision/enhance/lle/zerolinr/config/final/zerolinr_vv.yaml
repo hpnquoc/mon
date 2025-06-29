@@ -38,8 +38,7 @@ verbose     : &verbose True                                                     
 format        : "onnx"                                                          # Export format (e.g., onnx, engine, torchscript, coreml, tflite, openvino).
 opset         : 16                                                              # ONNX: opset version.
 simplify      : False                                                           # ONNX: Simplify model using `onnxslim`.
-use_fp16      : True                                                            # TRT: CoreML/TF FP16 quantization.
-use_int8      : False                                                           # TRT: CoreML/TF INT8 quantization.
+trt_precision : "fp32"                                                          # TRT: Precision mode (e.g., fp32, fp16, int8).
 max_batch_size: 32                                                              # TRT: Max batch size for export.
 opt_batch_size: 16                                                              # TRT: Optimize batch size for export.
 min_batch_size: 1                                                               # TRT: Min batch size for export.

@@ -3,16 +3,16 @@
 # https://medium.com/@moshiur.faisal01/install-tensorrt-with-command-line-wrapper-trtexec-on-ununtu-20-04-lts-3e44f4f36a2b
 
 clear
-echo "$HOSTNAME"
+echo "${HOSTNAME}"
 
 # ----- Input -----
 
 
 # ----- Globals -----
 # Directory
-current_file=$(readlink -f "$0")
-current_dir=$(dirname "$current_file")  # mon/tool/
-root_dir=$(dirname "$current_dir")      # mon/
+current_file=$(readlink -f "${0}")
+current_dir=$(dirname "${current_file}")  # mon/tool/
+root_dir=$(dirname "${current_dir}")      # mon/
 
 # ----- Check -----
 check_cuda() {

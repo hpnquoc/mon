@@ -1,7 +1,7 @@
 #!/bin/bash
 
 clear
-echo "$HOSTNAME"
+echo "${HOSTNAME}"
 
 # ----- Input -----
 option=${1:-"install"}
@@ -9,8 +9,8 @@ read -e -i "$option" -p "Option [install, enable, disable, stop, start]: " optio
 
 # ----- Globals -----
 # Directory
-current_file=$(readlink -f "$0")
-current_dir=$(dirname "$current_file")
+current_file=$(readlink -f "${0}")
+current_dir=$(dirname "${current_file}")
 root_dir=$current_dir
 
 # ----- Setup -----

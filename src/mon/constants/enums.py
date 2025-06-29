@@ -16,6 +16,7 @@ __all__ = [
     "MemoryUnit",
     "RunMode",
     "Split",
+    "TRTPrecision",
     "Task",
     "TrackState",
     "VideoExtension",
@@ -381,6 +382,19 @@ class Split(Enum):
     VAL     = "val"
     TEST    = "test"
     PREDICT = "predict"
+
+
+class TRTPrecision(Enum):
+    """TensorRT precision modes."""
+
+    FP16    = "fp16"                    # 16-bit floating point
+    FP16N32 = "fp16n32"                 # 16-bit floating point with 32-bit normalization
+    FP32    = "fp32"                    # 32-bit floating point
+    FP32N32 = "fp32n32"                 # 32-bit floating point with 32-bit normalization
+    FP8     = "fp8"                     # 8-bit floating point
+    FP8N32  = "fp8n32"                  # 8-bit floating point with 32-bit normalization
+    INT8    = "int8"                    # 8-bit integer
+    INT8N32 = "int8n32"                 # 8-bit integer with 32-bit normalization
 
 
 # ----- Task -----

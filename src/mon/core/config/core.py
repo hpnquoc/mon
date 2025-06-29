@@ -12,7 +12,7 @@ from typing import Any
 
 import box
 
-from mon.constants import Task
+from mon.constants import Task, TRTPrecision
 from mon.core import device
 
 
@@ -73,14 +73,14 @@ parser.add_argument(
 """
 CLI_OPTIONS  = {
     # Basic
-    "root"        : {
+    "root"         : {
         "default"    : None,
         "type"       : _str_or_none,
         "help"       : "Project root.",
         "prompt_only": False,
         "prompt_text": "Project Root",
     },
-    "task"        : {
+    "task"         : {
         "default"    : None,
         "type"       : _str_or_none,
         "choices"    : Task.values(),
@@ -88,7 +88,7 @@ CLI_OPTIONS  = {
         "prompt_only": False,
         "prompt_text": "Task",
     },
-    "mode"        : {
+    "mode"         : {
         "default"    : None,
         "type"       : _str_or_none,
         "choices"    : ["train", "predict", "speed"],  # RunMode.values(),
@@ -97,49 +97,49 @@ CLI_OPTIONS  = {
         "i_cli_type" : str,
         "prompt_text": "Run Mode",
     },
-    "arch"        : {
+    "arch"         : {
         "default"    : None,
         "type"       : _str_or_none,
         "help"       : "Model architecture.",
         "prompt_only": False,
         "prompt_text": "Architecture",
     },
-    "model"       : {
+    "model"        : {
         "default"    : None,
         "type"       : _str_or_none,
         "help"       : "Model name.",
         "prompt_only": False,
         "prompt_text": "Model",
     },
-    "config"      : {
+    "config"       : {
         "default"    : None,
         "type"       : _str_or_none,
         "help"       : "Config file.",
         "prompt_only": False,
         "prompt_text": "Config",
     },
-    "data"        : {
+    "data"         : {
         "default"    : None,
         "type"       : _str_or_none,
         "help"       : "Dataset name or directory.",
         "prompt_only": False,
         "prompt_text": "Predict(s)",
     },
-    "fullname"    : {
+    "fullname"     : {
         "default"    : None,
         "type"       : _str_or_none,
         "help"       : "Full name of the current run.",
         "prompt_only": False,  
         "prompt_text": "Fullname",
     },
-    "save_dir"    : {
+    "save_dir"     : {
         "type"       : _str_or_none,
         "default"    : None,
         "help"       : "Directory to save the outputs.",
         "prompt_only": False,
         "prompt_text": "Save Directory",
     },
-    "weights"     : {
+    "weights"      : {
         "action"     : "append",
         "default"    : None,
         "type"       : _str_or_none,
@@ -147,7 +147,7 @@ CLI_OPTIONS  = {
         "prompt_only": False,
         "prompt_text": "Weights",
     },
-    "device"      : {
+    "device"       : {
         "default"    : None,
         "type"       : _str_or_none,
         "choices"    : device.list_devices(),
@@ -155,14 +155,14 @@ CLI_OPTIONS  = {
         "prompt_only": False,
         "prompt_text": "Device",
     },
-    "seed"        : {
+    "seed"         : {
         "default"    : None,
         "type"       : _int_or_none,
         "help"       : "Seed.",
         "prompt_only": False,
         "prompt_text": "Seed         ",
     },
-    "imgsz"       : {
+    "imgsz"        : {
         "action"     : "append",
         "default"    : None,
         "type"       : _int_or_none,
@@ -171,111 +171,118 @@ CLI_OPTIONS  = {
         "prompt_text": "Image Size   ",
     },
     # Train
-    "epochs"      : {
+    "epochs"       : {
         "default"    : None,
         "type"       : _int_or_none,
         "help"       : "Training epochs.",
         "prompt_only": False,
         "prompt_text": "Epochs       ",
     },
-    "batch_size"  : {
+    "batch_size"   : {
         "default"    : None,
         "type"       : _int_or_none,
         "help"       : "Batch size.",
         "prompt_only": False,
         "prompt_text": "Batch Size   ",
     },
-    "torchrun"    : {
+    "torchrun"     : {
         "default"    : False,
         "action"     : "store_true",
         "help"       : "Using torch distributed training.",
         "prompt_only": False,
         "prompt_text": "Use torchrun?",
     },
-    "master_port" : {
+    "master_port"  : {
         "default"    : 7777,
         "type"       : _int_or_none,
         "help"       : "Port for distributed communication.",
         "prompt_only": False,
         "prompt_text": "Master Port",
     },
-    "master_addr" : {
+    "master_addr"  : {
         "default"    : "localhost",
         "type"       : _str_or_none,
         "help"       : "Master node address.",
         "prompt_only": False,
         "prompt_text": "Master Address",
     },
-    "local_rank"  : {
+    "local_rank"   : {
         "type"       : _int_or_none,
         "help"       : "Local rank for distributed training.",
         "prompt_only": False,
         "prompt_text": "Local Rank   ",
     },
     # Predict
-    "resize"      : {
+    "resize"       : {
         "action"     : "store_true",
         "help"       : "Resize the input image.",
         "prompt_only": False,
         "prompt_text": "Resize?      ",
     },
-    "benchmark"   : {
+    "benchmark"    : {
         "action"     : "store_true",
         "help"       : "Enable benchmark mode.",
         "prompt_only": False,
         "prompt_text": "Benchmark?   ",
     },
     # Save & Visualize
-    "save_result" : {
+    "save_result"  : {
         "action"     : "store_true",
         "help"       : "Save results.",
         "prompt_only": False,
         "prompt_text": "Save Result? ",
     },
-    "save_image"  : {
+    "save_image"   : {
         "action"     : "store_true",
         "help"       : "Save output images.",
         "prompt_only": False,
         "prompt_text": "Save Image?  ",
     },
-    "save_debug"  : {
+    "save_debug"   : {
         "action"     : "store_true",
         "help"       : "Save debug information.",
         "prompt_only": False,
         "prompt_text": "Save Debug?  ",
     },
-    "use_fullname": {
+    "use_fullname" : {
         "action"     : "store_true",
         "help"       : "Use the ``fullname`` for the ``save_dir``.",
         "prompt_only": False,
         "prompt_text": "Use Fullname?",
     },
-    "keep_subdirs": {
+    "keep_subdirs" : {
         "action"     : "store_true",
         "help"       : "Keep subdirectories in the ``save_dir``.",
         "prompt_only": False,
         "prompt_text": "Keep Subdirs?",
     },
-    "save_nearby" : {
+    "save_nearby"  : {
         "action"     : "store_true",
         "help"       : "Save outputs nearby the source.",
         "prompt_only": False,
         "prompt_text": "Save Nearby? ",
     },
-    "exist_ok"    : {
+    "exist_ok"     : {
         "action"     : "store_true",
         "help"       : "Keep existing directories.",
         "prompt_only": False,
         "prompt_text": "Exist OK?    ",
     },
-    "verbose"     : {
+    "verbose"      : {
         "action"     : "store_true",
         "help"       : "Verbose mode.",
         "prompt_only": False,
         "prompt_text": "Verbosity?   ",
     },
     # Export
-
+    "trt_precision": {
+        "default"    : "fp32",
+        "type"       : _str_or_none,
+        "choices"    : TRTPrecision.values(),
+        "help"       : f"TRT precision: {TRTPrecision.values()}.",
+        "prompt_only": False,
+        "prompt_text": "TRT Precision",
+    },
 }
 CLI_OPTIONS  = box.Box(CLI_OPTIONS)
 

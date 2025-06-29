@@ -1,7 +1,7 @@
 #!/bin/bash
 
 clear
-echo "$HOSTNAME"
+echo "${HOSTNAME}"
 
 # ----- Input -----
 directory="/home/longpham/10_workspace/11_code/mon"

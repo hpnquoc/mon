@@ -5,16 +5,16 @@
 # brew install ffmpeg
 
 clear
-echo "$HOSTNAME"
+echo "${HOSTNAME}"
 
 # ----- Input -----
 directory="/home/longpham/10_workspace/11_code/mon"
 
 # ----- Globals -----
 # Directory
-current_file=$(readlink -f "$0")
-current_dir=$(dirname "$current_file")  # mon/tool/
-root_dir=$(dirname "$current_dir")      # mon/
+current_file=$(readlink -f "${0}")
+current_dir=$(dirname "${current_file}")  # mon/tool/
+root_dir=$(dirname "${current_dir}")      # mon/
 
 # ----- Functions -----
 run_on_linux() {
