@@ -25,6 +25,7 @@ donwload_url = {
 
 
 class ConvBNLayer(nn.Module):
+
     def __init__(self, ch_in, ch_out, filter_size=3, stride=1, groups=1, padding=0, act=None):
         super().__init__()
         self.conv = nn.Conv2d(ch_in, ch_out, filter_size, stride, padding, groups=groups, bias=False)
@@ -37,7 +38,9 @@ class ConvBNLayer(nn.Module):
         x = self.act(x)
         return x
 
+
 class RepVggBlock(nn.Module):
+
     def __init__(self, ch_in, ch_out, act='relu', alpha: bool=False):
         super().__init__()
         self.ch_in = ch_in
@@ -104,16 +107,12 @@ class RepVggBlock(nn.Module):
 
 
 class BasicBlock(nn.Module):
-    def __init__(self,
-                 ch_in,
-                 ch_out,
-                 act='relu',
-                 shortcut=True,
-                 use_alpha=False):
+
+    def __init__(self, ch_in, ch_out, act='relu', shortcut=True, use_alpha=False):
         super().__init__()
         assert ch_in == ch_out
-        self.conv1 = ConvBNLayer(ch_in, ch_out, 3, stride=1, padding=1, act=act)
-        self.conv2 = RepVggBlock(ch_out, ch_out, act=act, alpha=use_alpha)
+        self.conv1    = ConvBNLayer(ch_in, ch_out, 3, stride=1, padding=1, act=act)
+        self.conv2    = RepVggBlock(ch_out, ch_out, act=act, alpha=use_alpha)
         self.shortcut = shortcut
 
     def forward(self, x):
@@ -143,6 +142,7 @@ class EffectiveSELayer(nn.Module):
 
 
 class CSPResStage(nn.Module):
+
     def __init__(self,
                  block_fn,
                  ch_in,
@@ -190,8 +190,9 @@ class CSPResStage(nn.Module):
 
 @register()
 class CSPResNet(nn.Module):
-    layers = [3, 6, 6, 3]
-    channels = [64, 128, 256, 512, 1024]
+
+    layers    = [3, 6, 6, 3]
+    channels  = [64, 128, 256, 512, 1024]
     model_cfg = {
         's': {'depth_mult': 0.33, 'width_mult': 0.50, },
         'm': {'depth_mult': 0.67, 'width_mult': 0.75, },
@@ -212,26 +213,15 @@ class CSPResNet(nn.Module):
         width_mult = self.model_cfg[name]['width_mult']
 
         channels = [max(round(c * width_mult), 1) for c in self.channels]
-        layers = [max(round(l * depth_mult), 1) for l in self.layers]
-        act = get_activation(act)
+        layers   = [max(round(l * depth_mult), 1) for l in self.layers]
+        act      = get_activation(act)
 
         if use_large_stem:
             self.stem = nn.Sequential(OrderedDict([
-                ('conv1', ConvBNLayer(
-                    3, channels[0] // 2, 3, stride=2, padding=1, act=act)),
-                ('conv2', ConvBNLayer(
-                    channels[0] // 2,
-                    channels[0] // 2,
-                    3,
-                    stride=1,
-                    padding=1,
-                    act=act)), ('conv3', ConvBNLayer(
-                        channels[0] // 2,
-                        channels[0],
-                        3,
-                        stride=1,
-                        padding=1,
-                        act=act))]))
+                ('conv1', ConvBNLayer(3,          channels[0] // 2, 3, stride=2, padding=1, act=act)),
+                ('conv2', ConvBNLayer(channels[0] // 2, channels[0] // 2, 3, stride=1, padding=1, act=act)),
+                ('conv3', ConvBNLayer(channels[0] // 2, channels[0],      3, stride=1, padding=1, act=act))
+            ]))
         else:
             self.stem = nn.Sequential(OrderedDict([
                 ('conv1', ConvBNLayer(
@@ -255,8 +245,8 @@ class CSPResNet(nn.Module):
             use_alpha=use_alpha)) for i in range(n)]))
 
         self._out_channels = channels[1:]
-        self._out_strides = [4 * 2**i for i in range(n)]
-        self.return_idx = return_idx
+        self._out_strides  = [4 * 2**i for i in range(n)]
+        self.return_idx    = return_idx
 
         if pretrained:
             if isinstance(pretrained, bool) or 'http' in pretrained:

@@ -6,30 +6,30 @@ Modified from DETR (https://github.com/facebookresearch/detr/blob/main/engine.py
 Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved.
 """
 
-import sys
 import math
+import sys
 from typing import Iterable
 
 import torch
 import torch.amp
-from torch.utils.tensorboard import SummaryWriter
 from torch.cuda.amp.grad_scaler import GradScaler
+from torch.utils.tensorboard import SummaryWriter
 
-from ..optim import ModelEMA, Warmup
 from ..data import CocoEvaluator
 from ..misc import MetricLogger, SmoothedValue, dist_utils
+from ..optim import ModelEMA, Warmup
 
 
 def train_one_epoch(
     self_lr_scheduler,
     lr_scheduler,
-    model       : torch.nn.Module,
-    criterion   : torch.nn.Module,
-    data_loader : Iterable,
-    optimizer   : torch.optim.Optimizer,
-    device      : torch.device,
-    epoch       : int,
-    max_norm    : float = 0,
+    model      : torch.nn.Module,
+    criterion  : torch.nn.Module,
+    data_loader: Iterable,
+    optimizer  : torch.optim.Optimizer,
+    device     : torch.device,
+    epoch      : int,
+    max_norm   : float = 0,
     **kwargs
 ):
     model.train()
@@ -48,10 +48,10 @@ def train_one_epoch(
     cur_iters = epoch * len(data_loader)
 
     for i, (samples, targets) in enumerate(metric_logger.log_every(data_loader, print_freq, header)):
-        samples = samples.to(device)
-        targets = [{k: v.to(device) if isinstance(v, torch.Tensor) else v for k, v in t.items()} for t in targets]
+        samples     = samples.to(device)
+        targets     = [{k: v.to(device) if isinstance(v, torch.Tensor) else v for k, v in t.items()} for t in targets]
         global_step = epoch * len(data_loader) + i
-        metas = dict(epoch=epoch, step=i, global_step=global_step, epoch_step=len(data_loader))
+        metas       = dict(epoch=epoch, step=i, global_step=global_step, epoch_step=len(data_loader))
 
         if scaler is not None:
             with torch.autocast(device_type=str(device), cache_enabled=True):
@@ -87,7 +87,7 @@ def train_one_epoch(
             outputs   = model(samples, targets=targets)
             loss_dict = criterion(outputs, targets, **metas)
 
-            loss : torch.Tensor = sum(loss_dict.values())
+            loss: torch.Tensor = sum(loss_dict.values())
             optimizer.zero_grad()
             loss.backward()
 

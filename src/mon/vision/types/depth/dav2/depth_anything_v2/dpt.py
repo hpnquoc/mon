@@ -22,6 +22,7 @@ def _make_fusion_block(features, use_bn, size=None):
 
 
 class ConvBlock(nn.Module):
+
     def __init__(self, in_feature, out_feature):
         super().__init__()
         
@@ -36,19 +37,19 @@ class ConvBlock(nn.Module):
 
 
 class DPTHead(nn.Module):
+
     def __init__(
         self, 
-        in_channels, 
-        features=256, 
-        use_bn=False, 
-        out_channels=[256, 512, 1024, 1024], 
-        use_clstoken=False
+        in_channels,
+        features     = 256,
+        use_bn       = False,
+        out_channels = [256, 512, 1024, 1024],
+        use_clstoken = False
     ):
         super(DPTHead, self).__init__()
         
-        self.use_clstoken = use_clstoken
-        
-        self.projects = nn.ModuleList([
+        self.use_clstoken  = use_clstoken
+        self.projects      = nn.ModuleList([
             nn.Conv2d(
                 in_channels=in_channels,
                 out_channels=out_channel,
@@ -57,7 +58,6 @@ class DPTHead(nn.Module):
                 padding=0,
             ) for out_channel in out_channels
         ])
-        
         self.resize_layers = nn.ModuleList([
             nn.ConvTranspose2d(
                 in_channels=out_channels[0],
@@ -86,14 +86,11 @@ class DPTHead(nn.Module):
                 self.readout_projects.append(
                     nn.Sequential(
                         nn.Linear(2 * in_channels, in_channels),
-                        nn.GELU()))
+                        nn.GELU()
+                    )
+                )
         
-        self.scratch = _make_scratch(
-            out_channels,
-            features,
-            groups=1,
-            expand=False,
-        )
+        self.scratch = _make_scratch(out_channels, features, groups=1, expand=False)
         
         self.scratch.stem_transpose = None
         
@@ -179,9 +176,8 @@ class DepthAnythingV2(nn.Module):
         patch_h, patch_w = x.shape[-2] // 14, x.shape[-1] // 14
         
         features = self.pretrained.get_intermediate_layers(x, self.intermediate_layer_idx[self.encoder], return_class_token=True)
-        
-        depth = self.depth_head(features, patch_h, patch_w)
-        depth = F.relu(depth)
+        depth    = self.depth_head(features, patch_h, patch_w)
+        depth    = F.relu(depth)
         
         return depth.squeeze(1)
     

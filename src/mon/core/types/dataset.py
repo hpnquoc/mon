@@ -15,7 +15,7 @@ __all__ = [
 ]
 
 import abc
-from typing import Any
+from typing import Any, List
 
 import torch
 from torch.utils.data import dataset
@@ -266,7 +266,7 @@ class Dataset(dataset.Dataset, abc.ABC):
         """
         if not self.datapoint_attrs:
             raise ValueError("[datapoint_attrs] has no defined attributes.")
-        self.datapoints = {k: list(v) for k, v in self.datapoint_attrs.items()}
+        self.datapoints = {k: List[v] for k, v in self.datapoint_attrs.items()}
 
     def init_data(self, cache_data: bool = False):
         """Initializes dataset data.

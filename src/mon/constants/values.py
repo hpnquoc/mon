@@ -688,6 +688,13 @@ EXTRA_MODELS   = {  # architecture/model (+ variant)
     },
     # endregion
     # region types/depth
+    "daac"    : {
+        "daac_vits": {
+            "tasks"    : [Task.DEPTH],
+            "mltypes"  : [MLType.ZERO_SHOT],
+            "model_dir": MON_DIR / "vision" / "types" / "depth" / "daac",
+        },
+    },
     "dav2"    : {
         "dav2_vitb": {
             "tasks"    : [Task.DEPTH],

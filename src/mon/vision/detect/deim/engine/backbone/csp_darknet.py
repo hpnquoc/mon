@@ -19,11 +19,13 @@ def autopad(k, p=None):
         p = k // 2 if isinstance(k, int) else [x // 2 for x in k]
     return p
 
+
 def make_divisible(c, d):
     return math.ceil(c / d) * d
 
 
 class Conv(nn.Module):
+
     def __init__(self, cin, cout, k=1, s=1, p=None, g=1, act='silu') -> None:
         super().__init__()
         self.conv = nn.Conv2d(cin, cout, k, s, autopad(k, p), groups=g, bias=False)
@@ -36,6 +38,7 @@ class Conv(nn.Module):
 
 class Bottleneck(nn.Module):
     # Standard bottleneck
+
     def __init__(self, c1, c2, shortcut=True, g=1, e=0.5, act='silu'):
         super().__init__()
         c_ = int(c2 * e)  # hidden channels
@@ -49,6 +52,7 @@ class Bottleneck(nn.Module):
 
 class C3(nn.Module):
     # CSP Bottleneck with 3 convolutions
+
     def __init__(self, c1, c2, n=1, shortcut=True, g=1, e=0.5, act='silu'):  # ch_in, ch_out, number, shortcut, groups, expansion
         super().__init__()
         c_ = int(c2 * e)  # hidden channels
@@ -63,6 +67,7 @@ class C3(nn.Module):
 
 class SPPF(nn.Module):
     # Spatial Pyramid Pooling - Fast (SPPF) layer for YOLOv5 by Glenn Jocher
+
     def __init__(self, c1, c2, k=5, act='silu'):  # equivalent to SPP(k=(5, 9, 13))
         super().__init__()
         c_ = c1 // 2  # hidden channels
@@ -81,6 +86,7 @@ class SPPF(nn.Module):
 
 @register()
 class CSPDarkNet(nn.Module):
+
     __share__ = ['depth_multi', 'width_multi']
 
     def __init__(self, in_channels=3, width_multi=1.0, depth_multi=1.0, return_idx=[2, 3, -1], act='silu', ) -> None:
@@ -123,6 +129,7 @@ class CSPPAN(nn.Module):
                                  | up       | conv /2
     P3 -----------------------> concat ---> c3 ---------------------> det
     """
+
     __share__ = ['depth_multi', ]
 
     def __init__(self, in_channels=[256, 512, 1024], depth_multi=1., act='silu') -> None:
@@ -163,17 +170,16 @@ class CSPPAN(nn.Module):
         return pan_feats
 
 
-if __name__ == '__main__':
-
+if __name__ == "__main__":
     data = torch.rand(1, 3, 320, 640)
 
     width_multi = 0.75
     depth_multi = 0.33
 
-    m = CSPDarkNet(3, width_multi=width_multi, depth_multi=depth_multi, act='silu')
+    m       = CSPDarkNet(3, width_multi=width_multi, depth_multi=depth_multi, act='silu')
     outputs = m(data)
     print([o.shape for o in outputs])
 
-    m = CSPPAN(in_channels=m.out_channels, depth_multi=depth_multi, act='silu')
+    m       = CSPPAN(in_channels=m.out_channels, depth_multi=depth_multi, act='silu')
     outputs = m(outputs)
     print([o.shape for o in outputs])

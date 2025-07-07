@@ -15,8 +15,8 @@ imgsz       : &imgsz 640                                                        
 # Train
 resume      : &resume "run/train/deim/deim_dfine_s/deim_dfine_s_widerface/best_stg1.pth"  # Resume from interrupted training.
 tuning      : &tuning "zoo/vision/detect/deim/deim_dfine_s/coco80/deim_dfine_s_coco80.pth"  # Fine-tuning from a pretrained model.
-epochs      : &epochs 100                                                       # Training epochs.
-batch_size  : &batch_size 4                                                     # Batch size.
+epochs      : &epochs 500                                                       # Training epochs.
+batch_size  : &batch_size 32                                                    # Batch size.
 torchrun    : True                                                              # If ``True``, use torch.distributed.run to run the training script.
 master_port : 7777                                                              # Master port for distributed training.
 master_addr : "localhost"                                                       # Master address for distributed training.
@@ -70,7 +70,7 @@ updated_cfg:
 
   PostProcessor:
     num_top_queries       : 300                                                 # max_dets
-    deploy_num_top_queries: 150
+    deploy_num_top_queries: 300
     deploy_out_fmt        : "xywh"
 
   # File: dataloader.yaml

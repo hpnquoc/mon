@@ -5,8 +5,7 @@
 clear
 echo "${HOSTNAME}"
 
-# ----- Globals -----
-# Directory
+# ----- Directory & File -----
 current_file=$(readlink -f "${0}")
 current_dir=$(dirname "${current_file}")
 root_dir=$current_dir
