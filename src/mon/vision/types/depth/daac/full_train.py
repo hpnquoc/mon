@@ -119,10 +119,8 @@ def main():
     teacher_model.load_state_dict(torch.load(f'./checkpoints/depth_anything_v2_vits.pth'),strict=False)
     teacher_model.cuda().eval()
 
-
     for name, param in teacher_model.named_parameters():
         param.requires_grad = False
-
 
     model = DepthAnything_AC(model_configs['vits'])
     model.load_state_dict(torch.load(f'./checkpoints/depth_anything_v2_vits.pth'),strict=False)
@@ -551,13 +549,12 @@ def main():
                                 save_feature_visualization(feat, f'vis/epoch_{epoch}/iter_{i}/features/decoder_path/decoder_teacher_path_{idx}.png')
        
             if cfg['loss_mode'] == "prior":
-                loss_unlabeled = criterion_l(res_s_u_w, res_t_u_w, mask_u,
-                                            uncertainty=None,need_inverse=False)
-                loss_consistency = criterion_l(res_s_u_s, res_s_u_w, mask_u,uncertainty=None, need_inverse=False)
+                loss_unlabeled   = criterion_l(res_s_u_w, res_t_u_w, mask_u, uncertainty=None, need_inverse=False)
+                loss_consistency = criterion_l(res_s_u_s, res_s_u_w, mask_u, uncertainty=None, need_inverse=False)
                 if cfg['prior_mode'] == 'teacher':
                     loss_prior = F.mse_loss(geo_prior_student_s, geo_prior_teacher)
 
-                loss = (loss_unlabeled+loss_consistency+loss_prior)/3.0
+                loss = (loss_unlabeled + loss_consistency + loss_prior) / 3.0
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()

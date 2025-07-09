@@ -21,7 +21,6 @@ def benchmark(model: mon.Model):
 
 
 # ----- Predict -----
-@torch.no_grad()
 def predict(args: dict | box.Box) -> str:
     # Start
     mon.print_run_summary(args)

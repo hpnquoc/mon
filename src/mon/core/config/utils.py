@@ -12,6 +12,7 @@ __all__ = [
 ]
 
 import importlib.util
+import os
 from typing import Any
 
 import box
@@ -73,7 +74,10 @@ def list_configs(
 
     def collect_config_files(root: pathlib.Path | str) -> list[pathlib.Path]:
         config_dir = pathlib.Path(root) / "config"
-        return list(config_dir.files(recursive=True))
+        return [
+            c for c in list(config_dir.files(recursive=True))
+            if f"{os.sep}excluded{os.sep}" not in str(c)
+        ]
     
     # List config files in project and model directories
     config_files = []

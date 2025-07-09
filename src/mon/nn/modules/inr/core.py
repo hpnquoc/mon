@@ -16,7 +16,7 @@ from torch.nn import functional as F
 
 # ----- Utils -----
 def create_coords(down_size: int) -> torch.Tensor:
-    """Creates a coordinates grid.
+    """Creates a coordinate grid.
 
     Args:
         down_size: Size of the square coordinates grid as ``int``.

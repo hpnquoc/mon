@@ -18,13 +18,14 @@ import torch
 from mon import core, nn
 from mon.constants import MLType, MODELS, Task
 from mon.nn import _size_2_t, functional as F
-from mon.vision import filtering, types
+from mon.vision import filtering, types, geometry
 from mon.vision.enhance import base
 
 current_file = core.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 INR_AF       = nn.inr_layer.INR_AF
 MAPPING_FUNC = Literal["p", "v", "d", "e", "pv", "pd", "pe", "pvde"]
+COLOR_SPACE  = Literal["hsv", "hvi"]
 
 
 # ----- Utils -----
@@ -80,12 +81,9 @@ def replace_v_component(image_hsv: torch.Tensor, v_new: torch.Tensor) -> torch.T
     """Replaces the `V` component of an HSV image `[1, 3, H, W]`."""
     image_hsv[:, -1, :, :] = v_new
     return image_hsv
-
-
-def replace_i_component(image_hvi: torch.Tensor, i_new: torch.Tensor) -> torch.Tensor:
-    """Replaces the `I` component of an HVI image `[1, 3, H, W]`."""
-    image_hvi[:, 2, :, :] = i_new
-    return image_hvi
+    # h = image_hsv.clone()[:, 0:1, :, :]
+    # s = image_hsv.clone()[:, 1:2, :, :]
+    # return torch.cat((h, s, v_new), dim=1)
 
 
 def laplace(self, model_output: torch.Tensor, coords: torch.Tensor):
@@ -126,7 +124,7 @@ class Loss(nn.Loss):
         loss_w_de  : float = 1.0,
         loss_w_c   : float = 5.0,
         reduction  : Literal["none", "mean", "sum"] = "mean",
-        verbose    : bool = False,
+        verbose    : bool  = False,
     ):
         super().__init__(reduction=reduction)
         self.loss_w_f   = loss_w_f
@@ -414,9 +412,9 @@ class INF4(nn.Module):
         hidden_dim   = 256
         mid_channels = hidden_dim // 4 if reduce_channels else hidden_dim
         if use_ff:
-            self.register_buffer("B1", torch.randn((hidden_dim, 2)) * ff_gaussian_scale)
-            s_in_channels = hidden_dim * 2
+            self.register_buffer("B1", torch.randn((hidden_dim, 2))         * ff_gaussian_scale)
             self.register_buffer("B2", torch.randn((hidden_dim, patch_dim)) * ff_gaussian_scale)
+            s_in_channels = hidden_dim * 2
             v_in_channels = hidden_dim * 2
         else:
             self.B1       = None
@@ -484,6 +482,7 @@ class ZeroLINR(base.ImageEnhancementModel):
     def __init__(
         self,
         mapping_func     : MAPPING_FUNC = "pvde",
+        color_space      : COLOR_SPACE  = "hsv",
         window_size      : int          = 9,
         down_size        : int          = 256,
         num_layers       : int          = 4,
@@ -508,6 +507,7 @@ class ZeroLINR(base.ImageEnhancementModel):
     ):
         super().__init__(*args, **kwargs)
         self.mapping_func    = mapping_func
+        self.color_space     = color_space
         self.down_size       = down_size
         self.depth_threshold = depth_threshold
         self.edge_threshold  = edge_threshold
@@ -518,7 +518,7 @@ class ZeroLINR(base.ImageEnhancementModel):
         self.denoise_space   = tuple(denoise_space)
         self.iters           = iters
         weight_decay         = [0.1, 0.0001, 0.001]
-        
+
         # Model
         loss_w_de = self.loss["loss_w_de"]
         if mapping_func in ["p"]:
@@ -558,7 +558,11 @@ class ZeroLINR(base.ImageEnhancementModel):
             reduce_channels   = reduce_channels,
             weight_decay      = weight_decay,
         )
-        
+        if self.color_space == "hvi":
+            self.hvi = types.RGBToHVI(requires_grad=False)
+        else:
+            self.hvi = None
+
         # Optimizer
         self.configure_optimizers()
         
@@ -635,7 +639,7 @@ class ZeroLINR(base.ImageEnhancementModel):
         z_lr     = outputs["z_lr"]
         enhanced = outputs["enhanced"]
         loss     = self.loss(enhanced, v_lr, x_lr, z_lr, d_lr, e_lr)
-        
+
         return outputs | {
             "loss": loss,
         }
@@ -655,12 +659,12 @@ class ZeroLINR(base.ImageEnhancementModel):
             datapoint
         ):
             datapoint = self.prepare_input(datapoint)
-        hsv  = datapoint["hsv"].clone()
-        p    = datapoint["p"]
-        v    = datapoint["v"]
-        v_lr = datapoint["v_lr"]
-        d_lr = datapoint["d_lr"]
-        e_lr = datapoint["e_lr"]
+        image_c = datapoint["image_c"].clone()
+        p       = datapoint["p"]
+        v       = datapoint["v"]
+        v_lr    = datapoint["v_lr"]
+        d_lr    = datapoint["d_lr"]
+        e_lr    = datapoint["e_lr"]
 
         # Mapping
         if self.mapping_func in ["p", "v", "pv"]:
@@ -684,9 +688,12 @@ class ZeroLINR(base.ImageEnhancementModel):
         # Post-process
         if self.use_denoise:
             z_lr = kornia.filters.bilateral_blur(z_lr, self.denoise_ksize, self.denoise_color, self.denoise_space)
-        z   = filter_up(v_lr, z_lr, v, self.gf_radius)
-        hsv = replace_v_component(hsv, z)
-        rgb = kornia.color.hsv_to_rgb(hsv)
+        z       = filter_up(v_lr, z_lr, v, self.gf_radius)
+        image_c = replace_v_component(image_c, z)
+        if self.color_space == "hvi":
+            rgb = self.hvi.hvi_to_rgb(image_c)
+        else:
+            rgb = kornia.color.hsv_to_rgb(image_c)
 
         return {
             "r_lr"    : r_lr,
@@ -705,23 +712,26 @@ class ZeroLINR(base.ImageEnhancementModel):
             ``dict`` of prepared inputs.
         """
         image = datapoint["image"]
-        hsv   = kornia.color.rgb_to_hsv(image)
-        p     = create_coords(self.down_size).to(image.device)
-        v     = kornia.color.rgb_to_hsv(image)[:, 2:3, :, :]
-        d     = datapoint.get("depth", None)
-        e     = types.boundary_aware_prior(d, self.edge_threshold) if d is not None else None
-        v_lr  = interpolate_image(v, self.down_size)
-        d_lr  = interpolate_image(d, self.down_size) if d is not None else None
-        e_lr  = interpolate_image(e, self.down_size) if e is not None else None
+        if self.color_space == "hvi":
+            image_c = self.hvi.rgb_to_hvi(image)
+        else:
+            image_c = kornia.color.rgb_to_hsv(image)
+        p    = create_coords(self.down_size).to(image.device)
+        v    = image_c.clone()[:, 2:3, :, :]
+        d    = datapoint.get("depth", None)
+        e    = types.boundary_aware_prior(d, self.edge_threshold) if d is not None else None
+        v_lr = interpolate_image(v, self.down_size)
+        d_lr = interpolate_image(d, self.down_size) if d is not None else None
+        e_lr = interpolate_image(e, self.down_size) if e is not None else None
         return datapoint | {
-            "hsv" : hsv,
-            "p"   : p,
-            "v"   : v,
-            "d"   : d,
-            "e"   : e,
-            "v_lr": v_lr,
-            "d_lr": d_lr,
-            "e_lr": e_lr,
+            "image_c": image_c,
+            "p"      : p,
+            "v"      : v,
+            "d"      : d,
+            "e"      : e,
+            "v_lr"   : v_lr,
+            "d_lr"   : d_lr,
+            "e_lr"   : e_lr,
         }
     
     # ----- Predict -----

@@ -1,14 +1,11 @@
-import math
-import torch
-from torch import autograd as autograd
-from torch import nn as nn
-from torch.nn import functional as F
-import torchvision
 import pytorch_msssim
-import numpy as np
-
+import torch
+import torchvision
 # from losses.vgg_arch import VGGFeatureExtractor
 from losses.loss_utils import weighted_loss
+from torch import nn as nn
+from torch.nn import functional as F
+
 #from basicsr.metrics.lpips.lpips import LPIPS
 
 _reduction_modes = ['none', 'mean', 'sum']
@@ -32,11 +29,13 @@ def log_mse_loss(pred, target):
 def charbonnier_loss(pred, target, eps=1e-12):
     return torch.sqrt((pred - target)**2 + eps)
 
+
 @weighted_loss
 def psnr_loss(pred, target): # NCHW
     mseloss = F.mse_loss(pred, target, reduction='none').mean((1,2,3))
     psnr_val = 10 * torch.log10(1 / mseloss).mean().item()
     return psnr_val
+
 
 class PSNRLoss(nn.Module):
 
@@ -53,6 +52,7 @@ class PSNRLoss(nn.Module):
                 weights. Default: None.
         """
         return self.loss_weight * psnr_loss(pred, target, weight) * -1.0 
+
 
 class L1Loss(nn.Module):
     """L1 (mean absolute error, MAE) loss.
@@ -114,6 +114,7 @@ class MSELoss(nn.Module):
         return self.loss_weight * mse_loss(
             pred, target, weight, reduction=self.reduction)
 
+
 class FrequencyLoss(nn.Module):
     '''
     Calculates the amplitude of frequencies loss.
@@ -151,6 +152,7 @@ class FrequencyLoss(nn.Module):
         inp_freq = torch.fft.rfft2(inp, norm='backward')
         amp = torch.abs(inp_freq)
         return amp
+
 
 class CharbonnierLoss(nn.Module):
     """Charbonnier loss (one variant of Robust L1Loss, a differentiable
@@ -374,9 +376,11 @@ class VGGLoss(nn.Module):
             loss += self.weights[i] * self.criterion(x_vgg[i], y_vgg[i].detach())
         return self.weight * loss
 
+
 #---------------------------------------------------------------
 #define the edge loss to enhance the deblurring task
 class EdgeLoss(nn.Module):
+
     def __init__(self, rank, loss_weight=1.0, criterion = 'l2',reduction='mean'):
         super(EdgeLoss, self).__init__()
         if reduction not in ['none', 'mean', 'sum']:
@@ -395,8 +399,7 @@ class EdgeLoss(nn.Module):
         self.kernel = torch.matmul(k.t(),k).unsqueeze(0).repeat(3,1,1,1).to(rank)
 
         self.weight = loss_weight
-        
-                
+
     def conv_gauss(self, img):
         n_channels, _, kw, kh = self.kernel.shape
         img = F.pad(img, (kw//2, kh//2, kw//2, kh//2), mode='replicate')
@@ -416,10 +419,10 @@ class EdgeLoss(nn.Module):
         return loss*self.weight
 
 
-
 def SSIM_loss(pred_img, real_img, data_range):
     SSIM_loss = pytorch_msssim.ssim(pred_img, real_img, data_range = data_range)
     return SSIM_loss
+
 
 class SSIM(nn.Module):
     def __init__(self, loss_weight=1.0, data_range = 1.):
@@ -429,6 +432,7 @@ class SSIM(nn.Module):
 
     def forward(self, pred, target, **kwargs):
         return self.loss_weight * SSIM_loss(pred, target, self.data_range)
+
 
 class SSIMloss(nn.Module):
     def __init__(self, loss_weight=1.0, data_range = 1.):
@@ -449,8 +453,10 @@ class SSIMloss(nn.Module):
 #         self.lpips_loss = self.lpips_loss.to(pred.device)
 #         return self.loss_weight * self.lpips_loss(pred, target)
 
+
 class L1_Charbonnier_loss(nn.Module):
     """L1 Charbonnierloss."""
+
     def __init__(self):
         super(L1_Charbonnier_loss, self).__init__()
         self.eps = 1e-6
@@ -460,9 +466,11 @@ class L1_Charbonnier_loss(nn.Module):
         error = torch.sqrt(diff * diff + self.eps)
         loss = torch.mean(error)
         return loss
-        
+
+
 class L_deblur(nn.Module):
     """L_deblur."""
+
     def __init__(self, loss_weight=1.0, gamma1 = 0.4, gamma2 = 0.2, gamma3 = 0.2, gamma4 = 0.2):
         super(L_deblur, self).__init__()
         self.loss_weight = loss_weight
@@ -475,8 +483,10 @@ class L_deblur(nn.Module):
         loss = self.gamma1 * l1_loss(X, Y) + self.gamma2 * mse_loss(X, Y) + self.gamma4 * SSIM_loss(X, Y)
         return self.loss_weight * loss
 
+
 class L_enhance(nn.Module):
     """L_enhance."""
+
     def __init__(self, loss_weight=1.0, gamma1 = 0.5, gamma2 = 0.3, gamma3 = 0.2):
         super(L_enhance, self).__init__()
         self.loss_weight = loss_weight
@@ -488,8 +498,10 @@ class L_enhance(nn.Module):
         loss = self.gamma1 * l1_loss(X, Y) + self.gamma2 * mse_loss(X, Y)
         return self.loss_weight * loss
 
+
 class L_reblur(nn.Module):
     """L_enhance."""
+
     def __init__(self, loss_weight=1.0, gamma1 = 1.0):
         super(L_reblur, self).__init__()
         self.loss_weight = loss_weight
@@ -498,13 +510,15 @@ class L_reblur(nn.Module):
     def forward(self, X, Y):
         loss = self.gamma1 * l1_loss(X, Y)
         return self.loss_weight * loss
-    
+
+
 class EnhanceLoss(nn.Module):
     '''
     Applies the enhanceLoss. This loss is the l1 loss of the image downsampled at the middle of the
     encoder-decoder plus the l1 of the features of this downsample image given by the vgg19 (a perceptual
     element).
     '''
+
     def __init__(self, loss_weight=1.0, criterion = 'l1', reduction='mean'):
         super(EnhanceLoss, self).__init__()
         self.loss_weight = loss_weight
@@ -526,4 +540,3 @@ class EnhanceLoss(nn.Module):
     def forward(self, gt, enhanced, scale_factor = 16):
         gt_low_res = F.interpolate(gt, scale_factor=scale_factor, mode = 'nearest')
         return self.vgg19(gt_low_res, enhanced) + self.loss_weight * self.criterion(gt_low_res, enhanced)
-    

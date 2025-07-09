@@ -5,9 +5,11 @@ from imagecorruptions import corrupt
 from torchvision import transforms
 import yaml
 
+
 def imadjust(x, a, b, c, d, gamma=1):
     y = (((x - a) / (b - a+1e-5)) ** gamma) * (d - c) + c
     return y
+
 
 def poisson_gaussian_noise(path,x, severity):
     c_poisson = 10 * [60, 25, 12, 5, 3][severity]
@@ -40,6 +42,7 @@ def low_light(path, x, severity):
     x_scaled = imadjust(x, x.min(), x.max(), 0, c, gamma=2) * 255
     x_scaled = poisson_gaussian_noise(path,x_scaled, severity=severity-1)
     return x_scaled
+
 
 def create_dark(path, image, severity_lower=1, severity_upper=5):
     """
@@ -124,7 +127,6 @@ def create_motion_blur(path,image,severity_lower=1, severity_upper=5):
     return im
 
 
-
 def create_zoom_blur(path,image,severity_lower=1, severity_upper=5):
     """
     Create corruptions: 'Zoom Blur'.
@@ -202,8 +204,9 @@ def perturbation(path, image, cfg):
             corrupted = create_zoom_blur(path, corrupted, severity_lower=cfg['severity_lower_zoom_blur'], severity_upper=cfg['severity_upper_zoom_blur'])
     return corrupted
 
+
 if __name__ == "__main__":
-    cfg = yaml.load(open("configs/depthanything_AC_vits.yaml", "r"), Loader=yaml.FullLoader)
+    cfg   = yaml.load(open("configs/depthanything_AC_vits.yaml", "r"), Loader=yaml.FullLoader)
     image = Image.open("your/path/to/image.png")
     corrupted_dark = create_dark("your/path/to/image.png",image,severity_lower=cfg['severity_lower_dark'], severity_upper=cfg['severity_upper_dark'])
     corrupted_dark.save("your/path/to/image_save.png")

@@ -390,7 +390,6 @@ class TRTPrecision(Enum):
     FP16    = "fp16"                    # 16-bit floating point
     FP16N32 = "fp16n32"                 # 16-bit floating point with 32-bit normalization
     FP32    = "fp32"                    # 32-bit floating point
-    FP32N32 = "fp32n32"                 # 32-bit floating point with 32-bit normalization
     FP8     = "fp8"                     # 8-bit floating point
     FP8N32  = "fp8n32"                  # 8-bit floating point with 32-bit normalization
     INT8    = "int8"                    # 8-bit integer
@@ -484,6 +483,7 @@ class BBoxFormat(Enum):
 class DepthSource(Enum):
     """Depth input data sources."""
 
+    DAAC_ViTS = "daac_vits"             # Depth Anything at Any Condition with ViT-S encoder
     DAv2_ViTB = "dav2_vitb"             # Depth Anything v2 with ViT-B encoder
     DAv2_ViTL = "dav2_vitl"             # Depth Anything v2 with ViT-L encoder
     DAv2_ViTS = "dav2_vits"             # Depth Anything v2 with ViT-S encoder

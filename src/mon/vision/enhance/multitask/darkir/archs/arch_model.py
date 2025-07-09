@@ -1,7 +1,5 @@
 import torch
 import torch.nn as nn
-import torch.nn.init as init
-import torch.nn.functional as F
 
 try:
     from .arch_util import LayerNorm2d
@@ -10,9 +8,11 @@ except:
 
 
 class SimpleGate(nn.Module):
+
     def forward(self, x):
         x1, x2 = x.chunk(2, dim=1)
         return x1 * x2
+
 
 class Adapter(nn.Module):
     
@@ -32,6 +32,7 @@ class Adapter(nn.Module):
         x = self.conv2(x)
         
         return x
+
 
 class FreMLP(nn.Module):
     
@@ -54,10 +55,12 @@ class FreMLP(nn.Module):
         x_out = torch.fft.irfft2(x_out, s=(H, W), norm='backward')
         return x_out
 
+
 class Branch(nn.Module):
     '''
     Branch that lasts lonly the dilated convolutions
     '''
+
     def __init__(self, c, DW_Expand, dilation = 1):
         super().__init__()
         self.dw_channel = DW_Expand * c 
@@ -66,9 +69,11 @@ class Branch(nn.Module):
                        nn.Conv2d(in_channels=self.dw_channel, out_channels=self.dw_channel, kernel_size=3, padding=dilation, stride=1, groups=self.dw_channel,
                                             bias=True, dilation = dilation) # the dconv
         )
+
     def forward(self, input):
         return self.branch(input)
-    
+
+
 class DBlock(nn.Module):
     '''
     Change this block using Branch
@@ -105,13 +110,11 @@ class DBlock(nn.Module):
         self.gamma = nn.Parameter(torch.zeros((1, c, 1, 1)), requires_grad=True)
         self.beta = nn.Parameter(torch.zeros((1, c, 1, 1)), requires_grad=True)
 
+        # self.adapter = Adapter(c, ffn_channel=None)
+        # self.use_adapters = False
 
-#        self.adapter = Adapter(c, ffn_channel=None)
-        
-#        self.use_adapters = False
-
-#    def set_use_adapters(self, use_adapters):
-#        self.use_adapters = use_adapters
+        # def set_use_adapters(self, use_adapters):
+        #       self.use_adapters = use_adapters
         
     def forward(self, inp, adapter = None):
 
@@ -137,6 +140,7 @@ class DBlock(nn.Module):
 #            return self.adapter(x)
 #        else:
         return x 
+
 
 class EBlock(nn.Module):
     '''

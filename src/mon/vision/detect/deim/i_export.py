@@ -156,16 +156,17 @@ def export_trt(onnx_path: mon.Path, engine_path: mon.Path, args: dict | box.Box)
     config.set_memory_pool_limit(trt.MemoryPoolType.WORKSPACE, memory_pool_limit)
     config.builder_optimization_level = 5   # Maximum optimization level
 
+    if trt_p in ["fp16n32", "fp16", "fp8n32", "fp8", "int8n32", "int8"]:
+        # if dla_core not in [None, -1]:  # For Jetson devices
+        config.DLA_core = 0
+        config.default_device_type = trt.DeviceType.DLA
+        config.set_flag(trt.BuilderFlag.GPU_FALLBACK)
+        print("Apply DLA core.")
+
     if trt_p in ["fp16n32", "fp16"]:
         if builder.platform_has_fast_fp16:
             config.set_flag(trt.BuilderFlag.FP16)
             print("Apply FP16 optimization.")
-        else:
-            print("Apply FP32 optimization.")
-    elif trt_p in ["fp8n32", "fp8"]:
-        if builder.platform_has_fast_fp8:
-            config.set_flag(trt.BuilderFlag.FP8)
-            print("Apply FP8 optimization.")
         else:
             print("Apply FP32 optimization.")
     elif trt_p in ["int8n32", "int8"]:
@@ -174,12 +175,6 @@ def export_trt(onnx_path: mon.Path, engine_path: mon.Path, args: dict | box.Box)
             print("Apply INT8 optimization.")
         else:
             print("Apply FP32 optimization.")
-    if trt_p in ["fp16n32", "fp16", "fp8n32", "fp8", "int8n32", "int8"]:
-        # if dla_core not in [None, -1]:  # For Jetson devices
-        config.DLA_core = 0
-        config.default_device_type = trt.DeviceType.DLA
-        config.set_flag(trt.BuilderFlag.GPU_FALLBACK)
-        print("Apply DLA core.")
 
     # Create optimization profile
     profile = builder.create_optimization_profile()
@@ -196,52 +191,13 @@ def export_trt(onnx_path: mon.Path, engine_path: mon.Path, args: dict | box.Box)
     if opset == 16:
         if trt_p in ["fp16n32", "fp8n32", "int8n32"]:
             layer_names = ["layernorm", "norm", "rms"]
-            norm_layers = [
-                #                Function name                                Weights name
-                # Encoder
-                # "/model/encoder/encoder.0/layers.0/norm1",      "model.encoder.encoder.0.layers.0.norm1",
-                # "/model/encoder/encoder.0/layers.0/norm2",      "model.encoder.encoder.0.layers.0.norm2",
-                # Decoder
-                "/model/decoder/enc_output/norm",               "model.decoder.enc_output.norm",
-                # Decoder block 0
-                # "/model/decoder/decoder/layers.0/norm1",        "model.decoder.decoder.layers.0.norm1",
-                # "/model/decoder/decoder/layers.0/gateway/norm", "model.decoder.decoder.layers.0.gateway.norm",
-                "/model/decoder/decoder/layers.0/norm3",        "model.decoder.decoder.layers.0.norm3",
-                # Decoder block 1
-                # "/model/decoder/decoder/layers.1/norm1",        "model.decoder.decoder.layers.1.norm1",
-                # "/model/decoder/decoder/layers.1/gateway/norm", "model.decoder.decoder.layers.1.gateway.norm",
-                "/model/decoder/decoder/layers.1/norm3",        "model.decoder.decoder.layers.1.norm3",
-                # Decoder block 2
-                # "/model/decoder/decoder/layers.2/norm1",        "model.decoder.decoder.layers.2.norm1",
-                # "/model/decoder/decoder/layers.2/gateway/norm", "model.decoder.decoder.layers.2.gateway.norm",
-                "/model/decoder/decoder/layers.2/norm3",        "model.decoder.decoder.layers.2.norm3"
-                # Decoder block 3
-                # "/model/decoder/decoder/layers.3/norm1",        "model.decoder.decoder.layers.3.norm1",
-                # "/model/decoder/decoder/layers.3/gateway/norm", "model.decoder.decoder.layers.3.gateway.norm",
-                "/model/decoder/decoder/layers.3/norm3",        "model.decoder.decoder.layers.3.norm3",
-                # Decoder block 4
-                # "/model/decoder/decoder/layers.4/norm1",        "model.decoder.decoder.layers.4.norm1",
-                # "/model/decoder/decoder/layers.4/gateway/norm", "model.decoder.decoder.layers.4.gateway.norm",
-                "/model/decoder/decoder/layers.4/norm3",        "model.decoder.decoder.layers.4.norm3",
-                # Decoder block 5
-                # "/model/decoder/decoder/layers.5/norm1",        "model.decoder.decoder.layers.5.norm1",
-                # "/model/decoder/decoder/layers.5/gateway/norm", "model.decoder.decoder.layers.5.gateway.norm",
-                "/model/decoder/decoder/layers.5/norm3",        "model.decoder.decoder.layers.5.norm3",
-            ]
             for i in range(network.num_layers):
                 layer = network.get_layer(i)
                 # Heuristic: match common LayerNorm-related names
                 if any(kw in layer.name.lower() for kw in layer_names):
-                    if any(nl in layer.name for nl in norm_layers):
-                        print(f"Apply FP32 on LayerNorm-related layer: {layer.name}.")
-                        layer.precision = trt.DataType.FLOAT
-                        layer.set_output_type(0, trt.DataType.FLOAT)
-                """Old method
-                if any(kw in layer.name.lower() for kw in ["layernorm", "norm", "rms"]):
                     print(f"Apply FP32 on LayerNorm-related layer: {layer.name}.")
                     layer.precision = trt.DataType.FLOAT
                     layer.set_output_type(0, trt.DataType.FLOAT)
-                """
 
     mon.console.log("Building TensorRT engine...")
     serialized_engine = builder.build_serialized_network(network, config)

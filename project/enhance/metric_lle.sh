@@ -5,39 +5,39 @@ clear
 
 # ----- Input -----
 arch="zerolinr"
-model="zerolinr"
+model="zerolinr_hvi"
 datasets=(
     ### Unpaired Set
-    "dicm"
-    "lime"
-    "mef"
-    "npe"
-    "vv"
+    #"dicm"
+    #"lime"
+    #"mef"
+    #"npe"
+    #"vv"
     ### LOLs Set
     "lolv1"
-    "lolv2real"
-    "lolv2syn"
+    #"lolv2real"
+    #"lolv2syn"
     ### FiveK Set
     #"fiveka"
     #"fivekb"
-    "fivekc"
+    #"fivekc"
     #"fivekd"
-    "fiveke"
+    #"fiveke"
     ### SICE Set
-    "sice"
-    "sicegrad"
-    "sicemix"
+    #"sice"
+    #"sicegrad"
+    #"sicemix"
     ### Camera-Specific Set
-    "sidsony"
+    #"sidsony"
     ### Real-World Set
-    "darkcityscapes"
+    #"darkcityscapes"
     # "darkface"
-    "darkface496"
+    #"darkface496"
     # "exdark"
-    "exdark1200"
-    "lolistreettest"
-    "lolistreetval"
-    "nightcity"
+    #"exdark1200"
+    #"lolistreettest"
+    #"lolistreetval"
+    #"nightcity"
 )
 device="cuda:0"
 metrics=(
@@ -86,11 +86,11 @@ declare -A target_subdirs=(
 
 # ----- Validation -----
 check_file() {
-    [[ ! -f "$1" ]] && { echo "File not found: $1"; exit 1; }
+    [[ ! -f "$1" ]] && { echo "File not found: $1"; }
 }
 
 check_dir() {
-    [[ ! -d "$1" ]] && { echo "Directory not found: $1"; exit 1; }
+    [[ ! -d "$1" ]] && { echo "Directory not found: $1"; }
 }
 
 create_dir() {
@@ -102,12 +102,12 @@ cd "${run_dir}" || exit
 
 for data in "${datasets[@]}"; do
     # Input
-    input_subdir="${input_subdirs[$dn]:-${data}/pred}"
+    input_subdir="${input_subdirs[$data]:-${data}/pred}"
     input_dir="${current_dir}/run/predict/${arch}/${model}/${input_subdir}"
     check_dir "${input_dir}"
 
     # Target
-    target_subdir="${target_subdirs[$dn]:-${data}/test/ref}"
+    target_subdir="${target_subdirs[$data]:-${data}/test/ref}"
     target_dir="${current_dir}/data/${target_subdir}"
     # Fallback target_dir if not found
     [[ ! -d "${target_dir}" ]] && target_dir="${root_dir}/data/enhance/${target_subdir}"

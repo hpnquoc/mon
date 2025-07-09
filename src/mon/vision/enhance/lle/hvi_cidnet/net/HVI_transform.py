@@ -4,6 +4,7 @@ import torch.nn as nn
 pi = 3.141592653589793
 
 class RGB_HVI(nn.Module):
+
     def __init__(self):
         super(RGB_HVI, self).__init__()
         self.density_k = torch.nn.Parameter(torch.full([1],0.2)) # k is reciprocal to the paper mentioned

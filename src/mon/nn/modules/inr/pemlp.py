@@ -38,7 +38,8 @@ class PositionalEncodingLayer(torch.nn.Module):
         self.funcs        = [torch.sin, torch.cos]
         self.out_channels = in_channels * (len(self.funcs) * N_freqs + 1)
         self.freq_bands   = (
-            2 ** torch.linspace(0, N_freqs - 1, N_freqs) if logscale
+            2 ** torch.linspace(0, N_freqs - 1, N_freqs)
+            if logscale
             else torch.linspace(1, 2 ** (N_freqs - 1), N_freqs)
         )
 

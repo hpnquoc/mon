@@ -6,8 +6,8 @@ clear
 # ----- Input -----
 task="depth"
 mode="predict"
-arch="dav2"
-model="dav2_vitb"
+arch="daac"
+model="daac_vits"
 datasets=(
 
 )
@@ -46,7 +46,6 @@ python -W ignore main.py \
     --data "${data}" \
     --save-result \
     --save-image \
-    --save-debug \
     --use-fullname \
     --save-nearby \
     --exist-ok \

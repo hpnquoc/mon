@@ -1,4 +1,3 @@
-import torch
 import torch.nn as nn
 import torch.nn.functional as F
 try:
@@ -7,6 +6,7 @@ try:
 except:
     from archs.arch_model import EBlock, DBlock
     from .arch_util import CustomSequential
+
 
 class DarkIR(nn.Module):
     
@@ -113,6 +113,7 @@ class DarkIR(nn.Module):
         x = F.pad(x, (0, mod_pad_w, 0, mod_pad_h), value = 0)
         return x      
 
+
 if __name__ == '__main__':
     
     img_channel = 3
@@ -149,6 +150,3 @@ if __name__ == '__main__':
     
     weights = net.state_dict()
     adapter_weights = {k: v for k, v in weights.items() if 'adapter' not in k}
-
-    
-    

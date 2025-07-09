@@ -1,12 +1,12 @@
-import torch.nn as nn
-import torch
-import torch.nn.functional as F
-from einops import rearrange
 import math
 import warnings
-from torch.nn.init import _calculate_fan_in_and_fan_out
+
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+from einops import rearrange
 from ptflops import get_model_complexity_info
-# import cv2
+from torch.nn.init import _calculate_fan_in_and_fan_out
 
 
 def _no_grad_trunc_normal_(tensor, mean, std, a, b):
@@ -58,6 +58,7 @@ def lecun_normal_(tensor):
 
 
 class PreNorm(nn.Module):
+
     def __init__(self, dim, fn):
         super().__init__()
         self.fn = fn
@@ -91,8 +92,8 @@ def shift_back(inputs, step=2):
     return inputs[:, :, :, :out_col]
 
 
-
 class Illumination_Estimator(nn.Module):
+
     def __init__(
             self, n_fea_middle, n_fea_in=4, n_fea_out=3):  #__init__部分是内部属性，而forward的输入才是外部输入
         super(Illumination_Estimator, self).__init__()
@@ -121,8 +122,8 @@ class Illumination_Estimator(nn.Module):
         return illu_fea, illu_map
 
 
-
 class IG_MSA(nn.Module):
+
     def __init__(
             self,
             dim,
@@ -180,6 +181,7 @@ class IG_MSA(nn.Module):
 
 
 class FeedForward(nn.Module):
+
     def __init__(self, dim, mult=4):
         super().__init__()
         self.net = nn.Sequential(
@@ -231,6 +233,7 @@ class IGAB(nn.Module):
 
 
 class Denoiser(nn.Module):
+
     def __init__(self, in_dim=3, out_dim=3, dim=31, level=2, num_blocks=[2, 4, 4]):
         super(Denoiser, self).__init__()
         self.dim = dim
@@ -322,6 +325,7 @@ class Denoiser(nn.Module):
 
 
 class RetinexFormer_Single_Stage(nn.Module):
+
     def __init__(self, in_channels=3, out_channels=3, n_feat=31, level=2, num_blocks=[1, 1, 1]):
         super(RetinexFormer_Single_Stage, self).__init__()
         self.estimator = Illumination_Estimator(n_feat)
@@ -341,6 +345,7 @@ class RetinexFormer_Single_Stage(nn.Module):
 
 
 class RetinexFormer(nn.Module):
+
     def __init__(self, in_channels=3, out_channels=3, n_feat=40, stage=1, num_blocks=[1,2,2]):
         super(RetinexFormer, self).__init__()
         self.stage = stage

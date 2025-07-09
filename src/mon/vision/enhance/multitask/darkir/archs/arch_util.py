@@ -1,9 +1,6 @@
 import torch
-import numpy as np
 from torch import nn as nn
-from torch.nn import init as init
-import torch.distributed as dist
-from collections import OrderedDict
+
 
 class LayerNormFunction(torch.autograd.Function):
 
@@ -32,6 +29,7 @@ class LayerNormFunction(torch.autograd.Function):
         return gx, (grad_output * y).sum(dim=3).sum(dim=2).sum(dim=0), grad_output.sum(dim=3).sum(dim=2).sum(
             dim=0), None
 
+
 class LayerNorm2d(nn.Module):
 
     def __init__(self, channels, eps=1e-6):
@@ -49,6 +47,7 @@ class CustomSequential(nn.Module):
     Similar to nn.Sequential, but it lets us introduce a second argument in the forward method 
     so adaptors can be considered in the inference.
     '''
+
     def __init__(self, *args):
         super(CustomSequential, self).__init__()
         self.modules_list = nn.ModuleList(args)
@@ -59,6 +58,7 @@ class CustomSequential(nn.Module):
                 module.set_use_adapters(use_adapter)
             x = module(x)
         return x
+
 
 if __name__ == '__main__':
     

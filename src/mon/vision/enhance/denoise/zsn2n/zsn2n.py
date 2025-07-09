@@ -91,7 +91,7 @@ class ZSN2N(base.ImageEnhancementModel):
         """
         # Forward
         noisy          = datapoint["image"]
-        noisy1, noisy2 = self.pair_downsampler(noisy)
+        noisy1, noisy2 = geometry.pair_downsample(noisy)
         datapoint1     = datapoint | {"image": noisy1}
         datapoint2     = datapoint | {"image": noisy2}
         outputs1       = self.forward(datapoint=datapoint1, *args, **kwargs)
@@ -102,11 +102,11 @@ class ZSN2N(base.ImageEnhancementModel):
         pred1          = noisy1 - outputs1["enhanced"]
         pred2          = noisy2 - outputs2["enhanced"]
         noisy_denoised =  noisy -  outputs["enhanced"]
-        denoised1, denoised2 = self.pair_downsampler(noisy_denoised)
-        mse_loss  = nn.MSELoss()
-        loss_res  = 0.5 * (mse_loss(noisy1, pred2)    + mse_loss(noisy2, pred1))
-        loss_cons = 0.5 * (mse_loss(pred1, denoised1) + mse_loss(pred2, denoised2))
-        loss      = loss_res + loss_cons
+        denoised1, denoised2 = geometry.pair_downsample(noisy_denoised)
+        mse_loss       = nn.MSELoss()
+        loss_res       = 0.5 * (mse_loss(noisy1, pred2)     + mse_loss(noisy2, pred1))
+        loss_cons      = 0.5 * (mse_loss(pred1,  denoised1) + mse_loss(pred2,  denoised2))
+        loss           = loss_res + loss_cons
         
         return outputs | {
 			"loss": loss,

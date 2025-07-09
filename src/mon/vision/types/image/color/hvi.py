@@ -22,13 +22,15 @@ class RGBToHVI(nn.Module):
         - https://github.com/Fediory/HVI-CIDNet/blob/master/net/HVI_transform.py
     """
     
-    def __init__(self, eps: float = 1e-8):
+    def __init__(self, requires_grad: bool = False, eps: float = 1e-8):
         super().__init__()
         self.eps       = eps
-        self.density_k = torch.nn.Parameter(torch.full([1], 0.2), requires_grad=True)  # k is reciprocal to the paper mentioned
+        self.density_k = torch.nn.Parameter(torch.full([1], 0.2), requires_grad=requires_grad)  # k is reciprocal to the paper mentioned
+        # self.density_k = torch.nn.Parameter(torch.full([1], 0.5), requires_grad=requires_grad)  # k is reciprocal to the paper mentioned
         self.gated     = False
         self.gated2    = False
         self.alpha     = 1.0
+        self.alpha_s   = 1.3
         self.this_k    = 0
     
     def rgb_to_hvi(self, image: torch.Tensor) -> torch.Tensor:
@@ -52,15 +54,17 @@ class RGBToHVI(nn.Module):
         saturation  = saturation.unsqueeze(1)
         value       = value.unsqueeze(1)
         
-        self.this_k     = self.density_k.item()
-        color_sensitive = ((value * 0.5 * pi).sin() + self.eps).pow(self.density_k)
-        cx  = (2.0 * pi * hue).cos()
-        cy  = (2.0 * pi * hue).sin()
-        X   = color_sensitive * saturation * cx
-        Y   = color_sensitive * saturation * cy
-        Z   = value
-        xyz = torch.cat([X, Y, Z], dim=1)
-        return xyz
+        k = self.density_k
+        self.this_k = k.item()
+
+        color_sensitive = ((value * 0.5 * pi).sin() + self.eps).pow(k)
+        ch = (2.0 * pi * hue).cos()
+        cv = (2.0 * pi * hue).sin()
+        H  = color_sensitive * saturation * ch
+        V  = color_sensitive * saturation * cv
+        I  = value
+        hvi = torch.cat([H, V, I], dim=1)
+        return hvi
     
     def hvi_to_rgb(self, image: torch.Tensor) -> torch.Tensor:
         pi      = 3.141592653589793
@@ -72,17 +76,18 @@ class RGBToHVI(nn.Module):
         I = torch.clamp(I, 0, 1)
         
         v = I
-        color_sensitive = ((v * 0.5 * pi).sin() + self.eps).pow(self.this_k)
-        H = H / (color_sensitive + self.eps)
-        V = V / (color_sensitive + self.eps)
+        k = self.this_k
+        color_sensitive = ((v * 0.5 * pi).sin() + self.eps).pow(k)
+        H = (H) / (color_sensitive + self.eps)
+        V = (V) / (color_sensitive + self.eps)
         H = torch.clamp(H, -1, 1)
         V = torch.clamp(V, -1, 1)
-        h = torch.atan2(V, H) / (2 * pi)
+        h = torch.atan2(V + self.eps, H + self.eps) / (2 * pi)
         h = h % 1
-        s = torch.sqrt(H ** 2 + V ** 2)
+        s = torch.sqrt(H ** 2 + V ** 2 + self.eps)
         
         if self.gated:
-            s = s * 1.3
+            s = s * self.alpha_s
         
         s = torch.clamp(s, 0, 1)
         v = torch.clamp(v, 0, 1)
@@ -92,10 +97,10 @@ class RGBToHVI(nn.Module):
         b = torch.zeros_like(h)
         
         hi = torch.floor(h * 6.0)
-        f = h * 6.0 - hi
-        p = v * (1. - s)
-        q = v * (1. - (f * s))
-        t = v * (1. - ((1. - f) * s))
+        f  = h * 6.0 - hi
+        p  = v * (1.0 - s)
+        q  = v * (1.0 - (f * s))
+        t  = v * (1.0 - ((1.0 - f) * s))
         
         hi0 = hi == 0
         hi1 = hi == 1

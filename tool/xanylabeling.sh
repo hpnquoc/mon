@@ -7,8 +7,7 @@ echo "${HOSTNAME}"
 option=${1:-"start"}
 read -e -i "$option" -p "Option [install, start]: " option
 
-# ----- Globals -----
-# Directory
+# ----- Directory & File -----
 current_file=$(readlink -f "${0}")
 current_dir=$(dirname "${current_file}")  # mon/tool/
 root_dir=$(dirname "${current_dir}")      # mon/

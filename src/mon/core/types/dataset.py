@@ -266,7 +266,7 @@ class Dataset(dataset.Dataset, abc.ABC):
         """
         if not self.datapoint_attrs:
             raise ValueError("[datapoint_attrs] has no defined attributes.")
-        self.datapoints = {k: List[v] for k, v in self.datapoint_attrs.items()}
+        self.datapoints = {k: [] for k, v in self.datapoint_attrs.items()}
 
     def init_data(self, cache_data: bool = False):
         """Initializes dataset data.

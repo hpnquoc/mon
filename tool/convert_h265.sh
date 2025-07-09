@@ -10,8 +10,7 @@ echo "${HOSTNAME}"
 # ----- Input -----
 directory="/home/longpham/10_workspace/11_code/mon"
 
-# ----- Globals -----
-# Directory
+# ----- Directory & File -----
 current_file=$(readlink -f "${0}")
 current_dir=$(dirname "${current_file}")  # mon/tool/
 root_dir=$(dirname "${current_dir}")      # mon/

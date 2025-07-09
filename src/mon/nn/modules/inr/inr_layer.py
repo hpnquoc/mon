@@ -14,10 +14,15 @@ import torch
 from mon.nn.modules.inr.core import ReLULayer, SigmoidLayer, TanhLayer
 from mon.nn.modules.inr.finer import FINERLayer
 from mon.nn.modules.inr.gauss import GaussLayer
+from mon.nn.modules.inr.ndlinear import SineNdLayer, FINERNdLayer
 from mon.nn.modules.inr.siren import SineLayer
 from mon.nn.modules.inr.wire import ComplexGaborLayer
+from mon.nn.modules.inr.bit_inr import BitGeLULayer
 
-INR_AF = Literal["sigmoid", "tanh", "relu", "sine", "gauss", "wire", "finer"]
+INR_AF = Literal[
+    "sigmoid", "tanh", "relu", "sine", "gauss", "wire", "finer", "bitgelu",
+    "sinend", "finernd",
+]
 
 
 # ----- General INR Layer -----
@@ -42,14 +47,14 @@ class INRLayer(torch.nn.Module):
         self,
         in_channels     : int,
         out_channels    : int,
-        nonlinear       : Literal["sigmoid", "tanh", "relu", "sine", "gauss", "wire", "finer"] = "sine",
-        w0              : float = 30.0,
-        scale           : float = 10.0,
-        first_bias_scale: float = None,
-        is_first        : bool  = False,
-        is_last         : bool  = False,
-        bias            : bool  = True,
-        dropout         : float = 0.0,
+        nonlinear       : INR_AF = "sine",
+        w0              : float  = 30.0,
+        scale           : float  = 10.0,
+        first_bias_scale: float  = None,
+        is_first        : bool   = False,
+        is_last         : bool   = False,
+        bias            : bool   = True,
+        dropout         : float  = 0.0,
     ):
         super().__init__()
         if is_last:
@@ -75,6 +80,12 @@ class INRLayer(torch.nn.Module):
             self.nonlinear = ComplexGaborLayer(**layer_args, w0=w0, is_first=is_first)
         elif nonlinear == "finer":
             self.nonlinear = FINERLayer(**layer_args, w0=w0, first_bias_scale=first_bias_scale, is_first=is_first)
+        elif nonlinear == "bitgelu":
+            self.nonlinear = BitGeLULayer(**layer_args, w0=w0, is_first=is_first, init_weights=not is_last)
+        elif nonlinear == "sinend":
+            self.nonlinear = SineNdLayer(**layer_args, w0=w0, is_first=is_first, init_weights=not is_last)
+        elif nonlinear == "finernd":
+            self.nonlinear = FINERNdLayer(**layer_args, w0=w0, first_bias_scale=first_bias_scale, is_first=is_first)
         else:
             raise ValueError(f"[nonlinear] must be supported type, got {nonlinear}.")
         

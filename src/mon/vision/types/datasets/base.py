@@ -47,7 +47,7 @@ class VisionDataset(core.Dataset, abc.ABC):
     
     def __init__(
         self,
-        depth_source   : DepthSource    = DepthSource.DAv2_ViTB,
+        depth_source   : DepthSource    = DepthSource.DAAC_ViTS,
         infrared_source: InfraredSource = InfraredSource.INFRARED,
         bbox_format    : BBoxFormat     = BBoxFormat.XYXY,
         *args, **kwargs

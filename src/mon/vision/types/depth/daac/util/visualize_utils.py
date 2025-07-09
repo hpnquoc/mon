@@ -3,6 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import torch
 
+
 def visualize_geo_prior(img, geo_prior, save_path, batch_idx=0, point_coords=None, normalize=True, alpha=0.6):
     """
     Visualize geometric prior matrix and overlay the result on the original image
@@ -97,6 +98,7 @@ def save_feature_visualization(feature_map, save_path):
     colored_feature = cv2.applyColorMap(mean_feature, cv2.COLORMAP_VIRIDIS)
     cv2.imwrite(save_path, colored_feature)
 
+
 def save_depth_visualization(depth_map, filename):
     """
     Save depth map visualization as a colored image.
@@ -109,6 +111,7 @@ def save_depth_visualization(depth_map, filename):
     depth_norm = depth_norm.detach().cpu().numpy().astype(np.uint8)
     colored_depth = cv2.applyColorMap(depth_norm, cv2.COLORMAP_INFERNO)
     cv2.imwrite(filename, colored_depth)
+
 
 def save_image(img_tensor, filename):
     """
