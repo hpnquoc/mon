@@ -18,7 +18,7 @@ import torch
 from mon import core, nn
 from mon.constants import MLType, MODELS, Task
 from mon.nn import _size_2_t, functional as F
-from mon.vision import filtering, types, geometry
+from mon.vision import filtering, types
 from mon.vision.enhance import base
 
 current_file = core.Path(__file__).absolute()
@@ -81,9 +81,6 @@ def replace_v_component(image_hsv: torch.Tensor, v_new: torch.Tensor) -> torch.T
     """Replaces the `V` component of an HSV image `[1, 3, H, W]`."""
     image_hsv[:, -1, :, :] = v_new
     return image_hsv
-    # h = image_hsv.clone()[:, 0:1, :, :]
-    # s = image_hsv.clone()[:, 1:2, :, :]
-    # return torch.cat((h, s, v_new), dim=1)
 
 
 def laplace(self, model_output: torch.Tensor, coords: torch.Tensor):

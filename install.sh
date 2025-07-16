@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# https://medium.com/@moshiur.faisal01/install-tensorrt-with-command-line-wrapper-trtexec-on-ununtu-20-04-lts-3e44f4f36a2b
+
 # sudo chmod +x install.sh
 # ./install.sh
 

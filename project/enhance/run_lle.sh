@@ -19,6 +19,8 @@ datasets=(
     "lolv1"
     "lolv2real"
     "lolv2syn"
+    ### LSRW Set
+    "lsrw"
     ### FiveK Set
     "fivek"
     #"fiveka"

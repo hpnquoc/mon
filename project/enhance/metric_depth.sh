@@ -4,8 +4,8 @@ echo "${HOSTNAME}"
 clear
 
 # ----- Input -----
-arch="zerolinr"
-model="zerolinr_hvi"
+arch="dav2"
+model="dav2_vitb"
 datasets=(
     ### Unpaired Set
     #"dicm"
@@ -14,17 +14,17 @@ datasets=(
     #"npe"
     #"vv"
     ### LOLs Set
-    #"lolv1"
-    #"lolv2real"
-    #"lolv2syn"
+    "lolv1"
+    "lolv2real"
+    "lolv2syn"
     ### LSRW Set
-    #"lsrw"
+    "lsrw"
     ### FiveK Set
     #"fiveka"
     #"fivekb"
     #"fivekc"
     #"fivekd"
-    #"fiveke"
+    "fiveke"
     ### SICE Set
     "sice"
     #"sicegrad"
@@ -41,19 +41,7 @@ datasets=(
     #"lolistreetval"
     #"nightcity"
 )
-device="cuda:0"
-metrics=(
-    "psnr"
-    "ssimc"
-    "psnry"
-    "ssim"
-    "ms_ssim"
-    "lpips"
-    "brisque"
-    "ilniqe"
-    "niqe"
-    "pi"
-)
+
 
 # ----- Directory & File -----
 current_file=$(readlink -f "${0}")
@@ -63,11 +51,20 @@ root_dir=$(dirname "${project_dir}")
 run_dir="${project_dir}/run"
 
 declare -A input_subdirs=(
-    ["fiveka"]="fivek/pred"
-    ["fivekb"]="fivek/pred"
-    ["fivekc"]="fivek/pred"
-    ["fivekd"]="fivek/pred"
-    ["fiveke"]="fivek/pred"
+    ["lolv2real"]="lolv2/real/test/image"
+    ["lolv2syn"]="lolv2/syn/test/image"
+    ["fiveka"]="fivek/test/image"
+    ["fivekb"]="fivek/test/image"
+    ["fivekc"]="fivek/test/image"
+    ["fivekd"]="fivek/test/image"
+    ["fiveke"]="fivek/test/image"
+    ["sice"]="sice/sice/test/image"
+    ["sicegrad"]="sice/grad/test/image"
+    ["sicemix"]="sice/mix/test/image"
+    ["sidsony"]="sid/sony/test/image"
+    ["exdark1200"]="exdark/test1200/image"
+    ["lolistreetval"]="lolistreet/val/image"
+    ["lolistreettest"]="lolistreet/test/image"
 )
 declare -A target_subdirs=(
     ["lolv2real"]="lolv2/real/test/ref"
@@ -104,25 +101,17 @@ cd "${run_dir}" || exit
 
 for data in "${datasets[@]}"; do
     # Input
-    input_subdir="${input_subdirs[$data]:-${data}/pred}"
-    input_dir="${current_dir}/run/predict/${arch}/${model}/${input_subdir}"
+    input_subdir="${input_subdirs[$data]:-${data}/test/image}"
+    input_dir="${current_dir}/data/${input_subdir}_${model}"
     check_dir "${input_dir}"
 
     # Target
     target_subdir="${target_subdirs[$data]:-${data}/test/ref}"
-    target_dir="${current_dir}/data/${target_subdir}"
-    # Fallback target_dir if not found
-    [[ ! -d "${target_dir}" ]] && target_dir="${root_dir}/data/enhance/${target_subdir}"
+    target_dir="${current_dir}/data/${target_subdir}_${model}"
+    check_dir "${target_dir}"
 
-    # Determine IQA type
-    use_gt_mean=$([[ -d "${target_dir}" ]] && echo "--use-gt-mean" || echo "")
-
-    # Run IQA evaluation
-    metric_args=()
-    for metric in "${metrics[@]}"; do
-      metric_args+=("--metric" "${metric}")
-    done
-    python -W ignore metric_iqa.py \
+    # Run evaluation
+    python -W ignore metric_depth.py \
         --input-dir "${input_dir}" \
         --target-dir "${target_dir}" \
         --result-file "${current_dir}" \
@@ -131,9 +120,7 @@ for data in "${datasets[@]}"; do
         --data "${data}" \
         --device "${device}" \
         --imgsz 512 \
-        --backend "pyiqa" \
-        "${metric_args[@]}" \
-        ${use_gt_mean} \
+        --use-color \
         "$@"
 done
 

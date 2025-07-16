@@ -20,8 +20,10 @@ current_dir  = current_file.parents[0]
 
 # ----- COCO -----
 def measure_metric(input_json: mon.Path, target_json: mon.Path):
-    assert  input_json and  mon.Path(input_json).is_json_file()
-    assert target_json and mon.Path(target_json).is_json_file()
+    if not input_json and not mon.Path(input_json).is_json_file(exist=True):
+        raise FileNotFoundError(f"[input_json] does not exist: {input_json}.")
+    if not target_json or not mon.Path(target_json).is_json_file(exist=True):
+        raise FileNotFoundError(f"[target_json] does not exist: {target_json}.")
 
     coco_gt   = COCO(str(target_json))
     coco_dt   = coco_gt.loadRes(str(input_json))
@@ -58,8 +60,10 @@ def convert_label_to_coco(
     remap_classes: mon.Path,
     bbox_format  : str,
 ) -> mon.Path:
-    assert input_dir and input_dir.is_dir()
-    assert label_dir and label_dir.is_dir()
+    if not input_dir or not input_dir.is_dir():
+        raise ValueError(f"[input_dir] does not exist: {input_dir}.")
+    if not label_dir or not label_dir.is_dir():
+        raise ValueError(f"[label_dir] does not exist: {label_dir}.")
 
     # Parse files
     if not (input_json and input_json.is_json_file(exist=False)):
@@ -150,7 +154,8 @@ def main(
     result_file   = mon.Path(result_file)   if result_file   else None
     remap_classes = mon.Path(remap_classes) if remap_classes else None
 
-    assert target_json and mon.Path(target_json).is_json_file()
+    if not target_json or not target_json.is_json_file(exist=True):
+        raise FileNotFoundError(f"[target_json] does not exist: {target_json}.")
 
     if not exist_ok and input_json and input_json.is_json_file():
         mon.delete_files(input_json)

@@ -233,6 +233,7 @@ class CoLIE_RE(base.ImageEnhancementModel):
         image_v_fixed_lr = image_v_lr / (illu_lr + 1e-4)
         
         return {
+            "illu_res_lr"     : illu_res_lr,
             "illu_lr"         : illu_lr,
             "image_v_lr"      : image_v_lr,
             "image_v_fixed_lr": image_v_fixed_lr,

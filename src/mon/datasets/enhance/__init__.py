@@ -25,6 +25,7 @@ from mon.datasets.enhance.lolblur import *
 from mon.datasets.enhance.lolistreet import *
 from mon.datasets.enhance.lolv1 import *
 from mon.datasets.enhance.lolv2 import *
+from mon.datasets.enhance.lsrw import *
 from mon.datasets.enhance.mef import *
 from mon.datasets.enhance.nhhaze import *
 from mon.datasets.enhance.nightcity import *

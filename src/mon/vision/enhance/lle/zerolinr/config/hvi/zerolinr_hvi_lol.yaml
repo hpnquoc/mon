@@ -49,7 +49,7 @@ cfg         : ~                                                                 
 network: &network                                                               # Network architecture.
   mapping_func     : "pvde"                                                     # One of: ["p", "v", "d", "e", "pv", "pd", "pe", "pvde"]. Default is "pvde".
   color_space      : "hvi"                                                      # One of: ["hsv", "hvi"]. Default is "hvi".
-  window_size      : 9                                                          # Context window size. Default is ``9``.
+  window_size      : 13                                                         # Context window size. Default is ``9``.
   down_size        : *imgsz                                                     # Input image size. Default is ``256``.
   num_layers       : 4                                                          # Total layer's depth. Default is ``4``.
   add_layers       : 2                                                          # Number of layers for output branch. Default is ``2``.
@@ -63,7 +63,7 @@ network: &network                                                               
   depth_threshold  : 1.0                                                        # For adjusting the learned residual. Default is ``1.0``.
   edge_threshold   : 0.05                                                       # Edge threshold. Default is ``0.05``.
   gf_radius        : 9                                                          # Radius of the guided filter. Default is ``7``.
-  use_denoise      : False                                                      # Use denoising. Default is ``True``.
+  use_denoise      : True                                                       # Use denoising. Default is ``True``.
   denoise_ksize    : [3, 3]                                                     # For denoising. Default is ``[3, 3]``.
   denoise_color    : 0.1                                                        # For denoising. Default is ``0.1``.
   denoise_space    : [1.5, 1.5]                                                 # For denoising. Default is ``[1.5, 1.5]``.
