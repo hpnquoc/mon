@@ -104,7 +104,7 @@ update_conda_channels() {
 update_base_env() {
     echo -e "\nUpdating 'base' environment"
     conda update -n base -c defaults conda --y
-    conda update --a --y
+    # conda update --a --y
     pip install --upgrade pip poetry
 }
 
@@ -113,11 +113,11 @@ install_ffmpeg() {
     case "$OSTYPE" in
         linux*)
             if sudo -n true 2>/dev/null; then
-                sudo apt-get install ffmpeg
-                sudo apt-get install '^libxcb.*-dev' libx11-xcb-dev libglu1-mesa-dev libxrender-dev libxi-dev libxkbcommon-dev libxkbcommon-x11-dev
+                sudo apt-get install -y ffmpeg
+                sudo apt-get install -y '^libxcb.*-dev' libx11-xcb-dev libglu1-mesa-dev libgl1-mesa-glx libxrender-dev libxi-dev libxkbcommon-dev libxkbcommon-x11-dev
             else
-                apt-get install ffmpeg
-                apt-get install '^libxcb.*-dev' libx11-xcb-dev libglu1-mesa-dev libxrender-dev libxi-dev libxkbcommon-dev libxkbcommon-x11-dev
+                apt-get install -y ffmpeg
+                apt-get install -y '^libxcb.*-dev' libx11-xcb-dev libglu1-mesa-dev libgl1-mesa-glx libxrender-dev libxi-dev libxkbcommon-dev libxkbcommon-x11-dev
             fi
             ;;
         darwin*)
@@ -149,9 +149,9 @@ install_imagemagick() {
     case "$OSTYPE" in
         linux*)
             if sudo -n true 2>/dev/null; then
-                sudo apt-get install imagemagick
+                sudo apt-get install -y imagemagick
             else
-                apt-get install imagemagick
+                apt-get install -y imagemagick
             fi
             ;;
         darwin*)
@@ -183,13 +183,67 @@ install_turbojpeg() {
     case "$OSTYPE" in
         linux*)
             if sudo -n true 2>/dev/null; then
-                sudo apt-get install libturbojpeg
+                sudo apt-get install -y libturbojpeg
             else
-                apt-get install libturbojpeg
+                apt-get install -y libturbojpeg
             fi
             ;;
         darwin*)
             brew install jpeg-turbo
+            ;;
+        win*)
+            echo -e "\nWindows"
+            ;;
+        msys*)
+            echo -e "\nMSYS / MinGW / Git Bash"
+            ;;
+        cygwin*)
+            echo -e "\nCygwin"
+            ;;
+        bsd*)
+            echo -e "\nBSD"
+            ;;
+        solaris*)
+            echo -e "\nSolaris"
+            ;;
+        *)
+            echo -e "\nunknown: $OSTYPE"
+            ;;
+    esac
+}
+
+install_docker() {
+    echo -e "\nInstalling Docker"
+    case "$OSTYPE" in
+        linux*)
+            if sudo -n true 2>/dev/null; then
+                sudo apt install curl
+                curl https://get.docker.com | sh && sudo systemctl --now enable docker
+                distribution=$(. /etc/os-release;echo $ID$VERSION_ID) \
+                      && curl -fsSL https://nvidia.github.io/libnvidia-container/gpgkey | sudo gpg --dearmor -o /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg \
+                      && curl -s -L https://nvidia.github.io/libnvidia-container/$distribution/libnvidia-container.list | \
+                            sed 's#deb https://#deb [signed-by=/usr/share/keyrings/nvidia-container-toolkit-keyring.gpg] https://#g' | \
+                            sudo tee /etc/apt/sources.list.d/nvidia-container-toolkit.list
+                sudo apt-get update
+                sudo apt-get install -y nvidia-container-toolkit
+                sudo nvidia-ctk runtime configure --runtime=docker
+                sudo systemctl restart docker
+            else
+                apt install curl
+                curl https://get.docker.com | sh && systemctl --now enable docker
+                distribution=$(. /etc/os-release;echo $ID$VERSION_ID) \
+                      && curl -fsSL https://nvidia.github.io/libnvidia-container/gpgkey | gpg --dearmor -o /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg \
+                      && curl -s -L https://nvidia.github.io/libnvidia-container/$distribution/libnvidia-container.list | \
+                            sed 's#deb https://#deb [signed-by=/usr/share/keyrings/nvidia-container-toolkit-keyring.gpg] https://#g' | \
+                            tee /etc/apt/sources.list.d/nvidia-container-toolkit.list
+                apt-get update
+                apt-get install -y nvidia-container-toolkit
+                nvidia-ctk runtime configure --runtime=docker
+                systemctl restart docker
+            fi
+            ;;
+        darwin*)
+            brew install imagemagick
             ;;
         win*)
             echo -e "\nWindows"
@@ -233,9 +287,9 @@ create_mon_env_linux() {
     echo -e "\nCreating 'mon' environment:"
     # Install gcc and g++
     if sudo -n true 2>/dev/null; then
-        sudo apt-get install gcc g++
+        sudo apt-get install -y gcc g++
     else
-        apt-get install gcc g++
+        apt-get install -y gcc g++
     fi
     # Create `mon` env
     env_yaml_path=$(get_env_yaml_path)
@@ -301,7 +355,7 @@ create_mon_env() {
     esac
 }
 
-install_mon_package() {
+install_mon() {
     create_mon_env
 
     echo -e "\nInstall 'mon' library"
@@ -320,7 +374,7 @@ install_mon_package() {
 
 # ----- Main -----
 update_system
-install_mon_package
+install_mon
 
 # ----- Done -----
 exit 0

@@ -24,9 +24,9 @@ datasets=(
     #"fivekb"
     #"fivekc"
     #"fivekd"
-    #"fiveke"
+    "fiveke"
     ### SICE Set
-    "sice"
+    #"sice"
     #"sicegrad"
     #"sicemix"
     ### Camera-Specific Set
