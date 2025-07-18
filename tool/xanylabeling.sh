@@ -4,16 +4,28 @@ clear
 echo "${HOSTNAME}"
 
 # ----- Input -----
-option=${1:-"start"}
-read -e -i "$option" -p "Option [install, start]: " option
+declare -a options=("install" "start")
+option="${1:-1}"
+
+echo -e "\nAvailable options:"
+for i in "${!options[@]}"; do
+    printf "  [%d] %s\n" "$i" "${options[i]}"
+done
+
+read -p "Option: " -e -i "$option" option
+option="${options[option]}"
 
 # ----- Directory & File -----
 current_file=$(readlink -f "${0}")
-current_dir=$(dirname "${current_file}")  # mon/tool/
-root_dir=$(dirname "${current_dir}")      # mon/
-xanylabeling_dir="${current_dir}/X-AnyLabeling"
+current_dir=$(dirname "${current_file}")
+if [ $(basename "${current_file}") == "tool" ]; then
+    root_dir=$(dirname "${current_dir}")
+else
+    root_dir="${current_dir}"
+fi
+xanylabeling_dir="${current_dir}/xanylabeling"
 
-# ----- Check -----
+# ----- Utils -----
 check_cuda() {
     if command -v nvcc >/dev/null 2>&1; then
         # echo "CUDA is installed. Version: $(nvcc --version | grep release | awk '{print $6}' | cut -c 2-)"
@@ -65,18 +77,23 @@ install_xanylabeling() {
 }
 
 # ----- Main -----
-# Install
-if [ "${option}" == "install" ]; then
-    install_xanylabeling
-fi
-
-# Start
-if [ "${option}" == "start" ]; then
-    eval "$(conda shell.bash hook)"
-    conda activate xanylabeling
-    cd "${xanylabeling_dir}" || exit
-    python anylabeling/app.py
-fi
+case "${option}" in
+    install)
+        echo -e "\nOption: install"
+        install_xanylabeling
+        ;;
+    start)
+        echo -e "\nOption: start"
+        eval "$(conda shell.bash hook)"
+        conda activate xanylabeling
+        cd "${xanylabeling_dir}" || exit
+        python anylabeling/app.py
+        ;;
+    *)
+        echo -e "\nInvalid option: ${option}"
+        exit 1
+        ;;
+esac
 
 # ----- Done -----
 exit 0

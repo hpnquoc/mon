@@ -5,7 +5,7 @@ echo "${HOSTNAME}"
 
 # ----- Input -----
 option=${1:-"install"}
-read -e -i "$option" -p "Option [install, enable, disable, stop, start]: " option
+read -p "Option [install, enable, disable, stop, start]: " -i "$option" -e option
 
 # ----- Directory & File -----
 current_file=$(readlink -f "${0}")
@@ -20,13 +20,10 @@ install() {
 }
 
 # ----- Main -----
-# Install
-if [ "${option}" == "install" ]; then
-    install
-fi
-
-# Enable/Disable/Start/Stop
 case "${option}" in
+    install)
+        install
+        ;;
     enable)
         systemctl --user enable resilio-sync
         ;;
@@ -41,8 +38,10 @@ case "${option}" in
         ;;
     *)
         echo "Invalid option: $option"
+        exit 1
         ;;
 esac
 
 # ----- Done -----
+cd "${current_dir}" || exit
 exit 0
