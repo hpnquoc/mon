@@ -45,10 +45,13 @@ jobs:
           path: .cache
       - name: Build site (_site directory name is used for Jekyll compatiblity)
         run: mkdocs build --config-file ./mkdocs.yml --site-dir ./_site
-      # - name: Upload artifact
-      #   uses: actions/upload-pages-artifact@v3
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v2
+        with:
+          name: 'github-pages'
+          path: 'dist'
   
-  # Deployment job
+  # Deployment jobs
   deploy:
     needs: build
     permissions:
