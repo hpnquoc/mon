@@ -7,11 +7,11 @@ from typing import Union
 import numpy as np
 from onnxruntime import InferenceSession
 
-from mon import core
+import mon
 from mon.constants import ZOO_DIR
 
-console      = core.console
-current_file = core.Path(__file__).absolute()
+console      = mon.console
+current_file = mon.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
 
@@ -24,7 +24,7 @@ class EnlightenOnnxModel:
     def __init__(
         self,
         model  : Union[bytes, str, None] = None,
-        weights: core.Path = ZOO_DIR / "vision/enhance/lle/enlightengan/enlightengan/custom/enlightengan.onnx",
+        weights: mon.Path = ZOO_DIR / "vision/enhance/lle/enlightengan/enlightengan/custom/enlightengan.onnx",
     ):
         self.graph = InferenceSession(
             model or weights or str(ZOO_DIR / "vision/enhance/lle/enlightengan/enlightengan.onnx"),

@@ -8,11 +8,9 @@ arch="fourierdiff"
 model="fourierdiff"
 detector="dfine_s_coco80"
 datasets=(
-    ### Real-World Set
-    # "darkface"
-    "darkface496"
-    # "exdark"
-    "exdark1200"
+    ### High-Level
+    "darkface"
+    "exdark"
     "lolistreetval"
 )
 device="cuda:0"

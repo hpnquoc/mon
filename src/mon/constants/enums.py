@@ -404,7 +404,6 @@ class Task(Enum):
     CLASSIFY   = "classify"              # classification
     DEBLUR     = "deblur"                # deblurring
     DEHAZE     = "dehaze"                # dehazing
-    DEMOIRE    = "demoire"               # demoireing
     DENOISE    = "denoise"               # denoising
     DEPTH      = "depth"                 # depth estimation
     DERAIN     = "derain"                # deraining

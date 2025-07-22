@@ -9,40 +9,32 @@ mode="predict"
 arch=""
 model=""
 datasets=(
-    ### Unpaired Set
-    "dicm"
-    "lime"
-    "mef"
-    "npe"
-    "vv"
-    ### LOLs Set
+    ### Unpaired
+    #"dicm"
+    #"lime"
+    #"mef"
+    #"npe"
+    #"vv"
+    ### LOLs
     "lolv1"
-    "lolv2real"
-    "lolv2syn"
-    ### LSRW Set
-    "lsrw"
-    ### FiveK Set
-    "fivek"
+    #"lolv2real"
+    #"lolv2syn"
+    ### LSRW
+    #"lsrw"
+    ### FiveK
+    #"fivek"
     #"fiveka"
     #"fivekb"
     #"fivekc"
     #"fivekd"
     #"fiveke"
-    ### SICE Set
-    "sice"
-    "sicegrad"
-    "sicemix"
-    ### Camera-Specific Set
-    "sidsony"
-    ### Real-World Set
-    "darkcityscapes"
-    # "darkface"
-    "darkface496"
-    # "exdark"
-    "exdark1200"
-    "lolistreettest"
-    "lolistreetval"
-    "nightcity"
+    ### SICE
+    #"sice"
+    ### High-Level
+    #"darkface"
+    #"exdark"
+    #"lolistreettest"
+    #"lolistreetval"
 )
 data=$(printf "%s, " "${datasets[@]}")
 data=${data%, }  # Remove trailing ", "

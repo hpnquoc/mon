@@ -9,11 +9,9 @@ mode="predict"
 arch="dfine"
 model="dfine_s"
 datasets=(
-    ### Real-World Set
-    # "darkface"
-    "darkface496"
-    # "exdark"
-    "exdark1200"
+    ### High-Level
+    "darkface"
+    "exdark"
     "lolistreetval"
 )
 data=$(printf "%s, " "${datasets[@]}")

@@ -9,8 +9,6 @@ References:
 
 __all__ = [
     "ExDark",
-    "ExDark1200",
-    "ExDark1200DataModule",
     "ExDarkDataModule",
 ]
 
@@ -80,35 +78,6 @@ class ExDark(VisionDataset):
         self.datapoints["image"] = images
 
 
-@DATASETS.register(name="exdark1200")
-class ExDark1200(ExDark):
-    """A subset of ExDark dataset with 1200 images (first 100 images from each subset).
-
-    Args:
-        root: Directory path to dataset.
-        *args: Additional args for parent class.
-        **kwargs: Additional kwargs for parent class.
-
-    Raises:
-        FileNotFoundError: If ``root`` directory does not exist.
-    """
-
-    def list_data(self):
-        """Lists ``datapoints`` with image annotations for split."""
-        patterns = [self.root / f"{self.split_str}1200" / "image"]
-
-        images: list[Image] = []
-        with core.create_progress_bar(disable=self.disable_pbar) as pbar:
-            for pattern in patterns:
-                paths = sorted(pattern.rglob("*"))
-                desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
-                for path in pbar.track(sequence=paths, description=desc):
-                    if path.is_image_file():
-                        images.append(Image(path=path, root=pattern))
-
-        self.datapoints["image"] = images
-
-
 # ----- DataModule -----
 @DATAMODULES.register(name="exdark")
 class ExDarkDataModule(core.DataModule):
@@ -135,37 +104,6 @@ class ExDarkDataModule(core.DataModule):
             self.val   = ExDark(split=Split.TEST, **self.dataset_kwargs)
         if stage in [None, "test"]:
             self.test  = ExDark(split=Split.TEST, **self.dataset_kwargs)
-        
-        self.get_classes()
-        if self.can_log:
-            self.summarize()
-
-
-@DATAMODULES.register(name="exdark1200")
-class ExDark1200DataModule(core.DataModule):
-    """Configures ExDarkFull datasets for training/testing."""
-    
-    tasks: list[Task] = [Task.LLE]
-    
-    def prepare_data(self, *args, **kwargs):
-        """Prepares data (placeholder, no action taken)."""
-        pass
-    
-    def setup(self, stage: Literal["train", "test", "predict", None] = None):
-        """Sets up datasets for specified ``stage``.
-
-        Args:
-            stage: Stage to setup, one of ``"train"``, ``"test"``, ``"predict"``,
-                or ``None``. Default is ``None``.
-        """
-        if self.can_log:
-            core.console.log(f"Setup [red]{self.__class__.__name__}[/red].")
-        
-        if stage in [None, "train"]:
-            self.train = ExDark1200(split=Split.TEST, **self.dataset_kwargs)
-            self.val   = ExDark1200(split=Split.TEST, **self.dataset_kwargs)
-        if stage in [None, "test"]:
-            self.test  = ExDark1200(split=Split.TEST, **self.dataset_kwargs)
         
         self.get_classes()
         if self.can_log:

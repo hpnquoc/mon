@@ -5,8 +5,6 @@
 
 __all__ = [
     "DarkFace",
-    "DarkFace496",
-    "DarkFace496DataModule",
     "DarkFaceDataModule",
 ]
 
@@ -17,7 +15,6 @@ from mon.datasets.core import *
 
 
 # ----- Dataset -----
-
 @DATASETS.register(name="darkface")
 class DarkFace(VisionDataset):
     """Loads DarkFaceFull dataset from ``root`` dir.
@@ -66,35 +63,6 @@ class DarkFace(VisionDataset):
         self.datapoints["image"] = images
 
 
-@DATASETS.register(name="darkface496")
-class DarkFace496(DarkFace):
-    """Loads DarkFace dataset from ``root`` dir.
-
-    Args:
-        root: Directory path to dataset.
-        *args: Additional args for parent class.
-        **kwargs: Additional kwargs for parent class.
-
-    Raises:
-        FileNotFoundError: If ``root`` directory does not exist.
-    """
-
-    def list_data(self):
-        """Lists ``datapoints`` with image annotations for split."""
-        patterns = [self.root / f"{self.split_str}496" / "image"]
-
-        images: list[Image] = []
-        with core.create_progress_bar(disable=self.disable_pbar) as pbar:
-            for pattern in patterns:
-                paths = sorted(pattern.rglob("*"))
-                desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
-                for path in pbar.track(sequence=paths, description=desc):
-                    if path.is_image_file():
-                        images.append(Image(path=path, root=pattern))
-
-        self.datapoints["image"] = images
-
-
 # ----- DataModule -----
 @DATAMODULES.register(name="darkface")
 class DarkFaceDataModule(core.DataModule):
@@ -121,37 +89,6 @@ class DarkFaceDataModule(core.DataModule):
             self.val   = DarkFace(split=Split.TEST, **self.dataset_kwargs)
         if stage in [None, "test"]:
             self.test  = DarkFace(split=Split.TEST, **self.dataset_kwargs)
-
-        self.get_classes()
-        if self.can_log:
-            self.summarize()
-
-
-@DATAMODULES.register(name="darkface496")
-class DarkFace496DataModule(core.DataModule):
-    """Configures DarkFace datasets for training/testing."""
-
-    tasks: list[Task] = [Task.LLE, Task.DETECT]
-
-    def prepare_data(self, *args, **kwargs):
-        """Prepares data (placeholder, no action taken)."""
-        pass
-
-    def setup(self, stage: Literal["train", "test", "predict", None] = None):
-        """Sets up datasets for specified ``stage``.
-
-        Args:
-            stage: Stage to setup, one of ``"train"``, ``"test"``, ``"predict"``,
-                or ``None``. Default is ``None``.
-        """
-        if self.can_log:
-            core.console.log(f"Setup [red]{self.__class__.__name__}[/red].")
-
-        if stage in [None, "train"]:
-            self.train = DarkFace496(split=Split.TEST, **self.dataset_kwargs)
-            self.val   = DarkFace496(split=Split.TEST, **self.dataset_kwargs)
-        if stage in [None, "test"]:
-            self.test  = DarkFace496(split=Split.TEST, **self.dataset_kwargs)
 
         self.get_classes()
         if self.can_log:

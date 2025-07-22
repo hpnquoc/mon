@@ -356,24 +356,10 @@ EXTRA_MODELS   = {  # architecture/model (+ variant)
         },
     },
     # endregion
-    # region enhance/demoire
-    "esdnet": {
-        "esdnet"  : {
-            "tasks"    : [Task.DEMOIRE, Task.LLE],
-            "mltypes"  : [MLType.SUPERVISED],
-            "model_dir": MON_DIR / "vision" / "enhance" / "demoire" / "esdnet",
-        },
-        "esdnet_l": {
-            "tasks"    : [Task.DEMOIRE, Task.LLE],
-            "mltypes"  : [MLType.SUPERVISED],
-            "model_dir": MON_DIR / "vision" / "enhance" / "demoire" / "esdnet",
-        },
-    },
-    # endregion
     # region enhance/derain
     "esdnet_snn": {
         "esdnet_snn": {
-            "tasks"    : [Task.DERAIN, Task.LLE],
+            "tasks"    : [Task.DERAIN],
             "mltypes"  : [MLType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "enhance" / "derain" / "esdnet_snn",
         },
@@ -541,13 +527,6 @@ EXTRA_MODELS   = {  # architecture/model (+ variant)
             "model_dir": MON_DIR / "vision" / "enhance" / "lle" / "uretinexnet++",
         },
     },
-    "utvnet"          : {
-        "utvnet": {
-            "tasks"    : [Task.LLE],
-            "mltypes"  : [MLType.SUPERVISED],
-            "model_dir": MON_DIR / "vision" / "enhance" / "lle" / "utvnet",
-        },
-    },
     "zerodce"         : {
         "zerodce"  : {
             "tasks"    : [Task.LLE],
@@ -559,7 +538,7 @@ EXTRA_MODELS   = {  # architecture/model (+ variant)
         "zerodce++": {
             "tasks"    : [Task.LLE],
             "mltypes"  : [MLType.ZERO_REFERENCE],
-            "model_dir": MON_DIR / "vision" / "enhance" / "lle" / "zerodce++",
+            "model_dir": MON_DIR / "vision" / "enhance" / "lle" / "zerodcepp",
         },
     },
     "zerodidce"       : {
@@ -622,7 +601,7 @@ EXTRA_MODELS   = {  # architecture/model (+ variant)
     # region enhance/retouch
     "neurop": {
         "neurop": {
-            "tasks"    : [Task.RETOUCH, Task.LLE],
+            "tasks"    : [Task.RETOUCH],
             "mltypes"  : [MLType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "enhance" / "retouch" / "neurop",
         },

@@ -3,6 +3,7 @@ import torch.nn as nn
 
 
 class L_exp(nn.Module):
+
     def __init__(self, patch_size, mean_val):
         super(L_exp, self).__init__()
         self.pool = nn.AvgPool2d(patch_size)
@@ -15,6 +16,7 @@ class L_exp(nn.Module):
 
 
 class L_TV(nn.Module):
+
     def __init__(self):
         super(L_TV,self).__init__()
 

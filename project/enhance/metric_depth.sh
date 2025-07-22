@@ -7,36 +7,29 @@ clear
 arch="dav2"
 model="dav2_vitb"
 datasets=(
-    ### Unpaired Set
+    ### Unpaired
     #"dicm"
     #"lime"
     #"mef"
     #"npe"
     #"vv"
-    ### LOLs Set
-    "lolv1"
-    "lolv2real"
-    "lolv2syn"
-    ### LSRW Set
-    "lsrw"
-    ### FiveK Set
+    ### LOLs
+    #"lolv1"
+    #"lolv2real"
+    #"lolv2syn"
+    ### LSRW
+    #"lsrw"
+    ### FiveK
     #"fiveka"
     #"fivekb"
     #"fivekc"
     #"fivekd"
-    "fiveke"
-    ### SICE Set
-    "sice"
-    #"sicegrad"
-    #"sicemix"
-    ### Camera-Specific Set
-    #"sidsony"
-    ### Real-World Set
-    #"darkcityscapes"
+    #"fiveke"
+    ### SICE
+    #"sice"
+    ### High-Level
     #"darkface"
-    #"darkface496"
     #"exdark"
-    #"exdark1200"
     #"lolistreettest"
     #"lolistreetval"
     #"nightcity"
@@ -59,10 +52,6 @@ declare -A input_subdirs=(
     ["fivekd"]="fivek/test/image"
     ["fiveke"]="fivek/test/image"
     ["sice"]="sice/sice/test/image"
-    ["sicegrad"]="sice/grad/test/image"
-    ["sicemix"]="sice/mix/test/image"
-    ["sidsony"]="sid/sony/test/image"
-    ["exdark1200"]="exdark/test1200/image"
     ["lolistreetval"]="lolistreet/val/image"
     ["lolistreettest"]="lolistreet/test/image"
 )
@@ -75,10 +64,6 @@ declare -A target_subdirs=(
     ["fivekd"]="fivek/test/ref_d"
     ["fiveke"]="fivek/test/ref_e"
     ["sice"]="sice/sice/test/ref"
-    ["sicegrad"]="sice/grad/test/ref"
-    ["sicemix"]="sice/mix/test/ref"
-    ["sidsony"]="sid/sony/test/ref"
-    ["exdark1200"]="exdark/test1200/ref"
     ["lolistreetval"]="lolistreet/val/ref"
     ["lolistreettest"]="lolistreet/test/ref"
 )

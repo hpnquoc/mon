@@ -62,13 +62,15 @@ def predict(args: dict | box.Box) -> str:
     transform_B = get_transform(cfgs)
     
     # Pretrained
-    pretrained = args.resume
+    pretrained = args.weights
+    '''
     if args.weights and args.weights.is_weights_file(exist=True):
         pretrained = args.weights
     if pretrained and pretrained.is_weights_file(exist=True):
         mon.console.log(f"Pretrained: {pretrained}.")
     else:
         mon.console.log(f"Pretrained: {None}, training from scratch.")
+    '''
 
     # Model
     model = create_model(cfgs)          # create a model given opt.model and other options

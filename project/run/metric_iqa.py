@@ -43,7 +43,7 @@ def measure_metric_pyiqa(
     image_files = list(input_dir.rglob("*"))
     image_files = [f for f in image_files if f.is_image_file()]
     image_files = sorted(image_files)
-    num_items   = len(image_files)
+    num_items   = 0
     
     # Parse arguments
     device      = device[0] if len(device) == 1 else device
@@ -118,6 +118,8 @@ def measure_metric_pyiqa(
                     values[m].append(metric_f[m](image, target))
                 else:
                     values[m].append(metric_f[m](image))
+
+            num_items += 1
 
     for m, v in values.items():
         if len(v) > 0:

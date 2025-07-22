@@ -4,52 +4,40 @@ echo "${HOSTNAME}"
 clear
 
 # ----- Input -----
-arch="zerolinr"
-model="zerolinr_hvi"
+arch="zmlie"
+model="zmlie"
 datasets=(
-    ### Unpaired Set
+    ### Unpaired
     #"dicm"
     #"lime"
     #"mef"
     #"npe"
     #"vv"
-    ### LOLs Set
+    ### LOLs
     #"lolv1"
     #"lolv2real"
     #"lolv2syn"
-    ### LSRW Set
+    ### LSRW
     #"lsrw"
-    ### FiveK Set
+    ### FiveK
     #"fiveka"
     #"fivekb"
     #"fivekc"
     #"fivekd"
-    "fiveke"
-    ### SICE Set
+    #"fiveke"
+    ### SICE
     #"sice"
-    #"sicegrad"
-    #"sicemix"
-    ### Camera-Specific Set
-    #"sidsony"
-    ### Real-World Set
-    #"darkcityscapes"
+    ### High-Level
     #"darkface"
-    #"darkface496"
     #"exdark"
-    #"exdark1200"
     #"lolistreettest"
     #"lolistreetval"
-    #"nightcity"
 )
 device="cuda:0"
 metrics=(
     "psnr"
     "ssimc"
-    "psnry"
-    "ssim"
-    "ms_ssim"
     "lpips"
-    "brisque"
     "ilniqe"
     "niqe"
     "pi"
@@ -78,10 +66,6 @@ declare -A target_subdirs=(
     ["fivekd"]="fivek/test/ref_d"
     ["fiveke"]="fivek/test/ref_e"
     ["sice"]="sice/sice/test/ref"
-    ["sicegrad"]="sice/grad/test/ref"
-    ["sicemix"]="sice/mix/test/ref"
-    ["sidsony"]="sid/sony/test/ref"
-    ["exdark1200"]="exdark/test1200/ref"
     ["lolistreetval"]="lolistreet/val/ref"
     ["lolistreettest"]="lolistreet/test/ref"
 )
@@ -115,7 +99,8 @@ for data in "${datasets[@]}"; do
     [[ ! -d "${target_dir}" ]] && target_dir="${root_dir}/data/enhance/${target_subdir}"
 
     # Determine IQA type
-    use_gt_mean=$([[ -d "${target_dir}" ]] && echo "--use-gt-mean" || echo "")
+    # use_gt_mean=$([[ -d "${target_dir}" ]] && echo "--use-gt-mean" || echo "")
+    use_gt_mean=$(echo "")
 
     # Run IQA evaluation
     metric_args=()

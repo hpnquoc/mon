@@ -101,8 +101,8 @@ def predict(args: dict | box.Box) -> str:
                 debug_dir = mon.parse_output_dir(args.save_dir, data_name, mon.SAVE_DEBUG_DIR, path, args.keep_subdirs, args.save_nearby)
                 for k, v in outputs.items():
                     if mon.is_image(v):
-                        path = debug_dir / f"{path.stem}_{k}{mon.SAVE_IMAGE_EXT}"
-                        mon.save_image(v, path)
+                        debug_path = debug_dir / f"{path.stem}_{k}{mon.SAVE_IMAGE_EXT}"
+                        mon.save_image(v, debug_path)
     timers.total.tock()
 
     # Finish

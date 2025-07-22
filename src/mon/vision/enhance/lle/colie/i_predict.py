@@ -80,7 +80,7 @@ def predict(args: dict | box.Box) -> str:
     data_name, data_loader = mon.parse_data_loader(args.data, args.root, True, verbose=False)
 
     # Benchmark
-    if benchmark:
+    if args.benchmark:
         model = INF(patch_dim=window ** 2, num_layers=num_layers, hidden_dim=hidden_dim, add_layer=add_layer)
         flops, params = compute_efficiency_score(model=model)
         mon.console.log(f"FLOPs : {flops:.4f}")

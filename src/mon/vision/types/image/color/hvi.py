@@ -25,8 +25,8 @@ class RGBToHVI(nn.Module):
     def __init__(self, requires_grad: bool = False, eps: float = 1e-8):
         super().__init__()
         self.eps       = eps
-        self.density_k = torch.nn.Parameter(torch.full([1], 0.2), requires_grad=requires_grad)  # k is reciprocal to the paper mentioned
-        # self.density_k = torch.nn.Parameter(torch.full([1], 0.5), requires_grad=requires_grad)  # k is reciprocal to the paper mentioned
+        self.density_k = torch.nn.Parameter(torch.full([1], 0.1), requires_grad=requires_grad)  # k is reciprocal to the paper mentioned
+        # self.density_k = torch.nn.Parameter(torch.full([1], 0.2), requires_grad=requires_grad)  # k is reciprocal to the paper mentioned
         self.gated     = False
         self.gated2    = False
         self.alpha     = 1.0
@@ -54,7 +54,7 @@ class RGBToHVI(nn.Module):
         saturation  = saturation.unsqueeze(1)
         value       = value.unsqueeze(1)
         
-        k = self.density_k
+        k = self.density_k#.clone()
         self.this_k = k.item()
 
         color_sensitive = ((value * 0.5 * pi).sin() + self.eps).pow(k)

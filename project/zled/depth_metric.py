@@ -15,7 +15,7 @@ if data_dir.has_subdir("data"):
 
 
 # ----- Inputs -----
-filename   = "10"
+filename   = "51a"
 image_file = data_dir / "depth" / f"{filename}_image_depth.jpg"
 ref_file   = data_dir / "depth" / f"{filename}_ref_depth.jpg"
 
@@ -141,8 +141,8 @@ def analyze_depth_map_range(depth_map: np.ndarray, valid_mask: np.ndarray = None
 cmap    = matplotlib.colormaps.get_cmap("Spectral_r")
 #image   = cv2.resize(image, (256, 256), interpolation=cv2.INTER_NEAREST)
 #ref     = cv2.resize(ref,   (256, 256), interpolation=cv2.INTER_NEAREST)
-image   = (cmap(image)[:, :, :3] * 255)[:, :, ::-1].astype(np.uint8)
-ref     = (cmap(ref)[:, :, :3]   * 255)[:, :, ::-1].astype(np.uint8)
+# image   = (cmap(image)[:, :, :3] * 255)[:, :, ::-1].astype(np.uint8)
+# ref     = (cmap(ref)[:, :, :3]   * 255)[:, :, ::-1].astype(np.uint8)
 # image   = torch.tensor(image, dtype=torch.float32) / 255.0
 # ref     = torch.tensor(ref,   dtype=torch.float32) / 255.0
 # metrics = eval_depth(image, ref)

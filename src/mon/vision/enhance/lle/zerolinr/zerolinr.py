@@ -151,23 +151,23 @@ class Loss(nn.Loss):
         loss_s  = self.loss_w_s  * torch.mean(enhanced)
         loss_e  = self.loss_w_e  * torch.mean(self.loss_e(x_lr))
         loss_tv = self.loss_w_tv * self.loss_tv(x_lr)
-        loss_c  = self.loss_w_c  * self.loss_c(enhanced)
+        # loss_c  = self.loss_w_c  * self.loss_c(enhanced)
         loss_de = 0.0
         if d_lr is not None:
             loss_de += self.loss_depth(x_lr, d_lr)
-        if e_lr is not None:
-            loss_de += self.loss_edge(x_lr, e_lr)
+        # if e_lr is not None:
+        #     loss_de += self.loss_edge(x_lr, e_lr)
         loss_de = self.loss_w_de * loss_de
-        loss    = loss_f + loss_s + loss_e + loss_tv + loss_de + loss_c
+        loss    = loss_f + loss_s + loss_e + loss_tv + loss_de # + loss_c
         
         if self.verbose:
             core.console.log(
-                f"loss_f: {loss_f:.4f}, "
-                f"loss_s: {loss_s:.4f}, "
-                f"loss_e: {loss_e:.4f}, "
+                f"loss_f : {loss_f:.4f}, "
+                f"loss_s : {loss_s:.4f}, "
+                f"loss_e : {loss_e:.4f}, "
                 f"loss_tv: {loss_tv:.4f}, "
                 f"loss_de: {loss_de:.4f}, "
-                f"loss_c: {loss_c:.4f}"
+                # f"loss_c : {loss_c:.4f}"
             )
         
         return loss
@@ -494,10 +494,10 @@ class ZeroLINR(base.ImageEnhancementModel):
         depth_threshold  : float        = 1.0,
         edge_threshold   : float        = 0.05,
         # Post-process
-        gf_radius        : int          = 7,
-        use_denoise      : bool         = False,
+        gf_radius        : int          = 3,
+        use_denoise      : bool         = True,
         denoise_ksize    : _size_2_t    = (3, 3),
-        denoise_color    : float        = 0.5,
+        denoise_color    : float        = 0.1,
         denoise_space    : _size_2_t    = (1.5, 1.5),
         iters            : int          = 100,
         *args, **kwargs
@@ -691,6 +691,8 @@ class ZeroLINR(base.ImageEnhancementModel):
             rgb = self.hvi.hvi_to_rgb(image_c)
         else:
             rgb = kornia.color.hsv_to_rgb(image_c)
+        if self.use_denoise:
+            rgb = kornia.filters.bilateral_blur(rgb, self.denoise_ksize, self.denoise_color, self.denoise_space)
 
         return {
             "r_lr"    : r_lr,
