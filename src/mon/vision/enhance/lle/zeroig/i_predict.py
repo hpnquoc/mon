@@ -123,21 +123,20 @@ def predict(args: dict | box.Box) -> str:
             enhanced, denoise = outputs
             enhanced = save_images(enhanced)
             denoise  = save_images(denoise)
-            enhanced = cv2.cvtColor(enhanced, cv2.COLOR_BGR2RGB)
-            denoise  = cv2.cvtColor(denoise,  cv2.COLOR_BGR2RGB)
-            denoise  = cv2.cvtColor(denoise,  cv2.COLOR_BGR2RGB)
+            # enhanced = cv2.cvtColor(enhanced, cv2.COLOR_BGR2RGB)
+            # denoise  = cv2.cvtColor(denoise,  cv2.COLOR_BGR2RGB)
             timers.postprocess.tock()
 
             # Save
             if args.save_image:
                 out_dir  = mon.parse_output_dir(args.save_dir, data_name, mon.SAVE_IMAGE_DIR, path, args.keep_subdirs, args.save_nearby)
                 out_path = out_dir / f"{path.stem}{mon.SAVE_IMAGE_EXT}"
-                mon.save_image(enhanced, out_path)
-
-            if args.save_debug:
-                out_dir  = mon.parse_output_dir(args.save_dir, data_name, f"{mon.SAVE_IMAGE_DIR}_denoise", path, args.keep_subdirs, args.save_nearby)
-                out_path = out_dir / f"{path.stem}{mon.SAVE_IMAGE_EXT}"
                 mon.save_image(denoise, out_path)
+
+            # if args.save_debug:
+            #    out_dir  = mon.parse_output_dir(args.save_dir, data_name, f"{mon.SAVE_IMAGE_DIR}_denoise", path, args.keep_subdirs, args.save_nearby)
+            #    out_path = out_dir / f"{path.stem}{mon.SAVE_IMAGE_EXT}"
+            #    mon.save_image(denoise, out_path)
     timers.total.tock()
 
     # Finish

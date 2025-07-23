@@ -422,13 +422,6 @@ EXTRA_MODELS   = {  # architecture/model (+ variant)
             "model_dir": MON_DIR / "vision" / "enhance" / "lle" / "lime",
         },
     },
-    "llflow"          : {
-        "llflow": {
-            "tasks"    : [Task.LLE],
-            "mltypes"  : [MLType.SUPERVISED],
-            "model_dir": MON_DIR / "vision" / "enhance" / "lle" / "llflow",
-        },
-    },
     "llunet++"        : {
         "llunet++": {
             "tasks"    : [Task.LLE],

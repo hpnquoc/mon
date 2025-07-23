@@ -477,9 +477,9 @@ def parse_weights_file(
     """
     root    = core.Path(root)
     weights = core.to_list(weights)
-    
+
     for i, w in enumerate(weights):
-        if w is not None and not core.Path(w).exists():
+        if w is not None:
             if (ROOT_DIR / w).exists():
                 weights[i] = ROOT_DIR / w
             elif (root / w).exists():

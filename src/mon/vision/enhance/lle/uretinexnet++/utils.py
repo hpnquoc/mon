@@ -315,9 +315,9 @@ def load_unfolding(opts):
 
 def load_AdjustFusion(opts):
     if os.path.exists(opts.fusion_model_A_path):
-        checkpoint = torch.load(opts.fusion_model_A_path, weights_only=False)
+        checkpoint        = torch.load(opts.fusion_model_A_path, weights_only=False)
         AdjustFusion_opts = checkpoint["opts"]
-        model_A = define_modelA(AdjustFusion_opts)
+        model_A           = define_modelA(AdjustFusion_opts)
         model_A.load_state_dict(checkpoint['state_dict']['model_A'])
         for param_A in model_A.parameters():
             param_A.requires_grad = False

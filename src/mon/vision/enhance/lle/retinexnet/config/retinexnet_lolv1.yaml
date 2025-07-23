@@ -6,7 +6,7 @@ mode        : &mode "train"                                                     
 arch        : &arch "retinexnet"                                                # Model architecture or family (e.g., resnet).
 model       : &model "retinexnet"                                               # Model name (e.g., resnet50).
 data        : &data "lolv1"                                                     # Dataset name (e.g., cifar10) or directory (e.g., data/cifar10).
-fullname    : &fullname "retinexnet"                                            # Full name of the current run (e.g., resnet50_cifar10_01). If not set, it will be this file's name.
+fullname    : &fullname "retinexnet_lolv1"                                      # Full name of the current run (e.g., resnet50_cifar10_01). If not set, it will be this file's name.
 save_dir    : &save_dir ~                                                       # Saving directory. If not set, it will be `root/arch/model/data`.
 weights     : &weights "zoo/vision/enhance/lle/retinexnet/retinexnet/lolv1"     # Path to the pretrained weights.
 device      : &device 0                                                         # Running device (i.e., cuda:0 | cuda:0,1,2,3 | cpu).

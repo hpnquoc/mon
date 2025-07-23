@@ -102,6 +102,7 @@ def predict(args: dict | box.Box) -> str:
             img_h_64 = int(64 * np.ceil(h0 / 64.0))
             img_w_64 = int(64 * np.ceil(w0 / 64.0))
             x_cond   = F.pad(image, (0, img_w_64 - w0, 0, img_h_64 - h0), "reflect")
+            x_cond   = x_cond.to(device)
             image    = image.to(device)
             timers.preprocess.tock()
 

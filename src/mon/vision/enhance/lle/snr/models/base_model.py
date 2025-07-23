@@ -98,8 +98,8 @@ class BaseModel(nn.Module):
             else:
                 load_net_clean[k] = v
         network.load_state_dict(load_net_clean, strict=strict)
-        del load_net
-        del load_net_clean
+        #del load_net
+        #del load_net_clean
 
     def save_training_state(self, epoch, iter_step):
         """Save training state during training, which will be used for resuming"""

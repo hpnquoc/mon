@@ -10,9 +10,9 @@ References:
 
 import argparse
 
-import torch
-import torch.nn as nn
 import box
+import torch.nn as nn
+
 import mon
 from network.Math_Module import P, Q
 from utils import *

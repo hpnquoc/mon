@@ -53,7 +53,7 @@ def predict(args: dict | box.Box) -> str:
     # Pretrained
     pretrained = args.resume
     if args.weights and args.weights.is_weights_file(exist=True):
-        pretrained = args.weights
+        pretrained = mon.ROOT_DIR / args.weights
     if pretrained and pretrained.is_weights_file(exist=True):
         mon.console.log(f"Pretrained: {pretrained}.")
         checkpoint = torch.load(pretrained)
