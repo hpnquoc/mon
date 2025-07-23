@@ -94,6 +94,7 @@ def predict(args: dict | box.Box) -> str:
             timers.preprocess.tick()
             path   = mon.Path(datapoint["meta"]["path"])
             image  = datapoint["image"]
+            image  = image.to(device)
             timers.preprocess.tock()
 
             # Optimize
@@ -113,7 +114,7 @@ def predict(args: dict | box.Box) -> str:
                 loss.backward()
                 nn.utils.clip_grad_norm_(model.parameters(), 5)
                 optimizer.step()
-            model = Finetunemodel(model.state_dict())
+            model = Finetunemodel(model.state_dict()).to(device)
             input = Variable(image).to(device)
             outputs = model(input)
             timers.infer.tock()

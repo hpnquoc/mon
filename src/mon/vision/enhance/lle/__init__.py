@@ -9,4 +9,4 @@ References:
 
 from mon.vision.enhance.lle.gcenet import *
 from mon.vision.enhance.lle.zerolinr import *
-from mon.vision.enhance.lle.zmlie import *
+from mon.vision.enhance.lle.zinf import *

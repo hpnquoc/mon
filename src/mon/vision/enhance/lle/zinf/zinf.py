@@ -1,12 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Implements the paper: "Zero-Shot Multimodal Low-light Image Enhancement using
-Neural Implicit Representations".
+"""Implements the paper: "Zero-Shot Implicit Neural Fusion Network for Multimodal
+Low-Light Image Enhancement".
 """
 
 __all__ = [
-    "ZMLIE",
+    "ZINF",
 ]
 
 from typing import Literal
@@ -307,12 +307,12 @@ class INF4(nn.Module):
 
 
 # ----- Model -----
-@MODELS.register(name="zmlie", arch="zmlie")
-class ZMLIE(base.ImageEnhancementModel):
-    """ZMLIE model for low-light image enhancement."""
+@MODELS.register(name="zinf", arch="zinf")
+class ZINF(base.ImageEnhancementModel):
+    """ZINF model for low-light image enhancement."""
 
-    arch     : str          = "zmlie"
-    name     : str          = "zmlie"
+    arch     : str          = "zinf"
+    name     : str          = "zinf"
     tasks    : list[Task]   = [Task.LLE]
     mltypes  : list[MLType] = [MLType.ZERO_SHOT]
     model_dir: core.Path    = current_dir
