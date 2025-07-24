@@ -26,32 +26,32 @@ class NdLinear(torch.nn.Module):
     typically lose.
 
     Args:
-        input_dims: Shape of input tensor (excluding batch dimension).
-        hidden_size: Target hidden dimensions after transformation.
+        in_features: Shape of input tensor (excluding batch dimension).
+        hidden_dim: Target hidden dimensions after transformation.
         bias: Uses bias in linear layer if ``True``. Default is ``True``.
         transform_outer: If ``True``, transforms from outer to inner dimensions.
     """
     
     def __init__(
         self,
-        input_dims     : list | tuple,
-        hidden_size    : list | tuple,
+        in_features    : list | tuple,
+        hidden_dim     : list | tuple,
         bias           : bool = True,
         transform_outer: bool = True,
     ):
         super().__init__()
 
-        if len(input_dims) != len(hidden_size):
+        if len(in_features) != len(hidden_dim):
             raise Exception("Input shape and hidden shape do not match.")
 
-        self.input_dims      = input_dims
-        self.hidden_size     = hidden_size
-        self.num_layers      = len(input_dims)  # Must match since dims are equal
+        self.in_features     = in_features
+        self.hidden_dim      = hidden_dim
+        self.num_layers      = len(in_features)  # Must match since dims are equal
         self.transform_outer = transform_outer
 
         # Define transformation layers per dimension
         self.align_layers = torch.nn.ModuleList([
-            torch.nn.Linear(input_dims[i], hidden_size[i], bias=bias) for i in range(self.num_layers)
+            torch.nn.Linear(in_features[i], hidden_dim[i], bias=bias) for i in range(self.num_layers)
         ])
     
     def forward(self, x: torch.Tensor) -> torch.Tensor:
@@ -111,8 +111,8 @@ class NdLinearGated(torch.nn.Module):
     multi-space representations.
 
     Args:
-        input_dims: Shape of input tensor (excluding batch dimension).
-        hidden_size: Target hidden dimensions after transformation.
+        in_features: Shape of input tensor (excluding batch dimension).
+        hidden_dim: Target hidden dimensions after transformation.
         transform_outer: If True, transforms from outer to inner dimensions.
         gating_mode: Type of gating mechanism - "soft" uses continuous values, "hard" uses binary.
         gating_hidden_dim: Hidden dimension size for the gating networks.
@@ -120,8 +120,8 @@ class NdLinearGated(torch.nn.Module):
     """
     def __init__(
         self,
-        input_dims       : tuple,
-        hidden_size      : tuple,
+        in_features       : tuple,
+        hidden_dim       : tuple,
         transform_outer  : bool = True,
         gating_mode      : Literal["soft", "hard"] = "soft",
         gating_hidden_dim: int  = 16,
@@ -129,24 +129,24 @@ class NdLinearGated(torch.nn.Module):
     ):
         super().__init__()
 
-        if len(input_dims) != len(hidden_size):
+        if len(in_features) != len(hidden_dim):
             raise Exception("Input shape and hidden shape do not match.")
 
-        self.input_dims        = input_dims
-        self.hidden_size       = hidden_size
-        self.num_layers        = len(input_dims)
+        self.in_features       = in_features
+        self.hidden_dim        = hidden_dim
+        self.num_layers        = len(in_features)
         self.transform_outer   = transform_outer
         self.gating_mode       = gating_mode
         self.gating_hidden_dim = gating_hidden_dim
         self.gated_modes       = gated_modes
 
         self.align_layers = torch.nn.ModuleList([
-            torch.nn.Linear(input_dims[i], hidden_size[i]) for i in range(self.num_layers)
+            torch.nn.Linear(in_features[i], hidden_dim[i]) for i in range(self.num_layers)
         ])
 
         self.gate_networks = torch.nn.ModuleList([
             torch.nn.Sequential(
-                torch.nn.Linear(input_dims[i], gating_hidden_dim),
+                torch.nn.Linear(in_features[i], gating_hidden_dim),
                 torch.nn.ReLU(),
                 torch.nn.Linear(gating_hidden_dim, 1),
                 torch.nn.Sigmoid()
@@ -154,7 +154,7 @@ class NdLinearGated(torch.nn.Module):
         ])
 
         self.identity_projections = torch.nn.ModuleList([
-            torch.nn.Linear(input_dims[i], hidden_size[i]) if input_dims[i] != hidden_size[i] else torch.nn.Identity()
+            torch.nn.Linear(in_features[i], hidden_dim[i]) if in_features[i] != hidden_dim[i] else torch.nn.Identity()
             for i in range(self.num_layers)
         ])
 
@@ -239,7 +239,7 @@ class NdLinearGated(torch.nn.Module):
         return x
 
     def __repr__(self) -> str:
-        return (f"{self.__class__.__name__}(input_dims={self.input_dims}, "
-                f"hidden_size={self.hidden_size}, transform_outer={self.transform_outer}, "
+        return (f"{self.__class__.__name__}(input_dims={self.in_features}, "
+                f"hidden_size={self.hidden_dim}, transform_outer={self.transform_outer}, "
                 f"gating_mode={self.gating_mode}, gating_hidden_dim={self.gating_hidden_dim}, "
                 f"gated_modes={self.gated_modes})")

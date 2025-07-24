@@ -18,8 +18,8 @@ class GaussLayer(torch.nn.Module):
     """Applies linear transformation with Gaussian activation.
 
     Args:
-        in_channels: Number of input channels as ``int``.
-        out_channels: Number of output channels as ``int``.
+        in_features: Number of input channels as ``int``.
+        out_features: Number of output channels as ``int``.
         scale: Gaussian scale factor as ``float``. Default is ``10.0``.
         bias: Uses bias in linear layer if ``True``. Default is ``True``.
 
@@ -29,16 +29,14 @@ class GaussLayer(torch.nn.Module):
 
     def __init__(
         self,
-        in_channels : int,
-        out_channels: int,
+        in_features : int,
+        out_features: int,
         scale       : float = 10.0,
         bias        : bool  = True,
-        *args, **kwargs
     ):
         super().__init__()
-        self.in_channels = in_channels
-        self.scale       = scale
-        self.linear      = torch.nn.Linear(in_channels, out_channels, bias=bias)
+        self.scale  = scale
+        self.linear = torch.nn.Linear(in_features, out_features, bias=bias)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """Transforms input with linear layer and Gaussian.
@@ -57,9 +55,9 @@ class GAUSS(torch.nn.Module):
     """Implements Gaussian network with Gauss layers.
 
     Args:
-        in_channels: Number of input channels as ``int``.
-        out_channels: Number of output channels as ``int``.
-        hidden_channels: Number of channels in hidden layers as ``int``.
+        in_features: Number of input channels as ``int``.
+        out_features: Number of output channels as ``int``.
+        hidden_dim: Number of channels in hidden layers as ``int``.
         hidden_layers: Number of hidden layers as ``int``.
         scale: Gaussian scale factor as ``float``. Default is ``30.0``.
         bias: Uses bias in layers if ``True``. Default is ``True``.
@@ -70,18 +68,18 @@ class GAUSS(torch.nn.Module):
     
     def __init__(
         self,
-        in_channels    : int,
-        out_channels   : int,
-        hidden_channels: int,
-        hidden_layers  : int,
-        scale          : float = 30.0,
-        bias           : bool  = True,
+        in_features  : int,
+        out_features : int,
+        hidden_dim   : int,
+        hidden_layers: int,
+        scale        : float = 30.0,
+        bias         : bool  = True,
     ):
         super().__init__()
         self.net = torch.nn.Sequential(
-            GaussLayer(in_channels, hidden_channels, scale, bias=bias),
-            *[GaussLayer(hidden_channels, hidden_channels, scale, bias=bias) for _ in range(hidden_layers)],
-            torch.nn.Linear(hidden_channels, out_channels)
+            GaussLayer(in_features, hidden_dim, scale, bias=bias),
+            *[GaussLayer(hidden_dim, hidden_dim, scale, bias=bias) for _ in range(hidden_layers)],
+            torch.nn.Linear(hidden_dim, out_features)
         )
         
     def forward(self, x: torch.Tensor) -> torch.Tensor:

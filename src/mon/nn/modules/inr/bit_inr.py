@@ -60,8 +60,8 @@ class BitGeLULayer(torch.nn.Module):
 
     def __init__(
         self,
-        in_channels : int,
-        out_channels: int,
+        in_features : int,
+        out_features: int,
         w0          : float = 30.0,
         scale       : float = 10.0,
         is_first    : bool  = False,
@@ -70,10 +70,10 @@ class BitGeLULayer(torch.nn.Module):
         *args, **kwargs
     ):
         super().__init__()
-        self.in_channels = in_channels
+        self.in_features = in_features
         self.w0          = w0
         self.is_first    = is_first
-        self.linear      = BitLinear(in_channels, out_channels, bias=bias)
+        self.linear      = BitLinear(in_features, out_features, bias=bias)
         if init_weights:
             self.init_weights()
 
@@ -99,9 +99,9 @@ class BitINR(torch.nn.Module):
     via Bit Plane Decomposition," CVPR 2025.
 
     Args:
-        in_channels: Number of input channels as ``int``.
-        out_channels: Number of output channels as ``int``.
-        hidden_channels: Number of channels in hidden layers as ``int``.
+        in_features: Number of input channels as ``int``.
+        out_features: Number of output channels as ``int``.
+        hidden_dim: Number of channels in hidden layers as ``int``.
         hidden_layers: Number of hidden layers as ``int``.
         first_w0: Frequency for first layer as ``float``. Default is ``30.0``.
         hidden_w0: Frequency for hidden layers as ``float``. Default is ``30.0``.
@@ -113,20 +113,20 @@ class BitINR(torch.nn.Module):
     
     def __init__(
         self,
-        in_channels    : int,
-        out_channels   : int,
-        hidden_channels: int,
-        hidden_layers  : int,
-        first_w0       : float = 30.0,
-        hidden_w0      : float = 30.0,
-        scale          : float = 10.0,
-        bias           : bool  = True,
+        in_features  : int,
+        out_features : int,
+        hidden_dim   : int,
+        hidden_layers: int,
+        first_w0     : float = 30.0,
+        hidden_w0    : float = 30.0,
+        scale        : float = 10.0,
+        bias         : bool  = True,
     ):
         super().__init__()
         self.net = torch.nn.Sequential(
-            BitGeLULayer(in_channels, hidden_channels, first_w0, scale, is_first=True, bias=bias),
-            *[BitGeLULayer(hidden_channels, hidden_channels, hidden_w0, scale, bias=bias) for _ in range(hidden_layers)],
-            BitLinear(hidden_channels, out_channels)
+            BitGeLULayer(in_features, hidden_dim, first_w0, scale, is_first=True, bias=bias),
+            *[BitGeLULayer(hidden_dim, hidden_dim, hidden_w0, scale, bias=bias) for _ in range(hidden_layers)],
+            BitLinear(hidden_dim, out_features)
         )
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:

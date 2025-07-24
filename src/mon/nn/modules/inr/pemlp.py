@@ -18,7 +18,7 @@ class PositionalEncodingLayer(torch.nn.Module):
     """Applies positional encoding with sine and cosine functions.
 
     Args:
-        in_channels: Number of input channels as ``int``.
+        in_features: Number of input channels as ``int``.
         N_freqs: Number of frequency bands as ``int``.
         logscale: Uses logarithmic frequency scale if ``True``. Default is ``True``.
 
@@ -28,15 +28,15 @@ class PositionalEncodingLayer(torch.nn.Module):
 
     def __init__(
         self,
-        in_channels: int,
+        in_features: int,
         N_freqs    : int,
         logscale   : bool = True
     ):
         super().__init__()
         self.N_freqs      = N_freqs
-        self.in_channels  = in_channels
+        self.in_features  = in_features
         self.funcs        = [torch.sin, torch.cos]
-        self.out_channels = in_channels * (len(self.funcs) * N_freqs + 1)
+        self.out_features = in_features * (len(self.funcs) * N_freqs + 1)
         self.freq_bands   = (
             2 ** torch.linspace(0, N_freqs - 1, N_freqs)
             if logscale
@@ -64,27 +64,27 @@ class PEMLP(torch.nn.Module):
     """Implements positional encoding MLP network.
 
     Args:
-        in_channels: Number of input channels as ``int``.
-        out_channels: Number of output channels as ``int``.
-        hidden_channels: Number of channels in hidden layers as ``int``.
+        in_features: Number of input channels as ``int``.
+        out_features: Number of output channels as ``int``.
+        hidden_dim: Number of channels in hidden layers as ``int``.
         hidden_layers: Number of hidden layers as ``int``.
         N_freqs: Number of frequency bands for encoding as ``int``. Default is ``10``.
     """
     
     def __init__(
         self,
-        in_channels    : int,
-        out_channels   : int,
-        hidden_channels: int,
-        hidden_layers  : int,
-        N_freqs        : int = 10,
+        in_features  : int,
+        out_features : int,
+        hidden_dim   : int,
+        hidden_layers: int,
+        N_freqs      : int = 10,
     ):
         super().__init__()
-        self.encoding = PositionalEncodingLayer(in_channels=in_channels, N_freqs=N_freqs)
+        self.encoding = PositionalEncodingLayer(in_features=in_features, N_freqs=N_freqs)
         
-        layers  = [torch.nn.Linear(self.encoding.out_channels, hidden_channels), torch.nn.ReLU(True)]
-        layers += [torch.nn.Linear(hidden_channels, hidden_channels), torch.nn.ReLU(True)] * hidden_layers
-        layers.append(torch.nn.Linear(hidden_channels, out_channels))
+        layers  = [torch.nn.Linear(self.encoding.out_features, hidden_dim), torch.nn.ReLU(True)]
+        layers += [torch.nn.Linear(hidden_dim, hidden_dim), torch.nn.ReLU(True)] * hidden_layers
+        layers.append(torch.nn.Linear(hidden_dim, out_features))
         
         self.net = torch.nn.Sequential(*layers)
         

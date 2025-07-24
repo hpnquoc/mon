@@ -4,8 +4,8 @@ echo "${HOSTNAME}"
 clear
 
 # ----- Input -----
-arch="zmlie"
-model="zmlie"
+arch="zinf"
+model="zinf"
 datasets=(
     ### Unpaired
     #"dicm"
@@ -14,7 +14,7 @@ datasets=(
     #"npe"
     #"vv"
     ### LOLs
-    #"lolv1"
+    "lolv1"
     #"lolv2real"
     #"lolv2syn"
     ### LSRW
@@ -24,7 +24,7 @@ datasets=(
     #"fivekb"
     #"fivekc"
     #"fivekd"
-    #"fiveke"
+    "fiveke"
     ### SICE
     #"sice"
     ### High-Level

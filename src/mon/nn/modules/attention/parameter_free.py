@@ -39,9 +39,17 @@ class SimAM(torch.nn.Module):
             Output tensor as ``torch.Tensor`` with shape [B, C, H, W] with
             attention applied.
         """
-        b, c, h, w = input.size()
-        n     = w * h - 1
-        d     = (input - input.mean(dim=[2, 3], keepdim=True)).pow(2)  # [B, C, H, W]
-        v     = d.sum(dim=[2, 3], keepdim=True) / n   # [B, C, 1, 1]
-        e_inv = d / (4 * (v + self.e_lambda)) + 0.5   # [B, C, H, W]
-        return input * self.act(e_inv)
+        if input.dim() == 3:
+            h, w, c = input.size()
+            n       = w * h - 1
+            d       = (input - input.mean(dim=[0, 1], keepdim=True)).pow(2)
+            v       = d.sum(dim=[0, 1], keepdim=True) / n
+            e_inv   = d / (4 * (v + self.e_lambda)) + 0.5
+            return input * self.act(e_inv)
+        else:
+            b, c, h, w = input.size()
+            n          = w * h - 1
+            d          = (input - input.mean(dim=[2, 3], keepdim=True)).pow(2)  # [B, C, H, W]
+            v          = d.sum(dim=[2, 3], keepdim=True) / n   # [B, C, 1, 1]
+            e_inv      = d / (4 * (v + self.e_lambda)) + 0.5   # [B, C, H, W]
+            return input * self.act(e_inv)

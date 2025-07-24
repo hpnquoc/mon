@@ -11,4 +11,5 @@ from mon.nn.modules.inr.inr_layer import *
 from mon.nn.modules.inr.ndlinear import *
 from mon.nn.modules.inr.pemlp import *
 from mon.nn.modules.inr.siren import *
+from mon.nn.modules.inr.sl2a import *
 from mon.nn.modules.inr.wire import *

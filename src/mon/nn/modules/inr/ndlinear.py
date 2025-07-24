@@ -18,8 +18,8 @@ class SineNdLayer(torch.nn.Module):
     """Applies NdLinear transformation with sine activation.
 
     Args:
-        in_channels: Number of input channels as ``int``.
-        out_channels: Number of output channels as ``int``.
+        in_features: Number of input channels as ``int``.
+        out_features: Number of output channels as ``int``.
         w0: Sine frequency factor as ``float``. Default is ``30.0``.
         is_first: First layer flag for weight initialization as ``bool``.
             Default is ``False``.
@@ -32,20 +32,19 @@ class SineNdLayer(torch.nn.Module):
 
     def __init__(
         self,
-        in_channels : int,
-        out_channels: int,
+        in_features : int,
+        out_features: int,
         w0          : float = 30.0,
         is_first    : bool  = False,
         bias        : bool  = True,
         init_weights: bool  = True,
-        *args, **kwargs
     ):
         super().__init__()
-        self.in_channels  = in_channels  if isinstance(in_channels,  list | tuple) else [in_channels]
-        self.out_channels = out_channels if isinstance(out_channels, list | tuple) else [out_channels]
+        self.in_features  = in_features  if isinstance(in_features,  list | tuple) else [in_features]
+        self.out_features = out_features if isinstance(out_features, list | tuple) else [out_features]
         self.w0           = w0
         self.is_first     = is_first
-        self.linear       = NdLinear(self.in_channels, self.out_channels, bias=bias)
+        self.linear       = NdLinear(self.in_features, self.out_features, bias=bias)
         if init_weights:
             self.init_weights()
 
@@ -53,7 +52,7 @@ class SineNdLayer(torch.nn.Module):
         """Initializes linear layer weights based on layer position."""
         with torch.no_grad():
             for i, l in enumerate(self.linear.align_layers):
-                in_channels = self.in_channels[i]
+                in_channels = self.in_features[i]
                 bound       = 1 / in_channels if self.is_first else np.sqrt(6 / in_channels) / self.w0
                 l.weight.uniform_(-bound, bound)
 
@@ -86,8 +85,8 @@ class FINERNdLayer(torch.nn.Module):
     """Applies scaled sine activation to NdLinear transformation.
 
     Args:
-        in_channels: Number of input channels as ``int``.
-        out_channels: Number of output channels as ``int``.
+        in_features: Number of input channels as ``int``.
+        out_features: Number of output channels as ``int``.
         w0: Sine frequency factor as ``float``. Default is ``30.0``.
         first_bias_scale: Bias scale for first layer as ``float``. Default is ``20.0``.
         is_first: First layer flag for initialization as ``bool``. Default is ``False``.
@@ -100,8 +99,8 @@ class FINERNdLayer(torch.nn.Module):
 
     def __init__(
         self,
-        in_channels     : int,
-        out_channels    : int,
+        in_features     : int,
+        out_features    : int,
         w0              : float = 30.0,
         first_bias_scale: float = 20.0,
         is_first        : bool  = False,
@@ -111,11 +110,11 @@ class FINERNdLayer(torch.nn.Module):
         super().__init__()
         self.w0               = w0
         self.is_first         = is_first
-        self.in_channels      = in_channels  if isinstance(in_channels,  list | tuple) else [in_channels]
-        self.out_channels     = out_channels if isinstance(out_channels, list | tuple) else [out_channels]
+        self.in_features      = in_features  if isinstance(in_features,  list | tuple) else [in_features]
+        self.out_features     = out_features if isinstance(out_features, list | tuple) else [out_features]
         self.scale_req_grad   = scale_req_grad
         self.first_bias_scale = first_bias_scale
-        self.linear           = NdLinear(self.in_channels, self.out_channels, bias=bias)
+        self.linear           = NdLinear(self.in_features, self.out_features, bias=bias)
         self.init_weights()
         if self.first_bias_scale and self.is_first:
             self.init_first_bias()
@@ -124,7 +123,7 @@ class FINERNdLayer(torch.nn.Module):
         """Initializes linear layer weights based on layer position."""
         with torch.no_grad():
             for i, l in enumerate(self.linear.align_layers):
-                in_channels = self.in_channels[i]
+                in_channels = self.in_features[i]
                 bound       = 1 / in_channels if self.is_first else np.sqrt(6 / in_channels) / self.w0
                 l.weight.uniform_(-bound, bound)
 

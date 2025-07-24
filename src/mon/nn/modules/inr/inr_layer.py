@@ -11,17 +11,24 @@ from typing import Literal
 
 import torch
 
+from mon.nn.modules.inr.bit_inr import BitGeLULayer
 from mon.nn.modules.inr.core import ReLULayer, SigmoidLayer, TanhLayer
 from mon.nn.modules.inr.finer import FINERLayer
 from mon.nn.modules.inr.gauss import GaussLayer
-from mon.nn.modules.inr.ndlinear import SineNdLayer, FINERNdLayer
 from mon.nn.modules.inr.siren import SineLayer
+from mon.nn.modules.inr.sl2a import LowRankReLULayer
 from mon.nn.modules.inr.wire import ComplexGaborLayer
-from mon.nn.modules.inr.bit_inr import BitGeLULayer
 
 INR_AF = Literal[
-    "sigmoid", "tanh", "relu", "sine", "gauss", "wire", "finer", "bitgelu",
-    "sinend", "finernd",
+    "sigmoid",
+    "tanh",
+    "relu",
+    "sine",
+    "gauss",
+    "wire",
+    "finer",
+    "bitgelu",
+    "lowrankrelu",
 ]
 
 
@@ -30,8 +37,8 @@ class INRLayer(torch.nn.Module):
     """Combines linear transformation, nonlinearity, and dropout.
 
     Args:
-        in_channels: Number of input channels as ``int``.
-        out_channels: Number of output channels as ``int``.
+        in_features: Number of input channels as ``int``.
+        out_features: Number of output channels as ``int``.
         nonlinear: Nonlinearity type as ``Literal["sigmoid", "tanh", "relu", "sine",
             "gauss", "wire", "finer"]``. Default is ``"sine"``.
         w0: Sine frequency factor as ``float``. Default is ``30.0``.
@@ -45,8 +52,8 @@ class INRLayer(torch.nn.Module):
     
     def __init__(
         self,
-        in_channels     : int,
-        out_channels    : int,
+        in_features     : int,
+        out_features    : int,
         nonlinear       : INR_AF = "sine",
         w0              : float  = 30.0,
         scale           : float  = 10.0,
@@ -61,8 +68,8 @@ class INRLayer(torch.nn.Module):
             nonlinear = "sigmoid"
         
         layer_args = {
-            "in_channels" : in_channels,
-            "out_channels": out_channels,
+            "in_features" : in_features,
+            "out_features": out_features,
             "bias"        : bias
         }
         
@@ -82,10 +89,8 @@ class INRLayer(torch.nn.Module):
             self.nonlinear = FINERLayer(**layer_args, w0=w0, first_bias_scale=first_bias_scale, is_first=is_first)
         elif nonlinear == "bitgelu":
             self.nonlinear = BitGeLULayer(**layer_args, w0=w0, is_first=is_first, init_weights=not is_last)
-        elif nonlinear == "sinend":
-            self.nonlinear = SineNdLayer(**layer_args, w0=w0, is_first=is_first, init_weights=not is_last)
-        elif nonlinear == "finernd":
-            self.nonlinear = FINERNdLayer(**layer_args, w0=w0, first_bias_scale=first_bias_scale, is_first=is_first)
+        elif nonlinear == "lowrankrelu":
+            self.nonlinear = LowRankReLULayer(**layer_args, nonlinear="", linear_init_type="kaiming_uniform")
         else:
             raise ValueError(f"[nonlinear] must be supported type, got {nonlinear}.")
         

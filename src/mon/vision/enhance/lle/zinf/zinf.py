@@ -52,7 +52,6 @@ class Loss(nn.Loss):
         self.loss_e     = nn.ExposureValueControlLoss(16, loss_e_mean, reduction=reduction)
         self.loss_tv    = nn.TotalVariationLoss(reduction=reduction)
         self.loss_depth = nn.DepthAwareIlluminationLoss(reduction=reduction)
-        self.loss_edge  = nn.EdgeAwareIlluminationLoss(reduction=reduction)
 
     def forward(
         self,
@@ -95,22 +94,21 @@ class INF1_Spatial(nn.Module):
     
     def __init__(
         self,
-        s_in_channels   : int         = 2,
-        p_in_channels   : int         = 1,
-        hidden_dim      : int         = 256,
-        num_layers      : int         = 4,
-        add_layers      : int         = 2,
-        w0              : float       = 30.0,
-        first_bias_scale: float       = 20.0,
-        s_nonlinear     : INR_AF      = "finer",
-        nonlinear       : INR_AF      = "finer",
-        reduce_channels : bool        = False,
-        weight_decay    : list[float] = [0.1, 0.0001, 0.001],
-        *args, **kwargs
+        s_in_features   : int   = 2,
+        p_in_features   : int   = 1,
+        hidden_dim      : int   = 256,
+        num_layers      : int   = 4,
+        add_layers      : int   = 2,
+        w0              : float = 30.0,
+        first_bias_scale: float = 20.0,
+        s_nonlinear     : str   = "finer",
+        nonlinear       : str   = "finer",
+        reduce_channels : bool  = False,
+        weight_decay            = [0.1, 0.0001, 0.001],
     ):
         super().__init__()
         # Construct MLP/INF
-        spatial_layers = [nn.INRLayer(s_in_channels, hidden_dim, s_nonlinear, w0=w0, first_bias_scale=first_bias_scale, is_first=True)]
+        spatial_layers = [nn.INRLayer(s_in_features, hidden_dim, s_nonlinear, w0=w0, first_bias_scale=first_bias_scale, is_first=True)]
         for _ in range(1, add_layers - 2):
             spatial_layers.append(nn.INRLayer(hidden_dim, hidden_dim, s_nonlinear, w0=w0, first_bias_scale=first_bias_scale))
         spatial_layers.append(nn.INRLayer(hidden_dim, hidden_dim, s_nonlinear, w0=w0, first_bias_scale=first_bias_scale))
@@ -122,9 +120,7 @@ class INF1_Spatial(nn.Module):
         
         self.spatial_net = nn.Sequential(*spatial_layers)
         self.output_net  = nn.Sequential(*output_layers)
-        
-        if not weight_decay:
-            weight_decay = [0.1, 0.0001, 0.001]
+
         self.params  = []
         self.params += [{"params": self.spatial_net.parameters(), "weight_decay": weight_decay[0]}]
         self.params += [{"params": self.output_net.parameters(), "weight_decay": weight_decay[2]}]
@@ -144,21 +140,20 @@ class INF1_Patch(nn.Module):
     
     def __init__(
         self,
-        s_in_channels   : int         = 2,
-        p_in_channels   : int         = 1,
-        hidden_dim      : int         = 256,
-        num_layers      : int         = 4,
-        add_layers      : int         = 2,
-        w0              : float       = 30.0,
-        first_bias_scale: float       = 20.0,
-        nonlinear       : INR_AF      = "finer",
-        reduce_channels : bool        = False,
-        weight_decay    : list[float] = [0.1, 0.0001, 0.001],
-        *args, **kwargs
+        s_in_features   : int   = 2,
+        p_in_features   : int   = 1,
+        hidden_dim      : int   = 256,
+        num_layers      : int   = 4,
+        add_layers      : int   = 2,
+        w0              : float = 30.0,
+        first_bias_scale: float = 20.0,
+        nonlinear       : str   = "finer",
+        reduce_channels : bool  = False,
+        weight_decay            = [0.1, 0.0001, 0.001],
     ):
         super().__init__()
         # Construct MLP/INF
-        patch_layers = [nn.INRLayer(p_in_channels, hidden_dim, nonlinear, w0=w0, first_bias_scale=first_bias_scale, is_first=True)]
+        patch_layers = [nn.INRLayer(p_in_features, hidden_dim, nonlinear, w0=w0, first_bias_scale=first_bias_scale, is_first=True)]
         for _ in range(1, add_layers - 2):
             patch_layers.append(nn.INRLayer(hidden_dim, hidden_dim, nonlinear, w0=w0, first_bias_scale=first_bias_scale))
         patch_layers.append(nn.INRLayer(hidden_dim, hidden_dim, nonlinear, w0=w0, first_bias_scale=first_bias_scale))
@@ -170,9 +165,7 @@ class INF1_Patch(nn.Module):
         
         self.patch_net  = nn.Sequential(*patch_layers)
         self.output_net = nn.Sequential(*output_layers)
-        
-        if not weight_decay:
-            weight_decay = [0.1, 0.0001, 0.001]
+
         self.params  = []
         self.params += [{"params": self.patch_net.parameters(),  "weight_decay": weight_decay[1]}]
         self.params += [{"params": self.output_net.parameters(), "weight_decay": weight_decay[2]}]
@@ -192,31 +185,30 @@ class INF2(nn.Module):
     
     def __init__(
         self,
-        s_in_channels   : int         = 2,
-        p_in_channels   : int         = 1,
-        hidden_dim      : int         = 256,
-        num_layers      : int         = 4,
-        add_layers      : int         = 2,
-        w0              : float       = 30.0,
-        first_bias_scale: float       = 20.0,
-        nonlinear       : INR_AF      = "finer",
-        reduce_channels : bool        = False,
-        weight_decay    : list[float] = [0.1, 0.0001, 0.001],
-        *args, **kwargs
+        s_in_features   : int   = 2,
+        p_in_features   : int   = 1,
+        hidden_dim      : int   = 256,
+        num_layers      : int   = 4,
+        add_layers      : int   = 2,
+        w0              : float = 30.0,
+        first_bias_scale: float = 20.0,
+        nonlinear       : str   = "finer",
+        reduce_channels : bool  = False,
+        weight_decay            = [0.1, 0.0001, 0.001],
     ):
         super().__init__()
         # Construct MLP/INF
-        mid_channels = hidden_dim // 2 if reduce_channels else hidden_dim
+        mid_features   = hidden_dim // 2 if reduce_channels else hidden_dim
 
-        spatial_layers = [nn.INRLayer(s_in_channels, hidden_dim, nonlinear, w0=w0, first_bias_scale=first_bias_scale, is_first=True)]
-        patch_layers   = [nn.INRLayer(p_in_channels, hidden_dim, nonlinear, w0=w0, first_bias_scale=first_bias_scale, is_first=True)]
+        spatial_layers = [nn.INRLayer(s_in_features, hidden_dim, nonlinear, w0=w0, first_bias_scale=first_bias_scale, is_first=True)]
+        patch_layers   = [nn.INRLayer(p_in_features, hidden_dim, nonlinear, w0=w0, first_bias_scale=first_bias_scale, is_first=True)]
         for _ in range(1, add_layers - 2):
             spatial_layers.append(nn.INRLayer(hidden_dim, hidden_dim, nonlinear, w0=w0, first_bias_scale=first_bias_scale))
             patch_layers.append(  nn.INRLayer(hidden_dim, hidden_dim, nonlinear, w0=w0, first_bias_scale=first_bias_scale))
-        spatial_layers.append(nn.INRLayer(hidden_dim, mid_channels, nonlinear, w0=w0, first_bias_scale=first_bias_scale))
-        patch_layers.append(  nn.INRLayer(hidden_dim, mid_channels, nonlinear, w0=w0, first_bias_scale=first_bias_scale))
+        spatial_layers.append(nn.INRLayer(hidden_dim, mid_features, nonlinear, w0=w0, first_bias_scale=first_bias_scale))
+        patch_layers.append(  nn.INRLayer(hidden_dim, mid_features, nonlinear, w0=w0, first_bias_scale=first_bias_scale))
         
-        output_layers = [nn.INRLayer(mid_channels * 2, hidden_dim, nonlinear, w0=w0, first_bias_scale=first_bias_scale)]
+        output_layers = [nn.INRLayer(mid_features * 2, hidden_dim, nonlinear, w0=w0, first_bias_scale=first_bias_scale)]
         for _ in range(add_layers + 1, num_layers - 1):
             output_layers.append(nn.INRLayer(hidden_dim, hidden_dim, nonlinear, w0=w0, first_bias_scale=first_bias_scale))
         output_layers.append(nn.INRLayer(hidden_dim, 1, nonlinear, w0=w0, first_bias_scale=first_bias_scale, is_last=True))
@@ -224,9 +216,7 @@ class INF2(nn.Module):
         self.spatial_net = nn.Sequential(*spatial_layers)
         self.patch_net   = nn.Sequential(*patch_layers)
         self.output_net  = nn.Sequential(*output_layers)
-        
-        if not weight_decay:
-            weight_decay = [0.1, 0.0001, 0.001]
+
         self.params  = []
         self.params += [{"params": self.spatial_net.parameters(), "weight_decay": weight_decay[0]}]
         self.params += [{"params": self.patch_net.parameters(),   "weight_decay": weight_decay[1]}]
@@ -247,37 +237,36 @@ class INF4(nn.Module):
     
     def __init__(
         self,
-        s_in_channels   : int         = 2,
-        p_in_channels   : int         = 1,
-        hidden_dim      : int         = 256,
-        num_layers      : int         = 4,
-        add_layers      : int         = 2,
-        w0              : float       = 30.0,
-        first_bias_scale: float       = 20.0,
-        nonlinear       : INR_AF      = "finer",
-        reduce_channels : bool        = False,
-        weight_decay    : list[float] = [0.1, 0.0001, 0.001],
-        *args, **kwargs
+        s_in_features   : int   = 2,
+        p_in_features   : int   = 1,
+        hidden_dim      : int   = 256,
+        num_layers      : int   = 4,
+        add_layers      : int   = 2,
+        w0              : float = 30.0,
+        first_bias_scale: float = 20.0,
+        nonlinear       : str   = "finer",
+        reduce_channels : bool  = False,
+        weight_decay            = [0.1, 0.0001, 0.001],
     ):
         super().__init__()
         # Construct MLP/INF
-        mid_channels   = hidden_dim // 4 if reduce_channels else hidden_dim
+        mid_features   = hidden_dim // 4 if reduce_channels else hidden_dim
 
-        spatial_layers = [nn.INRLayer(s_in_channels, hidden_dim, nonlinear, w0=w0, first_bias_scale=first_bias_scale, is_first=True)]
-        patch_i_layers = [nn.INRLayer(p_in_channels, hidden_dim, nonlinear, w0=w0, first_bias_scale=first_bias_scale, is_first=True)]
-        patch_d_layers = [nn.INRLayer(p_in_channels, hidden_dim, nonlinear, w0=w0, first_bias_scale=first_bias_scale, is_first=True)]
-        patch_e_layers = [nn.INRLayer(p_in_channels, hidden_dim, nonlinear, w0=w0, first_bias_scale=first_bias_scale, is_first=True)]
+        spatial_layers = [nn.INRLayer(s_in_features, hidden_dim, nonlinear, w0=w0, first_bias_scale=first_bias_scale, is_first=True)]
+        patch_i_layers = [nn.INRLayer(p_in_features, hidden_dim, nonlinear, w0=w0, first_bias_scale=first_bias_scale, is_first=True)]
+        patch_d_layers = [nn.INRLayer(p_in_features, hidden_dim, nonlinear, w0=w0, first_bias_scale=first_bias_scale, is_first=True)]
+        patch_e_layers = [nn.INRLayer(p_in_features, hidden_dim, nonlinear, w0=w0, first_bias_scale=first_bias_scale, is_first=True)]
         for _ in range(1, add_layers - 2):
             spatial_layers.append(nn.INRLayer(hidden_dim, hidden_dim, nonlinear, w0=w0, first_bias_scale=first_bias_scale))
             patch_i_layers.append(nn.INRLayer(hidden_dim, hidden_dim, nonlinear, w0=w0, first_bias_scale=first_bias_scale))
             patch_d_layers.append(nn.INRLayer(hidden_dim, hidden_dim, nonlinear, w0=w0, first_bias_scale=first_bias_scale))
             patch_e_layers.append(nn.INRLayer(hidden_dim, hidden_dim, nonlinear, w0=w0, first_bias_scale=first_bias_scale))
-        spatial_layers.append(nn.INRLayer(hidden_dim, mid_channels, nonlinear, w0=w0, first_bias_scale=first_bias_scale))
-        patch_i_layers.append(nn.INRLayer(hidden_dim, mid_channels, nonlinear, w0=w0, first_bias_scale=first_bias_scale))
-        patch_d_layers.append(nn.INRLayer(hidden_dim, mid_channels, nonlinear, w0=w0, first_bias_scale=first_bias_scale))
-        patch_e_layers.append(nn.INRLayer(hidden_dim, mid_channels, nonlinear, w0=w0, first_bias_scale=first_bias_scale))
+        spatial_layers.append(nn.INRLayer(hidden_dim, mid_features, nonlinear, w0=w0, first_bias_scale=first_bias_scale))
+        patch_i_layers.append(nn.INRLayer(hidden_dim, mid_features, nonlinear, w0=w0, first_bias_scale=first_bias_scale))
+        patch_d_layers.append(nn.INRLayer(hidden_dim, mid_features, nonlinear, w0=w0, first_bias_scale=first_bias_scale))
+        patch_e_layers.append(nn.INRLayer(hidden_dim, mid_features, nonlinear, w0=w0, first_bias_scale=first_bias_scale))
         
-        output_layers = [nn.INRLayer(mid_channels * 4, hidden_dim, nonlinear, w0=w0, first_bias_scale=first_bias_scale)]
+        output_layers = [nn.INRLayer(mid_features * 4, hidden_dim, nonlinear, w0=w0, first_bias_scale=first_bias_scale)]
         for _ in range(add_layers + 1, num_layers - 1):
             output_layers.append(nn.INRLayer(hidden_dim, hidden_dim, nonlinear, w0=w0, first_bias_scale=first_bias_scale))
         output_layers.append(nn.INRLayer(hidden_dim, 1, nonlinear, w0=w0, first_bias_scale=first_bias_scale, is_last=True))
@@ -287,9 +276,7 @@ class INF4(nn.Module):
         self.patch_d_net = nn.Sequential(*patch_d_layers)
         self.patch_e_net = nn.Sequential(*patch_e_layers)
         self.output_net  = nn.Sequential(*output_layers)
-        
-        if not weight_decay:
-            weight_decay = [0.1, 0.0001, 0.001]
+
         self.params  = []
         self.params += [{"params": self.spatial_net.parameters(), "weight_decay": weight_decay[0]}]
         self.params += [{"params": self.patch_i_net.parameters(), "weight_decay": weight_decay[1]}]
@@ -298,12 +285,15 @@ class INF4(nn.Module):
         self.params += [{"params": self.output_net.parameters(),  "weight_decay": weight_decay[2]}]
         
     def forward(self, spatial: torch.Tensor, patch_i: torch.Tensor, patch_d: torch.Tensor, patch_e: torch.Tensor) -> torch.Tensor:
-        return self.output_net(torch.cat((
-            self.spatial_net(spatial),
-            self.patch_i_net(patch_i),
-            self.patch_d_net(patch_d),
-            self.patch_e_net(patch_e)
-        ), -1))
+        output = self.output_net(
+            torch.cat(
+                (self.spatial_net(spatial),
+                        self.patch_i_net(patch_i),
+                        self.patch_d_net(patch_d),
+                        self.patch_e_net(patch_e)),
+                -1)
+        )
+        return output
 
 
 # ----- Model -----
@@ -320,26 +310,25 @@ class ZINF(base.ImageEnhancementModel):
     
     def __init__(
         self,
-        mapping_func     : MAPPING_FUNC = "pvde",
-        window_size      : int          = 9,
-        down_size        : int          = 256,
-        num_layers       : int          = 4,
-        add_layers       : int          = 2,
-        w0               : float        = 30.0,
-        first_bias_scale : float        = 20.0,
-        use_ff           : bool         = True,
-        ff_gaussian_scale: float        = 10.0,
-        nonlinear        : INR_AF       = "finer",
-        reduce_channels  : bool         = False,
-        depth_threshold  : float        = 1.0,
-        edge_threshold   : float        = 0.05,
+        mapping_func     : str   = "pbde",
+        window_size      : int   = 9,
+        down_size        : int   = 256,
+        num_layers       : int   = 4,
+        add_layers       : int   = 2,
+        w0               : float = 30.0,
+        first_bias_scale : float = 20.0,
+        use_ff           : bool  = True,
+        ff_gaussian_scale: float = 10.0,
+        nonlinear        : str   = "finer",
+        reduce_channels  : bool  = False,
+        depth_threshold  : float = 1.0,
+        edge_threshold   : float = 0.05,
         # Post-process
-        gf_radius        : int          = 3,
-        use_denoise      : bool         = True,
-        denoise_ksize    : _size_2_t    = (7, 7),
-        denoise_color    : float        = 0.1,
-        denoise_space    : _size_2_t    = (1.5, 1.5),
-        iters            : int          = 100,
+        use_denoise      : bool  = True,
+        denoise_ksize    : int   = 7,
+        denoise_color    : float = 0.1,
+        denoise_space    : float = 1.5,
+        iters            : int   = 100,
         *args, **kwargs
     ):
         super().__init__(*args, **kwargs)
@@ -348,11 +337,10 @@ class ZINF(base.ImageEnhancementModel):
         self.down_size       = down_size
         self.depth_threshold = depth_threshold
         self.edge_threshold  = edge_threshold
-        self.gf_radius       = gf_radius
         self.use_denoise     = use_denoise
-        self.denoise_ksize   = tuple(denoise_ksize)
+        self.denoise_ksize   = (denoise_ksize, denoise_ksize)
         self.denoise_color   = denoise_color
-        self.denoise_space   = tuple(denoise_space)
+        self.denoise_space   = (denoise_space, denoise_space)
         self.iters           = iters
 
         # Model
@@ -361,13 +349,13 @@ class ZINF(base.ImageEnhancementModel):
         if use_ff:
             self.register_buffer("B1", torch.randn((hidden_dim, 2))         * ff_gaussian_scale)
             self.register_buffer("B2", torch.randn((hidden_dim, patch_dim)) * ff_gaussian_scale)
-            s_in_channels = hidden_dim * 2
-            p_in_channels = hidden_dim * 2
+            s_in_features = hidden_dim * 2
+            p_in_features = hidden_dim * 2
         else:
             self.B1       = None
             self.B2       = None
-            s_in_channels = 2
-            p_in_channels = patch_dim
+            s_in_features = 2
+            p_in_features = patch_dim
 
         if self.mapping_func in ["p"]:
             inf = INF1_Spatial
@@ -380,8 +368,8 @@ class ZINF(base.ImageEnhancementModel):
         else:
             raise ValueError(f"[mapping_func] must be one of {MAPPING_FUNC}, got {self.mapping_func}.")
         self.inf = inf(
-            s_in_channels    = s_in_channels,
-            p_in_channels    = p_in_channels,
+            s_in_features    = s_in_features,
+            p_in_features    = p_in_features,
             hidden_dim       = hidden_dim,
             num_layers       = num_layers,
             add_layers       = add_layers,
@@ -391,6 +379,8 @@ class ZINF(base.ImageEnhancementModel):
             reduce_channels  = reduce_channels,
             weight_decay     = [0.1, 0.0001, 0.001],
         )
+        self.gf = filtering.FastGuidedFilter(radius=3)
+        self.bf = kornia.filters.BilateralBlur(self.denoise_ksize, self.denoise_color, self.denoise_space)
 
         # Optimizer
         self.configure_optimizers()
@@ -599,12 +589,12 @@ class ZINF(base.ImageEnhancementModel):
         timers.postprocess.tick() if timers is not None else None
         image_i_fixed_lr = outputs["image_i_fixed_lr"]
         if self.use_denoise:
-            image_i_fixed_lr = kornia.filters.bilateral_blur(image_i_fixed_lr, self.denoise_ksize, self.denoise_color, self.denoise_space)
+            image_i_fixed_lr = self.bf(image_i_fixed_lr)
         image_i_fixed   = self.filter_up(image_i_lr, image_i_fixed_lr, image_i)
         image_hvi_fixed = torch.cat((image_hv, image_i_fixed), dim=1)
         image_rgb_fixed = hvi.hvi_to_rgb(image_hvi_fixed)
         if self.use_denoise:
-            image_rgb_fixed = kornia.filters.bilateral_blur(image_rgb_fixed, self.denoise_ksize, self.denoise_color, self.denoise_space)
+            image_rgb_fixed = self.bf(image_rgb_fixed)
 
         # Return
         return outputs | {
@@ -641,7 +631,8 @@ class ZINF(base.ImageEnhancementModel):
         kernel       = torch.zeros((kernel_size ** 2, num_channels, kernel_size, kernel_size)).to(image.device)
         for i in range(kernel_size):
             for j in range(kernel_size):
-                kernel[int(torch.sum(kernel).item()), 0, i, j] = 1
+                # kernel[int(torch.sum(kernel).item()), 0, i, j] = 1
+                kernel[i + j * kernel_size, 0, i, j] = 1
 
         pad       = nn.ReflectionPad2d(kernel_size // 2)
         im_padded = pad(image)
@@ -661,9 +652,9 @@ class ZINF(base.ImageEnhancementModel):
             embedding = torch.cat([torch.sin(x_proj), torch.cos(x_proj)], axis=-1)
             return embedding
 
-    def filter_up(self, x_lr: torch.Tensor, y_lr: torch.Tensor, x_hr: torch.Tensor, radius: int = 3) -> torch.Tensor:
+    def filter_up(self, x_lr: torch.Tensor, y_lr: torch.Tensor, x_hr: torch.Tensor) -> torch.Tensor:
         """Applies the guided filter to upscale the predicted image. """
-        gf   = filtering.FastGuidedFilter(radius=radius)
-        y_hr = gf(x_lr, y_lr, x_hr)
+        # gf   = filtering.FastGuidedFilter(radius=radius)
+        y_hr = self.gf(x_lr, y_lr, x_hr)
         y_hr = torch.clip(y_hr, 0.0, 1.0)
         return y_hr

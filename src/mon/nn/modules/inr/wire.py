@@ -23,8 +23,8 @@ class ComplexGaborLayer(torch.nn.Module):
     """Applies complex Gabor transformation to input.
 
     Args:
-        in_channels: Number of input channels as ``int``.
-        out_channels: Number of output channels as ``int``.
+        in_features: Number of input channels as ``int``.
+        out_features: Number of output channels as ``int``.
         w0: Base frequency factor as ``float``. Default is ``10.0``.
         s0: Base scale factor as ``float``. Default is ``40.0``.
         is_first: First layer flag for dtype as ``bool``. Default is ``False``.
@@ -38,8 +38,8 @@ class ComplexGaborLayer(torch.nn.Module):
 
     def __init__(
         self,
-        in_channels : int,
-        out_channels: int,
+        in_features : int,
+        out_features: int,
         w0          : float = 10.0,
         s0          : float = 40.0,
         is_first    : bool  = False,
@@ -48,9 +48,9 @@ class ComplexGaborLayer(torch.nn.Module):
     ):
         super().__init__()
         self.is_first    = is_first
-        self.in_channels = in_channels
+        self.in_features = in_features
         dtype            = torch.float if is_first else torch.cfloat
-        self.linear      = torch.nn.Linear(in_channels, out_channels, bias=bias, dtype=dtype)
+        self.linear      = torch.nn.Linear(in_features, out_features, bias=bias, dtype=dtype)
         self.w0          = torch.nn.Parameter(torch.tensor([w0]), requires_grad=trainable)
         self.scale_0     = torch.nn.Parameter(torch.tensor([s0]), requires_grad=trainable)
 
@@ -74,9 +74,9 @@ class WIRE(torch.nn.Module):
     """WIRE network.
 
     Args:
-        in_channels: Number of input channels as ``int``.
-        out_channels: Number of output channels as ``int``.
-        hidden_channels: Number of channels in hidden layers as ``int`` (adjusted internally).
+        in_features: Number of input channels as ``int``.
+        out_features: Number of output channels as ``int``.
+        hidden_dim: Number of channels in hidden layers as ``int`` (adjusted internally).
         hidden_layers: Number of hidden layers as ``int``.
         first_w0: Frequency for first layer as ``float``. Default is ``20.0``.
         hidden_w0: Frequency for hidden layers as ``float``. Default is ``20.0``.
@@ -89,27 +89,27 @@ class WIRE(torch.nn.Module):
     
     def __init__(
         self,
-        in_channels    : int,
-        out_channels   : int,
-        hidden_channels: int,
-        hidden_layers  : int,
-        first_w0       : float = 20,
-        hidden_w0      : float = 20,
-        scale          : float = 10.0,
-        bias           : bool  = True,
+        in_features  : int,
+        out_features : int,
+        hidden_dim   : int,
+        hidden_layers: int,
+        first_w0     : float = 20,
+        hidden_w0    : float = 20,
+        scale        : float = 10.0,
+        bias         : bool  = True,
     ):
         super().__init__()
         # Since complex numbers are two real numbers, reduce the number of hidden parameters by 2
-        hidden_channels = int(hidden_channels / np.sqrt(2))
-        dtype = torch.cfloat
+        hidden_dim = int(hidden_dim / np.sqrt(2))
+        dtype      = torch.cfloat
 
         self.net = torch.nn.Sequential(
-            ComplexGaborLayer(in_channels, hidden_channels, first_w0, s0=scale, is_first=True, bias=bias),
-            *[ComplexGaborLayer(hidden_channels, hidden_channels, hidden_w0, s0=scale, bias=bias) for _ in range(hidden_layers)],
-            torch.nn.Linear(hidden_channels, out_channels, dtype=dtype)
+            ComplexGaborLayer(in_features, hidden_dim, first_w0, s0=scale, is_first=True, bias=bias),
+            *[ComplexGaborLayer(hidden_dim, hidden_dim, hidden_w0, s0=scale, bias=bias) for _ in range(hidden_layers)],
+            torch.nn.Linear(hidden_dim, out_features, dtype=dtype)
         )
         with torch.no_grad():
-            self.net[-1].weight.uniform_(-np.sqrt(6 / hidden_channels) / hidden_w0, np.sqrt(6 / hidden_channels) / hidden_w0)
+            self.net[-1].weight.uniform_(-np.sqrt(6 / hidden_dim) / hidden_w0, np.sqrt(6 / hidden_dim) / hidden_w0)
     
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """Generates output from image coordinates.

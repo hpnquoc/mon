@@ -4,9 +4,10 @@
 """Basic implicit neural representation (INR) layers."""
 
 __all__ = [
+    "LinearLayer",
+    "ReLULayer",
     "SigmoidLayer",
     "TanhLayer",
-    "ReLULayer",
 ]
 
 import numpy as np
@@ -84,26 +85,29 @@ def ff_embedding(p: torch.Tensor, B: torch.Tensor = None) -> torch.Tensor:
 
 
 # ----- Basic Activation Layers -----
+class LinearLayer(torch.nn.Module):
+
+    def __init__(self, in_features, out_features, bias=True):
+        super().__init__()
+        self.linear = torch.nn.Linear(in_features, out_features, bias=bias)
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        return self.linear(x)
+
+
 class SigmoidLayer(torch.nn.Module):
     """Applies linear transformation with sigmoid activation.
 
     Args:
-        in_channels: Number of input channels as ``int``.
-        out_channels: Number of output channels as ``int``.
+        in_features: Number of input channels as ``int``.
+        out_features: Number of output channels as ``int``.
         bias: Uses bias in linear layer if ``True``. Default is ``True``.
     """
 
-    def __init__(
-        self,
-        in_channels : int,
-        out_channels: int,
-        bias        : bool = True,
-        *args, **kwargs
-    ):
+    def __init__(self, in_features: int, out_features: int, bias: bool = True):
         super().__init__()
-        self.in_channels = in_channels
-        self.linear      = torch.nn.Linear(in_channels, out_channels, bias=bias)
-        self.act         = torch.nn.Sigmoid()
+        self.linear = torch.nn.Linear(in_features, out_features, bias=bias)
+        self.act    = torch.nn.Sigmoid()
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """Transforms input with linear layer and sigmoid.
@@ -121,22 +125,15 @@ class TanhLayer(torch.nn.Module):
     """Applies linear transformation with tanh activation.
 
     Args:
-        in_channels: Number of input channels as ``int``.
-        out_channels: Number of output channels as ``int``.
+        in_features: Number of input channels as ``int``.
+        out_features: Number of output channels as ``int``.
         bias: Uses bias in linear layer if ``True``. Default is ``True``.
     """
 
-    def __init__(
-        self,
-        in_channels : int,
-        out_channels: int,
-        bias        : bool = True,
-        *args, **kwargs
-    ):
+    def __init__(self, in_features: int, out_features: int, bias: bool = True):
         super().__init__()
-        self.in_channels = in_channels
-        self.linear      = torch.nn.Linear(in_channels, out_channels, bias=bias)
-        self.act         = torch.nn.Tanh()
+        self.linear = torch.nn.Linear(in_features, out_features, bias=bias)
+        self.act    = torch.nn.Tanh()
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """Transforms input with linear layer and tanh.
@@ -154,24 +151,18 @@ class ReLULayer(torch.nn.Module):
     """Applies linear transformation with ReLU activation.
 
     Args:
-        in_channels: Number of input channels as ``int``.
-        out_channels: Number of output channels as ``int``.
+        in_features: Number of input channels as ``int``.
+        out_features: Number of output channels as ``int``.
         bias: Uses bias in linear layer if ``True``. Default is ``True``.
 
     References:
         - https://github.com/vishwa91/wire/blob/main/modules/relu.py
     """
 
-    def __init__(
-        self,
-        in_channels : int,
-        out_channels: int,
-        bias        : bool = True,
-        *args, **kwargs
-    ):
+    def __init__(self, in_features: int, out_features: int, bias: bool = True):
         super().__init__()
-        self.in_channels = in_channels
-        self.linear      = torch.nn.Linear(in_channels, out_channels, bias=bias)
+        self.in_channels = in_features
+        self.linear      = torch.nn.Linear(in_features, out_features, bias=bias)
         self.act         = torch.nn.ReLU()
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:

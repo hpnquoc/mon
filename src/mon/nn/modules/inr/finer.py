@@ -19,8 +19,8 @@ class FINERLayer(torch.nn.Module):
     """Applies scaled sine activation to linear transformation.
 
     Args:
-        in_channels: Number of input channels as ``int``.
-        out_channels: Number of output channels as ``int``.
+        in_features: Number of input channels as ``int``.
+        out_features: Number of output channels as ``int``.
         w0: Sine frequency factor as ``float``. Default is ``30.0``.
         first_bias_scale: Bias scale for first layer as ``float``. Default is ``20.0``.
         is_first: First layer flag for initialization as ``bool``. Default is ``False``.
@@ -33,8 +33,8 @@ class FINERLayer(torch.nn.Module):
 
     def __init__(
         self,
-        in_channels     : int,
-        out_channels    : int,
+        in_features     : int,
+        out_features    : int,
         w0              : float = 30.0,
         first_bias_scale: float = 20.0,
         is_first        : bool  = False,
@@ -44,10 +44,10 @@ class FINERLayer(torch.nn.Module):
         super().__init__()
         self.w0               = w0
         self.is_first         = is_first
-        self.in_channels      = in_channels
+        self.in_features      = in_features
         self.scale_req_grad   = scale_req_grad
         self.first_bias_scale = first_bias_scale
-        self.linear           = torch.nn.Linear(in_channels, out_channels, bias=bias)
+        self.linear           = torch.nn.Linear(in_features, out_features, bias=bias)
         self.init_weights()
         if self.first_bias_scale and self.is_first:
             self.init_first_bias()
@@ -55,7 +55,7 @@ class FINERLayer(torch.nn.Module):
     def init_weights(self):
         """Initializes linear layer weights based on layer position."""
         with torch.no_grad():
-            bound = 1 / self.in_channels if self.is_first else np.sqrt(6 / self.in_channels) / self.w0
+            bound = 1 / self.in_features if self.is_first else np.sqrt(6 / self.in_features) / self.w0
             self.linear.weight.uniform_(-bound, bound)
 
     def init_first_bias(self):
@@ -96,9 +96,9 @@ class FINER(torch.nn.Module):
     """Implements FINER network with FINER layers.
 
     Args:
-        in_channels: Number of input channels as ``int``.
-        out_channels: Number of output channels as ``int``.
-        hidden_channels: Number of channels in hidden layers as ``int``.
+        in_features: Number of input channels as ``int``.
+        out_features: Number of output channels as ``int``.
+        hidden_dim: Number of channels in hidden layers as ``int``.
         hidden_layers: Number of hidden layers as ``int``.
         first_w0: Frequency for first layer as ``float``. Default is ``30.0``.
         hidden_w0: Frequency for hidden layers as ``float``. Default is ``30.0``.
@@ -113,9 +113,9 @@ class FINER(torch.nn.Module):
     
     def __init__(
         self,
-        in_channels     : int,
-        out_channels    : int,
-        hidden_channels : int,
+        in_features     : int,
+        out_features    : int,
+        hidden_dim      : int,
         hidden_layers   : int,
         first_w0        : float = 30.0,
         hidden_w0       : float = 30.0,
@@ -125,12 +125,12 @@ class FINER(torch.nn.Module):
     ):
         super().__init__()
         self.net = torch.nn.Sequential(
-            FINERLayer(in_channels, hidden_channels, first_w0, first_bias_scale, is_first=True, bias=bias, scale_req_grad=scale_req_grad),
-            *[FINERLayer(hidden_channels, hidden_channels, hidden_w0, bias=bias, scale_req_grad=scale_req_grad) for _ in range(hidden_layers)],
-            torch.nn.Linear(hidden_channels, out_channels)
+            FINERLayer(in_features, hidden_dim, first_w0, first_bias_scale, is_first=True, bias=bias, scale_req_grad=scale_req_grad),
+            *[FINERLayer(hidden_dim, hidden_dim, hidden_w0, bias=bias, scale_req_grad=scale_req_grad) for _ in range(hidden_layers)],
+            torch.nn.Linear(hidden_dim, out_features)
         )
         with torch.no_grad():
-            self.net[-1].weight.uniform_(-np.sqrt(6 / hidden_channels) / hidden_w0, np.sqrt(6 / hidden_channels) / hidden_w0)
+            self.net[-1].weight.uniform_(-np.sqrt(6 / hidden_dim) / hidden_w0, np.sqrt(6 / hidden_dim) / hidden_w0)
     
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """Generates output from image coordinates.
