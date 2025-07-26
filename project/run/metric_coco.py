@@ -151,6 +151,7 @@ def main(
     mon.console.rule(f"[bold red] {model}")
     mon.console.log(f"[bold green]Model: {model}")
     mon.console.log(f"[bold red]Data : {data}")
+    mon.console.log(f"[bold]Device: {device}")
 
     input_dir   = mon.Path(input_dir)   if input_dir   else None
     label_dir   = mon.Path(label_dir)   if label_dir   else None

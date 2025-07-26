@@ -3,11 +3,14 @@
 echo "${HOSTNAME}"
 clear
 
+# ----- Import -----
+source ./utils.sh
+
 # ----- Input -----
-arch="*"                                # * for all architectures
-model="*"                               # * for all models
-#arch="zinf"
-#model="zinf"
+#arch="*"                                # * for all architectures
+#model="*"                               # * for all models
+arch="zinf"
+model="zinf"
 detector="deim_dfine_s_coco80"
 #detector="deim_dfine_s_widerface"
 datasets=(
@@ -16,7 +19,6 @@ datasets=(
     #"exdark"
     "lolistreetval"
 )
-device="cuda:0"
 bbox_format="yolo"
 #exist_ok=$(echo "")
 exist_ok=$(echo "--exist-ok")
@@ -40,26 +42,13 @@ declare -A remaps=(
     ["lolistreetval"]=""
 )
 
-# ----- Validation -----
-check_file() {
-    [[ ! -f "$1" ]] && { echo "File not found: $1"; exit 1; }
-}
-
-check_dir() {
-    [[ ! -d "$1" ]] && { echo "Directory not found: $1"; exit 1; }
-}
-
-create_dir() {
-    [[ ! -d "$1" ]] && { echo "Creating directory: $1"; mkdir -p "$1"; }
-}
-
 # ----- Main -----
 cd "${run_dir}" || exit
 
 for data in "${datasets[@]}"; do
     # Input
     declare -a input_dirs
-    mapfile -t input_dirs < <(find "${current_dir}/run/predict" -type d -path "${arch}/${model}/${data}/pred" 2>/dev/null | sort)
+    mapfile -t input_dirs < <(find "${current_dir}/run/predict" -type d -path "*/${arch}/${model}/${data}/pred" 2>/dev/null | sort)
 
     # Target
     target_json="${target_jsons[$data]:-${data}/test/test.json}"
@@ -70,14 +59,16 @@ for data in "${datasets[@]}"; do
     for input_dir in "${input_dirs[@]}"; do
         data_subdir=$(dirname "${input_dir}")
         model_subdir=$(dirname "${data_subdir}")
-        arch_subdir=$(dirname "${model_subdir}")
         model_name=$(basename "${model_subdir}")
+        arch_subdir=$(dirname "${model_subdir}")
         arch_name=$(basename "${arch_subdir}")
 
-        label_dir="${data_dir}/pred_${detector}/label"
+        label_dir="${data_subdir}/pred_${detector}/label"
         # Fallback label_dir if not found
-        [[ ! -d "${label_dir}" ]] && label_dir="${data_dir}/pred_${detector}"
-        input_json="${data_dir}/pred_${detector}.json"
+        [[ ! -d "${label_dir}" ]] && label_dir="${data_subdir}/pred_${detector}"
+        input_json="${data_subdir}/pred_${detector}.json"
+
+        device=$(get_device)
 
         # Measure COCO
         python -W ignore metric_coco.py \

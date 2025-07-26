@@ -3,11 +3,14 @@
 echo "${HOSTNAME}"
 clear
 
+# ----- Import -----
+source ./utils.sh
+
 # ----- Input -----
-arch="*"                                # * for all architectures
-model="*"                               # * for all models
-#arch="zinf"
-#model="zinf"
+#arch="*"                                # * for all architectures
+#model="*"                               # * for all models
+arch="zinf"
+model="zinf"
 datasets=(
     ### Unpaired
     "dicm"
@@ -35,7 +38,6 @@ datasets=(
     #"lolistreettest"
     #"lolistreetval"
 )
-device="cuda:0"
 imgsz=512
 metrics=(
     "psnr"
@@ -73,19 +75,6 @@ declare -A target_subdirs=(
     ["lolistreettest"]="lolistreet/test/ref"
 )
 
-# ----- Validation -----
-check_file() {
-    [[ ! -f "$1" ]] && { echo "File not found: $1"; }
-}
-
-check_dir() {
-    [[ ! -d "$1" ]] && { echo "Directory not found: $1"; }
-}
-
-create_dir() {
-    [[ ! -d "$1" ]] && { echo "Creating directory: $1"; mkdir -p "$1"; }
-}
-
 # ----- Main -----
 cd "${run_dir}" || exit
 
@@ -97,9 +86,9 @@ done
 
 for data in "${datasets[@]}"; do
     # Input
-    declare -a input_dirs
     input_subdir="${input_subdirs[$data]:-${data}/pred}"
-    mapfile -t input_dirs < <(find "$current_dir/run/predict" -type d -path "*/${input_subdir}" 2>/dev/null | sort)
+    declare -a input_dirs
+    mapfile -t input_dirs < <(find "$current_dir/run/predict" -type d -path "*/${arch}/${model}/${input_subdir}" 2>/dev/null | sort)
 
     # Target
     target_subdir="${target_subdirs[$data]:-${data}/test/ref}"
@@ -111,13 +100,14 @@ for data in "${datasets[@]}"; do
     # use_gt_mean=$([[ -d "${target_dir}" ]] && echo "--use-gt-mean" || echo "")
     use_gt_mean=$(echo "")
 
-    # Run IQA evaluation
     for input_dir in "${input_dirs[@]}"; do
         data_subdir=$(dirname "${input_dir}")
         model_subdir=$(dirname "${data_subdir}")
-        arch_subdir=$(dirname "${model_subdir}")
         model_name=$(basename "${model_subdir}")
+        arch_subdir=$(dirname "${model_subdir}")
         arch_name=$(basename "${arch_subdir}")
+
+        device=$(get_device)
 
         python -W ignore metric_iqa.py \
             --input-dir "${input_dir}" \

@@ -178,8 +178,9 @@ def main(
         logger = logging.getLogger()
         logger.disabled = True
     mon.console.rule(f"[bold red] {model}")
-    mon.console.log(f"[bold green]Model: {model}")
-    mon.console.log(f"[bold red]Data : {data}")
+    mon.console.log(f"[bold green]Model : {model}")
+    mon.console.log(f"[bold red]Data  : {data}")
+    mon.console.log(f"[bold]Device: {device}")
 
     input_dir  = mon.Path(input_dir)  if input_dir  else None
     target_dir = mon.Path(target_dir) if target_dir else None

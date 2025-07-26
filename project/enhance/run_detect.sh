@@ -3,20 +3,26 @@
 echo "${HOSTNAME}"
 clear
 
+# ----- Import -----
+source ./utils.sh
+
 # ----- Input -----
 task="detect"
 mode="predict"
-arch="deim"
-model="deim_dfine_s"
+#arch="*"                                # * for all architectures
+#model="*"                               # * for all models
+arch="zinf"
+model="zinf"
+detector_arch="deim"
+detector_model="deim_dfine_s"
 datasets=(
     ### High-Level
     #"darkface"
-    "exdark"
-    #"lolistreetval"
+    #"exdark"
+    "lolistreetval"
 )
 #resize=$(echo "")
 resize=$(echo "--resize")
-
 
 # ----- Directory & File -----
 current_file=$(readlink -f "${0}")
@@ -25,32 +31,21 @@ project_dir=$(dirname "${current_dir}")
 root_dir=$(dirname "${project_dir}")
 run_dir="${project_dir}/run"
 
-# ----- Validation -----
-check_file() {
-    [[ ! -f "$1" ]] && { echo "File not found: $1"; exit 1; }
-}
-
-check_dir() {
-    [[ ! -d "$1" ]] && { echo "Directory not found: $1"; exit 1; }
-}
-
-create_dir() {
-    [[ ! -d "$1" ]] && { echo "Creating directory: $1"; mkdir -p "$1"; }
-}
-
 # ----- Main -----
 cd "${run_dir}" || exit
 
 for data in "${datasets[@]}"; do
-    all_data=$(find "$current_dir/run/predict" -type d -path "*/${dataset}/pred" 2>/dev/null | sort | paste -sd ',' - | sed 's/,$//')
+    all_data=$(find "$current_dir/run/predict" -type d -path "*/${arch}/${model}/${data}/pred" 2>/dev/null | sort | paste -sd ',' - | sed 's/,$//')
+    device=$(get_device)
 
     python -W ignore main.py \
         --root "${current_dir}" \
         --task "${task}" \
         --mode "${mode}" \
-        --arch "${arch}" \
-        --model "${model}" \
+        --arch "${detector_arch}" \
+        --model "${detector_model}" \
         --data "${all_data}" \
+        --device "${device}" \
         --save-result \
         --save-image \
         --save-debug \

@@ -3,6 +3,9 @@
 echo "${HOSTNAME}"
 clear
 
+# ----- Import -----
+source ./utils.sh
+
 # ----- Input -----
 task="lle"
 mode="speed"
@@ -22,21 +25,11 @@ project_dir=$(dirname "${current_dir}")
 root_dir=$(dirname "${project_dir}")
 run_dir="${project_dir}/run"
 
-# ----- Validation -----
-check_file() {
-    [[ ! -f "$1" ]] && { echo "File not found: $1"; exit 1; }
-}
-
-check_dir() {
-    [[ ! -d "$1" ]] && { echo "Directory not found: $1"; exit 1; }
-}
-
-create_dir() {
-    [[ ! -d "$1" ]] && { echo "Creating directory: $1"; mkdir -p "$1"; }
-}
-
 # ----- Main -----
 cd "${run_dir}" || exit
+
+device=$(get_device)
+
 python -W ignore main.py \
     --root "${current_dir}" \
     --task "${task}" \
@@ -44,6 +37,7 @@ python -W ignore main.py \
     --arch "${arch}" \
     --model "${model}" \
     --data "${data}" \
+    --device "${device}" \
     --imgsz "512"  \
     --resize \
     --benchmark \

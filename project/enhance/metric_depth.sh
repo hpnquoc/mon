@@ -3,6 +3,9 @@
 echo "${HOSTNAME}"
 clear
 
+# ----- Import -----
+source ./utils.sh
+
 # ----- Input -----
 arch="dav2"
 model="dav2_vitb"
@@ -67,19 +70,6 @@ declare -A target_subdirs=(
     ["lolistreettest"]="lolistreet/test/ref"
 )
 
-# ----- Validation -----
-check_file() {
-    [[ ! -f "$1" ]] && { echo "File not found: $1"; }
-}
-
-check_dir() {
-    [[ ! -d "$1" ]] && { echo "Directory not found: $1"; }
-}
-
-create_dir() {
-    [[ ! -d "$1" ]] && { echo "Creating directory: $1"; mkdir -p "$1"; }
-}
-
 # ----- Main -----
 cd "${run_dir}" || exit
 
@@ -93,6 +83,8 @@ for data in "${datasets[@]}"; do
     target_subdir="${target_subdirs[$data]:-${data}/test/ref}"
     target_dir="${current_dir}/data/${target_subdir}_${model}"
     check_dir "${target_dir}"
+
+    device=$(get_device)
 
     # Run evaluation
     python -W ignore metric_depth.py \
