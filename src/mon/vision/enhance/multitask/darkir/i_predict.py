@@ -24,8 +24,8 @@ current_dir  = current_file.parents[0]
 def benchmark(model: torch.nn.Module):
     flops, params  = mon.compute_efficiency_score(model=model)
     # macs , params2 = get_model_complexity_info(model, (3, 512, 512), print_per_layer_stat=False, verbose=False)
-    mon.console.log(f"Params: {params:.4f}")
-    mon.console.log(f"FLOPs : {flops:.4f}")
+    mon.console.log(f"Params    : {params:.4f}")
+    mon.console.log(f"FLOPs     : {flops:.4f}")
     # mon.console.log(f"MACs  : {macs:.4f}")
 
 

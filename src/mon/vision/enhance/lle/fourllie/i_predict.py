@@ -26,8 +26,8 @@ current_dir  = current_file.parents[0]
 # ----- Utils -----
 def benchmark(model: torch.nn.Module):
     flops, params = model.compute_efficiency_score()
-    mon.console.log(f"Params: {params:.4f}")
-    mon.console.log(f"FLOPs : {flops:.4f}")
+    mon.console.log(f"Params    : {params:.4f}")
+    mon.console.log(f"FLOPs     : {flops:.4f}")
 
 
 # ----- Predict -----
@@ -87,8 +87,8 @@ def predict(args: dict | box.Box) -> str:
             image_nf = image_nf * 1.0 / 255.0
             image_nf = torch.from_numpy(np.ascontiguousarray(np.transpose(image_nf, (2, 0, 1)))).float()
             image    = torch.from_numpy(np.ascontiguousarray(np.transpose(image,    (2, 0, 1)))).float()
-            image    = image.unsqueeze(0).to(device)
-            image_nf = image_nf.unsqueeze(0).to(device)
+            image    = image.unsqueeze(0)
+            image_nf = image_nf.unsqueeze(0)
             timers.preprocess.tock()
 
             # Infer

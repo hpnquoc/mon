@@ -9,7 +9,8 @@ mode="speed"
 arch=""
 model=""
 datasets=(
-    "speed1k"
+    "speed10"
+    #"speed1k"
 )
 data=$(printf "%s, " "${datasets[@]}")
 data=${data%, }  # Remove trailing ", "

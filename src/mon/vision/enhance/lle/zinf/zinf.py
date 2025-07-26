@@ -311,6 +311,7 @@ class ZINF(base.ImageEnhancementModel):
     def __init__(
         self,
         mapping_func     : str   = "pbde",
+        color_space      : str   = "hvi",
         window_size      : int   = 9,
         down_size        : int   = 256,
         num_layers       : int   = 4,
@@ -333,6 +334,7 @@ class ZINF(base.ImageEnhancementModel):
     ):
         super().__init__(*args, **kwargs)
         self.mapping_func    = mapping_func
+        self.color_space     = color_space
         self.window_size     = window_size
         self.down_size       = down_size
         self.depth_threshold = depth_threshold
@@ -424,10 +426,22 @@ class ZINF(base.ImageEnhancementModel):
         from fvcore.nn import parameter_count
         
         h, w      = types.image_size(imgsz)
+        image     = torch.rand(1, 1, h, w).to(self.device)
+        image_lr  = self.interpolate_image(image, self.down_size)
+        #
+        spatial   = self.create_coords(self.down_size).to(self.device)
+        patch_i   = self.create_patches(image_lr, self.window_size)
+        #
+        spatial_ff = self.ff_embedding(spatial, self.B1)
+        patch_i_ff = self.ff_embedding(patch_i, self.B2)
+        #
         datapoint = {
-            "image": torch.rand(1, 3, h, w).to(self.device),
-            "depth": torch.rand(1, 1, h, w).to(self.device),
-            "edge" : torch.rand(1, 1, h, w).to(self.device),
+            "image_i_lr": image_lr,
+            "depth_lr"  : image_lr,
+            "spatial"   : spatial_ff,
+            "patch_i"   : patch_i_ff,
+            "patch_d"   : patch_i_ff,
+            "patch_e"   : patch_i_ff,
         }
 
         flops, params = core.thop.custom_profile(self, inputs=datapoint, verbose=False)
@@ -595,6 +609,7 @@ class ZINF(base.ImageEnhancementModel):
         image_rgb_fixed = hvi.hvi_to_rgb(image_hvi_fixed)
         if self.use_denoise:
             image_rgb_fixed = self.bf(image_rgb_fixed)
+        timers.postprocess.tock() if timers is not None else None
 
         # Return
         return outputs | {

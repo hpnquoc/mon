@@ -4,17 +4,22 @@ echo "${HOSTNAME}"
 clear
 
 # ----- Input -----
-arch="fourierdiff"
-model="fourierdiff"
-detector="dfine_s_coco80"
+arch="*"                                # * for all architectures
+model="*"                               # * for all models
+#arch="zinf"
+#model="zinf"
+detector="deim_dfine_s_coco80"
+#detector="deim_dfine_s_widerface"
 datasets=(
     ### High-Level
-    "darkface"
-    "exdark"
+    #"darkface"
+    #"exdark"
     "lolistreetval"
 )
 device="cuda:0"
 bbox_format="yolo"
+#exist_ok=$(echo "")
+exist_ok=$(echo "--exist-ok")
 
 # ----- Directory & File -----
 current_file=$(readlink -f "${0}")
@@ -22,6 +27,18 @@ current_dir=$(dirname "${current_file}")
 project_dir=$(dirname "${current_dir}")
 root_dir=$(dirname "${project_dir}")
 run_dir="${project_dir}/run"
+
+declare -A target_jsons=(
+    ["darkface"]="darkface/test/test.json"
+    ["exdark"]="exdark/test/test.json"
+    ["lolistreetval"]="lolistreet/val/ref.json"
+)
+
+declare -A remaps=(
+    ["darkface"]=""
+    ["exdark"]="exdark/remap_coco802exdark.yaml"
+    ["lolistreetval"]=""
+)
 
 # ----- Validation -----
 check_file() {
@@ -41,49 +58,43 @@ cd "${run_dir}" || exit
 
 for data in "${datasets[@]}"; do
     # Input
-    input_dir="${current_dir}/run/predict/${arch}/${model}/${data}/pred"
-    label_dir="${current_dir}/run/predict/${arch}/${model}/${data}/pred_${detector}/label"
-    # Fallback label_dir if not found
-    [[ ! -d "${label_dir}" ]] && label_dir="${current_dir}/run/predict/${arch}/${model}/${data}/pred_${detector}"
-    # input_json="${label_dir}.json"
-    input_json="${current_dir}/run/predict/${arch}/${model}/${data}/pred_${detector}.json"
+    declare -a input_dirs
+    mapfile -t input_dirs < <(find "${current_dir}/run/predict" -type d -path "${arch}/${model}/${data}/pred" 2>/dev/null | sort)
 
     # Target
-    if [ "${data}" == "darkface" ]; then
-        target_json="${current_dir}/data/darkface/test/test.json"
-        remap_classes=""
-    elif [ "${data}" == "darkface496" ]; then
-        target_json="${current_dir}/data/darkface/test496/test496.json"
-        remap_classes=""
-    elif [ "${data}" == "exdark" ]; then
-        target_json="${current_dir}/data/exdark/test/test.json"
-        remap_classes="${current_dir}/data/exdark/remap_coco802exdark.yaml"
-    elif [ "${data}" == "exdark1200" ]; then
-        target_json="${current_dir}/data/exdark/test1200/test1200.json"
-        remap_classes="${current_dir}/data/exdark/remap_coco802exdark.yaml"
-    elif [ "${data}" == "lolistreetval" ]; then
-        target_json="${current_dir}/data/lolistreet/val/ref.json"
-        remap_classes=""
-    else
-        target_json="${current_dir}/data/${data}/test/test.json"
-        remap_classes=""
-    fi
+    target_json="${target_jsons[$data]:-${data}/test/test.json}"
+    target_json="${current_dir}/data/${target_json}"
+    remap="${remaps[${data}]:-""}"
+    [[ "${remap}" != "" ]] && remap="${current_dir}/data/${remap}"
 
-    # Measure COCO
-    python -W ignore metric_coco.py \
-        --input-dir "${input_dir}" \
-        --label-dir "${label_dir}" \
-        --input-json "${input_json}" \
-        --target-json "${target_json}" \
-        --result-file "${current_dir}" \
-        --remap-classes "${remap_classes}" \
-        --arch "${arch}" \
-        --model "${model}" \
-        --data "${data}" \
-        --device "${device}" \
-        --bbox-format "${bbox_format}" \
-        --exist-ok \
-        "$@"
+    for input_dir in "${input_dirs[@]}"; do
+        data_subdir=$(dirname "${input_dir}")
+        model_subdir=$(dirname "${data_subdir}")
+        arch_subdir=$(dirname "${model_subdir}")
+        model_name=$(basename "${model_subdir}")
+        arch_name=$(basename "${arch_subdir}")
+
+        label_dir="${data_dir}/pred_${detector}/label"
+        # Fallback label_dir if not found
+        [[ ! -d "${label_dir}" ]] && label_dir="${data_dir}/pred_${detector}"
+        input_json="${data_dir}/pred_${detector}.json"
+
+        # Measure COCO
+        python -W ignore metric_coco.py \
+            --input-dir "${input_dir}" \
+            --label-dir "${label_dir}" \
+            --input-json "${input_json}" \
+            --target-json "${target_json}" \
+            --result-file "${current_dir}" \
+            --remap "${remap}" \
+            --arch "${arch_name}" \
+            --model "${model_name}" \
+            --data "${data}" \
+            --device "${device}" \
+            --bbox-format "${bbox_format}" \
+            ${exist_ok} \
+            "$@"
+    done
 done
 
 # ----- Done -----

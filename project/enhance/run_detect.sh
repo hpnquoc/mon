@@ -6,16 +6,17 @@ clear
 # ----- Input -----
 task="detect"
 mode="predict"
-arch="dfine"
-model="dfine_s"
+arch="deim"
+model="deim_dfine_s"
 datasets=(
     ### High-Level
-    "darkface"
+    #"darkface"
     "exdark"
-    "lolistreetval"
+    #"lolistreetval"
 )
-data=$(printf "%s, " "${datasets[@]}")
-data=${data%, }  # Remove trailing ", "
+#resize=$(echo "")
+resize=$(echo "--resize")
+
 
 # ----- Directory & File -----
 current_file=$(readlink -f "${0}")
@@ -39,21 +40,27 @@ create_dir() {
 
 # ----- Main -----
 cd "${run_dir}" || exit
-python -W ignore main.py \
-    --root "${current_dir}" \
-    --task "${task}" \
-    --mode "${mode}" \
-    --arch "${arch}" \
-    --model "${model}" \
-    --data "${data}" \
-    --save-result \
-    --save-image \
-    --save-debug \
-    --use-fullname \
-    --save-nearby \
-    --exist-ok \
-    --verbose \
-    "$@"
+
+for data in "${datasets[@]}"; do
+    all_data=$(find "$current_dir/run/predict" -type d -path "*/${dataset}/pred" 2>/dev/null | sort | paste -sd ',' - | sed 's/,$//')
+
+    python -W ignore main.py \
+        --root "${current_dir}" \
+        --task "${task}" \
+        --mode "${mode}" \
+        --arch "${arch}" \
+        --model "${model}" \
+        --data "${all_data}" \
+        --save-result \
+        --save-image \
+        --save-debug \
+        --use-fullname \
+        --save-nearby \
+        --exist-ok \
+        --verbose \
+        ${resize} \
+        "$@"
+done
 
 # ----- Done -----
 cd "${current_dir}" || exit

@@ -8,15 +8,16 @@ References:
     - https://github.com/ShihuaHuang95/DEIM
 """
 
-import json
 import os
 import sys
 from datetime import datetime
 
 import box
+import cv2
 import torch
-
+import fjson
 import mon
+import torchvision.transforms.v2 as T
 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 from engine.core import YAMLConfig
@@ -28,8 +29,8 @@ current_dir  = current_file.parents[0]
 # ----- Utils -----
 def benchmark(model: torch.nn.Module):
     flops, params = mon.compute_efficiency_score(model=model)
-    mon.console.log(f"Params: {params:.4f}")
-    mon.console.log(f"FLOPs : {flops:.4f}")
+    mon.console.log(f"Params    : {params:.4f}")
+    mon.console.log(f"FLOPs     : {flops:.4f}")
 
 
 # ----- Predict -----
@@ -100,6 +101,7 @@ def predict(args: dict | box.Box) -> str:
         param.requires_grad = False
 
     # Predict
+    """
     # COCO JSON Format
     json_path   = args.save_dir / f"{data_name}.json"
     info        = {
@@ -115,7 +117,7 @@ def predict(args: dict | box.Box) -> str:
     images      = []
     annotations = []
     ann_id      = 0
-
+    """
     timers = mon.TimeProfiler()
     timers.total.tick()
     with mon.create_progress_bar() as pbar:
@@ -130,7 +132,8 @@ def predict(args: dict | box.Box) -> str:
             image  = datapoint["image"]
             h0, w0 = mon.image_size(image)
             size0  = torch.tensor([[w0, h0]]).to(device)
-            if args.resize and h0 != args.imgsz[0] and w0 != args.imgsz[1]:
+            if args.resize and (h0 != args.imgsz[0] or w0 != args.imgsz[1]):
+                # image = mon.resize(image, size=args.imgsz, pad=True)  # Use for: exdark
                 image = mon.resize(image, size=args.imgsz)
             image  = image.to(device)
             timers.preprocess.tock()
@@ -143,22 +146,32 @@ def predict(args: dict | box.Box) -> str:
             # Postprocess
             timers.postprocess.tick()
             labels, boxes, scores = outputs
-            scores = [s.cpu().numpy().astype(float) for s in scores][0]  # batch_size = 1
-            labels = [l.cpu().numpy().astype(int)   for l in labels][0]  # batch_size = 1
-            boxes  = [b.cpu().numpy().astype(float) for b in  boxes][0]  # batch_size = 1, XYWH format, change "deploy_out_fmt" in config file.
-            # Filter by confidence threshold
-            labels = labels[scores >= args.conf_thres]
-            boxes  =  boxes[scores >= args.conf_thres]
+            scores = [s.cpu().numpy().astype(float) for s in scores]  # batch_size = 1
+            labels = [l.cpu().numpy().astype(int)   for l in labels]  # batch_size = 1
+            boxes  = [b.cpu().numpy().astype(float) for b in  boxes]  # batch_size = 1, XYWH format, change "deploy_out_fmt" in config file.
             timers.postprocess.tock()
 
             # Save
             if args.save_result:
-                out_dir   = mon.parse_output_dir(args.save_dir, data_name, mon.SAVE_LABEL_DIR, path, args.keep_subdirs, args.save_nearby)
-                json_path = out_dir.parent / f"{data_name}.json"
+                out_dir    = mon.parse_output_dir(args.save_dir, data_name, mon.SAVE_LABEL_DIR, path, args.keep_subdirs, args.save_nearby)
+                label_path = out_dir / f"{path.stem}.txt"
+                label_path.parent.mkdir(parents=True, exist_ok=True)
+                with open(str(label_path), "w") as f:
+                    for j, img in enumerate(image):
+                        ss = scores[j]
+                        cs = labels[j][ss >= args.conf_thres]
+                        bs = boxes[j][ss >= args.conf_thres]
+                        if len(bs) == 0:
+                            continue
+                        bs = mon.convert_hbb(bbox=bs, fmt=mon.BBoxFormat.VOC2YOLO, imgsz=(h0, w0))
+                        for c, b, s in zip(cs, bs, ss):
+                            f.write(f"{c} {b[0]} {b[1]} {b[2]} {b[3]} {s}\n")
 
+                """
+                # json_path = out_dir.parent / f"{data_name}.json"
+                json_path = out_dir.parent / f"{out_dir.stem}.json"
                 # Append image
                 images.append({"id": i, "file_name": path.name, "height": h0, "width": w0})
-
                 # Append annotations
                 if len(boxes) == 0:
                     continue
@@ -166,15 +179,17 @@ def predict(args: dict | box.Box) -> str:
                     annotations.append({
                         "id"         : ann_id,
                         "image_id"   : i,
-                        "category_id": c,
-                        "bbox"       : [b[0], b[1], b[2], b[3]],
+                        "category_id": int(c),
+                        "bbox"       : b[0:4].tolist(),
                         "area"       : float(b[2] * b[3]),
-                        "score"      : s,
+                        "score"      : float(s),
                         "iscrowd"    : 0,
                     })
                     ann_id += 1
+                """
     timers.total.tock()
 
+    """
     # Save
     if args.save_result:
         json_path.parent.mkdir(parents=True, exist_ok=True)
@@ -187,7 +202,8 @@ def predict(args: dict | box.Box) -> str:
             "annotations": annotations
         }
         with open(str(json_path), "w") as f:
-            json.dump(json_data, f, indent=None)
+            fjson.dump(json_data, f, float_format=".32f", indent=None)
+    """
 
     # Finish
     timers.print()

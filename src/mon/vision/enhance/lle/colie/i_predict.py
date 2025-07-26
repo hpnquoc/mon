@@ -49,8 +49,8 @@ def compute_efficiency_score(model: torch.nn.Module, image_size: _size_2_t = 512
 
 def benchmark(model: torch.nn.Module):
     flops, params = compute_efficiency_score(model=model)
-    mon.console.log(f"Params: {params:.4f}")
-    mon.console.log(f"FLOPs : {flops:.4f}")
+    mon.console.log(f"Params    : {params:.4f}")
+    mon.console.log(f"FLOPs     : {flops:.4f}")
 
 
 # ----- Predict -----
@@ -83,8 +83,8 @@ def predict(args: dict | box.Box) -> str:
     if args.benchmark:
         model = INF(patch_dim=window ** 2, num_layers=num_layers, hidden_dim=hidden_dim, add_layer=add_layer)
         flops, params = compute_efficiency_score(model=model)
-        mon.console.log(f"FLOPs : {flops:.4f}")
-        mon.console.log(f"Params: {params:.4f}")
+        mon.console.log(f"Params    : {params:.4f}")
+        mon.console.log(f"FLOPs     : {flops:.4f}")
 
     # Predict
     timers = mon.TimeProfiler()
@@ -134,12 +134,16 @@ def predict(args: dict | box.Box) -> str:
                 loss           = loss_spa * alpha + loss_tv * beta + loss_exp * gamma + loss_sparsity * delta  # ???
                 loss.backward()
                 optimizer.step()
+            timers.infer.tock()
+
+            # Postprocess
+            timers.postprocess.tick()
             img_v_fixed   = filter_up(img_v_lr, img_v_fixed_lr, img_v)
             img_hsv_fixed = replace_v_component(img_hsv, img_v_fixed)
             img_rgb_fixed = hsv2rgb_torch(img_hsv_fixed)
             img_rgb_fixed = img_rgb_fixed / torch.max(img_rgb_fixed)
             enhanced      = (torch.movedim(img_rgb_fixed, 1, -1)[0].detach().cpu().numpy() * 255).astype(np.uint8)
-            timers.infer.tock()
+            timers.postprocess.tock()
             
             # Save
             if args.save_image:

@@ -49,8 +49,8 @@ def benchmark():
     model = Network()
     # flops, params = mon.compute_efficiency_score(model=model)
     total_params  = calculate_model_parameters(model)
-    # mon.console.log(f"FLOPs : {flops:.4f}")
-    # mon.console.log(f"Params: {params:.4f}")
+    # mon.console.log(f"FLOPs     : {flops:.4f}")
+    # mon.console.log(f"Params    : {params:.4f}")
     mon.console.log(f"Total Params = {total_params:.4f}")
 
 

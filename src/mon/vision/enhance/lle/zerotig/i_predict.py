@@ -49,8 +49,8 @@ def calculate_model_flops(model, input_tensor):
 
 def benchmark(model: torch.nn.Module):
     # flops, params = mon.compute_efficiency_score(model=model)
-    # mon.console.log(f"FLOPs : {flops:.4f}")
-    # mon.console.log(f"Params: {params:.4f}")
+    # mon.console.log(f"FLOPs     : {flops:.4f}")
+    # mon.console.log(f"Params    : {params:.4f}")
     total_params = calculate_model_parameters(model)
     mon.console.log(f"Total Params = {total_params:.4f}")
 
@@ -113,7 +113,7 @@ def predict(args: dict | box.Box) -> str:
             path   = mon.Path(datapoint["meta"]["path"])
             image  = datapoint["image"]
             h0, w0 = mon.image_size(image)
-            if args.resize and h0 != args.imgsz[0] and w0 != args.imgsz[1]:
+            if args.resize and (h0 != args.imgsz[0] or w0 != args.imgsz[1]):
                 image = mon.resize(image, (1080, 1920))
             input = Variable(image).to(device)
             timers.preprocess.tock()
@@ -128,7 +128,7 @@ def predict(args: dict | box.Box) -> str:
             # Postprocess
             timers.postprocess.tick()
             enhanced, denoise, illum = outputs
-            if args.resize and h0 != args.imgsz[0] and w0 != args.imgsz[1]:
+            if args.resize and (h0 != args.imgsz[0] or w0 != args.imgsz[1]):
                 enhanced = mon.resize(enhanced, (h0, w0))
                 denoise  = mon.resize(denoise,  (h0, w0))
             enhanced = save_images(enhanced)

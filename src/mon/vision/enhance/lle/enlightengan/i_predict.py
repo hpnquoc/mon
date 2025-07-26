@@ -11,6 +11,7 @@ import torch
 
 import mon
 from onnx_model import EnlightenOnnxModel
+import onnx_tool
 
 current_file = mon.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
@@ -18,9 +19,8 @@ current_dir  = current_file.parents[0]
 
 # ----- Utils -----
 def benchmark(model):
-    # if benchmark:
-    #    inputs = {"input": create_ndarray_f32((1, 3, 512, 512)), }
-    #    onnx_tool.model_profile(str(current_dir/"enlighten_inference/enlighten.onnx"), inputs, None)
+    #inputs = {"input": onnx_tool.create_ndarray_f32((1, 3, 512, 512)), }
+    #onnx_tool.model_profile(str(current_dir/"enlighten_inference/enlighten.onnx"), inputs, None)
     pass
 
 

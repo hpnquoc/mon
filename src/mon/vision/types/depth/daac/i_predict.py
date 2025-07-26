@@ -23,8 +23,8 @@ current_dir  = current_file.parents[0]
 # ----- Utils -----
 def benchmark(model: torch.nn.Module):
     flops, params = mon.compute_efficiency_score(model=model)
-    mon.console.log(f"Params: {params:.4f}")
-    mon.console.log(f"FLOPs : {flops:.4f}")
+    mon.console.log(f"Params    : {params:.4f}")
+    mon.console.log(f"FLOPs     : {flops:.4f}")
 
 
 # ----- Predict -----
@@ -86,7 +86,7 @@ def predict(args: dict | box.Box) -> str:
             path   = mon.Path(datapoint["meta"]["path"])
             image  = datapoint["image"]
             h0, w0 = mon.image_size(image)
-            if args.resize:  # and h0 != args.imgsz[0] and w0 != args.imgsz[1]:
+            if args.resize:  # and (h0 != args.imgsz[0] or w0 != args.imgsz[1]):
                 image = mon.resize(image, size=args.imgsz, divisible_by=14)
             else:
                 image = mon.resize(image, divisible_by=14)
@@ -102,7 +102,7 @@ def predict(args: dict | box.Box) -> str:
             timers.postprocess.tick()
             outputs = outputs["out"]
             depth   = outputs.squeeze().cpu().numpy()
-            if args.resize and h0 != args.imgsz[0] and w0 != args.imgsz[1]:
+            if args.resize and (h0 != args.imgsz[0] or w0 != args.imgsz[1]):
                 depth = mon.resize(depth, size=(h0, w0))
             depth   = (depth - depth.min()) / (depth.max() - depth.min()) * 255.0
             depth   = depth.astype(np.uint8)

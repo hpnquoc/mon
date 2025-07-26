@@ -57,7 +57,6 @@ updated_cfg:
     "./dfine_hgnetv2_m_coco80.yaml",
     "../../dataset/coco80_detection.yaml",
     "../../base/dataloader.yaml",
-    "../../base/dfine_hgnetv2.yaml",
     "../../base/deim.yaml"
   ]
 
@@ -71,8 +70,8 @@ updated_cfg:
 
   PostProcessor:
     num_top_queries       : 300                                                 # max_dets
-    deploy_num_top_queries: 150
-    deploy_out_fmt        : "xywh"
+    deploy_num_top_queries: 300
+    deploy_out_fmt        : "xyxy"
 
   # File: dataloader.yaml
   train_dataloader:

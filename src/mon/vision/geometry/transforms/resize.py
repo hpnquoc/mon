@@ -4,6 +4,7 @@
 """Implements transformation functions."""
 
 __all__ = [
+    "pad_square",
     "pair_downsample",
     "resize",
 ]
@@ -17,6 +18,51 @@ import torch
 
 from mon.nn import _size_2_t, functional as F
 from mon.vision import types
+
+SIDE          = Literal["short", "long", "vert", "horz", None]
+INTERPOLATION = Literal["nearest", "linear", "bilinear", "bicubic", "trilinear", "area"]  # | Literal[cv2.INTER_AREA, cv2.INTER_CUBIC, cv2.INTER_LINEAR]
+
+
+def pad_square(image: torch.Tensor | np.ndarray) -> torch.Tensor | np.ndarray:
+    """Pad an image to a square with zeros.
+
+    Args:
+        image: Image as ``torch.Tensor`` in [B, C, H, W], range [0.0, 1.0], or
+            ``numpy.ndarray`` in [H, W, C], range [0, 255].
+    """
+    if isinstance(image, np.ndarray):
+        # Handle both (H, W) and (H, W, C) array formats
+        if image.ndim == 2:    # (H, W)
+            (h, w), c = image.shape, None
+        elif image.ndim == 3:  # (H, W, C)
+            h, w, c   = image.shape
+        else:
+            raise TypeError(f"[image] must be a 2D or 3D numpy array, got {image.ndim} dimensions.")
+        max_wh            = max(h, w)
+        p_left, p_top     = [(max_wh - s) // 2 for s in (w, h)]
+        p_right, p_bottom = [max_wh - (s + pad) for s, pad in zip((w, h), [p_left, p_top])]
+        if c:
+            pad_width = ((p_top, p_bottom), (p_left, p_right), (0, 0))
+        else:
+            pad_width = ((p_top, p_bottom), (p_left, p_right))
+        return np.pad(image, pad_width, mode="constant", constant_values=0)
+    elif isinstance(image, torch.Tensor):
+        # Handle both (B, C, H, W) and (C, H, W) tensor formats
+        if image.dim() == 2:    # (H, W)
+            h, w       = image.shape
+        elif image.dim() == 3:  # (C, H, W)
+            _, h, w    = image.shape
+        elif image.dim() == 4:  # (B, C, H, W)
+            _, _, h, w = image.shape
+        else:
+            raise TypeError(f"[image] must be a 2D, 3D, or 4D torch.Tensor, got {image.dim()} dimensions.")
+        max_wh            = max(h, w)
+        p_left, p_top     = [(max_wh - s) // 2 for s in (w, h)]
+        p_right, p_bottom = [max_wh - (s + pad) for s, pad in zip((w, h), [p_left, p_top])]
+        padding           = (p_left, p_right, p_top, p_bottom)  # torch pad uses (left, right, top, bottom)
+        return torch.nn.functional.pad(image, padding, mode="constant", value=0)
+    else:
+        raise TypeError(f"[image] must be a torch.Tensor or numpy.ndarray, got {type(image)}.")
 
 
 def pair_downsample(image: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
@@ -55,11 +101,11 @@ def pair_downsample(image: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
 # noinspection PyTypeHints
 def resize(
     image        : torch.Tensor | np.ndarray,
-    size         : _size_2_t = None,
-    divisible_by : int       = None,
-    side         : Literal["short", "long", "vert", "horz", None] = None,
-    interpolation: Literal["nearest", "linear", "bilinear", "bicubic", "trilinear", "area",
-                           cv2.INTER_AREA, cv2.INTER_CUBIC, cv2.INTER_LINEAR] = "bilinear",
+    size         : _size_2_t     = None,
+    divisible_by : int           = None,
+    pad          : bool          = False,
+    side         : SIDE          = None,
+    interpolation: INTERPOLATION = "bilinear",
     **kwargs,
 ) -> torch.Tensor | np.ndarray:
     """Resize an image
@@ -70,6 +116,7 @@ def resize(
         size: Target size as ``int`` or ``Sequence[int]``. Default is ``None``.
         divisible_by: If not ``None``, then the image will be resized to a size that is
             divisible by this number. Default: ``None``.
+        pad: If ``True``, then the image will be padded to a square with zeros.
         side: Side to scale if ``size`` is ``int``. One of:
             - ``"short"``: Resize based on the shortest dimension.
             - ``"long"``: Resize based on the longest dimension.
@@ -114,7 +161,9 @@ def resize(
         size = types.image_size(image, divisible_by)
         
     # Resize based on the shortest dimension
-    if side == "short":
+    if pad:
+        image = pad_square(image)
+    elif side == "short":
         h0, w0 = types.image_size(image)
         h1, w1 = size
         if h0 < w0:
@@ -168,7 +217,7 @@ def resize(
     if isinstance(image, torch.Tensor):
         align_corners = kwargs.pop("align_corners", None)
         antialias     = kwargs.pop("antialias",     False)
-        return kornia.geometry.transform.resize(
+        image         = kornia.geometry.transform.resize(
             input         = image,
             size          = size,
             interpolation = interpolation,
@@ -177,14 +226,16 @@ def resize(
             antialias     = antialias,
         )
     elif isinstance(image, np.ndarray):
-        fx = kwargs.pop("fx", None)
-        fy = kwargs.pop("fy", None)
-        return cv2.resize(
-            src   = image,
-            dsize = (size[1], size[0]),
-            fx    = fx,
-            fy    = fy,
+        fx    = kwargs.pop("fx", None)
+        fy    = kwargs.pop("fy", None)
+        image = cv2.resize(
+            src           = image,
+            dsize         = (size[1], size[0]),
+            fx            = fx,
+            fy            = fy,
             interpolation = interpolation,
         )
     else:
         raise TypeError(f"[image] must be a torch.Tensor or numpy.ndarray, got {type(image)}.")
+
+    return image

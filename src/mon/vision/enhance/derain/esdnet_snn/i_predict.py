@@ -19,8 +19,8 @@ current_dir  = current_file.parents[0]
 # ----- Utils -----
 def benchmark(model: torch.nn.Module):
     flops, params = mon.compute_efficiency_score(model=model)
-    mon.console.log(f"Params: {params:.4f}")
-    mon.console.log(f"FLOPs : {flops:.4f}")
+    mon.console.log(f"Params    : {params:.4f}")
+    mon.console.log(f"FLOPs     : {flops:.4f}")
 
 
 def get_score_map(b, c, h, w, is_mean: bool = True) -> torch.Tensor:
@@ -130,7 +130,7 @@ def predict(args: dict | box.Box) -> str:
             path   = mon.Path(datapoint["meta"]["path"])
             image  = datapoint["image"]
             h0, w0 = mon.image_size(image)
-            if args.resize and h0 != args.imgsz[0] and w0 != args.imgsz[1]:
+            if args.resize and (h0 != args.imgsz[0] or w0 != args.imgsz[1]):
                 image = mon.resize(image, size=args.imgsz)
             image  = F.pad(image, (pad_size, pad_size, pad_size, pad_size), mode="constant", value=0)
             image  = image.to(device)

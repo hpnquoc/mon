@@ -25,8 +25,8 @@ current_dir  = current_file.parents[0]
 # ----- Utils -----
 def benchmark(model: torch.nn.Module):
     flops, params = mon.compute_efficiency_score(model=model)
-    mon.console.log(f"Params: {params:.4f}")
-    mon.console.log(f"FLOPs : {flops:.4f}")
+    mon.console.log(f"Params    : {params:.4f}")
+    mon.console.log(f"FLOPs     : {flops:.4f}")
 
 
 def save_images(tensor, path):
@@ -88,7 +88,7 @@ def predict(args: dict | box.Box) -> str:
             path   = mon.Path(datapoint["meta"]["path"])
             image  = datapoint["image"]
             h0, w0 = mon.image_size(image)
-            if args.resize and h0 != args.imgsz[0] and w0 != args.imgsz[1]:
+            if args.resize and (h0 != args.imgsz[0] or w0 != args.imgsz[1]):
                 image = mon.resize(image, size=args.imgsz)
             image  = image.to(device)
             timers.preprocess.tock()
@@ -101,7 +101,7 @@ def predict(args: dict | box.Box) -> str:
             # Postprocess
             timers.postprocess.tick()
             u_list, _ = outputs
-            if args.resize and h0 != args.imgsz[0] and w0 != args.imgsz[1]:
+            if args.resize and (h0 != args.imgsz[0] or w0 != args.imgsz[1]):
                 u_list = [mon.resize(u, size=(h0, w0)) for u in u_list]
             timers.postprocess.tock()
 

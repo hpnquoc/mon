@@ -35,7 +35,6 @@ datasets=(
     #"nightcity"
 )
 
-
 # ----- Directory & File -----
 current_file=$(readlink -f "${0}")
 current_dir=$(dirname "${current_file}")

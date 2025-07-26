@@ -48,7 +48,8 @@ cfg: "deim_dfine/coco80/deim_hgnetv2_s_coco80.yaml"                             
 test_only   : False                                                             # Test only.
 print_method: "builtin"                                                         # Print method.
 print_rank  : 0                                                                 # Print rank ID.
-conf_thres  : 0.25                                                              # Confidence threshold for detection.
+conf_thres  : 0.20                                                              # Confidence threshold for detection.
+export_postprocessor: True                                                      # Export postprocessor for inference.
 
 # Update configurations in ``cfg``
 updated_cfg:
@@ -57,7 +58,6 @@ updated_cfg:
     "./dfine_hgnetv2_s_coco80.yaml",
     "../../dataset/coco80_detection.yaml",
     "../../base/dataloader.yaml",
-    "../../base/dfine_hgnetv2.yaml",
     "../../base/deim.yaml"
   ]
 
@@ -71,8 +71,8 @@ updated_cfg:
 
   PostProcessor:
     num_top_queries       : 300                                                 # max_dets
-    deploy_num_top_queries: 150
-    deploy_out_fmt        : "xywh"
+    deploy_num_top_queries: 300
+    deploy_out_fmt        : "xyxy"
 
   # File: dataloader.yaml
   train_dataloader:

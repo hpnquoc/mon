@@ -27,8 +27,8 @@ current_dir  = current_file.parents[0]
 # ----- Utils -----
 def benchmark(model: torch.nn.Module):
     flops, params = mon.compute_efficiency_score(model=model)
-    mon.console.log(f"Params: {params:.4f}")
-    mon.console.log(f"FLOPs : {flops:.4f}")
+    mon.console.log(f"Params    : {params:.4f}")
+    mon.console.log(f"FLOPs     : {flops:.4f}")
 
 
 # ----- Predict -----
@@ -113,7 +113,7 @@ def predict(args: dict | box.Box) -> str:
             image  = datapoint["image"]
             h0, w0 = mon.image_size(image)
             size0  = torch.tensor([[w0, h0]]).to(device)
-            if args.resize and h0 != args.imgsz[0] and w0 != args.imgsz[1]:
+            if args.resize and (h0 != args.imgsz[0] or w0 != args.imgsz[1]):
                 image = mon.resize(image, size=args.imgsz)
             image  = image.to(device)
             timers.preprocess.tock()
@@ -143,7 +143,7 @@ def predict(args: dict | box.Box) -> str:
                         bs =  boxes[j][ss >= args.conf_thres]
                         if len(bs) == 0:
                             continue
-                        bs = mon.convert_hbb(bbox=bs, fmt=mon.BBoxFormat.VOC2YOLO, height=h0, width=w0)
+                        bs = mon.convert_hbb(bbox=bs, fmt=mon.BBoxFormat.VOC2YOLO, imgsz=(h0, w0))
                         for c, b, s in zip(cs, bs, ss):
                             f.write(f"{c} {b[0]} {b[1]} {b[2]} {b[3]} {s}\n")
     timers.total.tock()

@@ -24,9 +24,10 @@ current_dir  = current_file.parents[0]
 
 # ----- Utils -----
 def benchmark(model: torch.nn.Module):
+    return
     flops, params = mon.compute_efficiency_score(model=model)
-    mon.console.log(f"Params: {params:.4f}")
-    mon.console.log(f"FLOPs : {flops:.4f}")
+    mon.console.log(f"Params    : {params:.4f}")
+    mon.console.log(f"FLOPs     : {flops:.4f}")
 
 
 # ----- Predict -----
@@ -80,7 +81,7 @@ def predict(args: dict | box.Box) -> str:
             path   = mon.Path(datapoint["meta"]["path"])
             image  = dutil.read_img(None, str(path))
             h0, w0 = mon.image_size(image)
-            if args.resize and h0 != args.imgsz[0] and w0 != args.imgsz[1]:
+            if args.resize and (h0 != args.imgsz[0] or w0 != args.imgsz[1]):
                 image = mon.resize(image, size=args.imgsz)
             else:
                 image = mon.resize(image, divisible_by=32)

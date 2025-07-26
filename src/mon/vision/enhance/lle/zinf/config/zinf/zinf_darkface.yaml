@@ -5,7 +5,7 @@ task        : &task "lle"                                                       
 mode        : &mode "train"                                                     # Mode name (e.g., train, val, test, predict, export).
 arch        : &arch "zinf"                                                      # Model architecture or family (e.g., resnet).
 model       : &model "zinf"                                                     # Model name (e.g., resnet50).
-data        : &data "fivek"                                                     # Dataset name (e.g., cifar10) or directory (e.g., data/cifar10).
+data        : &data "darkface"                                                  # Dataset name (e.g., cifar10) or directory (e.g., data/cifar10).
 fullname    : &fullname "zinf"                                                  # Full name of the current run (e.g., resnet50_cifar10_01). If not set, it will be this file's name.
 save_dir    : &save_dir ~                                                       # Saving directory. If not set, it will be `root/arch/model/data`.
 weights     : &weights ~                                                        # Path to the pretrained weights.
@@ -48,7 +48,7 @@ cfg         : ~                                                                 
 # Network
 network: &network                                                               # Network architecture.
   mapping_func     : "pbde"                                                     # One of: ["p", "b", "d", "e", "pb", "pd", "pe", "pbde"]. Default is "pbde".
-  window_size      : 13                                                          # Context window size. Default is ``9``.
+  window_size      : 13                                                         # Context window size. Default is ``13``.
   down_size        : *imgsz                                                     # Input image size. Default is ``256``.
   num_layers       : 4                                                          # Total layer's depth. Default is ``4``.
   add_layers       : 2                                                          # Number of layers for output branch. Default is ``2``.
@@ -57,7 +57,7 @@ network: &network                                                               
   use_ff           : True                                                       # Use Fourier Feature embedding for the spatial branch. Default is ``True``.
   ff_gaussian_scale: 20.0                                                       # For Fourier Feature embedding. Default is ``20.0``.
   nonlinear        : "finer"                                                    # Activation function. Default is ``"finer"``.
-  reduce_channels  : True                                                       # Reduce the output channels of input encoders. Default is ``False``.
+  reduce_channels  : True                                                       # Reduce the output channels of input encoders. Default is ``True``.
   depth_threshold  : 1.0                                                        # For adjusting the learned residual. Default is ``1.0``.
   edge_threshold   : 0.05                                                       # Edge threshold. Default is ``0.05``.
   use_denoise      : True                                                       # Use denoising. Default is ``True``.
@@ -65,7 +65,7 @@ network: &network                                                               
   denoise_color    : 0.1                                                        # For denoising. Default is ``0.1``.
   denoise_space    : 1.5                                                        # For denoising. Default is ``1.5``.
   iters            : *epochs
-  
+
 # Optimizer
 optimizer: &optimizer                                                           # Optimizer(s).
   optimizer:
@@ -77,7 +77,7 @@ optimizer: &optimizer                                                           
 
 # Loss
 loss: &loss                                                                     # Loss function.
-  loss_e_mean: 0.7                                                              # Default is ``0.7``.
+  loss_e_mean: 0.01                                                              # Default is ``0.01``.
   loss_w_f   : 1                                                                # Default is ``1.``
   loss_w_s   : 5                                                                # Default is ``5``.
   loss_w_e   : 8                                                                # Default is ``8``.
@@ -111,7 +111,7 @@ modelmodule:
 # Datamodule
 datamodule:                                                                     
   name      : *data                                                             # Data module name (e.g., cifar10).
-  root      : "data/fivek"                                                      # Root directory of the dataset.
+  root      : "data/darkface"                                                   # Root directory of the dataset.
   transform : ~                                                                 # Data augmentation.
   to_tensor : True                                                              # If ``True``, convert the data to tensor.
   batch_size: *batch_size                                                       # Batch size.

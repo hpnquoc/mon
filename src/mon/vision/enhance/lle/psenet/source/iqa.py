@@ -3,13 +3,12 @@ import torch.nn as nn
 
 
 class IQA(nn.Module):
-    def __init__(
-        self,
-    ):
+
+    def __init__(self):
         super().__init__()
         ps = 25
         self.exposed_level = 0.5
-        self.mean_pool = torch.nn.Sequential(torch.nn.ReflectionPad2d(ps // 2), torch.nn.AvgPool2d(ps, stride=1))
+        self.mean_pool     = torch.nn.Sequential(torch.nn.ReflectionPad2d(ps // 2), torch.nn.AvgPool2d(ps, stride=1))
 
     def forward(self, images):
         eps = 1 / 255.0

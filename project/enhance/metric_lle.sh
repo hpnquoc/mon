@@ -4,17 +4,19 @@ echo "${HOSTNAME}"
 clear
 
 # ----- Input -----
-arch="zinf"
-model="zinf"
+arch="*"                                # * for all architectures
+model="*"                               # * for all models
+#arch="zinf"
+#model="zinf"
 datasets=(
     ### Unpaired
-    #"dicm"
+    "dicm"
     #"lime"
     #"mef"
     #"npe"
     #"vv"
     ### LOLs
-    "lolv1"
+    #"lolv1"
     #"lolv2real"
     #"lolv2syn"
     ### LSRW
@@ -24,7 +26,7 @@ datasets=(
     #"fivekb"
     #"fivekc"
     #"fivekd"
-    "fiveke"
+    #"fiveke"
     ### SICE
     #"sice"
     ### High-Level
@@ -34,6 +36,7 @@ datasets=(
     #"lolistreetval"
 )
 device="cuda:0"
+imgsz=512
 metrics=(
     "psnr"
     "ssimc"
@@ -86,11 +89,17 @@ create_dir() {
 # ----- Main -----
 cd "${run_dir}" || exit
 
+# Parse metrics arguments
+metric_args=()
+for metric in "${metrics[@]}"; do
+    metric_args+=("--metric" "${metric}")
+done
+
 for data in "${datasets[@]}"; do
     # Input
+    declare -a input_dirs
     input_subdir="${input_subdirs[$data]:-${data}/pred}"
-    input_dir="${current_dir}/run/predict/${arch}/${model}/${input_subdir}"
-    check_dir "${input_dir}"
+    mapfile -t input_dirs < <(find "$current_dir/run/predict" -type d -path "*/${input_subdir}" 2>/dev/null | sort)
 
     # Target
     target_subdir="${target_subdirs[$data]:-${data}/test/ref}"
@@ -103,23 +112,27 @@ for data in "${datasets[@]}"; do
     use_gt_mean=$(echo "")
 
     # Run IQA evaluation
-    metric_args=()
-    for metric in "${metrics[@]}"; do
-      metric_args+=("--metric" "${metric}")
+    for input_dir in "${input_dirs[@]}"; do
+        data_subdir=$(dirname "${input_dir}")
+        model_subdir=$(dirname "${data_subdir}")
+        arch_subdir=$(dirname "${model_subdir}")
+        model_name=$(basename "${model_subdir}")
+        arch_name=$(basename "${arch_subdir}")
+
+        python -W ignore metric_iqa.py \
+            --input-dir "${input_dir}" \
+            --target-dir "${target_dir}" \
+            --result-file "${current_dir}" \
+            --arch "${arch_name}" \
+            --model "${model_name}" \
+            --data "${data}" \
+            --device "${device}" \
+            --imgsz "${imgsz}" \
+            --backend "pyiqa" \
+            "${metric_args[@]}" \
+            ${use_gt_mean} \
+            "$@"
     done
-    python -W ignore metric_iqa.py \
-        --input-dir "${input_dir}" \
-        --target-dir "${target_dir}" \
-        --result-file "${current_dir}" \
-        --arch "${arch}" \
-        --model "${model}" \
-        --data "${data}" \
-        --device "${device}" \
-        --imgsz 512 \
-        --backend "pyiqa" \
-        "${metric_args[@]}" \
-        ${use_gt_mean} \
-        "$@"
 done
 
 # ----- Done -----

@@ -23,8 +23,8 @@ current_dir  = current_file.parents[0]
 # ----- Utils -----
 def benchmark(model: torch.nn.Module):
     flops, params = mon.compute_efficiency_score(model=model)
-    mon.console.log(f"Params: {params:.4f}")
-    mon.console.log(f"FLOPs : {flops:.4f}")
+    mon.console.log(f"Params    : {params:.4f}")
+    mon.console.log(f"FLOPs     : {flops:.4f}")
 
 
 # ----- Predict -----
@@ -95,7 +95,7 @@ def predict(args: dict | box.Box) -> str:
             path   = mon.Path(datapoint["meta"]["path"])
             image  = datapoint["image"]
             h0, w0 = mon.image_size(image)
-            if args.resize and h0 != args.imgsz[0] and w0 != args.imgsz[1]:
+            if args.resize and (h0 != args.imgsz[0] or w0 != args.imgsz[1]):
                 image = mon.resize(image, args.imgsz)
                 # mon.console.log("Resizing images to: ", image.shape[2], image.shape[3])
                 # images = proc.resize(input=images, size=[1000, 666])
@@ -117,7 +117,7 @@ def predict(args: dict | box.Box) -> str:
             timers.postprocess.tick()
             # Unpad images to original dimensions
             enhanced = outputs[:, :, :h, :w]
-            if args.resize and h0 != args.imgsz[0] and w0 != args.imgsz[1]:
+            if args.resize and (h0 != args.imgsz[0] or w0 != args.imgsz[1]):
                 enhanced = mon.resize(enhanced, (h0, w0))
             enhanced = torch.clamp(enhanced, 0, 1).cpu().detach().permute(0, 2, 3, 1).squeeze(0).numpy()
             timers.postprocess.tock()

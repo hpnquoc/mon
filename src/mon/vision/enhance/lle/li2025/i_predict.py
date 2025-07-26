@@ -22,8 +22,8 @@ current_dir  = current_file.parents[0]
 # ----- Utils -----
 def benchmark(model: torch.nn.Module):
     flops, params = mon.compute_efficiency_score(model=model)
-    mon.console.log(f"Params: {params:.4f}")
-    mon.console.log(f"FLOPs : {flops:.4f}")
+    mon.console.log(f"Params    : {params:.4f}")
+    mon.console.log(f"FLOPs     : {flops:.4f}")
 
 
 # ----- Predict -----
@@ -74,7 +74,7 @@ def predict(args: dict | box.Box) -> str:
             path   = mon.Path(datapoint["meta"]["path"])
             image  = datapoint["image"]
             h0, w0 = mon.image_size(image)
-            if args.resize and h0 != args.imgsz[0] and w0 != args.imgsz[1]:
+            if args.resize and (h0 != args.imgsz[0] or w0 != args.imgsz[1]):
                 image = mon.resize(image, size=args.imgsz)
             image  = image.to(device)
             timers.preprocess.tock()
@@ -95,7 +95,7 @@ def predict(args: dict | box.Box) -> str:
             # R_img = transforms.ToPILImage()(R.squeeze(0))
             # I_img = transforms.ToPILImage()(I.squeeze(0))
             # D_img = transforms.ToPILImage()(D.squeeze(0))
-            if args.resize and h0 != args.imgsz[0] and w0 != args.imgsz[1]:
+            if args.resize and (h0 != args.imgsz[0] or w0 != args.imgsz[1]):
                 L = mon.resize(L, size=(h0, w0))
                 R = mon.resize(R, size=(h0, w0))
                 I = mon.resize(I, size=(h0, w0))
