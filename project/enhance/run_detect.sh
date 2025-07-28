@@ -17,9 +17,9 @@ detector_arch="deim"
 detector_model="deim_dfine_s"
 datasets=(
     ### High-Level
-    #"darkface"
+    "darkface"
     #"exdark"
-    "lolistreetval"
+    #"lolistreetval"
 )
 #resize=$(echo "")
 resize=$(echo "--resize")

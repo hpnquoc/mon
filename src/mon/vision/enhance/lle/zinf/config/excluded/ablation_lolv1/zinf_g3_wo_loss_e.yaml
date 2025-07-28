@@ -1,0 +1,143 @@
+# ----- Global Settings & Hyperparameters -----
+# These settings can be overridden by the CLI.
+root        : ~                                                                 # Root directory of the current run.
+task        : &task "lle"                                                       # Task name (e.g., detect, segment, classify).
+mode        : &mode "train"                                                     # Mode name (e.g., train, val, test, predict, export).
+arch        : &arch "zinf"                                                      # Model architecture or family (e.g., resnet).
+model       : &model "zinf"                                                     # Model name (e.g., resnet50).
+data        : &data ""                                                          # Dataset name (e.g., cifar10) or directory (e.g., data/cifar10).
+fullname    : &fullname "zinf_g3_wo_loss_e"                                     # Full name of the current run (e.g., resnet50_cifar10_01). If not set, it will be this file's name.
+save_dir    : &save_dir ~                                                       # Saving directory. If not set, it will be `root/arch/model/data`.
+weights     : &weights ~                                                        # Path to the pretrained weights.
+device      : &device 0                                                         # Running device (i.e., cuda:0 | cuda:0,1,2,3 | cpu).
+seed        : &seed 100                                                         # Random seed.
+imgsz       : &imgsz 256                                                        # Image size for the model.
+# Train
+resume      : &resume ~                                                         # Resume from interrupted training.
+tuning      : &tuning ~                                                         # Fine-tuning from a pretrained model.
+epochs      : &epochs 100                                                       # Training epochs. Default is ``100``.
+batch_size  : &batch_size 1                                                     # Batch size.
+torchrun    : False                                                             # If ``True``, use torch.distributed.run to run the training script.
+master_port : 7777                                                              # Master port for distributed training.
+master_addr : "localhost"                                                       # Master address for distributed training.
+local_rank  : -1                                                                # Local rank for distributed training.
+# Predict
+resize      : False                                                             # Resize the input image to `imgsz`.
+benchmark   : False                                                             # Benchmark the model.
+# Save & Visualize
+save_result : &save_result True                                                 # Save the result of the model.
+save_image  : &save_image True                                                  # Save the output image.
+save_debug  : &save_debug False                                                 # Save the debug information.
+use_fullname: True                                                              # Use the full name for the save_dir.
+keep_subdirs: False                                                             # Keep subdirectories in the save_dir.
+save_nearby : False                                                             # Save outputs nearby the source.
+exist_ok    : &exist_ok True                                                    # If ``False``, it will delete the save directory if it already exists.
+verbose     : &verbose True                                                     # Verbosity.
+# Export
+format        : "onnx"                                                          # Export format (e.g., onnx, engine, torchscript, coreml, tflite, openvino).
+opset         : 16                                                              # ONNX: opset version.
+simplify      : False                                                           # ONNX: Simplify model using `onnxslim`.
+trt_precision : "fp32"                                                          # TRT: Precision mode (e.g., fp32, fp16, int8).
+max_batch_size: 32                                                              # TRT: Max batch size for export.
+opt_batch_size: 16                                                              # TRT: Optimize batch size for export.
+min_batch_size: 1                                                               # TRT: Min batch size for export.
+# Custom config.yaml
+cfg         : ~                                                                 # For overriding settings defined in this file.
+
+# ----- Modules -----
+# Network
+network: &network                                                               # Network architecture.
+  mapping_func     : "pbde"                                                     # One of: ["p", "b", "d", "e", "pb", "pd", "pe", "pbde"]. Default is "pbde".
+  color_space      : "hvi"                                                      # Color space for the input image. Default is "hvi".
+  window_size      : 13                                                         # Context window size. Default is ``7``.
+  down_size        : *imgsz                                                     # Input image size. Default is ``256``.
+  num_layers       : 4                                                          # Total layer's depth. Default is ``4``.
+  add_layers       : 2                                                          # Number of layers for output branch. Default is ``2``.
+  w0               : 30.0                                                       # Default is ``30.0``.
+  first_bias_scale : 20.0                                                       # For "finer". Default is ``20.0``.
+  use_ff           : True                                                       # Use Fourier Feature embedding for the spatial branch. Default is ``False``.
+  ff_gaussian_scale: 20.0                                                       # For Fourier Feature embedding. Default is ``20.0``.
+  nonlinear        : "finer"                                                    # Activation function. Default is ``"finer"``.
+  reduce_channels  : True                                                       # Reduce the output channels of input encoders. Default is ``True``.
+  depth_threshold  : 1.0                                                        # For adjusting the learned residual. Default is ``1.0``.
+  edge_threshold   : 0.05                                                       # Edge threshold. Default is ``0.05``.
+  use_denoise      : True                                                       # Use denoising. Default is ``True``.
+  denoise_ksize    : 7                                                          # For denoising. Default is ``7``.
+  denoise_color    : 0.1                                                        # For denoising. Default is ``0.1``.
+  denoise_space    : 1.5                                                        # For denoising. Default is ``1.5``.
+  iters            : *epochs
+
+# Optimizer
+optimizer: &optimizer                                                           # Optimizer(s).
+  optimizer:
+    name        : "adam"
+    lr          : 0.00001
+    weight_decay: 0.0003
+  lr_scheduler       : ~                                                        # Learning rate scheduler.
+  network_params_only: True
+
+# Loss
+loss: &loss                                                                     # Loss function.
+  loss_e_mean: -0.5                                                             # Default is ``-0.5``.
+  loss_w_f   : 1                                                                # Default is ``1.``
+  loss_w_s   : 5                                                                # Default is ``5``.
+  loss_w_e   : 0                                                                # Default is ``8``.
+  loss_w_tv  : 20                                                               # Default is ``20``.
+  loss_w_de  : 10                                                               # Default is ``10``.
+  verbose    : False                                                            # Verbosity.
+
+# Metric
+metrics: &metrics                                                               # Metrics for evaluation.
+  train: ~                                                                      
+  val  :                                                                        
+    - {name: "psnr"}                                                            
+    - {name: "ssim"}                                                            
+  test :                                                                        
+    - {name: "psnr"}                                                            
+    - {name: "ssim"}                                                            
+
+# Model
+modelmodule:
+  name     : *model                                                             # Model name (e.g., resnet50).
+  fullname : *fullname                                                          # Full name of the current run (e.g., resnet50_cifar10_01).
+  root     : *save_dir                                                          # Root directory of the current run.
+  <<       : *network                                                           # Network architecture.
+  weights  : *weights                                                           # Path to the pretrained weights.
+  optimizer: *optimizer                                                         # Optimizer(s).
+  loss     : *loss                                                              # Loss function.
+  metrics  : *metrics                                                           # Metrics for evaluation.
+  debug    : *save_debug
+  verbose  : *verbose                                                           # Verbosity.
+
+# Datamodule
+datamodule:                                                                     
+  name      : *data                                                             # Data module name (e.g., cifar10).
+  root      : "data"                                                            # Root directory of the dataset.
+  transform : ~                                                                 # Data augmentation.
+  to_tensor : True                                                              # If ``True``, convert the data to tensor.
+  batch_size: *batch_size                                                       # Batch size.
+  cache_data: False                                                             # If ``True``, cache the data.
+  shuffle   : True                                                              # If ``True``, shuffle the data.
+  verbose   : *verbose                                                          # Verbosity.
+
+# Trainer
+trainer:                                                                        
+  accelerator: "auto"                                                           # Accelerator.
+  callbacks:
+    - {name: "model_checkpoint", filename: *fullname, monitor: "val/psnr", mode: "max"}
+    - {name: "model_checkpoint", filename: *fullname, monitor: "val/ssim", mode: "max", save_last: True}
+    - {name: "log_training_progress", "filename": "log.csv", "every_n_epochs": 1, verbose: *verbose}
+    - {name: "learning_rate_monitor"}
+    - {name: "rich_model_summary", max_depth: 2}
+    - {name: "rich_progress_bar", refresh_rate: 1, leave: False}
+  check_val_every_n_epoch: 1                                                    # Run validation loop every after every `n` training epochs.
+  default_root_dir       : *save_dir                                            # Default path for logs and weights.
+  devices                : "auto"                                               # Will be mapped to either `gpus`, `tpu_cores`, `num_processes` or `ipus`.
+  enable_checkpointing   : True
+  enable_model_summary   : True
+  enable_progress_bar    : True
+  log_every_n_steps      : 1                                                    # How often to log within steps.
+  logger                 : True                                                 # Logger (or iterable collection of loggers) for experiment tracking (True = `TensorBoardLogger`).
+  max_epochs             : *epochs                                              # -1: infinite training.
+  precision              : 32                                                   # Double precision (64), full precision (32), half precision (16) or bfloat16 precision (bf16).
+  strategy               : "auto"                                               # 'ddp', 'ddp_spawn', 'ddp2', 'ddp_cpu', 'ddp2_cpu', 'ddp_spawn_cpu', 'horovod', 'tpu', 'tpu_spawn', 'auto'.

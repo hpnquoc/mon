@@ -11,13 +11,13 @@ source ./utils.sh
 #model="*"                               # * for all models
 arch="zinf"
 model="zinf"
-detector="deim_dfine_s_coco80"
-#detector="deim_dfine_s_widerface"
+#detector="deim_dfine_s_coco80"
+detector="deim_dfine_s_widerface"
 datasets=(
     ### High-Level
-    #"darkface"
+    "darkface"
     #"exdark"
-    "lolistreetval"
+    #"lolistreetval"
 )
 bbox_format="yolo"
 #exist_ok=$(echo "")

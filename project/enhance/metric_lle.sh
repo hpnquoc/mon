@@ -10,17 +10,17 @@ source ./utils.sh
 #arch="*"                                # * for all architectures
 #model="*"                               # * for all models
 arch="zinf"
-model="zinf"
+model="*"
 datasets=(
     ### Unpaired
-    "dicm"
+    #"dicm"
     #"lime"
     #"mef"
     #"npe"
     #"vv"
     ### LOLs
     #"lolv1"
-    #"lolv2real"
+    "lolv2real"
     #"lolv2syn"
     ### LSRW
     #"lsrw"
@@ -86,8 +86,8 @@ done
 
 for data in "${datasets[@]}"; do
     # Input
-    input_subdir="${input_subdirs[$data]:-${data}/pred}"
     declare -a input_dirs
+    input_subdir="${input_subdirs[$data]:-${data}/pred}"
     mapfile -t input_dirs < <(find "$current_dir/run/predict" -type d -path "*/${arch}/${model}/${input_subdir}" 2>/dev/null | sort)
 
     # Target

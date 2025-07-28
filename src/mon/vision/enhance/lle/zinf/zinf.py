@@ -32,14 +32,15 @@ class Loss(nn.Loss):
     
     def __init__(
         self,
-        loss_e_mean: float = 0.1,
-        loss_w_f   : float = 1.0,
-        loss_w_s   : float = 5.0,
-        loss_w_e   : float = 8.0,
-        loss_w_tv  : float = 20.0,
-        loss_w_de  : float = 10.0,
-        reduction  : Literal["none", "mean", "sum"] = "mean",
-        verbose    : bool  = False,
+        loss_e_mean  : float = 0.1,
+        loss_w_f     : float = 1.0,
+        loss_w_s     : float = 5.0,
+        loss_w_e     : float = 8.0,
+        loss_w_tv    : float = 20.0,
+        loss_w_de    : float = 10.0,
+        required_grad: bool  = True,
+        reduction    : Literal["none", "mean", "sum"] = "mean",
+        verbose      : bool  = False,
     ):
         super().__init__(reduction=reduction)
         self.loss_w_f   = loss_w_f
@@ -48,8 +49,13 @@ class Loss(nn.Loss):
         self.loss_w_tv  = loss_w_tv
         self.loss_w_de  = loss_w_de
         self.verbose    = verbose
-        
-        self.loss_e     = nn.ExposureValueControlLoss(16, loss_e_mean, reduction=reduction)
+
+        self.loss_e     = nn.ExposureValueControlLoss(
+            patch_size    = 16,
+            mean_val      = loss_e_mean,
+            required_grad = required_grad,
+            reduction     = reduction
+        )
         self.loss_tv    = nn.TotalVariationLoss(reduction=reduction)
         self.loss_depth = nn.DepthAwareIlluminationLoss(reduction=reduction)
 
@@ -404,7 +410,7 @@ class ZINF(base.ImageEnhancementModel):
         else:
             self.apply(self.init_weights)
         self.initial_state_dict = self.state_dict()
-    
+
     # ----- Initialize -----
     def init_weights(self, m: nn.Module):
         """Initializes the model's weights.
@@ -547,9 +553,12 @@ class ZINF(base.ImageEnhancementModel):
 
         # Preprocess
         timers.preprocess.tick() if timers is not None else None
-        hvi        = types.RGBToHVI(requires_grad=True).to(self.device)
         image_rgb  = datapoint["image"].to(self.device)
-        image_hvi  = hvi.rgb_to_hvi(image_rgb)
+        if self.color_space == "hsv":
+            image_hvi       = kornia.color.rgb_to_hsv(image_rgb)
+        else:
+            color_transform = types.RGBToHVI(requires_grad=True).to(self.device)
+            image_hvi       = color_transform.rgb_to_hvi(image_rgb)
         image_hv   = image_hvi[:, 0:2, :, :]
         image_i    = image_hvi[:, 2:3, :, :]
         depth      = datapoint.get("depth", None)
@@ -589,12 +598,24 @@ class ZINF(base.ImageEnhancementModel):
         # Optimize
         timers.infer.tick() if timers is not None else None
         self.train()
-        for _ in range(self.iters):
+        best_iter       = 0
+        best_loss       = 9999
+        best_state_dict = self.state_dict()
+        for i in range(self.iters):
             outputs = self.forward_loss(datapoint=datapoint)
             optimizer.zero_grad()
             loss = outputs["loss"]
+            if loss < best_loss:
+                best_iter       = i
+                best_loss       = loss.item()
+                best_state_dict = self.state_dict()
             loss.backward(retain_graph=True)
             optimizer.step()
+        core.console.log(
+            f"Best iter: {best_iter}, "
+            f"Best loss: {best_loss:.4f}"
+        )
+        self.load_state_dict(best_state_dict, strict=False)
         self.eval()
         outputs = self.forward(datapoint=datapoint)
         timers.infer.tock() if timers is not None else None
@@ -606,7 +627,10 @@ class ZINF(base.ImageEnhancementModel):
             image_i_fixed_lr = self.bf(image_i_fixed_lr)
         image_i_fixed   = self.filter_up(image_i_lr, image_i_fixed_lr, image_i)
         image_hvi_fixed = torch.cat((image_hv, image_i_fixed), dim=1)
-        image_rgb_fixed = hvi.hvi_to_rgb(image_hvi_fixed)
+        if self.color_space == "hsv":
+            image_rgb_fixed = kornia.color.hsv_to_rgb(image_hvi_fixed)
+        else:
+            image_rgb_fixed = color_transform.hvi_to_rgb(image_hvi_fixed)
         if self.use_denoise:
             image_rgb_fixed = self.bf(image_rgb_fixed)
         timers.postprocess.tock() if timers is not None else None

@@ -9,8 +9,8 @@ source ./utils.sh
 # ----- Input -----
 task="lle"
 mode="predict"
-arch=""
-model=""
+arch="zinf"
+model="zinf"
 datasets=(
     ### Unpaired
     #"dicm"
@@ -19,9 +19,9 @@ datasets=(
     #"npe"
     #"vv"
     ### LOLs
-    "lolv1"
+    #"lolv1"
     #"lolv2real"
-    #"lolv2syn"
+    "lolv2syn"
     ### LSRW
     #"lsrw"
     ### FiveK
