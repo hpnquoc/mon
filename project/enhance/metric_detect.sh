@@ -7,16 +7,16 @@ clear
 source ./utils.sh
 
 # ----- Input -----
-#arch="*"                                # * for all architectures
-#model="*"                               # * for all models
-arch="zinf"
-model="zinf"
-#detector="deim_dfine_s_coco80"
-detector="deim_dfine_s_widerface"
+arch="*"                                # * for all architectures
+model="*"                               # * for all models
+#arch="io"
+#model="image"
+detector="deim_dfine_s_coco80"
+#detector="deim_dfine_s_widerface"
 datasets=(
     ### High-Level
-    "darkface"
-    #"exdark"
+    #"darkface"
+    "exdark"
     #"lolistreetval"
 )
 bbox_format="yolo"

@@ -44,4 +44,6 @@ from mon.datasets.enhance.realnighthaze import *
 from mon.datasets.enhance.reside import *
 from mon.datasets.enhance.sice import *
 from mon.datasets.enhance.snow100k import *
+# from mon.datasets.enhance.uhd import *
+from mon.datasets.enhance.uhdll import *
 from mon.datasets.enhance.vv import *

@@ -12,6 +12,7 @@ __all__ = [
 from typing import Literal
 
 import kornia
+import matplotlib
 import numpy as np
 import torch
 
@@ -430,7 +431,7 @@ class ZINF(base.ImageEnhancementModel):
             Tuple of (FLOPs, parameter count) as ``float`` values.
         """
         from fvcore.nn import parameter_count
-        
+        imgsz     = 256  # Force to use 256 for efficiency computation
         h, w      = types.image_size(imgsz)
         image     = torch.rand(1, 1, h, w).to(self.device)
         image_lr  = self.interpolate_image(image, self.down_size)
@@ -509,8 +510,8 @@ class ZINF(base.ImageEnhancementModel):
             illu_res_lr = self.inf(spatial, patch_i, patch_d, patch_e)
         else:
             raise ValueError(f"[mapping_func] must be one of {MAPPING_FUNC}, got {self.mapping_func}.")
-        illu_res_lr = illu_res_lr.view(1, 1, self.down_size, self.down_size)
-        
+        illu_res_lr  = illu_res_lr.view(1, 1, self.down_size, self.down_size)
+
         # Enhance
         if self.depth_threshold > 0:
             illu_res_lr = illu_res_lr * (1 + self.depth_threshold * (1 - depth_lr / depth_lr.max()))
@@ -560,6 +561,8 @@ class ZINF(base.ImageEnhancementModel):
             color_transform = types.RGBToHVI(requires_grad=True).to(self.device)
             image_hvi       = color_transform.rgb_to_hvi(image_rgb)
         image_hv   = image_hvi[:, 0:2, :, :]
+        image_h    = image_hvi[:, 0:1, :, :]
+        image_v    = image_hvi[:, 1:2, :, :]
         image_i    = image_hvi[:, 2:3, :, :]
         depth      = datapoint.get("depth", None)
         depth      = depth.to(self.device) if depth is not None else None
@@ -639,6 +642,8 @@ class ZINF(base.ImageEnhancementModel):
         return outputs | {
             "image_hvi"      : image_hvi,
             "image_hvi_fixed": image_hvi_fixed,
+            "image_h"        : image_h,
+            "image_v"        : image_v,
             "image_i"        : image_i,
             "image_i_fixed"  : image_i_fixed,
             "depth"          : depth,

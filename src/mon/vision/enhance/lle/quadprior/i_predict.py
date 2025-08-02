@@ -200,7 +200,7 @@ def predict(args: dict | box.Box) -> str:
             # Postprocess
             timers.postprocess.tick()
             enhanced = mon.resize(outputs, (h0, w0), interpolation=cv2.INTER_LINEAR)
-            enhanced = cv2.cvtColor(enhanced, cv2.COLOR_BGR2RGB)
+            # enhanced = cv2.cvtColor(enhanced, cv2.COLOR_BGR2RGB)
             timers.postprocess.tock()
             
             # Save

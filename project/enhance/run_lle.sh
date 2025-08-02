@@ -13,17 +13,19 @@ arch="zinf"
 model="zinf"
 datasets=(
     ### Unpaired
-    #"dicm"
-    #"lime"
-    #"mef"
-    #"npe"
-    #"vv"
+    "dicm"
+    "lime"
+    "mef"
+    "npe"
+    "vv"
     ### LOLs
-    #"lolv1"
-    #"lolv2real"
+    "lolv1"
+    "lolv2real"
     "lolv2syn"
     ### LSRW
     #"lsrw"
+    ### SICE
+    #"sice"
     ### FiveK
     #"fivek"
     #"fiveka"
@@ -31,8 +33,8 @@ datasets=(
     #"fivekc"
     #"fivekd"
     #"fiveke"
-    ### SICE
-    #"sice"
+    ### UHD
+    #"uhdll"
     ### High-Level
     #"darkface"
     #"exdark"

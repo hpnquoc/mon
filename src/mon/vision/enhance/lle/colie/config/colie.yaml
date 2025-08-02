@@ -47,6 +47,7 @@ cfg: ~                                                                          
 # ----- Modules -----
 # Network
 network: &network                                                               # Network architecture.
+  inr       : "siren"
   window    : 7
   num_layers: 4
   hidden_dim: *imgsz

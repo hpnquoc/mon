@@ -87,20 +87,22 @@ class ExposureControlLoss(base.Loss):
     
     def __init__(
         self,
-        patch_size: _size_2_t = 16,
-        mean_val  : float     = 0.6,
-        reduction : Literal["none", "mean", "sum"] = "mean",
+        patch_size   : _size_2_t = 16,
+        mean_val     : float     = 0.6,
+        required_grad: bool      = True,
+        reduction    : Literal["none", "mean", "sum"] = "mean",
     ):
         super().__init__(reduction=reduction)
         self.patch_size = patch_size
-        self.mean_val   = mean_val
+        self.mean_val   = torch.nn.Parameter(torch.full([1], mean_val), requires_grad=required_grad)
         self.pool       = torch.nn.AvgPool2d(self.patch_size)
     
     def forward(self, input: torch.Tensor) -> torch.Tensor:
         x    = torch.mean(input, 1, keepdim=True)
         mean = self.pool(x)
-        loss = torch.pow(mean - torch.FloatTensor([self.mean_val]).to(input.device), 2)
-        loss = base.reduce_loss(loss=loss, reduction=self.reduction)
+        loss = torch.pow(mean - self.mean_val, 2)
+        loss = torch.mean(loss)
+        # loss = base.reduce_loss(loss=loss, reduction=self.reduction)
         return loss
 
 

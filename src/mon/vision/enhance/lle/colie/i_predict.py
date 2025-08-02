@@ -9,6 +9,7 @@ References:
 """
 
 import box
+import kornia
 import thop
 import torch.optim
 from fvcore.nn import FlopCountAnalysis, parameter_count
@@ -17,6 +18,7 @@ import mon
 from color import hsv2rgb_torch, rgb2hsv_torch
 from loss import *
 from mon.nn import _size_2_t
+from mon.vision.enhance.lle.colie.siren import INF_FF_FINER
 from siren import INF
 from utils import *
 
@@ -55,6 +57,7 @@ def benchmark(model: torch.nn.Module):
 
 # ----- Predict -----
 def predict(args: dict | box.Box) -> str:
+    inr          = args.network.inr
     window       = args.network.window
     num_layers   = args.network.num_layers
     hidden_dim   = args.network.hidden_dim
@@ -81,7 +84,10 @@ def predict(args: dict | box.Box) -> str:
 
     # Benchmark
     if args.benchmark:
-        model = INF(patch_dim=window ** 2, num_layers=num_layers, hidden_dim=hidden_dim, add_layer=add_layer)
+        if inr == "ff_finer":
+            model = INF_FF_FINER(patch_dim=window ** 2, num_layers=num_layers, hidden_dim=hidden_dim, add_layer=add_layer)
+        else:
+            model = INF(patch_dim=window ** 2, num_layers=num_layers, hidden_dim=hidden_dim, add_layer=add_layer)
         flops, params = compute_efficiency_score(model=model)
         mon.console.log(f"Params    : {params:.4f}")
         mon.console.log(f"FLOPs     : {flops:.4f}")
@@ -100,7 +106,8 @@ def predict(args: dict | box.Box) -> str:
             meta     = datapoint["meta"]
             path     = mon.Path(datapoint["meta"]["path"])
             img_rgb  = get_image(str(path)).to(device)
-            img_hsv  = rgb2hsv_torch(img_rgb).to(device)
+            # img_hsv  = rgb2hsv_torch(img_rgb).to(device)
+            img_hsv  = kornia.color.rgb_to_hsv(img_rgb).to(device)
             img_v    = get_v_component(img_hsv).to(device)
             img_v_lr = interpolate_image(img_v, args.imgsz[0], args.imgsz[1]).to(device)
             coords   = get_coords(args.imgsz[0], args.imgsz[1]).to(device)
@@ -108,10 +115,13 @@ def predict(args: dict | box.Box) -> str:
             timers.preprocess.tock()
 
             # Model
-            img_siren  = INF(patch_dim=window ** 2, num_layers=num_layers, hidden_dim=hidden_dim, add_layer=add_layer)
-            img_siren  = img_siren.to(device)
+            if inr == "ff_finer":
+                model = INF_FF_FINER(patch_dim=window ** 2, num_layers=num_layers, hidden_dim=hidden_dim, add_layer=add_layer)
+            else:
+                model = INF(patch_dim=window ** 2, num_layers=num_layers, hidden_dim=hidden_dim, add_layer=add_layer)
+            model = model.to(device)
             # Optimizer
-            optimizer  = torch.optim.Adam(img_siren.parameters(), lr=lr, betas=(0.9, 0.999), weight_decay=weight_decay)
+            optimizer = torch.optim.Adam(model.parameters(), lr=lr, betas=(0.9, 0.999), weight_decay=weight_decay)
             # Loss
             l_exp = L_exp(16, L)
             l_TV  = L_TV()
@@ -119,10 +129,10 @@ def predict(args: dict | box.Box) -> str:
             # Optimize
             timers.infer.tick()
             for epoch in range(args.epochs):
-                img_siren.train()
+                model.train()
                 optimizer.zero_grad()
                 #
-                illu_res_lr    = img_siren(patches, coords)
+                illu_res_lr    = model(patches, coords)
                 illu_res_lr    = illu_res_lr.view(1, 1,  args.imgsz[0], args.imgsz[1])
                 illu_lr        = illu_res_lr + img_v_lr
                 img_v_fixed_lr = img_v_lr / (illu_lr + 1e-4)
@@ -140,7 +150,8 @@ def predict(args: dict | box.Box) -> str:
             timers.postprocess.tick()
             img_v_fixed   = filter_up(img_v_lr, img_v_fixed_lr, img_v)
             img_hsv_fixed = replace_v_component(img_hsv, img_v_fixed)
-            img_rgb_fixed = hsv2rgb_torch(img_hsv_fixed)
+            # img_rgb_fixed = hsv2rgb_torch(img_hsv_fixed)
+            img_rgb_fixed = kornia.color.hsv_to_rgb(img_hsv_fixed)
             img_rgb_fixed = img_rgb_fixed / torch.max(img_rgb_fixed)
             enhanced      = (torch.movedim(img_rgb_fixed, 1, -1)[0].detach().cpu().numpy() * 255).astype(np.uint8)
             timers.postprocess.tock()

@@ -22,14 +22,14 @@ datasets=(
     #"lolv2syn"
     ### LSRW
     #"lsrw"
+    ### SICE
+    #"sice"
     ### FiveK
     #"fiveka"
     #"fivekb"
     #"fivekc"
     #"fivekd"
     #"fiveke"
-    ### SICE
-    #"sice"
     ### High-Level
     #"darkface"
     #"exdark"

@@ -19,13 +19,14 @@ import numpy as np
 import torch
 from torch.nn import functional as F
 
-from mon import core, nn
+from mon import nn
 from mon.constants import MLType, MODELS, Task
+from mon.core import pathlib, thop, timer, type_extensions
 from mon.nn import _size_2_t
 from mon.vision import filtering, types
 from mon.vision.enhance import base
 
-current_file = core.Path(__file__).absolute()
+current_file = pathlib.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
 
@@ -86,7 +87,7 @@ class CoLIE_RE(base.ImageEnhancementModel):
     name     : str          = "colie_re"
     tasks    : list[Task]   = [Task.LLE]
     mltypes  : list[MLType] = [MLType.ZERO_SHOT]
-    model_dir: core.Path    = current_dir
+    model_dir: pathlib.Path = current_dir
     zoo      : dict         = {}
     
     def __init__(
@@ -174,7 +175,7 @@ class CoLIE_RE(base.ImageEnhancementModel):
         h, w      = types.image_size(imgsz)
         datapoint = {"image": torch.rand(1, 3, h, w).to(self.device)}
         
-        flops, params = core.thop.custom_profile(self, inputs=datapoint, verbose=False)
+        flops, params = thop.custom_profile(self, inputs=datapoint, verbose=False)
         # flops         = FlopCountAnalysis(self, datapoint).total() if flops == 0 else flops
         params        = self.params                if hasattr(self, "params") and params == 0 else params
         params        = parameter_count(self)      if hasattr(self, "params")  else params
@@ -215,7 +216,7 @@ class CoLIE_RE(base.ImageEnhancementModel):
             ``dict`` of predictions with ``"enhanced"`` keys.
         """
         # Input
-        if not core.are_all_items_in_dict(
+        if not type_extensions.are_all_items_in_dict(
             ["image_hsv", "image_v", "image_v_lr", "patch", "spatial"],
             datapoint
         ):
@@ -314,8 +315,8 @@ class CoLIE_RE(base.ImageEnhancementModel):
     def infer(
         self,
         datapoint: dict,
-        reset    : bool              = True,
-        timers   : core.TimeProfiler = None,
+        reset    : bool               = True,
+        timers   : timer.TimeProfiler = None,
         *args, **kwargs
     ) -> (
         dict):

@@ -10,7 +10,7 @@ source ./utils.sh
 #arch="*"                                # * for all architectures
 #model="*"                               # * for all models
 arch="zinf"
-model="*"
+model="zinf"
 datasets=(
     ### Unpaired
     #"dicm"
@@ -20,25 +20,31 @@ datasets=(
     #"vv"
     ### LOLs
     #"lolv1"
-    "lolv2real"
+    #"lolv2real"
     #"lolv2syn"
     ### LSRW
     #"lsrw"
+    ### SICE
+    #"sice"
     ### FiveK
     #"fiveka"
     #"fivekb"
     #"fivekc"
     #"fivekd"
     #"fiveke"
-    ### SICE
-    #"sice"
+    ### UHD
+    #"uhdll"
     ### High-Level
     #"darkface"
     #"exdark"
     #"lolistreettest"
-    #"lolistreetval"
+    "lolistreetval"
 )
 imgsz=512
+resize=$(echo "")
+#resize=$(echo "--resize")
+use_gt_mean=$(echo "")
+# use_gt_mean=$(echo "--use-gt-mean")
 metrics=(
     "psnr"
     "ssimc"
@@ -65,12 +71,12 @@ declare -A input_subdirs=(
 declare -A target_subdirs=(
     ["lolv2real"]="lolv2/real/test/ref"
     ["lolv2syn"]="lolv2/syn/test/ref"
+    ["sice"]="sice/sice/test/ref"
     ["fiveka"]="fivek/test/ref_a"
     ["fivekb"]="fivek/test/ref_b"
     ["fivekc"]="fivek/test/ref_c"
     ["fivekd"]="fivek/test/ref_d"
     ["fiveke"]="fivek/test/ref_e"
-    ["sice"]="sice/sice/test/ref"
     ["lolistreetval"]="lolistreet/val/ref"
     ["lolistreettest"]="lolistreet/test/ref"
 )
@@ -97,8 +103,13 @@ for data in "${datasets[@]}"; do
     [[ ! -d "${target_dir}" ]] && target_dir="${root_dir}/data/enhance/${target_subdir}"
 
     # Determine IQA type
-    # use_gt_mean=$([[ -d "${target_dir}" ]] && echo "--use-gt-mean" || echo "")
-    use_gt_mean=$(echo "")
+    if [[ ${use_gt_mean} == "--use-gt-mean" ]]; then
+        use_gt_mean=$([[ -d "${target_dir}" ]] && echo "--use-gt-mean" || echo "")
+    fi
+    if [[ ${resize} == "--resize" ]]; then
+        # Using resize with NR-IQA is not recommended.
+        resize=$([[ -d "${target_dir}" ]] && echo "--resize" || echo "")
+    fi
 
     for input_dir in "${input_dirs[@]}"; do
         data_subdir=$(dirname "${input_dir}")
@@ -118,9 +129,10 @@ for data in "${datasets[@]}"; do
             --data "${data}" \
             --device "${device}" \
             --imgsz "${imgsz}" \
-            --backend "pyiqa" \
+            ${resize} \
             "${metric_args[@]}" \
             ${use_gt_mean} \
+            --backend "pyiqa" \
             "$@"
     done
 done

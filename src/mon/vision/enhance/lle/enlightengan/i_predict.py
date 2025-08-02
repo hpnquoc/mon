@@ -78,7 +78,8 @@ def predict(args: dict | box.Box) -> str:
             
             # Postprocess
             timers.postprocess.tick()
-            enhanced = cv2.cvtColor(outputs, cv2.COLOR_RGB2BGR)
+            # enhanced = cv2.cvtColor(outputs, cv2.COLOR_RGB2BGR)
+            enhanced = outputs
             timers.postprocess.tock()
 
             # Save

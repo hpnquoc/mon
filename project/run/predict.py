@@ -76,10 +76,10 @@ def predict(args: dict | box.Box) -> str:
             
             # Infer
             outputs = model.infer(
-                datapoint  = datapoint,
-                image_size = args.imgsz,
-                resize     = args.resize,
-                timers     = timers,
+                datapoint = datapoint,
+                imgsz     = args.imgsz,
+                resize    = args.resize,
+                timers    = timers,
             )
             '''
             if "timers" in outputs:

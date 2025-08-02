@@ -68,7 +68,7 @@ def predict(args: dict | box.Box) -> str:
         benchmark(model)
     
     # Predict
-    cmap   = matplotlib.colormaps.get_cmap("Spectral_r")
+    cmap   = matplotlib.colormaps.get_cmap("Spectral")
     timers = mon.TimeProfiler()
     timers.total.tick()
     with mon.create_progress_bar() as pbar:
@@ -93,7 +93,8 @@ def predict(args: dict | box.Box) -> str:
             outputs = (outputs - outputs.min()) / (outputs.max() - outputs.min()) * 255.0
             outputs = outputs.astype(np.uint8)
             depth_g = np.repeat(outputs[..., np.newaxis], 3, axis=-1)
-            depth_c = (cmap(outputs)[:, :, :3] * 255)[:, :, ::-1].astype(np.uint8)
+            # depth_c = (cmap(outputs)[:, :, :3] * 255)[:, :, ::-1].astype(np.uint8)
+            depth_c = (cmap(outputs)[:, :, :3] * 255).astype(np.uint8)
             timers.postprocess.tock()
 
             # Save

@@ -48,6 +48,7 @@ cfg         : ~                                                                 
 # Network
 network: &network                                                               # Network architecture.
   mapping_func     : "pbde"                                                     # One of: ["p", "b", "d", "e", "pb", "pd", "pe", "pbde"]. Default is "pbde".
+  color_space      : "hvi"                                                      # Color space for the input image. Default is "hvi".
   window_size      : 13                                                         # Context window size. Default is ``13``.
   down_size        : *imgsz                                                     # Input image size. Default is ``256``.
   num_layers       : 4                                                          # Total layer's depth. Default is ``4``.

@@ -9,17 +9,18 @@ source ./utils.sh
 # ----- Input -----
 task="detect"
 mode="predict"
-#arch="*"                                # * for all architectures
-#model="*"                               # * for all models
-arch="zinf"
-model="zinf"
+arch="*"                                # * for all architectures
+model="*"                               # * for all models
+#arch="zinf"
+#model="zinf"
 detector_arch="deim"
 detector_model="deim_dfine_s"
 datasets=(
     ### High-Level
-    "darkface"
-    #"exdark"
+    #"darkface"
+    "exdark"
     #"lolistreetval"
+    #"lolistreettest"
 )
 #resize=$(echo "")
 resize=$(echo "--resize")
@@ -46,6 +47,7 @@ for data in "${datasets[@]}"; do
         --model "${detector_model}" \
         --data "${all_data}" \
         --device "${device}" \
+        ${resize} \
         --save-result \
         --save-image \
         --save-debug \
@@ -53,7 +55,6 @@ for data in "${datasets[@]}"; do
         --save-nearby \
         --exist-ok \
         --verbose \
-        ${resize} \
         "$@"
 done
 

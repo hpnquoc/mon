@@ -9,8 +9,8 @@ source ./utils.sh
 # ----- Input -----
 task="depth"
 mode="predict"
-arch="daac"
-model="daac_vits"
+arch="dav2"
+model="dav2_vitb"
 datasets=(
 
 )
