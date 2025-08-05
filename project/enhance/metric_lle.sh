@@ -7,10 +7,16 @@ clear
 source ./utils.sh
 
 # ----- Input -----
-#arch="*"                                # * for all architectures
-#model="*"                               # * for all models
-arch="zinf"
-model="zinf"
+archs=(
+    #"*"                                 # For all architectures
+    ### Specific Architectures
+    "uretinexnet++"
+)
+models=(
+    "*"                                 # * for all models
+    ### Specific Models
+    #"zinf"
+)
 datasets=(
     ### Unpaired
     #"dicm"
@@ -33,12 +39,12 @@ datasets=(
     #"fivekd"
     #"fiveke"
     ### UHD
-    #"uhdll"
+    "uhdll"
     ### High-Level
     #"darkface"
     #"exdark"
     #"lolistreettest"
-    "lolistreetval"
+    #"lolistreetval"
 )
 imgsz=512
 resize=$(echo "")
@@ -92,9 +98,14 @@ done
 
 for data in "${datasets[@]}"; do
     # Input
-    declare -a input_dirs
+    declare -a input_dirs=()
     input_subdir="${input_subdirs[$data]:-${data}/pred}"
-    mapfile -t input_dirs < <(find "$current_dir/run/predict" -type d -path "*/${arch}/${model}/${input_subdir}" 2>/dev/null | sort)
+    for arch in "${archs[@]}"; do
+        for model in "${models[@]}"; do
+            mapfile -t -O "${#input_dirs[@]}" input_dirs < <(find "$current_dir/run/predict" -type d -path "*/${arch}/${model}/${input_subdir}" 2>/dev/null | sort)
+        done
+    done
+    unique_array "${input_dirs[@]}" input_dirs
 
     # Target
     target_subdir="${target_subdirs[$data]:-${data}/test/ref}"

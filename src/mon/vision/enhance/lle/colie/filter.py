@@ -15,6 +15,7 @@ def diff_x(input, r):
 
     return output
 
+
 def diff_y(input, r):
     assert input.dim() == 4
 
@@ -26,7 +27,9 @@ def diff_y(input, r):
 
     return output
 
+
 class BoxFilter(nn.Module):
+
     def __init__(self, r):
         super(BoxFilter, self).__init__()
 
@@ -39,13 +42,13 @@ class BoxFilter(nn.Module):
 
 
 class FastGuidedFilter(nn.Module):
+
     def __init__(self, r, eps=1e-8):
         super(FastGuidedFilter, self).__init__()
 
         self.r = r
         self.eps = eps
         self.boxfilter = BoxFilter(r)
-
 
     def forward(self, lr_x, lr_y, hr_x):
         n_lrx, c_lrx, h_lrx, w_lrx = lr_x.size()

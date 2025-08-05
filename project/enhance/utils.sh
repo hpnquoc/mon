@@ -53,3 +53,23 @@ get_device() {
     done <<< "$GPU_INFO"
     echo "cuda:$least_used_gpu"
 }
+
+
+# ----- Misc -----
+unique_array() {
+    local -a temp_array=()
+    local -A seen
+    local value
+    local output_array_name="$1"
+    shift
+
+    for value in "$@"; do
+        if [[ ! -v seen["$value"] ]]; then
+            seen["$value"]=1
+            temp_array+=("$value")
+        fi
+    done
+
+    # Assign to the output array
+    declare -ga "$output_array_name=(${temp_array[@]@Q})"
+}

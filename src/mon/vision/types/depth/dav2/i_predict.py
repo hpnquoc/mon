@@ -68,7 +68,7 @@ def predict(args: dict | box.Box) -> str:
         benchmark(model)
     
     # Predict
-    cmap   = matplotlib.colormaps.get_cmap("Spectral")
+    cmap   = matplotlib.colormaps.get_cmap("Spectral_r")
     timers = mon.TimeProfiler()
     timers.total.tick()
     with mon.create_progress_bar() as pbar:

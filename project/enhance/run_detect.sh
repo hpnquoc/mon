@@ -9,18 +9,23 @@ source ./utils.sh
 # ----- Input -----
 task="detect"
 mode="predict"
-arch="*"                                # * for all architectures
-model="*"                               # * for all models
-#arch="zinf"
-#model="zinf"
+archs=(
+    #"*"                                 # For all architectures
+    ### Specific Architectures
+    "zinf"
+)
+models=(
+    #"*"                                 # * for all models
+    ### Specific Models
+    "zinf"
+)
 detector_arch="deim"
 detector_model="deim_dfine_s"
 datasets=(
     ### High-Level
     #"darkface"
-    "exdark"
-    #"lolistreetval"
-    #"lolistreettest"
+    #"exdark"
+    "lolistreetval"
 )
 #resize=$(echo "")
 resize=$(echo "--resize")
@@ -36,7 +41,14 @@ run_dir="${project_dir}/run"
 cd "${run_dir}" || exit
 
 for data in "${datasets[@]}"; do
-    all_data=$(find "$current_dir/run/predict" -type d -path "*/${arch}/${model}/${data}/pred" 2>/dev/null | sort | paste -sd ',' - | sed 's/,$//')
+    # Input
+    all_data=""
+    for arch in "${archs[@]}"; do
+        for model in "${models[@]}"; do
+            all_data+=$(find "$current_dir/run/predict" -type d -path "*/${arch}/${model}/${data}/pred" 2>/dev/null | sort | paste -sd ',' - | sed 's/,$//')
+        done
+    done
+
     device=$(get_device)
 
     python -W ignore main.py \

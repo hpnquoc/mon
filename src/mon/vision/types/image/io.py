@@ -59,8 +59,8 @@ def load_image(
         if utils.is_image_grayscale(image) and flags != cv2.IMREAD_GRAYSCALE:
             image = cv2.cvtColor(image, cv2.COLOR_GRAY2RGB)
         elif utils.is_image_colored(image):
-            # image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-            image = image[:, :, ::-1]   # Faster than cv2.COLOR_BGR2RGB
+            image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)  # Safer
+            # image = image[:, :, ::-1]   # Faster than cv2.COLOR_BGR2RGB
 
     if to_tensor:
         image = processing.image_to_tensor(image, normalize=normalize, device=device)

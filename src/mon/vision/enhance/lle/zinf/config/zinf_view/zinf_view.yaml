@@ -49,7 +49,7 @@ cfg         : ~                                                                 
 network: &network                                                               # Network architecture.
   mapping_func     : "pbde"                                                     # One of: ["p", "b", "d", "e", "pb", "pd", "pe", "pbde"]. Default is "pbde".
   color_space      : "hvi"                                                      # Color space for the input image. Default is "hvi".
-  window_size      : 9                                                          # Context window size. Default is ``13``.
+  window_size      : 13                                                         # Context window size. Default is ``13``.
   down_size        : *imgsz                                                     # Input image size. Default is ``256``.
   num_layers       : 4                                                          # Total layer's depth. Default is ``4``.
   add_layers       : 2                                                          # Number of layers for output branch. Default is ``2``.
@@ -78,11 +78,11 @@ optimizer: &optimizer                                                           
 
 # Loss
 loss: &loss                                                                     # Loss function.
-  loss_e_mean: 0.0001                                                           # Default is ``0.01``.
+  loss_e_mean: 0.01                                                             # Default is ``0.01``.
   loss_w_f   : 1                                                                # Default is ``1.``
   loss_w_s   : 5                                                                # Default is ``5``.
   loss_w_e   : 8                                                                # Default is ``8``.
-  loss_w_tv  : 20                                                               # Default is ``0``.
+  loss_w_tv  : 0                                                                # Default is ``0``.
   loss_w_de  : 10                                                               # Default is ``10``.
   verbose    : False                                                            # Verbosity.
 
