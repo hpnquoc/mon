@@ -13,17 +13,17 @@ __all__ = [
     "get_logger",
     "logger",
 ]
-import os
-os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
-
 import contextlib
 import logging
+import os
 import sys
 from typing import Iterator
 
 from rich import logging as r_logging
 
 from mon.core import pathlib
+
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 
 
 # ----- Log -----

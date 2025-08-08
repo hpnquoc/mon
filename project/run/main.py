@@ -59,8 +59,21 @@ def run_train(args: dict | box.Box):
     # Parse script file
     python_call = ["python"]
     env         = {**os.environ}
+    script_file = mon.MODELS[args.arch][args.model].model_dir / "train.py"
+    if args.torchrun:
+        device_     = mon.parse_device(args.device)
+        python_call = [
+            "python", "-m", "torch.distributed.run",
+            f"--nproc_per_node={len(device_)}",
+            f"--master_port={args.master_port}",
+            f"--master_addr={args.master_addr}",
+        ]
+        os.environ["CUDA_VISIBLE_DEVICES"] = ",".join(device_)
+        env = {**os.environ, "CUDA_VISIBLE_DEVICES": ",".join(device_), **env}
+    
+    '''
     if use_extra_model:
-        script_file = mon.EXTRA_MODELS[args.arch][args.model]["model_dir"] / "i_train.py"
+        script_file = mon.EXTRA_MODELS[args.arch][args.model]["model_dir"] / "train.py"
         if args.torchrun:
             device_     = mon.parse_device(args.device)
             python_call = [
@@ -73,7 +86,8 @@ def run_train(args: dict | box.Box):
             env = {**os.environ, "CUDA_VISIBLE_DEVICES": ",".join(device_), **env}
     else:
         script_file = current_dir / "train.py"
-
+    '''
+    
     # Parse arguments
     args_call: list[str] = []
     for k, v in kwargs.items():
@@ -143,12 +157,16 @@ def run_predict(args: dict | box.Box):
         flags  += ["--verbose"]      if args.verbose      else []
 
         # Parse script file
+        script_file = mon.MODELS[args.arch][args.model].model_dir / "predict.py"
+        python_call = ["python"]
+        '''
         if use_extra_model:
             script_file = mon.EXTRA_MODELS[args.arch][args.model]["model_dir"] / "i_predict.py"
             python_call = ["python"]
         else:
             script_file = current_dir / "predict.py"
             python_call = ["python"]
+        '''
         
         # Parse arguments
         args_call: list[str] = []

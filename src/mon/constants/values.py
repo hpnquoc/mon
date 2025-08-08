@@ -9,9 +9,6 @@ __all__ = [
     "DATAMODULES",
     "DATASETS",
     "DATA_DIR",
-    "DETECTORS",
-    "DISTANCES",
-    "EMBEDDERS",
     "EXTRA_DATASETS",
     "EXTRA_MODELS",
     "EXTRA_STR",
@@ -23,8 +20,6 @@ __all__ = [
     "MODELS",
     "MON_DIR",
     "MON_EXTRA_DIR",
-    "MOTIONS",
-    "OBJECTS",
     "OPTIMIZERS",
     "ROOT_DIR",
     "SAVE_CKPT_EXT",
@@ -36,7 +31,6 @@ __all__ = [
     "SAVE_WEIGHTS_EXT",
     "SERIALIZERS",
     "STRATEGIES",
-    "TRACKERS",
     "TRANSFORMS",
     "ZOO_DIR",
 ]
@@ -366,13 +360,7 @@ EXTRA_MODELS   = {  # architecture/model (+ variant)
     },
     # endregion
     # region enhance/lle
-    "colie"           : {
-        "colie": {
-            "tasks"    : [Task.LLE],
-            "mltypes"  : [MLType.ZERO_SHOT],
-            "model_dir": MON_DIR / "vision" / "enhance" / "lle" / "colie",
-        },
-    },
+    '''
     "dccnet"          : {
         "dccnet": {
             "tasks"    : [Task.LLE],
@@ -520,20 +508,6 @@ EXTRA_MODELS   = {  # architecture/model (+ variant)
             "model_dir": MON_DIR / "vision" / "enhance" / "lle" / "uretinexnet++",
         },
     },
-    "zerodce"         : {
-        "zerodce"  : {
-            "tasks"    : [Task.LLE],
-            "mltypes"  : [MLType.ZERO_REFERENCE],
-            "model_dir": MON_DIR / "vision" / "enhance" / "lle" / "zerodce",
-        },
-    },
-    "zerodce++"       : {
-        "zerodce++": {
-            "tasks"    : [Task.LLE],
-            "mltypes"  : [MLType.ZERO_REFERENCE],
-            "model_dir": MON_DIR / "vision" / "enhance" / "lle" / "zerodcepp",
-        },
-    },
     "zerodidce"       : {
         "zerodidce": {
             "tasks"    : [Task.LLE],
@@ -555,6 +529,7 @@ EXTRA_MODELS   = {  # architecture/model (+ variant)
             "model_dir": MON_DIR / "vision" / "enhance" / "lle" / "zerotig",
         },
     },
+    '''
     # endregion
     # region enhance/multitask
     "airnet"     : {
@@ -714,18 +689,12 @@ ACCELERATORS  = factory.Factory(name="Accelerators")
 CALLBACKS     = factory.Factory(name="Callbacks")
 DATAMODULES   = factory.Factory(name="DataModules")
 DATASETS      = factory.Factory(name="Datasets")
-DETECTORS     = factory.Factory(name="Detectors")
-DISTANCES     = factory.Factory(name="Distances")
-EMBEDDERS     = factory.Factory(name="Embedders")
 LOGGERS       = factory.Factory(name="Loggers")
 LOSSES        = factory.Factory(name="Losses")
 LR_SCHEDULERS = factory.Factory(name="LRSchedulers")
 METRICS       = factory.Factory(name="Metrics")
 MODELS        = factory.ModelFactory(name="Models")
-MOTIONS       = factory.Factory(name="Motions")
-OBJECTS       = factory.Factory(name="Objects")
 OPTIMIZERS    = factory.Factory(name="Optimizers")
 SERIALIZERS   = factory.Factory(name="Serializers")
 STRATEGIES    = factory.Factory(name="Strategies")
-TRACKERS      = factory.Factory(name="Trackers")
 TRANSFORMS    = factory.Factory(name="Transforms")

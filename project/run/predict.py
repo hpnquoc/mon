@@ -13,7 +13,7 @@ current_dir  = current_file.parents[0]
 
 
 # ----- Utils -----
-def benchmark(model: mon.Model):
+def benchmark(model: mon.LightningModule):
     if hasattr(model, "compute_efficiency_score"):
         flops, params = model.compute_efficiency_score()
         mon.console.log(f"Params: {params:.4f}")
@@ -54,7 +54,7 @@ def predict(args: dict | box.Box) -> str:
         "debug"    : args.save_debug,
         "verbose"  : args.verbose,
     }
-    model: mon.Model = mon.MODELS.build(config=args.modelmodule)
+    model: mon.LightningModule = mon.MODELS.build(config=args.modelmodule)
     model = model.to(device)
     model.eval()
     

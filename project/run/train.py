@@ -51,7 +51,7 @@ def train(args: dict | box.Box) -> str:
         "debug"   : args.save_debug,
         "verbose" : args.verbose,
     }
-    model: mon.Model = mon.MODELS.build(config=args.modelmodule)
+    model: mon.LightningModule = mon.MODELS.build(config=args.modelmodule)
     if mon.is_rank_zero():
         mon.print_dict(args, title=args.fullname)
 

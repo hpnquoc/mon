@@ -47,7 +47,7 @@ cfg: ~                                                                          
 # ----- Modules -----
 # Network
 network: &network                                                               # Network architecture.
-  scale_factor: 1
+  scale_factor: 1.0
 
 # Optimizer
 optimizer: &optimizer                                                           # Optimizer(s).

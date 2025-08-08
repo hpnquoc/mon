@@ -8,4 +8,4 @@ References:
     - https://github.com/Li-Chongyi/Zero-DCE_extension
 """
 
-from mon.vision.enhance.lle.zerodcepp.zerodcepp_re import *
+from mon.vision.enhance.lle.zerodcepp.model import *

@@ -17,7 +17,7 @@ from mon.nn import _size_2_t
 
 
 # ----- Base Model -----
-class VisionModel(nn.Model, abc.ABC):
+class VisionModel(nn.LightningModule, abc.ABC):
     """Base class for vision models with image/video input."""
     
     # ----- Initialize -----

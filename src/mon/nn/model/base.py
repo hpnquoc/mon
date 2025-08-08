@@ -5,7 +5,8 @@
 
 __all__ = [
     "ExtraModel",
-    "Model",
+    "LightningModule",
+    "ModelMixin",
 ]
 
 import abc
@@ -28,19 +29,21 @@ EpochOutput = Any  # lightning.pytorch.utilities.types.EPOCH_OUTPUT
 
 
 # ----- Model -----
-class Model(lightning.LightningModule, abc.ABC):
+class ModelMixin:
+    """Mixin for model attributes and methods."""
+
+    arch     : str          = ""         # The model's architecture.
+    name     : str          = ""         # The model's name.
+    tasks    : list[Task]   = []         # A list of tasks that the model can perform.
+    mltypes  : list[MLType] = []         # A list of learning types that the model can perform.
+    model_dir: core.Path    = None       # The model's directory
+    zoo      : dict         = box.Box()  # A dictionary containing all pretrained weights of the model.
+    
+
+# ----- LightningModule -----
+class LightningModule(lightning.LightningModule, ModelMixin, abc.ABC):
     """The base class for all machine learning models.
     
-    Attributes:
-        arch: The model's architecture or family. Default: ``None`` mean it will
-            be `self.__class__.__name__`.
-        name: The model's name. Default: ``None`` mean it will be
-            `self.__class__.__name__`.
-        tasks: A list of tasks that the model can perform.
-        mltypes: A list of machine learning schemes that the model can perform.
-        model_dir: The model's directory. Default: ``None``.
-        zoo: A `dict` containing all pretrained weights of the model.
-        
     Args:
         root: The root directory of the model. It is used to save the model
             checkpoint during training: ``{root}/{fullname}``.
@@ -57,39 +60,8 @@ class Model(lightning.LightningModule, abc.ABC):
             Default: ``None``.
         debug: Debug mode. Default: ``False``.
         verbose: Verbosity. Default: ``True``.
-    
-    Example:
-        LOADING WEIGHTS
-
-        Case 01: Pre-define the weights file in `zoo` directory. Pre-define
-        the metadata in `zoo`. Then define `weights` as a key in
-        `zoo`.
-            >>> zoo = {
-            >>>     "imagenet": {
-            >>>         "url"        : "https://download.pytorch.org/models/densenet169-b2777c0a.pth",
-            >>>         "path"       : "vgg19-imagenet.pth",  # Locate in ``zoo`` directory
-            >>>         "num_classes": 1000,
-            >>>         "map": {}
-            >>>     },
-            >>> }
-            >>>
-            >>> model = Model(
-            >>>     weights="imagenet",
-            >>> )
-
-        Case 02: Define the full path to an ``.pt``, ``.pth``, or ``.ckpt`` file.
-            >>> model = Model(
-            >>>     weights="home/workspace/.../vgg19-imagenet.pth",
-            >>> )
     """
-    
-    arch     : str          = ""         # The model's architecture.
-    name     : str          = ""         # The model's name.
-    tasks    : list[Task]   = []         # A list of tasks that the model can perform.
-    mltypes  : list[MLType] = []         # A list of learning types that the model can perform.
-    model_dir: core.Path    = None
-    zoo      : dict         = box.Box()  # A dictionary containing all pretrained weights of the model.
-    
+
     def __init__(
         self,
         # Basic
@@ -748,7 +720,7 @@ class Model(lightning.LightningModule, abc.ABC):
         pass
     
 
-class ExtraModel(Model, abc.ABC):
+class ExtraModel(LightningModule, abc.ABC):
     """Wraps a third-party model for mon integration.
 
     Args:

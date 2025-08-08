@@ -1,8 +1,12 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 import torch
+
 
 def rgb2hsv_torch(rgb: torch.Tensor) -> torch.Tensor:
     cmax, cmax_idx = torch.max(rgb, dim=1, keepdim=True)
-    cmin = torch.min(rgb, dim=1, keepdim=True)[0]
+    cmin  = torch.min(rgb, dim=1, keepdim=True)[0]
     delta = cmax - cmin
     hsv_h = torch.empty_like(rgb[:, 0:1, :, :])
     cmax_idx[delta == 0] = 3
@@ -18,10 +22,10 @@ def rgb2hsv_torch(rgb: torch.Tensor) -> torch.Tensor:
 
 def hsv2rgb_torch(hsv: torch.Tensor) -> torch.Tensor:
     hsv_h, hsv_s, hsv_l = hsv[:, 0:1], hsv[:, 1:2], hsv[:, 2:3]
-    _c = hsv_l * hsv_s
-    _x = _c * (- torch.abs(hsv_h * 6. % 2. - 1) + 1.)
-    _m = hsv_l - _c
-    _o = torch.zeros_like(_c)
+    _c  = hsv_l * hsv_s
+    _x  = _c * (- torch.abs(hsv_h * 6. % 2. - 1) + 1.)
+    _m  = hsv_l - _c
+    _o  = torch.zeros_like(_c)
     idx = (hsv_h * 6.).type(torch.uint8)
     idx = (idx % 6).expand(-1, 3, -1, -1)
     rgb = torch.empty_like(hsv)

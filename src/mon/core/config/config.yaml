@@ -67,7 +67,7 @@ metrics: &metrics                                                               
   test : ~
 
 # Model-module (Note: I want to name this `model`, but it conflicts with the `model` key in the basic section)
-modelmodule:
+lightningmodule:
   name     : *model                                                             # Model name (e.g., resnet50).
   root     : *save_dir                                                          # Root directory of the current run.
   fullname : *fullname                                                          # Full name of the current run (e.g., resnet50_cifar10_01).

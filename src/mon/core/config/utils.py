@@ -76,7 +76,8 @@ def list_configs(
         config_dir = pathlib.Path(root) / "config"
         return [
             c for c in list(config_dir.files(recursive=True))
-            if f"{os.sep}excluded{os.sep}" not in str(c)
+            if (f"{os.sep}archive{os.sep}"  not in str(c)) and
+               (f"{os.sep}excluded{os.sep}" not in str(c))
         ]
     
     # List config files in project and model directories
@@ -173,13 +174,13 @@ def parse_config_file(
             return config_
         if project_root:
             config_dirs = [pathlib.Path(project_root / "config")] + \
-                          pathlib.Path(project_root / "config").subdirs(recursive=True)
+                           pathlib.Path(project_root / "config").subdirs(recursive=True)
             config_ = find_config_in_dirs(config, config_dirs)
             if config_:
                 return config_
         if model_root:
             config_dirs = [pathlib.Path(model_root / "config")] + \
-                          pathlib.Path(model_root / "config").subdirs(recursive=True)
+                           pathlib.Path(model_root / "config").subdirs(recursive=True)
             config_ = find_config_in_dirs(config, config_dirs)
             if config_:
                 return config_

@@ -1,9 +1,26 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+__all__ = [
+    "filter_up",
+    "get_coords",
+    "get_image",
+    "get_patches",
+    "get_v_component",
+    "interpolate_image",
+    "replace_v_component",
+]
+
+import os
+import sys
+
 import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from PIL import Image
 
+sys.path.append(os.path.abspath(os.path.dirname(__file__)))
 from filter import FastGuidedFilter
 
 

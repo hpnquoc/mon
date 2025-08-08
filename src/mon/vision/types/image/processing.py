@@ -26,8 +26,9 @@ __all__ = [
 ]
 
 import functools
-from typing import Any
 import math
+from typing import Union
+
 import numpy as np
 import torch
 
@@ -36,12 +37,12 @@ from mon.vision.types.image import utils
 
 # ----- Fusion -----
 def add_images_weighted(
-    image1: torch.Tensor | np.ndarray,
-    image2: torch.Tensor | np.ndarray,
+    image1: Union[torch.Tensor, np.ndarray],
+    image2: Union[torch.Tensor, np.ndarray],
     alpha : float,
     beta  : float,
     gamma : float = 0.0
-) -> torch.Tensor | np.ndarray:
+) -> Union[torch.Tensor, np.ndarray]:
     """Calculates the weighted sum of two image tensors.
 
     Args:
@@ -75,11 +76,11 @@ def add_images_weighted(
 
 
 def blend_images(
-    image1: torch.Tensor | np.ndarray,
-    image2: torch.Tensor | np.ndarray,
+    image1: Union[torch.Tensor, np.ndarray],
+    image2: Union[torch.Tensor, np.ndarray],
     alpha : float,
     gamma : float = 0.0
-) -> torch.Tensor | np.ndarray:
+) -> Union[torch.Tensor, np.ndarray]:
     """Blends two images using a weighted sum.
 
     Args:
@@ -95,7 +96,7 @@ def blend_images(
 
 
 # ----- Splitting -----
-def split_image(image: torch.Tensor | np.ndarray, n: int = 2) -> list[np.ndarray]:
+def split_image(image: Union[torch.Tensor, np.ndarray], n: int = 2) -> list[np.ndarray]:
     """Split an image into ``n`` equal parts.
 
     Args:
@@ -175,12 +176,12 @@ def split_image(image: torch.Tensor | np.ndarray, n: int = 2) -> list[np.ndarray
 
 # ----- Normalization -----
 def normalize_image_by_range(
-    image  : torch.Tensor | np.ndarray,
+    image  : Union[torch.Tensor, np.ndarray],
     min    : float = 0.0,
     max    : float = 255.0,
     new_min: float = 0.0,
     new_max: float = 1.0
-) -> torch.Tensor | np.ndarray:
+) -> Union[torch.Tensor, np.ndarray]:
     """Normalizes an image from range [min, max] to [new_min, new_max].
 
     Args:
@@ -229,7 +230,7 @@ denormalize_image = functools.partial(
 
 
 # ----- Shape Conversion -----
-def image_to_2d(image: torch.Tensor | np.ndarray) -> torch.Tensor | np.ndarray:
+def image_to_2d(image: Union[torch.Tensor, np.ndarray]) -> Union[torch.Tensor, np.ndarray]:
     """Converts a 2D, 3D, or 4D image(s) to 2D.
 
     Args:
@@ -349,7 +350,7 @@ def image_to_4d(
 
 
 # ----- Format Conversion -----
-def image_to_channel_first(image: torch.Tensor | np.ndarray) -> torch.Tensor | np.ndarray:
+def image_to_channel_first(image: Union[torch.Tensor, np.ndarray]) -> Union[torch.Tensor, np.ndarray]:
     """Converts an image to channel-first format.
 
     Args:
@@ -387,7 +388,7 @@ def image_to_channel_first(image: torch.Tensor | np.ndarray) -> torch.Tensor | n
     return image
 
 
-def image_to_channel_last(image: torch.Tensor | np.ndarray) -> torch.Tensor | np.ndarray:
+def image_to_channel_last(image: Union[torch.Tensor, np.ndarray]) -> Union[torch.Tensor, np.ndarray]:
     """Converts an image to channel-last format.
 
     Args:
@@ -425,7 +426,7 @@ def image_to_channel_last(image: torch.Tensor | np.ndarray) -> torch.Tensor | np
 
 
 # ----- Type Conversion -----
-def image_to_array(image: torch.Tensor | np.ndarray, denormalize: bool = False) -> np.ndarray:
+def image_to_array(image: Union[torch.Tensor, np.ndarray], denormalize: bool = False) -> np.ndarray:
     """Converts an image to a ``numpy.ndarray``.
     
     Args:
@@ -467,7 +468,7 @@ def image_to_array(image: torch.Tensor | np.ndarray, denormalize: bool = False) 
 
 
 def image_to_tensor(
-    image    : torch.Tensor | np.ndarray,
+    image    : Union[torch.Tensor, np.ndarray],
     normalize: bool         = False,
     device   : torch.device = None
 ) -> torch.Tensor:

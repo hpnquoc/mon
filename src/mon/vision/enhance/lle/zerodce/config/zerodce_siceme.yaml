@@ -45,10 +45,6 @@ min_batch_size: 1                                                               
 cfg: ~                                                                          # For overriding settings defined in this file.
 
 # ----- Modules -----
-# Network
-network: &network                                                               # Network architecture.
-  load_pretrain: False
-
 # Optimizer
 optimizer: &optimizer                                                           # Optimizer(s).
   lr          : 0.0001
