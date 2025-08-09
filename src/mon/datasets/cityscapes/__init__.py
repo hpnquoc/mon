@@ -7,6 +7,6 @@ References:
 	- https://www.cityscapes-dataset.com/
 """
 
-from mon.datasets.cityscapes.cityscapes import *
-from mon.datasets.cityscapes.cityscapes_foggy import *
-from mon.datasets.cityscapes.cityscapes_rain import *
+from .cityscapes import *
+from .cityscapes_foggy import *
+from .cityscapes_rain import *

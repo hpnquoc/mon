@@ -3,4 +3,4 @@
 
 """Implements datasets and datamodules for human face recognition."""
 
-from mon.datasets.face.widerface import *
+from .widerface import *

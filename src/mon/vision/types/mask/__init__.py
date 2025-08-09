@@ -3,5 +3,5 @@
 
 """Implements segmentation masks data types."""
 
-from mon.vision.types.mask.core import *
-from mon.vision.types.mask.processing import *
+from .core import *
+from .processing import *

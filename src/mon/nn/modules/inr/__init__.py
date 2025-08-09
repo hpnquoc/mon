@@ -3,13 +3,13 @@
 
 """Implements Implicit Neural Representations, layers, and networks."""
 
-from mon.nn.modules.inr.bit_inr import *
-from mon.nn.modules.inr.core import *
-from mon.nn.modules.inr.finer import *
-from mon.nn.modules.inr.gauss import *
-from mon.nn.modules.inr.inr_layer import *
-from mon.nn.modules.inr.ndlinear import *
-from mon.nn.modules.inr.pemlp import *
-from mon.nn.modules.inr.siren import *
-from mon.nn.modules.inr.sl2a import *
-from mon.nn.modules.inr.wire import *
+from .bit_inr import *
+from .core import *
+from .finer import *
+from .gauss import *
+from .inr_layer import *
+from .ndlinear import *
+from .pemlp import *
+from .siren import *
+from .sl2a import *
+from .wire import *

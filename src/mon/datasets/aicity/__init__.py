@@ -3,4 +3,4 @@
 
 """Implements datasets and datamodules for AI City challenges."""
 
-from mon.datasets.aicity.fisheye8k import *
+from .fisheye8k import *

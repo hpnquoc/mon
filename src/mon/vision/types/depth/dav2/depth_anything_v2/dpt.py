@@ -153,21 +153,19 @@ class DepthAnythingV2(nn.Module):
         self, 
         encoder      = 'vitl',
         features     = 256,
-        out_channels = [256  , 512, 1024, 1024],
+        out_channels = [256, 512, 1024, 1024],
         use_bn       = False,
         use_clstoken = False,
         device       = None,
     ):
         super(DepthAnythingV2, self).__init__()
         self.device = device
-
         self.intermediate_layer_idx = {
             'vits': [2, 5, 8, 11],
             'vitb': [2, 5, 8, 11], 
             'vitl': [4, 11, 17, 23], 
             'vitg': [9, 19, 29, 39]
         }
-
         self.encoder    = encoder
         self.pretrained = DINOv2(model_name=encoder)
         self.depth_head = DPTHead(self.pretrained.embed_dim, features, use_bn, out_channels=out_channels, use_clstoken=use_clstoken)

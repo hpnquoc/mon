@@ -3,9 +3,9 @@
 
 """Implements image data types."""
 
-from mon.vision.types.image.color import *
-from mon.vision.types.image.core import *
-from mon.vision.types.image.io import *
-from mon.vision.types.image.priors import *
-from mon.vision.types.image.processing import *
-from mon.vision.types.image.utils import *
+from .color import *
+from .core import *
+from .io import *
+from .priors import *
+from .processing import *
+from .utils import *

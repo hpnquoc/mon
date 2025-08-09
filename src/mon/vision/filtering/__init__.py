@@ -3,6 +3,6 @@
 
 """Provides linear/non-linear filtering for 2D images."""
 
-from mon.vision.filtering.box_filter import *
-from mon.vision.filtering.guided_filter import *
-from mon.vision.filtering.sobel_filter import *
+from .box_filter import *
+from .guided_filter import *
+from .sobel_filter import *

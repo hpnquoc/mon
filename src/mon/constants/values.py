@@ -341,15 +341,6 @@ EXTRA_MODELS   = {  # architecture/model (+ variant)
         },
     },
     # endregion
-    # region enhance/dehaze
-    "zid": {
-        "zid": {
-            "tasks"    : [Task.DEHAZE],
-            "mltypes"  : [MLType.ZERO_SHOT],
-            "model_dir": MON_DIR / "vision" / "enhance" / "dehaze" / "zid",
-        },
-    },
-    # endregion
     # region enhance/derain
     "esdnet_snn": {
         "esdnet_snn": {
@@ -397,44 +388,6 @@ EXTRA_MODELS   = {  # architecture/model (+ variant)
             "tasks"    : [Task.SEGMENT],
             "mltypes"  : [MLType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "segment" / "sam2",
-        },
-    },
-    # endregion
-    # region types/depth
-    "daac"    : {
-        "daac_vits": {
-            "tasks"    : [Task.DEPTH],
-            "mltypes"  : [MLType.ZERO_SHOT],
-            "model_dir": MON_DIR / "vision" / "types" / "depth" / "daac",
-        },
-    },
-    "dav2"    : {
-        "dav2_vitb": {
-            "tasks"    : [Task.DEPTH],
-            "mltypes"  : [MLType.SUPERVISED],
-            "model_dir": MON_DIR / "vision" / "types" / "depth" / "dav2",
-        },
-        "dav2_vits": {
-            "tasks"    : [Task.DEPTH],
-            "mltypes"  : [MLType.SUPERVISED],
-            "model_dir": MON_DIR / "vision" / "types" / "depth" / "dav2",
-        },
-        "dav2_vitl": {
-            "tasks"    : [Task.DEPTH],
-            "mltypes"  : [MLType.SUPERVISED],
-            "model_dir": MON_DIR / "vision" / "types" / "depth" / "dav2",
-        },
-        "dav2_vitg": {
-            "tasks"    : [Task.DEPTH],
-            "mltypes"  : [MLType.SUPERVISED],
-            "model_dir": MON_DIR / "vision" / "types" / "depth" / "dav2",
-        },
-    },
-    "depthpro": {
-        "depthpro": {
-            "tasks"    : [Task.DEPTH],
-            "mltypes"  : [MLType.SUPERVISED],
-            "model_dir": MON_DIR / "vision" / "types" / "depth" / "depthpro",
         },
     },
     # endregion

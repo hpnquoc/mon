@@ -3,7 +3,7 @@
 
 """Handles custom data types."""
 
-from mon.core.types.classes import *
-from mon.core.types.datamodule import *
-from mon.core.types.datapoint import *
-from mon.core.types.dataset import *
+from .classes import *
+from .datamodule import *
+from .datapoint import *
+from .dataset import *

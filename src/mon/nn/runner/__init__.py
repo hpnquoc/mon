@@ -3,4 +3,4 @@
 
 """Contains the runner module."""
 
-from mon.nn.runner.trainer import *
+from .trainer import *

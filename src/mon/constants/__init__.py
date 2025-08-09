@@ -9,5 +9,5 @@ Notes:
     - The only exception is the enums and factory constants.
 """
 
-from mon.constants.enums import *
-from mon.constants.values import *
+from .enums import *
+from .values import *

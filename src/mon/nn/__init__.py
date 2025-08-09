@@ -28,16 +28,16 @@ from torch.nn.parameter import (
 )
 
 # Import
-from mon.nn.callback import *
-from mon.nn.factory import *
-from mon.nn.logger import *
-from mon.nn.loss import *
-from mon.nn.lr_scheduler import *
-from mon.nn.metric import *
-from mon.nn.model import *
-from mon.nn.modules import *
-from mon.nn.modules import snn
-from mon.nn.optimizer import *
-from mon.nn.runner import *
-from mon.nn.strategy import *
-from mon.nn.utils import *
+from .callback import *
+from .factory import *
+from .logger import *
+from .loss import *
+from .lr_scheduler import *
+from .metric import *
+from .model import *
+from .modules import *
+from .modules import snn
+from .optimizer import *
+from .runner import *
+from .strategy import *
+from .utils import *

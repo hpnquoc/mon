@@ -3,4 +3,4 @@
 
 """Implements contour data types."""
 
-from mon.vision.types.contour.processing import *
+from .processing import *

@@ -3,5 +3,5 @@
 
 """Implements base class for deep learning models and utilities."""
 
-from mon.nn.model.base import *
-from mon.nn.model.utils import *
+from .base import *
+from .utils import *

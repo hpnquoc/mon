@@ -3,7 +3,7 @@
 
 """Implements video data types."""
 
-from mon.vision.types.video.core import *
-from mon.vision.types.video.io import *
-from mon.vision.types.video.processing import *
-from mon.vision.types.video.utils import *
+from .core import *
+from .io import *
+from .processing import *
+from .utils import *

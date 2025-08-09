@@ -3,14 +3,14 @@
 
 """Implements data types for vision tasks: image, video, pointcloud, etc."""
 
-from mon.vision.types.bbox.hbb import *
-from mon.vision.types.contour import *
-from mon.vision.types.depth import *
-from mon.vision.types.event import *
-from mon.vision.types.image import *
-from mon.vision.types.mask import *
-from mon.vision.types.thermal import *
-from mon.vision.types.video import *
+from .bbox.hbb import *
+from .contour import *
+from .depth import *
+from .event import *
+from .image import *
+from .mask import *
+from .thermal import *
+from .video import *
 
 # noinspection PyUnresolvedReferences
-from mon.vision.types.datasets import *
+from .datasets import *

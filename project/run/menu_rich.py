@@ -322,7 +322,7 @@ class RunmlCLI:
 
     def display_prompt(self):
         if self.index == 0:
-            # mon.clear_terminal()
+            mon.clear_terminal()
             mon.console.rule(f"[bold red]Input Prompts")
         else:
             mon.console.rule()

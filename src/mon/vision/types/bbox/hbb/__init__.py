@@ -3,7 +3,7 @@
 
 """Implements horizontal bounding box (HBB) data types."""
 
-from mon.vision.types.bbox.hbb.io import *
-from mon.vision.types.bbox.hbb.processing import *
-from mon.vision.types.bbox.hbb.utils import *
-from mon.vision.types.bbox.hbb.core import *
+from .io import *
+from .processing import *
+from .utils import *
+from .core import *

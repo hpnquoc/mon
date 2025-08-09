@@ -5,5 +5,9 @@
 models.
 """
 
-# from mon.vision.enhance.multitask.hinet_re import *
-# from mon.vision.enhance.multitask.zerorestore import *
+# import os
+# from mon.core.dynamic_import import import_all_submodules
+# import_all_submodules(__name__, os.path.dirname(__file__))
+
+# from .hinet_re import *
+# from .zerorestore import *

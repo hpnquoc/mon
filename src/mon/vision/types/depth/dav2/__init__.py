@@ -1,6 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Wraps DepthAnythingV2 models for easy loading and inference."""
+"""DAV2 model prediction pipeline for monocular depth estimation.
 
-# from mon.vision.types.depth.depth_anything_v2.depth_anything_v2 import *
+References:
+    - Paper: "Depth Anything V2. A More Capable Foundation Model for Monocular
+      Depth Estimation," NeurIPS 2024.
+    - https://github.com/DepthAnything/Depth-Anything-V2
+"""
+
+from .model import *

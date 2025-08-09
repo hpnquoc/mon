@@ -19,25 +19,25 @@ Design Principle:
 	- Each submodule should extend a module and keep the same name.
 """
 
-import mon.core.humps
-import mon.core.logging
-import mon.core.pathlib
-import mon.core.rich
-import mon.core.serializers
-import mon.core.thop
-from mon.core.config import *
-from mon.core.device import *
-from mon.core.dynamic_import import *
-from mon.core.factory import *
-from mon.core.humps import *
-from mon.core.logging import *
-from mon.core.pathlib import *
-from mon.core.rich import (
+from . import humps
+from . import logging
+from . import pathlib
+from . import rich
+from . import serializers
+from . import thop
+from .config import *
+from .device import *
+from .dynamic_import import *
+from .factory import *
+from .humps import *
+from .logging import *
+from .pathlib import *
+from .rich import (
     console, create_download_bar, create_progress_bar, error_console, print_dict,
     print_table,
 )
-from mon.core.serializers import *
-from mon.core.system import *
-from mon.core.timer import *
-from mon.core.type_extensions import *
-from mon.core.types import *
+from .serializers import *
+from .system import *
+from .timer import *
+from .type_extensions import *
+from .types import *

@@ -3,5 +3,5 @@
 
 """Implements linear layers for deep learning models."""
 
-from mon.nn.modules.linear.core import *
-from mon.nn.modules.linear.ndliner import *
+from .core import *
+from .ndliner import *

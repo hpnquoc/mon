@@ -3,6 +3,6 @@
 
 """Handles config files."""
 
-from mon.core.config.core import *
-from mon.core.config.parser import *
-from mon.core.config.utils import *
+from .core import *
+from .parser import *
+from .utils import *

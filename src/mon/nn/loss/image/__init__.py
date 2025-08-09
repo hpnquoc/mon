@@ -11,8 +11,8 @@ The categories align with common loss function roles in computer vision:
     - color.py     : color/illumination consistency (photometric accuracy).
 """
 
-from mon.nn.loss.image.color import *
-from mon.nn.loss.image.objective import *
-from mon.nn.loss.image.perceptual import *
-from mon.nn.loss.image.spatial import *
-from mon.nn.loss.image.structural import *
+from .color import *
+from .objective import *
+from .perceptual import *
+from .spatial import *
+from .structural import *

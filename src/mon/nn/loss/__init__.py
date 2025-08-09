@@ -3,6 +3,6 @@
 
 """Implements loss functions for neural network training."""
 
-from mon.nn.loss.base import *
-from mon.nn.loss.classification import *
-from mon.nn.loss.image import *
+from .base import *
+from .classification import *
+from .image import *

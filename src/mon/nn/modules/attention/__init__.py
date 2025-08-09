@@ -3,8 +3,8 @@
 
 """Implements attention layers."""
 
-from mon.nn.modules.attention.channel import *
-from mon.nn.modules.attention.galerkin import *
-from mon.nn.modules.attention.hybrid import *
-from mon.nn.modules.attention.parameter_free import *
-from mon.nn.modules.attention.spatial import *
+from .channel import *
+from .galerkin import *
+from .hybrid import *
+from .parameter_free import *
+from .spatial import *

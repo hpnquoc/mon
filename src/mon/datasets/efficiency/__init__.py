@@ -3,5 +3,5 @@
 
 """Implements Efficiency datasets."""
 
-from mon.datasets.efficiency.speed10 import *
-from mon.datasets.efficiency.speed1k import *
+from .speed10 import *
+from .speed1k import *

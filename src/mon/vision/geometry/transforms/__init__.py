@@ -3,8 +3,8 @@
 
 """Implements transformation functions."""
 
-from mon.vision.geometry.transforms.crop import *
-from mon.vision.geometry.transforms.fisheye import *
-from mon.vision.geometry.transforms.ifish import *
-from mon.vision.geometry.transforms.resize import *
-from mon.vision.geometry.transforms.sym_power_transform import *
+from .crop import *
+from .fisheye import *
+from .ifish import *
+from .resize import *
+from .sym_power_transform import *
