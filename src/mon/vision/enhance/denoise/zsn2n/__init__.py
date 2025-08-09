@@ -8,4 +8,4 @@ References:
     - Code: https://colab.research.google.com/drive/1i82nyizTdszyHkaHBuKPbWnTzao8HF9b?usp=sharing#scrollTo=Srf0GQTYrkxA
 """
 
-from mon.vision.enhance.denoise.zsn2n.model import *
+from .model import *

@@ -15,6 +15,7 @@ DehazeResult = namedtuple("DehazeResult", ['learned', 't', 'a'])
 
 
 class Dehaze(object):
+    
     def __init__(self, image_name, image, num_iter=500, clip=True, output_path="output/"):
         self.image_name = image_name
         self.image = image
@@ -179,6 +180,7 @@ def dehaze(image_name, image, num_iter=500, output_path="output/"):
     dh.finalize()
 
     save_image(image_name + "_original", np.clip(image, 0, 1), dh.output_path)
+
 
 if __name__ == "__main__":
     torch.cuda.set_device(0)

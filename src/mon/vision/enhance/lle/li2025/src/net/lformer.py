@@ -1,16 +1,17 @@
+import sys
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-import sys
+
 sys.path.append('/data2/lhq/PairLIE_edit')
-from pdb import set_trace as stx
 import numbers
 from einops import rearrange
-from dct_util import dct_2d,idct_2d,low_pass,low_pass_and_shuffle,high_pass
-from thop import profile
-import time
+from ..dct_util import dct_2d,idct_2d,low_pass,low_pass_and_shuffle,high_pass
 
 operation_seed_counter = 0
+
+
 def get_generator():
     global operation_seed_counter
     operation_seed_counter += 1
@@ -18,7 +19,9 @@ def get_generator():
     g_cuda_generator.manual_seed(operation_seed_counter)
     return g_cuda_generator
 
+
 class AugmentNoise(object):
+    
     def __init__(self, style):
         #print(style)
         if style.startswith('gauss'):
@@ -70,13 +73,17 @@ class AugmentNoise(object):
 ##########################################################################
 ## Layer Norm
 
+
 def to_3d(x):
     return rearrange(x, 'b c h w -> b (h w) c')
+
 
 def to_4d(x,h,w):
     return rearrange(x, 'b (h w) c -> b c h w',h=h,w=w)
 
+
 class BiasFree_LayerNorm(nn.Module):
+    
     def __init__(self, normalized_shape):
         super(BiasFree_LayerNorm, self).__init__()
         if isinstance(normalized_shape, numbers.Integral):
@@ -92,7 +99,9 @@ class BiasFree_LayerNorm(nn.Module):
         sigma = x.var(-1, keepdim=True, unbiased=False)
         return x / torch.sqrt(sigma+1e-5) * self.weight
 
+
 class WithBias_LayerNorm(nn.Module):
+    
     def __init__(self, normalized_shape):
         super(WithBias_LayerNorm, self).__init__()
         if isinstance(normalized_shape, numbers.Integral):
@@ -112,6 +121,7 @@ class WithBias_LayerNorm(nn.Module):
 
 
 class LayerNorm(nn.Module):
+    
     def __init__(self, dim, LayerNorm_type):
         super(LayerNorm, self).__init__()
         if LayerNorm_type =='BiasFree':
@@ -124,10 +134,10 @@ class LayerNorm(nn.Module):
         return to_4d(self.body(to_3d(x)), h, w)
 
 
-
 ##########################################################################
 ## Gated-Dconv Feed-Forward Network (GDFN)
 class FeedForward(nn.Module):
+    
     def __init__(self, dim, ffn_expansion_factor, bias):
         super(FeedForward, self).__init__()
 
@@ -147,10 +157,10 @@ class FeedForward(nn.Module):
         return x
 
 
-
 ##########################################################################
 ## Multi-DConv Head Transposed Self-Attention (MDTA)
 class Attention(nn.Module):
+    
     def __init__(self, dim, num_heads, bias):
         super(Attention, self).__init__()
         self.num_heads = num_heads
@@ -159,8 +169,6 @@ class Attention(nn.Module):
         self.qkv = nn.Conv2d(dim, dim*3, kernel_size=1, bias=bias)
         self.qkv_dwconv = nn.Conv2d(dim*3, dim*3, kernel_size=3, stride=1, padding=1, groups=dim*3, bias=bias)
         self.project_out = nn.Conv2d(dim, dim, kernel_size=1, bias=bias)
-        
-
 
     def forward(self, x):
         b,c,h,w = x.shape
@@ -185,7 +193,9 @@ class Attention(nn.Module):
         out = self.project_out(out)
         return out
     
+    
 class crossAttention(nn.Module):
+    
     def __init__(self, dim, num_heads, bias):
         super(crossAttention, self).__init__()
         self.num_heads = num_heads
@@ -197,8 +207,6 @@ class crossAttention(nn.Module):
         self.q = nn.Conv2d(dim, dim, kernel_size=1, bias=bias)
         self.q_dwconv = nn.Conv2d(dim, dim, kernel_size=3, stride=1, padding=1, groups=dim, bias=bias)
         self.project_out = nn.Conv2d(dim, dim, kernel_size=1, bias=bias)
-        
-
 
     def forward(self, x, y):
         b,c,h,w = x.shape
@@ -227,9 +235,9 @@ class crossAttention(nn.Module):
         return out
 
 
-
 ##########################################################################
 class TransformerBlock(nn.Module):
+    
     def __init__(self, dim, num_heads, ffn_expansion_factor, bias, LayerNorm_type):
         super(TransformerBlock, self).__init__()
 
@@ -246,7 +254,9 @@ class TransformerBlock(nn.Module):
 
         return x
     
+    
 class crossTransformerBlock(nn.Module):
+    
     def __init__(self, dim, num_heads, ffn_expansion_factor, bias, LayerNorm_type):
         super(crossTransformerBlock, self).__init__()
 
@@ -264,9 +274,12 @@ class crossTransformerBlock(nn.Module):
         x = x*self.skip_scale2 + self.ffn(self.norm2(x))
 
         return [x,y]
+    
+    
 ##########################################################################
 ## Overlapped image patch embedding with 3x3 Conv
 class OverlapPatchEmbed(nn.Module):
+    
     def __init__(self, in_c=3, embed_dim=48, bias=False):
         super(OverlapPatchEmbed, self).__init__()
 
@@ -277,9 +290,10 @@ class OverlapPatchEmbed(nn.Module):
 
         return x
     
+    
 class Illumination_Estimator(nn.Module):
-    def __init__(
-            self, n_fea_middle, n_fea_in=4, n_fea_out=3):  #__init__部分是内部属性，而forward的输入才是外部输入
+    
+    def __init__(self, n_fea_middle, n_fea_in=4, n_fea_out=3):  #__init__部分是内部属性，而forward的输入才是外部输入
         super(Illumination_Estimator, self).__init__()
 
         self.conv1 = nn.Conv2d(n_fea_in, n_fea_middle, kernel_size=1, bias=True)
@@ -305,7 +319,9 @@ class Illumination_Estimator(nn.Module):
         illu_map = self.conv2(illu_fea)
         return illu_fea, illu_map
 
+
 class F_light_prior_estimater(nn.Module):
+    
     def __init__(
             self, n_fea_middle, n_fea_in=16, n_fea_out=3):  #__init__部分是内部属性，而forward的输入才是外部输入
         super(F_light_prior_estimater, self).__init__()
@@ -345,7 +361,9 @@ class F_light_prior_estimater(nn.Module):
         illu_map = self.conv2(illu_fea)
         return illu_fea, illu_map
 
+
 class L_net(nn.Module):
+    
     def __init__(self, num=48, num_heads = 1, num_blocks = 2,inp_channels = 3, out_channels = 1, ffn_expansion_factor = 2.66, bias = False, LayerNorm_type = 'WithBias'):
         super(L_net, self).__init__()
         self.patch_embed = OverlapPatchEmbed(inp_channels, num)
@@ -361,6 +379,7 @@ class L_net(nn.Module):
 
 
 class R_net(nn.Module):
+    
     def __init__(self, num=64, num_heads = 1, num_blocks = 2,inp_channels = 3, out_channels = 3, ffn_expansion_factor = 2.66, bias = False, LayerNorm_type = 'WithBias'):
         super(R_net, self).__init__()
 
@@ -368,7 +387,6 @@ class R_net(nn.Module):
         self.encoder = nn.Sequential(*[crossTransformerBlock(dim=num, num_heads=num_heads, ffn_expansion_factor=ffn_expansion_factor, bias=bias, LayerNorm_type=LayerNorm_type) for i in range(num_blocks)])
         self.output = nn.Conv2d(num, out_channels, kernel_size=3, stride=1, padding=1, bias=bias)
     
-
     def forward(self, input, fea):
         x = self.patch_embed(input)
         x,_ = self.encoder([x,fea])
@@ -377,13 +395,14 @@ class R_net(nn.Module):
         return torch.sigmoid(out) + input
         #return torch.sigmoid(out)
 
+
 class N_net(nn.Module):
+    
     def __init__(self, num=64, num_heads = 1, num_blocks = 2,inp_channels = 3, out_channels = 3, ffn_expansion_factor = 2.66, bias = False, LayerNorm_type = 'WithBias'):
         super(N_net, self).__init__()
         self.patch_embed = OverlapPatchEmbed(inp_channels, num)
         self.encoder = nn.Sequential(*[TransformerBlock(dim=num, num_heads=num_heads, ffn_expansion_factor=ffn_expansion_factor, bias=bias, LayerNorm_type=LayerNorm_type) for i in range(num_blocks)])
         self.output = nn.Conv2d(num, out_channels, kernel_size=3, stride=1, padding=1, bias=bias)
-    
 
     def forward(self, input):
         x = self.patch_embed(input)
@@ -392,7 +411,9 @@ class N_net(nn.Module):
         return torch.sigmoid(out) + input
         #return torch.sigmoid(out)
 
+
 class L_enhance_net(nn.Module):
+    
     def __init__(self, in_channel = 1, num = 32, num_heads = 1, num_blocks = 2, ffn_expansion_factor = 2.66, bias = False, LayerNorm_type = 'WithBias'):
         super(L_enhance_net, self).__init__()
         self.patch_embed = OverlapPatchEmbed(in_channel, num)

@@ -359,68 +359,6 @@ EXTRA_MODELS   = {  # architecture/model (+ variant)
         },
     },
     # endregion
-    # region enhance/multitask
-    "airnet"     : {
-        "airnet": {
-            "tasks"    : [Task.DENOISE, Task.DERAIN, Task.DEHAZE],
-            "mltypes"  : [MLType.SUPERVISED],
-            "model_dir": MON_DIR / "vision" / "enhance" / "multitask" / "airnet",
-        },
-    },
-    "darkir"     : {
-        "darkir_l": {
-            "tasks"    : [Task.DEBLUR, Task.DENOISE, Task.LLE],
-            "mltypes"  : [MLType.SUPERVISED],
-            "model_dir": MON_DIR / "vision" / "enhance" / "multitask" / "darkir",
-        },
-        "darkir_m": {
-            "tasks"    : [Task.DEBLUR, Task.DENOISE, Task.LLE],
-            "mltypes"  : [MLType.SUPERVISED],
-            "model_dir": MON_DIR / "vision" / "enhance" / "multitask" / "darkir",
-        },
-    },
-    "fourierdiff": {
-        "fourierdiff": {
-            "tasks"    : [Task.DEBLUR, Task.LLE],
-            "mltypes"  : [MLType.ZERO_SHOT],
-            "model_dir": MON_DIR / "vision" / "enhance" / "multitask" / "fourierdiff",
-        },
-    },
-    "restormer"  : {
-        "restormer": {
-            "tasks"    : [Task.DEBLUR, Task.DENOISE, Task.DERAIN, Task.DESNOW, Task.LLE],
-            "mltypes"  : [MLType.SUPERVISED],
-            "model_dir": MON_DIR / "vision" / "enhance" / "multitask" / "restormer",
-        },
-    },
-    # endregion
-    # region enhance/retouch
-    "neurop": {
-        "neurop": {
-            "tasks"    : [Task.RETOUCH],
-            "mltypes"  : [MLType.SUPERVISED],
-            "model_dir": MON_DIR / "vision" / "enhance" / "retouch" / "neurop",
-        },
-    },
-    # endregion
-    # region enhance/rr
-    "rdnet": {
-        "rdnet": {
-            "tasks"    : [Task.RR],
-            "mltypes"  : [MLType.SUPERVISED],
-            "model_dir": MON_DIR / "vision" / "enhance" / "rr" / "rdnet",
-        },
-    },
-    # endregion
-    # region enhance/sr
-    "sronet": {
-        "sronet": {
-            "tasks"    : [Task.SR],
-            "mltypes"  : [MLType.SUPERVISED],
-            "model_dir": MON_DIR / "vision" / "enhance" / "sr" / "sronet",
-        },
-    },
-    # endregion
     # region segment
     "sam" : {
         "sam_vit_b": {
