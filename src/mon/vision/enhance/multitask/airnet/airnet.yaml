@@ -1,10 +1,10 @@
 name: airnet
 channels:
   - pytorch
-  - https://mirrors.ustc.edu.cn/anaconda/pkgs/main
-  - https://mirrors.ustc.edu.cn/anaconda/pkgs/main/
-  - https://mirrors.ustc.edu.cn/anaconda/pkgs/free/
-  - https://mirrors.ustc.edu.cn/anaconda/cloud/conda-forge/
+  - Code: https://mirrors.ustc.edu.cn/anaconda/pkgs/main
+  - Code: https://mirrors.ustc.edu.cn/anaconda/pkgs/main/
+  - Code: https://mirrors.ustc.edu.cn/anaconda/pkgs/free/
+  - Code: https://mirrors.ustc.edu.cn/anaconda/cloud/conda-forge/
   - defaults
 dependencies:
   - _libgcc_mutex=0.1=main

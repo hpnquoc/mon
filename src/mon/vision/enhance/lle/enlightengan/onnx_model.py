@@ -1,6 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+# https://github.com/arsenyinfo/EnlightenGAN-inference
+# pip install onnx-tool
+# https://pypi.org/project/onnx-tool/0.1.7/
+
 import os
 from typing import Union
 
@@ -10,7 +14,6 @@ from onnxruntime import InferenceSession
 import mon
 from mon.constants import ZOO_DIR
 
-console      = mon.console
 current_file = mon.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
@@ -30,9 +33,6 @@ class EnlightenOnnxModel:
             model or weights or str(ZOO_DIR / "vision/enhance/lle/enlightengan/enlightengan.onnx"),
             providers=["AzureExecutionProvider", "CPUExecutionProvider"]
         )
-
-    def __repr__(self):
-        return f"<EnlightenGAN OnnxModel {id(self)}>"
 
     def _pad(self, img):
         h, w, _    = img.shape

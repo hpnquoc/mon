@@ -5,7 +5,7 @@
 Perturbation of Koschmieder's Model," CVPR 2021.
 
 References:
-	- https://github.com/aupendu/zero-restore
+	- Code: https://github.com/aupendu/zero-restore
 """
 
 from mon.vision.enhance.multitask.zerorestore.zerorestore_dehaze import *

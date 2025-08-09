@@ -1,61 +1,85 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import argparse
+"""RetinexNet model prediction pipeline for low-light image enhancement.
+
+References:
+    - Paper: "Deep Retinex Decomposition for Low-Light Enhancement," BMCV 2018.
+    - Code: https://github.com/aasharma90/RetinexNet_PyTorch
+"""
+
 import os
-import time
+import sys
+
+import box
 
 import mon
-from model import RetinexNet
-from mon import RUN_DIR, ZOO_DIR
 
-console = mon.console
+sys.path.append(os.path.abspath(os.path.dirname(__file__)))
+from model import *
+
+current_file = mon.Path(__file__).absolute()
+current_dir  = current_file.parents[0]
 
 
-def predict(args):
-    args.input_dir  = mon.Path(args.input_dir)
-    args.output_dir = mon.Path(args.output_dir)
-    args.output_dir.mkdir(parents=True, exist_ok=True)
+# ----- Predict -----
+def predict(args: dict | box.Box) -> str:
+    # Start
+    mon.print_run_summary(args)
 
-    console.log(f"Data: {args.input_dir}")
+    # Device
+    device = mon.set_device(args.device)
 
-    if args.gpu != "-1":
-        # Create directories for saving the results
-        if not os.path.exists(args.output_dir):
-            os.makedirs(args.output_dir)
-        # Setup the CUDA env
-        os.environ["CUDA_VISIBLE_DEVICES"] = args.gpu
-
-        # Create the model
-        model = RetinexNet(args.image_size, args.benchmark).cuda()
-    else:
-        # CPU mode not supported at the moment!
-        raise NotImplementedError
-
-    image_paths = list(args.input_dir.rglob("*"))
-    image_paths = [path for path in image_paths if path.is_image_file()]
-    image_paths.sort()
-    # print('Number of evaluation images: %d' % len(test_low_data_names))
+    # Seed
+    mon.set_random_seed(args.seed)
     
-    start_time = time.time()
-    model.predict(image_paths, res_dir=args.output_dir, ckpt_dir=args.weights)
-    run_time   = (time.time() - start_time)
-    avg_time   = float(run_time / len(image_paths))
-    console.log(f"Average time: {avg_time}")
+    # Data I/O
+    data_name, data_loader = mon.parse_data_loader(args.data, args.root, False, verbose=False)
+
+    # Model
+    model = RetinexNet(args.imgsz, args.benchmark)
+    model = model.to(device)
+    
+    # Predict
+    timers = mon.TimeProfiler()
+    timers.total.tick()
+    with mon.create_progress_bar() as pbar:
+        for i, datapoint in pbar.track(
+            sequence    = enumerate(data_loader),
+            total       = len(data_loader),
+            description = f"[bright_yellow]Listing images",
+        ):
+            # Preprocess
+            timers.preprocess.tick()
+            path = mon.Path(datapoint["meta"]["path"])
+            timers.preprocess.tock()
+
+            out_dir = mon.parse_output_dir(args.save_dir, data_name, mon.SAVE_IMAGE_DIR, path, args.keep_subdirs, args.save_nearby)
+            # out_dir = out_dir / mon.SAVE_IMAGE_DIR
+            out_dir.mkdir(parents=True, exist_ok=True)
+
+            # Infer
+            timers.infer.tick()
+            model.predict(
+                [path],
+                res_dir  = str(out_dir),
+                ckpt_dir = str(args.weights),
+                imgsz    = args.imgsz,
+                resize   = args.resize
+            )
+            timers.infer.tock()
+    timers.total.tock()
+
+    # Finish
+    timers.print()
+    return str(args.save_dir)
 
 
-def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--input-dir",  type=str, default="./data/test/low/", help="directory storing the test data")
-    parser.add_argument("--output-dir", type=str, default=RUN_DIR / "predict/vision/enhance/lle/retinexnet", help="directory for saving the results")
-    parser.add_argument("--weights",    type=str, default=ZOO_DIR / "vision/enhance/lle/retinexnet", help="directory for checkpoints")
-    parser.add_argument("--gpu",        type=str, default="0", help="GPU ID (-1 for CPU)")
-    parser.add_argument("--image-size", type=int, default=512)
-    parser.add_argument("--benchmark",  action="store_true")
-    args = parser.parse_args()
-    return args
+# ----- Main -----
+def main() -> str:
+    args = mon.parse_predict_args(model_root=current_dir)
+    predict(args)
 
 
 if __name__ == "__main__":
-    args = parse_args()
-    predict(args)
+    main()

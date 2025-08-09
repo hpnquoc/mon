@@ -5,7 +5,7 @@
 Low-light Image Enhancement," IEEE TPAMI 2025.
 
 References:
-    - https://github.com/AndersonYong/URetinex-Net-PLUS
+    - Code: https://github.com/AndersonYong/URetinex-Net-PLUS
 """
 
 import argparse

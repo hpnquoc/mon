@@ -1,11 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Implements the paper: "A Probabilistic Method for Image Enhancement With Simultaneous
-Illumination and Reflectance Estimation," IEEE TIP 2015.
+"""PIE model prediction pipeline for low-light image enhancement.
 
 References:
-    - https://github.com/DavidQiuChao/PIE
+    - Paper: "A Probabilistic Method for Image Enhancement With Simultaneous
+      Illumination and Reflectance Estimation," IEEE TIP 2015.
+    - Code: https://github.com/DavidQiuChao/PIE
 """
 
 import os

@@ -5,7 +5,7 @@
 Restoration," CVPRW 2021.
 
 References:
-    - https://github.com/megvii-model/HINet
+    - Code: https://github.com/megvii-model/HINet
 """
 
 __all__ = [
@@ -206,7 +206,7 @@ class HINet_RE(base.ImageEnhancementModel):
             Default is ``4``.
         
     References:
-        - https://github.com/megvii-model/HINet
+        - Code: https://github.com/megvii-model/HINet
     """
     
     arch     : str          = "hinet"

@@ -5,7 +5,7 @@
 Perturbation of Koschmieder's Model," CVPR 2021.
 
 References:
-	- https://github.com/aupendu/zero-restore
+	- Code: https://github.com/aupendu/zero-restore
 """
 
 __all__ = [
@@ -182,7 +182,7 @@ class ZeroRestoreDehaze(base.ImageEnhancementModel):
     """Zero-Restore model for image dehazing.
     
     References:
-	    - https://github.com/aupendu/zero-restore
+	    - Code: https://github.com/aupendu/zero-restore
     """
     
     arch     : str          = "zerorestore"

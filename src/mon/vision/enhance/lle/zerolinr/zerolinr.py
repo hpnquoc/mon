@@ -179,8 +179,8 @@ class INF1_P(nn.Module):
     i.e., f: (p) -> r.
     
     References:
-        - https://github.com/lly-louis/INF
-        - https://github.com/ctom2/colie
+        - Code: https://github.com/lly-louis/INF
+        - Code: https://github.com/ctom2/colie
     """
     
     def __init__(
@@ -241,8 +241,8 @@ class INF1_V(nn.Module):
     i.e., f: (v) -> r.
     
     References:
-        - https://github.com/lly-louis/INF
-        - https://github.com/ctom2/colie
+        - Code: https://github.com/lly-louis/INF
+        - Code: https://github.com/ctom2/colie
     """
     
     def __init__(
@@ -305,8 +305,8 @@ class INF2(nn.Module):
     i.e., f: (p,v) -> r.
     
     References:
-        - https://github.com/lly-louis/INF
-        - https://github.com/ctom2/colie
+        - Code: https://github.com/lly-louis/INF
+        - Code: https://github.com/ctom2/colie
     """
     
     def __init__(
@@ -380,8 +380,8 @@ class INF4(nn.Module):
     i.e., f: (p,v,d,e) -> r.
     
     References:
-        - https://github.com/lly-louis/INF
-        - https://github.com/ctom2/colie
+        - Code: https://github.com/lly-louis/INF
+        - Code: https://github.com/ctom2/colie
     """
     
     def __init__(

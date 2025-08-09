@@ -5,7 +5,7 @@
 Removal," CVPR 2025.
 
 References:
-    - https://github.com/lime-j/RDNet
+    - Code: https://github.com/lime-j/RDNet
 """
 
 import box

@@ -5,7 +5,7 @@
 Low-light-Image-Enhancement," CVPR 2022.
 
 References:
-    - https://github.com/AndersonYong/URetinex-Net
+    - Code: https://github.com/AndersonYong/URetinex-Net
 """
 
 import time

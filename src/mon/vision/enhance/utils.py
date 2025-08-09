@@ -19,7 +19,7 @@ class PseudoGTGenerator:
     image in the previous epoch.
     
     References:
-        - https://github.com/VinAIResearch/PSENet-Image-Enhancement/blob/main/source/framework.py
+        - Code: https://github.com/VinAIResearch/PSENet-Image-Enhancement/blob/main/source/framework.py
     """
     
     def __init__(

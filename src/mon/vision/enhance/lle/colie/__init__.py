@@ -1,11 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Implements the paper: "Fast Context-Based Low-Light Image Enhancement via Neural
-Implicit Representations," ECCV 2024.
+"""CoLIE model for low-light image enhancement.
 
 References:
-    - https://github.com/ctom2/colie
+    - Paper: "Fast Context-Based Low-Light Image Enhancement via Neural Implicit
+      Representations," ECCV 2024.
+    - Code: https://github.com/ctom2/colie
 """
 
-from mon.vision.enhance.lle.colie.model import *
+from .model import *

@@ -1,17 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Implements low-light image enhancement algorithms.
+"""Implements low-light image enhancement algorithms."""
 
-References:
-	- https://github.com/dawnlh/awesome-low-light-image-enhancement
-"""
+import os
 
-from mon.vision.enhance.lle.colie import *
-from mon.vision.enhance.lle.gcenet import *
-from mon.vision.enhance.lle.pie import *
-from mon.vision.enhance.lle.zerodce import *
-from mon.vision.enhance.lle.zerodcepp import *
-from mon.vision.enhance.lle.zerodidce import *
-from mon.vision.enhance.lle.zerolinr import *
-from mon.vision.enhance.lle.zinf import *
+from mon.core.dynamic_import import import_all_submodules
+
+# Call the reusable function to import all submodules
+import_all_submodules(__name__, os.path.dirname(__file__))

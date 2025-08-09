@@ -26,7 +26,7 @@ class FINERLayer(torch.nn.Module):
         scale_req_grad: Scale requires gradient if ``True``. Default is ``False``.
 
     References:
-        - https://github.com/liuzhen0212/FINER/blob/main/models.py
+        - Code: https://github.com/liuzhen0212/FINER/blob/main/models.py
     """
 
     def __init__(

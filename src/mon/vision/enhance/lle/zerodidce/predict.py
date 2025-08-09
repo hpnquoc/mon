@@ -1,18 +1,17 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Implements the paper: "Rethinking Zero-DCE for Low-Light Image Enhancement,"
-Neural Processing Letters 2024.
+"""Zero-DiDCE model prediction pipeline for low-light image enhancement.
 
 References:
-    - https://github.com/Wenhui-Luo/Zero-DiDCE
+    - Paper: "Rethinking Zero-DCE for Low-Light Image Enhancement,"
+      Neural Processing Letters 2024.
+    - Code: https://github.com/Wenhui-Luo/Zero-DiDCE
 """
 
 import os
 import sys
 
-import box
-import torch
 import torch.optim
 
 import mon

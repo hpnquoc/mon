@@ -1,11 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Implements the paper: "Zero-Reference Deep Curve Estimation for Low-Light Image
-Enhancement," CVPR 2020.
+"""Zero-DCE model prediction pipeline for low-light image enhancement.
 
 References:
-    - https://github.com/Li-Chongyi/Zero-DCE
+    - Paper: "Zero-Reference Deep Curve Estimation for Low-Light Image
+      Enhancement," CVPR 2020.
+    - Code: https://github.com/Li-Chongyi/Zero-DCE
 """
 
 import os

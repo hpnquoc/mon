@@ -1,13 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Implements the paper: "Learning to Enhance Low-Light Image via Zero-Reference Deep
-Curve Estimation," IEEE TPAMI 2022.
+"""Zero-DCE++ model training pipeline for low-light image enhancement.
 
 References:
-    - https://github.com/Li-Chongyi/Zero-DCE_extension
+    - Paper: "Learning to Enhance Low-Light Image via Zero-Reference Deep Curve
+      Estimation," IEEE TPAMI 2022.
+    - Code: https://github.com/Li-Chongyi/Zero-DCE_extension
 """
-
 
 import os
 import sys

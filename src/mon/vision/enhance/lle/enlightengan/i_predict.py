@@ -6,12 +6,11 @@
 # https://pypi.org/project/onnx-tool/0.1.7/
 
 import box
-import cv2
+import onnx_tool
 import torch
 
 import mon
 from onnx_model import EnlightenOnnxModel
-import onnx_tool
 
 current_file = mon.Path(__file__).absolute()
 current_dir  = current_file.parents[0]

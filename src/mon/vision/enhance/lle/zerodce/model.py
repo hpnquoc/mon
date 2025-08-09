@@ -1,11 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Implements the paper: "Zero-Reference Deep Curve Estimation for Low-Light Image
-Enhancement," CVPR 2020.
+"""Zero-DCE model for low-light image enhancement.
 
 References:
-    - https://github.com/Li-Chongyi/Zero-DCE
+    - Paper: "Zero-Reference Deep Curve Estimation for Low-Light Image
+      Enhancement," CVPR 2020.
+    - Code: https://github.com/Li-Chongyi/Zero-DCE
 """
 
 __all__ = [
@@ -26,11 +27,12 @@ current_dir  = current_file.parents[0]
 
 @MODELS.register(name="zerodce", arch="zerodce")
 class ZeroDCE(nn.Module, nn.ModelMixin):
-    """Implements the paper: "Zero-Reference Deep Curve Estimation for Low-Light
-    Image Enhancement," CVPR 2020.
+    """Zero-DCE model for low-light image enhancement.
     
     References:
-        - https://github.com/Li-Chongyi/Zero-DCE
+        - Paper: "Zero-Reference Deep Curve Estimation for Low-Light Image
+          Enhancement," CVPR 2020.
+        - Code: https://github.com/Li-Chongyi/Zero-DCE
     """
     
     arch     : str          = "zerodce"

@@ -5,7 +5,7 @@
 Restoration," CVPRW 2021.
 
 References:
-    - https://github.com/megvii-model/HINet
+    - Code: https://github.com/megvii-model/HINet
 """
 
 from mon.vision.enhance.multitask.hinet_re.hinet_re import *

@@ -4,7 +4,7 @@
 """Implements the paper: "Super-Resolution Neural Operator," CVPR 2023.
 
 References:
-    - https://github.com/2y7c3/Super-Resolution-Neural-Operator
+    - Code: https://github.com/2y7c3/Super-Resolution-Neural-Operator
 """
 
 import box

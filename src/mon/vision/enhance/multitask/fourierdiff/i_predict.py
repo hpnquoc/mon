@@ -5,7 +5,7 @@
 Low-Light Enhancement and Deblurring," CVPR 2024.
 
 References:
-    - https://github.com/aipixel/FourierDiff
+    - Code: https://github.com/aipixel/FourierDiff
 """
 
 import argparse

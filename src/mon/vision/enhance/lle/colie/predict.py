@@ -1,11 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Implements the paper: "Fast Context-Based Low-Light Image Enhancement via Neural
-Implicit Representations," ECCV 2024.
+"""CoLIE model prediction pipeline for low-light image enhancement.
 
 References:
-    - https://github.com/ctom2/colie
+    - Paper: "Fast Context-Based Low-Light Image Enhancement via Neural Implicit
+      Representations," ECCV 2024.
+    - Code: https://github.com/ctom2/colie
 """
 
 import os
@@ -41,10 +42,10 @@ def compute_efficiency_score(model: torch.nn.Module, imgsz: int = 512) -> tuple[
     coords  = torch.rand(imgsz, imgsz,  2).to(mon.get_model_device(model))
     
     flops, params = thop.profile(model, inputs=(patches, coords,), verbose=False)
-    flops   = FlopCountAnalysis(model, input).total() if flops == 0 else flops
-    params  = model.params           if hasattr(model, "params") and params == 0 else params
-    params  = parameter_count(model) if hasattr(model, "params") else params
-    params  = sum(params.values())   if isinstance(params, dict) else params
+    flops         = FlopCountAnalysis(model, input).total() if flops == 0 else flops
+    params        = model.params           if hasattr(model, "params") and params == 0 else params
+    params        = parameter_count(model) if hasattr(model, "params") else params
+    params        = sum(params.values())   if isinstance(params, dict) else params
 
     return flops, params
 
@@ -57,33 +58,33 @@ def benchmark(model: torch.nn.Module):
 
 # ----- Predict -----
 def predict(args: dict | box.Box) -> str:
-    window     = args.network.window
-    hidden_dim = args.network.hidden_dim
-    num_layers = args.network.num_layers
-    add_layer  = args.network.add_layer
-    L          = args.network.L
-    iters      = args.epochs
+    window_size = args.network.window_size
+    hidden_dim  = args.network.hidden_dim
+    num_layers  = args.network.num_layers
+    add_layer   = args.network.add_layer
+    iters       = args.network.iters
+    L           = args.network.L
     
     # Start
     mon.print_run_summary(args)
 
     # Device
     device = mon.set_device(args.device)
-
+    
     # Seed
     mon.set_random_seed(args.seed)
-
+    
     # Data I/O
     data_name, data_loader = mon.parse_data_loader(args.data, args.root, True, verbose=False)
     
     # Model
     model = CoLIE(
-        window     = window,
-        hidden_dim = hidden_dim,
-        num_layers = num_layers,
-        add_layer  = add_layer,
-        iters      = iters,
-        L          = L,
+        window_size = window_size,
+        hidden_dim  = hidden_dim,
+        num_layers  = num_layers,
+        add_layer   = add_layer,
+        iters       = iters,
+        L           = L,
     )
     model = model.to(device)
     

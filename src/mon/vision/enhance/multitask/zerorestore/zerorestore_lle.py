@@ -5,7 +5,7 @@
 Perturbation of Koschmieder's Model," CVPR 2021.
 
 References:
-	- https://github.com/aupendu/zero-restore
+	- Code: https://github.com/aupendu/zero-restore
 """
 
 __all__ = [
@@ -41,7 +41,7 @@ class TotalVariationLoss(nn.Loss):
     aggressive and sharp changes between neighboring pixels.
     
     References:
-        - https://github.com/Li-Chongyi/Zero-DCE/blob/master/Zero-DCE_code/Myloss.py
+        - Code: https://github.com/Li-Chongyi/Zero-DCE/blob/master/Zero-DCE_code/Myloss.py
     """
     
     def __init__(self, reduction: Literal["none", "mean", "sum"] = "mean"):
@@ -209,7 +209,7 @@ class ZeroRestoreLLIE(base.ImageEnhancementModel):
     """Zero-Restore model for low-light image enhancement.
     
     References:
-	    - https://github.com/aupendu/zero-restore
+	    - Code: https://github.com/aupendu/zero-restore
     """
     
     arch     : str          = "zerorestore"

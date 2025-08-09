@@ -5,7 +5,7 @@
 Enhancement for Low-Light Images," CVPR 2024.
 
 References:
-    - https://github.com/Doyle59217/ZeroIG
+    - Code: https://github.com/Doyle59217/ZeroIG
 """
 
 import logging

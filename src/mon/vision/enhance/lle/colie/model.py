@@ -1,11 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Implements the paper: "Fast Context-Based Low-Light Image Enhancement via Neural
-Implicit Representations," ECCV 2024.
+"""CoLIE model for low-light image enhancement.
 
 References:
-    - https://github.com/ctom2/colie
+    - Paper: "Fast Context-Based Low-Light Image Enhancement via Neural Implicit
+      Representations," ECCV 2024.
+    - Code: https://github.com/ctom2/colie
 """
 
 __all__ = [
@@ -34,11 +35,12 @@ current_dir  = current_file.parents[0]
 
 @MODELS.register(name="colie", arch="colie")
 class CoLIE(nn.Module, nn.ModelMixin):
-    """Implements the paper: "Fast Context-Based Low-Light Image Enhancement via Neural
-    Implicit Representations," ECCV 2024.
-    
+    """CoLIE model for low-light image enhancement.
+
     References:
-        - https://github.com/ctom2/colie
+        - Paper: "Fast Context-Based Low-Light Image Enhancement via Neural Implicit
+          Representations," ECCV 2024.
+        - Code: https://github.com/ctom2/colie
     """
     
     arch     : str          = "colie"
@@ -50,21 +52,21 @@ class CoLIE(nn.Module, nn.ModelMixin):
     
     def __init__(
         self,
-        window    : int   = 7,
-        hidden_dim: int   = 256,
-        num_layers: int   = 4,
-        add_layer : int   = 2,
-        iters     : int   = 100,
-        L         : float = 0.5,
+        window_size: int   = 7,
+        hidden_dim : int   = 256,
+        num_layers : int   = 4,
+        add_layer  : int   = 2,
+        L          : float = 0.5,
+        iters      : int   = 100,
     ):
         super().__init__()
-        self.window     = window
-        self.hidden_dim = hidden_dim
-        self.iters      = iters
-        self.L          = L
+        self.window_size = window_size
+        self.hidden_dim  = hidden_dim
+        self.L           = L
+        self.iters       = iters
         
-        self.model  = SIREN(
-            patch_dim  = self.window ** 2,
+        self.model = SIREN(
+            patch_dim  = self.window_size ** 2,
             hidden_dim = hidden_dim,
             num_layers = num_layers,
             add_layer  = add_layer
@@ -72,14 +74,15 @@ class CoLIE(nn.Module, nn.ModelMixin):
         self.state_dict = self.model.state_dict()
         
     def forward(self, image: torch.Tensor) -> torch.Tensor:
-        imgsz  = self.hidden_dim
-        device = image.device
+        window_size = self.window_size
+        imgsz       = self.hidden_dim
+        device      = image.device
         
         # Preprocess
         image_hsv  = kornia.color.rgb_to_hsv(image).to(device)
         image_v    = get_v_component(image_hsv).to(device)
         image_v_lr = interpolate_image(image_v, imgsz, imgsz).to(device)
-        patches    = get_patches(image_v_lr, self.window).to(device)
+        patches    = get_patches(image_v_lr, window_size).to(device)
         coords     = get_coords(imgsz, imgsz).to(device)
         
         # Optimize

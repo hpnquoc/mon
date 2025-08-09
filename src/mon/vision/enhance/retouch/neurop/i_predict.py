@@ -5,7 +5,7 @@
 ECCV 2022.
 
 References:
-    - https://github.com/amberwangyili/neurop
+    - Code: https://github.com/amberwangyili/neurop
 """
 
 import box

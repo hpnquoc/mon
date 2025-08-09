@@ -47,8 +47,9 @@ cfg: ~                                                                          
 # ----- Modules -----
 # Network
 network: &network                                                               # Network architecture.
-  window    : 7
-  hidden_dim: *imgsz
-  num_layers: 4
-  add_layer : 2
-  L         : 0.3                                                               # The "optimally-intense threshold", lower values produce brighter images. Default is ``0.3``.
+  window_size: 7
+  hidden_dim : *imgsz
+  num_layers : 4
+  add_layer  : 2
+  L          : 0.3                                                              # The "optimally-intense threshold", lower values produce brighter images. Default is ``0.3``.
+  iters      : *epochs

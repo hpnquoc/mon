@@ -4,7 +4,7 @@
 """Implements the paper: "DarkIR: Robust Low-Light Image Restoration," CVPR 2025.
 
 References:
-    - https://github.com/cidautai/DarkIR
+    - Code: https://github.com/cidautai/DarkIR
 """
 
 import box

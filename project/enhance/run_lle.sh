@@ -13,15 +13,15 @@ arch="zinf"
 model="zinf"
 datasets=(
     ### Unpaired
-    "dicm"
-    "lime"
-    "mef"
-    "npe"
-    "vv"
+    #"dicm"
+    #"lime"
+    #"mef"
+    #"npe"
+    #"vv"
     ### LOLs
     "lolv1"
-    "lolv2real"
-    "lolv2syn"
+    #"lolv2real"
+    #"lolv2syn"
     ### LSRW
     #"lsrw"
     ### SICE

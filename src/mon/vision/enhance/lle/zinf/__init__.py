@@ -1,8 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Implements the paper: "Zero-Shot Implicit Neural Fusion Network for Multimodal
-Low-Light Image Enhancement".
+"""ZINF model for low-light image enhancement.
+
+References:
+
 """
 
-from mon.vision.enhance.lle.zinf.zinf import *
+from .model import *

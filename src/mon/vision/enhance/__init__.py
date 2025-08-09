@@ -3,12 +3,8 @@
 
 """Implements image enhancement algorithms and models."""
 
-from mon.vision.enhance.base import *
-from mon.vision.enhance.dehaze import *
-from mon.vision.enhance.denoise import *
-from mon.vision.enhance.derain import *
-from mon.vision.enhance.lle import *
-from mon.vision.enhance.multitask import *
-from mon.vision.enhance.retouch import *
-from mon.vision.enhance.rr import *
-from mon.vision.enhance.utils import *
+import os
+from mon.core.dynamic_import import import_all_submodules
+
+# Call the reusable function to import all submodules
+import_all_submodules(__name__, os.path.dirname(__file__))

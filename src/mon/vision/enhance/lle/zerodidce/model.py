@@ -1,11 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Implements the paper: "Rethinking Zero-DCE for Low-Light Image Enhancement,"
-Neural Processing Letters 2024.
+"""Zero-DiDCE model for low-light image enhancement.
 
 References:
-    - https://github.com/Wenhui-Luo/Zero-DiDCE
+    - Paper: "Rethinking Zero-DCE for Low-Light Image Enhancement,"
+      Neural Processing Letters 2024.
+    - Code: https://github.com/Wenhui-Luo/Zero-DiDCE
 """
 
 import box
@@ -22,6 +23,13 @@ current_dir  = current_file.parents[0]
 
 @MODELS.register(name="zerodidce", arch="zerodidce")
 class ZeroDiDCE(nn.Module, nn.ModelMixin):
+    """Zero-DiDCE model for low-light image enhancement.
+    
+    References:
+        - Paper: "Rethinking Zero-DCE for Low-Light Image Enhancement,"
+          Neural Processing Letters 2024.
+        - Code: https://github.com/Wenhui-Luo/Zero-DiDCE
+    """
     
     arch     : str          = "zerodidce"
     name     : str          = "zerodidce"

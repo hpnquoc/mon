@@ -1,11 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Implements the paper: "Zero-Reference Deep Curve Estimation for Low-Light Image
-Enhancement," CVPR 2020.
+"""Zero-DCE++ model for low-light image enhancement.
 
 References:
-    - https://github.com/Li-Chongyi/Zero-DCE
+    - Paper: "Learning to Enhance Low-Light Image via Zero-Reference Deep Curve
+      Estimation," IEEE TPAMI 2022.
+    - Code: https://github.com/Li-Chongyi/Zero-DCE_extension
 """
 
 __all__ = [
@@ -53,11 +54,12 @@ class DSConv(nn.Module):
 
 @MODELS.register(name="zerodce++", arch="zerodce++")
 class ZeroDCEpp(nn.Module):
-    """Implements the paper: "Zero-Reference Deep Curve Estimation for Low-Light Image
-    Enhancement," CVPR 2020.
+    """Zero-DCE++ model for low-light image enhancement.
     
     References:
-        - https://github.com/Li-Chongyi/Zero-DCE
+        - Paper: "Learning to Enhance Low-Light Image via Zero-Reference Deep Curve
+          Estimation," IEEE TPAMI 2022.
+        - Code: https://github.com/Li-Chongyi/Zero-DCE_extension
     """
     
     arch     : str          = "zerodce++"

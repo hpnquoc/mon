@@ -5,7 +5,7 @@
 Data," CVPR 2023.
 
 References:
-    - https://colab.research.google.com/drive/1i82nyizTdszyHkaHBuKPbWnTzao8HF9b?usp=sharing#scrollTo=Srf0GQTYrkxA
+    - Code: https://colab.research.google.com/drive/1i82nyizTdszyHkaHBuKPbWnTzao8HF9b?usp=sharing#scrollTo=Srf0GQTYrkxA
 """
 
-from mon.vision.enhance.denoise.zsn2n.zsn2n import *
+from mon.vision.enhance.denoise.zsn2n.model import *

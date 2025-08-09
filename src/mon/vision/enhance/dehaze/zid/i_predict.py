@@ -4,7 +4,7 @@
 """Implements the paper: "Zero-Shot Image Dehazing," IEEE TIP 2020.
 
 References:
-    - https://github.com/XLearning-SCU/2020-TIP-ZID
+    - Code: https://github.com/XLearning-SCU/2020-TIP-ZID
 """
 
 import sys

@@ -5,4 +5,4 @@
 Implicit Representations".
 """
 
-from mon.vision.enhance.lle.zerolinr.zerolinr import *
+from .zerolinr import *
