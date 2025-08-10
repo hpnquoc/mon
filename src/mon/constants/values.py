@@ -351,23 +351,6 @@ EXTRA_MODELS   = {  # architecture/model (+ variant)
     },
     # endregion
     # region segment
-    "sam" : {
-        "sam_vit_b": {
-            "tasks"    : [Task.SEGMENT],
-            "mltypes"  : [MLType.SUPERVISED],
-            "model_dir": MON_DIR / "vision" / "segment" / "sam",
-        },
-        "sam_vit_h": {
-            "tasks"    : [Task.SEGMENT],
-            "mltypes"  : [MLType.SUPERVISED],
-            "model_dir": MON_DIR / "vision" / "segment" / "sam",
-        },
-        "sam_vit_l": {
-            "tasks"    : [Task.SEGMENT],
-            "mltypes"  : [MLType.SUPERVISED],
-            "model_dir": MON_DIR / "vision" / "segment" / "sam",
-        },
-    },
     "sam2": {
         "sam2_hiera_b+": {
             "tasks"    : [Task.SEGMENT],
