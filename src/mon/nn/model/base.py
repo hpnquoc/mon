@@ -16,11 +16,9 @@ import box
 import lightning.pytorch.utilities.types
 import torch
 
-from mon import core
-from mon.constants import (
-    LOSSES, LR_SCHEDULERS, MLType, METRICS, OPTIMIZERS, SAVE_IMAGE_EXT, SAVE_WEIGHTS_EXT,
-    Task, SAVE_DEBUG_DIR
-)
+from mon.constants import (LOSSES, LR_SCHEDULERS, METRICS, MLType, OPTIMIZERS, SAVE_DEBUG_DIR, SAVE_IMAGE_EXT,
+                           SAVE_WEIGHTS_EXT, Task)
+from mon.core import console, error_console, humps, pathlib, TimeProfiler
 from mon.nn import loss as L, metric as M
 from mon.nn.model import utils
 
@@ -36,7 +34,7 @@ class ModelMixin:
     name     : str          = ""         # The model's name.
     tasks    : list[Task]   = []         # A list of tasks that the model can perform.
     mltypes  : list[MLType] = []         # A list of learning types that the model can perform.
-    model_dir: core.Path    = None       # The model's directory
+    model_dir: pathlib.Path = None       # The model's directory
     zoo      : dict         = box.Box()  # A dictionary containing all pretrained weights of the model.
     
 
@@ -65,7 +63,7 @@ class LightningModule(lightning.LightningModule, ModelMixin, abc.ABC):
     def __init__(
         self,
         # Basic
-        root     : core.Path = core.Path(),
+        root     : pathlib.Path = pathlib.Path(),
         fullname : str  = None,
         # Network
         weights  : Any  = None,
@@ -115,7 +113,7 @@ class LightningModule(lightning.LightningModule, ModelMixin, abc.ABC):
         self._fullname = fullname if fullname not in [None, "None", ""] else self.name
     
     @property
-    def root(self) -> core.Path:
+    def root(self) -> pathlib.Path:
         """Returns the root directory path."""
         return self._root
     
@@ -126,19 +124,19 @@ class LightningModule(lightning.LightningModule, ModelMixin, abc.ABC):
         Args:
             root: Path input to set as root directory.
         """
-        self._root      = core.Path(root)
+        self._root      = pathlib.Path(root)
         self._debug_dir = self._root / SAVE_DEBUG_DIR
         self._ckpt_dir  = self._root
     
     @property
-    def ckpt_dir(self) -> core.Path:
+    def ckpt_dir(self) -> pathlib.Path:
         """Returns the checkpoint directory path."""
         if self._ckpt_dir is None:
             self._ckpt_dir = self.root
         return self._ckpt_dir
     
     @property
-    def debug_dir(self) -> core.Path:
+    def debug_dir(self) -> pathlib.Path:
         """Returns the debug directory path. """
         if self._debug_dir is None:
             self._debug_dir = self.root / SAVE_DEBUG_DIR
@@ -181,7 +179,7 @@ class LightningModule(lightning.LightningModule, ModelMixin, abc.ABC):
     def init_name(self):
         """Sets the model's name if not already defined."""
         if not self.name:
-            self.name = core.humps.kebabize(self.__class__.__name__).lower()
+            self.name = humps.kebabize(self.__class__.__name__).lower()
     
     def create_dir(self):
         """Creates root, checkpoint, and debug directories."""
@@ -219,8 +217,8 @@ class LightningModule(lightning.LightningModule, ModelMixin, abc.ABC):
             if url and path:
                 utils.download_weights_from_url(url, path, overwrite)
             self.weights = weights_dict
-        elif isinstance(weights, core.Path | str):
-            weights_path = core.Path(weights)
+        elif isinstance(weights, pathlib.Path | str):
+            weights_path = pathlib.Path(weights)
             if not weights_path.is_weights_file():
                 raise ValueError(f"[weights] must be a valid path to a weight file, "
                                  f"got {weights_path}.")
@@ -245,7 +243,7 @@ class LightningModule(lightning.LightningModule, ModelMixin, abc.ABC):
         if state_dict:
             self.load_state_dict(state_dict)
             if self.verbose:
-                core.console.log(f"Loaded model's weights from: {self.weights}.")
+                console.log(f"Loaded model's weights from: {self.weights}.")
         
     def init_loss(self, loss: Any = None):
         """Sets the model's loss function.
@@ -265,7 +263,7 @@ class LightningModule(lightning.LightningModule, ModelMixin, abc.ABC):
             else:
                 self.loss = loss
         else:
-            core.console.log(f"")
+            console.log(f"")
             raise TypeError(f"[loss] must be a str, dict, or callable, got {type(loss)}.")
     
         if isinstance(self.loss, L.Loss):
@@ -334,7 +332,7 @@ class LightningModule(lightning.LightningModule, ModelMixin, abc.ABC):
         metrics_ = []
         for m in metrics:
             if isinstance(m, M.Metric):
-                m.name = core.humps.depascalize(core.humps.pascalize(m.__class__.__name__))
+                m.name = humps.depascalize(humps.pascalize(m.__class__.__name__))
                 metrics_.append(m)
             elif isinstance(m, dict) and "name" in m:
                 m_ = METRICS.build(config=m)
@@ -422,7 +420,7 @@ class LightningModule(lightning.LightningModule, ModelMixin, abc.ABC):
         Returns:
             ``tuple`` of (FLOPs, parameter count) as floats.
         """
-        core.error_console.log("[yellow]This method has not been implemented yet![/yellow].")
+        error_console.log("[yellow]This method has not been implemented yet![/yellow].")
         return 0.0, 0.0
     
     # ----- Forward Pass -----
@@ -617,7 +615,7 @@ class LightningModule(lightning.LightningModule, ModelMixin, abc.ABC):
                 metric.reset()
     
     # ----- Predict -----
-    def infer(self, datapoint: dict, timers: core.TimeProfiler = None, *args, **kwargs) -> dict | box.Box:
+    def infer(self, datapoint: dict, timers: TimeProfiler = None, *args, **kwargs) -> dict | box.Box:
         """Infers model output with optional processing.
     
         Args:
@@ -638,7 +636,7 @@ class LightningModule(lightning.LightningModule, ModelMixin, abc.ABC):
     def export_to_onnx(
         self,
         input_dims   : list[int] = None,
-        file_path    : core.Path = None,
+        file_path    : pathlib.Path = None,
         export_params: bool = True
     ):
         """Exports the model to ONNX format.
@@ -654,7 +652,7 @@ class LightningModule(lightning.LightningModule, ModelMixin, abc.ABC):
         if not file_path:
             file_path = self.root / f"{self.fullname}.onnx"
         if ".onnx" not in str(file_path):
-            file_path = core.Path(f"{file_path}.onnx")
+            file_path = pathlib.Path(f"{file_path}.onnx")
     
         if not input_dims:
             raise ValueError("[input_dims] must be defined")
@@ -669,7 +667,7 @@ class LightningModule(lightning.LightningModule, ModelMixin, abc.ABC):
     def export_to_torchscript(
         self,
         input_dims: list[int] = None,
-        file_path : core.Path = None,
+        file_path : pathlib.Path = None,
         method    : str = "script"
     ):
         """Exports the model to ``TorchScript`` format.
@@ -685,7 +683,7 @@ class LightningModule(lightning.LightningModule, ModelMixin, abc.ABC):
         if not file_path:
             file_path = self.root / f"{self.fullname}{SAVE_WEIGHTS_EXT}"
         if SAVE_WEIGHTS_EXT not in str(file_path):
-            file_path = core.Path(f"{file_path}{SAVE_WEIGHTS_EXT}")
+            file_path = pathlib.Path(f"{file_path}{SAVE_WEIGHTS_EXT}")
     
         if not input_dims:
             raise ValueError("[input_dims] must be defined.")
@@ -746,4 +744,4 @@ class ExtraModel(LightningModule, abc.ABC):
         if state_dict:
             self.model.load_state_dict(state_dict=state_dict)
             if self.verbose:
-                core.console.log(f"Loaded model's weights from: {self.weights}.")
+                console.log(f"Loaded model's weights from: {self.weights}.")

@@ -5,65 +5,20 @@
 
 __all__ = [
     "list_datasets",
-    "list_extra_datasets",
-    "list_mon_datasets",
     "parse_data_loader",
     "parse_data_name",
 ]
 
 import torch
-
-from mon import core, vision
-from mon.constants import DATASETS, EXTRA_DATASETS, Split, Task
 from torch.utils import data
+
+import mon.vision as vision
+from mon.constants import DATASETS, Split, Task
+from mon.core import load_project_defaults, pathlib, types
 
 
 # ----- Retrieve -----
-def list_mon_datasets(task: str, mode: str) -> list[str]:
-    """Lists all available datasets in the ``mon`` framework.
-
-    Args:
-        task: Task for which datasets are listed.
-        mode: Mode of datasets (``train`` or ``test``).
-
-    Returns:
-        Sorted list of dataset names matching task and mode.
-    """
-    split    = Split("train" if mode == "train" else "test")
-    task     = Task(task)
-    datasets = DATASETS
-
-    return sorted([
-        d for d in datasets
-        if task in datasets[d].tasks and split in datasets[d].splits
-    ])
-
-
-def list_extra_datasets(task: str, mode: str) -> list[str]:
-    """Lists all available datasets in the ``extra`` framework.
-
-    Args:
-        task: Task for which datasets are listed.
-        mode: Mode of datasets (``train`` or ``test``).
-
-    Returns:
-        Sorted list of dataset names matching task and mode.
-    """
-    split    = Split("train" if mode == "train" else "test")
-    task     = Task(task)
-    datasets = EXTRA_DATASETS
-
-    return sorted([
-        d for d in datasets
-        if task in datasets[d]["tasks"] and split in datasets[d]["splits"]
-    ])
-
-
-def list_datasets(
-    task: str,
-    mode: str,
-    project_root: core.Path = None
-) -> list[str]:
+def list_datasets(task: str, mode: str, project_root: pathlib.Path = None) -> list[str]:
     """Lists all available datasets.
 
     Args:
@@ -74,15 +29,21 @@ def list_datasets(
     Returns:
         Sorted list of dataset names matching task and mode.
     """
-    datasets        = sorted(list_mon_datasets(task, mode) + list_extra_datasets(task, mode))
-    default_configs = core.load_project_defaults(project_root)
+    split    = Split("train" if mode == "train" else "test")
+    task     = Task(task)
+    datasets = sorted([
+        d for d in DATASETS
+        if task in DATASETS[d].tasks and split in DATASETS[d].splits
+    ])
+    
+    default_configs = load_project_defaults(project_root)
     if default_configs.get("DATASETS"):
         datasets = [d for d in datasets if d in default_configs["DATASETS"]]
     return datasets
 
 
 # ----- Convert -----
-def parse_data_name(src: core.Path | str) -> str:
+def parse_data_name(src: pathlib.Path | str) -> str:
     """Parses data name for data src.
 
     Args:
@@ -94,7 +55,7 @@ def parse_data_name(src: core.Path | str) -> str:
     Raises:
         ValueError: If ``src`` is invalid.
     """
-    src = core.Path(src)
+    src = pathlib.Path(src)
 
     # Existing dataset
     if src.stem in DATASETS:
@@ -111,13 +72,13 @@ def parse_data_name(src: core.Path | str) -> str:
 
 
 def parse_data_loader(
-    src       : core.Path | str,
-    data_root : core.Path    = None,
+    src       : pathlib.Path | str,
+    data_root : pathlib.Path = None,
     to_tensor : bool         = False,
     batch_size: int          = 1,
     device    : torch.device = None,
     verbose   : bool         = False,
-) -> tuple[str, core.Dataset]:
+) -> tuple[str, types.Dataset]:
     """Parses I/O worker for data src.
 
     Args:
@@ -134,11 +95,11 @@ def parse_data_loader(
     Raises:
         ValueError: If ``src`` is invalid.
     """
-    src = core.Path(src)
+    src = pathlib.Path(src)
 
     if src.stem in DATASETS:
         src         = src.stem
-        root        = core.parse_data_dir(root=data_root, data_dir=src)
+        root        = pathlib.parse_data_dir(root=data_root, data_dir=src)
         config      = {
             "name"     : src,
             "root"     : root,

@@ -11,7 +11,7 @@ __all__ = [
 import lightning
 from lightning.pytorch.trainer import seed_everything
 
-from mon import core
+from mon.core import console
 from mon.nn import strategy
 
 
@@ -56,15 +56,15 @@ class Trainer(lightning.Trainer):
             (False, "")
         )
         gpu_used = isinstance(self.accelerator, strategy.CUDAAccelerator | strategy.MPSAccelerator)
-        core.console.log(f"GPU available: {gpu_available}{gpu_type}, used: {gpu_used}.")
+        console.log(f"GPU available: {gpu_available}{gpu_type}, used: {gpu_used}.")
 
         if strategy.CUDAAccelerator.is_available() and not isinstance(self.accelerator, strategy.CUDAAccelerator):
-            core.console.log(
+            console.log(
                 f"GPU available but not used. Set `accelerator` and `devices` using "
                 f"Trainer(accelerator='gpu', devices={strategy.CUDAAccelerator.auto_device_count()})."
             )
         if strategy.MPSAccelerator.is_available() and not isinstance(self.accelerator, strategy.MPSAccelerator):
-            core.console.log(
+            console.log(
                 f"MPS available but not used. Set `accelerator` and `devices` using "
                 f"Trainer(accelerator='mps', devices={strategy.MPSAccelerator.auto_device_count()})."
             )

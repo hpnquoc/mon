@@ -14,7 +14,7 @@ __all__ = [
 
 from typing import Literal
 
-from mon import core
+from mon.core import console, pathlib, rich, types
 from mon.datasets.core import *
 
 
@@ -39,8 +39,8 @@ class MIPI2024Flare(VisionDataset):
     })
     has_test_annotations: bool = False
 
-    def __init__(self, root: core.Path, *args, **kwargs):
-        root = core.Path(root)
+    def __init__(self, root: pathlib.Path, *args, **kwargs):
+        root = pathlib.Path(root)
         root = root / "mipi2024flare" if root.name != "mipi2024flare" else root
         if not root.is_dir():
             raise FileNotFoundError(f"[root] directory not found: [{root}].")
@@ -63,7 +63,7 @@ class MIPI2024Flare(VisionDataset):
             raise ValueError(f"[split] invalid: [{self.split}]")
 
         images: list[Image] = []
-        with core.create_progress_bar(disable=self.disable_pbar) as pbar:
+        with rich.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
@@ -76,7 +76,7 @@ class MIPI2024Flare(VisionDataset):
 
 # ----- DataModule -----
 @DATAMODULES.register(name="mipi2024flare")
-class MIPI2024FlareDataModule(core.DataModule):
+class MIPI2024FlareDataModule(types.DataModule):
     """Configures MIPI 2024 Flare datasets for training/testing."""
     
     tasks: list[Task] = [Task.NIGHTTIME]
@@ -93,7 +93,7 @@ class MIPI2024FlareDataModule(core.DataModule):
                 or ``None``. Default is ``None``.
         """
         if self.can_log:
-            core.console.log(f"Setup [red]{self.__class__.__name__}[/red].")
+            console.log(f"Setup [red]{self.__class__.__name__}[/red].")
 
         if stage in [None, "train"]:
             self.train = MIPI2024Flare(split=Split.TRAIN, **self.dataset_kwargs)

@@ -27,7 +27,7 @@ from typing import Literal
 import numpy as np
 import torch
 
-from mon import core
+from mon.core import console, pathlib, rich, types
 from mon.datasets.core import *
 
 
@@ -57,8 +57,8 @@ class FiveKInit(VisionDataset):
     })
     has_test_annotations: bool = False
 
-    def __init__(self, root: core.Path, *args, **kwargs):
-        root = core.Path(root)
+    def __init__(self, root: pathlib.Path, *args, **kwargs):
+        root = pathlib.Path(root)
         root = root / "fivek" if root.name != "fivek" else root
         if not root.is_dir():
             raise FileNotFoundError(f"[root] directory not found: [{root}].")
@@ -130,7 +130,7 @@ class FiveKInit(VisionDataset):
         patterns = [self.root / "retouch_init"]
 
         file_ex = defaultdict(list)
-        with core.create_progress_bar(disable=self.disable_pbar) as pbar:
+        with rich.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("exposure/*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} exposure images"
@@ -140,7 +140,7 @@ class FiveKInit(VisionDataset):
                         file_ex[idx_ex].append(path)
 
         file_bc = defaultdict(list)
-        with core.create_progress_bar(disable=self.disable_pbar) as pbar:
+        with rich.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("black_clipping/*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} black clipping images"
@@ -150,7 +150,7 @@ class FiveKInit(VisionDataset):
                         file_bc[idx_bc].append(path)
 
         file_vb = defaultdict(list)
-        with core.create_progress_bar(disable=self.disable_pbar) as pbar:
+        with rich.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("vibrance/*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} vibrance images"
@@ -190,8 +190,8 @@ class FiveK(VisionDataset):
     })
     has_test_annotations: bool = False
 
-    def __init__(self, root: core.Path, *args, **kwargs):
-        root = core.Path(root)
+    def __init__(self, root: pathlib.Path, *args, **kwargs):
+        root = pathlib.Path(root)
         root = root / "fivek" if root.name != "fivek" else root
         if not root.is_dir():
             raise FileNotFoundError(f"[root] directory not found: [{root}].")
@@ -203,7 +203,7 @@ class FiveK(VisionDataset):
         patterns = [self.root / self.split_str / "image"]
 
         images: list[Image] = []
-        with core.create_progress_bar(disable=self.disable_pbar) as pbar:
+        with rich.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
@@ -237,8 +237,8 @@ class FiveKA(VisionDataset):
     })
     has_test_annotations: bool = False
 
-    def __init__(self, root: core.Path, *args, **kwargs):
-        root = core.Path(root)
+    def __init__(self, root: pathlib.Path, *args, **kwargs):
+        root = pathlib.Path(root)
         root = root / "fivek" if root.name != "fivek" else root
         if not root.is_dir():
             raise FileNotFoundError(f"[root] directory not found: [{root}].")
@@ -250,7 +250,7 @@ class FiveKA(VisionDataset):
         patterns = [self.root / self.split_str / "image"]
 
         images: list[Image] = []
-        with core.create_progress_bar(disable=self.disable_pbar) as pbar:
+        with rich.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
@@ -267,7 +267,7 @@ class FiveKA(VisionDataset):
 
         if len(ref_images) == 0:
             ref_images: list[Image] = []
-            with core.create_progress_bar(disable=self.disable_pbar) as pbar:
+            with rich.create_progress_bar(disable=self.disable_pbar) as pbar:
                 desc = f"Listing {self.__class__.__name__} {self.split_str} reference images"
                 for img in pbar.track(sequence=images, description=desc):
                     root_name = img.root.name
@@ -299,8 +299,8 @@ class FiveKB(VisionDataset):
     })
     has_test_annotations: bool = False
 
-    def __init__(self, root: core.Path, *args, **kwargs):
-        root = core.Path(root)
+    def __init__(self, root: pathlib.Path, *args, **kwargs):
+        root = pathlib.Path(root)
         root = root / "fivek" if root.name != "fivek" else root
         if not root.is_dir():
             raise FileNotFoundError(f"[root] directory not found: [{root}].")
@@ -312,7 +312,7 @@ class FiveKB(VisionDataset):
         patterns = [self.root / self.split_str / "image"]
 
         images: list[Image] = []
-        with core.create_progress_bar(disable=self.disable_pbar) as pbar:
+        with rich.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
@@ -329,7 +329,7 @@ class FiveKB(VisionDataset):
 
         if len(ref_images) == 0:
             ref_images: list[Image] = []
-            with core.create_progress_bar(disable=self.disable_pbar) as pbar:
+            with rich.create_progress_bar(disable=self.disable_pbar) as pbar:
                 desc = f"Listing {self.__class__.__name__} {self.split_str} reference images"
                 for img in pbar.track(sequence=images, description=desc):
                     root_name = img.root.name
@@ -361,8 +361,8 @@ class FiveKC(VisionDataset):
     })
     has_test_annotations: bool = False
 
-    def __init__(self, root: core.Path, *args, **kwargs):
-        root = core.Path(root)
+    def __init__(self, root: pathlib.Path, *args, **kwargs):
+        root = pathlib.Path(root)
         root = root / "fivek" if root.name != "fivek" else root
         if not root.is_dir():
             raise FileNotFoundError(f"[root] directory not found: [{root}].")
@@ -374,7 +374,7 @@ class FiveKC(VisionDataset):
         patterns = [self.root / self.split_str / "image"]
 
         images: list[Image] = []
-        with core.create_progress_bar(disable=self.disable_pbar) as pbar:
+        with rich.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
@@ -391,7 +391,7 @@ class FiveKC(VisionDataset):
 
         if len(ref_images) == 0:
             ref_images: list[Image] = []
-            with core.create_progress_bar(disable=self.disable_pbar) as pbar:
+            with rich.create_progress_bar(disable=self.disable_pbar) as pbar:
                 desc = f"Listing {self.__class__.__name__} {self.split_str} reference images"
                 for img in pbar.track(sequence=images, description=desc):
                     root_name = img.root.name
@@ -423,8 +423,8 @@ class FiveKD(VisionDataset):
     })
     has_test_annotations: bool = False
 
-    def __init__(self, root: core.Path, *args, **kwargs):
-        root = core.Path(root)
+    def __init__(self, root: pathlib.Path, *args, **kwargs):
+        root = pathlib.Path(root)
         root = root / "fivek" if root.name != "fivek" else root
         if not root.is_dir():
             raise FileNotFoundError(f"[root] directory not found: [{root}].")
@@ -436,7 +436,7 @@ class FiveKD(VisionDataset):
         patterns = [self.root / self.split_str / "image"]
 
         images: list[Image] = []
-        with core.create_progress_bar(disable=self.disable_pbar) as pbar:
+        with rich.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
@@ -453,7 +453,7 @@ class FiveKD(VisionDataset):
 
         if len(ref_images) == 0:
             ref_images: list[Image] = []
-            with core.create_progress_bar(disable=self.disable_pbar) as pbar:
+            with rich.create_progress_bar(disable=self.disable_pbar) as pbar:
                 desc = f"Listing {self.__class__.__name__} {self.split_str} reference images"
                 for img in pbar.track(sequence=images, description=desc):
                     root_name = img.root.name
@@ -485,8 +485,8 @@ class FiveKE(VisionDataset):
     })
     has_test_annotations: bool = False
 
-    def __init__(self, root: core.Path, *args, **kwargs):
-        root = core.Path(root)
+    def __init__(self, root: pathlib.Path, *args, **kwargs):
+        root = pathlib.Path(root)
         root = root / "fivek" if root.name != "fivek" else root
         if not root.is_dir():
             raise FileNotFoundError(f"[root] directory not found: [{root}].")
@@ -498,7 +498,7 @@ class FiveKE(VisionDataset):
         patterns = [self.root / self.split_str / "image"]
 
         images: list[Image] = []
-        with core.create_progress_bar(disable=self.disable_pbar) as pbar:
+        with rich.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
@@ -515,7 +515,7 @@ class FiveKE(VisionDataset):
 
         if len(ref_images) == 0:
             ref_images: list[Image] = []
-            with core.create_progress_bar(disable=self.disable_pbar) as pbar:
+            with rich.create_progress_bar(disable=self.disable_pbar) as pbar:
                 desc = f"Listing {self.__class__.__name__} {self.split_str} reference images"
                 for img in pbar.track(sequence=images, description=desc):
                     root_name = img.root.name
@@ -526,7 +526,7 @@ class FiveKE(VisionDataset):
 
 # ----- DataModule -----
 @DATAMODULES.register(name="fivekinit")
-class FiveKInitDataModule(core.DataModule):
+class FiveKInitDataModule(types.DataModule):
     """Configures FiveKInit datasets for training/testing."""
     
     tasks: list[Task] = [Task.LLE]
@@ -543,7 +543,7 @@ class FiveKInitDataModule(core.DataModule):
                 or ``None``. Default is ``None``.
         """
         if self.can_log:
-            core.console.log(f"Setup [red]{self.__class__.__name__}[/red].")
+            console.log(f"Setup [red]{self.__class__.__name__}[/red].")
 
         if stage in [None, "train"]:
             self.train = FiveKInit(split=Split.TRAIN, **self.dataset_kwargs)
@@ -557,7 +557,7 @@ class FiveKInitDataModule(core.DataModule):
 
 
 @DATAMODULES.register(name="fivek")
-class FiveKDataModule(core.DataModule):
+class FiveKDataModule(types.DataModule):
     """Configures FiveK datasets for training/testing."""
     
     tasks: list[Task] = [Task.LLE]
@@ -574,7 +574,7 @@ class FiveKDataModule(core.DataModule):
                 or ``None``. Default is ``None``.
         """
         if self.can_log:
-            core.console.log(f"Setup [red]{self.__class__.__name__}[/red].")
+            console.log(f"Setup [red]{self.__class__.__name__}[/red].")
 
         if stage in [None, "train"]:
             self.train = FiveK(split=Split.TEST, **self.dataset_kwargs)
@@ -588,7 +588,7 @@ class FiveKDataModule(core.DataModule):
 
 
 @DATAMODULES.register(name="fiveka")
-class FiveKADataModule(core.DataModule):
+class FiveKADataModule(types.DataModule):
     """Configures FiveKA datasets for training/testing."""
     
     tasks: list[Task] = [Task.LLE]
@@ -605,7 +605,7 @@ class FiveKADataModule(core.DataModule):
                 or ``None``. Default is ``None``.
         """
         if self.can_log:
-            core.console.log(f"Setup [red]{self.__class__.__name__}[/red].")
+            console.log(f"Setup [red]{self.__class__.__name__}[/red].")
 
         if stage in [None, "train"]:
             self.train = FiveKA(split=Split.TRAIN, **self.dataset_kwargs)
@@ -619,7 +619,7 @@ class FiveKADataModule(core.DataModule):
 
 
 @DATAMODULES.register(name="fivekb")
-class FiveKBDataModule(core.DataModule):
+class FiveKBDataModule(types.DataModule):
     """Configures FiveKB datasets for training/testing."""
     
     tasks: list[Task] = [Task.LLE]
@@ -636,7 +636,7 @@ class FiveKBDataModule(core.DataModule):
                 or ``None``. Default is ``None``.
         """
         if self.can_log:
-            core.console.log(f"Setup [red]{self.__class__.__name__}[/red].")
+            console.log(f"Setup [red]{self.__class__.__name__}[/red].")
 
         if stage in [None, "train"]:
             self.train = FiveKB(split=Split.TRAIN, **self.dataset_kwargs)
@@ -650,7 +650,7 @@ class FiveKBDataModule(core.DataModule):
 
 
 @DATAMODULES.register(name="fivekc")
-class FiveKCDataModule(core.DataModule):
+class FiveKCDataModule(types.DataModule):
     """Configures FiveKC datasets for training/testing."""
     
     tasks: list[Task] = [Task.LLE]
@@ -667,7 +667,7 @@ class FiveKCDataModule(core.DataModule):
                 or ``None``. Default is ``None``.
         """
         if self.can_log:
-            core.console.log(f"Setup [red]{self.__class__.__name__}[/red].")
+            console.log(f"Setup [red]{self.__class__.__name__}[/red].")
 
         if stage in [None, "train"]:
             self.train = FiveKC(split=Split.TRAIN, **self.dataset_kwargs)
@@ -681,7 +681,7 @@ class FiveKCDataModule(core.DataModule):
 
 
 @DATAMODULES.register(name="fivekd")
-class FiveKDDataModule(core.DataModule):
+class FiveKDDataModule(types.DataModule):
     """Configures FiveKD datasets for training/testing."""
     
     tasks: list[Task] = [Task.LLE]
@@ -698,7 +698,7 @@ class FiveKDDataModule(core.DataModule):
                 or ``None``. Default is ``None``.
         """
         if self.can_log:
-            core.console.log(f"Setup [red]{self.__class__.__name__}[/red].")
+            console.log(f"Setup [red]{self.__class__.__name__}[/red].")
 
         if stage in [None, "train"]:
             self.train = FiveKD(split=Split.TRAIN, **self.dataset_kwargs)
@@ -712,7 +712,7 @@ class FiveKDDataModule(core.DataModule):
 
 
 @DATAMODULES.register(name="fiveke")
-class FiveKEDataModule(core.DataModule):
+class FiveKEDataModule(types.DataModule):
     """Configures FiveKE datasets for training/testing."""
     
     tasks: list[Task] = [Task.LLE]
@@ -729,7 +729,7 @@ class FiveKEDataModule(core.DataModule):
                 or ``None``. Default is ``None``.
         """
         if self.can_log:
-            core.console.log(f"Setup [red]{self.__class__.__name__}[/red].")
+            console.log(f"Setup [red]{self.__class__.__name__}[/red].")
 
         if stage in [None, "train"]:
             self.train = FiveKE(split=Split.TRAIN, **self.dataset_kwargs)

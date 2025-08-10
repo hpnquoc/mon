@@ -15,12 +15,11 @@ from datetime import timedelta
 from timeit import default_timer as timer
 from typing import Any
 
-import lightning.pytorch as pl
 import torch
 from lightning.pytorch.utilities.types import STEP_OUTPUT
 
-from mon import core
 from mon.constants import CALLBACKS
+from mon.core import console, pathlib
 from mon.nn.callback import base
 
 
@@ -42,7 +41,7 @@ class LogTrainingProgress(base.Callback):
     
     def __init__(
         self,
-        dirpath               : core.Path,
+        dirpath               : pathlib.Path,
         filename              : str       = "log.csv",
         every_n_epochs        : int       = 1,
         every_n_train_steps   : int       = None,
@@ -51,8 +50,8 @@ class LogTrainingProgress(base.Callback):
         verbose               : bool      = True
     ):
         super().__init__()
-        self._dirpath     = core.Path(dirpath) if dirpath else None
-        self._filename    = core.Path(filename).stem
+        self._dirpath     = pathlib.Path(dirpath) if dirpath else None
+        self._filename    = pathlib.Path(filename).stem
         self._candidates  = collections.OrderedDict()
         self._start_epoch = 0
         self._start_time  = 0
@@ -75,9 +74,9 @@ class LogTrainingProgress(base.Callback):
             pl_module: ``pl.LightningModule`` instance.
             stage: Current stage (e.g., ``"fit"``, ``"validate"``, ``"test"``).
         """
-        dirpath = self._dirpath or core.Path(trainer.default_root_dir)
+        dirpath = self._dirpath or pathlib.Path(trainer.default_root_dir)
         dirpath = trainer.strategy.broadcast(dirpath)
-        self._dirpath = core.Path(dirpath)
+        self._dirpath = pathlib.Path(dirpath)
     
     def on_train_start(self, trainer: "pl.Trainer", pl_module: "pl.LightningModule"):
         """Initializes logging at training start.
@@ -90,7 +89,7 @@ class LogTrainingProgress(base.Callback):
         self._start_epoch = int(trainer.current_epoch)
         self._start_time  = timer()
 
-        log_file       = self._dirpath / f"{core.Path(self._filename).stem}.csv"
+        log_file       = self._dirpath / f"{pathlib.Path(self._filename).stem}.csv"
         log_file_exist = log_file.exists()
         self._dirpath.mkdir(parents=True, exist_ok=True)
         self._logger   = open(str(log_file), "a")
@@ -125,7 +124,7 @@ class LogTrainingProgress(base.Callback):
         self._logger.close()
 
         if self._verbose and trainer.is_global_zero:
-            core.console.log(
+            console.log(
                 f"\n{elapsed_epoch} epochs completed "
                 f"in {elapsed_time:.3f} seconds "
                 f"({elapsed_hours:.3f} hours).\n"
@@ -227,8 +226,8 @@ class LogTrainingProgress(base.Callback):
             and train_time_interval is None):
             every_n_epochs      = 1
             every_n_train_steps = 0
-            core.console.log("Both every_n_train_steps and every_n_epochs are not set. "
-                             "Setting every_n_epochs=1.")
+            console.log("Both every_n_train_steps and every_n_epochs are not set. "
+                        "Setting every_n_epochs=1.")
         else:
             every_n_epochs      = every_n_epochs or 0
             every_n_train_steps = every_n_train_steps or 0
@@ -386,4 +385,4 @@ class LogTrainingProgress(base.Callback):
                 row_lines.extend([f"{' '.join(header)}", f"{' '.join(values)}"])
             if row_lines:
                 print()
-                core.console.log("\n".join(row_lines))
+                console.log("\n".join(row_lines))

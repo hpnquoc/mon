@@ -10,7 +10,7 @@ __all__ = [
 
 from typing import Literal
 
-from mon import core
+from mon.core import console, pathlib, rich, types
 from mon.datasets.core import *
 
 
@@ -36,8 +36,8 @@ class Snow100K(VisionDataset):
     })
     has_test_annotations: bool = False
     
-    def __init__(self, root: core.Path, *args, **kwargs):
-        root = core.Path(root)
+    def __init__(self, root: pathlib.Path, *args, **kwargs):
+        root = pathlib.Path(root)
         root = root / "snow100k" if root.name != "snow100k" else root
         if not root.is_dir():
             raise FileNotFoundError(f"[root] directory not found: [{root}].")
@@ -49,7 +49,7 @@ class Snow100K(VisionDataset):
         patterns = [self.root / self.split_str / "lq"]
         
         images: list[Image] = []
-        with core.create_progress_bar(disable=self.disable_pbar) as pbar:
+        with rich.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
@@ -62,7 +62,7 @@ class Snow100K(VisionDataset):
 
 # ----- DataModule -----
 @DATAMODULES.register(name="snow100k")
-class Snow100KDataModule(core.DataModule):
+class Snow100KDataModule(types.DataModule):
     """Configures Snow100K datasets for training/testing."""
 
     tasks: list[Task] = [Task.DESNOW]
@@ -79,7 +79,7 @@ class Snow100KDataModule(core.DataModule):
                 or ``None``. Default is ``None``.
         """
         if self.can_log:
-            core.console.log(f"Setup [red]{self.__class__.__name__}[/red].")
+            console.log(f"Setup [red]{self.__class__.__name__}[/red].")
         
         if stage in [None, "train"]:
             self.train = Snow100K(split=Split.TRAIN, **self.dataset_kwargs)

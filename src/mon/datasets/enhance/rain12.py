@@ -10,7 +10,7 @@ __all__ = [
 
 from typing import Literal
 
-from mon import core
+from mon.core import console, pathlib, rich, types
 from mon.datasets.core import *
 
 
@@ -36,8 +36,8 @@ class Rain12(VisionDataset):
     })
     has_test_annotations: bool = False
     
-    def __init__(self, root: core.Path, *args, **kwargs):
-        root = core.Path(root)
+    def __init__(self, root: pathlib.Path, *args, **kwargs):
+        root = pathlib.Path(root)
         root = root / "rain12" if root.name != "rain12" else root
         if not root.is_dir():
             raise FileNotFoundError(f"[root] directory not found: [{root}].")
@@ -51,7 +51,7 @@ class Rain12(VisionDataset):
         ]
         
         images: list[Image] = []
-        with core.create_progress_bar(disable=self.disable_pbar) as pbar:
+        with rich.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
@@ -64,7 +64,7 @@ class Rain12(VisionDataset):
 
 # ----- DataModule -----
 @DATAMODULES.register(name="rain12")
-class Rain12DataModule(core.DataModule):
+class Rain12DataModule(types.DataModule):
     """Configures Rain12 datasets for training/testing."""
 
     tasks: list[Task] = [Task.DERAIN]
@@ -81,7 +81,7 @@ class Rain12DataModule(core.DataModule):
                 or ``None``. Default is ``None``.
         """
         if self.can_log:
-            core.console.log(f"Setup [red]{self.__class__.__name__}[/red].")
+            console.log(f"Setup [red]{self.__class__.__name__}[/red].")
         
         if stage in [None, "train"]:
             self.train = Rain12(split=Split.TRAIN, **self.dataset_kwargs)

@@ -5,7 +5,7 @@
 
 import sys
 
-from mon import core
+from mon.core import error_console
 
 try:
 	import snntorch
@@ -13,5 +13,5 @@ try:
 	from snntorch import *
 	from spikingjelly import *
 except ImportError as e:
-	core.error_console.log(f"Missing library: {e.name}. Skipping execution.")
-	sys.exit(0)  # Exit without error
+	error_console.log(f"Missing library: {e.name}. Skipping execution.")
+	# sys.exit(0)  # Exit without error

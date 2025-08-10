@@ -21,7 +21,7 @@ from typing import Literal
 
 import cv2
 
-from mon import core
+from mon.core import console, pathlib, rich, types
 from mon.datasets.core import *
 
 
@@ -85,8 +85,8 @@ class NightCity(VisionDataset):
         {"name": "license plate"       , "id": -1, "train_id": -1 , "category": "vehicle"     , "category_id": 7, "ignore_in_eval": True , "color": [0  , 0  , 142]},
     ])
 
-    def __init__(self, root: core.Path, *args, **kwargs):
-        root = core.Path(root)
+    def __init__(self, root: pathlib.Path, *args, **kwargs):
+        root = pathlib.Path(root)
         root = root / "nightcity" if root.name != "nightcity" else root
         if not root.is_dir():
             raise FileNotFoundError(f"[root] directory not found: [{root}].")
@@ -101,7 +101,7 @@ class NightCity(VisionDataset):
             patterns = [self.root / self.split_str / "image"]
 
         images: list[Image] = []
-        with core.create_progress_bar(disable=self.disable_pbar) as pbar:
+        with rich.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
@@ -110,7 +110,7 @@ class NightCity(VisionDataset):
                         images.append(Image(path=path, root=pattern))
 
         semantic: list[SemanticMask] = []
-        with core.create_progress_bar(disable=self.disable_pbar) as pbar:
+        with rich.create_progress_bar(disable=self.disable_pbar) as pbar:
             desc = f"Listing {self.__class__.__name__} {self.split_str} semantic maps"
             for img in pbar.track(sequence=images, description=desc):
                 path = img.path.replace(f"{os.sep}lq{os.sep}", f"{os.sep}labelIds{os.sep}")
@@ -128,7 +128,7 @@ class NightCity(VisionDataset):
 
 # ----- DataModule -----
 @DATAMODULES.register(name="nightcity")
-class NightCityDataModule(core.DataModule):
+class NightCityDataModule(types.DataModule):
     """Configures NightCity datasets for training/testing."""
     
     tasks: list[Task] = [Task.LLE, Task.NIGHTTIME, Task.SEGMENT]
@@ -145,7 +145,7 @@ class NightCityDataModule(core.DataModule):
                 or ``None``. Default is ``None``.
         """
         if self.can_log:
-            core.console.log(f"Setup [red]{self.__class__.__name__}[/red].")
+            console.log(f"Setup [red]{self.__class__.__name__}[/red].")
 
         if stage in [None, "train"]:
             self.train = NightCity(split=Split.TRAIN, **self.dataset_kwargs)

@@ -11,7 +11,7 @@ import torch
 from fvcore.nn import FlopCountAnalysis, parameter_count
 from torch.nn.common_types import _size_2_t
 
-from mon import core
+from mon.core import get_model_device, thop
 
 
 # ----- Efficiency -----
@@ -33,8 +33,8 @@ def compute_efficiency_score(
     from mon import vision
 
     h, w   = vision.image_size(imgsz)
-    input  = torch.rand(1, channels, h, w).to(core.get_model_device(model))
-    flops, params = core.thop.profile(model, inputs=(input,), verbose=False)
+    input  = torch.rand(1, channels, h, w).to(get_model_device(model))
+    flops, params = thop.profile(model, inputs=(input,), verbose=False)
 
     flops  = FlopCountAnalysis(model, input).total() if flops == 0 else flops
     params = model.params           if hasattr(model, "params") and params == 0 else params

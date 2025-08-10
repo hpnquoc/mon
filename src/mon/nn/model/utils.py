@@ -32,14 +32,14 @@ from urllib.parse import urlparse  # noqa: F401
 
 import torch
 
-from mon import core
 from mon.constants import (
     EXTRA_MODELS, EXTRA_STR, MLType, MODELS, ROOT_DIR, Task, ZOO_DIR,
 )
+from mon.core import error_console, humps, load_config, load_project_defaults, pathlib, type_extensions
 
 
 # ----- Retrieve (Tasks) -----
-def list_tasks(project_root: core.Path = None) -> list[str]:
+def list_tasks(project_root: pathlib.Path = None) -> list[str]:
     """Lists all available tasks in the project.
 
     Args:
@@ -51,7 +51,7 @@ def list_tasks(project_root: core.Path = None) -> list[str]:
     tasks = Task.names()
     
     if project_root:
-        default_configs = core.load_project_defaults(project_root)
+        default_configs = load_project_defaults(project_root)
         if default_configs.get("TASKS"):
             tasks = [t for t in tasks if t in default_configs["TASKS"]]
     
@@ -84,7 +84,7 @@ def list_mon_archs(task: str = None, mode: str = None) -> list[str]:
              for m in models
              if flatten_models[m].arch not in [None, "None", ""]]
     
-    return sorted(core.unique(archs))
+    return sorted(type_extensions.unique(archs))
 
 
 def list_extra_archs(task: str = None, mode: str = None) -> list[str]:
@@ -111,13 +111,13 @@ def list_extra_archs(task: str = None, mode: str = None) -> list[str]:
     archs = [flatten_models[m]["arch"].strip()
              for m in models if flatten_models[m]["arch"] not in [None, "None", ""]]
     
-    return sorted(core.unique(archs))
+    return sorted(type_extensions.unique(archs))
 
 
 def list_archs(
-    task        : str       = None,
-    mode        : str       = None,
-    project_root: core.Path = None
+    task        : str          = None,
+    mode        : str          = None,
+    project_root: pathlib.Path = None
 ) -> list[str]:
     """Lists all available architectures in ``mon`` and ``extra`` frameworks.
 
@@ -132,11 +132,11 @@ def list_archs(
     models       =   list_mon_models(task=task, mode=mode)
     extra_models = list_extra_models(task=task, mode=mode)
     
-    default_configs = core.load_project_defaults(project_root=project_root)
+    default_configs = load_project_defaults(project_root=project_root)
     if default_configs.get("MODELS"):
-        project_models = [core.snakecase(m) for m in default_configs["MODELS"]]
-        models         = [m for m in models       if core.snakecase(m) in project_models]
-        extra_models   = [m for m in extra_models if core.snakecase(m) in project_models]
+        project_models = [humps.snakecase(m) for m in default_configs["MODELS"]]
+        models         = [m for m in models       if humps.snakecase(m) in project_models]
+        extra_models   = [m for m in extra_models if humps.snakecase(m) in project_models]
     
     flatten_mon_models   = flatten_models_dict(MODELS)
     flatten_extra_models = flatten_models_dict(EXTRA_MODELS)
@@ -146,7 +146,7 @@ def list_archs(
     )
     archs = [a.strip() for a in archs if a not in [None, "None", ""]]
     
-    return sorted(core.unique(archs))
+    return sorted(type_extensions.unique(archs))
 
 
 # ----- Retrieve (Models) -----
@@ -206,10 +206,10 @@ def list_extra_models(task: str = None, mode: str = None, arch: str = None) -> l
 
 
 def list_models(
-    task        : str       = None,
-    mode        : str       = None,
-    arch        : str       = None,
-    project_root: core.Path = None
+    task        : str          = None,
+    mode        : str          = None,
+    arch        : str          = None,
+    project_root: pathlib.Path = None
 ) -> list[str]:
     """Lists all available models in ``mon`` and ``extra`` frameworks.
 
@@ -225,11 +225,11 @@ def list_models(
     models       =   list_mon_models(task=task, mode=mode, arch=arch)
     extra_models = list_extra_models(task=task, mode=mode, arch=arch)
     
-    default_configs = core.load_project_defaults(project_root=project_root)
+    default_configs = load_project_defaults(project_root=project_root)
     if default_configs.get("MODELS"):
-        project_models = [core.snakecase(m) for m in default_configs["MODELS"]]
-        models         = [m for m in models       if core.snakecase(m) in project_models]
-        extra_models   = [m for m in extra_models if core.snakecase(m) in project_models]
+        project_models = [humps.snakecase(m) for m in default_configs["MODELS"]]
+        models         = [m for m in models       if humps.snakecase(m) in project_models]
+        extra_models   = [m for m in extra_models if humps.snakecase(m) in project_models]
         
     for i, m in enumerate(extra_models):
         if m in models:
@@ -239,7 +239,7 @@ def list_models(
 
 
 # ----- Retrieve (Checkpoint) -----
-def get_latest_checkpoint(dirpath: core.Path) -> str | None:
+def get_latest_checkpoint(dirpath: pathlib.Path) -> str | None:
     """Gets the latest checkpoint file path in a directory.
 
     Args:
@@ -248,7 +248,7 @@ def get_latest_checkpoint(dirpath: core.Path) -> str | None:
     Returns:
         Path to latest checkpoint as string, or ``None`` if not found.
     """
-    dirpath = core.Path(dirpath)
+    dirpath = pathlib.Path(dirpath)
     ckpts   = sorted(
         (ckpt for ckpt in dirpath.files(recursive=True) if ckpt.is_weights_file()),
         key=lambda x: x.stat().st_mtime,
@@ -256,13 +256,13 @@ def get_latest_checkpoint(dirpath: core.Path) -> str | None:
     )
     
     if not ckpts:
-        core.error_console.log(f"[red]Cannot find checkpoint file: {dirpath}.")
+        error_console.log(f"[red]Cannot find checkpoint file: {dirpath}.")
         return None
     
     return str(ckpts[0])
 
 
-def get_epoch_from_checkpoint(ckpt: core.Path) -> int:
+def get_epoch_from_checkpoint(ckpt: pathlib.Path) -> int:
     """Gets the epoch value from a checkpoint file.
 
     Args:
@@ -274,14 +274,14 @@ def get_epoch_from_checkpoint(ckpt: core.Path) -> int:
     if ckpt is None:
         return 0
     
-    ckpt = core.Path(ckpt)
+    ckpt = pathlib.Path(ckpt)
     if ckpt.is_weights_file():
         return torch.load(ckpt).get("epoch", 0)
     
     return 0
 
 
-def get_global_step_from_checkpoint(ckpt: core.Path) -> int:
+def get_global_step_from_checkpoint(ckpt: pathlib.Path) -> int:
     """Gets the global step from a checkpoint file.
 
     Args:
@@ -293,7 +293,7 @@ def get_global_step_from_checkpoint(ckpt: core.Path) -> int:
     if ckpt is None:
         return 0
     
-    ckpt = core.Path(ckpt)
+    ckpt = pathlib.Path(ckpt)
     if ckpt.is_weights_file():
         return torch.load(ckpt).get("global_step", 0)
     
@@ -301,7 +301,7 @@ def get_global_step_from_checkpoint(ckpt: core.Path) -> int:
  
  
 # ----- Retrieve (Weights) -----
-def get_weights_file_from_config(config: core.Path | dict) -> core.Path | None:
+def get_weights_file_from_config(config: pathlib.Path | dict) -> pathlib.Path | None:
     """Gets the weights file path from a config file.
     
     Args:
@@ -313,15 +313,15 @@ def get_weights_file_from_config(config: core.Path | dict) -> core.Path | None:
     if config is None:
         return None
     
-    if not core.Path(config).is_config_file(exist=True):
+    if not pathlib.Path(config).is_config_file(exist=True):
         return None
         
-    args    = core.load_config(config, False)
+    args    = load_config(config, False)
     weights = args.get("weights", None)
-    return core.Path(weights) if weights else None
+    return pathlib.Path(weights) if weights else None
 
 
-def list_weights_files(model: str, project_root: core.Path = None) -> list[core.Path]:
+def list_weights_files(model: str, project_root: pathlib.Path = None) -> list[pathlib.Path]:
     """Lists weights files for a model in project and ``zoo`` dirs.
 
     Args:
@@ -331,23 +331,23 @@ def list_weights_files(model: str, project_root: core.Path = None) -> list[core.
     Returns:
         Sorted list of weights file paths.
     """
-    def collect_weights_files(root: core.Path) -> list[core.Path]:
+    def collect_weights_files(root: pathlib.Path) -> list[pathlib.Path]:
         return sorted(f for f in root.rglob("*") if f.is_weights_file())
     
     # List all weights files in the project root and ``zoo`` directories.
-    weights_files: list[core.Path] = []
+    weights_files: list[pathlib.Path] = []
     if project_root not in [None, "None", ""]:
-        weights_files += collect_weights_files(core.Path(project_root) / "run" / "train")
+        weights_files += collect_weights_files(pathlib.Path(project_root) / "run" / "train")
     weights_files += collect_weights_files(ZOO_DIR)
     
     # Filter weights files by model name.
     model_name    = parse_model_name(model)
     weights_files = [f for f in weights_files if model_name in f.parts]
     
-    return sorted(core.unique(weights_files))
+    return sorted(type_extensions.unique(weights_files))
 
 
-def download_weights_from_url(url: str, path: core.Path, overwrite: bool = False) -> core.Path:
+def download_weights_from_url(url: str, path: pathlib.Path, overwrite: bool = False) -> pathlib.Path:
     """Downloads weights from a URL to a local path.
 
     Args:
@@ -361,12 +361,12 @@ def download_weights_from_url(url: str, path: core.Path, overwrite: bool = False
     Raises:
         ValueError: If ``url`` is not a valid URL.
     """
-    if not core.Path(url).is_url():
+    if not pathlib.Path(url).is_url():
         raise ValueError(f"[url] must be a valid URL, got {url}.")
     
-    path = core.Path(path)
+    path = pathlib.Path(path)
     if not path.exists() or overwrite:
-        core.delete_files(path=path.parent, regex=path.name)
+        pathlib.delete_files(path=path.parent, regex=path.name)
         path.parent.mkdir(parents=True, exist_ok=True)
         torch.hub.download_url_to_file(url, path, None, True)
     return path
@@ -374,7 +374,7 @@ def download_weights_from_url(url: str, path: core.Path, overwrite: bool = False
 
 def load_weights(
     model       : torch.nn.Module,
-    weights     : dict | core.Path,
+    weights     : dict | pathlib.Path,
     weights_only: bool = False
 ) -> dict | None:
     """Loads state dict from weights into a model.
@@ -390,23 +390,23 @@ def load_weights(
     if weights is None:
         return None
 
-    path       = core.Path(weights["path"]) if isinstance(weights, dict) and "path"     in weights else None
+    path       = pathlib.Path(weights["path"]) if isinstance(weights, dict) and "path"     in weights else None
     state_dict = weights                    if isinstance(weights, dict) and "path" not in weights else None
 
-    if isinstance(weights, core.Path | str) and core.Path(weights).is_weights_file():
-        path = core.Path(weights)
+    if isinstance(weights, pathlib.Path | str) and pathlib.Path(weights).is_weights_file():
+        path = pathlib.Path(weights)
 
     if path and path.is_weights_file():
         state_dict = torch.load(str(path), map_location=model.device, weights_only=weights_only)
     elif state_dict is None:
-        core.error_console.log(f"[yellow]Cannot load weights from: {weights}[/yellow]")
+        error_console.log(f"[yellow]Cannot load weights from: {weights}[/yellow]")
         return None
 
     return state_dict["state_dict"] if "state_dict" in state_dict else state_dict
 
 
 # ----- Convert -----
-def parse_model_dir(arch: str, model: str) -> core.Path | None:
+def parse_model_dir(arch: str, model: str) -> pathlib.Path | None:
     """Parses the model's directory from given components.
 
     Args:
@@ -422,7 +422,7 @@ def parse_model_dir(arch: str, model: str) -> core.Path | None:
         if is_extra_model(model)
         else MODELS[arch][model_name].model_dir
     )
-    return core.Path(model_dir) if model_dir else None
+    return pathlib.Path(model_dir) if model_dir else None
 
 
 def parse_model_name(model: str) -> str:
@@ -449,23 +449,23 @@ def parse_model_fullname(name: str, data: str, suffix: str = None) -> str:
         Parsed full model name as a string.
     """
     if not name:
-        core.error_console.log("[name] must be provided for the model")
+        error_console.log("[name] must be provided for the model")
     
     fullname = name
     if data:
         fullname = f"{fullname}_{data}"
     if suffix:
-        _fullname = core.snakecase(fullname)
-        _suffix   = core.snakecase(suffix)
+        _fullname = humps.snakecase(fullname)
+        _suffix   = humps.snakecase(suffix)
         if _suffix not in _fullname:
-            fullname = f"{fullname}_{core.kebabize(suffix)}"
+            fullname = f"{fullname}_{humps.kebabize(suffix)}"
     return fullname
 
 
 def parse_weights_file(
-    root   : core.Path,
-    weights: core.Path | Sequence[core.Path]
-) -> core.Path | Sequence[core.Path]:
+    root   : pathlib.Path,
+    weights: pathlib.Path | Sequence[pathlib.Path]
+) -> pathlib.Path | Sequence[pathlib.Path]:
     """Parses weights file path(s) from given components.
 
     Args:
@@ -475,8 +475,8 @@ def parse_weights_file(
     Returns:
         Parsed weights path(s) as a single path or a sequence of paths, or ``None`` if empty.
     """
-    root    = core.Path(root)
-    weights = core.to_list(weights)
+    root    = pathlib.Path(root)
+    weights = type_extensions.to_list(weights)
 
     for i, w in enumerate(weights):
         if w is not None:
@@ -485,7 +485,7 @@ def parse_weights_file(
             elif (root / w).exists():
                 weights[i] = root / w
 
-    weights = [core.Path(w) for w in weights if w not in [None, "None", ""]]
+    weights = [pathlib.Path(w) for w in weights if w not in [None, "None", ""]]
 
     if len(weights) == 1:
         return weights[0]

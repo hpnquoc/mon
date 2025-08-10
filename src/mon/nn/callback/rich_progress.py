@@ -11,8 +11,8 @@ import lightning
 import torch
 from lightning.pytorch.callbacks.progress import rich_progress
 
-from mon import core
 from mon.constants import CALLBACKS
+from mon.core import console, rich
 
 
 # ----- Progress Bar -----
@@ -23,7 +23,7 @@ class RichProgressBar(rich_progress.RichProgressBar):
     def _init_progress(self, trainer: lightning.Trainer):
         if self.is_enabled and (self.progress is None or self._progress_stopped):
             self._reset_progress_bar_ids()
-            self._console = core.console
+            self._console = console
             self._console.clear_live()
             self._metric_component = rich_progress.MetricsTextColumn(
                 trainer        = trainer,
@@ -51,12 +51,12 @@ class RichProgressBar(rich_progress.RichProgressBar):
             ``list`` of column configurations.
         """
         base_columns = [
-            core.rich.progress.TextColumn(
-                core.rich.console.get_datetime().strftime("[%m/%d/%Y %H:%M:%S]"),
+            rich.progress.TextColumn(
+                rich.console.get_datetime().strftime("[%m/%d/%Y %H:%M:%S]"),
                 justify = "left",
                 style   = "log.time"
             ),
-            core.rich.progress.TextColumn("[progress.description][{task.description}]"),
+            rich.progress.TextColumn("[progress.description][{task.description}]"),
             rich_progress.CustomBarColumn(
                 complete_style = self.theme.progress_bar,
                 finished_style = self.theme.progress_bar_finished,
@@ -66,11 +66,11 @@ class RichProgressBar(rich_progress.RichProgressBar):
             "•",
             rich_progress.ProcessingSpeedColumn(style="progress.data.speed"),
             "•",
-            core.rich.progress.TimeRemainingColumn(),
+            rich.progress.TimeRemainingColumn(),
             ">",
-            core.rich.progress.TimeElapsedColumn(),
-            core.rich.progress.SpinnerColumn(),
+            rich.progress.TimeElapsedColumn(),
+            rich.progress.SpinnerColumn(),
         ]
         if torch.cuda.is_available():
-            return base_columns[:5] + [core.rich.MemoryUsageColumn(devices=trainer.device_ids)] + base_columns[5:]
+            return base_columns[:5] + [rich.MemoryUsageColumn(devices=trainer.device_ids)] + base_columns[5:]
         return base_columns

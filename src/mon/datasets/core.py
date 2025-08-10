@@ -23,7 +23,5 @@ __all__ = [
 
 from mon.constants import DATAMODULES, DATASETS, Split, Task
 from mon.core import Classes, DatapointAttributes, Probs
-from mon.vision import (
-    DepthMap, Image, ImageLoader, InfraredMap, SemanticMask, VisionDataset,
-    HBBs, Frame, VideoLoader, VideoLoaderCV
-)
+from mon.vision import (DepthMap, Frame, HBBs, Image, ImageLoader, InfraredMap, SemanticMask, VideoLoader,
+                        VideoLoaderCV, VisionDataset)

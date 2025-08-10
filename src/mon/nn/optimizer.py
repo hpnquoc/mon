@@ -27,6 +27,7 @@ from torch.optim import (
 
 from mon.constants import OPTIMIZERS
 
+
 # ----- Registering Optimizer -----
 OPTIMIZERS.register(name="adadelta",    module=Adadelta)
 OPTIMIZERS.register(name="adagrad",     module=Adagrad)

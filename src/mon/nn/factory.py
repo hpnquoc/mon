@@ -13,7 +13,7 @@ import copy
 import humps
 from torch import nn, optim
 
-import mon
+from mon.constants import values
 from mon.core import factory
 
 
@@ -29,7 +29,7 @@ class OptimizerFactory(factory.Factory):
         network_params_only: bool = False,
         to_dict: bool = False,
         **kwargs
-    ) -> any:
+    ):
         """Builds an optimizer instance by name or config.
 
         Args:
@@ -81,7 +81,7 @@ class OptimizerFactory(factory.Factory):
         network_params_only: bool = True,
         to_dict: bool = False,
         **kwargs
-    ) -> any:
+    ):
         """Builds multiple optimizer instances from configs.
 
         Args:
@@ -135,7 +135,7 @@ class LRSchedulerFactory(factory.Factory):
         name     : str  = None,
         config   : dict = None,
         **kwargs
-    ) -> any:
+    ):
         """Builds a scheduler instance by name or config.
 
         Args:
@@ -213,5 +213,5 @@ class LRSchedulerFactory(factory.Factory):
 
 
 # ----- Registering -----
-mon.constants.OPTIMIZERS    = OptimizerFactory("Optimizer")
-mon.constants.LR_SCHEDULERS = LRSchedulerFactory("LRScheduler")
+values.OPTIMIZERS    = OptimizerFactory("Optimizer")
+values.LR_SCHEDULERS = LRSchedulerFactory("LRScheduler")

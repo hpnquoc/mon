@@ -12,6 +12,8 @@ __all__ = [
     "InfraredMap",
 ]
 
+from typing import Union
+
 import cv2
 import numpy as np
 import torch
@@ -40,7 +42,7 @@ class InfraredMap(I.Image):
 
     def __init__(
         self,
-        data  : torch.Tensor | np.ndarray = None,
+        data  : Union[torch.Tensor, np.ndarray] = None,
         path  : core.Path      = None,
         root  : core.Path      = None,
         source: InfraredSource = InfraredSource.INFRARED,

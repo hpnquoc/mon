@@ -14,7 +14,7 @@ __all__ = [
 
 from typing import Literal
 
-from mon import core
+from mon.core import console, pathlib, rich, types
 from mon.datasets.core import *
 
 
@@ -43,8 +43,8 @@ class WiderFace(VisionDataset):
         {"name": "face", "id": 0, "color": [ 81, 120, 228]},
     ])
 
-    def __init__(self, root: core.Path, *args, **kwargs):
-        root = core.Path(root)
+    def __init__(self, root: pathlib.Path, *args, **kwargs):
+        root = pathlib.Path(root)
         root = root / "widerface" if root.name != "widerface" else root
         if not root.is_dir():
             raise FileNotFoundError(f"[root] directory not found: [{root}].")
@@ -56,7 +56,7 @@ class WiderFace(VisionDataset):
         patterns = [self.root / self.split_str / "image"]
 
         images: list[Image] = []
-        with core.create_progress_bar(disable=self.disable_pbar) as pbar:
+        with rich.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
@@ -76,7 +76,7 @@ class WiderFaceVal(WiderFace):
         patterns = [self.root / "val" / "image"]
 
         images: list[Image] = []
-        with core.create_progress_bar(disable=self.disable_pbar) as pbar:
+        with rich.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
@@ -96,7 +96,7 @@ class WiderFaceTest(WiderFace):
         patterns = [self.root / "test" / "image"]
 
         images: list[Image] = []
-        with core.create_progress_bar(disable=self.disable_pbar) as pbar:
+        with rich.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
@@ -109,7 +109,7 @@ class WiderFaceTest(WiderFace):
 
 # ----- DataModule -----
 @DATAMODULES.register(name="widerface")
-class WiderFaceDataModule(core.DataModule):
+class WiderFaceDataModule(types.DataModule):
     """Configures WiderFace datasets for training/testing."""
     
     tasks: list[Task] = [Task.DETECT]
@@ -126,7 +126,7 @@ class WiderFaceDataModule(core.DataModule):
                 or ``None``. Default is ``None``.
         """
         if self.can_log:
-            core.console.log(f"Setup [red]{self.__class__.__name__}[/red].")
+            console.log(f"Setup [red]{self.__class__.__name__}[/red].")
         
         if stage in [None, "train"]:
             self.train = WiderFace(split=Split.TRAIN, **self.dataset_kwargs)
@@ -140,7 +140,7 @@ class WiderFaceDataModule(core.DataModule):
 
 
 @DATAMODULES.register(name="widerfaceval")
-class WiderFaceValDataModule(core.DataModule):
+class WiderFaceValDataModule(types.DataModule):
     """Configures WiderFace-Val datasets for training/testing."""
 
     tasks: list[Task] = [Task.DETECT]
@@ -157,7 +157,7 @@ class WiderFaceValDataModule(core.DataModule):
                 or ``None``. Default is ``None``.
         """
         if self.can_log:
-            core.console.log(f"Setup [red]{self.__class__.__name__}[/red].")
+            console.log(f"Setup [red]{self.__class__.__name__}[/red].")
 
         if stage in [None, "train"]:
             self.train = WiderFaceVal(split=Split.VAL, **self.dataset_kwargs)
@@ -171,7 +171,7 @@ class WiderFaceValDataModule(core.DataModule):
 
 
 @DATAMODULES.register(name="widerfacetest")
-class WiderFaceTestDataModule(core.DataModule):
+class WiderFaceTestDataModule(types.DataModule):
     """Configures WiderFace-Test datasets for training/testing."""
 
     tasks: list[Task] = [Task.DETECT]
@@ -188,7 +188,7 @@ class WiderFaceTestDataModule(core.DataModule):
                 or ``None``. Default is ``None``.
         """
         if self.can_log:
-            core.console.log(f"Setup [red]{self.__class__.__name__}[/red].")
+            console.log(f"Setup [red]{self.__class__.__name__}[/red].")
 
         if stage in [None, "train"]:
             self.train = WiderFaceVal(split=Split.TEST, **self.dataset_kwargs)

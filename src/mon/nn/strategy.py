@@ -36,8 +36,8 @@ from lightning.pytorch.strategies import (
 )
 from torch import distributed
 
-from mon import core
 from mon.constants import ACCELERATORS, STRATEGIES
+from mon.core import console
 
 # ----- Accelerator -----
 ACCELERATORS.register(name="cpu",  module=CPUAccelerator)
@@ -76,13 +76,13 @@ def set_distributed_backend(strategy: str | Callable, cudnn: bool = True):
     """
     if torch.backends.cudnn.is_available():
         torch.backends.cudnn.enabled = cudnn
-        core.console.log(f"cuDNN available: [bright_green]True[/bright_green], "
+        console.log(f"cuDNN available: [bright_green]True[/bright_green], "
                          f"used: [bright_green]{cudnn}[/bright_green].")
     else:
-        core.console.log(f"cuDNN available: [red]False[/red].")
+        console.log(f"cuDNN available: [red]False[/red].")
 
     if strategy in ["ddp"] or isinstance(strategy, DDPStrategy):
         backend = "gloo" if platform.system() == "Windows" else "nccl"
         os.environ["PL_TORCH_DISTRIBUTED_BACKEND"] = backend
-        core.console.log(f"Running on a {platform.system()} machine, set torch "
+        console.log(f"Running on a {platform.system()} machine, set torch "
                          f"distributed backend to {backend}.")

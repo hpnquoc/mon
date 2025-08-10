@@ -10,7 +10,7 @@ __all__ = [
 
 from typing import Literal
 
-from mon import core
+from mon.core import console, pathlib, rich, types
 from mon.datasets.core import *
 
 
@@ -26,7 +26,7 @@ class COCO91(VisionDataset):
         # "bbox" : BBoxesAnnotation,
     })
     has_test_annotations: bool = False
-    classes             = core.Classes([
+    classes             = Classes([
         {"name": "background"    , "id":  0, "supercategory": "background", "color": [  0,   0,   0]},
         {"name": "person"        , "id":  1, "supercategory": "person"    , "color": [ 81, 120, 228]},
         {"name": "bicycle"       , "id":  2, "supercategory": "vehicle"   , "color": [138, 183,  33]},
@@ -121,8 +121,8 @@ class COCO91(VisionDataset):
         {"name": "hair brush"    , "id": 91, "supercategory": "indoor"    , "color": [149, 108,  73]}
     ])
     
-    def __init__(self, root: core.Path, *args, **kwargs):
-        root = core.Path(root)
+    def __init__(self, root: pathlib.Path, *args, **kwargs):
+        root = pathlib.Path(root)
         root = root / "coco2017" if root.name != "coco2017" else root
         if not root.is_dir():
             raise FileNotFoundError(f"Directory not found: {root}.")
@@ -134,7 +134,7 @@ class COCO91(VisionDataset):
         
         # Left Images
         images: list[Image] = []
-        with core.create_progress_bar(disable=self.disable_pbar) as pbar:
+        with rich.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 for path in pbar.track(
 					sequence    = sorted(list(pattern.rglob("*"))),
@@ -148,7 +148,7 @@ class COCO91(VisionDataset):
 
 # ----- DataModule -----
 @DATAMODULES.register(name="coco91")
-class COCO91DataModule(core.DataModule):
+class COCO91DataModule(types.DataModule):
     
     tasks: list[Task] = [Task.DETECT]
     
@@ -157,7 +157,7 @@ class COCO91DataModule(core.DataModule):
     
     def setup(self, stage: Literal["train", "test", "predict", None] = None):
         if self.can_log:
-            core.console.log(f"Setup [red]{self.__class__.__name__}[/red].")
+            console.log(f"Setup [red]{self.__class__.__name__}[/red].")
         
         if stage in [None, "train"]:
             self.train = COCO91(split=Split.TRAIN, **self.dataset_kwargs)

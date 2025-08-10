@@ -11,7 +11,7 @@ __all__ = [
 import os
 from typing import Literal
 
-from mon import core
+from mon.core import console, pathlib, rich, types
 from mon.datasets.core import *
 
 
@@ -37,8 +37,8 @@ class GTRain(VisionDataset):
     })
     has_test_annotations: bool = True
 
-    def __init__(self, root: core.Path, *args, **kwargs):
-        root = core.Path(root)
+    def __init__(self, root: pathlib.Path, *args, **kwargs):
+        root = pathlib.Path(root)
         root = root / "gtrain" if root.name != "gtrain" else root
         if not root.is_dir():
             raise FileNotFoundError(f"[root] directory not found: [{root}].")
@@ -50,7 +50,7 @@ class GTRain(VisionDataset):
         patterns = [self.root / self.split_str / "image"]
 
         images: list[Image] = []
-        with core.create_progress_bar(disable=self.disable_pbar) as pbar:
+        with rich.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
@@ -59,7 +59,7 @@ class GTRain(VisionDataset):
                         images.append(Image(path=path, root=pattern))
 
         ref_images: list[Image] = []
-        with core.create_progress_bar(disable=self.disable_pbar) as pbar:
+        with rich.create_progress_bar(disable=self.disable_pbar) as pbar:
             desc = f"Listing {self.__class__.__name__} {self.split_str} reference images"
             for img in pbar.track(sequence=images, description=desc):
                 path = str(img.path)
@@ -68,7 +68,7 @@ class GTRain(VisionDataset):
                 else:
                     path = path[:-9] + "C-000.png"
                 path = path.replace(f"{os.sep}image{os.sep}", f"{os.sep}ref{os.sep}")
-                path = core.Path(path)
+                path = pathlib.Path(path)
                 ref_images.append(Image(path=path.image_file(), root=img.root))
 
         self.datapoints["image"]     = images
@@ -77,7 +77,7 @@ class GTRain(VisionDataset):
         
 # ----- DataModule -----
 @DATAMODULES.register(name="gtrain")
-class GTRainDataModule(core.DataModule):
+class GTRainDataModule(types.DataModule):
     """Configures GTRain datasets for training/testing."""
     
     tasks: list[Task] = [Task.DERAIN]
@@ -94,7 +94,7 @@ class GTRainDataModule(core.DataModule):
                 or ``None``. Default is ``None``.
         """
         if self.can_log:
-            core.console.log(f"Setup [red]{self.__class__.__name__}[/red].")
+            console.log(f"Setup [red]{self.__class__.__name__}[/red].")
 
         if stage in [None, "train"]:
             self.train = GTRain(split=Split.TRAIN, **self.dataset_kwargs)

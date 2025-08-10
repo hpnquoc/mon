@@ -9,7 +9,6 @@ __all__ = [
     "DATAMODULES",
     "DATASETS",
     "DATA_DIR",
-    "EXTRA_DATASETS",
     "EXTRA_MODELS",
     "EXTRA_STR",
     "Enum",
@@ -48,25 +47,6 @@ MON_DIR       = ROOT_DIR / "src/mon"        # ./mon/src/mon
 MON_EXTRA_DIR = ROOT_DIR / "src/mon/extra"  # ./mon/src/mon/extra
 ZOO_DIR       = ROOT_DIR / "zoo"            # ./mon/zoo
 
-'''
-ZOO_DIR = None
-for i, parent in enumerate(current_file.parents):
-    if (parent / "zoo").is_dir():
-        ZOO_DIR = parent / "zoo"
-        break
-    if i >= 5:
-        break
-if ZOO_DIR is None:
-    raise Warning(f"Cannot locate the ``zoo`` directory.")
-
-DATA_DIR = os.getenv("DATA_DIR", None)
-DATA_DIR = pathlib.Path(DATA_DIR) if DATA_DIR else None
-DATA_DIR = DATA_DIR or pathlib.Path("/data")
-DATA_DIR = DATA_DIR if DATA_DIR.is_dir() else ROOT_DIR / "data"
-if not DATA_DIR.is_dir():
-    raise Warning(f"Cannot locate the ``data`` directory.")
-'''
-
 
 # ----- Constants -----
 SAVE_DEBUG_DIR     = "debug"
@@ -78,7 +58,6 @@ SAVE_IMAGE_EXT     = ImageExtension.JPG.value
 SAVE_WEIGHTS_EXT   = WeightExtension.PT.value
 # List 3rd party modules
 EXTRA_STR      = "[extra]"
-EXTRA_DATASETS = {}
 EXTRA_MODELS   = {  # architecture/model (+ variant)
     # region detect
     "deim"   : {
@@ -214,33 +193,6 @@ EXTRA_MODELS   = {  # architecture/model (+ variant)
             "model_dir": MON_DIR / "vision" / "detect" / "yolov7",
         },
     },
-    "yolov8" : {
-        "yolov8n": {
-            "tasks"    : [Task.DETECT],
-            "mltypes"  : [MLType.SUPERVISED],
-            "model_dir": MON_DIR / "extra" / "ultralytics",
-        },
-        "yolov8s": {
-            "tasks"    : [Task.DETECT],
-            "mltypes"  : [MLType.SUPERVISED],
-            "model_dir": MON_DIR / "extra" / "ultralytics",
-        },
-        "yolov8m": {
-            "tasks"    : [Task.DETECT],
-            "mltypes"  : [MLType.SUPERVISED],
-            "model_dir": MON_DIR / "extra" / "ultralytics",
-        },
-        "yolov8l": {
-            "tasks"    : [Task.DETECT],
-            "mltypes"  : [MLType.SUPERVISED],
-            "model_dir": MON_DIR / "extra" / "ultralytics",
-        },
-        "yolov8x": {
-            "tasks"    : [Task.DETECT],
-            "mltypes"  : [MLType.SUPERVISED],
-            "model_dir": MON_DIR / "extra" / "ultralytics",
-        },
-    },
     "yolov9" : {
         "gelan_c" : {
             "tasks"    : [Task.DETECT],
@@ -263,83 +215,6 @@ EXTRA_MODELS   = {  # architecture/model (+ variant)
             "model_dir": MON_DIR / "vision" / "detect" / "yolov9",
         },
     },
-    "yolov11": {
-        "yolov11n"    : {
-            "tasks"    : [Task.DETECT],
-            "mltypes"  : [MLType.SUPERVISED],
-            "model_dir": MON_DIR / "extra" / "ultralytics",
-        },
-        "yolov11s"    : {
-            "tasks"    : [Task.DETECT],
-            "mltypes"  : [MLType.SUPERVISED],
-            "model_dir": MON_DIR / "extra" / "ultralytics",
-        },
-        "yolov11m"    : {
-            "tasks"    : [Task.DETECT],
-            "mltypes"  : [MLType.SUPERVISED],
-            "model_dir": MON_DIR / "extra" / "ultralytics",
-        },
-        "yolov11l"    : {
-            "tasks"    : [Task.DETECT],
-            "mltypes"  : [MLType.SUPERVISED],
-            "model_dir": MON_DIR / "extra" / "ultralytics",
-        },
-        "yolov11x"    : {
-            "tasks"    : [Task.DETECT],
-            "mltypes"  : [MLType.SUPERVISED],
-            "model_dir": MON_DIR / "extra" / "ultralytics",
-        },
-        "yolov11n_obb": {
-            "tasks"    : [Task.DETECT],
-            "mltypes"  : [MLType.SUPERVISED],
-            "model_dir": MON_DIR / "extra" / "ultralytics",
-        },
-        "yolov11s_obb": {
-            "tasks"    : [Task.DETECT],
-            "mltypes"  : [MLType.SUPERVISED],
-            "model_dir": MON_DIR / "extra" / "ultralytics",
-        },
-        "yolov11m_obb": {
-            "tasks"    : [Task.DETECT],
-            "mltypes"  : [MLType.SUPERVISED],
-            "model_dir": MON_DIR / "extra" / "ultralytics",
-        },
-        "yolov11l_obb": {
-            "tasks"    : [Task.DETECT],
-            "mltypes"  : [MLType.SUPERVISED],
-            "model_dir": MON_DIR / "extra" / "ultralytics",
-        },
-        "yolov11x_obb": {
-            "tasks"    : [Task.DETECT],
-            "mltypes"  : [MLType.SUPERVISED],
-            "model_dir": MON_DIR / "extra" / "ultralytics",
-        },
-        "yolov11n_seg": {
-            "tasks"    : [Task.SEGMENT],
-            "mltypes"  : [MLType.SUPERVISED],
-            "model_dir": MON_DIR / "extra" / "ultralytics",
-        },
-        "yolov11s_seg": {
-            "tasks"    : [Task.SEGMENT],
-            "mltypes"  : [MLType.SUPERVISED],
-            "model_dir": MON_DIR / "extra" / "ultralytics",
-        },
-        "yolov11m_seg": {
-            "tasks"    : [Task.SEGMENT],
-            "mltypes"  : [MLType.SUPERVISED],
-            "model_dir": MON_DIR / "extra" / "ultralytics",
-        },
-        "yolov11l_seg": {
-            "tasks"    : [Task.SEGMENT],
-            "mltypes"  : [MLType.SUPERVISED],
-            "model_dir": MON_DIR / "extra" / "ultralytics",
-        },
-        "yolov11x_seg": {
-            "tasks"    : [Task.SEGMENT],
-            "mltypes"  : [MLType.SUPERVISED],
-            "model_dir": MON_DIR / "extra" / "ultralytics",
-        },
-    },
     # endregion
     # region enhance/derain
     "esdnet_snn": {
@@ -347,30 +222,6 @@ EXTRA_MODELS   = {  # architecture/model (+ variant)
             "tasks"    : [Task.DERAIN],
             "mltypes"  : [MLType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "enhance" / "derain" / "esdnet_snn",
-        },
-    },
-    # endregion
-    # region segment
-    "sam2": {
-        "sam2_hiera_b+": {
-            "tasks"    : [Task.SEGMENT],
-            "mltypes"  : [MLType.SUPERVISED],
-            "model_dir": MON_DIR / "vision" / "segment" / "sam2",
-        },
-        "sam2_hiera_l" : {
-            "tasks"    : [Task.SEGMENT],
-            "mltypes"  : [MLType.SUPERVISED],
-            "model_dir": MON_DIR / "vision" / "segment" / "sam2",
-        },
-        "sam2_hiera_s" : {
-            "tasks"    : [Task.SEGMENT],
-            "mltypes"  : [MLType.SUPERVISED],
-            "model_dir": MON_DIR / "vision" / "segment" / "sam2",
-        },
-        "sam2_hiera_t" : {
-            "tasks"    : [Task.SEGMENT],
-            "mltypes"  : [MLType.SUPERVISED],
-            "model_dir": MON_DIR / "vision" / "segment" / "sam2",
         },
     },
     # endregion

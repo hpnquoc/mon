@@ -12,13 +12,11 @@ from datetime import timedelta
 from typing import Any
 from weakref import proxy
 
-import lightning.pytorch as pl
 import torch
 from lightning.pytorch.callbacks import model_checkpoint
 
-import mon
-from mon import core
-from mon.constants import CALLBACKS
+from mon.constants import CALLBACKS, SAVE_WEIGHTS_EXT
+from mon.core import console, error_console, pathlib
 
 
 # ----- Model Checkpointing -----
@@ -67,7 +65,7 @@ class ModelCheckpoint(model_checkpoint.ModelCheckpoint):
         verbose                : bool      = True,
     ):
         if dirpath:
-            dirpath = core.Path(dirpath)
+            dirpath = pathlib.Path(dirpath)
             dirpath = dirpath / "weights" if dirpath.name != "weights" else dirpath
             
         super().__init__(
@@ -173,7 +171,7 @@ class ModelCheckpoint(model_checkpoint.ModelCheckpoint):
             self.best_k_models       = state_dict.get("best_k_models",       self.best_k_models)
             self.last_model_path     = state_dict.get("last_model_path",     self.last_model_path)
         else:
-            core.error_console.log(
+            error_console.log(
                 f"The dirpath has changed from {dirpath_from_ckpt!r} to "
                 f"{self.dirpath!r}, therefore `best_model_score`, "
                 f"`kth_best_model_path`, `kth_value`, `last_model_path` and "
@@ -194,7 +192,7 @@ class ModelCheckpoint(model_checkpoint.ModelCheckpoint):
             trainer: PyTorch Lightning ``Trainer`` instance.
             filepath: Path to save checkpoint as ``str``.
         """
-        filepath_pt = filepath.replace(self.FILE_EXTENSION, mon.SAVE_WEIGHTS_EXT)
+        filepath_pt = filepath.replace(self.FILE_EXTENSION, SAVE_WEIGHTS_EXT)
         trainer.save_checkpoint(str(filepath_pt), True)
         trainer.save_checkpoint(str(filepath), self.save_weights_only)
         
@@ -229,8 +227,8 @@ class ModelCheckpoint(model_checkpoint.ModelCheckpoint):
         ):
             every_n_epochs      = 1
             every_n_train_steps = 0
-            core.console.log("Both [every_n_train_steps] and [every_n_epochs] are not set. "
-                             "Setting `every_n_epochs=1`.")
+            console.log("Both [every_n_train_steps] and [every_n_epochs] are not set. "
+                        "Setting `every_n_epochs=1`.")
         else:
             every_n_epochs      = every_n_epochs      or 0
             every_n_train_steps = every_n_train_steps or 0
@@ -295,10 +293,10 @@ class ModelCheckpoint(model_checkpoint.ModelCheckpoint):
             # if no loggers, use default_root_dir
             # dirpath = os.path.join(trainer.default_root_dir, "weights")
             dirpath = trainer.default_root_dir
-            core.Path(dirpath).mkdir(parents=True, exist_ok=True)
+            pathlib.Path(dirpath).mkdir(parents=True, exist_ok=True)
             return dirpath
     
-    def __warn_if_dir_not_empty(self, dirpath: core.Path):
+    def __warn_if_dir_not_empty(self, dirpath: pathlib.Path):
         """Warns if checkpoint dir is not empty.
     
         Args:
@@ -309,7 +307,7 @@ class ModelCheckpoint(model_checkpoint.ModelCheckpoint):
             and self._fs.isdir(dirpath)
             and len(self._fs.ls(dirpath)) > 0
         ):
-            core.console.log(f"Checkpoint directory {dirpath} exists and is not empty.")
+            console.log(f"Checkpoint directory {dirpath} exists and is not empty.")
     
     def _save_last_checkpoint(
         self,
@@ -378,7 +376,7 @@ class ModelCheckpoint(model_checkpoint.ModelCheckpoint):
             if trainer.is_global_zero:
                 epoch = monitor_candidates["epoch"]
                 step  = monitor_candidates["step"]
-                core.console.log(f"{f'{self.monitor}':>25} was not in top {self.save_top_k}")
+                console.log(f"{f'{self.monitor}':>25} was not in top {self.save_top_k}")
     
     def _update_best_and_save(
         self,
@@ -424,8 +422,8 @@ class ModelCheckpoint(model_checkpoint.ModelCheckpoint):
             if trainer.is_global_zero:
                 epoch = monitor_candidates["epoch"]
                 step  = monitor_candidates["step"]
-                core.console.log(f"{f'{self.monitor}':>25} reached {current:>12.6f}, "
-                                 f"[red]saving as top {k}.")
+                console.log(f"{f'{self.monitor}':>25} reached {current:>12.6f}, "
+                            f"[red]saving as top {k}.")
         self._save_checkpoint(trainer, filepath)
         
         if del_filepath and self._should_remove_checkpoint(trainer, del_filepath, filepath):

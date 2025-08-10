@@ -12,7 +12,7 @@ __all__ = [
 
 from typing import Literal
 
-from mon import core
+from mon.core import console, pathlib, rich, types
 from mon.datasets.core import *
 
 
@@ -122,8 +122,8 @@ class LoLIStreet(VisionDataset):
         {"id": 79, "name": "toothbrush"    , "supercategory": "indoor",     "color": [ 58, 228, 226]},
     ])
 
-    def __init__(self, root: core.Path, *args, **kwargs):
-        root = core.Path(root)
+    def __init__(self, root: pathlib.Path, *args, **kwargs):
+        root = pathlib.Path(root)
         root = root / "lolistreet" if root.name != "lolistreet" else root
         if not root.is_dir():
             raise FileNotFoundError(f"[root] directory not found: [{root}].")
@@ -139,7 +139,7 @@ class LoLIStreet(VisionDataset):
         patterns = [self.root / self.split_str / "image"]
         
         images: list[Image] = []
-        with core.create_progress_bar(disable=self.disable_pbar) as pbar:
+        with rich.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
@@ -168,7 +168,7 @@ class LoLIStreetVal(LoLIStreet):
         patterns = [self.root / "val" / "image"]
         
         images: list[Image] = []
-        with core.create_progress_bar(disable=self.disable_pbar) as pbar:
+        with rich.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
@@ -197,7 +197,7 @@ class LoLIStreetTest(LoLIStreet):
         patterns = [self.root / "test" / "image"]
 
         images: list[Image] = []
-        with core.create_progress_bar(disable=self.disable_pbar) as pbar:
+        with rich.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
@@ -210,7 +210,7 @@ class LoLIStreetTest(LoLIStreet):
 
 # ----- DataModule -----
 @DATAMODULES.register(name="lolistreet")
-class LoLIStreetDataModule(core.DataModule):
+class LoLIStreetDataModule(types.DataModule):
     """Configures LoLI-Street datasets for training/testing."""
     
     tasks: list[Task] = [Task.LLE]
@@ -227,7 +227,7 @@ class LoLIStreetDataModule(core.DataModule):
                 or ``None``. Default is ``None``.
         """
         if self.can_log:
-            core.console.log(f"Setup [red]{self.__class__.__name__}[/red].")
+            console.log(f"Setup [red]{self.__class__.__name__}[/red].")
 
         if stage in [None, "train"]:
             self.train = LoLIStreet(split=Split.TRAIN, **self.dataset_kwargs)
@@ -241,7 +241,7 @@ class LoLIStreetDataModule(core.DataModule):
 
 
 @DATAMODULES.register(name="lolistreetval")
-class LoLIStreetValDataModule(core.DataModule):
+class LoLIStreetValDataModule(types.DataModule):
     """Configures LoLI-Street-Val datasets for training/testing."""
     
     tasks: list[Task] = [Task.LLE]
@@ -258,7 +258,7 @@ class LoLIStreetValDataModule(core.DataModule):
                 or ``None``. Default is ``None``.
         """
         if self.can_log:
-            core.console.log(f"Setup [red]{self.__class__.__name__}[/red].")
+            console.log(f"Setup [red]{self.__class__.__name__}[/red].")
 
         if stage in [None, "train"]:
             self.train = LoLIStreetVal(split=Split.VAL, **self.dataset_kwargs)
@@ -272,7 +272,7 @@ class LoLIStreetValDataModule(core.DataModule):
 
 
 @DATAMODULES.register(name="lolistreettest")
-class LoLIStreetTestDataModule(core.DataModule):
+class LoLIStreetTestDataModule(types.DataModule):
     """Configures LoLI-Street-Test datasets for training/testing."""
     
     tasks: list[Task] = [Task.LLE]
@@ -289,7 +289,7 @@ class LoLIStreetTestDataModule(core.DataModule):
                 or ``None``. Default is ``None``.
         """
         if self.can_log:
-            core.console.log(f"Setup [red]{self.__class__.__name__}[/red].")
+            console.log(f"Setup [red]{self.__class__.__name__}[/red].")
 
         if stage in [None, "train"]:
             self.train = LoLIStreetTest(split=Split.TEST, **self.dataset_kwargs)

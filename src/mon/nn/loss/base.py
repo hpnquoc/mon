@@ -44,8 +44,8 @@ from torch.nn.modules.loss import (
     TripletMarginLoss, TripletMarginWithDistanceLoss,
 )
 
-from mon import core
 from mon.constants import LOSSES
+from mon.core import humps
 
 
 # ----- Base Loss -----
@@ -91,7 +91,7 @@ class Loss(_Loss, abc.ABC):
         Returns:
             Class name as lowercase kebab-case ``str``.
         """
-        return core.humps.depascalize(self.__class__.__name__).lower()
+        return humps.depascalize(self.__class__.__name__).lower()
     
     @abc.abstractmethod
     def forward(self, input: torch.Tensor, target: torch.Tensor) -> torch.Tensor:

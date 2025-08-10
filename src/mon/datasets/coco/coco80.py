@@ -10,7 +10,7 @@ __all__ = [
 
 from typing import Literal
 
-from mon import core
+from mon.core import console, pathlib, rich, types
 from mon.datasets.core import *
 
 
@@ -110,8 +110,8 @@ class COCO80(VisionDataset):
         {"name": "toothbrush"    , "id": 80, "supercategory": "indoor"    , "color": [ 58, 228, 226]},
     ])
     
-    def __init__(self, root: core.Path, *args, **kwargs):
-        root = core.Path(root)
+    def __init__(self, root: pathlib.Path, *args, **kwargs):
+        root = pathlib.Path(root)
         root = root / "coco2017" if root.name != "coco2017" else root
         if not root.is_dir():
             raise FileNotFoundError(f"Directory not found: {root}.")
@@ -123,7 +123,7 @@ class COCO80(VisionDataset):
         
         # Left Images
         images: list[Image] = []
-        with core.create_progress_bar(disable=self.disable_pbar) as pbar:
+        with rich.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 for path in pbar.track(
 					sequence    = sorted(list(pattern.rglob("*"))),
@@ -137,7 +137,7 @@ class COCO80(VisionDataset):
 
 # ----- DataModule -----
 @DATAMODULES.register(name="coco80")
-class COCO80DataModule(core.DataModule):
+class COCO80DataModule(types.DataModule):
     
     tasks: list[Task] = [Task.DETECT]
     
@@ -146,7 +146,7 @@ class COCO80DataModule(core.DataModule):
     
     def setup(self, stage: Literal["train", "test", "predict", None] = None):
         if self.can_log:
-            core.console.log(f"Setup [red]{self.__class__.__name__}[/red].")
+            console.log(f"Setup [red]{self.__class__.__name__}[/red].")
         
         if stage in [None, "train"]:
             self.train = COCO80(split=Split.TRAIN, **self.dataset_kwargs)

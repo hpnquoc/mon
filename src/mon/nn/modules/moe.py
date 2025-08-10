@@ -12,7 +12,7 @@ from typing import Sequence
 import torch
 from torch.nn.common_types import _size_2_t
 
-from mon import core
+from mon.core import type_extensions
 
 
 # ----- Layer -----
@@ -35,7 +35,7 @@ class LayeredFeatureAggregation(torch.nn.Module):
         super().__init__()
         from mon import vision
         
-        self.in_channels  = core.to_int_list(in_channels)
+        self.in_channels  = type_extensions.to_int_list(in_channels)
         self.out_channels = out_channels
         self.num_experts  = len(self.in_channels)
 

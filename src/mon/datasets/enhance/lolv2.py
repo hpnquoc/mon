@@ -12,7 +12,7 @@ __all__ = [
 
 from typing import Literal
 
-from mon import core
+from mon.core import console, pathlib, rich, types
 from mon.datasets.core import *
 
 
@@ -40,8 +40,8 @@ class LOLv2Real(VisionDataset):
     })
     has_test_annotations: bool = True
 
-    def __init__(self, root: core.Path, *args, **kwargs):
-        root = core.Path(root)
+    def __init__(self, root: pathlib.Path, *args, **kwargs):
+        root = pathlib.Path(root)
         root = root / "lolv2" if root.name != "lolv2" else root
         if not root.is_dir():
             raise FileNotFoundError(f"[root] directory not found: [{root}].")
@@ -53,7 +53,7 @@ class LOLv2Real(VisionDataset):
         patterns = [self.root / "real" / self.split_str / "image"]
 
         images: list[Image] = []
-        with core.create_progress_bar(disable=self.disable_pbar) as pbar:
+        with rich.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
@@ -87,8 +87,8 @@ class LOLv2Syn(VisionDataset):
     })
     has_test_annotations: bool = True
 
-    def __init__(self, root: core.Path, *args, **kwargs):
-        root = core.Path(root)
+    def __init__(self, root: pathlib.Path, *args, **kwargs):
+        root = pathlib.Path(root)
         root = root / "lolv2" if root.name != "lolv2" else root
         if not root.is_dir():
             raise FileNotFoundError(f"[root] directory not found: [{root}].")
@@ -100,7 +100,7 @@ class LOLv2Syn(VisionDataset):
         patterns = [self.root / "syn" / self.split_str / "image"]
 
         images: list[Image] = []
-        with core.create_progress_bar(disable=self.disable_pbar) as pbar:
+        with rich.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
@@ -113,7 +113,7 @@ class LOLv2Syn(VisionDataset):
     
 # ----- DataModule -----
 @DATAMODULES.register(name="lolv2real")
-class LOLv2RealDataModule(core.DataModule):
+class LOLv2RealDataModule(types.DataModule):
     """Configures LOL-v2 Real datasets for training/testing."""
     
     tasks: list[Task] = [Task.LLE]
@@ -130,7 +130,7 @@ class LOLv2RealDataModule(core.DataModule):
                 or ``None``. Default is ``None``.
         """
         if self.can_log:
-            core.console.log(f"Setup [red]{self.__class__.__name__}[/red].")
+            console.log(f"Setup [red]{self.__class__.__name__}[/red].")
 
         if stage in [None, "train"]:
             self.train = LOLv2Real(split=Split.TRAIN, **self.dataset_kwargs)
@@ -144,7 +144,7 @@ class LOLv2RealDataModule(core.DataModule):
             
 
 @DATAMODULES.register(name="lolv2syn")
-class LOLv2SynDataModule(core.DataModule):
+class LOLv2SynDataModule(types.DataModule):
     """Configures LOL-v2 Synthetic datasets for training/testing."""
     
     tasks: list[Task] = [Task.LLE]
@@ -161,7 +161,7 @@ class LOLv2SynDataModule(core.DataModule):
                 or ``None``. Default is ``None``.
         """
         if self.can_log:
-            core.console.log(f"Setup [red]{self.__class__.__name__}[/red].")
+            console.log(f"Setup [red]{self.__class__.__name__}[/red].")
 
         if stage in [None, "train"]:
             self.train = LOLv2Syn(split=Split.TRAIN, **self.dataset_kwargs)

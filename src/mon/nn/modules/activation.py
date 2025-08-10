@@ -59,7 +59,7 @@ from torch.nn.modules.activation import (
     Tanh, Tanhshrink, Threshold,
 )
 
-from mon import core
+from mon.core import type_extensions
 
 
 # ----- Linear Unit -----
@@ -74,7 +74,7 @@ class FReLU(torch.nn.Module):
 
     def __init__(self, channels: int, kernel_size: _size_2_t = 3):
         super().__init__()
-        kernel_size = core.to_2tuple(kernel_size)
+        kernel_size = type_extensions.to_2tuple(kernel_size)
         self.conv   = torch.nn.Conv2d(
             in_channels  = channels,
             out_channels = channels,

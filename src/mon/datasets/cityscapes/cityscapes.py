@@ -16,7 +16,7 @@ from typing import Literal
 
 import cv2
 
-from mon import core
+from mon.core import console, pathlib, rich, types
 from mon.datasets.core import *
 
 
@@ -83,12 +83,12 @@ class Cityscapes(VisionDataset):
 
     def __init__(
         self,
-        root       : core.Path,
+        root       : pathlib.Path,
         use_blurred: bool = False,
         use_coarse : bool = False,
         *args, **kwargs
     ):
-        root = core.Path(root)
+        root = pathlib.Path(root)
         root = root / "cityscapes" if root.name != "cityscapes" else root
         if not root.is_dir():
             raise FileNotFoundError(f"[root] directory not found: [{root}].")
@@ -104,7 +104,7 @@ class Cityscapes(VisionDataset):
         patterns   = [self.root / self.split_str / image_name]
 
         images: list[Image] = []
-        with core.create_progress_bar(disable=self.disable_pbar) as pbar:
+        with rich.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} left images"
@@ -113,7 +113,7 @@ class Cityscapes(VisionDataset):
                         images.append(Image(path=path, root=pattern))
 
         semantic: list[SemanticMask] = []
-        with core.create_progress_bar(disable=self.disable_pbar) as pbar:
+        with rich.create_progress_bar(disable=self.disable_pbar) as pbar:
             desc = f"Listing {self.__class__.__name__} {self.split_str} semantic maps"
             for img in pbar.track(sequence=images, description=desc):
                 path = img.path.replace(image_name, gt_name)
@@ -132,7 +132,7 @@ class Cityscapes(VisionDataset):
 
 # ----- DataModule -----
 @DATAMODULES.register(name="cityscapes")
-class CityscapesDataModule(core.DataModule):
+class CityscapesDataModule(types.DataModule):
     """Manages Cityscapes dataset loading and setup for training, validation, and testing."""
 
     tasks: list[Task] = [Task.SEGMENT]
@@ -149,7 +149,7 @@ class CityscapesDataModule(core.DataModule):
                 or ``None``. Default is ``None``.
         """
         if self.can_log:
-            core.console.log(f"Setup [red]{self.__class__.__name__}[/red].")
+            console.log(f"Setup [red]{self.__class__.__name__}[/red].")
 
         if stage in [None, "train"]:
             self.train = Cityscapes(split=Split.TRAIN, **self.dataset_kwargs)

@@ -14,7 +14,7 @@ __all__ = [
 
 from typing import Literal
 
-from mon import core
+from mon.core import console, pathlib, rich, types
 from mon.datasets.core import *
 
 
@@ -40,8 +40,8 @@ class Flare7KPPReal(VisionDataset):
     })
     has_test_annotations: bool = True
 
-    def __init__(self, root: core.Path, *args, **kwargs):
-        root = core.Path(root)
+    def __init__(self, root: pathlib.Path, *args, **kwargs):
+        root = pathlib.Path(root)
         root = root / "flare7k++" if root.name != "flare7k++" else root
         if not root.is_dir():
             raise FileNotFoundError(f"[root] directory not found: [{root}].")
@@ -53,7 +53,7 @@ class Flare7KPPReal(VisionDataset):
         patterns = [self.root / self.split_str / "real" / "image"]
 
         images: list[Image] = []
-        with core.create_progress_bar(disable=self.disable_pbar) as pbar:
+        with rich.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
@@ -85,8 +85,8 @@ class Flare7KPPSynthetic(VisionDataset):
     })
     has_test_annotations: bool = True
 
-    def __init__(self, root: core.Path, *args, **kwargs):
-        root = core.Path(root)
+    def __init__(self, root: pathlib.Path, *args, **kwargs):
+        root = pathlib.Path(root)
         root = root / "flare7k++" if root.name != "flare7k++" else root
         if not root.is_dir():
             raise FileNotFoundError(f"[root] directory not found: [{root}].")
@@ -98,7 +98,7 @@ class Flare7KPPSynthetic(VisionDataset):
         patterns = [self.root / self.split_str / "synthetic" / "image"]
 
         images: list[Image] = []
-        with core.create_progress_bar(disable=self.disable_pbar) as pbar:
+        with rich.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
@@ -129,8 +129,8 @@ class Flare7KPPExtra(VisionDataset):
     })
     has_test_annotations: bool = False
 
-    def __init__(self, root: core.Path, *args, **kwargs):
-        root = core.Path(root)
+    def __init__(self, root: pathlib.Path, *args, **kwargs):
+        root = pathlib.Path(root)
         root = root / "flare7k++" if root.name != "flare7k++" else root
         if not root.is_dir():
             raise FileNotFoundError(f"[root] directory not found: [{root}].")
@@ -142,7 +142,7 @@ class Flare7KPPExtra(VisionDataset):
         patterns = [self.root / self.split_str / "extra" / "image"]
 
         images: list[Image] = []
-        with core.create_progress_bar(disable=self.disable_pbar) as pbar:
+        with rich.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
@@ -155,7 +155,7 @@ class Flare7KPPExtra(VisionDataset):
 
 # ----- DataModule -----
 @DATAMODULES.register(name="flare7k++_real")
-class Flare7KPPRealDataModule(core.DataModule):
+class Flare7KPPRealDataModule(types.DataModule):
     """Configures Flare7KPPReal datasets for training/testing."""
     
     tasks: list[Task] = [Task.NIGHTTIME]
@@ -172,7 +172,7 @@ class Flare7KPPRealDataModule(core.DataModule):
                 or ``None``. Default is ``None``.
         """
         if self.can_log:
-            core.console.log(f"Setup [red]{self.__class__.__name__}[/red].")
+            console.log(f"Setup [red]{self.__class__.__name__}[/red].")
 
         if stage in [None, "train"]:
             self.train = Flare7KPPReal(split=Split.TEST, **self.dataset_kwargs)
@@ -186,7 +186,7 @@ class Flare7KPPRealDataModule(core.DataModule):
     
 
 @DATAMODULES.register(name="flare7k++_synthetic")
-class Flare7KPPSyntheticDataModule(core.DataModule):
+class Flare7KPPSyntheticDataModule(types.DataModule):
     """Configures Flare7KPPSynthetic datasets for training/testing."""
     
     tasks: list[Task] = [Task.NIGHTTIME]
@@ -203,7 +203,7 @@ class Flare7KPPSyntheticDataModule(core.DataModule):
                 or ``None``. Default is ``None``.
         """
         if self.can_log:
-            core.console.log(f"Setup [red]{self.__class__.__name__}[/red].")
+            console.log(f"Setup [red]{self.__class__.__name__}[/red].")
 
         if stage in [None, "train"]:
             self.train = Flare7KPPSynthetic(split=Split.TEST, **self.dataset_kwargs)
@@ -217,7 +217,7 @@ class Flare7KPPSyntheticDataModule(core.DataModule):
 
 
 @DATAMODULES.register(name="flare7k++_extra")
-class Flare7KPPExtraDataModule(core.DataModule):
+class Flare7KPPExtraDataModule(types.DataModule):
     """Configures Flare7KPPExtra datasets for training/testing."""
     
     tasks: list[Task] = [Task.NIGHTTIME]
@@ -234,7 +234,7 @@ class Flare7KPPExtraDataModule(core.DataModule):
                 or ``None``. Default is ``None``.
         """
         if self.can_log:
-            core.console.log(f"Setup [red]{self.__class__.__name__}[/red].")
+            console.log(f"Setup [red]{self.__class__.__name__}[/red].")
 
         if stage in [None, "train"]:
             self.train = Flare7KPPExtra(split=Split.TEST, **self.dataset_kwargs)

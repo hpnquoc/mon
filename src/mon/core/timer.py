@@ -10,8 +10,6 @@ __all__ = [
 
 import time
 
-from mon.core.rich import console
-
 
 # ----- Timer -----
 class Timer:

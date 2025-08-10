@@ -14,7 +14,7 @@ __all__ = [
 
 from typing import Literal
 
-from mon import core
+from mon.core import console, pathlib, rich, types
 from mon.datasets.core import *
 
 
@@ -47,8 +47,8 @@ class FishEye8K(VisionDataset):
         {"name": "truck",      "id": 4, "color": [ 72, 153, 152]},
     ])
 
-    def __init__(self, root: core.Path, *args, **kwargs):
-        root = core.Path(root)
+    def __init__(self, root: pathlib.Path, *args, **kwargs):
+        root = pathlib.Path(root)
         root = root / "fisheye8k" if root.name != "fisheye8k" else root
         if not root.is_dir():
             raise FileNotFoundError(f"[root] directory not found: [{root}].")
@@ -60,7 +60,7 @@ class FishEye8K(VisionDataset):
         patterns = [self.root / self.split_str / "image"]
 
         images: list[Image] = []
-        with core.create_progress_bar(disable=self.disable_pbar) as pbar:
+        with rich.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
@@ -89,7 +89,7 @@ class FishEye8KVal(FishEye8K):
         patterns = [self.root / "val" / "image"]
 
         images: list[Image] = []
-        with core.create_progress_bar(disable=self.disable_pbar) as pbar:
+        with rich.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
@@ -118,7 +118,7 @@ class FishEye8KTest(FishEye8K):
         patterns = [self.root / "test" / "image"]
 
         images: list[Image] = []
-        with core.create_progress_bar(disable=self.disable_pbar) as pbar:
+        with rich.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
@@ -131,7 +131,7 @@ class FishEye8KTest(FishEye8K):
 
 # ----- DataModule -----
 @DATAMODULES.register(name="fisheye8k")
-class FishEye8KDataModule(core.DataModule):
+class FishEye8KDataModule(types.DataModule):
     """Configures FishEye8K datasets for training/testing."""
     
     tasks: list[Task] = [Task.DETECT]
@@ -148,7 +148,7 @@ class FishEye8KDataModule(core.DataModule):
                 or ``None``. Default is ``None``.
         """
         if self.can_log:
-            core.console.log(f"Setup [red]{self.__class__.__name__}[/red].")
+            console.log(f"Setup [red]{self.__class__.__name__}[/red].")
         
         if stage in [None, "train"]:
             self.train = FishEye8K(split=Split.TRAIN, **self.dataset_kwargs)
@@ -162,7 +162,7 @@ class FishEye8KDataModule(core.DataModule):
 
 
 @DATAMODULES.register(name="fisheye8kval")
-class FishEye8KValDataModule(core.DataModule):
+class FishEye8KValDataModule(types.DataModule):
     """Configures FishEye8K-Val datasets for training/testing."""
 
     tasks: list[Task] = [Task.DETECT]
@@ -179,7 +179,7 @@ class FishEye8KValDataModule(core.DataModule):
                 or ``None``. Default is ``None``.
         """
         if self.can_log:
-            core.console.log(f"Setup [red]{self.__class__.__name__}[/red].")
+            console.log(f"Setup [red]{self.__class__.__name__}[/red].")
 
         if stage in [None, "train"]:
             self.train = FishEye8KVal(split=Split.VAL, **self.dataset_kwargs)
@@ -193,7 +193,7 @@ class FishEye8KValDataModule(core.DataModule):
 
 
 @DATAMODULES.register(name="fisheye8ktest")
-class FishEye8KTestDataModule(core.DataModule):
+class FishEye8KTestDataModule(types.DataModule):
     """Configures FishEye8K-Test datasets for training/testing."""
 
     tasks: list[Task] = [Task.DETECT]
@@ -210,7 +210,7 @@ class FishEye8KTestDataModule(core.DataModule):
                 or ``None``. Default is ``None``.
         """
         if self.can_log:
-            core.console.log(f"Setup [red]{self.__class__.__name__}[/red].")
+            console.log(f"Setup [red]{self.__class__.__name__}[/red].")
 
         if stage in [None, "train"]:
             self.train = FishEye8KVal(split=Split.TEST, **self.dataset_kwargs)

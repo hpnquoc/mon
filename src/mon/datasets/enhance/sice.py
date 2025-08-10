@@ -12,7 +12,7 @@ __all__ = [
 
 from typing import Literal
 
-from mon import core
+from mon.core import console, pathlib, rich, types
 from mon.datasets.core import *
 
 
@@ -40,8 +40,8 @@ class SICE(VisionDataset):
     })
     has_test_annotations: bool = True
     
-    def __init__(self, root: core.Path, *args, **kwargs):
-        root = core.Path(root)
+    def __init__(self, root: pathlib.Path, *args, **kwargs):
+        root = pathlib.Path(root)
         root = root / "sice" if root.name != "sice" else root
         if not root.is_dir():
             raise FileNotFoundError(f"Directory not found: {root}.")
@@ -52,7 +52,7 @@ class SICE(VisionDataset):
 
         # Images
         images: list[Image] = []
-        with core.create_progress_bar(disable=self.disable_pbar) as pbar:
+        with rich.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
@@ -84,8 +84,8 @@ class SICEME(VisionDataset):
     })
     has_test_annotations: bool = False
     
-    def __init__(self, root: core.Path, *args, **kwargs):
-        root = core.Path(root)
+    def __init__(self, root: pathlib.Path, *args, **kwargs):
+        root = pathlib.Path(root)
         root = root / "sice" if root.name != "sice" else root
         if not root.is_dir():
             raise FileNotFoundError(f"Directory not found: {root}.")
@@ -96,7 +96,7 @@ class SICEME(VisionDataset):
         
         # Images
         images: list[Image] = []
-        with core.create_progress_bar(disable=self.disable_pbar) as pbar:
+        with rich.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
@@ -109,7 +109,7 @@ class SICEME(VisionDataset):
 
 # ----- DataModule -----
 @DATAMODULES.register(name="sice")
-class SICEDataModule(core.DataModule):
+class SICEDataModule(types.DataModule):
     """Configures SICE datasets for training/testing."""
     
     tasks: list[Task] = [Task.LLE]
@@ -126,7 +126,7 @@ class SICEDataModule(core.DataModule):
                 or ``None``. Default is ``None``.
         """
         if self.can_log:
-            core.console.log(f"Setup [red]{self.__class__.__name__}[/red].")
+            console.log(f"Setup [red]{self.__class__.__name__}[/red].")
         
         if stage in [None, "train"]:
             self.train = SICE(split=Split.TRAIN, **self.dataset_kwargs)
@@ -140,7 +140,7 @@ class SICEDataModule(core.DataModule):
 
 
 @DATAMODULES.register(name="siceme")
-class SICEMEDataModule(core.DataModule):
+class SICEMEDataModule(types.DataModule):
     """Configures SICE-ME datasets for training/testing."""
     
     tasks: list[Task] = [Task.LLE]
@@ -157,7 +157,7 @@ class SICEMEDataModule(core.DataModule):
                 or ``None``. Default is ``None``.
         """
         if self.can_log:
-            core.console.log(f"Setup [red]{self.__class__.__name__}[/red].")
+            console.log(f"Setup [red]{self.__class__.__name__}[/red].")
         
         if stage in [None, "train"]:
             self.train = SICEME(split=Split.TRAIN, **self.dataset_kwargs)

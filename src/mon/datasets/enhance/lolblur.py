@@ -21,7 +21,7 @@ __all__ = [
 import abc
 from typing import Literal
 
-from mon import core
+from mon.core import console, pathlib, rich, types
 from mon.datasets.core import *
 
 
@@ -48,8 +48,8 @@ class LOLBlur(VisionDataset, abc.ABC):
     })
     has_test_annotations: bool = True
 
-    def __init__(self, root: core.Path, *args, **kwargs):
-        root = core.Path(root)
+    def __init__(self, root: pathlib.Path, *args, **kwargs):
+        root = pathlib.Path(root)
         root = root / "lolblur" if root.name != "lolblur" else root
         if not root.is_dir():
             raise FileNotFoundError(f"[root] directory not found: [{root}].")
@@ -77,7 +77,7 @@ class LOLBlurB(LOLBlur):
         patterns = [self.root / "b" / self.split_str / "image"]
 
         images: list[Image] = []
-        with core.create_progress_bar(disable=self.disable_pbar) as pbar:
+        with rich.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
@@ -108,7 +108,7 @@ class LOLBlurBN(LOLBlur):
         patterns = [self.root / "bn" / self.split_str / "image"]
 
         images: list[Image] = []
-        with core.create_progress_bar(disable=self.disable_pbar) as pbar:
+        with rich.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
@@ -139,7 +139,7 @@ class LOLBlurL(LOLBlur):
         patterns = [self.root / "l" / self.split_str / "image"]
 
         images: list[Image] = []
-        with core.create_progress_bar(disable=self.disable_pbar) as pbar:
+        with rich.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
@@ -170,7 +170,7 @@ class LOLBlurLB(LOLBlur):
         patterns = [self.root / "lb" / self.split_str / "image"]
 
         images: list[Image] = []
-        with core.create_progress_bar(disable=self.disable_pbar) as pbar:
+        with rich.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
@@ -201,7 +201,7 @@ class LOLBlurLBN(LOLBlur):
         patterns = [self.root / "lbn" / self.split_str / "image"]
 
         images: list[Image] = []
-        with core.create_progress_bar(disable=self.disable_pbar) as pbar:
+        with rich.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
@@ -232,7 +232,7 @@ class LOLBlurN(LOLBlur):
         patterns = [self.root / "n" / self.split_str / "image"]
 
         images: list[Image] = []
-        with core.create_progress_bar(disable=self.disable_pbar) as pbar:
+        with rich.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
@@ -245,7 +245,7 @@ class LOLBlurN(LOLBlur):
 
 # ----- DataModule -----
 @DATAMODULES.register(name="lolblurb")
-class LOLBlurBDataModule(core.DataModule):
+class LOLBlurBDataModule(types.DataModule):
     """Configures LOL-Blur-B (Blur) datasets for training/testing."""
     
     tasks: list[Task] = [Task.DEBLUR]
@@ -262,7 +262,7 @@ class LOLBlurBDataModule(core.DataModule):
                 or ``None``. Default is ``None``.
         """
         if self.can_log:
-            core.console.log(f"Setup [red]{self.__class__.__name__}[/red].")
+            console.log(f"Setup [red]{self.__class__.__name__}[/red].")
 
         if stage in [None, "train"]:
             self.train = LOLBlurB(split=Split.TRAIN, **self.dataset_kwargs)
@@ -276,7 +276,7 @@ class LOLBlurBDataModule(core.DataModule):
 
 
 @DATAMODULES.register(name="lolblurbn")
-class LOLBlurBNDataModule(core.DataModule):
+class LOLBlurBNDataModule(types.DataModule):
     """Configures LOL-Blur-BN (Blur + Noise) datasets for training/testing."""
 
     tasks: list[Task] = [Task.DEBLUR, Task.DENOISE]
@@ -293,7 +293,7 @@ class LOLBlurBNDataModule(core.DataModule):
                 or ``None``. Default is ``None``.
         """
         if self.can_log:
-            core.console.log(f"Setup [red]{self.__class__.__name__}[/red].")
+            console.log(f"Setup [red]{self.__class__.__name__}[/red].")
 
         if stage in [None, "train"]:
             self.train = LOLBlurBN(split=Split.TRAIN, **self.dataset_kwargs)
@@ -307,7 +307,7 @@ class LOLBlurBNDataModule(core.DataModule):
 
 
 @DATAMODULES.register(name="lolblurl")
-class LOLBlurLDataModule(core.DataModule):
+class LOLBlurLDataModule(types.DataModule):
     """Configures LOL-Blur-L (Low-Light) datasets for training/testing."""
 
     tasks: list[Task] = [Task.LLE]
@@ -324,7 +324,7 @@ class LOLBlurLDataModule(core.DataModule):
                 or ``None``. Default is ``None``.
         """
         if self.can_log:
-            core.console.log(f"Setup [red]{self.__class__.__name__}[/red].")
+            console.log(f"Setup [red]{self.__class__.__name__}[/red].")
 
         if stage in [None, "train"]:
             self.train = LOLBlurL(split=Split.TRAIN, **self.dataset_kwargs)
@@ -338,7 +338,7 @@ class LOLBlurLDataModule(core.DataModule):
 
 
 @DATAMODULES.register(name="lolblurlb")
-class LOLBlurLBDataModule(core.DataModule):
+class LOLBlurLBDataModule(types.DataModule):
     """Configures LOL-Blur-LB (Low-Light + Blur) datasets for training/testing."""
 
     tasks: list[Task] = [Task.DEBLUR, Task.LLE]
@@ -355,7 +355,7 @@ class LOLBlurLBDataModule(core.DataModule):
                 or ``None``. Default is ``None``.
         """
         if self.can_log:
-            core.console.log(f"Setup [red]{self.__class__.__name__}[/red].")
+            console.log(f"Setup [red]{self.__class__.__name__}[/red].")
 
         if stage in [None, "train"]:
             self.train = LOLBlurLB(split=Split.TRAIN, **self.dataset_kwargs)
@@ -369,7 +369,7 @@ class LOLBlurLBDataModule(core.DataModule):
 
 
 @DATAMODULES.register(name="lolblurlbn")
-class LOLBlurLBNDataModule(core.DataModule):
+class LOLBlurLBNDataModule(types.DataModule):
     """Configures LOL-Blur-LBN (Low-Light + Blur + Noise) datasets for training/testing."""
 
     tasks: list[Task] = [Task.DEBLUR, Task.DENOISE, Task.LLE]
@@ -386,7 +386,7 @@ class LOLBlurLBNDataModule(core.DataModule):
                 or ``None``. Default is ``None``.
         """
         if self.can_log:
-            core.console.log(f"Setup [red]{self.__class__.__name__}[/red].")
+            console.log(f"Setup [red]{self.__class__.__name__}[/red].")
 
         if stage in [None, "train"]:
             self.train = LOLBlurLBN(split=Split.TRAIN, **self.dataset_kwargs)
@@ -400,7 +400,7 @@ class LOLBlurLBNDataModule(core.DataModule):
 
 
 @DATAMODULES.register(name="lolblurn")
-class LOLBlurNDataModule(core.DataModule):
+class LOLBlurNDataModule(types.DataModule):
     """Configures LOL-Blur-N (Noise) datasets for training/testing."""
 
     tasks: list[Task] = [Task.DENOISE]
@@ -417,7 +417,7 @@ class LOLBlurNDataModule(core.DataModule):
                 or ``None``. Default is ``None``.
         """
         if self.can_log:
-            core.console.log(f"Setup [red]{self.__class__.__name__}[/red].")
+            console.log(f"Setup [red]{self.__class__.__name__}[/red].")
 
         if stage in [None, "train"]:
             self.train = LOLBlurN(split=Split.TRAIN, **self.dataset_kwargs)

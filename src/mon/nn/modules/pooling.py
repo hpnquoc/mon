@@ -52,7 +52,7 @@ from torch.nn.modules.pooling import (
     MaxPool3d, MaxUnpool1d, MaxUnpool2d, MaxUnpool3d,
 )
 
-from mon import core
+from mon.core import to_2tuple, to_4tuple
 from mon.nn.modules import padding as pad
 
 
@@ -325,8 +325,8 @@ class AvgPool2dSame(torch.nn.AvgPool2d):
         count_include_pad: bool      = True
     ):
         super().__init__(
-            kernel_size       = core.to_2tuple(kernel_size),
-            stride            = core.to_2tuple(stride),
+            kernel_size       = to_2tuple(kernel_size),
+            stride            = to_2tuple(stride),
             padding           = padding,
             ceil_mode         = ceil_mode,
             count_include_pad = count_include_pad
@@ -460,10 +460,10 @@ class MaxPool2dSame(torch.nn.MaxPool2d):
         ceil_mode  : bool      = False
     ):
         super().__init__(
-            kernel_size = core.to_2tuple(kernel_size),
-            stride      = core.to_2tuple(stride),
+            kernel_size = to_2tuple(kernel_size),
+            stride      = to_2tuple(stride),
             padding     = padding,
-            dilation    = core.to_2tuple(dilation),
+            dilation    = to_2tuple(dilation),
             ceil_mode   = ceil_mode
         )
     
@@ -507,9 +507,9 @@ class MedianPool2d(torch.nn.Module):
         same       : bool      = False
     ):
         super().__init__()
-        self.kernel_size = core.to_2tuple(kernel_size)
-        self.stride      = core.to_2tuple(stride)
-        self.padding     = core.to_4tuple(padding)  # Convert to (left, right, top, bottom)
+        self.kernel_size = to_2tuple(kernel_size)
+        self.stride      = to_2tuple(stride)
+        self.padding     = to_4tuple(padding)  # Convert to (left, right, top, bottom)
         self.same        = same
 
     def _padding(self, input: torch.Tensor) -> tuple[int, int, int, int]:

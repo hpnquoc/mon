@@ -14,7 +14,7 @@ __all__ = [
 
 from typing import Literal
 
-from mon import core
+from mon.core import console, pathlib, rich, types
 from mon.datasets.core import *
 
 
@@ -42,8 +42,8 @@ class GTA5NighttimeFog(VisionDataset):
     })
     has_test_annotations: bool = True
 
-    def __init__(self, root: core.Path, *args, **kwargs):
-        root = core.Path(root)
+    def __init__(self, root: pathlib.Path, *args, **kwargs):
+        root = pathlib.Path(root)
         root = root / "gta5nighttimefog" if root.name != "gta5nighttimefog" else root
         if not root.is_dir():
             raise FileNotFoundError(f"[root] directory not found: [{root}].")
@@ -55,7 +55,7 @@ class GTA5NighttimeFog(VisionDataset):
         patterns = [self.root / self.split_str / "image"]
 
         images: list[Image] = []
-        with core.create_progress_bar(disable=self.disable_pbar) as pbar:
+        with rich.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
@@ -68,7 +68,7 @@ class GTA5NighttimeFog(VisionDataset):
 
 # ----- DataModule -----
 @DATAMODULES.register(name="gta5nighttimefog")
-class GTA5NighttimeFogDataModule(core.DataModule):
+class GTA5NighttimeFogDataModule(types.DataModule):
     """Configures GTA5NighttimeFog datasets for training/testing."""
     
     tasks: list[Task] = [Task.DEHAZE, Task.NIGHTTIME]
@@ -85,7 +85,7 @@ class GTA5NighttimeFogDataModule(core.DataModule):
                 or ``None``. Default is ``None``.
         """
         if self.can_log:
-            core.console.log(f"Setup [red]{self.__class__.__name__}[/red].")
+            console.log(f"Setup [red]{self.__class__.__name__}[/red].")
         
         if stage in [None, "train"]:
             self.train = GTA5NighttimeFog(split=Split.TRAIN, **self.dataset_kwargs)

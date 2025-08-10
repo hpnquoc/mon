@@ -23,7 +23,7 @@ __all__ = [
 ]
 
 import abc
-from typing import Literal
+from typing import Literal, Union
 
 import cv2
 import kornia
@@ -59,9 +59,9 @@ class Metric(torchmetrics.Metric, abc.ABC):
 
 # ----- GT Mean -----
 def scale_gt_mean(
-    image : torch.Tensor | np.ndarray,
-    target: torch.Tensor | np.ndarray
-) -> torch.Tensor | np.ndarray:
+    image : Union[torch.Tensor, np.ndarray],
+    target: Union[torch.Tensor, np.ndarray],
+) -> Union[torch.Tensor, np.ndarray]:
     """Scales image to match target's mean intensity.
 
     Args:

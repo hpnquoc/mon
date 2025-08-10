@@ -17,7 +17,7 @@ from typing import Literal
 
 import cv2
 
-from mon import core
+from mon.core import console, pathlib, rich, types
 from mon.datasets.cityscapes.cityscapes import Cityscapes
 from mon.datasets.core import *
 
@@ -45,8 +45,8 @@ class CityscapesFoggy(Cityscapes):
     })
     has_test_annotations: bool = True
     
-    def __init__(self, root: core.Path, *args, **kwargs):
-        root = core.Path(root)
+    def __init__(self, root: pathlib.Path, *args, **kwargs):
+        root = pathlib.Path(root)
         root = root / "cityscapes" if root.name != "cityscapes" else root
         if not root.is_dir():
             raise FileNotFoundError(f"[root] directory not found: [{root}].")
@@ -58,7 +58,7 @@ class CityscapesFoggy(Cityscapes):
         patterns = [self.root / self.split_str / "leftImg8bit_foggy"]
         
         images: list[Image] = []
-        with core.create_progress_bar(disable=self.disable_pbar) as pbar:
+        with rich.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
@@ -67,7 +67,7 @@ class CityscapesFoggy(Cityscapes):
                         images.append(Image(path=path, root=pattern))
         
         ref_images: list[Image] = []
-        with core.create_progress_bar(disable=self.disable_pbar) as pbar:
+        with rich.create_progress_bar(disable=self.disable_pbar) as pbar:
             desc = f"Listing {self.__class__.__name__} {self.split_str} reference images"
             for img in pbar.track(sequence=images, description=desc):
                 path = img.path.replace(f"{os.sep}leftImg8bit_foggy{os.sep}", f"{os.sep}leftImg8bit{os.sep}")
@@ -77,7 +77,7 @@ class CityscapesFoggy(Cityscapes):
         
         # Semantic segmentation maps
         semantic: list[SemanticMask] = []
-        with core.create_progress_bar(disable=self.disable_pbar) as pbar:
+        with rich.create_progress_bar(disable=self.disable_pbar) as pbar:
             desc = f"Listing {self.__class__.__name__} {self.split_str} semantic maps"
             for img in pbar.track(sequence=ref_images, description=desc):
                 path = img.path.replace(f"{os.sep}leftImg8bit{os.sep}", f"{os.sep}gtFine{os.sep}")
@@ -96,7 +96,7 @@ class CityscapesFoggy(Cityscapes):
 
 # ----- DataModule -----
 @DATAMODULES.register(name="cityscapes_foggy")
-class CityscapesFoggyDataModule(core.DataModule):
+class CityscapesFoggyDataModule(types.DataModule):
     """Manages CityscapesFoggy dataset for training, validation, and testing."""
 
     tasks: list[Task] = [Task.DERAIN]
@@ -113,7 +113,7 @@ class CityscapesFoggyDataModule(core.DataModule):
                 or ``None``. Default is ``None``.
         """
         if self.can_log:
-            core.console.log(f"Setup [red]{self.__class__.__name__}[/red].")
+            console.log(f"Setup [red]{self.__class__.__name__}[/red].")
 
         if stage in [None, "train"]:
             self.train = CityscapesFoggy(split=Split.TRAIN, **self.dataset_kwargs)

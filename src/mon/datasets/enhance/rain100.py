@@ -14,7 +14,7 @@ __all__ = [
 
 from typing import Literal
 
-from mon import core
+from mon.core import console, pathlib, rich, types
 from mon.datasets.core import *
 
 
@@ -40,8 +40,8 @@ class Rain100(VisionDataset):
     })
     has_test_annotations: bool = True
     
-    def __init__(self, root: core.Path, *args, **kwargs):
-        root = core.Path(root)
+    def __init__(self, root: pathlib.Path, *args, **kwargs):
+        root = pathlib.Path(root)
         root = root / "rain100" if root.name != "rain100" else root
         if not root.is_dir():
             raise FileNotFoundError(f"[root] directory not found: [{root}].")
@@ -55,7 +55,7 @@ class Rain100(VisionDataset):
         ]
         
         images: list[Image] = []
-        with core.create_progress_bar(disable=self.disable_pbar) as pbar:
+        with rich.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
@@ -87,8 +87,8 @@ class Rain100H(VisionDataset):
     })
     has_test_annotations: bool = True
     
-    def __init__(self, root: core.Path, *args, **kwargs):
-        root = core.Path(root)
+    def __init__(self, root: pathlib.Path, *args, **kwargs):
+        root = pathlib.Path(root)
         root = root / "rain100h" if root.name != "rain100h" else root
         if not root.is_dir():
             raise FileNotFoundError(f"[root] directory not found: [{root}].")
@@ -102,7 +102,7 @@ class Rain100H(VisionDataset):
         ]
         
         images: list[Image] = []
-        with core.create_progress_bar(disable=self.disable_pbar) as pbar:
+        with rich.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
@@ -134,8 +134,8 @@ class Rain100L(VisionDataset):
     })
     has_test_annotations: bool = True
     
-    def __init__(self, root: core.Path, *args, **kwargs):
-        root = core.Path(root)
+    def __init__(self, root: pathlib.Path, *args, **kwargs):
+        root = pathlib.Path(root)
         root = root / "rain100l" if root.name != "rain100l" else root
         if not root.is_dir():
             raise FileNotFoundError(f"[root] directory not found: [{root}].")
@@ -149,7 +149,7 @@ class Rain100L(VisionDataset):
         ]
         
         images: list[Image] = []
-        with core.create_progress_bar(disable=self.disable_pbar) as pbar:
+        with rich.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
@@ -162,7 +162,7 @@ class Rain100L(VisionDataset):
    
 # ----- DataModule -----
 @DATAMODULES.register(name="rain100")
-class Rain100DataModule(core.DataModule):
+class Rain100DataModule(types.DataModule):
     """Configures Rain100 datasets for training/testing."""
 
     tasks: list[Task] = [Task.DERAIN]
@@ -179,7 +179,7 @@ class Rain100DataModule(core.DataModule):
                 or ``None``. Default is ``None``.
         """
         if self.can_log:
-            core.console.log(f"Setup [red]{self.__class__.__name__}[/red].")
+            console.log(f"Setup [red]{self.__class__.__name__}[/red].")
         
         if stage in [None, "train"]:
             self.train = Rain100(split=Split.TEST, **self.dataset_kwargs)
@@ -193,7 +193,7 @@ class Rain100DataModule(core.DataModule):
 
 
 @DATAMODULES.register(name="rain100h")
-class Rain100HDataModule(core.DataModule):
+class Rain100HDataModule(types.DataModule):
     """Configures Rain100H datasets for training/testing."""
 
     tasks: list[Task] = [Task.DERAIN]
@@ -210,7 +210,7 @@ class Rain100HDataModule(core.DataModule):
                 or ``None``. Default is ``None``.
         """
         if self.can_log:
-            core.console.log(f"Setup [red]{self.__class__.__name__}[/red].")
+            console.log(f"Setup [red]{self.__class__.__name__}[/red].")
         
         if stage in [None, "train"]:
             self.train = Rain100H(split=Split.TRAIN, **self.dataset_kwargs)
@@ -224,7 +224,7 @@ class Rain100HDataModule(core.DataModule):
 
 
 @DATAMODULES.register(name="rain100l")
-class Rain100LDataModule(core.DataModule):
+class Rain100LDataModule(types.DataModule):
     """Configures Rain100L datasets for training/testing."""
 
     tasks: list[Task] = [Task.DERAIN]
@@ -241,7 +241,7 @@ class Rain100LDataModule(core.DataModule):
                 or ``None``. Default is ``None``.
         """
         if self.can_log:
-            core.console.log(f"Setup [red]{self.__class__.__name__}[/red].")
+            console.log(f"Setup [red]{self.__class__.__name__}[/red].")
         
         if stage in [None, "train"]:
             self.train = Rain100L(split=Split.TRAIN, **self.dataset_kwargs)

@@ -12,8 +12,8 @@ from typing import Any
 from lightning.pytorch.callbacks import rich_model_summary
 from lightning.pytorch.utilities import model_summary
 
-from mon import core
 from mon.constants import CALLBACKS
+from mon.core import console, rich
 
 
 # ----- Model Summary -----
@@ -40,7 +40,7 @@ class RichModelSummary(rich_model_summary.RichModelSummary):
             args: Additional positional args.
             summarize_kwargs: Additional keyword args as ``Any``.
         """
-        table = core.rich.table.Table(header_style="bold magenta")
+        table = rich.table.Table(header_style="bold magenta")
         table.add_column(" ", style="dim")
         table.add_column("Name", justify="left", no_wrap=True)
         table.add_column("Type")
@@ -55,7 +55,7 @@ class RichModelSummary(rich_model_summary.RichModelSummary):
         for row in rows:
             table.add_row(*row)
 
-        core.console.log(table)
+        console.log(table)
 
         param_counts = [
             trainable_parameters,
@@ -65,7 +65,7 @@ class RichModelSummary(rich_model_summary.RichModelSummary):
         ]
         parameters = [f"{model_summary.get_human_readable_count(int(p)):<10}" for p in param_counts]
 
-        grid = core.rich.table.Table.grid(expand=True)
+        grid = rich.table.Table.grid(expand=True)
         grid.add_column()
         grid.add_column()
 
@@ -74,4 +74,4 @@ class RichModelSummary(rich_model_summary.RichModelSummary):
         grid.add_row(f"[bold]Total params[/]: {parameters[2]} ({total_parameters})")
         grid.add_row(f"[bold]Total estimated model params size (MB)[/]: {parameters[3]}")
 
-        core.console.log(grid)
+        console.log(grid)

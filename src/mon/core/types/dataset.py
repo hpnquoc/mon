@@ -15,7 +15,7 @@ __all__ = [
 ]
 
 import abc
-from typing import Any, List
+from typing import Any
 
 import torch
 from torch.utils.data import dataset

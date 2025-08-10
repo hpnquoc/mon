@@ -24,7 +24,7 @@ __all__ = [
 
 from typing import Literal
 
-from mon import core
+from mon.core import console, pathlib, rich, types
 from mon.datasets.core import *
 
 
@@ -50,8 +50,8 @@ class RESIDE_HSTSReal(VisionDataset):
     })
     has_test_annotations: bool = False
     
-    def __init__(self, root: core.Path, *args, **kwargs):
-        root = core.Path(root)
+    def __init__(self, root: pathlib.Path, *args, **kwargs):
+        root = pathlib.Path(root)
         root = root / "reside" if root.name != "reside" else root
         if not root.is_dir():
             raise FileNotFoundError(f"[root] directory not found: [{root}].")
@@ -63,7 +63,7 @@ class RESIDE_HSTSReal(VisionDataset):
         patterns = [self.root / "hsts" / "real" / self.split_str / "image"]
         
         images: list[Image] = []
-        with core.create_progress_bar(disable=self.disable_pbar) as pbar:
+        with rich.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
@@ -97,8 +97,8 @@ class RESIDE_HSTSSyn(VisionDataset):
     })
     has_test_annotations: bool = True
     
-    def __init__(self, root: core.Path, *args, **kwargs):
-        root = core.Path(root)
+    def __init__(self, root: pathlib.Path, *args, **kwargs):
+        root = pathlib.Path(root)
         root = root / "reside" if root.name != "reside" else root
         if not root.is_dir():
             raise FileNotFoundError(f"[root] directory not found: [{root}].")
@@ -110,7 +110,7 @@ class RESIDE_HSTSSyn(VisionDataset):
         patterns = [self.root / "hsts" / "synthetic" / self.split_str / "image"]
         
         images: list[Image] = []
-        with core.create_progress_bar(disable=self.disable_pbar) as pbar:
+        with rich.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
@@ -144,8 +144,8 @@ class RESIDE_ITS(VisionDataset):
     })
     has_test_annotations: bool = False
     
-    def __init__(self, root: core.Path, *args, **kwargs):
-        root = core.Path(root)
+    def __init__(self, root: pathlib.Path, *args, **kwargs):
+        root = pathlib.Path(root)
         root = root / "reside" if root.name != "reside" else root
         if not root.is_dir():
             raise FileNotFoundError(f"[root] directory not found: [{root}].")
@@ -157,7 +157,7 @@ class RESIDE_ITS(VisionDataset):
         patterns = [self.root / "its" / self.split_str / "image"]
         
         images: list[Image] = []
-        with core.create_progress_bar(disable=self.disable_pbar) as pbar:
+        with rich.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
@@ -191,8 +191,8 @@ class RESIDE_OTS(VisionDataset):
     })
     has_test_annotations: bool = False
     
-    def __init__(self, root: core.Path, *args, **kwargs):
-        root = core.Path(root)
+    def __init__(self, root: pathlib.Path, *args, **kwargs):
+        root = pathlib.Path(root)
         root = root / "reside" if root.name != "reside" else root
         if not root.is_dir():
             raise FileNotFoundError(f"[root] directory not found: [{root}].")
@@ -204,7 +204,7 @@ class RESIDE_OTS(VisionDataset):
         patterns = [self.root / "ots" / self.split_str / "image"]
         
         images: list[Image] = []
-        with core.create_progress_bar(disable=self.disable_pbar) as pbar:
+        with rich.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
@@ -236,8 +236,8 @@ class RESIDE_RTTS(VisionDataset):
     })
     has_test_annotations: bool = False
     
-    def __init__(self, root: core.Path, *args, **kwargs):
-        root = core.Path(root)
+    def __init__(self, root: pathlib.Path, *args, **kwargs):
+        root = pathlib.Path(root)
         root = root / "reside" if root.name != "reside" else root
         if not root.is_dir():
             raise FileNotFoundError(f"[root] directory not found: [{root}].")
@@ -249,7 +249,7 @@ class RESIDE_RTTS(VisionDataset):
         patterns = [self.root / "rtts" / self.split_str / "image"]
         
         images: list[Image] = []
-        with core.create_progress_bar(disable=self.disable_pbar) as pbar:
+        with rich.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
@@ -283,8 +283,8 @@ class RESIDE_SOTSIndoor(VisionDataset):
     })
     has_test_annotations: bool = True
     
-    def __init__(self, root: core.Path, *args, **kwargs):
-        root = core.Path(root)
+    def __init__(self, root: pathlib.Path, *args, **kwargs):
+        root = pathlib.Path(root)
         root = root / "reside" if root.name != "reside" else root
         if not root.is_dir():
             raise FileNotFoundError(f"[root] directory not found: [{root}].")
@@ -296,7 +296,7 @@ class RESIDE_SOTSIndoor(VisionDataset):
         patterns = [self.root / "sots" / "indoor" / self.split_str / "image"]
         
         images: list[Image] = []
-        with core.create_progress_bar(disable=self.disable_pbar) as pbar:
+        with rich.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
@@ -330,8 +330,8 @@ class RESIDE_SOTSOutdoor(VisionDataset):
     })
     has_test_annotations: bool = True
     
-    def __init__(self, root: core.Path, *args, **kwargs):
-        root = core.Path(root)
+    def __init__(self, root: pathlib.Path, *args, **kwargs):
+        root = pathlib.Path(root)
         root = root / "reside" if root.name != "reside" else root
         if not root.is_dir():
             raise FileNotFoundError(f"[root] directory not found: [{root}].")
@@ -343,7 +343,7 @@ class RESIDE_SOTSOutdoor(VisionDataset):
         patterns = [self.root / "sots" / "outdoor" / self.split_str / "image"]
         
         images: list[Image] = []
-        with core.create_progress_bar(disable=self.disable_pbar) as pbar:
+        with rich.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
@@ -375,8 +375,8 @@ class RESIDE_URHI(VisionDataset):
     })
     has_test_annotations: bool = False
     
-    def __init__(self, root: core.Path, *args, **kwargs):
-        root = core.Path(root)
+    def __init__(self, root: pathlib.Path, *args, **kwargs):
+        root = pathlib.Path(root)
         root = root / "reside" if root.name != "reside" else root
         if not root.is_dir():
             raise FileNotFoundError(f"[root] directory not found: [{root}].")
@@ -388,7 +388,7 @@ class RESIDE_URHI(VisionDataset):
         patterns = [self.root / "urhi" / self.split_str / "image"]
         
         images: list[Image] = []
-        with core.create_progress_bar(disable=self.disable_pbar) as pbar:
+        with rich.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
                 desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
@@ -401,7 +401,7 @@ class RESIDE_URHI(VisionDataset):
 
 # ----- DataModule -----
 @DATAMODULES.register(name="reside_hstsreal")
-class RESIDE_HSTSReal_DataModule(core.DataModule):
+class RESIDE_HSTSReal_DataModule(types.DataModule):
     """Configures RESIDE_HSTS_Real datasets for training/testing."""
 
     tasks: list[Task] = [Task.DEHAZE]
@@ -418,7 +418,7 @@ class RESIDE_HSTSReal_DataModule(core.DataModule):
                 or ``None``. Default is ``None``.
         """
         if self.can_log:
-            core.console.log(f"Setup [red]{self.__class__.__name__}[/red].")
+            console.log(f"Setup [red]{self.__class__.__name__}[/red].")
         
         if stage in [None, "train"]:
             self.train = RESIDE_HSTSReal(split=Split.TEST, **self.dataset_kwargs)
@@ -432,7 +432,7 @@ class RESIDE_HSTSReal_DataModule(core.DataModule):
 
 
 @DATAMODULES.register(name="reside_hstssyn")
-class RESIDE_HSTSSyn_DataModule(core.DataModule):
+class RESIDE_HSTSSyn_DataModule(types.DataModule):
     """Configures RESIDE_HSTS_Synthetic datasets for training/testing."""
 
     tasks: list[Task] = [Task.DEHAZE]
@@ -449,7 +449,7 @@ class RESIDE_HSTSSyn_DataModule(core.DataModule):
                 or ``None``. Default is ``None``.
         """
         if self.can_log:
-            core.console.log(f"Setup [red]{self.__class__.__name__}[/red].")
+            console.log(f"Setup [red]{self.__class__.__name__}[/red].")
         
         if stage in [None, "train"]:
             self.train = RESIDE_HSTSSyn(split=Split.TEST, **self.dataset_kwargs)
@@ -463,7 +463,7 @@ class RESIDE_HSTSSyn_DataModule(core.DataModule):
 
 
 @DATAMODULES.register(name="reside_its")
-class RESIDE_ITS_DataModule(core.DataModule):
+class RESIDE_ITS_DataModule(types.DataModule):
     """Configures RESIDE_ITS datasets for training/testing."""
 
     tasks: list[Task] = [Task.DEHAZE]
@@ -480,7 +480,7 @@ class RESIDE_ITS_DataModule(core.DataModule):
                 or ``None``. Default is ``None``.
         """
         if self.can_log:
-            core.console.log(f"Setup [red]{self.__class__.__name__}[/red].")
+            console.log(f"Setup [red]{self.__class__.__name__}[/red].")
         
         if stage in [None, "train"]:
             self.train = RESIDE_ITS(split=Split.TRAIN, **self.dataset_kwargs)
@@ -494,7 +494,7 @@ class RESIDE_ITS_DataModule(core.DataModule):
 
 
 @DATAMODULES.register(name="reside_ots")
-class RESIDE_OTS_DataModule(core.DataModule):
+class RESIDE_OTS_DataModule(types.DataModule):
     """Configures RESIDE_OTS datasets for training/testing."""
 
     tasks: list[Task] = [Task.DEHAZE]
@@ -511,7 +511,7 @@ class RESIDE_OTS_DataModule(core.DataModule):
                 or ``None``. Default is ``None``.
         """
         if self.can_log:
-            core.console.log(f"Setup [red]{self.__class__.__name__}[/red].")
+            console.log(f"Setup [red]{self.__class__.__name__}[/red].")
         
         if stage in [None, "train"]:
             self.train = RESIDE_OTS(split=Split.TRAIN, **self.dataset_kwargs)
@@ -525,7 +525,7 @@ class RESIDE_OTS_DataModule(core.DataModule):
 
 
 @DATAMODULES.register(name="reside_rtts")
-class RESIDE_RTTS_DataModule(core.DataModule):
+class RESIDE_RTTS_DataModule(types.DataModule):
     """Configures RESIDE_RTTS datasets for training/testing."""
 
     tasks: list[Task] = [Task.DEHAZE]
@@ -542,7 +542,7 @@ class RESIDE_RTTS_DataModule(core.DataModule):
                 or ``None``. Default is ``None``.
         """
         if self.can_log:
-            core.console.log(f"Setup [red]{self.__class__.__name__}[/red].")
+            console.log(f"Setup [red]{self.__class__.__name__}[/red].")
         
         if stage in [None, "train"]:
             self.train = RESIDE_RTTS(split=Split.TEST, **self.dataset_kwargs)
@@ -556,7 +556,7 @@ class RESIDE_RTTS_DataModule(core.DataModule):
 
 
 @DATAMODULES.register(name="reside_sotsindoor")
-class RESIDE_SOTSIndoor_DataModule(core.DataModule):
+class RESIDE_SOTSIndoor_DataModule(types.DataModule):
     """Configures RESIDE_SOTS_Indoor datasets for training/testing."""
 
     tasks: list[Task] = [Task.DEHAZE]
@@ -573,7 +573,7 @@ class RESIDE_SOTSIndoor_DataModule(core.DataModule):
                 or ``None``. Default is ``None``.
         """
         if self.can_log:
-            core.console.log(f"Setup [red]{self.__class__.__name__}[/red].")
+            console.log(f"Setup [red]{self.__class__.__name__}[/red].")
         
         if stage in [None, "train"]:
             self.train = RESIDE_SOTSIndoor(split=Split.TEST, **self.dataset_kwargs)
@@ -587,7 +587,7 @@ class RESIDE_SOTSIndoor_DataModule(core.DataModule):
 
 
 @DATAMODULES.register(name="reside_sotsoutdoor")
-class RESIDE_SOTSOutdoor_DataModule(core.DataModule):
+class RESIDE_SOTSOutdoor_DataModule(types.DataModule):
     """Configures RESIDE_SOTS_Outdoor datasets for training/testing."""
 
     tasks: list[Task] = [Task.DEHAZE]
@@ -604,7 +604,7 @@ class RESIDE_SOTSOutdoor_DataModule(core.DataModule):
                 or ``None``. Default is ``None``.
         """
         if self.can_log:
-            core.console.log(f"Setup [red]{self.__class__.__name__}[/red].")
+            console.log(f"Setup [red]{self.__class__.__name__}[/red].")
         
         if stage in [None, "train"]:
             self.train = RESIDE_SOTSOutdoor(split=Split.TEST, **self.dataset_kwargs)
@@ -618,7 +618,7 @@ class RESIDE_SOTSOutdoor_DataModule(core.DataModule):
 
 
 @DATAMODULES.register(name="reside_urhi")
-class RESIDE_URHI_DataModule(core.DataModule):
+class RESIDE_URHI_DataModule(types.DataModule):
     """Configures RESIDE_URHI datasets for training/testing."""
 
     tasks: list[Task] = [Task.DEHAZE]
@@ -635,7 +635,7 @@ class RESIDE_URHI_DataModule(core.DataModule):
                 or ``None``. Default is ``None``.
         """
         if self.can_log:
-            core.console.log(f"Setup [red]{self.__class__.__name__}[/red].")
+            console.log(f"Setup [red]{self.__class__.__name__}[/red].")
         
         if stage in [None, "train"]:
             self.train = RESIDE_URHI(split=Split.TEST, **self.dataset_kwargs)

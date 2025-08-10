@@ -412,6 +412,7 @@ class Task(Enum):
     INPAINT    = "inpaint"               # inpainting
     LLE        = "lle"                   # low-light enhancement
     NIGHTTIME  = "nighttime"             # nighttime
+    OBB        = "obb"                   # oriented bounding box detection
     POSE       = "pose"                  # pose estimation
     RETOUCH    = "retouch"               # Retouching
     RGB2TIR    = "rgb2tir"               # RGB-to-TIR translation

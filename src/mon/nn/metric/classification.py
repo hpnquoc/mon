@@ -29,10 +29,10 @@ __all__ = [
 ]
 
 from torchmetrics.classification import (
-	Accuracy, AUROC, AveragePrecision, CalibrationError, CohenKappa, ConfusionMatrix,
-	ExactMatch, F1Score, FBetaScore, HammingDistance, HingeLoss, JaccardIndex,
-	MatthewsCorrCoef, Precision, PrecisionAtFixedRecall, PrecisionRecallCurve, Recall,
-	RecallAtFixedPrecision, ROC, Specificity, SpecificityAtSensitivity, StatScores,
+    Accuracy, AUROC, AveragePrecision, CalibrationError, CohenKappa, ConfusionMatrix,
+    ExactMatch, F1Score, FBetaScore, HammingDistance, HingeLoss, JaccardIndex,
+    MatthewsCorrCoef, Precision, PrecisionAtFixedRecall, PrecisionRecallCurve, Recall,
+    RecallAtFixedPrecision, ROC, Specificity, SpecificityAtSensitivity, StatScores,
 )
 
 from mon.constants import METRICS

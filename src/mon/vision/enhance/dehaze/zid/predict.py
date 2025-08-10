@@ -31,7 +31,6 @@ def benchmark(model: torch.nn.Module):
     mon.console.log(f"FLOPs     : {flops:.4f}")
 
 
-@torch.no_grad()
 def predict(args: dict | box.Box) -> str:
     # Start
     mon.print_run_summary(args)
