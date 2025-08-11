@@ -4,8 +4,8 @@
 """Implements computer vision tasks."""
 
 from .bgsubtract import *
+from .classify import *
 from .detect import *
-# from .classify import *
 from .draw import *
 from .enhance import *
 from .filtering import *
