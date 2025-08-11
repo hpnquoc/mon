@@ -3,7 +3,7 @@ import pickle
 
 import torch
 import torch.nn as nn
-from deepspeed.ops.adam import DeepSpeedCPUAdam
+# from deepspeed.ops.adam import DeepSpeedCPUAdam
 from einops import rearrange, repeat
 from torchvision.utils import make_grid
 
@@ -12,8 +12,7 @@ from ..ldm.models.diffusion.ddim import DDIMSampler
 from ..ldm.models.diffusion.ddpm import LatentDiffusion
 from ..ldm.modules.attention import SpatialTransformer
 from ..ldm.modules.diffusionmodules.openaimodel import (
-    AttentionBlock, Downsample, ResBlock, TimestepEmbedSequential,
-    UNetModel,
+    AttentionBlock, Downsample, ResBlock, TimestepEmbedSequential, UNetModel
 )
 from ..ldm.modules.diffusionmodules.util import (
     conv_nd, linear, timestep_embedding, zero_module,
@@ -25,6 +24,7 @@ current_dir  = current_file.parents[0]
 
 
 class ControlledUnetModel(UNetModel):
+    
     def forward(self, x, timesteps=None, context=None, control=None, only_mid_control=False, **kwargs):
         hs = []
         with torch.no_grad():
@@ -321,10 +321,10 @@ class ControlLDM(LatentDiffusion):
 
     def __init__(self, control_stage_config, control_key, only_mid_control, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.control_model = instantiate_from_config(control_stage_config)
-        self.control_key = control_key
+        self.control_model    = instantiate_from_config(control_stage_config)
+        self.control_key      = control_key
         self.only_mid_control = only_mid_control
-        self.control_scales = [1.0] * 13
+        self.control_scales   = [1.0] * 13
         with open((current_dir.parent / "empty_embedding.pkl"), 'rb') as f:
             self.cond_txt_empty = pickle.load(f)
 
@@ -456,7 +456,8 @@ class ControlLDM(LatentDiffusion):
         return samples, intermediates
 
     def configure_optimizers(self):
-        lr = self.learning_rate
+        from deepspeed.ops.adam import DeepSpeedCPUAdam
+        lr     = self.learning_rate
         params = list(self.control_model.parameters())
         if not self.sd_locked:
             params += list(self.model.diffusion_model.output_blocks.parameters())

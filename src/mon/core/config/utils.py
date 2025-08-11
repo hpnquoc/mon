@@ -67,8 +67,6 @@ def list_configs(
     Returns:
         Sorted list of config file paths.
     """
-    from mon import nn
-    
     def is_valid(x) -> bool:
         return x not in [None, "", "None"]
 
@@ -94,8 +92,7 @@ def list_configs(
     ]
     
     if is_valid(model):
-        model_name   = nn.parse_model_name(model)
-        config_files = [cf for cf in config_files if model_name in cf.name]
+        config_files = [cf for cf in config_files if model in cf.name]
     
     if not absolute_path:
         config_files = [cf.name for cf in config_files]
@@ -108,7 +105,6 @@ def load_config(config: Any, verbose: bool = True) -> dict | box.Box:
 
     Args:
         config: Config source (dict, file path, or string).
-        as_dict: If ``True``, returns config as a dict. Default is ``False``.
         verbose: If ``True``, prints verbose messages when loading.
 
     Returns:

@@ -10,6 +10,7 @@ from ...modules.diffusionmodules.util import (
 
 
 class DDIMSampler(object):
+    
     def __init__(self, model, schedule="linear", **kwargs):
         super().__init__()
         self.model = model

@@ -562,9 +562,9 @@ class LatentDiffusion(DDPM):
         reset_num_ema_updates = kwargs.pop("reset_num_ema_updates", False)
         ignore_keys = kwargs.pop("ignore_keys", [])
         super().__init__(conditioning_key=conditioning_key, *args, **kwargs)
-        self.concat_mode = concat_mode
+        self.concat_mode          = concat_mode
         self.cond_stage_trainable = cond_stage_trainable
-        self.cond_stage_key = cond_stage_key
+        self.cond_stage_key       = cond_stage_key
         try:
             self.num_downs = len(first_stage_config.params.ddconfig.ch_mult) - 1
         except:
@@ -575,9 +575,9 @@ class LatentDiffusion(DDPM):
             self.register_buffer('scale_factor', torch.tensor(scale_factor))
         self.instantiate_first_stage(first_stage_config)
         self.instantiate_cond_stage(cond_stage_config)
-        self.cond_stage_forward = cond_stage_forward
-        self.clip_denoised = False
-        self.bbox_tokenizer = None
+        self.cond_stage_forward  = cond_stage_forward
+        self.clip_denoised       = False
+        self.bbox_tokenizer      = None
 
         self.restarted_from_ckpt = False
         if ckpt_path is not None:

@@ -329,7 +329,7 @@ class GCENet(base.ImageEnhancementModel):
     arch     : str          = "gcenet"
     name     : str          = "gcenet"
     tasks    : list[Task]   = [Task.LLE]
-    mltypes  : list[MLType] = [MLType.ZERO_REFERENCE]
+    mltypes  : list[MLType] = [MLType.UNSUPERVISED]
     model_dir: core.Path    = current_dir
     zoo      : dict         = {}
     

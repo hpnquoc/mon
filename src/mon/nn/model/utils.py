@@ -10,20 +10,14 @@ __all__ = [
     "get_global_step_from_checkpoint",
     "get_latest_checkpoint",
     "get_weights_file_from_config",
-    "is_extra_model",
     "is_image",
     "list_archs",
-    "list_extra_archs",
-    "list_extra_models",
     "list_models",
-    "list_mon_archs",
-    "list_mon_models",
     "list_tasks",
     "list_weights_files",
     "load_weights",
     "parse_model_dir",
     "parse_model_fullname",
-    "parse_model_name",
     "parse_weights_file",
 ]
 
@@ -32,9 +26,7 @@ from urllib.parse import urlparse  # noqa: F401
 
 import torch
 
-from mon.constants import (
-    EXTRA_MODELS, EXTRA_STR, MLType, MODELS, ROOT_DIR, Task, ZOO_DIR,
-)
+from mon.constants import MLType, MODELS, ROOT_DIR, Task, ZOO_DIR
 from mon.core import error_console, humps, load_config, load_project_defaults, pathlib, type_extensions
 
 
@@ -52,68 +44,14 @@ def list_tasks(project_root: pathlib.Path = None) -> list[str]:
     
     if project_root:
         default_configs = load_project_defaults(project_root)
-        if default_configs.get("TASKS"):
-            tasks = [t for t in tasks if t in default_configs["TASKS"]]
-    
-    return sorted(t.value for t in tasks)
+        default_tasks   = default_configs.get("TASKS", [])
+        if default_tasks not in [None, []]:
+            tasks = default_tasks
+            
+    return sorted([t.value for t in tasks])
 
 
 # ----- Retrieve (Archs) -----
-def list_mon_archs(task: str = None, mode: str = None) -> list[str]:
-    """Lists all available architectures in the ``mon`` framework.
-
-    Args:
-        task: Task to filter archs. Default is ``None``.
-        mode: Mode of archs (``train`` or ``None``). Default is ``None``.
-
-    Returns:
-        Sorted list of unique arch names matching task and mode.
-    """
-    flatten_models = flatten_models_dict(MODELS)
-    models         = list(flatten_models.keys())
-    
-    if task in Task.values():
-        task   = Task(task)
-        models = [m for m in models if task in flatten_models[m].tasks]
-    
-    if mode == "train":
-        models = [m for m in models
-                  if any(lt in MLType.trainable() for lt in flatten_models[m].mltypes)]
-    
-    archs = [flatten_models[m].arch.strip()
-             for m in models
-             if flatten_models[m].arch not in [None, "None", ""]]
-    
-    return sorted(type_extensions.unique(archs))
-
-
-def list_extra_archs(task: str = None, mode: str = None) -> list[str]:
-    """Lists all available architectures in the ``extra`` framework.
-
-    Args:
-        task: Task to filter archs. Default is ``None``.
-        mode: Mode of archs (``train`` or ``None``). Default is ``None``.
-
-    Returns:
-        Sorted list of unique arch names matching task and mode.
-    """
-    flatten_models = flatten_models_dict(EXTRA_MODELS)
-    models         = list(flatten_models.keys())
-    
-    if task in Task.values():
-        task   = Task(task)
-        models = [m for m in models if task in flatten_models[m]["tasks"]]
-    
-    if mode == "train":
-        models = [m for m in models
-                  if any(lt in MLType.trainable() for lt in flatten_models[m]["mltypes"])]
-    
-    archs = [flatten_models[m]["arch"].strip()
-             for m in models if flatten_models[m]["arch"] not in [None, "None", ""]]
-    
-    return sorted(type_extensions.unique(archs))
-
-
 def list_archs(
     task        : str          = None,
     mode        : str          = None,
@@ -129,82 +67,21 @@ def list_archs(
     Returns:
         Sorted list of unique arch names matching task and mode.
     """
-    models       =   list_mon_models(task=task, mode=mode)
-    extra_models = list_extra_models(task=task, mode=mode)
+    models = list_models(task=task, mode=mode, project_root=project_root)
     
     default_configs = load_project_defaults(project_root=project_root)
     if default_configs.get("MODELS"):
-        project_models = [humps.snakecase(m) for m in default_configs["MODELS"]]
-        models         = [m for m in models       if humps.snakecase(m) in project_models]
-        extra_models   = [m for m in extra_models if humps.snakecase(m) in project_models]
+        default_models = [humps.snakecase(m) for m in default_configs["MODELS"]]
+        models         = [m for m in models if humps.snakecase(m) in default_models]
     
-    flatten_mon_models   = flatten_models_dict(MODELS)
-    flatten_extra_models = flatten_models_dict(EXTRA_MODELS)
-    archs = (
-        [flatten_mon_models[m].arch      for m in models] +
-        [flatten_extra_models[m]["arch"] for m in extra_models]
-    )
+    flatten_mon_models = flatten_models_dict(MODELS)
+    archs = [flatten_mon_models[m].arch for m in models]
     archs = [a.strip() for a in archs if a not in [None, "None", ""]]
     
     return sorted(type_extensions.unique(archs))
 
 
 # ----- Retrieve (Models) -----
-def list_mon_models(task: str = None, mode: str = None, arch: str = None) -> list[str]:
-    """Lists all available models in the ``mon`` framework.
-
-    Args:
-        task: Task to filter models. Default is ``None``.
-        mode: Mode of models (``train`` or ``None``). Default is ``None``.
-        arch: Arch to filter models. Default is ``None``.
-
-    Returns:
-        Sorted list of model names matching task, mode, and arch.
-    """
-    flatten_models = flatten_models_dict(MODELS)
-    models         = list(flatten_models.keys())
-    
-    if task in Task.values():
-        task   = Task(task)
-        models = [m for m in models if task in flatten_models[m].tasks]
-   
-    if mode == "train":
-        models = [m for m in models
-                  if any(lt in MLType.trainable() for lt in flatten_models[m].mltypes)]
-    
-    if arch:
-        models = [m for m in models if arch == flatten_models[m].arch]
-        
-    return sorted(models)
-
-
-def list_extra_models(task: str = None, mode: str = None, arch: str = None) -> list[str]:
-    """Lists all available models in the ``extra`` framework.
-
-    Args:
-        task: Task to filter models. Default is ``None``.
-        mode: Mode of models (``train`` or ``None``). Default is ``None``.
-        arch: Arch to filter models. Default is ``None``.
-
-    Returns:
-        Sorted list of model names matching task, mode, and arch.
-    """
-    flatten_models = flatten_models_dict(EXTRA_MODELS)
-    models         = list(flatten_models.keys())
-   
-    if task in Task.values():
-        task   = Task(task)
-        models = [m for m in models if task in flatten_models[m]["tasks"]]
-
-    if mode == "train":
-        models = [m for m in models if any(lt in MLType.trainable() for lt in flatten_models[m]["mltypes"])]
-    
-    if arch:
-        models = [m for m in models if arch == flatten_models[m]["arch"]]
-   
-    return sorted(models)
-
-
 def list_models(
     task        : str          = None,
     mode        : str          = None,
@@ -222,20 +99,23 @@ def list_models(
     Returns:
         Sorted list of model names matching task, mode, and arch.
     """
-    models       =   list_mon_models(task=task, mode=mode, arch=arch)
-    extra_models = list_extra_models(task=task, mode=mode, arch=arch)
+    flatten_models = flatten_models_dict(MODELS)
+    models         = list(flatten_models.keys())
+    
+    if task in Task.values():
+        task   = Task(task)
+        models = [m for m in models if task in flatten_models[m].tasks]
+    if mode == "train":
+        models = [m for m in models if any(lt in MLType.trainable() for lt in flatten_models[m].mltypes)]
+    if arch:
+        models = [m for m in models if arch == flatten_models[m].arch]
     
     default_configs = load_project_defaults(project_root=project_root)
     if default_configs.get("MODELS"):
         project_models = [humps.snakecase(m) for m in default_configs["MODELS"]]
-        models         = [m for m in models       if humps.snakecase(m) in project_models]
-        extra_models   = [m for m in extra_models if humps.snakecase(m) in project_models]
-        
-    for i, m in enumerate(extra_models):
-        if m in models:
-            extra_models[i] = f"{m} {EXTRA_STR}"
-            
-    return sorted(models + extra_models)
+        models         = [m for m in models if humps.snakecase(m) in project_models]
+
+    return sorted(models)
 
 
 # ----- Retrieve (Checkpoint) -----
@@ -341,8 +221,7 @@ def list_weights_files(model: str, project_root: pathlib.Path = None) -> list[pa
     weights_files += collect_weights_files(ZOO_DIR)
     
     # Filter weights files by model name.
-    model_name    = parse_model_name(model)
-    weights_files = [f for f in weights_files if model_name in f.parts]
+    weights_files = [f for f in weights_files if model in f.parts]
     
     return sorted(type_extensions.unique(weights_files))
 
@@ -416,25 +295,8 @@ def parse_model_dir(arch: str, model: str) -> pathlib.Path | None:
     Returns:
         Model directory path if found, else ``None``.
     """
-    model_name = parse_model_name(model)
-    model_dir  = (
-        EXTRA_MODELS[arch][model_name].get("model_dir")
-        if is_extra_model(model)
-        else MODELS[arch][model_name].model_dir
-    )
+    model_dir = MODELS[arch][model].model_dir
     return pathlib.Path(model_dir) if model_dir else None
-
-
-def parse_model_name(model: str) -> str:
-    """Parses the model's name from given components.
-
-    Args:
-        model: Model name to parse.
-
-    Returns:
-        Parsed model name as a string.
-    """
-    return model.replace(f" {EXTRA_STR}", "").strip()
 
 
 def parse_model_fullname(name: str, data: str, suffix: str = None) -> str:
@@ -510,24 +372,6 @@ def flatten_models_dict(x: dict) -> dict:
 
 
 # ----- Validity Check -----
-def is_extra_model(model: str) -> bool:
-    """Checks if a model is an extra model.
-
-    Args:
-        model: Name of the model to check.
-
-    Returns:
-        ``True`` if model is extra, ``False`` otherwise.
-    """
-    model        = model.replace(f" {EXTRA_STR}", "").strip()
-    mon_models   = flatten_models_dict(MODELS)
-    extra_models = flatten_models_dict(EXTRA_MODELS)
-    return (
-        f"{EXTRA_STR}" in model
-        or (model not in mon_models and model in extra_models)
-    )
-
-
 def is_image(image: torch.Tensor) -> bool:
     """Checks if input is a valid image tensor.
 

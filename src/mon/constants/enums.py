@@ -350,9 +350,7 @@ class MLType(Enum):
     TRADITIONAL     = "traditional"      # Traditional Method (non-learning).
     SUPERVISED      = "supervised"       # Supervised learning with labeled data.
     UNSUPERVISED    = "unsupervised"     # Unsupervised learning with unlabeled data.
-    UNPAIRED        = "unpaired"         # Unpaired learning with varying reference data of the same input (e.g., varying illumination within the same scene).
     SELF_SUPERVISED = "self_supervised"  # Self-Supervised learning with self-generated supervision.
-    ZERO_REFERENCE  = "zero_reference"   # Zero-Reference learning without any reference (e.g., mixing different low and normal-light images).
     ZERO_SHOT       = "zero_shot"        # Zero-Shot learning without any training data.
     
     @classmethod
@@ -361,9 +359,7 @@ class MLType(Enum):
         return [
             cls.SELF_SUPERVISED,
             cls.SUPERVISED,
-            cls.UNPAIRED,
             cls.UNSUPERVISED,
-            cls.ZERO_REFERENCE,
         ]
 
 
@@ -386,14 +382,12 @@ class Split(Enum):
 
 class TRTPrecision(Enum):
     """TensorRT precision modes."""
-
+    
+    FP32    = "fp32"                    # 32-bit floating point
     FP16    = "fp16"                    # 16-bit floating point
     FP16N32 = "fp16n32"                 # 16-bit floating point with 32-bit normalization
-    FP32    = "fp32"                    # 32-bit floating point
     FP8     = "fp8"                     # 8-bit floating point
-    FP8N32  = "fp8n32"                  # 8-bit floating point with 32-bit normalization
     INT8    = "int8"                    # 8-bit integer
-    INT8N32 = "int8n32"                 # 8-bit integer with 32-bit normalization
 
 
 # ----- Task -----

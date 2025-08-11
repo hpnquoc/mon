@@ -277,7 +277,7 @@ class FullnamePrompt(Prompt):
         text   : str = CLI_OPTIONS["fullname"]["prompt_text"],
         default: str = CLI_OPTIONS["fullname"]["default"],
     ):
-        default = default or (mon.Path(config).stem if config not in [None, "None", ""] else mon.parse_model_name(model))
+        default = default or (mon.Path(config).stem if config not in [None, "None", ""] else model)
         super().__init__(text=text, default=default)
 
 
@@ -292,10 +292,7 @@ class DevicePrompt(Prompt):
         default: str  = CLI_OPTIONS["device"]["default"],
         choices: list = CLI_OPTIONS["device"]["choices"],
     ):
-        if mon.parse_model_name(model) in mon.list_mon_models(mode=mode, task=task) and mode == "train":
-            default = "auto"
-        else:
-            default = default or "cuda:0"
+        default = default or "cuda:0"
         choices = choices or CLI_OPTIONS["device"]["choices"]
         super().__init__(text=text, default=default, choices=choices)
         
@@ -322,7 +319,7 @@ class RunmlCLI:
 
     def display_prompt(self):
         if self.index == 0:
-            mon.clear_terminal()
+            # mon.clear_terminal()
             mon.console.rule(f"[bold red]Input Prompts")
         else:
             mon.console.rule()

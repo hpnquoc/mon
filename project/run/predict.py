@@ -4,7 +4,6 @@
 """Predicts model output on a given dataset."""
 
 import box
-import torch
 
 import mon
 

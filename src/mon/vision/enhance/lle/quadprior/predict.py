@@ -27,7 +27,6 @@ from quadprior.annotator.util import HWC3, resize_image
 from quadprior.cldm.hack import disable_verbosity
 from quadprior.cldm.model import create_model, load_state_dict
 from quadprior.ldm.models.diffusion.dpm_solver import DPMSolverSampler
-
 disable_verbosity()
 
 current_file = mon.Path(__file__).absolute()

@@ -17,19 +17,16 @@ current_dir  = current_file.parents[0]
 
 # ----- Train -----
 def run_train(args: dict | box.Box):
-    # Get args
-    args.root = mon.Path(args.root)
-    assert args.root.exists()
-    
     # Parse arguments
-    use_extra_model = mon.is_extra_model(args.model)
-    model_root      = mon.parse_model_dir(args.arch, args.model)
-    args.model      = mon.parse_model_name(args.model)
-    args.fullname   = args.fullname if args.fullname not in [None, "None", ""] else mon.Path(args.config).stem
-    args.config     = mon.parse_config_file(args.config, args.root, model_root=model_root, weights_path=args.weights)
-    assert args.config not in [None, "None", ""]
-    args.weights    = mon.to_str(args.weights, ",")
-
+    args.root     = mon.Path(args.root)
+    model_root    = mon.parse_model_dir(args.arch, args.model)
+    args.config   = mon.parse_config_file(args.config, args.root, model_root=model_root, weights_path=args.weights)
+    args.weights  = mon.to_str(args.weights, ",")
+    
+    if args.fullname in [None, "None", ""]:
+        args.fullname = mon.Path(args.config).stem
+    
+    # Prepare kwargs and flags
     kwargs, flags = {}, []
     kwargs |= {"--root"           : str(args.root)}
     kwargs |= {"--task"           : str(args.task)}
@@ -71,23 +68,6 @@ def run_train(args: dict | box.Box):
         os.environ["CUDA_VISIBLE_DEVICES"] = ",".join(device_)
         env = {**os.environ, "CUDA_VISIBLE_DEVICES": ",".join(device_), **env}
     
-    '''
-    if use_extra_model:
-        script_file = mon.EXTRA_MODELS[args.arch][args.model]["model_dir"] / "train.py"
-        if args.torchrun:
-            device_     = mon.parse_device(args.device)
-            python_call = [
-                "python", "-m", "torch.distributed.run",
-                f"--nproc_per_node={len(device_)}",
-                f"--master_port={args.master_port}",
-                f"--master_addr={args.master_addr}",
-            ]
-            os.environ["CUDA_VISIBLE_DEVICES"] = ",".join(device_)
-            env = {**os.environ, "CUDA_VISIBLE_DEVICES": ",".join(device_), **env}
-    else:
-        script_file = current_dir / "train.py"
-    '''
-    
     # Parse arguments
     args_call: list[str] = []
     for k, v in kwargs.items():
@@ -116,20 +96,18 @@ def run_train(args: dict | box.Box):
 
 # ----- Predict -----
 def run_predict(args: dict | box.Box):
-    # Get args
-    args.root = mon.Path(args.root)
-    assert args.root.exists()
-
     # Parse arguments
-    use_extra_model = mon.is_extra_model(args.model)
-    model_root      = mon.parse_model_dir(args.arch, args.model)
-    args.model      = mon.parse_model_name(args.model)
-    args.data       = mon.to_list(args.data)
-    args.fullname   = args.fullname if args.fullname not in [None, "None", ""] else args.model
-    args.config     = mon.parse_config_file(args.config, args.root, model_root=model_root, weights_path=args.weights)
-    args.config     = args.config or ""
-    args.weights    = mon.to_str(args.weights, ",")
+    args.root     = mon.Path(args.root)
+    model_root    = mon.parse_model_dir(args.arch, args.model)
+    args.data     = mon.to_list(args.data)
+    args.config   = mon.parse_config_file(args.config, args.root, model_root=model_root, weights_path=args.weights)
+    args.config   = args.config or ""
+    args.weights  = mon.to_str(args.weights, ",")
     
+    if args.fullname not in [None, "None", ""]:
+        args.fullname = args.model
+    
+    # Prepare kwargs and flags
     for d in args.data:
         kwargs, flags = {}, []
         kwargs |= {"--root"           : str(args.root)}
@@ -159,15 +137,7 @@ def run_predict(args: dict | box.Box):
         # Parse script file
         script_file = mon.MODELS[args.arch][args.model].model_dir / "predict.py"
         python_call = ["python"]
-        '''
-        if use_extra_model:
-            script_file = mon.EXTRA_MODELS[args.arch][args.model]["model_dir"] / "i_predict.py"
-            python_call = ["python"]
-        else:
-            script_file = current_dir / "predict.py"
-            python_call = ["python"]
-        '''
-        
+      
         # Parse arguments
         args_call: list[str] = []
         for k, v in kwargs.items():

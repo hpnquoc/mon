@@ -9,8 +9,6 @@ __all__ = [
     "DATAMODULES",
     "DATASETS",
     "DATA_DIR",
-    "EXTRA_MODELS",
-    "EXTRA_STR",
     "Enum",
     "LOGGERS",
     "LOSSES",
@@ -57,7 +55,6 @@ SAVE_CKPT_EXT      = WeightExtension.CKPT.value
 SAVE_IMAGE_EXT     = ImageExtension.JPG.value
 SAVE_WEIGHTS_EXT   = WeightExtension.PT.value
 # List 3rd party modules
-EXTRA_STR      = "[extra]"
 EXTRA_MODELS   = {  # architecture/model (+ variant)
     # region detect
     "deim"   : {
