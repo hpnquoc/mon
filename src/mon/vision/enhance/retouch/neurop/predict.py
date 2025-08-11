@@ -8,16 +8,13 @@ References:
     - Code: https://github.com/amberwangyili/neurop
 """
 
-import os
-import sys
-
 import box
 import imageio
 import torch
 
 import mon
-
-sys.path.append(os.path.abspath(os.path.dirname(__file__)))
+# noinspection PyUnusedImports
+from mon.vision.enhance.retouch import neurop
 from neurop.models import build_model
 from neurop.utils import *
 

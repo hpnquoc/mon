@@ -9,16 +9,11 @@ References:
     - Code: https://github.com/huaqlili/unsupervised-light-enhance-ICLR2025
 """
 
-import os
-import sys
-
 import box
 import torch.optim
 
 import mon
-
-sys.path.append(os.path.abspath(os.path.dirname(__file__)))
-from model import *
+from mon.vision.enhance.lle import li2025
 
 current_file = mon.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
@@ -56,7 +51,7 @@ def predict(args: dict | box.Box) -> str:
         raise ValueError(f"Invalid weights file: {pretrained}.")
 
     # Model
-    model = Li2025()
+    model = li2025.Li2025()
     model.load_state_dict(torch.load(pretrained, weights_only=True))
     model = model.to(device)
     model.eval()

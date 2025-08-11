@@ -9,16 +9,11 @@ References:
     - Code: https://github.com/DavidQiuChao/PIE
 """
 
-import os
-import sys
-
 import box
 import cv2
 
 import mon
-
-sys.path.append(os.path.abspath(os.path.dirname(__file__)))
-from model import *
+from mon.vision.enhance.lle import pie
 
 current_file = mon.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
@@ -39,7 +34,7 @@ def predict(args: dict | box.Box) -> str:
     data_name, data_loader = mon.parse_data_loader(args.data, args.root, False, verbose=False)
     
     # Model
-    model = PIE()
+    model = pie.PIE()
     
     # Predict
     timers = mon.TimeProfiler()

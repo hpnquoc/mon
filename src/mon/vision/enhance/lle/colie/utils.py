@@ -11,17 +11,13 @@ __all__ = [
     "replace_v_component",
 ]
 
-import os
-import sys
-
 import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from PIL import Image
 
-sys.path.append(os.path.abspath(os.path.dirname(__file__)))
-from filter import FastGuidedFilter
+from .filter import FastGuidedFilter
 
 
 def get_image(path):

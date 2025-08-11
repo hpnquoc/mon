@@ -14,19 +14,17 @@ from typing import Any
 
 import cv2
 
-from mon import core
-from mon.constants import DepthSource, InfraredSource, TRANSFORMS, BBoxFormat
+from mon.constants import BBoxFormat, DepthSource, InfraredSource, TRANSFORMS
+from mon.core import console, DatapointAttributes, Dataset, pathlib, rich
 from mon.vision.geometry import albumentation
 from mon.vision.types.bbox import HBBs
 from mon.vision.types.depth import DepthMap
 from mon.vision.types.image import Image
 from mon.vision.types.thermal import InfraredMap
 
-DatapointAttributes = core.DatapointAttributes
-
 
 # ----- Vision Dataset -----
-class VisionDataset(core.Dataset, abc.ABC):
+class VisionDataset(Dataset, abc.ABC):
     """Base class for multimodal, multi-task, multi-label datasets.
 
     Attributes:
@@ -175,7 +173,7 @@ class VisionDataset(core.Dataset, abc.ABC):
         if cache_data:
             self.cache_data(path=cache_file)
         else:
-            core.delete_cache(cache_file)
+            pathlib.delete_cache(cache_file)
 
     def list_multimodal_data(self):
         """Lists multimodal data for the dataset."""
@@ -202,7 +200,7 @@ class VisionDataset(core.Dataset, abc.ABC):
         
         if len(images) > 0 and len(depths) == 0:
             depths: list[DepthMap] = []
-            with core.create_progress_bar(disable=self.disable_pbar) as pbar:
+            with rich.create_progress_bar(disable=self.disable_pbar) as pbar:
                 for img in pbar.track(
                     sequence    = images,
                     description = f"Listing {self.__class__.__name__} "
@@ -228,7 +226,7 @@ class VisionDataset(core.Dataset, abc.ABC):
 
         if len(images) > 0 and len(infrareds) == 0:
             infrareds: list[InfraredMap] = []
-            with core.create_progress_bar(disable=self.disable_pbar) as pbar:
+            with rich.create_progress_bar(disable=self.disable_pbar) as pbar:
                 for img in pbar.track(
                     sequence    = images,
                     description = f"Listing {self.__class__.__name__} "
@@ -254,7 +252,7 @@ class VisionDataset(core.Dataset, abc.ABC):
 
         if len(images) > 0 and len(bboxes) == 0:
             bboxes: list[HBBs] = []
-            with core.create_progress_bar(disable=self.disable_pbar) as pbar:
+            with rich.create_progress_bar(disable=self.disable_pbar) as pbar:
                 for img in pbar.track(
                     sequence    = images,
                     description = f"Listing {self.__class__.__name__} "
@@ -280,7 +278,7 @@ class VisionDataset(core.Dataset, abc.ABC):
 
         if len(ref_images) == 0:
             ref_images: list[Image] = []
-            with core.create_progress_bar(disable=self.disable_pbar) as pbar:
+            with rich.create_progress_bar(disable=self.disable_pbar) as pbar:
                 for img in pbar.track(
                     sequence    = images,
                     description = f"Listing {self.__class__.__name__} "
@@ -304,7 +302,7 @@ class VisionDataset(core.Dataset, abc.ABC):
         
         if len(ref_images) > 0 and len(ref_depths) == 0:
             ref_depths: list[DepthMap] = []
-            with core.create_progress_bar(disable=self.disable_pbar) as pbar:
+            with rich.create_progress_bar(disable=self.disable_pbar) as pbar:
                 for img in pbar.track(
                     sequence    = ref_images,
                     description = f"Listing {self.__class__.__name__} "
@@ -330,7 +328,7 @@ class VisionDataset(core.Dataset, abc.ABC):
         
         if len(ref_images) > 0 and len(ref_infrareds) == 0:
             ref_infrareds: list[InfraredMap] = []
-            with core.create_progress_bar(disable=self.disable_pbar) as pbar:
+            with rich.create_progress_bar(disable=self.disable_pbar) as pbar:
                 for img in pbar.track(
                     sequence    = ref_images,
                     description = f"Listing {self.__class__.__name__} "
@@ -372,7 +370,7 @@ class VisionDataset(core.Dataset, abc.ABC):
                     raise RuntimeError(f"Number of [{k}] attributes ({len(v)}) does not "
                                        f"match datapoints ({self.__len__()}).")
         if self.verbose:
-            core.console.log(f"Number of {self.split_str} datapoints: {self.__len__()}")
+            console.log(f"Number of {self.split_str} datapoints: {self.__len__()}")
     
     def reset(self):
         """Resets the dataset to start over."""

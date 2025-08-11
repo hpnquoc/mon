@@ -12,15 +12,17 @@ __all__ = [
     "HBBs",
 ]
 
+from typing import Union
+
 import numpy as np
 import torch
 
-from mon import core
 from mon.constants import BBoxFormat
+from mon.core import BaseTensor, DataLoaderMixin, DatasetMixin, pathlib
 
 
 # ----- Base -----
-class HBBs(core.BaseTensor, core.DatasetMixin, core.DataLoaderMixin):
+class HBBs(BaseTensor, DatasetMixin, DataLoaderMixin):
     """HBBs object.
 
     Attributes:
@@ -48,11 +50,11 @@ class HBBs(core.BaseTensor, core.DatasetMixin, core.DataLoaderMixin):
 
     def __init__(
         self,
-        data      : torch.Tensor | np.ndarray = None,
-        orig_shape: tuple[int, int, int]      = None,
-        path      : core.Path  = None,
-        root      : core.Path  = None,
-        fmt       : BBoxFormat = BBoxFormat.XYXY,
+        data      : Union[torch.Tensor, np.ndarray] = None,
+        orig_shape: tuple[int, int, int] = None,
+        path      : pathlib.Path         = None,
+        root      : pathlib.Path         = None,
+        fmt       : BBoxFormat           = BBoxFormat.XYXY,
     ):
         if all(d is None for d in [data, path]):
             raise ValueError("Either [data] or [path] must be provided to initialize the Image object.")
@@ -64,19 +66,19 @@ class HBBs(core.BaseTensor, core.DatasetMixin, core.DataLoaderMixin):
                 raise ValueError(f"[data] must be in XYXY format, got {data.shape}.")
 
         super().__init__(data=data, orig_shape=orig_shape)
-        self._path     = core.Path(path) if path is not None else None
-        self._root     = core.Path(root) if root is not None else None
+        self._path     = pathlib.Path(path) if path is not None else None
+        self._root     = pathlib.Path(root) if root is not None else None
         self._orig_fmt = fmt
         self._cvt_fmt  = fmt
         self.fmt       = fmt
 
     @property
-    def path(self) -> core.Path:
+    def path(self) -> pathlib.Path:
         """Returns the image file path."""
         return self._path
 
     @property
-    def root(self) -> core.Path:
+    def root(self) -> pathlib.Path:
         """Returns the root directory for the image."""
         return self._root
 
@@ -110,7 +112,7 @@ class HBBs(core.BaseTensor, core.DatasetMixin, core.DataLoaderMixin):
         self._cvt_fmt  = cvt_fmt
 
     @property
-    def xyxy(self) -> torch.Tensor | np.ndarray:
+    def xyxy(self) -> Union[torch.Tensor, np.ndarray]:
         """Returns the bounding boxes in XYXY format (default).
 
         Returns:
@@ -119,7 +121,7 @@ class HBBs(core.BaseTensor, core.DatasetMixin, core.DataLoaderMixin):
         return self.data[:, :4]
 
     @property
-    def conf(self) -> torch.Tensor | np.ndarray:
+    def conf(self) -> Union[torch.Tensor, np.ndarray]:
         """Return the confidence scores for each detection box.
 
         Returns:
@@ -130,7 +132,7 @@ class HBBs(core.BaseTensor, core.DatasetMixin, core.DataLoaderMixin):
         return None
 
     @property
-    def cls(self) -> torch.Tensor | np.ndarray:
+    def cls(self) -> Union[torch.Tensor, np.ndarray]:
         """Return the class ID tensor representing category predictions for each
         bounding box.
 
@@ -142,7 +144,7 @@ class HBBs(core.BaseTensor, core.DatasetMixin, core.DataLoaderMixin):
         return None
 
     @property
-    def id(self) -> torch.Tensor | np.ndarray:
+    def id(self) -> Union[torch.Tensor, np.ndarray]:
         """Return the tracking IDs for each detection box if available.
 
         Returns:
@@ -157,7 +159,7 @@ class HBBs(core.BaseTensor, core.DatasetMixin, core.DataLoaderMixin):
         return None
 
     @property
-    def xywh(self) -> torch.Tensor | np.ndarray:
+    def xywh(self) -> Union[torch.Tensor, np.ndarray]:
         """Returns the bounding boxes in XYWH format.
 
         Returns:
@@ -167,7 +169,7 @@ class HBBs(core.BaseTensor, core.DatasetMixin, core.DataLoaderMixin):
         return processing.hbb_xyxy_to_xywh(self.data[:, :4], self.orig_shape)
 
     @property
-    def xyxyn(self) -> torch.Tensor | np.ndarray:
+    def xyxyn(self) -> Union[torch.Tensor, np.ndarray]:
         """Returns the bounding boxes in XYXYN format.
 
         Returns:
@@ -177,7 +179,7 @@ class HBBs(core.BaseTensor, core.DatasetMixin, core.DataLoaderMixin):
         return processing.normalize_hbb(self.data[:, :4], self.orig_shape)
 
     @property
-    def cxcywhn(self) -> torch.Tensor | np.ndarray:
+    def cxcywhn(self) -> Union[torch.Tensor, np.ndarray]:
         """Returns the bounding boxes in CXCYWHN format.
 
         Returns:
@@ -216,7 +218,7 @@ class HBBs(core.BaseTensor, core.DatasetMixin, core.DataLoaderMixin):
     # ----- DatasetMixin -----
     @staticmethod
     def to_tensor(
-        data      : torch.Tensor | np.ndarray,
+        data      : Union[torch.Tensor, np.ndarray],
         orig_shape: tuple[int, int] = None,
         normalize : bool            = True,
         *args, **kwargs
@@ -236,7 +238,7 @@ class HBBs(core.BaseTensor, core.DatasetMixin, core.DataLoaderMixin):
 
     # ----- DataLoaderMixin -----
     @staticmethod
-    def collate_fn(batch: list) -> torch.Tensor | np.ndarray | None:
+    def collate_fn(batch: list) -> Union[torch.Tensor, np.ndarray]:
         """Collates batch data for ``torch.utils.data.DataLoader``.
 
         Args:

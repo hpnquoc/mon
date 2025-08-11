@@ -8,21 +8,18 @@ References:
     - Code: https://github.com/dvlab-research/SNR-Aware-Low-Light-Enhance
 """
 
-import os
-import sys
-
 import box
 import cv2
 import numpy as np
 import torch
 
 import mon
-
-sys.path.append(os.path.abspath(os.path.dirname(__file__)))
+# noinspection PyUnusedImports
+from mon.vision.enhance.lle import snr
 from snr.data import util as dutil
+from snr.models import create_model
 from snr.options import options as option
 from snr.utils import util as util
-from snr.models import create_model
 
 current_file = mon.Path(__file__).absolute()
 current_dir  = current_file.parents[0]

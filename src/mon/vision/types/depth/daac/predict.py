@@ -8,9 +8,6 @@ References:
     - https://github.com/HVision-NKU/DepthAnythingAC
 """
 
-import os
-import sys
-
 import box
 import matplotlib
 import numpy as np
@@ -18,9 +15,7 @@ import torch
 import torch.optim
 
 import mon
-
-sys.path.append(os.path.abspath(os.path.dirname(__file__)))
-from model import *
+from mon.vision.types.depth import daac
 
 current_file = mon.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
@@ -59,7 +54,7 @@ def predict(args: dict | box.Box) -> str:
     args.network.dino_pretrained = mon.parse_weights_file(args.root, args.network.dino_pretrained)
 
     # Model
-    model = DAAC(
+    model = daac.DAAC(
         config = {
             "encoder"        : args.network.encoder,
             "features"       : args.network.features,

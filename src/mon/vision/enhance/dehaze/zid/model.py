@@ -10,6 +10,7 @@ References:
 
 __all__ = [
     "ZID",
+    "prepare_hazy_image",
 ]
 
 import os

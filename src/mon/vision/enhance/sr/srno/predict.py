@@ -8,16 +8,13 @@ References:
     - Code: https://github.com/2y7c3/Super-Resolution-Neural-Operator
 """
 
-import os
-import sys
-
 import box
 import torch
 import torch.optim
 
 import mon
-
-sys.path.append(os.path.abspath(os.path.dirname(__file__)))
+# noinspection PyUnusedImports
+from mon.vision.enhance.sr import srno
 from srno.models import make
 from srno.utils import make_coord
 

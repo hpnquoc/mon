@@ -8,9 +8,6 @@ References:
     - Code: https://github.com/daooshee/QuadPrior
 """
 
-import os
-import sys
-
 import box
 import pytorch_lightning as pl
 import webdataset as wds
@@ -18,12 +15,13 @@ from pytorch_lightning.callbacks import ModelCheckpoint
 from pytorch_lightning.strategies import DeepSpeedStrategy
 
 import mon
-
-sys.path.append(os.path.abspath(os.path.dirname(__file__)))
+# noinspection PyUnusedImports
+from mon.vision.enhance.lle import quadprior
+from quadprior.cldm.hack import disable_verbosity
 from quadprior.cldm.logger import ImageLogger
 from quadprior.cldm.model import create_model, load_state_dict
 from quadprior.coco_dataset import create_webdataset
-from quadprior.cldm.hack import disable_verbosity
+
 disable_verbosity()
 
 current_file = mon.Path(__file__).absolute()

@@ -9,18 +9,13 @@ References:
     - Code: https://github.com/Li-Chongyi/Zero-DCE
 """
 
-import os
-import sys
-
 import box
 import torch
 import torch.optim
 
-import mon
-
-sys.path.append(os.path.abspath(os.path.dirname(__file__)))
 import loss as L
-from model import *
+import mon
+from mon.vision.enhance.lle import zerodce
 
 current_file = mon.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
@@ -68,7 +63,7 @@ def train(args: dict | box.Box) -> str:
         mon.console.log(f"Pretrained: {None}, training from scratch.")
 
     # Model
-    model = ZeroDCE()
+    model = zerodce.ZeroDCE()
     model.apply(weights_init)
     if pretrained and pretrained.is_weights_file(exist=True):
         model.load_state_dict(torch.load(pretrained, weights_only=True))

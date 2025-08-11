@@ -8,9 +8,7 @@ References:
     - Code: https://github.com/Fediory/HVI-CIDNet
 """
 
-import os
 import random
-import sys
 
 import box
 import torch.backends.cudnn as cudnn
@@ -18,11 +16,9 @@ import torch.optim
 import torchvision
 
 import mon
-
-sys.path.append(os.path.abspath(os.path.dirname(__file__)))
-from model import *
 from hvi_cidnet.data.scheduler import *
 from hvi_cidnet.loss.losses import *
+from mon.vision.enhance.lle import hvi_cidnet
 
 current_file = mon.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
@@ -79,7 +75,7 @@ def train(args: dict | box.Box) -> str:
         mon.console.log(f"Pretrained: {None}, training from scratch.")
 
     # Model
-    model = HVI_CIDNet()
+    model = hvi_cidnet.HVI_CIDNet()
     if pretrained and pretrained.is_weights_file():
         model.load_state_dict(torch.load(pretrained, map_location=lambda storage, loc: storage))
     model = model.to(device)

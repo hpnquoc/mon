@@ -9,8 +9,6 @@ References:
     - Code: https://github.com/xiwang-online/LLUnetPlusPlus
 """
 
-import os
-import sys
 from collections import OrderedDict
 
 import box
@@ -21,11 +19,9 @@ import torch.optim as optim
 from torch.utils.tensorboard import SummaryWriter
 
 import mon
-
-sys.path.append(os.path.abspath(os.path.dirname(__file__)))
 from llunetpp.average_meter import AverageMeter
 from llunetpp.loss import Loss
-from model import *
+from mon.vision.enhance.lle import llunetpp
 
 current_file = mon.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
@@ -111,7 +107,7 @@ def train(args: dict | box.Box) -> str:
         mon.console.log(f"Pretrained: {None}, training from scratch.")
 
     # Model
-    model = LLUnetPP()
+    model = llunetpp.LLUnetPP()
     model.load_state_dict(torch.load(pretrained, weights_only=True))
     model = model.to(device)
     model.train()

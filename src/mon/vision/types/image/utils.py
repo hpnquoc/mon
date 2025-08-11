@@ -25,6 +25,7 @@ __all__ = [
 ]
 
 import math
+from typing import Union
 
 import numpy as np
 import torch
@@ -33,7 +34,7 @@ from mon.nn import _size_2_t
 
 
 # ----- Accessing -----
-def image_center(image: torch.Tensor | np.ndarray) -> torch.Tensor | np.ndarray:
+def image_center(image: Union[torch.Tensor, np.ndarray]) -> Union[torch.Tensor, np.ndarray]:
     """Returns the center of an image as (x=h/2, y=w/2).
 
     Args:
@@ -47,7 +48,7 @@ def image_center(image: torch.Tensor | np.ndarray) -> torch.Tensor | np.ndarray:
     return torch.tensor(center) if isinstance(image, torch.Tensor) else np.array(center)
 
 
-def image_center4(image: torch.Tensor | np.ndarray) -> torch.Tensor | np.ndarray:
+def image_center4(image: Union[torch.Tensor, np.ndarray]) -> Union[torch.Tensor, np.ndarray]:
     """Returns the center of an image as (x=h/2, y=w/2, x=h/2, y=w/2).
 
     Args:
@@ -62,10 +63,10 @@ def image_center4(image: torch.Tensor | np.ndarray) -> torch.Tensor | np.ndarray
 
 
 def image_channel(
-    image   : torch.Tensor | np.ndarray,
+    image   : Union[torch.Tensor, np.ndarray],
     index   : _size_2_t,
     keep_dim: bool = True
-) -> torch.Tensor | np.ndarray:
+) -> Union[torch.Tensor, np.ndarray]:
     """Extracts a channel or channels from an image.
 
     Args:
@@ -94,7 +95,7 @@ def image_channel(
     raise ValueError(f"Invalid image dimensions for channel extraction {image.ndim}.")
     
     
-def image_num_channels(image: torch.Tensor | np.ndarray) -> int:
+def image_num_channels(image: Union[torch.Tensor, np.ndarray]) -> int:
     """Returns the number of channels in an image.
 
     Args:
@@ -114,7 +115,7 @@ def image_num_channels(image: torch.Tensor | np.ndarray) -> int:
     return c
 
 
-def image_shape(image: torch.Tensor | np.ndarray) -> list[int]:
+def image_shape(image: Union[torch.Tensor, np.ndarray]) -> list[int]:
     """Returns height, width, and channels of an image.
 
     Args:
@@ -133,7 +134,7 @@ def image_shape(image: torch.Tensor | np.ndarray) -> list[int]:
 
 
 def image_size(
-    input  : torch.Tensor | np.ndarray | _size_2_t,
+    input  : Union[torch.Tensor, np.ndarray] | _size_2_t,
     divisor: int = None,
 ) -> tuple[int, int]:
     """Returns height and width of an image in [H, W] format.
@@ -158,7 +159,7 @@ def image_size(
             size = input[:2] if len(input) == 3 and input[0] >= input[2] else input[-2:]
     elif isinstance(input, (int, float)):
         size = (input, input)
-    elif isinstance(input, torch.Tensor | np.ndarray):
+    elif isinstance(input, Union[torch.Tensor, np.ndarray]):
         size = (
             (input.shape[-2], input.shape[-1])
             if is_image_channel_first(input)
@@ -174,7 +175,7 @@ def image_size(
 
 
 # ----- Validation -----
-def is_image(image: torch.Tensor | np.ndarray) -> bool:
+def is_image(image: Union[torch.Tensor, np.ndarray]) -> bool:
     """Checks if an input is an image tensor or array.
 
     Args:
@@ -185,12 +186,12 @@ def is_image(image: torch.Tensor | np.ndarray) -> bool:
         ``False`` otherwise.
     """
     return (
-        isinstance(image, torch.Tensor | np.ndarray)
+        isinstance(image, Union[torch.Tensor, np.ndarray])
         and (is_image_colored(image) or is_image_grayscale(image))
     )
 
 
-def is_image_channel_first(image: torch.Tensor | np.ndarray) -> bool:
+def is_image_channel_first(image: Union[torch.Tensor, np.ndarray]) -> bool:
     """Checks if an image is in channel-first format.
 
     Args:
@@ -235,7 +236,7 @@ def is_image_channel_first(image: torch.Tensor | np.ndarray) -> bool:
         raise ValueError(f"Cannot determine channel format for shape [{shape}].")
 
 
-def is_image_channel_last(image: torch.Tensor | np.ndarray) -> bool:
+def is_image_channel_last(image: Union[torch.Tensor, np.ndarray]) -> bool:
     """Checks if an image is in channel-last format.
 
     Args:
@@ -249,7 +250,7 @@ def is_image_channel_last(image: torch.Tensor | np.ndarray) -> bool:
     return not is_image_channel_first(image)
 
 
-def is_image_colored(image: torch.Tensor | np.ndarray) -> bool:
+def is_image_colored(image: Union[torch.Tensor, np.ndarray]) -> bool:
     """Checks if an image is a color image.
 
     Args:
@@ -264,7 +265,7 @@ def is_image_colored(image: torch.Tensor | np.ndarray) -> bool:
     return image_num_channels(image) in [3, 4]
 
 
-def is_image_grayscale(image: torch.Tensor | np.ndarray) -> bool:
+def is_image_grayscale(image: Union[torch.Tensor, np.ndarray]) -> bool:
     """Checks if an image is grayscale.
 
     Args:
@@ -279,7 +280,7 @@ def is_image_grayscale(image: torch.Tensor | np.ndarray) -> bool:
     return image_num_channels(image) == 1 or len(image.shape) == 2
 
 
-def is_image_normalized(image: torch.Tensor | np.ndarray) -> bool:
+def is_image_normalized(image: Union[torch.Tensor, np.ndarray]) -> bool:
     """Checks if an image is normalized to range [-1.0, 1.0] or [0.0, 1.0].
 
     Args:

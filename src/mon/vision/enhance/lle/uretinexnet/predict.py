@@ -9,16 +9,11 @@ References:
     - Code: https://github.com/AndersonYong/URetinex-Net
 """
 
-import os
-import sys
-
 import box
 import torch
 
 import mon
-
-sys.path.append(os.path.abspath(os.path.dirname(__file__)))
-from model import *
+from mon.vision.enhance.lle import uretinexnet
 
 current_file = mon.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
@@ -56,7 +51,7 @@ def predict(args: dict | box.Box) -> str:
     args.adjust_model_weights    = mon.ZOO_DIR / args.adjust_model_weights
 
     # Model
-    model = URetinexNet(args)
+    model = uretinexnet.URetinexNet(args)
     model = model.to(device)
     model.eval()
     

@@ -16,6 +16,7 @@ from pydantic import BaseModel, Field
 from mon.constants import TRANSFORMS
 from mon.vision import types
 
+
 # ----- Blur -----
 TRANSFORMS.register(name="advanced_blur", module=AdvancedBlur)
 TRANSFORMS.register(name="blur",          module=Blur)

@@ -7,18 +7,13 @@ References:
 
 """
 
-import os
-import sys
-
 import box
 import thop
 import torch.optim
 from fvcore.nn import FlopCountAnalysis, parameter_count
 
 import mon
-
-sys.path.append(os.path.abspath(os.path.dirname(__file__)))
-from model import *
+from mon.vision.enhance.lle import zinf
 
 current_file = mon.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
@@ -88,7 +83,7 @@ def predict(args: dict | box.Box) -> str:
     data_name, data_loader = mon.parse_data_loader(args.data, args.root, True, verbose=False)
     
     # Model
-    model = ZINF(
+    model = zinf.ZINF(
         mapping_func    = mapping_func,
         window_size     = window_size,
         hidden_dim      = hidden_dim,

@@ -5,17 +5,13 @@
 # pip install onnx-tool
 # https://pypi.org/project/onnx-tool/0.1.7/
 
-import os
-import sys
-
 import box
 import onnx_tool
 import torch
 
 import mon
 
-sys.path.append(os.path.abspath(os.path.dirname(__file__)))
-from model import EnlightenOnnxModel
+from mon.vision.enhance.lle import enlightengan
 
 current_file = mon.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
@@ -53,7 +49,7 @@ def predict(args: dict | box.Box) -> str:
         raise ValueError(f"Invalid weights file: {pretrained}.")
 
     # Model
-    model = EnlightenOnnxModel(weights=pretrained)
+    model = enlightengan.EnlightenOnnxModel(weights=pretrained)
     model.initialize()
     
     # Benchmark

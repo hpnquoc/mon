@@ -12,16 +12,16 @@ __all__ = [
     "Frame",
 ]
 
-from typing import Any
+from typing import Any, Union
 
 import numpy as np
 import torch
 
-from mon import core
 from mon.constants import SAVE_IMAGE_EXT
+from mon.core import BaseTensor, DataLoaderMixin, DatasetMixin, pathlib
 
 
-class Frame(core.BaseTensor, core.DatasetMixin, core.DataLoaderMixin):
+class Frame(BaseTensor, DatasetMixin, DataLoaderMixin):
     """Frame object.
 
     Attributes:
@@ -39,19 +39,19 @@ class Frame(core.BaseTensor, core.DatasetMixin, core.DataLoaderMixin):
 
     def __init__(
         self,
-        data      : torch.Tensor | np.ndarray,
+        data      : Union[torch.Tensor, np.ndarray],
         index     : int,
         orig_shape: tuple[int, int, int] = None,
-        path      : core.Path = None,
-        root      : core.Path = None,
+        path      : pathlib.Path = None,
+        root      : pathlib.Path = None,
     ):
         if orig_shape is None:
             orig_shape = data.shape
 
         super().__init__(data=data, orig_shape=orig_shape)
         self._index = index
-        self._path  = core.Path(path) if path is not None else None
-        self._root  = core.Path(root) if root is not None else None
+        self._path  = pathlib.Path(path) if path is not None else None
+        self._root  = pathlib.Path(root) if root is not None else None
 
     @property
     def index(self) -> int:
@@ -59,17 +59,17 @@ class Frame(core.BaseTensor, core.DatasetMixin, core.DataLoaderMixin):
         return self._index
 
     @property
-    def path(self) -> core.Path:
+    def path(self) -> pathlib.Path:
         """Returns the image file path."""
         return self._path
 
     @property
-    def root(self) -> core.Path:
+    def root(self) -> pathlib.Path:
         """Returns the root directory for the image."""
         return self._root
 
     @property
-    def frame_path(self) -> core.Path:
+    def frame_path(self) -> pathlib.Path:
         """Returns the path for each frame of the video: <self.path>_<self.index>."""
         if self.path is not None:
             path = self.path
@@ -90,7 +90,7 @@ class Frame(core.BaseTensor, core.DatasetMixin, core.DataLoaderMixin):
             "index"     : self.index,
             "orig_shape": self.orig_shape,
             "shape"     : self.shape,
-            "hash"      : self.path.stat().st_size if isinstance(self.path, core.Path) else None,
+            "hash"      : self.path.stat().st_size if isinstance(self.path, pathlib.Path) else None,
         }
 
     def load(self) -> np.ndarray:
@@ -104,7 +104,7 @@ class Frame(core.BaseTensor, core.DatasetMixin, core.DataLoaderMixin):
     # ----- DatasetMixin -----
     @staticmethod
     def to_tensor(
-        data      : torch.Tensor | np.ndarray,
+        data      : Union[torch.Tensor, np.ndarray],
         orig_shape: tuple[int, int] = None,
         normalize : bool            = True,
         *args, **kwargs
@@ -124,7 +124,7 @@ class Frame(core.BaseTensor, core.DatasetMixin, core.DataLoaderMixin):
 
     # ----- DataLoaderMixin -----
     @staticmethod
-    def collate_fn(batch: list) -> torch.Tensor | np.ndarray | None:
+    def collate_fn(batch: list) -> Union[torch.Tensor, np.ndarray] | None:
         """Collates batch data for ``torch.utils.data.DataLoader``.
 
         Args:
@@ -139,7 +139,7 @@ class Frame(core.BaseTensor, core.DatasetMixin, core.DataLoaderMixin):
         return processing.image_to_4d(batch)
 
 
-class Frames(core.BaseTensor, core.DatasetMixin, core.DataLoaderMixin):
+class Frames(BaseTensor, DatasetMixin, DataLoaderMixin):
     """Frames object.
 
     Attributes:
@@ -157,11 +157,11 @@ class Frames(core.BaseTensor, core.DatasetMixin, core.DataLoaderMixin):
 
     def __init__(
         self,
-        data      : torch.Tensor | np.ndarray | list[Any],
-        indexes   : list[int] = None,
+        data      : Union[torch.Tensor, np.ndarray] | list[Any],
+        indexes   : list[int]    = None,
         orig_shape: tuple[int, int, int] = None,
-        path      : core.Path = None,
-        root      : core.Path = None,
+        path      : pathlib.Path = None,
+        root      : pathlib.Path = None,
     ):
         super().__init__(data=data, orig_shape=orig_shape)
 

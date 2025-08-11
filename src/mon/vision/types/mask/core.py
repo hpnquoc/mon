@@ -12,11 +12,13 @@ __all__ = [
     "SemanticMask",
 ]
 
+from typing import Union
+
 import cv2
 import numpy as np
 import torch
 
-from mon import core
+from mon.core import pathlib
 from mon.vision.types import image as I
 
 
@@ -38,9 +40,9 @@ class SemanticMask(I.Image):
 
     def __init__(
         self,
-        data  : torch.Tensor | np.ndarray = None,
-        path  : core.Path      = None,
-        root  : core.Path      = None,
+        data  : Union[torch.Tensor, np.ndarray] = None,
+        path  : pathlib.Path   = None,
+        root  : pathlib.Path   = None,
         flags : int            = cv2.IMREAD_COLOR_BGR,
         cache : bool           = False,
     ):

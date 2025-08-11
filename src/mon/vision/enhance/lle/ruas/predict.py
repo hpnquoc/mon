@@ -9,9 +9,6 @@ References:
     - Code: https://github.com/KarelZhang/RUAS
 """
 
-import os
-import sys
-
 import box
 import numpy as np
 import torch
@@ -20,9 +17,7 @@ import torch.utils
 from PIL import Image
 
 import mon
-
-sys.path.append(os.path.abspath(os.path.dirname(__file__)))
-from model import *
+from mon.vision.enhance.lle import ruas
 
 current_file = mon.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
@@ -69,7 +64,7 @@ def predict(args: dict | box.Box) -> str:
         raise ValueError(f"Invalid weights file: {pretrained}.")
 
     # Model
-    model = RUAS()
+    model = ruas.RUAS()
     model.load_state_dict(torch.load(str(pretrained), weights_only=True))
     for p in model.parameters():
         p.requires_grad = False

@@ -9,7 +9,7 @@ __all__ = [
     "resize",
 ]
 
-from typing import Literal
+from typing import Literal, Union
 
 import cv2
 import kornia
@@ -23,7 +23,7 @@ SIDE          = Literal["short", "long", "vert", "horz", None]
 INTERPOLATION = Literal["nearest", "linear", "bilinear", "bicubic", "trilinear", "area"]  # | Literal[cv2.INTER_AREA, cv2.INTER_CUBIC, cv2.INTER_LINEAR]
 
 
-def pad_square(image: torch.Tensor | np.ndarray) -> torch.Tensor | np.ndarray:
+def pad_square(image: Union[torch.Tensor, np.ndarray]) -> Union[torch.Tensor, np.ndarray]:
     """Pad an image to a square with zeros.
 
     Args:
@@ -100,14 +100,14 @@ def pair_downsample(image: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
 
 # noinspection PyTypeHints
 def resize(
-    image        : torch.Tensor | np.ndarray,
+    image        : Union[torch.Tensor, np.ndarray],
     size         : _size_2_t     = None,
     divisible_by : int           = None,
     pad          : bool          = False,
     side         : SIDE          = None,
     interpolation: INTERPOLATION = "bilinear",
     **kwargs,
-) -> torch.Tensor | np.ndarray:
+) -> Union[torch.Tensor, np.ndarray]:
     """Resize an image
     
     Args:

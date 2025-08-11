@@ -10,7 +10,6 @@ References:
 """
 
 import logging
-import os
 import sys
 
 import box
@@ -23,9 +22,7 @@ from thop import profile
 from torch.autograd import Variable
 
 import mon
-
-sys.path.append(os.path.abspath(os.path.dirname(__file__)))
-from model import *
+from mon.vision.enhance.lle import zeroig
 
 current_file = mon.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
@@ -50,7 +47,7 @@ def calculate_model_flops(model, input_tensor):
 
 
 def benchmark():
-    model = ZERO_IG()
+    model = zeroig.ZERO_IG()
     # flops, params = mon.compute_efficiency_score(model=model)
     total_params  = calculate_model_parameters(model)
     # mon.console.log(f"FLOPs     : {flops:.4f}")
@@ -103,7 +100,7 @@ def predict(args: dict | box.Box) -> str:
 
             # Optimize
             timers.infer.tick()
-            model = ZERO_IG()
+            model = zeroig.ZERO_IG()
             model.enhance.in_conv.apply(model.enhance_weights_init)
             model.enhance.conv.apply(model.enhance_weights_init)
             model.enhance.out_conv.apply(model.enhance_weights_init)

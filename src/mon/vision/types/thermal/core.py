@@ -18,8 +18,8 @@ import cv2
 import numpy as np
 import torch
 
-from mon import core
 from mon.constants import InfraredSource
+from mon.core import pathlib
 from mon.vision.types import image as I
 
 
@@ -43,8 +43,8 @@ class InfraredMap(I.Image):
     def __init__(
         self,
         data  : Union[torch.Tensor, np.ndarray] = None,
-        path  : core.Path      = None,
-        root  : core.Path      = None,
+        path  : pathlib.Path   = None,
+        root  : pathlib.Path   = None,
         source: InfraredSource = InfraredSource.INFRARED,
         flags : int            = cv2.IMREAD_GRAYSCALE,
         cache : bool           = False,

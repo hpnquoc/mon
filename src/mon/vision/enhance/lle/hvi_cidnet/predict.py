@@ -8,17 +8,12 @@ References:
     - Code: https://github.com/Fediory/HVI-CIDNet
 """
 
-import os
-import sys
-
 import box
 import torch
 import torchvision
 
 import mon
-
-sys.path.append(os.path.abspath(os.path.dirname(__file__)))
-from model import *
+from mon.vision.enhance.lle import hvi_cidnet
 
 current_file = mon.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
@@ -57,7 +52,7 @@ def predict(args: dict | box.Box) -> str:
 
     # Model
     torch.set_grad_enabled(False)
-    model = HVI_CIDNet()
+    model = hvi_cidnet.HVI_CIDNet()
     model.load_state_dict(torch.load(pretrained, map_location=lambda storage, loc: storage))
     model.trans.gated  = args["network"]["gated"]
     model.trans.gated2 = args["network"]["gated2"]

@@ -18,7 +18,7 @@ __all__ = [
 
 import torch
 
-from mon import nn
+import mon.nn as nn
 from mon.nn import functional as F
 
 

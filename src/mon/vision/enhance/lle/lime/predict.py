@@ -10,16 +10,11 @@ References:
     - Code: https://github.com/pvnieo/Low-light-Image-Enhancement
 """
 
-import os
-import sys
-
 import box
 import cv2
 
 import mon
-
-sys.path.append(os.path.abspath(os.path.dirname(__file__)))
-from model import *
+from mon.vision.enhance.lle import lime
 
 current_file = mon.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
@@ -40,7 +35,7 @@ def predict(args: dict | box.Box) -> str:
     data_name, data_loader = mon.parse_data_loader(args.data, args.root, False, verbose=False)
     
     # Model
-    model = LIME(
+    model = lime.LIME(
         gamma   = args["network"]["gamma"],
         lambda_ = args["network"]["lambda_"],
         dual    = not args["network"]["lime"],

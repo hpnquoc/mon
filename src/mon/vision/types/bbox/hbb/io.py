@@ -24,15 +24,14 @@ import numpy as np
 import torch
 from box import box
 
-from mon import core
 from mon.constants import BBoxFormat
-from mon.core import error_console
+from mon.core import error_console, pathlib
 from mon.vision.types.bbox.hbb import processing
 
 
 # ----- Reading -----
 def load_hbb_coco(
-    path   : core.Path,
+    path   : pathlib.Path,
     remap  : dict | box.Box = None,
     verbose: bool           = True
 ) -> np.ndarray:
@@ -43,7 +42,7 @@ def load_hbb_coco(
         remap: A dictionary containing class remapping. Default is ``None``.
         verbose: Verbosity. Defaults is ``True``.
     """
-    path = core.Path(path)
+    path = pathlib.Path(path)
     if not path.is_json_file(exist=True):
         if verbose:
             error_console.print(f"[path] must be a valid .json file, got {path}.")
@@ -64,7 +63,7 @@ def load_hbb_coco(
 
 
 def load_hbb_voc(
-    path   : core.Path,
+    path   : pathlib.Path,
     remap  : dict | box.Box = None,
     verbose: bool           = True
 ) -> np.ndarray:
@@ -75,7 +74,7 @@ def load_hbb_voc(
         remap: A dictionary containing class remapping. Default is ``None``.
         verbose: Verbosity. Defaults is ``True``.
     """
-    path = core.Path(path)
+    path = pathlib.Path(path)
     if not path.is_xml_file(exist=True):
         if verbose:
             error_console.print(f"[path] must be a valid .xmls file, got {path}.")
@@ -135,7 +134,7 @@ def load_hbb_voc(
 
 
 def load_hbb_yolo(
-    path   : core.Path,
+    path   : pathlib.Path,
     remap  : dict | box.Box = None,
     verbose: bool           = True
 ) -> np.ndarray:
@@ -154,7 +153,7 @@ def load_hbb_yolo(
         remap: A dictionary containing class remapping. Default is ``None``.
         verbose: Verbosity. Defaults is ``True``.
     """
-    path = core.Path(path)
+    path = pathlib.Path(path)
     if not path.is_txt_file(exist=True):
         if verbose:
             error_console.print(f"[path] must be a valid .txt file, got {path}.")
@@ -183,7 +182,7 @@ def load_hbb_yolo(
 
 
 def load_hbb(
-    path     : core.Path,
+    path     : pathlib.Path,
     fmt      : BBoxFormat,
     imgsz    : tuple[int, int],
     remap    : dict | box.Box = None,

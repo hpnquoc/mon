@@ -263,10 +263,10 @@ def image_to_2d(image: Union[torch.Tensor, np.ndarray]) -> Union[torch.Tensor, n
 
 
 def image_to_3d(
-    image: torch.Tensor | np.ndarray
-           | list[torch.Tensor]       | list[np.ndarray]
-           | tuple[torch.Tensor, ...] | tuple[np.ndarray, ...]
-) -> torch.Tensor | np.ndarray:
+    image: Union[torch.Tensor, np.ndarray,
+                 list[torch.Tensor]      , list[np.ndarray],
+                 tuple[torch.Tensor, ...], tuple[np.ndarray, ...]]
+) -> Union[torch.Tensor, np.ndarray]:
     """Converts a 2D, 3D, or 4D image(s) to 3D.
 
     Args:
@@ -297,10 +297,10 @@ def image_to_3d(
 
 
 def image_to_4d(
-    image: torch.Tensor | np.ndarray
-           | list[torch.Tensor]       | list[np.ndarray]
-           | tuple[torch.Tensor, ...] | tuple[np.ndarray, ...]
-) -> torch.Tensor | np.ndarray:
+    image: Union[torch.Tensor, np.ndarray,
+                 list[torch.Tensor]      , list[np.ndarray],
+                 tuple[torch.Tensor, ...], tuple[np.ndarray, ...]]
+) -> Union[torch.Tensor, np.ndarray]:
     """Converts a 2D, 3D, or 4D image(s) to 4D.
 
     Args:

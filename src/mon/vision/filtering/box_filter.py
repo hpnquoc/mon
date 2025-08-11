@@ -13,7 +13,7 @@ import cv2
 import numpy as np
 import torch
 
-from mon import nn
+import mon.nn as nn
 from mon.nn import functional as F
 from mon.vision import types
 

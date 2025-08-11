@@ -10,8 +10,6 @@ References:
 """
 
 import argparse
-import os
-import sys
 
 import box
 import numpy as np
@@ -20,9 +18,7 @@ import yaml
 
 import mon
 from mon.nn import functional as F
-
-sys.path.append(os.path.abspath(os.path.dirname(__file__)))
-from model import *
+from mon.vision.enhance.lle import lightendiffusion
 
 current_file = mon.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
@@ -82,7 +78,7 @@ def predict(args: dict | box.Box) -> str:
         "resume"      : str(pretrained),
         "image_folder": str(args.save_dir),
     })
-    diffusion = LightenDiffusion(model_args, cfgs)
+    diffusion = lightendiffusion.LightenDiffusion(model_args, cfgs)
     diffusion.load_ddm_ckpt(str(pretrained), ema=False)
     diffusion.model.eval()
 

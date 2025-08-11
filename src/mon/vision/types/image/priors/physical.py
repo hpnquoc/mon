@@ -11,6 +11,8 @@ __all__ = [
     "atmospheric_prior",
 ]
 
+from typing import Union
+
 import numpy as np
 import torch
 
@@ -19,11 +21,11 @@ from mon.vision.types.image.priors import statistical
 
 
 def atmospheric_point_spread_function(
-    image: torch.Tensor | np.ndarray,
+    image:  Union[torch.Tensor, np.ndarray],
     q    : float = 0.2,
     T    : float = 1.2,
     k    : float = 0.5,
-) -> torch.Tensor | np.ndarray:
+) ->  Union[torch.Tensor, np.ndarray]:
     """Get the atmospheric point spread function (APSF) from an RGB image.
     
     Args:

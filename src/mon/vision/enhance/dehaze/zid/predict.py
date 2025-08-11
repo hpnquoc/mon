@@ -8,17 +8,12 @@ References:
     - Code: https://github.com/XLearning-SCU/2020-TIP-ZID
 """
 
-import os
-import sys
 
 import box
 import torch.optim
 
 import mon
-
-sys.path.append(os.path.abspath(os.path.dirname(__file__)))
-from model import *
-from zid.utils.image_io import prepare_hazy_image
+from mon.vision.enhance.dehaze import zid
 
 current_file = mon.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
@@ -56,7 +51,7 @@ def predict(args: dict | box.Box) -> str:
             # Preprocess
             timers.preprocess.tick()
             path   = mon.Path(datapoint["meta"]["path"])
-            image  = prepare_hazy_image(str(path))
+            image  = zid.prepare_hazy_image(str(path))
             h0, w0 = mon.image_size(image)
             if args.resize and (h0 != args.imgsz[0] or w0 != args.imgsz[1]):
                 image = mon.resize(image, size=args.imgsz)
@@ -73,7 +68,7 @@ def predict(args: dict | box.Box) -> str:
             
             # Infer
             timers.infer.tick()
-            dh = ZID(str(path.stem), image, args.epochs, clip=True, output_path=str(out_dir))
+            dh = zid.ZID(str(path.stem), image, args.epochs, clip=True, output_path=str(out_dir))
             dh.optimize()
             dh.finalize()
             timers.infer.tock()

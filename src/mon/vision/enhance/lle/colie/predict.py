@@ -9,19 +9,13 @@ References:
     - Code: https://github.com/ctom2/colie
 """
 
-import os
-import sys
-
 import box
 import thop
 import torch.optim
 from fvcore.nn import FlopCountAnalysis, parameter_count
 
 import mon
-
-sys.path.append(os.path.abspath(os.path.dirname(__file__)))
-from model import *
-from utils import *
+from mon.vision.enhance.lle import colie
 
 current_file = mon.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
@@ -78,7 +72,7 @@ def predict(args: dict | box.Box) -> str:
     data_name, data_loader = mon.parse_data_loader(args.data, args.root, True, verbose=False)
     
     # Model
-    model = CoLIE(
+    model = colie.CoLIE(
         window_size = window_size,
         hidden_dim  = hidden_dim,
         num_layers  = num_layers,
@@ -104,7 +98,7 @@ def predict(args: dict | box.Box) -> str:
             # Preprocess
             timers.preprocess.tick()
             path  = mon.Path(datapoint["meta"]["path"])
-            image = get_image(str(path)).to(device)
+            image = colie.utils.get_image(str(path)).to(device)
             timers.preprocess.tock()
 
             # Optimize

@@ -9,9 +9,6 @@ References:
     - https://github.com/DepthAnything/Depth-Anything-V2
 """
 
-import os
-import sys
-
 import box
 import matplotlib
 import numpy as np
@@ -19,9 +16,7 @@ import torch
 import torch.optim
 
 import mon
-
-sys.path.append(os.path.abspath(os.path.dirname(__file__)))
-from model import *
+from mon.vision.types.depth import dav2
 
 current_file = mon.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
@@ -59,7 +54,7 @@ def predict(args: dict | box.Box) -> str:
         raise ValueError(f"Invalid weights file: {pretrained}.")
 
     # Model
-    model = DAV2(
+    model = dav2.DAV2(
         encoder      = args.network.encoder,
         features     = args.network.features,
         out_channels = args.network.out_channels,

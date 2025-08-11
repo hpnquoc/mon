@@ -15,16 +15,18 @@ __all__ = [
     "label_map_one_hot_to_id",
 ]
 
+from typing import Union
+
 import numpy as np
 import torch
 
-from mon import core
+from mon.core import Classes
 from mon.nn import functional as F
 from mon.vision.types import image as I
 
 
 # ----- Conversion -----
-def label_map_id_to_train_id(label_map: np.ndarray, classes: core.Classes) -> np.ndarray:
+def label_map_id_to_train_id(label_map: np.ndarray, classes: Classes) -> np.ndarray:
     """Converts label map from IDs to train IDs.
 
     Args:
@@ -51,7 +53,7 @@ def label_map_id_to_train_id(label_map: np.ndarray, classes: core.Classes) -> np
     return np.expand_dims(label_ids, axis=-1)
  
 
-def label_map_id_to_color(label_map: np.ndarray, classes: core.Classes) -> np.ndarray:
+def label_map_id_to_color(label_map: np.ndarray, classes: Classes) -> np.ndarray:
     """Converts label map from IDs to color-coded representation.
 
     Args:
@@ -76,7 +78,7 @@ def label_map_id_to_color(label_map: np.ndarray, classes: core.Classes) -> np.nd
     return color_map
 
 
-def label_map_color_to_id(label_map: np.ndarray, classes: core.Classes) -> np.ndarray:
+def label_map_color_to_id(label_map: np.ndarray, classes: Classes) -> np.ndarray:
     """Converts a color-coded label map to label IDs.
 
     Args:
@@ -102,10 +104,10 @@ def label_map_color_to_id(label_map: np.ndarray, classes: core.Classes) -> np.nd
 
 
 def label_map_id_to_one_hot(
-    label_map  : torch.Tensor | np.ndarray,
-    num_classes: int          = None,
-    classes    : core.Classes = None,
-) ->torch.Tensor | np.ndarray:
+    label_map  : Union[torch.Tensor, np.ndarray],
+    num_classes: int     = None,
+    classes    : Classes = None,
+) ->Union[torch.Tensor, np.ndarray]:
     """Converts label map from IDs to one-hot encoded format.
 
     Args:
@@ -137,7 +139,7 @@ def label_map_id_to_one_hot(
         raise TypeError(f"[label_map] must be a torch.Tensor or numpy.ndarray, got {type(label_map)}.")
 
 
-def label_map_one_hot_to_id(label_map: torch.Tensor | np.ndarray) -> torch.Tensor | np.ndarray:
+def label_map_one_hot_to_id(label_map: Union[torch.Tensor, np.ndarray]) -> Union[torch.Tensor, np.ndarray]:
     """Converts a one-hot encoded label map to label IDs.
 
     Args:

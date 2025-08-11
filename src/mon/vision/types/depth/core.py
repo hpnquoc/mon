@@ -16,7 +16,7 @@ import cv2
 import numpy as np
 import torch
 
-from mon import core
+from mon.core import console, DatapointAttributes, Dataset, pathlib
 from mon.constants import DepthSource
 from mon.vision.types import image as I
 
@@ -41,11 +41,11 @@ class DepthMap(I.Image):
     def __init__(
         self,
         data  : torch.Tensor | np.ndarray = None,
-        path  : core.Path   = None,
-        root  : core.Path   = None,
-        source: DepthSource = DepthSource.DAv2_ViTB,
-        flags : int         = cv2.IMREAD_GRAYSCALE,
-        cache : bool        = False,
+        path  : pathlib.Path = None,
+        root  : pathlib.Path = None,
+        source: DepthSource  = DepthSource.DAv2_ViTB,
+        flags : int          = cv2.IMREAD_GRAYSCALE,
+        cache : bool         = False,
     ):
         source = DepthSource.from_value(source)
         if source not in DepthSource:

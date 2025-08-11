@@ -9,9 +9,6 @@ References:
     - Code: https://github.com/vis-opt-group/SCI
 """
 
-import os
-import sys
-
 import box
 import torch.utils
 from fvcore.nn import FlopCountAnalysis
@@ -19,9 +16,7 @@ from torch.autograd import Variable
 
 import mon
 from mon.nn import _size_2_t
-
-sys.path.append(os.path.abspath(os.path.dirname(__file__)))
-from model import *
+from mon.vision.enhance.lle import sci
 
 current_file = mon.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
@@ -85,7 +80,7 @@ def predict(args: dict | box.Box) -> str:
         raise ValueError(f"Invalid weights file: {pretrained}.")
 
     # Model
-    model = SCI(pretrained)
+    model = sci.SCI(pretrained)
     model = model.to(device)
     model.eval()
     

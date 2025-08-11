@@ -10,16 +10,13 @@ References:
 """
 
 import os
-import sys
 
 import box
 import torch
 
 import mon
-
-sys.path.append(os.path.abspath(os.path.dirname(__file__)))
-import sgz.utils as utils
-from model import *
+from mon.vision.enhance.lle import sgz
+from sgz import utils
 
 os.environ["KMP_DUPLICATE_LIB_OK"] = "True"
 
@@ -60,7 +57,7 @@ def predict(args: dict | box.Box) -> str:
 
     # Model
     scale_factor = args.network.scale_factor
-    model = SGZ(scale_factor, conv_type="dsc")
+    model = sgz.SGZ(scale_factor, conv_type="dsc")
     model.load_state_dict(torch.load(pretrained, weights_only=True))
     model = model.to(device)
     model.eval()

@@ -12,21 +12,23 @@ __all__ = [
     "boundary_aware_prior",
 ]
 
+from typing import Union
+
 import cv2
 import kornia
 import numpy as np
 import torch
 
-from mon import nn
+import mon.nn as nn
 from mon.vision.types.image import utils
 
 
 def boundary_aware_prior(
-    image      : torch.Tensor | np.ndarray,
+    image      :  Union[torch.Tensor, np.ndarray],
     eps        : float = 0.05,
     as_gradient: bool  = False,
     normalized : bool  = False,
-) -> torch.Tensor | np.ndarray:
+) ->  Union[torch.Tensor, np.ndarray]:
     """Get the boundary prior from an RGB or grayscale image.
 
     Args:

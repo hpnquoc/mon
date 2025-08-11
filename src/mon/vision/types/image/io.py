@@ -16,6 +16,8 @@ __all__ = [
     "save_image",
 ]
 
+from typing import Union
+
 import cv2
 import numpy as np
 import rawpy
@@ -23,18 +25,18 @@ import torch
 import torchvision
 import PIL.Image
 
-from mon import core
+from mon.core import pathlib
 from mon.vision.types.image import processing, utils
 
 
 # ----- Reading -----
 def load_image(
-    path     : core.Path,
+    path     : pathlib.Path,
     flags    : int          = cv2.IMREAD_COLOR,
     to_tensor: bool         = False,
     normalize: bool         = False,
     device   : torch.device = None
-) -> torch.Tensor | np.ndarray:
+) -> Union[torch.Tensor, np.ndarray]:
     """Loads an image from a file path using OpenCV.
 
     Args:
@@ -48,7 +50,7 @@ def load_image(
     Returns:
         RGB or grayscale image as ``torch.Tensor`` [B, C, H, W] or ``numpy.ndarray`` [H, W, C].
     """
-    path = core.Path(path)
+    path = pathlib.Path(path)
     if path.is_raw_image_file():  # Read raw image
         image = rawpy.imread(str(path))
         image = image.postprocess()
@@ -68,7 +70,7 @@ def load_image(
     return image
 
 
-def read_image_shape(path: core.Path) -> tuple[int, int, int]:
+def read_image_shape(path: pathlib.Path) -> tuple[int, int, int]:
     """Reads an image shape from a file path using PIL or rawpy.
 
     Args:
@@ -80,7 +82,7 @@ def read_image_shape(path: core.Path) -> tuple[int, int, int]:
     Raises:
         ValueError: If image mode is unsupported for non-RAW images.
     """
-    path = core.Path(path)
+    path = pathlib.Path(path)
     if path.is_raw_image_file():
         image = rawpy.imread(str(path)).raw_image_visible
         h, w = image.shape
@@ -97,7 +99,7 @@ def read_image_shape(path: core.Path) -> tuple[int, int, int]:
 
 
 # ----- Writing -----
-def save_image(image: torch.Tensor | np.ndarray | PIL.Image.Image, path: core.Path):
+def save_image(image: Union[torch.Tensor, np.ndarray, PIL.Image.Image], path: pathlib.Path):
     """Save an image to a file path.
 
     Args:
@@ -108,7 +110,7 @@ def save_image(image: torch.Tensor | np.ndarray | PIL.Image.Image, path: core.Pa
     Raises:
         TypeError: If ``image`` is not a ``torch.Tensor`` or ``numpy.ndarray``.
     """
-    path = core.Path(path)
+    path = pathlib.Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
 
     if isinstance(image, torch.Tensor):

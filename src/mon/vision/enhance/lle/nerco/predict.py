@@ -9,21 +9,17 @@ References:
     - Code: https://github.com/Ysz2022/NeRCo
 """
 
-import os
 import random
-import sys
 
 import box
 import torch.optim
 from PIL import Image
 
 import mon
-
-sys.path.append(os.path.abspath(os.path.dirname(__file__)))
+from mon.vision.enhance.lle import nerco
 from nerco.data.base_dataset import get_transform
 from nerco.options.test_options import TestOptions
 from nerco.util import util
-from model import *
 
 current_file = mon.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
@@ -79,7 +75,7 @@ def predict(args: dict | box.Box) -> str:
 
     # Model
     # model = create_model(cfgs)          # create a model given opt.model and other options
-    model = NeRCo(cfgs)                 # create a model given opt.model and other options
+    model = nerco.NeRCo(cfgs)           # create a model given opt.model and other options
     model.setup(pretrained, cfgs)       # regular setup: load and print networks; create schedulers
     model = model.to(device)
     if cfgs.eval:

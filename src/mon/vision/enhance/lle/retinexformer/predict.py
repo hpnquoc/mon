@@ -9,16 +9,11 @@ References:
     - Code: https://github.com/caiyuanhao1998/Retinexformer
 """
 
-import os
-import sys
-
 import box
 import torch
 import torch.nn.functional as F
 
 import mon
-
-sys.path.append(os.path.abspath(os.path.dirname(__file__)))
 from retinexformer.basicsr.models import create_model
 from retinexformer.basicsr.utils.options import parse
 

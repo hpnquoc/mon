@@ -9,9 +9,7 @@ References:
     - Code: https://github.com/daooshee/QuadPrior
 """
 
-import os
 import random
-import sys
 
 import box
 import cv2
@@ -23,12 +21,13 @@ import torch.utils
 from pytorch_lightning import seed_everything
 
 import mon
-
-sys.path.append(os.path.abspath(os.path.dirname(__file__)))
-from quadprior.cldm.hack import disable_verbosity
+# noinspection PyUnusedImports
+from mon.vision.enhance.lle import quadprior
 from quadprior.annotator.util import HWC3, resize_image
+from quadprior.cldm.hack import disable_verbosity
 from quadprior.cldm.model import create_model, load_state_dict
 from quadprior.ldm.models.diffusion.dpm_solver import DPMSolverSampler
+
 disable_verbosity()
 
 current_file = mon.Path(__file__).absolute()

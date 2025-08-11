@@ -8,16 +8,11 @@ References:
       Adaptation for Background Modeling," Sensors 2020.
 """
 
-import os
-import sys
-
 import box
 import torch.optim
 
 import mon
-
-sys.path.append(os.path.abspath(os.path.dirname(__file__)))
-from model import *
+from mon.vision.bgsubtract import tensormog
 
 current_file = mon.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
@@ -55,7 +50,7 @@ def predict(args: dict | box.Box) -> str:
     data_name, data_loader = mon.parse_data_loader(args.data, args.root, True, verbose=False)
     
     # Model
-    model = TensorMOG(
+    model = tensormog.TensorMOG(
         height            = height,
         width             = width,
         num_gaussians     = num_gaussians,

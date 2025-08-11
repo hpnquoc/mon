@@ -9,8 +9,8 @@ __all__ = [
 
 import glob
 
-from mon import core
 from mon.constants import Split
+from mon.core import pathlib, rich
 from mon.vision.geometry import albumentation
 from mon.vision.types.datasets import base
 from mon.vision.types.image import Image
@@ -38,7 +38,7 @@ class ImageLoader(base.VisionDataset):
     
     def __init__(
         self,
-        root      : core.Path,
+        root      : pathlib.Path,
         split     : Split = Split.PREDICT,
         transform : albumentation.Compose = None,
         to_tensor : bool  = False,
@@ -68,12 +68,12 @@ class ImageLoader(base.VisionDataset):
         elif self.root.is_dir() and self.root.exists():
             paths = list(self.root.rglob("*"))
         elif "*" in str(self.root):
-            paths = [core.Path(i) for i in glob.glob(str(self.root))]
+            paths = [pathlib.Path(i) for i in glob.glob(str(self.root))]
         else:
             raise IOError(f"Invalid root path: {self.root}")
         
         images: list[Image] = []
-        with core.create_progress_bar() as pbar:
+        with rich.create_progress_bar() as pbar:
             for path in pbar.track(
                 sequence    = sorted(paths),
                 description = f"[bright_yellow]Listing {self.__class__.__name__} "

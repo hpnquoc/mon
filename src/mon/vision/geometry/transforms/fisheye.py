@@ -18,12 +18,11 @@ from typing import Any
 import cv2
 import numpy as np
 
-from mon import core
-from mon.constants import BBoxFormat
-from mon.constants import TRANSFORMS
+from mon.constants import BBoxFormat, TRANSFORMS
+from mon.core import console
 from mon.nn import _size_2_t, _size_3_t
 from mon.vision import types
-from mon.vision.geometry.transforms.albumentation import DualTransform, Targets, BaseModel, Field
+from mon.vision.geometry.transforms.albumentation import BaseModel, DualTransform, Field, Targets
 
 
 # ----- Augmentation -----
@@ -135,12 +134,12 @@ class FisheyeTransform(DualTransform):
         self.z_trans = self.z_trans_range[0] * (1 - temp) + self.z_trans_range[1] * temp
 
     def print_ext_param(self):
-        core.console.log(f"alpha:         {self.alpha * 180 / math.pi}.")
-        core.console.log(f"beta:          { self.beta * 180 / math.pi}.")
-        core.console.log(f"theta:         {self.theta * 180 / math.pi}.")
-        core.console.log(f"X translation: {self.x_trans}.")
-        core.console.log(f"Y translation: {self.y_trans}.")
-        core.console.log(f"Z translation: {self.z_trans}.")
+        console.log(f"alpha:         {self.alpha * 180 / math.pi}.")
+        console.log(f"beta:          { self.beta * 180 / math.pi}.")
+        console.log(f"theta:         {self.theta * 180 / math.pi}.")
+        console.log(f"X translation: {self.x_trans}.")
+        console.log(f"Y translation: {self.y_trans}.")
+        console.log(f"Z translation: {self.z_trans}.")
 
     # ----- Calculation -----
     def _calculate_coord_map(self, image: np.ndarray):

@@ -13,18 +13,20 @@ __all__ = [
     "brightness_attention_map",
 ]
 
+from typing import Union
+
 import cv2
 import kornia
 import numpy as np
 import torch
 
-from mon import nn
+import mon.nn as nn
 from mon.nn import _size_2_t
 from mon.vision.types.image import utils
 
 
 def brightness_attention_map(
-    image        : torch.Tensor | np.ndarray,
+    image        : Union[torch.Tensor, np.ndarray],
     gamma        : float     = 2.5,
     denoise_ksize: _size_2_t = None,
 ) -> torch.Tensor:

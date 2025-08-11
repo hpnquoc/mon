@@ -9,17 +9,12 @@ References:
     - Code: https://github.com/VinAIResearch/PSENet-Image-Enhancement
 """
 
-import os
-import sys
-
 import box
 import torch
 import torch.optim
 
 import mon
-
-sys.path.append(os.path.abspath(os.path.dirname(__file__)))
-from model import *
+from mon.vision.enhance.lle import psenet
 
 current_file = mon.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
@@ -68,7 +63,7 @@ def predict(args: dict | box.Box) -> str:
         raise ValueError(f"Invalid weights file: {pretrained}.")
 
     # Model
-    model = PSENet()
+    model = psenet.PSENet()
     model.load_state_dict(state_dict)
     model = model.to(device)
     model.eval()

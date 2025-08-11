@@ -9,16 +9,11 @@ References:
     - Code: https://github.com/AndersonYong/URetinex-Net-PLUS
 """
 
-import os
-import sys
-
 import box
 import torch
 
 import mon
-
-sys.path.append(os.path.abspath(os.path.dirname(__file__)))
-from model import *
+from mon.vision.enhance.lle import uretinexnetpp
 
 current_file = mon.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
@@ -70,7 +65,7 @@ def predict(args: dict | box.Box) -> str:
     '''
 
     # Model
-    model = URetinexNetPP(args)
+    model = uretinexnetpp.URetinexNetPP(args)
     model = model.to(device)
     model.eval()
     

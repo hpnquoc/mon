@@ -10,16 +10,18 @@ __all__ = [
     "draw_trajectory",
 ]
 
+from typing import Union
+
 import cv2
 import numpy as np
 
-from mon import core
+from mon.core import Classes
 from mon.vision import types
 
 
 def draw_bbox(
     image     : np.ndarray,
-    bbox      : np.ndarray | list,
+    bbox      : Union[np.ndarray, list],
     label     : int | str = None,
     color     : list[int] = [255, 255, 255],
     thickness : int   = 1,
@@ -117,7 +119,7 @@ def draw_heatmap(
 def draw_semantic(
     image   : np.ndarray,
     semantic: np.ndarray,
-    classes : core.Classes,
+    classes : Classes,
     alpha   : float = 0.5
 ) -> np.ndarray:
     """Overlay semantic mask on image.
@@ -139,7 +141,7 @@ def draw_semantic(
 
 def draw_trajectory(
     image     : np.ndarray,
-    trajectory: np.ndarray | list,
+    trajectory: Union[np.ndarray, list],
     color     : list[int] = [255, 255, 255],
     thickness : int  = 1,
     line_type : int  = cv2.LINE_8,

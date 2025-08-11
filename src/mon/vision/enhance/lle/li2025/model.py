@@ -23,7 +23,7 @@ from mon.constants import MLType, MODELS, Task
 from mon.core import pathlib
 
 sys.path.append(os.path.abspath(os.path.dirname(__file__)))
-from src.net.lformer import net
+from li2025.net.lformer import net
 
 current_file = pathlib.Path(__file__).absolute()
 current_dir  = current_file.parents[0]

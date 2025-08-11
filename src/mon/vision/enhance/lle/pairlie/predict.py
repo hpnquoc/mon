@@ -9,16 +9,11 @@ References:
     - Code: https://github.com/zhenqifu/PairLIE
 """
 
-import os
-import sys
-
 import box
 import torch.optim
 
 import mon
-
-sys.path.append(os.path.abspath(os.path.dirname(__file__)))
-from model import *
+from mon.vision.enhance.lle import pairlie
 from pairlie.utils import *
 
 current_file = mon.Path(__file__).absolute()
@@ -57,7 +52,7 @@ def predict(args: dict | box.Box) -> str:
         raise ValueError(f"Invalid weights file: {pretrained}.")
 
     # Model
-    model = PairLIE()
+    model = pairlie.PairLIE()
     model.load_state_dict(torch.load(pretrained, weights_only=True))
     model = model.to(device)
     model.eval()

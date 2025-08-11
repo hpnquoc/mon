@@ -8,17 +8,13 @@ References:
     - Code: https://github.com/Ian0926/DCC-Net
 """
 
-import os
-import sys
-
 import box
 import torch
 import torch.optim
 
 import mon
 
-sys.path.append(os.path.abspath(os.path.dirname(__file__)))
-from model import *
+from mon.vision.enhance.lle import dccnet
 
 current_file = mon.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
@@ -61,7 +57,7 @@ def predict(args: dict | box.Box) -> str:
         raise ValueError(f"Invalid weights file: {pretrained}.")
 
     # Model
-    model = DCCNet()
+    model = dccnet.DCCNet()
     model.load_state_dict(new_state_dict)
     model = model.to(device)
     # model = mon.DataParallel(model)

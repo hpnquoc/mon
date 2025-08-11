@@ -14,7 +14,7 @@ import torch
 import torch.optim
 
 import mon
-from model import NestedUNet
+from mon.vision.enhance.lle import llunetpp
 
 current_file = mon.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
@@ -52,7 +52,7 @@ def predict(args: dict | box.Box) -> str:
         raise ValueError(f"Invalid weights file: {pretrained}.")
 
     # Model
-    model = NestedUNet()
+    model = llunetpp.LLUnetPP()
     model.load_state_dict(torch.load(pretrained, weights_only=True))
     model = model.to(device)
     model.eval()

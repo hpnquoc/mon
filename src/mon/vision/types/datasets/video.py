@@ -14,14 +14,14 @@ from typing import Any
 
 import cv2
 
-from mon import core
-from mon.constants import Split, Task, TRANSFORMS, SAVE_IMAGE_EXT
+from mon.constants import SAVE_IMAGE_EXT, Split, Task, TRANSFORMS
+from mon.core import console, DatapointAttributes, Dataset, pathlib
 from mon.vision.geometry import albumentation
 from mon.vision.types.video import Frame
 
 
 # ----- Video Loader -----
-class VideoLoader(core.Dataset, abc.ABC):
+class VideoLoader(Dataset, abc.ABC):
     """Base class for video loaders.
 
     Attributes:
@@ -37,13 +37,13 @@ class VideoLoader(core.Dataset, abc.ABC):
     """
     
     tasks: list[Task] = [Task.VIDEO]
-    datapoint_attrs   = core.DatapointAttributes({
+    datapoint_attrs   = DatapointAttributes({
         "image": Frame,
     })
     
     def __init__(
         self,
-        root      : core.Path,
+        root      : pathlib.Path,
         split     : Split = Split.PREDICT,
         transform : albumentation.Compose = None,
         to_tensor : bool = False,
@@ -162,7 +162,7 @@ class VideoLoader(core.Dataset, abc.ABC):
         if self.__len__() <= 0:
             raise RuntimeError("No datapoints in the dataset")
         if self.verbose:
-            core.console.log(f"Number of {self.split_str} datapoints: {self.__len__()}.")
+            console.log(f"Number of {self.split_str} datapoints: {self.__len__()}.")
 
 
 class VideoLoaderCV(VideoLoader):
@@ -179,7 +179,7 @@ class VideoLoaderCV(VideoLoader):
     
     def __init__(
         self,
-        root      : core.Path,
+        root      : pathlib.Path,
         split     : Split = Split.PREDICT,
         transform : albumentation.Compose = None,
         to_tensor : bool = False,
@@ -314,7 +314,7 @@ class VideoLoaderCV(VideoLoader):
         Raises:
             IOError: If root not a valid video file or stream.
         """
-        root = core.Path(self.root)
+        root = pathlib.Path(self.root)
         if root.is_video_file():
             self.video_capture = cv2.VideoCapture(str(root), cv2.CAP_FFMPEG)
             num_frames = int(self.video_capture.get(cv2.CAP_PROP_FRAME_COUNT))
@@ -401,12 +401,12 @@ class VideoLoaderCV(VideoLoader):
             "pos_avi_ratio": self.pos_avi_ratio,
             "pos_frames"   : self.pos_frames,
             "pos_msec"     : self.pos_msec,
-            "hash"         : self.root.stat().st_size if isinstance(self.root, core.Path) else None,
+            "hash"         : self.root.stat().st_size if isinstance(self.root, pathlib.Path) else None,
         }
 
 
 # ----- Validation Check -----
-def is_video_dataset(dataset: core.Dataset) -> bool:
+def is_video_dataset(dataset: Dataset) -> bool:
     """Checks if dataset is a video dataset.
 
     Args:

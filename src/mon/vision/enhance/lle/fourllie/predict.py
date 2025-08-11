@@ -9,9 +9,6 @@ References:
     - Code: https://github.com/wangchx67/FourLLIE
 """
 
-import os
-import sys
-
 import box
 import cv2
 import numpy as np
@@ -19,11 +16,10 @@ import torch
 
 import mon
 
-sys.path.append(os.path.abspath(os.path.dirname(__file__)))
-import fourllie.data.util as dutil
-import fourllie.options.options as option
-import fourllie.utils.util as util
-from model import *
+from mon.vision.enhance.lle import fourllie
+from fourllie.data import util as dutil
+from fourllie.options import options as option
+from fourllie.utils import util as util
 
 current_file = mon.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
@@ -67,7 +63,7 @@ def predict(args: dict | box.Box) -> str:
         raise ValueError(f"Invalid weights file: {pretrained}.")
 
     # Model
-    model = FourLLIE(cfgs)
+    model = fourllie.FourLLIE(cfgs)
     
     # Benchmark
     if args.benchmark:

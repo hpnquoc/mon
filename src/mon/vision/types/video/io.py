@@ -12,14 +12,14 @@ __all__ = [
 ]
 
 from abc import ABC, abstractmethod
+from typing import Union
 
 import cv2
 import ffmpeg
 import numpy as np
 import torch
 
-from mon import core
-from mon.nn import _size_2_t
+from mon.core import pathlib
 from mon.vision.types import image as I
 
 
@@ -30,7 +30,7 @@ def load_video_ffmpeg(
     width    : int,
     to_tensor: bool = False,
     normalize: bool = False,
-) -> torch.Tensor | np.ndarray:
+) -> Union[torch.Tensor, np.ndarray]:
     """Read video frame bytes via ``ffmpeg``.
 
     Args:
@@ -68,7 +68,7 @@ def load_video_ffmpeg(
 # ----- Writing -----
 def write_video_ffmpeg(
     process,
-    frame      : torch.Tensor | np.ndarray,
+    frame      : Union[torch.Tensor, np.ndarray],
     denormalize: bool = False
 ):
     """Write frame to video via ``ffmpeg``.
@@ -111,14 +111,14 @@ class VideoWriter(ABC):
     
     def __init__(
         self,
-        dst		   : core.Path,
+        dst		   : pathlib.Path,
         imgsz      : tuple[int, int] = [480, 640],
         frame_rate : float = 10,
         denormalize: bool  = False,
         verbose    : bool  = False,
         *args, **kwargs
     ):
-        self.dst         = core.Path(dst)
+        self.dst         = pathlib.Path(dst)
         self.denormalize = denormalize
         self.index       = 0
         self.image_size  = I.image_size(imgsz)
@@ -151,9 +151,9 @@ class VideoWriter(ABC):
     @abstractmethod
     def write(
         self,
-        frame      : torch.Tensor | np.ndarray,
-        path       : core.Path = None,
-        denormalize: bool = False
+        frame      : Union[torch.Tensor, np.ndarray],
+        path       : pathlib.Path = None,
+        denormalize: bool         = False
     ):
         """Write frame to ``dst``.
 
@@ -168,7 +168,7 @@ class VideoWriter(ABC):
     def write_batch(
         self,
         frames     : list[torch.Tensor] | list[np.ndarray],
-        paths      : list[core.Path] = None,
+        paths      : list[pathlib.Path] = None,
         denormalize: bool = False
     ):
         """Write batch of frames to ``dst``.
@@ -196,7 +196,7 @@ class VideoWriterCV(VideoWriter):
     
     def __init__(
         self,
-        dst		   : core.Path,
+        dst		   : pathlib.Path,
         imgsz      : tuple[int, int] = [480, 640],
         frame_rate : float = 30,
         fourcc     : str   = "mp4v",
@@ -242,9 +242,9 @@ class VideoWriterCV(VideoWriter):
     
     def write(
         self,
-        frame      : torch.Tensor | np.ndarray,
-        path       : core.Path = None,
-        denormalize: bool = False
+        frame      : Union[torch.Tensor, np.ndarray],
+        path       : pathlib.Path = None,
+        denormalize: bool         = False
     ):
         """Write frame to video.
 
@@ -263,8 +263,8 @@ class VideoWriterCV(VideoWriter):
     def write_batch(
         self,
         frames     : list[torch.Tensor] | list[np.ndarray],
-        paths      : list[core.Path] = None,
-        denormalize: bool = False
+        paths      : list[pathlib.Path] = None,
+        denormalize: bool               = False
     ):
         """Write batch of frames to video.
 
@@ -293,7 +293,7 @@ class VideoWriterFFmpeg(VideoWriter):
     
     def __init__(
         self,
-        dst		   : core.Path,
+        dst		   : pathlib.Path,
         imgsz      : tuple[int, int] = [480, 640],
         frame_rate : float = 10,
         pix_fmt    : str   = "yuv420p",
@@ -351,9 +351,9 @@ class VideoWriterFFmpeg(VideoWriter):
     
     def write(
         self,
-        frame      : torch.Tensor | np.ndarray,
-        path       : core.Path = None,
-        denormalize: bool = False
+        frame      : Union[torch.Tensor, np.ndarray],
+        path       : pathlib.Path = None,
+        denormalize: bool         = False
     ):
         """Write frame to video.
 
@@ -369,8 +369,8 @@ class VideoWriterFFmpeg(VideoWriter):
     def write_batch(
         self,
         frames     : list[torch.Tensor] | list[np.ndarray],
-        paths      : list[core.Path] = None,
-        denormalize: bool = False,
+        paths      : list[pathlib.Path] = None,
+        denormalize: bool               = False,
     ):
         """Write batch of frames to video.
 

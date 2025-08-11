@@ -12,14 +12,16 @@ __all__ = [
     "Image",
 ]
 
+from typing import Union
+
 import cv2
 import numpy as np
 import torch
 
-from mon import core
+from mon.core import BaseTensor, DataLoaderMixin, DatasetMixin, pathlib
 
 
-class Image(core.BaseTensor, core.DatasetMixin, core.DataLoaderMixin):
+class Image(BaseTensor, DatasetMixin, DataLoaderMixin):
     """Image object.
 
     Attributes:
@@ -37,25 +39,25 @@ class Image(core.BaseTensor, core.DatasetMixin, core.DataLoaderMixin):
 
     def __init__(
         self,
-        data : torch.Tensor | np.ndarray = None,
-        path : core.Path = None,
-        root : core.Path = None,
-        flags: int       = cv2.IMREAD_COLOR_BGR,
-        cache: bool      = False,
+        data : Union[torch.Tensor, np.ndarray] = None,
+        path : pathlib.Path = None,
+        root : pathlib.Path = None,
+        flags: int          = cv2.IMREAD_COLOR_BGR,
+        cache: bool         = False,
     ):
         if all(d is None for d in [data, path]):
             raise ValueError("Either [data] or [path] must be provided to initialize the Image object.")
         if data is not None:
             orig_shape = data.shape
-        elif core.Path(path).is_image_file(exist=True):
+        elif pathlib.Path(path).is_image_file(exist=True):
             from mon.vision.types.image import io
             orig_shape = io.read_image_shape(path=path)
         else:
             orig_shape = None
 
         super().__init__(data=data, orig_shape=orig_shape)
-        self._path = core.Path(path) if path is not None else None
-        self._root = core.Path(root) if root is not None else None
+        self._path = pathlib.Path(path) if path is not None else None
+        self._root = pathlib.Path(root) if root is not None else None
         self.flags = flags
         self.cache = cache
 
@@ -69,12 +71,12 @@ class Image(core.BaseTensor, core.DatasetMixin, core.DataLoaderMixin):
         return self._orig_shape
 
     @property
-    def path(self) -> core.Path:
+    def path(self) -> pathlib.Path:
         """Returns the image file path."""
         return self._path
 
     @property
-    def root(self) -> core.Path:
+    def root(self) -> pathlib.Path:
         """Returns the root directory for the image."""
         return self._root
 
@@ -89,7 +91,7 @@ class Image(core.BaseTensor, core.DatasetMixin, core.DataLoaderMixin):
             "path"      : self.path,
             "orig_shape": self.orig_shape,
             "shape"     : self.shape,
-            "hash"      : self.path.stat().st_size if isinstance(self.path, core.Path) else None,
+            "hash"      : self.path.stat().st_size if isinstance(self.path, pathlib.Path) else None,
         }
 
     def load(self, reload: bool = False) -> np.ndarray:
@@ -120,7 +122,7 @@ class Image(core.BaseTensor, core.DatasetMixin, core.DataLoaderMixin):
     # ----- DatasetMixin -----
     @staticmethod
     def to_tensor(
-        data      : torch.Tensor | np.ndarray,
+        data      : Union[torch.Tensor, np.ndarray],
         orig_shape: tuple[int, int] = None,
         normalize : bool            = True,
         *args, **kwargs
@@ -140,7 +142,7 @@ class Image(core.BaseTensor, core.DatasetMixin, core.DataLoaderMixin):
 
     # ----- DataLoaderMixin -----
     @staticmethod
-    def collate_fn(batch: list) -> torch.Tensor | np.ndarray | None:
+    def collate_fn(batch: list) -> Union[torch.Tensor, np.ndarray, None]:
         """Collates batch data for ``torch.utils.data.DataLoader``.
 
         Args:

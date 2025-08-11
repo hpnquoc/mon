@@ -12,7 +12,8 @@ from copy import deepcopy
 
 import torch
 
-from mon import core, nn
+import mon.nn as nn
+from mon.core import thop, TimeProfiler
 from mon.nn import _size_2_t
 
 
@@ -36,7 +37,7 @@ class VisionModel(nn.LightningModule, abc.ABC):
         
         h, w      = vision.image_size(imgsz)
         datapoint = {"image": torch.rand(1, channels, h, w).to(self.device)}
-        flops, params = core.thop.custom_profile(deepcopy(self), inputs=datapoint, verbose=False)
+        flops, params = thop.custom_profile(deepcopy(self), inputs=datapoint, verbose=False)
         params        = self.params if hasattr(self, "params") and params == 0 else params
         params        = parameter_count(self) if hasattr(self, "params")  else params
         params        = sum(params.values())  if isinstance(params, dict) else params
@@ -46,9 +47,9 @@ class VisionModel(nn.LightningModule, abc.ABC):
     def infer(
         self,
         datapoint: dict,
-        imgsz    : _size_2_t         = 512,
-        resize   : bool              = False,
-        timers   : core.TimeProfiler = None,
+        imgsz    : _size_2_t    = 512,
+        resize   : bool         = False,
+        timers   : TimeProfiler = None,
         *args, **kwargs
     ) -> dict:
         """Infers model output with optional processing.

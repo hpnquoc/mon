@@ -15,12 +15,14 @@ __all__ = [
     "dark_channel_prior_paper",
 ]
 
+from typing import Union
+
 import cv2
 import kornia
 import numpy as np
 import torch
 
-from mon import core
+from mon.core import to_2tuple
 from mon.nn import _size_2_t
 
 
@@ -80,9 +82,9 @@ def bright_spot_prior(image: np.ndarray) -> bool:
 
 
 def bright_channel_prior(
-    image      : torch.Tensor | np.ndarray,
+    image      :  Union[torch.Tensor, np.ndarray],
     kernel_size: _size_2_t
-) -> torch.Tensor | np.ndarray:
+) ->  Union[torch.Tensor, np.ndarray]:
     """Gets bright channel prior from an RGB image.
 
     Args:
@@ -92,7 +94,7 @@ def bright_channel_prior(
     Returns:
         Bright channel prior as ``torch.Tensor`` or ``numpy.ndarray``.
     """
-    kernel_size = core.to_2tuple(kernel_size)
+    kernel_size = to_2tuple(kernel_size)
     if isinstance(image, torch.Tensor):
         bright_channel = torch.max(image, dim=1)[0]
         kernel         = torch.ones(kernel_size[0], kernel_size[0])
@@ -107,9 +109,9 @@ def bright_channel_prior(
 
 
 def dark_channel_prior(
-    image      : torch.Tensor | np.ndarray,
+    image      :  Union[torch.Tensor, np.ndarray],
     kernel_size: int
-) -> torch.Tensor | np.ndarray:
+) ->  Union[torch.Tensor, np.ndarray]:
     """Gets dark channel prior from an RGB image.
 
     Args:
@@ -119,7 +121,7 @@ def dark_channel_prior(
     Returns:
         Dark channel prior as ``torch.Tensor`` or ``numpy.ndarray``.
     """
-    kernel_size = core.to_2tuple(kernel_size)
+    kernel_size = to_2tuple(kernel_size)
     if isinstance(image, torch.Tensor):
         dark_channel = torch.min(image, dim=1)[0]
         kernel       = torch.ones(kernel_size[0], kernel_size[1])
@@ -135,9 +137,9 @@ def dark_channel_prior(
 
 
 def dark_channel_prior_paper(
-    image      : torch.Tensor | np.ndarray,
+    image      :  Union[torch.Tensor, np.ndarray],
     kernel_size: _size_2_t,
-) -> torch.Tensor | np.ndarray:
+) ->  Union[torch.Tensor, np.ndarray]:
     """Gets dark channel prior from an RGB image (from paper).
 
     Args:

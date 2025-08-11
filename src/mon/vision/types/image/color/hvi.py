@@ -9,7 +9,7 @@ __all__ = [
 
 import torch
 
-from mon import nn
+import mon.nn as nn
 
 
 class RGBToHVI(nn.Module):

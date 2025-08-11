@@ -4,6 +4,7 @@
 """Implements computer vision tasks."""
 
 from .bgsubtract import *
+from .detect import *
 # from .classify import *
 from .draw import *
 from .enhance import *
@@ -11,6 +12,6 @@ from .filtering import *
 from .geometry import *
 from .geometry import transforms
 from .model import *
-# from .segment import *
+from .segment import *
 # from .track import *
 from .types import *

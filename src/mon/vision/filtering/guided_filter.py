@@ -12,13 +12,16 @@ __all__ = [
     "guided_filter",
 ]
 
+from typing import Union
+
 import numpy as np
 import torch
 from cv2 import ximgproc
 from plum import dispatch
 from torch.autograd import Variable
 
-from mon import core, nn
+import mon.nn as nn
+from mon.core import pathlib
 from mon.nn import functional as F, init
 from mon.vision import geometry
 from mon.vision.filtering.box_filter import BoxFilter
@@ -26,11 +29,11 @@ from mon.vision.filtering.box_filter import BoxFilter
 
 # ----- Guided Filter -----
 def guided_filter(
-    image : torch.Tensor | np.ndarray,
-    guide : torch.Tensor | np.ndarray,
+    image : Union[torch.Tensor, np.ndarray],
+    guide : Union[torch.Tensor, np.ndarray],
     radius: int,
     eps   : float = 1e-8
-) -> torch.Tensor | np.ndarray:
+) -> Union[torch.Tensor, np.ndarray]:
     """Applies guided filter to an image.
 
     Args:
@@ -413,7 +416,7 @@ class DeepGuidedFilter(nn.Module):
             return self.gf(self.guided_map_net(x_lr), self.lr_net(x_lr), self.guided_map_net(x_hr)).clamp(0, 1)
         return self.gf(x_lr, self.lr_net(x_lr), x_hr).clamp(0, 1)
 
-    def load_lr_weights(self, path: core.Path):
+    def load_lr_weights(self, path: pathlib.Path):
         """Loads weights for the low-resolution network.
 
         Args:
@@ -494,7 +497,7 @@ class DeepConvGuidedFilter(nn.Module):
             return self.gf(self.guided_map_net(x_lr), self.lr(x_lr), self.guided_map_net(x_hr)).clamp(0, 1)
         return self.gf(x_lr, self.lr(x_lr), x_hr).clamp(0, 1)
 
-    def init_lr(self, path: core.Path):
+    def init_lr(self, path: pathlib.Path):
         """Loads weights for the low-resolution network.
 
         Args:
