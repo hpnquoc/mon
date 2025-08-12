@@ -14,12 +14,7 @@ import numpy as np
 import torch
 
 import mon
-# noinspection PyUnusedImports
-from mon.vision.enhance.lle import snr
-from snr.data import util as dutil
-from snr.models import create_model
-from snr.options import options as option
-from snr.utils import util as util
+from mon.vision.enhance.lle.snr import create_model, option, read_img, tensor2img
 
 current_file = mon.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
@@ -82,7 +77,7 @@ def predict(args: dict | box.Box) -> str:
             # Preprocess
             timers.preprocess.tick()
             path   = mon.Path(datapoint["meta"]["path"])
-            image  = dutil.read_img(None, str(path))
+            image  = read_img(None, str(path))
             h0, w0 = mon.image_size(image)
             if args.resize and (h0 != args.imgsz[0] or w0 != args.imgsz[1]):
                 image = mon.resize(image, size=args.imgsz)
@@ -112,7 +107,7 @@ def predict(args: dict | box.Box) -> str:
             # Postprocess
             timers.postprocess.tick()
             outputs  = model.get_current_visuals(need_GT=False)
-            enhanced = util.tensor2img(outputs["rlt"])  # uint8
+            enhanced = tensor2img(outputs["rlt"])  # uint8
             enhanced = cv2.resize(enhanced, (w0, h0))
             timers.postprocess.tock()
 

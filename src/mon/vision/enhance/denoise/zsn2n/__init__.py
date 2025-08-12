@@ -8,4 +8,8 @@ References:
     - Code: https://colab.research.google.com/drive/1i82nyizTdszyHkaHBuKPbWnTzao8HF9b?usp=sharing#scrollTo=Srf0GQTYrkxA
 """
 
-from .model import *
+__all__ = [
+    "ZSN2N",
+]
+
+from .model import ZSN2N

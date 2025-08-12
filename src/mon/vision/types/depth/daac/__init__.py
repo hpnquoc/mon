@@ -8,4 +8,8 @@ References:
     - https://github.com/HVision-NKU/DepthAnythingAC
 """
 
-from .model import *
+__all__ = [
+    "DAAC",
+]
+
+from .model import DAAC

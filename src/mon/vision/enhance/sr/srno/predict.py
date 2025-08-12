@@ -13,10 +13,8 @@ import torch
 import torch.optim
 
 import mon
-# noinspection PyUnusedImports
-from mon.vision.enhance.sr import srno
-from srno.models import make
-from srno.utils import make_coord
+from mon.vision.enhance.sr.srno import make, make_coord
+
 
 current_file = mon.Path(__file__).absolute()
 current_dir  = current_file.parents[0]

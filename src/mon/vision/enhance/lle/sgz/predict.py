@@ -16,7 +16,6 @@ import torch
 
 import mon
 from mon.vision.enhance.lle import sgz
-from sgz import utils
 
 os.environ["KMP_DUPLICATE_LIB_OK"] = "True"
 
@@ -80,10 +79,10 @@ def predict(args: dict | box.Box) -> str:
             # Preprocess
             timers.preprocess.tick()
             path    = mon.Path(datapoint["meta"]["path"])
-            image   = utils.image_from_path(str(path))
+            image   = sgz.image_from_path(str(path))
             h0, w0  = mon.image_size(image)
             # Scale image to have the resolution of multiple of 4
-            image   = utils.scale_image(image, scale_factor, device) if scale_factor != 1 else image
+            image   = sgz.scale_image(image, scale_factor, device) if scale_factor != 1 else image
             image   = image.to(device)
             timers.preprocess.tock()
 

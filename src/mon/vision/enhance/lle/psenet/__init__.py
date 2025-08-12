@@ -9,4 +9,8 @@ References:
     - Code: https://github.com/VinAIResearch/PSENet-Image-Enhancement
 """
 
-from .model import *
+__all__ = [
+    "PSENet",
+]
+
+from .model import PSENet

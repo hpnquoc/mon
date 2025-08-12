@@ -13,10 +13,7 @@ import imageio
 import torch
 
 import mon
-# noinspection PyUnusedImports
-from mon.vision.enhance.retouch import neurop
-from neurop.models import build_model
-from neurop.utils import *
+from mon.vision.enhance.retouch.neurop import build_model, dict_to_nonedict, parse
 
 current_file = mon.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
@@ -32,7 +29,7 @@ def benchmark(model: torch.nn.Module):
 # ----- Predict -----
 @torch.no_grad()
 def predict(args: dict | box.Box) -> str:
-    cfg_path        = current_dir / "neurop" / "option" / "test" / args.cfg
+    cfg_path        = current_dir / "src" / "option" / "test" / args.cfg
     cfgs            = parse(str(cfg_path))
     cfgs            = dict_to_nonedict(cfgs)
     cfgs["dist"]    = False

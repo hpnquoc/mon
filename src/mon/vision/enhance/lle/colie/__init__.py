@@ -9,4 +9,8 @@ References:
     - Code: https://github.com/ctom2/colie
 """
 
-from .model import *
+__all__ = [
+    "CoLIE",
+]
+
+from .model import CoLIE

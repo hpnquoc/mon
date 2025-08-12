@@ -17,9 +17,7 @@ from PIL import Image
 
 import mon
 from mon.vision.enhance.lle import nerco
-from nerco.data.base_dataset import get_transform
-from nerco.options.test_options import TestOptions
-from nerco.util import util
+from mon.vision.enhance.lle.nerco import get_transform, tensor2im, TestOptions
 
 current_file = mon.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
@@ -56,7 +54,7 @@ def predict(args: dict | box.Box) -> str:
     # Data I/O
     data_name, data_loader = mon.parse_data_loader(args.data, args.root, True, verbose=False)
 
-    testB_dir   = current_dir / "nerco" / "dataset" / "testB"
+    testB_dir   = current_dir / "src" / "dataset" / "testB"
     testB_files = sorted([f for f in testB_dir.glob("*") if f.is_image_file()])
     testB_size  = len(testB_files)
     transform_A = get_transform(cfgs)
@@ -124,7 +122,7 @@ def predict(args: dict | box.Box) -> str:
             h1, w1 = mon.image_size(enhanced)
             if h1 != h0 or w1 != w0:
                 enhanced = mon.resize(enhanced, (h0, w0))
-            enhanced = util.tensor2im(enhanced)
+            enhanced = tensor2im(enhanced)
             timers.postprocess.tock()
             
             # Save

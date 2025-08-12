@@ -9,4 +9,8 @@ References:
     - Code: https://github.com/zhenqifu/PairLIE
 """
 
-from .model import *
+__all__ = [
+    "PairLIE",
+]
+
+from .model import PairLIE

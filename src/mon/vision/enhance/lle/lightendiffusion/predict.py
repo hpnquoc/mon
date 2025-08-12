@@ -45,7 +45,7 @@ def dict2namespace(config):
 # ----- Predict -----
 @torch.no_grad()
 def predict(args: dict | box.Box) -> str:
-    cfg_path = current_dir / "lightendiffusion" / "option" / args.cfg
+    cfg_path = current_dir / "src" / "option" / args.cfg
     with open(str(cfg_path), "r") as f:
         cfgs = yaml.safe_load(f)
     cfgs = dict2namespace(cfgs)

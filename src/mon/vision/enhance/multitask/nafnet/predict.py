@@ -16,15 +16,15 @@ from basicsr.utils.options import parse
 class Predictor(BasePredictor):
     
     def setup(self):
-        opt_path_denoise = "options/test/SIDD/NAFNet-width64.yml"
+        opt_path_denoise = "option/test/SIDD/NAFNet-width64.yml"
         opt_denoise = parse(opt_path_denoise, is_train=False)
         opt_denoise["dist"] = False
 
-        opt_path_deblur = "options/test/GoPro/NAFNet-width64.yml"
+        opt_path_deblur = "option/test/GoPro/NAFNet-width64.yml"
         opt_deblur = parse(opt_path_deblur, is_train=False)
         opt_deblur["dist"] = False
 
-        opt_path_stereo = "options/test/NAFSSR/NAFSSR-L_4x.yml"
+        opt_path_stereo = "option/test/NAFSSR/NAFSSR-L_4x.yml"
         opt_stereo = parse(opt_path_stereo, is_train=False)
         opt_stereo["dist"] = False
 

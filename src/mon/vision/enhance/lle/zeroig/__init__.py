@@ -9,4 +9,9 @@ References:
     - Code: https://github.com/Doyle59217/ZeroIG
 """
 
-from .model import *
+__all__ = [
+    "ZERO_IG",
+    "ZERO_IG_Finetune",
+]
+
+from .model import ZERO_IG, ZERO_IG_Finetune

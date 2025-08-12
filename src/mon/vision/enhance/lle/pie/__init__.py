@@ -9,4 +9,8 @@ References:
     - Code: https://github.com/DavidQiuChao/PIE
 """
 
-from .model import *
+__all__ = [
+    "PIE",
+]
+
+from .model import PIE

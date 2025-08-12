@@ -101,8 +101,8 @@ def predict(args: dict | box.Box) -> str:
 
             # Postprocess
             timers.postprocess.tick()
-            outputs = outputs["out"]
-            depth   = outputs.squeeze().cpu().numpy()
+            outputs = outputs["out"].detach().cpu()
+            depth   = outputs.squeeze().numpy()
             if args.resize and (h0 != args.imgsz[0] or w0 != args.imgsz[1]):
                 depth = mon.resize(depth, size=(h0, w0))
             depth   = (depth - depth.min()) / (depth.max() - depth.min()) * 255.0

@@ -8,4 +8,8 @@ References:
     - Code: https://github.com/XLearning-SCU/2020-TIP-ZID
 """
 
-from .model import *
+__all__ = [
+    "ZID",
+]
+
+from .model import prepare_hazy_image, ZID

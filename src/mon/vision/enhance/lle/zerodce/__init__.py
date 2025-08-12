@@ -9,4 +9,8 @@ References:
     - Code: https://github.com/Li-Chongyi/Zero-DCE
 """
 
-from .model import *
+__all__ = [
+    "ZeroDCE",
+]
+
+from .model import ZeroDCE

@@ -8,4 +8,8 @@ References:
     - Code: https://github.com/ShihuaHuang95/DEIM
 """
 
-from .model import *
+__all__ = [
+    "DEIM",
+]
+
+from .model import DEIM

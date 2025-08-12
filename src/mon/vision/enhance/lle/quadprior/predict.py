@@ -21,13 +21,7 @@ import torch.utils
 from pytorch_lightning import seed_everything
 
 import mon
-# noinspection PyUnusedImports
-from mon.vision.enhance.lle import quadprior
-from quadprior.annotator.util import HWC3, resize_image
-from quadprior.cldm.hack import disable_verbosity
-from quadprior.cldm.model import create_model, load_state_dict
-from quadprior.ldm.models.diffusion.dpm_solver import DPMSolverSampler
-disable_verbosity()
+from mon.vision.enhance.lle.quadprior import create_model, DPMSolverSampler, HWC3, load_state_dict, resize_image
 
 current_file = mon.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
@@ -137,7 +131,7 @@ def predict(args: dict | box.Box) -> str:
         raise ValueError(f"Invalid weights file: {pretrained}.")
 
     # Model
-    cfg_path  = current_dir / "quadprior" / "models" / args.cfg
+    cfg_path  = current_dir / "src" / "models" / args.cfg
     init_ckpt = mon.ZOO_DIR / "vision/enhance/lle/quadprior/quadprior/coco80/control_sd15_init.ckpt"
     ae_ckpt   = mon.ZOO_DIR / "vision/enhance/lle/quadprior/quadprior/coco80/ae_epoch=00_step=7000.ckpt"
 

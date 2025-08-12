@@ -9,4 +9,8 @@ References:
     - Code: https://github.com/vis-opt-group/SCI
 """
 
-from .model import *
+__all__ = [
+    "SCI",
+]
+
+from .model import SCI

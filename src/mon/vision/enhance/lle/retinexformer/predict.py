@@ -14,8 +14,7 @@ import torch
 import torch.nn.functional as F
 
 import mon
-from retinexformer.basicsr.models import create_model
-from retinexformer.basicsr.utils.options import parse
+from mon.vision.enhance.lle.retinexformer import create_model, parse
 
 current_file = mon.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
@@ -31,7 +30,7 @@ def benchmark(model: torch.nn.Module):
 # ----- Predict -----
 @torch.no_grad()
 def predict(args: dict | box.Box) -> str:
-    cfg_path = current_dir / "retinexformer" / "option" / args.cfg
+    cfg_path = current_dir / "src" / "option" / args.cfg
     cfgs     = parse(str(cfg_path), is_train=False)
     
     # Start

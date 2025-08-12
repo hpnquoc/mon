@@ -9,5 +9,6 @@ models.
 # from mon.core.dynamic_import import import_all_submodules
 # import_all_submodules(__name__, os.path.dirname(__file__))
 
-# from .hinet_re import *
 # from .zerorestore import *
+from .darkir import *
+from .fourierdiff import *

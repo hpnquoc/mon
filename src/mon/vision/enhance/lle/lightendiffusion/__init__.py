@@ -9,4 +9,8 @@ References:
     - Code: https://github.com/JianghaiSCU/LightenDiffusion
 """
 
-from .model import *
+__all__ = [
+    "LightenDiffusion",
+]
+
+from .model import LightenDiffusion

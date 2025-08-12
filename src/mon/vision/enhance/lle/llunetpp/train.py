@@ -19,9 +19,8 @@ import torch.optim as optim
 from torch.utils.tensorboard import SummaryWriter
 
 import mon
-from llunetpp.average_meter import AverageMeter
-from llunetpp.loss import Loss
 from mon.vision.enhance.lle import llunetpp
+from mon.vision.enhance.lle.llunetpp import AverageMeter, Loss
 
 current_file = mon.Path(__file__).absolute()
 current_dir  = current_file.parents[0]

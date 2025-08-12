@@ -28,7 +28,7 @@ from torch.autograd import Variable
 
 import mon.nn as nn
 from mon.constants import MLType, MODELS, Task
-from mon.core import pathlib, console, get_model_device
+from mon.core import console, get_model_device, pathlib
 from mon.nn import functional as F
 from mon.vision import types
 

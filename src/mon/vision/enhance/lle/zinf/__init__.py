@@ -4,7 +4,13 @@
 """ZINF model for low-light image enhancement.
 
 References:
-
+    - Paper: "Zero-Shot Implicit Neural Fusion Network for Multimodal Low-Light
+      Image Enhancement," arXiv 2025.
+    - Code: https://github.com/phlong3105/mon
 """
 
-from .model import *
+__all__ = [
+    "ZINF",
+]
+
+from .model import ZINF

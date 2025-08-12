@@ -9,4 +9,8 @@ References:
     - Code: https://github.com/pvnieo/Low-light-Image-Enhancement
 """
 
-from .model import *
+__all__ = [
+    "LIME",
+]
+
+from .model import LIME

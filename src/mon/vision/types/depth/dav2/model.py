@@ -16,8 +16,6 @@ __all__ = [
     "DAV2_ViTL",
 ]
 
-import os
-import sys
 from typing import Any
 
 import torch
@@ -25,9 +23,7 @@ import torch
 import mon.nn as nn
 from mon.constants import MLType, MODELS, Task, ZOO_DIR
 from mon.core import pathlib
-
-sys.path.append(os.path.abspath(os.path.dirname(__file__)))
-from depth_anything_v2.dpt import DepthAnythingV2
+from .src.depth_anything_v2.dpt import DepthAnythingV2
 
 current_file = pathlib.Path(__file__).absolute()
 current_dir  = current_file.parents[0]

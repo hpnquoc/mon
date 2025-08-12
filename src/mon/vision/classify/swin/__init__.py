@@ -7,4 +7,13 @@ References:
     - Paper: https://arxiv.org/pdf/2103.14030
 """
 
-from .model import *
+__all__ = [
+    "Swin_B",
+    "Swin_S",
+    "Swin_T",
+    "Swin_V2_B",
+    "Swin_V2_S",
+    "Swin_V2_T",
+]
+
+from .model import Swin_B, Swin_S, Swin_T, Swin_V2_B, Swin_V2_S, Swin_V2_T

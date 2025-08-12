@@ -12,17 +12,12 @@ __all__ = [
     "SNR",
 ]
 
-import os
-import sys
-
 import box
 
 import mon.nn as nn
 from mon.constants import MLType, MODELS, Task
 from mon.core import pathlib
-
-sys.path.append(os.path.abspath(os.path.dirname(__file__)))
-from snr.models.Video_base_model4_m import VideoBaseModel
+from .src.models.Video_base_model4_m import VideoBaseModel
 
 current_file = pathlib.Path(__file__).absolute()
 current_dir  = current_file.parents[0]

@@ -3,4 +3,8 @@
 
 """Implements AlexNet models."""
 
-from .model import *
+__all__ = [
+    "AlexNet",
+]
+
+from .model import AlexNet

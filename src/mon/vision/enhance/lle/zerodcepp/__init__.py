@@ -9,4 +9,8 @@ References:
     - Code: https://github.com/Li-Chongyi/Zero-DCE_extension
 """
 
-from .model import *
+__all__ = [
+    "ZeroDCEpp",
+]
+
+from .model import ZeroDCEpp

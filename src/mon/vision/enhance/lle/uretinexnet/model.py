@@ -13,21 +13,19 @@ __all__ = [
     "URetinexNet",
 ]
 
-import os
-import sys
 import time
 
 import box
+import torch
 import torchvision.transforms as transforms
+from PIL import Image
 
 import mon.nn as nn
 from mon.constants import MLType, MODELS, Task
 from mon.core import pathlib
-
-sys.path.append(os.path.abspath(os.path.dirname(__file__)))
-from uretinexnet.network.Math_Module import P, Q
-from uretinexnet.network.decom import Decom
-from uretinexnet.utils import *
+from .src.network.decom import Decom
+from .src.network.Math_Module import P, Q
+from .src.utils import load_adjustment, load_initialize, load_unfolding
 
 current_file = pathlib.Path(__file__).absolute()
 current_dir  = current_file.parents[0]

@@ -7,4 +7,9 @@ References:
      - Paper: https://arxiv.org/abs/1905.02244
 """
 
-from .model import *
+__all__ = [
+    "MobileNetV3Large",
+    "MobileNetV3Small",
+]
+
+from .model import MobileNetV3Large, MobileNetV3Small

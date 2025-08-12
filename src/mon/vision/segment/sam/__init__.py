@@ -7,4 +7,15 @@ References:
     - Code: https://github.com/ultralytics/ultralytics
 """
 
-from .model import *
+__all__ = [
+    "SAM",
+    "SAM2",
+    "SAM2_B",
+    "SAM2_L",
+    "SAM2_S",
+    "SAM2_T",
+    "SAM_B",
+    "SAM_L",
+]
+
+from .model import SAM, SAM2, SAM2_B, SAM2_L, SAM2_S, SAM2_T, SAM_B, SAM_L

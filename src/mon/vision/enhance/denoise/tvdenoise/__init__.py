@@ -3,4 +3,8 @@
 
 """Implements Total Variation De-noising."""
 
-from .model import *
+__all__ = [
+    "TVDenoise",
+]
+
+from .model import TVDenoise

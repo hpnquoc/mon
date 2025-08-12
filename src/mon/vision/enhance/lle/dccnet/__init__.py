@@ -8,4 +8,8 @@ References:
     - Code: https://github.com/Ian0926/DCC-Net
 """
 
-from .model import *
+__all__ = [
+    "DCCNet",
+]
+
+from .model import DCCNet

@@ -8,4 +8,8 @@ References:
     - Code: https://github.com/aasharma90/RetinexNet_PyTorch
 """
 
-from .model import *
+__all__ = [
+    "RetinexNet",
+]
+
+from .model import RetinexNet

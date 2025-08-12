@@ -8,4 +8,8 @@ References:
     - Code: https://github.com/arsenyinfo/EnlightenGAN-inference
 """
 
-from .model import *
+__all__ = [
+    "EnlightenOnnxModel",
+]
+
+from .model import EnlightenOnnxModel

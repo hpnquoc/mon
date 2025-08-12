@@ -9,4 +9,8 @@ References:
     - Code: https://github.com/KarelZhang/RUAS
 """
 
-from .model import *
+__all__ = [
+    "RUAS",
+]
+
+from .model import RUAS

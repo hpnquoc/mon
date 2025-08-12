@@ -13,8 +13,6 @@ __all__ = [
     "prepare_hazy_image",
 ]
 
-import os
-import sys
 from collections import namedtuple
 
 import box
@@ -23,15 +21,13 @@ from cv2.ximgproc import guidedFilter
 
 import mon.nn as nn
 from mon.constants import MLType, MODELS, Task
-from mon.core import pathlib, console
-
-sys.path.append(os.path.abspath(os.path.dirname(__file__)))
-from zid.net import *
-from zid.net.losses import StdLoss
-from zid.net.vae_model import VAE
-from zid.utils.dcp import get_atmosphere
-from zid.utils.image_io import *
-from zid.utils.imresize import np_imresize
+from mon.core import console, pathlib
+from .src.net import *
+from .src.net.losses import StdLoss
+from .src.net.vae_model import VAE
+from .src.utils.dcp import get_atmosphere
+from .src.utils.image_io import *
+from .src.utils.imresize import np_imresize
 
 current_file = pathlib.Path(__file__).absolute()
 current_dir  = current_file.parents[0]

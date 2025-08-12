@@ -9,4 +9,8 @@ References:
     - Code: https://github.com/Peterande/D-FINE
 """
 
-from .model import *
+__all__ = [
+    "DFINE",
+]
+
+from .model import DFINE

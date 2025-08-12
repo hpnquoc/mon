@@ -4,15 +4,14 @@
 """ZINF model for low-light image enhancement.
 
 References:
-
+    - Paper: "Zero-Shot Implicit Neural Fusion Network for Multimodal Low-Light
+      Image Enhancement," arXiv 2025.
+    - Code: https://github.com/phlong3105/mon
 """
 
 __all__ = [
     "ZINF",
 ]
-
-import os
-import sys
 
 import kornia
 import numpy as np
@@ -23,9 +22,7 @@ from mon.constants import MLType, MODELS, Task
 from mon.core import pathlib
 from mon.nn import functional as F
 from mon.vision import filtering, types
-
-sys.path.append(os.path.abspath(os.path.dirname(__file__)))
-import loss as L
+from . import loss as L
 
 current_file = pathlib.Path(__file__).absolute()
 current_dir  = current_file.parents[0]

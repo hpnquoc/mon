@@ -56,7 +56,6 @@ SAVE_IMAGE_EXT     = ImageExtension.JPG.value
 SAVE_WEIGHTS_EXT   = WeightExtension.PT.value
 # List 3rd party modules
 EXTRA_MODELS   = {  # architecture/model (+ variant)
-    # region enhance/derain
     "esdnet_snn": {
         "esdnet_snn": {
             "tasks"    : [Task.DERAIN],
@@ -64,16 +63,13 @@ EXTRA_MODELS   = {  # architecture/model (+ variant)
             "model_dir": MON_DIR / "vision" / "enhance" / "derain" / "esdnet_snn",
         },
     },
-    # endregion
-    # region types/thermal
-    "srgb_tir": {
+    "srgb_tir"  : {
         "srgb_tir": {
             "tasks"    : [Task.RGB2TIR],
             "mltypes"  : [MLType.SUPERVISED],
             "model_dir": MON_DIR / "vision" / "types" / "thermal" / "srgb_tir",
         },
     },
-    # endregion
 }
 
 

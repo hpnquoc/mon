@@ -9,4 +9,8 @@ References:
     - Code: https://github.com/huaqlili/unsupervised-light-enhance-ICLR2025
 """
 
-from .model import *
+__all__ = [
+    "Li2025",
+]
+
+from .model import Li2025

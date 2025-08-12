@@ -15,12 +15,10 @@ from pytorch_lightning.callbacks import ModelCheckpoint
 from pytorch_lightning.strategies import DeepSpeedStrategy
 
 import mon
-# noinspection PyUnusedImports
-from mon.vision.enhance.lle import quadprior
-from quadprior.cldm.hack import disable_verbosity
-from quadprior.cldm.logger import ImageLogger
-from quadprior.cldm.model import create_model, load_state_dict
-from quadprior.coco_dataset import create_webdataset
+from mon.vision.enhance.lle.quadprior import (
+    create_model, create_webdataset, disable_verbosity, ImageLogger,
+    load_state_dict,
+)
 
 disable_verbosity()
 
@@ -52,7 +50,7 @@ def train(args: dict | box.Box) -> str:
     )
     
     # Model
-    cfg_path        = current_dir / "quadprior" / "models" / args.cfg
+    cfg_path        = current_dir / "src" / "models" / args.cfg
     init_ckpt       = mon.ZOO_DIR / "vision/enhance/lle/quadprior/quadprior/coco/control_sd15_init.ckpt"
     pretrained_ckpt = mon.ZOO_DIR / "vision/enhance/lle/quadprior/quadprior/coco/control_sd15_coco_final.ckpt"
     # First use cpu to load models. Pytorch Lightning will automatically move it to GPUs.

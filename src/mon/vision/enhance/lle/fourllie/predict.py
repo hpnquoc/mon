@@ -15,11 +15,8 @@ import numpy as np
 import torch
 
 import mon
-
 from mon.vision.enhance.lle import fourllie
-from fourllie.data import util as dutil
-from fourllie.options import options as option
-from fourllie.utils import util as util
+from mon.vision.enhance.lle.fourllie import option, read_img, tensor2img
 
 current_file = mon.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
@@ -35,7 +32,7 @@ def benchmark(model: torch.nn.Module):
 # ----- Predict -----
 @torch.no_grad()
 def predict(args: dict | box.Box) -> str:
-    cfg_path = current_dir / "fourllie" / "options" / "test" / args.cfg
+    cfg_path = current_dir / "src" / "option" / "test" / args.cfg
     cfgs     = option.parse(str(cfg_path), is_train=False)
     cfgs     = option.dict_to_nonedict(cfgs)
     
@@ -81,7 +78,7 @@ def predict(args: dict | box.Box) -> str:
             # Preprocess
             timers.preprocess.tick()
             path     = mon.Path(datapoint["meta"]["path"])
-            image    = dutil.read_img(None, str(path))
+            image    = read_img(None, str(path))
             image    = image[:, :, ::-1]
             h0, w0   = mon.image_size(image)
             image    = mon.resize(image, divisible_by=32)
@@ -110,7 +107,7 @@ def predict(args: dict | box.Box) -> str:
             # Postprocess
             timers.postprocess.tick()
             outputs  = model.get_current_visuals(need_GT=False)
-            enhanced = util.tensor2img(outputs["rlt"])  # uint8
+            enhanced = tensor2img(outputs["rlt"])  # uint8
             enhanced = cv2.resize(enhanced, (w0, h0))
             timers.postprocess.tock()
 

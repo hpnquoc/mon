@@ -4,7 +4,6 @@
 """Implements base class for all deep learning models."""
 
 __all__ = [
-    "ExtraModel",
     "LightningModule",
     "ModelMixin",
 ]
@@ -16,8 +15,10 @@ import box
 import lightning.pytorch.utilities.types
 import torch
 
-from mon.constants import (LOSSES, LR_SCHEDULERS, METRICS, MLType, OPTIMIZERS, SAVE_DEBUG_DIR, SAVE_IMAGE_EXT,
-                           SAVE_WEIGHTS_EXT, Task)
+from mon.constants import (
+    LOSSES, LR_SCHEDULERS, METRICS, MLType, OPTIMIZERS, SAVE_DEBUG_DIR, SAVE_IMAGE_EXT,
+    SAVE_WEIGHTS_EXT, Task
+)
 from mon.core import console, error_console, humps, pathlib, TimeProfiler
 from mon.nn import loss as L, metric as M
 from mon.nn.model import utils
@@ -76,7 +77,7 @@ class ModelMixin:
             weights = None
         
         return weights, path, num_classes
-        
+
 
 # ----- LightningModule -----
 class LightningModule(lightning.LightningModule, ModelMixin, abc.ABC):
@@ -756,32 +757,3 @@ class LightningModule(lightning.LightningModule, ModelMixin, abc.ABC):
             extension: Image file extension. Default is ``SAVE_IMAGE_EXT``.
         """
         pass
-    
-
-class ExtraModel(LightningModule, abc.ABC):
-    """Wraps a third-party model for mon integration.
-
-    Args:
-        model: Third-party model to wrap, named ``'model'``.
-    
-    Notes:
-        Define architecture and load weights; train with original scripts.
-    """
-    
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.model: torch.nn.Module = None
-    
-    def load_weights(self, weights: Any = None, overwrite: bool = False):
-        """Loads intersecting weights into the wrapped model.
-
-        Args:
-            weights: Weights to load; ``None`` uses existing. Default is ``None``.
-            overwrite: Overwrite existing weights if ``True``. Default is ``False``.
-        """
-        self.assign_weights(weights, overwrite)
-        state_dict = utils.load_weights(self, self.weights, weights_only=False)
-        if state_dict:
-            self.model.load_state_dict(state_dict=state_dict)
-            if self.verbose:
-                console.log(f"Loaded model's weights from: {self.weights}.")

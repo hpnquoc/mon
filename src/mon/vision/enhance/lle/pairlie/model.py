@@ -13,17 +13,12 @@ __all__ = [
     "PairLIE",
 ]
 
-import os
-import sys
-
 import box
 
 import mon.nn as nn
 from mon.constants import MLType, MODELS, Task
 from mon.core import pathlib
-
-sys.path.append(os.path.abspath(os.path.dirname(__file__)))
-from pairlie.net.net import net
+from .src.net.net import net
 
 current_file = pathlib.Path(__file__).absolute()
 current_dir  = current_file.parents[0]

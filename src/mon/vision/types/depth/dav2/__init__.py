@@ -9,4 +9,11 @@ References:
     - https://github.com/DepthAnything/Depth-Anything-V2
 """
 
-from .model import *
+__all__ = [
+    "DAV2",
+    "DAV2_ViTS",
+    "DAV2_ViTB",
+    "DAV2_ViTL",
+]
+
+from .model import DAV2, DAV2_ViTB, DAV2_ViTL, DAV2_ViTS

@@ -8,4 +8,8 @@ References:
       Adaptation for Background Modeling," Sensors 2020.
 """
 
-from .model import *
+__all__ = [
+    "TensorMOG",
+]
+
+from .model import TensorMOG

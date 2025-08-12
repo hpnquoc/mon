@@ -9,4 +9,8 @@ References:
     - Code: https://github.com/AndersonYong/URetinex-Net
 """
 
-from .model import *
+__all__ = [
+    "URetinexNet",
+]
+
+from .model import URetinexNet
