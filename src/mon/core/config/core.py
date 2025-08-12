@@ -54,23 +54,6 @@ def _float_or_none(value: Any) -> float | None:
 
 
 # ----- Default CLI Options -----
-"""
-parser.add_argument(
-    name_or_flags,
-    action   = None,
-    nargs    = None,
-    const    = None,
-    default  = None,
-    type     = None,
-    choices  = None,
-    required = False,
-    help     = None,
-    metavar  = None,
-    dest     = None,
-    version  = None,
-    **kwargs
-)
-"""
 CLI_OPTIONS  = {
     # Basic
     "root"         : {

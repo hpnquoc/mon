@@ -22,11 +22,13 @@ ones_ = nn.init.ones_
 
 __all__ = ["HGNetv2"]
 
+
 def safe_barrier():
     if torch.distributed.is_available() and torch.distributed.is_initialized():
         torch.distributed.barrier()
     else:
         pass
+
 
 def safe_get_rank():
     if torch.distributed.is_available() and torch.distributed.is_initialized():
@@ -34,7 +36,9 @@ def safe_get_rank():
     else:
         return 0
 
+
 class LearnableAffineBlock(nn.Module):
+    
     def __init__(self, scale_value=1.0, bias_value=0.0):
         super().__init__()
         self.scale = nn.Parameter(torch.tensor([scale_value]), requires_grad=True)
@@ -45,6 +49,7 @@ class LearnableAffineBlock(nn.Module):
 
 
 class ConvBNAct(nn.Module):
+    
     def __init__(
         self,
         in_chs,
@@ -93,6 +98,7 @@ class ConvBNAct(nn.Module):
 
 
 class LightConvBNAct(nn.Module):
+    
     def __init__(
         self,
         in_chs,
@@ -126,6 +132,7 @@ class LightConvBNAct(nn.Module):
 
 class StemBlock(nn.Module):
     # for HGNetv2
+    
     def __init__(self, in_chs, mid_chs, out_chs, use_lab=False):
         super().__init__()
         self.stem1 = ConvBNAct(
@@ -179,6 +186,7 @@ class StemBlock(nn.Module):
 
 
 class EseModule(nn.Module):
+    
     def __init__(self, chs):
         super().__init__()
         self.conv = nn.Conv2d(
@@ -199,6 +207,7 @@ class EseModule(nn.Module):
 
 
 class HG_Block(nn.Module):
+    
     def __init__(
         self,
         in_chs,
@@ -288,6 +297,7 @@ class HG_Block(nn.Module):
 
 
 class HG_Stage(nn.Module):
+    
     def __init__(
         self,
         in_chs,

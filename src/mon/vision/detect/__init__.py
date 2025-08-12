@@ -3,4 +3,6 @@
 
 """Implements object detection algorithms."""
 
+from .deim import *
+from .dfine import *
 from .ultralytics_yolo import *
