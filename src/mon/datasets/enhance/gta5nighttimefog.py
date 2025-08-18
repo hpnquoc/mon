@@ -4,53 +4,34 @@
 """Implements GTA5 Nighttime Fog datasets.
 
 References:
-    - https://github.com/jinyeying/nighttime_dehaze
+    - Data: https://github.com/jinyeying/nighttime_dehaze
 """
 
 __all__ = [
     "GTA5NighttimeFog",
-    "GTA5NighttimeFogDataModule",
 ]
 
-from typing import Literal
-
-from mon.core import console, pathlib, rich, types
-from mon.datasets.core import *
+from mon.core import rich
+from ..core import *
 
 
 # ----- Dataset -----
 @DATASETS.register(name="gta5nighttimefog")
 class GTA5NighttimeFog(VisionDataset):
-    """Loads GTA5NighttimeFog dataset from ``root`` dir.
-
-    Args:
-        root: Directory path to dataset.
-        *args: Additional args for parent class.
-        **kwargs: Additional kwargs for parent class.
-
-    Raises:
-        FileNotFoundError: If ``root`` directory does not exist.
-    """
+    """GTA5NighttimeFog dataset."""
     
-    tasks : list[Task]  = [Task.DEHAZE, Task.NIGHTTIME]
-    splits: list[Split] = [Split.TRAIN, Split.TEST]
-    datapoint_attrs     = DatapointAttributes({
-        "image"    : Image,
-        "depth"    : DepthMap,
-        "ref_image": Image,
-        "ref_depth": DepthMap,
-    })
-    has_test_annotations: bool = True
+    name       : str         = "gta5nighttimefog"
+    tasks     : list[Task]  = [Task.DEHAZE, Task.NIGHTTIME]
+    splits    : list[Split] = [Split.TRAIN, Split.TEST]
+    modalities: Modalities  = {
+        "image"    : Modality(name="image", type="image", module=Image, in_test=True, primary=True),
+        "depth"    : Modality(name=f"image_{DEPTH_SOURCE.value}", type="mask", module=DefaultDepthMap, in_test=True),
+        "ref"      : Modality(name="ref",   type="image", module=Image, in_test=True),
+        "ref_depth": Modality(name=f"ref_{DEPTH_SOURCE.value}",   type="mask", module=DefaultDepthMap, in_test=True),
+    }
+    classes   : Classes     = None
 
-    def __init__(self, root: pathlib.Path, *args, **kwargs):
-        root = pathlib.Path(root)
-        root = root / "gta5nighttimefog" if root.name != "gta5nighttimefog" else root
-        if not root.is_dir():
-            raise FileNotFoundError(f"[root] directory not found: [{root}].")
-        
-        super().__init__(root=root, *args, **kwargs)
-
-    def list_data(self):
+    def list_primary_data(self) -> list:
         """Lists ``datapoints`` with image annotations for split."""
         patterns = [self.root / self.split_str / "image"]
 
@@ -58,41 +39,9 @@ class GTA5NighttimeFog(VisionDataset):
         with rich.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
-                desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
+                desc  = f"Listing {self.__class__.__name__} {self.split_str} image(s)"
                 for path in pbar.track(sequence=paths, description=desc):
                     if path.is_image_file():
                         images.append(Image(path=path, root=pattern))
 
-        self.datapoints["image"] = images
-
-
-# ----- DataModule -----
-@DATAMODULES.register(name="gta5nighttimefog")
-class GTA5NighttimeFogDataModule(types.DataModule):
-    """Configures GTA5NighttimeFog datasets for training/testing."""
-    
-    tasks: list[Task] = [Task.DEHAZE, Task.NIGHTTIME]
-    
-    def prepare_data(self, *args, **kwargs):
-        """Prepares data (placeholder, no action taken)."""
-        pass
-    
-    def setup(self, stage: Literal["train", "test", "predict", None] = None):
-        """Sets up datasets for specified ``stage``.
-
-        Args:
-            stage: Stage to setup, one of ``"train"``, ``"test"``, ``"predict"``,
-                or ``None``. Default is ``None``.
-        """
-        if self.can_log:
-            console.log(f"Setup [red]{self.__class__.__name__}[/red].")
-        
-        if stage in [None, "train"]:
-            self.train = GTA5NighttimeFog(split=Split.TRAIN, **self.dataset_kwargs)
-            self.val   = GTA5NighttimeFog(split=Split.TEST,  **self.dataset_kwargs)
-        if stage in [None, "test"]:
-            self.test  = GTA5NighttimeFog(split=Split.TEST,  **self.dataset_kwargs)
-        
-        self.get_classes()
-        if self.can_log:
-            self.summarize()
+        return images

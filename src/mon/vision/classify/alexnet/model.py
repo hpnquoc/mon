@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""AlexNet models for image classification."""
+"""Implements AlexNet models for image classification."""
 
 __all__ = [
     "AlexNet",
@@ -10,16 +10,15 @@ __all__ = [
 import box
 from torchvision import models as tvm
 
-import mon.nn as nn
-from mon.constants import MLType, MODELS, Task, ZOO_DIR
-from mon.core import pathlib
+from mon.constants import MODELS, ZOO_DIR
+from mon.core import MLType, ModelMixin, Path, Task
 
-current_file = pathlib.Path(__file__).absolute()
+current_file = Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
 
 @MODELS.register(name="alexnet", arch="alexnet")
-class AlexNet(tvm.AlexNet, nn.ModelMixin):
+class AlexNet(tvm.AlexNet, ModelMixin):
     """AlexNet model for image classification.
     
     Args:
@@ -31,7 +30,7 @@ class AlexNet(tvm.AlexNet, nn.ModelMixin):
     name     : str          = "alexnet",
     tasks    : list[Task]   = [Task.CLASSIFY]
     mltypes  : list[MLType] = [MLType.SUPERVISED]
-    model_dir: pathlib.Path = current_dir
+    model_dir: Path         = current_dir
     zoo      : dict         = box.Box({
         "imagenet1k_v1": {
             "url"        : "https://download.pytorch.org/models/alexnet-owt-7be5be79.pth",

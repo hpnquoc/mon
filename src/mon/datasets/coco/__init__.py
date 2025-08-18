@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Implements COCO datasets for detection and segmentation."""
+"""COCO datasets for object detection and segmentation."""
 
-from .coco80 import *
-from .coco91 import *
+from .coco2017 import *

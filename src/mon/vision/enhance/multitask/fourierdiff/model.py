@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""FourierDiff model for zero-shot joint low-light enhancement and deblurring.
+"""Implements FourierDiff model for zero-shot joint low-light enhancement and deblurring.
 
 References:
     - Paper: "Fourier Priors-Guided Diffusion for Zero-Shot Joint Low-Light
@@ -13,24 +13,18 @@ __all__ = [
     "FourierDiff",
 ]
 
-import os
-import sys
-
 import box
 
-import mon.nn as nn
-from mon.constants import MLType, MODELS, Task
-from mon.core import pathlib
+from mon.constants import MODELS
+from mon.core import MLType, ModelMixin, Path, Task
+from .fourierdiff.guided_diffusion.diffusion_llie_modified import Diffusion
 
-sys.path.append(os.path.abspath(os.path.dirname(__file__)))
-from fourierdiff.guided_diffusion.diffusion_llie_modified import Diffusion
-
-current_file = pathlib.Path(__file__).absolute()
+current_file = Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
 
 @MODELS.register(name="fourierdiff", arch="fourierdiff")
-class FourierDiff(Diffusion, nn.ModelMixin):
+class FourierDiff(Diffusion, ModelMixin):
     """FourierDiff model for zero-shot joint low-light enhancement and deblurring.
     
     References:
@@ -43,5 +37,5 @@ class FourierDiff(Diffusion, nn.ModelMixin):
     name     : str          = "fourierdiff"
     tasks    : list[Task]   = [Task.LLE, Task.DEBLUR]
     mltypes  : list[MLType] = [MLType.ZERO_SHOT]
-    model_dir: pathlib.Path = current_dir
+    model_dir: Path         = current_dir
     zoo      : dict         = box.Box()

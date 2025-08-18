@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""RetinexNet model for low-light image enhancement.
+"""Implements RetinexNet model for low-light image enhancement.
 
 References:
     - Paper: "Deep Retinex Decomposition for Low-Light Enhancement," BMCV 2018.

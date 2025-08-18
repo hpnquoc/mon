@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""VGG model for image classification.
+"""Implements VGG model for image classification.
 
 References:
     - Paper: https://arxiv.org/abs/1409.1556
@@ -24,15 +24,14 @@ import box
 from torchvision import models as tvm
 from torchvision.models.vgg import cfgs, make_layers
 
-import mon.nn as nn
-from mon.constants import MLType, MODELS, Task, ZOO_DIR
-from mon.core import pathlib
+from mon.constants import MODELS, ZOO_DIR
+from mon.core import MLType, ModelMixin, Path, Task
 
-current_file = pathlib.Path(__file__).absolute()
+current_file = Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
 
-class VGG(tvm.VGG, nn.ModelMixin, abc.ABC):
+class VGG(tvm.VGG, ModelMixin, abc.ABC):
     """VGG model for image classification.
 
     References:
@@ -43,7 +42,7 @@ class VGG(tvm.VGG, nn.ModelMixin, abc.ABC):
     name     : str          = "vgg"
     tasks    : list[Task]   = [Task.CLASSIFY]
     mltypes  : list[MLType] = [MLType.SUPERVISED]
-    model_dir: pathlib.Path = current_dir
+    model_dir: Path         = current_dir
     zoo      : dict         = box.Box()
     
     def __init__(self, weights: str = "imagenet1k_v1", num_classes: int = 1000, *args, **kwargs):

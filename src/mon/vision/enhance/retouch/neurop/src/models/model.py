@@ -138,7 +138,7 @@ class InitModel(nn.Module):
     def save(self, iter_label, save_dir):
         network       = self.netG
         save_filename = "{}_{}.pth".format(iter_label, self.name)
-        save_dir      = pathlib.Path(save_dir)
+        save_dir      = Path(save_dir)
         save_path     = save_dir / save_filename
         if isinstance(network, nn.DataParallel):
             network = network.module
@@ -271,7 +271,7 @@ class FinetuneModel(nn.Module):
     def save(self, iter_label, save_dir):
         network       = self.netG
         save_filename = "{}_{}.pth".format(iter_label, self.name)
-        save_dir      = pathlib.Path(save_dir)
+        save_dir      = Path(save_dir)
         save_path     = save_dir / save_filename
         if isinstance(network, nn.DataParallel):
             network = network.module

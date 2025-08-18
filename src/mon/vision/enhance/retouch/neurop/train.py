@@ -1,12 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""NeurOP model training pipeline for image retouching.
+"""Implements NeurOP model training pipeline for image retouching.
 
 References:
     - Paper: "Neural Color Operators for Sequential Image Retouching," ECCV 2022.
     - Code: https://github.com/amberwangyili/neurop
 """
+
 import os
 import random
 from collections import defaultdict
@@ -15,10 +16,18 @@ import box
 import numpy as np
 import torch
 
+import albumentations as A
+import box
+import cv2
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+
 import mon
+from mon import console, metrics, Path, tfms, optims
 from mon.vision.enhance.retouch.neurop import build_model, build_train_loader, dict_to_nonedict, parse
 
-current_file = mon.Path(__file__).absolute()
+current_file = Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
 
@@ -30,10 +39,10 @@ def train(args: dict | box.Box) -> str:
     cfgs["network_G"]["init_model"] = mon.parse_weights_file(mon.ROOT_DIR, cfgs.network_G.init_model)
     
     # Start
-    mon.print_run_summary(args)
+    mon.rt.print_run_summary(args)
     
     # Device
-    device = mon.set_device(args.device)
+    device = mon.create_device(args.device)
     
     # Seed
     seed = cfgs["train"]["manual_seed"]
@@ -85,7 +94,7 @@ def train(args: dict | box.Box) -> str:
 
 # ----- Main -----
 def main() -> str:
-    args = mon.parse_train_args(model_root=current_dir)
+    args = mon.rt.parse_train_args(model_root=current_dir)
     train(args)
 
 

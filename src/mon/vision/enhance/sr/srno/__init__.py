@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""SRNO model for super-resolution.
+"""Implements SRNO model for super-resolution.
 
 References:
     - Paper: "Super-Resolution Neural Operator," CVPR 2023.

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""RetinexNet model prediction pipeline for low-light image enhancement.
+"""Implements RetinexNet model prediction pipeline for low-light image enhancement.
 
 References:
     - Paper: "Deep Retinex Decomposition for Low-Light Enhancement," BMCV 2018.
@@ -13,6 +13,8 @@ import box
 import mon
 from mon.vision.enhance.lle import retinexnet
 
+mon.dev()
+
 current_file = mon.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
@@ -20,36 +22,37 @@ current_dir  = current_file.parents[0]
 # ----- Predict -----
 def predict(args: dict | box.Box) -> str:
     # Start
-    mon.print_run_summary(args)
+    mon.rt.print_run_summary(args)
 
     # Device
-    device = mon.set_device(args.device)
+    device = mon.create_device(args.device)
 
     # Seed
     mon.set_random_seed(args.seed)
     
-    # Data I/O
-    data_name, data_loader = mon.parse_data_loader(args.data, args.root, False, verbose=False)
-
     # Model
     model = retinexnet.RetinexNet(args.imgsz, args.benchmark)
     model = model.to(device)
     
+    # Data I/O
+    data_name, dataloader = mon.data.build_dataloader(args.data, args.root)
+
     # Predict
     timers = mon.TimeProfiler()
     timers.total.tick()
     with mon.create_progress_bar() as pbar:
         for i, datapoint in pbar.track(
-            sequence    = enumerate(data_loader),
-            total       = len(data_loader),
+            sequence    = enumerate(dataloader),
+            total       = len(dataloader),
             description = f"[bright_yellow]Listing images",
         ):
             # Preprocess
             timers.preprocess.tick()
-            path = mon.Path(datapoint["meta"]["path"])
+            meta   = datapoint["meta"][0]
+            path   = mon.Path(meta["path"])
             timers.preprocess.tock()
 
-            out_dir = mon.parse_output_dir(args.save_dir, data_name, mon.SAVE_IMAGE_DIR, path, args.keep_subdirs, args.save_nearby)
+            out_dir = mon.rt.parse_output_dir(args.save_dir, data_name, mon.SAVE_IMAGE_DIR, path, args.keep_subdirs, args.save_nearby)
             # out_dir = out_dir / mon.SAVE_IMAGE_DIR
             out_dir.mkdir(parents=True, exist_ok=True)
 
@@ -72,7 +75,7 @@ def predict(args: dict | box.Box) -> str:
 
 # ----- Main -----
 def main() -> str:
-    args = mon.parse_predict_args(model_root=current_dir)
+    args = mon.rt.parse_predict_args(model_root=current_dir)
     predict(args)
 
 

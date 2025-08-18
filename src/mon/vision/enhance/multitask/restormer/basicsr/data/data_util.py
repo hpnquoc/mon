@@ -3,7 +3,7 @@ cv2.setNumThreads(1)
 import numpy as np
 import torch
 from os import path as osp
-from torch.nn import functional as F
+import torch.nn.functional as F
 
 from basicsr.data.transforms import mod_crop
 from basicsr.utils import img2tensor, scandir

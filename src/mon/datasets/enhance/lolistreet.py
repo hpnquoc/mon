@@ -5,41 +5,28 @@
 
 __all__ = [
     "LoLIStreet",
-    "LoLIStreetDataModule",
     "LoLIStreetTest",
     "LoLIStreetVal",
 ]
 
-from typing import Literal
-
-from mon.core import console, pathlib, rich, types
-from mon.datasets.core import *
+from mon.core import rich
+from ..core import *
 
 
-# ----- Dataset -----
 @DATASETS.register(name="lolistreet")
 class LoLIStreet(VisionDataset):
-    """Loads LoLI-Street dataset from ``root`` dir.
-
-    Args:
-        root: Directory path to dataset.
-        *args: Additional args for parent class.
-        **kwargs: Additional kwargs for parent class.
-
-    Raises:
-        FileNotFoundError: If ``root`` directory does not exist.
-    """
+    """LoLI-Street dataset."""
     
-    tasks : list[Task]  = [Task.LLE]
-    splits: list[Split] = [Split.TRAIN, Split.VAL, Split.TEST]
-    datapoint_attrs     = DatapointAttributes({
-        "image"    : Image,
-        "depth"    : DepthMap,
-        "ref_image": Image,
-        "ref_depth": DepthMap,
-    })
-    has_test_annotations: bool = False
-    classes             = Classes([
+    root_name : str         = "lolistreet"
+    tasks     : list[Task]  = [Task.LLE]
+    splits    : list[Split] = [Split.TRAIN, Split.VAL, Split.TEST]
+    modalities: Modalities  = {
+        "image"    : Modality(name="image", type="image", module=Image, in_test=True, primary=True),
+        "depth"    : Modality(name=f"image_{DEPTH_SOURCE.value}", type="mask", module=DefaultDepthMap, in_test=True),
+        "ref"      : Modality(name="ref",   type="image", module=Image, in_test=True),
+        "ref_depth": Modality(name=f"ref_{DEPTH_SOURCE.value}",   type="mask", module=DefaultDepthMap, in_test=True),
+    }
+    classes   : Classes     = Classes([
         {"id": 0 , "name": "person"        , "supercategory": "person",     "color": [ 81, 120, 228]},
         {"id": 1 , "name": "bicycle"       , "supercategory": "vehicle",    "color": [138, 183,  33]},
         {"id": 2 , "name": "car"           , "supercategory": "vehicle",    "color": [ 49,   3, 150]},
@@ -122,15 +109,7 @@ class LoLIStreet(VisionDataset):
         {"id": 79, "name": "toothbrush"    , "supercategory": "indoor",     "color": [ 58, 228, 226]},
     ])
 
-    def __init__(self, root: pathlib.Path, *args, **kwargs):
-        root = pathlib.Path(root)
-        root = root / "lolistreet" if root.name != "lolistreet" else root
-        if not root.is_dir():
-            raise FileNotFoundError(f"[root] directory not found: [{root}].")
-        
-        super().__init__(root=root, *args, **kwargs)
-
-    def list_data(self):
+    def list_primary_data(self) -> list:
         """Lists ``datapoints`` with image annotations for split."""
         # if self.split == Split.TEST:
         #     patterns = [self.root / "val" / "image"]
@@ -142,28 +121,19 @@ class LoLIStreet(VisionDataset):
         with rich.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
-                desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
+                desc  = f"Listing {self.__class__.__name__} {self.split_str} image(s)"
                 for path in pbar.track(sequence=paths, description=desc):
                     if path.is_image_file():
                         images.append(Image(path=path, root=pattern))
 
-        self.datapoints["image"] = images
+        return images
 
 
 @DATASETS.register(name="lolistreetval")
 class LoLIStreetVal(LoLIStreet):
-    """Loads LoLI-Street-Val dataset from ``root`` dir.
+    """LoLI-Street-Val subset."""
 
-    Args:
-        root: Directory path to dataset.
-        *args: Additional args for parent class.
-        **kwargs: Additional kwargs for parent class.
-
-    Raises:
-        FileNotFoundError: If ``root`` directory does not exist.
-    """
-
-    def list_data(self):
+    def list_primary_data(self) -> list:
         """Lists ``datapoints`` with image annotations for split."""
         patterns = [self.root / "val" / "image"]
         
@@ -171,28 +141,19 @@ class LoLIStreetVal(LoLIStreet):
         with rich.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
-                desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
+                desc  = f"Listing {self.__class__.__name__} {self.split_str} image(s)"
                 for path in pbar.track(sequence=paths, description=desc):
                     if path.is_image_file():
                         images.append(Image(path=path, root=pattern))
 
-        self.datapoints["image"] = images
+        return images
         
 
 @DATASETS.register(name="lolistreettest")
 class LoLIStreetTest(LoLIStreet):
-    """Loads LoLI-Street-Test dataset from ``root`` dir.
+    """LoLI-Street-Test subset."""
 
-    Args:
-        root: Directory path to dataset.
-        *args: Additional args for parent class.
-        **kwargs: Additional kwargs for parent class.
-
-    Raises:
-        FileNotFoundError: If ``root`` directory does not exist.
-    """
-
-    def list_data(self):
+    def list_primary_data(self) -> list:
         """Lists ``datapoints`` with image annotations for split."""
         patterns = [self.root / "test" / "image"]
 
@@ -200,103 +161,9 @@ class LoLIStreetTest(LoLIStreet):
         with rich.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
-                desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
+                desc  = f"Listing {self.__class__.__name__} {self.split_str} image(s)"
                 for path in pbar.track(sequence=paths, description=desc):
                     if path.is_image_file():
                         images.append(Image(path=path, root=pattern))
 
-        self.datapoints["image"] = images
-        
-
-# ----- DataModule -----
-@DATAMODULES.register(name="lolistreet")
-class LoLIStreetDataModule(types.DataModule):
-    """Configures LoLI-Street datasets for training/testing."""
-    
-    tasks: list[Task] = [Task.LLE]
-
-    def prepare_data(self, *args, **kwargs):
-        """Prepares data (placeholder, no action taken)."""
-        pass
-
-    def setup(self, stage: Literal["train", "test", "predict", None] = None):
-        """Sets up datasets for specified ``stage``.
-
-        Args:
-            stage: Stage to setup, one of ``"train"``, ``"test"``, ``"predict"``,
-                or ``None``. Default is ``None``.
-        """
-        if self.can_log:
-            console.log(f"Setup [red]{self.__class__.__name__}[/red].")
-
-        if stage in [None, "train"]:
-            self.train = LoLIStreet(split=Split.TRAIN, **self.dataset_kwargs)
-            self.val   = LoLIStreet(split=Split.VAL,   **self.dataset_kwargs)
-        if stage in [None, "test"]:
-            self.test  = LoLIStreet(split=Split.TEST,  **self.dataset_kwargs)
-
-        self.get_classes()
-        if self.can_log:
-            self.summarize()
-
-
-@DATAMODULES.register(name="lolistreetval")
-class LoLIStreetValDataModule(types.DataModule):
-    """Configures LoLI-Street-Val datasets for training/testing."""
-    
-    tasks: list[Task] = [Task.LLE]
-
-    def prepare_data(self, *args, **kwargs):
-        """Prepares data (placeholder, no action taken)."""
-        pass
-
-    def setup(self, stage: Literal["train", "test", "predict", None] = None):
-        """Sets up datasets for specified ``stage``.
-
-        Args:
-            stage: Stage to setup, one of ``"train"``, ``"test"``, ``"predict"``,
-                or ``None``. Default is ``None``.
-        """
-        if self.can_log:
-            console.log(f"Setup [red]{self.__class__.__name__}[/red].")
-
-        if stage in [None, "train"]:
-            self.train = LoLIStreetVal(split=Split.VAL, **self.dataset_kwargs)
-            self.val   = LoLIStreetVal(split=Split.VAL, **self.dataset_kwargs)
-        if stage in [None, "test"]:
-            self.test  = LoLIStreetVal(split=Split.VAL, **self.dataset_kwargs)
-
-        self.get_classes()
-        if self.can_log:
-            self.summarize()
-
-
-@DATAMODULES.register(name="lolistreettest")
-class LoLIStreetTestDataModule(types.DataModule):
-    """Configures LoLI-Street-Test datasets for training/testing."""
-    
-    tasks: list[Task] = [Task.LLE]
-
-    def prepare_data(self, *args, **kwargs):
-        """Prepares data (placeholder, no action taken)."""
-        pass
-
-    def setup(self, stage: Literal["train", "test", "predict", None] = None):
-        """Sets up datasets for specified ``stage``.
-
-        Args:
-            stage: Stage to setup, one of ``"train"``, ``"test"``, ``"predict"``,
-                or ``None``. Default is ``None``.
-        """
-        if self.can_log:
-            console.log(f"Setup [red]{self.__class__.__name__}[/red].")
-
-        if stage in [None, "train"]:
-            self.train = LoLIStreetTest(split=Split.TEST, **self.dataset_kwargs)
-            self.val   = LoLIStreetTest(split=Split.TEST, **self.dataset_kwargs)
-        if stage in [None, "test"]:
-            self.test  = LoLIStreetTest(split=Split.TEST, **self.dataset_kwargs)
-
-        self.get_classes()
-        if self.can_log:
-            self.summarize()
+        return images

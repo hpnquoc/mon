@@ -10,14 +10,16 @@ __all__ = [
 from typing import Any, Collection, Sequence
 
 import box
+from rich import prompt
 
 import mon
-from mon import CLI_OPTIONS, DEFAULT_ARGS, rich
+
+mon.dev()
 
 
 # ----- Base Prompts -----
 class Prompt:
-    """Wrap around ``mon.core.rich.prompt`` with additional values parsing functionality."""
+    """Wrap around ``core.rich.prompt`` with additional values parsing functionality."""
     
     def __init__(self, text: str, default: str, choices: Sequence | Collection = None):
         self.text    = text
@@ -61,7 +63,7 @@ class Prompt:
     @choices.setter
     def choices(self, choices: Sequence | Collection = None):
         """Set list of choices to display."""
-        self._choices = mon.to_list(choices) or None
+        self._choices = mon.utils.to_list(choices) or None
     
     def prompt(self) -> Any:
         """Prompts the user for a choice."""
@@ -76,12 +78,12 @@ class Prompt:
         }
         if self._choices and len(self._choices) > 0:
             kwargs["choices"] = self._choices
-        self.value = rich.SelectionOrInputPrompt().ask(**kwargs)
+        self.value = mon.rich.SelectionOrInputPrompt().ask(**kwargs)
         return self.value
 
 
 class Confirm:
-    """Wrap around ``mon.core.rich.prompt`` with additional values parsing functionality."""
+    """Wrap around ``core.rich.prompt`` with additional values parsing functionality."""
     
     def __init__(self, text: str, default: bool = True):
         self.text    = text
@@ -89,12 +91,12 @@ class Confirm:
         self.value   = default
     
     def prompt(self) -> bool:
-        self.value = rich.Confirm().ask(prompt=self.text, default=self.default)
+        self.value = prompt.Confirm().ask(prompt=self.text, default=self.default)
         return self.value
 
 
 class NumberPrompt:
-    """Wrap around ``mon.core.rich.prompt`` with additional values parsing functionality."""
+    """Wrap around ``core.rich.prompt`` with additional values parsing functionality."""
     
     def __init__(self, text: str, default: int = -1):
         self.text    = text
@@ -108,7 +110,7 @@ class NumberPrompt:
     @default.setter
     def default(self, default: int):
         default       = default[0] if isinstance(default, list | tuple) else default
-        default       = mon.to_int(default)
+        default       = mon.utils.to_int(default)
         self._default = default if isinstance(default, int | float) else -1
 
     @property
@@ -118,11 +120,11 @@ class NumberPrompt:
     @value.setter
     def value(self, value: int):
         value       = value[0] if isinstance(value, list | tuple) else value
-        value       = mon.to_int(value)
+        value       = mon.utils.to_int(value)
         self._value = None if isinstance(value, int | float) and value < 0 else value
         
     def prompt(self) -> int:
-        self.value = rich.IntPrompt().ask(prompt=self.text, default=self.default)
+        self.value = prompt.IntPrompt().ask(prompt=self.text, default=self.default)
         return self.value
 
 
@@ -132,11 +134,11 @@ class TaskPrompt(Prompt):
     def __init__(
         self,
         project_root: str | mon.Path,
-        text        : str = CLI_OPTIONS["task"]["prompt_text"],
-        default     : str = CLI_OPTIONS["task"]["default"],
+        text        : str = mon.rt.CLI_OPTIONS["task"]["prompt_text"],
+        default     : str = mon.rt.CLI_OPTIONS["task"]["default"],
         choices     : Sequence | Collection = None,
     ):
-        choices = choices or mon.list_tasks(project_root=project_root)
+        choices = choices or mon.rt.list_tasks(project_root=project_root)
         super().__init__(text=text, default=default, choices=choices)
 
 
@@ -147,11 +149,11 @@ class ArchPrompt(Prompt):
         task        : str,
         mode        : str,
         project_root: str | mon.Path,
-        text        : str = CLI_OPTIONS["arch"]["prompt_text"],
-        default     : str = CLI_OPTIONS["arch"]["default"],
+        text        : str = mon.rt.CLI_OPTIONS["arch"]["prompt_text"],
+        default     : str = mon.rt.CLI_OPTIONS["arch"]["default"],
         choices     : Sequence | Collection = None,
     ):
-        choices = choices or mon.list_archs(task=task, mode=mode, project_root=project_root)
+        choices = choices or mon.rt.list_archs(task=task, mode=mode, project_root=project_root)
         super().__init__(text=text, default=default, choices=choices)
 
 
@@ -163,11 +165,11 @@ class ModelPrompt(Prompt):
         mode        : str,
         arch        : str,
         project_root: str | mon.Path,
-        text        : str = CLI_OPTIONS["model"]["prompt_text"],
-        default     : str = CLI_OPTIONS["model"]["default"],
+        text        : str = mon.rt.CLI_OPTIONS["model"]["prompt_text"],
+        default     : str = mon.rt.CLI_OPTIONS["model"]["default"],
         choices     : Sequence | Collection = None,
     ):
-        choices = choices or mon.list_models(task=task, mode=mode, arch=arch, project_root=project_root)
+        choices = choices or mon.rt.list_models(task=task, mode=mode, arch=arch, project_root=project_root)
         super().__init__(text=text, default=default, choices=choices)
 
 
@@ -178,13 +180,13 @@ class ConfigPrompt(Prompt):
         project_root: str | mon.Path,
         arch        : str,
         model       : str,
-        text        : str = CLI_OPTIONS["config"]["prompt_text"],
-        default     : str = CLI_OPTIONS["config"]["default"],
+        text        : str = mon.rt.CLI_OPTIONS["config"]["prompt_text"],
+        default     : str = mon.rt.CLI_OPTIONS["config"]["default"],
         choices     : Sequence | Collection = None,
     ):
-        choices = choices or mon.list_configs(
+        choices = choices or mon.rt.list_config_files(
             project_root  = project_root,
-            model_root    = mon.parse_model_dir(arch, model),
+            model_root    = mon.rt.parse_model_dir(arch, model),
             model         = model,
             absolute_path = True
         )
@@ -198,13 +200,13 @@ class WeightsPrompt(Prompt):
         self,
         model       : str,
         project_root: str | mon.Path,
-        text        : str = CLI_OPTIONS["weights"]["prompt_text"],
-        default     : str = CLI_OPTIONS["weights"]["default"],
+        text        : str = mon.rt.CLI_OPTIONS["weights"]["prompt_text"],
+        default     : str = mon.rt.CLI_OPTIONS["weights"]["default"],
         choices     : Sequence | Collection = None,
     ):
-        default = (mon.parse_weights_file(project_root, default))
+        default = (mon.rt.parse_weights_file(project_root, default))
         default = str(default) if default else None
-        choices = choices or mon.list_weights_files(model=model, project_root=project_root)
+        choices = choices or mon.rt.list_weights_files(model=model, project_root=project_root)
         choices = [str(c) for c in choices]
         super().__init__(text=text, default=default, choices=choices)
     
@@ -217,9 +219,9 @@ class WeightsPrompt(Prompt):
         value = value if value not in [None, ""] else None
         if value:
             if isinstance(value, str):
-                value = mon.to_list(value)
+                value = mon.utils.to_list(value)
             if self.choices and len(self.choices) > 0:
-                value = [self.choices[int(w)] if mon.is_int(w) else w for w in value]
+                value = [self.choices[int(w)] if mon.utils.is_int(w) else w for w in value]
                 value = [w.replace("'", "") for w in value]
             value = value[0] if len(value) == 1 else value
         self._value = value
@@ -236,7 +238,7 @@ class WeightsPrompt(Prompt):
         }
         if self._choices and len(self._choices) > 0:
             kwargs["choices"] = self._choices
-        self.value = rich.SelectionOrInputPrompt().ask(**kwargs)
+        self.value = mon.rich.SelectionOrInputPrompt().ask(**kwargs)
         return self.value
     
 
@@ -246,13 +248,13 @@ class DataPrompt(Prompt):
         self,
         task        : str,
         project_root: str | mon.Path,
-        text        : str = CLI_OPTIONS["data"]["prompt_text"],
-        default     : str = CLI_OPTIONS["data"]["default"],
+        text        : str = mon.rt.CLI_OPTIONS["data"]["prompt_text"],
+        default     : str = mon.rt.CLI_OPTIONS["data"]["default"],
         choices     : Sequence | Collection = None,
     ):
-        default = mon.to_str(default, sep=", ")
-        # default = mon.wrap_str(default, max_length=mon.get_terminal_size()[0])
-        choices = choices or mon.list_datasets(task=task, mode="predict", project_root=project_root)
+        default = mon.utils.to_str(default, sep=", ")
+        # default = wrap_str(default, max_length=get_terminal_size()[0])
+        choices = choices or mon.rt.list_datasets(task=task, mode="predict", project_root=project_root)
         super().__init__(text=text, default=default, choices=choices)
     
     @property
@@ -262,7 +264,7 @@ class DataPrompt(Prompt):
     @value.setter
     def value(self, value: str):
         if value:
-            value = mon.to_list(value)
+            value = mon.utils.to_list(value)
         else:
             value = []
         self._value = value
@@ -274,8 +276,8 @@ class FullnamePrompt(Prompt):
         self,
         config : str,
         model  : str,
-        text   : str = CLI_OPTIONS["fullname"]["prompt_text"],
-        default: str = CLI_OPTIONS["fullname"]["default"],
+        text   : str = mon.rt.CLI_OPTIONS["fullname"]["prompt_text"],
+        default: str = mon.rt.CLI_OPTIONS["fullname"]["default"],
     ):
         default = default or (mon.Path(config).stem if config not in [None, "None", ""] else model)
         super().__init__(text=text, default=default)
@@ -288,12 +290,12 @@ class DevicePrompt(Prompt):
         model  : str,
         mode   : str,
         task   : str,
-        text   : str  = CLI_OPTIONS["device"]["prompt_text"],
-        default: str  = CLI_OPTIONS["device"]["default"],
-        choices: list = CLI_OPTIONS["device"]["choices"],
+        text   : str  = mon.rt.CLI_OPTIONS["device"]["prompt_text"],
+        default: str  = mon.rt.CLI_OPTIONS["device"]["default"],
+        choices: list = mon.rt.CLI_OPTIONS["device"]["choices"],
     ):
         default = default or "cuda:0"
-        choices = choices or CLI_OPTIONS["device"]["choices"]
+        choices = choices or mon.rt.CLI_OPTIONS["device"]["choices"]
         super().__init__(text=text, default=default, choices=choices)
         
 
@@ -302,7 +304,7 @@ class RunmlCLI:
     
     def __init__(self, defaults: dict = None):
         self.index = 0
-        self.args  = DEFAULT_ARGS
+        self.args  = mon.rt.DEFAULT_ARGS
         self.args.update(defaults or {})
         self.config_args = {}
 
@@ -319,7 +321,7 @@ class RunmlCLI:
 
     def display_prompt(self):
         if self.index == 0:
-            # mon.clear_terminal()
+            # clear_terminal()
             mon.console.rule(f"[bold red]Input Prompts")
         else:
             mon.console.rule()
@@ -331,9 +333,9 @@ class RunmlCLI:
             ).prompt()
         if self.index == 1:  # Mode
             self.args["mode"] = Prompt(
-                text    = CLI_OPTIONS["mode"]["prompt_text"],
+                text    = mon.rt.CLI_OPTIONS["mode"]["prompt_text"],
                 default = self.args["mode"],
-                choices = CLI_OPTIONS["mode"]["choices"],
+                choices = mon.rt.CLI_OPTIONS["mode"]["choices"],
             ).prompt()
         if self.index == 2:  # Arch
             self.args["arch"] = ArchPrompt(
@@ -357,7 +359,7 @@ class RunmlCLI:
                 model        = self.args["model"],
                 default      = self.args["config"],
             ).prompt()
-            self.config_args = mon.load_config(self.args["config"], False)
+            self.config_args = mon.rt.load_config(self.args["config"], False)
         if self.index == 5:  # Weights
             self.args["weights"] = WeightsPrompt(
                 model        = self.args["model"],
@@ -388,7 +390,7 @@ class RunmlCLI:
             ).prompt()
         if self.index == 9:  # Seed
             self.args["seed"] = NumberPrompt(
-                text    = CLI_OPTIONS["seed"]["prompt_text"],
+                text    = mon.rt.CLI_OPTIONS["seed"]["prompt_text"],
                 default = self.args["seed"] or self.config_args.get("seed"),
             ).prompt()
         if self.index == 10:  # Image Size
@@ -396,7 +398,7 @@ class RunmlCLI:
                 self.cycle_next()
             else:
                 self.args["imgsz"] = NumberPrompt(
-                    text    = CLI_OPTIONS["imgsz"]["prompt_text"],
+                    text    = mon.rt.CLI_OPTIONS["imgsz"]["prompt_text"],
                     default = self.args["imgsz"] or self.config_args.get("imgsz"),
                 ).prompt()
         if self.index == 11:  # Epochs
@@ -404,7 +406,7 @@ class RunmlCLI:
                 self.cycle_next()
             else:
                 self.args["epochs"] = NumberPrompt(
-                    text    = CLI_OPTIONS["epochs"]["prompt_text"],
+                    text    = mon.rt.CLI_OPTIONS["epochs"]["prompt_text"],
                     default = self.args["epochs"] or self.config_args.get("epochs"),
                 ).prompt()
         if self.index == 12:  # Batch Size
@@ -412,7 +414,7 @@ class RunmlCLI:
                 self.cycle_next()
             else:
                 self.args["batch_size"] = NumberPrompt(
-                    text    = CLI_OPTIONS["batch_size"]["prompt_text"],
+                    text    = mon.rt.CLI_OPTIONS["batch_size"]["prompt_text"],
                     default = self.args["batch_size"] or self.config_args.get("batch_size"),
                 ).prompt()
         if self.index == 13:  # torchrun
@@ -420,7 +422,7 @@ class RunmlCLI:
                 self.cycle_next()
             else:
                 self.args["torchrun"] = Confirm(
-                    text    = CLI_OPTIONS["torchrun"]["prompt_text"],
+                    text    = mon.rt.CLI_OPTIONS["torchrun"]["prompt_text"],
                     default = self.args["torchrun"] or self.config_args.get("torchrun", False),
                 ).prompt()
         if self.index == 14:  # Master Port
@@ -428,7 +430,7 @@ class RunmlCLI:
                 self.cycle_next()
             else:
                 self.args["master_port"] = NumberPrompt(
-                    text    = CLI_OPTIONS["master_port"]["prompt_text"],
+                    text    = mon.rt.CLI_OPTIONS["master_port"]["prompt_text"],
                     default = self.args["master_port"] or self.config_args.get("master_port"),
                 ).prompt()
         if self.index == 15:  # Master Address
@@ -436,7 +438,7 @@ class RunmlCLI:
                 self.cycle_next()
             else:
                 self.args["master_addr"] = Prompt(
-                    text    = CLI_OPTIONS["master_addr"]["prompt_text"],
+                    text    = mon.rt.CLI_OPTIONS["master_addr"]["prompt_text"],
                     default = self.args["master_addr"] or self.config_args.get("master_addr"),
                 ).prompt()
         if self.index == 16:  # Resize
@@ -444,55 +446,55 @@ class RunmlCLI:
                 self.cycle_next()
             else:
                 self.args["resize"] = Confirm(
-                    text    = CLI_OPTIONS["resize"]["prompt_text"],
+                    text    = mon.rt.CLI_OPTIONS["resize"]["prompt_text"],
                     default = self.args["resize"] or self.config_args.get("resize", False),
                 ).prompt()
         if self.index == 17:  # Benchmark
             self.args["benchmark"] = Confirm(
-                text    = CLI_OPTIONS["benchmark"]["prompt_text"],
+                text    = mon.rt.CLI_OPTIONS["benchmark"]["prompt_text"],
                 default = self.args["benchmark"] or self.config_args.get("benchmark", False),
             ).prompt()
         if self.index == 18:  # Save Result
             if self.args["mode"] in ["speed"]:
                 self.args["save_result"] = Confirm(
-                    text    = CLI_OPTIONS["save_result"]["prompt_text"],
+                    text    = mon.rt.CLI_OPTIONS["save_result"]["prompt_text"],
                     default = self.args["save_result"],
                 ).prompt()
             else:
                 self.args["save_result"] = Confirm(
-                    text    = CLI_OPTIONS["save_result"]["prompt_text"],
+                    text    = mon.rt.CLI_OPTIONS["save_result"]["prompt_text"],
                     default = self.args["save_result"] or self.config_args.get("save_result", False),
                 ).prompt()
         if self.index == 19:  # Save Image
             if self.args["mode"] in ["speed"]:
                 self.args["save_image"] = Confirm(
-                    text    = CLI_OPTIONS["save_image"]["prompt_text"],
+                    text    = mon.rt.CLI_OPTIONS["save_image"]["prompt_text"],
                     default = self.args["save_image"],
                 ).prompt()
             else:
                 self.args["save_image"] = Confirm(
-                    text    = CLI_OPTIONS["save_image"]["prompt_text"],
+                    text    = mon.rt.CLI_OPTIONS["save_image"]["prompt_text"],
                     default = self.args["save_image"] or self.config_args.get("save_image", False),
                 ).prompt()
         if self.index == 20:  # Save Debug
             if self.args["mode"] in ["speed"]:
                 self.args["save_debug"] = Confirm(
-                    text    = CLI_OPTIONS["save_debug"]["prompt_text"],
+                    text    = mon.rt.CLI_OPTIONS["save_debug"]["prompt_text"],
                     default = self.args["save_debug"],
                 ).prompt()
             else:
                 self.args["save_debug"] = Confirm(
-                    text    = CLI_OPTIONS["save_debug"]["prompt_text"],
+                    text    = mon.rt.CLI_OPTIONS["save_debug"]["prompt_text"],
                     default = self.args["save_debug"] or self.config_args.get("save_debug", False),
                 ).prompt()
         if self.index == 21:  # Use Fullname
             self.args["use_fullname"] = Confirm(
-                text    = CLI_OPTIONS["use_fullname"]["prompt_text"],
+                text    = mon.rt.CLI_OPTIONS["use_fullname"]["prompt_text"],
                 default = self.args["use_fullname"] or self.config_args.get("use_fullname", False),
             ).prompt()
         if self.index == 22:  # Keep Subdirs
             self.args["keep_subdirs"] = Confirm(
-                text    = CLI_OPTIONS["keep_subdirs"]["prompt_text"],
+                text    = mon.rt.CLI_OPTIONS["keep_subdirs"]["prompt_text"],
                 default = self.args["keep_subdirs"] or self.config_args.get("keep_subdirs", False),
             ).prompt()
         if self.index == 23:  # Save Nearby
@@ -500,21 +502,21 @@ class RunmlCLI:
                 self.cycle_next()
             else:
                 self.args["save_nearby"] = Confirm(
-                    text    = CLI_OPTIONS["save_nearby"]["prompt_text"],
+                    text    = mon.rt.CLI_OPTIONS["save_nearby"]["prompt_text"],
                     default = self.args["save_nearby"] or self.config_args.get("save_nearby", False),
                 ).prompt()
         if self.index == 24:  # Exist OK?
             self.args["exist_ok"] = Confirm(
-                text    = CLI_OPTIONS["exist_ok"]["prompt_text"],
+                text    = mon.rt.CLI_OPTIONS["exist_ok"]["prompt_text"],
                 default = self.args["exist_ok"] or self.config_args.get("exist_ok", False),
             ).prompt()
         if self.index == 25:  # Use Verbose
             self.args["verbose"] = Confirm(
-                text    = CLI_OPTIONS["verbose"]["prompt_text"],
+                text    = mon.rt.CLI_OPTIONS["verbose"]["prompt_text"],
                 default = self.args["verbose"] or self.config_args.get("verbose", False),
             ).prompt()
         if self.index == 26:  # Finish
-            rich.print_table(self.args, title="Input Arguments")
+            mon.rprint_dict(self.args, title="Input Arguments")
             finish = Confirm(text="Finish/Re-input", default=True).prompt()
             if finish:
                 self.index = self.__len__()

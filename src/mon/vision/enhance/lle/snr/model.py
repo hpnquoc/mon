@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""SNR model for low-light image enhancement.
+"""Implements SNR model for low-light image enhancement.
 
 References:
     - Paper: "SNR-aware Low-Light Image Enhancement," CVPR 2022.
@@ -14,17 +14,16 @@ __all__ = [
 
 import box
 
-import mon.nn as nn
-from mon.constants import MLType, MODELS, Task
-from mon.core import pathlib
+from mon.constants import MODELS
+from mon.core import MLType, ModelMixin, Path, Task
 from .src.models.Video_base_model4_m import VideoBaseModel
 
-current_file = pathlib.Path(__file__).absolute()
+current_file = Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
 
 @MODELS.register(name="snr", arch="snr")
-class SNR(VideoBaseModel, nn.ModelMixin):
+class SNR(VideoBaseModel, ModelMixin):
     """SNR model for low-light image enhancement.
     
     References:
@@ -36,5 +35,5 @@ class SNR(VideoBaseModel, nn.ModelMixin):
     name     : str          = "snr"
     tasks    : list[Task]   = [Task.LLE]
     mltypes  : list[MLType] = [MLType.SUPERVISED]
-    model_dir: pathlib.Path = current_dir
+    model_dir: Path         = current_dir
     zoo      : dict         = box.Box()

@@ -4,15 +4,11 @@
 """Extends Python's ``logging`` module."""
 
 __all__ = [
-    "disable_default_loggers",
     "disable_print",
-    "disable_stdout",
-    "enable_default_loggers",
     "enable_print",
-    "enable_stdout",
-    "get_logger",
     "logger",
 ]
+
 import contextlib
 import logging
 import os
@@ -21,12 +17,12 @@ from typing import Iterator
 
 from rich import logging as r_logging
 
-from mon.core import pathlib
+from mon.core.pathlib import Path
 
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 
 
-# ----- Log -----
+# ----- Logger -----
 logging.basicConfig(
     level    = logging.INFO,
     format   = "%(message)s",
@@ -36,11 +32,11 @@ logger = logging.getLogger("rich")
 # logger.setLevel(logging.INFO)
 
 
-def get_logger(path: pathlib.Path = None) -> logging.Logger:
+def get_logger(path: Path = None) -> logging.Logger:
     """Retrieves or creates a global logger with ``rich`` support.
 
     Args:
-        path: Path for log file, adds file handler if given. Default is ``None``.
+        path: The ``Path`` for log file, adds file handler if given. Default is ``None``.
 
     Returns:
         Global logger instance.
@@ -56,8 +52,8 @@ def get_logger(path: pathlib.Path = None) -> logging.Logger:
     return logger
 
 
-# ----- Print -----
-def disable_default_loggers():
+# ----- Utils -----
+def _disable_default_loggers():
     """Disables all logging by setting the logger to the lowest level.
 
     Notes:
@@ -71,7 +67,7 @@ def disable_default_loggers():
     os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 
 
-def enable_default_loggers():
+def _enable_default_loggers():
     """Enables all logging by resetting the logger to its default level.
 
     Notes:
@@ -86,7 +82,7 @@ def enable_default_loggers():
 
 
 @contextlib.contextmanager
-def disable_stdout() -> Iterator[None]:
+def _disable_stdout() -> Iterator[None]:
     """Disables printing to stdout by redirecting it to ``os.devnull``.
 
     Notes:
@@ -97,7 +93,7 @@ def disable_stdout() -> Iterator[None]:
             yield
 
 
-def enable_stdout():
+def _enable_stdout():
     """Restores printing to stdout by resetting it to the original stream.
 
     Notes:
@@ -108,15 +104,15 @@ def enable_stdout():
 
 def disable_print():
     """Temporarily disables printing to stdout and logging."""
-    disable_stdout()
-    disable_default_loggers()
+    _disable_stdout()
+    _disable_default_loggers()
 
 
 def enable_print():
     """Restores printing to stdout and loggers."""
-    enable_stdout()
-    enable_default_loggers()
+    _enable_stdout()
+    _enable_default_loggers()
 
 
 # Disable default loggers
-disable_default_loggers()
+_disable_default_loggers()

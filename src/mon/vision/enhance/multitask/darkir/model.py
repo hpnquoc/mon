@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""DarkIR model for low-light deblurring.
+"""Implements DarkIR model for low-light deblurring.
 
 References:
     - Paper: "DarkIR: Robust Low-Light Image Restoration," CVPR 2025.
@@ -12,23 +12,17 @@ __all__ = [
     "DarkIR",
 ]
 
-import os
-import sys
-
 import box
 
-import mon.nn as nn
-from mon.constants import MLType, MODELS, Task
-from mon.core import pathlib
+from mon.constants import MODELS
+from mon.core import MLType, ModelMixin, Path, Task
+from .darkir import archs
 
-sys.path.append(os.path.abspath(os.path.dirname(__file__)))
-from darkir import archs
-
-current_file = pathlib.Path(__file__).absolute()
+current_file = Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
 
-class DarkIR(archs.DarkIR, nn.ModelMixin):
+class DarkIR(archs.DarkIR, ModelMixin):
     """DarkIR model for low-light deblurring.
     
     References:
@@ -40,7 +34,7 @@ class DarkIR(archs.DarkIR, nn.ModelMixin):
     name     : str          = "darkir"
     tasks    : list[Task]   = [Task.LLE, Task.DEBLUR]
     mltypes  : list[MLType] = [MLType.SUPERVISED]
-    model_dir: pathlib.Path = current_dir
+    model_dir: Path         = current_dir
     zoo      : dict         = box.Box()
 
 

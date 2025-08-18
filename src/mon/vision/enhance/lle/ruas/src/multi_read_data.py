@@ -16,7 +16,7 @@ ImageFile.LOAD_TRUNCATED_IMAGES = True
 class MemoryFriendlyLoader(torch.utils.data.Dataset):
     
     def __init__(self, img_dir, task):
-        self.low_img_dir          = pathlib.Path(img_dir)
+        self.low_img_dir          = Path(img_dir)
         self.task                 = task
         self.train_low_data_names = list(self.low_img_dir.rglob("*"))
         self.train_low_data_names = [name for name in self.train_low_data_names if name.is_image_file()]

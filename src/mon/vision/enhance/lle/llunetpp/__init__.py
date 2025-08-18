@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""LL-UNet++ model for low-light image enhancement.
+"""Implements LL-UNet++ model for low-light image enhancement.
 
 References:
     - Paper: "LL-UNet++:UNet++ Based Nested Skip Connections Network for Low-Light

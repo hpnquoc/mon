@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""NeurOP model for image retouching.
+"""Implements NeurOP model for image retouching.
 
 References:
     - Paper: "Neural Color Operators for Sequential Image Retouching," ECCV 2022.
@@ -15,17 +15,16 @@ __all__ = [
 
 import box
 
-import mon.nn as nn
-from mon.constants import MLType, MODELS, Task
-from mon.core import pathlib
+from mon.constants import MODELS
+from mon.core import MLType, ModelMixin, Path, Task
 from .src.models.model import FinetuneModel, InitModel
 
-current_file = pathlib.Path(__file__).absolute()
+current_file = Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
 
 @MODELS.register(name="neurop", arch="neurop")
-class NeurOP(FinetuneModel, nn.ModelMixin):
+class NeurOP(FinetuneModel, ModelMixin):
     """NeurOP model for image retouching.
     
     References:
@@ -37,7 +36,7 @@ class NeurOP(FinetuneModel, nn.ModelMixin):
     name     : str          = "neurop"
     tasks    : list[Task]   = [Task.RETOUCH]
     mltypes  : list[MLType] = [MLType.SUPERVISED]
-    model_dir: pathlib.Path = current_dir
+    model_dir: Path         = current_dir
     zoo      : dict         = box.Box()
 
 

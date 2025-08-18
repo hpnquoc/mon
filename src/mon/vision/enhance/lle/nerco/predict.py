@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""NeRCo model prediction pipeline for low-light image enhancement.
+"""Implements NeRCo model prediction pipeline for low-light image enhancement.
 
 References:
     - Paper: "Implicit Neural Representation for Cooperative Low-light
@@ -12,22 +12,26 @@ References:
 import random
 
 import box
-import torch.optim
+import cv2
+import torch
+import torch.nn as nn
 from PIL import Image
 
 import mon
 from mon.vision.enhance.lle import nerco
 from mon.vision.enhance.lle.nerco import get_transform, tensor2im, TestOptions
 
+mon.dev()
+
 current_file = mon.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
 
 # ----- Utils -----
-def benchmark(model: torch.nn.Module):
-    flops, params = model.compute_efficiency_score()
-    mon.console.log(f"Params    : {params:.4f}")
-    mon.console.log(f"FLOPs     : {flops:.4f}")
+def benchmark(model: nn.Module):
+    flops, params = model.metric.compute_complexity()
+    mon.log(f"Params    : {params:.4f}")
+    mon.log(f"FLOPs     : {flops:.4f}")
 
 
 # ----- Predict -----
@@ -42,33 +46,24 @@ def predict(args: dict | box.Box) -> str:
     cfgs.display_id     = -1            # no visdom display; the test code saves the results to a HTML file.
     
     # Start
-    mon.print_run_summary(args)
+    mon.rt.print_run_summary(args)
 
     # Device
-    device = mon.set_device(args.device)
+    device      = mon.create_device(args.device)
     cfgs.device = device
     
     # Seed
     mon.set_random_seed(args.seed)
 
-    # Data I/O
-    data_name, data_loader = mon.parse_data_loader(args.data, args.root, True, verbose=False)
-
-    testB_dir   = current_dir / "src" / "dataset" / "testB"
-    testB_files = sorted([f for f in testB_dir.glob("*") if f.is_image_file()])
-    testB_size  = len(testB_files)
-    transform_A = get_transform(cfgs)
-    transform_B = get_transform(cfgs)
-    
     # Pretrained
     pretrained = args.weights
     '''
     if args.weights and args.weights.is_weights_file(exist=True):
         pretrained = args.weights
     if pretrained and pretrained.is_weights_file(exist=True):
-        mon.console.log(f"Pretrained: {pretrained}.")
+        mon.log(f"Pretrained: {pretrained}.")
     else:
-        mon.console.log(f"Pretrained: {None}, training from scratch.")
+        mon.log(f"Pretrained: {None}, training from scratch.")
     '''
 
     # Model
@@ -83,18 +78,27 @@ def predict(args: dict | box.Box) -> str:
     if args.benchmark:
         benchmark(model)
     
+    # Data I/O
+    data_name, dataloader = mon.data.build_dataloader(args.data, args.root)
+    testB_dir   = current_dir / "src" / "dataset" / "testB"
+    testB_files = sorted([f for f in testB_dir.glob("*") if f.is_image_file()])
+    testB_size  = len(testB_files)
+    transform_A = get_transform(cfgs)
+    transform_B = get_transform(cfgs)
+    
     # Predict
     timers = mon.TimeProfiler()
     timers.total.tick()
     with mon.create_progress_bar() as pbar:
         for i, datapoint in pbar.track(
-            sequence    = enumerate(data_loader),
-            total       = len(data_loader),
+            sequence    = enumerate(dataloader),
+            total       = len(dataloader),
             description = f"[bright_yellow]Predicting"
         ):
             # Preprocess
             timers.preprocess.tick()
-            path   = mon.Path(datapoint["meta"]["path"])
+            meta   = datapoint["meta"][0]
+            path   = mon.Path(meta["path"])
             indexB = random.randint(0, testB_size - 1)
             imageA = Image.open(path).convert("RGB")
             imageB = Image.open(testB_files[indexB]).convert("RGB")
@@ -119,17 +123,17 @@ def predict(args: dict | box.Box) -> str:
             timers.postprocess.tick()
             outputs  = model.get_current_visuals()
             enhanced = outputs.get("fake_B")
-            h1, w1 = mon.image_size(enhanced)
-            if h1 != h0 or w1 != w0:
-                enhanced = mon.resize(enhanced, (h0, w0))
+            h1, w1   = mon.image.imgsz(enhanced)
+            if (h1, w1) != (h0, w0):
+                enhanced = cv2.resize(enhanced, (h0, w0))
             enhanced = tensor2im(enhanced)
             timers.postprocess.tock()
             
             # Save
             if args.save_image:
-                out_dir  = mon.parse_output_dir(args.save_dir, data_name, mon.SAVE_IMAGE_DIR, path, args.keep_subdirs, args.save_nearby)
+                out_dir  = mon.rt.parse_output_dir(args.save_dir, data_name, mon.SAVE_IMAGE_DIR, path, args.keep_subdirs, args.save_nearby)
                 out_path = out_dir / f"{path.stem}{mon.SAVE_IMAGE_EXT}"
-                mon.save_image(enhanced, out_path)
+                mon.image.save_image(enhanced, out_path)
             
             '''
             if save_debug:
@@ -151,7 +155,7 @@ def predict(args: dict | box.Box) -> str:
 
 # ----- Main -----
 def main() -> str:
-    args = mon.parse_predict_args(model_root=current_dir)
+    args = mon.rt.parse_predict_args(model_root=current_dir)
     predict(args)
 
 

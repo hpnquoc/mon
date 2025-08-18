@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""SRNO model prediction pipeline for super-resolution.
+"""Implements SRNO model prediction pipeline for super-resolution.
 
 References:
     - Paper: "Super-Resolution Neural Operator," CVPR 2023.
@@ -12,29 +12,37 @@ import box
 import torch
 import torch.optim
 
+import albumentations as A
+import box
+import cv2
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+
 import mon
+from mon import console, metrics, Path, tfms, optims
 from mon.vision.enhance.sr.srno import make, make_coord
 
 
-current_file = mon.Path(__file__).absolute()
+current_file = Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
 
 # ----- Utils -----
-def benchmark(model: torch.nn.Module):
-    flops, params = mon.compute_efficiency_score(model=model)
-    mon.console.log(f"Params    : {params:.4f}")
-    mon.console.log(f"FLOPs     : {flops:.4f}")
+def benchmark(model: nn.Module):
+    flops, params = mon.metric.compute_complexity(model=model)
+    mon.log(f"Params    : {params:.4f}")
+    mon.log(f"FLOPs     : {flops:.4f}")
 
 
 # ----- Predict -----
 @torch.no_grad()
 def predict(args: dict | box.Box) -> str:
     # Start
-    mon.print_run_summary(args)
+    mon.rt.print_run_summary(args)
 
     # Device
-    device = mon.set_device(args.device)
+    device = mon.create_device(args.device)
 
     # Seed
     mon.set_random_seed(args.seed)
@@ -47,7 +55,7 @@ def predict(args: dict | box.Box) -> str:
     if args.weights and args.weights.is_weights_file(exist=True):
         pretrained = args.weights
     if pretrained and pretrained.is_weights_file(exist=True):
-        mon.console.log(f"Pretrained: {pretrained}.")
+        mon.log(f"Pretrained: {pretrained}.")
     else:
         raise ValueError(f"Invalid weights file: {pretrained}.")
 
@@ -71,7 +79,7 @@ def predict(args: dict | box.Box) -> str:
         ):
             # Preprocess
             timers.preprocess.tick()
-            path        = mon.Path(datapoint["meta"]["path"])
+            path        = Path(datapoint["meta"]["path"])
             image       = datapoint["image"]
             image       = image.to(device)
             h0          = int(image.shape[-2] * int(args.scale))
@@ -100,9 +108,9 @@ def predict(args: dict | box.Box) -> str:
 
             # Save
             if args.save_image:
-                out_dir  = mon.parse_output_dir(args.save_dir, data_name, mon.SAVE_IMAGE_DIR, path, args.keep_subdirs, args.save_nearby)
+                out_dir  = mon.rt.parse_output_dir(args.save_dir, data_name, mon.SAVE_IMAGE_DIR, path, args.keep_subdirs, args.save_nearby)
                 out_path = out_dir / f"{path.stem}{mon.SAVE_IMAGE_EXT}"
-                mon.save_image(enhanced, out_path)
+                mon.image.save_image(enhanced, out_path)
     timers.total.tock()
 
     # Finish
@@ -112,7 +120,7 @@ def predict(args: dict | box.Box) -> str:
 
 # ----- Main -----
 def main() -> str:
-    args = mon.parse_predict_args(model_root=current_dir)
+    args = mon.rt.parse_predict_args(model_root=current_dir)
     predict(args)
 
 

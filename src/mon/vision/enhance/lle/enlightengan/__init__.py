@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""EnlightenGAN model for low-light image enhancement.
+"""Implements EnlightenGAN model for low-light image enhancement.
 
 References:
     - Paper: "EnlightenGAN: Deep Light Enhancement without Paired Supervision," TIP 2021.

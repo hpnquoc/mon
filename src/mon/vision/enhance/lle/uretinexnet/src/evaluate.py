@@ -10,7 +10,15 @@ import time
 import torch.nn as nn
 import torchvision.transforms as transforms
 
+import albumentations as A
+import box
+import cv2
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+
 import mon
+from mon import console, metrics, Path, tfms, optims
 from .network.Math_Module import P, Q
 from .network.decom import Decom
 from .utils import *
@@ -120,9 +128,9 @@ class Inference(nn.Module):
 def evaluate(args: argparse.Namespace):
     os.environ["CUDA_VISIBLE_DEVICES"] = str(args.gpu)
 
-    args.input_low  = pathlib.Path(args.input_low)
-    args.input_high = pathlib.Path(args.input_high)
-    args.output_dir = pathlib.Path(args.output_dir)
+    args.input_low  = Path(args.input_low)
+    args.input_high = Path(args.input_high)
+    args.output_dir = Path(args.output_dir)
     args.output_dir.mkdir(parents=True, exist_ok=True)
 
     model = Inference(args).cuda()

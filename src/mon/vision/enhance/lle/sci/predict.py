@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""SCI model prediction pipeline for low-light image enhancement.
+"""Implements SCI model prediction pipeline for low-light image enhancement.
 
 References:
     - Paper: "Toward Fast, Flexible, and Robust Low-Light Image Enhancement,"
@@ -10,72 +10,66 @@ References:
 """
 
 import box
+import cv2
+import torch
+import torch.nn as nn
 import torch.utils
 from fvcore.nn import FlopCountAnalysis
 from torch.autograd import Variable
 
 import mon
-from mon.nn import _size_2_t
+from mon import albumentations as A
 from mon.vision.enhance.lle import sci
+
+mon.dev()
 
 current_file = mon.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
 
 # ----- Utils -----
-def compute_efficiency_score(
-    model   : torch.nn.Module,
-    imgsz   : _size_2_t = 512,
-    channels: int       = 3
-) -> tuple[float, float]:
+def compute_efficiency_score(model: nn.Module, imgsz: int = 512, channels: int = 3) -> tuple[float, float]:
     """Computes FLOPs and parameters for a model.
 
     Args:
         model: PyTorch model to profile.
-        imgsz: Input image size (H, W) or single int. Default is ``512``.
+        imgsz: Input image size. Default is ``512``.
         channels: Number of input channels. Default is ``3``.
 
     Returns:
-        Tuple of (FLOPs, parameters) as floats.
+        Tuple of ``(flops, params)`` as floats.
     """
-    from mon import vision
-
-    h, w   = vision.image_size(imgsz)
+    h, w   = mon.image.imgsz(imgsz)
     input  = torch.rand(1, channels, h, w).to(mon.get_model_device(model))
-
     flops  = FlopCountAnalysis(model, input).total()
     params = sum(p.numel() for p in model.parameters())
-
     return flops, params
 
 
-def benchmark(model: torch.nn.Module):
+def benchmark(model: nn.Module):
     flops, params = compute_efficiency_score(model=model)
-    mon.console.log(f"Params    : {params:.4f}")
-    mon.console.log(f"FLOPs     : {flops:.4f}")
+    mon.log(f"Params    : {params:.4f}")
+    mon.log(f"FLOPs     : {flops:.4f}")
 
 
 # ----- Predict -----
 @torch.no_grad()
 def predict(args: dict | box.Box) -> str:
     # Start
-    mon.print_run_summary(args)
+    mon.rt.print_run_summary(args)
 
     # Device
-    device = mon.set_device(args.device)
+    device = mon.create_device(args.device)
 
     # Seed
     mon.set_random_seed(args.seed)
-
-    # Data I/O
-    data_name, data_loader = mon.parse_data_loader(args.data, args.root, True, verbose=False)
 
     # Pretrained
     pretrained = args.resume
     if args.weights and args.weights.is_weights_file(exist=True):
         pretrained = args.weights
     if pretrained and pretrained.is_weights_file(exist=True):
-        mon.console.log(f"Pretrained: {pretrained}.")
+        mon.log(f"Pretrained: {pretrained}.")
     else:
         raise ValueError(f"Invalid weights file: {pretrained}.")
 
@@ -88,23 +82,31 @@ def predict(args: dict | box.Box) -> str:
     if args.benchmark:
         benchmark(model)
     
+    # Data I/O
+    imgsz     = args.imgsz if args.resize else (0, 0)
+    transform = A.Compose([
+        A.ResizeDivisibleBy(height=imgsz[0], width=imgsz[1], divisor=32),
+        A.Normalize(normalization="min_max"),
+        A.ToTensorV2(transpose_mask=True),
+    ])
+    data_name, dataloader = mon.data.build_dataloader(args.data, args.root, transform)
+
     # Predict
     timers = mon.TimeProfiler()
     timers.total.tick()
     with mon.create_progress_bar() as pbar:
         for i, datapoint in pbar.track(
-            sequence    = enumerate(data_loader),
-            total       = len(data_loader),
+            sequence    = enumerate(dataloader),
+            total       = len(dataloader),
             description = f"[bright_yellow]Predicting"
         ):
             # Preprocess
             timers.preprocess.tick()
-            path   = mon.Path(datapoint["meta"]["path"])
+            meta   = datapoint["meta"][0]
+            path   = mon.Path(meta["path"])
+            h0, w0 = mon.image.imgsz(meta["orig_shape"])
             image  = datapoint["image"]
-            h0, w0 = mon.image_size(image)
-            if args.resize and (h0 != args.imgsz[0] or w0 != args.imgsz[1]):
-                image = mon.resize(image, size=args.imgsz)
-            image = Variable(image).to(device)
+            image  = Variable(image).to(device)
             timers.preprocess.tock()
 
             # Infer
@@ -115,15 +117,17 @@ def predict(args: dict | box.Box) -> str:
             # Postprocess
             timers.postprocess.tick()
             _, enhanced = outputs
-            if args.resize and (h0 != args.imgsz[0] or w0 != args.imgsz[1]):
-                enhanced = mon.resize(enhanced, size=(h0, w0))
+            enhanced    = mon.image.to_array(enhanced)
+            h1, w1      = mon.image.imgsz(enhanced)
+            if (h1, w1) != (h0, w0):
+                enhanced = cv2.resize(enhanced, (w0, h0))
             timers.postprocess.tock()
 
             # Save
             if args.save_image:
-                out_dir  = mon.parse_output_dir(args.save_dir, data_name, mon.SAVE_IMAGE_DIR, path, args.keep_subdirs, args.save_nearby)
+                out_dir  = mon.rt.parse_output_dir(args.save_dir, data_name, mon.SAVE_IMAGE_DIR, path, args.keep_subdirs, args.save_nearby)
                 out_path = out_dir / f"{path.stem}{mon.SAVE_IMAGE_EXT}"
-                mon.save_image(enhanced, out_path)
+                mon.image.save_image(enhanced, out_path)
     timers.total.tock()
 
     # Finish
@@ -133,7 +137,7 @@ def predict(args: dict | box.Box) -> str:
 
 # ----- Main -----
 def main() -> str:
-    args = mon.parse_predict_args(model_root=current_dir)
+    args = mon.rt.parse_predict_args(model_root=current_dir)
     predict(args)
 
 

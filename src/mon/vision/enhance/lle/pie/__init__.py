@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""PIE model for low-light image enhancement.
+"""Implements PIE model for low-light image enhancement.
 
 References:
     - Paper: "A Probabilistic Method for Image Enhancement With Simultaneous

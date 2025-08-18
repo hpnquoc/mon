@@ -19,7 +19,7 @@ from ..ldm.modules.diffusionmodules.util import (
 )
 from ..ldm.util import exists, instantiate_from_config
 
-current_file = pathlib.Path(__file__).absolute()
+current_file = Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
 

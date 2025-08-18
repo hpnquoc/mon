@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""NeurOP model prediction pipeline for image retouching.
+"""Implements NeurOP model prediction pipeline for image retouching.
 
 References:
     - Paper: "Neural Color Operators for Sequential Image Retouching," ECCV 2022.
@@ -12,18 +12,26 @@ import box
 import imageio
 import torch
 
+import albumentations as A
+import box
+import cv2
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+
 import mon
+from mon import console, metrics, Path, tfms, optims
 from mon.vision.enhance.retouch.neurop import build_model, dict_to_nonedict, parse
 
-current_file = mon.Path(__file__).absolute()
+current_file = Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
 
 # ----- Utils -----
-def benchmark(model: torch.nn.Module):
-    flops, params = mon.compute_efficiency_score(model=model)
-    mon.console.log(f"Params    : {params:.4f}")
-    mon.console.log(f"FLOPs     : {flops:.4f}")
+def benchmark(model: nn.Module):
+    flops, params = mon.metric.compute_complexity(model=model)
+    mon.log(f"Params    : {params:.4f}")
+    mon.log(f"FLOPs     : {flops:.4f}")
 
 
 # ----- Predict -----
@@ -36,10 +44,10 @@ def predict(args: dict | box.Box) -> str:
     cfgs["weights"] = args.weights
 
     # Start
-    mon.print_run_summary(args)
+    mon.rt.print_run_summary(args)
 
     # Device
-    device = mon.set_device(args.device)
+    device = mon.create_device(args.device)
     cfgs["device"] = device
 
     # Seed
@@ -66,9 +74,9 @@ def predict(args: dict | box.Box) -> str:
         ):
             # Preprocess
             timers.preprocess.tick()
-            path   = mon.Path(datapoint["meta"]["path"])
+            path   = Path(datapoint["meta"]["path"])
             image  = datapoint["image"]
-            h0, w0 = mon.image_size(image)
+            h0, w0 = mon.image.imgsz(image)
             if args.resize and (h0 != args.imgsz[0] or w0 != args.imgsz[1]):
                 image = mon.resize(image, size=args.imgsz)
             else:
@@ -89,7 +97,7 @@ def predict(args: dict | box.Box) -> str:
             timers.postprocess.tick()
             outputs  = model.get_current_visuals()
             enhanced = outputs["rlt"]
-            h1, w1   = mon.image_size(enhanced)
+            h1, w1   = mon.image.imgsz(enhanced)
             if h1 != h0 or w1 != w0:
                 enhanced = mon.resize(enhanced, (h0, w0))
             enhanced = (255.0 * enhanced).astype("uint8")
@@ -97,7 +105,7 @@ def predict(args: dict | box.Box) -> str:
 
             # Save
             if args.save_image:
-                out_dir  = mon.parse_output_dir(args.save_dir, data_name, mon.SAVE_IMAGE_DIR, path, args.keep_subdirs, args.save_nearby)
+                out_dir  = mon.rt.parse_output_dir(args.save_dir, data_name, mon.SAVE_IMAGE_DIR, path, args.keep_subdirs, args.save_nearby)
                 out_path = out_dir / f"{path.stem}{mon.SAVE_IMAGE_EXT}"
                 out_path.parent.mkdir(parents=True, exist_ok=True)
                 imageio.imwrite(str(out_path), enhanced)
@@ -110,7 +118,7 @@ def predict(args: dict | box.Box) -> str:
 
 # ----- Main -----
 def main() -> str:
-    args = mon.parse_predict_args(model_root=current_dir)
+    args = mon.rt.parse_predict_args(model_root=current_dir)
     predict(args)
 
 

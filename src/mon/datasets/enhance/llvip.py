@@ -1,56 +1,36 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Implements LLVIP datasets from that paper: "LLVIP: A Visible-infrared Paired Dataset
-for Low-light Vision," ICCV 2021.
+"""Implements LLVIP datasets.
 
 References:
-    - https://github.com/bupt-ai-cz/LLVIP
+    - Paper: "LLVIP: A Visible-infrared Paired Dataset for Low-light Vision," ICCV 2021.
+    - Data: https://github.com/bupt-ai-cz/LLVIP
 """
 
 __all__ = [
     "LLVIP",
-    "LLVIPDataModule",
 ]
 
-from typing import Literal
-
-from mon.core import console, pathlib, rich, types
-from mon.datasets.core import *
+from mon.core import rich
+from ..core import *
 
 
-# ----- Dataset -----
 @DATASETS.register(name="llvip")
 class LLVIP(VisionDataset):
-    """Loads LLVIP dataset from ``root`` dir.
-
-    Args:
-        root: Directory path to dataset.
-        *args: Additional args for parent class.
-        **kwargs: Additional kwargs for parent class.
-
-    Raises:
-        FileNotFoundError: If ``root`` directory does not exist.
-    """
+    """LLVIP dataset."""
     
-    tasks : list[Task]  = [Task.LLE, Task.DETECT]
-    splits: list[Split] = [Split.TRAIN, Split.TEST]
-    datapoint_attrs     = DatapointAttributes({
-        "image"   : Image,
-        "depth"   : DepthMap,
-        "infrared": InfraredMap,
-    })
-    has_test_annotations: bool = True
+    root_name : str         = "llvip"
+    tasks     : list[Task]  = [Task.LLE, Task.DETECT]
+    splits    : list[Split] = [Split.TRAIN, Split.TEST]
+    modalities: Modalities  = {
+        "image"   : Modality(name="image", type="image", module=Image, in_test=True, primary=True),
+        "depth"   : Modality(name=f"image_{DEPTH_SOURCE.value}",    type="mask", module=DefaultDepthMap,    in_test=True),
+        "infrared": Modality(name=f"image_{INFRARED_SOURCE.value}", type="mask", module=DefaultInfraredMap, in_test=True),
+    }
+    classes   : Classes     = None
 
-    def __init__(self, root: pathlib.Path, *args, **kwargs):
-        root = pathlib.Path(root)
-        root = root / "llvip" if root.name != "llvip" else root
-        if not root.is_dir():
-            raise FileNotFoundError(f"[root] directory not found: [{root}].")
-        
-        super().__init__(root=root, *args, **kwargs)
-
-    def list_data(self):
+    def list_primary_data(self) -> list:
         """Lists ``datapoints`` with image annotations for split."""
         patterns = [self.root / self.split_str / "image"]
 
@@ -58,41 +38,9 @@ class LLVIP(VisionDataset):
         with rich.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
-                desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
+                desc  = f"Listing {self.__class__.__name__} {self.split_str} image(s)"
                 for path in pbar.track(sequence=paths, description=desc):
                     if path.is_image_file():
                         images.append(Image(path=path, root=pattern))
 
-        self.datapoints["image"] = images
-
-
-# ----- DataModule -----
-@DATAMODULES.register(name="llvip")
-class LLVIPDataModule(types.DataModule):
-    """Configures LLVIP datasets for training/testing."""
-    
-    tasks: list[Task] = [Task.LLE]
-    
-    def prepare_data(self, *args, **kwargs):
-        """Prepares data (placeholder, no action taken)."""
-        pass
-    
-    def setup(self, stage: Literal["train", "test", "predict", None] = None):
-        """Sets up datasets for specified ``stage``.
-
-        Args:
-            stage: Stage to setup, one of ``"train"``, ``"test"``, ``"predict"``,
-                or ``None``. Default is ``None``.
-        """
-        if self.can_log:
-            console.log(f"Setup [red]{self.__class__.__name__}[/red].")
-        
-        if stage in [None, "train"]:
-            self.train = LLVIP(split=Split.TRAIN, **self.dataset_kwargs)
-            self.val   = LLVIP(split=Split.TEST,  **self.dataset_kwargs)
-        if stage in [None, "test"]:
-            self.test  = LLVIP(split=Split.TEST,  **self.dataset_kwargs)
-        
-        self.get_classes()
-        if self.can_log:
-            self.summarize()
+        return images

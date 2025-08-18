@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""SGZ model for low-light image enhancement.
+"""Implements SGZ model for low-light image enhancement.
 
 References:
     - Paper: "Semantic-Guided Zero-Shot Learning for Low-Light Image/Video

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""URetinex-Net model for low-light image enhancement.
+"""Implements URetinex-Net model for low-light image enhancement.
 
 References:
     - Paper: "URetinex-Net: Retinex-based Deep Unfolding Network for
@@ -17,22 +17,22 @@ import time
 
 import box
 import torch
+import torch.nn as nn
 import torchvision.transforms as transforms
 from PIL import Image
 
-import mon.nn as nn
-from mon.constants import MLType, MODELS, Task
-from mon.core import pathlib
+from mon.constants import MODELS
+from mon.core import MLType, ModelMixin, Path, Task
 from .src.network.decom import Decom
 from .src.network.Math_Module import P, Q
 from .src.utils import load_adjustment, load_initialize, load_unfolding
 
-current_file = pathlib.Path(__file__).absolute()
+current_file = Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
 
 @MODELS.register(name="uretinexnet", arch="uretinexnet")
-class URetinexNet(nn.Module, nn.ModelMixin):
+class URetinexNet(nn.Module, ModelMixin):
     """URetinex-Net model for low-light image enhancement.
     
     References:
@@ -45,7 +45,7 @@ class URetinexNet(nn.Module, nn.ModelMixin):
     name     : str          = "uretinexnet"
     tasks    : list[Task]   = [Task.LLE]
     mltypes  : list[MLType] = [MLType.SUPERVISED]
-    model_dir: pathlib.Path = current_dir
+    model_dir: Path         = current_dir
     zoo      : dict         = box.Box()
     
     def __init__(self, opts):
@@ -65,10 +65,10 @@ class URetinexNet(nn.Module, nn.ModelMixin):
             # transforms.Resize(1280),
         ]
         self.transform = transforms.Compose(transform)
-        # mon.console.log(self.model_Decom_low)
-        # mon.console.log(self.model_R)
-        # mon.console.log(self.model_L)
-        # mon.console.log(self.adjust_model)
+        # mon.log(self.model_Decom_low)
+        # mon.log(self.model_R)
+        # mon.log(self.model_L)
+        # mon.log(self.adjust_model)
         # time.sleep(8)
 
     def unfolding(self, input_low_img):
@@ -109,6 +109,6 @@ class URetinexNet(nn.Module, nn.ModelMixin):
             os.makedirs(self.opts.output)
         save_path = os.path.join(self.opts.output, file_name.replace(name, "%s_%d_URetinexNet"%(name, self.opts.ratio)))
         np_save_TensorImg(enhance, save_path)
-        mon.console.log("================================= time for %s: %f============================"%(file_name, p_time))
+        mon.log("================================= time for %s: %f============================"%(file_name, p_time))
         """
         return enhance, run_time

@@ -1,7 +1,7 @@
 import numpy as np
 import torch
 from torch import nn as nn
-from torch.nn import functional as F
+import torch.nn.functional as F
 
 from .loss_util import weighted_loss
 

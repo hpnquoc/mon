@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Implements datasets and datamodules for human face recognition."""
+"""Implements human face recognition datasets."""
 
 from .widerface import *

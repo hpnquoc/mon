@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""LIME model for low-light image enhancement.
+"""Implements LIME model for low-light image enhancement.
 
 References:
     - Paper: "LIME: Low-light Image Enhancement via Illumination Map Estimation,"
@@ -21,11 +21,10 @@ from scipy.sparse import csr_matrix, diags
 from scipy.sparse.linalg import spsolve
 from scipy.spatial import distance
 
-import mon.nn as nn
-from mon.constants import MLType, MODELS, Task
-from mon.core import pathlib
+from mon.constants import MODELS
+from mon.core import MLType, ModelMixin, Path, Task
 
-current_file = pathlib.Path(__file__).absolute()
+current_file = Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
 
@@ -263,7 +262,7 @@ def enhance_image_exposure(
 
 # ----- Model -----
 @MODELS.register(name="lime", arch="lime")
-class LIME(nn.ModelMixin):
+class LIME(ModelMixin):
     """LIME model for low-light image enhancement.
 
     Args:
@@ -286,7 +285,7 @@ class LIME(nn.ModelMixin):
     name     : str          = "lime"
     tasks    : list[Task]   = [Task.LLE]
     mltypes  : list[MLType] = [MLType.TRADITIONAL]
-    model_dir: pathlib.Path = current_dir
+    model_dir: Path         = current_dir
     zoo      : dict         = box.Box()
 
     def __init__(

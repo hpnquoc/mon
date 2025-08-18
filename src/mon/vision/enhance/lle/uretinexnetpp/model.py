@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""URetinex-Net++ model for low-light image enhancement.
+"""Implements URetinex-Net++ model for low-light image enhancement.
 
 References:
     - Paper: "Interpretable Optimization-Inspired Unfolding Network for Low-light
@@ -18,16 +18,16 @@ import time
 
 import box
 import torch
+import torch.nn as nn
 import torchvision.transforms as transforms
 from PIL import Image
 
-import mon.nn as nn
-from mon.constants import MLType, MODELS, Task
-from mon.core import pathlib
+from mon.constants import MODELS
+from mon.core import MLType, ModelMixin, Path, Task
 from .src.network.Math_Module import P, Q
 from .src.utils import load_AdjustFusion, load_decom, load_unfolding, param_self_compute
 
-current_file = pathlib.Path(__file__).absolute()
+current_file = Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
 
@@ -43,7 +43,7 @@ def get_params(decom_low, r, l, adjust, fusion):
 
 
 @MODELS.register(name="uretinexnet++", arch="uretinexnet++")
-class URetinexNetPP(nn.Module, nn.ModelMixin):
+class URetinexNetPP(nn.Module, ModelMixin):
     """URetinex-Net++ model for low-light image enhancement.
     
     References:
@@ -56,7 +56,7 @@ class URetinexNetPP(nn.Module, nn.ModelMixin):
     name     : str          = "uretinexnet++"
     tasks    : list[Task]   = [Task.LLE]
     mltypes  : list[MLType] = [MLType.SUPERVISED]
-    model_dir: pathlib.Path = current_dir
+    model_dir: Path         = current_dir
     zoo      : dict         = box.Box()
     
     def __init__(self, opts):

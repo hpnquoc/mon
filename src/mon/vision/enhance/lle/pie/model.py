@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""PIE model for low-light image enhancement.
+"""Implements PIE model for low-light image enhancement.
 
 References:
     - Paper: "A Probabilistic Method for Image Enhancement With Simultaneous
@@ -16,12 +16,12 @@ __all__ = [
 import box
 import cv2
 import numpy as np
+import torch.nn as nn
 
-import mon.nn as nn
-from mon.constants import MLType, MODELS, Task
-from mon.core import pathlib
+from mon.constants import MODELS
+from mon.core import MLType, ModelMixin, Path, Task
 
-current_file = pathlib.Path(__file__).absolute()
+current_file = Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
 
@@ -169,7 +169,7 @@ def PIE(src):
 
 
 @MODELS.register(name="pie", arch="pie")
-class PIE(nn.Module, nn.ModelMixin):
+class PIE(nn.Module, ModelMixin):
     """PIE model for low-light image enhancement.
     
     References:
@@ -182,7 +182,7 @@ class PIE(nn.Module, nn.ModelMixin):
     name     : str          = "pie"
     tasks    : list[Task]   = [Task.LLE]
     mltypes  : list[MLType] = [MLType.TRADITIONAL]
-    model_dir: pathlib.Path = current_dir
+    model_dir: Path         = current_dir
     zoo      : dict         = box.Box()
 
     def __init__(self):

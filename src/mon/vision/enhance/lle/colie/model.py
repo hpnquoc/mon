@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""CoLIE model for low-light image enhancement.
+"""Implements CoLIE model for low-light image enhancement.
 
 References:
     - Paper: "Fast Context-Based Low-Light Image Enhancement via Neural Implicit
@@ -15,22 +15,21 @@ __all__ = [
 
 import box
 import kornia
-import torch.optim
+import torch
+import torch.nn as nn
 
-import mon.nn as nn
-from mon.constants import MLType, MODELS, Task
-from mon.core import pathlib
-
+from mon.constants import MODELS
+from mon.core import MLType, ModelMixin, Path, Task, optims
 from . import loss as L
 from .siren import *
 from .utils import *
 
-current_file = pathlib.Path(__file__).absolute()
+current_file = Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
 
 @MODELS.register(name="colie", arch="colie")
-class CoLIE(nn.Module, nn.ModelMixin):
+class CoLIE(nn.Module, ModelMixin):
     """CoLIE model for low-light image enhancement.
 
     References:
@@ -43,7 +42,7 @@ class CoLIE(nn.Module, nn.ModelMixin):
     name     : str          = "colie"
     tasks    : list[Task]   = [Task.LLE]
     mltypes  : list[MLType] = [MLType.ZERO_SHOT]
-    model_dir: pathlib.Path = current_dir
+    model_dir: Path         = current_dir
     zoo      : dict         = box.Box()
     
     def __init__(
@@ -84,7 +83,7 @@ class CoLIE(nn.Module, nn.ModelMixin):
         # Optimize
         self.model.load_state_dict(self.state_dict)
         self.model.train()
-        optimizer = torch.optim.Adam(self.model.parameters(), lr=1e-5, betas=(0.9, 0.999), weight_decay=3e-4)
+        optimizer = optims.Adam(self.model.parameters(), lr=1e-5, betas=(0.9, 0.999), weight_decay=3e-4)
         L_exp     = L.L_exp(16, self.L).to(device)
         L_tv      = L.L_tv().to(device)
         

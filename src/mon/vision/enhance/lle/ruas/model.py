@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""RUAS model for low-light image enhancement.
+"""Implements RUAS model for low-light image enhancement.
 
 References:
     - Paper: "Retinex-inspired Unrolling with Cooperative Prior Architecture
@@ -15,17 +15,16 @@ __all__ = [
 
 import box
 
-import mon.nn as nn
-from mon.constants import MLType, MODELS, Task
-from mon.core import pathlib
+from mon.constants import MODELS
+from mon.core import MLType, ModelMixin, Path, Task
 from .src.model import Network
 
-current_file = pathlib.Path(__file__).absolute()
+current_file = Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
 
 @MODELS.register(name="ruas", arch="ruas")
-class RUAS(Network, nn.ModelMixin):
+class RUAS(Network, ModelMixin):
     """RUAS model for low-light image enhancement.
     
     References:
@@ -38,5 +37,5 @@ class RUAS(Network, nn.ModelMixin):
     name     : str          = "ruas"
     tasks    : list[Task]   = [Task.LLE]
     mltypes  : list[MLType] = [MLType.UNSUPERVISED]
-    model_dir: pathlib.Path = current_dir
+    model_dir: Path         = current_dir
     zoo      : dict         = box.Box()

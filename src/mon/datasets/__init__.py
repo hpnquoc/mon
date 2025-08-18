@@ -4,11 +4,10 @@
 """Implements various datasets."""
 
 from .aicity import *
-from .cityscapes import *
+# from .cityscapes import *
 from .coco import *
 from .efficiency import *
 from .enhance import *
 from .face import *
 from .mipi import *
 from .ntire import *
-from .utils import *

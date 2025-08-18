@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""HVI-CIDNet model training pipeline for low-light image enhancement.
+"""Implements HVI-CIDNet model training pipeline for low-light image enhancement.
 
 References:
     - Paper: "HVI: A New color space for Low-light Image Enhancement," CVPR 2025.
@@ -11,8 +11,8 @@ References:
 import random
 
 import box
+import torch
 import torch.backends.cudnn as cudnn
-import torch.optim
 import torchvision
 
 import mon
@@ -21,6 +21,8 @@ from mon.vision.enhance.lle.hvi_cidnet import (
     CosineAnnealingRestartCyclicLR, CosineAnnealingRestartLR, EdgeLoss,
     GradualWarmupScheduler, L1Loss, PerceptualLoss, SSIM,
 )
+
+mon.dev()
 
 current_file = mon.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
@@ -46,24 +48,14 @@ def train(args: dict | box.Box) -> str:
     grad_clip          = args.trainer.grad_clip
 
     # Start
-    mon.print_run_summary(args)
+    mon.rt.print_run_summary(args)
 
     # Device
-    device = mon.set_device(args.device)
+    device = mon.create_device(args.device)
     cudnn.benchmark = True
 
     # Seed
     mon.set_random_seed(args.seed)
-
-    # Data I/O
-    args["datamodule"] |= {
-        "root"   : mon.parse_data_dir(args.root, args.datamodule.get("root", "")),
-        "devices": device,
-    }
-    datamodule: mon.DataModule = mon.DATAMODULES.build(config=args.datamodule)
-    datamodule.prepare_data()
-    datamodule.setup(stage="train")
-    train_dataloader = datamodule.train_dataloader
 
     # Pretrained
     pretrained = args.tuning
@@ -72,9 +64,9 @@ def train(args: dict | box.Box) -> str:
     if args.weights and args.weights.is_weights_file(exist=True):
         pretrained = args.weights
     if pretrained and pretrained.is_weights_file(exist=True):
-        mon.console.log(f"Pretrained: {pretrained}.")
+        mon.log(f"Pretrained: {pretrained}.")
     else:
-        mon.console.log(f"Pretrained: {None}, training from scratch.")
+        mon.log(f"Pretrained: {None}, training from scratch.")
 
     # Model
     model = hvi_cidnet.HVI_CIDNet()
@@ -83,7 +75,7 @@ def train(args: dict | box.Box) -> str:
     model = model.to(device)
 
     # Optimizer
-    optimizer = torch.optim.Adam(model.parameters(), lr=lr)
+    optimizer = mon.optim.Adam(model.parameters(), lr=lr)
     if cos_restart_cyclic:
         if start_warmup:
             scheduler_step = CosineAnnealingRestartCyclicLR(
@@ -139,6 +131,12 @@ def train(args: dict | box.Box) -> str:
         criterion         = "mse"
     ).to(device)
     
+    # Data I/O
+    args["train_dataloader"]["datasets"]["root"] = mon.data.parse_data_dir(args.root)
+    args["val_dataloader"]["datasets"]["root"]   = mon.data.parse_data_dir(args.root)
+    train_dataloader = mon.data.DataLoader(**args.train_dataloader)
+    val_dataloader   = mon.data.DataLoader(**args.val_dataloader)
+
     # Training
     with mon.create_progress_bar() as pbar:
         for i in pbar.track(
@@ -205,7 +203,7 @@ def train(args: dict | box.Box) -> str:
             
             # Log
             avg_loss = loss_last_10 / pic_last_10
-            mon.console.log(f"===> Epoch[{i}]: Loss: {avg_loss:.4f} | "
+            mon.log(f"===> Epoch[{i}]: Loss: {avg_loss:.4f} | "
                             f"Learning rate: lr={optimizer.param_groups[0]['lr']}.")
             
             # Save the latest model
@@ -214,7 +212,7 @@ def train(args: dict | box.Box) -> str:
 
 # ----- Main -----
 def main() -> str:
-    args = mon.parse_train_args(model_root=current_dir)
+    args = mon.rt.parse_train_args(model_root=current_dir)
     train(args)
 
 

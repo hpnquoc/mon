@@ -5,9 +5,9 @@ import cv2
 import matplotlib
 import numpy as np
 
-import mon
+from mon import Path
 
-current_file = mon.Path(__file__).absolute()
+current_file = Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 data_dir     = current_dir  # current_file.parents[1]
 if data_dir.has_subdir("data"):
@@ -74,22 +74,22 @@ def compute_depth_metrics(
     n = pred_flat.size
 
     # Compute differences
-    diff = pred_flat - target_flat
+    diff     = pred_flat - target_flat
     abs_diff = np.abs(diff)
 
     # Absolute Relative Error
     abs_rel = np.mean(abs_diff / target_flat)
 
     # Squared Relative Error
-    sq_rel = np.mean((diff ** 2) / target_flat)
+    sq_rel  = np.mean((diff ** 2) / target_flat)
 
     # RMSE
     rmse = np.sqrt(np.mean(diff ** 2))
 
     # RMSE log
-    log_pred = np.log(np.clip(pred_flat, 1e-10, None))  # Avoid log(0)
+    log_pred   = np.log(np.clip(pred_flat, 1e-10, None))  # Avoid log(0)
     log_target = np.log(np.clip(target_flat, 1e-10, None))
-    rmse_log = np.sqrt(np.mean((log_pred - log_target) ** 2))
+    rmse_log   = np.sqrt(np.mean((log_pred - log_target) ** 2))
 
     # MAE
     mae = np.mean(abs_diff)
@@ -101,14 +101,14 @@ def compute_depth_metrics(
     delta3 = np.mean(thresh < 1.25 ** 3)
 
     return {
-        'abs_rel': abs_rel,
-        'sq_rel': sq_rel,
-        'rmse': rmse,
-        'rmse_log': rmse_log,
-        'mae': mae,
-        'delta1': delta1,
-        'delta2': delta2,
-        'delta3': delta3
+        "abs_rel" : abs_rel,
+        "sq_rel"  : sq_rel,
+        "rmse"    : rmse,
+        "rmse_log": rmse_log,
+        "mae"     : mae,
+        "delta1"  : delta1,
+        "delta2"  : delta2,
+        "delta3"  : delta3
     }
 
 

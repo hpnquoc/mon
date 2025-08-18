@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""SNR model for low-light image enhancement.
+"""Implements SNR model for low-light image enhancement.
 
 References:
     - Paper: "SNR-aware Low-Light Image Enhancement," CVPR 2022.

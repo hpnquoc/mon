@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""FourierDiff model for zero-shot joint low-light enhancement and deblurring.
+"""Implements FourierDiff model for zero-shot joint low-light enhancement and deblurring.
 
 References:
     - Paper: "Fourier Priors-Guided Diffusion for Zero-Shot Joint Low-Light
@@ -15,20 +15,28 @@ import box
 import torch
 import yaml
 
+import albumentations as A
+import box
+import cv2
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+
 import mon
+from mon import console, metrics, Path, tfms, optims
 from mon.vision.enhance.multitask import fourierdiff
 
 torch.set_printoptions(sci_mode=False)
 
-current_file = mon.Path(__file__).absolute()
+current_file = Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
 
 # ----- Utils -----
-def benchmark(model: torch.nn.Module):
-    flops, params = mon.compute_efficiency_score(model=model)
-    mon.console.log(f"Params    : {params:.4f}")
-    mon.console.log(f"FLOPs     : {flops:.4f}")
+def benchmark(model: nn.Module):
+    flops, params = mon.metric.compute_complexity(model=model)
+    mon.log(f"Params    : {params:.4f}")
+    mon.log(f"FLOPs     : {flops:.4f}")
 
 
 def dict2namespace(config):
@@ -51,10 +59,10 @@ def predict(args: dict | box.Box) -> str:
     cfg = dict2namespace(cfg)
 
     # Start
-    mon.print_run_summary(args)
+    mon.rt.print_run_summary(args)
     
     # Device
-    device     = mon.set_device(args.device)
+    device     = mon.create_device(args.device)
     cfg.device = device
 
     # Seed
@@ -68,7 +76,7 @@ def predict(args: dict | box.Box) -> str:
     if args.weights and args.weights.is_weights_file(exist=True):
         pretrained = args.weights
     if pretrained and pretrained.is_weights_file(exist=True):
-        mon.console.log(f"Pretrained: {pretrained}.")
+        mon.log(f"Pretrained: {pretrained}.")
     else:
         raise ValueError(f"Invalid weights file: {pretrained}.")
 
@@ -103,7 +111,7 @@ def predict(args: dict | box.Box) -> str:
 
 # ----- Main -----
 def main() -> str:
-    args = mon.parse_predict_args(model_root=current_dir)
+    args = mon.rt.parse_predict_args(model_root=current_dir)
     predict(args)
 
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""ZERO-IG model for low-light image enhancement.
+"""Implements ZERO-IG model for low-light image enhancement.
 
 References:
     - Paper: "Zero-Shot Illumination-Guided Joint Denoising and Adaptive

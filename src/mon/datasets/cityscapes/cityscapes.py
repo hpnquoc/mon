@@ -1,29 +1,25 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Implements the Cityscapes main dataset.
+"""Cityscapes main datasets.
 
 References:
-	- https://www.cityscapes-dataset.com/
+	- Data: https://www.cityscapes-dataset.com/
 """
 
 __all__ = [
     "Cityscapes",
-    "CityscapesDataModule",
 ]
-
-from typing import Literal
 
 import cv2
 
-from mon.core import console, pathlib, rich, types
-from mon.datasets.core import *
+from mon.core import pathlib, rich
+from ..core import *
 
 
-# ----- Dataset -----
 @DATASETS.register(name="cityscapes")
 class Cityscapes(VisionDataset):
-    """Loads and processes the Cityscapes dataset.
+    """Cityscapes main dataset.
 
     Args:
         root: Root directory path. Default is ``default_root_dir``.
@@ -35,15 +31,15 @@ class Cityscapes(VisionDataset):
     Raises:
         FileNotFoundError: If ``root``/cityscapes directory does not exist.
     """
-
-    tasks : list[Task]  = [Task.SEGMENT]
-    splits: list[Split] = [Split.TRAIN, Split.VAL, Split.TEST]
-    datapoint_attrs     = DatapointAttributes({
+    
+    root_name : str         = "cityscapes"
+    tasks     : list[Task]  = [Task.SEGMENT]
+    splits    : list[Split] = [Split.TRAIN, Split.VAL, Split.TEST]
+    modalities: Modalities  = Modalities({
         "image"   : Image,
         "semantic": SemanticMask,
     })
-    has_test_annotations: bool = True
-    classes             = Classes([
+    classes   : Classes     = Classes([
         {"name": "unlabeled"           , "id":  0, "train_id": 255, "category": "void"        , "category_id": 0, "ignore_in_eval": True , "color": [  0,   0,   0]},
         {"name": "ego vehicle"         , "id":  1, "train_id": 255, "category": "void"        , "category_id": 0, "ignore_in_eval": True , "color": [  0,   0,   0]},
         {"name": "rectification border", "id":  2, "train_id": 255, "category": "void"        , "category_id": 0, "ignore_in_eval": True , "color": [  0,   0,   0]},
@@ -88,26 +84,21 @@ class Cityscapes(VisionDataset):
         use_coarse : bool = False,
         *args, **kwargs
     ):
-        root = pathlib.Path(root)
-        root = root / "cityscapes" if root.name != "cityscapes" else root
-        if not root.is_dir():
-            raise FileNotFoundError(f"[root] directory not found: [{root}].")
-
         self.use_blurred = use_blurred
         self.use_coarse  = use_coarse
         super().__init__(root=root, *args, **kwargs)
 
-    def list_data(self):
+    def list_primary_data(self) -> list:
         """Lists image and semantic segmentation data from the dataset."""
         image_name = "leftImg8bit_blurred" if self.use_blurred else "leftImg8bit"
-        gt_name    = "gtCoarse" if self.use_coarse else "gtFine"
+        gt_name    = "gtCoarse"            if self.use_coarse  else "gtFine"
         patterns   = [self.root / self.split_str / image_name]
 
         images: list[Image] = []
         with rich.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
-                desc  = f"Listing {self.__class__.__name__} {self.split_str} left images"
+                desc  = f"Listing {self.__class__.__name__} {self.split_str} left image(s)"
                 for path in pbar.track(sequence=paths, description=desc):
                     if path.is_image_file():
                         images.append(Image(path=path, root=pattern))
@@ -128,35 +119,3 @@ class Cityscapes(VisionDataset):
 
         self.datapoints["image"]    = images
         self.datapoints["semantic"] = semantic
-
-
-# ----- DataModule -----
-@DATAMODULES.register(name="cityscapes")
-class CityscapesDataModule(types.DataModule):
-    """Manages Cityscapes dataset loading and setup for training, validation, and testing."""
-
-    tasks: list[Task] = [Task.SEGMENT]
-
-    def prepare_data(self, *args, **kwargs):
-        """Prepares data (placeholder, no action taken)."""
-        pass
-
-    def setup(self, stage: Literal["train", "test", "predict", None] = None):
-        """Sets up datasets for specified ``stage``.
-
-        Args:
-            stage: Stage to setup, one of ``"train"``, ``"test"``, ``"predict"``,
-                or ``None``. Default is ``None``.
-        """
-        if self.can_log:
-            console.log(f"Setup [red]{self.__class__.__name__}[/red].")
-
-        if stage in [None, "train"]:
-            self.train = Cityscapes(split=Split.TRAIN, **self.dataset_kwargs)
-            self.val   = Cityscapes(split=Split.VAL,   **self.dataset_kwargs)
-        if stage in [None, "test"]:
-            self.test  = Cityscapes(split=Split.TEST,  **self.dataset_kwargs)
-
-        self.get_classes()
-        if self.can_log:
-            self.summarize()

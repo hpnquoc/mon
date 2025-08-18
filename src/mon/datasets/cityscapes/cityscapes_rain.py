@@ -1,31 +1,28 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Implements the Cityscapes Rain dataset.
+"""Cityscapes-Rain dataset.
 
 References:
-	- https://www.cityscapes-dataset.com/
+	- Data: https://www.cityscapes-dataset.com/
 """
 
 __all__ = [
     "CityscapesRain",
-    "CityscapesRainDataModule",
 ]
 
 import os
-from typing import Literal
 
 import cv2
 
-from mon.core import console, pathlib, rich, types
-from mon.datasets.cityscapes.cityscapes import Cityscapes
-from mon.datasets.core import *
+from mon.core import pathlib, rich
+from ..core import *
+from .cityscapes import Cityscapes
 
 
-# ----- Dataset -----
 @DATASETS.register(name="cityscapes_rain")
 class CityscapesRain(Cityscapes):
-    """Loads and processes the CityscapesRain dataset for deraining tasks.
+    """Cityscapes-Rain dataset for deraining tasks.
 
     Args:
         root: Root directory path. Default is ``default_root_dir``.
@@ -36,24 +33,19 @@ class CityscapesRain(Cityscapes):
         FileNotFoundError: If ``root``/cityscapes directory does not exist.
     """
     
-    tasks : list[Task]  = [Task.DERAIN]
-    splits: list[Split] = [Split.TRAIN, Split.VAL]
-    datapoint_attrs     = DatapointAttributes({
+    tasks      : list[Task]  = [Task.DERAIN]
+    splits     : list[Split] = [Split.TRAIN, Split.VAL]
+    modalities : Modalities  = Modalities({
         "image"    : Image,
         "ref_image": Image,
         "semantic" : SemanticMask,  # gtFine
     })
-    has_test_annotations: bool = True
+    has_test_gt: bool        = True
     
     def __init__(self, root: pathlib.Path, *args, **kwargs):
-        root = pathlib.Path(root)
-        root = root / "cityscapes" if root.name != "cityscapes" else root
-        if not root.is_dir():
-            raise FileNotFoundError(f"[root] directory not found: [{root}].")
-
         super().__init__(root=root, *args, **kwargs)
     
-    def list_data(self):
+    def list_primary_data(self) -> list:
         """Lists rainy images, reference images, and semantic maps."""
         patterns = [self.root / self.split_str / "leftImg8bit_rain"]
 
@@ -61,14 +53,14 @@ class CityscapesRain(Cityscapes):
         with rich.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
-                desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
+                desc  = f"Listing {self.__class__.__name__} {self.split_str} image(s)"
                 for path in pbar.track(sequence=paths, description=desc):
                     if path.is_image_file():
                         images.append(Image(path=path, root=pattern))
                         
         ref_images: list[Image] = []
         with rich.create_progress_bar(disable=self.disable_pbar) as pbar:
-            desc = f"Listing {self.__class__.__name__} {self.split_str} reference images"
+            desc = f"Listing {self.__class__.__name__} {self.split_str} reference image(s)"
             for img in pbar.track(sequence=images, description=desc):
                 path = img.path.replace(f"{os.sep}leftImg8bit_rain{os.sep}", f"{os.sep}leftImg8bit{os.sep}")
                 stem = path.stem.split("leftImg8bit")[0]
@@ -91,35 +83,3 @@ class CityscapesRain(Cityscapes):
         self.datapoints["image"]     = images
         self.datapoints["ref_image"] = ref_images
         self.datapoints["semantic"]  = semantic
-
-
-# ----- DataModule -----
-@DATAMODULES.register(name="cityscapes_rain")
-class CityscapesRainDataModule(types.DataModule):
-    """Manages CityscapesRain dataset for training, validation, and testing."""
-
-    tasks: list[Task] = [Task.DERAIN]
-
-    def prepare_data(self, *args, **kwargs):
-        """Prepares data (placeholder, no action taken)."""
-        pass
-
-    def setup(self, stage: Literal["train", "test", "predict", None] = None):
-        """Sets up datasets for specified ``stage``.
-
-        Args:
-            stage: Stage to setup, one of ``"train"``, ``"test"``, ``"predict"``,
-                or ``None``. Default is ``None``.
-        """
-        if self.can_log:
-            console.log(f"Setup [red]{self.__class__.__name__}[/red].")
-
-        if stage in [None, "train"]:
-            self.train = CityscapesRain(split=Split.TRAIN, **self.dataset_kwargs)
-            self.val   = CityscapesRain(split=Split.VAL,   **self.dataset_kwargs)
-        if stage in [None, "test"]:
-            self.test  = CityscapesRain(split=Split.VAL,   **self.dataset_kwargs)
-
-        self.get_classes()
-        if self.can_log:
-            self.summarize()

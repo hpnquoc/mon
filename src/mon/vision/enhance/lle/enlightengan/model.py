@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""EnlightenGAN model for low-light image enhancement.
+"""Implements EnlightenGAN model for low-light image enhancement.
 
 References:
     - Paper: "EnlightenGAN: Deep Light Enhancement without Paired Supervision," TIP 2021.
@@ -19,11 +19,10 @@ import box
 import numpy as np
 from onnxruntime import InferenceSession
 
-from mon.constants import MLType, MODELS, Task
-from mon.constants import ZOO_DIR
-from mon.core import pathlib
+from mon.constants import MODELS, ZOO_DIR
+from mon.core import MLType, Path, Task
 
-current_file = pathlib.Path(__file__).absolute()
+current_file = Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
 
@@ -44,16 +43,16 @@ class EnlightenOnnxModel:
     name     : str          = "enlightengan"
     tasks    : list[Task]   = [Task.LLE]
     mltypes  : list[MLType] = [MLType.SUPERVISED]
-    model_dir: pathlib.Path = current_dir
+    model_dir: Path         = current_dir
     zoo      : dict         = box.Box()
     
     def __init__(
         self,
         model  : Union[bytes, str, None] = None,
-        weights: pathlib.Path = ZOO_DIR / "vision/enhance/lle/enlightengan/enlightengan/custom/enlightengan.onnx",
+        weights: Path = ZOO_DIR / "vision/enhance/lle/enlightengan/enlightengan/custom/enlightengan.onnx",
     ):
         self.model   = model
-        self.weights = pathlib.Path(weights)
+        self.weights = Path(weights)
         self.graph   = None
     
     def initialize(self):

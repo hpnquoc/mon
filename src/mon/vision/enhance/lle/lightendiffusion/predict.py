@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""LightenDiffusion model prediction pipeline for low-light image enhancement.
+"""Implements LightenDiffusion model prediction pipeline for low-light image enhancement.
 
 References:
     - Paper: "LightenDiffusion: Unsupervised Low-Light Image Enhancement with
@@ -14,21 +14,25 @@ import argparse
 import box
 import numpy as np
 import torch
+import torch.nn as nn
+import torch.nn.functional as F
 import yaml
 
 import mon
-from mon.nn import functional as F
+from mon import albumentations as A
 from mon.vision.enhance.lle import lightendiffusion
+
+mon.dev()
 
 current_file = mon.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
 
 # ----- Utils -----
-def benchmark(model: torch.nn.Module):
-    flops, params = mon.compute_efficiency_score(model=model, channels=6)
-    mon.console.log(f"Params    : {params:.4f}")
-    mon.console.log(f"FLOPs     : {flops:.4f}")
+def benchmark(model: nn.Module):
+    flops, params = mon.metric.compute_complexity(model=model, channels=6)
+    mon.log(f"Params    : {params:.4f}")
+    mon.log(f"FLOPs     : {flops:.4f}")
 
 
 def dict2namespace(config):
@@ -51,24 +55,21 @@ def predict(args: dict | box.Box) -> str:
     cfgs = dict2namespace(cfgs)
 
     # Start
-    mon.print_run_summary(args)
+    mon.rt.print_run_summary(args)
 
     # Device
-    device      = mon.set_device(args.device)
+    device      = mon.create_device(args.device)
     cfgs.device = device
 
     # Seed
     mon.set_random_seed(args.seed)
 
-    # Data I/O
-    data_name, data_loader = mon.parse_data_loader(args.data, args.root, True, verbose=False)
-    
     # Pretrained
     pretrained = args.resume
     if args.weights and args.weights.is_weights_file(exist=True):
         pretrained = args.weights
     if pretrained and pretrained.is_weights_file(exist=True):
-        mon.console.log(f"Pretrained: {pretrained}.")
+        mon.log(f"Pretrained: {pretrained}.")
     else:
         raise ValueError(f"Invalid weights file: {pretrained}.")
 
@@ -86,25 +87,34 @@ def predict(args: dict | box.Box) -> str:
     if args.benchmark:
         benchmark(diffusion.model)
     
+    # Data I/O
+    imgsz     = args.imgsz if args.resize else (0, 0)
+    transform = A.Compose([
+        A.ResizeDivisibleBy(height=imgsz[0], width=imgsz[1], divisor=32),
+        A.Normalize(normalization="min_max"),
+        A.ToTensorV2(transpose_mask=True),
+    ])
+    data_name, dataloader = mon.data.build_dataloader(args.data, args.root, transform)
+    
     # Predict
     timers = mon.TimeProfiler()
     timers.total.tick()
     with mon.create_progress_bar() as pbar:
         for i, datapoint in pbar.track(
-            sequence    = enumerate(data_loader),
-            total       = len(data_loader),
+            sequence    = enumerate(dataloader),
+            total       = len(dataloader),
             description = f"[bright_yellow]Predicting"
         ):
              # Preprocess
             timers.preprocess.tick()
-            path     = mon.Path(datapoint["meta"]["path"])
+            meta     = datapoint["meta"][0]
+            path     = mon.Path(meta["path"])
+            h0, w0   = mon.image.imgsz(meta["orig_shape"])
             image    = datapoint["image"]
-            h0, w0   = mon.image_size(image)
             img_h_64 = int(64 * np.ceil(h0 / 64.0))
             img_w_64 = int(64 * np.ceil(w0 / 64.0))
             x_cond   = F.pad(image, (0, img_w_64 - w0, 0, img_h_64 - h0), "reflect")
             x_cond   = x_cond.to(device)
-            image    = image.to(device)
             timers.preprocess.tock()
 
             # Infer
@@ -119,9 +129,9 @@ def predict(args: dict | box.Box) -> str:
 
             # Save
             if args.save_image:
-                out_dir  = mon.parse_output_dir(args.save_dir, data_name, mon.SAVE_IMAGE_DIR, path, args.keep_subdirs, args.save_nearby)
+                out_dir  = mon.rt.parse_output_dir(args.save_dir, data_name, mon.SAVE_IMAGE_DIR, path, args.keep_subdirs, args.save_nearby)
                 out_path = out_dir / f"{path.stem}{mon.SAVE_IMAGE_EXT}"
-                mon.save_image(enhanced, out_path)
+                mon.image.save_image(enhanced, out_path)
     timers.total.tock()
 
     # Finish
@@ -131,7 +141,7 @@ def predict(args: dict | box.Box) -> str:
 
 # ----- Main -----
 def main() -> str:
-    args = mon.parse_predict_args(model_root=current_dir)
+    args = mon.rt.parse_predict_args(model_root=current_dir)
     predict(args)
 
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""HVI-CIDNet model for low-light image enhancement.
+"""Implements HVI-CIDNet model for low-light image enhancement.
 
 References:
     - Paper: "HVI: A New color space for Low-light Image Enhancement," CVPR 2025.

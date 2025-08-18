@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""MobileNetV3 model for image classification.
+"""Implements MobileNetV3 model for image classification.
 
 References:
     - Paper: https://arxiv.org/abs/1905.02244
@@ -18,16 +18,15 @@ import box
 from torchvision import models as tvm
 from torchvision.models.mobilenetv3 import _mobilenet_v3_conf
 
-import mon.nn as nn
-from mon.constants import MLType, MODELS, Task, ZOO_DIR
-from mon.core import pathlib
+from mon.constants import MODELS, ZOO_DIR
+from mon.core import MLType, ModelMixin, Path, Task
 
-current_file = pathlib.Path(__file__).absolute()
+current_file = Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
 
 # ----- Model -----
-class MobileNetV3(tvm.MobileNetV3, nn.ModelMixin, abc.ABC):
+class MobileNetV3(tvm.MobileNetV3, ModelMixin, abc.ABC):
     """MobileNetV3 model for image classification.
 
     References:
@@ -38,7 +37,7 @@ class MobileNetV3(tvm.MobileNetV3, nn.ModelMixin, abc.ABC):
     name     : str          = "mobilenet_v3"
     tasks    : list[Task]   = [Task.CLASSIFY]
     mltypes  : list[MLType] = [MLType.SUPERVISED]
-    model_dir: pathlib.Path = current_dir
+    model_dir: Path         = current_dir
     zoo      : dict         = box.Box()
     
     def __init__(self, weights: str = "imagenet1k_v1", num_classes: int = 1000, *args, **kwargs):

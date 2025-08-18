@@ -5,53 +5,28 @@
 
 __all__ = [
     "WiderFace",
-    "WiderFaceDataModule",
-    "WiderFaceTest",
-    "WiderFaceTestDataModule",
     "WiderFaceVal",
-    "WiderFaceValDataModule",
 ]
 
-from typing import Literal
-
-from mon.core import console, pathlib, rich, types
-from mon.datasets.core import *
+from mon.core import rich
+from ..core import *
 
 
-# ----- Dataset -----
 @DATASETS.register(name="widerface")
 class WiderFace(VisionDataset):
-    """Loads WiderFace dataset from ``root`` dir.
-
-    Args:
-        root: Directory path to dataset.
-        *args: Additional args for parent class.
-        **kwargs: Additional kwargs for parent class.
-
-    Raises:
-        FileNotFoundError: If ``root`` directory does not exist.
-    """
+    """WiderFace dataset."""
     
-    tasks : list[Task]  = [Task.DETECT]
-    splits: list[Split] = [Split.TRAIN, Split.VAL, Split.TEST]
-    datapoint_attrs     = DatapointAttributes({
-        "image": Image,
-        # "bbox" : BBoxesAnnotation,
-    })
-    has_test_annotations: bool = False
-    classes             = Classes([
+    root_name : str         = "widerface"
+    tasks     : list[Task]  = [Task.DETECT]
+    splits    : list[Split] = [Split.TRAIN, Split.VAL, Split.TEST]
+    modalities: Modalities  = {
+        "image": Modality(name="image", type="image", module=Image, in_test=True, primary=True),
+    }
+    classes   : Classes     = Classes([
         {"name": "face", "id": 0, "color": [ 81, 120, 228]},
     ])
 
-    def __init__(self, root: pathlib.Path, *args, **kwargs):
-        root = pathlib.Path(root)
-        root = root / "widerface" if root.name != "widerface" else root
-        if not root.is_dir():
-            raise FileNotFoundError(f"[root] directory not found: [{root}].")
-
-        super().__init__(root=root, *args, **kwargs)
-
-    def list_data(self):
+    def list_primary_data(self) -> list:
         """Lists ``datapoints`` with image annotations for split."""
         patterns = [self.root / self.split_str / "image"]
 
@@ -59,19 +34,19 @@ class WiderFace(VisionDataset):
         with rich.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
-                desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
+                desc  = f"Listing {self.__class__.__name__} {self.split_str} image(s)"
                 for path in pbar.track(sequence=paths, description=desc):
                     if path.is_image_file():
                         images.append(Image(path=path, root=pattern))
 
-        self.datapoints["image"] = images
+        return images
 
 
 @DATASETS.register(name="widerfaceval")
 class WiderFaceVal(WiderFace):
-    """Loads WiderFace-Val dataset from ``root`` dir."""
+    """WiderFace-Val subset."""
 
-    def list_data(self):
+    def list_primary_data(self) -> list:
         """Lists ``datapoints`` with image annotations for split."""
         patterns = [self.root / "val" / "image"]
 
@@ -79,123 +54,9 @@ class WiderFaceVal(WiderFace):
         with rich.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
-                desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
+                desc  = f"Listing {self.__class__.__name__} {self.split_str} image(s)"
                 for path in pbar.track(sequence=paths, description=desc):
                     if path.is_image_file():
                         images.append(Image(path=path, root=pattern))
 
-        self.datapoints["image"] = images
-
-
-@DATASETS.register(name="widerfacetest")
-class WiderFaceTest(WiderFace):
-    """Loads WiderFace-Test dataset from ``root`` dir."""
-
-    def list_data(self):
-        """Lists ``datapoints`` with image annotations for split."""
-        patterns = [self.root / "test" / "image"]
-
-        images: list[Image] = []
-        with rich.create_progress_bar(disable=self.disable_pbar) as pbar:
-            for pattern in patterns:
-                paths = sorted(pattern.rglob("*"))
-                desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
-                for path in pbar.track(sequence=paths, description=desc):
-                    if path.is_image_file():
-                        images.append(Image(path=path))
-
-        self.datapoints["image"] = images
-
-
-# ----- DataModule -----
-@DATAMODULES.register(name="widerface")
-class WiderFaceDataModule(types.DataModule):
-    """Configures WiderFace datasets for training/testing."""
-    
-    tasks: list[Task] = [Task.DETECT]
-    
-    def prepare_data(self, *args, **kwargs):
-        """Prepares data (placeholder, no action taken)."""
-        pass
-    
-    def setup(self, stage: Literal["train", "test", "predict", None] = None):
-        """Sets up datasets for specified ``stage``.
-
-        Args:
-            stage: Stage to setup, one of ``"train"``, ``"test"``, ``"predict"``,
-                or ``None``. Default is ``None``.
-        """
-        if self.can_log:
-            console.log(f"Setup [red]{self.__class__.__name__}[/red].")
-        
-        if stage in [None, "train"]:
-            self.train = WiderFace(split=Split.TRAIN, **self.dataset_kwargs)
-            self.val   = WiderFace(split=Split.VAL, **self.dataset_kwargs)
-        if stage in [None, "test"]:
-            self.test  = WiderFace(split=Split.TEST, **self.dataset_kwargs)
-        
-        self.get_classes()
-        if self.can_log:
-            self.summarize()
-
-
-@DATAMODULES.register(name="widerfaceval")
-class WiderFaceValDataModule(types.DataModule):
-    """Configures WiderFace-Val datasets for training/testing."""
-
-    tasks: list[Task] = [Task.DETECT]
-
-    def prepare_data(self, *args, **kwargs):
-        """Prepares data (placeholder, no action taken)."""
-        pass
-
-    def setup(self, stage: Literal["train", "test", "predict", None] = None):
-        """Sets up datasets for specified ``stage``.
-
-        Args:
-            stage: Stage to setup, one of ``"train"``, ``"test"``, ``"predict"``,
-                or ``None``. Default is ``None``.
-        """
-        if self.can_log:
-            console.log(f"Setup [red]{self.__class__.__name__}[/red].")
-
-        if stage in [None, "train"]:
-            self.train = WiderFaceVal(split=Split.VAL, **self.dataset_kwargs)
-            self.val   = WiderFaceVal(split=Split.VAL, **self.dataset_kwargs)
-        if stage in [None, "test"]:
-            self.test  = WiderFaceVal(split=Split.VAL, **self.dataset_kwargs)
-
-        self.get_classes()
-        if self.can_log:
-            self.summarize()
-
-
-@DATAMODULES.register(name="widerfacetest")
-class WiderFaceTestDataModule(types.DataModule):
-    """Configures WiderFace-Test datasets for training/testing."""
-
-    tasks: list[Task] = [Task.DETECT]
-
-    def prepare_data(self, *args, **kwargs):
-        """Prepares data (placeholder, no action taken)."""
-        pass
-
-    def setup(self, stage: Literal["train", "test", "predict", None] = None):
-        """Sets up datasets for specified ``stage``.
-
-        Args:
-            stage: Stage to setup, one of ``"train"``, ``"test"``, ``"predict"``,
-                or ``None``. Default is ``None``.
-        """
-        if self.can_log:
-            console.log(f"Setup [red]{self.__class__.__name__}[/red].")
-
-        if stage in [None, "train"]:
-            self.train = WiderFaceVal(split=Split.TEST, **self.dataset_kwargs)
-            self.val   = WiderFaceVal(split=Split.TEST, **self.dataset_kwargs)
-        if stage in [None, "test"]:
-            self.test  = WiderFaceVal(split=Split.TEST, **self.dataset_kwargs)
-
-        self.get_classes()
-        if self.can_log:
-            self.summarize()
+        return images

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""CoLIE model prediction pipeline for low-light image enhancement.
+"""Implements CoLIE model prediction pipeline for low-light image enhancement.
 
 References:
     - Paper: "Fast Context-Based Low-Light Image Enhancement via Neural Implicit
@@ -11,18 +11,22 @@ References:
 
 import box
 import thop
-import torch.optim
+import torch
+import torch.nn as nn
 from fvcore.nn import FlopCountAnalysis, parameter_count
 
 import mon
+from mon import albumentations as A
 from mon.vision.enhance.lle import colie
+
+mon.dev()
 
 current_file = mon.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
 
 # ----- Utils -----
-def compute_efficiency_score(model: torch.nn.Module, imgsz: int = 512) -> tuple[float, float]:
+def compute_efficiency_score(model: nn.Module, imgsz: int = 512) -> tuple[float, float]:
     """Computes FLOPs and parameters for a model.
 
     Args:
@@ -44,10 +48,10 @@ def compute_efficiency_score(model: torch.nn.Module, imgsz: int = 512) -> tuple[
     return flops, params
 
 
-def benchmark(model: torch.nn.Module):
+def benchmark(model: nn.Module):
     flops, params = compute_efficiency_score(model=model)
-    mon.console.log(f"Params    : {params:.4f}")
-    mon.console.log(f"FLOPs     : {flops:.4f}")
+    mon.log(f"Params    : {params:.4f}")
+    mon.log(f"FLOPs     : {flops:.4f}")
 
 
 # ----- Predict -----
@@ -60,16 +64,13 @@ def predict(args: dict | box.Box) -> str:
     L           = args.network.L
     
     # Start
-    mon.print_run_summary(args)
+    mon.rt.print_run_summary(args)
 
     # Device
-    device = mon.set_device(args.device)
+    device = mon.create_device(args.device)
     
     # Seed
     mon.set_random_seed(args.seed)
-    
-    # Data I/O
-    data_name, data_loader = mon.parse_data_loader(args.data, args.root, True, verbose=False)
     
     # Model
     model = colie.CoLIE(
@@ -85,20 +86,29 @@ def predict(args: dict | box.Box) -> str:
     # Benchmark
     if args.benchmark:
         benchmark(model.model)
-
+    
+    # Data I/O
+    transform = A.Compose([
+        A.Normalize(normalization="min_max"),
+        A.ToTensorV2(transpose_mask=True),
+    ])
+    data_name, dataloader = mon.data.build_dataloader(args.data, args.root, transform)
+    
     # Predict
     timers = mon.TimeProfiler()
     timers.total.tick()
-    with mon.create_progress_bar() as pbar:
+    with (mon.create_progress_bar() as pbar):
         for i, datapoint in pbar.track(
-            sequence    = enumerate(data_loader),
-            total       = len(data_loader),
+            sequence    = enumerate(dataloader),
+            total       = len(dataloader),
             description = f"[bright_yellow]Predicting"
         ):
             # Preprocess
             timers.preprocess.tick()
-            path  = mon.Path(datapoint["meta"]["path"])
-            image = colie.utils.get_image(str(path)).to(device)
+            meta  = datapoint["meta"][0]
+            path  = mon.Path(meta["path"])
+            image = datapoint["image"]
+            image = image.to(device)
             timers.preprocess.tock()
 
             # Optimize
@@ -113,9 +123,9 @@ def predict(args: dict | box.Box) -> str:
             
             # Save
             if args.save_image:
-                out_dir  = mon.parse_output_dir(args.save_dir, data_name, mon.SAVE_IMAGE_DIR, path, args.keep_subdirs, args.save_nearby)
+                out_dir  = mon.rt.parse_output_dir(args.save_dir, data_name, mon.SAVE_IMAGE_DIR, path, args.keep_subdirs, args.save_nearby)
                 out_path = out_dir / f"{path.stem}{mon.SAVE_IMAGE_EXT}"
-                mon.save_image(enhanced, out_path)
+                mon.image.save_image(enhanced, out_path)
     timers.total.tock()
 
     # Finish
@@ -125,7 +135,7 @@ def predict(args: dict | box.Box) -> str:
 
 # ----- Main -----
 def main() -> str:
-    args = mon.parse_predict_args(model_root=current_dir)
+    args = mon.rt.parse_predict_args(model_root=current_dir)
     predict(args)
 
 

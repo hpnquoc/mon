@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Ultralytics SAM model for segmentation.
+"""Implements Ultralytics SAM model for segmentation.
 
 References:
     - Code: https://github.com/ultralytics/ultralytics
@@ -20,17 +20,16 @@ __all__ = [
 
 import box
 
-import mon.nn as nn
-from mon.constants import MLType, MODELS, Task, ZOO_DIR
-from mon.core import pathlib
+from mon.constants import MODELS, ZOO_DIR
+from mon.core import MLType, ModelMixin, Path, Task
 from ultralytics import SAM as SAM_
 
-current_file = pathlib.Path(__file__).absolute()
+current_file = Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
 
 # ----- SAM -----
-class SAM(SAM_, nn.ModelMixin):
+class SAM(SAM_, ModelMixin):
     """Ultralytics SAM model for segmentation.
     
     References:
@@ -41,7 +40,7 @@ class SAM(SAM_, nn.ModelMixin):
     name     : str          = "sam"
     tasks    : list[Task]   = [Task.SEGMENT]
     mltypes  : list[MLType] = [MLType.SUPERVISED]
-    model_dir: pathlib.Path = current_dir
+    model_dir: Path         = current_dir
     zoo      : dict         = box.Box()
     
     def __init__(self, weights: str = "sa1b", *args, **kwargs):
@@ -50,7 +49,7 @@ class SAM(SAM_, nn.ModelMixin):
 
 
 @MODELS.register(name="sam_b", arch="sam")
-class SAM_B(SAM, nn.ModelMixin):
+class SAM_B(SAM, ModelMixin):
     
     arch: str  = "sam"
     name: str  = "sam_b"
@@ -64,7 +63,7 @@ class SAM_B(SAM, nn.ModelMixin):
 
 
 @MODELS.register(name="sam_l", arch="sam")
-class SAM_L(SAM, nn.ModelMixin):
+class SAM_L(SAM, ModelMixin):
     
     arch: str  = "sam"
     name: str  = "sam_l"
@@ -78,7 +77,7 @@ class SAM_L(SAM, nn.ModelMixin):
 
 
 # ----- SAM2 -----
-class SAM2(SAM_, nn.ModelMixin):
+class SAM2(SAM_, ModelMixin):
     
     arch: str  = "sam2"
     name: str  = "sam2"
@@ -90,7 +89,7 @@ class SAM2(SAM_, nn.ModelMixin):
 
 
 @MODELS.register(name="sam2_t", arch="sam2")
-class SAM2_T(SAM, nn.ModelMixin):
+class SAM2_T(SAM, ModelMixin):
     
     arch: str  = "sam2"
     name: str  = "sam2_t"
@@ -104,7 +103,7 @@ class SAM2_T(SAM, nn.ModelMixin):
     
 
 @MODELS.register(name="sam2_s", arch="sam2")
-class SAM2_S(SAM, nn.ModelMixin):
+class SAM2_S(SAM, ModelMixin):
     
     arch: str  = "sam2"
     name: str  = "sam2_s"
@@ -118,7 +117,7 @@ class SAM2_S(SAM, nn.ModelMixin):
     
     
 @MODELS.register(name="sam2_b", arch="sam2")
-class SAM2_B(SAM, nn.ModelMixin):
+class SAM2_B(SAM, ModelMixin):
     
     arch: str  = "sam2"
     name: str  = "sam2_b"
@@ -132,7 +131,7 @@ class SAM2_B(SAM, nn.ModelMixin):
 
 
 @MODELS.register(name="sam2_l", arch="sam2")
-class SAM2_L(SAM, nn.ModelMixin):
+class SAM2_L(SAM, ModelMixin):
     
     arch: str  = "sam2"
     name: str  = "sam2_l"

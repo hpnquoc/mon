@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""D-FINE model for object detection.
+"""Implements D-FINE model for object detection.
 
 References:
     - Paper: "D-FINE: Redefine Regression Task of DETRs as Fine-grained

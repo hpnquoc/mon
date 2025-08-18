@@ -6,21 +6,29 @@ import math
 import box
 import torch
 import torch.optim
-from torch.nn import functional as F
+import torch.nn.functional as F
 
 import model as M
+import albumentations as A
+import box
+import cv2
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+
 import mon
+from mon import console, metrics, Path, tfms, optims
 from spikingjelly.activation_based import functional
 
-current_file = mon.Path(__file__).absolute()
+current_file = Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
 
 # ----- Utils -----
-def benchmark(model: torch.nn.Module):
-    flops, params = mon.compute_efficiency_score(model=model)
-    mon.console.log(f"Params    : {params:.4f}")
-    mon.console.log(f"FLOPs     : {flops:.4f}")
+def benchmark(model: nn.Module):
+    flops, params = mon.metric.compute_complexity(model=model)
+    mon.log(f"Params    : {params:.4f}")
+    mon.log(f"FLOPs     : {flops:.4f}")
 
 
 def get_score_map(b, c, h, w, is_mean: bool = True) -> torch.Tensor:
@@ -78,10 +86,10 @@ def merge_image(split_data, starts, crop_size, shape=(1, 3, 80, 80)) -> torch.Te
 @torch.no_grad()
 def predict(args: dict | box.Box) -> str:
     # Start
-    mon.print_run_summary(args)
+    mon.rt.print_run_summary(args)
 
     # Device
-    device = mon.set_device(args.device)
+    device = mon.create_device(args.device)
 
     # Seed
     mon.set_random_seed(args.seed)
@@ -94,7 +102,7 @@ def predict(args: dict | box.Box) -> str:
     if args.weights and args.weights.is_weights_file(exist=True):
         pretrained = args.weights
     if pretrained and pretrained.is_weights_file(exist=True):
-        mon.console.log(f"Pretrained: {pretrained}.")
+        mon.log(f"Pretrained: {pretrained}.")
         state_dict = torch.load(pretrained, map_location=device, weights_only=True)
         if pretrained.is_ckpt_file(exist=True):
             state_dict = state_dict["state_dict"]
@@ -127,9 +135,9 @@ def predict(args: dict | box.Box) -> str:
         ):
             # Preprocess
             timers.preprocess.tick()
-            path   = mon.Path(datapoint["meta"]["path"])
+            path   = Path(datapoint["meta"]["path"])
             image  = datapoint["image"]
-            h0, w0 = mon.image_size(image)
+            h0, w0 = mon.image.imgsz(image)
             if args.resize and (h0 != args.imgsz[0] or w0 != args.imgsz[1]):
                 image = mon.resize(image, size=args.imgsz)
             image  = F.pad(image, (pad_size, pad_size, pad_size, pad_size), mode="constant", value=0)
@@ -157,9 +165,9 @@ def predict(args: dict | box.Box) -> str:
 
             # Save
             if args.save_image:
-                out_dir  = mon.parse_output_dir(args.save_dir, data_name, mon.SAVE_IMAGE_DIR, path, args.keep_subdirs, args.save_nearby)
+                out_dir  = mon.rt.parse_output_dir(args.save_dir, data_name, mon.SAVE_IMAGE_DIR, path, args.keep_subdirs, args.save_nearby)
                 out_path = out_dir / f"{path.stem}{mon.SAVE_IMAGE_EXT}"
-                mon.save_image(enhanced, out_path)
+                mon.image.save_image(enhanced, out_path)
     timers.total.tock()
 
     # Finish
@@ -169,7 +177,7 @@ def predict(args: dict | box.Box) -> str:
 
 # ----- Main -----
 def main() -> str:
-    args = mon.parse_predict_args(model_root=current_dir)
+    args = mon.rt.parse_predict_args(model_root=current_dir)
     predict(args)
 
 

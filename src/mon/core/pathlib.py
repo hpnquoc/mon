@@ -10,35 +10,35 @@ __all__ = [
     "PurePosixPath",
     "PureWindowsPath",
     "WindowsPath",
-    "copy_file",
-    "delete_cache",
-    "delete_dir",
-    "delete_files",
-    "hash_files",
-    "mkdirs",
-    "parse_data_dir",
-    "parse_output_dir",
-    "parse_save_dir",
-    "rmdirs",
+    "download_url_to_file",
 ]
 
 import os
-import pathlib
 import shutil
-from pathlib import *
+from pathlib import Path as Path_, PosixPath, PurePath, PurePosixPath, PureWindowsPath, WindowsPath
 
 import validators
 
-from mon.core import humps, type_extensions
+from mon.core.enum import ConfigExtension, ImageExtension, VideoExtension, WeightExtension
+from mon.core.utils import snakecase
 
 
 # ----- Path Class -----
-class Path(type(pathlib.Path())):
-    """Extended ``pathlib.Path`` with additional functionalities.
+class Path(type(Path_())):
+    """An extension of ``pathlib.Path`` with additional functionalities.
     
     Notes:
         Methods are kept as methods (not properties) for consistency with ``pathlib.Path``.
     """
+    
+    # ----- Properties -----
+    def hash(self) -> int:
+        """Calculates the hash value of the file based on its size.
+
+        Returns:
+            Integer hash value of the file size.
+        """
+        return self.stat().st_size if self.is_file() else 0
     
     # ----- Check Internal Parts -----
     def is_basename(self) -> bool:
@@ -77,7 +77,7 @@ class Path(type(pathlib.Path())):
         """Checks if the path is a file or valid URL.
 
         Args:
-            exist: If ``True``, verifies file exists. Default is ``True``.
+            exist: If ``True``, verifies the file exists. Default is ``True``.
 
         Returns:
             ``True`` if path is a file or valid URL, ``False`` otherwise.
@@ -119,7 +119,7 @@ class Path(type(pathlib.Path())):
         """Checks if the path is a ``.json`` file.
 
         Args:
-            exist: If ``True``, verifies file exists. Default is ``True``.
+            exist: If ``True``, verifies the file exists. Default is ``True``.
 
         Returns:
             ``True`` if path is a ``.json`` file, ``False`` otherwise.
@@ -130,7 +130,7 @@ class Path(type(pathlib.Path())):
         """Checks if the path is a ``.txt`` file.
 
         Args:
-            exist: If ``True``, verifies file exists. Default is ``True``.
+            exist: If ``True``, verifies the file exists. Default is ``True``.
 
         Returns:
             ``True`` if path is a ``.txt`` file, ``False`` otherwise.
@@ -141,7 +141,7 @@ class Path(type(pathlib.Path())):
         """Checks if the path is an ``.xml`` file.
 
         Args:
-            exist: If ``True``, verifies file exists. Default is ``True``.
+            exist: If ``True``, verifies the file exists. Default is ``True``.
 
         Returns:
             ``True`` if path is an ``.xml`` file, ``False`` otherwise.
@@ -152,7 +152,7 @@ class Path(type(pathlib.Path())):
         """Checks if the path is a ``.yaml`` or ``.yml`` file.
 
         Args:
-            exist: If ``True``, verifies file exists. Default is ``True``.
+            exist: If ``True``, verifies the file exists. Default is ``True``.
 
         Returns:
             ``True`` if path is a ``.yaml`` or ``.yml`` file, ``False`` otherwise.
@@ -164,19 +164,18 @@ class Path(type(pathlib.Path())):
         """Checks if the path is an image file.
 
         Args:
-            exist: If ``True``, verifies file exists. Default is ``True``.
+            exist: If ``True``, verifies the file exists. Default is ``True``.
 
         Returns:
             ``True`` if path is an image file, ``False`` otherwise.
         """
-        from mon.constants import ImageExtension
         return (not exist or self.is_file()) and self.suffix.lower() in ImageExtension
         
     def is_raw_image_file(self, exist: bool = True) -> bool:
         """Checks if the path is a raw image file (``.dng`` or ``.arw``).
 
         Args:
-            exist: If ``True``, verifies file exists. Default is ``True``.
+            exist: If ``True``, verifies the file exists. Default is ``True``.
 
         Returns:
             ``True`` if path is a raw image file, ``False`` otherwise.
@@ -188,12 +187,11 @@ class Path(type(pathlib.Path())):
         """Checks if the path is a video file.
 
         Args:
-            exist: If ``True``, verifies file exists. Default is ``True``.
+            exist: If ``True``, verifies the file exists. Default is ``True``.
 
         Returns:
             ``True`` if path is a video file, ``False`` otherwise.
         """
-        from mon.constants import VideoExtension
         return (not exist or self.is_file()) and self.suffix.lower() in VideoExtension
     
     def is_video_stream(self) -> bool:
@@ -204,12 +202,12 @@ class Path(type(pathlib.Path())):
         """
         return "rtsp" in str(self).lower()
     
-    # ----- Check DL File -----
+    # ----- Check ML File -----
     def is_cache_file(self, exist: bool = True) -> bool:
         """Checks if the path is a ``.cache`` file.
 
         Args:
-            exist: If ``True``, verifies file exists. Default is ``True``.
+            exist: If ``True``, verifies the file exists. Default is ``True``.
 
         Returns:
             ``True`` if path is a ``.cache`` file, ``False`` otherwise.
@@ -220,7 +218,7 @@ class Path(type(pathlib.Path())):
         """Checks if the path is a ``.ckpt`` file.
 
         Args:
-            exist: If ``True``, verifies file exists. Default is ``True``.
+            exist: If ``True``, verifies the file exists. Default is ``True``.
 
         Returns:
             ``True`` if path is a ``.ckpt`` file, ``False`` otherwise.
@@ -231,19 +229,18 @@ class Path(type(pathlib.Path())):
         """Checks if the path is a ``.config`` or ``.cfg`` file.
 
         Args:
-            exist: If ``True``, verifies file exists. Default is ``True``.
+            exist: If ``True``, verifies the file exists. Default is ``True``.
 
         Returns:
             ``True`` if path is a config file, ``False`` otherwise.
         """
-        from mon.constants import ConfigExtension
         return (not exist or self.is_file()) and self.suffix.lower() in ConfigExtension
 
     def is_onnx_file(self, exist: bool = True) -> bool:
         """Checks if the path is a ``.onnx`` file.
 
         Args:
-            exist: If ``True``, verifies file exists. Default is ``True``.
+            exist: If ``True``, verifies the file exists. Default is ``True``.
 
         Returns:
             ``True`` if path is a ``.onnx`` file, ``False`` otherwise.
@@ -254,7 +251,7 @@ class Path(type(pathlib.Path())):
         """Checks if the path is a ``.py`` file.
 
         Args:
-            exist: If ``True``, verifies file exists. Default is ``True``.
+            exist: If ``True``, verifies the file exists. Default is ``True``.
 
         Returns:
             ``True`` if path is a ``.py`` file, ``False`` otherwise.
@@ -265,12 +262,11 @@ class Path(type(pathlib.Path())):
         """Checks if the path is a ``.pt`` or ``.pth`` file.
 
         Args:
-            exist: If ``True``, verifies file exists. Default is ``True``.
+            exist: If ``True``, verifies the file exists. Default is ``True``.
 
         Returns:
             ``True`` if path is a weights file, ``False`` otherwise.
         """
-        from mon.constants import WeightExtension
         return (not exist or self.is_file()) and self.suffix.lower() in WeightExtension
     
     # ----- List -----
@@ -315,20 +311,15 @@ class Path(type(pathlib.Path())):
         Returns:
             Configuration file path.
         """
-        from mon.constants import ConfigExtension
         for ext in ConfigExtension.values():
-            for stem in [self.stem, humps.snakecase(self.stem)]:
+            for stem in [self.stem, snakecase(self.stem)]:
                 config_path = self.with_name(f"{stem}{ext}")
                 if config_path.is_file():
                     return config_path
         return self
 
     def label_file(self) -> "Path":
-        """Returns the label file path.
-
-        Returns:
-            Label file path.
-        """
+        """Returns the label file path."""
         for ext in [".txt", ".xml", ".json"]:
             temp = self.with_suffix(ext)
             if temp.is_file():
@@ -345,12 +336,7 @@ class Path(type(pathlib.Path())):
         return max(files, key=os.path.getctime) if files else None
     
     def image_file(self) -> "Path":
-        """Returns the image file path.
-
-        Returns:
-            Image file path.
-        """
-        from mon.constants import ImageExtension
+        """Returns the image file path."""
         for ext in ImageExtension.values():
             temp = self.with_suffix(ext)
             if temp.is_file():
@@ -358,11 +344,7 @@ class Path(type(pathlib.Path())):
         return self
 
     def txt_file(self) -> "Path":
-        """Returns the .txt file path.
-
-        Returns:
-            YAML file path.
-        """
+        """Returns the .txt file path."""
         for ext in [".txt"]:
             temp = self.with_suffix(ext)
             if temp.is_file():
@@ -370,11 +352,7 @@ class Path(type(pathlib.Path())):
         return self
 
     def yaml_file(self) -> "Path":
-        """Returns the YAML file path.
-
-        Returns:
-            YAML file path.
-        """
+        """Returns the YAML file path."""
         for ext in [".yaml", ".yml"]:
             temp = self.with_suffix(ext)
             if temp.is_file():
@@ -404,7 +382,7 @@ class Path(type(pathlib.Path())):
 
         Args:
             dst: Destination path or string.
-            replace: If ``True``, replaces existing file. Default is ``True``.
+            replace: If ``True``, replaces the existing file. Default is ``True``.
 
         Raises:
             NotImplementedError: If ``dst`` is a URL.
@@ -412,14 +390,14 @@ class Path(type(pathlib.Path())):
         dst = Path(dst)
         if dst.is_url():
             raise NotImplementedError("[dst] as a URL is not supported.")
-        mkdirs(dst, parents=True, exist_ok=True)
         dst = dst / self.name if dst.is_dir_like() else dst
+        dst.parent.mkdir(parents=True, exist_ok=True)
         if replace:
             dst.unlink(missing_ok=True)
         shutil.copyfile(src=str(self), dst=str(dst))
     
-    def replace(self, old: str, new: str, count: int = 1) -> "Path":
-        """Replaces occurrences of a string in the path.
+    def replace_part(self, old: str, new: str, count: int = 1) -> "Path":
+        """Replaces part of the Path.
 
         Args:
             old: String to replace.
@@ -430,66 +408,43 @@ class Path(type(pathlib.Path())):
             New path with replaced string.
         """
         return Path(str(self).replace(old, new, count))
+    
+    # ----- Deletion -----
+    def rmdir(self):
+        """Removes the directory and its contents."""
+        delete_files(path=self, regex="*", recursive=True)
+        super().rmdir()
+        
 
-
-# ----- Create -----
-def copy_file(src: Path, dst: Path) -> None:
-    """Copies a file to a new location.
-
-    Args:
-        src: Path to the source file.
-        dst: Path to the destination.
-    """
-    src = Path(src)
-    dst = Path(dst)
-    dst.parent.mkdir(parents=True, exist_ok=True)
-    shutil.copyfile(src, dst)
-
-
-# ----- Read -----
-def hash_files(paths: list[Path]) -> int:
-    """Calculates the total hash value of files based on their sizes.
+# ----- Download -----
+def download_url_to_file(url: str, path: Path, overwrite: bool = False) -> Path:
+    """Downloads weights from a ``url`` to a local ``path``.
 
     Args:
-        paths: List of file paths to hash.
+        url: The URL to download weights from.
+        path: The local file path to save weights.
+        overwrite: If ``True``, overwrites the existing file. Default is ``False``.
 
     Returns:
-        Integer sum of file sizes in bytes.
+        The ``Path`` to downloaded weights file.
+
+    Raises:
+        ValueError: If ``url`` is not a valid URL.
     """
-    paths = [Path(f) for f in type_extensions.to_list(paths) if f]
-    return sum(f.stat().st_size for f in paths if f.is_file())
+    if not Path(url).is_url():
+        raise ValueError(f"[url] must be a valid URL, got {url}.")
+    
+    path = Path(path)
+    if not path.exists() or overwrite:
+        path.unlink(missing_ok=True)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        import torch
+        torch.hub.download_url_to_file(url, path, None, True)
+    return path
 
 
 # ----- Delete -----
-def delete_cache(path: Path, recursive: bool = True):
-    """Clears cache files in a directory and optionally its subdirs.
-
-    Args:
-        path: Directory path containing cache files.
-        recursive: If ``True``, searches subdirs. Default is ``True``.
-    """
-    delete_files(path=path, regex=".cache", recursive=recursive)
-
-
-def delete_dir(paths: Path | list[Path]):
-    """Deletes directories and their contents.
-
-    Args:
-        paths: Single path or list of directory paths.
-    """
-    paths = type_extensions.unique(type_extensions.to_list(paths))
-    for p in paths:
-        p = Path(p)
-        if p.exists():
-            delete_files(path=p, regex="*", recursive=True)
-            shutil.rmtree(p)
-
-
-def delete_files(
-    path     : Path,
-    regex    : str  = None,
-    recursive: bool = False
-):
+def delete_files(path: Path, regex: str = None, recursive: bool = False):
     """Deletes files matching a pattern in a directory.
 
     Args:
@@ -507,180 +462,4 @@ def delete_files(
         try:
             f.unlink()
         except Exception as err:
-            print(f"Cannot delete file: [err].")
-
-
-def mkdirs(
-    paths   : Path | list[Path],
-    mode    : int  = 0o777,
-    parents : bool = True,
-    exist_ok: bool = True,
-    replace : bool = False,
-):
-    """Creates directories with specified options.
-
-    Args:
-        paths: Single path or list of directory paths.
-        mode: File mode with umask. Default is ``0o777``.
-        parents: If ``True``, creates parents. Default is ``True``.
-        exist_ok: If ``True``, ignores existing dirs. Default is ``True``.
-        replace: If ``True``, deletes and recreates dirs. Default is ``False``.
-    """
-    paths = type_extensions.unique(type_extensions.to_list(paths))
-    for p in paths:
-        p = Path(p)
-        if p.is_url():
-            continue
-        p = p.parent if p.is_file_like() else p
-        if replace and p.exists():
-            delete_files(path=p, regex="*")
-            p.rmdir()
-        p.mkdir(mode=mode, parents=parents, exist_ok=exist_ok)
-
-
-def rmdirs(paths: Path | list[Path]):
-    """Deletes directories and their contents.
-
-    Args:
-        paths: Single path or list of directory paths.
-    """
-    paths = type_extensions.unique(type_extensions.to_list(paths))
-    for p in paths:
-        p = Path(p)
-        if p.is_url():
-            continue
-        if p.is_file_like():
-            p = p.parent
-        delete_files(path=p, regex="*")
-        try:
-            p.rmdir()
-        except Exception as err:
-            print(f"Cannot delete directory: [err].")
-
-
-# ----- Convert -----
-def parse_data_dir(root: pathlib.Path, data_dir: pathlib.Path = "") -> pathlib.Path:
-    """Parses the absolute data directory path from given components.
-
-    Args:
-        root: Root directory.
-        data_dir: Data directory.
-
-    Returns:
-        Parsed the absolute path of the data directory.
-    """
-    from mon.constants import ROOT_DIR
-    
-    root_      = pathlib.Path(root)     if root     not in [None, "None", ""] else ROOT_DIR
-    data_dir_  = pathlib.Path(data_dir) if data_dir not in [None, "None", ""] else None
-
-    candidates = []
-    if data_dir_:
-        candidates.extend([
-            data_dir_,
-            root_    / data_dir_,
-            root_    / "data" / data_dir_,
-            ROOT_DIR / data_dir_,
-            ROOT_DIR / "data" / data_dir_
-        ])
-    candidates.extend([
-        root_    / "data",
-        ROOT_DIR / "data"
-    ])
-
-    for d in candidates:
-        if d.is_dir():
-            return d
-
-    return root
-
-
-def parse_save_dir(
-    root : Path,
-    arch : str = None,
-    model: str = None,
-    data : str = None,
-) -> pathlib.Path:
-    """Parses a save dir in format: root/arch/model/data.
-
-    Args:
-        root: Project root.
-        arch: Model architecture. Default is ``None``.
-        model: Model name. Default is ``None``.
-        data: Dataset name. Default is ``None``.
-
-    Returns:
-        Parsed ``save_dir`` path.
-    """
-    save_dir = Path(root)
-    data     = Path(data) if data not in [None, "None", ""] else None
-    if arch:
-        save_dir /= arch
-    if model:
-        save_dir /= model
-        if data:
-            if data.is_dir() or data.is_file():
-                save_dir /= data.stem
-            else:
-                save_dir /= data
-    return save_dir
-
-
-def parse_output_dir(
-    root        : Path,
-    dirname     : Path | str,
-    subdir_name : Path | str,
-    src_path    : Path | str,
-    keep_subdirs: bool = False,
-    save_nearby : bool = False,
-) -> pathlib.Path:
-    """Parses the output directory path from given components.
-
-    It should be in this pattern:
-        ``root/dirname/file``.
-        where:
-            root = ``parse_save_dir()``
-    
-    Args:
-        root: Root directory. Root is assumed to be in this pattern: ``root/arch/model/[fullname or dirname]``.
-        src_path: Source file path.
-        dirname: Directory name.
-        subdir_name: Subdirectory name. Default is ``None``.
-        keep_subdirs: If ``True``, keeps subdirectories in the path. Default is ``False``.
-        save_nearby: If ``True``, saves in the same parent directory as the file. Default is ``False``.
-
-    Example:
-        root     = ../enhance/run/predict/zerodce/zerodce/dicm
-        dirname  = dicm
-        src_path = ../enhance/data/dicm/test/image/0001.jpg
-        rel_path = dicm/test/image/0001.jpg
-        return   : ../enhance/run/predict/zerodce/zerodce/dicm/test/image
-    """
-    root        = Path(root)
-    dirname     = Path(dirname)
-    subdir_name = subdir_name if subdir_name not in [None, "None", ""] else None
-    subdir_name = None if save_nearby else subdir_name
-    src_path    = Path(src_path)
-
-    # Update root and dirname
-    if save_nearby:
-        if root.stem == dirname.stem:
-            root_suffix = root.parent.stem
-        else:
-            root_suffix = root.stem
-        root    = src_path.parent.parent / f"{src_path.parent.stem}_{root_suffix}"
-        dirname = Path(src_path.parent.stem)
-
-    if keep_subdirs:
-        rel_path = src_path.relative_path(dirname)
-        if subdir_name:
-            return root / subdir_name / rel_path.parent
-        else:
-            return root / rel_path.parent
-    else:
-        if not save_nearby and dirname.stem != root.stem:
-            root = root / dirname.stem
-        if subdir_name:
-            return root / subdir_name
-        else:
-            return root
+            print(f"Cannot delete file: [{err}].")

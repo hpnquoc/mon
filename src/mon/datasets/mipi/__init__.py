@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Implements datasets and datamodules for MIPI challenges."""
+"""Implements MIPI Challenge datasets."""
 
 from .mipi2024flare import *

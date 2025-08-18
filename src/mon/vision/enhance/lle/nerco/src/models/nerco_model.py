@@ -12,19 +12,6 @@ from . import networks, sobel
 from .base_model import BaseModel
 from ..util.image_pool import ImagePool
 
-'''CLIP code'''
-device           = "cuda" if torch.cuda.is_available() else "cpu"
-CLIP, preprocess = clip.load("RN50", device=device)
-torch_resize = Resize([224, 224])
-
-real_B = np.array([[0.0, 1.0]])
-real_B = torch.Tensor(real_B).to(device)
-
-real_A = np.array([[1.0, 0.0]])
-real_A = torch.Tensor(real_A).to(device)
-
-text   = clip.tokenize(["low light image", "high light image"]).to(device)
-
 
 class NeRComodel(BaseModel):
     
@@ -39,6 +26,7 @@ class NeRComodel(BaseModel):
 
     def __init__(self, opt):
         BaseModel.__init__(self, opt)
+        
         # specify the training losses you want to print out. The training/test scripts will call <BaseModel.get_current_losses>
         self.loss_names   = ['D_A', 'G_A', 'cycle_A', 'idt_A', 'D_B', 'G_B', 'cycle_B', 'idt_B', 'D_A_edge', 'D_B_edge', 'D_A_CLIP', 'D_B_CLIP', 'PreConsis', 'H']
         visual_names_A    = ['fake_B']
@@ -81,6 +69,16 @@ class NeRComodel(BaseModel):
             self.optimizer_D = torch.optim.Adam(itertools.chain(self.netD_A.parameters(), self.netD_B.parameters(), self.netD_A_edge.parameters(), self.netD_B_edge.parameters()), lr=opt.lr, betas=(opt.beta1, 0.999))
             self.optimizers.append(self.optimizer_G)
             self.optimizers.append(self.optimizer_D)
+    
+    def init_clip(self):
+        # CLIP code
+        self.CLIP, self.preprocess = clip.load("RN50", device=self.device)
+        self.real_B = np.array([[0.0, 1.0]])
+        self.real_B = torch.Tensor(self.real_B).to(self.device)
+        self.real_A = np.array([[1.0, 0.0]])
+        self.real_A = torch.Tensor(self.real_A).to(self.device)
+        self.text   = clip.tokenize(["low light image", "high light image"]).to(self.device)
+        self.torch_resize = Resize([224, 224])
     
     def set_input(self, input):
         AtoB             = self.opt.direction == "AtoB"
@@ -184,27 +182,27 @@ class NeRComodel(BaseModel):
         self.loss_H = loss_Bypass + loss_D_A_h + loss_D_B_h + loss_self
 
         """Calculate the loss for Mask Extractor CLIP"""
-        fake_B_CLIP = torch_resize(self.fake_B_clip_pool.query(self.fake_B))
-        rec_B_CLIP  = torch_resize(self.fake_B_clip_pool.query(self.rec_B))
+        fake_B_CLIP = self.torch_resize(self.fake_B_clip_pool.query(self.fake_B))
+        rec_B_CLIP  = self.torch_resize(self.fake_B_clip_pool.query(self.rec_B))
 
-        logits_per_image, logits_per_text = CLIP(fake_B_CLIP, text)
+        logits_per_image, logits_per_text = self.CLIP(fake_B_CLIP, self.text)
         probs = logits_per_image.softmax(dim=-1)
-        self.loss_D_A_CLIP = self.criterionCycle(probs, real_B)
+        self.loss_D_A_CLIP = self.criterionCycle(probs, self.real_B)
 
-        logits_per_image, logits_per_text = CLIP(rec_B_CLIP, text)
+        logits_per_image, logits_per_text = self.CLIP(rec_B_CLIP, self.text)
         probs = logits_per_image.softmax(dim=-1)
-        self.loss_D_A_CLIP += self.criterionCycle(probs, real_B)
+        self.loss_D_A_CLIP += self.criterionCycle(probs, self.real_B)
 
-        fake_A_CLIP = torch_resize(self.fake_B_clip_pool.query(self.fake_A))
-        rec_A_CLIP  = torch_resize(self.fake_A_clip_pool.query(self.rec_A))
+        fake_A_CLIP = self.torch_resize(self.fake_B_clip_pool.query(self.fake_A))
+        rec_A_CLIP  = self.torch_resize(self.fake_A_clip_pool.query(self.rec_A))
 
-        logits_per_image, logits_per_text = CLIP(fake_A_CLIP, text)
+        logits_per_image, logits_per_text = self.CLIP(fake_A_CLIP, self.text)
         probs = logits_per_image.softmax(dim=-1)
-        self.loss_D_B_CLIP = self.criterionCycle(probs, real_A)
+        self.loss_D_B_CLIP = self.criterionCycle(probs, self.real_A)
 
-        logits_per_image, logits_per_text = CLIP(rec_A_CLIP, text)
+        logits_per_image, logits_per_text = self.CLIP(rec_A_CLIP, self.text)
         probs = logits_per_image.softmax(dim=-1)
-        self.loss_D_B_CLIP += self.criterionCycle(probs, real_A)
+        self.loss_D_B_CLIP += self.criterionCycle(probs, self.real_A)
         
         self.loss_A = self.loss_G_A + self.loss_cycle_A + self.loss_idt_A + self.loss_D_A_CLIP * 0.5 + self.loss_G_A_edge * 0.5
         self.loss_B = self.loss_G_B + self.loss_cycle_B + self.loss_idt_B + self.loss_D_B_CLIP * 0.5 + self.loss_G_B_edge * 0.5
@@ -234,8 +232,16 @@ class NeRComodel(BaseModel):
         return loss_G + loss_D_A + loss_D_B + loss_D_A_edge + loss_D_B_edge
     
     def compute_efficiency_score(self, imgsz: int = 512, channels: int = 3):
-        import mon
-        h, w  = mon.image_size(imgsz)
+        import albumentations as A
+import box
+import cv2
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+
+import mon
+from mon import console, metrics, Path, tfms, optims
+        h, w  = mon.image.imgsz(imgsz)
         input = torch.rand(1, channels, h, w)
         data  = {
             "A"      : input,

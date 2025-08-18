@@ -39,7 +39,6 @@ dependencies    = [
     "loguru",                           # Python logging made (stupidly) simple.
     "plum-dispatch",                    # Multiple dispatch in Python.
     "psutil",                           # Cross-platform lib for process and system monitoring in Python.
-    "pyhumps",                          # Convert strings between snake case, camel case and pascal case in Python.
     "pytest",                           # Simple powerful testing with Python.
     "python-box",                       # Advanced Python dictionaries with dot notation access.
     "requests",                         # Requests is an elegant and simple HTTP library for Python, built with ♥.
@@ -75,8 +74,7 @@ dependencies    = [
     "transformers",                     # 🤗 Transformers: State-of-the-art Machine Learning for Pytorch, TensorFlow, and JAX.
     # Vision
     "Pillow",                           # Python Imaging Library (Fork).
-    "PyTurboJPEG",                      # A Python wrapper of libjpeg-turbo for decoding and encoding JPEG image.
-    "albumentations",                   # An efficient library for image augmentation, providing extensive transformations to support machine learning and computer vision tasks.
+    "albumentationsx",                  # Next-generation Albumentations.
     "faster-coco-eval",                 # Faster interpretation of the original COCOEval
     "ffmpeg-python",                    # Python bindings for FFmpeg—with complex filtering support.
     "kornia",                           # Kornia is a differentiable computer vision library for PyTorch.

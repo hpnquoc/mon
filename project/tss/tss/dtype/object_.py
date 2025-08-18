@@ -11,7 +11,7 @@ __all__ = [
 	"MovingObject"
 ]
 
-import abc
+import _template
 import uuid
 from collections import Counter
 
@@ -25,7 +25,7 @@ from tss.constants import AppleRGB, ID2CLASS
 Detection = D.Detection
 
 
-class GeneralObject(abc.ABC):
+class GeneralObject(_template.ABC):
 	"""A base class for all objects."""
 	pass
 

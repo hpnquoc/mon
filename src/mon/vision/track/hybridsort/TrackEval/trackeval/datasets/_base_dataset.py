@@ -3,7 +3,7 @@ import io
 import os
 import traceback
 import zipfile
-from abc import ABC, abstractmethod
+from _template import ABC, abstractmethod
 from copy import deepcopy
 
 import numpy as np

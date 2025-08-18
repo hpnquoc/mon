@@ -7,7 +7,15 @@ import numpy as np
 import torch
 from cog import BaseModel, BasePredictor, Input, Path
 
+import albumentations as A
+import box
+import cv2
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+
 import mon
+from mon import console, metrics, Path, tfms, optims
 from basicsr.models import create_model
 from basicsr.utils import img2tensor as _img2tensor, imwrite, tensor2img
 from basicsr.utils.options import parse
@@ -144,24 +152,24 @@ def stereo_image_inference(model, img_l, img_r, out_path):
 @click.option("--option",      default="options/test/REDS/NAFNet-width64.yml", type=click.Path(exists=True), help="Opt path.")
 @click.option("--extension",   default="png", type=click.Choice(["jpg", "png"], case_sensitive=False), help="Image extension.")
 def predict(
-    source     : mon.Path,
-    destination: mon.Path,
-    option     : mon.Path,
+    source     : Path,
+    destination: Path,
+    option     : Path,
     extension  : str
 ):
-    assert source is not None and (mon.Path(source).is_dir() or mon.Path(source).is_image_file())
-    source = mon.Path(source)
-    source = [source] if mon.Path(source).is_image_file() else list(source.glob("*"))
+    assert source is not None and (Path(source).is_dir() or Path(source).is_image_file())
+    source = Path(source)
+    source = [source] if Path(source).is_image_file() else list(source.glob("*"))
     source = [s for s in source if s.is_image_file()]
     source = sorted(source)
     
     if destination is not None:
-        destination = mon.Path(destination)
+        destination = Path(destination)
         destination = [destination / f"{s.stem}.{extension}" for s in source]
     else:
         destination = [s.parent / f"{s.stem}-deblur" for s in source]
     
-    option      = mon.Path(option)
+    option      = Path(option)
     opt         = parse(str(option), is_train=False)
     opt["dist"] = False
     model       = create_model(opt)

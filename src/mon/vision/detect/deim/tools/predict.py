@@ -16,21 +16,29 @@ import box
 import cv2
 import torch
 import fjson
+import albumentations as A
+import box
+import cv2
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+
 import mon
+from mon import console, metrics, Path, tfms, optims
 import torchvision.transforms.v2 as T
 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 from engine.core import YAMLConfig
 
-current_file = mon.Path(__file__).absolute()
+current_file = Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
 
 # ----- Utils -----
-def benchmark(model: torch.nn.Module):
-    flops, params = mon.compute_efficiency_score(model=model)
-    mon.console.log(f"Params    : {params:.4f}")
-    mon.console.log(f"FLOPs     : {flops:.4f}")
+def benchmark(model: nn.Module):
+    flops, params = mon.metric.compute_complexity(model=model)
+    mon.log(f"Params    : {params:.4f}")
+    mon.log(f"FLOPs     : {flops:.4f}")
 
 
 # ----- Predict -----
@@ -50,10 +58,10 @@ class Model(torch.nn.Module):
 @torch.no_grad()
 def predict(args: dict | box.Box) -> str:
     # Start
-    mon.print_run_summary(args)
+    mon.rt.print_run_summary(args)
 
     # Device
-    device = mon.set_device(args.device)
+    device = mon.create_device(args.device)
 
     # Seed
     mon.set_random_seed(args.seed)
@@ -66,7 +74,7 @@ def predict(args: dict | box.Box) -> str:
     if args.weights and args.weights.is_weights_file(exist=True):
         pretrained = args.weights
     if pretrained and pretrained.is_weights_file(exist=True):
-        mon.console.log(f"Pretrained: {pretrained}.")
+        mon.log(f"Pretrained: {pretrained}.")
     else:
         raise ValueError(f"Invalid weights file: {pretrained}.")
 
@@ -128,9 +136,9 @@ def predict(args: dict | box.Box) -> str:
         ):
             # Preprocess
             timers.preprocess.tick()
-            path   = mon.Path(datapoint["meta"]["path"])
+            path   = Path(datapoint["meta"]["path"])
             image  = datapoint["image"]
-            h0, w0 = mon.image_size(image)
+            h0, w0 = mon.image.imgsz(image)
             size0  = torch.tensor([[w0, h0]]).to(device)
             if args.resize and (h0 != args.imgsz[0] or w0 != args.imgsz[1]):
                 # image = mon.resize(image, size=args.imgsz, pad=True)  # Use for: exdark
@@ -153,7 +161,7 @@ def predict(args: dict | box.Box) -> str:
 
             # Save
             if args.save_result:
-                out_dir    = mon.parse_output_dir(args.save_dir, data_name, mon.SAVE_LABEL_DIR, path, args.keep_subdirs, args.save_nearby)
+                out_dir    = mon.rt.parse_output_dir(args.save_dir, data_name, mon.SAVE_LABEL_DIR, path, args.keep_subdirs, args.save_nearby)
                 label_path = out_dir / f"{path.stem}.txt"
                 label_path.parent.mkdir(parents=True, exist_ok=True)
                 with open(str(label_path), "w") as f:
@@ -212,7 +220,7 @@ def predict(args: dict | box.Box) -> str:
 
 # ----- Main -----
 def main() -> str:
-    args = mon.parse_predict_args(model_root=current_dir)
+    args = mon.rt.parse_predict_args(model_root=current_dir)
     predict(args)
 
 

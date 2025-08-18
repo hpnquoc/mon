@@ -9,7 +9,6 @@ from .densenhhaze import *
 from .dicm import *
 from .exdark import *
 from .fivek import *
-from .flare7k import *
 from .flarereal800 import *
 from .fusion import *
 from .gta5nighttimefog import *

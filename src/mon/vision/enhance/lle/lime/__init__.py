@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""LIME model for low-light image enhancement.
+"""Implements LIME model for low-light image enhancement.
 
 References:
     - Paper: "LIME: Low-light Image Enhancement via Illumination Map Estimation,"

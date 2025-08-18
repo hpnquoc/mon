@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""FourLLIE model for low-light image enhancement.
+"""Implements FourLLIE model for low-light image enhancement.
 
 References:
     - Paper: "FourLLIE: Boosting Low-Light Image Enhancement by Fourier Frequency

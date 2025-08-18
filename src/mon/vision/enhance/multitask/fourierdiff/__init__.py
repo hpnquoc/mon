@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""FourierDiff model for zero-shot joint low-light enhancement and deblurring.
+"""Implements FourierDiff model for zero-shot joint low-light enhancement and deblurring.
 
 References:
     - Paper: "Fourier Priors-Guided Diffusion for Zero-Shot Joint Low-Light

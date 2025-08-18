@@ -3,16 +3,30 @@
 
 """The MON framework."""
 
-# Order-specific import. DO NOT CHANGE!!!
-import mon.core
-import mon.constants
-import mon.datasets
-import mon.nn
-import mon.vision
+__author__  = "Long H. Pham"
+__version__ = "2.8.0"
+
+
+# Import core packages
+import time
+__start = time.time()
+
 from mon.core import *
 from mon.constants import *
-from mon.datasets import *
-from mon.nn import *
-from mon.vision import *
+import mon.datasets  # Register datasets
 
-__version__ = "2.8.0"
+__end = time.time()
+console.log(f"`mon` loaded in: {__end - __start:.4f} seconds.")
+
+
+# Import development packages
+def dev(verbose: bool = False):
+    start = time.time()
+    
+    # import mon.core.albumentations
+    # import mon.datasets  # Register datasets
+    import mon.vision    # Register vision models
+    
+    end = time.time()
+    if verbose:
+        console.log(f"`mon-dev` loaded in: {end - start:.4f} seconds.")

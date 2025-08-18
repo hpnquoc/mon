@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""FourLLIE model for low-light image enhancement.
+"""Implements FourLLIE model for low-light image enhancement.
 
 References:
     - Paper: "FourLLIE: Boosting Low-Light Image Enhancement by Fourier Frequency
@@ -20,21 +20,19 @@ import box
 import torch
 from thop import profile
 
-import mon.nn as nn
-from mon.constants import MLType, MODELS, Task
-from mon.core import pathlib
-from mon.vision import types
+from mon.constants import MODELS
+from mon.core import image as I, MLType, ModelMixin, Path, Task
 from .src.data.util import read_img
 from .src.models.enhancement_model import enhancement_model
 from .src.option import options as option
 from .src.utils.util import tensor2img
 
-current_file = pathlib.Path(__file__).absolute()
+current_file = Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
 
 @MODELS.register(name="fourllie", arch="fourllie")
-class FourLLIE(enhancement_model, nn.ModelMixin):
+class FourLLIE(enhancement_model, ModelMixin):
     """FourLLIE model for low-light image enhancement.
     
     References:
@@ -47,14 +45,14 @@ class FourLLIE(enhancement_model, nn.ModelMixin):
     name     : str          = "fourllie"
     tasks    : list[Task]   = [Task.LLE]
     mltypes  : list[MLType] = [MLType.SUPERVISED]
-    model_dir: pathlib.Path = current_dir
+    model_dir: Path         = current_dir
     zoo      : dict         = box.Box()
     
     def forward(self):
         self.test()
         
-    def compute_efficiency_score(self, imgsz: int = 512, channels: int = 3) -> tuple[float, float]:
-        h, w  = types.image_size(imgsz)
+    def compute_complexity(self, imgsz: int = 512, channels: int = 3) -> tuple[float, float]:
+        h, w  = I.imgsz(imgsz)
         input = torch.rand(1, channels, h, w).to(self.device)
         data  = {
             "idx": 0,

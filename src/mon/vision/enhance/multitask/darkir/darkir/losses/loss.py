@@ -2,7 +2,7 @@ import pytorch_msssim
 import torch
 import torchvision
 from torch import nn as nn
-from torch.nn import functional as F
+import torch.nn.functional as F
 
 # from losses.vgg_arch import VGGFeatureExtractor
 from .loss_utils import weighted_loss

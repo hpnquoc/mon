@@ -342,8 +342,16 @@ class VideoBaseModel(BaseModel):
         self.test()
     
     def compute_efficiency_score(self, image_size: int = 512, channels: int = 3) -> tuple[float, float]:
-        import mon
-        h, w  = mon.image_size(image_size)
+        import albumentations as A
+import box
+import cv2
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+
+import mon
+from mon import console, metrics, Path, tfms, optims
+        h, w  = mon.image.imgsz(image_size)
         input = torch.rand(1, channels, h, w).to(self.device)
         data  = {
             "idx": 0,

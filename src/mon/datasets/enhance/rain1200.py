@@ -5,46 +5,26 @@
 
 __all__ = [
     "Rain1200",
-    "Rain1200DataModule",
 ]
 
-from typing import Literal
-
-from mon.core import console, pathlib, rich, types
-from mon.datasets.core import *
+from mon.core import rich
+from ..core import *
 
 
-# ----- Dataset -----
 @DATASETS.register(name="rain1200")
 class Rain1200(VisionDataset):
-    """Loads Rain1200 dataset from ``root`` dir.
+    """Rain1200 dataset."""
 
-    Args:
-        root: Directory path to dataset.
-        *args: Additional args for parent class.
-        **kwargs: Additional kwargs for parent class.
-
-    Raises:
-        FileNotFoundError: If ``root`` directory does not exist.
-    """
-
-    tasks : list[Task]  = [Task.DERAIN]
-    splits: list[Split] = [Split.TRAIN, Split.VAL, Split.TEST]
-    datapoint_attrs     = DatapointAttributes({
-        "image"    : Image,
-        "ref_image": Image,
-    })
-    has_test_annotations: bool = True
+    root_name : str         = "rain1200"
+    tasks     : list[Task]  = [Task.DERAIN]
+    splits    : list[Split] = [Split.TRAIN, Split.VAL, Split.TEST]
+    modalities: Modalities  = {
+        "image": Modality(name="image", type="image", module=Image, in_test=True, primary=True),
+        "ref"  : Modality(name="ref",   type="image", module=Image, in_test=True),
+    }
+    classes   : Classes     = None
     
-    def __init__(self, root: pathlib.Path, *args, **kwargs):
-        root = pathlib.Path(root)
-        root = root / "rain1200" if root.name != "rain1200" else root
-        if not root.is_dir():
-            raise FileNotFoundError(f"[root] directory not found: [{root}].")
-        
-        super().__init__(root=root, *args, **kwargs)
-    
-    def list_data(self):
+    def list_primary_data(self) -> list:
         """Lists ``datapoints`` with image annotations for split."""
         if self.split in [Split.TRAIN]:
             patterns = [
@@ -61,41 +41,9 @@ class Rain1200(VisionDataset):
         with rich.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
-                desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
+                desc  = f"Listing {self.__class__.__name__} {self.split_str} image(s)"
                 for path in pbar.track(sequence=paths, description=desc):
                     if path.is_image_file():
                         images.append(Image(path=path, root=pattern))
       
-        self.datapoints["image"] = images
-
-
-# ----- DataModule -----
-@DATAMODULES.register(name="rain1200")
-class Rain1200DataModule(types.DataModule):
-    """Configures Rain1200 datasets for training/testing."""
-
-    tasks: list[Task] = [Task.DERAIN]
-    
-    def prepare_data(self, *args, **kwargs):
-        """Prepares data (placeholder, no action taken)."""
-        pass
-    
-    def setup(self, stage: Literal["train", "test", "predict", None] = None):
-        """Sets up datasets for specified ``stage``.
-
-        Args:
-            stage: Stage to setup, one of ``"train"``, ``"test"``, ``"predict"``,
-                or ``None``. Default is ``None``.
-        """
-        if self.can_log:
-            console.log(f"Setup [red]{self.__class__.__name__}[/red].")
-        
-        if stage in [None, "train"]:
-            self.train = Rain1200(split=Split.TRAIN, **self.dataset_kwargs)
-            self.val   = Rain1200(split=Split.VAL,   **self.dataset_kwargs)
-        if stage in [None, "test"]:
-            self.test  = Rain1200(split=Split.TEST,  **self.dataset_kwargs)
-        
-        self.get_classes()
-        if self.can_log:
-            self.summarize()
+        return images

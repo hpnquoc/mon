@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Zero-DCE++ model training pipeline for low-light image enhancement.
+"""Implements Zero-DCE++ model training pipeline for low-light image enhancement.
 
 References:
     - Paper: "Learning to Enhance Low-Light Image via Zero-Reference Deep Curve
@@ -13,9 +13,11 @@ import box
 import torch
 import torch.optim
 
-import loss as L
 import mon
 from mon.vision.enhance.lle import zerodcepp
+from . import loss as L
+
+mon.dev()
 
 current_file = mon.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
@@ -33,23 +35,13 @@ def weights_init(m):
 
 def train(args: dict | box.Box) -> str:
      # Start
-    mon.print_run_summary(args)
+    mon.rt.print_run_summary(args)
 
     # Device
-    device = mon.set_device(args.device)
+    device = mon.create_device(args.device)
 
     # Seed
     mon.set_random_seed(args.seed)
-
-    # Data I/O
-    args["datamodule"] |= {
-        "root"   : mon.parse_data_dir(args.root, args.datamodule.get("root", "")),
-        "devices": device,
-    }
-    datamodule: mon.DataModule = mon.DATAMODULES.build(config=args.datamodule)
-    datamodule.prepare_data()
-    datamodule.setup(stage="train")
-    train_dataloader = datamodule.train_dataloader
 
     # Pretrained
     pretrained = args.tuning
@@ -58,9 +50,9 @@ def train(args: dict | box.Box) -> str:
     if args.weights and args.weights.is_weights_file(exist=True):
         pretrained = args.weights
     if pretrained and pretrained.is_weights_file(exist=True):
-        mon.console.log(f"Pretrained: {pretrained}.")
+        mon.log(f"Pretrained: {pretrained}.")
     else:
-        mon.console.log(f"Pretrained: {None}, training from scratch.")
+        mon.log(f"Pretrained: {None}, training from scratch.")
 
     # Model
     scale_factor = args["network"]["scale_factor"]
@@ -80,6 +72,12 @@ def train(args: dict | box.Box) -> str:
     L_col = L.L_col().to(device)
     L_exp = L.L_exp(16, 0.6).to(device)
     
+    # Data I/O
+    args["train_dataloader"]["datasets"]["root"] = mon.data.parse_data_dir(args.root)
+    args["val_dataloader"]["datasets"]["root"]   = mon.data.parse_data_dir(args.root)
+    train_dataloader = mon.data.DataLoader(**args.train_dataloader)
+    val_dataloader   = mon.data.DataLoader(**args.val_dataloader)
+
     # Train
     grad_clip_norm   = args["trainer"]["grad_clip_norm"]
     display_iter     = args["trainer"]["display_iter"]
@@ -109,7 +107,7 @@ def train(args: dict | box.Box) -> str:
                 
                 # Log
                 if args.verbose and ((i + 1) % display_iter) == 0:
-                    mon.console.log(f"Iter: {i + 1} | Loss: {loss.item()}")
+                    mon.log(f"Iter: {i + 1} | Loss: {loss.item()}")
                 
                 # Save
                 if ((i + 1) % checkpoints_iter) == 0:
@@ -118,7 +116,7 @@ def train(args: dict | box.Box) -> str:
 
 # ----- Main -----
 def main() -> str:
-    args = mon.parse_train_args(model_root=current_dir)
+    args = mon.rt.parse_train_args(model_root=current_dir)
     train(args)
 
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""ZINF model for low-light image enhancement.
+"""Implements ZINF model for low-light image enhancement.
 
 References:
     - Paper: "Zero-Shot Implicit Neural Fusion Network for Multimodal Low-Light

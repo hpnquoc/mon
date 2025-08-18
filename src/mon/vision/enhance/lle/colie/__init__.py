@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""CoLIE model for low-light image enhancement.
+"""Implements CoLIE model for low-light image enhancement.
 
 References:
     - Paper: "Fast Context-Based Low-Light Image Enhancement via Neural Implicit

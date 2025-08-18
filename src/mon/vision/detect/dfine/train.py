@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""D-FINE model training pipeline for object detection.
+"""Implements D-FINE model training pipeline for object detection.
 
 References:
     - Paper: "D-FINE: Redefine Regression Task of DETRs as Fine-grained
@@ -9,20 +9,22 @@ References:
     - Code: https://github.com/Peterande/D-FINE
 """
 
-import os
-import sys
+# import os
+# import sys
+from pprint import pprint
 
 import box
-
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
-
 import torch
 
-from src.core import YAMLConfig
-from src.misc import dist_utils
-from src.solver import TASKS
-from pprint import pprint
 import mon
+# noinspection PyUnusedImports
+from mon.vision.detect import dfine
+# sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
+from .src.core import YAMLConfig
+from .src.misc import dist_utils
+from .src.solver import TASKS
+
+mon.dev()
 
 current_file = mon.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
@@ -49,10 +51,10 @@ def safe_get_rank():
 def train(args: dict | box.Box) -> str:
     # Start
     if safe_get_rank() == 0:
-        mon.print_run_summary(args)
+        mon.rt.print_run_summary(args)
 
      # Device
-    device = mon.set_device(args.device)
+    device = mon.create_device(args.device)
 
     # Seed
     mon.set_random_seed(args.seed)
@@ -111,7 +113,7 @@ def train(args: dict | box.Box) -> str:
 
 # ----- Main -----
 def main() -> str:
-    args = mon.parse_train_args(model_root=current_dir)
+    args = mon.rt.parse_train_args(model_root=current_dir)
     train(args)
 
 

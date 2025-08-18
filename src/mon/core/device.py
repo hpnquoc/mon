@@ -4,25 +4,24 @@
 """Handles device management and memory usage."""
 
 __all__ = [
+    "create_device",
     "get_cuda_memory_usages",
     "get_memory_usages",
     "get_model_device",
-    "is_rank_zero",
     "list_devices",
     "parse_device",
     "pynvml_available",
-    "set_device",
 ]
 
-import os
-from typing import Any
+from typing import Any, Union
 
 import psutil
 import torch
+import torch.nn as nn
 
-from mon.constants import MemoryUnit
-from mon.core.rich import console
-from mon.core.type_extensions import generate_combinations
+from mon.core.console import log
+from mon.core.enum import MemoryUnit
+from mon.core.utils import create_combinations
 
 try:
     import pynvml
@@ -35,10 +34,11 @@ CUDA_PREFIX = "cuda:"
 
 # ----- Retrieve -----
 def list_devices() -> list[str]:
-    """Lists all available devices on the machine.
+    """Lists all available devices on the current machine.
 
     Returns:
-        List of device strings including ``auto``, ``cpu``, and CUDA if available.
+        A ``list`` of device strings including ``auto``, ``cpu``, and CUDA
+        devices if available.
     """
     devices = ["auto", "cpu"]
     if torch.cuda.is_available():
@@ -47,98 +47,104 @@ def list_devices() -> list[str]:
             return devices
         # Add all CUDA device combinations (e.g., ``cuda:0``, ``cuda:1``, ``cuda:0,1``, etc.)
         cuda_indices      = list(range(num_devices))
-        cuda_combinations = generate_combinations(cuda_indices)
+        cuda_combinations = create_combinations(cuda_indices)
         devices.extend([f"{CUDA_PREFIX}{','.join(str(i) for i in comb)}" for comb in cuda_combinations])
     return devices
 
 
-def get_cuda_memory_usages(device: int = 0, unit: MemoryUnit = MemoryUnit.GB) -> list[int]:
-    """Gets GPU memory status as a list of total, used, and free memory.
+def get_cuda_memory_usages(device: int = 0, unit: MemoryUnit = MemoryUnit.GB) -> tuple[int, int, int]:
+    """Retrieves GPU memory status as a ``tuple`` of :math:`(total, used, free)`
+    memory.
 
     Args:
         device: GPU device index. Default is ``0``.
         unit: Memory unit (e.g., ``GB``). Default is ``MemoryUnit.GB``.
 
     Returns:
-        List of [total, used, free] memory values in specified unit.
+        A ``tuple`` of :math:`(total, used, free)` memory values in the
+        specified ``unit``.
     """
     pynvml.nvmlInit()
     unit  = MemoryUnit.from_value(unit)
     info  = pynvml.nvmlDeviceGetMemoryInfo(pynvml.nvmlDeviceGetHandleByIndex(device))
     ratio = MemoryUnit.name_to_byte()[unit]
-    return [
+    return (
         info.total / ratio,  # total
         info.used  / ratio,  # used
         info.free  / ratio   # free
-    ]
+    )
 
 
-def get_memory_usages(unit: MemoryUnit = MemoryUnit.GB) -> list[int]:
-    """Gets RAM status as a list of total, used, and free memory.
+def get_memory_usages(unit: MemoryUnit = MemoryUnit.GB) -> tuple[int, int, int]:
+    """Retrieves RAM status as a list of :math:`(total, used, free)` memory.
 
     Args:
         unit: Memory unit (e.g., ``GB``). Default is ``MemoryUnit.GB``.
 
     Returns:
-        List of [total, used, free] memory values in specified unit.
+        A ``tuple`` of :math:`(total, used, free)` memory values in the
+        specified ``unit``.
     """
     memory = psutil.virtual_memory()
     ratio  = MemoryUnit.name_to_byte()[MemoryUnit.from_value(unit)]
-    return [
+    return (
         memory.total     / ratio,  # total
         memory.used      / ratio,  # used
         memory.available / ratio   # free
-    ]
+    )
 
 
-def get_model_device(model: torch.nn.Module) -> torch.device:
-    """Gets the device of a model's parameters.
+def get_model_device(model: nn.Module) -> torch.device:
+    """Gets the current device of a model.
 
     Args:
-        model: Model to check.
+        model: The model to check.
 
     Returns:
-        ``torch.device`` where model parameters reside.
+        A ``torch.device`` instance where model parameters reside.
     """
     return next(model.parameters()).device
 
 
 # ----- Update -----
-def set_device(device: Any) -> torch.device | str:
-    """Sets the device for the current process.
-
+def create_device(device: Any) -> Union[torch.device, str]:
+    """Create a device for the current process.
+    
     Args:
-        device: Device to set (e.g., CUDA index, list, or string).
-
+        device: Device to set (e.g., CUDA device index(es) or string).
+    
     Returns:
-        Selected ``torch.device``, defaults to ``cpu`` if CUDA unavailable.
+        A ``torch.device`` instance, defaults to ``torch.device("cpu")``.
     """
     if isinstance(device, torch.device):
         return device
 
     device = parse_device(device)
 
-    if device in ["auto", "cuda"]:
+    if device == "auto":  # Used in PyTorch Lighting's Trainer.
         return device
-    if device == "cpu":
+    elif device == "cuda":
+        return torch.device("cuda")
+    elif device == "cpu":
         return torch.device("cpu")
-    if isinstance(device, list):
-        console.log(f"Device    : {device[0]} is used among {device}.")
-        device = device[0]
-    return torch.device(f"cuda:{device[0]}")
+    elif isinstance(device, list):  # Use the first CUDA device.
+        log(f"Device    : {device[0]} is used among {device}.")
+        return torch.device(f"cuda:{device[0]}")
+    else:
+        raise ValueError(f"Unknown device: {device}.")
 
 
 # ----- Convert -----
 def parse_device(device: Any) -> torch.device | str | list[str]:
-    """Parses a device spec into a list or string.
+    """Parses device(s) into appropriate formats.
 
     Args:
-        device: Device to parse (e.g., ``torch.device``, int, str, or ``None``).
-
+        device: Device to parse.
+         
     Returns:
-        torch.device.
-        str: ``auto``, ``cpu``, or ``cuda``.
-        list[str]: List of cuda device indices (e.g., ``['0', '1']``).
+        - A ``torch.device`` instance.
+        - A device ``str``: ``auto``, ``cpu``, or ``cuda`` for ``torch.device()``.
+        - A ``list`` of CUDA device index strings (e.g., ``['0', '1']``) for distributed training.
     """
     if isinstance(device, torch.device):
         return device
@@ -151,24 +157,9 @@ def parse_device(device: Any) -> torch.device | str | list[str]:
         device = [str(device)]
     if isinstance(device, str):
         device = (device.lower()
-                  .replace("cuda:", "")
-                  .translate(str.maketrans("", "", "()[ ]' ")))
+                        .replace("cuda:", "")
+                        .translate(str.maketrans("", "", "()[ ]' ")))
         device = device.split(",")
         device = [str(i) for i in device]
 
     return device
-
-
-# ----- Validation Check -----
-def is_rank_zero() -> bool:
-    """Checks if current process is rank zero in distributed training.
-
-    Notes:
-        Based on PyTorch Lightning's DDP documentation, "LOCAL_RANK" and "NODE_RANK"
-        environment variables indicate child processes for GPUs. Absence of both
-        denotes the main process (rank zero).
-
-    Returns:
-        ``True`` if current process is rank zero, ``False`` otherwise.
-    """
-    return "LOCAL_RANK" not in os.environ and "NODE_RANK" not in os.environ

@@ -6,12 +6,20 @@ import argparse
 import torch
 import torch.optim
 
+import albumentations as A
+import box
+import cv2
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+
 import mon
+from mon import console, metrics, Path, tfms, optims
 from net.model import AirNet
 from utils.image_io import save_image_tensor
 
-console      = mon.console
-current_file = mon.Path(__file__).absolute()
+console      = console
+current_file = Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
 
@@ -22,7 +30,7 @@ def predict(args: argparse.Namespace):
     data         = args.data
     save_dir     = args.save_dir
     weights      = args.weights
-    device       = mon.set_device(args.device)
+    device       = mon.create_device(args.device)
     epochs       = args.epochs
     imgsz        = args.imgsz[0]
     resize       = args.resize
@@ -46,7 +54,7 @@ def predict(args: argparse.Namespace):
     
     # Benchmark
     if benchmark:
-        flops, params, avg_time = mon.compute_efficiency_score(
+        flops, params, avg_time = mon.metric.compute_complexity(
             model      = model,
             imgsz= imgsz,
             channels   = 3,
@@ -54,12 +62,12 @@ def predict(args: argparse.Namespace):
             use_cuda   = True,
             verbose    = False,
         )
-        console.log(f"FLOPs    : {flops:.4f}")
-        console.log(f"Params    : {params:.4f}")
-        console.log(f"Time   = {avg_time:.17f}")
+        mon.log(f"FLOPs    : {flops:.4f}")
+        mon.log(f"Params    : {params:.4f}")
+        mon.log(f"Time   = {avg_time:.17f}")
     
     # Data I/O
-    console.log(f"[bold red]{data}")
+    mon.log(f"[bold red]{data}")
     data_name, data_loader = mon.parse_data_loader(data, root, True, verbose=False)
     
     save_dir = save_dir / data_name
@@ -75,20 +83,20 @@ def predict(args: argparse.Namespace):
         ):
             image       = datapoint["image"]
             meta        = datapoint["meta"]
-            image_path  = mon.Path(meta["path"])
+            image_path  = Path(meta["path"])
             timer.tick()
             restored    = model(x_query=image, x_key=image)
             timer.tock()
             
             # Save
             if save_image:
-                output_dir  = mon.parse_output_dir(save_dir, data_name, mon.SAVE_IMAGE_DIR, image_path, keep_subdirs, save_nearby)
+                output_dir  = mon.rt.parse_output_dir(save_dir, data_name, mon.SAVE_IMAGE_DIR, image_path, keep_subdirs, save_nearby)
                 output_path = output_dir / f"{image_path.stem}{mon.SAVE_IMAGE_EXT}"
                 output_path.parent.mkdir(parents=True, exist_ok=True)
                 save_image_tensor(restored, output_path)
    
     avg_time = float(timer.avg_time)
-    console.log(f"Average time: {avg_time}")
+    mon.log(f"Average time: {avg_time}")
 
 
 
@@ -96,7 +104,7 @@ def predict(args: argparse.Namespace):
 # ----- Main -----
 
 def main() -> str:
-    args = mon.parse_predict_args(model_root=current_dir)
+    args = mon.rt.parse_predict_args(model_root=current_dir)
     predict(args)
 
 

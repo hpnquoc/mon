@@ -10,12 +10,19 @@ import torch
 import torch.nn.functional as F
 from skimage.util import img_as_ubyte
 
+import albumentations as A
+import box
+import cv2
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+
 import mon
+from mon import console, metrics, Path, tfms, optims
 from basicsr.models import create_model
 from basicsr.utils.options import parse
 
-console      = mon.console
-current_file = mon.Path(__file__).absolute()
+current_file = Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
 
@@ -61,7 +68,7 @@ def get_weights_and_parameters(task, parameters):
 def predict(args: argparse.Namespace):
     # General config
     data         = args.data
-    save_dir     = mon.Path(args.save_dir)
+    save_dir     = Path(args.save_dir)
     weights      = args.weights
     device       = args.device
     imgsz        = args.imgsz
@@ -106,13 +113,13 @@ def predict(args: argparse.Namespace):
     
     # Measure efficiency score
     if benchmark:
-        flops, params, avg_time = model.compute_efficiency_score()
-        console.log(f"FLOPs    : {flops:.4f}")
-        console.log(f"Params    : {params:.4f}")
-        console.log(f"Time   = {avg_time:.17f}")
+        flops, params, avg_time = model.compute_complexity()
+        mon.log(f"FLOPs    : {flops:.4f}")
+        mon.log(f"Params    : {params:.4f}")
+        mon.log(f"Time   = {avg_time:.17f}")
     
     # Data I/O
-    console.log(f"[bold red]{data}")
+    mon.log(f"[bold red]{data}")
     data_name, data_loader = mon.parse_data_loader(data, root, True, verbose=False)
     
     # Predicting
@@ -127,7 +134,7 @@ def predict(args: argparse.Namespace):
             ):
                 # Input
                 meta       = datapoint["meta"]
-                image_path = mon.Path(meta["path"])
+                image_path = Path(meta["path"])
                 if torch.cuda.is_available():
                     torch.cuda.ipc_collect()
                     torch.cuda.empty_cache()
@@ -180,7 +187,7 @@ def predict(args: argparse.Namespace):
                 
                 # Save
                 if save_image:
-                    output_dir  = mon.parse_output_dir(save_dir, data_name, mon.SAVE_IMAGE_DIR, image_path, keep_subdirs, save_nearby)
+                    output_dir  = mon.rt.parse_output_dir(save_dir, data_name, mon.SAVE_IMAGE_DIR, image_path, keep_subdirs, save_nearby)
                     output_path = output_dir / f"{image_path.stem}{mon.SAVE_IMAGE_EXT}"
                     output_path.parent.mkdir(parents=True, exist_ok=True)
                     if opt["image_color"] == "RGB":
@@ -189,7 +196,7 @@ def predict(args: argparse.Namespace):
                         save_gray_img(output_path, restored)
         
         avg_time = float(timer.avg_time)
-        console.log(f"Average time: {avg_time}")
+        mon.log(f"Average time: {avg_time}")
     
 
 
@@ -197,7 +204,7 @@ def predict(args: argparse.Namespace):
 # ----- Main -----
 
 def main() -> str:
-    args = mon.parse_predict_args(model_root=current_dir)
+    args = mon.rt.parse_predict_args(model_root=current_dir)
     predict(args)
 
 

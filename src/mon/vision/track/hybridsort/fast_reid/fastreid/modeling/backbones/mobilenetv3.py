@@ -3,7 +3,7 @@ from typing import Any, Callable, Dict, List, Optional, Sequence
 
 import torch
 from torch import nn, Tensor
-from torch.nn import functional as F
+import torch.nn.functional as F
 
 #The style of importing Considers compatibility for the diversity of torchvision versions
 try:

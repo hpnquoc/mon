@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""PSENet model for low-light image enhancement.
+"""Implements PSENet model for low-light image enhancement.
 
 References:
     - Paper: "PSENet: Progressive Self-Enhancement Network for Unsupervised

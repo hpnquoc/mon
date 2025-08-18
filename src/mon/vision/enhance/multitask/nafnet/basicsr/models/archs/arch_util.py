@@ -9,7 +9,7 @@ import math
 import torch
 from basicsr.utils import get_root_logger
 from torch import nn as nn
-from torch.nn import functional as F, init as init
+import torch.nn.functional as F, init as init
 from torch.nn.modules.batchnorm import _BatchNorm
 
 

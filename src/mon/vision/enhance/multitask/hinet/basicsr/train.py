@@ -29,9 +29,15 @@ from basicsr.utils import (
 from basicsr.utils.dist_util import get_dist_info, init_dist
 from basicsr.utils.options import dict2str, parse
 
-import mon
+import albumentations as A
+import box
+import cv2
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
 
-console = mon.console
+import mon
+from mon import console, metrics, Path, tfms, optims
 
 
 def init_loggers(args):
@@ -107,7 +113,7 @@ def main(args):
     torch.backends.cudnn.benchmark = True
     # torch.backends.cudnn.deterministic = True
 
-    args["checkpoints_dir"] = mon.Path(args["checkpoints_dir"])
+    args["checkpoints_dir"] = Path(args["checkpoints_dir"])
     args["checkpoints_dir"].mkdir(parents=True, exist_ok=True)
 
     # Automatic resume 
@@ -254,14 +260,14 @@ def parse_args(is_train: bool = True):
     # Distributed settings
     if args.launcher == "none":
         opt["dist"] = False
-        console.log("Disable distributed.", flush=True)
+        mon.log("Disable distributed.", flush=True)
     else:
         opt["dist"] = True
         if args.launcher == "slurm" and "dist_params" in opt:
             init_dist(args.launcher, **opt["dist_params"])
         else:
             init_dist(args.launcher)
-            console.log("init dist .. ", args.launcher)
+            mon.log("init dist .. ", args.launcher)
 
     opt["rank"], opt["world_size"] = get_dist_info()
 

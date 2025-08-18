@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""NeRCo model for low-light image enhancement.
+"""Implements NeRCo model for low-light image enhancement.
 
 References:
     - Paper: "Implicit Neural Representation for Cooperative Low-light

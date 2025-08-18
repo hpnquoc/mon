@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Retinexformer model for low-light image enhancement.
+"""Implements Retinexformer model for low-light image enhancement.
 
 References:
     - Paper: "Retinexformer: One-stage Retinex-based Transformer for Low-light

@@ -71,7 +71,7 @@ def convert_label_to_coco(
     input_json.parent.mkdir(parents=True, exist_ok=True)
 
     if remap and remap.is_file():
-        remap = mon.load_config(config=remap)["remap"]
+        remap = mon.rt.load_config(config=remap)["remap"]
     else:
         remap = None
 
@@ -90,7 +90,7 @@ def convert_label_to_coco(
             description = f"[bright_yellow]Converting"
         ):
             # Append image
-            h, w, _  = mon.read_image_shape(image_file)
+            h, w, _  = mon.image.read_image_shape(image_file)
             image_id = i
 
             # Append annotations
@@ -98,7 +98,7 @@ def convert_label_to_coco(
             if not label_file.is_txt_file():
                 continue
 
-            bs = mon.load_hbb(path=label_file, fmt=code, imgsz=(h, w))
+            bs = mon.hbb.load_hbb(path=label_file, fmt=code, imgsz=(h, w))
             if len(bs) == 0:
                 continue
 
@@ -164,7 +164,7 @@ def main(
         raise FileNotFoundError(f"[target_json] does not exist: {target_json}.")
 
     if not exist_ok and input_json and input_json.is_json_file():
-        mon.delete_files(input_json)
+        input_json.unlink(missing_ok=True)
     if input_json and input_json.is_json_file():
         results = measure_metric(input_json=input_json, target_json=target_json)
     elif input_dir and input_dir.is_dir() and label_dir and label_dir.is_dir():

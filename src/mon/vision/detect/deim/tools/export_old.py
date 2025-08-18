@@ -15,12 +15,20 @@ import box
 import tensorrt as trt
 import torch
 
+import albumentations as A
+import box
+import cv2
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+
 import mon
+from mon import console, metrics, Path, tfms, optims
 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 from engine.core import YAMLConfig
 
-current_file = mon.Path(__file__).absolute()
+current_file = Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
 
@@ -44,7 +52,7 @@ class Model(torch.nn.Module):
 
 # ----- Export -----
 @torch.no_grad()
-def export_onnx(model: Model, path: mon.Path, args: dict | box.Box) -> mon.Path:
+def export_onnx(model: Model, path: Path, args: dict | box.Box) -> Path:
     imgsz = args.imgsz[0] if isinstance(args.imgsz, list | tuple) else args.imgsz
     data  = torch.rand(32, 3, imgsz, imgsz)
     size  = torch.tensor([[imgsz, imgsz]])
@@ -76,7 +84,7 @@ def export_onnx(model: Model, path: mon.Path, args: dict | box.Box) -> mon.Path:
         import onnx
         onnx_model = onnx.load(path)
         onnx.checker.check_model(onnx_model)
-        mon.console.log("Check export onnx model done...")
+        mon.log("Check export onnx model done...")
 
     if args.simplify:
         import onnx
@@ -90,7 +98,7 @@ def export_onnx(model: Model, path: mon.Path, args: dict | box.Box) -> mon.Path:
 
 
 @torch.no_grad()
-def export_trt(onnx_path: mon.Path, path: mon.Path, args: dict | box.Box) -> mon.Path:
+def export_trt(onnx_path: Path, path: Path, args: dict | box.Box) -> Path:
     if not onnx_path.is_onnx_file(exist=True):
         raise FileNotFoundError(f"Invalid ONNX model: {onnx_path}.")
 
@@ -102,7 +110,7 @@ def export_trt(onnx_path: mon.Path, path: mon.Path, args: dict | box.Box) -> mon
     parser        = trt.OnnxParser(network, logger)
 
     # Load ONNX model
-    mon.console.log(f"Loading ONNX model from: {onnx_path}.")
+    mon.log(f"Loading ONNX model from: {onnx_path}.")
     with open(onnx_path, "rb") as f:
         if not parser.parse(f.read()):
             for error in range(parser.num_errors):
@@ -117,9 +125,9 @@ def export_trt(onnx_path: mon.Path, path: mon.Path, args: dict | box.Box) -> mon
     if args.use_fp16:
         if builder.platform_has_fast_fp16:
             config.set_flag(trt.BuilderFlag.FP16)
-            mon.console.log("Apply FP16 optimization.")
+            mon.log("Apply FP16 optimization.")
         else:
-            mon.console.log("Apply FP32 optimization.")
+            mon.log("Apply FP32 optimization.")
 
     # Create optimization profile
     imgsz   = args.imgsz[0] if isinstance(args.imgsz, list | tuple) else args.imgsz
@@ -139,7 +147,7 @@ def export_trt(onnx_path: mon.Path, path: mon.Path, args: dict | box.Box) -> mon
             layer = network.get_layer(i)
             # Heuristic: match common LayerNorm-related names
             if any(kw in layer.name.lower() for kw in ["layernorm", "norm", "rms"]):
-                mon.console.log(f"Apply FP32 on LayerNorm-related layer: {layer.name}.")
+                mon.log(f"Apply FP32 on LayerNorm-related layer: {layer.name}.")
                 layer.precision = trt.DataType.FLOAT
                 layer.set_output_type(0, trt.DataType.FLOAT)
     elif args.opset == 17:
@@ -158,26 +166,26 @@ def export_trt(onnx_path: mon.Path, path: mon.Path, args: dict | box.Box) -> mon
     # Debug
     # for i in range(network.num_layers):
     #     layer = network.get_layer(i)
-    #     mon.console.log(f"Layer {i}: {layer.name} | Type: {layer.type}")
+    #     mon.log(f"Layer {i}: {layer.name} | Type: {layer.type}")
 
-    mon.console.log("Building TensorRT engine...")
+    mon.log("Building TensorRT engine...")
     serialized_engine = builder.build_serialized_network(network, config)
     if serialized_engine is None:
         raise RuntimeError("Failed to build the engine.")
 
-    mon.console.log(f"Saving engine to {path}")
+    mon.log(f"Saving engine to {path}")
     with open(path, "wb") as f:
         f.write(serialized_engine)
-    mon.console.log("Engine export complete.")
+    mon.log("Engine export complete.")
 
 
 @torch.no_grad()
 def export(args: dict | box.Box) -> str:
     # Start
-    mon.print_run_summary(args)
+    mon.rt.print_run_summary(args)
 
     # Device
-    device = mon.set_device(args.device)
+    device = mon.create_device(args.device)
 
     # Seed
     mon.set_random_seed(args.seed)
@@ -187,7 +195,7 @@ def export(args: dict | box.Box) -> str:
     if args.weights and args.weights.is_weights_file(exist=True):
         pretrained = args.weights
     if pretrained and pretrained.is_weights_file(exist=True):
-        mon.console.log(f"Pretrained: {pretrained}.")
+        mon.log(f"Pretrained: {pretrained}.")
     else:
         raise ValueError(f"Invalid weights file: {pretrained}.")
 
@@ -226,7 +234,7 @@ def export(args: dict | box.Box) -> str:
     file_stem = args.fullname     if args.use_fullname else pretrained.stem
     onnx_file = save_dir / f"{file_stem}.onnx"
     export_onnx(model, onnx_file, args)
-    mon.console.log(f"Exported ONNX model to: {onnx_file}.")
+    mon.log(f"Exported ONNX model to: {onnx_file}.")
 
     # Export TensorRT engine
     if args.format in ["engine", "trt"]:
@@ -236,7 +244,7 @@ def export(args: dict | box.Box) -> str:
 
 # ----- Main -----
 def main() -> str:
-    args = mon.parse_predict_args(model_root=current_dir)
+    args = mon.rt.parse_predict_args(model_root=current_dir)
     export(args)
 
 

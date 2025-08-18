@@ -1,10 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Implements the paper: "Zero-Reference Low-Light Enhancement via Physical Quadruple
-Priors," CVPR 2024.
+"""Implements QuadPrior model training pipeline for low-light image enhancement.
 
 References:
+    - Paper: "Zero-Reference Low-Light Enhancement via Physical Quadruple
+      Priors," CVPR 2024.
     - Code: https://github.com/daooshee/QuadPrior
 """
 
@@ -20,6 +21,7 @@ from mon.vision.enhance.lle.quadprior import (
     load_state_dict,
 )
 
+mon.dev()
 disable_verbosity()
 
 current_file = mon.Path(__file__).absolute()
@@ -29,26 +31,15 @@ current_dir  = current_file.parents[0]
 # ----- Train -----
 def train(args: dict | box.Box) -> str:
     # Start
-    mon.print_run_summary(args)
+    mon.rt.print_run_summary(args)
 
     # Device
     device = mon.parse_device(args.device)
-    device = mon.to_int_list(device) if "auto" not in device else device
+    device = mon.utils.to_int_list(device) if "auto" not in device else device
 
     # Seed
     mon.set_random_seed(args.seed)
 
-    # Data I/O
-    data       = mon.parse_data_dir(args.root, data_dir=args.datamodule.root)
-    dataset    = create_webdataset(data_dir=str(data))
-    dataloader = wds.WebLoader(
-        dataset         = dataset,
-        batch_size      = args.batch_size,
-        num_workers     = 2,
-        pin_memory      = False,
-        prefetch_factor = 2,
-    )
-    
     # Model
     cfg_path        = current_dir / "src" / "models" / args.cfg
     init_ckpt       = mon.ZOO_DIR / "vision/enhance/lle/quadprior/quadprior/coco/control_sd15_init.ckpt"
@@ -107,6 +98,17 @@ def train(args: dict | box.Box) -> str:
         callbacks        = [logger, checkpoint_callback],
     )
     
+    # Data I/O
+    data       = mon.data.parse_data_dir(args.root, data_dir=args.train_dataloader.dataset.root)
+    dataset    = create_webdataset(data_dir=str(data))
+    dataloader = wds.WebLoader(
+        dataset         = dataset,
+        batch_size      = args.batch_size,
+        num_workers     = 2,
+        pin_memory      = False,
+        prefetch_factor = 2,
+    )
+    
     # Train
     trainer.fit(model, dataloader)
 
@@ -116,7 +118,7 @@ def train(args: dict | box.Box) -> str:
 
 # ----- Main -----
 def main() -> str:
-    args = mon.parse_train_args(model_root=current_dir)
+    args = mon.rt.parse_train_args(model_root=current_dir)
     train(args)
 
 

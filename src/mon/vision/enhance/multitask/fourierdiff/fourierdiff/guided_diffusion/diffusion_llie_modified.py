@@ -7,7 +7,15 @@ import torchvision.utils as tvu
 import tqdm
 from numpy import arange
 
+import albumentations as A
+import box
+import cv2
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+
 import mon
+from mon import console, metrics, Path, tfms, optims
 from .script_util import create_model
 
 
@@ -179,9 +187,9 @@ class Diffusion(object):
         for datapoint in pbar:
             # Preprocess
             timers.preprocess.tick()
-            path    = mon.Path(datapoint["meta"]["path"])
+            path    = Path(datapoint["meta"]["path"])
             input_y = datapoint["image"]
-            h0, w0  = mon.image_size(input_y)
+            h0, w0  = mon.image.imgsz(input_y)
             if resize and h0 != imgsz[0] and w0 != imgsz[1]:
                 input_y = mon.resize(input_y, imgsz)
             timers.preprocess.tock()
@@ -329,7 +337,7 @@ class Diffusion(object):
 
             # tvu.save_image(x[0], os.path.join(self.args.image_folder, f"{name}"))
             if save_image:
-                output_dir  = mon.parse_output_dir(save_dir, data_name, mon.SAVE_IMAGE_DIR, path, keep_subdirs, save_nearby)
+                output_dir  = mon.rt.parse_output_dir(save_dir, data_name, mon.SAVE_IMAGE_DIR, path, keep_subdirs, save_nearby)
                 output_path = output_dir / f"{path.stem}{mon.SAVE_IMAGE_EXT}"
                 output_path.parent.mkdir(parents=True, exist_ok=True)
                 tvu.save_image(x[0], str(output_path))

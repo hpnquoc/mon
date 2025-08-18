@@ -11,7 +11,7 @@ import numpy as np
 import torch
 from basicsr.data.transforms import mod_crop
 from basicsr.utils import img2tensor, scandir
-from torch.nn import functional as F
+import torch.nn.functional as F
 
 
 def read_img_seq(path, require_mod_crop=False, scale=1):

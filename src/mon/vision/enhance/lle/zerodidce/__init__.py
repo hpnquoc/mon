@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Zero-DiDCE model for low-light image enhancement.
+"""Implements Zero-DiDCE model for low-light image enhancement.
 
 References:
     - Paper: "Rethinking Zero-DCE for Low-Light Image Enhancement,"

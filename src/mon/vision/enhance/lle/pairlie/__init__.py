@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""PairLIE model for low-light image enhancement.
+"""Implements PairLIE model for low-light image enhancement.
 
 References:
     - Paper: "Learning a Simple Low-light Image Enhancer from Paired Low-light

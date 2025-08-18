@@ -17,12 +17,14 @@ from typing import Literal
 import cupy as cp
 import numpy as np
 import torch
+import torch.nn as nn
+from mon.core.model import ModelMixin
 
-from mon import core, nn
 from mon.constants import MLType, MODELS, Task
-from mon.vision import geometry, types
+from mon.core.enum import Enum
+from mon.core.pathlib import Path
 
-current_file = core.Path(__file__).absolute()
+current_file = Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
 
@@ -210,7 +212,7 @@ class HVR:
         tau_updating_rate: Rate for updating tau. Defaults to ``0.025``.
     """
 
-    class State(core.Enum):
+    class State(Enum):
         UPDATE   = "update"
         SUSPENSE = "suspense"
         TRAIN    = "train"
@@ -351,7 +353,7 @@ class HVR:
 
 # ----- Model -----
 @MODELS.register(name="tensormog_cupy", arch="tensormog")
-class TensorMOGCuPy(nn.Module, nn.ModelMixin):
+class TensorMOGCuPy(nn.Module, ModelMixin):
     """TensorMoG model for background subtraction.
 
     Args:
@@ -374,7 +376,7 @@ class TensorMOGCuPy(nn.Module, nn.ModelMixin):
     name     : str          = "tensormog_cupy"
     tasks    : list[Task]   = [Task.BGSUBTRACT, Task.VIDEO]
     mltypes  : list[MLType] = [MLType.INFERENCE]
-    model_dir: core.Path    = current_dir
+    model_dir: Path         = current_dir
     zoo      : dict         = {}
     
     def __init__(

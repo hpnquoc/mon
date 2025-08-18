@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Zero-DCE model for low-light image enhancement.
+"""Implements Zero-DCE model for low-light image enhancement.
 
 References:
     - Paper: "Zero-Reference Deep Curve Estimation for Low-Light Image
@@ -15,18 +15,18 @@ __all__ = [
 
 import box
 import torch
+import torch.nn as nn
+import torch.nn.functional as F
 
-import mon.nn as nn
-from mon.constants import MLType, MODELS, Task
-from mon.core import pathlib
-from mon.nn import functional as F
+from mon.constants import MODELS
+from mon.core import MLType, ModelMixin, Path, Task
 
-current_file = pathlib.Path(__file__).absolute()
+current_file = Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
 
 @MODELS.register(name="zerodce", arch="zerodce")
-class ZeroDCE(nn.Module, nn.ModelMixin):
+class ZeroDCE(nn.Module, ModelMixin):
     """Zero-DCE model for low-light image enhancement.
     
     References:
@@ -39,7 +39,7 @@ class ZeroDCE(nn.Module, nn.ModelMixin):
     name     : str          = "zerodce"
     tasks    : list[Task]   = [Task.LLE]
     mltypes  : list[MLType] = [MLType.UNSUPERVISED]
-    model_dir: pathlib.Path = current_dir
+    model_dir: Path         = current_dir
     zoo      : dict         = box.Box()
 
     def __init__(self):

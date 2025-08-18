@@ -94,7 +94,9 @@ class Timer:
 
 # ----- Time Profiler -----
 class TimeProfiler:
-    """A simple timer profiler for measuring the time taken by different parts of a process."""
+    """A simple timer profiler for measuring the time taken by different parts
+    of a process.
+    """
 
     def __init__(self):
         self.preprocess  = Timer()

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""LL-UNet++ model training pipeline for low-light image enhancement.
+"""Implements LL-UNet++ model training pipeline for low-light image enhancement.
 
 References:
     - Paper: "LL-UNet++:UNet++ Based Nested Skip Connections Network for Low-Light
@@ -15,12 +15,13 @@ import box
 import pandas as pd
 import torch
 import torch.backends.cudnn as cudnn
-import torch.optim as optim
 from torch.utils.tensorboard import SummaryWriter
 
 import mon
 from mon.vision.enhance.lle import llunetpp
 from mon.vision.enhance.lle.llunetpp import AverageMeter, Loss
+
+mon.dev()
 
 current_file = mon.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
@@ -37,22 +38,21 @@ def train_epoch(train_dataloader, model, criterion, optimizer, device):
             description = f"[bright_yellow]Training"
         ):
             input  = datapoint["image"].to(device)
-            target = datapoint["ref_image"].to(device)
-            meta   = datapoint["meta"]
+            target = datapoint["ref"].to(device)
             output = model(input)
             loss   = criterion(output, target)
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
             loss_meters.update(loss.item(), input.size(0))
-            # mon.console.log(loss_meters.avg)
+            # mon.log(loss_meters.avg)
     return loss_meters.avg
 
 
 def val_epoch(val_dataloader, model, criterion, device):
     loss_meters = AverageMeter()
-    psnr_meters = mon.PeakSignalNoiseRatio().to(device)
-    ssim_meters = mon.StructuralSimilarityIndexMeasure().to(device)
+    psnr_meters = mon.metric.PeakSignalNoiseRatio().to(device)
+    ssim_meters = mon.metric.StructuralSimilarityIndexMeasure().to(device)
     model.eval()
     with mon.create_progress_bar() as pbar:
         for i, datapoint in pbar.track(
@@ -61,39 +61,27 @@ def val_epoch(val_dataloader, model, criterion, device):
             description = f"[bright_yellow]Validating"
         ):
             input  = datapoint["image"].to(device)
-            target = datapoint["ref_image"].to(device)
-            meta   = datapoint["meta"]
+            target = datapoint["ref"].to(device)
             output = model(input)
             loss   = criterion(output, target)
             loss_meters.update(loss.item(), input.size(0))
             psnr_meters.update(output, target)
             ssim_meters.update(output, target)
-            # mon.console.log(loss_meters.avg)
+            # mon.log(loss_meters.avg)
     return loss_meters.avg, psnr_meters.compute(), ssim_meters.compute()
 
 
 def train(args: dict | box.Box) -> str:
     # Start
-    mon.print_run_summary(args)
+    mon.rt.print_run_summary(args)
     
     # Device
-    device = mon.set_device(args.device)
+    device = mon.create_device(args.device)
     cudnn.benchmark = True
     
     # Seed
     mon.set_random_seed(args.seed)
     
-    # Data I/O
-    args["datamodule"] |= {
-        "root"   : mon.parse_data_dir(args.root, args.datamodule.get("root", "")),
-        "devices": device,
-    }
-    datamodule: mon.DataModule = mon.DATAMODULES.build(config=args.datamodule)
-    datamodule.prepare_data()
-    datamodule.setup(stage="train")
-    train_dataloader = datamodule.train_dataloader
-    val_dataloader   = datamodule.val_dataloader
-
     # Pretrained
     pretrained = args.tuning
     if args.resume and args.resume.is_weights_file(exist=True):
@@ -101,9 +89,9 @@ def train(args: dict | box.Box) -> str:
     if args.weights and args.weights.is_weights_file(exist=True):
         pretrained = args.weights
     if pretrained and pretrained.is_weights_file(exist=True):
-        mon.console.log(f"Pretrained: {pretrained}.")
+        mon.log(f"Pretrained: {pretrained}.")
     else:
-        mon.console.log(f"Pretrained: {None}, training from scratch.")
+        mon.log(f"Pretrained: {None}, training from scratch.")
 
     # Model
     model = llunetpp.LLUnetPP()
@@ -112,8 +100,8 @@ def train(args: dict | box.Box) -> str:
     model.train()
     
     # Optimizer
-    optimizer = optim.Adam(model.parameters(), **args.optimizer)
-    scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, 0.99)
+    optimizer = mon.optim.Adam(model.parameters(), **args.optimizer)
+    scheduler = mon.optim.ExponentialLR(optimizer, 0.99)
     
     # Loss
     criterion = Loss(*args.loss.loss_weights).to(device)
@@ -131,6 +119,12 @@ def train(args: dict | box.Box) -> str:
     best_psnr = 0
     best_ssim = 0
     
+    # Data I/O
+    args["train_dataloader"]["datasets"]["root"] = mon.data.parse_data_dir(args.root)
+    args["val_dataloader"]["datasets"]["root"]   = mon.data.parse_data_dir(args.root)
+    train_dataloader = mon.data.DataLoader(**args.train_dataloader)
+    val_dataloader   = mon.data.DataLoader(**args.val_dataloader)
+
     # Train
     for epoch in range(args.epochs):
         train_loss  = train_epoch(train_dataloader, model, criterion, optimizer, device)
@@ -139,7 +133,7 @@ def train(args: dict | box.Box) -> str:
         val_psnr    = float(val_results[1].cpu().detach().numpy())
         val_ssim    = float(val_results[2].cpu().detach().numpy())
         scheduler.step()
-        mon.console.log(
+        mon.log(
             "Epoch [%d/%d] train/loss %.4f - val/loss %.4f - val/psnr %.4f - val/ssim %.4f\n"
             % (epoch, args.epochs, train_loss, val_loss, val_psnr, val_ssim)
         )
@@ -184,7 +178,7 @@ def train(args: dict | box.Box) -> str:
     
 # ----- Main -----
 def main() -> str:
-    args = mon.parse_train_args(model_root=current_dir)
+    args = mon.rt.parse_train_args(model_root=current_dir)
     train(args)
 
 

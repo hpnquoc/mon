@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""SRNO model for super-resolution.
+"""Implements SRNO model for super-resolution.
 
 References:
     - Paper: "Super-Resolution Neural Operator," CVPR 2023.
@@ -14,17 +14,16 @@ __all__ = [
 
 import box
 
-import mon.nn as nn
-from mon.constants import MLType, MODELS, Task
-from mon.core import pathlib
+from mon.constants import MODELS
+from mon.core import MLType, ModelMixin, Path, Task
 from .src.models import sronet
 
-current_file = pathlib.Path(__file__).absolute()
+current_file = Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
 
 @MODELS.register(name="srno", arch="srno")
-class SRNO(sronet.SRNO, nn.ModelMixin):
+class SRNO(sronet.SRNO, ModelMixin):
     """SRNO model for super-resolution.
     
     References:
@@ -36,5 +35,5 @@ class SRNO(sronet.SRNO, nn.ModelMixin):
     name     : str          = "srno"
     tasks    : list[Task]   = [Task.SR]
     mltypes  : list[MLType] = [MLType.SUPERVISED]
-    model_dir: pathlib.Path = current_dir
+    model_dir: Path         = current_dir
     zoo      : dict         = box.Box()

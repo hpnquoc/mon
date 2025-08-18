@@ -6,6 +6,7 @@
 import argparse
 import logging
 
+import albumentations as A
 import cv2
 import matplotlib
 import numpy as np
@@ -34,7 +35,7 @@ def compute_metrics(
     pred   =   pred.astype(np.float32)
     target = target.astype(np.float32)
 
-    # Create valid mask if not provided
+    # Create valid_mask if not provided
     if valid_mask is None:
         valid_mask = (target > 0) & (~np.isnan(pred)) & (~np.isnan(target))
 
@@ -120,13 +121,16 @@ def measure_depth_metrics(
     image_files = [f for f in image_files if f.is_image_file()]
     image_files = sorted(image_files)
     num_items   = 0
-
+    
     # Parse arguments
     metric      = [m.lower() for m in _METRICS]
     values      = {m: []     for m in metric}
     results     = {}
-    h, w        = mon.image_size(imgsz)
-
+    h, w        = mon.image.imgsz(imgsz)
+    
+    # Prepare transform
+    base_transform = A.Compose([])
+    
     # Measuring
     description = f"[bright_yellow]Measuring {model} | {data}"
     with mon.create_progress_bar(transient=not verbose) as pbar:
@@ -136,32 +140,40 @@ def measure_depth_metrics(
             description = description
         ):
             # Image
-            image  = mon.load_image(path=image_file, flags=cv2.IMREAD_COLOR, to_tensor=False, normalize=False)
-            h0, w0 = mon.image_size(image)
-            if resize:
-                image = mon.resize(image, (h, w))
+            image  = mon.image.load_image(path=image_file, flags=cv2.IMREAD_COLOR)
+            h0, w0 = mon.image.imgsz(image)
+            h2, w2 = h, w
             if use_color:
                 image = (cmap(image)[:, :, :3] * 255)[:, :, ::-1].astype(np.uint8)
 
             # Target
+            target      = None
             target_file = None
+            need_resize = resize
             for ext in mon.ImageExtension.values():
                 temp = target_dir / f"{image_file.stem}{ext}"
                 if temp.exists():
                     target_file = temp
             if target_file and target_file.exists():  # Has target file
-                target = mon.load_image(path=target_file, flags=cv2.IMREAD_COLOR, to_tensor=False, normalize=False)
-                h1, w1 = mon.image_size(target)
-                if resize:  # Force resize
-                    target = mon.resize(target, (h, w))
-                elif h1 != h0 or w1 != w0:  # Mismatch size between image and target
-                    # image  = mon.resize(image, (h1, w1))
-                    continue
+                target = mon.image.load_image(path=target_file, flags=cv2.IMREAD_COLOR)
+                h1, w1 = mon.image.imgsz(target)
+                if h1 != h0 or w1 != w0:  # Mismatch size between image and target
+                    h2, w2      = h1, w1
+                    need_resize = True
                 if use_color:
                     target = (cmap(target)[:, :, :3] * 255)[:, :, ::-1].astype(np.uint8)
             else:
                 raise FileNotFoundError(f"[target_file] does not exist: {target_file}.")
-
+            
+            # Transform
+            if need_resize:
+                transform = A.Compose([
+                    A.Resize(height=h2, width=w2)
+                ], additional_targets={"target": "image"})
+                augmented = transform(image=image, target=target)
+                image     = augmented["image"]
+                target    = augmented["target"]
+            
             # Measure metric
             measured_results = compute_metrics(image, target, normalize=normalize)
             for k, v in measured_results.items():

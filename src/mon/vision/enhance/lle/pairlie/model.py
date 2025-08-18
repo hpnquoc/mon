@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""PairLIE model for low-light image enhancement.
+"""Implements PairLIE model for low-light image enhancement.
 
 References:
     - Paper: "Learning a Simple Low-light Image Enhancer from Paired Low-light
@@ -15,17 +15,16 @@ __all__ = [
 
 import box
 
-import mon.nn as nn
-from mon.constants import MLType, MODELS, Task
-from mon.core import pathlib
+from mon.constants import MODELS
+from mon.core import MLType, ModelMixin, Path, Task
 from .src.net.net import net
 
-current_file = pathlib.Path(__file__).absolute()
+current_file = Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
 
 @MODELS.register(name="pairlie", arch="pairlie")
-class PairLIE(net, nn.ModelMixin):
+class PairLIE(net, ModelMixin):
     """PairLIE model for low-light image enhancement.
     
     References:
@@ -38,5 +37,5 @@ class PairLIE(net, nn.ModelMixin):
     name     : str          = "pairlie"
     tasks    : list[Task]   = [Task.LLE]
     mltypes  : list[MLType] = [MLType.UNSUPERVISED]
-    model_dir: pathlib.Path = current_dir
+    model_dir: Path         = current_dir
     zoo      : dict         = box.Box()

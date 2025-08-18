@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""DEIM model for object detection.
+"""Implements DEIM model for object detection.
 
 References:
     - Paper: "DEIM: DETR with Improved Matching for Fast convergence," CVPR 2025.
@@ -12,24 +12,23 @@ __all__ = [
     "DEIM",
 ]
 
-import os
-import sys
+# import os
+# import sys
 
 import box
 import torch
+import torch.nn as nn
 
-import mon.nn as nn
-from mon.constants import MLType, MODELS, Task
-from mon.core import pathlib
+from mon.constants import MODELS
+from mon.core import MLType, ModelMixin, Path, Task
+# sys.path.append(os.path.abspath(os.path.dirname(__file__)))
+from .engine.core import YAMLConfig
 
-sys.path.append(os.path.abspath(os.path.dirname(__file__)))
-from engine.core import YAMLConfig
-
-current_file = pathlib.Path(__file__).absolute()
+current_file = Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
 
-class DEIM(nn.Module, nn.ModelMixin):
+class DEIM(nn.Module, ModelMixin):
     """DEIM model for object detection.
     
     References:
@@ -41,14 +40,14 @@ class DEIM(nn.Module, nn.ModelMixin):
     name     : str          = "deim"
     tasks    : list[Task]   = [Task.DETECT]
     mltypes  : list[MLType] = [MLType.SUPERVISED]
-    model_dir: pathlib.Path = current_dir
+    model_dir: Path         = current_dir
     zoo      : dict         = box.Box()
     
     def __init__(
         self,
         cfg        : str,
-        weights    : pathlib.Path,
-        root       : pathlib.Path,
+        weights    : Path,
+        root       : Path,
         device     : torch.device  = torch.device("cpu"),
         seed       : int           = 0,
         updated_cfg: dict          = None,

@@ -5,47 +5,26 @@
 
 __all__ = [
     "GTRain",
-    "GTRainDataModule",
 ]
 
-import os
-from typing import Literal
-
-from mon.core import console, pathlib, rich, types
-from mon.datasets.core import *
+from mon.core import rich
+from ..core import *
 
 
-# ----- Dataset -----
 @DATASETS.register(name="gtrain")
 class GTRain(VisionDataset):
-    """Loads GTRain dataset from ``root`` dir.
-
-    Args:
-        root: Directory path to dataset.
-        *args: Additional args for parent class.
-        **kwargs: Additional kwargs for parent class.
-
-    Raises:
-        FileNotFoundError: If ``root`` directory does not exist.
-    """
+    """GTRain dataset."""
     
-    tasks : list[Task]  = [Task.DERAIN]
-    splits: list[Split] = [Split.TRAIN, Split.VAL, Split.TEST]
-    datapoint_attrs     = DatapointAttributes({
-        "image"    : Image,
-        "ref_image": Image,
-    })
-    has_test_annotations: bool = True
+    root_name : str         = "gtrain"
+    tasks     : list[Task]  = [Task.DERAIN]
+    splits    : list[Split] = [Split.TRAIN, Split.VAL, Split.TEST]
+    modalities: Modalities  = {
+        "image": Modality(name="image", type="image", module=Image, in_test=True, primary=True),
+        "ref"  : Modality(name="ref",   type="image", module=Image, in_test=True),
+    }
+    classes   : Classes     = None
 
-    def __init__(self, root: pathlib.Path, *args, **kwargs):
-        root = pathlib.Path(root)
-        root = root / "gtrain" if root.name != "gtrain" else root
-        if not root.is_dir():
-            raise FileNotFoundError(f"[root] directory not found: [{root}].")
-        
-        super().__init__(root=root, *args, **kwargs)
-
-    def list_data(self):
+    def list_primary_data(self) -> list:
         """Lists ``datapoints`` with image and ref annotations."""
         patterns = [self.root / self.split_str / "image"]
 
@@ -53,55 +32,9 @@ class GTRain(VisionDataset):
         with rich.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
-                desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
+                desc  = f"Listing {self.__class__.__name__} {self.split_str} image(s)"
                 for path in pbar.track(sequence=paths, description=desc):
                     if path.is_image_file():
                         images.append(Image(path=path, root=pattern))
 
-        ref_images: list[Image] = []
-        with rich.create_progress_bar(disable=self.disable_pbar) as pbar:
-            desc = f"Listing {self.__class__.__name__} {self.split_str} reference images"
-            for img in pbar.track(sequence=images, description=desc):
-                path = str(img.path)
-                if "Gurutto_1-2" in path:
-                    path = path.replace("-R-", "-C-")
-                else:
-                    path = path[:-9] + "C-000.png"
-                path = path.replace(f"{os.sep}image{os.sep}", f"{os.sep}ref{os.sep}")
-                path = pathlib.Path(path)
-                ref_images.append(Image(path=path.image_file(), root=img.root))
-
-        self.datapoints["image"]     = images
-        self.datapoints["ref_image"] = ref_images
-
-        
-# ----- DataModule -----
-@DATAMODULES.register(name="gtrain")
-class GTRainDataModule(types.DataModule):
-    """Configures GTRain datasets for training/testing."""
-    
-    tasks: list[Task] = [Task.DERAIN]
-
-    def prepare_data(self, *args, **kwargs):
-        """Prepares data (placeholder, no action taken)."""
-        pass
-
-    def setup(self, stage: Literal["train", "test", "predict", None] = None):
-        """Sets up datasets for specified ``stage``.
-
-        Args:
-            stage: Stage to setup, one of ``"train"``, ``"test"``, ``"predict"``,
-                or ``None``. Default is ``None``.
-        """
-        if self.can_log:
-            console.log(f"Setup [red]{self.__class__.__name__}[/red].")
-
-        if stage in [None, "train"]:
-            self.train = GTRain(split=Split.TRAIN, **self.dataset_kwargs)
-            self.val   = GTRain(split=Split.VAL,   **self.dataset_kwargs)
-        if stage in [None, "test"]:
-            self.test  = GTRain(split=Split.TEST,  **self.dataset_kwargs)
-
-        self.get_classes()
-        if self.can_log:
-            self.summarize()
+        return images

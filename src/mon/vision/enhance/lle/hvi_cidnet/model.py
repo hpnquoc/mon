@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""HVI-CIDNet model for low-light image enhancement.
+"""Implements HVI-CIDNet model for low-light image enhancement.
 
 References:
     - Paper: "HVI: A New color space for Low-light Image Enhancement," CVPR 2025.
@@ -14,17 +14,16 @@ __all__ = [
 
 import box
 
-import mon.nn as nn
-from mon.constants import MLType, MODELS, Task
-from mon.core import pathlib
+from mon.constants import MODELS
+from mon.core import MLType, ModelMixin, Path, Task
 from .src.net.CIDNet import CIDNet
 
-current_file = pathlib.Path(__file__).absolute()
+current_file = Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
 
 @MODELS.register(name="hvi_cidnet", arch="hvi_cidnet")
-class HVI_CIDNet(CIDNet, nn.ModelMixin):
+class HVI_CIDNet(CIDNet, ModelMixin):
     """HVI-CIDNet model for low-light image enhancement.
     
     References:
@@ -36,5 +35,5 @@ class HVI_CIDNet(CIDNet, nn.ModelMixin):
     name     : str          = "hvi_cidnet"
     tasks    : list[Task]   = [Task.LLE]
     mltypes  : list[MLType] = [MLType.SUPERVISED]
-    model_dir: pathlib.Path = current_dir
+    model_dir: Path         = current_dir
     zoo      : dict         = box.Box()

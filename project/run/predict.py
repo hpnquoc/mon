@@ -14,7 +14,7 @@ current_dir  = current_file.parents[0]
 # ----- Utils -----
 def benchmark(model: mon.LightningModule):
     if hasattr(model, "compute_efficiency_score"):
-        flops, params = model.compute_efficiency_score()
+        flops, params = model.compute_complexity()
         mon.console.log(f"Params: {params:.4f}")
         mon.console.log(f"FLOPs : {flops:.4f}")
 
@@ -25,7 +25,7 @@ def predict(args: dict | box.Box) -> str:
     mon.print_run_summary(args)
     
     # Device
-    device = mon.set_device(args.device)
+    device = mon.create_device(args.device)
     
     # Seed
     mon.set_random_seed(args.seed)

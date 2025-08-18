@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""MobileNetV2 model for image classification.
+"""Implements MobileNetV2 model for image classification.
 
 References:
     - Paper: https://arxiv.org/abs/1801.04381
@@ -14,17 +14,16 @@ __all__ = [
 import box
 from torchvision import models as tvm
 
-import mon.nn as nn
-from mon.constants import MLType, MODELS, Task, ZOO_DIR
-from mon.core import pathlib
+from mon.constants import MODELS, ZOO_DIR
+from mon.core import MLType, ModelMixin, Path, Task
 
-current_file = pathlib.Path(__file__).absolute()
+current_file = Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
 
 # ----- Model -----
 @MODELS.register(name="mobilenet_v2", arch="mobilenet")
-class MobileNetV2(tvm.MobileNetV2, nn.ModelMixin):
+class MobileNetV2(tvm.MobileNetV2, ModelMixin):
     """MobileNetV2 model for image classification.
 
     Args:
@@ -40,7 +39,7 @@ class MobileNetV2(tvm.MobileNetV2, nn.ModelMixin):
     name     : str          = "mobilenet_v2"
     tasks    : list[Task]   = [Task.CLASSIFY]
     mltypes  : list[MLType] = [MLType.SUPERVISED]
-    model_dir: pathlib.Path = current_dir
+    model_dir: Path         = current_dir
     zoo      : dict         = box.Box({
         "imagenet1k_v1": {
             "url"        : "https://download.pytorch.org/models/mobilenet_v2-b0353104.pth",

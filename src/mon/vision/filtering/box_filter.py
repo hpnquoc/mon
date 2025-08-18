@@ -12,10 +12,8 @@ __all__ = [
 import cv2
 import numpy as np
 import torch
-
-import mon.nn as nn
-from mon.nn import functional as F
-from mon.vision import types
+import torch.nn as nn
+import torch.nn.functional as F
 
 
 # ----- Utils -----

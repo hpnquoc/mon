@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""ZID model prediction pipeline for image dehazing.
+"""Implements ZID model prediction pipeline for image dehazing.
 
 References:
     - Paper: "Zero-Shot Image Dehazing," IEEE TIP 2020.
@@ -12,4 +12,4 @@ __all__ = [
     "ZID",
 ]
 
-from .model import prepare_hazy_image, ZID
+from .model import ZID

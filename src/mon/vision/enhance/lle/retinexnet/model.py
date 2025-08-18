@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""RetinexNet model for low-light image enhancement.
+"""Implements RetinexNet model for low-light image enhancement.
 
 References:
     - Paper: "Deep Retinex Decomposition for Low-Light Enhancement," BMCV 2018.
@@ -22,17 +22,15 @@ import cv2
 import numpy as np
 import thop
 import torch
-import torch.optim as optim
+import torch.nn as nn
+import torch.nn.functional as F
 from PIL import Image
 from torch.autograd import Variable
 
-import mon.nn as nn
-from mon.constants import MLType, MODELS, Task
-from mon.core import console, get_model_device, pathlib
-from mon.nn import functional as F
-from mon.vision import types
+from mon.constants import MODELS
+from mon.core import log, get_model_device, image as I, MLType, optims, Path, Task
 
-current_file = pathlib.Path(__file__).absolute()
+current_file = Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
 
@@ -112,7 +110,7 @@ class RelightNet(nn.Module):
 
 def calculate_efficiency_score_decomnet(model, imgsz: int = 512):
     # Define input tensor
-    h, w  = types.image_size(imgsz)
+    h, w  = I.imgsz(imgsz)
     input = torch.rand(1, 3, h, w).to(get_model_device(model))
     # Get FLOPs and Params
     flops, params = thop.profile(deepcopy(model), inputs=(input, ), verbose=False)
@@ -121,7 +119,7 @@ def calculate_efficiency_score_decomnet(model, imgsz: int = 512):
 
 def calculate_efficiency_score_enhancenet(model, imgsz: int = 512):
     # Define input tensor
-    h, w  = types.image_size(imgsz)
+    h, w  = I.imgsz(imgsz)
     input = torch.rand(1, 1, h, w).to(get_model_device(model))
     mask  = torch.rand(1, 3, h, w).to(get_model_device(model))
     # Get FLOPs and Params
@@ -143,7 +141,7 @@ class RetinexNet(nn.Module):
     name     : str          = "retinexnet"
     tasks    : list[Task]   = [Task.LLE]
     mltypes  : list[MLType] = [MLType.SUPERVISED]
-    model_dir: pathlib.Path = current_dir
+    model_dir: Path         = current_dir
     zoo      : dict         = box.Box()
     
     def __init__(self, imgsz=512, benchmark=False):
@@ -153,8 +151,8 @@ class RetinexNet(nn.Module):
         if benchmark:
             flops1, params1 = calculate_efficiency_score_decomnet(model=self.DecomNet, imgsz=imgsz)
             flops2, params2 = calculate_efficiency_score_enhancenet(model=self.RelightNet, imgsz=imgsz)
-            console.log(f"FLOPs  = {flops1  + flops2:.4f}")
-            console.log(f"Params = {params1 + params2:.4f}")
+            log(f"FLOPs  = {flops1  + flops2:.4f}")
+            log(f"Params = {params1 + params2:.4f}")
 
     def forward(self, input_low, input_high):
         # Forward DecompNet
@@ -305,8 +303,8 @@ class RetinexNet(nn.Module):
         numBatch = len(train_low_data_names) // int(batch_size)
 
         # Create the optimizers
-        self.train_op_Decom   = optim.Adam(self.DecomNet.parameters(),   lr=lr[0], betas=(0.9, 0.999))
-        self.train_op_Relight = optim.Adam(self.RelightNet.parameters(), lr=lr[0], betas=(0.9, 0.999))
+        self.train_op_Decom   = optims.Adam(self.DecomNet.parameters(), lr=lr[0], betas=(0.9, 0.999))
+        self.train_op_Relight = optims.Adam(self.RelightNet.parameters(), lr=lr[0], betas=(0.9, 0.999))
 
         # Initialize a network if its checkpoint is available
         self.train_phase = train_phase
@@ -414,7 +412,7 @@ class RetinexNet(nn.Module):
             # print(self.train_phase, "  : Model restore success!")
             pass
         else:
-            weights_file = str(pathlib.Path(ckpt_dir) / "retinexnet_lolv1_decom_9200.tar")
+            weights_file = str(Path(ckpt_dir) / "retinexnet_lolv1_decom_9200.tar")
             ckpt_dict    = torch.load(weights_file, weights_only=True)
             self.DecomNet.load_state_dict(ckpt_dict)
             # print(f"No pretrained model to restore! Use default pretrained weights: {weights_file}")
@@ -425,7 +423,7 @@ class RetinexNet(nn.Module):
             # print(self.train_phase, ": Model restore success!")
             pass
         else:
-            weights_file = str(pathlib.Path(ckpt_dir) / "retinexnet_lolv1_relight_9200.tar")
+            weights_file = str(Path(ckpt_dir) / "retinexnet_lolv1_relight_9200.tar")
             ckpt_dict    = torch.load(weights_file, weights_only=True)
             self.RelightNet.load_state_dict(ckpt_dict)
             # print(f"No pretrained model to restore! Use default pretrained weights: {weights_file}")
@@ -468,5 +466,5 @@ class RetinexNet(nn.Module):
                 cat_image = cv2.resize(cat_image, (w, h))
                 # print(cat_image.shape)
             im       = Image.fromarray(np.clip(cat_image * 255.0, 0, 255.0).astype("uint8"))
-            filepath = pathlib.Path(res_dir) / test_img_path.name
+            filepath = Path(res_dir) / test_img_path.name
             im.save(str(filepath))

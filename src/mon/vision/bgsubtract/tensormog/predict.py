@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""TensorMoG model prediction pipeline for background subtraction.
+"""Implements TensorMoG model prediction pipeline for background subtraction.
 
 References:
     - Paper: "TensorMoG: A Tensor-Driven Gaussian Mixture Model with Dynamic Scene
@@ -9,23 +9,28 @@ References:
 """
 
 import box
-import torch.optim
+import cv2
+import torch.nn as nn
 
 import mon
+from mon import albumentations as A
 from mon.vision.bgsubtract import tensormog
+
+mon.dev()
 
 current_file = mon.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
 
 # ----- Utils -----
-def benchmark(model: torch.nn.Module):
-    flops, params = mon.compute_efficiency_score(model=model)
-    mon.console.log(f"Params    : {params:.4f}")
-    mon.console.log(f"FLOPs     : {flops:.4f}")
-    
-    
+def benchmark(model: nn.Module):
+    flops, params = mon.metric.compute_complexity(model=model)
+    mon.log(f"Params    : {params:.4f}")
+    mon.log(f"FLOPs     : {flops:.4f}")
+
+
 # ----- Predict -----
+# @torch.no_grad()
 def predict(args: dict | box.Box) -> str:
     height            = args.network.height
     width             = args.network.width
@@ -38,16 +43,13 @@ def predict(args: dict | box.Box) -> str:
     tau_updating_rate = args.network.tau_updating_rate
     
     # Start
-    mon.print_run_summary(args)
+    mon.rt.print_run_summary(args)
 
     # Device
-    device = mon.set_device(args.device)
+    device = mon.create_device(args.device)
     
     # Seed
     mon.set_random_seed(args.seed)
-    
-    # Data I/O
-    data_name, data_loader = mon.parse_data_loader(args.data, args.root, True, verbose=False)
     
     # Model
     model = tensormog.TensorMOG(
@@ -66,27 +68,34 @@ def predict(args: dict | box.Box) -> str:
     # Benchmark
     if args.benchmark:
         benchmark(model.model)
-
+    
+    # Data I/O
+    transform = A.Compose([
+        A.ResizeDivisibleBy(height=height, width=width, divisor=32),
+        A.Normalize(normalization="min_max"),
+        A.ToTensorV2(transpose_mask=True),
+    ])
+    data_name, dataloader = mon.data.build_dataloader(args.data, args.root, transform)
+    
     # Predict
     timers = mon.TimeProfiler()
     timers.total.tick()
     with mon.create_progress_bar() as pbar:
         for i, datapoint in pbar.track(
-            sequence    = enumerate(data_loader),
-            total       = len(data_loader),
+            sequence    = enumerate(dataloader),
+            total       = len(dataloader),
             description = f"[bright_yellow]Predicting"
         ):
             # Preprocess
             timers.preprocess.tick()
-            path   = mon.Path(datapoint["meta"]["path"])
+            meta   = datapoint["meta"][0]
+            path   = mon.Path(meta["path"])
+            h0, w0 = mon.image.imgsz(meta["orig_shape"])
             image  = datapoint["image"]
-            h0, w0 = mon.image_size(image)
-            if h0 != height or w0 != width:
-                image = mon.resize(image, (height, width))
-            image = image.to(device)
+            image  = image.to(device)
             timers.preprocess.tock()
-
-            # Optimize
+            
+            # Optimize and Infer
             timers.infer.tick()
             outputs = model(image)
             timers.infer.tock()
@@ -96,21 +105,21 @@ def predict(args: dict | box.Box) -> str:
             foreground = outputs[0]
             background = outputs[1]
             if h0 != height or w0 != width:
-                foreground = mon.resize(foreground, (h0, w0))
-                background = mon.resize(background, (h0, w0))
+                foreground = cv2.resize(foreground, (w0, h0))
+                background = cv2.resize(background, (w0, h0))
             timers.postprocess.tock()
             
             # Save
             if args.save_image:
-                out_dir  = mon.parse_output_dir(args.save_dir, data_name, mon.SAVE_IMAGE_DIR, path, args.keep_subdirs, args.save_nearby)
+                out_dir  = mon.rt.parse_output_dir(args.save_dir, data_name, mon.SAVE_IMAGE_DIR, path, args.keep_subdirs, args.save_nearby)
                 out_path = out_dir / f"{path.stem}{mon.SAVE_IMAGE_EXT}"
-                mon.save_image(background, out_path)
+                mon.image.save_image(background, out_path)
             
             # Save Debug
             if args.save_debug:
-                debug_dir  = mon.parse_output_dir(args.save_dir, data_name, mon.SAVE_DEBUG_DIR, path, args.keep_subdirs, args.save_nearby)
+                debug_dir  = mon.rt.parse_output_dir(args.save_dir, data_name, mon.SAVE_DEBUG_DIR, path, args.keep_subdirs, args.save_nearby)
                 debug_path = debug_dir / f"{path.stem}_foreground{mon.SAVE_IMAGE_EXT}"
-                mon.save_image(foreground, debug_path)
+                mon.image.save_image(foreground, debug_path)
     timers.total.tock()
 
     # Finish
@@ -120,7 +129,7 @@ def predict(args: dict | box.Box) -> str:
 
 # ----- Main -----
 def main() -> str:
-    args = mon.parse_predict_args(model_root=current_dir)
+    args = mon.rt.parse_predict_args(model_root=current_dir)
     predict(args)
 
 

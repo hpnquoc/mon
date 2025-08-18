@@ -6,6 +6,7 @@
 import argparse
 import logging
 
+import albumentations as A
 import pyiqa
 import pyiqa.default_model_configs
 import pyiqa.models.inference_model
@@ -52,7 +53,7 @@ def measure_metric_pyiqa(
     metric      = [m.lower() for m in metric]
     values      = {m: []     for m in metric}
     results     = {}
-    h, w        = mon.image_size(imgsz)
+    h, w        = mon.image.imgsz(imgsz)
     
     # Parse metrics
     metric_f = {}
@@ -64,7 +65,12 @@ def measure_metric_pyiqa(
             as_loss     = False,
             device      = device,
         )
-    need_target = any(_METRICS[m]["metric_mode"] == "FR" for m in metric)
+    
+    # Prepare transform
+    base_transform = A.Compose([
+        A.Normalize(mean=[0, 0, 0], std=[1, 1, 1], normalization="min_max"),
+        A.ToTensorV2(transpose_mask=True),
+    ])
     
     # Measuring
     description = f"[bright_yellow]Measuring {model} | {data} (GT Mean)" if use_gt_mean else f"[bright_yellow]Measuring {model} | {data}"
@@ -75,46 +81,49 @@ def measure_metric_pyiqa(
             description = description
         ):
             # Image
-            image  = mon.load_image(path=image_file, to_tensor=True, normalize=True)
-            h0, w0 = mon.image_size(image)
-            if torch.any(image.isnan()):
-                continue
-            if resize:  # Force resize
-                image = mon.resize(image, (h, w))
+            image  = mon.image.load_image(path=image_file)
+            h0, w0 = mon.image.imgsz(image)
+            h2, w2 = h, w
             
             # Target
-            has_target  = need_target
+            target      = None
             target_file = None
+            need_resize = resize
             for ext in mon.ImageExtension.values():
                 temp = target_dir / f"{image_file.stem}{ext}"
                 if temp.exists():
                     target_file = temp
             if target_file and target_file.exists():  # Has target file
-                target = mon.load_image(path=target_file, to_tensor=True, normalize=True)
-                h1, w1 = mon.image_size(target)
-                if resize:  # Force resize
-                    target = mon.resize(target, (h, w))
-                elif h1 != h0 or w1 != w0:  # Mismatch size between image and target
-                    image  = mon.resize(image, (h1, w1))
-            else:
-                has_target = False
+                target = mon.image.load_image(path=target_file)
+                h1, w1 = mon.image.imgsz(target)
+                if h1 != h0 or w1 != w0:  # Mismatch size between image and target
+                    h2, w2      = h1, w1
+                    need_resize = True
             
-            # GT mean
-            if use_gt_mean and has_target:
-                image = mon.scale_gt_mean(image, target)
+            # Transform
+            transform = base_transform
+            if need_resize:
+                transform = A.Resize(height=h2, width=w2) + transform
+            if target:
+                transform.add_targets(additional_targets={"target": "image"})
+                augmented = transform(image=image, target=target)
+                image     = augmented["image"]
+                target    = augmented["target"]
+            else:
+                augmented = transform(image=image)
+                image     = augmented["image"]
             
             # Move to device
-            image = image.to(device=device)
-            if has_target:
-                target = target.to(device=device)
+            image  =  image.to(device=device)
+            target = target.to(device=device) if target else None
             
             # Measure metric
             for m in metric:
                 if m not in _METRICS:
                     continue
-                if not has_target and _METRICS[m]["metric_mode"] == "FR":
+                if not target and _METRICS[m]["metric_mode"] == "FR":
                     continue
-                elif has_target and _METRICS[m]["metric_mode"] == "FR":
+                elif target and _METRICS[m]["metric_mode"] == "FR":
                     values[m].append(metric_f[m](image, target))
                 else:
                     values[m].append(metric_f[m](image))
@@ -144,8 +153,8 @@ def update_best_results(results: dict, new_values: dict) -> dict:
 
 # ----- Main -----
 # @click.command(name="metric", context_settings=dict(ignore_unknown_options=True, allow_extra_args=True))
-# @click.option("--input-dir",   type=click.Path(exists=True),  default=None, help="Image directory.")
-# @click.option("--target-dir",  type=click.Path(exists=False), default=None, help="Ground-truth directory.")
+# @click.option("--input-dir",   type=click.mon.Path(exists=True),  default=None, help="Image directory.")
+# @click.option("--target-dir",  type=click.mon.Path(exists=False), default=None, help="Ground-truth directory.")
 # @click.option("--result-file", type=str,                      default=None, help="Result file.")
 # @click.option("--arch",        type=str,                      default=None, help="Model's architecture.")
 # @click.option("--model",       type=str,                      default=None, help="Model's fullname.")

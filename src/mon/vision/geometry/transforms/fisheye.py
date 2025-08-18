@@ -134,12 +134,12 @@ class FisheyeTransform(DualTransform):
         self.z_trans = self.z_trans_range[0] * (1 - temp) + self.z_trans_range[1] * temp
 
     def print_ext_param(self):
-        console.log(f"alpha:         {self.alpha * 180 / math.pi}.")
-        console.log(f"beta:          { self.beta * 180 / math.pi}.")
-        console.log(f"theta:         {self.theta * 180 / math.pi}.")
-        console.log(f"X translation: {self.x_trans}.")
-        console.log(f"Y translation: {self.y_trans}.")
-        console.log(f"Z translation: {self.z_trans}.")
+        mon.log(f"alpha:         {self.alpha * 180 / math.pi}.")
+        mon.log(f"beta:          { self.beta * 180 / math.pi}.")
+        mon.log(f"theta:         {self.theta * 180 / math.pi}.")
+        mon.log(f"X translation: {self.x_trans}.")
+        mon.log(f"Y translation: {self.y_trans}.")
+        mon.log(f"Z translation: {self.z_trans}.")
 
     # ----- Calculation -----
     def _calculate_coord_map(self, image: np.ndarray):

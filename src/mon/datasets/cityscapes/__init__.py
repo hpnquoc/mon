@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Implements the Cityscapes dataset.
+"""Cityscapes datasets.
 
 References:
-	- https://www.cityscapes-dataset.com/
+	- Data: https://www.cityscapes-dataset.com/
 """
 
 from .cityscapes import *

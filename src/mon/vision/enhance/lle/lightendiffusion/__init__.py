@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""LightenDiffusion model for low-light image enhancement.
+"""Implements LightenDiffusion model for low-light image enhancement.
 
 References:
     - Paper: "LightenDiffusion: Unsupervised Low-Light Image Enhancement with

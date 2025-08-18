@@ -18,7 +18,7 @@ def train(args: dict | box.Box) -> str:
         mon.print_run_summary(args)
     
     # Device
-    device = mon.set_device(args.device)
+    device = mon.create_device(args.device)
     
     # Seed
     mon.set_random_seed(args.seed)
@@ -53,7 +53,7 @@ def train(args: dict | box.Box) -> str:
     }
     model: mon.LightningModule = mon.MODELS.build(config=args.modelmodule)
     if mon.is_rank_zero():
-        mon.print_dict(args, title=args.fullname)
+        mon.pprint_dict(args, title=args.fullname)
 
     # Trainer
     callbacks = args.trainer.callbacks

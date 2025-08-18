@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""DarkIR model for low-light deblurring.
+"""Implements DarkIR model for low-light deblurring.
 
 References:
     - Paper: "DarkIR: Robust Low-Light Image Restoration," CVPR 2025.

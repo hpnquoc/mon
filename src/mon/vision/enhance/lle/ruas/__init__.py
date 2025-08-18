@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""RUAS model for low-light image enhancement.
+"""Implements RUAS model for low-light image enhancement.
 
 References:
     - Paper: "Retinex-inspired Unrolling with Cooperative Prior Architecture

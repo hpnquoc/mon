@@ -14,17 +14,17 @@ __all__ = [
 
 from typing import Union
 
+import kornia
 import numpy as np
 import torch
+import torch.nn as nn
+import torch.nn.functional as F
 from cv2 import ximgproc
 from plum import dispatch
 from torch.autograd import Variable
 
-import mon.nn as nn
-from mon.core import pathlib
-from mon.nn import functional as F, init
-from mon.vision import geometry
-from mon.vision.filtering.box_filter import BoxFilter
+from mon.core import Path
+from .box_filter import BoxFilter
 
 
 # ----- Guided Filter -----
@@ -199,8 +199,8 @@ class FastGuidedFilter(nn.Module):
         _, _, x_h, x_w = x_lr.size()
         h    = x_h // self.downscale
         w    = x_w // self.downscale
-        x_lr = geometry.resize(x_lr, (h, w), interpolation="bicubic")
-        y_lr = geometry.resize(x_hr, (h, w), interpolation="bicubic")
+        x_lr = kornia.geometry.resize(x_lr, (h, w), interpolation="bicubic")
+        y_lr = kornia.geometry.resize(x_hr, (h, w), interpolation="bicubic")
         return self.forward(x_lr, y_lr, x_hr)
 
 
@@ -276,8 +276,8 @@ class ConvGuidedFilter(nn.Module):
         _, _, x_h, x_w = x_lr.size()
         h    = x_h // self.downscale
         w    = x_w // self.downscale
-        x_lr = geometry.resize(x_lr, (h, w), interpolation="bicubic")
-        y_lr = geometry.resize(x_hr, (h, w), interpolation="bicubic")
+        x_lr = kornia.geometry.resize(x_lr, (h, w), interpolation="bicubic")
+        y_lr = kornia.geometry.resize(x_hr, (h, w), interpolation="bicubic")
         return self.forward(x_lr, y_lr, x_hr)
     
 
@@ -299,15 +299,15 @@ def weights_init_identity(m):
     if classname.find("Conv") != -1:
         n_out, n_in, h, w = m.weight.data.size()
         if n_out < n_in:
-            init.xavier_uniform_(m.weight.data)
+            nn.init.xavier_uniform_(m.weight.data)
             return
         m.weight.data.zero_()
         ch, cw = h // 2, w // 2
         for i in range(n_in):
             m.weight.data[i, i, ch, cw] = 1.0
     elif classname.find("BatchNorm2d") != -1:
-        init.constant_(m.weight.data, 1.0)
-        init.constant_(m.bias.data,   0.0)
+        nn.init.constant_(m.weight.data, 1.0)
+        nn.init.constant_(m.bias.data,   0.0)
         
         
 def build_lr_net(
@@ -416,7 +416,7 @@ class DeepGuidedFilter(nn.Module):
             return self.gf(self.guided_map_net(x_lr), self.lr_net(x_lr), self.guided_map_net(x_hr)).clamp(0, 1)
         return self.gf(x_lr, self.lr_net(x_lr), x_hr).clamp(0, 1)
 
-    def load_lr_weights(self, path: pathlib.Path):
+    def load_lr_weights(self, path: Path):
         """Loads weights for the low-resolution network.
 
         Args:
@@ -497,7 +497,7 @@ class DeepConvGuidedFilter(nn.Module):
             return self.gf(self.guided_map_net(x_lr), self.lr(x_lr), self.guided_map_net(x_hr)).clamp(0, 1)
         return self.gf(x_lr, self.lr(x_lr), x_hr).clamp(0, 1)
 
-    def init_lr(self, path: pathlib.Path):
+    def init_lr(self, path: Path):
         """Loads weights for the low-resolution network.
 
         Args:

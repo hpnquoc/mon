@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""ZID model for image dehazing.
+"""Implements ZID model for image dehazing.
 
 References:
     - Paper: "Zero-Shot Image Dehazing," IEEE TIP 2020.
@@ -16,12 +16,12 @@ __all__ = [
 from collections import namedtuple
 
 import box
+import torch.nn as nn
 import torch.optim
 from cv2.ximgproc import guidedFilter
 
-import mon.nn as nn
-from mon.constants import MLType, MODELS, Task
-from mon.core import console, pathlib
+from mon.constants import MODELS
+from mon.core import MLType, ModelMixin, Path, Task
 from .src.net import *
 from .src.net.losses import StdLoss
 from .src.net.vae_model import VAE
@@ -29,13 +29,13 @@ from .src.utils.dcp import get_atmosphere
 from .src.utils.image_io import *
 from .src.utils.imresize import np_imresize
 
-current_file = pathlib.Path(__file__).absolute()
+current_file = Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 DehazeResult = namedtuple("DehazeResult", ["learned", "t", "a"])
 
 
 @MODELS.register(name="zid", arch="zid")
-class ZID(nn.ModelMixin):
+class ZID(ModelMixin):
     """ZID model for image dehazing.
     
     References:
@@ -47,7 +47,7 @@ class ZID(nn.ModelMixin):
     name     : str          = "zid"
     tasks    : list[Task]   = [Task.DEHAZE]
     mltypes  : list[MLType] = [MLType.ZERO_SHOT]
-    model_dir: pathlib.Path = current_dir
+    model_dir: Path         = current_dir
     zoo      : dict         = box.Box()
     
     def __init__(self, image_name, image, num_iter=500, clip=True, output_path="output"):
@@ -188,11 +188,7 @@ class ZID(nn.ModelMixin):
             self.current_result = DehazeResult(learned=image_out_np, t=mask_out_np, a=ambient_out_np)
     
     def _plot_closure(self, step):
-        """
-        :param step: the number of the iteration
-        :return:
-        """
-        console.log('Iteration %05d    Loss %f  %f' % (step, self.total_loss.item(), self.blur_out.item()), '\r', end='')
+        mon.log('Iteration %05d    Loss %f  %f' % (step, self.total_loss.item(), self.blur_out.item()), '\r', end='')
     
     def finalize(self):
         self.final_t_map = np_imresize(self.current_result.t, output_shape=self.original_image.shape[1:])

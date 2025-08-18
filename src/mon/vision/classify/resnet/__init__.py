@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""ResNet model for image classification.
+"""Implements ResNet model for image classification.
 
 References:
     - Paper: https://arxiv.org/abs/1512.03385
@@ -20,8 +20,4 @@ __all__ = [
     "WideResNet50_2",
 ]
 
-from .model import (
-    ResNeXt101_32X8D, ResNeXt101_64X4D, ResNeXt50_32X4D,
-    ResNet101, ResNet152, ResNet18, ResNet34, ResNet50,
-    WideResNet101_2, WideResNet50_2
-)
+from .model import *

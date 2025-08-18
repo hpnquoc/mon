@@ -5,74 +5,40 @@
 
 __all__ = [
     "LOLBlurB",
-    "LOLBlurBDataModule",
     "LOLBlurBN",
-    "LOLBlurBNDataModule",
     "LOLBlurL",
     "LOLBlurLB",
-    "LOLBlurLBDataModule",
     "LOLBlurLBN",
-    "LOLBlurLBNDataModule",
-    "LOLBlurLDataModule",
     "LOLBlurN",
-    "LOLBlurNDataModule",
 ]
 
 import abc
-from typing import Literal
 
-from mon.core import console, pathlib, rich, types
-from mon.datasets.core import *
+from mon.core import rich
+from ..core import *
 
 
-# ----- Dataset -----
 class LOLBlur(VisionDataset, abc.ABC):
-    """Loads LOL-Blur dataset from ``root`` dir.
-
-    Args:
-        root: Directory path to dataset.
-        *args: Additional args for parent class.
-        **kwargs: Additional kwargs for parent class.
-
-    Raises:
-        FileNotFoundError: If ``root`` directory does not exist.
-    """
+    """LOL-Blur dataset."""
     
-    # tasks : list[Task]  = [Task.LLE]
-    splits: list[Split] = [Split.TRAIN, Split.TEST]
-    datapoint_attrs     = DatapointAttributes({
-        "image"    : Image,
-        "depth"    : DepthMap,
-        "ref_image": Image,
-        "ref_depth": DepthMap,
-    })
-    has_test_annotations: bool = True
-
-    def __init__(self, root: pathlib.Path, *args, **kwargs):
-        root = pathlib.Path(root)
-        root = root / "lolblur" if root.name != "lolblur" else root
-        if not root.is_dir():
-            raise FileNotFoundError(f"[root] directory not found: [{root}].")
-        
-        super().__init__(root=root, *args, **kwargs)
+    name       : str         = "lolblur"
+    splits    : list[Split] = [Split.TRAIN, Split.TEST]
+    modalities: Modalities  = {
+        "image"    : Modality(name="image", type="image", module=Image, in_test=True, primary=True),
+        "depth"    : Modality(name=f"image_{DEPTH_SOURCE.value}", type="mask", module=DefaultDepthMap, in_test=True),
+        "ref"      : Modality(name="ref",   type="image", module=Image, in_test=True),
+        "ref_depth": Modality(name=f"ref_{DEPTH_SOURCE.value}",   type="mask", module=DefaultDepthMap, in_test=True),
+    }
+    classes   : Classes     = None
 
 
 @DATASETS.register(name="lolblurb")
 class LOLBlurB(LOLBlur):
-    """Loads LOL-Blur-B (Blur) dataset from ``root`` dir.
-
-    Args:
-        root: Directory path to dataset.
-        *args: Additional args for parent class.
-        **kwargs: Additional kwargs for parent class.
-
-    Raises:
-        FileNotFoundError: If ``root`` directory does not exist.
-    """
+    """LOL-Blur-B (Blur) dataset."""
 
     tasks: list[Task] = [Task.DEBLUR]
 
-    def list_data(self):
+    def list_primary_data(self) -> list:
         """Lists ``datapoints`` with image annotations for split."""
         patterns = [self.root / "b" / self.split_str / "image"]
 
@@ -80,30 +46,21 @@ class LOLBlurB(LOLBlur):
         with rich.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
-                desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
+                desc  = f"Listing {self.__class__.__name__} {self.split_str} image(s)"
                 for path in pbar.track(sequence=paths, description=desc):
                     if path.is_image_file():
                         images.append(Image(path=path, root=pattern))
 
-        self.datapoints["image"] = images
+        return images
 
 
 @DATASETS.register(name="lolblurbn")
 class LOLBlurBN(LOLBlur):
-    """Loads LOL-Blur-BN (Blur + Noise) dataset from ``root`` dir.
-
-    Args:
-        root: Directory path to dataset.
-        *args: Additional args for parent class.
-        **kwargs: Additional kwargs for parent class.
-
-    Raises:
-        FileNotFoundError: If ``root`` directory does not exist.
-    """
+    """LOL-Blur-BN (Blur + Noise) dataset."""
 
     tasks: list[Task] = [Task.DEBLUR, Task.DENOISE]
 
-    def list_data(self):
+    def list_primary_data(self) -> list:
         """Lists ``datapoints`` with image annotations for split."""
         patterns = [self.root / "bn" / self.split_str / "image"]
 
@@ -111,30 +68,21 @@ class LOLBlurBN(LOLBlur):
         with rich.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
-                desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
+                desc  = f"Listing {self.__class__.__name__} {self.split_str} image(s)"
                 for path in pbar.track(sequence=paths, description=desc):
                     if path.is_image_file():
                         images.append(Image(path=path, root=pattern))
 
-        self.datapoints["image"] = images
+        return images
 
 
 @DATASETS.register(name="lolblurl")
 class LOLBlurL(LOLBlur):
-    """Loads LOL-Blur-L (Low-Light) dataset from ``root`` dir.
-
-    Args:
-        root: Directory path to dataset.
-        *args: Additional args for parent class.
-        **kwargs: Additional kwargs for parent class.
-
-    Raises:
-        FileNotFoundError: If ``root`` directory does not exist.
-    """
+    """LOL-Blur-L (Low-Light) dataset."""
 
     tasks: list[Task] = [Task.LLE]
 
-    def list_data(self):
+    def list_primary_data(self) -> list:
         """Lists ``datapoints`` with image annotations for split."""
         patterns = [self.root / "l" / self.split_str / "image"]
 
@@ -142,30 +90,21 @@ class LOLBlurL(LOLBlur):
         with rich.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
-                desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
+                desc  = f"Listing {self.__class__.__name__} {self.split_str} image(s)"
                 for path in pbar.track(sequence=paths, description=desc):
                     if path.is_image_file():
                         images.append(Image(path=path, root=pattern))
 
-        self.datapoints["image"] = images
+        return images
 
 
 @DATASETS.register(name="lolblurlb")
 class LOLBlurLB(LOLBlur):
-    """Loads LOL-Blur-LB (Low-Light + Blur) dataset from ``root`` dir.
-
-    Args:
-        root: Directory path to dataset.
-        *args: Additional args for parent class.
-        **kwargs: Additional kwargs for parent class.
-
-    Raises:
-        FileNotFoundError: If ``root`` directory does not exist.
-    """
+    """LOL-Blur-LB (Low-Light + Blur) dataset."""
 
     tasks: list[Task] = [Task.DEBLUR, Task.LLE]
 
-    def list_data(self):
+    def list_primary_data(self) -> list:
         """Lists ``datapoints`` with image annotations for split."""
         patterns = [self.root / "lb" / self.split_str / "image"]
 
@@ -173,30 +112,21 @@ class LOLBlurLB(LOLBlur):
         with rich.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
-                desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
+                desc  = f"Listing {self.__class__.__name__} {self.split_str} image(s)"
                 for path in pbar.track(sequence=paths, description=desc):
                     if path.is_image_file():
                         images.append(Image(path=path, root=pattern))
 
-        self.datapoints["image"] = images
+        return images
 
 
 @DATASETS.register(name="lolblurlbn")
 class LOLBlurLBN(LOLBlur):
-    """Loads LOL-Blur-LBN (Low-Light + Blur + Noise) dataset from ``root`` dir.
-
-    Args:
-        root: Directory path to dataset.
-        *args: Additional args for parent class.
-        **kwargs: Additional kwargs for parent class.
-
-    Raises:
-        FileNotFoundError: If ``root`` directory does not exist.
-    """
+    """LOL-Blur-LBN (Low-Light + Blur + Noise) dataset."""
 
     tasks: list[Task] = [Task.DEBLUR, Task.DENOISE, Task.LLE]
 
-    def list_data(self):
+    def list_primary_data(self) -> list:
         """Lists ``datapoints`` with image annotations for split."""
         patterns = [self.root / "lbn" / self.split_str / "image"]
 
@@ -204,30 +134,21 @@ class LOLBlurLBN(LOLBlur):
         with rich.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
-                desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
+                desc  = f"Listing {self.__class__.__name__} {self.split_str} image(s)"
                 for path in pbar.track(sequence=paths, description=desc):
                     if path.is_image_file():
                         images.append(Image(path=path, root=pattern))
 
-        self.datapoints["image"] = images
+        return images
 
 
 @DATASETS.register(name="lolblurn")
 class LOLBlurN(LOLBlur):
-    """Loads LOL-Blur-N (Noise) dataset from ``root`` dir.
-
-    Args:
-        root: Directory path to dataset.
-        *args: Additional args for parent class.
-        **kwargs: Additional kwargs for parent class.
-
-    Raises:
-        FileNotFoundError: If ``root`` directory does not exist.
-    """
+    """LOL-Blur-N (Noise) dataset."""
 
     tasks: list[Task] = [Task.DENOISE]
 
-    def list_data(self):
+    def list_primary_data(self) -> list:
         """Lists ``datapoints`` with image annotations for split."""
         patterns = [self.root / "n" / self.split_str / "image"]
 
@@ -235,196 +156,9 @@ class LOLBlurN(LOLBlur):
         with rich.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
-                desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
+                desc  = f"Listing {self.__class__.__name__} {self.split_str} image(s)"
                 for path in pbar.track(sequence=paths, description=desc):
                     if path.is_image_file():
                         images.append(Image(path=path, root=pattern))
 
-        self.datapoints["image"] = images
-
-
-# ----- DataModule -----
-@DATAMODULES.register(name="lolblurb")
-class LOLBlurBDataModule(types.DataModule):
-    """Configures LOL-Blur-B (Blur) datasets for training/testing."""
-    
-    tasks: list[Task] = [Task.DEBLUR]
-
-    def prepare_data(self, *args, **kwargs):
-        """Prepares data (placeholder, no action taken)."""
-        pass
-
-    def setup(self, stage: Literal["train", "test", "predict", None] = None):
-        """Sets up datasets for specified ``stage``.
-
-        Args:
-            stage: Stage to setup, one of ``"train"``, ``"test"``, ``"predict"``,
-                or ``None``. Default is ``None``.
-        """
-        if self.can_log:
-            console.log(f"Setup [red]{self.__class__.__name__}[/red].")
-
-        if stage in [None, "train"]:
-            self.train = LOLBlurB(split=Split.TRAIN, **self.dataset_kwargs)
-            self.val   = LOLBlurB(split=Split.TEST,  **self.dataset_kwargs)
-        if stage in [None, "test"]:
-            self.test  = LOLBlurB(split=Split.TEST,  **self.dataset_kwargs)
-
-        self.get_classes()
-        if self.can_log:
-            self.summarize()
-
-
-@DATAMODULES.register(name="lolblurbn")
-class LOLBlurBNDataModule(types.DataModule):
-    """Configures LOL-Blur-BN (Blur + Noise) datasets for training/testing."""
-
-    tasks: list[Task] = [Task.DEBLUR, Task.DENOISE]
-
-    def prepare_data(self, *args, **kwargs):
-        """Prepares data (placeholder, no action taken)."""
-        pass
-
-    def setup(self, stage: Literal["train", "test", "predict", None] = None):
-        """Sets up datasets for specified ``stage``.
-
-        Args:
-            stage: Stage to setup, one of ``"train"``, ``"test"``, ``"predict"``,
-                or ``None``. Default is ``None``.
-        """
-        if self.can_log:
-            console.log(f"Setup [red]{self.__class__.__name__}[/red].")
-
-        if stage in [None, "train"]:
-            self.train = LOLBlurBN(split=Split.TRAIN, **self.dataset_kwargs)
-            self.val   = LOLBlurBN(split=Split.TEST,  **self.dataset_kwargs)
-        if stage in [None, "test"]:
-            self.test  = LOLBlurBN(split=Split.TEST,  **self.dataset_kwargs)
-
-        self.get_classes()
-        if self.can_log:
-            self.summarize()
-
-
-@DATAMODULES.register(name="lolblurl")
-class LOLBlurLDataModule(types.DataModule):
-    """Configures LOL-Blur-L (Low-Light) datasets for training/testing."""
-
-    tasks: list[Task] = [Task.LLE]
-
-    def prepare_data(self, *args, **kwargs):
-        """Prepares data (placeholder, no action taken)."""
-        pass
-
-    def setup(self, stage: Literal["train", "test", "predict", None] = None):
-        """Sets up datasets for specified ``stage``.
-
-        Args:
-            stage: Stage to setup, one of ``"train"``, ``"test"``, ``"predict"``,
-                or ``None``. Default is ``None``.
-        """
-        if self.can_log:
-            console.log(f"Setup [red]{self.__class__.__name__}[/red].")
-
-        if stage in [None, "train"]:
-            self.train = LOLBlurL(split=Split.TRAIN, **self.dataset_kwargs)
-            self.val   = LOLBlurL(split=Split.TEST,  **self.dataset_kwargs)
-        if stage in [None, "test"]:
-            self.test  = LOLBlurL(split=Split.TEST,  **self.dataset_kwargs)
-
-        self.get_classes()
-        if self.can_log:
-            self.summarize()
-
-
-@DATAMODULES.register(name="lolblurlb")
-class LOLBlurLBDataModule(types.DataModule):
-    """Configures LOL-Blur-LB (Low-Light + Blur) datasets for training/testing."""
-
-    tasks: list[Task] = [Task.DEBLUR, Task.LLE]
-
-    def prepare_data(self, *args, **kwargs):
-        """Prepares data (placeholder, no action taken)."""
-        pass
-
-    def setup(self, stage: Literal["train", "test", "predict", None] = None):
-        """Sets up datasets for specified ``stage``.
-
-        Args:
-            stage: Stage to setup, one of ``"train"``, ``"test"``, ``"predict"``,
-                or ``None``. Default is ``None``.
-        """
-        if self.can_log:
-            console.log(f"Setup [red]{self.__class__.__name__}[/red].")
-
-        if stage in [None, "train"]:
-            self.train = LOLBlurLB(split=Split.TRAIN, **self.dataset_kwargs)
-            self.val   = LOLBlurLB(split=Split.TEST,  **self.dataset_kwargs)
-        if stage in [None, "test"]:
-            self.test  = LOLBlurLB(split=Split.TEST,  **self.dataset_kwargs)
-
-        self.get_classes()
-        if self.can_log:
-            self.summarize()
-
-
-@DATAMODULES.register(name="lolblurlbn")
-class LOLBlurLBNDataModule(types.DataModule):
-    """Configures LOL-Blur-LBN (Low-Light + Blur + Noise) datasets for training/testing."""
-
-    tasks: list[Task] = [Task.DEBLUR, Task.DENOISE, Task.LLE]
-
-    def prepare_data(self, *args, **kwargs):
-        """Prepares data (placeholder, no action taken)."""
-        pass
-
-    def setup(self, stage: Literal["train", "test", "predict", None] = None):
-        """Sets up datasets for specified ``stage``.
-
-        Args:
-            stage: Stage to setup, one of ``"train"``, ``"test"``, ``"predict"``,
-                or ``None``. Default is ``None``.
-        """
-        if self.can_log:
-            console.log(f"Setup [red]{self.__class__.__name__}[/red].")
-
-        if stage in [None, "train"]:
-            self.train = LOLBlurLBN(split=Split.TRAIN, **self.dataset_kwargs)
-            self.val   = LOLBlurLBN(split=Split.TEST,  **self.dataset_kwargs)
-        if stage in [None, "test"]:
-            self.test  = LOLBlurLBN(split=Split.TEST,  **self.dataset_kwargs)
-
-        self.get_classes()
-        if self.can_log:
-            self.summarize()
-
-
-@DATAMODULES.register(name="lolblurn")
-class LOLBlurNDataModule(types.DataModule):
-    """Configures LOL-Blur-N (Noise) datasets for training/testing."""
-
-    tasks: list[Task] = [Task.DENOISE]
-
-    def prepare_data(self, *args, **kwargs):
-        """Prepares data (placeholder, no action taken)."""
-        pass
-
-    def setup(self, stage: Literal["train", "test", "predict", None] = None):
-        """Sets up datasets for specified ``stage``.
-
-        Args:
-            stage: Stage to setup, one of ``"train"``, ``"test"``, ``"predict"``,
-                or ``None``. Default is ``None``.
-        """
-        if self.can_log:
-            console.log(f"Setup [red]{self.__class__.__name__}[/red].")
-
-        if stage in [None, "train"]:
-            self.train = LOLBlurN(split=Split.TRAIN, **self.dataset_kwargs)
-            self.val   = LOLBlurN(split=Split.TEST,  **self.dataset_kwargs)
-        if stage in [None, "test"]:
-            self.test  = LOLBlurN(split=Split.TEST,  **self.dataset_kwargs)
-
-        self.get_classes()
-        if self.can_log:
-            self.summarize()
+        return images

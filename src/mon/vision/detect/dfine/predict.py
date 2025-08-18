@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""D-FINE model prediction pipeline for object detection.
+"""Implements D-FINE model prediction pipeline for object detection.
 
 References:
     - Paper: "D-FINE: Redefine Regression Task of DETRs as Fine-grained
@@ -11,43 +11,44 @@ References:
 
 import box
 import torch
+import torch.nn as nn
 import torch.optim
 
 import mon
+from mon import albumentations as A
 from mon.vision.detect import dfine
+
+mon.dev()
 
 current_file = mon.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
 
 # ----- Utils -----
-def benchmark(model: torch.nn.Module):
-    flops, params = mon.compute_efficiency_score(model=model)
-    mon.console.log(f"Params    : {params:.4f}")
-    mon.console.log(f"FLOPs     : {flops:.4f}")
+def benchmark(model: nn.Module):
+    flops, params = mon.metric.compute_complexity(model=model)
+    mon.log(f"Params    : {params:.4f}")
+    mon.log(f"FLOPs     : {flops:.4f}")
 
 
 # ----- Predict -----
 @torch.no_grad()
 def predict(args: dict | box.Box) -> str:
     # Start
-    mon.print_run_summary(args)
+    mon.rt.print_run_summary(args)
 
     # Device
-    device = mon.set_device(args.device)
+    device = mon.create_device(args.device)
 
     # Seed
     mon.set_random_seed(args.seed)
-
-    # Data I/O
-    data_name, data_loader = mon.parse_data_loader(args.data, args.root, True, verbose=False)
 
     # Model
     pretrained = args.resume
     if args.weights and args.weights.is_weights_file(exist=True):
         pretrained = args.weights
     if pretrained and pretrained.is_weights_file(exist=True):
-        mon.console.log(f"Pretrained: {pretrained}.")
+        mon.log(f"Pretrained: {pretrained}.")
     else:
         raise ValueError(f"Invalid weights file: {pretrained}.")
 
@@ -66,23 +67,31 @@ def predict(args: dict | box.Box) -> str:
     for param in model.parameters():
         param.requires_grad = False
 
+    # Data I/O
+    imgsz     = args.imgsz if args.resize else (0, 0)
+    transform = A.Compose([
+        A.ResizeDivisibleBy(height=imgsz[0], width=imgsz[1], divisor=32),
+        A.Normalize(normalization="min_max"),
+        A.ToTensorV2(transpose_mask=True),
+    ])
+    data_name, dataloader = mon.data.build_dataloader(args.data, args.root, transform)
+
     # Predict
     timers = mon.TimeProfiler()
     timers.total.tick()
     with mon.create_progress_bar() as pbar:
         for i, datapoint in pbar.track(
-            sequence    = enumerate(data_loader),
-            total       = len(data_loader),
+            sequence    = enumerate(dataloader),
+            total       = len(dataloader),
             description = f"[bright_yellow]Predicting"
         ):
             # Preprocess
             timers.preprocess.tick()
-            path   = mon.Path(datapoint["meta"]["path"])
-            image  = datapoint["image"]
-            h0, w0 = mon.image_size(image)
+            meta   = datapoint["meta"][0]
+            path   = mon.Path(meta["path"])
+            h0, w0 = mon.image.imgsz(meta["orig_shape"])
             size0  = torch.tensor([[w0, h0]]).to(device)
-            if args.resize and (h0 != args.imgsz[0] or w0 != args.imgsz[1]):
-                image = mon.resize(image, size=args.imgsz)
+            image  = datapoint["image"]
             image  = image.to(device)
             timers.preprocess.tock()
 
@@ -101,7 +110,7 @@ def predict(args: dict | box.Box) -> str:
 
             # Save Result
             if args.save_result:
-                out_dir    = mon.parse_output_dir(args.save_dir, data_name, mon.SAVE_LABEL_DIR, path, args.keep_subdirs, args.save_nearby)
+                out_dir    = mon.rt.parse_output_dir(args.save_dir, data_name, mon.SAVE_LABEL_DIR, path, args.keep_subdirs, args.save_nearby)
                 label_path = out_dir / f"{path.stem}.txt"
                 label_path.parent.mkdir(parents=True, exist_ok=True)
                 with open(str(label_path), "w") as f:
@@ -111,7 +120,7 @@ def predict(args: dict | box.Box) -> str:
                         bs =  boxes[j][ss >= args.conf_thres]
                         if len(bs) == 0:
                             continue
-                        bs = mon.convert_hbb(bbox=bs, fmt=mon.BBoxFormat.VOC2YOLO, imgsz=(h0, w0))
+                        bs = mon.hbb.convert(bbox=bs, fmt=mon.BBoxFormat.VOC2YOLO, imgsz=(h0, w0))
                         for c, b, s in zip(cs, bs, ss):
                             f.write(f"{c} {b[0]} {b[1]} {b[2]} {b[3]} {s}\n")
     timers.total.tock()
@@ -123,7 +132,7 @@ def predict(args: dict | box.Box) -> str:
 
 # ----- Main -----
 def main() -> str:
-    args = mon.parse_predict_args(model_root=current_dir)
+    args = mon.rt.parse_predict_args(model_root=current_dir)
     predict(args)
 
 

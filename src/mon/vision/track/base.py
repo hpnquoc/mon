@@ -9,7 +9,7 @@ __all__ = [
     "Tracker",
 ]
 
-import abc
+import _template
 from timeit import default_timer as timer
 
 import numpy as np
@@ -101,7 +101,7 @@ class Detection:
         self._confidence = confidence
     
 
-class Track(abc.ABC):
+class Track(_template.ABC):
     """The base class for all tracks.
     
     Definition: A track represents the trajectory or path that an object takes
@@ -150,12 +150,12 @@ class Track(abc.ABC):
         """
         return Track.count + 1
     
-    @abc.abstractmethod
+    @_template.abstractmethod
     def update(self, *args, **kwargs):
         """Updates the state vector of the tracking object."""
         pass
     
-    @abc.abstractmethod
+    @_template.abstractmethod
     def predict(self):
         """Predict the next state of the tracking object."""
         pass
@@ -163,13 +163,13 @@ class Track(abc.ABC):
 
 # region Tracker
 
-class Tracker(abc.ABC):
+class Tracker(_template.ABC):
     """The base class for all trackers."""
     
     def __init__(self):
         super().__init__()
         self.frame_count = 0
         
-    @abc.abstractmethod
+    @_template.abstractmethod
     def update(self, *args, **kwargs):
         pass

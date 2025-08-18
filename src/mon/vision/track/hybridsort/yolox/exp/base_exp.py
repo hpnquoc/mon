@@ -4,7 +4,7 @@
 
 import ast
 import pprint
-from abc import ABCMeta, abstractmethod
+from _template import ABCMeta, abstractmethod
 from typing import Dict
 
 import torch

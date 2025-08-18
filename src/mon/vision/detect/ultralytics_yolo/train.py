@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Ultralytics YOLOs model training pipeline for object detection, classification,
-segmentation, orientation bounding box detection, and pose estimation.
+"""Implements Ultralytics YOLOs model training pipeline for object detection,
+classification, segmentation, orientation bounding box detection, and pose estimation.
 
 References:
     - Code: https://github.com/ultralytics/ultralytics
@@ -11,8 +11,9 @@ References:
 import box
 
 import mon
-from ultralytics import YOLO
-from ultralytics import settings
+from ultralytics import settings, YOLO
+
+mon.dev()
 
 current_file = mon.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
@@ -21,7 +22,7 @@ current_dir  = current_file.parents[0]
 # ----- Train -----
 def train(args: dict | box.Box) -> str:
     # Start
-    mon.print_run_summary(args)
+    mon.rt.print_run_summary(args)
 
     # Device
     device = [args.device] if isinstance(args.device, str | int) else args.device
@@ -30,10 +31,6 @@ def train(args: dict | box.Box) -> str:
     # Seed
     mon.set_random_seed(args.seed)
 
-    # Data I/O
-    # References: https://docs.ultralytics.com/quickstart/#modifying-settings
-    settings.update({"datasets_dir": str(args.root)})
-
     # Pretrained
     pretrained = args.tuning
     if args.resume and args.resume.is_weights_file(exist=True):
@@ -41,9 +38,9 @@ def train(args: dict | box.Box) -> str:
     if args.weights and args.weights.is_weights_file(exist=True):
         pretrained = args.weights
     if pretrained and pretrained.is_weights_file(exist=True):
-        mon.console.log(f"Pretrained: {pretrained}.")
+        mon.log(f"Pretrained: {pretrained}.")
     else:
-        mon.console.log(f"Pretrained: {None}, training from scratch.")
+        mon.log(f"Pretrained: {None}, training from scratch.")
 
     # Model
     cfg      = args.cfg
@@ -65,6 +62,10 @@ def train(args: dict | box.Box) -> str:
     model = YOLO(cfg.model)
     model.info()
 
+    # Data I/O
+    # References: https://docs.ultralytics.com/quickstart/#modifying-settings
+    settings.update({"datasets_dir": str(args.root)})
+
     # Train
     _ = model.train(**cfg)
 
@@ -74,7 +75,7 @@ def train(args: dict | box.Box) -> str:
 
 # ----- Main -----
 def main() -> str:
-    args = mon.parse_train_args(model_root=current_dir)
+    args = mon.rt.parse_train_args(model_root=current_dir)
     train(args)
 
 

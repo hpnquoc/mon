@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""SCI model for low-light image enhancement.
+"""Implements SCI model for low-light image enhancement.
 
 References:
     - Paper: "Toward Fast, Flexible, and Robust Low-Light Image Enhancement,"

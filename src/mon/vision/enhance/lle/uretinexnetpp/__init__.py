@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""URetinex-Net++ model for low-light image enhancement.
+"""Implements URetinex-Net++ model for low-light image enhancement.
 
 References:
     - Paper: "Interpretable Optimization-Inspired Unfolding Network for Low-light

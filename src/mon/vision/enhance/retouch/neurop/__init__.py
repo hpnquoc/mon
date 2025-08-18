@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""NeurOP model for image retouching.
+"""Implements NeurOP model for image retouching.
 
 References:
     - Paper: "Neural Color Operators for Sequential Image Retouching," ECCV 2022.

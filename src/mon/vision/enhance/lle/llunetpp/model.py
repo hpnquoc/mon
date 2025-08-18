@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""LL-UNet++ model for low-light image enhancement.
+"""Implements LL-UNet++ model for low-light image enhancement.
 
 References:
     - Paper: "LL-UNet++:UNet++ Based Nested Skip Connections Network for Low-Light
@@ -15,17 +15,16 @@ __all__ = [
 
 import box
 
-import mon.nn as nn
-from mon.constants import MLType, MODELS, Task
-from mon.core import pathlib
+from mon.constants import MODELS
+from mon.core import MLType, ModelMixin, Path, Task
 from .src.model import NestedUNet
 
-current_file = pathlib.Path(__file__).absolute()
+current_file = Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
 
 @MODELS.register(name="llunet++", arch="llunet++")
-class LLUnetPP(NestedUNet, nn.ModelMixin):
+class LLUnetPP(NestedUNet, ModelMixin):
     """LL-UNet++ model for low-light image enhancement.
     
     References:
@@ -38,5 +37,5 @@ class LLUnetPP(NestedUNet, nn.ModelMixin):
     name     : str          = "llunet++"
     tasks    : list[Task]   = [Task.LLE]
     mltypes  : list[MLType] = [MLType.SUPERVISED]
-    model_dir: pathlib.Path = current_dir
+    model_dir: Path         = current_dir
     zoo      : dict         = box.Box()

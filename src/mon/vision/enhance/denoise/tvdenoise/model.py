@@ -10,23 +10,23 @@ __all__ = [
 import box
 import kornia
 import torch
+import torch.nn as nn
 
-import mon.nn as nn
-from mon.constants import MLType, MODELS, Task
-from mon.core import pathlib
+from mon.constants import MODELS
+from mon.core import MLType, ModelMixin, Path, Task
 
-current_file = pathlib.Path(__file__).absolute()
+current_file = Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
 
 @MODELS.register(name="tvdenoise", arch="tvdenoise")
-class TVDenoise(nn.Module, nn.ModelMixin):
+class TVDenoise(nn.Module, ModelMixin):
     
     arch     : str          = "tvdenoise"
     name     : str          = "tvdenoise"
     tasks    : list[Task]   = [Task.DENOISE]
     mltypes  : list[MLType] = [MLType.ZERO_SHOT]
-    model_dir: pathlib.Path = current_dir
+    model_dir: Path         = current_dir
     zoo      : dict         = box.Box()
     
     def __init__(self):

@@ -1,26 +1,29 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""DEIM model training pipeline for object detection.
+"""Implements DEIM model training pipeline for object detection.
 
 References:
     - Paper: "DEIM: DETR with Improved Matching for Fast convergence," CVPR 2025.
     - Code: https://github.com/ShihuaHuang95/DEIM
 """
 
-import os
-import sys
+# import os
+# import sys
 from pprint import pprint
 
 import box
 import torch
 
 import mon
+# noinspection PyUnusedImports
+from mon.vision.detect import deim
+# sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
+from .engine.core import YAMLConfig
+from .engine.misc import dist_utils
+from .engine.solver import TASKS
 
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
-from engine.core import YAMLConfig
-from engine.misc import dist_utils
-from engine.solver import TASKS
+mon.dev()
 
 current_file = mon.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
@@ -47,16 +50,14 @@ def safe_get_rank():
 def train(args: dict | box.Box) -> str:
     # Start
     if safe_get_rank() == 0:
-        mon.print_run_summary(args)
+        mon.rt.print_run_summary(args)
 
     # Device
-    device = mon.set_device(args.device)
+    device = mon.create_device(args.device)
 
     # Seed
     mon.set_random_seed(args.seed)
-
-    # Data I/O
-
+ 
     # Pretrained
     if args.weights and args.weights.is_weights_file(exist=True):
         resume = args.weights
@@ -112,7 +113,7 @@ def train(args: dict | box.Box) -> str:
 
 # ----- Main -----
 def main() -> str:
-    args = mon.parse_train_args(model_root=current_dir)
+    args = mon.rt.parse_train_args(model_root=current_dir)
     train(args)
 
 

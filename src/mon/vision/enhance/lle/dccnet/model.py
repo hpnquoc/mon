@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""DCC-Net model for low-light image enhancement.
+"""Implements DCC-Net model for low-light image enhancement.
 
 References:
     - Paper: "Deep Color Consistent Network for Low Light-Image Enhancement," CVPR 2022.
@@ -14,12 +14,12 @@ __all__ = [
 
 import box
 import torch
+import torch.nn as nn
 
-import mon.nn as nn
-from mon.constants import MLType, MODELS, Task
-from mon.core import pathlib
+from mon.constants import MODELS
+from mon.core import MLType, ModelMixin, Path, Task
 
-current_file = pathlib.Path(__file__).absolute()
+current_file = Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
 
@@ -82,7 +82,7 @@ class cma(nn.Module):
         
 class r_net(nn.Module):
 
-    def __init__(self, depth=[2, 2, 2, 2]):
+    def __init__(self, depth=(2, 2, 2, 2)):
         super(r_net, self).__init__()
         
         base_channel = 32
@@ -151,7 +151,7 @@ class r_net(nn.Module):
 
 class c_net(nn.Module):
 
-    def __init__(self, d_hist, depth=[2, 2, 2]):
+    def __init__(self, d_hist, depth=(2, 2, 2)):
         super(c_net, self).__init__()
         
         base_channel = 32
@@ -328,7 +328,7 @@ class Up_scale(nn.Module):
 
 # ----- Model -----
 @MODELS.register(name="dccnet", arch="dccnet")
-class DCCNet(nn.Module, nn.ModelMixin):
+class DCCNet(nn.Module, ModelMixin):
     """DCC-Net model for low-light image enhancement.
 
     References:
@@ -340,7 +340,7 @@ class DCCNet(nn.Module, nn.ModelMixin):
     name     : str          = "dccnet"
     tasks    : list[Task]   = [Task.LLE]
     mltypes  : list[MLType] = [MLType.SUPERVISED]
-    model_dir: pathlib.Path = current_dir
+    model_dir: Path         = current_dir
     zoo      : dict         = box.Box()
     
     def __init__(self, d_hist: int = 64):

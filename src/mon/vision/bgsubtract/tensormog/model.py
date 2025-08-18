@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""TensorMoG model for background subtraction.
+"""Implements TensorMoG model for background subtraction.
 
 References:
     - Paper: "TensorMoG: A Tensor-Driven Gaussian Mixture Model with Dynamic Scene
@@ -13,12 +13,12 @@ __all__ = [
 ]
 
 import torch
+import torch.nn as nn
 
-import mon.nn as nn
-from mon.constants import MLType, MODELS, Task
-from mon.core import pathlib, Enum
+from mon.constants import MODELS
+from mon.core import Enum, MLType, ModelMixin, Path, Task
 
-current_file = pathlib.Path(__file__).absolute()
+current_file = Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
 
@@ -350,7 +350,7 @@ class HVR:
 
 # ----- Model -----
 @MODELS.register(name="tensormog", arch="tensormog")
-class TensorMOG(nn.Module, nn.ModelMixin):
+class TensorMOG(nn.Module, ModelMixin):
     """TensorMoG model for background subtraction.
 
     Args:
@@ -373,7 +373,7 @@ class TensorMOG(nn.Module, nn.ModelMixin):
     name     : str          = "tensormog"
     tasks    : list[Task]   = [Task.BGSUBTRACT, Task.VIDEO]
     mltypes  : list[MLType] = [MLType.INFERENCE]
-    model_dir: pathlib.Path = current_dir
+    model_dir: Path         = current_dir
     zoo      : dict         = {}
     
     def __init__(

@@ -7,4 +7,4 @@ __all__ = [
     "AlexNet",
 ]
 
-from .model import AlexNet
+from .model import *

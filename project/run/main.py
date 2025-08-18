@@ -10,21 +10,24 @@ import box
 
 import menu_rich
 import mon
+from mon import Path
 
-current_file = mon.Path(__file__).absolute()
+mon.dev()
+
+current_file = Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
 
 # ----- Train -----
 def run_train(args: dict | box.Box):
     # Parse arguments
-    args.root     = mon.Path(args.root)
-    model_root    = mon.parse_model_dir(args.arch, args.model)
-    args.config   = mon.parse_config_file(args.config, args.root, model_root=model_root, weights_path=args.weights)
-    args.weights  = mon.to_str(args.weights, ",")
+    args.root    = Path(args.root)
+    model_root   = mon.rt.parse_model_dir(args.arch, args.model)
+    args.config  = mon.rt.parse_config_file(args.config, args.root, model_root=model_root)
+    args.weights = mon.utils.to_str(args.weights, ",")
     
     if args.fullname in [None, "None", ""]:
-        args.fullname = mon.Path(args.config).stem
+        args.fullname = Path(args.config).stem
     
     # Prepare kwargs and flags
     kwargs, flags = {}, []
@@ -97,12 +100,12 @@ def run_train(args: dict | box.Box):
 # ----- Predict -----
 def run_predict(args: dict | box.Box):
     # Parse arguments
-    args.root     = mon.Path(args.root)
-    model_root    = mon.parse_model_dir(args.arch, args.model)
-    args.data     = mon.to_list(args.data)
-    args.config   = mon.parse_config_file(args.config, args.root, model_root=model_root, weights_path=args.weights)
-    args.config   = args.config or ""
-    args.weights  = mon.to_str(args.weights, ",")
+    args.root    = Path(args.root)
+    model_root   = mon.rt.parse_model_dir(args.arch, args.model)
+    args.data    = mon.utils.to_list(args.data)
+    args.config  = mon.rt.parse_config_file(args.config, args.root, model_root=model_root)
+    args.config  = args.config or ""
+    args.weights = mon.utils.to_str(args.weights, ",")
     
     if args.fullname not in [None, "None", ""]:
         args.fullname = args.model
@@ -166,7 +169,7 @@ def run_predict(args: dict | box.Box):
 
 # ----- Main -----
 def main():
-    defaults = mon.parse_default_args("main")
+    defaults = mon.rt.parse_default_args("main")
     menu     = menu_rich.RunmlCLI(defaults)
     args     = menu.prompt_args()
     

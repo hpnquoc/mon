@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""DEIM model for object detection.
+"""Implements DEIM model exporting pipeline for object detection.
 
 References:
     - Paper: "DEIM: DETR with Improved Matching for Fast convergence," CVPR 2025.
@@ -11,10 +11,12 @@ References:
 import box
 import tensorrt as trt
 import torch
+import torch.nn as nn
 
 import mon
-import mon.nn as nn
 from mon.vision.detect import deim
+
+mon.dev()
 
 current_file = mon.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
@@ -56,7 +58,7 @@ def export_onnx(model: nn.Module, path: mon.Path, args: dict | box.Box) -> mon.P
         import onnx
         onnx_model = onnx.load(path)
         onnx.checker.check_model(onnx_model)
-        mon.console.log("Check export onnx model done...")
+        mon.log("Check export onnx model done...")
 
     if simplify:
         import onnx
@@ -91,7 +93,7 @@ def export_trt(onnx_path: mon.Path, engine_path: mon.Path, args: dict | box.Box)
     parser        = trt.OnnxParser(network, logger)
 
     # Load ONNX model
-    mon.console.log(f"Loading ONNX model from: {onnx_path}.")
+    mon.log(f"Loading ONNX model from: {onnx_path}.")
     with open(onnx_path, "rb") as f:
         if not parser.parse(f.read()):
             for error in range(parser.num_errors):
@@ -147,24 +149,24 @@ def export_trt(onnx_path: mon.Path, engine_path: mon.Path, args: dict | box.Box)
                     layer.precision = trt.DataType.FLOAT
                     layer.set_output_type(0, trt.DataType.FLOAT)
 
-    mon.console.log("Building TensorRT engine...")
+    mon.log("Building TensorRT engine...")
     serialized_engine = builder.build_serialized_network(network, config)
     if serialized_engine is None:
         raise RuntimeError("Failed to build the engine.")
 
-    mon.console.log(f"Saving engine to {engine_path}")
+    mon.log(f"Saving engine to {engine_path}")
     with open(engine_path, "wb") as f:
         f.write(serialized_engine)
-    mon.console.log("Engine export complete.")
+    mon.log("Engine export complete.")
 
 
 @torch.no_grad()
 def export(args: dict | box.Box) -> str:
     # Start
-    mon.print_run_summary(args)
+    mon.rt.print_run_summary(args)
 
     # Device
-    device = mon.set_device(args.device)
+    device = mon.create_device(args.device)
 
     # Seed
     mon.set_random_seed(args.seed)
@@ -174,7 +176,7 @@ def export(args: dict | box.Box) -> str:
     if args.weights and args.weights.is_weights_file(exist=True):
         pretrained = args.weights
     if pretrained and pretrained.is_weights_file(exist=True):
-        mon.console.log(f"Pretrained: {pretrained}.")
+        mon.log(f"Pretrained: {pretrained}.")
     else:
         raise ValueError(f"Invalid weights file: {pretrained}.")
 
@@ -200,7 +202,7 @@ def export(args: dict | box.Box) -> str:
     file_stem = args.fullname
     onnx_file = save_dir / f"{file_stem}.onnx"
     export_onnx(model, onnx_file, args)
-    mon.console.log(f"Exported ONNX model to: {onnx_file}.")
+    mon.log(f"Exported ONNX model to: {onnx_file}.")
 
     # Export TensorRT engine
     if args.format in ["engine", "trt"]:
@@ -210,7 +212,7 @@ def export(args: dict | box.Box) -> str:
 
 # ----- Main -----
 def main() -> str:
-    args = mon.parse_predict_args(model_root=current_dir)
+    args = mon.rt.parse_predict_args(model_root=current_dir)
     export(args)
 
 

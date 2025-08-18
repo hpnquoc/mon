@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""ZINF model prediction pipeline for low-light image enhancement.
+"""Implements ZINF model prediction pipeline for low-light image enhancement.
 
 References:
     - Paper: "Zero-Shot Implicit Neural Fusion Network for Multimodal Low-Light
@@ -14,10 +14,18 @@ import thop
 import torch.optim
 from fvcore.nn import FlopCountAnalysis, parameter_count
 
+import albumentations as A
+import box
+import cv2
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+
 import mon
+from mon import console, metrics, Path, tfms, optims
 from mon.vision.enhance.lle import zinf
 
-current_file = mon.Path(__file__).absolute()
+current_file = Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
 
@@ -51,10 +59,10 @@ def compute_efficiency_score(model: torch.nn.Module, imgsz: int = 512) -> tuple[
     return flops, params
 
 
-def benchmark(model: torch.nn.Module):
+def benchmark(model: nn.Module):
     flops, params = compute_efficiency_score(model=model)
-    mon.console.log(f"Params    : {params:.4f}")
-    mon.console.log(f"FLOPs     : {flops:.4f}")
+    mon.log(f"Params    : {params:.4f}")
+    mon.log(f"FLOPs     : {flops:.4f}")
 
 
 # ----- Predict -----
@@ -73,10 +81,10 @@ def predict(args: dict | box.Box) -> str:
     iters           = args.epochs
     
     # Start
-    mon.print_run_summary(args)
+    mon.rt.print_run_summary(args)
 
     # Device
-    device = mon.set_device(args.device)
+    device = mon.create_device(args.device)
 
     # Seed
     mon.set_random_seed(args.seed)
@@ -116,7 +124,7 @@ def predict(args: dict | box.Box) -> str:
         ):
             # Preprocess
             timers.preprocess.tick()
-            path  = mon.Path(datapoint["meta"]["path"])
+            path  = Path(datapoint["meta"]["path"])
             image = datapoint["image"].to(device)
             depth = datapoint.get("depth", None)
             timers.preprocess.tock()
@@ -133,9 +141,9 @@ def predict(args: dict | box.Box) -> str:
             
             # Save
             if args.save_image:
-                out_dir  = mon.parse_output_dir(args.save_dir, data_name, mon.SAVE_IMAGE_DIR, path, args.keep_subdirs, args.save_nearby)
+                out_dir  = mon.rt.parse_output_dir(args.save_dir, data_name, mon.SAVE_IMAGE_DIR, path, args.keep_subdirs, args.save_nearby)
                 out_path = out_dir / f"{path.stem}{mon.SAVE_IMAGE_EXT}"
-                mon.save_image(enhanced, out_path)
+                mon.image.save_image(enhanced, out_path)
     timers.total.tock()
 
     # Finish
@@ -145,7 +153,7 @@ def predict(args: dict | box.Box) -> str:
 
 # ----- Main -----
 def main() -> str:
-    args = mon.parse_predict_args(model_root=current_dir)
+    args = mon.rt.parse_predict_args(model_root=current_dir)
     predict(args)
 
 

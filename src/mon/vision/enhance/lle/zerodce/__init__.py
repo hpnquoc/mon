@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Zero-DCE model for low-light image enhancement.
+"""Implements Zero-DCE model for low-light image enhancement.
 
 References:
     - Paper: "Zero-Reference Deep Curve Estimation for Low-Light Image
@@ -13,4 +13,5 @@ __all__ = [
     "ZeroDCE",
 ]
 
+from . import loss
 from .model import ZeroDCE

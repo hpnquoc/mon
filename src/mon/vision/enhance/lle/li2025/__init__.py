@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Li2025 model for low-light image enhancement.
+"""Implements Li2025 model for low-light image enhancement.
 
 References:
     - Paper: "Interpretable Unsupervised Joint Denoising and Enhancement for

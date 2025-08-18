@@ -13,7 +13,7 @@ __all__ = [
 	"assign_moi_to_moving_objects",
 ]
 
-import abc
+import _template
 from typing import Any, Literal
 
 import cv2
@@ -23,7 +23,7 @@ import mon
 from tss.constants import AppleRGB
 
 
-class MOI(abc.ABC):
+class MOI(_template.ABC):
 	"""Movement of Interest (MOI).
 	
 	Attributes:
@@ -65,7 +65,7 @@ class MOI(abc.ABC):
 		if len(self._points) < 2:
 			raise ValueError("Insufficient number of points in the MOI.")
 		
-	@abc.abstractmethod
+	@_template.abstractmethod
 	def draw(self, image: np.ndarray, color: tuple[int, int, int] = None) -> np.ndarray:
 		"""Draw the MOI on the image."""
 		pass

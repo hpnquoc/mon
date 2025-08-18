@@ -5,41 +5,23 @@
 
 __all__ = [
     "FishEye8K",
-    "FishEye8KDataModule",
-    "FishEye8KTest",
-    "FishEye8KTestDataModule",
-    "FishEye8KVal",
-    "FishEye8KValDataModule",
 ]
 
-from typing import Literal
-
-from mon.core import console, pathlib, rich, types
-from mon.datasets.core import *
+from mon.core import rich
+from ..core import *
 
 
-# ----- Dataset -----
 @DATASETS.register(name="fisheye8k")
 class FishEye8K(VisionDataset):
-    """Loads FishEye8K dataset from ``root`` dir.
-
-    Args:
-        root: Directory path to dataset.
-        *args: Additional args for parent class.
-        **kwargs: Additional kwargs for parent class.
-
-    Raises:
-        FileNotFoundError: If ``root`` directory does not exist.
-    """
+    """FishEye8K dataset."""
     
-    tasks : list[Task]  = [Task.DETECT]
-    splits: list[Split] = [Split.TRAIN, Split.VAL, Split.TEST]
-    datapoint_attrs     = DatapointAttributes({
-        "image": Image,
-        # "bbox" : BBoxesAnnotation,
-    })
-    has_test_annotations: bool = False
-    classes             = Classes([
+    root_name : str         = "fisheye8k"
+    tasks     : list[Task]  = [Task.DETECT]
+    splits    : list[Split] = [Split.TRAIN, Split.VAL, Split.TEST]
+    modalities: Modalities  = {
+        "image": Modality(name="image", type="image", module=Image, in_test=True, primary=True),
+    }
+    classes   : Classes     = Classes([
         {"name": "bus",        "id": 0, "color": [140,  24, 143]},
         {"name": "bike",       "id": 1, "color": [122,  35,   2]},
         {"name": "car",        "id": 2, "color": [ 49,   3, 150]},
@@ -47,15 +29,7 @@ class FishEye8K(VisionDataset):
         {"name": "truck",      "id": 4, "color": [ 72, 153, 152]},
     ])
 
-    def __init__(self, root: pathlib.Path, *args, **kwargs):
-        root = pathlib.Path(root)
-        root = root / "fisheye8k" if root.name != "fisheye8k" else root
-        if not root.is_dir():
-            raise FileNotFoundError(f"[root] directory not found: [{root}].")
-
-        super().__init__(root=root, *args, **kwargs)
-
-    def list_data(self):
+    def list_primary_data(self) -> list:
         """Lists ``datapoints`` with image annotations for split."""
         patterns = [self.root / self.split_str / "image"]
 
@@ -63,161 +37,9 @@ class FishEye8K(VisionDataset):
         with rich.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
                 paths = sorted(pattern.rglob("*"))
-                desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
+                desc  = f"Listing {self.__class__.__name__} {self.split_str} image(s)"
                 for path in pbar.track(sequence=paths, description=desc):
                     if path.is_image_file():
                         images.append(Image(path=path, root=pattern))
 
-        self.datapoints["image"] = images
-
-
-@DATASETS.register(name="fisheye8kval")
-class FishEye8KVal(FishEye8K):
-    """Loads FishEye8K-Val dataset from ``root`` dir.
-
-    Args:
-        root: Directory path to dataset.
-        *args: Additional args for parent class.
-        **kwargs: Additional kwargs for parent class.
-
-    Raises:
-        FileNotFoundError: If ``root`` directory does not exist.
-    """
-
-    def list_data(self):
-        """Lists ``datapoints`` with image annotations for split."""
-        patterns = [self.root / "val" / "image"]
-
-        images: list[Image] = []
-        with rich.create_progress_bar(disable=self.disable_pbar) as pbar:
-            for pattern in patterns:
-                paths = sorted(pattern.rglob("*"))
-                desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
-                for path in pbar.track(sequence=paths, description=desc):
-                    if path.is_image_file():
-                        images.append(Image(path=path, root=pattern))
-
-        self.datapoints["image"] = images
-
-
-@DATASETS.register(name="fisheye8ktest")
-class FishEye8KTest(FishEye8K):
-    """Loads FishEye8K-Test dataset from ``root`` dir.
-
-    Args:
-        root: Directory path to dataset.
-        *args: Additional args for parent class.
-        **kwargs: Additional kwargs for parent class.
-
-    Raises:
-        FileNotFoundError: If ``root`` directory does not exist.
-    """
-
-    def list_data(self):
-        """Lists ``datapoints`` with image annotations for split."""
-        patterns = [self.root / "test" / "image"]
-
-        images: list[Image] = []
-        with rich.create_progress_bar(disable=self.disable_pbar) as pbar:
-            for pattern in patterns:
-                paths = sorted(pattern.rglob("*"))
-                desc  = f"Listing {self.__class__.__name__} {self.split_str} images"
-                for path in pbar.track(sequence=paths, description=desc):
-                    if path.is_image_file():
-                        images.append(Image(path=path, root=pattern))
-
-        self.datapoints["image"] = images
-
-
-# ----- DataModule -----
-@DATAMODULES.register(name="fisheye8k")
-class FishEye8KDataModule(types.DataModule):
-    """Configures FishEye8K datasets for training/testing."""
-    
-    tasks: list[Task] = [Task.DETECT]
-    
-    def prepare_data(self, *args, **kwargs):
-        """Prepares data (placeholder, no action taken)."""
-        pass
-    
-    def setup(self, stage: Literal["train", "test", "predict", None] = None):
-        """Sets up datasets for specified ``stage``.
-
-        Args:
-            stage: Stage to setup, one of ``"train"``, ``"test"``, ``"predict"``,
-                or ``None``. Default is ``None``.
-        """
-        if self.can_log:
-            console.log(f"Setup [red]{self.__class__.__name__}[/red].")
-        
-        if stage in [None, "train"]:
-            self.train = FishEye8K(split=Split.TRAIN, **self.dataset_kwargs)
-            self.val   = FishEye8K(split=Split.VAL,   **self.dataset_kwargs)
-        if stage in [None, "test"]:
-            self.test  = FishEye8K(split=Split.TEST,  **self.dataset_kwargs)
-        
-        self.get_classes()
-        if self.can_log:
-            self.summarize()
-
-
-@DATAMODULES.register(name="fisheye8kval")
-class FishEye8KValDataModule(types.DataModule):
-    """Configures FishEye8K-Val datasets for training/testing."""
-
-    tasks: list[Task] = [Task.DETECT]
-
-    def prepare_data(self, *args, **kwargs):
-        """Prepares data (placeholder, no action taken)."""
-        pass
-
-    def setup(self, stage: Literal["train", "test", "predict", None] = None):
-        """Sets up datasets for specified ``stage``.
-
-        Args:
-            stage: Stage to setup, one of ``"train"``, ``"test"``, ``"predict"``,
-                or ``None``. Default is ``None``.
-        """
-        if self.can_log:
-            console.log(f"Setup [red]{self.__class__.__name__}[/red].")
-
-        if stage in [None, "train"]:
-            self.train = FishEye8KVal(split=Split.VAL, **self.dataset_kwargs)
-            self.val   = FishEye8KVal(split=Split.VAL, **self.dataset_kwargs)
-        if stage in [None, "test"]:
-            self.test  = FishEye8KVal(split=Split.VAL, **self.dataset_kwargs)
-
-        self.get_classes()
-        if self.can_log:
-            self.summarize()
-
-
-@DATAMODULES.register(name="fisheye8ktest")
-class FishEye8KTestDataModule(types.DataModule):
-    """Configures FishEye8K-Test datasets for training/testing."""
-
-    tasks: list[Task] = [Task.DETECT]
-
-    def prepare_data(self, *args, **kwargs):
-        """Prepares data (placeholder, no action taken)."""
-        pass
-
-    def setup(self, stage: Literal["train", "test", "predict", None] = None):
-        """Sets up datasets for specified ``stage``.
-
-        Args:
-            stage: Stage to setup, one of ``"train"``, ``"test"``, ``"predict"``,
-                or ``None``. Default is ``None``.
-        """
-        if self.can_log:
-            console.log(f"Setup [red]{self.__class__.__name__}[/red].")
-
-        if stage in [None, "train"]:
-            self.train = FishEye8KVal(split=Split.TEST, **self.dataset_kwargs)
-            self.val   = FishEye8KVal(split=Split.TEST, **self.dataset_kwargs)
-        if stage in [None, "test"]:
-            self.test  = FishEye8KVal(split=Split.TEST, **self.dataset_kwargs)
-
-        self.get_classes()
-        if self.can_log:
-            self.summarize()
+        return images

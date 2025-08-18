@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""ZINF model for low-light image enhancement.
+"""Implements ZINF model for low-light image enhancement.
 
 References:
     - Paper: "Zero-Shot Implicit Neural Fusion Network for Multimodal Low-Light
@@ -16,15 +16,14 @@ __all__ = [
 import kornia
 import numpy as np
 import torch
+import torch.nn as nn
+import torch.nn.functional as F
 
-import mon.nn as nn
-from mon.constants import MLType, MODELS, Task
-from mon.core import pathlib
-from mon.nn import functional as F
-from mon.vision import filtering, types
+from mon.constants import MODELS
+from mon.core import image as I, MLType, ModelMixin, Path, Task
 from . import loss as L
 
-current_file = pathlib.Path(__file__).absolute()
+current_file = Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
 
@@ -50,7 +49,7 @@ class INF1_Spatial(nn.Module):
         s_nonlinear     : str   = "finer",
         nonlinear       : str   = "finer",
         reduce_channels : bool  = False,
-        weight_decay            = [0.1, 0.0001, 0.001],
+        weight_decay    : tuple = (0.1, 0.0001, 0.001),
     ):
         super().__init__()
         # Construct MLP/INF
@@ -71,7 +70,7 @@ class INF1_Spatial(nn.Module):
         self.params += [{"params": self.spatial_net.parameters(), "weight_decay": weight_decay[0]}]
         self.params += [{"params": self.output_net.parameters(), "weight_decay": weight_decay[2]}]
         
-    def forward(self, spatial: torch.Tensor, patch: torch.Tensor, *args, **kwargs) -> torch.Tensor:
+    def forward(self, spatial: torch.Tensor, patch: torch.Tensor) -> torch.Tensor:
         return self.output_net(self.spatial_net(spatial))
 
 
@@ -95,7 +94,7 @@ class INF1_Patch(nn.Module):
         first_bias_scale: float = 20.0,
         nonlinear       : str   = "finer",
         reduce_channels : bool  = False,
-        weight_decay            = [0.1, 0.0001, 0.001],
+        weight_decay    : tuple = (0.1, 0.0001, 0.001),
     ):
         super().__init__()
         # Construct MLP/INF
@@ -116,7 +115,7 @@ class INF1_Patch(nn.Module):
         self.params += [{"params": self.patch_net.parameters(),  "weight_decay": weight_decay[1]}]
         self.params += [{"params": self.output_net.parameters(), "weight_decay": weight_decay[2]}]
         
-    def forward(self, spatial: torch.Tensor, patch: torch.Tensor, *args, **kwargs) -> torch.Tensor:
+    def forward(self, spatial: torch.Tensor, patch: torch.Tensor) -> torch.Tensor:
         return self.output_net(self.patch_net(patch))
 
 
@@ -140,7 +139,7 @@ class INF2(nn.Module):
         first_bias_scale: float = 20.0,
         nonlinear       : str   = "finer",
         reduce_channels : bool  = False,
-        weight_decay            = [0.1, 0.0001, 0.001],
+        weight_decay    : tuple = (0.1, 0.0001, 0.001),
     ):
         super().__init__()
         # Construct MLP/INF
@@ -168,7 +167,7 @@ class INF2(nn.Module):
         self.params += [{"params": self.patch_net.parameters(),   "weight_decay": weight_decay[1]}]
         self.params += [{"params": self.output_net.parameters(),  "weight_decay": weight_decay[2]}]
         
-    def forward(self, spatial: torch.Tensor, patch: torch.Tensor, *args, **kwargs) -> torch.Tensor:
+    def forward(self, spatial: torch.Tensor, patch: torch.Tensor) -> torch.Tensor:
         return self.output_net(torch.cat((self.spatial_net(spatial), self.patch_net(patch)), -1))
 
 
@@ -192,7 +191,7 @@ class INF4(nn.Module):
         first_bias_scale: float = 20.0,
         nonlinear       : str   = "finer",
         reduce_channels : bool  = False,
-        weight_decay            = [0.1, 0.0001, 0.001],
+        weight_decay    : tuple = (0.1, 0.0001, 0.001),
     ):
         super().__init__()
         # Construct MLP/INF
@@ -252,7 +251,7 @@ MAPPING_FUNC = {
 
 # ----- Model -----
 @MODELS.register(name="zinf", arch="zinf")
-class ZINF(nn.Module, nn.ModelMixin):
+class ZINF(nn.Module, ModelMixin):
     """ZINF model for low-light image enhancement.
     
     References:
@@ -263,7 +262,7 @@ class ZINF(nn.Module, nn.ModelMixin):
     name     : str          = "zinf"
     tasks    : list[Task]   = [Task.LLE]
     mltypes  : list[MLType] = [MLType.ZERO_SHOT]
-    model_dir: pathlib.Path = current_dir
+    model_dir: Path         = current_dir
     zoo      : dict         = {}
     
     def __init__(
@@ -328,14 +327,14 @@ class ZINF(nn.Module, nn.ModelMixin):
         device      = image.device
         
         # Preprocess
-        hvi        = types.RGBToHVI(requires_grad=False).to(device)
+        hvi        = I.RGBToHVI(requires_grad=False).to(device)
         image_hvi  = hvi.rgb_to_hvi(image)
         image_hv   = image_hvi[:, 0:2, :, :]
         image_h    = image_hvi[:, 0:1, :, :]
         image_v    = image_hvi[:, 1:2, :, :]
         image_i    = image_hvi[:, 2:3, :, :]
         depth      = depth.to(device) if depth is not None else None
-        edge       = types.boundary_aware_prior(depth, self.edge_threshold) if depth is not None else None
+        edge       = I.boundary_aware_prior(depth, self.edge_threshold) if depth is not None else None
         #
         image_i_lr = self.interpolate_image(image_i, imgsz)
         depth_lr   = self.interpolate_image(depth,   imgsz) if depth is not None else None
@@ -413,7 +412,7 @@ class ZINF(nn.Module, nn.ModelMixin):
 
     def create_patches(self, image: torch.Tensor, kernel_size: int = 1) -> torch.Tensor:
         """Creates a tensor where the channel contains patch information."""
-        num_channels = types.image_num_channels(image)
+        num_channels = I.num_channels(image)
         kernel       = torch.zeros((kernel_size ** 2, num_channels, kernel_size, kernel_size)).to(image.device)
         for i in range(kernel_size):
             for j in range(kernel_size):

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Vision Transformer model for image classification.
+"""Implements Vision Transformer model for image classification.
 
 References:
     - Paper: https://arxiv.org/abs/2010.11929
@@ -20,16 +20,15 @@ import abc
 import box
 from torchvision import models as tvm
 
-import mon.nn as nn
-from mon.constants import MLType, MODELS, Task, ZOO_DIR
-from mon.core import pathlib
+from mon.constants import MODELS, ZOO_DIR
+from mon.core import MLType, ModelMixin, Path, Task
 
-current_file = pathlib.Path(__file__).absolute()
+current_file = Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
 
 # ----- Model -----
-class ViT(tvm.VisionTransformer, nn.ModelMixin, abc.ABC):
+class ViT(tvm.VisionTransformer, ModelMixin, abc.ABC):
     """Vision Transformer model for image classification.
 
     References:
@@ -40,7 +39,7 @@ class ViT(tvm.VisionTransformer, nn.ModelMixin, abc.ABC):
     name     : str          = "vit"
     tasks    : list[Task]   = [Task.CLASSIFY]
     mltypes  : list[MLType] = [MLType.SUPERVISED]
-    model_dir: pathlib.Path = current_dir
+    model_dir: Path         = current_dir
     zoo      : dict         = box.Box()
     
     def __init__(self, weights: str = "imagenet1k_v1", num_classes: int = 1000, *args, **kwargs):
