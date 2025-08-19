@@ -12,7 +12,10 @@ from mon.core.console import log, rprint_list_dicts
 
 class Classes(list[dict]):
     """List of class labels defined in a dataset.
-
+    
+    TODO:
+        - Convert to list of namedtuples for better type safety.
+    
     Notes:
         Inherits from Python ``list`` for built-in functionality.
     """
@@ -20,7 +23,7 @@ class Classes(list[dict]):
     @property
     def trainable_classes(self) -> "Classes":
         """Returns all trainable classes.
-
+        
         Returns:
             New ``Classes`` with classes where ``id`` is in [0, 254].
         """

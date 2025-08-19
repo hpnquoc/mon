@@ -36,9 +36,9 @@ def build_dataset(
 
     Args:
         src: An input data source
-        data_root: The dataset root dir. Default is ``None``.
-        transform: Transforms to apply to the dataset. Default is ``None``.
-        verbose: If ``True``, enables verbose output. Default is ``False``.
+        data_root: Dataset root dir. Default: ``None``.
+        transform: Transforms to apply to the dataset. Default: ``None``.
+        verbose: If ``True``, enables verbose output. Default: ``False``.
         **kwargs: Additional keyword arguments for the ``BaseDataset``.
 
     Returns:
@@ -85,10 +85,10 @@ def build_dataloader(
 
     Args:
         src: An input data source
-        data_root: The dataset root dir. Default is ``None``.
-        transform: Transforms to apply to the dataset. Default is ``None``.
-        batch_size: Batch size for the dataloader. Default is ``1``.
-        verbose: If ``True``, enables verbose output. Default is ``False``.
+        data_root: Dataset root dir. Default: ``None``.
+        transform: Transforms to apply to the dataset. Default: ``None``.
+        batch_size: Batch size for the dataloader. Default: ``1``.
+        verbose: If ``True``, enables verbose output. Default: ``False``.
         **kwargs: Additional keyword arguments for the ``DataLoader``.
 
     Returns:

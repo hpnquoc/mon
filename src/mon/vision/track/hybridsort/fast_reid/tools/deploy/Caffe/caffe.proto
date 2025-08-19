@@ -1031,7 +1031,7 @@ message BiasParameter {
   // (filler is ignored unless just one bottom is given and the bias is
   // a learned parameter of the layer.)
   // The initialization for the learned bias parameter.
-  // Default is the zero (0) initialization, resulting in the BiasLayer
+  // Default: the zero (0) initialization, resulting in the BiasLayer
   // initially performing the identity operation.
   optional FillerParameter filler = 3;
 }
@@ -1594,7 +1594,7 @@ message MultiBoxLossParameter {
 // Message that stores parameters used by NormalizeLayer
 //message NormalizeParameter {
 //  //optional bool across_spatial = 1 [default = true];
-//  // Initial value of scale. Default is 1.0 for all
+//  // Initial value of scale. Default: 1.0 for all
 //  //optional FillerParameter scale_filler = 2;
 //  // Whether or not scale parameters are shared across channels.
 //  //optional bool channel_shared = 3 [default = true];
@@ -1894,7 +1894,7 @@ message ScaleParameter {
   // (filler is ignored unless just one bottom is given and the scale is
   // a learned parameter of the layer.)
   // The initialization for the learned scale parameter.
-  // Default is the unit (1) initialization, resulting in the ScaleLayer
+  // Default: the unit (1) initialization, resulting in the ScaleLayer
   // initially performing the identity operation.
   optional FillerParameter filler = 3;
 
@@ -2213,7 +2213,7 @@ message PReLUParameter {
   // Parametric ReLU described in K. He et al, Delving Deep into Rectifiers:
   // Surpassing Human-Level Performance on ImageNet Classification, 2015.
 
-  // Initial value of a_i. Default is a_i=0.25 for all i.
+  // Initial value of a_i. Default: a_i=0.25 for all i.
   optional FillerParameter filler = 1;
   // Whether or not slope paramters are shared across channels.
   optional bool channel_shared = 2 [default = false];
@@ -2365,4 +2365,3 @@ message ROIAlignParameter {
   optional uint32 pooled_w = 2 [default = 0]; // The pooled output width
   optional float spatial_scale = 3 [default = 1];
 }
-

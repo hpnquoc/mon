@@ -114,14 +114,14 @@ def predict(args: dict | box.Box) -> str:
             model.enhance.out_conv.apply(model.enhance_weights_init)
             model = model.to(device)
             model.train()
-            optimizer = mon.optim.Adam(model.parameters(), **args.optimizer)
+            optimizer = mon.nn.Adam(model.parameters(), **args.optimizer)
             input     = Variable(image, requires_grad=False).to(device)
             for _ in range(args.epochs):
                 optimizer.zero_grad()
                 optimizer.param_groups[0]["capturable"] = True
                 loss = model._loss(input)
                 loss.backward()
-                torch.nn.utils.clip_grad_norm_(model.parameters(), 5)
+                mon.nn.utils.clip_grad_norm_(model.parameters(), 5)
                 optimizer.step()
             model = zeroig.ZERO_IG_Finetune(model.state_dict()).to(device)
             input = Variable(image).to(device)

@@ -9,13 +9,13 @@ from typing import Literal
 
 import torch
 
-from mon.core import log, losses as L, Path
+from mon.core import log, nn, Path
 
 current_file = Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
 
-class Loss(L.BaseLoss):
+class Loss(nn.BaseLoss):
     
     def __init__(
         self,
@@ -37,14 +37,14 @@ class Loss(L.BaseLoss):
         self.loss_w_de  = loss_w_de
         self.verbose    = verbose
 
-        self.loss_e     = L.ExposureValueControlLoss(
+        self.loss_e     = nn.ExposureValueControlLoss(
             patch_size    = 16,
             mean_val      = loss_e_mean,
             required_grad = required_grad,
             reduction     = reduction
         )
-        self.loss_tv    = L.TotalVariationLoss(reduction=reduction)
-        self.loss_depth = L.DepthAwareIlluminationLoss(reduction=reduction)
+        self.loss_tv    = nn.TotalVariationLoss(reduction=reduction)
+        self.loss_depth = nn.DepthAwareIlluminationLoss(reduction=reduction)
 
     def forward(
         self,

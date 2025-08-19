@@ -9,35 +9,19 @@ References:
 """
 
 import box
-import torch.optim
-import torchvision
-from ptflops import get_model_complexity_info
-
-import albumentations as A
-import box
 import cv2
 import torch
-import torch.nn as nn
-import torch.nn.functional as F
+from ptflops import get_model_complexity_info
 
 import mon
-from mon import console, metrics, Path, tfms, optims
-from mon.vision.enhance.multitask import darkir
 from darkir.archs import create_model
+from mon import albumentations as A
 
-current_file = Path(__file__).absolute()
+current_file = mon.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
 
 # ----- Utils -----
-def benchmark(model: nn.Module):
-    flops, params  = mon.metric.compute_complexity(model=model)
-    # macs , params2 = get_model_complexity_info(model, (3, 512, 512), print_per_layer_stat=False, verbose=False)
-    mon.log(f"Params    : {params:.4f}")
-    mon.log(f"FLOPs     : {flops:.4f}")
-    # mon.log(f"MACs  : {macs:.4f}")
-
-
 def load_model(model, path_weights):
     checkpoints = torch.load(str(path_weights), map_location="cpu", weights_only=False)
     weights     = checkpoints["params"]
@@ -59,9 +43,6 @@ def predict(args: dict | box.Box) -> str:
     # Seed
     mon.set_random_seed(args.seed)
 
-    # Data I/O
-    data_name, data_loader = mon.parse_data_loader(args.data, args.root, True, verbose=False)
-    
     # Pretrained
     pretrained = args.resume
     if args.weights and args.weights.is_weights_file(exist=True):
@@ -78,28 +59,34 @@ def predict(args: dict | box.Box) -> str:
     
     # Benchmark
     if args.benchmark:
-        benchmark(model)
+        mon.nn.benchmark(model)
+    
+    # Data I/O
+    imgsz     = args.imgsz if args.resize else (0, 0)
+    if imgsz[0] >= 1500 or imgsz[1] >= 1500:
+        imgsz = (imgsz[0] // 2, imgsz[1] // 2)
+    transform = A.Compose([
+        A.ResizeDivisibleBy(height=imgsz[0], width=imgsz[1], divisor=32),
+        A.Normalize(normalization="min_max"),
+        A.ToTensorV2(transpose_mask=True),
+    ])
+    data_name, dataloader = mon.data.build_dataloader(args.data, args.root, transform)
     
     # Predict
     timers = mon.TimeProfiler()
     timers.total.tick()
     with mon.create_progress_bar() as pbar:
         for i, datapoint in pbar.track(
-            sequence    = enumerate(data_loader),
-            total       = len(data_loader),
+            sequence    = enumerate(dataloader),
+            total       = len(dataloader),
             description = f"[bright_yellow]Predicting"
         ):
             # Preprocess
             timers.preprocess.tick()
-            path   = Path(datapoint["meta"]["path"])
+            meta   = datapoint["meta"][0]
+            path   = mon.Path(meta["path"])
+            h0, w0 = mon.image.imgsz(meta["orig_shape"])
             image  = datapoint["image"]
-            h0, w0 = mon.image.imgsz(image)
-            if args.resize and (h0 >= 1500 or w0 >= 1500):
-                new_size   = [int(dim // 2) for dim in (h0, w0)]
-                downsample = torchvision.transforms.Resize(new_size)
-            else:
-                downsample = torch.nn.Identity()
-            image  = downsample(image)
             image  = image.to(device)
             timers.preprocess.tock()
 
@@ -110,13 +97,11 @@ def predict(args: dict | box.Box) -> str:
 
             # Postprocess
             timers.postprocess.tick()
-            if args.resize:
-                upsample = torchvision.transforms.Resize((h0, w0))
-            else:
-                upsample = torch.nn.Identity()
-            enhanced = upsample(outputs)
-            enhanced = torch.clamp(enhanced, 0.0, 1.0)
-            enhanced = enhanced[:, :, :h0, :w0]
+            enhanced = outputs
+            enhanced = mon.image.to_array(enhanced)
+            h1, w1   = mon.image.imgsz(enhanced)
+            if (h0, w0) != (h1, w1):
+                enhanced = cv2.resize(enhanced, (w0, h0))
             timers.postprocess.tock()
 
             # Save

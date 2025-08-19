@@ -38,18 +38,18 @@ class BaseDataset(dataset.Dataset, abc.ABC):
     """Base class for all datasets.
 
     Attributes:
-        root_name: The dataset's root directory name.
-        tasks: A ``list`` of supported tasks.
-        splits: A ``list`` of supported splits.
-        modalities: A ``dict`` of datapoint modalities.
-        classes: A ``dict`` of class-labels. Default is ``None``.
+        root_name: Dataset's root directory name.
+        tasks: List of supported tasks.
+        splits: List of supported splits.
+        modalities: Dictionary of datapoint modalities.
+        classes: Dictionary of class-labels. Default: ``None``.
     
     Args:
-        root: An absolute ``Path`` to the dataset root directory.
+        root: Absolute path to the dataset root directory.
         split: Data split subset to use. One of: ``Split.TRAIN``, ``Split.VAL``,
-            ``Split.TEST``, or ``Split.PREDICT``. Default is ``Split.TRAIN``.
-        transform: Transformations for input/target. Default is ``None``.
-        verbose: If ``True``, enables verbose output. Default is ``False``.
+            ``Split.TEST``, or ``Split.PREDICT``. Default: ``Split.TRAIN``.
+        transform: Transformations for input/target. Default: ``None``.
+        verbose: If ``True``, enables verbose output. Default: ``False``.
     """
     
     root_name : str         = None
@@ -178,7 +178,7 @@ class BaseDataset(dataset.Dataset, abc.ABC):
         """Initializes transformation operations.
 
         Args:
-            transform: Transformations to apply. Default is ``None``.
+            transform: Transformations to apply. Default: ``None``.
         """
         pass
     
@@ -299,7 +299,7 @@ class BaseDataset(dataset.Dataset, abc.ABC):
         tensors or arrays.
 
         Args:
-            batch: A ``list`` of dicts, each ``dict`` is a datapoint.
+            batch: List of dicts, each ``dict`` is a datapoint.
 
         Returns:
             Collated ``dict`` for ``torch.utils.data.dataset.DataLoader``.

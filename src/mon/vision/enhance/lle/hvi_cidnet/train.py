@@ -75,7 +75,7 @@ def train(args: dict | box.Box) -> str:
     model = model.to(device)
 
     # Optimizer
-    optimizer = mon.optim.Adam(model.parameters(), lr=lr)
+    optimizer = mon.nn.Adam(model.parameters(), lr=lr)
     if cos_restart_cyclic:
         if start_warmup:
             scheduler_step = CosineAnnealingRestartCyclicLR(

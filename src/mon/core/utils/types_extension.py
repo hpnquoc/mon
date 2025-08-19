@@ -100,7 +100,7 @@ def to_int(int_or_str: Any) -> int | None:
     """Converts a value to an integer.
 
     Args:
-        int_or_str: The value to convert.
+        int_or_str: Value to convert.
 
     Returns:
         A converted ``int`` or ``None`` if ``value`` is ``None``.
@@ -121,7 +121,7 @@ def to_float(float_or_str: Any) -> float | None:
     """Converts a value to a float.
 
     Args:
-        float_or_str: The value to convert.
+        float_or_str: Value to convert.
 
     Returns:
         A converted ``float`` or ``None`` if ``value`` is ``None``.
@@ -142,8 +142,8 @@ def to_str(value: Any, sep: str = ",") -> str:
     """Converts a value to a ``str``, joining iterable elements with a delimiter.
 
     Args:
-        value: The value to convert.
-        sep: Delimiter for separating elements. Default is ``","``.
+        value: Value to convert.
+        sep: Delimiter for separating elements. Default: ``","``.
 
     Returns:
         A ``str`` representation of ``value``, with elements joined by ``sep``
@@ -164,8 +164,8 @@ def to_list(value: Any, sep = (",", ";", ":")) -> list:
     by delimiters if needed.
 
     Args:
-        value: The value to convert.
-        sep: Delimiters for splitting. Default is ``(",", ";", ":")``.
+        value: Value to convert.
+        sep: Delimiters for splitting. Default: ``(",", ";", ":")``.
 
     Returns:
         A ``list`` representation of ``value``.
@@ -189,8 +189,8 @@ def to_int_list(value: Any, sep = (",", ";", ":")) -> list[int]:
     """Converts a value to a ``list`` of integers, splitting strings by delimiters.
 
     Args:
-        value: The value to convert.
-        sep: Delimiters for splitting. Default is ``(",", ";", ":")``.
+        value: Value to convert.
+        sep: Delimiters for splitting. Default: ``(",", ";", ":")``.
 
     Returns:
         A ``list`` of integers.
@@ -202,8 +202,8 @@ def to_float_list(value: Any, sep = (",", ";", ":")) -> list[float]:
     """Converts a value to a list of floats, splitting strings by delimiters.
 
     Args:
-        value: The value to convert.
-        sep: Delimiters for splitting. Default is ``(",", ";", ":")``.
+        value: Value to convert.
+        sep: Delimiters for splitting. Default: ``(",", ";", ":")``.
 
     Returns:
         A ``list`` of floats

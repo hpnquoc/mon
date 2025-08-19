@@ -16,7 +16,7 @@ import cv2
 import mon.core.albumentations as A
 from mon.constants import SAVE_IMAGE_EXT
 from mon.core.console import log
-from mon.core.data_types.video import Frame
+from mon.core.dtypes.video import Frame
 from mon.core.enum import Split, Task
 from mon.core.pathlib import Path
 from .base import BaseDataset, Modalities, Modality
@@ -28,15 +28,15 @@ class VideoLoader(VisionDataset, abc.ABC):
     """Base class for video loaders.
 
     Attributes:
-        tasks: A ``list`` of supported tasks.
-        modalities: A ``dict`` of datapoint modalities.
+        tasks: List of supported tasks.
+        modalities: Dictionary of datapoint modalities.
 
     Args:
-        root: An absolute ``Path`` to the video file or stream.
+        root: Absolute path to the video file or stream.
         split: Data split subset to use. One of: ``Split.TRAIN``, ``Split.VAL``,
-            ``Split.TEST``, or ``Split.PREDICT``. Default is ``Split.PREDICT``.
-        transform: Transformations for input/target. Default is ``None``.
-        verbose: If ``True``, enables verbose output. Default is ``False``.
+            ``Split.TEST``, or ``Split.PREDICT``. Default: ``Split.PREDICT``.
+        transform: Transformations for input/target. Default: ``None``.
+        verbose: If ``True``, enables verbose output. Default: ``False``.
     """
     
     tasks     : list[Task]  = [Task.VIDEO]
@@ -83,11 +83,11 @@ class VideoLoaderCV(VideoLoader):
     """Loads video frames from a file or stream using ``cv2``.
 
     Args:
-        root: An absolute ``Path`` to the video file or stream.
+        root: Absolute path to the video file or stream.
         split: Data split subset to use. One of: ``Split.TRAIN``, ``Split.VAL``,
-            ``Split.TEST``, or ``Split.PREDICT``. Default is ``Split.PREDICT``.
-        transform: Transformations for input/target. Default is ``None``.
-        verbose: If ``True``, enables verbose output. Default is ``False``.
+            ``Split.TEST``, or ``Split.PREDICT``. Default: ``Split.PREDICT``.
+        transform: Transformations for input/target. Default: ``None``.
+        verbose: If ``True``, enables verbose output. Default: ``False``.
     """
     
     def __init__(
@@ -209,7 +209,7 @@ class VideoLoaderCV(VideoLoader):
         """Gets metadata at the specified ``index``.
 
         Args:
-            index: Index of metadata. Default is ``0``.
+            index: Index of metadata. Default: ``0``.
 
         Returns:
             A ``dict`` containing the metadata.
@@ -238,7 +238,7 @@ def is_video_dataset(dataset: BaseDataset) -> bool:
     """Checks if a dataset is a video dataset.
 
     Args:
-        dataset: The dataset to check.
+        dataset: Dataset to check.
 
     Returns:
         ``True`` if dataset is a video dataset, ``False`` otherwise.

@@ -62,7 +62,7 @@ def train(args: dict | box.Box) -> str:
     model.train()
     
     # Optimizer
-    optimizer = mon.optim.Adam(model.parameters(), **args.optimizer)
+    optimizer = mon.nn.Adam(model.parameters(), **args.optimizer)
     
     # Loss
     L_tv  = L.L_tv().to(device)

@@ -1,13 +1,18 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Implements the paper: "Zero-shot Single Image Restoration through Controlled
-Perturbation of Koschmieder's Model," CVPR 2021.
+"""Implements Zero-Restore model for zero-shot single image restoration.
 
 References:
-	- Code: https://github.com/aupendu/zero-restore
+    - Paper: "Zero-shot Single Image Restoration through Controlled Perturbation
+      of Koschmieder's Model," CVPR 2021.
+    - Code: https://github.com/aupendu/zero-restore
 """
 
-from mon.vision.enhance.multitask.zerorestore.zerorestore_dehaze import *
-from mon.vision.enhance.multitask.zerorestore.zerorestore_lle import *
-from mon.vision.enhance.multitask.zerorestore.zerorestore_uie import *
+__all__ = [
+    "ZeroRestoreDehaze",
+    "ZeroRestoreLLE",
+    "ZeroRestoreUE",
+]
+
+from .model import ZeroRestoreDehaze, ZeroRestoreLLE, ZeroRestoreUE

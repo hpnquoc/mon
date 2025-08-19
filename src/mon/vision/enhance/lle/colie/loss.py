@@ -7,7 +7,8 @@ __all__ = [
 ]
 
 import torch
-import torch.nn as nn
+
+from mon.core import nn
 
 
 class L_exp(nn.Module):

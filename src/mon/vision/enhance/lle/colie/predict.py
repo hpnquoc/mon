@@ -12,7 +12,6 @@ References:
 import box
 import thop
 import torch
-import torch.nn as nn
 from fvcore.nn import FlopCountAnalysis, parameter_count
 
 import mon
@@ -26,15 +25,15 @@ current_dir  = current_file.parents[0]
 
 
 # ----- Utils -----
-def compute_efficiency_score(model: nn.Module, imgsz: int = 512) -> tuple[float, float]:
+def compute_complexity(model: mon.nn.Module, imgsz: int = 512) -> tuple[float, float]:
     """Computes FLOPs and parameters for a model.
 
     Args:
         model: PyTorch model to profile.
-        imgsz: Input image size (H, W) or single int. Default is ``512``.
+        imgsz: Input image size. Default: ``512``.
 
     Returns:
-        Tuple of (FLOPs, parameters) as floats.
+        A tuple of :math:`(flops, params)`.
     """
     patches = torch.rand(imgsz, imgsz, 49).to(mon.get_model_device(model))
     coords  = torch.rand(imgsz, imgsz,  2).to(mon.get_model_device(model))
@@ -48,8 +47,8 @@ def compute_efficiency_score(model: nn.Module, imgsz: int = 512) -> tuple[float,
     return flops, params
 
 
-def benchmark(model: nn.Module):
-    flops, params = compute_efficiency_score(model=model)
+def benchmark(model: mon.nn.Module):
+    flops, params = compute_complexity(model=model)
     mon.log(f"Params    : {params:.4f}")
     mon.log(f"FLOPs     : {flops:.4f}")
 

@@ -22,13 +22,12 @@ import cv2
 import numpy as np
 import thop
 import torch
-import torch.nn as nn
-import torch.nn.functional as F
 from PIL import Image
 from torch.autograd import Variable
 
 from mon.constants import MODELS
-from mon.core import log, get_model_device, image as I, MLType, optims, Path, Task
+from mon.core import get_model_device, image as I, log, MLType, nn, Path, Task
+from mon.core.nn import functional as F
 
 current_file = Path(__file__).absolute()
 current_dir  = current_file.parents[0]
@@ -303,8 +302,8 @@ class RetinexNet(nn.Module):
         numBatch = len(train_low_data_names) // int(batch_size)
 
         # Create the optimizers
-        self.train_op_Decom   = optims.Adam(self.DecomNet.parameters(), lr=lr[0], betas=(0.9, 0.999))
-        self.train_op_Relight = optims.Adam(self.RelightNet.parameters(), lr=lr[0], betas=(0.9, 0.999))
+        self.train_op_Decom   = nn.Adam(self.DecomNet.parameters(), lr=lr[0], betas=(0.9, 0.999))
+        self.train_op_Relight = nn.Adam(self.RelightNet.parameters(), lr=lr[0], betas=(0.9, 0.999))
 
         # Initialize a network if its checkpoint is available
         self.train_phase = train_phase

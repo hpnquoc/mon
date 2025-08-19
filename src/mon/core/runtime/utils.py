@@ -46,10 +46,10 @@ def list_config_files(
 
     Args:
         project_root: Root directory of the project.
-        model_root: Root directory of the model. Default is ``None``.
-        model: Name of the model to filter configs. Default is ``None``.
+        model_root: Root directory of the model. Default: ``None``.
+        model: Name of the model to filter configs. Default: ``None``.
         absolute_path: If ``True``, returns absolute paths else file names.
-            Default is ``False``.
+            Default: ``False``.
 
     Returns:
         Sorted list of config file paths.
@@ -91,7 +91,7 @@ def list_tasks(project_root: Path = None) -> list[str]:
     """Lists running tasks in the project.
 
     Args:
-        project_root: Root directory of the project. Default is ``None`` means
+        project_root: Root directory of the project. Default: ``None`` means
             list all tasks supported in ``mon`` frameworks.
 
     Returns:
@@ -112,9 +112,9 @@ def list_archs(task: str = None, mode: str = None, project_root: Path = None) ->
     """Lists all running archs in the project for a given task and mode.
 
     Args:
-        task: Task to filter archs. Default is ``None``.
-        mode: Mode of archs (``train`` or ``None``). Default is ``None``.
-        project_root: Root directory of project. . Default is ``None`` means
+        task: Task to filter archs. Default: ``None``.
+        mode: Mode of archs (``train`` or ``None``). Default: ``None``.
+        project_root: Root directory of project. . Default: ``None`` means
             list all archs supported in ``mon`` frameworks.
 
     Returns:
@@ -138,10 +138,10 @@ def list_models(task: str = None, mode: str = None,  arch: str = None, project_r
     """Lists all running models in the project for a given task, mode, and arch.
 
     Args:
-        task: Task to filter models. Default is ``None``.
-        mode: Mode of models (``train`` or ``None``). Default is ``None``.
-        arch: Arch to filter models. Default is ``None``.
-        project_root: Root directory of project. . Default is ``None`` means
+        task: Task to filter models. Default: ``None``.
+        mode: Mode of models (``train`` or ``None``). Default: ``None``.
+        arch: Arch to filter models. Default: ``None``.
+        project_root: Root directory of project. . Default: ``None`` means
             list all models supported in ``mon`` frameworks.
 
     Returns:
@@ -171,7 +171,7 @@ def list_weights_files(model: str, project_root: Path = None) -> list[Path]:
 
     Args:
         model: Name of model to filter weights files.
-        project_root: Root directory of project. . Default is ``None``.
+        project_root: Root directory of project. . Default: ``None``.
 
     Returns:
         Sorted list of weights file paths.
@@ -197,7 +197,7 @@ def list_datasets(task: str, mode: str, project_root: Path = None) -> list[str]:
     Args:
         task: Task for which datasets are listed.
         mode: Mode of datasets (``train`` or ``test``).
-        project_root: Root directory of project. . Default is ``None`` means
+        project_root: Root directory of project. . Default: ``None`` means
             list all datasets supported in ``mon`` frameworks.
 
     Returns:
@@ -222,7 +222,7 @@ def load_config(config: Any, verbose: bool = True) -> dict | box.Box:
 
     Args:
         config: Config source (dict, file path, or string).
-        verbose: Verbosity mode. Default is ``True``.
+        verbose: Verbosity mode. Default: ``True``.
 
     Returns:
         Dict with loaded config, or empty dict if loading fails.
@@ -288,7 +288,7 @@ def parse_config_file(config: Path, project_root: Path, model_root: Path = None)
     Args:
         config: Config file path or name.
         project_root: Root directory of the project.
-        model_root: Root directory of the model. Default is ``None``.
+        model_root: Root directory of the model. Default: ``None``.
 
     Returns:
         Config file path if found, else ``None``.
@@ -347,7 +347,7 @@ def parse_model_fullname(name: str, data: str, suffix: str = None) -> str:
     Args:
         name: Model's base name.
         data: BaseDataset name.
-        suffix: Optional suffix for model name. Default is ``None``.
+        suffix: Optional suffix for model name. Default: ``None``.
 
     Returns:
         Parsed full model name as a string.
@@ -422,9 +422,9 @@ def parse_save_dir(
 
     Args:
         root: Project root.
-        arch: Model architecture. Default is ``None``.
-        model: Model name. Default is ``None``.
-        data: BaseDataset name. Default is ``None``.
+        arch: Model architecture. Default: ``None``.
+        model: Model name. Default: ``None``.
+        data: BaseDataset name. Default: ``None``.
 
     Returns:
         Parsed ``save_dir`` path.
@@ -462,9 +462,9 @@ def parse_output_dir(
         root: Root directory. Root is assumed to be in this pattern: ``root/arch/model/[fullname or dirname]``.
         src_path: Source file path.
         dirname: Directory name.
-        subdir_name: Subdirectory name. Default is ``None``.
-        keep_subdirs: If ``True``, keeps subdirectories in the path. Default is ``False``.
-        save_nearby: If ``True``, saves in the same parent directory as the file. Default is ``False``.
+        subdir_name: Subdirectory name. Default: ``None``.
+        keep_subdirs: If ``True``, keeps subdirectories in the path. Default: ``False``.
+        save_nearby: If ``True``, saves in the same parent directory as the file. Default: ``False``.
 
     Example:
         root     = ../enhance/run/predict/zerodce/zerodce/dicm
@@ -509,7 +509,7 @@ def print_run_summary(args: dict | box.Box, full: bool = False):
 
     Args:
         args: Configuration arguments.
-        full: If ``True``, prints all details. Default is ``False``.
+        full: If ``True``, prints all details. Default: ``False``.
     """
     if full:
         pprint_dict(args.to_dict() if isinstance(args, box.Box) else args)

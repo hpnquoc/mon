@@ -17,7 +17,7 @@ from albumentations.core.transforms_interface import BaseTransformInitSchema
 from albumentations.core.type_definitions import ALL_TARGETS
 from pydantic import Field
 
-from mon.core.data_types import image as I
+from mon.core.dtypes import image as I
 from mon.core.factory import ALBUMENTATIONS
 
 
@@ -28,15 +28,15 @@ class ResizeDivisibleBy(Resize):
     Args:
         height: Desired height of the output.
         width: Desired width of the output.
-        divisor: The number by which the output size should be divisible. Default is ``1``.
+        divisor: A number by which the output size should be divisible. Default: ``1``.
         interpolation: Flag that is used to specify the interpolation algorithm.
             Should be one of: ``cv2.INTER_NEAREST``, ``cv2.INTER_LINEAR``,
             ``cv2.INTER_CUBIC``, ``cv2.INTER_AREA``, ``cv2.INTER_LANCZOS4``.
-            Default is ``cv2.INTER_LINEAR``.
+            Default: ``cv2.INTER_LINEAR``.
         mask_interpolation: Flag that is used to specify the interpolation
             algorithm for mask. Should be one of: ``cv2.INTER_NEAREST``,
             ``cv2.INTER_LINEAR``, ``cv2.INTER_CUBIC``, ``cv2.INTER_AREA``,
-            ``cv2.INTER_LANCZOS4``. Default is ``cv2.INTER_NEAREST``.
+            ``cv2.INTER_LANCZOS4``. Default: ``cv2.INTER_NEAREST``.
         area_for_downscale: Controls automatic use of ``INTER_AREA`` interpolation
             for downscaling. Options:
                 - ``None``: No automatic interpolation selection, always use
@@ -45,8 +45,8 @@ class ResizeDivisibleBy(Resize):
                     retain specified interpolation for upscaling and masks
                 - ``"image_mask"``: Use ``INTER_AREA`` when downscaling both
                     images and masks
-            Default is ``None``.
-        p: probability of applying the transform. Default is ``1.0``.
+            Default: ``None``.
+        p: probability of applying the transform. Default: ``1.0``.
 
     Targets:
         image, mask, bboxes, keypoints, volume, mask3d

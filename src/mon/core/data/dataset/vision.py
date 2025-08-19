@@ -13,7 +13,7 @@ __all__ = [
 import abc
 
 import mon.core.albumentations as A
-from mon.core.data_types.image import Image
+from mon.core.dtypes.image import Image
 from mon.core.enum import Split
 from mon.core.pathlib import Path
 from .base import BaseDataset, Modalities, Modality
@@ -36,14 +36,14 @@ class VisionDataset(BaseDataset, abc.ABC):
     """Base class for multimodal vision datasets.
     
     Attributes:
-        modalities: A ``dict`` of datapoint modalities.
+        modalities: Dictionary of datapoint modalities.
         
     Args:
-        root: An absolute ``Path`` to the dataset root directory.
+        root: Absolute path to the dataset root directory.
         split: Data split subset to use. One of: ``Split.TRAIN``, ``Split.VAL``,
-            ``Split.TEST``, or ``Split.PREDICT``. Default is ``Split.TRAIN``.
-        transform: Transformations for input/target. Default is ``None``.
-        verbose: If ``True``, enables verbose output. Default is ``False``.
+            ``Split.TEST``, or ``Split.PREDICT``. Default: ``Split.TRAIN``.
+        transform: Transformations for input/target. Default: ``None``.
+        verbose: If ``True``, enables verbose output. Default: ``False``.
     """
     
     modalities: Modalities  = {
@@ -92,7 +92,7 @@ class VisionDataset(BaseDataset, abc.ABC):
         """Initializes transformation operations.
 
         Args:
-            transform: Transformations to apply. Default is ``None``.
+            transform: Transformations to apply. Default: ``None``.
         """
         if isinstance(transform, dict):
             transform = A.Compose(**transform)

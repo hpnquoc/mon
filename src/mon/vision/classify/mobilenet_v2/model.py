@@ -27,9 +27,9 @@ class MobileNetV2(tvm.MobileNetV2, ModelMixin):
     """MobileNetV2 model for image classification.
 
     Args:
-        num_classes: Number of output classes. Default is ``1000``.
-        width_mult: Width multiplier for the network. Default is ``1.0``.
-        dropout: Dropout rate for the model. Default is ``0.2``.
+        num_classes: Number of output classes. Default: ``1000``.
+        width_mult: Width multiplier for the network. Default: ``1.0``.
+        dropout: Dropout rate for the model. Default: ``0.2``.
     
     References:
         - Paper: https://arxiv.org/abs/1801.04381

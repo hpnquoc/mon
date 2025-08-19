@@ -14,4 +14,4 @@ __all__ = [
     "ConvNeXtTiny",
 ]
 
-from .model import *
+from .model import ConvNeXtBase, ConvNeXtLarge, ConvNeXtSmall, ConvNeXtTiny

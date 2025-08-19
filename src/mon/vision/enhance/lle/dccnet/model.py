@@ -14,10 +14,9 @@ __all__ = [
 
 import box
 import torch
-import torch.nn as nn
 
 from mon.constants import MODELS
-from mon.core import MLType, ModelMixin, Path, Task
+from mon.core import MLType, ModelMixin, nn, Path, Task
 
 current_file = Path(__file__).absolute()
 current_dir  = current_file.parents[0]
@@ -204,7 +203,7 @@ class c_net(nn.Module):
  
 class g_net(nn.Module):
 
-    def __init__(self, depth=[2, 2, 2, 2]):
+    def __init__(self, depth=(2, 2, 2, 2)):
         super(g_net, self).__init__()
 
         base_channel = 32

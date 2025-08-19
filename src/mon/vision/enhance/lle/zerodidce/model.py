@@ -11,11 +11,10 @@ References:
 
 import box
 import torch
-import torch.nn as nn
-import torch.nn.functional as F
 
 from mon.constants import MODELS
-from mon.core import MLType, ModelMixin, Path, Task
+from mon.core import MLType, ModelMixin, nn, Path, Task
+from mon.core.nn import functional as F
 
 current_file = Path(__file__).absolute()
 current_dir  = current_file.parents[0]

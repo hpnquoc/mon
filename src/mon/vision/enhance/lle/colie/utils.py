@@ -13,10 +13,10 @@ __all__ = [
 
 import numpy as np
 import torch
-import torch.nn as nn
-import torch.nn.functional as F
 from PIL import Image
 
+from mon.core import nn
+from mon.core.nn import functional as F
 from .filter import FastGuidedFilter
 
 

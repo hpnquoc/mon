@@ -10,29 +10,13 @@ References:
 
 import box
 import torch
-import torch.optim
-
-import albumentations as A
-import box
-import cv2
-import torch
-import torch.nn as nn
-import torch.nn.functional as F
 
 import mon
-from mon import console, metrics, Path, tfms, optims
+from mon import albumentations as A
 from mon.vision.enhance.sr.srno import make, make_coord
 
-
-current_file = Path(__file__).absolute()
+current_file = mon.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
-
-
-# ----- Utils -----
-def benchmark(model: nn.Module):
-    flops, params = mon.metric.compute_complexity(model=model)
-    mon.log(f"Params    : {params:.4f}")
-    mon.log(f"FLOPs     : {flops:.4f}")
 
 
 # ----- Predict -----
@@ -46,10 +30,7 @@ def predict(args: dict | box.Box) -> str:
 
     # Seed
     mon.set_random_seed(args.seed)
-
-    # Data I/O
-    data_name, data_loader = mon.parse_data_loader(args.data, args.root, True, verbose=False)
-
+ 
     # Pretrained
     pretrained = args.resume
     if args.weights and args.weights.is_weights_file(exist=True):
@@ -66,21 +47,28 @@ def predict(args: dict | box.Box) -> str:
 
     # Benchmark
     if args.benchmark:
-        benchmark(model)
-        
+        mon.nn.benchmark(model)
+    
+    # Data I/O
+    transform = A.Compose([
+        A.Normalize(normalization="min_max"),
+        A.ToTensorV2(transpose_mask=True),
+    ])
+    data_name, dataloader = mon.data.build_dataloader(args.data, args.root, transform)
+
     # Predict
     timers = mon.TimeProfiler()
     timers.total.tick()
     with mon.create_progress_bar() as pbar:
         for i, datapoint in pbar.track(
-            sequence    = enumerate(data_loader),
-            total       = len(data_loader),
+            sequence    = enumerate(dataloader),
+            total       = len(dataloader),
             description = f"[bright_yellow]Predicting"
         ):
             # Preprocess
             timers.preprocess.tick()
-            path        = Path(datapoint["meta"]["path"])
-            image       = datapoint["image"]
+            meta        = datapoint["meta"][0]
+            path        = mon.Path(meta["path"])
             image       = image.to(device)
             h0          = int(image.shape[-2] * int(args.scale))
             w0          = int(image.shape[-1] * int(args.scale))
@@ -103,7 +91,8 @@ def predict(args: dict | box.Box) -> str:
 
             # Postprocess
             timers.postprocess.tick()
-            enhanced = (outputs * 0.5 + 0.5).clamp(0, 1).reshape(1, 3, h0, w0).cpu()
+            enhanced = (outputs * 0.5 + 0.5)
+            enhanced = mon.image.to_array(enhanced)
             timers.postprocess.tock()
 
             # Save

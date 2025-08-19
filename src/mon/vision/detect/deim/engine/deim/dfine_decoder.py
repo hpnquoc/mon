@@ -261,7 +261,7 @@ class Integral(nn.Module):
     distribution, and W(n) is the non-uniform Weighting Function.
 
     Args:
-        reg_max (int): Max number of the discrete bins. Default is 32.
+        reg_max (int): Max number of the discrete bins. Default: 32.
                        It can be adjusted based on the dataset or task requirements.
     """
 

@@ -16,10 +16,9 @@ __all__ = [
 import box
 import cv2
 import numpy as np
-import torch.nn as nn
 
 from mon.constants import MODELS
-from mon.core import MLType, ModelMixin, Path, Task
+from mon.core import MLType, ModelMixin, nn, Path, Task
 
 current_file = Path(__file__).absolute()
 current_dir  = current_file.parents[0]

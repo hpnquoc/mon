@@ -51,8 +51,8 @@ def train_epoch(train_dataloader, model, criterion, optimizer, device):
 
 def val_epoch(val_dataloader, model, criterion, device):
     loss_meters = AverageMeter()
-    psnr_meters = mon.metric.PeakSignalNoiseRatio().to(device)
-    ssim_meters = mon.metric.StructuralSimilarityIndexMeasure().to(device)
+    psnr_meters = mon.nn.PeakSignalNoiseRatio().to(device)
+    ssim_meters = mon.nn.StructuralSimilarityIndexMeasure().to(device)
     model.eval()
     with mon.create_progress_bar() as pbar:
         for i, datapoint in pbar.track(
@@ -100,8 +100,8 @@ def train(args: dict | box.Box) -> str:
     model.train()
     
     # Optimizer
-    optimizer = mon.optim.Adam(model.parameters(), **args.optimizer)
-    scheduler = mon.optim.ExponentialLR(optimizer, 0.99)
+    optimizer = mon.nn.Adam(model.parameters(), **args.optimizer)
+    scheduler = mon.nn.ExponentialLR(optimizer, 0.99)
     
     # Loss
     criterion = Loss(*args.loss.loss_weights).to(device)

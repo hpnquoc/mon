@@ -1020,7 +1020,7 @@ class DPM_Solver:
             skip_type: A `str`. The type for the spacing of the time steps. 'time_uniform' or 'logSNR' or 'time_quadratic'.
             method: A `str`. The method for sampling. 'singlestep' or 'multistep' or 'singlestep_fixed' or 'adaptive'.
             denoise_to_zero: A `bool`. Whether to denoise to time 0 at the final step.
-                Default is `False`. If `denoise_to_zero` is `True`, the total NFE is (`steps` + 1).
+                Default: `False`. If `denoise_to_zero` is `True`, the total NFE is (`steps` + 1).
                 This trick is firstly proposed by DDPM (https://arxiv.org/abs/2006.11239) and
                 score_sde (https://arxiv.org/abs/2011.13456). Such trick can improve the FID
                 for diffusion models sampling by diffusion SDEs for low-resolutional images

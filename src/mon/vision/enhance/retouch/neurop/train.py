@@ -16,18 +16,15 @@ import box
 import numpy as np
 import torch
 
-import albumentations as A
-import box
-import cv2
-import torch
-import torch.nn as nn
-import torch.nn.functional as F
-
 import mon
-from mon import console, metrics, Path, tfms, optims
-from mon.vision.enhance.retouch.neurop import build_model, build_train_loader, dict_to_nonedict, parse
+from mon.vision.enhance.retouch.neurop import (
+    build_model,
+    build_train_loader,
+    dict_to_nonedict,
+    parse,
+)
 
-current_file = Path(__file__).absolute()
+current_file = mon.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
 
@@ -36,7 +33,7 @@ def train(args: dict | box.Box) -> str:
     cfg_path = current_dir / "src" / "option" / "train" / args.cfg
     cfgs     = parse(str(cfg_path))
     cfgs     = dict_to_nonedict(cfgs)
-    cfgs["network_G"]["init_model"] = mon.parse_weights_file(mon.ROOT_DIR, cfgs.network_G.init_model)
+    cfgs["network_G"]["init_model"] = mon.rt.parse_weights_file(mon.ROOT_DIR, cfgs.network_G.init_model)
     
     # Start
     mon.rt.print_run_summary(args)
@@ -59,6 +56,12 @@ def train(args: dict | box.Box) -> str:
     # Model
     model = build_model(cfgs)
     
+    # Data I/O
+    args["train_dataloader"]["datasets"]["root"] = mon.data.parse_data_dir(args.root)
+    args["val_dataloader"]["datasets"]["root"]   = mon.data.parse_data_dir(args.root)
+    train_dataloader = mon.data.DataLoader(**args.train_dataloader)
+    val_dataloader   = mon.data.DataLoader(**args.val_dataloader)
+
     # Training
     current_step = 0
     total_iters  = cfgs["train"]["niter"]

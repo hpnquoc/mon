@@ -41,7 +41,7 @@ cfg         : ~                                                                 
 network: ~                                                                      # Network architecture.
 
 # Loss
-loss:
+loss:                                                                           # Loss functions.
   loss_weights: [0.35, 0.10, 0.25, 0.30]
 
 # Optimizer

@@ -20,9 +20,9 @@ class CharbonnierLoss(BaseLoss):
     """Computes the Charbonnier loss between input and target tensors.
 
     Args:
-        eps: Small constant for numerical stability. Default is ``1e-3``.
+        eps: Small constant for numerical stability. Default: ``1e-3``.
         reduction: Reduction method: ``"none"``, ``"mean"``, or ``"sum"``.
-            Default is ``"mean"``.`.
+            Default: ``"mean"``.`.
     """
     
     def __init__(self, eps: float = 1e-3, reduction: str = "mean"):
@@ -39,10 +39,10 @@ class CosineSimilarityLoss(BaseLoss):
     """Computes cosine similarity loss between input and target tensors.
 
     Args:
-        dim: Dimension for cosine similarity. Default is ``1``.
-        eps: Small constant for numerical stability. Default is ``1e-6``.
+        dim: Dimension for cosine similarity. Default: ``1``.
+        eps: Small constant for numerical stability. Default: ``1e-6``.
         reduction: Reduction method: ``"none"``, ``"mean"``, or ``"sum"``.
-            Default is ``"mean"``.
+            Default: ``"mean"``.
     """
     
     def __init__(self, dim: int = 1, eps: float = 1e-6, reduction: str = "mean"):
@@ -63,7 +63,7 @@ class ExtendedL1Loss(BaseLoss):
 
     Args:
         reduction: Reduction method: ``"none"``, ``"mean"``, or ``"sum"``.
-            Default is ``"mean"``.
+            Default: ``"mean"``.
     """
     
     def __init__(self, reduction: str = "mean"):

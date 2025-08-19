@@ -111,9 +111,9 @@ Configuration file for this training can be found in `/options/train/Baseline.ym
 To check our results you could run the evaluation of DarkIR in each of the datasets:
 
 - Download the weights of the model from [OneDrive](https://cidautes-my.sharepoint.com/:f:/g/personal/alvgar_cidaut_es/Epntbl4SucFNpeIT_jyYZ-cB9BamMbacbyq_svrkMCpShA?e=XB9YBB) and put them in `/models`.
-- run `python testing.py -p ./options/test/<config.yml>`. Default is LOLBlur.
+- run `python testing.py -p ./options/test/<config.yml>`. Default: LOLBlur.
 
-> You may also check the qualitative results in `Real-LOLBlur` and LLIE unpaired by running `python testing_unpaired.py -p ./options/test/<config.yml>`. Default is RealBlur.
+> You may also check the qualitative results in `Real-LOLBlur` and LLIE unpaired by running `python testing_unpaired.py -p ./options/test/<config.yml>`. Default: RealBlur.
 
 ## Inference
 
@@ -166,4 +166,3 @@ This work has been accepted for publication and presentation at The IEEE/CVF Con
 ## Contact
 
 If you have any questions, please contact danfei@cidaut.es and marcos.conde@uni-wuerzburg.de
-

@@ -741,7 +741,7 @@ class KalmanFilterNew(object):
             each epoch.
        update_first : bool, optional, default=False
             controls whether the order of operations is update followed by
-            predict, or predict followed by update. Default is predict->update.
+            predict, or predict followed by update. Default: predict->update.
         saver : filterpy.common.Saver, optional
             filterpy.common.Saver object. If provided, saver.save() will be
             called after every epoch
@@ -1442,7 +1442,7 @@ def batch_filter(x, P, zs, Fs, Qs, Hs, Rs, Bs=None, us=None,
         0 for that time step.
     update_first : bool, optional
         controls whether the order of operations is update followed by
-        predict, or predict followed by update. Default is predict->update.
+        predict, or predict followed by update. Default: predict->update.
         saver : filterpy.common.Saver, optional
             filterpy.common.Saver object. If provided, saver.save() will be
             called after every epoch

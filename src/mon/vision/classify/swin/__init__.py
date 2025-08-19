@@ -16,4 +16,11 @@ __all__ = [
     "Swin_V2_T",
 ]
 
-from .model import *
+from .model import (
+    Swin_B,
+    Swin_S,
+    Swin_T,
+    Swin_V2_B,
+    Swin_V2_S,
+    Swin_V2_T,
+)

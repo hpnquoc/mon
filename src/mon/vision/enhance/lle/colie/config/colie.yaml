@@ -43,8 +43,11 @@ network:                                                                        
   hidden_dim : *imgsz
   num_layers : 4
   add_layer  : 2
-  L          : 0.3                                                              # The "optimally-intense threshold", lower values produce brighter images. Default is ``0.3``.
+  L          : 0.3                                                              # The "optimally-intense threshold", lower values produce brighter images. Default: ``0.3``.
   iters      : *epochs
+
+# Loss
+loss: ~                                                                         # Loss functions.
 
 # Optimizer
 optimizer: ~                                                                    # Optimizer.

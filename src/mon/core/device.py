@@ -57,8 +57,8 @@ def get_cuda_memory_usages(device: int = 0, unit: MemoryUnit = MemoryUnit.GB) ->
     memory.
 
     Args:
-        device: GPU device index. Default is ``0``.
-        unit: Memory unit (e.g., ``GB``). Default is ``MemoryUnit.GB``.
+        device: GPU device index. Default: ``0``.
+        unit: Memory unit (e.g., ``GB``). Default: ``MemoryUnit.GB``.
 
     Returns:
         A ``tuple`` of :math:`(total, used, free)` memory values in the
@@ -79,7 +79,7 @@ def get_memory_usages(unit: MemoryUnit = MemoryUnit.GB) -> tuple[int, int, int]:
     """Retrieves RAM status as a list of :math:`(total, used, free)` memory.
 
     Args:
-        unit: Memory unit (e.g., ``GB``). Default is ``MemoryUnit.GB``.
+        unit: Memory unit (e.g., ``GB``). Default: ``MemoryUnit.GB``.
 
     Returns:
         A ``tuple`` of :math:`(total, used, free)` memory values in the

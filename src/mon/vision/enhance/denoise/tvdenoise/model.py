@@ -10,10 +10,9 @@ __all__ = [
 import box
 import kornia
 import torch
-import torch.nn as nn
 
 from mon.constants import MODELS
-from mon.core import MLType, ModelMixin, Path, Task
+from mon.core import MLType, ModelMixin, nn, Path, Task
 
 current_file = Path(__file__).absolute()
 current_dir  = current_file.parents[0]
@@ -38,6 +37,6 @@ class TVDenoise(nn.Module, ModelMixin):
         device  = x.device
         self.l2 = self.l2.to(device)
         self.tv = self.tv.to(device)
-        y       = torch.nn.Parameter(data=x.clone(), requires_grad=True)
+        y       = nn.Parameter(data=x.clone(), requires_grad=True)
         y       = y.to(device)
         return self.l2_term(y, x) + 0.0001 * self.tv(y)

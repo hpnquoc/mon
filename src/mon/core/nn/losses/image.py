@@ -37,9 +37,9 @@ class ColorConstancyLoss(BaseLoss):
     and builds relations among the three adjusted channels.
 
     Args:
-        eps: Small constant to avoid sqrt by zero. Default is ``1e-6``.
+        eps: Small constant to avoid sqrt by zero. Default: ``1e-6``.
         reduction: Reduction method: ``"none"``, ``"mean"``, or ``"sum"``.
-            Default is ``"mean"``.
+            Default: ``"mean"``.
 
     References:
         - https://github.com/Li-Chongyi/Zero-DCE/blob/master/Zero-DCE_code/Myloss.py#L9
@@ -70,10 +70,10 @@ class ExposureControlLoss(BaseLoss):
     value of a local region and the well-exposedness level E (i.e., ``mean_val``).
 
     Args:
-        patch_size: Kernel size for pooling layer. Default is ``16``.
-        mean_val: Well-exposedness level E. Default is ``0.6``.
+        patch_size: Kernel size for pooling layer. Default: ``16``.
+        mean_val: Well-exposedness level E. Default: ``0.6``.
         reduction: Reduction method: ``"none"``, ``"mean"``, or ``"sum"``.
-            Default is ``"mean"``.
+            Default: ``"mean"``.
 
     References:
         - https://github.com/Li-Chongyi/Zero-DCE/blob/master/Zero-DCE_code/Myloss.py#L74
@@ -104,11 +104,11 @@ class ExposureValueControlLoss(BaseLoss):
     """Exposure Value Control Loss measures the absolute value of the ``ExposureControlLoss``.
 
     Args:
-        patch_size: Kernel size for pooling layer. Default is ``16``.
+        patch_size: Kernel size for pooling layer. Default: ``16``.
         mean_val: Well-exposedness level E; lower values produce, brighter
-            images. Default is ``0.6``.
+            images. Default: ``0.6``.
         reduction: Reduction method: ``"none"``, ``"mean"``, or ``"sum"``.
-            Default is ``"mean"``.
+            Default: ``"mean"``.
 
     References:
         - https://github.com/Li-Chongyi/Zero-DCE/blob/master/Zero-DCE_code/Myloss.py#L74
@@ -139,9 +139,9 @@ class DepthAwareIlluminationLoss(BaseLoss):
     """Calculate the depth-weighted smoothness loss for 4D tensors.
 
     Args:
-        alpha: Weighting factor for depth influence. Default is ``1.0``.
+        alpha: Weighting factor for depth influence. Default: ``1.0``.
         reduction: Reduction method: ``"none"``, ``"mean"``, or ``"sum"``.
-            Default is ``"mean"``.
+            Default: ``"mean"``.
     """
     
     def __init__(self, alpha: float = 1.0, reduction: str = "mean"):
@@ -176,9 +176,9 @@ class EdgeAwareIlluminationLoss(BaseLoss):
     edges.
 
     Args:
-        beta: Weighting factor for edge influence. Default is ``1.0``.
+        beta: Weighting factor for edge influence. Default: ``1.0``.
         reduction: Reduction method: ``"none"``, ``"mean"``, or ``"sum"``.
-            Default is ``"mean"``.
+            Default: ``"mean"``.
     """
     
     def __init__(self, beta: float = 1.0, reduction: str = "mean"):
@@ -217,7 +217,7 @@ class TotalVariationLoss(BaseLoss):
 
     Args:
         reduction: Reduction method: ``"none"``, ``"mean"``, or ``"sum"``.
-            Default is ``"mean"``.
+            Default: ``"mean"``.
 
     References:
         - https://github.com/Li-Chongyi/Zero-DCE/blob/master/Zero-DCE_code/Myloss.py
@@ -257,10 +257,10 @@ class SpatialConsistencyLoss(BaseLoss):
     input image and its enhanced version.
 
     Args:
-        num_regions: Number of neighboring regions. Default is ``4``.
-        patch_size: Size of each neighboring region. Default is ``4`` (means 4x4).
+        num_regions: Number of neighboring regions. Default: ``4``.
+        patch_size: Size of each neighboring region. Default: ``4`` (means 4x4).
         reduction: Reduction method: ``"none"``, ``"mean"``, or ``"sum"``.
-            Default is ``"mean"``.
+            Default: ``"mean"``.
     """
     
     def __init__(
@@ -629,7 +629,7 @@ class EdgeLoss(BaseLoss):
 
     Args:
         reduction: Reduction method: ``"none"``, ``"mean"``, or ``"sum"``.
-            Default is ``"mean"``.
+            Default: ``"mean"``.
     """
     
     def __init__(self, reduction: str = "mean"):

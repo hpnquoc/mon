@@ -65,8 +65,8 @@ def set_terminal_size(rows: int = 40, cols: int = 100):
     """Sets the terminal window size to specified rows and columns.
 
     Args:
-        rows: Number of rows for terminal. Default is ``40``.
-        cols: Number of columns for terminal. Default is ``100``.
+        rows: Number of rows for terminal. Default: ``40``.
+        cols: Number of columns for terminal. Default: ``100``.
     """
     fd   = sys.stdout.fileno()
     size = struct.pack("HHHH", rows, cols, 0, 0)

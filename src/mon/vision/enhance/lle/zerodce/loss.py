@@ -11,9 +11,10 @@ __all__ = [
 ]
 
 import torch
-import torch.nn as nn
-import torch.nn.functional as F
 from torchvision.models.vgg import vgg16
+
+from mon.core import nn
+from mon.core.nn import functional as F
 
 
 class L_col(nn.Module):

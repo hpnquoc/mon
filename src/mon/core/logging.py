@@ -36,7 +36,7 @@ def get_logger(path: Path = None) -> logging.Logger:
     """Retrieves or creates a global logger with ``rich`` support.
 
     Args:
-        path: The ``Path`` for log file, adds file handler if given. Default is ``None``.
+        path: Absolute path for log file, adds file handler if given. Default: ``None``.
 
     Returns:
         Global logger instance.

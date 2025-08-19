@@ -2,9 +2,10 @@
 # -*- coding: utf-8 -*-
 
 import torch
-from torch import nn
 from torch.autograd import Variable
-import torch.nn.functional as F
+
+from mon.core import nn
+from mon.core.nn import functional as F
 
 
 def diff_x(input, r):

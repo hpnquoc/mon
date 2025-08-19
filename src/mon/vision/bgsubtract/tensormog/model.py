@@ -13,10 +13,9 @@ __all__ = [
 ]
 
 import torch
-import torch.nn as nn
 
 from mon.constants import MODELS
-from mon.core import Enum, MLType, ModelMixin, Path, Task
+from mon.core import Enum, MLType, ModelMixin, nn, Path, Task
 
 current_file = Path(__file__).absolute()
 current_dir  = current_file.parents[0]

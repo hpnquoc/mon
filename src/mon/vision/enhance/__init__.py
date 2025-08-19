@@ -7,7 +7,7 @@ from .dehaze import *
 from .denoise import *
 from .derain import *
 from .lle import *
-# from .multitask import *
-# from .retouch import *
-# from .sr import *
-# from .utils import *
+from .multitask import *
+from .retouch import *
+from .sr import *
+from .utils import *

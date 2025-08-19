@@ -46,7 +46,7 @@ class Enum(enum.Enum):
         """Checks if the current enum class contains a specific value.
 
         Args:
-            value: A value to check.
+            value: Value to check.
 
         Returns:
             ``True`` if ``value`` is in the enum, ``False`` otherwise.

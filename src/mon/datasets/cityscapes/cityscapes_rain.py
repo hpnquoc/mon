@@ -25,7 +25,7 @@ class CityscapesRain(Cityscapes):
     """Cityscapes-Rain dataset for deraining tasks.
 
     Args:
-        root: Root directory path. Default is ``default_root_dir``.
+        root: Root directory path. Default: ``default_root_dir``.
         *args: Additional args for parent class.
         **kwargs: Additional kwargs for parent class.
     

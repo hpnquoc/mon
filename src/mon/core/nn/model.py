@@ -36,12 +36,13 @@ class ModelMixin:
         """Parses and loads pretrained weights for the model.
     
         Args:
-            weights: Weights as ``dict``, ``str``, or path; ``None`` to skip.
-            num_classes: Number of classes for the model. Default is ``None``.
-            overwrite: Overwrites existing weights if ``True``. Default is ``False``.
+            weights: Weights as a ``dict``, ``str``, or ``Path`` to parse;
+                Pass ``None`` to skip.
+            num_classes: Number of classes for the model. Default: ``None``.
+            overwrite: Overwrites existing weights if ``True``. Default: ``False``.
     
         Raises:
-            ValueError: If weights path is invalid.
+            ValueError: If the given weights path is invalid.
         """
         path = None
         

@@ -15,30 +15,18 @@ import box
 import torch
 import yaml
 
-import albumentations as A
-import box
-import cv2
-import torch
-import torch.nn as nn
-import torch.nn.functional as F
-
 import mon
-from mon import console, metrics, Path, tfms, optims
+from mon import albumentations as A
 from mon.vision.enhance.multitask import fourierdiff
 
+mon.dev()
 torch.set_printoptions(sci_mode=False)
 
-current_file = Path(__file__).absolute()
+current_file = mon.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
 
 # ----- Utils -----
-def benchmark(model: nn.Module):
-    flops, params = mon.metric.compute_complexity(model=model)
-    mon.log(f"Params    : {params:.4f}")
-    mon.log(f"FLOPs     : {flops:.4f}")
-
-
 def dict2namespace(config):
     namespace = argparse.Namespace()
     for key, value in config.items():
@@ -68,9 +56,6 @@ def predict(args: dict | box.Box) -> str:
     # Seed
     mon.set_random_seed(args.seed)
 
-    # Data I/O
-    data_name, data_loader = mon.parse_data_loader(args.data, args.root, True, verbose=False)
-
     # Pretrained
     pretrained = args.resume
     if args.weights and args.weights.is_weights_file(exist=True):
@@ -85,7 +70,16 @@ def predict(args: dict | box.Box) -> str:
 
     # Benchmark
     # if args.benchmark:
-    #     benchmark(model)
+    #     mon.nn.benchmark(model)
+    
+    # Data I/O
+    imgsz     = args.imgsz if args.resize else (0, 0)
+    transform = A.Compose([
+        A.ResizeDivisibleBy(height=imgsz[0], width=imgsz[1], divisor=32),
+        A.Normalize(normalization="min_max"),
+        A.ToTensorV2(transpose_mask=True),
+    ])
+    data_name, dataloader = mon.data.build_dataloader(args.data, args.root, transform)
     
     # Predict
     timers = mon.TimeProfiler()
@@ -93,7 +87,7 @@ def predict(args: dict | box.Box) -> str:
     runner.sample(
         pretrained,
         data_name,
-        data_loader,
+        dataloader,
         args.imgsz,
         args.resize,
         args.save_image,

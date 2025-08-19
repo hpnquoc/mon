@@ -16,12 +16,10 @@ __all__ = [
 from collections import namedtuple
 
 import box
-import torch.nn as nn
-import torch.optim
 from cv2.ximgproc import guidedFilter
 
 from mon.constants import MODELS
-from mon.core import MLType, ModelMixin, Path, Task
+from mon.core import log, MLType, ModelMixin, nn, Path, Task
 from .src.net import *
 from .src.net.losses import StdLoss
 from .src.net.vae_model import VAE
@@ -131,7 +129,7 @@ class ZID(ModelMixin):
     
     def _init_loss(self):
         data_type      = torch.cuda.FloatTensor
-        self.mse_loss  = torch.nn.MSELoss().type(data_type)
+        self.mse_loss  = nn.MSELoss().type(data_type)
         self.blur_loss = StdLoss().type(data_type)
     
     def _init_inputs(self):
@@ -150,7 +148,7 @@ class ZID(ModelMixin):
     def optimize(self):
         torch.backends.cudnn.enabled   = True
         torch.backends.cudnn.benchmark = True
-        optimizer = torch.optim.Adam(self.parameters, lr=self.learning_rate)
+        optimizer = nn.Adam(self.parameters, lr=self.learning_rate)
         for j in range(self.num_iter):
             optimizer.zero_grad()
             self._optimization_closure()
@@ -188,7 +186,7 @@ class ZID(ModelMixin):
             self.current_result = DehazeResult(learned=image_out_np, t=mask_out_np, a=ambient_out_np)
     
     def _plot_closure(self, step):
-        mon.log('Iteration %05d    Loss %f  %f' % (step, self.total_loss.item(), self.blur_out.item()), '\r', end='')
+        log('Iteration %05d    Loss %f  %f' % (step, self.total_loss.item(), self.blur_out.item()), '\r', end='')
     
     def finalize(self):
         self.final_t_map = np_imresize(self.current_result.t, output_shape=self.original_image.shape[1:])

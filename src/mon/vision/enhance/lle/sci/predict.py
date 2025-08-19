@@ -12,13 +12,12 @@ References:
 import box
 import cv2
 import torch
-import torch.nn as nn
 import torch.utils
 from fvcore.nn import FlopCountAnalysis
 from torch.autograd import Variable
 
 import mon
-from mon import albumentations as A
+from mon import albumentations as A, nn
 from mon.vision.enhance.lle import sci
 
 mon.dev()
@@ -28,16 +27,16 @@ current_dir  = current_file.parents[0]
 
 
 # ----- Utils -----
-def compute_efficiency_score(model: nn.Module, imgsz: int = 512, channels: int = 3) -> tuple[float, float]:
+def compute_complexity(model: nn.Module, imgsz: int = 512, channels: int = 3) -> tuple[float, float]:
     """Computes FLOPs and parameters for a model.
 
     Args:
         model: PyTorch model to profile.
-        imgsz: Input image size. Default is ``512``.
-        channels: Number of input channels. Default is ``3``.
+        imgsz: Input image size. Default: ``512``.
+        channels: Number of input channels. Default: ``3``.
 
     Returns:
-        Tuple of ``(flops, params)`` as floats.
+        A tuple of :math:`(flops, params)`.
     """
     h, w   = mon.image.imgsz(imgsz)
     input  = torch.rand(1, channels, h, w).to(mon.get_model_device(model))
@@ -47,7 +46,7 @@ def compute_efficiency_score(model: nn.Module, imgsz: int = 512, channels: int =
 
 
 def benchmark(model: nn.Module):
-    flops, params = compute_efficiency_score(model=model)
+    flops, params = compute_complexity(model=model)
     mon.log(f"Params    : {params:.4f}")
     mon.log(f"FLOPs     : {flops:.4f}")
 

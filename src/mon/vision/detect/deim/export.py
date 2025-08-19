@@ -11,7 +11,6 @@ References:
 import box
 import tensorrt as trt
 import torch
-import torch.nn as nn
 
 import mon
 from mon.vision.detect import deim
@@ -24,7 +23,7 @@ current_dir  = current_file.parents[0]
 
 # ----- Export -----
 @torch.no_grad()
-def export_onnx(model: nn.Module, path: mon.Path, args: dict | box.Box) -> mon.Path:
+def export_onnx(model: mon.nn.Module, path: mon.Path, args: dict | box.Box) -> mon.Path:
     opset    = args.opset
     simplify = args.simplify
     imgsz    = args.imgsz[0] if isinstance(args.imgsz, list | tuple) else args.imgsz

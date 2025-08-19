@@ -10,7 +10,6 @@ References:
 
 import box
 import cv2
-import torch.nn as nn
 
 import mon
 from mon import albumentations as A
@@ -20,13 +19,6 @@ mon.dev()
 
 current_file = mon.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
-
-
-# ----- Utils -----
-def benchmark(model: nn.Module):
-    flops, params = mon.metric.compute_complexity(model=model)
-    mon.log(f"Params    : {params:.4f}")
-    mon.log(f"FLOPs     : {flops:.4f}")
 
 
 # ----- Predict -----
@@ -67,7 +59,7 @@ def predict(args: dict | box.Box) -> str:
     
     # Benchmark
     if args.benchmark:
-        benchmark(model.model)
+        mon.nn.benchmark(model.model)
     
     # Data I/O
     transform = A.Compose([

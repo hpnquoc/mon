@@ -22,7 +22,7 @@ class Compose(A.Compose):
     building transformations.
     
     Args:
-        transforms: A list of transformations to compose. If any element in
+        transforms: List of transformations to compose. If any element in
             ``transforms`` is a ``dict``, it will be used to build the
             corresponding transformation operation.
         kwargs: Additional arguments to pass to the ``albumentations.Compose``
@@ -39,7 +39,7 @@ def build_transforms(transforms: list[Any]) -> list[A.BasicTransform]:
     """Builds a ``list`` of transformations.
     
     Args:
-        transforms: A ``list`` of transformations to compose. If any element in
+        transforms: List of transformations to compose. If any element in
             ``transforms`` is a ``dict``, it will be used to build the
             corresponding transformation operation.
             
@@ -63,7 +63,7 @@ def build_compose(transforms: list[Any], **kwargs) -> A.Compose:
     """Builds an instance of ``albumentations.Compose``.
     
     Args:
-        transforms: A ``list`` of transformations to compose. If any element in
+        transforms: List of transformations to compose. If any element in
             ``transforms`` is a ``dict``, it will be used to build the
             corresponding transformation operation.
         kwargs: Additional arguments to pass to the ``albumentations.Compose``

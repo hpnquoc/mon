@@ -40,8 +40,8 @@ def create_download_bar(transient: bool = False, disable: bool = False) -> Progr
     """Creates a ``rich.progress.Progress`` for download tracking.
 
     Args:
-        transient: If ``True``, hides bar after completion. Default is ``False``.
-        disable: If ``True``, disables progress bar. Default is ``False``.
+        transient: If ``True``, hides bar after completion. Default: ``False``.
+        disable: If ``True``, disables progress bar. Default: ``False``.
 
     Returns:
         ``rich.progress.Progress`` with download-specific columns.
@@ -74,8 +74,8 @@ def create_progress_bar(transient: bool = False, disable: bool = False) -> Progr
     """Creates a ``rich.progress.Progress`` for general progress tracking.
 
     Args:
-        transient: If ``True``, hides bar after completion. Default is ``False``.
-        disable: If ``True``, disables progress bar. Default is ``False``.
+        transient: If ``True``, hides bar after completion. Default: ``False``.
+        disable: If ``True``, disables progress bar. Default: ``False``.
 
     Returns:
         ``rich.progress.Progress`` with processing-specific columns.
@@ -109,9 +109,9 @@ class MemoryUsageColumn(ProgressColumn):
     """Displays CPU/GPU memory usage in a progress bar (e.g., ``33.1/48.0GB``).
 
     Args:
-        devices: GPU device index or list of indices. Default is ``0``.
-        unit: Memory unit (e.g., ``'GB'``). Default is ``GB``.
-        table_column: Column in table to associate with. Default is ``None``.
+        devices: GPU device index or list of indices. Default: ``0``.
+        unit: Memory unit (e.g., ``'GB'``). Default: ``GB``.
+        table_column: Column in table to associate with. Default: ``None``.
     """
     
     def __init__(
@@ -177,7 +177,7 @@ class ProcessedItemsColumn(ProgressColumn):
     """Shows number of processed items in a progress bar (e.g., ``1728/2025``).
 
     Args:
-        table_column: Column in table to associate with. Default is ``None``.
+        table_column: Column in table to associate with. Default: ``None``.
     """
     
     def __init__(self, table_column: Column = None):
@@ -228,7 +228,7 @@ class SelectionOrInputPrompt(Prompt):
         prompt: Prompt text. Defaults to "".
         console: A Console instance or None to use global console. Defaults to None.
         password: Enable password input. Defaults to False.
-        choices: A list of valid choices. Defaults to None.
+        choices: List of valid choices. Defaults to None.
         case_sensitive: Matching of choices should be case-sensitive. Defaults to True.
         show_default: Show default in prompt. Defaults to True.
         show_choices: Show choices in prompt. Defaults to True.
@@ -298,7 +298,7 @@ class SelectionOrInputPrompt(Prompt):
             prompt: Prompt text. Defaults to "".
             console: A Console instance or None to use global console. Defaults to None.
             password: Enable password input. Defaults to False.
-            choices: A list of valid choices. Defaults to None.
+            choices: List of valid choices. Defaults to None.
             case_sensitive: Matching of choices should be case-sensitive. Defaults to True.
             show_default: Show default in prompt. Defaults to True.
             show_choices: Show choices in prompt. Defaults to True.

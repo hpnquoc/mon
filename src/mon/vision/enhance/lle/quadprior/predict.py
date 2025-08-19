@@ -16,12 +16,18 @@ import cv2
 import einops
 import numpy as np
 import torch
-import torch.nn as nn
 import torch.utils
 from pytorch_lightning import seed_everything
 
 import mon
-from mon.vision.enhance.lle.quadprior import create_model, DPMSolverSampler, HWC3, load_state_dict, resize_image
+from mon.core import nn
+from mon.vision.enhance.lle.quadprior import (
+    create_model,
+    DPMSolverSampler,
+    HWC3,
+    load_state_dict,
+    resize_image,
+)
 
 mon.dev()
 
@@ -31,7 +37,7 @@ current_dir  = current_file.parents[0]
 
 # ----- Utils -----
 def benchmark(model: nn.Module):
-    flops, params = mon.metric.compute_complexity(model=model)
+    flops, params = mon.nn.compute_complexity(model=model)
     total_params  = sum(p.numel() for p in model.parameters())
     mon.log(f"FLOPs       : {flops:.4f}")
     mon.log(f"Params      : {params:.4f}")

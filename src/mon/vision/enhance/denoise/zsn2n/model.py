@@ -13,10 +13,9 @@ __all__ = [
 ]
 
 import torch
-import torch.nn as nn
 
 from mon.constants import MODELS
-from mon.core import MLType, ModelMixin, optims, Path, Task, tfms
+from mon.core import MLType, ModelMixin, nn, Path, Task, transforms as T
 
 current_file = Path(__file__).absolute()
 current_dir  = current_file.parents[0]
@@ -44,8 +43,8 @@ class ZSN2N(nn.Module, ModelMixin):
     """ZS-N2N model for zero-shot image denoising.
     
     Args:
-        in_channels: The first layer's input channel. Default is ``3`` for RGB image.
-        iters: The number of optimization iterations. Default is ``3000``.
+        in_channels: The first layer's input channel. Default: ``3`` for RGB image.
+        iters: Number of optimization iterations. Default: ``3000``.
     
     References:
         - Paper: "Zero-Shot Noise2Noise: Efficient Image Denoising without any Data," CVPR 2023.
@@ -72,17 +71,17 @@ class ZSN2N(nn.Module, ModelMixin):
         # Optimize
         self.model.load_state_dict(self.state_dict)
         self.model.train()
-        optimizer = optims.Adam(self.model.parameters(), lr=0.001)
-        scheduler = optims.StepLR(optimizer, step_size=1000, gamma=0.5)
+        optimizer = nn.Adam(self.model.parameters(), lr=0.001)
+        scheduler = nn.StepLR(optimizer, step_size=1000, gamma=0.5)
         mse       = nn.MSELoss().to(device)
         
         for i in range(self.iters):
-            noisy1, noisy2       = tfms.pair_downsample(noisy)
+            noisy1, noisy2       = T.pair_downsample(noisy)
             pred1                = noisy1 - self.model(noisy1)
             pred2                = noisy2 - self.model(noisy2)
             loss_res             = 0.5 * (mse(noisy1, pred2) + mse(noisy2, pred1))
             noisy_denoised       = noisy - self.model(noisy)
-            denoised1, denoised2 = tfms.pair_downsample(noisy_denoised)
+            denoised1, denoised2 = T.pair_downsample(noisy_denoised)
             loss_cons            = 0.5 * (mse(pred1, denoised1) + mse(pred2, denoised2))
             loss                 = loss_res + loss_cons
             

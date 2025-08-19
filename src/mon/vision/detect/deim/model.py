@@ -17,10 +17,9 @@ __all__ = [
 
 import box
 import torch
-import torch.nn as nn
 
 from mon.constants import MODELS
-from mon.core import MLType, ModelMixin, Path, Task
+from mon.core import MLType, ModelMixin, nn, Path, Task
 # sys.path.append(os.path.abspath(os.path.dirname(__file__)))
 from .engine.core import YAMLConfig
 

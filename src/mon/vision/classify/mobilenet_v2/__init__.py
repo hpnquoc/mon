@@ -11,4 +11,4 @@ __all__ = [
     "MobileNetV2",
 ]
 
-from .model import *
+from .model import MobileNetV2

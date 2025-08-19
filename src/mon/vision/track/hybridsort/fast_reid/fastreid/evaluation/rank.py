@@ -187,10 +187,10 @@ def evaluate_rank(
             which each query instance is captured.
         g_camids (numpy.ndarray): 1-D array containing camera views under
             which each gallery instance is captured.
-        max_rank (int, optional): maximum CMC rank to be computed. Default is 50.
+        max_rank (int, optional): maximum CMC rank to be computed. Default: 50.
         use_metric_cuhk03 (bool, optional): use single-gallery-shot setting for cuhk03.
-            Default is False. This should be enabled when using cuhk03 classic split.
-        use_cython (bool, optional): use cython code for evaluation. Default is True.
+            Default: False. This should be enabled when using cuhk03 classic split.
+        use_cython (bool, optional): use cython code for evaluation. Default: True.
             This is highly recommended as the cython code can speed up the cmc computation
             by more than 10x. This requires Cython to be installed.
     """

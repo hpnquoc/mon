@@ -97,7 +97,7 @@ def get_args_parser(
     return parser
 
 
-class KnnModule(torch.nn.Module):
+class KnnModule(nn.Module):
     """
     Gets knn of test features from all processes on a chunk of the train features
 
@@ -185,7 +185,7 @@ class KnnModule(torch.nn.Module):
         return probas_for_k
 
 
-class DictKeysModule(torch.nn.Module):
+class DictKeysModule(nn.Module):
     def __init__(self, keys):
         super().__init__()
         self.keys = keys
@@ -238,7 +238,7 @@ def create_class_indices_mapping(labels):
     return mapping
 
 
-class ModuleDictWithForward(torch.nn.ModuleDict):
+class ModuleDictWithForward(nn.ModuleDict):
     def forward(self, *args, **kwargs):
         return {k: module(*args, **kwargs) for k, module in self._modules.items()}
 

@@ -18,14 +18,18 @@ import time
 
 import box
 import torch
-import torch.nn as nn
 import torchvision.transforms as transforms
 from PIL import Image
 
 from mon.constants import MODELS
-from mon.core import MLType, ModelMixin, Path, Task
+from mon.core import MLType, ModelMixin, nn, Path, Task
 from .src.network.Math_Module import P, Q
-from .src.utils import load_AdjustFusion, load_decom, load_unfolding, param_self_compute
+from .src.utils import (
+    load_AdjustFusion,
+    load_decom,
+    load_unfolding,
+    param_self_compute,
+)
 
 current_file = Path(__file__).absolute()
 current_dir  = current_file.parents[0]

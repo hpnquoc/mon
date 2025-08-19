@@ -9,14 +9,14 @@ __all__ = [
 
 import torch
 
-from mon import nn
+from mon.core import nn
 
 
 # ----- Pseudo-GT Image Generator -----
 class PseudoGTGenerator:
-    """To create the pseudo GT image, we compare and combine the 2N generated reference
-    images, the original image, and the output of the enhancement network of the same
-    image in the previous epoch.
+    """To create the pseudo GT image, we compare and combine the 2N generated
+    reference images, the original image, and the output of the enhancement
+    network of the same image in the previous epoch.
     
     References:
         - Code: https://github.com/VinAIResearch/PSENet-Image-Enhancement/blob/main/source/framework.py
@@ -33,7 +33,7 @@ class PseudoGTGenerator:
         self.number_refs = number_refs
         self.gamma_upper = gamma_upper
         self.gamma_lower = gamma_lower
-        self.iqa         = nn.metric.iqa.ImageQualityAssessment(exposed_level=exposed_level, pool_size=pool_size)
+        self.iqa         = nn.ImageQualityAssessment(exposed_level=exposed_level, pool_size=pool_size)
     
     def __call__(self, image: torch.Tensor, prev_output: torch.Tensor = None) -> torch.Tensor:
         b, c, h, w           = image.shape

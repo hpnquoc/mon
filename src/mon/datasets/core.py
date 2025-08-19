@@ -49,7 +49,7 @@ from mon.core.data import (
     VideoLoaderCV,
     VisionDataset,
 )
-from mon.core.data_types import (
+from mon.core.dtypes import (
     BaseTensorOrArray,
     DepthMap,
     Frame,

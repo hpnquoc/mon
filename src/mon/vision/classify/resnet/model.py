@@ -59,7 +59,7 @@ class ResNet18(ResNet):
     """ResNet-18 model for image classification.
 
     Args:
-        num_classes: Number of output classes. Default is ``1000``.
+        num_classes: Number of output classes. Default: ``1000``.
     """
     
     name: str  = "resnet18"
@@ -86,7 +86,7 @@ class ResNet34(ResNet):
     """ResNet-34 model for image classification.
 
     Args:
-        num_classes: Number of output classes. Default is ``1000``.
+        num_classes: Number of output classes. Default: ``1000``.
     """
     
     name: str  = "resnet34"
@@ -113,7 +113,7 @@ class ResNet50(ResNet):
     """ResNet-50 model for image classification.
 
     Args:
-        num_classes: Number of output classes. Default is ``1000``.
+        num_classes: Number of output classes. Default: ``1000``.
     """
     
     name: str  = "resnet50"
@@ -145,7 +145,7 @@ class ResNet101(ResNet):
     """ResNet-101 model for image classification.
 
     Args:
-        num_classes: Number of output classes. Default is ``1000``.
+        num_classes: Number of output classes. Default: ``1000``.
     """
     
     name: str  = "resnet101"
@@ -177,7 +177,7 @@ class ResNet152(ResNet):
     """ResNet-152 model for image classification.
 
     Args:
-        num_classes: Number of output classes. Default is ``1000``.
+        num_classes: Number of output classes. Default: ``1000``.
     """
     
     name: str  = "resnet152"
@@ -210,7 +210,7 @@ class ResNeXt50_32X4D(ResNet):
     """ResNeXt-50-32x4d model for image classification.
 
     Args:
-        num_classes: Number of output classes. Default is ``1000``.
+        num_classes: Number of output classes. Default: ``1000``.
     """
     
     name: str  = "resnext50_32x4d"
@@ -244,7 +244,7 @@ class ResNeXt101_32X8D(ResNet):
     """ResNeXt-101-32x8d model for image classification.
 
     Args:
-        num_classes: Number of output classes. Default is ``1000``.
+        num_classes: Number of output classes. Default: ``1000``.
     """
     
     name: str  = "resnext101_32x8d"
@@ -278,7 +278,7 @@ class ResNeXt101_64X4D(ResNet):
     """ResNeXt-101-64x4d model for image classification.
 
     Args:
-        num_classes: Number of output classes. Default is ``1000``.
+        num_classes: Number of output classes. Default: ``1000``.
     """
     
     name: str  = "resnext101_64x4d"
@@ -308,7 +308,7 @@ class WideResNet50_2(ResNet):
     """WideResNet-50-2 model for image classification.
 
     Args:
-        num_classes: Number of output classes. Default is ``1000``.
+        num_classes: Number of output classes. Default: ``1000``.
     """
     
     name: str  = "wide_resnet50_2"
@@ -341,7 +341,7 @@ class WideResNet101_2(ResNet):
     """WideResNet-101-2 model for image classification.
 
     Args:
-        num_classes: Number of output classes. Default is ``1000``.
+        num_classes: Number of output classes. Default: ``1000``.
     """
     
     name: str  = "wide_resnet101_2"

@@ -12,4 +12,4 @@ __all__ = [
     "MobileNetV3Small",
 ]
 
-from .model import *
+from .model import MobileNetV3Large, MobileNetV3Small

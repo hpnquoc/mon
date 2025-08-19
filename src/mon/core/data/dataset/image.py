@@ -11,7 +11,7 @@ import glob
 
 import albumentations as A
 
-from mon.core.data_types.image import Image
+from mon.core.dtypes.image import Image
 from mon.core.enum import Split
 from mon.core.pathlib import Path
 from mon.core.rich import create_progress_bar
@@ -24,14 +24,14 @@ class ImageLoader(VisionDataset):
     """Loads images from a file path, pattern, or directory.
     
     Attributes:
-        modalities: A ``dict`` of datapoint modalities.
+        modalities: Dictionary of datapoint modalities.
         
     Args:
-        root: An absolute ``Path`` to the dataset root directory.
+        root: Absolute path to the dataset root directory.
         split: Data split subset to use. One of: ``Split.TRAIN``, ``Split.VAL``,
-            ``Split.TEST``, or ``Split.PREDICT``. Default is ``Split.PREDICT``.
-        transform: Transformations for input/target. Default is ``None``.
-        verbose: If ``True``, enables verbose output. Default is ``False``.
+            ``Split.TEST``, or ``Split.PREDICT``. Default: ``Split.PREDICT``.
+        transform: Transformations for input/target. Default: ``None``.
+        verbose: If ``True``, enables verbose output. Default: ``False``.
     """
     
     modalities: Modalities  = {

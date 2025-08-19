@@ -55,8 +55,8 @@ class ImageQualityAssessment(nn.Module):
     """Assesses image quality based on exposedness, contrast, and saturation.
 
     Args:
-        exposed_level: Target exposure level. Default is ``0.5``.
-        pool_size: Size of pooling window. Default is ``25``.
+        exposed_level: Target exposure level. Default: ``0.5``.
+        pool_size: Size of pooling window. Default: ``25``.
 
     References:
         - Code: https://github.com/VinAIResearch/PSENet-Image-Enhancement/blob/main/source/iqa.py

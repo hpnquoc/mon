@@ -23,13 +23,6 @@ current_file = mon.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
 
-# ----- Utils -----
-def benchmark(model: torch.nn.Module, imgsz: tuple[int, int]):
-    flops, params = mon.metric.compute_complexity(model=model, imgsz=imgsz)
-    mon.log(f"Params    : {params:.4f}")
-    mon.log(f"FLOPs     : {flops:.4f}")
-
-
 # ----- Predict -----
 @torch.no_grad()
 def predict(args: dict | box.Box) -> str:
@@ -59,10 +52,10 @@ def predict(args: dict | box.Box) -> str:
     model.eval()
     
     # Benchmark
-    if benchmark:
+    if args.benchmark:
         h = int((512 // scale_factor) * scale_factor)
         w = int((512 // scale_factor) * scale_factor)
-        benchmark(model, imgsz=(h, w))
+        mon.nn.benchmark(model, imgsz=(h, w))
    
     # Data I/O
     imgsz     = args.imgsz if args.resize else (0, 0)

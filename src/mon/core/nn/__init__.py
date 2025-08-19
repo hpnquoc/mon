@@ -1,11 +1,15 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Supports ML/DL research, built on top of ``PyTorch``."""
+"""Supports ML/DL research, built on top of ``PyTorch``.
 
-__all__ = [
-    "ModelMixin",
-]  # Only expose ModelMixin for convenience, but not the entire package to avoid namespace pollution.
+Notes:
+    - In this package, we follow the same coding conventions as PyTorch to maintain consistency.
+    - If you don't know what to do, just look at the PyTorch source code.
+"""
+
+# noinspection PyUnusedImports
+from torch.nn import *  # Export all modules from ``torch.nn``
 
 from .losses import *
 from .metrics import *

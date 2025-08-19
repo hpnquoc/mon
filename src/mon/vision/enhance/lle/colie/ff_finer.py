@@ -9,21 +9,22 @@ from typing import Any
 
 import numpy as np
 import torch
-import torch.nn as nn
+
+from mon.core import nn
 
 
 # ----- FF-FINER -----
-class FINERLayer(torch.nn.Module):
+class FINERLayer(nn.Module):
     """Applies scaled sine activation to linear transformation.
 
     Args:
         in_features: Number of input channels as ``int``.
         out_features: Number of output channels as ``int``.
-        w0: Sine frequency factor as ``float``. Default is ``30.0``.
-        first_bias_scale: Bias scale for first layer as ``float``. Default is ``20.0``.
-        is_first: First layer flag for initialization as ``bool``. Default is ``False``.
-        bias: Uses bias in linear layer if ``True``. Default is ``True``.
-        scale_req_grad: Scale requires gradient if ``True``. Default is ``False``.
+        w0: Sine frequency factor as ``float``. Default: ``30.0``.
+        first_bias_scale: Bias scale for first layer as ``float``. Default: ``20.0``.
+        is_first: First layer flag for initialization as ``bool``. Default: ``False``.
+        bias: Uses bias in linear layer if ``True``. Default: ``True``.
+        scale_req_grad: Scale requires gradient if ``True``. Default: ``False``.
 
     References:
         - Code: https://github.com/liuzhen0212/FINER/blob/main/models.py

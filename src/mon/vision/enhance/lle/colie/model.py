@@ -16,10 +16,9 @@ __all__ = [
 import box
 import kornia
 import torch
-import torch.nn as nn
 
 from mon.constants import MODELS
-from mon.core import MLType, ModelMixin, Path, Task, optims
+from mon.core import MLType, ModelMixin, nn, Path, Task
 from . import loss as L
 from .siren import *
 from .utils import *
@@ -83,7 +82,7 @@ class CoLIE(nn.Module, ModelMixin):
         # Optimize
         self.model.load_state_dict(self.state_dict)
         self.model.train()
-        optimizer = optims.Adam(self.model.parameters(), lr=1e-5, betas=(0.9, 0.999), weight_decay=3e-4)
+        optimizer = nn.Adam(self.model.parameters(), lr=1e-5, betas=(0.9, 0.999), weight_decay=3e-4)
         L_exp     = L.L_exp(16, self.L).to(device)
         L_tv      = L.L_tv().to(device)
         

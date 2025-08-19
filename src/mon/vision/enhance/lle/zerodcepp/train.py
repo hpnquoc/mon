@@ -11,7 +11,6 @@ References:
 
 import box
 import torch
-import torch.optim
 
 import mon
 from mon.vision.enhance.lle import zerodcepp
@@ -64,7 +63,7 @@ def train(args: dict | box.Box) -> str:
     model.train()
     
     # Optimizer
-    optimizer = torch.optim.Adam(model.parameters(), **args.optimizer)
+    optimizer = mon.nn.Adam(model.parameters(), **args.optimizer)
     
     # Loss
     L_tv  = L.L_tv().to(device)
@@ -102,7 +101,7 @@ def train(args: dict | box.Box) -> str:
     
                 optimizer.zero_grad()
                 loss.backward()
-                torch.nn.utils.clip_grad_norm_(model.parameters(), grad_clip_norm)
+                mon.nn.utils.clip_grad_norm_(model.parameters(), grad_clip_norm)
                 optimizer.step()
                 
                 # Log

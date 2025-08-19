@@ -12,7 +12,7 @@ import math
 
 import numpy as np
 
-from mon.core.data_types import bbox as B, image as I
+from mon.core.dtypes import bbox as B, image as I
 from mon.core.enum import BBoxFormat
 
 
@@ -22,7 +22,7 @@ def split_image_and_hbbs(image: np.ndarray, bbox: np.ndarray, n: int = 2) -> tup
     Args:
         image: Image as a ``numpy.ndarray`` of shape :math:`(H, W, C)`.
         bbox: HBBs as a ``numpy.ndarray`` of shape :math:`(N, 4+)` in ``CXCYWHN`` format.
-        n: Number of parts to split into (positive integer). Default is ``2``.
+        n: Number of parts to split into (positive integer). Default: ``2``.
 
     Raises:
         ValueError: If inputs are invalid (e.g., image shape, bboxes, n).

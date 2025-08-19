@@ -20,4 +20,15 @@ __all__ = [
     "WideResNet50_2",
 ]
 
-from .model import *
+from .model import (
+    ResNet101,
+    ResNet152,
+    ResNet18,
+    ResNet34,
+    ResNet50,
+    ResNeXt101_32X8D,
+    ResNeXt101_64X4D,
+    ResNeXt50_32X4D,
+    WideResNet101_2,
+    WideResNet50_2,
+)

@@ -25,12 +25,11 @@ import abc
 from functools import partial
 
 import box
-import torch.nn as nn
 from torchvision import models as tvm
 from torchvision.models.efficientnet import _efficientnet_conf
 
 from mon.constants import MODELS, ZOO_DIR
-from mon.core import MLType, ModelMixin, Path, Task
+from mon.core import MLType, ModelMixin, nn, Path, Task
 
 current_file = Path(__file__).absolute()
 current_dir  = current_file.parents[0]

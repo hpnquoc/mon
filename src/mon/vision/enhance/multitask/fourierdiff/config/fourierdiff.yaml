@@ -36,10 +36,34 @@ verbose     : &verbose True                                                     
 # Custom config.yaml
 cfg         : "llve.yaml"                                                       # For overriding settings defined in this file.
 
-# ----- Custom Settings -----
+# ----- Model -----
 # Misc
 sigma_y     : 0.0
 eta         : 0.85
 subset_start: -1
 subset_end  : -1
 noise_type  : "gaussian"
+
+# Loss
+loss: ~                                                                         # Loss functions.
+
+# Optimizer
+optimizer: ~                                                                    # Optimizer.
+
+# ----- Data -----
+# Train
+train_dataloader: ~                                                             # Train dataloader.
+
+# Val
+val_dataloader: ~                                                               # Val dataloader.
+
+# ----- Deploy -----
+# Export
+export:
+  format        : "onnx"                                                        # Export format (e.g., onnx, engine, torchscript, coreml, tflite, openvino).
+  opset         : 16                                                            # ONNX: opset version.
+  simplify      : False                                                         # ONNX: Simplify model using `onnxslim`.
+  trt_precision : "fp32"                                                        # TRT: Precision mode (e.g., fp32, fp16, int8).
+  max_batch_size: 32                                                            # TRT: Max batch size for export.
+  opt_batch_size: 16                                                            # TRT: Optimize batch size for export.
+  min_batch_size: 1                                                             # TRT: Min batch size for export.

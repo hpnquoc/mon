@@ -21,7 +21,7 @@ from ..core import *
 class LOLBlur(VisionDataset, abc.ABC):
     """LOL-Blur dataset."""
     
-    name       : str         = "lolblur"
+    name      : str         = "lolblur"
     splits    : list[Split] = [Split.TRAIN, Split.TEST]
     modalities: Modalities  = {
         "image"    : Modality(name="image", type="image", module=Image, in_test=True, primary=True),

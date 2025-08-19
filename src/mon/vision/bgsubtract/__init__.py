@@ -3,8 +3,4 @@
 
 """Implements background substraction algorithms."""
 
-__all__ = [
-    "TensorMOG",
-]
-
 from .tensormog import *

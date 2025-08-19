@@ -15,4 +15,10 @@ __all__ = [
     "ViT_L_32",
 ]
 
-from .model import *
+from .model import (
+    ViT_B_16,
+    ViT_B_32,
+    ViT_H_14,
+    ViT_L_16,
+    ViT_L_32,
+)

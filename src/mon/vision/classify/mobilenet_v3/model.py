@@ -80,8 +80,8 @@ class MobileNetV3Small(MobileNetV3):
     """MobileNetV3-Small model for image classification.
 
     Args:
-        num_classes: Number of output classes. Default is ``1000``.
-        dropout: Dropout rate for the model. Default is ``0.2``.
+        num_classes: Number of output classes. Default: ``1000``.
+        dropout: Dropout rate for the model. Default: ``0.2``.
     """
     
     name: str  = "mobilenet_v3_small"

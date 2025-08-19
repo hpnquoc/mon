@@ -19,7 +19,7 @@ from dinov2.logging import MetricLogger
 logger = logging.getLogger("dinov2")
 
 
-class ModelWithNormalize(torch.nn.Module):
+class ModelWithNormalize(nn.Module):
     def __init__(self, model):
         super().__init__()
         self.model = model

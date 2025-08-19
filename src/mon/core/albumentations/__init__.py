@@ -17,6 +17,7 @@ from albumentations import *  # Expose all albumentations functions and classes
 
 from mon.core.factory import ALBUMENTATIONS
 from .compose import build_compose, build_transforms, Compose as Compose
+from .fisheye import *
 from .resize import *
 
 
@@ -26,7 +27,7 @@ def __register_transforms(module, prefix: str = ""):
     adding them to __all__ and TRANSFORMS registry.
     
     Args:
-        module: The module to inspect (e.g., albumentations.augmentations or its submodules).
+        module: Module to inspect (e.g., albumentations.augmentations or its submodules).
         prefix: Prefix for module path to track nested module names.
     """
     def is_transform_class(obj):

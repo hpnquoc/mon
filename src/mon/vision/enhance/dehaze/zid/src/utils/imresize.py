@@ -278,7 +278,7 @@ def kernel_shift(kernel, sf):
     #    of mass is center of the kernel.
     # 2. We further shift kernel center so that top left result pixel
     # corresponds to the middle of the sfXsf first
-    #    pixels. Default is for odd size to be in the middle of the first
+    #    pixels. Default: for odd size to be in the middle of the first
     #    pixel and for even sized kernel to be at the
     #    top left corner of the first pixel. that is why different shift size
     #    needed between od and even size.

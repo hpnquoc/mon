@@ -17,12 +17,11 @@ import time
 
 import box
 import torch
-import torch.nn as nn
 import torchvision.transforms as transforms
 from PIL import Image
 
 from mon.constants import MODELS
-from mon.core import MLType, ModelMixin, Path, Task
+from mon.core import MLType, ModelMixin, nn, Path, Task
 from .src.network.decom import Decom
 from .src.network.Math_Module import P, Q
 from .src.utils import load_adjustment, load_initialize, load_unfolding

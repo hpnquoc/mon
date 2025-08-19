@@ -111,7 +111,7 @@ class ConvNeXtSmall(ConvNeXt):
     """ConvNeXt Small model for image classification.
 
     Args:
-        num_classes: Number of output classes. Default is ``1000``.
+        num_classes: Number of output classes. Default: ``1000``.
     """
     
     name: str  = "convnext_small"
@@ -145,7 +145,7 @@ class ConvNeXtLarge(ConvNeXt):
     """ConvNeXt Large model for image classification.
 
     Args:
-        num_classes: Number of output classes. Default is ``1000``.
+        num_classes: Number of output classes. Default: ``1000``.
     """
     
     name: str  = "convnext_large"

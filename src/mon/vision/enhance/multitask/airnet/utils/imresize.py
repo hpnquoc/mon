@@ -175,7 +175,7 @@ def kernel_shift(kernel, sf):
     # 1. Center of mass is not in the center of the kernel which creates ambiguity. There is no possible way to know
     #    the degradation process included shifting so we always assume center of mass is center of the kernel.
     # 2. We further shift kernel center so that top left result pixel corresponds to the middle of the sfXsf first
-    #    pixels. Default is for odd size to be in the middle of the first pixel and for even sized kernel to be at the
+    #    pixels. Default: for odd size to be in the middle of the first pixel and for even sized kernel to be at the
     #    top left corner of the first pixel. that is why different shift size needed between od and even size.
     # Given that these two conditions are fulfilled, we are happy and aligned, the way to test it is as follows:
     # The input image, when interpolated (regular bicubic) is exactly aligned with ground truth.

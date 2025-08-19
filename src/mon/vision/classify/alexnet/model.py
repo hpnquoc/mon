@@ -22,8 +22,8 @@ class AlexNet(tvm.AlexNet, ModelMixin):
     """AlexNet model for image classification.
     
     Args:
-        num_classes: Number of output classes. Default is ``1000``.
-        dropout: Dropout rate for the model. Default is ``0.5``.
+        num_classes: Number of output classes. Default: ``1000``.
+        dropout: Dropout rate for the model. Default: ``0.5``.
     """
     
     arch     : str          = "alexnet"

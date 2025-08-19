@@ -22,9 +22,9 @@ class Cityscapes(VisionDataset):
     """Cityscapes main dataset.
 
     Args:
-        root: Root directory path. Default is ``default_root_dir``.
-        use_blurred: Use blurred images if ``True``. Default is ``False``.
-        use_coarse: Use coarse annotations if ``True``. Default is ``False``.
+        root: Root directory path. Default: ``default_root_dir``.
+        use_blurred: Use blurred images if ``True``. Default: ``False``.
+        use_coarse: Use coarse annotations if ``True``. Default: ``False``.
         *args: Additional args for parent class.
         **kwargs: Additional kwargs for parent class.
    

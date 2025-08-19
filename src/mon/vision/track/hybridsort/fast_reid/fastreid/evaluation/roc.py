@@ -80,7 +80,7 @@ def evaluate_roc(
             which each query instance is captured.
         g_camids (numpy.ndarray): 1-D array containing camera views under
             which each gallery instance is captured.
-        use_cython (bool, optional): use cython code for evaluation. Default is True.
+        use_cython (bool, optional): use cython code for evaluation. Default: True.
             This is highly recommended as the cython code can speed up the cmc computation
             by more than 10x. This requires Cython to be installed.
     """

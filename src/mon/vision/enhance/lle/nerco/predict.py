@@ -14,7 +14,6 @@ import random
 import box
 import cv2
 import torch
-import torch.nn as nn
 from PIL import Image
 
 import mon
@@ -25,13 +24,6 @@ mon.dev()
 
 current_file = mon.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
-
-
-# ----- Utils -----
-def benchmark(model: nn.Module):
-    flops, params = model.metric.compute_complexity()
-    mon.log(f"Params    : {params:.4f}")
-    mon.log(f"FLOPs     : {flops:.4f}")
 
 
 # ----- Predict -----
@@ -76,7 +68,7 @@ def predict(args: dict | box.Box) -> str:
     
     # Benchmark
     if args.benchmark:
-        benchmark(model)
+        mon.nn.benchmark(model)
     
     # Data I/O
     data_name, dataloader = mon.data.build_dataloader(args.data, args.root)

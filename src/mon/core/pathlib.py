@@ -77,7 +77,7 @@ class Path(type(Path_())):
         """Checks if the path is a file or valid URL.
 
         Args:
-            exist: If ``True``, verifies the file exists. Default is ``True``.
+            exist: If ``True``, verifies the file exists. Default: ``True``.
 
         Returns:
             ``True`` if path is a file or valid URL, ``False`` otherwise.
@@ -119,7 +119,7 @@ class Path(type(Path_())):
         """Checks if the path is a ``.json`` file.
 
         Args:
-            exist: If ``True``, verifies the file exists. Default is ``True``.
+            exist: If ``True``, verifies the file exists. Default: ``True``.
 
         Returns:
             ``True`` if path is a ``.json`` file, ``False`` otherwise.
@@ -130,7 +130,7 @@ class Path(type(Path_())):
         """Checks if the path is a ``.txt`` file.
 
         Args:
-            exist: If ``True``, verifies the file exists. Default is ``True``.
+            exist: If ``True``, verifies the file exists. Default: ``True``.
 
         Returns:
             ``True`` if path is a ``.txt`` file, ``False`` otherwise.
@@ -141,7 +141,7 @@ class Path(type(Path_())):
         """Checks if the path is an ``.xml`` file.
 
         Args:
-            exist: If ``True``, verifies the file exists. Default is ``True``.
+            exist: If ``True``, verifies the file exists. Default: ``True``.
 
         Returns:
             ``True`` if path is an ``.xml`` file, ``False`` otherwise.
@@ -152,7 +152,7 @@ class Path(type(Path_())):
         """Checks if the path is a ``.yaml`` or ``.yml`` file.
 
         Args:
-            exist: If ``True``, verifies the file exists. Default is ``True``.
+            exist: If ``True``, verifies the file exists. Default: ``True``.
 
         Returns:
             ``True`` if path is a ``.yaml`` or ``.yml`` file, ``False`` otherwise.
@@ -164,7 +164,7 @@ class Path(type(Path_())):
         """Checks if the path is an image file.
 
         Args:
-            exist: If ``True``, verifies the file exists. Default is ``True``.
+            exist: If ``True``, verifies the file exists. Default: ``True``.
 
         Returns:
             ``True`` if path is an image file, ``False`` otherwise.
@@ -175,7 +175,7 @@ class Path(type(Path_())):
         """Checks if the path is a raw image file (``.dng`` or ``.arw``).
 
         Args:
-            exist: If ``True``, verifies the file exists. Default is ``True``.
+            exist: If ``True``, verifies the file exists. Default: ``True``.
 
         Returns:
             ``True`` if path is a raw image file, ``False`` otherwise.
@@ -187,7 +187,7 @@ class Path(type(Path_())):
         """Checks if the path is a video file.
 
         Args:
-            exist: If ``True``, verifies the file exists. Default is ``True``.
+            exist: If ``True``, verifies the file exists. Default: ``True``.
 
         Returns:
             ``True`` if path is a video file, ``False`` otherwise.
@@ -207,7 +207,7 @@ class Path(type(Path_())):
         """Checks if the path is a ``.cache`` file.
 
         Args:
-            exist: If ``True``, verifies the file exists. Default is ``True``.
+            exist: If ``True``, verifies the file exists. Default: ``True``.
 
         Returns:
             ``True`` if path is a ``.cache`` file, ``False`` otherwise.
@@ -218,7 +218,7 @@ class Path(type(Path_())):
         """Checks if the path is a ``.ckpt`` file.
 
         Args:
-            exist: If ``True``, verifies the file exists. Default is ``True``.
+            exist: If ``True``, verifies the file exists. Default: ``True``.
 
         Returns:
             ``True`` if path is a ``.ckpt`` file, ``False`` otherwise.
@@ -229,7 +229,7 @@ class Path(type(Path_())):
         """Checks if the path is a ``.config`` or ``.cfg`` file.
 
         Args:
-            exist: If ``True``, verifies the file exists. Default is ``True``.
+            exist: If ``True``, verifies the file exists. Default: ``True``.
 
         Returns:
             ``True`` if path is a config file, ``False`` otherwise.
@@ -240,7 +240,7 @@ class Path(type(Path_())):
         """Checks if the path is a ``.onnx`` file.
 
         Args:
-            exist: If ``True``, verifies the file exists. Default is ``True``.
+            exist: If ``True``, verifies the file exists. Default: ``True``.
 
         Returns:
             ``True`` if path is a ``.onnx`` file, ``False`` otherwise.
@@ -251,7 +251,7 @@ class Path(type(Path_())):
         """Checks if the path is a ``.py`` file.
 
         Args:
-            exist: If ``True``, verifies the file exists. Default is ``True``.
+            exist: If ``True``, verifies the file exists. Default: ``True``.
 
         Returns:
             ``True`` if path is a ``.py`` file, ``False`` otherwise.
@@ -262,7 +262,7 @@ class Path(type(Path_())):
         """Checks if the path is a ``.pt`` or ``.pth`` file.
 
         Args:
-            exist: If ``True``, verifies the file exists. Default is ``True``.
+            exist: If ``True``, verifies the file exists. Default: ``True``.
 
         Returns:
             ``True`` if path is a weights file, ``False`` otherwise.
@@ -274,7 +274,7 @@ class Path(type(Path_())):
         """Returns a list of subdirectory paths.
 
         Args:
-            recursive: If ``True``, includes subdirs recursively. Default is ``False``.
+            recursive: If ``True``, includes subdirs recursively. Default: ``False``.
 
         Returns:
             List of subdirectory paths.
@@ -287,7 +287,7 @@ class Path(type(Path_())):
         """Returns a list of file paths in the directory.
 
         Args:
-            recursive: If ``True``, includes files in subdirs. Default is ``False``.
+            recursive: If ``True``, includes files in subdirs. Default: ``False``.
 
         Returns:
             List of file paths.
@@ -382,7 +382,7 @@ class Path(type(Path_())):
 
         Args:
             dst: Destination path or string.
-            replace: If ``True``, replaces the existing file. Default is ``True``.
+            replace: If ``True``, replaces the existing file. Default: ``True``.
 
         Raises:
             NotImplementedError: If ``dst`` is a URL.
@@ -402,7 +402,7 @@ class Path(type(Path_())):
         Args:
             old: String to replace.
             new: Replacement string.
-            count: Max number of replacements. Default is ``1``.
+            count: Max number of replacements. Default: ``1``.
 
         Returns:
             New path with replaced string.
@@ -423,7 +423,7 @@ def download_url_to_file(url: str, path: Path, overwrite: bool = False) -> Path:
     Args:
         url: The URL to download weights from.
         path: The local file path to save weights.
-        overwrite: If ``True``, overwrites the existing file. Default is ``False``.
+        overwrite: If ``True``, overwrites the existing file. Default: ``False``.
 
     Returns:
         The ``Path`` to downloaded weights file.
@@ -449,8 +449,8 @@ def delete_files(path: Path, regex: str = None, recursive: bool = False):
 
     Args:
         path: Directory path to search for files.
-        regex: File path pattern. Default is ``None`` (deletes ``path`` if file).
-        recursive: If ``True``, searches subdirs. Default is ``False``.
+        regex: File path pattern. Default: ``None`` (deletes ``path`` if file).
+        recursive: If ``True``, searches subdirs. Default: ``False``.
     """
     path = Path(path)
     if regex:

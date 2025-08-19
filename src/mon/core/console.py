@@ -59,7 +59,7 @@ def pprint_dict(a_dict: dict | box.Box, title: str = ""):
 
     Args:
         a_dict: Dictionary to print.
-        title: Title above the dictionary. Default is ``""``.
+        title: Title above the dictionary. Default: ``""``.
 
     Raises:
         TypeError: If ``a_dict`` is not a dictionary.
@@ -84,7 +84,7 @@ def rprint_dict(a_dict: dict, title: str = ""):
 
     Args:
         a_dict: Dictionary to print as a table.
-        title: Title above the table. Default is ``""``.
+        title: Title above the table. Default: ``""``.
 
     Raises:
         TypeError: If ``a_dict`` is not a dictionary.

@@ -14,25 +14,17 @@ import argparse
 import box
 import numpy as np
 import torch
-import torch.nn as nn
-import torch.nn.functional as F
 import yaml
 
 import mon
 from mon import albumentations as A
+from mon.core.nn import functional as F
 from mon.vision.enhance.lle import lightendiffusion
 
 mon.dev()
 
 current_file = mon.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
-
-
-# ----- Utils -----
-def benchmark(model: nn.Module):
-    flops, params = mon.metric.compute_complexity(model=model, channels=6)
-    mon.log(f"Params    : {params:.4f}")
-    mon.log(f"FLOPs     : {flops:.4f}")
 
 
 def dict2namespace(config):
@@ -85,7 +77,7 @@ def predict(args: dict | box.Box) -> str:
 
     # Benchmark
     if args.benchmark:
-        benchmark(diffusion.model)
+        mon.nn.benchmark(diffusion.model)
     
     # Data I/O
     imgsz     = args.imgsz if args.resize else (0, 0)

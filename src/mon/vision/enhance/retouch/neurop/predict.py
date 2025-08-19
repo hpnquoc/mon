@@ -9,29 +9,20 @@ References:
 """
 
 import box
+import cv2
 import imageio
 import torch
 
-import albumentations as A
-import box
-import cv2
-import torch
-import torch.nn as nn
-import torch.nn.functional as F
-
 import mon
-from mon import console, metrics, Path, tfms, optims
-from mon.vision.enhance.retouch.neurop import build_model, dict_to_nonedict, parse
+from mon import albumentations as A
+from mon.vision.enhance.retouch.neurop import (
+    build_model,
+    dict_to_nonedict,
+    parse,
+)
 
-current_file = Path(__file__).absolute()
+current_file = mon.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
-
-
-# ----- Utils -----
-def benchmark(model: nn.Module):
-    flops, params = mon.metric.compute_complexity(model=model)
-    mon.log(f"Params    : {params:.4f}")
-    mon.log(f"FLOPs     : {flops:.4f}")
 
 
 # ----- Predict -----
@@ -52,35 +43,38 @@ def predict(args: dict | box.Box) -> str:
 
     # Seed
     mon.set_random_seed(args.seed)
-
-    # Data I/O
-    data_name, data_loader = mon.parse_data_loader(args.data, args.root, True, verbose=False)
-
+    
     # Model
     model = build_model(cfgs)
     
     # Benchmark
     if args.benchmark:
-        benchmark(model)
+        mon.nn.benchmark(model)
+    
+    # Data I/O
+    imgsz     = args.imgsz if args.resize else (0, 0)
+    transform = A.Compose([
+        A.ResizeDivisibleBy(height=imgsz[0], width=imgsz[1], divisor=32),
+        A.Normalize(normalization="min_max"),
+        A.ToTensorV2(transpose_mask=True),
+    ])
+    data_name, dataloader = mon.data.build_dataloader(args.data, args.root, transform)
     
     # Predicting
     timers = mon.TimeProfiler()
     timers.total.tick()
     with mon.create_progress_bar() as pbar:
         for i, datapoint in pbar.track(
-            sequence    = enumerate(data_loader),
-            total       = len(data_loader),
+            sequence    = enumerate(dataloader),
+            total       = len(dataloader),
             description = f"[bright_yellow]Predicting"
         ):
             # Preprocess
             timers.preprocess.tick()
-            path   = Path(datapoint["meta"]["path"])
+            meta   = datapoint["meta"][0]
+            path   = mon.Path(meta["path"])
+            h0, w0 = mon.image.imgsz(meta["orig_shape"])
             image  = datapoint["image"]
-            h0, w0 = mon.image.imgsz(image)
-            if args.resize and (h0 != args.imgsz[0] or w0 != args.imgsz[1]):
-                image = mon.resize(image, size=args.imgsz)
-            else:
-                image = mon.resize(image, divisible_by=32)
             image  = image.to(device)
             timers.preprocess.tock()
 
@@ -97,18 +91,17 @@ def predict(args: dict | box.Box) -> str:
             timers.postprocess.tick()
             outputs  = model.get_current_visuals()
             enhanced = outputs["rlt"]
-            h1, w1   = mon.image.imgsz(enhanced)
-            if h1 != h0 or w1 != w0:
-                enhanced = mon.resize(enhanced, (h0, w0))
             enhanced = (255.0 * enhanced).astype("uint8")
+            h1, w1   = mon.image.imgsz(enhanced)
+            if (h1, w1) != (h0, w0):
+                enhanced = cv2.resize(enhanced, (w0, h0))
             timers.postprocess.tock()
 
             # Save
             if args.save_image:
                 out_dir  = mon.rt.parse_output_dir(args.save_dir, data_name, mon.SAVE_IMAGE_DIR, path, args.keep_subdirs, args.save_nearby)
                 out_path = out_dir / f"{path.stem}{mon.SAVE_IMAGE_EXT}"
-                out_path.parent.mkdir(parents=True, exist_ok=True)
-                imageio.imwrite(str(out_path), enhanced)
+                mon.image.save_image(enhanced, out_path)
     timers.total.tock()
 
     # Finish

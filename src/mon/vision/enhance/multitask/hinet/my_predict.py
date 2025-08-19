@@ -26,7 +26,6 @@ current_dir  = current_file.parents[0]
 
 
 # ----- Predict -----
-
 def predict(args: argparse.Namespace):
     # General config
     data         = args.data
@@ -115,10 +114,7 @@ def predict(args: argparse.Namespace):
         mon.log(f"Average time: {avg_time}")
     
 
-
-
 # ----- Main -----
-
 def main() -> str:
     args = mon.rt.parse_predict_args(model_root=current_dir)
     predict(args)

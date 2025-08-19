@@ -17,7 +17,7 @@ from typing import Any
 
 import box
 
-from mon.core.data_types import image as I
+from mon.core.dtypes import image as I
 from mon.core.device import list_devices, parse_device
 from mon.core.enum import Task, TRTPrecision
 from mon.core.pathlib import Path
@@ -35,7 +35,7 @@ def _str_or_none(a_str: Any) -> str | None:
     """Converts a value to a ``str`` or ``None`` if value is ``"None"``.
 
     Args:
-        a_str: The value to convert.
+        a_str: Value to convert.
 
     Returns:
         A ``str`` or ``None``.
@@ -47,7 +47,7 @@ def _int_or_none(int_or_str: Any) -> int | None:
     """Converts a value to an ``int`` or ``None`` if value is ``"None"``.
 
     Args:
-        int_or_str: The value to convert.
+        int_or_str: Value to convert.
 
     Returns:
         An ``int`` or ``None``.
@@ -59,7 +59,7 @@ def _float_or_none(float_or_str: Any) -> float | None:
     """Converts a value to a float or ``None`` if value is ``"None"``.
 
     Args:
-        float_or_str: The value to convert.
+        float_or_str: Value to convert.
 
     Returns:
         A float or ``"None"``.

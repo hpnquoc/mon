@@ -15,7 +15,7 @@ imgsz       : &imgsz 256                                                        
 # Train
 resume      : &resume ~                                                         # Resume from interrupted training.
 tuning      : &tuning ~                                                         # Fine-tuning from a pretrained model.
-epochs      : &epochs 100                                                       # Training epochs. Default is ``100``.
+epochs      : &epochs 100                                                       # Training epochs. Default: ``100``.
 batch_size  : &batch_size 1                                                     # Batch size.
 torchrun    : False                                                             # If ``True``, use torch.distributed.run to run the training script.
 master_port : 7777                                                              # Master port for distributed training.
@@ -39,16 +39,40 @@ cfg         : ~                                                                 
 # ----- Model -----
 # Network
 network:                                                                        # Network architecture.
-  mapping_func   : "pbde"                                                       # One of: ["p", "b", "pb", "pbde"]. Default is "pbde".
-  window_size    : 9                                                            # Context window size. Default is ``9``.
-  hidden_dim     : *imgsz                                                       # Input image size. Default is ``256``.
-  num_layers     : 4                                                            # Total layer's depth. Default is ``4``.
-  add_layers     : 2                                                            # Number of layers for output branch. Default is ``2``.
-  use_ff         : True                                                         # Use Fourier Feature embedding for the spatial branch. Default is ``True``.
-  nonlinear      : "finer"                                                      # Activation function. Default is ``"finer"``.
-  depth_threshold: 1.0                                                          # For adjusting the learned residual. Default is ``1.0``.
-  edge_threshold : 0.05                                                         # Edge threshold. Default is ``0.05``.
-  use_denoise    : False                                                        # Use denoising. Default is ``False``.
-  denoise_ksize  : 7                                                            # Denoising kernel size. Default is ``7``.
+  mapping_func   : "pbde"                                                       # One of: ["p", "b", "pb", "pbde"]. Default: "pbde".
+  window_size    : 9                                                            # Context window size. Default: ``9``.
+  hidden_dim     : *imgsz                                                       # Input image size. Default: ``256``.
+  num_layers     : 4                                                            # Total layer's depth. Default: ``4``.
+  add_layers     : 2                                                            # Number of layers for output branch. Default: ``2``.
+  use_ff         : True                                                         # Use Fourier Feature embedding for the spatial branch. Default: ``True``.
+  nonlinear      : "finer"                                                      # Activation function. Default: ``"finer"``.
+  depth_threshold: 1.0                                                          # For adjusting the learned residual. Default: ``1.0``.
+  edge_threshold : 0.05                                                         # Edge threshold. Default: ``0.05``.
+  use_denoise    : False                                                        # Use denoising. Default: ``False``.
+  denoise_ksize  : 7                                                            # Denoising kernel size. Default: ``7``.
   L              : 0.5
   iters          : *epochs
+
+# Loss
+loss: ~                                                                         # Loss functions.
+
+# Optimizer
+optimizer: ~                                                                    # Optimizer.
+
+# ----- Data -----
+# Train
+train_dataloader: ~                                                             # Train dataloader.
+
+# Val
+val_dataloader: ~                                                               # Val dataloader.
+
+# ----- Deploy -----
+# Export
+export:
+  format        : "onnx"                                                        # Export format (e.g., onnx, engine, torchscript, coreml, tflite, openvino).
+  opset         : 16                                                            # ONNX: opset version.
+  simplify      : False                                                         # ONNX: Simplify model using `onnxslim`.
+  trt_precision : "fp32"                                                        # TRT: Precision mode (e.g., fp32, fp16, int8).
+  max_batch_size: 32                                                            # TRT: Max batch size for export.
+  opt_batch_size: 16                                                            # TRT: Optimize batch size for export.
+  min_batch_size: 1                                                             # TRT: Min batch size for export.

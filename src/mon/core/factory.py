@@ -25,9 +25,9 @@ class Factory(dict):
 
     Args:
         name: Factory's name.
-        mapping: Pre-defined ``dict`` of registered classes. Default is ``None``.
+        mapping: Pre-defined ``dict`` of registered classes. Default: ``None``.
         decamelize: If ``True``, converts class names to lowercase with
-            underscores. Default is ``False``.
+            underscores. Default: ``False``.
     
     Raises:
         ValueError: If ``name`` is ``None`` or empty.
@@ -48,10 +48,10 @@ class Factory(dict):
         """Registers a class with an optional decorator.
 
         Args:
-            name: Registering name. Default is ``None`` means inferred from the
+            name: Registering name. Default: ``None`` means inferred from the
                 class name.
-            module: The class to register. Default is ``None``.
-            replace: If ``True``, overwrites existing entry. Default is ``False``.
+            module: The class to register. Default: ``None``.
+            replace: If ``True``, overwrites existing entry. Default: ``False``.
 
         Returns:
             A decorator if ``module`` is ``None``, else registers directly.
@@ -73,9 +73,9 @@ class Factory(dict):
 
         Args:
             module: The class to register.
-            name: Registering name. Default is ``None`` means inferred from the
+            name: Registering name. Default: ``None`` means inferred from the
                 class name.
-            replace: If ``True``, overwrites existing entry. Default is ``False``.
+            replace: If ``True``, overwrites existing entry. Default: ``False``.
 
         Raises:
             ValueError: If ``module`` is not a class.
@@ -170,12 +170,12 @@ class ModelFactory(Factory):
         """Registers a model with an optional decorator.
 
         Args:
-            name: Model name. Default is ``None`` means inferred from the
+            name: Model name. Default: ``None`` means inferred from the
                 model class name.
-            arch: Arch name. Default is ``None`` means inferred from the
+            arch: Arch name. Default: ``None`` means inferred from the
                 model class name.
-            module: Model class to register. Default is ``None``.
-            replace: If ``True``, overwrites entry. Default is ``False``.
+            module: Model class to register. Default: ``None``.
+            replace: If ``True``, overwrites entry. Default: ``False``.
 
         Returns:
             Decorator if ``module`` is ``None``, else registers directly.
@@ -202,12 +202,12 @@ class ModelFactory(Factory):
         """Registers a model class under an architecture.
 
         Args:
-            name: Model name. Default is ``None`` means inferred from the
+            name: Model name. Default: ``None`` means inferred from the
                 model class name.
-            arch: Arch name. Default is ``None`` means inferred from the
+            arch: Arch name. Default: ``None`` means inferred from the
                 model class name.
-            module: Model class to register. Default is ``None``.
-            replace: If ``True``, overwrites entry. Default is ``False``.
+            module: Model class to register. Default: ``None``.
+            replace: If ``True``, overwrites entry. Default: ``False``.
 
         Raises:
             ValueError: If ``module_cls`` is not a class.
