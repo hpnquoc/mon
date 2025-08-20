@@ -131,12 +131,13 @@ def predict(args: dict | box.Box) -> str:
 
             # Optimize
             timers.infer.tick()
-            outputs = model(image, depth)
+            outputs = model(image, depth, save_debug=args.save_debug)
             timers.infer.tock()
 
             # Postprocess
             timers.postprocess.tick()
-            enhanced = outputs
+            enhanced = outputs["enhanced"]
+            enhanced = mon.image.to_array(enhanced)
             timers.postprocess.tock()
             
             # Save
@@ -144,6 +145,14 @@ def predict(args: dict | box.Box) -> str:
                 out_dir  = mon.rt.parse_output_dir(args.save_dir, data_name, mon.SAVE_IMAGE_DIR, path, args.keep_subdirs, args.save_nearby)
                 out_path = out_dir / f"{path.stem}{mon.SAVE_IMAGE_EXT}"
                 mon.image.save_image(enhanced, out_path)
+            
+            # Save Debug
+            if args.save_debug:
+                debug_dir = mon.rt.parse_output_dir(args.save_dir, data_name, mon.SAVE_DEBUG_DIR, path, args.keep_subdirs, args.save_nearby)
+                for k, v in outputs.items():
+                    if mon.image.is_image(v):
+                        debug_path = debug_dir / f"{path.stem}_{k}{mon.SAVE_IMAGE_EXT}"
+                        mon.image.save_image(v, debug_path)
     timers.total.tock()
 
     # Finish

@@ -15,11 +15,23 @@ __all__ = [
 
 import os
 import shutil
-from pathlib import Path as Path_, PosixPath, PurePath, PurePosixPath, PureWindowsPath, WindowsPath
+from pathlib import (
+    Path as Path_,
+    PosixPath,
+    PurePath,
+    PurePosixPath,
+    PureWindowsPath,
+    WindowsPath,
+)
 
 import validators
 
-from mon.core.enum import ConfigExtension, ImageExtension, VideoExtension, WeightExtension
+from mon.core.enum import (
+    ConfigExtension,
+    ImageExtension,
+    VideoExtension,
+    WeightExtension,
+)
 from mon.core.utils import snakecase
 
 

@@ -14,11 +14,16 @@ __all__ = [
 from typing import Any
 
 import numpy as np
+from mon.nn import _size_2_t
+from mon.vision.geometry.transforms.albumentation import (
+    BaseModel,
+    DualTransform,
+    Field,
+    Targets,
+)
 
 from mon.constants import TRANSFORMS
-from mon.nn import _size_2_t
 from mon.vision import types
-from mon.vision.geometry.transforms.albumentation import DualTransform, Targets, BaseModel, Field
 
 
 # ----- Utils -----

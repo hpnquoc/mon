@@ -17,8 +17,8 @@ from typing import Any
 
 import box
 
-from mon.core.dtypes import image as I
 from mon.core.device import list_devices, parse_device
+from mon.core.dtypes import image as I
 from mon.core.enum import Task, TRTPrecision
 from mon.core.pathlib import Path
 from mon.core.utils import merge_dicts
@@ -382,7 +382,7 @@ def parse_predict_args(model_root: Path = None, verbose: bool = False) -> dict |
     cli.config = parse_config_file(cli.config, cli.root, model_root=model_root)
     args       = load_config(cli.config, verbose=verbose)
     args       = merge_dicts(args, cli)  # Prioritize cli -> args
-
+    
     # Parse arguments
     if args.save_dir in [None, ""]:
         if args.use_fullname or args.save_nearby:
@@ -396,7 +396,7 @@ def parse_predict_args(model_root: Path = None, verbose: bool = False) -> dict |
         #     args.save_dir = pathlib.Path(f"run/predict/{args.save_dir}")
         # if str(args.root) not in str(args.save_dir):
         #     args.save_dir = args.root / args.save_dir
-
+    
     args.hostname = socket.gethostname().lower()
     args.weights  = parse_weights_file(args.root, args.weights)
     args.resume   = parse_weights_file(args.root, args.resume)

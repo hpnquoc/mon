@@ -232,15 +232,7 @@ class NeRComodel(BaseModel):
         return loss_G + loss_D_A + loss_D_B + loss_D_A_edge + loss_D_B_edge
     
     def compute_efficiency_score(self, imgsz: int = 512, channels: int = 3):
-        import albumentations as A
-import box
-import cv2
-import torch
-import torch.nn as nn
-import torch.nn.functional as F
-
-import mon
-from mon import console, metrics, Path, tfms, optims
+        import mon
         h, w  = mon.image.imgsz(imgsz)
         input = torch.rand(1, channels, h, w)
         data  = {

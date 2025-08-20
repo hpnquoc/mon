@@ -4,17 +4,10 @@ from collections import OrderedDict
 from copy import deepcopy
 
 import torch
+import torch.nn as nn
 from torch.nn.parallel import DataParallel, DistributedDataParallel
 
-import albumentations as A
-import box
-import cv2
-import torch
-import torch.nn as nn
-import torch.nn.functional as F
-
-import mon
-from mon import console, metrics, Path, tfms, optims
+from mon.core import Path
 from ..models import lr_scheduler as lr_scheduler
 from ..utils.dist_util import master_only
 

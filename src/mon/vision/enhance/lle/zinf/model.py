@@ -13,6 +13,7 @@ __all__ = [
     "ZINF",
 ]
 
+import box
 import kornia
 import numpy as np
 import torch
@@ -261,7 +262,7 @@ class ZINF(nn.Module, ModelMixin):
     tasks    : list[Task]   = [Task.LLE]
     mltypes  : list[MLType] = [MLType.ZERO_SHOT]
     model_dir: Path         = current_dir
-    zoo      : dict         = {}
+    zoo      : dict         = box.Box()
     
     def __init__(
         self,
@@ -319,7 +320,7 @@ class ZINF(nn.Module, ModelMixin):
         self.gf = FastGuidedFilter(kernel_size=7)
         self.bf = kornia.filters.BilateralBlur((denoise_ksize, denoise_ksize), 0.1, (1.5, 1.5))
     
-    def forward(self, image: torch.Tensor, depth: torch.Tensor = None) -> torch.Tensor:
+    def forward(self, image: torch.Tensor, depth: torch.Tensor = None, save_debug: bool = False) -> torch.Tensor:
         window_size = self.window_size
         imgsz       = self.hidden_dim
         device      = image.device
@@ -391,9 +392,30 @@ class ZINF(nn.Module, ModelMixin):
         image_rgb_fixed  = hvi.hvi_to_rgb(image_hvi_fixed)
         if self.use_denoise:
             image_rgb_fixed = self.bf(image_rgb_fixed)
-        enhanced         = image_rgb_fixed.detach().cpu()
         
-        return enhanced
+        enhanced = image_rgb_fixed
+        outputs  = {
+            "enhanced": enhanced,
+        }
+        if save_debug:
+            outputs = {
+                "image_hvi"      : image_hvi,
+                "image_hvi_fixed": image_hvi_fixed,
+                "image_h"        : image_h,
+                "image_v"        : image_v,
+                "image_i"        : image_i,
+                "image_i_fixed"  : image_i_fixed,
+                "depth"          : depth,
+                "depth_lr"       : depth_lr,
+                "edge"           : edge,
+                "edge_lr"        : edge_lr,
+                "spatial"        : spatial,
+                "patch_i"        : patch_i,
+                "patch_d"        : patch_d,
+                "patch_e"        : patch_e,
+                "enhanced"       : image_rgb_fixed,
+            } | outputs
+        return outputs
         
     # ----- Utils -----
     def create_coords(self, size: int) -> torch.Tensor:
@@ -421,10 +443,10 @@ class ZINF(nn.Module, ModelMixin):
         extracted = F.conv2d(im_padded, kernel, padding=0).squeeze(0)
         return torch.movedim(extracted, 0, -1)
 
-    def interpolate_image(self, image: torch.Tensor, down_size: int) -> torch.Tensor:
+    def interpolate_image(self, image: torch.Tensor, size: int) -> torch.Tensor:
         """Reshapes the image based on new resolution."""
         # return F.interpolate(image, size=(down_size, down_size), mode="bicubic")
-        return F.interpolate(image, size=(down_size, down_size), mode="area")
+        return F.interpolate(image, size=(size, size), mode="area")
 
     def ff_embedding(self, p: torch.Tensor, B: torch.Tensor = None) -> torch.Tensor:
         if B is None:

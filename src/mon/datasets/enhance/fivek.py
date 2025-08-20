@@ -24,8 +24,8 @@ class FiveK(VisionDataset):
     tasks     : list[Task]  = [Task.LLE]
     splits    : list[Split] = [Split.TEST]
     modalities: Modalities  = {
-        "image": Modality(name="image", type="image", module=Image, in_test=True, primary=True),
-        "depth": Modality(name=f"image_{DEPTH_SOURCE.value}", type="mask", module=DefaultDepthMap, in_test=True),
+        "image": Modality(name="image",   type="image", module=Image,           in_test=True, primary=True),
+        "depth": Modality(name=DepthName, type="image", module=DefaultDepthMap, in_test=True),
     }
     classes   : Classes     = None
 
@@ -53,10 +53,10 @@ class FiveKA(VisionDataset):
     tasks     : list[Task]  = [Task.LLE]
     splits    : list[Split] = [Split.TRAIN, Split.TEST]
     modalities: Modalities  = {
-        "image"    : Modality(name="image", type="image", module=Image, in_test=True, primary=True),
-        "depth"    : Modality(name=f"image_{DEPTH_SOURCE.value}", type="mask", module=DefaultDepthMap, in_test=True),
-        "ref"      : Modality(name="ref_a", type="image", module=Image, in_test=True),
-        "ref_depth": Modality(name=f"ref_a_{DEPTH_SOURCE.value}", type="mask", module=DefaultDepthMap, in_test=True),
+        "image"    : Modality(name="image",   type="image", module=Image,           in_test=True, primary=True),
+        "depth"    : Modality(name=DepthName, type="image", module=DefaultDepthMap, in_test=True),
+        "ref"      : Modality(name="ref_a",   type="image", module=Image,           in_test=True),
+        "ref_depth": Modality(name=f"ref_a_{DEPTH_SOURCE.value}", type="image", module=DefaultDepthMap, in_test=True),
     }
     classes   : Classes     = None
     
@@ -81,10 +81,10 @@ class FiveKB(FiveKA):
     """FiveK-B dataset."""
     
     modalities: Modalities  = {
-        "image"    : Modality(name="image", type="image", module=Image, in_test=True, primary=True),
-        "depth"    : Modality(name=f"image_{DEPTH_SOURCE.value}", type="mask", module=DefaultDepthMap, in_test=True),
-        "ref"      : Modality(name="ref_b", type="image", module=Image, in_test=True),
-        "ref_depth": Modality(name=f"ref_b_{DEPTH_SOURCE.value}", type="mask", module=DefaultDepthMap, in_test=True),
+        "image"    : Modality(name="image",   type="image", module=Image,           in_test=True, primary=True),
+        "depth"    : Modality(name=DepthName, type="image", module=DefaultDepthMap, in_test=True),
+        "ref"      : Modality(name="ref_b",   type="image", module=Image,           in_test=True),
+        "ref_depth": Modality(name=f"ref_b_{DEPTH_SOURCE.value}", type="image", module=DefaultDepthMap, in_test=True),
     }
 
 @DATASETS.register(name="fivekc")
@@ -92,10 +92,10 @@ class FiveKC(FiveKA):
     """FiveK-C dataset."""
     
     modalities: Modalities  = {
-        "image"    : Modality(name="image", type="image", module=Image, in_test=True, primary=True),
-        "depth"    : Modality(name=f"image_{DEPTH_SOURCE.value}", type="mask", module=DefaultDepthMap, in_test=True),
-        "ref"      : Modality(name="ref_c", type="image", module=Image, in_test=True),
-        "ref_depth": Modality(name=f"ref_c_{DEPTH_SOURCE.value}", type="mask", module=DefaultDepthMap, in_test=True),
+        "image"    : Modality(name="image",   type="image", module=Image,           in_test=True, primary=True),
+        "depth"    : Modality(name=DepthName, type="image", module=DefaultDepthMap, in_test=True),
+        "ref"      : Modality(name="ref_c",   type="image", module=Image,           in_test=True),
+        "ref_depth": Modality(name=f"ref_c_{DEPTH_SOURCE.value}", type="image", module=DefaultDepthMap, in_test=True),
     }
             
 
@@ -104,10 +104,10 @@ class FiveKD(FiveKA):
     """FiveK-D dataset."""
     
     modalities: Modalities  = {
-        "image"    : Modality(name="image", type="image", module=Image, in_test=True, primary=True),
-        "depth"    : Modality(name=f"image_{DEPTH_SOURCE.value}", type="mask", module=DefaultDepthMap, in_test=True),
-        "ref"      : Modality(name="ref_d", type="image", module=Image, in_test=True),
-        "ref_depth": Modality(name=f"ref_d_{DEPTH_SOURCE.value}", type="mask", module=DefaultDepthMap, in_test=True),
+        "image"    : Modality(name="image",   type="image", module=Image,           in_test=True, primary=True),
+        "depth"    : Modality(name=DepthName, type="image", module=DefaultDepthMap, in_test=True),
+        "ref"      : Modality(name="ref_d",   type="image", module=Image,           in_test=True),
+        "ref_depth": Modality(name=f"ref_d_{DEPTH_SOURCE.value}", type="image", module=DefaultDepthMap, in_test=True),
     }
             
 
@@ -116,8 +116,8 @@ class FiveKE(FiveKA):
     """FiveK-E dataset."""
     
     modalities: Modalities  = {
-        "image"    : Modality(name="image", type="image", module=Image, in_test=True, primary=True),
-        "depth"    : Modality(name=f"image_{DEPTH_SOURCE.value}", type="mask", module=DefaultDepthMap, in_test=True),
-        "ref"      : Modality(name="ref_e", type="image", module=Image, in_test=True),
-        "ref_depth": Modality(name=f"ref_e_{DEPTH_SOURCE.value}", type="mask", module=DefaultDepthMap, in_test=True),
+        "image"    : Modality(name="image",   type="image", module=Image,           in_test=True, primary=True),
+        "depth"    : Modality(name=DepthName, type="image", module=DefaultDepthMap, in_test=True),
+        "ref"      : Modality(name="ref_e",   type="image", module=Image,           in_test=True),
+        "ref_depth": Modality(name=f"ref_e_{DEPTH_SOURCE.value}", type="image", module=DefaultDepthMap, in_test=True),
     }

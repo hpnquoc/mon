@@ -20,14 +20,14 @@ from ..core import *
 class GTA5NighttimeFog(VisionDataset):
     """GTA5NighttimeFog dataset."""
     
-    name       : str         = "gta5nighttimefog"
+    name      : str         = "gta5nighttimefog"
     tasks     : list[Task]  = [Task.DEHAZE, Task.NIGHTTIME]
     splits    : list[Split] = [Split.TRAIN, Split.TEST]
     modalities: Modalities  = {
-        "image"    : Modality(name="image", type="image", module=Image, in_test=True, primary=True),
-        "depth"    : Modality(name=f"image_{DEPTH_SOURCE.value}", type="mask", module=DefaultDepthMap, in_test=True),
-        "ref"      : Modality(name="ref",   type="image", module=Image, in_test=True),
-        "ref_depth": Modality(name=f"ref_{DEPTH_SOURCE.value}",   type="mask", module=DefaultDepthMap, in_test=True),
+        "image"    : Modality(name="image", type="image", module=Image,           in_test=True, primary=True),
+        "depth"    : Modality(DepthName,    type="image", module=DefaultDepthMap, in_test=True),
+        "ref"      : Modality(name="ref",   type="image", module=Image,           in_test=True),
+        "ref_depth": Modality(RefDepthName, type="image", module=DefaultDepthMap, in_test=True),
     }
     classes   : Classes     = None
 

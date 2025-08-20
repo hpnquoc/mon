@@ -2,24 +2,14 @@
 # -*- coding: utf-8 -*-
 
 import torch
-import torch.nn as nn
-import torch.nn.functional as F
-from torch.nn.modules.loss import _Loss
 from torchvision import transforms
 from torchvision.models import vgg
 
-import albumentations as A
-import box
-import cv2
-import torch
-import torch.nn as nn
-import torch.nn.functional as F
-
-import mon
-from mon import console, metrics, Path, tfms, optims
+from mon.core import nn
+from mon.core.nn import functional as F
 
 
-class Loss(_Loss):
+class Loss(nn.BaseLoss):
     
     def __init__(
         self,
@@ -34,8 +24,10 @@ class Loss(_Loss):
         self.alpha3 = alpha3
         self.alpha4 = alpha4
         
-        self.msssim     = mon.CustomMSSSIM(data_range=1.0)
-        self.ssim       = mon.CustomSSIM(data_range=1.0, non_negative_ssim=True)
+        # self.msssim     = mon.CustomMSSSIM(data_range=1.0)
+        # self.ssim       = mon.CustomSSIM(data_range=1.0, non_negative_ssim=True)
+        self.ssim       = nn.StructuralSimilarityIndexMeasure()
+        self.msssim     = nn.MultiScaleStructuralSimilarityIndexMeasure()
         self.perceptual = PerceptualLoss()
         self.tvloss     = TVLoss()
 
@@ -61,7 +53,7 @@ class Loss(_Loss):
         return loss
 
 
-class PerceptualLoss(_Loss):
+class PerceptualLoss(nn.BaseLoss):
     
     def __init__(self,):
         super().__init__()

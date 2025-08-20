@@ -13,9 +13,6 @@ from mon.core.console import log, rprint_list_dicts
 class Classes(list[dict]):
     """List of class labels defined in a dataset.
     
-    TODO:
-        - Convert to list of namedtuples for better type safety.
-    
     Notes:
         Inherits from Python ``list`` for built-in functionality.
     """

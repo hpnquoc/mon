@@ -23,7 +23,6 @@ console.log(f"`mon` loaded in: {__end - __start:.4f} seconds.")
 def dev(verbose: bool = False):
     start = time.time()
     
-    # import mon.core.albumentations
     # import mon.datasets  # Register datasets
     import mon.vision    # Register vision models
     

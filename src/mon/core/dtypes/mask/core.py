@@ -18,8 +18,8 @@ import cv2
 import numpy as np
 import torch
 
-from mon.core.pathlib import Path
 from mon.core.dtypes import image as I
+from mon.core.pathlib import Path
 
 
 class SemanticMask(I.Image):

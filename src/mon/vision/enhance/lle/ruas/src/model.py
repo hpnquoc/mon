@@ -6,7 +6,7 @@ import torch.nn.functional as F
 from . import genotypes
 from .operations import *
 
-current_file = Path(__file__).absolute()
+current_file = pathlib.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
 

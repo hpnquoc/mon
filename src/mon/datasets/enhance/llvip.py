@@ -24,9 +24,9 @@ class LLVIP(VisionDataset):
     tasks     : list[Task]  = [Task.LLE, Task.DETECT]
     splits    : list[Split] = [Split.TRAIN, Split.TEST]
     modalities: Modalities  = {
-        "image"   : Modality(name="image", type="image", module=Image, in_test=True, primary=True),
-        "depth"   : Modality(name=f"image_{DEPTH_SOURCE.value}",    type="mask", module=DefaultDepthMap,    in_test=True),
-        "infrared": Modality(name=f"image_{INFRARED_SOURCE.value}", type="mask", module=DefaultInfraredMap, in_test=True),
+        "image"   : Modality(name="image",      type="image", module=Image,              in_test=True, primary=True),
+        "depth"   : Modality(name=DepthName,    type="image", module=DefaultDepthMap,    in_test=True),
+        "infrared": Modality(name=InfraredName, type="mask",  module=DefaultInfraredMap, in_test=True),
     }
     classes   : Classes     = None
 

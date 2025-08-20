@@ -12,29 +12,22 @@ __all__ = [
     "boundary_aware_prior",
 ]
 
-from typing import Union
-
-import cv2
 import kornia
-import numpy as np
 import torch
 import torch.nn as nn
 
-from mon.core.dtypes.image import filtering, utils
-
 
 def boundary_aware_prior(
-    image      :  Union[torch.Tensor, np.ndarray],
+    image      : torch.Tensor,
     eps        : float = 0.05,
     as_gradient: bool  = False,
     normalized : bool  = False,
-) ->  Union[torch.Tensor, np.ndarray]:
+) -> torch.Tensor:
     """Get the boundary prior from an RGB or grayscale image.
 
     Args:
-        image: An RGB or grayscale image as a
-            ``torch.Tensor`` (i.e., of shape :math:`(B, C, H, W)` in :math:`[0.0, 1.0]`)
-            or ``numpy.ndarray`` (i.e., of shape :math:`(H, W, C)` in :math:`[0, 255]`).
+        image: An RGB or grayscale image as a ``torch.Tensor`` of
+            shape :math:`(B, C, H, W)` in :math:`[0.0, 1.0]`.
         eps: Threshold to remove weak edges. Default: ``0.05``.
         as_gradient: If ``True``, returns the gradient image instead of binary boundary.
             Default: ``False``.
@@ -46,21 +39,11 @@ def boundary_aware_prior(
     Raises:
         ValueError: If ``image`` type is not supported.
     """
-    if isinstance(image, torch.Tensor):
-        gradient = kornia.filters.sobel(image, normalized=normalized, eps=1e-6)
-        g_max    = torch.max(gradient)
-        gradient = gradient / g_max
-        boundary = (gradient > eps).float()
-    elif isinstance(image, np.ndarray):
-        if utils.is_color(image):
-            image = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
-        gradient = filtering.sobel_filter(image, kernel_size=3)
-        g_max    = np.max(gradient)
-        gradient = gradient / g_max
-        boundary = (gradient > eps).float()
-        return boundary
-    else:
-        raise TypeError(f"[image] must be a torch.Tensor or numpy.ndarray, got {type(image)}.")
+    image    = image.to(torch.float32)
+    gradient = kornia.filters.sobel(image, normalized=normalized, eps=1e-6)
+    g_max    = torch.max(gradient)
+    gradient = gradient / g_max
+    boundary = (gradient > eps).float()
     
     # return boundary, gradient
     if as_gradient:

@@ -1,3 +1,4 @@
+import cv2
 import numpy as np
 import torch
 import torch.fft
@@ -7,15 +8,7 @@ import torchvision.utils as tvu
 import tqdm
 from numpy import arange
 
-import albumentations as A
-import box
-import cv2
-import torch
-import torch.nn as nn
-import torch.nn.functional as F
-
 import mon
-from mon import console, metrics, Path, tfms, optims
 from .script_util import create_model
 
 
@@ -187,11 +180,10 @@ class Diffusion(object):
         for datapoint in pbar:
             # Preprocess
             timers.preprocess.tick()
-            path    = Path(datapoint["meta"]["path"])
+            meta    = datapoint["meta"][0]
+            path    = mon.Path(meta["path"])
             input_y = datapoint["image"]
             h0, w0  = mon.image.imgsz(input_y)
-            if resize and h0 != imgsz[0] and w0 != imgsz[1]:
-                input_y = mon.resize(input_y, imgsz)
             timers.preprocess.tock()
 
             # Infer
@@ -329,10 +321,12 @@ class Diffusion(object):
 
             # Postprocess
             timers.postprocess.tick()
-            x = torch.clamp(x, 0.0, 1.0)
-            x = x[:, :, :H, :W]
-            if resize and h0 != imgsz[0] and w0 != imgsz[1]:
-                x = mon.resize(x, (h0, w0))
+            x      = torch.clamp(x, 0.0, 1.0)
+            x      = x[:, :, :H, :W]
+            x      = mon.image.to_array(x)
+            h1, w1 = mon.image.imgsz(x)
+            if (h1, w1) != (h0, w0):
+                x = cv2.resize(x, (w0, h0))
             timers.postprocess.tock()
 
             # tvu.save_image(x[0], os.path.join(self.args.image_folder, f"{name}"))
@@ -340,7 +334,7 @@ class Diffusion(object):
                 output_dir  = mon.rt.parse_output_dir(save_dir, data_name, mon.SAVE_IMAGE_DIR, path, keep_subdirs, save_nearby)
                 output_path = output_dir / f"{path.stem}{mon.SAVE_IMAGE_EXT}"
                 output_path.parent.mkdir(parents=True, exist_ok=True)
-                tvu.save_image(x[0], str(output_path))
+                tvu.save_image(x, str(output_path))
 
 
 # Code form RePaint   

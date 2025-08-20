@@ -6,11 +6,9 @@
 In this package, we keep the same naming convention as in ``torch.nn.modules`` for consistency.
 """
 
-# noinspection PyUnusedImports
-from torch.nn.modules import *  # Export all modules from ``torch.nn.modules``
-
 from .activation import *
 from .attention import *
 from .dsconv import *
 from .inr import INRLayer
 from .normalization import *
+from .registering import *

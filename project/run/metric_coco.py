@@ -90,7 +90,7 @@ def convert_label_to_coco(
             description = f"[bright_yellow]Converting"
         ):
             # Append image
-            h, w, _  = mon.image.read_image_shape(image_file)
+            h, w, _  = mon.image.read_shape(image_file)
             image_id = i
 
             # Append annotations

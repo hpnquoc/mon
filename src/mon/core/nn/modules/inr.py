@@ -112,6 +112,7 @@ class LinearLayer(nn.Module):
             Default: ``True``.
         kwargs: Additional keyword arguments for ``torch.nn.Linear``.
     """
+    
     def __init__(self, in_features: int, out_features: int, bias: bool = True, *args, **kwargs):
         super().__init__()
         self.linear = nn.Linear(in_features, out_features, bias=bias, *args, **kwargs)
@@ -132,9 +133,10 @@ class SigmoidLayer(nn.Module):
             Default: ``True``.
         kwargs: Additional keyword arguments for ``torch.nn.Linear``.
     """
+    
     def __init__(self, in_features: int, out_features: int, bias: bool = True, *args, **kwargs):
         super().__init__()
-        self.linear = nn.Linear(in_features, out_features, bias=bias, *args, **kwargs)
+        self.linear = nn.Linear(in_features, out_features, bias=bias)
         self.act    = nn.Sigmoid()
 
     def forward(self, input: torch.Tensor) -> torch.Tensor:
@@ -153,9 +155,10 @@ class TanhLayer(nn.Module):
             Default: ``True``.
         kwargs: Additional keyword arguments for ``torch.nn.Linear``.
     """
+    
     def __init__(self, in_features: int, out_features: int, bias: bool = True, *args, **kwargs):
         super().__init__()
-        self.linear = nn.Linear(in_features, out_features, bias=bias, *args, **kwargs)
+        self.linear = nn.Linear(in_features, out_features, bias=bias)
         self.act    = nn.Tanh()
 
     def forward(self, input: torch.Tensor) -> torch.Tensor:
@@ -174,9 +177,10 @@ class ReLULayer(nn.Module):
             Default: ``True``.
         kwargs: Additional keyword arguments for ``torch.nn.Linear``.
     """
+    
     def __init__(self, in_features: int, out_features: int, bias: bool = True, *args, **kwargs):
         super().__init__()
-        self.linear = nn.Linear(in_features, out_features, bias=bias, *args, **kwargs)
+        self.linear = nn.Linear(in_features, out_features, bias=bias)
         self.act    = nn.ReLU()
 
     def forward(self, input: torch.Tensor) -> torch.Tensor:
@@ -216,7 +220,7 @@ class SineLayer(nn.Module):
         self.in_features = in_features
         self.is_first    = is_first
         self.w0          = w0
-        self.linear      = nn.Linear(in_features, out_features, bias=bias, *args, **kwargs)
+        self.linear      = nn.Linear(in_features, out_features, bias=bias)
         if init_weights:
             self.init_weights()
 
@@ -260,7 +264,7 @@ class GaussLayer(nn.Module):
     ):
         super().__init__()
         self.scale  = scale
-        self.linear = nn.Linear(in_features, out_features, bias=bias, *args, **kwargs)
+        self.linear = nn.Linear(in_features, out_features, bias=bias)
 
     def forward(self, input: torch.Tensor) -> torch.Tensor:
         return torch.exp(-(self.scale * self.linear(input))**2)

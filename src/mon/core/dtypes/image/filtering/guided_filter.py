@@ -38,22 +38,22 @@ def guided_filter(image: torch.Tensor, guide: torch.Tensor, kernel_size: int, ep
     References:
         - Code: https://github.com/wuhuikai/DeepGuidedFilter/blob/master/GuidedFilteringLayer/GuidedFilter_PyTorch/guided_filter_pytorch/guided_filter.py
     """
-    if type(image) != type(guide):
-        raise TypeError(f"[image] and [guide] must have the same type, got {type(image)} and {type(guide)}.")
-
-    x      = image
-    y      = guide
+    if not isinstance(image, torch.Tensor) or not isinstance(guide, torch.Tensor):
+        raise TypeError(f"[image] and [guide] must be torch.Tensor, got {type(image)} and {type(guide)}.")
+    
+    x          = image
+    y          = guide
     box_filter = BoxFilter(kernel_size=kernel_size)
-    n_x, c_x, h_x, w_x = x.shape
-    N      = box_filter(Variable(x.data.new().resize_((1, 1, h_x, w_x)).fill_(1.0)))
-    mean_x = box_filter(x) / N
-    mean_y = box_filter(y) / N
-    cov_xy = box_filter(x * y) / N - mean_x * mean_y
-    var_x  = box_filter(x * x) / N - mean_x * mean_x
-    A      = cov_xy / (var_x + eps)
-    b      = mean_y - A * mean_x
-    mean_A = box_filter(A) / N
-    mean_b = box_filter(b) / N
+    _, _, h, w = x.shape
+    N          = box_filter(Variable(x.data.new().resize_((1, 1, h, w)).fill_(1.0)))
+    mean_x     = box_filter(x) / N
+    mean_y     = box_filter(y) / N
+    cov_xy     = box_filter(x * y) / N - mean_x * mean_y
+    var_x      = box_filter(x * x) / N - mean_x * mean_x
+    A          = cov_xy / (var_x + eps)
+    b          = mean_y - A * mean_x
+    mean_A     = box_filter(A) / N
+    mean_b     = box_filter(b) / N
     return mean_A * x + mean_b
 
 
@@ -75,18 +75,18 @@ class GuidedFilter(nn.Module):
         self.box_filter  = BoxFilter(kernel_size=kernel_size)
 
     def forward(self, image: torch.Tensor, guide: torch.Tensor) -> torch.Tensor:
-        x      = image
-        y      = guide
-        n_x, c_x, h_x, w_x = x.shape
-        N      = self.box_filter(torch.ones(1, 1, h_x, w_x, device=x.device))
-        mean_x = self.box_filter(x) / N
-        mean_y = self.box_filter(y) / N
-        cov_xy = self.box_filter(x * y) / N - mean_x * mean_y
-        var_x  = self.box_filter(x * x) / N - mean_x * mean_x
-        A      = cov_xy / (var_x + self.eps)
-        b      = mean_y - A * mean_x
-        mean_A = self.box_filter(A) / N
-        mean_b = self.box_filter(b) / N
+        x          = image
+        y          = guide
+        _, _, h, w = x.shape
+        N          = self.box_filter(torch.ones(1, 1, h, w, device=x.device))
+        mean_x     = self.box_filter(x) / N
+        mean_y     = self.box_filter(y) / N
+        cov_xy     = self.box_filter(x * y) / N - mean_x * mean_y
+        var_x      = self.box_filter(x * x) / N - mean_x * mean_x
+        A          = cov_xy / (var_x + self.eps)
+        b          = mean_y - A * mean_x
+        mean_A     = self.box_filter(A) / N
+        mean_b     = self.box_filter(b) / N
         return mean_A * x + mean_b
 
 
@@ -123,8 +123,8 @@ class FastGuidedFilter(nn.Module):
         Raises:
             AssertionError: If tensor shapes or sizes are incompatible.
         """
-        n_xlr, c_xlr, h_xlr, w_xlr = x_lr.shape
-        n_xhr, c_xhr, h_xhr, w_xhr = x_hr.shape
+        _, _, h_xlr, w_xlr = x_lr.shape
+        _, _, h_xhr, w_xhr = x_hr.shape
         N      = self.box_filter(torch.ones(1, 1, h_xlr, w_xlr, device=x_lr.device))
         mean_x = self.box_filter(x_lr) / N
         mean_y = self.box_filter(y_lr) / N

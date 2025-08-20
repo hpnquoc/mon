@@ -12,7 +12,7 @@ Common Tasks:
 
 __all__ = [
     "load_image",
-    "read_image_shape",
+    "read_shape",
     "save_image",
 ]
 
@@ -58,7 +58,7 @@ def load_image(path: Path, flags: int = cv2.IMREAD_COLOR) -> np.ndarray:
     return image
 
 
-def read_image_shape(path: Path) -> tuple[int, int, int]:
+def read_shape(path: Path) -> tuple[int, int, int]:
     """Reads an image shape from a file path using PIL or rawpy.
 
     Args:

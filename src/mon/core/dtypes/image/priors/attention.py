@@ -13,21 +13,15 @@ __all__ = [
     "brightness_attention_map",
 ]
 
-from typing import Union
-
-import cv2
 import kornia
-import numpy as np
 import torch
 import torch.nn as nn
 
-from mon.core.dtypes.image import utils
-
 
 def brightness_attention_map(
-    image: Union[torch.Tensor, np.ndarray],
-    gamma: float = 2.5,
-    ksize: int   = None,
+    image      : torch.Tensor,
+    gamma      : float = 2.5,
+    kernel_size: int   = None
 ) -> torch.Tensor:
     """Get the Brightness Attention Map (BAM) prior from an RGB image.
 
@@ -37,34 +31,20 @@ def brightness_attention_map(
     while preserving image details and enhancing contrast in dark regions effectively.
 
     Args:
-        image: An RGB image as a
-            ``torch.Tensor`` (i.e., of shape :math:`(B, C, H, W)` in :math:`[0.0, 1.0]`)
-            or ``numpy.ndarray`` (i.e., of shape :math:`(H, W, C)` in :math:`[0, 255]`).
+        image: An RGB image as a ``torch.Tensor`` of shape :math:`(B, C, H, W)` in :math:`[0.0, 1.0]`.
         gamma: Parameter controlling the curvature of the map. Default: ``2.5``.
-        ksize: Window size for denoising operation. Default: ``None``.
+        kernel_size: Window size for denoising operation. Default: ``None``.
 
     Returns:
-        Brightness enhancement map as a ``torch.Tensor`` or ``numpy.ndarray``
-        matching the ``image`` type and format.
+        Brightness enhancement map with similar type and format as the input ``image``.
     """
-    if isinstance(image, torch.Tensor):
-        if ksize:
-            image = kornia.filters.median_blur(image, ksize)
-            # image = kornia.filters.bilateral_blur(image, denoise_ksize, 0.1, (1.5, 1.5))
-        hsv = kornia.color.rgb_to_hsv(image)
-        v   = utils.channel(image=hsv, index=(2, 3), keep_dim=True)  # hsv[:, 2:3, :, :]
-        bam = torch.pow((1 - v), gamma)
-    elif isinstance(image, np.ndarray):
-        if ksize:
-            image = cv2.medianBlur(image, ksize)
-        hsv = cv2.cvtColor(image, cv2.COLOR_RGB2HSV)
-        if hsv.dtype != np.float32:
-            hsv  = hsv.astype("float32")
-            hsv /= 255.0
-        v   = utils.channel(image=hsv, index=(2, 3), keep_dim=True)  # hsv[:, :, 2:3]
-        bam = np.power((1 - v), gamma)
-    else:
-        raise TypeError(f"[image] must be a torch.Tensor or numpy.ndarray, got {type(image)}.")
+    if kernel_size:
+        image = kornia.filters.median_blur(image, kernel_size)
+        # image = kornia.filters.bilateral_blur(image, denoise_ksize, 0.1, (1.5, 1.5))
+        
+    hsv = kornia.color.rgb_to_hsv(image)
+    v   = hsv[:, 2:3, :, :]  # Extract the V-channel (brightness)
+    bam = torch.pow((1 - v), gamma)
     return bam
 
 
@@ -78,13 +58,13 @@ class BrightnessAttentionMap(nn.Module):
 
     Args:
         gamma: Parameter controlling the curvature of the map. Default: ``2.5``.
-        ksize: Window size for denoising operation. Default: ``None``.
+        kernel_size: Window size for denoising operation. Default: ``None``.
     """
     
-    def __init__(self, gamma: float = 2.5, ksize: int = None):
+    def __init__(self, gamma: float = 2.5, kernel_size: int = None):
         super().__init__()
-        self.gamma = gamma
-        self.ksize = ksize
+        self.gamma       = gamma
+        self.kernel_size = kernel_size
     
     def forward(self, image: torch.Tensor) -> torch.Tensor:
-        return brightness_attention_map(image, self.gamma, self.ksize)
+        return brightness_attention_map(image, self.gamma, self.kernel_size)

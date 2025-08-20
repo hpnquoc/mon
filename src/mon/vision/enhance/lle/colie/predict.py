@@ -118,6 +118,7 @@ def predict(args: dict | box.Box) -> str:
             # Postprocess
             timers.postprocess.tick()
             enhanced = outputs
+            enhanced = mon.image.to_array(enhanced)
             timers.postprocess.tock()
             
             # Save

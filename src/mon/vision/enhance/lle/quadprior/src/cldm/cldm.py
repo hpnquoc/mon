@@ -12,14 +12,14 @@ from ..ldm.models.diffusion.ddim import DDIMSampler
 from ..ldm.models.diffusion.ddpm import LatentDiffusion
 from ..ldm.modules.attention import SpatialTransformer
 from ..ldm.modules.diffusionmodules.openaimodel import (
-    AttentionBlock, Downsample, ResBlock, TimestepEmbedSequential, UNetModel
+    AttentionBlock, Downsample, ResBlock, TimestepEmbedSequential, UNetModel,
 )
 from ..ldm.modules.diffusionmodules.util import (
     conv_nd, linear, timestep_embedding, zero_module,
 )
 from ..ldm.util import exists, instantiate_from_config
 
-current_file = Path(__file__).absolute()
+current_file = pathlib.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
 

@@ -3,16 +3,8 @@
 
 from mon.config import default
 
-import albumentations as A
-import box
-import cv2
-import torch
-import torch.nn as nn
-import torch.nn.functional as F
-
 import mon
-from mon import console, metrics, Path, tfms, optims
-from mon import albumentation as A
+from mon import albumentation as A, metrics, optims, Path
 
 current_file = Path(__file__).absolute()
 

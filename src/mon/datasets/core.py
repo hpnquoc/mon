@@ -13,6 +13,7 @@ __all__ = [
     "DefaultDepthMap",
     "DefaultInfraredMap",
     "DepthMap",
+    "DepthName",
     "DepthSource",
     "Frame",
     "HBBs",
@@ -20,10 +21,12 @@ __all__ = [
     "Image",
     "ImageLoader",
     "InfraredMap",
+    "InfraredName",
     "InfraredSource",
     "Modalities",
     "Modality",
     "Probs",
+    "RefDepthName",
     "SemanticMask",
     "Split",
     "Task",
@@ -63,6 +66,11 @@ from mon.core.dtypes import (
     VideoWriterFFmpeg,
 )
 from mon.core.enum import DepthSource, InfraredSource, Split, Task
+
+# Constants for convenience
+DepthName          = f"image_{DEPTH_SOURCE.value}"
+RefDepthName       = f"ref_{DEPTH_SOURCE.value}"
+InfraredName       = f"image_{INFRARED_SOURCE.value}"
 
 DefaultDepthMap    = partial(DepthMap,    source=DEPTH_SOURCE)
 DefaultInfraredMap = partial(InfraredMap, source=INFRARED_SOURCE)

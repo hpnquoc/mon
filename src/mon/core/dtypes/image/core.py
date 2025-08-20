@@ -13,8 +13,8 @@ import cv2
 import numpy as np
 import torch
 
-from mon.core.pathlib import Path
 from mon.core.dtypes.datapoint import BaseTensorOrArray
+from mon.core.pathlib import Path
 
 
 class Image(BaseTensorOrArray):
@@ -48,7 +48,7 @@ class Image(BaseTensorOrArray):
             orig_shape = data.shape
         elif Path(path).is_image_file(exist=True):
             from mon.core.dtypes.image import io
-            orig_shape = io.read_image_shape(path=path)
+            orig_shape = io.read_shape(path=path)
         else:
             orig_shape = None
 

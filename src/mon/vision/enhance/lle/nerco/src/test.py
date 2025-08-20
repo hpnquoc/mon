@@ -1,16 +1,9 @@
 import os
 
-import albumentations as A
-import box
-import cv2
-import torch
-import torch.nn as nn
-import torch.nn.functional as F
-
 import mon
-from mon import console, metrics, Path, tfms, optims
 from data import create_dataset
 from models import create_model
+from mon import metrics, optims
 from options.test_options import TestOptions
 from util import html
 from util.visualizer import save_images

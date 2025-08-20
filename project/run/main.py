@@ -107,7 +107,7 @@ def run_predict(args: dict | box.Box):
     args.config  = args.config or ""
     args.weights = mon.utils.to_str(args.weights, ",")
     
-    if args.fullname not in [None, "None", ""]:
+    if args.fullname in [None, "None", ""]:
         args.fullname = args.model
     
     # Prepare kwargs and flags

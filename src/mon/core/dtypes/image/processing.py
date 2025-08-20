@@ -10,6 +10,7 @@ Common Tasks:
 """
 
 __all__ = [
+    "pair_downsample",
     "split",
     "to_array",
     "to_channel_first",
@@ -22,6 +23,7 @@ from typing import Union
 
 import numpy as np
 import torch
+import torch.nn.functional as F
 
 from .utils import imgsz, is_channel_first, is_channel_last
 
@@ -42,7 +44,8 @@ def split(image: Union[torch.Tensor, np.ndarray], n: int = 2) -> list[np.ndarray
         ValueError: If inputs are invalid (e.g., image shape, n).
     """
     if not isinstance(image, np.ndarray) or len(image.shape) != 3:
-        raise ValueError(f"[image] must be a numpy.ndarray of shape (H, W, C), got {image.shape}.")
+        raise ValueError(f"[image] must be a numpy.ndarray of shape (H, W, C), "
+                         f"got {image.shape} with {len(image.shape)} dimensions.")
     if n < 1:
         raise ValueError(f"[n] must be a positive integer, got {n}.")
 
@@ -183,6 +186,43 @@ def to_channel_last(image: Union[torch.Tensor, np.ndarray]) -> Union[torch.Tenso
     return image
 
 
+# ----- Shape Conversion -----
+def pair_downsample(image: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
+    """Downsample an image tensor into a pair to half resolution.
+    
+    Args:
+        image: Image as a ``torch.Tensor`` of shape :math:`(B, C, H, W)`.
+
+    Returns:
+        Two downsampled images, each image of shape :math:`(B, C, H/2, W/2)`.
+
+    Notes:
+        Averages diagonal pixels in non-overlapping patches:
+            ---------------------      ---------------------
+            | A1 | B1 | A2 | B2 |      | A1+D1/2 | A2+D2/2 |
+            | C1 | D1 | C2 | D2 |      | A3+D3/2 | A4+D4/2 |
+            ---------------------  =>  ---------------------
+            | A3 | B3 | A4 | B4 |      | B1+C1/2 | B2+C2/2 |
+            | C3 | D3 | C4 | D4 |      | B3+C3/2 | B4+C4/2 |
+            ---------------------      ---------------------
+
+    References:
+        - Code: https://colab.research.google.com/drive/1i82nyizTdszyHkaHBuKPbWnTzao8HF9b?usp=sharing
+    """
+    if not isinstance(image, torch.Tensor) or image.ndim != 4:
+        raise TypeError(f"[image] must be a torch.Tensor of shape (B, C, H, W), "
+                        f"got {type(image)} with {image.ndim} dimensions.")
+    
+    b, c, h, w = image.shape
+    filter1    = torch.Tensor([[[[0, 0.5], [0.5, 0]]]]).to(image.dtype).to(image.device)
+    filter1    = filter1.repeat(c, 1, 1, 1)
+    filter2    = torch.Tensor([[[[0.5, 0], [0, 0.5]]]]).to(image.dtype).to(image.device)
+    filter2    = filter2.repeat(c, 1, 1, 1)
+    output1    = F.conv2d(image, filter1, stride=2, groups=c)
+    output2    = F.conv2d(image, filter2, stride=2, groups=c)
+    return output1, output2
+
+
 # ----- Type Conversion -----
 def to_array(image: torch.Tensor) -> np.ndarray:
     """Converts an image from ``torch.Tensor`` to ``numpy.ndarray``.
@@ -200,9 +240,9 @@ def to_array(image: torch.Tensor) -> np.ndarray:
     Recommend order:
         image = (tensor.squeeze().detach().cpu().clamp(0, 1).permute(1, 2, 0).numpy() * 255).round().astype("uint8")
     """
-    # Check shape
-    if image.ndim != 4:
-        raise ValueError(f"[image]'s number of dimensions must be 4, got {image.ndim}.")
+    if not isinstance(image, torch.Tensor) or image.ndim != 4:
+        raise TypeError(f"[image] must be a torch.Tensor of shape (B, C, H, W), "
+                        f"got {type(image)} with {image.ndim} dimensions.")
     
     image = (image.squeeze().detach().cpu().clamp(0, 1).permute(1, 2, 0).numpy() * 255).round().astype("uint8")
     return image
@@ -226,8 +266,9 @@ def to_tensor(image: np.ndarray, normalize: bool = False) -> torch.Tensor:
     Recommend order:
         image = torch.from_numpy(image).permute(2, 0, 1).contiguous().float().div(255.0).unsqueeze(0).to(device)
     """
-    if not isinstance(image, np.ndarray):
-        raise TypeError(f"[image] must be a numpy.ndarray, got {type(image)}.")
+    if not isinstance(image, np.ndarray) or len(image.shape) != 3:
+        raise TypeError(f"[image] must be a numpy.ndarray of shape (H, W, C), "
+                        f"got {type(image)} with {len(image.shape)} dimensions.")
     
     if normalize:
         image = torch.from_numpy(image).permute(2, 0, 1).contiguous().float().div(255.0).unsqueeze(0)

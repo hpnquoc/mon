@@ -42,7 +42,7 @@ class BaseDataset(dataset.Dataset, abc.ABC):
         tasks: List of supported tasks.
         splits: List of supported splits.
         modalities: Dictionary of datapoint modalities.
-        classes: Dictionary of class-labels. Default: ``None``.
+        classes: List of class-labels. Default: ``None``.
     
     Args:
         root: Absolute path to the dataset root directory.

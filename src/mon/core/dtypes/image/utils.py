@@ -11,8 +11,6 @@ Common Tasks:
 
 __all__ = [
     "center",
-    "center4",
-    "channel",
     "imgsz",
     "is_channel_first",
     "is_channel_last",
@@ -25,7 +23,7 @@ __all__ = [
 ]
 
 import math
-from typing import Sequence, Union
+from typing import Any, Union
 
 import numpy as np
 import torch
@@ -33,7 +31,7 @@ import torch
 
 # ----- Accessing -----
 def center(image: Union[torch.Tensor, np.ndarray]) -> Union[torch.Tensor, np.ndarray]:
-    """Retrieves the center of an image as (h/2, w/2).
+    """Retrieves the center of an image as :math:`(h/2, w/2)`.
 
     Args:
         image: Image as a
@@ -41,66 +39,12 @@ def center(image: Union[torch.Tensor, np.ndarray]) -> Union[torch.Tensor, np.nda
             or ``numpy.ndarray`` (i.e., of shape :math:`(H, W, C)` in :math:`[0, 255]`).
     
     Returns:
-        Center coordinates as a ``torch.Tensor`` or ``numpy.ndarray`` of
-        shape :math:`(2)`.
+        Center coordinates as a ``torch.Tensor`` or ``numpy.ndarray`` of shape :math:`(2)`.
     """
     h, w    = imgsz(image)
     center_ = [h / 2, w / 2]
     return torch.tensor(center_) if isinstance(image, torch.Tensor) else np.array(center_)
 
-
-def center4(image: Union[torch.Tensor, np.ndarray]) -> Union[torch.Tensor, np.ndarray]:
-    """Retrieves the center of an image as (x=h/2, y=w/2, x=h/2, y=w/2).
-
-    Args:
-        image: Image as a
-            ``torch.Tensor`` (i.e., of shape :math:`(B, C, H, W)` in :math:`[0.0, 1.0]`)
-            or ``numpy.ndarray`` (i.e., of shape :math:`(H, W, C)` in :math:`[0, 255]`).
-    
-    Returns:
-        Center coordinates as a ``torch.Tensor`` or ``numpy.ndarray`` of
-        shape :math:`(4)`.
-    """
-    h, w    = imgsz(image)
-    center_ = [h / 2, w / 2, h / 2, w / 2]
-    return torch.tensor(center_) if isinstance(image, torch.Tensor) else np.array(center_)
-
-
-def channel(
-    image   : Union[torch.Tensor, np.ndarray],
-    index   : Union[int, Sequence[int]],
-    keep_dim: bool = True
-) -> Union[torch.Tensor, np.ndarray]:
-    """Extracts a channel or channels from an image.
-    
-    Args:
-        image: Image as a
-            ``torch.Tensor`` (i.e., of shape :math:`(B, C, H, W)` in :math:`[0.0, 1.0]`)
-            or ``numpy.ndarray`` (i.e., of shape :math:`(H, W, C)` in :math:`[0, 255]`).
-        index: Channel index, or a range to extract.
-        keep_dim: If ``True``, keeps the channel dimension in the output.
-            Default: ``True``.
-    
-    Returns:
-        Extracted channel(s) as a ``torch.Tensor`` or ``numpy.ndarray``.
-   
-    Raises:
-        ValueError: If image dimensions are invalid for channel extraction.
-    """
-    i1, i2 = (index, index + 1) if isinstance(index, int) else (index[0], index[1])
-    
-    if is_channel_first(image):
-        if image.ndim == 4:
-            return image[:, i1:i2, :, :] if keep_dim else image[:, i1, :, :]
-        elif image.ndim == 3:
-            return image[i1:i2, :, :]    if keep_dim else image[i1, :, :]
-    else:
-        if image.ndim == 4:
-            return image[:, :, :, i1:i2] if keep_dim else image[:, :, :, i1]
-        elif image.ndim == 3:
-            return image[:, :, i1:i2]    if keep_dim else image[:, :, i1]
-    raise ValueError(f"Invalid image dimensions for channel extraction {image.ndim}.")
-    
     
 def num_channels(image: Union[torch.Tensor, np.ndarray]) -> int:
     """Retrieves the number of channels in an image.
@@ -135,22 +79,18 @@ def shape(image: Union[torch.Tensor, np.ndarray]) -> tuple[int]:
     Returns:
         A ``tuple`` of :math:`(height, width, channels)`.
     """
-    h, w, c = (
+    return (
         (image.shape[-2], image.shape[-1], image.shape[-3])
         if is_channel_first(image)
         else (image.shape[-3], image.shape[-2], image.shape[-1])
     )
-    return h, w, c
 
 
-def imgsz(
-    image_or_size: Union[torch.Tensor, np.ndarray, int, list, tuple],
-    divisor      : int = None
-) -> tuple[int, int]:
+def imgsz(image_or_size: Any, divisor: int = None) -> tuple[int, int]:
     """Retrieve the height and width of an image.
 
     Args:
-        image_or_size: Image or image size.
+        image_or_size: Image or size-like input.
         divisor: Divisor to adjust size. Default: ``None``.
 
     Returns:
@@ -283,9 +223,6 @@ def is_grayscale(image: Union[torch.Tensor, np.ndarray]) -> bool:
    
     Returns:
         ``True`` if the image has 1 channel or 2 dimensions, ``False`` otherwise.
-    
-    Notes:
-        Assumes a grayscale image has 1 channel (e.g., [H, W] or [B, 1, H, W]).
     """
     return num_channels(image) == 1 or len(image.shape) == 2
 

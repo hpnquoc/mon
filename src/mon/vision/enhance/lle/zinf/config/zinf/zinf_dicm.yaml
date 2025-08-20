@@ -15,7 +15,7 @@ imgsz       : &imgsz 256                                                        
 # Train
 resume      : &resume ~                                                         # Resume from interrupted training.
 tuning      : &tuning ~                                                         # Fine-tuning from a pretrained model.
-epochs      : &epochs 300                                                       # Training epochs. Default: ``300``.
+epochs      : &epochs 100                                                       # Training epochs. Default: ``300``.
 batch_size  : &batch_size 1                                                     # Batch size.
 torchrun    : False                                                             # If ``True``, use torch.distributed.run to run the training script.
 master_port : 7777                                                              # Master port for distributed training.
@@ -48,7 +48,7 @@ network:                                                                        
   nonlinear      : "finer"                                                      # Activation function. Default: ``"finer"``.
   depth_threshold: 1.0                                                          # For adjusting the learned residual. Default: ``1.0``.
   edge_threshold : 0.05                                                         # Edge threshold. Default: ``0.05``.
-  use_denoise    : False                                                        # Use denoising. Default: ``False``.
+  use_denoise    : True                                                         # Use denoising. Default: ``False``.
   denoise_ksize  : 7                                                            # Denoising kernel size. Default: ``7``.
   L              : 0.01
   iters          : *epochs

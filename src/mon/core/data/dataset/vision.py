@@ -12,6 +12,9 @@ __all__ = [
 
 import abc
 
+import numpy as np
+import torch
+
 import mon.core.albumentations as A
 from mon.core.dtypes.image import Image
 from mon.core.enum import Split
@@ -79,7 +82,13 @@ class VisionDataset(BaseDataset, abc.ABC):
             augmented      = self.transform(**args)
             augmented[pk]  = augmented.pop("image")
             datapoint     |= augmented
-        
+            # Convert to float32 if necessary
+            for k, v in datapoint.items():
+                if isinstance(v, torch.Tensor) and v.dtype != torch.float32:
+                    datapoint[k] = v.to(torch.float32)
+                elif isinstance(v, np.ndarray) and v.dtype != np.float32:
+                    datapoint[k] = v.astype(np.float32)
+                    
         return datapoint | {"meta": meta}
     
     def __len__(self) -> int:

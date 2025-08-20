@@ -5,7 +5,6 @@ from collections import defaultdict, OrderedDict
 from thop import profile
 from torch.nn.parallel import DataParallel
 
-from mon.nn import _size_2_t
 from .loss import *
 from .networks import *
 
@@ -138,7 +137,7 @@ class InitModel(nn.Module):
     def save(self, iter_label, save_dir):
         network       = self.netG
         save_filename = "{}_{}.pth".format(iter_label, self.name)
-        save_dir      = Path(save_dir)
+        save_dir      = pathlib.Path(save_dir)
         save_path     = save_dir / save_filename
         if isinstance(network, nn.DataParallel):
             network = network.module
@@ -271,7 +270,7 @@ class FinetuneModel(nn.Module):
     def save(self, iter_label, save_dir):
         network       = self.netG
         save_filename = "{}_{}.pth".format(iter_label, self.name)
-        save_dir      = Path(save_dir)
+        save_dir      = pathlib.Path(save_dir)
         save_path     = save_dir / save_filename
         if isinstance(network, nn.DataParallel):
             network = network.module
@@ -285,7 +284,7 @@ class FinetuneModel(nn.Module):
     def forward(self):
         self.test()
         
-    def compute_efficiency_score(self, imgsz: _size_2_t = 512, channels: int = 3):
+    def compute_efficiency_score(self, imgsz: int = 512, channels: int = 3):
         h, w  = imgsz, imgsz
         input = torch.rand(1, channels, h, w).to(self.device)
         data  = {
