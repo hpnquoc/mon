@@ -17,6 +17,8 @@ import mon
 from mon import albumentations as A
 from mon.vision.enhance.lle import zerodidce
 
+mon.dev()
+
 current_file = mon.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
@@ -86,7 +88,7 @@ def predict(args: dict | box.Box) -> str:
 
             # Postprocess
             timers.postprocess.tick()
-            enhanced = outputs[0]
+            enhanced = outputs[-1]
             enhanced = mon.image.to_array(enhanced)
             h1, w1   = mon.image.imgsz(enhanced)
             if (h1, w1) != (h0, w0):

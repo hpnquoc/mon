@@ -99,11 +99,11 @@ class GCENet(nn.Module, ModelMixin):
         self.e_conv6 = ConvBlock(hidden_dim * 2, hidden_dim,   norm=norm)
         self.e_conv7 = ConvBlock(hidden_dim * 2, out_channels, norm=norm)
         self.relu    = nn.LeakyReLU(inplace=False)
+        self.bam     = I.BrightnessAttentionMap(gamma=2.6, kernel_size=9)
         self.gf      = I.FastGuidedFilter(kernel_size=7)
         self.bf      = kornia.filters.BilateralBlur((7, 7), 0.1, (1.5, 1.5))
-        self.bam     = I.BrightnessAttentionMap(gamma=2.6, kernel_size=9)
-    
-    def forward(self, image: torch.Tensor, inference: bool = False) -> tuple[torch.Tensor, ...]:
+        
+    def forward(self, image: torch.Tensor, inference: bool = False, debug: bool = False) -> tuple[torch.Tensor, ...]:
         # Preprocess
         if inference:
             image_lr = self.interpolate_image(image, 256)
@@ -121,20 +121,20 @@ class GCENet(nn.Module, ModelMixin):
         r  =    F.tanh(self.e_conv7(torch.cat([x1, x6], 1)))
         
         # Enhancement loop
-        enhanced_lr = image_lr
+        y_lr = image_lr
         for _ in range(0, self.iters):
-            b = enhanced_lr * (1 - bam)
-            d = enhanced_lr * bam
-            enhanced_lr = b + d + r * (torch.pow(d, 2) - d)
+            b    = y_lr * (1 - bam)
+            d    = y_lr * bam
+            y_lr = b + d + r * (torch.pow(d, 2) - d)
         
         # Postprocess
-        enhanced_lr = self.bf(enhanced_lr)
+        y_lr = self.bf(y_lr)
         if inference:
-            enhanced = self.filter_up(image_lr, enhanced_lr, image)
+            y = self.filter_up(image_lr, y_lr, image)
         else:
-            enhanced = enhanced_lr
-            
-        return r, enhanced
+            y = y_lr
+
+        return r, y
     
     # ----- Utils -----
     def interpolate_image(self, image: torch.Tensor, size: int) -> torch.Tensor:

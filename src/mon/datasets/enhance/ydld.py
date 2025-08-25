@@ -17,7 +17,7 @@ class YDLD(VisionDataset):
 
     root_name : str         = "ydld"
     tasks     : list[Task]  = [Task.LLE, Task.NIGHTTIME, Task.DETECT]
-    splits    : list[Split] = [Split.TEST]
+    splits    : list[Split] = [Split.TRAIN, Split.TEST]
     modalities: Modalities  = {
         "image": Modality(name="image",   type="image", module=Image,           in_test=True, primary=True),
         # "depth": Modality(name=DepthName, type="image", module=DefaultDepthMap, in_test=True),

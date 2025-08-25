@@ -82,4 +82,4 @@ class ZeroDiDCE(nn.Module, ModelMixin):
         # x = x + xxx0 * 0.15
 
         y = x
-        return y, r
+        return r, y
