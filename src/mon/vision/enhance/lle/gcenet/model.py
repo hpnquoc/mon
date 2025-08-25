@@ -7,6 +7,7 @@ __all__ = [
     "GCENet",
 ]
 
+import kornia.filters
 import torch
 
 from mon.constants import MODELS
@@ -68,7 +69,7 @@ class ConvBlock(nn.Module):
             self.norm = nn.Identity()
        
     def forward(self, input: torch.Tensor) -> torch.Tensor:
-        x = self.norm(self.conv(input))
+        return self.norm(self.conv(input))
 
 
 # ----- Model -----
@@ -98,11 +99,20 @@ class GCENet(nn.Module, ModelMixin):
         self.e_conv6 = ConvBlock(hidden_dim * 2, hidden_dim,   norm=norm)
         self.e_conv7 = ConvBlock(hidden_dim * 2, out_channels, norm=norm)
         self.relu    = nn.LeakyReLU(inplace=False)
-        self.gf      = I.GuidedFilter(kernel_size=7)
+        self.gf      = I.FastGuidedFilter(kernel_size=7)
+        self.bf      = kornia.filters.BilateralBlur((7, 7), 0.1, (1.5, 1.5))
         self.bam     = I.BrightnessAttentionMap(gamma=2.6, kernel_size=9)
     
-    def forward(self, image: torch.Tensor, debug: bool = False) -> tuple[torch.Tensor, ...]:
-        x1 = self.relu(self.e_conv1(image))
+    def forward(self, image: torch.Tensor, inference: bool = False) -> tuple[torch.Tensor, ...]:
+        # Preprocess
+        if inference:
+            image_lr = self.interpolate_image(image, 256)
+        else:
+            image_lr = image
+        bam = self.bam(image_lr)
+        
+        # Forward
+        x1 = self.relu(self.e_conv1(image_lr))
         x2 = self.relu(self.e_conv2(x1))
         x3 = self.relu(self.e_conv3(x2))
         x4 = self.relu(self.e_conv4(x3))
@@ -111,23 +121,29 @@ class GCENet(nn.Module, ModelMixin):
         r  =    F.tanh(self.e_conv7(torch.cat([x1, x6], 1)))
         
         # Enhancement loop
-        bam      = self.bam(image)
-        b        = None
-        d        = None
-        enhanced = image
+        enhanced_lr = image_lr
         for _ in range(0, self.iters):
-            b = enhanced * (1 - bam)
-            d = enhanced * bam
-            enhanced = b + d + r * (torch.pow(d, 2) - d)
+            b = enhanced_lr * (1 - bam)
+            d = enhanced_lr * bam
+            enhanced_lr = b + d + r * (torch.pow(d, 2) - d)
         
-        # Guided Filter
-        enhanced = self.gf(image, enhanced)
-        
-        if debug:
-            return {
-                "bam": bam,
-                "b"  : b,
-                "d"  : d,
-            }, enhanced
+        # Postprocess
+        enhanced_lr = self.bf(enhanced_lr)
+        if inference:
+            enhanced = self.filter_up(image_lr, enhanced_lr, image)
         else:
-            return enhanced
+            enhanced = enhanced_lr
+            
+        return r, enhanced
+    
+    # ----- Utils -----
+    def interpolate_image(self, image: torch.Tensor, size: int) -> torch.Tensor:
+        """Reshapes the image based on new resolution."""
+        # return F.interpolate(image, size=(down_size, down_size), mode="bicubic")
+        return F.interpolate(image, size=(size, size), mode="area")
+    
+    def filter_up(self, x_lr: torch.Tensor, y_lr: torch.Tensor, x_hr: torch.Tensor) -> torch.Tensor:
+        """Applies the guided filter to upscale the predicted image. """
+        y_hr = self.gf(x_lr, y_lr, x_hr)
+        y_hr = torch.clip(y_hr, 0.0, 1.0)
+        return y_hr

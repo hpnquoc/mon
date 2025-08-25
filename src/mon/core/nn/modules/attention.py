@@ -4,12 +4,43 @@
 """Implements attention layers."""
 
 __all__ = [
+    "SEBlock",
     "SimAM",
 ]
 
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 
+
+# ----- SE -----
+class SEBlock(nn.Module):
+    """Squeeze and Excite module.
+    
+    Args:
+        in_channels: Number of input channels.
+        rd_ratio: Input channel reduction ratio.
+    
+    References:
+        - Paper: "Squeeze-and-Excitation Networks," CVPR 2018.
+        - Code: https://github.com/hujie-frank/SENet
+    """
+
+    def __init__(self, in_channels: int, rd_ratio: float = 0.0625):
+        super().__init__()
+        self.reduce = nn.Conv2d(in_channels, int(in_channels * rd_ratio), 1, 1, bias=True)
+        self.expand = nn.Conv2d(int(in_channels * rd_ratio), in_channels, 1, 1, bias=True)
+
+    def forward(self, inputs: torch.Tensor) -> torch.Tensor:
+        b, c, h, w = inputs.size()
+        x = F.avg_pool2d(inputs, kernel_size=[h, w])
+        x = self.reduce(x)
+        x = F.relu(x)
+        x = self.expand(x)
+        x = torch.sigmoid(x)
+        x = x.view(-1, c, 1, 1)
+        return inputs * x
+    
 
 # ----- Parameter-Free Attention -----
 class SimAM(nn.Module):

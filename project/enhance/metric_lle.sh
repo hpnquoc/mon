@@ -39,12 +39,13 @@ datasets=(
     #"fivekd"
     #"fiveke"
     ### UHD
-    "uhdll"
+    #"uhdll"
     ### High-Level
     #"darkface"
     #"exdark"
     #"lolistreettest"
     #"lolistreetval"
+    #"ydld"
 )
 imgsz=512
 resize=$(echo "")

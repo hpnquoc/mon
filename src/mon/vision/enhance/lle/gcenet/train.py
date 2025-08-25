@@ -75,7 +75,7 @@ def train(args: dict | box.Box) -> str:
     display_iter    = args["trainer"]["display_iter"]
     checkpoint_iter = args["trainer"]["checkpoint_iter"]
     with mon.create_progress_bar() as pbar:
-        for _ in pbar.track(
+        for e in pbar.track(
             sequence    = range(args.epochs),
             total       = args.epochs,
             description = f"[bright_yellow]Training"
@@ -100,7 +100,7 @@ def train(args: dict | box.Box) -> str:
                 
                 # Log
                 if args.verbose and ((i + 1) % display_iter) == 0:
-                    mon.log(f"Iter: {i + 1} | Loss: {loss.item()}")
+                    mon.log(f"Epoch: {(e + 1):<5} | Iter: {(i + 1):<5} | Loss: {loss.item()}")
                 
                 # Save
                 if ((i + 1) % checkpoint_iter) == 0:

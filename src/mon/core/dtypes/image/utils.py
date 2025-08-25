@@ -111,9 +111,9 @@ def imgsz(image_or_size: Any, divisor: int = None) -> tuple[int, int]:
         size = (image_or_size, image_or_size)
     elif isinstance(image_or_size, Union[torch.Tensor, np.ndarray]):
         size = (
-            (image_or_size.shape[-2], image_or_size.shape[-1])
+            (int(image_or_size.shape[-2]), int(image_or_size.shape[-1]))
             if is_channel_first(image_or_size)
-            else (image_or_size.shape[-3], image_or_size.shape[-2])
+            else (int(image_or_size.shape[-3]), int(image_or_size.shape[-2]))
         )
     else:
         raise TypeError(f"[input] must be a torch.Tensor, numpy.ndarray, int, "

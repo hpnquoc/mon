@@ -10,5 +10,6 @@ from .activation import *
 from .attention import *
 from .dsconv import *
 from .inr import INRLayer
+from .mobileone import MobileOneBlock
 from .normalization import *
 from .registering import *

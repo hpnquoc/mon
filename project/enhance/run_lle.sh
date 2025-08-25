@@ -9,37 +9,38 @@ source ./utils.sh
 # ----- Input -----
 task="lle"
 mode="predict"
-arch="zinf"
-model="zinf"
+arch=""
+model=""
 datasets=(
     ### Unpaired
-    #"dicm"
-    #"lime"
-    #"mef"
-    #"npe"
-    #"vv"
+    "dicm"
+    "lime"
+    "mef"
+    "npe"
+    "vv"
     ### LOLs
     "lolv1"
-    #"lolv2real"
-    #"lolv2syn"
+    "lolv2real"
+    "lolv2syn"
     ### LSRW
-    #"lsrw"
+    "lsrw"
     ### SICE
-    #"sice"
+    "sice"
     ### FiveK
-    #"fivek"
+    "fivek"
     #"fiveka"
     #"fivekb"
     #"fivekc"
     #"fivekd"
     #"fiveke"
     ### UHD
-    #"uhdll"
+    "uhdll"
     ### High-Level
-    #"darkface"
-    #"exdark"
-    #"lolistreettest"
-    #"lolistreetval"
+    "darkface"
+    "exdark"
+    "lolistreettest"
+    "lolistreetval"
+    "ydld"
 )
 data=$(printf "%s, " "${datasets[@]}")
 data=${data%, }  # Remove trailing ", "

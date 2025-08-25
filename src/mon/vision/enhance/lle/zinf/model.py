@@ -19,12 +19,7 @@ import numpy as np
 import torch
 
 from mon.constants import MODELS
-from mon.core import MLType, ModelMixin, nn, Path, Task
-from mon.core.dtypes.image import (
-    boundary_aware_prior,
-    FastGuidedFilter,
-    RGBToHVI,
-)
+from mon.core import MLType, ModelMixin, nn, Path, Task, image as I
 from mon.core.nn import functional as F
 from . import loss as L
 
@@ -317,7 +312,7 @@ class ZINF(nn.Module, ModelMixin):
         )
         self.state_dict = self.model.state_dict()
         
-        self.gf = FastGuidedFilter(kernel_size=7)
+        self.gf = I.FastGuidedFilter(kernel_size=7)
         self.bf = kornia.filters.BilateralBlur((denoise_ksize, denoise_ksize), 0.1, (1.5, 1.5))
     
     def forward(self, image: torch.Tensor, depth: torch.Tensor = None, save_debug: bool = False) -> torch.Tensor:
@@ -326,14 +321,14 @@ class ZINF(nn.Module, ModelMixin):
         device      = image.device
         
         # Preprocess
-        hvi         = RGBToHVI(requires_grad=False).to(device)
+        hvi         = I.RGBToHVI(requires_grad=False).to(device)
         image_hvi   = hvi.rgb_to_hvi(image)
         image_hv    = image_hvi[:, 0:2, :, :]
         image_h     = image_hvi[:, 0:1, :, :]
         image_v     = image_hvi[:, 1:2, :, :]
         image_i     = image_hvi[:, 2:3, :, :]
         depth       = depth.to(device) if depth is not None else None
-        edge        = boundary_aware_prior(depth, self.edge_threshold) if depth is not None else None
+        edge        = I.boundary_aware_prior(depth, self.edge_threshold) if depth is not None else None
         #           
         image_i_lr  = self.interpolate_image(image_i, imgsz)
         depth_lr    = self.interpolate_image(depth,   imgsz) if depth is not None else None
