@@ -72,8 +72,8 @@ def train(args: dict | box.Box) -> str:
     L_exp = L.L_exp(16, 0.6).to(device)
     
     # Data I/O
-    args["train_dataloader"]["datasets"]["root"] = mon.data.parse_data_dir(args.root)
-    args["val_dataloader"]["datasets"]["root"]   = mon.data.parse_data_dir(args.root)
+    args["train_dataloader"]["dataset"]["root"] = mon.data.parse_data_dir(args.root)
+    args["val_dataloader"]["dataset"]["root"]   = mon.data.parse_data_dir(args.root)
     train_dataloader = mon.data.DataLoader(**args.train_dataloader)
     val_dataloader   = mon.data.DataLoader(**args.val_dataloader)
 

@@ -4,5 +4,5 @@
 """Implements loss functions for neural network training."""
 
 from .base import *
+from .core import *
 from .image import *
-from .registering import *

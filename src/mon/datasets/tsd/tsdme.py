@@ -20,7 +20,7 @@ class TSDME(VisionDataset):
     splits    : list[Split] = [Split.TRAIN]
     modalities: Modalities  = {
         "image": Modality(name="image",   type="image", module=Image,           in_test=True, primary=True),
-        "depth": Modality(name=DepthName, type="image", module=DefaultDepthMap, in_test=True),
+        # "depth": Modality(name=DepthName, type="image", module=DefaultDepthMap, in_test=True),
     }
     classes   : Classes     = None
     

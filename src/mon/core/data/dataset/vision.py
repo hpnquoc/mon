@@ -12,6 +12,7 @@ __all__ = [
 
 import abc
 
+import box
 import numpy as np
 import torch
 
@@ -103,8 +104,8 @@ class VisionDataset(BaseDataset, abc.ABC):
         Args:
             transform: Transformations to apply. Default: ``None``.
         """
-        if isinstance(transform, dict):
-            transform = A.Compose(**transform)
+        if isinstance(transform, dict | box.Box):
+            transform = A.build_compose(**transform)
         if transform is None or isinstance(transform, A.Compose):
             self.transform = transform
         else:

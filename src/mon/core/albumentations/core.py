@@ -1,12 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Registers ``albumentations``'s transforms."""
+"""Extends ``albumentations.Compose`` class with extended functionalities."""
 
 import importlib
 import inspect
 import pkgutil
 
+import albumentations as A
 from albumentations import *
 
 from mon.core.factory import ALBUMENTATIONS
@@ -52,7 +53,7 @@ def __register_transforms(module, prefix: str = ""):
 
 
 # Register all transforms from albumentations.augmentations
-__register_transforms(augmentations)
+__register_transforms(A)
 ALBUMENTATIONS.sort()
 # print(__all__)
 # for k, v in ALBUMENTATIONS.items(): print(f"{k}: {v.__module__}.{v.__name__}")

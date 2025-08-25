@@ -8,7 +8,7 @@ from mon.core import (
     data as data,
     dtypes as dtypes,
     factory as factory,
-    # nn as nn,
+    nn as nn,
     runtime as rt,
     utils as utils,
 )

@@ -14,7 +14,7 @@ import torch
 
 import mon
 from mon.vision.enhance.lle import zerodce
-from . import loss as L
+from mon.vision.enhance.lle.zerodce import loss as L
 
 mon.dev()
 
@@ -71,15 +71,15 @@ def train(args: dict | box.Box) -> str:
     L_exp = L.L_exp(16, 0.6).to(device)
     
     # Data I/O
-    args["train_dataloader"]["datasets"]["root"] = mon.data.parse_data_dir(args.root)
-    args["val_dataloader"]["datasets"]["root"]   = mon.data.parse_data_dir(args.root)
+    args["train_dataloader"]["dataset"]["root"] = mon.data.parse_data_dir(args.root)
+    args["val_dataloader"]["dataset"]["root"]   = mon.data.parse_data_dir(args.root)
     train_dataloader = mon.data.DataLoader(**args.train_dataloader)
-    val_dataloader   = mon.data.DataLoader(**args.val_dataloader)
+    # val_dataloader   = mon.data.DataLoader(**args.val_dataloader)
 
     # Train
-    grad_clip_norm   = args["trainer"]["grad_clip_norm"]
-    display_iter     = args["trainer"]["display_iter"]
-    checkpoints_iter = args["trainer"]["checkpoints_iter"]
+    grad_clip_norm  = args["trainer"]["grad_clip_norm"]
+    display_iter    = args["trainer"]["display_iter"]
+    checkpoint_iter = args["trainer"]["checkpoint_iter"]
     with mon.create_progress_bar() as pbar:
         for _ in pbar.track(
             sequence    = range(args.epochs),
@@ -107,7 +107,7 @@ def train(args: dict | box.Box) -> str:
                     mon.log(f"Iter: {i + 1} | Loss: {loss.item()}")
                 
                 # Save
-                if ((i + 1) % checkpoints_iter) == 0:
+                if ((i + 1) % checkpoint_iter) == 0:
                     torch.save(model.state_dict(), args.save_dir / "best.pt")
 
 

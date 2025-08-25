@@ -120,8 +120,8 @@ def train(args: dict | box.Box) -> str:
     best_ssim = 0
     
     # Data I/O
-    args["train_dataloader"]["datasets"]["root"] = mon.data.parse_data_dir(args.root)
-    args["val_dataloader"]["datasets"]["root"]   = mon.data.parse_data_dir(args.root)
+    args["train_dataloader"]["dataset"]["root"] = mon.data.parse_data_dir(args.root)
+    args["val_dataloader"]["dataset"]["root"]   = mon.data.parse_data_dir(args.root)
     train_dataloader = mon.data.DataLoader(**args.train_dataloader)
     val_dataloader   = mon.data.DataLoader(**args.val_dataloader)
 
