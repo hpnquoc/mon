@@ -12,8 +12,10 @@ from typing import Any, Literal
 import cv2
 import numpy as np
 from albumentations.augmentations.geometric import functional as fgeometric
-from albumentations.augmentations.geometric.resize import Resize
-from albumentations.core.transforms_interface import BaseTransformInitSchema
+from albumentations.core.transforms_interface import (
+    BaseTransformInitSchema,
+    DualTransform,
+)
 from albumentations.core.type_definitions import ALL_TARGETS
 from pydantic import Field
 
@@ -22,7 +24,7 @@ from mon.core.factory import ALBUMENTATIONS
 
 
 @ALBUMENTATIONS.register()
-class ResizeDivisibleBy(Resize):
+class ResizeDivisibleBy(DualTransform):
     """Resize the input to a new size that is divisible by a given number.
 
     Args:
@@ -107,15 +109,13 @@ class ResizeDivisibleBy(Resize):
         area_for_downscale: Literal[None, "image", "image_mask"] = None,
         p: float = 1,
     ):
-        super().__init__(
-            height             = height,
-            width              = width,
-            interpolation      = interpolation,
-            mask_interpolation = mask_interpolation,
-            area_for_downscale = area_for_downscale,
-            p                  = p
-        )
-        self.divisor = divisor
+        super().__init__(p=p)
+        self.height             = height
+        self.width              = width
+        self.divisor            = divisor
+        self.interpolation      = interpolation
+        self.mask_interpolation = mask_interpolation
+        self.area_for_downscale = area_for_downscale
         
     def apply(self, img: np.ndarray, **params: Any) -> np.ndarray:
         height, width = img.shape[:2]

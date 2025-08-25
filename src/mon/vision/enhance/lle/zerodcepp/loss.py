@@ -17,7 +17,7 @@ from mon.core import nn
 from mon.core.nn import functional as F
 
 
-class L_col(nn.Module):
+class L_col(nn.BaseLoss):
 
     def __init__(self):
         super().__init__()
@@ -32,7 +32,7 @@ class L_col(nn.Module):
         return k
 
 			
-class L_spa(nn.Module):
+class L_spa(nn.BaseLoss):
 
     def __init__(self):
         super().__init__()
@@ -73,7 +73,7 @@ class L_spa(nn.Module):
         return E
     
     
-class L_exp(nn.Module):
+class L_exp(nn.BaseLoss):
 
     def __init__(self, patch_size: int, mean_val: float):
         super().__init__()
@@ -87,7 +87,7 @@ class L_exp(nn.Module):
         return d
       
         
-class L_tv(nn.Module):
+class L_tv(nn.BaseLoss):
     
     def __init__(self):
         super().__init__()
@@ -101,7 +101,7 @@ class L_tv(nn.Module):
         return 2 * (h_tv / count_h + w_tv / count_w) / b
     
     
-class L_sa(nn.Module):
+class L_sa(nn.BaseLoss):
     
     def __init__(self):
         super().__init__()
@@ -121,7 +121,7 @@ class L_sa(nn.Module):
         return k
 
 
-class L_per(nn.Module):
+class L_per(nn.BaseLoss):
     
     def __init__(self):
         super().__init__()

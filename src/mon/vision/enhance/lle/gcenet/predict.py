@@ -1,13 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Implements Zero-DCE++ model prediction pipeline for low-light image enhancement.
-
-References:
-    - Paper: "Learning to Enhance Low-Light Image via Zero-Reference Deep Curve
-      Estimation," IEEE TPAMI 2022.
-    - Code: https://github.com/Li-Chongyi/Zero-DCE_extension
-"""
+"""Implements GCE-Net model prediction pipeline for low-light image enhancement."""
 
 import box
 import cv2
@@ -15,7 +9,7 @@ import torch
 
 import mon
 from mon import albumentations as A
-from mon.vision.enhance.lle import zerodcepp
+from mon.vision.enhance.lle import gcenet
 
 mon.dev()
 
@@ -45,22 +39,20 @@ def predict(args: dict | box.Box) -> str:
         raise ValueError(f"Invalid weights file: {pretrained}.")
 
     # Model
-    scale_factor = args["network"]["scale_factor"]
-    model = zerodcepp.ZeroDCEpp(scale_factor=scale_factor)
+    iters = args["network"]["iters"]
+    model = gcenet.GCENet(iters=iters)
     model.load_state_dict(torch.load(pretrained, weights_only=True))
     model = model.to(device)
     model.eval()
     
     # Benchmark
     if args.benchmark:
-        h = int((512 // scale_factor) * scale_factor)
-        w = int((512 // scale_factor) * scale_factor)
-        mon.nn.benchmark(model, imgsz=(h, w))
+        mon.nn.benchmark(model)
    
     # Data I/O
     imgsz     = args.imgsz if args.resize else (0, 0)
     transform = A.Compose([
-        A.ResizeDivisibleBy(height=imgsz[0], width=imgsz[1], divisor=scale_factor),
+        A.ResizeDivisibleBy(height=imgsz[0], width=imgsz[1], divisor=32),
         A.Normalize(normalization="min_max"),
         A.ToTensorV2(transpose_mask=True),
     ])
@@ -91,8 +83,7 @@ def predict(args: dict | box.Box) -> str:
 
             # Postprocess
             timers.postprocess.tick()
-            enhanced = outputs[6]
-            # enhanced = outputs[-1]
+            enhanced = outputs[-1]
             enhanced = mon.image.to_array(enhanced)
             h1, w1   = mon.image.imgsz(outputs)
             if (h1, w1) != (h0, w0):

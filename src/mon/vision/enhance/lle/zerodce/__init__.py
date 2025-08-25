@@ -13,5 +13,4 @@ __all__ = [
     "ZeroDCE",
 ]
 
-from . import loss
 from .model import ZeroDCE

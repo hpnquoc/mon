@@ -88,7 +88,8 @@ def predict(args: dict | box.Box) -> str:
 
             # Postprocess
             timers.postprocess.tick()
-            enhanced = outputs[0]
+            enhanced = outputs[6]
+            # enhanced = outputs[-1]
             enhanced = mon.image.to_array(enhanced)
             h1, w1  = mon.image.imgsz(enhanced)
             if (h1, w1) != (h0, w0):

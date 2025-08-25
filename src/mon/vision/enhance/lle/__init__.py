@@ -7,6 +7,7 @@ from .colie import *
 from .dccnet import *
 from .enlightengan import *
 from .fourllie import *
+from .gcenet import *
 from .hvi_cidnet import *
 from .li2025 import *
 from .lightendiffusion import *

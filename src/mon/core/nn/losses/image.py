@@ -27,7 +27,8 @@ from typing import Literal
 import torch
 import torch.nn.functional as F
 
-from .base import BaseLoss, CharbonnierLoss
+from .base import BaseLoss
+from .core import CharbonnierLoss
 
 
 # ----- Color Loss -----

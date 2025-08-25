@@ -17,13 +17,23 @@ import box
 import torch
 
 from mon.constants import MODELS
-from mon.core import MLType, nn, Path, Task
+from mon.core import MLType, ModelMixin, nn, Path, Task
 from mon.core.nn import functional as F
 
 current_file = Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
 
+# ----- Modules -----
+def weights_init(m):
+    classname = m.__class__.__name__
+    if classname.find("Conv") != -1:
+        m.weight.data.normal_(0.0, 0.02)
+    elif classname.find("BatchNorm") != -1:
+        m.weight.data.normal_(1.0, 0.02)
+        m.bias.data.fill_(0)
+        
+        
 class DSConv(nn.Module):
     
     def __init__(self, in_channels: int, out_channels: int):
@@ -44,15 +54,19 @@ class DSConv(nn.Module):
             padding      = 0,
             groups       = 1
         )
-
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
-        y = self.depth_conv(x)
+        #
+        self.depth_conv.apply(weights_init)
+        self.point_conv.apply(weights_init)
+    
+    def forward(self, input: torch.Tensor) -> torch.Tensor:
+        y = self.depth_conv(input)
         y = self.point_conv(y)
         return y
 
 
+# ----- Model -----
 @MODELS.register(name="zerodce++", arch="zerodce++")
-class ZeroDCEpp(nn.Module):
+class ZeroDCEpp(nn.Module, ModelMixin):
     """Zero-DCE++ model for low-light image enhancement.
     
     References:
@@ -75,21 +89,21 @@ class ZeroDCEpp(nn.Module):
         in_channels   = 3
         hidden_dim    = 32
         out_channels  = 3
-        self.e_conv1  = DSConv(in_channels, hidden_dim)
-        self.e_conv2  = DSConv(hidden_dim, hidden_dim)
-        self.e_conv3  = DSConv(hidden_dim, hidden_dim)
-        self.e_conv4  = DSConv(hidden_dim, hidden_dim)
+        self.e_conv1  = DSConv(in_channels,    hidden_dim)
+        self.e_conv2  = DSConv(hidden_dim,     hidden_dim)
+        self.e_conv3  = DSConv(hidden_dim,     hidden_dim)
+        self.e_conv4  = DSConv(hidden_dim,     hidden_dim)
         self.e_conv5  = DSConv(hidden_dim * 2, hidden_dim)
         self.e_conv6  = DSConv(hidden_dim * 2, hidden_dim)
         self.e_conv7  = DSConv(hidden_dim * 2, out_channels)
         self.relu     = nn.ReLU(inplace=True)
         self.upsample = nn.UpsamplingBilinear2d(scale_factor=self.scale_factor)
         
-    def forward(self, x: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
+    def forward(self, image: torch.Tensor) -> tuple[torch.Tensor, ...]:
         if self.scale_factor == 1:
-            x_down = x
+            x_down = image
         else:
-            x_down = F.interpolate(x, scale_factor=1 / self.scale_factor, mode="bilinear")
+            x_down = F.interpolate(image, scale_factor=1 / self.scale_factor, mode="bilinear")
 
         x1 = self.relu(self.e_conv1(x_down))
         x2 = self.relu(self.e_conv2(x1))
@@ -104,17 +118,17 @@ class ZeroDCEpp(nn.Module):
         else:
             r = self.upsample(r)
             
-        y = self.enhance(x, r)
-        return y, r
+        y1, y2, y3, y4, y5, y6, y7, y8 = self.enhance(image, r)
+        return r, y1, y2, y3, y4, y5, y6, y7, y8
     
-    def enhance(self, x: torch.Tensor, r: torch.Tensor) -> torch.Tensor:
-        y = x
-        y = y + r * (torch.pow(y, 2) - y)
-        y = y + r * (torch.pow(y, 2) - y)
-        y = y + r * (torch.pow(y, 2) - y)
-        y = y + r * (torch.pow(y, 2) - y)
-        y = y + r * (torch.pow(y, 2) - y)
-        y = y + r * (torch.pow(y, 2) - y)
-        y = y + r * (torch.pow(y, 2) - y)
-        y = y + r * (torch.pow(y, 2) - y)
-        return y
+    def enhance(self, image: torch.Tensor, r: torch.Tensor) -> tuple[torch.Tensor, ...]:
+        y0 = image
+        y1 = y0 + r * (torch.pow(y0, 2) - y0)
+        y2 = y1 + r * (torch.pow(y1, 2) - y1)
+        y3 = y2 + r * (torch.pow(y2, 2) - y2)
+        y4 = y3 + r * (torch.pow(y3, 2) - y3)
+        y5 = y4 + r * (torch.pow(y4, 2) - y4)
+        y6 = y5 + r * (torch.pow(y5, 2) - y5)
+        y7 = y6 + r * (torch.pow(y6, 2) - y6)
+        y8 = y7 + r * (torch.pow(y7, 2) - y7)
+        return y1, y2, y3, y4, y5, y6, y7, y8

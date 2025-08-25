@@ -1,20 +1,14 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Implements Zero-DCE model training pipeline for low-light image enhancement.
-
-References:
-    - Paper: "Zero-Reference Deep Curve Estimation for Low-Light Image
-      Enhancement," CVPR 2020.
-    - Code: https://github.com/Li-Chongyi/Zero-DCE
-"""
+"""Implements GCE-Net model training pipeline for low-light image enhancement."""
 
 import box
 import torch
 
 import mon
-from mon.vision.enhance.lle import zerodce
-from mon.vision.enhance.lle.zerodce import loss as L
+from mon.vision.enhance.lle import gcenet
+from mon.vision.enhance.lle.gcenet import loss as L
 
 mon.dev()
 
@@ -23,16 +17,25 @@ current_dir  = current_file.parents[0]
 
 
 # ----- Train -----
+def weights_init(m):
+    classname = m.__class__.__name__
+    if classname.find("Conv") != -1:
+        m.weight.data.normal_(0.0, 0.02)
+    elif classname.find("BatchNorm") != -1:
+        m.weight.data.normal_(1.0, 0.02)
+        m.bias.data.fill_(0)
+
+
 def train(args: dict | box.Box) -> str:
-    # Start
+     # Start
     mon.rt.print_run_summary(args)
-    
+
     # Device
     device = mon.create_device(args.device)
-    
+
     # Seed
     mon.set_random_seed(args.seed)
-    
+
     # Pretrained
     pretrained = args.tuning
     if args.resume and args.resume.is_weights_file(exist=True):
@@ -45,8 +48,8 @@ def train(args: dict | box.Box) -> str:
         mon.log(f"Pretrained: {None}, training from scratch.")
 
     # Model
-    model = zerodce.ZeroDCE()
-    # model.apply(weights_init)
+    iters = args["network"]["iters"]
+    model = gcenet.GCENet(iters=iters)
     if pretrained and pretrained.is_weights_file(exist=True):
         model.load_state_dict(torch.load(pretrained, weights_only=True))
     model = model.to(device)
@@ -83,15 +86,16 @@ def train(args: dict | box.Box) -> str:
                 r        = outputs[0]
                 enhanced = outputs[-1]
                 
-                l_tv  = 200 * L_tv(r)
-                l_spa =   1 * torch.mean(L_spa(enhanced, image))
-                l_col =   5 * torch.mean(L_col(enhanced))
-                l_exp =  10 * torch.mean(L_exp(enhanced))
+                # loss_tv = 200 * L_tv(A)
+                l_tv  = 1600 * L_tv(r)
+                l_spa =    1 * torch.mean(L_spa(enhanced, image))
+                l_col =    5 * torch.mean(L_col(enhanced))
+                l_exp =   10 * torch.mean(L_exp(enhanced))
                 loss  = l_tv + l_spa + l_col + l_exp
-                
+    
                 optimizer.zero_grad()
                 loss.backward()
-                torch.nn.utils.clip_grad_norm_(model.parameters(), grad_clip_norm)
+                mon.nn.utils.clip_grad_norm_(model.parameters(), grad_clip_norm)
                 optimizer.step()
                 
                 # Log

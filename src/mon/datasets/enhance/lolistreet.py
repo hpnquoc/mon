@@ -7,6 +7,9 @@ __all__ = [
     "LoLIStreet",
     "LoLIStreetTest",
     "LoLIStreetVal",
+    "LoLIStreetVal_Dense",
+    "LoLIStreetVal_Light",
+    "LoLIStreetVal_Moderate",
 ]
 
 from mon.core import rich
@@ -148,6 +151,66 @@ class LoLIStreetVal(LoLIStreet):
 
         return images
         
+
+@DATASETS.register(name="lolistreetval_light")
+class LoLIStreetVal_Light(LoLIStreet):
+    """LoLI-Street-Val subset."""
+
+    def list_primary_data(self) -> list:
+        """Lists ``datapoints`` with image annotations for split."""
+        patterns = [self.root / "val" / "image"]
+        
+        images: list[Image] = []
+        with rich.create_progress_bar(disable=self.disable_pbar) as pbar:
+            for pattern in patterns:
+                paths = sorted(pattern.rglob("light_*"))
+                desc  = f"Listing {self.__class__.__name__} {self.split_str} image(s)"
+                for path in pbar.track(sequence=paths, description=desc):
+                    if path.is_image_file():
+                        images.append(Image(path=path, root=pattern))
+
+        return images
+    
+    
+@DATASETS.register(name="lolistreetval_moderate")
+class LoLIStreetVal_Moderate(LoLIStreet):
+    """LoLI-Street-Val subset."""
+
+    def list_primary_data(self) -> list:
+        """Lists ``datapoints`` with image annotations for split."""
+        patterns = [self.root / "val" / "image"]
+        
+        images: list[Image] = []
+        with rich.create_progress_bar(disable=self.disable_pbar) as pbar:
+            for pattern in patterns:
+                paths = sorted(pattern.rglob("moderate_*"))
+                desc  = f"Listing {self.__class__.__name__} {self.split_str} image(s)"
+                for path in pbar.track(sequence=paths, description=desc):
+                    if path.is_image_file():
+                        images.append(Image(path=path, root=pattern))
+
+        return images
+    
+    
+@DATASETS.register(name="lolistreetval_dense")
+class LoLIStreetVal_Dense(LoLIStreet):
+    """LoLI-Street-Val subset."""
+
+    def list_primary_data(self) -> list:
+        """Lists ``datapoints`` with image annotations for split."""
+        patterns = [self.root / "val" / "image"]
+        
+        images: list[Image] = []
+        with rich.create_progress_bar(disable=self.disable_pbar) as pbar:
+            for pattern in patterns:
+                paths = sorted(pattern.rglob("dense_*"))
+                desc  = f"Listing {self.__class__.__name__} {self.split_str} image(s)"
+                for path in pbar.track(sequence=paths, description=desc):
+                    if path.is_image_file():
+                        images.append(Image(path=path, root=pattern))
+
+        return images
+
 
 @DATASETS.register(name="lolistreettest")
 class LoLIStreetTest(LoLIStreet):

@@ -1,9 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""GCE-Net
+"""Implements GCE-Net model for low-light image enhancement."""
 
-This module implements the model "Guided Curve Estimation Network".
-"""
+__all__ = [
+    "GCENet",
+]
 
-from mon.vision.enhance.lle.gcenet.gcenet import *
+from .model import *

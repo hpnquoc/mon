@@ -13,78 +13,20 @@ __all__ = [
 ]
 
 from copy import deepcopy
-from typing import Literal
 
 import kornia
 import torch
 from fvcore.nn import parameter_count
+from mon.nn import _size_2_t, init
 
 from mon import core, nn
 from mon.constants import MLType, MODELS, Task
-from mon.nn import _size_2_t, init
 from mon.vision import filtering, geometry, types
 from mon.vision.enhance import base
 
 current_file = core.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
-
-# ----- Loss -----
-class Loss(nn.Loss):
-    
-    def __init__(
-        self,
-        exp_patch_size : int   = 16,
-        exp_mean_val   : float = 0.6,
-        spa_num_regions: Literal[4, 8, 16, 24] = 4,
-        spa_patch_size : int   = 4,
-        weight_col     : float = 5,
-        weight_exp     : float = 10,
-        weight_spa     : float = 1,
-        weight_tva     : float = 1600,
-        reduction      : Literal["none", "mean", "sum"] = "mean",
-        *args, **kwargs
-    ):
-        super().__init__(*args, **kwargs)
-        self.weight_col  = weight_col
-        self.weight_exp  = weight_exp
-        self.weight_spa  = weight_spa
-        self.weight_tva  = weight_tva
-        
-        self.loss_col = nn.ColorConstancyLoss(reduction=reduction)
-        self.loss_exp = nn.ExposureControlLoss(
-            reduction  = reduction,
-            patch_size = exp_patch_size,
-            mean_val   = exp_mean_val,
-        )
-        self.loss_spa = nn.SpatialConsistencyLoss(
-            num_regions = spa_num_regions,
-            patch_size  = spa_patch_size,
-            reduction   = reduction,
-        )
-        self.loss_tva = nn.TotalVariationLoss(reduction=reduction)
-    
-    def forward(
-        self,
-        input   : torch.Tensor,
-        adjust  : torch.Tensor,
-        enhance : torch.Tensor,
-    ) -> tuple[torch.Tensor, torch.Tensor]:
-        loss_col = self.loss_col(input=enhance)               if self.weight_col  > 0 else 0
-        loss_exp = self.loss_exp(input=enhance)               if self.weight_exp  > 0 else 0
-        loss_spa = self.loss_spa(input=enhance, target=input) if self.weight_spa  > 0 else 0
-        if adjust:
-            loss_tva = self.loss_tva(input=adjust)  if self.weight_tva > 0 else 0
-        else:
-            loss_tva = self.loss_tva(input=enhance) if self.weight_tva > 0 else 0
-        loss = (
-              self.weight_col * loss_col
-            + self.weight_exp * loss_exp
-            + self.weight_tva * loss_tva
-            + self.weight_spa * loss_spa
-        )
-        return loss
-        
 
 # ----- Module -----
 class LRNet(nn.Module):

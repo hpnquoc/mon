@@ -10,6 +10,7 @@ Notes:
 """
 
 __all__ = [
+    "BaseLoss",
     "ModelMixin",
 ]
 

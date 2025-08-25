@@ -24,6 +24,17 @@ current_file = Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
 
+# ----- Modules -----
+def weights_init(m):
+    classname = m.__class__.__name__
+    if classname.find("Conv") != -1:
+        m.weight.data.normal_(0.0, 0.02)
+    elif classname.find("BatchNorm") != -1:
+        m.weight.data.normal_(1.0, 0.02)
+        m.bias.data.fill_(0)
+        
+
+# ----- Model -----
 @MODELS.register(name="zerodce", arch="zerodce")
 class ZeroDCE(nn.Module, ModelMixin):
     """Zero-DCE model for low-light image enhancement.
@@ -56,9 +67,10 @@ class ZeroDCE(nn.Module, ModelMixin):
         self.relu     = nn.ReLU(inplace=True)
         self.maxpool  = nn.MaxPool2d(2, stride=2, return_indices=False, ceil_mode=False)
         self.upsample = nn.UpsamplingBilinear2d(scale_factor=2)
-
-    def forward(self, x: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
-        x1  = self.relu(self.e_conv1(x))
+        self.apply(weights_init)
+        
+    def forward(self, image: torch.Tensor) -> tuple[torch.Tensor, ...]:
+        x1  = self.relu(self.e_conv1(image))
         x2  = self.relu(self.e_conv2(x1))
         x3  = self.relu(self.e_conv3(x2))
         x4  = self.relu(self.e_conv4(x3))
@@ -67,14 +79,14 @@ class ZeroDCE(nn.Module, ModelMixin):
         r   =    F.tanh(self.e_conv7(torch.cat([x1, x6], 1)))
         
         r1, r2, r3, r4, r5, r6, r7, r8 = torch.split(r, 3, dim=1)
-        y   = x
-        y   = y  + r1 * (torch.pow(y,  2) - y)
-        y   = y  + r2 * (torch.pow(y,  2) - y)
-        y   = y  + r3 * (torch.pow(y,  2) - y)
-        y1  = y  + r4 * (torch.pow(y,  2) - y)
-        y   = y1 + r5 * (torch.pow(y1, 2) - y1)
-        y   = y  + r6 * (torch.pow(y,  2) - y)
-        y   = y  + r7 * (torch.pow(y,  2) - y)
-        y2  = y  + r8 * (torch.pow(y,  2) - y)
+        y0 = image
+        y1 = y0 + r1 * (torch.pow(y0, 2) - y0)
+        y2 = y1 + r2 * (torch.pow(y1, 2) - y1)
+        y3 = y2 + r3 * (torch.pow(y2, 2) - y2)
+        y4 = y3 + r4 * (torch.pow(y3, 2) - y3)
+        y5 = y4 + r5 * (torch.pow(y4, 2) - y4)
+        y6 = y5 + r6 * (torch.pow(y5, 2) - y5)
+        y7 = y6 + r7 * (torch.pow(y6, 2) - y6)
+        y8 = y7 + r8 * (torch.pow(y7, 2) - y7)
         
-        return y2, r
+        return r, y1, y2, y3, y4, y5, y6, y7, y8

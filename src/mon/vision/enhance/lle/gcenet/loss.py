@@ -126,8 +126,8 @@ class L_per(nn.BaseLoss):
     def __init__(self):
         super().__init__()
         features = vgg16(pretrained=True).features
-        self.to_relu_1_2 = nn.Sequential() 
-        self.to_relu_2_2 = nn.Sequential() 
+        self.to_relu_1_2 = nn.Sequential()
+        self.to_relu_2_2 = nn.Sequential()
         self.to_relu_3_3 = nn.Sequential()
         self.to_relu_4_3 = nn.Sequential()
 
