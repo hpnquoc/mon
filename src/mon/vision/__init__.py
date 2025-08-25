@@ -3,6 +3,7 @@
 
 """Implements computer vision tasks."""
 
+from mon.vision.augment import *
 from mon.vision.bgsubtract import *
 from mon.vision.classify import *
 from mon.vision.detect import *

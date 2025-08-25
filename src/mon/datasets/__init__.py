@@ -11,3 +11,4 @@ from mon.datasets.enhance import *
 from mon.datasets.face import *
 from mon.datasets.mipi import *
 from mon.datasets.ntire import *
+from mon.datasets.tsd import *
