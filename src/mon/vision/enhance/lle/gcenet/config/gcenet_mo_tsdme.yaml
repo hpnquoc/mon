@@ -4,19 +4,19 @@ root        : ~                                                                 
 task        : &task "lle"                                                       # Task name (e.g., detect, segment, classify).
 mode        : &mode "train"                                                     # Mode name (e.g., train, val, test, predict, export).
 arch        : &arch "gcenet"                                                    # Model architecture or family (e.g., resnet).
-model       : &model "gcenet"                                                   # Model name (e.g., resnet50).
+model       : &model "gcenet_mo"                                                # Model name (e.g., resnet50).
 data        : &data "tsdme"                                                     # Dataset name (e.g., cifar10) or directory (e.g., data/cifar10).
-fullname    : &fullname "gcenet_tsdme"                                          # Full name of the current run (e.g., resnet50_cifar10_01). If not set, it will be this file's name.
+fullname    : &fullname "gcenet_mo_tsdme"                                       # Full name of the current run (e.g., resnet50_cifar10_01). If not set, it will be this file's name.
 save_dir    : &save_dir ~                                                       # Saving directory. If not set, it will be `root/arch/model/data`.
-weights     : &weights "zoo/vision/enhance/lle/gcenet/gcenet/tsdme/gcenet_tsdme.pth"  # Path to the pretrained weights.
+weights     : &weights "zoo/vision/enhance/lle/gcenet/gcenet_mo/tsdme/gcenet_mo_tsdme.pth"  # Path to the pretrained weights.
 device      : &device 0                                                         # Running device (i.e., cuda:0 | cuda:0,1,2,3 | cpu).
 seed        : &seed 100                                                         # Random seed.
 imgsz       : &imgsz 256                                                        # Image size for the model.
 # Train
 resume      : &resume ~                                                         # Resume from interrupted training.
 tuning      : &tuning ~                                                         # Fine-tuning from a pretrained model.
-epochs      : &epochs 200                                                       # Training epochs.
-batch_size  : &batch_size 32                                                    # Batch size.
+epochs      : &epochs 10                                                        # Training epochs.
+batch_size  : &batch_size 16                                                    # Batch size.
 torchrun    : False                                                             # If ``True``, use torch.distributed.run to run the training script.
 master_port : 7777                                                              # Master port for distributed training.
 master_addr : "localhost"                                                       # Master address for distributed training.

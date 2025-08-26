@@ -5,6 +5,7 @@
 
 __all__ = [
     "GCENet",
+    "GCENet_MO",
 ]
 
 from .model import *

@@ -48,8 +48,8 @@ def train(args: dict | box.Box) -> str:
         mon.log(f"Pretrained: {None}, training from scratch.")
 
     # Model
-    iters = args["network"]["iters"]
-    model = gcenet.GCENet(iters=iters)
+    # model = gcenet.GCENet_MO(**args.network)
+    model = mon.MODELS.build(args.model, **args.network)
     if pretrained and pretrained.is_weights_file(exist=True):
         model.load_state_dict(torch.load(pretrained, weights_only=True))
     model = model.to(device)
@@ -81,8 +81,11 @@ def train(args: dict | box.Box) -> str:
             description = f"[bright_yellow]Training"
         ):
             for i, datapoint in enumerate(train_dataloader):
-                image    = datapoint["image"].to(device)
-                outputs  = model(image)
+                image    = datapoint["image"]
+                image    = image.to(device)
+                depth    = datapoint.get("depth", None)
+                depth    = depth.to(device) if depth is not None else None
+                outputs  = model(image, depth)
                 r        = outputs[0]
                 enhanced = outputs[-1]
                 
@@ -105,7 +108,12 @@ def train(args: dict | box.Box) -> str:
                 # Save
                 if ((i + 1) % checkpoint_iter) == 0:
                     torch.save(model.state_dict(), args.save_dir / "best.pt")
-
+    
+    # Save last model
+    if args.model == "gcenet_mo":
+        reparam_model = gcenet.reparameterize_model(model)
+        torch.save(reparam_model.state_dict(), args.save_dir / "last.pt")
+    
 
 # ----- Main -----
 def main() -> str:

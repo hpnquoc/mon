@@ -71,14 +71,15 @@ def train(args: dict | box.Box) -> str:
     grad_clip_norm  = args["trainer"]["grad_clip_norm"]
     display_iter    = args["trainer"]["display_iter"]
     checkpoint_iter = args["trainer"]["checkpoint_iter"]
-    with mon.create_progress_bar() as pbar:
+    with (mon.create_progress_bar() as pbar):
         for _ in pbar.track(
             sequence    = range(args.epochs),
             total       = args.epochs,
             description = f"[bright_yellow]Training"
         ):
             for i, datapoint in enumerate(train_dataloader):
-                image    = datapoint["image"].to(device)
+                image    = datapoint["image"]
+                image    = image.to(device)
                 outputs  = model(image)
                 r        = outputs[0]
                 enhanced = outputs[-1]

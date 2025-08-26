@@ -6,6 +6,7 @@
 import box
 import cv2
 import torch
+from torch import inference_mode
 
 import mon
 from mon import albumentations as A
@@ -41,7 +42,13 @@ def predict(args: dict | box.Box) -> str:
     # Model
     # iters = args["network"]["iters"]
     iters = 6
-    model = gcenet.GCENet(iters=iters)
+    args.network |= {
+        "iters"         : iters,
+        "use_depth"     : True,
+        "inference_mode": True,
+    }
+    # model = gcenet.GCENet_MO(iters=iters, use_depth=True, inference_mode=True)
+    model = mon.MODELS.build(args.model, **args.network)
     model.load_state_dict(torch.load(pretrained, weights_only=True))
     model = model.to(device)
     model.eval()
@@ -75,11 +82,13 @@ def predict(args: dict | box.Box) -> str:
             h0, w0 = mon.image.imgsz(meta["orig_shape"])
             image  = datapoint["image"]
             image  = image.to(device)
+            depth  = datapoint.get("depth", None)
+            depth  = depth.to(device) if depth is not None else None
             timers.preprocess.tock()
 
             # Infer
             timers.infer.tick()
-            outputs = model(image, inference=True)
+            outputs = model(image, depth)
             timers.infer.tock()
 
             # Postprocess

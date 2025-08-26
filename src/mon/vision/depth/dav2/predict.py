@@ -63,12 +63,13 @@ def predict(args: dict | box.Box) -> str:
     
     # Data I/O
     imgsz     = args.imgsz if args.resize else (0, 0)
-    transform = A.Compose([
-        A.ResizeDivisibleBy(height=imgsz[0], width=imgsz[1], divisor=32),
-        A.Normalize(normalization="min_max"),
-        A.ToTensorV2(transpose_mask=True),
-    ])
-    data_name, dataloader = mon.data.build_dataloader(args.data, args.root, transform)
+    # transform = A.Compose([
+        # A.ResizeDivisibleBy(height=imgsz[0], width=imgsz[1], divisor=1),
+        # A.Normalize(normalization="min_max"),
+        # A.ToTensorV2(transpose_mask=True),
+    # ])
+    transform = None
+    data_name, dataset = mon.data.build_dataset(args.data, args.root, transform)
 
     # Predict
     cmap   = matplotlib.colormaps.get_cmap("Spectral_r")
@@ -76,17 +77,16 @@ def predict(args: dict | box.Box) -> str:
     timers.total.tick()
     with mon.create_progress_bar() as pbar:
         for i, datapoint in pbar.track(
-            sequence    = enumerate(dataloader),
-            total       = len(dataloader),
+            sequence    = enumerate(dataset),
+            total       = len(dataset),
             description = f"[bright_yellow]Predicting"
         ):
             # Preprocess
             timers.preprocess.tick()
-            meta   = datapoint["meta"][0]
+            meta   = datapoint["meta"]
             path   = mon.Path(meta["path"])
             h0, w0 = mon.image.imgsz(meta["orig_shape"])
             image  = datapoint["image"]
-            image  = image.to(device)
             timers.preprocess.tock()
 
             # Infer
@@ -96,9 +96,10 @@ def predict(args: dict | box.Box) -> str:
 
             # Postprocess
             timers.postprocess.tick()
-            h1, w1  = mon.image.imgsz(outputs)
-            if (h1, w1) != (h0, w0):
-                outputs = cv2.resize(outputs, (w0, h0))
+            # Already resized in model.infer_image()
+            # h1, w1  = mon.image.imgsz(outputs)
+            # if (h1, w1) != (h0, w0):
+            #     outputs = cv2.resize(outputs, (w0, h0))
             depth   = outputs
             depth   = ((depth - depth.min()) / (depth.max() - depth.min()) * 255.0).astype("uint8")
             depth   = np.repeat(depth[..., np.newaxis], 3, axis=-1)

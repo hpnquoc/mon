@@ -16,7 +16,7 @@ imgsz       : &imgsz 256                                                        
 resume      : &resume ~                                                         # Resume from interrupted training.
 tuning      : &tuning ~                                                         # Fine-tuning from a pretrained model.
 epochs      : &epochs 200                                                       # Training epochs.
-batch_size  : &batch_size 8                                                     # Batch size.
+batch_size  : &batch_size 32                                                    # Batch size.
 torchrun    : False                                                             # If ``True``, use torch.distributed.run to run the training script.
 master_port : 7777                                                              # Master port for distributed training.
 master_addr : "localhost"                                                       # Master address for distributed training.
@@ -39,7 +39,8 @@ cfg         : ~                                                                 
 # ----- Model -----
 # Network
 network:                                                                        # Network architecture.
-  iters: 8
+  iters    : 8
+  use_depth: True
 
 # Loss
 loss: ~                                                                         # Loss functions.

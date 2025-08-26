@@ -12,10 +12,30 @@ __all__ = [
     "MobileOneBlock",
 ]
 
+import copy
+
 import torch
 import torch.nn as nn
 
 from .attention import SEBlock
+
+
+def reparameterize_model(model: nn.Module) -> nn.Module:
+    """Method returns a model where a multi-branched structure used in training
+    is re-parameterized into a single branch for inference.
+
+    Args:
+        model: Model to re-parameterize.
+    
+    Returns:
+        Re-parameterized model.
+    """
+    # Avoid editing original graph
+    model = copy.deepcopy(model)
+    for module in model.modules():
+        if hasattr(module, "reparameterize"):
+            module.reparameterize()
+    return model
 
 
 class MobileOneBlock(nn.Module):
@@ -48,6 +68,7 @@ class MobileOneBlock(nn.Module):
         groups           : int  = 1,
         inference_mode   : bool = False,
         use_se           : bool = False,
+        use_act          : bool = True,
         num_conv_branches: int  = 1
     ):
         super().__init__()
@@ -64,8 +85,12 @@ class MobileOneBlock(nn.Module):
             self.se = SEBlock(out_channels)
         else:
             self.se = nn.Identity()
-        self.activation = nn.ReLU()
-
+        # Check if activation is requested
+        if use_act:
+            self.activation = nn.ReLU()
+        else:
+            self.activation = nn.Identity()
+        
         if inference_mode:
             self.reparam_conv = nn.Conv2d(
                 in_channels  = in_channels,

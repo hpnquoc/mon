@@ -54,7 +54,7 @@ class BaseDataset(dataset.Dataset, abc.ABC):
     
     root_name : str         = None
     tasks     : list[Task]  = []
-    splits    : list[Split] = []
+    splits    : list[Split] = [Split.TRAIN, Split.VAL, Split.TEST, Split.PREDICT]
     modalities: Modalities  = {}
     classes   : Classes     = None
     

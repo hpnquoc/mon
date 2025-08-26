@@ -47,7 +47,7 @@ class DAV2_ViTS(DAAC):
     name: str  = "daac_vits"
     zoo : dict = {
         "pretrained": {
-            "path": ZOO_DIR / "vision/dtype/depth/daac/daac_vits/pretrained/daac_vits.pth",
+            "path": ZOO_DIR / "vision/depth/daac/daac_vits/pretrained/daac_vits.pth",
         },
     }
     
@@ -57,7 +57,7 @@ class DAV2_ViTS(DAAC):
                 "encoder"        : "vits",
                 "features"       : 64,
                 "out_channels"   : [48, 96, 192, 384],
-                "dino_pretrained": ZOO_DIR / "vision/types/depth/daac/daac_vits/pretrained/dinov2_vits14_pretrain.pth",
+                "dino_pretrained": ZOO_DIR / "vision/depth/daac/daac_vits/pretrained/dinov2_vits14_pretrain.pth",
                 "version"        : "v2",
             }
         )

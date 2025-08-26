@@ -73,7 +73,7 @@ class MobileOne(nn.Module, nn.ModelMixin, abc.ABC):
         # Build stages
         self.stage0 = nn.MobileOneBlock(3, self.in_planes, 3, 2, 1, inference_mode=self.inference_mode)
         self.cur_layer_idx = 1
-        self.stage1 = self._make_stage(int(64 * width_multipliers[0]),  num_blocks_per_stage[0], num_se_blocks=0)
+        self.stage1 = self._make_stage(int(64  * width_multipliers[0]), num_blocks_per_stage[0], num_se_blocks=0)
         self.stage2 = self._make_stage(int(128 * width_multipliers[1]), num_blocks_per_stage[1], num_se_blocks=0)
         self.stage3 = self._make_stage(int(256 * width_multipliers[2]), num_blocks_per_stage[2], num_se_blocks=int(num_blocks_per_stage[2] // 2) if use_se else 0)
         self.stage4 = self._make_stage(int(512 * width_multipliers[3]), num_blocks_per_stage[3], num_se_blocks=num_blocks_per_stage[3] if use_se else 0)
@@ -287,6 +287,6 @@ def reparameterize_model(model: nn.Module) -> nn.Module:
     # Avoid editing original graph
     model = copy.deepcopy(model)
     for module in model.modules():
-        if hasattr(module, 'reparameterize'):
+        if hasattr(module, "reparameterize"):
             module.reparameterize()
     return model
