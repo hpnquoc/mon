@@ -57,22 +57,21 @@ def predict(args: dict | box.Box) -> str:
         raise ValueError(f"Invalid weights file: {pretrained}.")
 
     # Model
-    scale_factor = args.network.scale_factor
-    model = sgz.SGZ(scale_factor, conv_type="dsc")
-    model.load_state_dict(torch.load(pretrained, weights_only=True))
+    scale = args.network.scale_factor
+    model = sgz.SGZ(scale, conv_type="dsc", weights=pretrained)
     model = model.to(device)
     model.eval()
     
     # Benchmark
     if benchmark:
-        h = int((512 // scale_factor) * scale_factor)
-        w = int((512 // scale_factor) * scale_factor)
+        h = int((512 // scale) * scale)
+        w = int((512 // scale) * scale)
         benchmark(model, imgsz=(h, w))
     
     # Data I/O
     imgsz     = args.imgsz if args.resize else (0, 0)
     transform = A.Compose([
-        A.ResizeDivisibleBy(height=imgsz[0], width=imgsz[1], divisor=scale_factor),
+        A.ResizeDivisibleBy(height=imgsz[0], width=imgsz[1], divisor=scale),
         A.Normalize(normalization="min_max"),
         A.ToTensorV2(transpose_mask=True),
     ])

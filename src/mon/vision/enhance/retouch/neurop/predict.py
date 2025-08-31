@@ -10,7 +10,6 @@ References:
 
 import box
 import cv2
-import imageio
 import torch
 
 import mon

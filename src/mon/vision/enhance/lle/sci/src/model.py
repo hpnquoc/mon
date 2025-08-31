@@ -133,7 +133,7 @@ class Network(nn.Module):
 class Finetunemodel(nn.Module):
 
     def __init__(self, weights):
-        super(Finetunemodel, self).__init__()
+        super().__init__()
         self.enhance    = EnhanceNetwork(layers=1, channels=3)
         self._criterion = LossFunction()
 

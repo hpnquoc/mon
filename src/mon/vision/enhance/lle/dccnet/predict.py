@@ -49,10 +49,8 @@ def predict(args: dict | box.Box) -> str:
         raise ValueError(f"Invalid weights file: {pretrained}.")
 
     # Model
-    model = dccnet.DCCNet()
-    model.load_state_dict(new_state_dict)
+    model = dccnet.DCCNet(weights=new_state_dict)
     model = model.to(device)
-    # model = mon.DataParallel(model)
     model.eval()
     
     # Benchmark

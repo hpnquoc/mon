@@ -13,9 +13,11 @@ __all__ = [
     "SGZ",
 ]
 
+from typing import Any
+
 import box
 
-from mon.constants import MODELS
+from mon.constants import MODELS, ZOO_DIR
 from mon.core import MLType, ModelMixin, Path, Task
 from .src.modeling.model import enhance_net_nopool
 
@@ -38,4 +40,15 @@ class SGZ(enhance_net_nopool, ModelMixin):
     tasks    : list[Task]   = [Task.LLE]
     mltypes  : list[MLType] = [MLType.UNSUPERVISED]
     model_dir: Path         = current_dir
-    zoo      : dict         = box.Box()
+    zoo      : dict         = box.Box({
+        "lolv1": {
+            "url"        : None,
+            "path"       : ZOO_DIR / "vision/enhance/lle/sgz/sgz/lolv1/sgz_lolv1.pt",
+            "num_classes": None,
+        },
+    })
+    
+    def __init__(self, scale_factor, conv_type="dsc", weights: Any = None):
+        super().__init__(scale_factor=scale_factor, conv_type=conv_type)
+        # Load weights
+        self.load_weights(weights)

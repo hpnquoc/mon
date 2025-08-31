@@ -16,6 +16,7 @@ __all__ = [
 ]
 
 import abc
+from typing import Any
 
 import box
 from torchvision import models as tvm
@@ -42,7 +43,7 @@ class ViT(tvm.VisionTransformer, ModelMixin, abc.ABC):
     model_dir: Path         = current_dir
     zoo      : dict         = box.Box()
     
-    def __init__(self, weights: str = "imagenet1k_v1", num_classes: int = 1000, *args, **kwargs):
+    def __init__(self, weights: Any = "imagenet1k_v1", num_classes: int = 1000, *args, **kwargs):
         weights, path, num_classes = self.parse_weights(weights, num_classes)
         super().__init__(num_classes=num_classes, *args, **kwargs)
         if weights:
@@ -71,7 +72,7 @@ class ViT_B_16(ViT):
         },
     })
     
-    def __init__(self, weights: str = "imagenet1k_v1", num_classes: int = 1000, *args, **kwargs):
+    def __init__(self, weights: Any = "imagenet1k_v1", num_classes: int = 1000, *args, **kwargs):
         image_size = kwargs.pop("image_size", 224)
         super().__init__(
             image_size  = image_size,
@@ -98,7 +99,7 @@ class ViT_B_32(ViT):
         },
     })
     
-    def __init__(self, weights: str = "imagenet1k_v1", num_classes: int = 1000, *args, **kwargs):
+    def __init__(self, weights: Any = "imagenet1k_v1", num_classes: int = 1000, *args, **kwargs):
         image_size = kwargs.pop("image_size", 224)
         super().__init__(
             image_size  = image_size,
@@ -135,7 +136,7 @@ class ViT_L_16(ViT):
         },
     })
     
-    def __init__(self, weights: str = "imagenet1k_v1", num_classes: int = 1000, *args, **kwargs):
+    def __init__(self, weights: Any = "imagenet1k_v1", num_classes: int = 1000, *args, **kwargs):
         image_size = kwargs.pop("image_size", 224)
         super().__init__(
             image_size  = image_size,
@@ -162,7 +163,7 @@ class ViT_L_32(ViT):
         },
     })
     
-    def __init__(self, weights: str = "imagenet1k_v1", num_classes: int = 1000, *args, **kwargs):
+    def __init__(self, weights: Any = "imagenet1k_v1", num_classes: int = 1000, *args, **kwargs):
         image_size = kwargs.pop("image_size", 224)
         super().__init__(
             image_size  = image_size,
@@ -194,7 +195,7 @@ class ViT_H_14(ViT):
         },
     })
     
-    def __init__(self, weights: str = "imagenet1k_v1", num_classes: int = 1000, *args, **kwargs):
+    def __init__(self, weights: Any = "imagenet1k_v1", num_classes: int = 1000, *args, **kwargs):
         image_size = kwargs.pop("image_size", 224)
         super().__init__(
             image_size  = image_size,

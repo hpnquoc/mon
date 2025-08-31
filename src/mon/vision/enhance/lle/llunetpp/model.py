@@ -13,9 +13,11 @@ __all__ = [
     "LLUnetPP",
 ]
 
+from typing import Any
+
 import box
 
-from mon.constants import MODELS
+from mon.constants import MODELS, ZOO_DIR
 from mon.core import MLType, ModelMixin, Path, Task
 from .src.model import NestedUNet
 
@@ -28,8 +30,8 @@ class LLUnetPP(NestedUNet, ModelMixin):
     """LL-UNet++ model for low-light image enhancement.
     
     References:
-        - Paper: "LL-UNet++:UNet++ Based Nested Skip Connections Network for Low-Light
-          Image Enhancement," TCI 2024.
+        - Paper: "LL-UNet++:UNet++ Based Nested Skip Connections Network for
+          Low-Light Image Enhancement," TCI 2024.
         - Code: https://github.com/xiwang-online/LLUnetPlusPlus
     """
     
@@ -38,4 +40,25 @@ class LLUnetPP(NestedUNet, ModelMixin):
     tasks    : list[Task]   = [Task.LLE]
     mltypes  : list[MLType] = [MLType.SUPERVISED]
     model_dir: Path         = current_dir
-    zoo      : dict         = box.Box()
+    zoo      : dict         = box.Box({
+        "lolv1"    : {
+            "url"        : None,
+            "path"       : ZOO_DIR / "vision/enhance/lle/llunet++/llunet++/lolv1/llunet++_lolv1.pt",
+            "num_classes": None,
+        },
+        "lolv2real": {
+            "url"        : None,
+            "path"       : ZOO_DIR / "vision/enhance/lle/llunet++/llunet++/lolv2real/llunet++_lolv2real.pt",
+            "num_classes": None,
+        },
+        "lolv2syn" : {
+            "url"        : None,
+            "path"       : ZOO_DIR / "vision/enhance/lle/llunet++/llunet++/lolv2syn/llunet++_lolv2syn.pt",
+            "num_classes": None,
+        },
+    })
+    
+    def __init__(self, in_channels: int = 3, out_channels: int = 3, weights: Any = None):
+        super().__init__(in_channels=in_channels, out_channels=out_channels)
+        # Load weights
+        self.load_weights(weights)

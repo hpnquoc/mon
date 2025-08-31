@@ -48,12 +48,12 @@ def predict(args: dict | box.Box) -> str:
         pretrained = args.weights
     if pretrained and pretrained.is_weights_file(exist=True):
         mon.log(f"Pretrained: {pretrained}.")
-        cfgs["path"]["pretrain_model_G"] = str(pretrained)
+        # cfgs["path"]["pretrain_model_G"] = str(pretrained)
     else:
         raise ValueError(f"Invalid weights file: {pretrained}.")
 
     # Model
-    model = fourllie.FourLLIE(cfgs)
+    model = fourllie.FourLLIE(cfgs, weights=pretrained)
     
     # Benchmark
     if args.benchmark:

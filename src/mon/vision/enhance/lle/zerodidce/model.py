@@ -12,7 +12,7 @@ References:
 import box
 import torch
 
-from mon.constants import MODELS
+from mon.constants import MODELS, ZOO_DIR
 from mon.core import MLType, ModelMixin, nn, Path, Task
 from mon.core.nn import functional as F
 
@@ -35,9 +35,15 @@ class ZeroDiDCE(nn.Module, ModelMixin):
     tasks    : list[Task]   = [Task.LLE]
     mltypes  : list[MLType] = [MLType.UNSUPERVISED]
     model_dir: Path         = current_dir
-    zoo      : dict         = box.Box()
+    zoo      : dict         = box.Box({
+        "siceme": {
+            "url"        : None,
+            "path"       : ZOO_DIR / "vision/enhance/lle/zerodidce/zerodidce/siceme/zerodidce_siceme.pth",
+            "num_classes": None,
+        },
+    })
     
-    def __init__(self):
+    def __init__(self, weights: Any = None):
         super().__init__()
         in_channels   = 3
         hidden_dim    = 32
@@ -49,6 +55,9 @@ class ZeroDiDCE(nn.Module, ModelMixin):
         self.relu     = nn.ReLU(inplace=True)
         self.maxpool  = nn.MaxPool2d(2, stride=2, return_indices=False, ceil_mode=False)
         self.upsample = nn.UpsamplingBilinear2d(scale_factor=2)
+        
+        # Load weights
+        self.load_weights(weights)
         
     def forward(self, x: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
         xx   = 1 - x

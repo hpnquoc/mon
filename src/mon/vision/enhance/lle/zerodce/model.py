@@ -13,10 +13,12 @@ __all__ = [
     "ZeroDCE",
 ]
 
+from typing import Any
+
 import box
 import torch
 
-from mon.constants import MODELS
+from mon.constants import MODELS, ZOO_DIR
 from mon.core import MLType, ModelMixin, nn, Path, Task
 from mon.core.nn import functional as F
 
@@ -50,9 +52,15 @@ class ZeroDCE(nn.Module, ModelMixin):
     tasks    : list[Task]   = [Task.LLE]
     mltypes  : list[MLType] = [MLType.UNSUPERVISED]
     model_dir: Path         = current_dir
-    zoo      : dict         = box.Box()
+    zoo      : dict         = box.Box({
+        "siceme": {
+            "url"        : None,
+            "path"       : ZOO_DIR / "vision/enhance/lle/zerodce/zerodce/siceme/zerodce_siceme.pth",
+            "num_classes": None,
+        },
+    })
 
-    def __init__(self):
+    def __init__(self, weights: Any = None):
         super().__init__()
         in_channels   = 3
         hidden_dim    = 32
@@ -69,14 +77,17 @@ class ZeroDCE(nn.Module, ModelMixin):
         self.upsample = nn.UpsamplingBilinear2d(scale_factor=2)
         self.apply(weights_init)
         
+        # Load weights
+        self.load_weights(weights)
+        
     def forward(self, image: torch.Tensor) -> tuple[torch.Tensor, ...]:
-        x1  = self.relu(self.e_conv1(image))
-        x2  = self.relu(self.e_conv2(x1))
-        x3  = self.relu(self.e_conv3(x2))
-        x4  = self.relu(self.e_conv4(x3))
-        x5  = self.relu(self.e_conv5(torch.cat([x3, x4], 1)))
-        x6  = self.relu(self.e_conv6(torch.cat([x2, x5], 1)))
-        r   =    F.tanh(self.e_conv7(torch.cat([x1, x6], 1)))
+        x1 = self.relu(self.e_conv1(image))
+        x2 = self.relu(self.e_conv2(x1))
+        x3 = self.relu(self.e_conv3(x2))
+        x4 = self.relu(self.e_conv4(x3))
+        x5 = self.relu(self.e_conv5(torch.cat([x3, x4], 1)))
+        x6 = self.relu(self.e_conv6(torch.cat([x2, x5], 1)))
+        r  =    F.tanh(self.e_conv7(torch.cat([x1, x6], 1)))
         
         r1, r2, r3, r4, r5, r6, r7, r8 = torch.split(r, 3, dim=1)
         y0 = image

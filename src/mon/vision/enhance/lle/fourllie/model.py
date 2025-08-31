@@ -20,7 +20,7 @@ import box
 import torch
 from thop import profile
 
-from mon.constants import MODELS
+from mon.constants import MODELS, ZOO_DIR
 from mon.core import image as I, MLType, ModelMixin, Path, Task
 from .src.data.util import read_img
 from .src.models.enhancement_model import enhancement_model
@@ -46,7 +46,34 @@ class FourLLIE(enhancement_model, ModelMixin):
     tasks    : list[Task]   = [Task.LLE]
     mltypes  : list[MLType] = [MLType.SUPERVISED]
     model_dir: Path         = current_dir
-    zoo      : dict         = box.Box()
+    zoo      : dict         = box.Box({
+        "lolv2real" : {
+            "url"        : None,
+            "path"       : ZOO_DIR / "vision/enhance/lle/fourllie/fourllie/lolv2real/fourllie_lolv2real.pth",
+            "num_classes": None,
+        },
+        "lolv2syn"  : {
+            "url"        : None,
+            "path"       : ZOO_DIR / "vision/enhance/lle/fourllie/fourllie/lolv2syn/fourllie_lolv2syn.pth",
+            "num_classes": None,
+        },
+        "lsrwhuawei": {
+            "url"        : None,
+            "path"       : ZOO_DIR / "vision/enhance/lle/fourllie/fourllie/lsrwhuawei/fourllie_lsrwhuawei.pth",
+            "num_classes": None,
+        },
+        "lsrwnikon" : {
+            "url"        : None,
+            "path"       : ZOO_DIR / "vision/enhance/lle/fourllie/fourllie/lsrwnikon/fourllie_lsrwnikon.pth",
+            "num_classes": None,
+        },
+    })
+    
+    def __init__(self, cfgs: dict, weights: any = None):
+        _, path, _ = self.parse_weights(weights, None)
+        if path:
+            cfgs["path"]["pretrain_model_G"] = str(path)
+        super().__init__(cfgs)
     
     def forward(self):
         self.test()

@@ -21,10 +21,15 @@ __all__ = [
 ]
 
 import abc
+from typing import Any
 
 import box
 from torchvision import models as tvm
-from torchvision.models.resnet import _ovewrite_named_param, BasicBlock, Bottleneck
+from torchvision.models.resnet import (
+    _ovewrite_named_param,
+    BasicBlock,
+    Bottleneck,
+)
 
 from mon.constants import MODELS, ZOO_DIR
 from mon.core import MLType, ModelMixin, Path, Task
@@ -47,7 +52,7 @@ class ResNet(tvm.ResNet, ModelMixin, abc.ABC):
     model_dir: Path         = current_dir
     zoo      : dict         = box.Box()
     
-    def __init__(self, weights: str = "imagenet1k_v1", num_classes: int = 1000, *args, **kwargs):
+    def __init__(self, weights: Any = "imagenet1k_v1", num_classes: int = 1000, *args, **kwargs):
         weights, path, num_classes = self.parse_weights(weights, num_classes)
         super().__init__(num_classes=num_classes, *args, **kwargs)
         if weights:
@@ -71,7 +76,7 @@ class ResNet18(ResNet):
         },
     })
     
-    def __init__(self, weights: str = "imagenet1k_v1", num_classes: int = 1000, *args, **kwargs):
+    def __init__(self, weights: Any = "imagenet1k_v1", num_classes: int = 1000, *args, **kwargs):
         super().__init__(
             block       = BasicBlock,
             layers      = [2, 2, 2, 2],
@@ -98,7 +103,7 @@ class ResNet34(ResNet):
         },
     })
     
-    def __init__(self, weights: str = "imagenet1k_v1", num_classes: int = 1000, *args, **kwargs):
+    def __init__(self, weights: Any = "imagenet1k_v1", num_classes: int = 1000, *args, **kwargs):
         super().__init__(
             block       = BasicBlock,
             layers      = [3, 4, 6, 3],
@@ -130,7 +135,7 @@ class ResNet50(ResNet):
         },
     })
     
-    def __init__(self, weights: str = "imagenet1k_v1", num_classes: int = 1000, *args, **kwargs):
+    def __init__(self, weights: Any = "imagenet1k_v1", num_classes: int = 1000, *args, **kwargs):
         super().__init__(
             block       = Bottleneck,
             layers      = [3, 4, 6, 3],
@@ -162,7 +167,7 @@ class ResNet101(ResNet):
         },
     })
     
-    def __init__(self, weights: str = "imagenet1k_v1", num_classes: int = 1000, *args, **kwargs):
+    def __init__(self, weights: Any = "imagenet1k_v1", num_classes: int = 1000, *args, **kwargs):
         super().__init__(
             block       = Bottleneck,
             layers      = [3, 4, 23, 3],
@@ -194,7 +199,7 @@ class ResNet152(ResNet):
         },
     })
     
-    def __init__(self, weights: str = "imagenet1k_v1", num_classes: int = 1000, *args, **kwargs):
+    def __init__(self, weights: Any = "imagenet1k_v1", num_classes: int = 1000, *args, **kwargs):
         super().__init__(
             block       = Bottleneck,
             layers      = [3, 8, 36, 3],
@@ -227,7 +232,7 @@ class ResNeXt50_32X4D(ResNet):
         },
     })
     
-    def __init__(self, weights: str = "imagenet1k_v1", num_classes: int = 1000, *args, **kwargs):
+    def __init__(self, weights: Any = "imagenet1k_v1", num_classes: int = 1000, *args, **kwargs):
         _ovewrite_named_param(kwargs, "groups", 32)
         _ovewrite_named_param(kwargs, "width_per_group", 4)
         super().__init__(
@@ -261,7 +266,7 @@ class ResNeXt101_32X8D(ResNet):
         },
     })
     
-    def __init__(self, weights: str = "imagenet1k_v1", num_classes: int = 1000, *args, **kwargs):
+    def __init__(self, weights: Any = "imagenet1k_v1", num_classes: int = 1000, *args, **kwargs):
         _ovewrite_named_param(kwargs, "groups", 32)
         _ovewrite_named_param(kwargs, "width_per_group", 8)
         super().__init__(
@@ -290,7 +295,7 @@ class ResNeXt101_64X4D(ResNet):
         },
     })
     
-    def __init__(self, weights: str = "imagenet1k_v1", num_classes: int = 1000, *args, **kwargs):
+    def __init__(self, weights: Any = "imagenet1k_v1", num_classes: int = 1000, *args, **kwargs):
         _ovewrite_named_param(kwargs, "groups", 64)
         _ovewrite_named_param(kwargs, "width_per_group", 4)
         super().__init__(
@@ -325,7 +330,7 @@ class WideResNet50_2(ResNet):
         },
     })
     
-    def __init__(self, weights: str = "imagenet1k_v1", num_classes: int = 1000, *args, **kwargs):
+    def __init__(self, weights: Any = "imagenet1k_v1", num_classes: int = 1000, *args, **kwargs):
         _ovewrite_named_param(kwargs, "width_per_group", 64 * 2)
         super().__init__(
             block       = Bottleneck,
@@ -358,7 +363,7 @@ class WideResNet101_2(ResNet):
         },
     })
     
-    def __init__(self, weights: str = "imagenet1k_v1", num_classes: int = 1000, *args, **kwargs):
+    def __init__(self, weights: Any = "imagenet1k_v1", num_classes: int = 1000, *args, **kwargs):
         _ovewrite_named_param(kwargs, "width_per_group", 64 * 2)
         super().__init__(
             block       = Bottleneck,

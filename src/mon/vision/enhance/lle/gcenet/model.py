@@ -10,7 +10,9 @@ __all__ = [
 ]
 
 import copy
+from typing import Any
 
+import box
 import kornia.filters
 import torch
 
@@ -110,7 +112,7 @@ class MobileOneConv(nn.Module):
         self,
         in_channels      : int,
         out_channels     : int,
-        inference_mode   : bool = False,
+        inference        : bool = False,
         use_se           : bool = False,
         use_act          : bool = True,
         num_conv_branches: int  = 1,
@@ -123,7 +125,7 @@ class MobileOneConv(nn.Module):
             stride            = 1,
             padding           = 1,
             groups            = in_channels,
-            inference_mode    = inference_mode,
+            inference         = inference,
             use_se            = use_se,
             use_act           = use_act,
             num_conv_branches = num_conv_branches,
@@ -135,7 +137,7 @@ class MobileOneConv(nn.Module):
             stride            = 1,
             padding           = 0,
             groups            = 1,
-            inference_mode    = inference_mode,
+            inference         = inference,
             use_se            = use_se,
             use_act           = use_act,
             num_conv_branches = num_conv_branches,
@@ -157,19 +159,20 @@ class GCENet(nn.Module, ModelMixin):
     tasks    : list[Task]   = [Task.LLE]
     mltypes  : list[MLType] = [MLType.UNSUPERVISED]
     model_dir: Path         = current_dir
-    zoo      : dict         = {}
+    zoo      : dict         = box.Box()
     
     def __init__(
         self,
-        iters         : int  = 8,
-        use_depth     : bool = False,
-        inference_mode: bool = False,
+        iters    : int  = 8,
+        use_depth: bool = False,
+        inference: bool = False,
+        weights  : Any  = None,
         *args, **kwargs
     ):
         super().__init__(*args, **kwargs)
-        self.iters          = iters
-        self.use_depth      = use_depth
-        self.inference_mode = inference_mode
+        self.iters     = iters
+        self.use_depth = use_depth
+        self.inference = inference
         
         in_channels   = 3
         in_channels_1 = 1
@@ -193,6 +196,9 @@ class GCENet(nn.Module, ModelMixin):
         self.gf       = I.FastGuidedFilter(kernel_size=7)
         self.bf       = kornia.filters.BilateralBlur((7, 7), 0.1, (1.5, 1.5))
         
+        # Load weights
+        self.load_weights(weights)
+        
     def forward(
         self,
         image: torch.Tensor,
@@ -200,7 +206,7 @@ class GCENet(nn.Module, ModelMixin):
         debug: bool = False,
     ) -> tuple[torch.Tensor, ...]:
         # Preprocess
-        if self.inference_mode:
+        if self.inference:
             x_lr = self.interpolate_image(image, 256)
             d_lr = self.interpolate_image(depth, 256) if depth is not None else None
         else:
@@ -220,7 +226,7 @@ class GCENet(nn.Module, ModelMixin):
         
         # Postprocess
         y_lr = self.bf(y_lr)
-        if self.inference_mode:
+        if self.inference:
             y = self.filter_up(x_lr, y_lr, image)
         else:
             y = y_lr
@@ -277,14 +283,15 @@ class GCENet_MO(nn.Module, ModelMixin):
         self,
         iters            : int  = 8,
         use_depth        : bool = False,
-        inference_mode   : bool = False,
+        inference        : bool = False,
         num_conv_branches: int  = 4,
+        weights          : Any  = None,
         *args, **kwargs
     ):
         super().__init__(*args, **kwargs)
-        self.iters          = iters
-        self.use_depth      = use_depth
-        self.inference_mode = inference_mode
+        self.iters     = iters
+        self.use_depth = use_depth
+        self.inference = inference
         
         in_channels   = 3
         in_channels_1 = 1
@@ -292,19 +299,22 @@ class GCENet_MO(nn.Module, ModelMixin):
         hidden_dim_x2 = hidden_dim * 2 if use_depth else hidden_dim
         hidden_dim_x3 = hidden_dim * 3 if use_depth else hidden_dim * 2
         out_channels  = 3
-        self.d_conv1  = MobileOneConv(in_channels_1, hidden_dim,   inference_mode,                num_conv_branches=num_conv_branches)
-        self.d_conv2  = MobileOneConv(hidden_dim,    hidden_dim,   inference_mode, use_se=True,   num_conv_branches=num_conv_branches)
-        self.d_conv3  = MobileOneConv(hidden_dim,    hidden_dim,   inference_mode, use_se=True,   num_conv_branches=num_conv_branches)
-        self.e_conv1  = MobileOneConv(in_channels,   hidden_dim,   inference_mode,                num_conv_branches=num_conv_branches)
-        self.e_conv2  = MobileOneConv(hidden_dim_x2, hidden_dim,   inference_mode, use_se=True,   num_conv_branches=num_conv_branches)
-        self.e_conv3  = MobileOneConv(hidden_dim_x2, hidden_dim,   inference_mode, use_se=True,   num_conv_branches=num_conv_branches)
-        self.e_conv4  = MobileOneConv(hidden_dim_x2, hidden_dim,   inference_mode, use_se=True,   num_conv_branches=num_conv_branches)
-        self.e_conv5  = MobileOneConv(hidden_dim_x3, hidden_dim,   inference_mode, use_se=True,   num_conv_branches=num_conv_branches)
-        self.e_conv6  = MobileOneConv(hidden_dim_x3, hidden_dim,   inference_mode, use_se=True,   num_conv_branches=num_conv_branches)
-        self.e_conv7  = MobileOneConv(hidden_dim_x3, out_channels, inference_mode, use_act=False, num_conv_branches=num_conv_branches)
+        self.d_conv1  = MobileOneConv(in_channels_1, hidden_dim, inference, num_conv_branches=num_conv_branches)
+        self.d_conv2  = MobileOneConv(hidden_dim, hidden_dim, inference, use_se=True, num_conv_branches=num_conv_branches)
+        self.d_conv3  = MobileOneConv(hidden_dim, hidden_dim, inference, use_se=True, num_conv_branches=num_conv_branches)
+        self.e_conv1  = MobileOneConv(in_channels, hidden_dim, inference, num_conv_branches=num_conv_branches)
+        self.e_conv2  = MobileOneConv(hidden_dim_x2, hidden_dim, inference, use_se=True, num_conv_branches=num_conv_branches)
+        self.e_conv3  = MobileOneConv(hidden_dim_x2, hidden_dim, inference, use_se=True, num_conv_branches=num_conv_branches)
+        self.e_conv4  = MobileOneConv(hidden_dim_x2, hidden_dim, inference, use_se=True, num_conv_branches=num_conv_branches)
+        self.e_conv5  = MobileOneConv(hidden_dim_x3, hidden_dim, inference, use_se=True, num_conv_branches=num_conv_branches)
+        self.e_conv6  = MobileOneConv(hidden_dim_x3, hidden_dim, inference, use_se=True, num_conv_branches=num_conv_branches)
+        self.e_conv7  = MobileOneConv(hidden_dim_x3, out_channels, inference, use_act=False, num_conv_branches=num_conv_branches)
         self.bam      = I.BrightnessAttentionMap(gamma=2.6, kernel_size=9)
         self.gf       = I.FastGuidedFilter(kernel_size=7)
         self.bf       = kornia.filters.BilateralBlur((7, 7), 0.1, (1.5, 1.5))
+        
+        # Load weights
+        self.load_weights(weights)
         
     def forward(
         self,
@@ -313,7 +323,7 @@ class GCENet_MO(nn.Module, ModelMixin):
         debug: bool = False,
     ) -> tuple[torch.Tensor, ...]:
         # Preprocess
-        if self.inference_mode:
+        if self.inference:
             x_lr = self.interpolate_image(image, 256)
             d_lr = self.interpolate_image(depth, 256) if depth is not None else None
         else:
@@ -330,10 +340,11 @@ class GCENet_MO(nn.Module, ModelMixin):
             b    = y_lr * (1 - bam)
             d    = y_lr * bam
             y_lr = b + d + r * (torch.pow(d, 2) - d)
+            # y_lr = y_lr + r * (torch.pow(d, 2) - d)
         
         # Postprocess
         y_lr = self.bf(y_lr)
-        if self.inference_mode:
+        if self.inference:
             y = self.filter_up(x_lr, y_lr, image)
         else:
             y = y_lr

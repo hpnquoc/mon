@@ -452,25 +452,25 @@ class L_enhance_net(nn.Module):
 class net(nn.Module):
     
     def __init__(self):
-        super(net, self).__init__()        
+        super().__init__()
         self.L_net = L_net(num=48)
         self.R_net = R_net(num=64)
         self.N_net = N_net(num=64)
-        self.illp = F_light_prior_estimater(n_fea_middle=64)
+        self.illp  = F_light_prior_estimater(n_fea_middle=64)
         #self.D_net = R_net(num=64)
         #self.D_net = D_net(in_ch=3, out_ch=3, base_ch=64, num_module=4)
         self.L_enhance_net = L_enhance_net(in_channel = 1, num = 32)
         #self.L_enhance = L_enhance_net_new(in_channel=1, num=32)
 
     def forward(self, input):
-        x = self.N_net(input)
+        x   = self.N_net(input)
         y,_ = self.illp(x)
-        L = self.L_net(x)
-        R = self.R_net(x,y)
-        #R2 = self.D_net(R1)
+        L   = self.L_net(x)
+        R   = self.R_net(x,y)
+        # R2 = self.D_net(R1)
         alpha = self.L_enhance_net(L)
-        #el = torch.pow(L,alpha)
-        I = torch.pow(L,alpha) * R
+        # el = torch.pow(L,alpha)
+        I   = torch.pow(L,alpha) * R
         """ if Training:
             noise_adder = AugmentNoise(style='poisson10')
             DI = noise_adder.add_train_noise(I)

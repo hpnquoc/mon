@@ -20,6 +20,7 @@ __all__ = [
     "SAVE_LABEL_DIR",
     "SAVE_VISUALIZE_DIR",
     "SAVE_WEIGHTS_EXT",
+    "VERBOSE",
     "ZOO_DIR",
 ]
 
@@ -57,3 +58,4 @@ SAVE_VISUALIZE_DIR = "visualize"
 SAVE_CKPT_EXT      = WeightExtension.CKPT.value
 SAVE_IMAGE_EXT     = ImageExtension.JPG.value
 SAVE_WEIGHTS_EXT   = WeightExtension.PT.value
+VERBOSE            = True  # Global verbosity flag for internal logging

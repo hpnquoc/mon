@@ -16,7 +16,7 @@ import box
 
 from mon.constants import MODELS
 from mon.core import MLType, ModelMixin, Path, Task
-from .darkir import archs
+from .src import archs
 
 current_file = Path(__file__).absolute()
 current_dir  = current_file.parents[0]

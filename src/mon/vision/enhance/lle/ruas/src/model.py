@@ -148,7 +148,7 @@ class DenoiseNetwork(nn.Module):
 class Network(nn.Module):
     
     def __init__(self):
-        super(Network, self).__init__()
+        super().__init__()
 
         self.iem_nums = 3
         self.nrm_nums = 3
@@ -183,7 +183,6 @@ class Network(nn.Module):
             momentum     = 0.9,
             weight_decay = 3e-4
         )
-
         self.denoise_optimizer = torch.optim.SGD(
             self.denoise_net.parameters(),
             lr           = 0.001,

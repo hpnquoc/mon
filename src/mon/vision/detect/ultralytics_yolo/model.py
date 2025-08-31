@@ -43,6 +43,8 @@ __all__ = [
     "YOLOv12x",
 ]
 
+from typing import Any
+
 import box
 
 from mon.constants import MODELS, ZOO_DIR
@@ -68,7 +70,7 @@ class YOLOv11(YOLO, ModelMixin):
     model_dir: Path         = current_dir
     zoo      : dict         = box.Box()
     
-    def __init__(self, weights: str = "coco80", *args, **kwargs):
+    def __init__(self, weights: Any = "coco80", *args, **kwargs):
         weights, path, num_classes = self.parse_weights(weights)
         super().__init__(model=path, *args, **kwargs)
         
@@ -163,7 +165,7 @@ class YOLOv11_OBB(YOLO, ModelMixin):
     model_dir: Path         = current_dir
     zoo      : dict         = box.Box()
     
-    def __init__(self, weights: str = "coco80", *args, **kwargs):
+    def __init__(self, weights: Any = "coco80", *args, **kwargs):
         weights, path, num_classes = self.parse_weights(weights)
         super().__init__(model=path, *args, **kwargs)
         
@@ -248,7 +250,7 @@ class YOLOv11_SEG(YOLO, ModelMixin):
     model_dir: Path         = current_dir
     zoo      : dict         = box.Box()
     
-    def __init__(self, weights: str = "coco80", *args, **kwargs):
+    def __init__(self, weights: Any = "coco80", *args, **kwargs):
         weights, path, num_classes = self.parse_weights(weights)
         super().__init__(model=path, *args, **kwargs)
         
@@ -333,7 +335,7 @@ class YOLOv11_CLS(YOLO, ModelMixin):
     model_dir: Path         = current_dir
     zoo      : dict         = box.Box()
     
-    def __init__(self, weights: str = "imagenet", *args, **kwargs):
+    def __init__(self, weights: Any = "imagenet", *args, **kwargs):
         weights, path, num_classes = self.parse_weights(weights)
         super().__init__(model=path, *args, **kwargs)
         
@@ -418,7 +420,7 @@ class YOLOv11_POSE(YOLO, ModelMixin):
     model_dir: Path         = current_dir
     zoo      : dict         = box.Box()
     
-    def __init__(self, weights: str = "coco1", *args, **kwargs):
+    def __init__(self, weights: Any = "coco1", *args, **kwargs):
         weights, path, num_classes = self.parse_weights(weights)
         super().__init__(model=path, *args, **kwargs)
         
@@ -503,7 +505,7 @@ class YOLOv12(YOLO, ModelMixin):
     model_dir: Path         = current_dir
     zoo      : dict         = box.Box()
     
-    def __init__(self, weights: str = "coco80", *args, **kwargs):
+    def __init__(self, weights: Any = "coco80", *args, **kwargs):
         weights, path, num_classes = self.parse_weights(weights)
         super().__init__(model=path, *args, **kwargs)
         

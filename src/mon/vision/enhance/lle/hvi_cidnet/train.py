@@ -69,9 +69,9 @@ def train(args: dict | box.Box) -> str:
         mon.log(f"Pretrained: {None}, training from scratch.")
 
     # Model
-    model = hvi_cidnet.HVI_CIDNet()
-    if pretrained and pretrained.is_weights_file():
-        model.load_state_dict(torch.load(pretrained, map_location=lambda storage, loc: storage))
+    model = hvi_cidnet.HVI_CIDNet(weights=pretrained)
+    # if pretrained and pretrained.is_weights_file():
+    #     model.load_state_dict(torch.load(pretrained, map_location=lambda storage, loc: storage))
     model = model.to(device)
 
     # Optimizer

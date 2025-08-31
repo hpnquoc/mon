@@ -19,6 +19,7 @@ __all__ = [
 
 import abc
 import copy
+from typing import Any
 
 import box
 import torch
@@ -38,7 +39,7 @@ class MobileOne(nn.Module, nn.ModelMixin, abc.ABC):
         num_classes: Number of output classes. Default: ``1000``.
         num_blocks_per_stage: List of number of blocks per stage.
         width_multipliers: List of width multiplier for blocks in a stage.
-        inference_mode: If True, instantiates model in inference mode.
+        inference: If True, instantiates model in inference mode.
         use_se: Whether to use SE-ReLU activations.
         num_conv_branches: Number of linear conv branches.
     
@@ -59,19 +60,19 @@ class MobileOne(nn.Module, nn.ModelMixin, abc.ABC):
         num_classes         : int   = 1000,
         num_blocks_per_stage: tuple = (2, 8, 10, 1),
         width_multipliers   : tuple = None,
-        inference_mode      : bool  = False,
+        inference           : bool  = False,
         use_se              : bool  = False,
         num_conv_branches   : int   = 1
     ):
         super().__init__()
         assert len(width_multipliers) == 4
-        self.inference_mode    = inference_mode
+        self.inference         = inference
         self.in_planes         = min(64, int(64 * width_multipliers[0]))
         self.use_se            = use_se
         self.num_conv_branches = num_conv_branches
         
         # Build stages
-        self.stage0 = nn.MobileOneBlock(3, self.in_planes, 3, 2, 1, inference_mode=self.inference_mode)
+        self.stage0 = nn.MobileOneBlock(3, self.in_planes, 3, 2, 1, inference=self.inference)
         self.cur_layer_idx = 1
         self.stage1 = self._make_stage(int(64  * width_multipliers[0]), num_blocks_per_stage[0], num_se_blocks=0)
         self.stage2 = self._make_stage(int(128 * width_multipliers[1]), num_blocks_per_stage[1], num_se_blocks=0)
@@ -99,7 +100,7 @@ class MobileOne(nn.Module, nn.ModelMixin, abc.ABC):
                 stride            = stride,
                 padding           = 1,
                 groups            = self.in_planes,
-                inference_mode    = self.inference_mode,
+                inference= self.inference,
                 use_se            = use_se,
                 num_conv_branches = self.num_conv_branches
             ))
@@ -111,7 +112,7 @@ class MobileOne(nn.Module, nn.ModelMixin, abc.ABC):
                 stride            = 1,
                 padding           = 0,
                 groups            = 1,
-                inference_mode    = self.inference_mode,
+                inference= self.inference,
                 use_se            = use_se,
                 num_conv_branches = self.num_conv_branches
             ))
@@ -174,7 +175,7 @@ class MobileOneS1(MobileOne, ModelMixin):
     
     def __init__(
         self,
-        weights    : str = "imagenet1k_v1",
+        weights    : Any = "imagenet1k_v1",
         num_classes: int = 1000,
         *args, **kwargs
     ):
@@ -202,7 +203,7 @@ class MobileOneS2(MobileOne, ModelMixin):
     
     def __init__(
         self,
-        weights    : str = "imagenet1k_v1",
+        weights    : Any = "imagenet1k_v1",
         num_classes: int = 1000,
         *args, **kwargs
     ):
@@ -230,7 +231,7 @@ class MobileOneS3(MobileOne, ModelMixin):
     
     def __init__(
         self,
-        weights    : str = "imagenet1k_v1",
+        weights    : Any = "imagenet1k_v1",
         num_classes: int = 1000,
         *args, **kwargs
     ):
@@ -258,7 +259,7 @@ class MobileOneS4(MobileOne, ModelMixin):
     
     def __init__(
         self,
-        weights    : str = "imagenet1k_v1",
+        weights    : Any = "imagenet1k_v1",
         num_classes: int = 1000,
         *args, **kwargs
     ):

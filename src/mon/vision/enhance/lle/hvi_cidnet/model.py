@@ -14,7 +14,7 @@ __all__ = [
 
 import box
 
-from mon.constants import MODELS
+from mon.constants import MODELS, ZOO_DIR
 from mon.core import MLType, ModelMixin, Path, Task
 from .src.net.CIDNet import CIDNet
 
@@ -36,4 +36,40 @@ class HVI_CIDNet(CIDNet, ModelMixin):
     tasks    : list[Task]   = [Task.LLE]
     mltypes  : list[MLType] = [MLType.SUPERVISED]
     model_dir: Path         = current_dir
-    zoo      : dict         = box.Box()
+    zoo      : dict         = box.Box({
+        "lolblur"  : {
+            "url"        : None,
+            "path"       : ZOO_DIR / "vision/enhance/lle/hvi_cidnet/hvi_cidnet/lolblur/hvi_cidnet_lolblur.pth",
+            "num_classes": None,
+        },
+        "lolv1"    : {
+            "url"        : None,
+            "path"       : ZOO_DIR / "vision/enhance/lle/hvi_cidnet/hvi_cidnet/lolv1/hvi_cidnet_lolv1.pth",
+            "num_classes": None,
+        },
+        "lolv2real": {
+            "url"        : None,
+            "path"       : ZOO_DIR / "vision/enhance/lle/hvi_cidnet/hvi_cidnet/lolv2real/hvi_cidnet_lolv2real.pth",
+            "num_classes": None,
+        },
+        "lolv2syn" : {
+            "url"        : None,
+            "path"       : ZOO_DIR / "vision/enhance/lle/hvi_cidnet/hvi_cidnet/lolv2syn/hvi_cidnet_lolv2syn.pth",
+            "num_classes": None,
+        },
+        "sice"     : {
+            "url"        : None,
+            "path"       : ZOO_DIR / "vision/enhance/lle/hvi_cidnet/hvi_cidnet/sice/hvi_cidnet_sice.pth",
+            "num_classes": None,
+        },
+        "sidsony"  : {
+            "url"        : None,
+            "path"       : ZOO_DIR / "vision/enhance/lle/hvi_cidnet/hvi_cidnet/sidsony/hvi_cidnet_sidsony.pth",
+            "num_classes": None,
+        },
+    })
+    
+    def __init__(self, weights: any = None, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Load weights
+        self.load_weights(weights)

@@ -13,14 +13,14 @@ __all__ = [
 ]
 
 import os
-from typing import Union
+from typing import Any, Union
 
 import box
 import numpy as np
 from onnxruntime import InferenceSession
 
 from mon.constants import MODELS, ZOO_DIR
-from mon.core import MLType, Path, Task
+from mon.core import MLType, Path, Task, nn
 
 current_file = Path(__file__).absolute()
 current_dir  = current_file.parents[0]
@@ -31,7 +31,7 @@ def get_relative_path(root, *args):
 
 
 @MODELS.register(name="enlightengan", arch="enlightengan")
-class EnlightenOnnxModel:
+class EnlightenOnnxModel(nn.ModelMixin):
     """EnlightenGAN model for low-light image enhancement.
     
     References:
@@ -44,15 +44,22 @@ class EnlightenOnnxModel:
     tasks    : list[Task]   = [Task.LLE]
     mltypes  : list[MLType] = [MLType.SUPERVISED]
     model_dir: Path         = current_dir
-    zoo      : dict         = box.Box()
+    zoo      : dict         = box.Box({
+        "custom": {
+            "url"        : None,
+            "path"       : ZOO_DIR / "vision/enhance/lle/enlightengan/enlightengan/custom/enlightengan.onnx",
+            "num_classes": None,
+        },
+    })
     
     def __init__(
         self,
         model  : Union[bytes, str, None] = None,
-        weights: Path = ZOO_DIR / "vision/enhance/lle/enlightengan/enlightengan/custom/enlightengan.onnx",
+        weights: Any = "custom",
     ):
+        _, path, _   = self.parse_weights(weights, None)
         self.model   = model
-        self.weights = Path(weights)
+        self.weights = Path(path)
         self.graph   = None
     
     def initialize(self):

@@ -13,6 +13,7 @@ __all__ = [
 ]
 
 import abc
+from typing import Any
 
 import box
 from torchvision import models as tvm
@@ -40,7 +41,7 @@ class MobileNetV3(tvm.MobileNetV3, ModelMixin, abc.ABC):
     model_dir: Path         = current_dir
     zoo      : dict         = box.Box()
     
-    def __init__(self, weights: str = "imagenet1k_v1", num_classes: int = 1000, *args, **kwargs):
+    def __init__(self, weights: Any = "imagenet1k_v1", num_classes: int = 1000, *args, **kwargs):
         weights, path, num_classes = self.parse_weights(weights, num_classes)
         super().__init__(num_classes=num_classes, *args, **kwargs)
         if weights:
@@ -64,7 +65,7 @@ class MobileNetV3Large(MobileNetV3):
         },
     })
     
-    def __init__(self, weights: str = "imagenet1k_v1", num_classes: int = 1000, *args, **kwargs):
+    def __init__(self, weights: Any = "imagenet1k_v1", num_classes: int = 1000, *args, **kwargs):
         inverted_residual_setting, last_channel = _mobilenet_v3_conf("mobilenet_v3_large", **kwargs)
         super().__init__(
             inverted_residual_setting = inverted_residual_setting,
@@ -93,7 +94,7 @@ class MobileNetV3Small(MobileNetV3):
         },
     })
     
-    def __init__(self, weights: str = "imagenet1k_v1", num_classes: int = 1000, *args, **kwargs):
+    def __init__(self, weights: Any = "imagenet1k_v1", num_classes: int = 1000, *args, **kwargs):
         inverted_residual_setting, last_channel = _mobilenet_v3_conf("mobilenet_v3_small", **kwargs)
         super().__init__(
             inverted_residual_setting = inverted_residual_setting,

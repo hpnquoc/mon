@@ -13,6 +13,8 @@ __all__ = [
     "Retinexformer",
 ]
 
+from typing import Any
+
 import box
 
 from mon.constants import MODELS

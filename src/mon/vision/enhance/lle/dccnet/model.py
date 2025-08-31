@@ -12,10 +12,12 @@ __all__ = [
     "DCCNet",
 ]
 
+from typing import Any
+
 import box
 import torch
 
-from mon.constants import MODELS
+from mon.constants import MODELS, ZOO_DIR
 from mon.core import MLType, ModelMixin, nn, Path, Task
 
 current_file = Path(__file__).absolute()
@@ -24,7 +26,7 @@ current_dir  = current_file.parents[0]
 
 # ----- Module -----
 class pce(nn.Module):
-    # parmid color embedding
+    # Pyramid color embedding
 
     def __init__(self):
         super(pce, self).__init__()
@@ -340,13 +342,22 @@ class DCCNet(nn.Module, ModelMixin):
     tasks    : list[Task]   = [Task.LLE]
     mltypes  : list[MLType] = [MLType.SUPERVISED]
     model_dir: Path         = current_dir
-    zoo      : dict         = box.Box()
+    zoo      : dict         = box.Box({
+        "lolv1": {
+            "url"        : None,
+            "path"       : ZOO_DIR / "vision/enhance/lle/dccnet/dccnet/lolv1/dccnet_lolv1.pth",
+            "num_classes": None,
+        },
+    })
     
-    def __init__(self, d_hist: int = 64):
+    def __init__(self, d_hist: int = 64, weights: Any = None):
         super().__init__()
         self.g_net = g_net()
         self.c_net = c_net(d_hist)
         self.r_net = r_net()
+        
+        # Load weights
+        self.load_weights(weights)
         
     def forward(self, image: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
         gray     = self.g_net(image)

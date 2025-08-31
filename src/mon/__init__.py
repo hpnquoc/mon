@@ -20,7 +20,7 @@ console.log(f"`mon` loaded in: {__end - __start:.4f} seconds.")
 
 
 # Import development packages
-def dev(verbose: bool = False):
+def dev(verbose: bool = True):
     start = time.time()
     
     import mon.datasets  # Register datasets

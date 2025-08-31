@@ -12,6 +12,8 @@ from typing import Any, Union
 import box
 import torch
 
+from mon.constants import VERBOSE
+from mon.core.console import log
 from mon.core.enum import MLType, Task
 from mon.core.pathlib import download_url_to_file, Path
 
@@ -67,3 +69,23 @@ class ModelMixin:
             weights = None
         
         return weights, path, num_classes
+    
+    def load_weights(self, weights: Any, strict: bool = True, verbose: bool = VERBOSE):
+        """Loads weights into the model.
+        
+        Args:
+            weights: Weights as a ``dict``, ``str``, or ``Path`` to load.
+            strict: Whether to strictly enforce that the keys in ``state_dict``
+                match the keys returned by this module's ``state_dict`` function.
+                Default: ``True``.
+            verbose: Whether to print information about the loading process.
+                Default: ``True``.
+        
+        Raises:
+            ValueError: If the given weights path is invalid.
+        """
+        weights, path, _ = self.parse_weights(weights, None)
+        if weights:
+            self.load_state_dict(weights, strict=strict)
+            if verbose:
+                log(f"Loaded weights successfully from: {path}.")

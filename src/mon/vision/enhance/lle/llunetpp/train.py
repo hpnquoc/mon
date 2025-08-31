@@ -94,8 +94,7 @@ def train(args: dict | box.Box) -> str:
         mon.log(f"Pretrained: {None}, training from scratch.")
 
     # Model
-    model = llunetpp.LLUnetPP()
-    model.load_state_dict(torch.load(pretrained, weights_only=True))
+    model = llunetpp.LLUnetPP(weights=pretrained)
     model = model.to(device)
     model.train()
     

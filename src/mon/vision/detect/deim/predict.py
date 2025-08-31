@@ -114,7 +114,7 @@ def predict(args: dict | box.Box) -> str:
             labels = [l.cpu().numpy().astype(int)   for l in labels]  # batch_size = 1
             boxes  = [b.cpu().numpy().astype(float) for b in  boxes]  # batch_size = 1, XYWH format, change "deploy_out_fmt" in config file.
             timers.postprocess.tock()
-
+            
             # Save
             if args.save_result:
                 out_dir    = mon.rt.parse_output_dir(args.save_dir, data_name, mon.SAVE_LABEL_DIR, path, args.keep_subdirs, args.save_nearby)
@@ -124,7 +124,7 @@ def predict(args: dict | box.Box) -> str:
                     for j, img in enumerate(image):
                         ss = scores[j]
                         cs = labels[j][ss >= args.conf_thres]
-                        bs = boxes[j][ss >= args.conf_thres]
+                        bs =  boxes[j][ss >= args.conf_thres]
                         if len(bs) == 0:
                             continue
                         bs = mon.hbb.convert(bbox=bs, fmt=mon.BBoxFormat.VOC2YOLO, imgsz=(h0, w0))

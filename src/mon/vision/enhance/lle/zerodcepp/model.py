@@ -13,10 +13,12 @@ __all__ = [
     "ZeroDCEpp",
 ]
 
+from typing import Any
+
 import box
 import torch
 
-from mon.constants import MODELS
+from mon.constants import MODELS, ZOO_DIR
 from mon.core import MLType, ModelMixin, nn, Path, Task
 from mon.core.nn import functional as F
 
@@ -80,9 +82,15 @@ class ZeroDCEpp(nn.Module, ModelMixin):
     tasks    : list[Task]   = [Task.LLE]
     mltypes  : list[MLType] = [MLType.UNSUPERVISED]
     model_dir: Path         = current_dir
-    zoo      : dict         = box.Box()
+    zoo      : dict         = box.Box({
+        "siceme": {
+            "url"        : None,
+            "path"       : ZOO_DIR / "vision/enhance/lle/zerodce++/zerodce++/siceme/zerodce++_siceme.pth",
+            "num_classes": None,
+        },
+    })
     
-    def __init__(self, scale_factor: float = 1.0):
+    def __init__(self, scale_factor: float = 1.0, weights: Any = None):
         super().__init__()
         self.scale_factor = scale_factor
         
@@ -98,6 +106,9 @@ class ZeroDCEpp(nn.Module, ModelMixin):
         self.e_conv7  = DSConv(hidden_dim * 2, out_channels)
         self.relu     = nn.ReLU(inplace=True)
         self.upsample = nn.UpsamplingBilinear2d(scale_factor=self.scale_factor)
+        
+        # Load weights
+        self.load_weights(weights)
         
     def forward(self, image: torch.Tensor) -> tuple[torch.Tensor, ...]:
         if self.scale_factor == 1:

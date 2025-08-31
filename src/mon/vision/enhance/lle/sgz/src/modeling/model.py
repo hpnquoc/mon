@@ -53,13 +53,12 @@ class DSC(nn.Module):
 
 class enhance_net_nopool(nn.Module):
 
-    def __init__(self, scale_factor, conv_type='dsc'):
-        super(enhance_net_nopool, self).__init__()
-
-        self.relu = nn.ReLU(inplace=True)
+    def __init__(self, scale_factor, conv_type="dsc"):
+        super().__init__()
+        self.relu         = nn.ReLU(inplace=True)
         self.scale_factor = scale_factor
-        self.upsample = nn.UpsamplingBilinear2d(scale_factor=self.scale_factor)
-        number_f = 32
+        self.upsample     = nn.UpsamplingBilinear2d(scale_factor=self.scale_factor)
+        number_f          = 32
 
         # Define Conv type
         if conv_type == 'dsc':

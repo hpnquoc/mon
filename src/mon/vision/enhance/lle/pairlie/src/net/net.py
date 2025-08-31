@@ -81,7 +81,7 @@ class N_net(nn.Module):
 class net(nn.Module):
     
     def __init__(self):
-        super(net, self).__init__()        
+        super().__init__()
         self.L_net = L_net(num=64)
         self.R_net = R_net(num=64)
         self.N_net = N_net(num=64)        

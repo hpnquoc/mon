@@ -39,13 +39,13 @@ class UNetConvBlock(nn.Module):
 
 class NestedUNet(nn.Module):
     
-    def __init__(self, input_channels: int = 3, out_channels: int = 3):
+    def __init__(self, in_channels: int = 3, out_channels: int = 3):
         super().__init__()
         nb_filter    = [32, 64, 128, 256, 512]
         self.pool    = nn.MaxPool2d(2, 2)
         self.up      = nn.Upsample(scale_factor=2, mode="bilinear", align_corners=True)
 
-        self.conv0_0 = UNetConvBlock(input_channels, nb_filter[0])
+        self.conv0_0 = UNetConvBlock(in_channels,  nb_filter[0])
         self.conv1_0 = UNetConvBlock(nb_filter[0], nb_filter[1])
         self.conv2_0 = UNetConvBlock(nb_filter[1], nb_filter[2])
         self.conv3_0 = UNetConvBlock(nb_filter[2], nb_filter[3])

@@ -7,6 +7,8 @@ __all__ = [
     "AlexNet",
 ]
 
+from typing import Any
+
 import box
 from torchvision import models as tvm
 
@@ -41,7 +43,7 @@ class AlexNet(tvm.AlexNet, ModelMixin):
     
     def __init__(
         self,
-        weights    : str   = "imagenet1k_v1",
+        weights    : Any   = "imagenet1k_v1",
         num_classes: int   = 1000,
         dropout    : float = 0.5,
         *args, **kwargs

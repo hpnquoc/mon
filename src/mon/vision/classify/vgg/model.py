@@ -19,6 +19,7 @@ __all__ = [
 ]
 
 import abc
+from typing import Any
 
 import box
 from torchvision import models as tvm
@@ -45,7 +46,7 @@ class VGG(tvm.VGG, ModelMixin, abc.ABC):
     model_dir: Path         = current_dir
     zoo      : dict         = box.Box()
     
-    def __init__(self, weights: str = "imagenet1k_v1", num_classes: int = 1000, *args, **kwargs):
+    def __init__(self, weights: Any = "imagenet1k_v1", num_classes: int = 1000, *args, **kwargs):
         weights, path, num_classes = self.parse_weights(weights, num_classes)
         super().__init__(num_classes=num_classes, *args, **kwargs)
         if weights:
@@ -64,7 +65,7 @@ class VGG11(VGG):
         },
     })
     
-    def __init__(self, weights: str = "imagenet1k_v1", num_classes: int = 1000, *args, **kwargs):
+    def __init__(self, weights: Any = "imagenet1k_v1", num_classes: int = 1000, *args, **kwargs):
         super().__init__(
             features    = make_layers(cfgs["A"], batch_norm=False),
             weights     = weights,
@@ -85,7 +86,7 @@ class VGG13(VGG):
         },
     })
     
-    def __init__(self, weights: str = "imagenet1k_v1", num_classes: int = 1000, *args, **kwargs):
+    def __init__(self, weights: Any = "imagenet1k_v1", num_classes: int = 1000, *args, **kwargs):
         super().__init__(
             features    = make_layers(cfgs["B"], batch_norm=False),
             weights     = weights,
@@ -106,7 +107,7 @@ class VGG16(VGG):
         },
     })
     
-    def __init__(self, weights: str = "imagenet1k_v1", num_classes: int = 1000, *args, **kwargs):
+    def __init__(self, weights: Any = "imagenet1k_v1", num_classes: int = 1000, *args, **kwargs):
         super().__init__(
             features    = make_layers(cfgs["D"], batch_norm=False),
             weights     = weights,
@@ -127,7 +128,7 @@ class VGG19(VGG):
         },
     })
     
-    def __init__(self, weights: str = "imagenet1k_v1", num_classes: int = 1000, *args, **kwargs):
+    def __init__(self, weights: Any = "imagenet1k_v1", num_classes: int = 1000, *args, **kwargs):
         super().__init__(
             features    = make_layers(cfgs["E"], batch_norm=False),
             weights     = weights,
@@ -148,7 +149,7 @@ class VGG11_BN(VGG):
         },
     })
     
-    def __init__(self, weights: str = "imagenet1k_v1", num_classes: int = 1000, *args, **kwargs):
+    def __init__(self, weights: Any = "imagenet1k_v1", num_classes: int = 1000, *args, **kwargs):
         super().__init__(
             features    = make_layers(cfgs["A"], batch_norm=True),
             weights     = weights,
@@ -169,7 +170,7 @@ class VGG13_BN(VGG):
         },
     })
     
-    def __init__(self, weights: str = "imagenet1k_v1", num_classes: int = 1000, *args, **kwargs):
+    def __init__(self, weights: Any = "imagenet1k_v1", num_classes: int = 1000, *args, **kwargs):
         super().__init__(
             features    = make_layers(cfgs["B"], batch_norm=True),
             weights     = weights,
@@ -190,7 +191,7 @@ class VGG16_BN(VGG):
         },
     })
     
-    def __init__(self, weights: str = "imagenet1k_v1", num_classes: int = 1000, *args, **kwargs):
+    def __init__(self, weights: Any = "imagenet1k_v1", num_classes: int = 1000, *args, **kwargs):
         super().__init__(
             features    = make_layers(cfgs["D"], batch_norm=True),
             weights     = weights,
@@ -211,7 +212,7 @@ class VGG19_BN(VGG):
         },
     })
     
-    def __init__(self, weights: str = "imagenet1k_v1", num_classes: int = 1000, *args, **kwargs):
+    def __init__(self, weights: Any = "imagenet1k_v1", num_classes: int = 1000, *args, **kwargs):
         super().__init__(
             features    = make_layers(cfgs["E"], batch_norm=True),
             weights     = weights,

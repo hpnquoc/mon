@@ -59,9 +59,6 @@ def predict(args: dict | box.Box) -> str:
 
     # Model
     model = ruas.RUAS()
-    model.load_state_dict(torch.load(str(pretrained), weights_only=True))
-    for p in model.parameters():
-        p.requires_grad = False
     model = model.to(device)
     model.eval()
     

@@ -8,4 +8,8 @@ References:
     - Code: https://github.com/cidautai/DarkIR
 """
 
+__all__ = [
+    "DarkIR",
+]
+
 from .model import *

@@ -45,8 +45,7 @@ def predict(args: dict | box.Box) -> str:
         raise ValueError(f"Invalid weights file: {pretrained}.")
 
     # Model
-    model = li2025.Li2025()
-    model.load_state_dict(torch.load(pretrained, weights_only=True))
+    model = li2025.Li2025(weights=pretrained)
     model = model.to(device)
     model.eval()
     

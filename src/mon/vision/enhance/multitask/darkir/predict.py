@@ -14,7 +14,7 @@ import torch
 from ptflops import get_model_complexity_info
 
 import mon
-from darkir.archs import create_model
+from src.archs import create_model
 from mon import albumentations as A
 
 current_file = mon.Path(__file__).absolute()

@@ -23,6 +23,7 @@ __all__ = [
 
 import abc
 from functools import partial
+from typing import Any
 
 import box
 from torchvision import models as tvm
@@ -49,7 +50,7 @@ class EfficientNet(tvm.EfficientNet, ModelMixin, abc.ABC):
     model_dir: Path         = current_dir
     zoo      : dict         = box.Box()
     
-    def __init__(self, weights: str = "imagenet1k_v1", num_classes: int = 1000, *args, **kwargs):
+    def __init__(self, weights: Any = "imagenet1k_v1", num_classes: int = 1000, *args, **kwargs):
         weights, path, num_classes = self.parse_weights(weights, num_classes)
         super().__init__(num_classes=num_classes, *args, **kwargs)
         if weights:
@@ -68,7 +69,7 @@ class EfficientNet_B0(EfficientNet):
         },
     })
     
-    def __init__(self, weights: str = "imagenet1k_v1", num_classes: int = 1000, *args, **kwargs):
+    def __init__(self, weights: Any = "imagenet1k_v1", num_classes: int = 1000, *args, **kwargs):
         inverted_residual_setting, last_channel = _efficientnet_conf("efficientnet_b0", width_mult=1.0, depth_mult=1.0)
         dropout = kwargs.pop("dropout", 0.2)
         super().__init__(
@@ -98,7 +99,7 @@ class EfficientNet_B1(EfficientNet):
         },
     })
     
-    def __init__(self, weights: str = "imagenet1k_v1", num_classes: int = 1000, *args, **kwargs):
+    def __init__(self, weights: Any = "imagenet1k_v1", num_classes: int = 1000, *args, **kwargs):
         inverted_residual_setting, last_channel = _efficientnet_conf("efficientnet_b1", width_mult=1.0, depth_mult=1.1)
         dropout = kwargs.pop("dropout", 0.2)
         super().__init__(
@@ -123,7 +124,7 @@ class EfficientNet_B2(EfficientNet):
         },
     })
     
-    def __init__(self, weights: str = "imagenet1k_v1", num_classes: int = 1000, *args, **kwargs):
+    def __init__(self, weights: Any = "imagenet1k_v1", num_classes: int = 1000, *args, **kwargs):
         inverted_residual_setting, last_channel = _efficientnet_conf("efficientnet_b2", width_mult=1.1, depth_mult=1.2)
         dropout = kwargs.pop("dropout", 0.3)
         super().__init__(
@@ -148,7 +149,7 @@ class EfficientNet_B3(EfficientNet):
         },
     })
     
-    def __init__(self, weights: str = "imagenet1k_v1", num_classes: int = 1000, *args, **kwargs):
+    def __init__(self, weights: Any = "imagenet1k_v1", num_classes: int = 1000, *args, **kwargs):
         inverted_residual_setting, last_channel = _efficientnet_conf("efficientnet_b3", width_mult=1.2, depth_mult=1.4)
         dropout = kwargs.pop("dropout", 0.3)
         super().__init__(
@@ -173,7 +174,7 @@ class EfficientNet_B4(EfficientNet):
         },
     })
     
-    def __init__(self, weights: str = "imagenet1k_v1", num_classes: int = 1000, *args, **kwargs):
+    def __init__(self, weights: Any = "imagenet1k_v1", num_classes: int = 1000, *args, **kwargs):
         inverted_residual_setting, last_channel = _efficientnet_conf("efficientnet_b4", width_mult=1.4, depth_mult=1.8)
         dropout = kwargs.pop("dropout", 0.4)
         super().__init__(
@@ -198,7 +199,7 @@ class EfficientNet_B5(EfficientNet):
         },
     })
     
-    def __init__(self, weights: str = "imagenet1k_v1", num_classes: int = 1000, *args, **kwargs):
+    def __init__(self, weights: Any = "imagenet1k_v1", num_classes: int = 1000, *args, **kwargs):
         inverted_residual_setting, last_channel = _efficientnet_conf("efficientnet_b5", width_mult=1.6, depth_mult=2.2)
         dropout    = kwargs.pop("dropout", 0.4)
         norm_layer = partial(nn.BatchNorm2d, eps=0.001, momentum=0.01)
@@ -225,7 +226,7 @@ class EfficientNet_B6(EfficientNet):
         },
     })
     
-    def __init__(self, weights: str = "imagenet1k_v1", num_classes: int = 1000, *args, **kwargs):
+    def __init__(self, weights: Any = "imagenet1k_v1", num_classes: int = 1000, *args, **kwargs):
         inverted_residual_setting, last_channel = _efficientnet_conf("efficientnet_b6", width_mult=1.8, depth_mult=2.6)
         dropout    = kwargs.pop("dropout", 0.5)
         norm_layer = partial(nn.BatchNorm2d, eps=0.001, momentum=0.01)
@@ -252,7 +253,7 @@ class EfficientNet_B7(EfficientNet):
         },
     })
     
-    def __init__(self, weights: str = "imagenet1k_v1", num_classes: int = 1000, *args, **kwargs):
+    def __init__(self, weights: Any = "imagenet1k_v1", num_classes: int = 1000, *args, **kwargs):
         inverted_residual_setting, last_channel = _efficientnet_conf("efficientnet_b7", width_mult=2.0, depth_mult=3.1)
         dropout    = kwargs.pop("dropout", 0.5)
         norm_layer = partial(nn.BatchNorm2d, eps=0.001, momentum=0.01)
@@ -279,7 +280,7 @@ class EfficientNet_V2_S(EfficientNet):
         },
     })
     
-    def __init__(self, weights: str = "imagenet1k_v1", num_classes: int = 1000, *args, **kwargs):
+    def __init__(self, weights: Any = "imagenet1k_v1", num_classes: int = 1000, *args, **kwargs):
         inverted_residual_setting, last_channel = _efficientnet_conf("efficientnet_v2_s")
         dropout    = kwargs.pop("dropout", 0.2)
         norm_layer = partial(nn.BatchNorm2d, eps=1e-03)
@@ -306,7 +307,7 @@ class EfficientNet_V2_M(EfficientNet):
         },
     })
     
-    def __init__(self, weights: str = "imagenet1k_v1", num_classes: int = 1000, *args, **kwargs):
+    def __init__(self, weights: Any = "imagenet1k_v1", num_classes: int = 1000, *args, **kwargs):
         inverted_residual_setting, last_channel = _efficientnet_conf("efficientnet_v2_m")
         dropout    = kwargs.pop("dropout", 0.3)
         norm_layer = partial(nn.BatchNorm2d, eps=1e-03)
@@ -333,7 +334,7 @@ class EfficientNet_V2_L(EfficientNet):
         },
     })
     
-    def __init__(self, weights: str = "imagenet1k_v1", num_classes: int = 1000, *args, **kwargs):
+    def __init__(self, weights: Any = "imagenet1k_v1", num_classes: int = 1000, *args, **kwargs):
         inverted_residual_setting, last_channel = _efficientnet_conf("efficientnet_v2_l")
         dropout    = kwargs.pop("dropout", 0.4)
         norm_layer = partial(nn.BatchNorm2d, eps=1e-03)

@@ -128,16 +128,16 @@ class UnetTMO(nn.Module):
     
     def __init__(self):
         super().__init__()
+        base_number     = 16
         self.first_conv = MobileBottleneck(3, 3, 3, 1, 6, nl="LeRE")
-        base_number = 16
-        self.conv1 = MobileBottleneck(3, base_number, 3, 2, int(base_number * 1.5), False, "LeRE")
-        self.conv2 = MobileBottleneck(base_number, base_number, 3, 1, int(base_number * 1.5), False, "LeRE")
-        self.conv3 = MobileBottleneck(base_number, base_number * 2, 3, 2, base_number * 3, False, "LeRE")
-        self.conv5 = MobileBottleneck(base_number * 2, base_number * 2, 3, 1, base_number * 3, False, "LeRE")
-        self.conv6 = MobileBottleneck(base_number * 2, base_number, 3, 1, base_number * 3, False, "LeRE")
-        self.conv7 = MobileBottleneck(base_number * 2, base_number, 3, 1, base_number * 3, False, "LeRE")
-        self.conv8 = MobileBottleneck(base_number, 3, 3, 1, int(base_number * 1.5), False, "LeRE")
-        self.last_conv = MobileBottleneck(6, 3, 3, 1, 9, nl="LeRE")
+        self.conv1      = MobileBottleneck(3, base_number, 3, 2, int(base_number * 1.5), False, "LeRE")
+        self.conv2      = MobileBottleneck(base_number, base_number, 3, 1, int(base_number * 1.5), False, "LeRE")
+        self.conv3      = MobileBottleneck(base_number, base_number * 2, 3, 2, base_number * 3, False, "LeRE")
+        self.conv5      = MobileBottleneck(base_number * 2, base_number * 2, 3, 1, base_number * 3, False, "LeRE")
+        self.conv6      = MobileBottleneck(base_number * 2, base_number, 3, 1, base_number * 3, False, "LeRE")
+        self.conv7      = MobileBottleneck(base_number * 2, base_number, 3, 1, base_number * 3, False, "LeRE")
+        self.conv8      = MobileBottleneck(base_number, 3, 3, 1, int(base_number * 1.5), False, "LeRE")
+        self.last_conv  = MobileBottleneck(6, 3, 3, 1, 9, nl="LeRE")
 
     def forward(self, x):
         x_down = x

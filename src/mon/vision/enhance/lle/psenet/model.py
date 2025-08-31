@@ -13,6 +13,8 @@ __all__ = [
     "PSENet",
 ]
 
+from typing import Any
+
 import box
 
 from mon.constants import MODELS
@@ -21,6 +23,16 @@ from .src.model import UnetTMO
 
 current_file = Path(__file__).absolute()
 current_dir  = current_file.parents[0]
+
+
+def read_pytorch_lightning_state_dict(ckpt):
+    new_state_dict = {}
+    for k, v in ckpt["state_dict"].items():
+        if k.startswith("model."):
+            new_state_dict[k[len("model.") :]] = v
+        else:
+            new_state_dict[k] = v
+    return new_state_dict
 
 
 @MODELS.register(name="psenet", arch="psenet")
@@ -39,3 +51,10 @@ class PSENet(UnetTMO, ModelMixin):
     mltypes  : list[MLType] = [MLType.UNSUPERVISED]
     model_dir: Path         = current_dir
     zoo      : dict         = box.Box()
+    
+    def __init__(self, weights: Any = None):
+        super().__init__()
+        # Load weights
+        weights, _, _ = self.parse_weights(weights)
+        weights = read_pytorch_lightning_state_dict(weights)
+        self.load_weights(weights)

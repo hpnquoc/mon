@@ -11,6 +11,8 @@ __all__ = [
     "MobileNetV2",
 ]
 
+from typing import Any
+
 import box
 from torchvision import models as tvm
 
@@ -55,7 +57,7 @@ class MobileNetV2(tvm.MobileNetV2, ModelMixin):
     
     def __init__(
         self,
-        weights    : str   = "imagenet1k_v1",
+        weights    : Any   = "imagenet1k_v1",
         num_classes: int   = 1000,
         width_mult : float = 1.0,
         dropout    : float = 0.2,

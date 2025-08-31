@@ -143,12 +143,12 @@ class RetinexNet(nn.Module):
     model_dir: Path         = current_dir
     zoo      : dict         = box.Box()
     
-    def __init__(self, imgsz=512, benchmark=False):
+    def __init__(self, imgsz: int = 512, benchmark: bool = False):
         super().__init__()
         self.DecomNet   = DecomNet()
         self.RelightNet = RelightNet()
         if benchmark:
-            flops1, params1 = calculate_efficiency_score_decomnet(model=self.DecomNet, imgsz=imgsz)
+            flops1, params1 =   calculate_efficiency_score_decomnet(model=self.DecomNet,   imgsz=imgsz)
             flops2, params2 = calculate_efficiency_score_enhancenet(model=self.RelightNet, imgsz=imgsz)
             log(f"FLOPs  = {flops1  + flops2:.4f}")
             log(f"Params = {params1 + params2:.4f}")

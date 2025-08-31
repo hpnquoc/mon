@@ -18,6 +18,8 @@ __all__ = [
     "SAM_L",
 ]
 
+from typing import Any
+
 import box
 
 from mon.constants import MODELS, ZOO_DIR
@@ -43,7 +45,7 @@ class SAM(SAM_, ModelMixin):
     model_dir: Path         = current_dir
     zoo      : dict         = box.Box()
     
-    def __init__(self, weights: str = "sa1b", *args, **kwargs):
+    def __init__(self, weights: Any = "sa1b", *args, **kwargs):
         weights, path, num_classes = self.parse_weights(weights)
         super().__init__(model=path, *args, **kwargs)
 
@@ -83,7 +85,7 @@ class SAM2(SAM_, ModelMixin):
     name: str  = "sam2"
     zoo : dict = box.Box()
     
-    def __init__(self, weights: str = "sav", *args, **kwargs):
+    def __init__(self, weights: Any = "sav", *args, **kwargs):
         weights, path, num_classes = self.parse_weights(weights)
         super().__init__(model=path, *args, **kwargs)
 

@@ -7,22 +7,21 @@ from .transformer_utils import *
 
 class CIDNet(nn.Module, PyTorchModelHubMixin):
     
-    def __init__(self, 
-                 channels=[36, 36, 72, 144],
-                 heads=[1, 2, 4, 8],
-                 norm=False
-        ):
-        super(CIDNet, self).__init__()
-        
-        
-        [ch1, ch2, ch3, ch4] = channels
+    def __init__(
+        self,
+        channels = (36, 36, 72, 144),
+        heads    = (1, 2, 4, 8),
+        norm     = False
+    ):
+        super().__init__()
+        [  ch1,   ch2,   ch3,   ch4] = channels
         [head1, head2, head3, head4] = heads
         
         # HV_ways
         self.HVE_block0 = nn.Sequential(
             nn.ReplicationPad2d(1),
             nn.Conv2d(3, ch1, 3, stride=1, padding=0,bias=False)
-            )
+        )
         self.HVE_block1 = NormDownsample(ch1, ch2, use_norm = norm)
         self.HVE_block2 = NormDownsample(ch2, ch3, use_norm = norm)
         self.HVE_block3 = NormDownsample(ch3, ch4, use_norm = norm)

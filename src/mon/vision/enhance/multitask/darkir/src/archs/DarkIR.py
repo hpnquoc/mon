@@ -16,12 +16,12 @@ class DarkIR(nn.Module):
         width              = 32,
         middle_blk_num_enc = 2,
         middle_blk_num_dec = 2,
-        enc_blk_nums       = [1, 2, 3],
-        dec_blk_nums       = [3, 1, 1],
-        dilations          = [1, 4, 9],
+        enc_blk_nums       = (1, 2, 3),
+        dec_blk_nums       = (3, 1, 1),
+        dilations          = (1, 4, 9),
         extra_depth_wise   = True
     ):
-        super(DarkIR, self).__init__()
+        super().__init__()
         
         self.intro       = nn.Conv2d(in_channels=img_channel, out_channels=width, kernel_size=3, padding=1, stride=1, groups=1, bias=True)
         self.ending      = nn.Conv2d(in_channels=width, out_channels=img_channel, kernel_size=3, padding=1, stride=1, groups=1, bias=True)
@@ -114,37 +114,34 @@ class DarkIR(nn.Module):
 
 
 if __name__ == '__main__':
-    
-    img_channel = 3
-    width = 32
-    
-    enc_blks = [1, 2, 3]
+    img_channel        = 3
+    width              = 32
+    enc_blks           = [1, 2, 3]
     middle_blk_num_enc = 2
     middle_blk_num_dec = 2
-    dec_blks = [3, 1, 1]
-    residual_layers = None
-    dilations = [1, 4, 9]
-    extra_depth_wise = True
+    dec_blks           = [3, 1, 1]
+    residual_layers    = None
+    dilations          = [1, 4, 9]
+    extra_depth_wise   = True
     
-    net = DarkIR(img_channel=img_channel, 
-                  width=width, 
-                  middle_blk_num_enc=middle_blk_num_enc,
-                  middle_blk_num_dec= middle_blk_num_dec,
-                  enc_blk_nums=enc_blks, 
-                  dec_blk_nums=dec_blks,
-                  dilations = dilations,
-                  extra_depth_wise = extra_depth_wise)
+    net = DarkIR(
+        img_channel        = img_channel,
+        width              = width,
+        middle_blk_num_enc = middle_blk_num_enc,
+        middle_blk_num_dec = middle_blk_num_dec,
+        enc_blk_nums       = enc_blks,
+        dec_blk_nums       = dec_blks,
+        dilations          = dilations,
+        extra_depth_wise   = extra_depth_wise
+    )
     
     new_state_dict = net.state_dict()
-
     inp_shape = (3, 256, 256)
 
     net.load_state_dict(new_state_dict)
 
     from ptflops import get_model_complexity_info
-
     macs, params = get_model_complexity_info(net, inp_shape, verbose=False, print_per_layer_stat=False)
-
     print(macs, params)    
     
     weights = net.state_dict()

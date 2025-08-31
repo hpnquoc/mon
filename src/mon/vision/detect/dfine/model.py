@@ -13,8 +13,7 @@ __all__ = [
     "DFINE",
 ]
 
-# import os
-# import sys
+from typing import Any
 
 import box
 import torch
@@ -23,6 +22,9 @@ from mon.constants import MODELS
 from mon.core import MLType, ModelMixin, nn, Path, Task
 # sys.path.append(os.path.abspath(os.path.dirname(__file__)))
 from .src.core import YAMLConfig
+
+# import os
+# import sys
 
 current_file = Path(__file__).absolute()
 current_dir  = current_file.parents[0]
@@ -47,7 +49,7 @@ class DFINE(nn.Module, ModelMixin):
     def __init__(
         self,
         cfg        : str,
-        weights    : Path,
+        weights    : Any,
         root       : Path,
         device     : torch.device  = torch.device("cpu"),
         seed       : int           = 0,

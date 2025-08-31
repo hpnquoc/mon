@@ -45,10 +45,7 @@ def train(args: dict | box.Box) -> str:
         mon.log(f"Pretrained: {None}, training from scratch.")
 
     # Model
-    model = zerodce.ZeroDCE()
-    # model.apply(weights_init)
-    if pretrained and pretrained.is_weights_file(exist=True):
-        model.load_state_dict(torch.load(pretrained, weights_only=True))
+    model = zerodce.ZeroDCE(weights=pretrained)
     model = model.to(device)
     model.train()
     

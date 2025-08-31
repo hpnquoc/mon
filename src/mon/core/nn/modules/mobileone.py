@@ -52,7 +52,7 @@ class MobileOneBlock(nn.Module):
         padding: Zero-padding size.
         dilation: Kernel dilation factor.
         groups: Group number.
-        inference_mode: If True, instantiates model in inference mode.
+        inference: If True, instantiates model in inference mode.
         use_se: Whether to use SE-ReLU activations.
         num_conv_branches: Number of linear conv branches.
     """
@@ -66,13 +66,13 @@ class MobileOneBlock(nn.Module):
         padding          : int  = 0,
         dilation         : int  = 1,
         groups           : int  = 1,
-        inference_mode   : bool = False,
+        inference        : bool = False,
         use_se           : bool = False,
         use_act          : bool = True,
         num_conv_branches: int  = 1
     ):
         super().__init__()
-        self.inference_mode    = inference_mode
+        self.inference         = inference
         self.groups            = groups
         self.stride            = stride
         self.kernel_size       = kernel_size
@@ -91,7 +91,7 @@ class MobileOneBlock(nn.Module):
         else:
             self.activation = nn.Identity()
         
-        if inference_mode:
+        if inference:
             self.reparam_conv = nn.Conv2d(
                 in_channels  = in_channels,
                 out_channels = out_channels,
@@ -120,7 +120,7 @@ class MobileOneBlock(nn.Module):
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         # Inference mode forward pass.
-        if self.inference_mode:
+        if self.inference:
             return self.activation(self.se(self.reparam_conv(x)))
 
         # Multi-branched train-time forward pass.
@@ -147,7 +147,7 @@ class MobileOneBlock(nn.Module):
         architecture used at training time to obtain a plain CNN-like structure
         for inference.
         """
-        if self.inference_mode:
+        if self.inference:
             return
         kernel, bias = self._get_kernel_bias()
         self.reparam_conv = nn.Conv2d(
@@ -171,7 +171,7 @@ class MobileOneBlock(nn.Module):
         if hasattr(self, "rbr_skip"):
             self.__delattr__("rbr_skip")
 
-        self.inference_mode = True
+        self.inference = True
 
     def _get_kernel_bias(self) -> tuple[torch.Tensor, torch.Tensor]:
         """Method to obtain re-parameterized kernel and bias.

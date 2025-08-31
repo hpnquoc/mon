@@ -17,6 +17,7 @@ __all__ = [
 ]
 
 import abc
+from typing import Any
 
 import box
 from torchvision import models as tvm
@@ -43,7 +44,7 @@ class SwinTransformer(tvm.SwinTransformer, ModelMixin, abc.ABC):
     model_dir: Path         = current_dir
     zoo      : dict         = box.Box()
     
-    def __init__(self, weights: str = "imagenet1k_v1", num_classes: int = 1000, *args, **kwargs):
+    def __init__(self, weights: Any = "imagenet1k_v1", num_classes: int = 1000, *args, **kwargs):
         weights, path, num_classes = self.parse_weights(weights, num_classes)
         super().__init__(num_classes=num_classes, *args, **kwargs)
         if weights:
@@ -62,7 +63,7 @@ class Swin_T(SwinTransformer):
         },
     })
     
-    def __init__(self, weights: str = "imagenet1k_v1", num_classes: int = 1000, *args, **kwargs):
+    def __init__(self, weights: Any = "imagenet1k_v1", num_classes: int = 1000, *args, **kwargs):
         super().__init__(
             patch_size            = [4, 4],
             embed_dim             = 96,
@@ -88,7 +89,7 @@ class Swin_S(SwinTransformer):
         },
     })
     
-    def __init__(self, weights: str = "imagenet1k_v1", num_classes: int = 1000, *args, **kwargs):
+    def __init__(self, weights: Any = "imagenet1k_v1", num_classes: int = 1000, *args, **kwargs):
         super().__init__(
             patch_size            = [4, 4],
             embed_dim             = 96,
@@ -114,7 +115,7 @@ class Swin_B(SwinTransformer):
         },
     })
     
-    def __init__(self, weights: str = "imagenet1k_v1", num_classes: int = 1000, *args, **kwargs):
+    def __init__(self, weights: Any = "imagenet1k_v1", num_classes: int = 1000, *args, **kwargs):
         super().__init__(
             patch_size            = [4, 4],
             embed_dim             = 128,
@@ -140,7 +141,7 @@ class Swin_V2_T(SwinTransformer):
         },
     }
     
-    def __init__(self, weights: str = "imagenet1k_v1", num_classes: int = 1000, *args, **kwargs):
+    def __init__(self, weights: Any = "imagenet1k_v1", num_classes: int = 1000, *args, **kwargs):
         super().__init__(
             patch_size            = [4, 4],
             embed_dim             = 96,
@@ -168,7 +169,7 @@ class Swin_V2_S(SwinTransformer):
         },
     })
     
-    def __init__(self, weights: str = "imagenet1k_v1", num_classes: int = 1000, *args, **kwargs):
+    def __init__(self, weights: Any = "imagenet1k_v1", num_classes: int = 1000, *args, **kwargs):
         super().__init__(
             patch_size            = [4, 4],
             embed_dim             = 96,
@@ -196,7 +197,7 @@ class Swin_V2_B(SwinTransformer):
         },
     })
     
-    def __init__(self, weights: str = "imagenet1k_v1", num_classes: int = 1000, *args, **kwargs):
+    def __init__(self, weights: Any = "imagenet1k_v1", num_classes: int = 1000, *args, **kwargs):
         super().__init__(
             patch_size            = [4, 4],
             embed_dim             = 128,

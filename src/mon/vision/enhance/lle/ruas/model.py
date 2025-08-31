@@ -13,9 +13,11 @@ __all__ = [
     "RUAS",
 ]
 
+from typing import Any
+
 import box
 
-from mon.constants import MODELS
+from mon.constants import MODELS, ZOO_DIR
 from mon.core import MLType, ModelMixin, Path, Task
 from .src.model import Network
 
@@ -38,4 +40,25 @@ class RUAS(Network, ModelMixin):
     tasks    : list[Task]   = [Task.LLE]
     mltypes  : list[MLType] = [MLType.UNSUPERVISED]
     model_dir: Path         = current_dir
-    zoo      : dict         = box.Box()
+    zoo      : dict         = box.Box({
+        "darkface": {
+            "url"        : None,
+            "path"       : ZOO_DIR / "vision/enhance/lle/ruas/ruas/darkface/ruas_darkface.pt",
+            "num_classes": None,
+        },
+        "lolv1"   : {
+            "url"        : None,
+            "path"       : ZOO_DIR / "vision/enhance/lle/ruas/ruas/lolv1/ruas_lolv1.pt",
+            "num_classes": None,
+        },
+        "upe"     : {
+            "url"        : None,
+            "path"       : ZOO_DIR / "vision/enhance/lle/ruas/ruas/upe/ruas_upe.pt",
+            "num_classes": None,
+        },
+    })
+    
+    def __init__(self, weights: Any = None):
+        super().__init__()
+        # Load weights
+        self.load_weights(weights)

@@ -73,7 +73,7 @@ def predict(args: dict | box.Box) -> str:
         raise ValueError(f"Invalid weights file: {pretrained}.")
 
     # Model
-    model = sci.SCI(pretrained)
+    model = sci.SCI(weights=pretrained)
     model = model.to(device)
     model.eval()
     

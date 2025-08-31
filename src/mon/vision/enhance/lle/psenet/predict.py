@@ -23,16 +23,6 @@ current_file = mon.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 
 
-def read_pytorch_lightning_state_dict(ckpt):
-    new_state_dict = {}
-    for k, v in ckpt["state_dict"].items():
-        if k.startswith("model."):
-            new_state_dict[k[len("model.") :]] = v
-        else:
-            new_state_dict[k] = v
-    return new_state_dict
-
-
 # ----- Predict -----
 @torch.no_grad()
 def predict(args: dict | box.Box) -> str:
@@ -51,13 +41,11 @@ def predict(args: dict | box.Box) -> str:
         pretrained = args.weights
     if pretrained and pretrained.is_weights_file(exist=True):
         mon.log(f"Pretrained: {pretrained}.")
-        state_dict = read_pytorch_lightning_state_dict(torch.load(str(pretrained), weights_only=False))
     else:
         raise ValueError(f"Invalid weights file: {pretrained}.")
 
     # Model
-    model = psenet.PSENet()
-    model.load_state_dict(state_dict)
+    model = psenet.PSENet(weights=pretrained)
     model = model.to(device)
     model.eval()
     

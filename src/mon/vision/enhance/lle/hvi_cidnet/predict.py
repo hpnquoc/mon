@@ -45,8 +45,8 @@ def predict(args: dict | box.Box) -> str:
 
     # Model
     torch.set_grad_enabled(False)
-    model = hvi_cidnet.HVI_CIDNet()
-    model.load_state_dict(torch.load(pretrained, map_location=lambda storage, loc: storage))
+    model = hvi_cidnet.HVI_CIDNet(weights=pretrained)
+    # model.load_state_dict(torch.load(pretrained, map_location=lambda storage, loc: storage))
     model.trans.gated  = args["network"]["gated"]
     model.trans.gated2 = args["network"]["gated2"]
     model.trans.alpha  = args["network"]["alpha"]

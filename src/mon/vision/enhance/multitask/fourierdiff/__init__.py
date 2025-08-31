@@ -9,4 +9,8 @@ References:
     - Code: https://github.com/aipixel/FourierDiff
 """
 
+__all__ = [
+    "FourierDiff",
+]
+
 from .model import *

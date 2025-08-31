@@ -45,8 +45,7 @@ def predict(args: dict | box.Box) -> str:
         raise ValueError(f"Invalid weights file: {pretrained}.")
 
     # Model
-    model = pairlie.PairLIE()
-    model.load_state_dict(torch.load(pretrained, weights_only=True))
+    model = pairlie.PairLIE(weights=pretrained)
     model = model.to(device)
     model.eval()
     

@@ -13,9 +13,11 @@ __all__ = [
     "PairLIE",
 ]
 
+from typing import Any
+
 import box
 
-from mon.constants import MODELS
+from mon.constants import MODELS, ZOO_DIR
 from mon.core import MLType, ModelMixin, Path, Task
 from .src.net.net import net
 
@@ -38,4 +40,15 @@ class PairLIE(net, ModelMixin):
     tasks    : list[Task]   = [Task.LLE]
     mltypes  : list[MLType] = [MLType.UNSUPERVISED]
     model_dir: Path         = current_dir
-    zoo      : dict         = box.Box()
+    zoo      : dict         = box.Box({
+        "sice": {
+            "url"        : None,
+            "path"       : ZOO_DIR / "vision/enhance/lle/pairlie/pairlie/sice/pairlie_sice.pth",
+            "num_classes": None,
+        },
+    })
+    
+    def __init__(self, weights: Any = None):
+        super().__init__()
+        # Load weights
+        self.load_weights(weights)
