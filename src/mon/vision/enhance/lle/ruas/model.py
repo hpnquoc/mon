@@ -17,7 +17,7 @@ from typing import Any
 
 import box
 
-from mon.constants import MODELS, ZOO_DIR
+from mon.constants import MODELS, ROOT_DIR
 from mon.core import MLType, ModelMixin, Path, Task
 from .src.model import Network
 
@@ -43,17 +43,17 @@ class RUAS(Network, ModelMixin):
     zoo      : dict         = box.Box({
         "darkface": {
             "url"        : None,
-            "path"       : ZOO_DIR / "vision/enhance/lle/ruas/ruas/darkface/ruas_darkface.pt",
+            "path"       : ROOT_DIR / "zoo/vision/enhance/lle/ruas/ruas/darkface/ruas_darkface.pt",
             "num_classes": None,
         },
         "lolv1"   : {
             "url"        : None,
-            "path"       : ZOO_DIR / "vision/enhance/lle/ruas/ruas/lolv1/ruas_lolv1.pt",
+            "path"       : ROOT_DIR / "zoo/vision/enhance/lle/ruas/ruas/lolv1/ruas_lolv1.pt",
             "num_classes": None,
         },
         "upe"     : {
             "url"        : None,
-            "path"       : ZOO_DIR / "vision/enhance/lle/ruas/ruas/upe/ruas_upe.pt",
+            "path"       : ROOT_DIR / "zoo/vision/enhance/lle/ruas/ruas/upe/ruas_upe.pt",
             "num_classes": None,
         },
     })

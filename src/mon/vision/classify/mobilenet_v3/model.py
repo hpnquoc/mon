@@ -19,7 +19,7 @@ import box
 from torchvision import models as tvm
 from torchvision.models.mobilenetv3 import _mobilenet_v3_conf
 
-from mon.constants import MODELS, ZOO_DIR
+from mon.constants import MODELS, ROOT_DIR
 from mon.core import MLType, ModelMixin, Path, Task
 
 current_file = Path(__file__).absolute()
@@ -55,12 +55,12 @@ class MobileNetV3Large(MobileNetV3):
     zoo : dict = box.Box({
         "imagenet1k_v1": {
             "url"        : "https://download.pytorch.org/models/mobilenet_v3_large-8738ca79.pth",
-            "path"       : ZOO_DIR / "vision/classify/mobilenet/mobilenet_v3_large/imagenet1k_v1/mobilenet_v3_large_imagenet1k_v1.pth",
+            "path"       : ROOT_DIR / "zoo/vision/classify/mobilenet/mobilenet_v3_large/imagenet1k_v1/mobilenet_v3_large_imagenet1k_v1.pth",
             "num_classes": 1000,
         },
         "imagenet1k_v2": {
             "url"        : "https://download.pytorch.org/models/mobilenet_v3_large-5c1a4163.pth",
-            "path"       : ZOO_DIR / "vision/classify/mobilenet/mobilenet_v3_large/imagenet1k_v2/mobilenet_v3_large_imagenet1k_v2.pth",
+            "path"       : ROOT_DIR / "zoo/vision/classify/mobilenet/mobilenet_v3_large/imagenet1k_v2/mobilenet_v3_large_imagenet1k_v2.pth",
             "num_classes": 1000,
         },
     })
@@ -89,7 +89,7 @@ class MobileNetV3Small(MobileNetV3):
     zoo : dict = box.Box({
         "imagenet1k_v1": {
             "url"        : "https://download.pytorch.org/models/mobilenet_v3_small-047dcff4.pth",
-            "path"       : ZOO_DIR / "vision/classify/mobilenet/mobilenet_v3_small/imagenet1k_v1/mobilenet_v3_small_imagenet1k_v1.pth",
+            "path"       : ROOT_DIR / "zoo/vision/classify/mobilenet/mobilenet_v3_small/imagenet1k_v1/mobilenet_v3_small_imagenet1k_v1.pth",
             "num_classes": 1000,
         },
     })

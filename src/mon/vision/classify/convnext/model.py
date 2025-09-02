@@ -21,7 +21,7 @@ import box
 from torchvision import models as tvm
 from torchvision.models.convnext import CNBlockConfig
 
-from mon.constants import MODELS, ZOO_DIR
+from mon.constants import MODELS, ROOT_DIR
 from mon.core import MLType, ModelMixin, Path, Task
 
 current_file = Path(__file__).absolute()
@@ -56,7 +56,7 @@ class ConvNeXtBase(ConvNeXt):
     zoo : dict = box.Box({
         "imagenet1k_v1": {
             "url"        : "https://download.pytorch.org/models/convnext_base-6075fbad.pth",
-            "path"       : ZOO_DIR / "vision/classify/convnext/convnext_base/imagenet1k_v1/convnext_base_imagenet1k_v1.pth",
+            "path"       : ROOT_DIR / "zoo/vision/classify/convnext/convnext_base/imagenet1k_v1/convnext_base_imagenet1k_v1.pth",
             "num_classes": 1000,
         },
     })
@@ -85,7 +85,7 @@ class ConvNeXtTiny(ConvNeXt):
     zoo : dict = box.Box({
         "imagenet1k_v1": {
             "url"        : "https://download.pytorch.org/models/convnext_tiny-983f1562.pth",
-            "path"       : ZOO_DIR / "vision/classify/convnext/convnext_tiny/imagenet1k_v1/convnext_tiny_imagenet1k_v1.pth",
+            "path"       : ROOT_DIR / "zoo/vision/classify/convnext/convnext_tiny/imagenet1k_v1/convnext_tiny_imagenet1k_v1.pth",
             "num_classes": 1000,
         },
     })
@@ -119,7 +119,7 @@ class ConvNeXtSmall(ConvNeXt):
     zoo : dict = box.Box({
         "imagenet1k_v1": {
             "url"        : "https://download.pytorch.org/models/convnext_small-0c510722.pth",
-            "path"       : ZOO_DIR / "vision/classify/convnext/convnext_small/imagenet1k_v1/convnext_small_imagenet1k_v1.pth",
+            "path"       : ROOT_DIR / "zoo/vision/classify/convnext/convnext_small/imagenet1k_v1/convnext_small_imagenet1k_v1.pth",
             "num_classes": 1000,
         },
     })
@@ -153,7 +153,7 @@ class ConvNeXtLarge(ConvNeXt):
     zoo : dict = box.Box({
         "imagenet1k_v1": {
             "url"        : "https://download.pytorch.org/models/convnext_large-ea097f82.pth",
-            "path"       : ZOO_DIR / "vision/classify/convnext/convnext_large/imagenet1k_v1/convnext_large_imagenet1k_v1.pth",
+            "path"       : ROOT_DIR / "zoo/vision/classify/convnext/convnext_large/imagenet1k_v1/convnext_large_imagenet1k_v1.pth",
             "num_classes": 1000,
         },
     })

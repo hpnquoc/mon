@@ -3,20 +3,20 @@
 root        : ~                                                                 # Root directory of the current run.
 task        : &task "lle"                                                       # Task name (e.g., detect, segment, classify).
 mode        : &mode "train"                                                     # Mode name (e.g., train, val, test, predict, export).
-arch        : &arch "gcenet"                                                    # Model architecture or family (e.g., resnet).
-model       : &model "gcenet"                                                   # Model name (e.g., resnet50).
-data        : &data "tsdme"                                                     # Dataset name (e.g., cifar10) or directory (e.g., data/cifar10).
-fullname    : &fullname "gcenet_wd_siceme"                                      # Full name of the current run (e.g., resnet50_cifar10_01). If not set, it will be this file's name.
+arch        : &arch "mobileie"                                                  # Model architecture or family (e.g., resnet).
+model       : &model "mobileie_lle"                                             # Model name (e.g., resnet50).
+data        : &data "lolv2real"                                                 # Dataset name (e.g., cifar10) or directory (e.g., data/cifar10).
+fullname    : &fullname "mobileie_lle_lolv2real"                                # Full name of the current run (e.g., resnet50_cifar10_01). If not set, it will be this file's name.
 save_dir    : &save_dir ~                                                       # Saving directory. If not set, it will be `root/arch/model/data`.
-weights     : &weights "zoo/vision/enhance/lle/gcenet/gcenet/tsdme/gcenet_tsdme.pth"  # Path to the pretrained weights.
+weights     : &weights "zoo/vision/enhance/multitask/mobileie/mobileie_lle/lolv2real/mobileie_lle_lolv2real_slim.pt"  # Path to the pretrained weights.
 device      : &device 0                                                         # Running device (i.e., cuda:0 | cuda:0,1,2,3 | cpu).
 seed        : &seed 100                                                         # Random seed.
 imgsz       : &imgsz 256                                                        # Image size for the model.
 # Train
 resume      : &resume ~                                                         # Resume from interrupted training.
 tuning      : &tuning ~                                                         # Fine-tuning from a pretrained model.
-epochs      : &epochs 200                                                       # Training epochs.
-batch_size  : &batch_size 32                                                    # Batch size.
+epochs      : &epochs 2000                                                      # Training epochs.
+batch_size  : &batch_size 4                                                     # Batch size.
 torchrun    : False                                                             # If ``True``, use torch.distributed.run to run the training script.
 master_port : 7777                                                              # Master port for distributed training.
 master_addr : "localhost"                                                       # Master address for distributed training.
@@ -39,23 +39,23 @@ cfg         : ~                                                                 
 # ----- Model -----
 # Network
 network:                                                                        # Network architecture.
-  iters    : 8
-  use_depth: True
+  channels : 12
+  rep_scale: 4
 
 # Loss
 loss: ~                                                                         # Loss functions.
 
 # Optimizer
 optimizer:                                                                      # Optimizer.
-  lr          : 0.0001
-  weight_decay: 0.0001
+  lr          : 0.001
+  weight_decay: 0
 
 # ----- Data -----
 # Train
 train_dataloader:                                                               # Train dataloader.
   dataset:
     name      : *data                                                           # Data module name (e.g., cifar10).
-    root      : "data/tsd"                                                      # Root directory of the dataset.
+    root      : "data/lolv2"                                                    # Root directory of the dataset.
     split     : "train"                                                         # Dataset split (e.g., train, val, test).
     transform :
       transforms:
@@ -74,8 +74,8 @@ train_dataloader:                                                               
 # Val
 val_dataloader:                                                                 # Val dataloader.
   dataset:
-    name      : *data                                                           # Data module name (e.g., cifar10).
-    root      : "data/tsd"                                                      # Root directory of the dataset.
+    name      : "sice"                                                          # Data module name (e.g., cifar10).
+    root      : "data/lolv2"                                                    # Root directory of the dataset.
     split     : "test"                                                          # Dataset split (e.g., train, val, test).
     transform :
       transforms:
@@ -94,9 +94,10 @@ val_dataloader:                                                                 
 # ----- Trainer -----
 # Trainer
 trainer:
-  grad_clip_norm : 0.1
-  display_iter   : 10
-  checkpoint_iter: 10
+  warmup       : True
+  warmup_epochs: 10
+  lr_warmup    : 1e-6
+  save_every   : 20
 
 # ----- Deploy -----
 # Export

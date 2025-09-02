@@ -7,4 +7,5 @@ restoration models.
 
 from .darkir import *
 from .fourierdiff import *
+from .mobileie import *
 from .zerorestore import *

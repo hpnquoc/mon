@@ -5,12 +5,13 @@ from PIL import Image
 
 
 class LLEData(torch.utils.data.Dataset):
+    
     def __init__(self, opt, inp_path, gt_path=None):
         super(LLEData, self).__init__()
-        self.img_li = [path for path in os.listdir(inp_path)]
+        self.img_li   = [path for path in os.listdir(inp_path)]
         self.inp_path = inp_path
-        self.gt_path = gt_path
-        self.opt = opt
+        self.gt_path  = gt_path
+        self.opt      = opt
 
     def __getitem__(self, index):
         inp = Image.open(os.path.join(self.inp_path, self.img_li[index]))

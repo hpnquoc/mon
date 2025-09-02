@@ -11,12 +11,12 @@ save_dir    : &save_dir ~                                                       
 weights     : &weights "zoo/vision/enhance/lle/gcenet/gcenet/siceme/gcenet_siceme.pth"  # Path to the pretrained weights.
 device      : &device 0                                                         # Running device (i.e., cuda:0 | cuda:0,1,2,3 | cpu).
 seed        : &seed 100                                                         # Random seed.
-imgsz       : &imgsz 256                                                        # Image size for the model.
+imgsz       : &imgsz 512                                                        # Image size for the model.
 # Train
 resume      : &resume ~                                                         # Resume from interrupted training.
 tuning      : &tuning ~                                                         # Fine-tuning from a pretrained model.
-epochs      : &epochs 200                                                       # Training epochs.
-batch_size  : &batch_size 32                                                    # Batch size.
+epochs      : &epochs 100                                                       # Training epochs.
+batch_size  : &batch_size 8                                                     # Batch size.
 torchrun    : False                                                             # If ``True``, use torch.distributed.run to run the training script.
 master_port : 7777                                                              # Master port for distributed training.
 master_addr : "localhost"                                                       # Master address for distributed training.
@@ -39,11 +39,15 @@ cfg         : ~                                                                 
 # ----- Model -----
 # Network
 network:                                                                        # Network architecture.
-  iters    : 8
-  use_depth: False
+  iters: 8
 
 # Loss
-loss: ~                                                                         # Loss functions.
+loss:                                                                           # Loss functions.
+  L_tv_w    : 200
+  L_spa_w   : 1
+  L_col_w   : 5
+  L_exp_w   : 10
+  L_exp_mean: 0.5                                                               # Default is 0.6, but the author suggests 0.5 or 0.45
 
 # Optimizer
 optimizer:                                                                      # Optimizer.
@@ -86,7 +90,7 @@ val_dataloader:                                                                 
       keypoint_params: ~
       seed           : ~
     verbose   : *verbose                                                        # Verbosity.
-  batch_size : *batch_size                                                      # Batch size.
+  batch_size : 4                                                                # Batch size.
   shuffle    : False                                                            # If ``True``, shuffle the data.
   num_workers: 1                                                                # Number of workers for data loading.
   drop_last  : False                                                            # If ``True``, drop the last incomplete batch.
@@ -94,9 +98,7 @@ val_dataloader:                                                                 
 # ----- Trainer -----
 # Trainer
 trainer:
-  grad_clip_norm : 0.1
-  display_iter   : 10
-  checkpoint_iter: 10
+  grad_clip_norm: 0.1
 
 # ----- Deploy -----
 # Export

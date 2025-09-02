@@ -18,7 +18,7 @@ from typing import Any
 import box
 import torch
 
-from mon.constants import MODELS, ZOO_DIR
+from mon.constants import MODELS, ROOT_DIR
 from mon.core import MLType, ModelMixin, nn, Path, Task
 from mon.core.nn import functional as F
 
@@ -56,9 +56,7 @@ class DSConv(nn.Module):
             padding      = 0,
             groups       = 1
         )
-        #
-        self.depth_conv.apply(weights_init)
-        self.point_conv.apply(weights_init)
+        self.apply(weights_init)
     
     def forward(self, input: torch.Tensor) -> torch.Tensor:
         y = self.depth_conv(input)
@@ -85,7 +83,7 @@ class ZeroDCEpp(nn.Module, ModelMixin):
     zoo      : dict         = box.Box({
         "siceme": {
             "url"        : None,
-            "path"       : ZOO_DIR / "vision/enhance/lle/zerodce++/zerodce++/siceme/zerodce++_siceme.pth",
+            "path"       : ROOT_DIR / "zoo/vision/enhance/lle/zerodce++/zerodce++/siceme/zerodce++_siceme.pth",
             "num_classes": None,
         },
     })
@@ -116,13 +114,7 @@ class ZeroDCEpp(nn.Module, ModelMixin):
         else:
             x_down = F.interpolate(image, scale_factor=1 / self.scale_factor, mode="bilinear")
 
-        x1 = self.relu(self.e_conv1(x_down))
-        x2 = self.relu(self.e_conv2(x1))
-        x3 = self.relu(self.e_conv3(x2))
-        x4 = self.relu(self.e_conv4(x3))
-        x5 = self.relu(self.e_conv5(torch.cat([x3, x4], 1)))
-        x6 = self.relu(self.e_conv6(torch.cat([x2, x5], 1)))
-        r  =    F.tanh(self.e_conv7(torch.cat([x1, x6], 1)))
+        r  = self.learn_curve(x_down)
         
         if self.scale_factor == 1:
             r = r
@@ -131,6 +123,16 @@ class ZeroDCEpp(nn.Module, ModelMixin):
             
         y1, y2, y3, y4, y5, y6, y7, y8 = self.enhance(image, r)
         return r, y1, y2, y3, y4, y5, y6, y7, y8
+    
+    def learn_curve(self, x: torch.Tensor) -> torch.Tensor:
+        x1 = self.relu(self.e_conv1(x))
+        x2 = self.relu(self.e_conv2(x1))
+        x3 = self.relu(self.e_conv3(x2))
+        x4 = self.relu(self.e_conv4(x3))
+        x5 = self.relu(self.e_conv5(torch.cat([x3, x4], 1)))
+        x6 = self.relu(self.e_conv6(torch.cat([x2, x5], 1)))
+        r  =    F.tanh(self.e_conv7(torch.cat([x1, x6], 1)))
+        return r
     
     def enhance(self, image: torch.Tensor, r: torch.Tensor) -> tuple[torch.Tensor, ...]:
         y0 = image

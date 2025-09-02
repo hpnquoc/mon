@@ -18,7 +18,7 @@ from typing import Any
 import box
 import torch
 
-from mon.constants import MODELS, ZOO_DIR
+from mon.constants import MODELS, ROOT_DIR
 from mon.core import MLType, ModelMixin, nn, Path, Task
 from .src.model.utils import DropBlock, FST, FSTS, MBRConv1, MBRConv3, MBRConv5
 
@@ -44,12 +44,12 @@ class MobileIELLE(nn.Module, ModelMixin):
     zoo      : dict         = box.Box({
         "lolv1"    : {
             "url"        : None,
-            "path"       : ZOO_DIR / "vision/enhance/multitask/mobileie/mobileie/lolv1/mobileie_lolv1_slim.pkl",
+            "path"       : ROOT_DIR / "zoo/vision/enhance/multitask/mobileie/mobileie/lolv1/mobileie_lolv1_slim.pkl",
             "num_classes": None,
         },
         "lolv2real": {
             "url"        : None,
-            "path"       : ZOO_DIR / "vision/enhance/multitask/mobileie/mobileie/lolv2real/mobileie_lolv2real_slim.pkl",
+            "path"       : ROOT_DIR / "zoo/vision/enhance/multitask/mobileie/mobileie/lolv2real/mobileie_lolv2real_slim.pkl",
             "num_classes": None,
         },
     })
@@ -138,7 +138,7 @@ class MobileIELLE(nn.Module, ModelMixin):
         x4 = torch.mul(x2, x3) * x1
         return self.tail(x4)
 
-    def forward_warm(self, x: torch.Tensor) -> torch.Tensor:
+    def forward_warm(self, x: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
         x = self.drop(x)
         x = self.head(x)
         x = self.body(x)

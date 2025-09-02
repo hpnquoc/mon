@@ -17,7 +17,7 @@ from typing import Any
 
 import box
 
-from mon.constants import MODELS, ZOO_DIR
+from mon.constants import MODELS, ROOT_DIR
 from mon.core import MLType, ModelMixin, Path, Task
 from .src.modeling.model import enhance_net_nopool
 
@@ -43,7 +43,7 @@ class SGZ(enhance_net_nopool, ModelMixin):
     zoo      : dict         = box.Box({
         "lolv1": {
             "url"        : None,
-            "path"       : ZOO_DIR / "vision/enhance/lle/sgz/sgz/lolv1/sgz_lolv1.pt",
+            "path"       : ROOT_DIR / "zoo/vision/enhance/lle/sgz/sgz/lolv1/sgz_lolv1.pt",
             "num_classes": None,
         },
     })

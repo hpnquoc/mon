@@ -12,7 +12,7 @@ from typing import Any
 import box
 from torchvision import models as tvm
 
-from mon.constants import MODELS, ZOO_DIR
+from mon.constants import MODELS, ROOT_DIR
 from mon.core import MLType, ModelMixin, Path, Task
 
 current_file = Path(__file__).absolute()
@@ -36,7 +36,7 @@ class AlexNet(tvm.AlexNet, ModelMixin):
     zoo      : dict         = box.Box({
         "imagenet1k_v1": {
             "url"        : "https://download.pytorch.org/models/alexnet-owt-7be5be79.pth",
-            "path"       : ZOO_DIR / "vision/classify/alexnet/alexnet/imagenet1k_v1/alexnet_imagenet1k_v1.pth",
+            "path"       : ROOT_DIR / "zoo/vision/classify/alexnet/alexnet/imagenet1k_v1/alexnet_imagenet1k_v1.pth",
             "num_classes": 1000,
         },
     })

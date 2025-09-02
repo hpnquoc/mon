@@ -23,7 +23,7 @@ import box
 from torchvision import models as tvm
 from torchvision.models.swin_transformer import PatchMergingV2, SwinTransformerBlockV2
 
-from mon.constants import MODELS, ZOO_DIR
+from mon.constants import MODELS, ROOT_DIR
 from mon.core import MLType, ModelMixin, Path, Task
 
 current_file = Path(__file__).absolute()
@@ -58,7 +58,7 @@ class Swin_T(SwinTransformer):
     zoo : dict = box.Box({
         "imagenet1k_v1": {
             "url"        : "https://download.pytorch.org/models/swin_t-704ceda3.pth",
-            "path"       : ZOO_DIR / "vision/classify/swin/swin_t/imagenet1k_v1/swin_t_imagenet1k_v1.pth",
+            "path"       : ROOT_DIR / "zoo/vision/classify/swin/swin_t/imagenet1k_v1/swin_t_imagenet1k_v1.pth",
             "num_classes": 1000,
         },
     })
@@ -84,7 +84,7 @@ class Swin_S(SwinTransformer):
     zoo : dict = box.Box({
         "imagenet1k_v1": {
             "url"        : "https://download.pytorch.org/models/swin_s-5e29d889.pth",
-            "path"       : ZOO_DIR / "vision/classify/swin/swin_s/imagenet1k_v1/swin_s_imagenet1k_v1.pth",
+            "path"       : ROOT_DIR / "zoo/vision/classify/swin/swin_s/imagenet1k_v1/swin_s_imagenet1k_v1.pth",
             "num_classes": 1000,
         },
     })
@@ -110,7 +110,7 @@ class Swin_B(SwinTransformer):
     zoo : dict = box.Box({
         "imagenet1k_v1": {
             "url"        : "https://download.pytorch.org/models/swin_b-68c6b09e.pth",
-            "path"       : ZOO_DIR / "vision/classify/swin/swin_b/imagenet1k_v1/swin_b_imagenet1k_v1.pth",
+            "path"       : ROOT_DIR / "zoo/vision/classify/swin/swin_b/imagenet1k_v1/swin_b_imagenet1k_v1.pth",
             "num_classes": 1000,
         },
     })
@@ -136,7 +136,7 @@ class Swin_V2_T(SwinTransformer):
     zoo : dict = {
         "imagenet1k_v1": {
             "url"        : "https://download.pytorch.org/models/swin_v2_t-b137f0e2.pth",
-            "path"       : ZOO_DIR / "vision/classify/swin/swin_v2_t/imagenet1k_v1/swin_v2_t_imagenet1k_v1.pth",
+            "path"       : ROOT_DIR / "zoo/vision/classify/swin/swin_v2_t/imagenet1k_v1/swin_v2_t_imagenet1k_v1.pth",
             "num_classes": 1000,
         },
     }
@@ -164,7 +164,7 @@ class Swin_V2_S(SwinTransformer):
     zoo : dict = box.Box({
         "imagenet1k_v1": {
             "url"        : "https://download.pytorch.org/models/swin_v2_s-637d8ceb.pth",
-            "path"       : ZOO_DIR / "vision/classify/swin/swin_v2_s/imagenet1k_v1/swin_v2_s_imagenet1k_v1.pth",
+            "path"       : ROOT_DIR / "zoo/vision/classify/swin/swin_v2_s/imagenet1k_v1/swin_v2_s_imagenet1k_v1.pth",
             "num_classes": 1000,
         },
     })
@@ -192,7 +192,7 @@ class Swin_V2_B(SwinTransformer):
     zoo : dict = box.Box({
         "imagenet1k_v1": {
             "url"        : "https://download.pytorch.org/models/swin_v2_b-781e5279.pth",
-            "path"       : ZOO_DIR / "vision/classify/swin/swin_v2_b/imagenet1k_v1/swin_v2_b_imagenet1k_v1.pth",
+            "path"       : ROOT_DIR / "zoo/vision/classify/swin/swin_v2_b/imagenet1k_v1/swin_v2_b_imagenet1k_v1.pth",
             "num_classes": 1000,
         },
     })

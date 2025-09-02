@@ -17,7 +17,7 @@ from typing import Any
 import box
 import torch
 
-from mon.constants import MODELS, ZOO_DIR
+from mon.constants import MODELS, ROOT_DIR
 from mon.core import MLType, ModelMixin, nn, Path, Task
 
 current_file = Path(__file__).absolute()
@@ -345,7 +345,7 @@ class DCCNet(nn.Module, ModelMixin):
     zoo      : dict         = box.Box({
         "lolv1": {
             "url"        : None,
-            "path"       : ZOO_DIR / "vision/enhance/lle/dccnet/dccnet/lolv1/dccnet_lolv1.pth",
+            "path"       : ROOT_DIR / "zoo/vision/enhance/lle/dccnet/dccnet/lolv1/dccnet_lolv1.pth",
             "num_classes": None,
         },
     })

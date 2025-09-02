@@ -41,8 +41,8 @@ def reparameterize_model(model: nn.Module) -> nn.Module:
 class MobileOneBlock(nn.Module):
     """MobileOne building block.
 
-    This block has a multi-branched architecture at train-time and plain-CNN style
-    architecture at inference time.
+    This block has a multi-branched architecture at train-time and plain-CNN
+    style architecture at inference time.
     
     Args:
         in_channels: Number of channels in the input.
@@ -140,7 +140,7 @@ class MobileOneBlock(nn.Module):
             out += self.rbr_conv[ix](x)
 
         return self.activation(self.se(out))
-
+    
     def reparameterize(self):
         """Following works like `RepVGG: Making VGG-style ConvNets Great Again` -
         https://arxiv.org/pdf/2101.03697.pdf. We re-parameterize multi-branched

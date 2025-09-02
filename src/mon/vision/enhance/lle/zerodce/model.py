@@ -18,7 +18,7 @@ from typing import Any
 import box
 import torch
 
-from mon.constants import MODELS, ZOO_DIR
+from mon.constants import MODELS, ROOT_DIR
 from mon.core import MLType, ModelMixin, nn, Path, Task
 from mon.core.nn import functional as F
 
@@ -55,7 +55,7 @@ class ZeroDCE(nn.Module, ModelMixin):
     zoo      : dict         = box.Box({
         "siceme": {
             "url"        : None,
-            "path"       : ZOO_DIR / "vision/enhance/lle/zerodce/zerodce/siceme/zerodce_siceme.pth",
+            "path"       : ROOT_DIR / "zoo/vision/enhance/lle/zerodce/zerodce/siceme/zerodce_siceme.pth",
             "num_classes": None,
         },
     })

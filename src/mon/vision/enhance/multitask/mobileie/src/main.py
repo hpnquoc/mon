@@ -34,6 +34,7 @@ def train(opt, logger):
     print("Total number of parameters: ", num_params)
 
     net.train()
+    
     # Phase Warming-up
     if opt.config["train"]["warmup"]:
         logger.info("start warming-up")

@@ -17,7 +17,7 @@ from typing import Any
 
 import box
 
-from mon.constants import MODELS, ZOO_DIR
+from mon.constants import MODELS, ROOT_DIR
 from mon.core import MLType, ModelMixin, Path, Task
 from .src.net.net import net
 
@@ -43,7 +43,7 @@ class PairLIE(net, ModelMixin):
     zoo      : dict         = box.Box({
         "sice": {
             "url"        : None,
-            "path"       : ZOO_DIR / "vision/enhance/lle/pairlie/pairlie/sice/pairlie_sice.pth",
+            "path"       : ROOT_DIR / "zoo/vision/enhance/lle/pairlie/pairlie/sice/pairlie_sice.pth",
             "num_classes": None,
         },
     })

@@ -47,7 +47,7 @@ from typing import Any
 
 import box
 
-from mon.constants import MODELS, ZOO_DIR
+from mon.constants import MODELS, ROOT_DIR
 from mon.core import MLType, ModelMixin, Path, Task
 from ultralytics import YOLO
 
@@ -82,12 +82,12 @@ class YOLOv11n(YOLOv11, ModelMixin):
     zoo : dict = box.Box({
         "coco80": {
             "url"        : "",
-            "path"       : ZOO_DIR / "extra/ultralytics/yolov11/yolov11n/coco80/yolov11n_coco80.pt",
+            "path"       : ROOT_DIR / "zoo/extra/ultralytics/yolov11/yolov11n/coco80/yolov11n_coco80.pt",
             "num_classes": 80,
         },
         "widerface": {
             "url"        : "",
-            "path"       : ZOO_DIR / "extra/ultralytics/yolov11/yolov11n/widerface/yolov11n_widerface.pt",
+            "path"       : ROOT_DIR / "zoo/extra/ultralytics/yolov11/yolov11n/widerface/yolov11n_widerface.pt",
             "num_classes": 1,
         },
     })
@@ -100,12 +100,12 @@ class YOLOv11s(YOLOv11, ModelMixin):
     zoo : dict = box.Box({
         "coco80": {
             "url"        : "",
-            "path"       : ZOO_DIR / "extra/ultralytics/yolov11/yolov11s/coco80/yolov11s_coco80.pt",
+            "path"       : ROOT_DIR / "zoo/extra/ultralytics/yolov11/yolov11s/coco80/yolov11s_coco80.pt",
             "num_classes": 80,
         },
         "widerface": {
             "url"        : "",
-            "path"       : ZOO_DIR / "extra/ultralytics/yolov11/yolov11s/widerface/yolov11s_widerface.pt",
+            "path"       : ROOT_DIR / "zoo/extra/ultralytics/yolov11/yolov11s/widerface/yolov11s_widerface.pt",
             "num_classes": 1,
         },
     })
@@ -118,7 +118,7 @@ class YOLOv11m(YOLOv11, ModelMixin):
     zoo : dict = box.Box({
         "coco80": {
             "url"        : "",
-            "path"       : ZOO_DIR / "extra/ultralytics/yolov11/yolov11m/coco80/yolov11m_coco80.pt",
+            "path"       : ROOT_DIR / "zoo/extra/ultralytics/yolov11/yolov11m/coco80/yolov11m_coco80.pt",
             "num_classes": 80,
         },
     })
@@ -131,7 +131,7 @@ class YOLOv11l(YOLOv11, ModelMixin):
     zoo : dict = box.Box({
         "coco80": {
             "url"        : "",
-            "path"       : ZOO_DIR / "extra/ultralytics/yolov11/yolov11l/coco80/yolov11l_coco80.pt",
+            "path"       : ROOT_DIR / "zoo/extra/ultralytics/yolov11/yolov11l/coco80/yolov11l_coco80.pt",
             "num_classes": 80,
         },
     })
@@ -144,7 +144,7 @@ class YOLOv11x(YOLOv11, ModelMixin):
     zoo : dict = box.Box({
         "coco80": {
             "url"        : "",
-            "path"       : ZOO_DIR / "extra/ultralytics/yolov11/yolov11x/coco80/yolov11x_coco80.pt",
+            "path"       : ROOT_DIR / "zoo/extra/ultralytics/yolov11/yolov11x/coco80/yolov11x_coco80.pt",
             "num_classes": 80,
         },
     })
@@ -177,7 +177,7 @@ class YOLOv11n_OBB(YOLOv11_OBB, ModelMixin):
     zoo : dict = box.Box({
         "coco80": {
             "url"        : "",
-            "path"       : ZOO_DIR / "extra/ultralytics/yolov11/yolov11n_obb/dotav1/yolov11n_obb_dotav1.pt",
+            "path"       : ROOT_DIR / "zoo/extra/ultralytics/yolov11/yolov11n_obb/dotav1/yolov11n_obb_dotav1.pt",
             "num_classes": 15,
         },
     })
@@ -190,7 +190,7 @@ class YOLOv11s_OBB(YOLOv11_OBB, ModelMixin):
     zoo : dict = box.Box({
         "coco80": {
             "url"        : "",
-            "path"       : ZOO_DIR / "extra/ultralytics/yolov11/yolov11s_obb/dotav1/yolov11s_obb_dotav1.pt",
+            "path"       : ROOT_DIR / "zoo/extra/ultralytics/yolov11/yolov11s_obb/dotav1/yolov11s_obb_dotav1.pt",
             "num_classes": 15,
         },
     })
@@ -203,7 +203,7 @@ class YOLOv11m_OBB(YOLOv11_OBB, ModelMixin):
     zoo : dict = box.Box({
         "coco80": {
             "url"        : "",
-            "path"       : ZOO_DIR / "extra/ultralytics/yolov11/yolov11m_obb/dotav1/yolov11m_obb_dotav1.pt",
+            "path"       : ROOT_DIR / "zoo/extra/ultralytics/yolov11/yolov11m_obb/dotav1/yolov11m_obb_dotav1.pt",
             "num_classes": 15,
         },
     })
@@ -216,7 +216,7 @@ class YOLOv11l_OBB(YOLOv11_OBB, ModelMixin):
     zoo : dict = box.Box({
         "coco80": {
             "url"        : "",
-            "path"       : ZOO_DIR / "extra/ultralytics/yolov11/yolov11l_obb/dotav1/yolov11l_obb_dotav1.pt",
+            "path"       : ROOT_DIR / "zoo/extra/ultralytics/yolov11/yolov11l_obb/dotav1/yolov11l_obb_dotav1.pt",
             "num_classes": 15,
         },
     })
@@ -229,7 +229,7 @@ class YOLOv11x_OBB(YOLOv11_OBB, ModelMixin):
     zoo : dict = box.Box({
         "coco80": {
             "url"        : "",
-            "path"       : ZOO_DIR / "extra/ultralytics/yolov11/yolov11x_obb/dotav1/yolov11x_obb_dotav1.pt",
+            "path"       : ROOT_DIR / "zoo/extra/ultralytics/yolov11/yolov11x_obb/dotav1/yolov11x_obb_dotav1.pt",
             "num_classes": 15,
         },
     })
@@ -262,7 +262,7 @@ class YOLOv11n_SEG(YOLOv11_SEG, ModelMixin):
     zoo : dict = box.Box({
         "coco80": {
             "url"        : "",
-            "path"       : ZOO_DIR / "extra/ultralytics/yolov11/yolov11n_seg/coco80/yolov11n_seg_coco80.pt",
+            "path"       : ROOT_DIR / "zoo/extra/ultralytics/yolov11/yolov11n_seg/coco80/yolov11n_seg_coco80.pt",
             "num_classes": 80,
         },
     })
@@ -275,7 +275,7 @@ class YOLOv11s_SEG(YOLOv11_SEG, ModelMixin):
     zoo : dict = box.Box({
         "coco80": {
             "url"        : "",
-            "path"       : ZOO_DIR / "extra/ultralytics/yolov11/yolov11s_seg/coco80/yolov11s_seg_coco80.pt",
+            "path"       : ROOT_DIR / "zoo/extra/ultralytics/yolov11/yolov11s_seg/coco80/yolov11s_seg_coco80.pt",
             "num_classes": 80,
         },
     })
@@ -288,7 +288,7 @@ class YOLOv11m_SEG(YOLOv11_SEG, ModelMixin):
     zoo : dict = box.Box({
         "coco80": {
             "url"        : "",
-            "path"       : ZOO_DIR / "extra/ultralytics/yolov11/yolov11m_seg/coco80/yolov11m_seg_coco80.pt",
+            "path"       : ROOT_DIR / "zoo/extra/ultralytics/yolov11/yolov11m_seg/coco80/yolov11m_seg_coco80.pt",
             "num_classes": 80,
         },
     })
@@ -301,7 +301,7 @@ class YOLOv11l_SEG(YOLOv11_SEG, ModelMixin):
     zoo : dict = box.Box({
         "coco80": {
             "url"        : "",
-            "path"       : ZOO_DIR / "extra/ultralytics/yolov11/yolov11l_seg/coco80/yolov11l_seg_coco80.pt",
+            "path"       : ROOT_DIR / "zoo/extra/ultralytics/yolov11/yolov11l_seg/coco80/yolov11l_seg_coco80.pt",
             "num_classes": 80,
         },
     })
@@ -314,7 +314,7 @@ class YOLOv11x_SEG(YOLOv11_SEG, ModelMixin):
     zoo : dict = box.Box({
         "coco80": {
             "url"        : "",
-            "path"       : ZOO_DIR / "extra/ultralytics/yolov11/yolov11x_seg/coco80/yolov11x_seg_coco80.pt",
+            "path"       : ROOT_DIR / "zoo/extra/ultralytics/yolov11/yolov11x_seg/coco80/yolov11x_seg_coco80.pt",
             "num_classes": 80,
         },
     })
@@ -347,7 +347,7 @@ class YOLOv11n_CLS(YOLOv11_CLS, ModelMixin):
     zoo : dict = box.Box({
         "imagenet": {
             "url"        : "",
-            "path"       : ZOO_DIR / "extra/ultralytics/yolov11/yolov11n_cls/imagenet/yolov11n_cls_imagenet.pt",
+            "path"       : ROOT_DIR / "zoo/extra/ultralytics/yolov11/yolov11n_cls/imagenet/yolov11n_cls_imagenet.pt",
             "num_classes": 1000,
         },
     })
@@ -360,7 +360,7 @@ class YOLOv11s_CLS(YOLOv11_CLS, ModelMixin):
     zoo : dict = box.Box({
         "imagenet": {
             "url"        : "",
-            "path"       : ZOO_DIR / "extra/ultralytics/yolov11/yolov11s_cls/imagenet/yolov11s_cls_imagenet.pt",
+            "path"       : ROOT_DIR / "zoo/extra/ultralytics/yolov11/yolov11s_cls/imagenet/yolov11s_cls_imagenet.pt",
             "num_classes": 1000,
         },
     })
@@ -373,7 +373,7 @@ class YOLOv11m_CLS(YOLOv11_CLS, ModelMixin):
     zoo : dict = box.Box({
         "imagenet": {
             "url"        : "",
-            "path"       : ZOO_DIR / "extra/ultralytics/yolov11/yolov11m_cls/imagenet/yolov11m_cls_imagenet.pt",
+            "path"       : ROOT_DIR / "zoo/extra/ultralytics/yolov11/yolov11m_cls/imagenet/yolov11m_cls_imagenet.pt",
             "num_classes": 1000,
         },
     })
@@ -386,7 +386,7 @@ class YOLOv11l_CLS(YOLOv11_CLS, ModelMixin):
     zoo : dict = box.Box({
         "imagenet": {
             "url"        : "",
-            "path"       : ZOO_DIR / "extra/ultralytics/yolov11/yolov11l_cls/imagenet/yolov11l_cls_imagenet.pt",
+            "path"       : ROOT_DIR / "zoo/extra/ultralytics/yolov11/yolov11l_cls/imagenet/yolov11l_cls_imagenet.pt",
             "num_classes": 1000,
         },
     })
@@ -399,7 +399,7 @@ class YOLOv11x_CLS(YOLOv11_CLS, ModelMixin):
     zoo : dict = box.Box({
         "imagenet": {
             "url"        : "",
-            "path"       : ZOO_DIR / "extra/ultralytics/yolov11/yolov11x_cls/imagenet/yolov11x_cls_imagenet.pt",
+            "path"       : ROOT_DIR / "zoo/extra/ultralytics/yolov11/yolov11x_cls/imagenet/yolov11x_cls_imagenet.pt",
             "num_classes": 1000,
         },
     })
@@ -432,7 +432,7 @@ class YOLOv11n_POSE(YOLOv11_POSE, ModelMixin):
     zoo : dict = box.Box({
         "coco1": {
             "url"        : "",
-            "path"       : ZOO_DIR / "extra/ultralytics/yolov11/yolov11n_pose/coco1/yolov11n_pose_coco1.pt",
+            "path"       : ROOT_DIR / "zoo/extra/ultralytics/yolov11/yolov11n_pose/coco1/yolov11n_pose_coco1.pt",
             "num_classes": 1,
         },
     })
@@ -445,7 +445,7 @@ class YOLOv11s_POSE(YOLOv11_POSE, ModelMixin):
     zoo : dict = box.Box({
         "coco1": {
             "url"        : "",
-            "path"       : ZOO_DIR / "extra/ultralytics/yolov11/yolov11s_pose/coco1/yolov11s_pose_coco1.pt",
+            "path"       : ROOT_DIR / "zoo/extra/ultralytics/yolov11/yolov11s_pose/coco1/yolov11s_pose_coco1.pt",
             "num_classes": 1,
         },
     })
@@ -458,7 +458,7 @@ class YOLOv11m_POSE(YOLOv11_POSE, ModelMixin):
     zoo : dict = box.Box({
         "coco1": {
             "url"        : "",
-            "path"       : ZOO_DIR / "extra/ultralytics/yolov11/yolov11m_pose/coco1/yolov11m_pose_coco1.pt",
+            "path"       : ROOT_DIR / "zoo/extra/ultralytics/yolov11/yolov11m_pose/coco1/yolov11m_pose_coco1.pt",
             "num_classes": 1,
         },
     })
@@ -471,7 +471,7 @@ class YOLOv11l_POSE(YOLOv11_POSE, ModelMixin):
     zoo : dict = box.Box({
         "coco1": {
             "url"        : "",
-            "path"       : ZOO_DIR / "extra/ultralytics/yolov11/yolov11l_pose/coco1/yolov11l_pose_coco1.pt",
+            "path"       : ROOT_DIR / "zoo/extra/ultralytics/yolov11/yolov11l_pose/coco1/yolov11l_pose_coco1.pt",
             "num_classes": 1,
         },
     })
@@ -484,7 +484,7 @@ class YOLOv11x_POSE(YOLOv11_POSE, ModelMixin):
     zoo : dict = box.Box({
         "coco1": {
             "url"        : "",
-            "path"       : ZOO_DIR / "extra/ultralytics/yolov11/yolov11x_pose/coco1/yolov11x_pose_coco1.pt",
+            "path"       : ROOT_DIR / "zoo/extra/ultralytics/yolov11/yolov11x_pose/coco1/yolov11x_pose_coco1.pt",
             "num_classes": 1,
         },
     })
@@ -517,7 +517,7 @@ class YOLOv12n(YOLOv12, ModelMixin):
     zoo : dict = box.Box({
         "coco80": {
             "url"        : "",
-            "path"       : ZOO_DIR / "extra/ultralytics/yolov12/yolov12n/coco80/yolov12n_coco80.pt",
+            "path"       : ROOT_DIR / "zoo/extra/ultralytics/yolov12/yolov12n/coco80/yolov12n_coco80.pt",
             "num_classes": 80,
         },
     })
@@ -530,7 +530,7 @@ class YOLOv12s(YOLOv12, ModelMixin):
     zoo : dict = box.Box({
         "coco80": {
             "url"        : "",
-            "path"       : ZOO_DIR / "extra/ultralytics/yolov12/yolov12s/coco80/yolov12s_coco80.pt",
+            "path"       : ROOT_DIR / "zoo/extra/ultralytics/yolov12/yolov12s/coco80/yolov12s_coco80.pt",
             "num_classes": 80,
         },
     })
@@ -543,7 +543,7 @@ class YOLOv12m(YOLOv12, ModelMixin):
     zoo : dict = box.Box({
         "coco80": {
             "url"        : "",
-            "path"       : ZOO_DIR / "extra/ultralytics/yolov12/yolov12m/coco80/yolov12m_coco80.pt",
+            "path"       : ROOT_DIR / "zoo/extra/ultralytics/yolov12/yolov12m/coco80/yolov12m_coco80.pt",
             "num_classes": 80,
         },
     })
@@ -556,7 +556,7 @@ class YOLOv12l(YOLOv12, ModelMixin):
     zoo : dict = box.Box({
         "coco80": {
             "url"        : "",
-            "path"       : ZOO_DIR / "extra/ultralytics/yolov12/yolov12l/coco80/yolov12l_coco80.pt",
+            "path"       : ROOT_DIR / "zoo/extra/ultralytics/yolov12/yolov12l/coco80/yolov12l_coco80.pt",
             "num_classes": 80,
         },
     })
@@ -569,7 +569,7 @@ class YOLOv12x(YOLOv12, ModelMixin):
     zoo : dict = box.Box({
         "coco80": {
             "url"        : "",
-            "path"       : ZOO_DIR / "extra/ultralytics/yolov12/yolov12x/coco80/yolov12x_coco80.pt",
+            "path"       : ROOT_DIR / "zoo/extra/ultralytics/yolov12/yolov12x/coco80/yolov12x_coco80.pt",
             "num_classes": 80,
         },
     })

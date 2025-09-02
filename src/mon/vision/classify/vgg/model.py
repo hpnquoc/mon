@@ -25,7 +25,7 @@ import box
 from torchvision import models as tvm
 from torchvision.models.vgg import cfgs, make_layers
 
-from mon.constants import MODELS, ZOO_DIR
+from mon.constants import MODELS, ROOT_DIR
 from mon.core import MLType, ModelMixin, Path, Task
 
 current_file = Path(__file__).absolute()
@@ -60,7 +60,7 @@ class VGG11(VGG):
     zoo : dict = box.Box({
         "imagenet1k_v1": {
             "url"        : "https://download.pytorch.org/models/vgg11-8a719046.pth",
-            "path"       : ZOO_DIR / "vision/classify/vgg/vgg11/imagenet1k_v1/vgg11_imagenet1k_v1.pth",
+            "path"       : ROOT_DIR / "zoo/vision/classify/vgg/vgg11/imagenet1k_v1/vgg11_imagenet1k_v1.pth",
             "num_classes": 1000,
         },
     })
@@ -81,7 +81,7 @@ class VGG13(VGG):
     zoo : dict = box.Box({
         "imagenet1k_v1": {
             "url"        : "https://download.pytorch.org/models/vgg13-19584684.pth",
-            "path"       : ZOO_DIR / "vision/classify/vgg/vgg13/imagenet1k_v1/vgg13_imagenet1k_v1.pth",
+            "path"       : ROOT_DIR / "zoo/vision/classify/vgg/vgg13/imagenet1k_v1/vgg13_imagenet1k_v1.pth",
             "num_classes": 1000,
         },
     })
@@ -102,7 +102,7 @@ class VGG16(VGG):
     zoo : dict = box.Box({
         "imagenet1k_v1": {
             "url"        : "https://download.pytorch.org/models/vgg16-397923af.pth",
-            "path"       : ZOO_DIR / "vision/classify/vgg/vgg16/imagenet1k_v1/vgg16_imagenet1k_v1.pth",
+            "path"       : ROOT_DIR / "zoo/vision/classify/vgg/vgg16/imagenet1k_v1/vgg16_imagenet1k_v1.pth",
             "num_classes": 1000,
         },
     })
@@ -123,7 +123,7 @@ class VGG19(VGG):
     zoo : dict = box.Box({
         "imagenet1k_v1": {
             "url"        : "https://download.pytorch.org/models/vgg19-dcbb9e9d.pth",
-            "path"       : ZOO_DIR / "vision/classify/vgg/vgg19/imagenet1k_v1/vgg19_imagenet1k_v1.pth",
+            "path"       : ROOT_DIR / "zoo/vision/classify/vgg/vgg19/imagenet1k_v1/vgg19_imagenet1k_v1.pth",
             "num_classes": 1000,
         },
     })
@@ -144,7 +144,7 @@ class VGG11_BN(VGG):
     zoo : dict = box.Box({
         "imagenet1k_v1": {
             "url"        : "https://download.pytorch.org/models/vgg11_bn-6002323d.pth",
-            "path"       : ZOO_DIR / "vision/classify/vgg/vgg11_bn/imagenet1k_v1/vgg11_bn_imagenet1k_v1.pth",
+            "path"       : ROOT_DIR / "zoo/vision/classify/vgg/vgg11_bn/imagenet1k_v1/vgg11_bn_imagenet1k_v1.pth",
             "num_classes": 1000,
         },
     })
@@ -165,7 +165,7 @@ class VGG13_BN(VGG):
     zoo : dict = box.Box({
         "imagenet1k_v1": {
             "url"        : "https://download.pytorch.org/models/vgg13_bn-abd245e5.pth",
-            "path"       : ZOO_DIR / "vision/classify/vgg/vgg13_bn/imagenet1k_v1/vgg13_bn_imagenet1k_v1.pth",
+            "path"       : ROOT_DIR / "zoo/vision/classify/vgg/vgg13_bn/imagenet1k_v1/vgg13_bn_imagenet1k_v1.pth",
             "num_classes": 1000,
         },
     })
@@ -186,7 +186,7 @@ class VGG16_BN(VGG):
     zoo : dict = box.Box({
         "imagenet1k_v1": {
             "url"        : "https://download.pytorch.org/models/vgg16_bn-6c64b313.pth",
-            "path"       : ZOO_DIR / "vision/classify/vgg/vgg16_bn/imagenet1k_v1/vgg16_bn_imagenet1k_v1.pth",
+            "path"       : ROOT_DIR / "zoo/vision/classify/vgg/vgg16_bn/imagenet1k_v1/vgg16_bn_imagenet1k_v1.pth",
             "num_classes": 1000,
         },
     })
@@ -207,7 +207,7 @@ class VGG19_BN(VGG):
     zoo : dict = box.Box({
         "imagenet1k_v1": {
             "url"        : "https://download.pytorch.org/models/vgg19_bn-c79401a0.pth",
-            "path"       : ZOO_DIR / "vision/classify/vgg/vgg19_bn/imagenet1k_v1/vgg19_bn_imagenet1k_v1.pth",
+            "path"       : ROOT_DIR / "zoo/vision/classify/vgg/vgg19_bn/imagenet1k_v1/vgg19_bn_imagenet1k_v1.pth",
             "num_classes": 1000,
         },
     })

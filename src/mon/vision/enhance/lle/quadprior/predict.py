@@ -137,8 +137,8 @@ def predict(args: dict | box.Box) -> str:
 
     # Model
     cfg_path  = current_dir / "src" / "models" / args.cfg
-    init_ckpt = mon.ZOO_DIR / "vision/enhance/lle/quadprior/quadprior/coco80/control_sd15_init.ckpt"
-    ae_ckpt   = mon.ZOO_DIR / "vision/enhance/lle/quadprior/quadprior/coco80/ae_epoch=00_step=7000.ckpt"
+    init_ckpt = mon.ROOT_DIR / "zoo/vision/enhance/lle/quadprior/quadprior/coco80/control_sd15_init.ckpt"
+    ae_ckpt   = mon.ROOT_DIR / "zoo/vision/enhance/lle/quadprior/quadprior/coco80/ae_epoch=00_step=7000.ckpt"
 
     model          = create_model(config_path=cfg_path).cpu()
     state_dict     = load_state_dict(str(init_ckpt), location="cpu")

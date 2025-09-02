@@ -18,6 +18,7 @@ __all__ = [
     "EdgeLoss",
     "ExposureControlLoss",
     "ExposureValueControlLoss",
+    "PSNRLoss",
     "SpatialConsistencyLoss",
     "TotalVariationLoss",
 ]
@@ -245,6 +246,31 @@ class TotalVariationLoss(BaseLoss):
 
 
 # ----- Objective Loss -----
+class PSNRLoss(BaseLoss):
+
+    def __init__(self, to_y: bool = False, reduction: str = "mean"):
+        super().__init__(reduction=reduction)
+        self.to_y  = to_y
+        self.coef  = torch.tensor([65.481, 128.553, 24.966]).reshape(1, 3, 1, 1)
+        self.first = True
+
+    def forward(self, input: torch.Tensor, target: torch.Tensor) -> torch.Tensor:
+        if self.to_y:
+            if self.first:
+                self.coef  = self.coef.to(input.device)
+                self.first = False
+            input  = (input  * self.coef).sum(dim=1).unsqueeze(dim=1) + 16.0
+            target = (target * self.coef).sum(dim=1).unsqueeze(dim=1) + 16.0
+            input  = input  / 255.0
+            target = target / 255.0
+            pass
+        
+        diff = input - target
+        rmse = ((diff ** 2).mean(dim=(1, 2, 3)) + 1e-8).sqrt()
+        loss = 20 * torch.log10(1 / rmse).mean()
+        loss = (50.0 - loss) / 100.0
+        loss = self.reduce(loss=loss)
+        return loss
 
 
 # ----- Perceptual Loss -----

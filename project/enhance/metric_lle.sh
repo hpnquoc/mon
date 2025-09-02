@@ -10,42 +10,42 @@ source ./utils.sh
 archs=(
     #"*"                                 # For all architectures
     ### Specific Architectures
-    "uretinexnet++"
+    "gcenet"
 )
 models=(
-    "*"                                 # * for all models
+    # "*"                                 # * for all models
     ### Specific Models
-    #"zinf"
+    "gcenet_siceme"
 )
 datasets=(
     ### Unpaired
-    #"dicm"
-    #"lime"
-    #"mef"
-    #"npe"
-    #"vv"
+    "dicm"
+    "lime"
+    "mef"
+    "npe"
+    "vv"
     ### LOLs
-    #"lolv1"
-    #"lolv2real"
-    #"lolv2syn"
+    "lolv1"
+    "lolv2real"
+    "lolv2syn"
     ### LSRW
-    #"lsrw"
+    "lsrw"
     ### SICE
-    #"sice"
+    "sice"
     ### FiveK
     #"fiveka"
     #"fivekb"
     #"fivekc"
     #"fivekd"
-    #"fiveke"
+    "fiveke"
     ### UHD
-    #"uhdll"
+    "uhdll"
     ### High-Level
-    #"darkface"
-    #"exdark"
-    #"lolistreettest"
-    #"lolistreetval"
-    #"ydld"
+    "darkface"
+    "exdark"
+    "lolistreettest"
+    "lolistreetval"
+    "ydld"
 )
 imgsz=512
 resize=$(echo "")
@@ -85,7 +85,6 @@ declare -A target_subdirs=(
     ["fivekd"]="fivek/test/ref_d"
     ["fiveke"]="fivek/test/ref_e"
     ["lolistreetval"]="lolistreet/val/ref"
-    ["lolistreettest"]="lolistreet/test/ref"
 )
 
 # ----- Main -----
@@ -100,13 +99,13 @@ done
 for data in "${datasets[@]}"; do
     # Input
     declare -a input_dirs=()
-    input_subdir="${input_subdirs[$data]:-${data}/pred}"
+    input_subdir="${input_subdirs[${data}]:-${data}/pred}"
     for arch in "${archs[@]}"; do
         for model in "${models[@]}"; do
             mapfile -t -O "${#input_dirs[@]}" input_dirs < <(find "$current_dir/run/predict" -type d -path "*/${arch}/${model}/${input_subdir}" 2>/dev/null | sort)
         done
     done
-    unique_array "${input_dirs[@]}" input_dirs
+    # unique_array "${input_dirs[@]}" input_dirs
 
     # Target
     target_subdir="${target_subdirs[$data]:-${data}/test/ref}"

@@ -90,7 +90,7 @@ def predict(args: dict | box.Box) -> str:
             enhanced = outputs[6]
             # enhanced = outputs[-1]
             enhanced = mon.image.to_array(enhanced)
-            h1, w1  = mon.image.imgsz(enhanced)
+            h1, w1   = mon.image.imgsz(enhanced)
             if (h1, w1) != (h0, w0):
                 enhanced = cv2.resize(enhanced, (w0, h0))
             timers.postprocess.tock()

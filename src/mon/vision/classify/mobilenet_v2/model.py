@@ -16,7 +16,7 @@ from typing import Any
 import box
 from torchvision import models as tvm
 
-from mon.constants import MODELS, ZOO_DIR
+from mon.constants import MODELS, ROOT_DIR
 from mon.core import MLType, ModelMixin, Path, Task
 
 current_file = Path(__file__).absolute()
@@ -45,12 +45,12 @@ class MobileNetV2(tvm.MobileNetV2, ModelMixin):
     zoo      : dict         = box.Box({
         "imagenet1k_v1": {
             "url"        : "https://download.pytorch.org/models/mobilenet_v2-b0353104.pth",
-            "path"       : ZOO_DIR / "vision/classify/mobilenet/mobilenet_v2/imagenet1k_v1/mobilenet_v2_imagenet1k_v1.pth",
+            "path"       : ROOT_DIR / "zoo/vision/classify/mobilenet/mobilenet_v2/imagenet1k_v1/mobilenet_v2_imagenet1k_v1.pth",
             "num_classes": 1000,
         },
         "imagenet1k_v2": {
             "url"        : "https://download.pytorch.org/models/mobilenet_v2-7ebf99e0.pth",
-            "path"       : ZOO_DIR / "vision/classify/mobilenet/mobilenet_v2/imagenet1k_v2/mobilenet_v2_imagenet1k_v2.pth",
+            "path"       : ROOT_DIR / "zoo/vision/classify/mobilenet/mobilenet_v2/imagenet1k_v2/mobilenet_v2_imagenet1k_v2.pth",
             "num_classes": 1000,
         },
     })

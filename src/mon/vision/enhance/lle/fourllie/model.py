@@ -20,7 +20,7 @@ import box
 import torch
 from thop import profile
 
-from mon.constants import MODELS, ZOO_DIR
+from mon.constants import MODELS, ROOT_DIR
 from mon.core import image as I, MLType, ModelMixin, Path, Task
 from .src.data.util import read_img
 from .src.models.enhancement_model import enhancement_model
@@ -49,22 +49,22 @@ class FourLLIE(enhancement_model, ModelMixin):
     zoo      : dict         = box.Box({
         "lolv2real" : {
             "url"        : None,
-            "path"       : ZOO_DIR / "vision/enhance/lle/fourllie/fourllie/lolv2real/fourllie_lolv2real.pth",
+            "path"       : ROOT_DIR / "zoo/vision/enhance/lle/fourllie/fourllie/lolv2real/fourllie_lolv2real.pth",
             "num_classes": None,
         },
         "lolv2syn"  : {
             "url"        : None,
-            "path"       : ZOO_DIR / "vision/enhance/lle/fourllie/fourllie/lolv2syn/fourllie_lolv2syn.pth",
+            "path"       : ROOT_DIR / "zoo/vision/enhance/lle/fourllie/fourllie/lolv2syn/fourllie_lolv2syn.pth",
             "num_classes": None,
         },
         "lsrwhuawei": {
             "url"        : None,
-            "path"       : ZOO_DIR / "vision/enhance/lle/fourllie/fourllie/lsrwhuawei/fourllie_lsrwhuawei.pth",
+            "path"       : ROOT_DIR / "zoo/vision/enhance/lle/fourllie/fourllie/lsrwhuawei/fourllie_lsrwhuawei.pth",
             "num_classes": None,
         },
         "lsrwnikon" : {
             "url"        : None,
-            "path"       : ZOO_DIR / "vision/enhance/lle/fourllie/fourllie/lsrwnikon/fourllie_lsrwnikon.pth",
+            "path"       : ROOT_DIR / "zoo/vision/enhance/lle/fourllie/fourllie/lsrwnikon/fourllie_lsrwnikon.pth",
             "num_classes": None,
         },
     })

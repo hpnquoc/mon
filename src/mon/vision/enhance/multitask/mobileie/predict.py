@@ -1,7 +1,14 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Implements GCE-Net model prediction pipeline for low-light image enhancement."""
+"""Implements MobileIE model prediction pipeline for real-time image enhancement
+on mobile devices.
+
+References:
+    - Paper: "MobileIE: An Extremely Lightweight and Effective ConvNet for
+      Real-Time Image Enhancement on Mobile Devices," ICCV 2025.
+    - Code: https://github.com/AVC2-UESTC/MobileIE
+"""
 
 import box
 import cv2
@@ -9,6 +16,7 @@ import torch
 
 import mon
 from mon import albumentations as A
+from mon.vision.enhance.multitask import mobileie
 
 mon.dev()
 
@@ -21,13 +29,13 @@ current_dir  = current_file.parents[0]
 def predict(args: dict | box.Box) -> str:
     # Start
     mon.rt.print_run_summary(args)
-
+    
     # Device
     device = mon.create_device(args.device)
-
+    
     # Seed
     mon.set_random_seed(args.seed)
-
+    
     # Pretrained
     pretrained = args.resume
     if args.weights and args.weights.is_weights_file(exist=True):
@@ -38,21 +46,14 @@ def predict(args: dict | box.Box) -> str:
         raise ValueError(f"Invalid weights file: {pretrained}.")
 
     # Model
-    args.network |= {
-        "name"     : args.model,
-        # "iters"    : iters,
-        # "use_depth": True,
-        "inference": True,
-        "weights"  : pretrained,
-    }
-    model = mon.MODELS.build(**args.network)
+    model = mobileie.MobileIELLE(weights=pretrained, inference=True, **args.network)
     model = model.to(device)
     model.eval()
     
     # Benchmark
     if args.benchmark:
         mon.nn.benchmark(model)
-   
+    
     # Data I/O
     imgsz     = args.imgsz if args.resize else (0, 0)
     transform = A.Compose([
@@ -61,7 +62,7 @@ def predict(args: dict | box.Box) -> str:
         A.ToTensorV2(transpose_mask=True),
     ])
     data_name, dataloader = mon.data.build_dataloader(args.data, args.root, transform)
-
+    
     # Predict
     timers = mon.TimeProfiler()
     timers.total.tick()
@@ -78,24 +79,22 @@ def predict(args: dict | box.Box) -> str:
             h0, w0 = mon.image.imgsz(meta["orig_shape"])
             image  = datapoint["image"]
             image  = image.to(device)
-            depth  = datapoint.get("depth", None)
-            depth  = depth.to(device) if depth is not None else None
             timers.preprocess.tock()
-
+           
             # Infer
             timers.infer.tick()
-            outputs = model(image, depth)
+            outputs = model(image)
             timers.infer.tock()
 
             # Postprocess
             timers.postprocess.tick()
-            enhanced = outputs[-1]
+            enhanced = outputs
             enhanced = mon.image.to_array(enhanced)
             h1, w1   = mon.image.imgsz(enhanced)
             if (h1, w1) != (h0, w0):
                 enhanced = cv2.resize(enhanced, (w0, h0))
             timers.postprocess.tock()
-
+            
             # Save
             if args.save_image:
                 out_dir  = mon.rt.parse_output_dir(args.save_dir, data_name, mon.SAVE_IMAGE_DIR, path, args.keep_subdirs, args.save_nearby)

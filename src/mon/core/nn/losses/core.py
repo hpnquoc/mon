@@ -33,6 +33,7 @@ __all__ = [
 
 import torch
 from torch.nn.modules.loss import *  # Expose all losses from ``torch.nn.modules.loss``
+import torch.nn.functional as F
 
 from .base import BaseLoss
 
@@ -47,12 +48,12 @@ class CharbonnierLoss(BaseLoss):
             Default: ``"mean"``.`.
     """
     
-    def __init__(self, eps: float = 1e-3, reduction: str = "mean"):
+    def __init__(self, eps: float = 1e-6, reduction: str = "mean"):
         super().__init__(reduction=reduction)
-        self.eps = eps
+        self.eps2 = eps ** 2
     
     def forward(self, input: torch.Tensor, target: torch.Tensor) -> torch.Tensor:
-        loss = torch.sqrt((input - target) ** 2 + (self.eps * self.eps))
+        loss = (F.mse_loss(input, target, reduction="none") + self.eps2) ** 0.5
         loss = self.reduce(loss=loss)
         return loss
     

@@ -42,8 +42,8 @@ def train(args: dict | box.Box) -> str:
 
     # Model
     cfg_path        = current_dir / "src" / "models" / args.cfg
-    init_ckpt       = mon.ZOO_DIR / "vision/enhance/lle/quadprior/quadprior/coco/control_sd15_init.ckpt"
-    pretrained_ckpt = mon.ZOO_DIR / "vision/enhance/lle/quadprior/quadprior/coco/control_sd15_coco_final.ckpt"
+    init_ckpt       = mon.ROOT_DIR / "zoo/vision/enhance/lle/quadprior/quadprior/coco/control_sd15_init.ckpt"
+    pretrained_ckpt = mon.ROOT_DIR / "zoo/vision/enhance/lle/quadprior/quadprior/coco/control_sd15_coco_final.ckpt"
     # First use cpu to load models. Pytorch Lightning will automatically move it to GPUs.
     model          = create_model(config_path=cfg_path).cpu()
     state_dict     = load_state_dict(str(init_ckpt), location="cpu")

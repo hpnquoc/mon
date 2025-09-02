@@ -104,7 +104,7 @@ def measure_metric_pyiqa(
             transform = base_transform
             if need_resize:
                 transform = A.Resize(height=h2, width=w2) + transform
-            if target:
+            if target is not None:
                 transform.add_targets(additional_targets={"target": "image"})
                 augmented = transform(image=image, target=target)
                 image     = augmented["image"]
@@ -114,16 +114,16 @@ def measure_metric_pyiqa(
                 image     = augmented["image"]
             
             # Move to device
-            image  =  image.to(device=device)
-            target = target.to(device=device) if target else None
+            image  =  image.unsqueeze(0).to(device=device)
+            target = target.unsqueeze(0).to(device=device) if target is not None else None
             
             # Measure metric
             for m in metric:
                 if m not in _METRICS:
                     continue
-                if not target and _METRICS[m]["metric_mode"] == "FR":
+                if target is None and _METRICS[m]["metric_mode"] == "FR":
                     continue
-                elif target and _METRICS[m]["metric_mode"] == "FR":
+                elif target is not None and _METRICS[m]["metric_mode"] == "FR":
                     values[m].append(metric_f[m](image, target))
                 else:
                     values[m].append(metric_f[m](image))

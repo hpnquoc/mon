@@ -26,8 +26,8 @@ class LoLIStreet(VisionDataset):
     modalities: Modalities  = {
         "image"    : Modality(name="image",      type="image", module=Image,           in_test=True, primary=True),
         "depth"    : Modality(name=DepthName,    type="image", module=DefaultDepthMap, in_test=True),
-        "ref"      : Modality(name="ref",        type="image", module=Image,           in_test=True),
-        "ref_depth": Modality(name=RefDepthName, type="image", module=DefaultDepthMap, in_test=True),
+        "ref"      : Modality(name="ref",        type="image", module=Image,           in_test=False),
+        "ref_depth": Modality(name=RefDepthName, type="image", module=DefaultDepthMap, in_test=False),
     }
     classes   : Classes     = Classes([
         {"id": 0 , "name": "person"        , "supercategory": "person",     "color": [ 81, 120, 228]},

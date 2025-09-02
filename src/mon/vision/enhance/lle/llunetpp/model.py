@@ -17,7 +17,7 @@ from typing import Any
 
 import box
 
-from mon.constants import MODELS, ZOO_DIR
+from mon.constants import MODELS, ROOT_DIR
 from mon.core import MLType, ModelMixin, Path, Task
 from .src.model import NestedUNet
 
@@ -43,17 +43,17 @@ class LLUnetPP(NestedUNet, ModelMixin):
     zoo      : dict         = box.Box({
         "lolv1"    : {
             "url"        : None,
-            "path"       : ZOO_DIR / "vision/enhance/lle/llunet++/llunet++/lolv1/llunet++_lolv1.pt",
+            "path"       : ROOT_DIR / "zoo/vision/enhance/lle/llunet++/llunet++/lolv1/llunet++_lolv1.pt",
             "num_classes": None,
         },
         "lolv2real": {
             "url"        : None,
-            "path"       : ZOO_DIR / "vision/enhance/lle/llunet++/llunet++/lolv2real/llunet++_lolv2real.pt",
+            "path"       : ROOT_DIR / "zoo/vision/enhance/lle/llunet++/llunet++/lolv2real/llunet++_lolv2real.pt",
             "num_classes": None,
         },
         "lolv2syn" : {
             "url"        : None,
-            "path"       : ZOO_DIR / "vision/enhance/lle/llunet++/llunet++/lolv2syn/llunet++_lolv2syn.pt",
+            "path"       : ROOT_DIR / "zoo/vision/enhance/lle/llunet++/llunet++/lolv2syn/llunet++_lolv2syn.pt",
             "num_classes": None,
         },
     })

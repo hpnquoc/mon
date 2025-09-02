@@ -17,7 +17,7 @@ from typing import Any
 
 import box
 
-from mon.constants import MODELS, ZOO_DIR
+from mon.constants import MODELS, ROOT_DIR
 from mon.core import MLType, ModelMixin, Path, Task
 from .src.net.lformer import net
 
@@ -43,17 +43,17 @@ class Li2025(net, ModelMixin):
     zoo      : dict         = box.Box({
         "lolv1"    : {
             "url"        : None,
-            "path"       : ZOO_DIR / "vision/enhance/lle/li2025/li2025/lolv1/li2025_lolv1.pth",
+            "path"       : ROOT_DIR / "zoo/vision/enhance/lle/li2025/li2025/lolv1/li2025_lolv1.pth",
             "num_classes": None,
         },
         "lolv2real": {
             "url"        : None,
-            "path"       : ZOO_DIR / "vision/enhance/lle/li2025/li2025/lolv2real/li2025_lolv2real.pth",
+            "path"       : ROOT_DIR / "zoo/vision/enhance/lle/li2025/li2025/lolv2real/li2025_lolv2real.pth",
             "num_classes": None,
         },
         "sice"     : {
             "url"        : None,
-            "path"       : ZOO_DIR / "vision/enhance/lle/li2025/li2025/sice/li2025_sice.pth",
+            "path"       : ROOT_DIR / "zoo/vision/enhance/lle/li2025/li2025/sice/li2025_sice.pth",
             "num_classes": None,
         },
     })

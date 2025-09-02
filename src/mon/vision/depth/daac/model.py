@@ -17,7 +17,7 @@ from typing import Any
 
 import torch
 
-from mon.constants import MODELS, ZOO_DIR
+from mon.constants import MODELS, ROOT_DIR
 from mon.core import MLType, ModelMixin, Path, Task
 from .src.depth_anything.dpt import DepthAnything_AC
 
@@ -47,7 +47,7 @@ class DAV2_ViTS(DAAC):
     name: str  = "daac_vits"
     zoo : dict = {
         "pretrained": {
-            "path": ZOO_DIR / "vision/depth/daac/daac_vits/pretrained/daac_vits.pth",
+            "path": ROOT_DIR / "zoo/vision/depth/daac/daac_vits/pretrained/daac_vits.pth",
         },
     }
     
@@ -57,7 +57,7 @@ class DAV2_ViTS(DAAC):
                 "encoder"        : "vits",
                 "features"       : 64,
                 "out_channels"   : [48, 96, 192, 384],
-                "dino_pretrained": ZOO_DIR / "vision/depth/daac/daac_vits/pretrained/dinov2_vits14_pretrain.pth",
+                "dino_pretrained": ROOT_DIR / "zoo/vision/depth/daac/daac_vits/pretrained/dinov2_vits14_pretrain.pth",
                 "version"        : "v2",
             }
         )

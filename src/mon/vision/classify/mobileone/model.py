@@ -24,7 +24,7 @@ from typing import Any
 import box
 import torch
 
-from mon.constants import MODELS, ZOO_DIR
+from mon.constants import MODELS, ROOT_DIR
 from mon.core import MLType, ModelMixin, nn, Path, Task
 
 current_file = Path(__file__).absolute()
@@ -139,7 +139,7 @@ class MobileOneS0(MobileOne, ModelMixin):
     zoo : dict = box.Box({
         "imagenet1k_v1": {
             "url"        : "",
-            "path"       : ZOO_DIR / "vision/classify/mobileone/mobileone_s0/imagenet1k_v1/mobileone_s0_imagenet1k_v1.pth.tar",
+            "path"       : ROOT_DIR / "zoo/vision/classify/mobileone/mobileone_s0/imagenet1k_v1/mobileone_s0_imagenet1k_v1.pth.tar",
             "num_classes": 1000,
         },
     })
@@ -168,7 +168,7 @@ class MobileOneS1(MobileOne, ModelMixin):
     zoo : dict = box.Box({
         "imagenet1k_v1": {
             "url"        : "",
-            "path"       : ZOO_DIR / "vision/classify/mobileone/mobileone_s1/imagenet1k_v1/mobileone_s1_imagenet1k_v1.pth.tar",
+            "path"       : ROOT_DIR / "zoo/vision/classify/mobileone/mobileone_s1/imagenet1k_v1/mobileone_s1_imagenet1k_v1.pth.tar",
             "num_classes": 1000,
         },
     })
@@ -196,7 +196,7 @@ class MobileOneS2(MobileOne, ModelMixin):
     zoo : dict = box.Box({
         "imagenet1k_v1": {
             "url"        : "",
-            "path"       : ZOO_DIR / "vision/classify/mobileone/mobileone_s2/imagenet1k_v1/mobileone_s2_imagenet1k_v1.pth.tar",
+            "path"       : ROOT_DIR / "zoo/vision/classify/mobileone/mobileone_s2/imagenet1k_v1/mobileone_s2_imagenet1k_v1.pth.tar",
             "num_classes": 1000,
         },
     })
@@ -224,7 +224,7 @@ class MobileOneS3(MobileOne, ModelMixin):
     zoo : dict = box.Box({
         "imagenet1k_v1": {
             "url"        : "",
-            "path"       : ZOO_DIR / "vision/classify/mobileone/mobileone_s3/imagenet1k_v1/mobileone_s3_imagenet1k_v1.pth.tar",
+            "path"       : ROOT_DIR / "zoo/vision/classify/mobileone/mobileone_s3/imagenet1k_v1/mobileone_s3_imagenet1k_v1.pth.tar",
             "num_classes": 1000,
         },
     })
@@ -252,7 +252,7 @@ class MobileOneS4(MobileOne, ModelMixin):
     zoo : dict = box.Box({
         "imagenet1k_v1": {
             "url"        : "",
-            "path"       : ZOO_DIR / "vision/classify/mobileone/mobileone_s4/imagenet1k_v1/mobileone_s4_imagenet1k_v1.pth.tar",
+            "path"       : ROOT_DIR / "zoo/vision/classify/mobileone/mobileone_s4/imagenet1k_v1/mobileone_s4_imagenet1k_v1.pth.tar",
             "num_classes": 1000,
         },
     })

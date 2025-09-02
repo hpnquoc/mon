@@ -22,7 +22,7 @@ from typing import Any
 
 import box
 
-from mon.constants import MODELS, ZOO_DIR
+from mon.constants import MODELS, ROOT_DIR
 from mon.core import MLType, ModelMixin, Path, Task
 from ultralytics import SAM as SAM_
 
@@ -58,7 +58,7 @@ class SAM_B(SAM, ModelMixin):
     zoo : dict = box.Box({
         "sa1b": {
             "url"        : "",
-            "path"       : ZOO_DIR / "extra/ultralytics/sam/sam_b/sa1b/sam_b_sa1b.pt",
+            "path"       : ROOT_DIR / "zoo/extra/ultralytics/sam/sam_b/sa1b/sam_b_sa1b.pt",
             "num_classes": None,
         },
     })
@@ -72,7 +72,7 @@ class SAM_L(SAM, ModelMixin):
     zoo : dict = box.Box({
         "sa1b": {
             "url"        : "",
-            "path"       : ZOO_DIR / "extra/ultralytics/sam/sam_l/sa1b/sam_l_sa1b.pt",
+            "path"       : ROOT_DIR / "zoo/extra/ultralytics/sam/sam_l/sa1b/sam_l_sa1b.pt",
             "num_classes": None,
         },
     })
@@ -98,7 +98,7 @@ class SAM2_T(SAM, ModelMixin):
     zoo : dict = box.Box({
         "sa1b": {
             "url"        : "",
-            "path"       : ZOO_DIR / "extra/ultralytics/sam2/sam2.1_t/sav/sam2.1_t_sav.pt",
+            "path"       : ROOT_DIR / "zoo/extra/ultralytics/sam2/sam2.1_t/sav/sam2.1_t_sav.pt",
             "num_classes": None,
         },
     })
@@ -112,7 +112,7 @@ class SAM2_S(SAM, ModelMixin):
     zoo : dict = box.Box({
         "sa1b": {
             "url"        : "",
-            "path"       : ZOO_DIR / "extra/ultralytics/sam2/sam2.1_s/sav/sam2.1_s_sav.pt",
+            "path"       : ROOT_DIR / "zoo/extra/ultralytics/sam2/sam2.1_s/sav/sam2.1_s_sav.pt",
             "num_classes": None,
         },
     })
@@ -126,7 +126,7 @@ class SAM2_B(SAM, ModelMixin):
     zoo : dict = box.Box({
         "sa1b": {
             "url"        : "",
-            "path"       : ZOO_DIR / "extra/ultralytics/sam2/sam2.1_b/sav/sam2.1_b_sav.pt",
+            "path"       : ROOT_DIR / "zoo/extra/ultralytics/sam2/sam2.1_b/sav/sam2.1_b_sav.pt",
             "num_classes": None,
         },
     })
@@ -140,7 +140,7 @@ class SAM2_L(SAM, ModelMixin):
     zoo : dict = box.Box({
         "sa1b": {
             "url"        : "",
-            "path"       : ZOO_DIR / "extra/ultralytics/sam2/sam2.1_l/sav/sam2.1_l_sav.pt",
+            "path"       : ROOT_DIR / "zoo/extra/ultralytics/sam2/sam2.1_l/sav/sam2.1_l_sav.pt",
             "num_classes": None,
         },
     })

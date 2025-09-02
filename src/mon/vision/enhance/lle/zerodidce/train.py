@@ -1,20 +1,20 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Implements Zero-DCE model training pipeline for low-light image enhancement.
+"""Implements Zero-DiDCE model training pipeline for low-light image enhancement.
 
 References:
-    - Paper: "Zero-Reference Deep Curve Estimation for Low-Light Image
-      Enhancement," CVPR 2020.
-    - Code: https://github.com/Li-Chongyi/Zero-DCE
+    - Paper: "Rethinking Zero-DCE for Low-Light Image Enhancement,"
+      Neural Processing Letters 2024.
+    - Code: https://github.com/Wenhui-Luo/Zero-DiDCE
 """
 
 import box
 import torch
 
 import mon
-from mon.vision.enhance.lle import zerodce
-from mon.vision.enhance.lle.zerodce import loss as L
+from mon.vision.enhance.lle import zerodidce
+from mon.vision.enhance.lle.zerodidce import loss as L
 
 mon.dev()
 
@@ -45,7 +45,7 @@ def train(args: dict | box.Box) -> str:
         mon.log(f"Pretrained: {None}, training from scratch.")
 
     # Model
-    model = zerodce.ZeroDCE(weights=pretrained)
+    model = zerodidce.ZeroDiDCE(weights=pretrained)
     model = model.to(device)
     model.train()
     
@@ -53,15 +53,7 @@ def train(args: dict | box.Box) -> str:
     optimizer = mon.nn.Adam(model.parameters(), **args.optimizer)
     
     # Loss
-    
-    L_tv    = L.L_tv().to(device)
-    L_spa   = L.L_spa().to(device)
-    L_col   = L.L_col().to(device)
-    L_exp   = L.L_exp(16, args.loss.L_exp_mean).to(device)
-    L_tv_w  = args.loss.L_tv_w
-    L_spa_w = args.loss.L_spa_w
-    L_col_w = args.loss.L_col_w
-    L_exp_w = args.loss.L_exp_w
+    L_piece = L.PiecewiseNonReferenceLoss().to(device)
     
     # Data I/O
     args["train_dataloader"]["dataset"]["root"] = mon.data.parse_data_dir(args.root)
@@ -86,14 +78,8 @@ def train(args: dict | box.Box) -> str:
                 image    = datapoint["image"]
                 image    = image.to(device)
                 outputs  = model(image)
-                r        = outputs[0]
                 enhanced = outputs[-1]
-                
-                l_tv  = L_tv_w  * L_tv(r)
-                l_spa = L_spa_w * torch.mean(L_spa(enhanced, image))
-                l_col = L_col_w * torch.mean(L_col(enhanced))
-                l_exp = L_exp_w * torch.mean(L_exp(enhanced))
-                loss  = l_tv + l_spa + l_col + l_exp
+                loss     = L_piece(enhanced, image)
                 
                 optimizer.zero_grad()
                 loss.backward()
@@ -120,7 +106,7 @@ def train(args: dict | box.Box) -> str:
             # Log
             if args.verbose:  # and ((i + 1) % display_iter) == 0:
                 mon.log(f"Epoch: {(i + 1):03} | Train Loss: {mean_loss:09.6f} | Val PSNR: {mean_psnr:09.6f}")
-                
+            
             # Save
             torch.save(model.state_dict(), args.save_dir / "last.pt")
             if mean_loss < best_loss:
@@ -129,7 +115,7 @@ def train(args: dict | box.Box) -> str:
             if mean_psnr > best_psnr:
                 best_psnr = mean_psnr
                 torch.save(model.state_dict(), args.save_dir / "best_psnr.pt")
-                
+
 
 # ----- Main -----
 def main() -> str:

@@ -19,7 +19,7 @@ import box
 import numpy as np
 from onnxruntime import InferenceSession
 
-from mon.constants import MODELS, ZOO_DIR
+from mon.constants import MODELS, ROOT_DIR
 from mon.core import MLType, Path, Task, nn
 
 current_file = Path(__file__).absolute()
@@ -47,7 +47,7 @@ class EnlightenOnnxModel(nn.ModelMixin):
     zoo      : dict         = box.Box({
         "custom": {
             "url"        : None,
-            "path"       : ZOO_DIR / "vision/enhance/lle/enlightengan/enlightengan/custom/enlightengan.onnx",
+            "path"       : ROOT_DIR / "zoo/vision/enhance/lle/enlightengan/enlightengan/custom/enlightengan.onnx",
             "num_classes": None,
         },
     })
@@ -64,7 +64,7 @@ class EnlightenOnnxModel(nn.ModelMixin):
     
     def initialize(self):
         self.graph = InferenceSession(
-            self.model or self.weights or str(ZOO_DIR / "vision/enhance/lle/enlightengan/custom/enlightengan.onnx"),
+            self.model or self.weights or str(ROOT_DIR / "zoo/vision/enhance/lle/enlightengan/custom/enlightengan.onnx"),
             providers=["AzureExecutionProvider", "CPUExecutionProvider"]
         )
         

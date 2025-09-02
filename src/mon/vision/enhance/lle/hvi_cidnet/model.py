@@ -14,7 +14,7 @@ __all__ = [
 
 import box
 
-from mon.constants import MODELS, ZOO_DIR
+from mon.constants import MODELS, ROOT_DIR
 from mon.core import MLType, ModelMixin, Path, Task
 from .src.net.CIDNet import CIDNet
 
@@ -39,32 +39,32 @@ class HVI_CIDNet(CIDNet, ModelMixin):
     zoo      : dict         = box.Box({
         "lolblur"  : {
             "url"        : None,
-            "path"       : ZOO_DIR / "vision/enhance/lle/hvi_cidnet/hvi_cidnet/lolblur/hvi_cidnet_lolblur.pth",
+            "path"       : ROOT_DIR / "zoo/vision/enhance/lle/hvi_cidnet/hvi_cidnet/lolblur/hvi_cidnet_lolblur.pth",
             "num_classes": None,
         },
         "lolv1"    : {
             "url"        : None,
-            "path"       : ZOO_DIR / "vision/enhance/lle/hvi_cidnet/hvi_cidnet/lolv1/hvi_cidnet_lolv1.pth",
+            "path"       : ROOT_DIR / "zoo/vision/enhance/lle/hvi_cidnet/hvi_cidnet/lolv1/hvi_cidnet_lolv1.pth",
             "num_classes": None,
         },
         "lolv2real": {
             "url"        : None,
-            "path"       : ZOO_DIR / "vision/enhance/lle/hvi_cidnet/hvi_cidnet/lolv2real/hvi_cidnet_lolv2real.pth",
+            "path"       : ROOT_DIR / "zoo/vision/enhance/lle/hvi_cidnet/hvi_cidnet/lolv2real/hvi_cidnet_lolv2real.pth",
             "num_classes": None,
         },
         "lolv2syn" : {
             "url"        : None,
-            "path"       : ZOO_DIR / "vision/enhance/lle/hvi_cidnet/hvi_cidnet/lolv2syn/hvi_cidnet_lolv2syn.pth",
+            "path"       : ROOT_DIR / "zoo/vision/enhance/lle/hvi_cidnet/hvi_cidnet/lolv2syn/hvi_cidnet_lolv2syn.pth",
             "num_classes": None,
         },
         "sice"     : {
             "url"        : None,
-            "path"       : ZOO_DIR / "vision/enhance/lle/hvi_cidnet/hvi_cidnet/sice/hvi_cidnet_sice.pth",
+            "path"       : ROOT_DIR / "zoo/vision/enhance/lle/hvi_cidnet/hvi_cidnet/sice/hvi_cidnet_sice.pth",
             "num_classes": None,
         },
         "sidsony"  : {
             "url"        : None,
-            "path"       : ZOO_DIR / "vision/enhance/lle/hvi_cidnet/hvi_cidnet/sidsony/hvi_cidnet_sidsony.pth",
+            "path"       : ROOT_DIR / "zoo/vision/enhance/lle/hvi_cidnet/hvi_cidnet/sidsony/hvi_cidnet_sidsony.pth",
             "num_classes": None,
         },
     })
