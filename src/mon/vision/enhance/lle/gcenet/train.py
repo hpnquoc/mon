@@ -49,9 +49,9 @@ def train(args: dict | box.Box) -> str:
 
     # Model
     args.network |= {
-        "name"     : args.model,
-        "inference": False,
-        "weights"  : pretrained,
+        "name"   : args.model,
+        "scale"  : 1,
+        "weights": pretrained,
     }
     model = mon.MODELS.build(**args.network)
     if pretrained and pretrained.is_weights_file(exist=True):
@@ -98,6 +98,7 @@ def train(args: dict | box.Box) -> str:
                 depth    = depth.to(device) if depth is not None else None
                 outputs  = model(image, depth)
                 r        = outputs[0]
+                z        = outputs[1]
                 enhanced = outputs[-1]
                 
                 l_tv  = L_tv_w  * L_tv(r)
@@ -105,7 +106,7 @@ def train(args: dict | box.Box) -> str:
                 l_col = L_col_w * torch.mean(L_col(enhanced))
                 l_exp = L_exp_w * torch.mean(L_exp(enhanced))
                 loss  = l_tv + l_spa + l_col + l_exp
-    
+                
                 optimizer.zero_grad()
                 loss.backward()
                 mon.nn.utils.clip_grad_norm_(model.parameters(), grad_clip_norm)
@@ -119,9 +120,11 @@ def train(args: dict | box.Box) -> str:
                 with torch.no_grad():
                     image    = datapoint["image"]
                     image    = image.to(device)
+                    depth    = datapoint.get("depth", None)
+                    depth    = depth.to(device) if depth is not None else None
                     ref      = datapoint["ref"]
                     ref      = ref.to(device)
-                    outputs  = model(image)
+                    outputs  = model(image, depth)
                     enhanced = outputs[-1]
                     mse      = ((enhanced - ref) ** 2).mean((2, 3))
                     psnr     = (1 / mse).log10().mean() * 10
@@ -129,8 +132,8 @@ def train(args: dict | box.Box) -> str:
             mean_psnr = sum(val_psnr) / len(val_psnr)
             
             # Log
-            if args.verbose:  # and ((i + 1) % display_iter) == 0:
-                mon.log(f"Epoch: {(i + 1):03} | Train Loss: {mean_loss:09.6f} | Val PSNR: {mean_psnr:09.6f}")
+            if args.verbose:
+                mon.log(f"Epoch: {(i + 1):03} | Train Loss: {mean_loss:08.6f} | Val PSNR: {mean_psnr:08.6f}")
                 
             # Save
             torch.save(model.state_dict(), args.save_dir / "last.pt")

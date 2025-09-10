@@ -2,53 +2,44 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
 
 # Traditional Convolution
-
 class TC(nn.Module):
     
-    def __init__(self, in_ch, out_ch):
-        super(TC, self).__init__()
-        self.conv = nn.Conv2d(in_channels=in_ch,
-                              out_channels=out_ch,
-                              kernel_size=3,
-                              stride=1,
-                              padding=1)
+    def __init__(self, in_channels: int, out_channels: int):
+        super().__init__()
+        self.conv = nn.Conv2d(in_channels, out_channels, kernel_size=3, stride=1, padding=1)
 
-    def forward(self, input):
-        out = self.conv(input)
-        return out
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        return self.conv(x)
 
 
 # Depthwise Separable Convolution
-
 class DSC(nn.Module):
     
-    def __init__(self, in_ch, out_ch):
-        super(DSC, self).__init__()
+    def __init__(self, in_channels, out_channels):
+        super().__init__()
         self.depth_conv = nn.Conv2d(
-            in_channels=in_ch,
-            out_channels=in_ch,
-            kernel_size=3,
-            stride=1,
-            padding=1,
-            groups=in_ch
+            in_channels  = in_channels,
+            out_channels = in_channels,
+            kernel_size  = 3,
+            stride       = 1,
+            padding      = 1,
+            groups       = in_channels
         )
         self.point_conv = nn.Conv2d(
-            in_channels=in_ch,
-            out_channels=out_ch,
-            kernel_size=1,
-            stride=1,
-            padding=0,
-            groups=1
+            in_channels  = in_channels,
+            out_channels = out_channels,
+            kernel_size  = 1,
+            stride       = 1,
+            padding      = 0,
+            groups       = 1
         )
 
-    def forward(self, input):
-        out = self.depth_conv(input)
-        out = self.point_conv(out)
-        return out
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        y = self.depth_conv(x)
+        y = self.point_conv(y)
+        return y
 
 
 class enhance_net_nopool(nn.Module):
@@ -61,11 +52,9 @@ class enhance_net_nopool(nn.Module):
         number_f          = 32
 
         # Define Conv type
-        if conv_type == 'dsc':
+        if conv_type == "dsc":
             self.conv = DSC
-        elif conv_type == 'dc':
-            self.conv = DC
-        elif conv_type == 'tc':
+        elif conv_type == "tc":
             self.conv = TC
         else:
             print("conv type is not available")

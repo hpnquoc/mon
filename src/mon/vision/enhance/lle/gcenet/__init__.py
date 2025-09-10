@@ -4,7 +4,9 @@
 """Implements GCE-Net model for low-light image enhancement."""
 
 __all__ = [
-
+    "GCENet_BAM",
+    "GCENet_Baseline",
+    "GCENet_PONO",
 ]
 
 from .model import *

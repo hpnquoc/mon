@@ -18,6 +18,8 @@ import mon
 from mon import albumentations as A
 from mon.vision.enhance.lle import zinf
 
+mon.dev()
+
 current_file = mon.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
 

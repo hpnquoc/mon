@@ -48,7 +48,7 @@ class FINERLayer(nn.Module):
         self.in_features      = in_features
         self.scale_req_grad   = scale_req_grad
         self.first_bias_scale = first_bias_scale
-        self.linear           = torch.nn.Linear(in_features, out_features, bias=bias)
+        self.linear           = nn.Linear(in_features, out_features, bias=bias)
         if not self.is_last:
             self.init_weights()
         if self.first_bias_scale and self.is_first:

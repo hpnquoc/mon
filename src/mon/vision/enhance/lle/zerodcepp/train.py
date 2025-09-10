@@ -128,7 +128,7 @@ def train(args: dict | box.Box) -> str:
             
             # Log
             if args.verbose:  # and ((i + 1) % display_iter) == 0:
-                mon.log(f"Epoch: {(i + 1):03} | Train Loss: {mean_loss:09.6f} | Val PSNR: {mean_psnr:09.6f}")
+                mon.log(f"Epoch: {(i + 1):03} | Train Loss: {mean_loss:08.6f} | Val PSNR: {mean_psnr:08.6f}")
                 
             # Save
             torch.save(model.state_dict(), args.save_dir / "last.pt")

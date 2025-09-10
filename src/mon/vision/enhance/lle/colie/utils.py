@@ -49,7 +49,7 @@ def interpolate_image(img, H, W):
     """
     Reshapes the image based on new resolution.
     """
-    return F.interpolate(img, size=(H,W))
+    return F.interpolate(img, size=(H, W))
 
 
 def get_coords(H, W):
@@ -71,7 +71,7 @@ def get_patches(img, KERNEL_SIZE):
         for j in range(KERNEL_SIZE):
             kernel[int(torch.sum(kernel).item()), 0, i, j] = 1
 
-    pad = nn.ReflectionPad2d(KERNEL_SIZE//2)
+    pad = nn.ReflectionPad2d(KERNEL_SIZE // 2)
     im_padded = pad(img)
 
     extracted = torch.nn.functional.conv2d(im_padded, kernel, padding=0).squeeze(0)

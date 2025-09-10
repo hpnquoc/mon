@@ -244,7 +244,8 @@ def to_array(image: torch.Tensor) -> np.ndarray:
         raise TypeError(f"[image] must be a torch.Tensor of shape (B, C, H, W), "
                         f"got {type(image)} with {image.ndim} dimensions.")
     
-    image = (image.squeeze().detach().cpu().clamp(0, 1).permute(1, 2, 0).numpy() * 255).round().astype("uint8")
+    image = (image.squeeze().detach().cpu().clamp(0, 1).permute(1, 2, 0).numpy())
+    image = np.clip(image * 255, 0, 255).astype("uint8")
     return image
     
 

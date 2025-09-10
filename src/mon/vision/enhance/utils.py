@@ -36,14 +36,14 @@ class PseudoGTGenerator:
         self.iqa         = nn.ImageQualityAssessment(exposed_level=exposed_level, pool_size=pool_size)
     
     def __call__(self, image: torch.Tensor, prev_output: torch.Tensor = None) -> torch.Tensor:
-        b, c, h, w           = image.shape
-        underexposed_ranges  = torch.linspace(0, self.gamma_upper, steps=self.number_refs + 1).to(image.device)[:-1]
-        step_size            = self.gamma_upper / self.number_refs
-        underexposed_gamma   = torch.exp(torch.rand([b, self.number_refs], device=image.device) * step_size + underexposed_ranges[None, :])
-        overrexposed_ranges  = torch.linspace(self.gamma_lower, 0, steps=self.number_refs + 1).to(image.device)[:-1]
-        step_size            = - self.gamma_lower / self.number_refs
-        overrexposed_gamma   = torch.exp(torch.rand([b, self.number_refs], device=image.device) * overrexposed_ranges[None, :])
-        gammas               = torch.cat([underexposed_gamma, overrexposed_gamma], dim=1)
+        b, c, h, w          = image.shape
+        underexposed_ranges = torch.linspace(0, self.gamma_upper, steps=self.number_refs + 1).to(image.device)[:-1]
+        step_size           = self.gamma_upper / self.number_refs
+        underexposed_gamma  = torch.exp(torch.rand([b, self.number_refs], device=image.device) * step_size + underexposed_ranges[None, :])
+        overexposed_ranges  = torch.linspace(self.gamma_lower, 0, steps=self.number_refs + 1).to(image.device)[:-1]
+        step_size           = - self.gamma_lower / self.number_refs
+        overexposed_gamma   = torch.exp(torch.rand([b, self.number_refs], device=image.device) * overexposed_ranges[None, :])
+        gammas              = torch.cat([underexposed_gamma, overexposed_gamma], dim=1)
         # gammas: [b, nref], im: [b, c, h, w] -> synthetic_references: [b, nref, c, h, w]
         synthetic_references = 1 - (1 - image[:, None]) ** gammas[:, :, None, None, None]
         

@@ -38,7 +38,6 @@ def predict(args: dict | box.Box) -> str:
         cv2.imwrite(str(image_path), frame)
         
 
-
 # ----- Main -----
 def main() -> str:
     parser = argparse.ArgumentParser()

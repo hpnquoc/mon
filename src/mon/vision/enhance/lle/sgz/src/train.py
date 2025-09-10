@@ -55,7 +55,7 @@ class Trainer:
         # Calculate seg. loss
         seg_loss   = self.seg_criterion(seg_output, target)
         return seg_loss
-
+    
     def get_loss(self, A, enhanced_image, img_lowlight, E):
         Loss_TV  = 1600 * self.L_TV(A)
         loss_spa = torch.mean(self.L_spa(enhanced_image, img_lowlight))

@@ -486,28 +486,29 @@ class TRTPrecision(Enum):
 class Task(Enum):
     """Task types."""
 
-    BGSUBTRACT = "bgsubtract"            # background subtraction
-    CLASSIFY   = "classify"              # classification
-    DEBLUR     = "deblur"                # deblurring
-    DEHAZE     = "dehaze"                # dehazing
-    DENOISE    = "denoise"               # denoising
-    DEPTH      = "depth"                 # depth estimation
-    DERAIN     = "derain"                # deraining
-    DESNOW     = "desnow"                # desnowing
-    DETECT     = "detect"                # object detection
-    INPAINT    = "inpaint"               # inpainting
-    LLE        = "lle"                   # low-light enhancement
-    NIGHTTIME  = "nighttime"             # nighttime
-    OBB        = "obb"                   # oriented bounding box detection
-    POSE       = "pose"                  # pose estimation
-    RETOUCH    = "retouch"               # Retouching
-    RGB2TIR    = "rgb2tir"               # RGB-to-TIR translation
-    RR         = "rr"                    # reflection removal
-    SEGMENT    = "segment"               # semantic segmentation
-    SR         = "sr"                    # super-resolution
-    TRACK      = "track"                 # object tracking
-    UE         = "ue"                    # underwater enhancement
-    VIDEO      = "video"                 # video processing
+    BGSUBTRACT = "bgsubtract"           # background subtraction
+    CLASSIFY   = "classify"             # classification
+    DEBLUR     = "deblur"               # deblurring
+    DEHAZE     = "dehaze"               # dehazing
+    DENOISE    = "denoise"              # denoising
+    DEPTH      = "depth"                # depth estimation
+    DERAIN     = "derain"               # deraining
+    DESNOW     = "desnow"               # desnowing
+    DETECT     = "detect"               # object detection
+    INPAINT    = "inpaint"              # inpainting
+    LLE        = "lle"                  # low-light enhancement
+    MEF        = "mef"                  # multi-exposure fusion
+    NIGHTTIME  = "nighttime"            # nighttime
+    OBB        = "obb"                  # oriented bounding box detection
+    POSE       = "pose"                 # pose estimation
+    RETOUCH    = "retouch"              # Retouching
+    RGB2TIR    = "rgb2tir"              # RGB-to-TIR translation
+    RR         = "rr"                   # reflection removal
+    SEGMENT    = "segment"              # semantic segmentation
+    SR         = "sr"                   # super-resolution
+    TRACK      = "track"                # object tracking
+    UE         = "ue"                   # underwater enhancement
+    VIDEO      = "video"                # video processing
 
 
 # ----- Vision -----

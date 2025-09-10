@@ -5,6 +5,7 @@
 
 import box
 import cv2
+import numpy as np
 import torch
 
 import mon
@@ -14,6 +15,20 @@ mon.dev()
 
 current_file = mon.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
+
+
+# ----- Utils -----
+def mef(images: list[torch.Tensor]):
+    images    = [mon.image.to_array(img) for img in images]
+    align_mtb = cv2.createAlignMTB()
+    align_mtb.process(images, images)
+    merge_mertens = cv2.createMergeMertens()
+    merge_mertens.setContrastWeight(0.8)
+    merge_mertens.setSaturationWeight(0.8)
+    merge_mertens.setExposureWeight(0.5)
+    exposure_fusion = merge_mertens.process(images)
+    exposure_fusion = np.clip(exposure_fusion * 255, 0, 255).astype(np.uint8)
+    return exposure_fusion
 
 
 # ----- Predict -----
@@ -89,10 +104,18 @@ def predict(args: dict | box.Box) -> str:
 
             # Postprocess
             timers.postprocess.tick()
-            enhanced = outputs[-1]
-            enhanced = mon.image.to_array(enhanced)
+            image    = mon.image.to_array(image)
+            if args.model == "gcenet_mef":
+                # enhanced = mef([outputs[1], outputs[-1]])
+                enhanced = mef(outputs[1:])
+                # enhanced = outputs[-2]
+                # enhanced = mon.image.to_array(enhanced)
+            else:
+                enhanced = outputs[-1]
+                enhanced = mon.image.to_array(enhanced)
             h1, w1   = mon.image.imgsz(enhanced)
             if (h1, w1) != (h0, w0):
+                image    = cv2.resize(image,    (w0, h0))
                 enhanced = cv2.resize(enhanced, (w0, h0))
             timers.postprocess.tock()
 
@@ -101,6 +124,12 @@ def predict(args: dict | box.Box) -> str:
                 out_dir  = mon.rt.parse_output_dir(args.save_dir, data_name, mon.SAVE_IMAGE_DIR, path, args.keep_subdirs, args.save_nearby)
                 out_path = out_dir / f"{path.stem}{mon.SAVE_IMAGE_EXT}"
                 mon.image.save_image(enhanced, out_path)
+            if args.save_debug:
+                image    = cv2.hconcat([image, enhanced])
+                out_dir  = mon.rt.parse_output_dir(args.save_dir, data_name, mon.SAVE_DEBUG_DIR, path, args.keep_subdirs, args.save_nearby)
+                out_path = out_dir / f"{path.stem}{mon.SAVE_IMAGE_EXT}"
+                mon.image.save_image(image, out_path)
+            
     timers.total.tock()
 
     # Finish

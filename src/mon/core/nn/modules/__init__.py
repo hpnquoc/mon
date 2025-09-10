@@ -16,7 +16,8 @@ from .ghostconv import (
     GhostModule,
     GhostModuleV2,
 )
-from .inr import INRLayer
+from .inr import FINER, INRLayer, SIREN
 from .mobileone import MobileOneBlock
 from .normalization import *
+from .pono_ms import MomentShortcut, PositionalNorm
 from .registering import *
