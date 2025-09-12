@@ -23,10 +23,10 @@ archive/
 build/
 dist/
 /data/
-/project/*/archive/
-/project/*/data/
-/project/*/run/
-/project/team15/
-/project/tss/tss_old/
+/projects/*/archive/
+/projects/*/data/
+/projects/*/run/
+/projects/team15/
+/projects/tss/tss_old/
+/tools/xanylabeling/
 /zoo/*/
-/tool/xanylabeling/

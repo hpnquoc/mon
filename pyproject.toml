@@ -119,20 +119,20 @@ packages = [
 include  = [
     ".gitignore",
     ".gitmodules",
-    "LICENSE",
     "install.sh",
+    "LICENSE",
     "mkdocs.yml",
     "pyproject.toml",
-    {path="docs"  },
-    {path="env"   },
-    {path="script"},
+    {path="docs" },
+    {path="setup"},
+    {path="tool" },
 ]
 exclude  = []
 
 [tool.poetry.dependencies]
-snntorch      = {path="src/mon/extra/snntorch",     develop=true}
-spikingjelly  = {path="src/mon/extra/spikingjelly", develop=true}
-ultralytics   = {path="src/mon/extra/ultralytics",  develop=true}
+snntorch      = {path="src/snntorch",     develop=true}
+spikingjelly  = {path="src/spikingjelly", develop=true}
+ultralytics   = {path="src/ultralytics",  develop=true}
 
 [build-system]
 requires      = ["poetry-core>=2.0.0"]

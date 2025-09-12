@@ -1,3 +1,0 @@
-[submodule "src/mon/extra/ultralytics"]
-	path = src/mon/extra/ultralytics
-	url  = https://github.com/phlong3105/ultralytics

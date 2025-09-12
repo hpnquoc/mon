@@ -50,7 +50,7 @@ current_file=$(readlink -f "${0}")
 current_dir=$(dirname "${current_file}")
 project_dir=$(dirname "${current_dir}")
 root_dir=$(dirname "${project_dir}")
-run_dir="${project_dir}/run"
+run_dir="${root_dir}/src/mon_run"
 
 # ----- Main -----
 cd "${run_dir}" || exit

@@ -60,9 +60,9 @@ check_cuda() {
 get_env_yaml_path() {
     # echo -e "\nGetting environment YAML path"
     if check_cuda; then
-        echo "${root_dir}/install/cuda.yaml"
+        echo "${root_dir}/setup/cuda.yaml"
     else
-        echo "${root_dir}/install/cpu.yaml"
+        echo "${root_dir}/setup/cpu.yaml"
     fi
 }
 
@@ -293,7 +293,7 @@ setup_rlsync() {
     echo -e "\nSetting up Resilio Sync (rlsync)"
     rsync_dir="${root_dir}/.sync"
     mkdir -p "${rsync_dir}"
-    cp "${root_dir}/install/IgnoreList" "${rsync_dir}/IgnoreList"
+    cp "${root_dir}/setup/IgnoreList" "${rsync_dir}/IgnoreList"
 }
 
 setup_system() {
@@ -441,7 +441,7 @@ install_mon_env() {
 # ----- Tool -----
 install_xanylabeling() {
     echo -e "\nInstall X-AnyLabeling"
-    xanylabeling_dir="${current_dir}/tool/xanylabeling"
+    xanylabeling_dir="${current_dir}/tools/xanylabeling"
 
     # Download repo
     if [ ! -d "$xanylabeling_dir" ]; then
