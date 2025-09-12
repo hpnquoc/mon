@@ -15,7 +15,7 @@
 #   - poetry        : https://python-poetry.org/docs/
 
 [project]
-name            = "enhance"
+name            = "zlod"
 version         = "1.0.0"
 authors         = [
     { name = "Long H. Pham", email = "longpham3105@gmail.com" },
@@ -23,7 +23,7 @@ authors         = [
 maintainers     = [
     { name = "Long H. Pham", email = "longpham3105@gmail.com" },
 ]
-description     = "This repo implements a library for benchmarking image/video enhancement algorithms."
+description     = "Zero-shot low-visbility object detection"
 readme          = "README.md"
 license         = "MIT"
 license-files   = ["LICENSE.*"]
