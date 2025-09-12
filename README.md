@@ -2,7 +2,7 @@
 	<h1 align="center">🐈 MON</h1>
 </div>
 
-`🐈 mon` is a research framework for computer vision, built using [Python](https://www.python.org/) and [PyTorch](https://pytorch.org/). 
+`🐈 mon` is a research **[Monorepo](https://github.com/matakanobu/python-monorepo/tree/main)** for computer vision, built using [Python](https://www.python.org/) and [PyTorch](https://pytorch.org/). 
 
 <details>
   <summary></summary>
@@ -21,7 +21,7 @@ sudo chmod +x install.sh
 
 The code is fully compatible with [PyTorch](https://pytorch.org/) >= 2.0.
 
-## Framework Structure
+## Repo Structure
 
 `🐈 mon` is a **[Monorepo](https://github.com/matakanobu/python-monorepo/tree/main)** with multiple projects (``projects``) and shared common libs (``shared``).
 

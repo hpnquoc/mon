@@ -62,11 +62,10 @@ metrics=(
 )
 
 # ----- Directory & File -----
-current_file=$(readlink -f "${0}")
-current_dir=$(dirname "${current_file}")
+current_dir=$(pwd)
 project_dir=$(dirname "${current_dir}")
-root_dir=$(dirname "${project_dir}")
-run_dir="${root_dir}/src/mon_run"
+root_dir=$(get_root_dir "$(pwd)")
+run_dir="${root_dir}/shared/mon_run"
 
 declare -A input_subdirs=(
     ["fiveka"]="fivek/pred"
@@ -102,14 +101,14 @@ for data in "${datasets[@]}"; do
     input_subdir="${input_subdirs[${data}]:-${data}/pred}"
     for arch in "${archs[@]}"; do
         for model in "${models[@]}"; do
-            mapfile -t -O "${#input_dirs[@]}" input_dirs < <(find "$current_dir/run/predict" -type d -path "*/${arch}/${model}/${input_subdir}" 2>/dev/null | sort)
+            mapfile -t -O "${#input_dirs[@]}" input_dirs < <(find "${project_dir}/run/predict" -type d -path "*/${arch}/${model}/${input_subdir}" 2>/dev/null | sort)
         done
     done
     # unique_array "${input_dirs[@]}" input_dirs
 
     # Target
     target_subdir="${target_subdirs[$data]:-${data}/test/ref}"
-    target_dir="${current_dir}/data/${target_subdir}"
+    target_dir="${project_dir}/data/${target_subdir}"
     # Fallback target_dir if not found
     [[ ! -d "${target_dir}" ]] && target_dir="${root_dir}/data/enhance/${target_subdir}"
 
@@ -134,7 +133,7 @@ for data in "${datasets[@]}"; do
         python -W ignore metric_iqa.py \
             --input-dir "${input_dir}" \
             --target-dir "${target_dir}" \
-            --result-file "${current_dir}" \
+            --result-file "${project_dir}" \
             --arch "${arch_name}" \
             --model "${model_name}" \
             --data "${data}" \

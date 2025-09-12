@@ -39,11 +39,10 @@ datasets=(
 )
 
 # ----- Directory & File -----
-current_file=$(readlink -f "${0}")
-current_dir=$(dirname "${current_file}")
+current_dir=$(pwd)
 project_dir=$(dirname "${current_dir}")
-root_dir=$(dirname "${project_dir}")
-run_dir="${root_dir}/src/mon_run"
+root_dir=$(get_root_dir "$(pwd)")
+run_dir="${root_dir}/shared/mon_run"
 
 declare -A input_subdirs=(
     ["lolv2real"]="lolv2/real/test/image"
@@ -76,12 +75,12 @@ cd "${run_dir}" || exit
 for data in "${datasets[@]}"; do
     # Input
     input_subdir="${input_subdirs[$data]:-${data}/test/image}"
-    input_dir="${current_dir}/data/${input_subdir}_${model}"
+    input_dir="${project_dir}/data/${input_subdir}_${model}"
     check_dir "${input_dir}"
 
     # Target
     target_subdir="${target_subdirs[$data]:-${data}/test/ref}"
-    target_dir="${current_dir}/data/${target_subdir}_${model}"
+    target_dir="${project_dir}/data/${target_subdir}_${model}"
     check_dir "${target_dir}"
 
     device=$(get_device)
@@ -90,7 +89,7 @@ for data in "${datasets[@]}"; do
     python -W ignore metric_depth.py \
         --input-dir "${input_dir}" \
         --target-dir "${target_dir}" \
-        --result-file "${current_dir}" \
+        --result-file "${project_dir}" \
         --arch "${arch}" \
         --model "${model}" \
         --data "${data}" \

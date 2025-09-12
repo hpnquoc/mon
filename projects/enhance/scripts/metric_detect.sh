@@ -32,11 +32,10 @@ bbox_format="yolo"
 exist_ok=$(echo "--exist-ok")
 
 # ----- Directory & File -----
-current_file=$(readlink -f "${0}")
-current_dir=$(dirname "${current_file}")
+current_dir=$(pwd)
 project_dir=$(dirname "${current_dir}")
-root_dir=$(dirname "${project_dir}")
-run_dir="${root_dir}/src/mon_run"
+root_dir=$(get_root_dir "$(pwd)")
+run_dir="${root_dir}/shared/mon_run"
 
 declare -A target_jsons=(
     ["darkface"]="darkface/test/test.json"
@@ -58,16 +57,16 @@ for data in "${datasets[@]}"; do
     declare -a input_dirs=()
     for arch in "${archs[@]}"; do
         for model in "${models[@]}"; do
-            mapfile -t -O "${#input_dirs[@]}" input_dirs < <(find "${current_dir}/run/predict" -type d -path "*/${arch}/${model}/${data}/pred" 2>/dev/null | sort)
+            mapfile -t -O "${#input_dirs[@]}" input_dirs < <(find "${project_dir}/run/predict" -type d -path "*/${arch}/${model}/${data}/pred" 2>/dev/null | sort)
         done
     done
     unique_array "${input_dirs[@]}" input_dirs
 
     # Target
     target_json="${target_jsons[$data]:-${data}/test/test.json}"
-    target_json="${current_dir}/data/${target_json}"
+    target_json="${project_dir}/data/${target_json}"
     remap="${remaps[${data}]:-""}"
-    [[ "${remap}" != "" ]] && remap="${current_dir}/data/${remap}"
+    [[ "${remap}" != "" ]] && remap="${project_dir}/data/${remap}"
 
     for input_dir in "${input_dirs[@]}"; do
         data_subdir=$(dirname "${input_dir}")
@@ -90,7 +89,7 @@ for data in "${datasets[@]}"; do
                 --label-dir "${label_dir}" \
                 --input-json "${input_json}" \
                 --target-json "${target_json}" \
-                --result-file "${current_dir}" \
+                --result-file "${project_dir}" \
                 --remap "${remap}" \
                 --arch "${arch_name}" \
                 --model "${model_name}" \

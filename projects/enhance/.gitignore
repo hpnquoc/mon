@@ -14,13 +14,14 @@
 *.xlsx
 *.zip
 *~
+Icon?
 .idea/
 .sync/
-Icon?
 __pycache__/
 _gsdata_/
 archive/
 build/
 dist/
-/data/
-/zoo/
+/data/*/
+/run/*/
+/zoo/*/

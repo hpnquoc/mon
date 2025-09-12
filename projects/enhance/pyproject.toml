@@ -15,15 +15,15 @@
 #   - poetry        : https://python-poetry.org/docs/
 
 [project]
-name            = "project_a"
-version         = "0.0.0"
+name            = "enhance"
+version         = "1.0.0"
 authors         = [
     { name = "Long H. Pham", email = "longpham3105@gmail.com" },
 ]
 maintainers     = [
     { name = "Long H. Pham", email = "longpham3105@gmail.com" },
 ]
-description     = "Project A."
+description     = "This repo implements a library for benchmarking image/video enhancement algorithms."
 readme          = "README.md"
 license         = "MIT"
 license-files   = ["LICENSE.*"]
@@ -50,9 +50,8 @@ Repository    = ""
 Issues        = ""
 
 [tool.poetry]
-packages = [
-    { include = "project_a" },
-]
+package-mode = false                    # If you want to use Poetry only for dependency management but not for packaging.
+# packages = []
 include  = []
 exclude  = []
 

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# ----- Validation -----
+# ----- Directory -----
 check_file() {
     [[ ! -f "$1" ]] && { echo "File not found: $1"; }
 }
@@ -11,6 +11,41 @@ check_dir() {
 
 create_dir() {
     [[ ! -d "$1" ]] && { echo "Creating directory: $1"; mkdir -p "$1"; }
+}
+
+get_root_dir() {
+    local start_path="$1"
+
+    # Convert start_path to absolute path
+    start_path=$(realpath "$start_path" 2>/dev/null)
+
+    # Check if start_path exists and is a directory
+    if [ ! -d "$start_path" ]; then
+      return 1
+    fi
+
+    # Start from the given path
+    local current_path="$start_path"
+
+    # Loop until we reach the root directory (/)
+    while [ "$current_path" != "/" ]; do
+      # Check if the current directory's name is "mon"
+      if [ "$(basename "$current_path")" = "mon" ]; then
+        echo "$current_path"
+        return 0
+      fi
+      # Move up one directory
+      current_path=$(dirname "$current_path")
+    done
+
+    # Check the root directory (/) as the last case
+    if [ "$(basename "$current_path")" = "mon" ]; then
+      echo "$current_path"
+      return 0
+    fi
+
+    # No directory named "mon" found
+    return 1
 }
 
 # ----- Device -----
@@ -53,7 +88,6 @@ get_device() {
     done <<< "$GPU_INFO"
     echo "cuda:$least_used_gpu"
 }
-
 
 # ----- Misc -----
 unique_array() {

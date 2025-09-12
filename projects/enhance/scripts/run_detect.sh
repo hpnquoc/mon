@@ -31,11 +31,10 @@ datasets=(
 resize=$(echo "--resize")
 
 # ----- Directory & File -----
-current_file=$(readlink -f "${0}")
-current_dir=$(dirname "${current_file}")
+current_dir=$(pwd)
 project_dir=$(dirname "${current_dir}")
-root_dir=$(dirname "${project_dir}")
-run_dir="${root_dir}/src/mon_run"
+root_dir=$(get_root_dir "$(pwd)")
+run_dir="${root_dir}/shared/mon_run"
 
 # ----- Main -----
 cd "${run_dir}" || exit
@@ -45,14 +44,14 @@ for data in "${datasets[@]}"; do
     all_data=""
     for arch in "${archs[@]}"; do
         for model in "${models[@]}"; do
-            all_data+=$(find "$current_dir/run/predict" -type d -path "*/${arch}/${model}/${data}/pred" 2>/dev/null | sort | paste -sd ',' - | sed 's/,$//')
+            all_data+=$(find "${project_dir}/run/predict" -type d -path "*/${arch}/${model}/${data}/pred" 2>/dev/null | sort | paste -sd ',' - | sed 's/,$//')
         done
     done
 
     device=$(get_device)
 
     python -W ignore main.py \
-        --root "${current_dir}" \
+        --root "${project_dir}" \
         --task "${task}" \
         --mode "${mode}" \
         --arch "${detector_arch}" \

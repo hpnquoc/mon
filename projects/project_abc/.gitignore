@@ -22,10 +22,6 @@ _gsdata_/
 archive/
 build/
 dist/
-/projects/*/data/*/
-/projects/*/run/*/
-/projects/*/zoo/*/
-/projects/team15/
-/projects/tss/tss_old/
-/tools/xanylabeling/
+/data/*/
+/run/*/
 /zoo/*/

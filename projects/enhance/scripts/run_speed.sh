@@ -19,11 +19,10 @@ data=$(printf "%s, " "${datasets[@]}")
 data=${data%, }  # Remove trailing ", "
 
 # ----- Directory & File -----
-current_file=$(readlink -f "${0}")
-current_dir=$(dirname "${current_file}")
+current_dir=$(pwd)
 project_dir=$(dirname "${current_dir}")
-root_dir=$(dirname "${project_dir}")
-run_dir="${root_dir}/src/mon_run"
+root_dir=$(get_root_dir "$(pwd)")
+run_dir="${root_dir}/shared/mon_run"
 
 # ----- Main -----
 cd "${run_dir}" || exit
@@ -31,7 +30,7 @@ cd "${run_dir}" || exit
 device=$(get_device)
 
 python -W ignore main.py \
-    --root "${current_dir}" \
+    --root "${project_dir}" \
     --task "${task}" \
     --mode "${mode}" \
     --arch "${arch}" \
