@@ -23,7 +23,7 @@ The code is fully compatible with [PyTorch](https://pytorch.org/) >= 2.0.
 
 ## Framework Structure
 
-`🐈 mon` is a **Monorepo** with multiple projects (``projects``) and shared common libs (``src``).
+`🐈 mon` is a **[Monorepo](https://github.com/matakanobu/python-monorepo/tree/main)** with multiple projects (``projects``) and shared common libs (``shared``).
 
 <details>
   <summary>Directory Structure</summary>
@@ -40,7 +40,8 @@ The code is fully compatible with [PyTorch](https://pytorch.org/) >= 2.0.
   |   |   |__ notebook        # Notebooks for experiments.
   |   |   |__ scripts         # Useful scripts.
   |   |   |__ tests           # Unit tests.
-  |   |   |__ project_A/      # Python code.
+  |   |   |__ project_A       # Project's code.
+  |   |   |   |__ ...
   |   |   |__ .dockerignore   
   |   |   |__ .gitignore      
   |   |   |__ Makefile        
@@ -49,12 +50,14 @@ The code is fully compatible with [PyTorch](https://pytorch.org/) >= 2.0.
   |   |   |__ ...             
   |   |__ ...                 
   |                          
-  |__ src                     # Common code shared across multiple projects is located.
+  |__ shared                  # Common code shared across multiple projects is located.
   |   |__ mon                 # My main package
-  |   |   |__ core            # Base functionality for other packages.
-  |   |   |__ datasets        # Dataset package.
-  |   |   |__ vision          # Computer vision package.
-  |   |   |__ ...              
+  |   |   |__ mon
+  |   |   |   |__ core        # Base functionality for other packages.
+  |   |   |   |__ datasets    # Dataset package.
+  |   |   |   |__ vision      # Computer vision package.
+  |   |   |   |__ ...      
+  |   |   |__ pyproject.toml             
   |   |__ ...                 
   |                          
   |__ setup                   # Installation assets.
