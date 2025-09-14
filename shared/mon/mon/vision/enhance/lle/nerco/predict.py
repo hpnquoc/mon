@@ -9,6 +9,7 @@ References:
     - Code: https://github.com/Ysz2022/NeRCo
 """
 
+import copy
 import random
 
 import box
@@ -147,8 +148,13 @@ def predict(args: dict | box.Box) -> str:
 
 # ----- Main -----
 def main() -> str:
-    args = mon.rt.parse_predict_args(model_root=current_dir)
-    predict(args)
+    cli  = mon.rt.parse_cli_args(root=current_dir)
+    data = mon.utils.to_list(cli.data)
+    for d in data:
+        cli_ = copy.deepcopy(cli)
+        cli_.data = d
+        args = mon.rt.parse_predict_args(cli=cli_, root=current_dir)
+        predict(args)
 
 
 if __name__ == "__main__":

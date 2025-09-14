@@ -57,4 +57,4 @@ DfsrPrivate
 __pycache__/
 _gsdata_/
 /data/
-/project/*/data/
+/projects/*/data/

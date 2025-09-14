@@ -38,8 +38,8 @@ The code is fully compatible with [PyTorch](https://pytorch.org/) >= 2.0.
   |   |   |__ docker          # Docker files for deployment. 
   |   |   |__ run             
   |   |   |__ notebook        # Notebooks for experiments.
-  |   |   |__ scripts         # Useful scripts.
   |   |   |__ tests           # Unit tests.
+  |   |   |__ tools           # Useful scripts.
   |   |   |__ project_A       # Project's code.
   |   |   |   |__ ...
   |   |   |__ .dockerignore   

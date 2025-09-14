@@ -24,7 +24,6 @@ from mon.core.nn import functional as F
 from . import loss as L
 
 current_file = Path(__file__).absolute()
-current_dir  = current_file.parents[0]
 root_dir     = current_file.parents[1]
 
 

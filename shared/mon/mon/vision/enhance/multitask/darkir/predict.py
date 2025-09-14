@@ -8,13 +8,15 @@ References:
     - Code: https://github.com/cidautai/DarkIR
 """
 
+import copy
+
 import box
 import cv2
 import torch
 from ptflops import get_model_complexity_info
+from src.archs import create_model
 
 import mon
-from shared.archs import create_model
 from mon import albumentations as A
 
 current_file = mon.Path(__file__).absolute()
@@ -118,8 +120,13 @@ def predict(args: dict | box.Box) -> str:
 
 # ----- Main -----
 def main() -> str:
-    args = mon.rt.parse_predict_args(model_root=current_dir)
-    predict(args)
+    cli  = mon.rt.parse_cli_args(root=current_dir)
+    data = mon.utils.to_list(cli.data)
+    for d in data:
+        cli_ = copy.deepcopy(cli)
+        cli_.data = d
+        args = mon.rt.parse_predict_args(cli=cli_, root=current_dir)
+        predict(args)
 
 
 if __name__ == "__main__":

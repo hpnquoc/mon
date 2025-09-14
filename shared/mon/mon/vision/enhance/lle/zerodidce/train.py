@@ -13,8 +13,7 @@ import box
 import torch
 
 import mon
-from mon.vision.enhance.lle import zerodidce
-from mon.vision.enhance.lle.zerodidce import loss as L
+import zerodidce
 
 mon.dev()
 
@@ -53,7 +52,7 @@ def train(args: dict | box.Box) -> str:
     optimizer = mon.nn.Adam(model.parameters(), **args.optimizer)
     
     # Loss
-    L_piece = L.PiecewiseNonReferenceLoss().to(device)
+    L_piece = zerodidce.PiecewiseNonReferenceLoss().to(device)
     
     # Data I/O
     args["train_dataloader"]["dataset"]["root"] = mon.data.parse_data_dir(args.root)

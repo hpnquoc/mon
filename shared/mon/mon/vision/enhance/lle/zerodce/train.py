@@ -13,8 +13,7 @@ import box
 import torch
 
 import mon
-from mon.vision.enhance.lle import zerodce
-from mon.vision.enhance.lle.zerodce import loss as L
+import zerodce
 
 mon.dev()
 
@@ -54,10 +53,10 @@ def train(args: dict | box.Box) -> str:
     
     # Loss
     
-    L_tv    = L.L_tv().to(device)
-    L_spa   = L.L_spa().to(device)
-    L_col   = L.L_col().to(device)
-    L_exp   = L.L_exp(16, args.loss.L_exp_mean).to(device)
+    L_tv    = zerodce.L_tv().to(device)
+    L_spa   = zerodce.L_spa().to(device)
+    L_col   = zerodce.L_col().to(device)
+    L_exp   = zerodce.L_exp(16, args.loss.L_exp_mean).to(device)
     L_tv_w  = args.loss.L_tv_w
     L_spa_w = args.loss.L_spa_w
     L_col_w = args.loss.L_col_w

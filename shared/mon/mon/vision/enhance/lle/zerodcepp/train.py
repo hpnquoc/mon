@@ -13,8 +13,7 @@ import box
 import torch
 
 import mon
-from mon.vision.enhance.lle import zerodcepp
-from mon.vision.enhance.lle.zerodcepp import loss as L
+import zerodcepp
 
 mon.dev()
 
@@ -63,10 +62,10 @@ def train(args: dict | box.Box) -> str:
     optimizer = mon.nn.Adam(model.parameters(), **args.optimizer)
     
     # Loss
-    L_tv    = L.L_tv().to(device)
-    L_spa   = L.L_spa().to(device)
-    L_col   = L.L_col().to(device)
-    L_exp   = L.L_exp(16, args.loss.L_exp_mean).to(device)
+    L_tv    = zerodcepp.L_tv().to(device)
+    L_spa   = zerodcepp.L_spa().to(device)
+    L_col   = zerodcepp.L_col().to(device)
+    L_exp   = zerodcepp.L_exp(16, args.loss.L_exp_mean).to(device)
     L_tv_w  = args.loss.L_tv_w
     L_spa_w = args.loss.L_spa_w
     L_col_w = args.loss.L_col_w

@@ -9,10 +9,7 @@ from typing import Literal
 
 import torch
 
-from mon.core import log, nn, Path
-
-current_file = Path(__file__).absolute()
-current_dir  = current_file.parents[0]
+from mon.core import log, nn
 
 
 class Loss(nn.BaseLoss):

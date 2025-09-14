@@ -13,6 +13,7 @@ __start = time.time()
 
 from mon.core import *
 from mon.constants import *
+from mon.datasets import *
 
 __end = time.time()
 console.log(f"`mon` loaded in: {__end - __start:.4f} seconds.")
@@ -22,7 +23,6 @@ console.log(f"`mon` loaded in: {__end - __start:.4f} seconds.")
 def dev(verbose: bool = True):
     start = time.time()
     
-    import mon.datasets  # Register datasets
     import mon.vision    # Register vision models
     
     end = time.time()

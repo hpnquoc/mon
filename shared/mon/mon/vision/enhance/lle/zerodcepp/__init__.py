@@ -13,4 +13,4 @@ __all__ = [
     "ZeroDCEpp",
 ]
 
-from .model import ZeroDCEpp
+from .zerodcepp import ZeroDCEpp

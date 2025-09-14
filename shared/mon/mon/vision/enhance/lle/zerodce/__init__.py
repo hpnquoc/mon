@@ -13,4 +13,4 @@ __all__ = [
     "ZeroDCE",
 ]
 
-from .model import ZeroDCE
+from .zerodce import ZeroDCE

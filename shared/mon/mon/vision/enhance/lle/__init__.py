@@ -30,4 +30,4 @@ from .zerodce import *
 from .zerodcepp import *
 from .zerodidce import *
 from .zeroig import *
-from .zinf import *
+# from .zinf import *
