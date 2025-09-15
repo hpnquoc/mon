@@ -17,15 +17,6 @@ import torchvision
 
 import cidnet
 import mon
-from .cidnet import (
-    CosineAnnealingRestartCyclicLR,
-    CosineAnnealingRestartLR,
-    EdgeLoss,
-    GradualWarmupScheduler,
-    L1Loss,
-    PerceptualLoss,
-    SSIM,
-)
 
 mon.dev()
 
@@ -83,20 +74,20 @@ def train(args: dict | box.Box) -> str:
     optimizer = mon.nn.Adam(model.parameters(), lr=lr)
     if cos_restart_cyclic:
         if start_warmup:
-            scheduler_step = CosineAnnealingRestartCyclicLR(
+            scheduler_step = cidnet.CosineAnnealingRestartCyclicLR(
                 optimizer       = optimizer,
                 periods         = [(args.epochs // 4) - warmup_epochs, (args.epochs * 3) // 4],
                 restart_weights = [1, 1],
                 eta_mins        = [0.0002, 0.0000001]
             )
-            scheduler = GradualWarmupScheduler(
+            scheduler = cidnet.GradualWarmupScheduler(
                 optimizer,
                 multiplier      = 1,
                 total_epoch     = warmup_epochs,
                 after_scheduler = scheduler_step
             )
         else:
-            scheduler = CosineAnnealingRestartCyclicLR(
+            scheduler = cidnet.CosineAnnealingRestartCyclicLR(
                 optimizer       = optimizer,
                 periods         = [args.epochs // 4, (args.epochs * 3) // 4],
                 restart_weights = [1, 1],
@@ -104,20 +95,20 @@ def train(args: dict | box.Box) -> str:
             )
     elif cos_restart:
         if start_warmup:
-            scheduler_step = CosineAnnealingRestartLR(
+            scheduler_step = cidnet.CosineAnnealingRestartLR(
                 optimizer       = optimizer,
                 periods         = [args.epochs - warmup_epochs - start_epoch],
                 restart_weights = [1],
                 eta_min         = 1e-7
             )
-            scheduler = GradualWarmupScheduler(
+            scheduler = cidnet.GradualWarmupScheduler(
                 optimizer,
                 multiplier      = 1,
                 total_epoch     = warmup_epochs,
                 after_scheduler = scheduler_step
             )
         else:
-            scheduler = CosineAnnealingRestartLR(
+            scheduler = cidnet.CosineAnnealingRestartLR(
                 optimizer       = optimizer,
                 periods         = [args.epochs - start_epoch],
                 restart_weights = [1],
@@ -127,10 +118,10 @@ def train(args: dict | box.Box) -> str:
         raise Exception("Should choose a scheduler.")
     
     # Loss
-    L1_loss = L1Loss(loss_weight=L1_weight, reduction="mean").to(device)
-    D_loss  = SSIM(weight=D_weight).to(device)
-    E_loss  = EdgeLoss(loss_weight=E_weight).to(device)
-    P_loss  = PerceptualLoss(
+    L1_loss = cidnet.L1Loss(loss_weight=L1_weight, reduction="mean").to(device)
+    D_loss  = cidnet.SSIM(weight=D_weight).to(device)
+    E_loss  = cidnet.EdgeLoss(loss_weight=E_weight).to(device)
+    P_loss  = cidnet.PerceptualLoss(
         {"conv1_2": 1, "conv2_2": 1, "conv3_4": 1, "conv4_4": 1},
         perceptual_weight = P_weight,
         criterion         = "mse"

@@ -20,9 +20,9 @@ import torch
 import dfine
 import mon
 # sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
-from .dfine.core import YAMLConfig
-from .dfine.misc import dist_utils
-from .dfine.solver import TASKS
+from dfine.core import YAMLConfig
+from dfine.misc import dist_utils
+from dfine.solver import TASKS
 
 mon.dev()
 

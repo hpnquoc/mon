@@ -16,13 +16,12 @@ import torch
 import torch.backends.cudnn
 import torch.distributed
 import torch.nn as nn
-from torch.distributed.fsdp import FullyShardedDataParallel as FSDP
-from torch.nn.parallel import DataParallel as DP
-from torch.nn.parallel import DistributedDataParallel as DDP
+from torch.nn.parallel import DataParallel as DP, DistributedDataParallel as DDP
 from torch.utils.data import DistributedSampler
 
+
 # from torch.utils.data.dataloader import DataLoader
-from ..data import DataLoader
+
 
 
 def setup_distributed(print_rank: int = 0, print_method: str = "builtin", seed: int = None):
@@ -158,6 +157,7 @@ def de_model(model):
 
 def warp_loader(loader, shuffle=False):
     if is_dist_available_and_initialized():
+        from ..data import DataLoader
         sampler = DistributedSampler(loader.dataset, shuffle=shuffle)
         loader  = DataLoader(
             loader.dataset,

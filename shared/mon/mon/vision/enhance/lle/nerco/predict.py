@@ -19,7 +19,6 @@ from PIL import Image
 
 import mon
 import nerco
-from .nerco import get_transform, tensor2im, TestOptions
 
 mon.dev()
 
@@ -31,7 +30,7 @@ current_dir  = current_file.parents[0]
 @torch.no_grad()
 def predict(args: dict | box.Box) -> str:
     # Hard-code some parameters for test
-    cfgs                = TestOptions().parse()  # get test options
+    cfgs                = nerco.TestOptions().parse()  # get test options
     cfgs.num_threads    = 0             # test code only supports num_threads = 0
     cfgs.batch_size     = 1             # test code only supports batch_size  = 1
     cfgs.serial_batches = True          # disable data shuffling; comment this line if results on randomly chosen images are needed.
@@ -76,8 +75,8 @@ def predict(args: dict | box.Box) -> str:
     testB_dir   = current_dir / "src" / "dataset" / "testB"
     testB_files = sorted([f for f in testB_dir.glob("*") if f.is_image_file()])
     testB_size  = len(testB_files)
-    transform_A = get_transform(cfgs)
-    transform_B = get_transform(cfgs)
+    transform_A = nerco.get_transform(cfgs)
+    transform_B = nerco.get_transform(cfgs)
     
     # Predict
     timers = mon.TimeProfiler()
@@ -119,7 +118,7 @@ def predict(args: dict | box.Box) -> str:
             h1, w1   = mon.image.imgsz(enhanced)
             if (h1, w1) != (h0, w0):
                 enhanced = cv2.resize(enhanced, (h0, w0))
-            enhanced = tensor2im(enhanced)
+            enhanced = nerco.tensor2im(enhanced)
             timers.postprocess.tock()
             
             # Save

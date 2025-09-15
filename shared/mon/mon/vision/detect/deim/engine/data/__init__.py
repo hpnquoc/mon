@@ -9,9 +9,6 @@ from .dataloader import *
 
 from ._misc import convert_to_tv_tensor
 
-
-
-
 # def set_epoch(self, epoch) -> None:
 #     self.epoch = epoch
 # def _set_epoch_func(datasets):

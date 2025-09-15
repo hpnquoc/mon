@@ -17,7 +17,7 @@ import numpy as np
 import torch
 
 import mon
-from .neurop import build_model, build_train_loader, dict_to_nonedict, parse
+from neurop import build_model, build_train_loader, dict_to_nonedict, parse
 
 current_file = mon.Path(__file__).absolute()
 current_dir  = current_file.parents[0]

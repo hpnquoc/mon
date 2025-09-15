@@ -22,7 +22,7 @@ from pytorch_lightning import seed_everything
 
 import mon
 from mon.core import nn
-from .quadprior import (
+from quadprior import (
     create_model, DPMSolverSampler, HWC3, load_state_dict, resize_image,
 )
 

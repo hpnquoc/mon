@@ -17,7 +17,7 @@ from ptflops import get_model_complexity_info
 
 import mon
 from mon import albumentations as A
-from .darkir import create_model
+import darkir
 
 current_file = mon.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
@@ -55,7 +55,7 @@ def predict(args: dict | box.Box) -> str:
         raise ValueError(f"Invalid weights file: {pretrained}.")
 
     # Model
-    model, _, _ = create_model(args["network"], rank=0, device=device, torchrun=args.torchrun)
+    model, _, _ = darkir.create_model(args["network"], rank=0, device=device, torchrun=args.torchrun)
     model = load_model(model, path_weights=pretrained)
     model.eval()
     

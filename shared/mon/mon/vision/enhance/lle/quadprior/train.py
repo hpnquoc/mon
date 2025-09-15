@@ -16,7 +16,7 @@ from pytorch_lightning.callbacks import ModelCheckpoint
 from pytorch_lightning.strategies import DeepSpeedStrategy
 
 import mon
-from .quadprior import (
+from quadprior import (
     create_model, create_webdataset, disable_verbosity, ImageLogger,
     load_state_dict,
 )

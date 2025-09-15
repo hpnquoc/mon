@@ -16,7 +16,7 @@ import torch
 
 import mon
 from mon import albumentations as A
-from .neurop import build_model, dict_to_nonedict, parse
+from neurop import build_model, dict_to_nonedict, parse
 
 current_file = mon.Path(__file__).absolute()
 current_dir  = current_file.parents[0]

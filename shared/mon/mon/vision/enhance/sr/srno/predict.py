@@ -15,7 +15,7 @@ import torch
 
 import mon
 from mon import albumentations as A
-from .srno import make, make_coord
+from srno import make, make_coord
 
 current_file = mon.Path(__file__).absolute()
 current_dir  = current_file.parents[0]

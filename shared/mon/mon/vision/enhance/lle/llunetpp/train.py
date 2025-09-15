@@ -19,7 +19,6 @@ from torch.utils.tensorboard import SummaryWriter
 
 import llunetpp
 import mon
-from .llunetpp import AverageMeter, Loss
 
 mon.dev()
 
@@ -29,7 +28,7 @@ current_dir  = current_file.parents[0]
 
 # ----- Train -----
 def train_epoch(train_dataloader, model, criterion, optimizer, device):
-    loss_meters = AverageMeter()
+    loss_meters = llunetpp.AverageMeter()
     model.train()
     with mon.create_progress_bar() as pbar:
         for i, datapoint in pbar.track(
@@ -50,7 +49,7 @@ def train_epoch(train_dataloader, model, criterion, optimizer, device):
 
 
 def val_epoch(val_dataloader, model, criterion, device):
-    loss_meters = AverageMeter()
+    loss_meters = llunetpp.AverageMeter()
     psnr_meters = mon.nn.PeakSignalNoiseRatio().to(device)
     ssim_meters = mon.nn.StructuralSimilarityIndexMeasure().to(device)
     model.eval()
@@ -103,7 +102,7 @@ def train(args: dict | box.Box) -> str:
     scheduler = mon.nn.ExponentialLR(optimizer, 0.99)
     
     # Loss
-    criterion = Loss(*args.loss.loss_weights).to(device)
+    criterion = llunetpp.Loss(*args.loss.loss_weights).to(device)
     
     # Log
     writer = SummaryWriter(log_dir=str(args.save_dir))

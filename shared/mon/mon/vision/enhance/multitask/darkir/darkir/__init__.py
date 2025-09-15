@@ -13,4 +13,4 @@ __all__ = [
 ]
 
 from .archs import create_model
-from .model import *
+from .model import DarkIR
