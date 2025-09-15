@@ -14,12 +14,12 @@ __all__ = [
 
 import box
 
+import archs
 from mon.constants import MODELS
 from mon.core import MLType, ModelMixin, Path, Task
-from .src import archs
 
 current_file = Path(__file__).absolute()
-current_dir  = current_file.parents[0]
+root_dir     = current_file.parents[1]
 
 
 class DarkIR(archs.DarkIR, ModelMixin):
@@ -34,7 +34,7 @@ class DarkIR(archs.DarkIR, ModelMixin):
     name     : str          = "darkir"
     tasks    : list[Task]   = [Task.LLE, Task.DEBLUR]
     mltypes  : list[MLType] = [MLType.SUPERVISED]
-    model_dir: Path         = current_dir
+    model_dir: Path         = root_dir
     zoo      : dict         = box.Box()
 
 

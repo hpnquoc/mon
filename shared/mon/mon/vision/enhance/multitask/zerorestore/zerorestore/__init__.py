@@ -15,4 +15,4 @@ __all__ = [
     "ZeroRestoreUE",
 ]
 
-from .zerorestore import ZeroRestoreDehaze, ZeroRestoreLLE, ZeroRestoreUE
+from .model import ZeroRestoreDehaze, ZeroRestoreLLE, ZeroRestoreUE

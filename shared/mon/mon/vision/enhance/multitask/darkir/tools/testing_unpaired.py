@@ -1,11 +1,11 @@
 '''
 Script for testing the different models in unpaired dataset
 '''
-import os
 import argparse
-from options.options import parse
+import os
+
 from archs.retinexformer import RetinexFormer
-from torch.nn.parallel import DistributedDataParallel as DDP
+from options.options import parse
 
 parser = argparse.ArgumentParser(description="Script for testing")
 parser.add_argument('-p', '--config', type=str, default='./options/test/RealBlur_Night.yml', help = 'Config file of testing')
@@ -131,4 +131,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-

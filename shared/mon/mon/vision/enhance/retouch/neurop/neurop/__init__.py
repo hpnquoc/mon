@@ -13,4 +13,7 @@ __all__ = [
     "NeurOPInit",
 ]
 
-from .neurop import NeurOP, NeurOPInit
+from .data import build_train_loader
+from .model import NeurOP, NeurOPInit
+from .models import build_model
+from .utils import dict_to_nonedict, parse

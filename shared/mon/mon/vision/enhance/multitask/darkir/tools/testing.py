@@ -1,8 +1,7 @@
-import numpy as np
-import os, sys
-from tqdm import tqdm
-from options.options import parse
 import argparse
+import os
+
+from options.options import parse
 
 parser = argparse.ArgumentParser(description="Script for testing")
 parser.add_argument('-p', '--config', type=str, default='./options/test/LOLBlur.yml', help = 'Config file of testing')

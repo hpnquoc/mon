@@ -17,10 +17,10 @@ import box
 
 from mon.constants import MODELS
 from mon.core import MLType, ModelMixin, Path, Task
-from .src.models.model import FinetuneModel, InitModel
+from .models.model import FinetuneModel, InitModel
 
 current_file = Path(__file__).absolute()
-current_dir  = current_file.parents[0]
+root_dir     = current_file.parents[1]
 
 
 @MODELS.register(name="neurop", arch="neurop")
@@ -36,7 +36,7 @@ class NeurOP(FinetuneModel, ModelMixin):
     name     : str          = "neurop"
     tasks    : list[Task]   = [Task.RETOUCH]
     mltypes  : list[MLType] = [MLType.SUPERVISED]
-    model_dir: Path         = current_dir
+    model_dir: Path         = root_dir
     zoo      : dict         = box.Box()
 
 

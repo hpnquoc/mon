@@ -14,10 +14,10 @@ import box
 import cv2
 import torch
 from ptflops import get_model_complexity_info
-from src.archs import create_model
 
 import mon
 from mon import albumentations as A
+from .darkir import create_model
 
 current_file = mon.Path(__file__).absolute()
 current_dir  = current_file.parents[0]

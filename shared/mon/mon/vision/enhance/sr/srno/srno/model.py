@@ -16,10 +16,10 @@ import box
 
 from mon.constants import MODELS
 from mon.core import MLType, ModelMixin, Path, Task
-from .src.models import sronet
+from .models import sronet
 
 current_file = Path(__file__).absolute()
-current_dir  = current_file.parents[0]
+root_dir     = current_file.parents[1]
 
 
 @MODELS.register(name="srno", arch="srno")
@@ -35,5 +35,5 @@ class SRNO(sronet.SRNO, ModelMixin):
     name     : str          = "srno"
     tasks    : list[Task]   = [Task.SR]
     mltypes  : list[MLType] = [MLType.SUPERVISED]
-    model_dir: Path         = current_dir
+    model_dir: Path         = root_dir
     zoo      : dict         = box.Box()

@@ -17,10 +17,10 @@ import box
 
 from mon.constants import MODELS
 from mon.core import MLType, ModelMixin, Path, Task
-from .fourierdiff.guided_diffusion.diffusion_llie_modified import Diffusion
+from .guided_diffusion.diffusion_llie_modified import Diffusion
 
 current_file = Path(__file__).absolute()
-current_dir  = current_file.parents[0]
+root_dir     = current_file.parents[1]
 
 
 @MODELS.register(name="fourierdiff", arch="fourierdiff")
@@ -37,5 +37,5 @@ class FourierDiff(Diffusion, ModelMixin):
     name     : str          = "fourierdiff"
     tasks    : list[Task]   = [Task.LLE, Task.DEBLUR]
     mltypes  : list[MLType] = [MLType.ZERO_SHOT]
-    model_dir: Path         = current_dir
+    model_dir: Path         = root_dir
     zoo      : dict         = box.Box()

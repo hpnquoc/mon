@@ -30,7 +30,7 @@ current_dir  = current_file.parents[0]
 # ----- Predict -----
 @torch.no_grad()
 def predict(args: dict | box.Box) -> str:
-    cfg_path = current_dir / "src" / "option" / "test" / args.cfg
+    cfg_path = current_dir / "fourllie" / "option" / "test" / args.cfg
     cfgs     = option.parse(str(cfg_path), is_train=False)
     cfgs     = option.dict_to_nonedict(cfgs)
     

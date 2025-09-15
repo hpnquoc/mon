@@ -13,4 +13,4 @@ __all__ = [
     "FourierDiff",
 ]
 
-from .fourierdiff import *
+from .model import FourierDiff

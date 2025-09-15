@@ -16,9 +16,9 @@ import box
 import torch
 import yaml
 
+import fourierdiff
 import mon
 from mon import albumentations as A
-from mon.vision.enhance.multitask import fourierdiff
 
 mon.dev()
 torch.set_printoptions(sci_mode=False)

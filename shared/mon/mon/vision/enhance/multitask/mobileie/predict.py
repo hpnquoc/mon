@@ -16,9 +16,9 @@ import box
 import cv2
 import torch
 
+import mobileie
 import mon
 from mon import albumentations as A
-from mon.vision.enhance.multitask import mobileie
 
 mon.dev()
 

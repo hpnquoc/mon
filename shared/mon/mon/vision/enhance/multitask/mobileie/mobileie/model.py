@@ -20,10 +20,10 @@ import torch
 
 from mon.constants import MODELS, ROOT_DIR
 from mon.core import MLType, ModelMixin, nn, Path, Task
-from .src.model.utils import DropBlock, FST, FSTS, MBRConv1, MBRConv3, MBRConv5
+from .network.utils import DropBlock, FST, FSTS, MBRConv1, MBRConv3, MBRConv5
 
 current_file = Path(__file__).absolute()
-current_dir  = current_file.parents[0]
+root_dir     = current_file.parents[1]
 
 
 @MODELS.register(name="mobileie_lle", arch="mobileie")
@@ -40,7 +40,7 @@ class MobileIELLE(nn.Module, ModelMixin):
     name     : str          = "mobileie_lle"
     tasks    : list[Task]   = [Task.LLE]
     mltypes  : list[MLType] = [MLType.SUPERVISED]
-    model_dir: Path         = current_dir
+    model_dir: Path         = root_dir
     zoo      : dict         = box.Box({
         "lolv1"    : {
             "url"        : None,

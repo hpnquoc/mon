@@ -12,4 +12,5 @@ __all__ = [
     "DarkIR",
 ]
 
-from .darkir import DarkIR
+from .archs import create_model
+from .model import *

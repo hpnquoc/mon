@@ -13,9 +13,8 @@ References:
 import box
 import torch
 
+import mobileie
 import mon
-from mon.vision.enhance.multitask import mobileie
-from mon.vision.enhance.multitask.mobileie import loss as L
 
 mon.dev()
 
@@ -55,7 +54,7 @@ def train(args: dict | box.Box) -> str:
     lr_scheduler = mon.nn.CosineAnnealingWarmRestarts(optimizer, 50, 2, 1e-7)
     
     # Loss
-    lle_loss = L.LLELoss(reduction="mean")
+    lle_loss = mobileie.LLELoss(reduction="mean")
     
     # Data I/O
     args["train_dataloader"]["dataset"]["root"] = mon.data.parse_data_dir(args.root)

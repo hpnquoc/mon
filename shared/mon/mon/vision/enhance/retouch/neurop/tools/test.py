@@ -3,9 +3,9 @@ import logging
 
 import imageio
 
-from data import build_val_loader
-from models import build_model
-from utils import *
+from ..neurop.data import build_val_loader
+from ..neurop.models import build_model
+from ..neurop.utils import *
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()

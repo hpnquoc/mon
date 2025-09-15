@@ -5,9 +5,9 @@ from collections import defaultdict
 import torch
 from tqdm import tqdm
 
-from data import build_train_loader
-from models import build_model
-from utils import *
+from ..neurop.data import build_train_loader
+from ..neurop.models import build_model
+from ..neurop.utils import *
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()

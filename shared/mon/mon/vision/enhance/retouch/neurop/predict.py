@@ -16,11 +16,7 @@ import torch
 
 import mon
 from mon import albumentations as A
-from mon.vision.enhance.retouch.neurop import (
-    build_model,
-    dict_to_nonedict,
-    parse,
-)
+from .neurop import build_model, dict_to_nonedict, parse
 
 current_file = mon.Path(__file__).absolute()
 current_dir  = current_file.parents[0]
@@ -29,7 +25,7 @@ current_dir  = current_file.parents[0]
 # ----- Predict -----
 @torch.no_grad()
 def predict(args: dict | box.Box) -> str:
-    cfg_path        = current_dir / "src" / "option" / "test" / args.cfg
+    cfg_path        = current_dir / "neurop" / "option" / "test" / args.cfg
     cfgs            = parse(str(cfg_path))
     cfgs            = dict_to_nonedict(cfgs)
     cfgs["dist"]    = False

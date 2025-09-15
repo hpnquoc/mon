@@ -16,8 +16,8 @@ import box
 import cv2
 
 import mon
+import zerorestore
 from mon import albumentations as A
-from mon.vision.enhance.multitask import zerorestore
 
 mon.dev()
 
