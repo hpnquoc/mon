@@ -19,8 +19,8 @@ from fvcore.nn import FlopCountAnalysis
 from torch.autograd import Variable
 
 import mon
+import sci
 from mon import albumentations as A, nn
-from mon.vision.enhance.lle import sci
 
 mon.dev()
 

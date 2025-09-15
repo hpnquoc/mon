@@ -16,7 +16,7 @@ import cv2
 import torch
 
 import mon
-from mon.vision.enhance.lle import uretinexnetpp
+import uretinexnetpp
 
 mon.dev()
 

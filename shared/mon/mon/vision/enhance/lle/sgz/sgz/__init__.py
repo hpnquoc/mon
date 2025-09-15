@@ -13,4 +13,5 @@ __all__ = [
     "SGZ",
 ]
 
-from .sgz import SGZ
+from .model import SGZ
+from .utils import image_from_path, scale_image

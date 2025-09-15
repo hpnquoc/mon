@@ -14,4 +14,4 @@ __all__ = [
     "ZERO_IG_Finetune",
 ]
 
-from .zeroig import ZERO_IG, ZERO_IG_Finetune
+from .model import ZERO_IG, ZERO_IG_Finetune

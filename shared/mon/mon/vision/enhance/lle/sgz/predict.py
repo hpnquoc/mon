@@ -18,8 +18,8 @@ import cv2
 import torch
 
 import mon
+import sgz
 from mon import albumentations as A
-from mon.vision.enhance.lle import sgz
 
 mon.dev()
 

@@ -17,7 +17,7 @@ import torch
 
 import mon
 from mon import albumentations as A
-from mon.vision.enhance.lle.snr import create_model, option
+from .snr import create_model, option
 
 mon.dev()
 

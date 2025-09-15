@@ -13,4 +13,4 @@ __all__ = [
     "URetinexNetPP",
 ]
 
-from .uretinexnetpp import URetinexNetPP
+from .model import URetinexNetPP

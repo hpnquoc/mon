@@ -23,8 +23,8 @@ from thop import profile
 from torch.autograd import Variable
 
 import mon
+import zeroig
 from mon import albumentations as A
-from mon.vision.enhance.lle import zeroig
 
 current_file = mon.Path(__file__).absolute()
 current_dir  = current_file.parents[0]

@@ -13,4 +13,4 @@ __all__ = [
     "SCI",
 ]
 
-from .sci import SCI
+from .model import SCI
