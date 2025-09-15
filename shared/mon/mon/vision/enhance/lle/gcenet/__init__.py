@@ -9,4 +9,4 @@ __all__ = [
     "GCENet_PONO",
 ]
 
-from .model import *
+from .gcenet import *

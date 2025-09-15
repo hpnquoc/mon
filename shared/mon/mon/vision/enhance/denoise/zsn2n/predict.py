@@ -14,8 +14,8 @@ import box
 import cv2
 
 import mon
+import zsn2n
 from mon import albumentations as A
-from mon.vision.enhance.denoise import zsn2n
 
 mon.dev()
 

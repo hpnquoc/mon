@@ -12,4 +12,4 @@ __all__ = [
     "TensorMOG",
 ]
 
-from .tensormog import *
+from .model import *

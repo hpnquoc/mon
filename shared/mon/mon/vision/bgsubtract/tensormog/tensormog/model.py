@@ -18,7 +18,7 @@ from mon.constants import MODELS
 from mon.core import Enum, MLType, ModelMixin, nn, Path, Task
 
 current_file = Path(__file__).absolute()
-current_dir  = current_file.parents[0]
+root_dir     = current_file.parents[1]
 
 
 # ----- Module -----
@@ -372,7 +372,7 @@ class TensorMOG(nn.Module, ModelMixin):
     name     : str          = "tensormog"
     tasks    : list[Task]   = [Task.BGSUBTRACT, Task.VIDEO]
     mltypes  : list[MLType] = [MLType.INFERENCE]
-    model_dir: Path         = current_dir
+    model_dir: Path         = root_dir
     zoo      : dict         = {}
     
     def __init__(

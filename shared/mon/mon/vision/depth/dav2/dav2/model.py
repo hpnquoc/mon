@@ -22,10 +22,10 @@ import torch
 
 from mon.constants import MODELS, ROOT_DIR
 from mon.core import MLType, ModelMixin, Path, Task
-from .src.depth_anything_v2.dpt import DepthAnythingV2
+from .dpt import DepthAnythingV2
 
 current_file = Path(__file__).absolute()
-current_dir  = current_file.parents[0]
+root_dir     = current_file.parents[1]
 
 
 class DAV2(DepthAnythingV2, ModelMixin):
@@ -41,7 +41,7 @@ class DAV2(DepthAnythingV2, ModelMixin):
     name     : str          = "dav2"
     tasks    : list[Task]   = [Task.DEPTH]
     mltypes  : list[MLType] = [MLType.SUPERVISED]
-    model_dir: Path         = current_dir
+    model_dir: Path         = root_dir
     zoo      : dict         = {}
     
 

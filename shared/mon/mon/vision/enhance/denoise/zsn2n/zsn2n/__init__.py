@@ -12,4 +12,4 @@ __all__ = [
     "ZSN2N",
 ]
 
-from .zsn2n import ZSN2N
+from .model import ZSN2N

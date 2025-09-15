@@ -18,7 +18,7 @@ from mon.constants import MODELS
 from mon.core import image as I, MLType, ModelMixin, nn, Path, Task
 
 current_file = Path(__file__).absolute()
-current_dir  = current_file.parents[0]
+root_dir     = current_file.parents[1]
 
 
 class Network(nn.Module):
@@ -55,7 +55,7 @@ class ZSN2N(nn.Module, ModelMixin):
     name     : str          = "zsn2n"
     tasks    : list[Task]   = [Task.DENOISE]
     mltypes  : list[MLType] = [MLType.ZERO_SHOT]
-    model_dir: Path         = current_dir
+    model_dir: Path         = root_dir
     zoo      : dict         = {}
     
     def __init__(self, in_channels: int = 3, iters: int = 3000):

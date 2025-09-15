@@ -20,15 +20,15 @@ from cv2.ximgproc import guidedFilter
 
 from mon.constants import MODELS
 from mon.core import log, MLType, ModelMixin, nn, Path, Task
-from .src.net import *
-from .src.net.losses import StdLoss
-from .src.net.vae_model import VAE
-from .src.utils.dcp import get_atmosphere
-from .src.utils.image_io import *
-from .src.utils.imresize import np_imresize
+from .net import *
+from .net.losses import StdLoss
+from .net.vae_model import VAE
+from .utils.dcp import get_atmosphere
+from .utils.image_io import *
+from .utils.imresize import np_imresize
 
 current_file = Path(__file__).absolute()
-current_dir  = current_file.parents[0]
+root_dir     = current_file.parents[0]
 DehazeResult = namedtuple("DehazeResult", ["learned", "t", "a"])
 
 
@@ -45,7 +45,7 @@ class ZID(ModelMixin):
     name     : str          = "zid"
     tasks    : list[Task]   = [Task.DEHAZE]
     mltypes  : list[MLType] = [MLType.ZERO_SHOT]
-    model_dir: Path         = current_dir
+    model_dir: Path         = root_dir
     zoo      : dict         = box.Box()
     
     def __init__(self, image_name, image, num_iter=500, clip=True, output_path="output"):

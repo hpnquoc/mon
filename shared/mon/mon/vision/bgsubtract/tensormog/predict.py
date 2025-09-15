@@ -14,8 +14,8 @@ import box
 import cv2
 
 import mon
+import tensormog
 from mon import albumentations as A
-from mon.vision.bgsubtract import tensormog
 
 mon.dev()
 

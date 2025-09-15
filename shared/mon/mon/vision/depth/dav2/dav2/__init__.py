@@ -16,4 +16,4 @@ __all__ = [
     "DAV2_ViTL",
 ]
 
-from .dav2 import DAV2, DAV2_ViTB, DAV2_ViTL, DAV2_ViTS
+from .model import DAV2, DAV2_ViTB, DAV2_ViTL, DAV2_ViTS

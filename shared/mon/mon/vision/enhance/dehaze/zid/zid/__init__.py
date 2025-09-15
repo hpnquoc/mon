@@ -12,4 +12,4 @@ __all__ = [
     "ZID",
 ]
 
-from .zid import ZID
+from .model import ZID

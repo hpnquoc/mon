@@ -16,9 +16,9 @@ import matplotlib
 import numpy as np
 import torch
 
+import daac
 import mon
 from mon import albumentations as A
-from mon.vision.depth import daac
 
 mon.dev()
 

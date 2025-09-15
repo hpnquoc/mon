@@ -13,4 +13,4 @@ __all__ = [
     "PIE",
 ]
 
-from .pie import PIE
+from .model import PIE

@@ -19,7 +19,7 @@ from mon.core import MLType, ModelMixin, nn, Path, Task
 from mon.core.nn import functional as F
 
 current_file = Path(__file__).absolute()
-root_dir     = current_file.parents[0]
+root_dir     = current_file.parents[1]
 
 
 @MODELS.register(name="zerodidce", arch="zerodidce")

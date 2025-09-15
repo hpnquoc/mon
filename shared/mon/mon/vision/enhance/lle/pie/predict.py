@@ -15,8 +15,8 @@ import box
 import cv2
 
 import mon
+import pie
 from mon import albumentations as A
-from mon.vision.enhance.lle import pie
 
 mon.dev()
 

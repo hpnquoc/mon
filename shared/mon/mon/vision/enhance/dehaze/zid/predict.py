@@ -13,8 +13,8 @@ import copy
 import box
 
 import mon
+import zid
 from mon import albumentations as A
-from mon.vision.enhance.dehaze import zid
 
 mon.dev()
 

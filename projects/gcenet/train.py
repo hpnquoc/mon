@@ -6,8 +6,8 @@
 import box
 import torch
 
-import mon
 import gcenet
+import mon
 
 mon.dev()
 

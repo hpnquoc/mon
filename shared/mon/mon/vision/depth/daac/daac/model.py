@@ -19,10 +19,10 @@ import torch
 
 from mon.constants import MODELS, ROOT_DIR
 from mon.core import MLType, ModelMixin, Path, Task
-from .src.depth_anything.dpt import DepthAnything_AC
+from .depth_anything.dpt import DepthAnything_AC
 
 current_file = Path(__file__).absolute()
-current_dir  = current_file.parents[0]
+root_dir     = current_file.parents[1]
 
 
 class DAAC(DepthAnything_AC, ModelMixin):
@@ -37,7 +37,7 @@ class DAAC(DepthAnything_AC, ModelMixin):
     name     : str          = "daac"
     tasks    : list[Task]   = [Task.DEPTH]
     mltypes  : list[MLType] = [MLType.ZERO_SHOT]
-    model_dir: Path         = current_dir
+    model_dir: Path         = root_dir
     zoo      : dict         = {}
 
 

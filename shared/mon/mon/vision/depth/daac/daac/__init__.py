@@ -12,4 +12,4 @@ __all__ = [
     "DAAC",
 ]
 
-from .daac import DAAC
+from .model import DAAC
