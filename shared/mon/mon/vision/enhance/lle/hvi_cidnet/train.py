@@ -15,11 +15,16 @@ import torch
 import torch.backends.cudnn as cudnn
 import torchvision
 
+import cidnet
 import mon
-from mon.vision.enhance.lle import hvi_cidnet
-from mon.vision.enhance.lle.hvi_cidnet import (
-    CosineAnnealingRestartCyclicLR, CosineAnnealingRestartLR, EdgeLoss,
-    GradualWarmupScheduler, L1Loss, PerceptualLoss, SSIM,
+from .cidnet import (
+    CosineAnnealingRestartCyclicLR,
+    CosineAnnealingRestartLR,
+    EdgeLoss,
+    GradualWarmupScheduler,
+    L1Loss,
+    PerceptualLoss,
+    SSIM,
 )
 
 mon.dev()
@@ -69,7 +74,7 @@ def train(args: dict | box.Box) -> str:
         mon.log(f"Pretrained: {None}, training from scratch.")
 
     # Model
-    model = hvi_cidnet.HVI_CIDNet(weights=pretrained)
+    model = cidnet.HVI_CIDNet(weights=pretrained)
     # if pretrained and pretrained.is_weights_file():
     #     model.load_state_dict(torch.load(pretrained, map_location=lambda storage, loc: storage))
     model = model.to(device)

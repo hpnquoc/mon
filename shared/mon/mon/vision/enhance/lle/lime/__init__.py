@@ -13,4 +13,4 @@ __all__ = [
     "LIME",
 ]
 
-from .model import LIME
+from .lime import LIME

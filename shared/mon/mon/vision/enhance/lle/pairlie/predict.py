@@ -16,8 +16,8 @@ import cv2
 import torch
 
 import mon
+import pairlie
 from mon import albumentations as A
-from mon.vision.enhance.lle import pairlie
 
 mon.dev()
 

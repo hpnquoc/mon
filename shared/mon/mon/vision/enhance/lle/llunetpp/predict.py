@@ -15,9 +15,9 @@ import box
 import cv2
 import torch
 
+import llunetpp
 import mon
 from mon import albumentations as A
-from mon.vision.enhance.lle import llunetpp
 
 mon.dev()
 

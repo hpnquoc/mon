@@ -9,7 +9,7 @@ from .enlightengan import *
 from .fourllie import *
 from .gcenet import *
 from .hvi_cidnet import *
-from .li2025 import *
+from .lformer import *
 from .lightendiffusion import *
 from .lime import *
 from .llunetpp import *

@@ -18,8 +18,8 @@ import torch
 from PIL import Image
 
 import mon
-from mon.vision.enhance.lle import nerco
-from mon.vision.enhance.lle.nerco import get_transform, tensor2im, TestOptions
+import nerco
+from .nerco import get_transform, tensor2im, TestOptions
 
 mon.dev()
 

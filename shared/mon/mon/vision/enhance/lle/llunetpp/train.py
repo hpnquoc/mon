@@ -17,9 +17,9 @@ import torch
 import torch.backends.cudnn as cudnn
 from torch.utils.tensorboard import SummaryWriter
 
+import llunetpp
 import mon
-from mon.vision.enhance.lle import llunetpp
-from mon.vision.enhance.lle.llunetpp import AverageMeter, Loss
+from .llunetpp import AverageMeter, Loss
 
 mon.dev()
 

@@ -13,4 +13,4 @@ __all__ = [
     "RUAS",
 ]
 
-from .model import RUAS
+from .ruas import RUAS

@@ -13,9 +13,9 @@ import copy
 import box
 import torch
 
+import engine as deim
 import mon
 from mon import albumentations as A
-from mon.vision.detect import deim
 
 mon.dev()
 

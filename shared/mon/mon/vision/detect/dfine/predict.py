@@ -16,7 +16,7 @@ import torch
 
 import mon
 from mon import albumentations as A
-from mon.vision.detect import dfine
+import dfine
 
 mon.dev()
 

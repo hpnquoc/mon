@@ -13,4 +13,4 @@ __all__ = [
     "PSENet",
 ]
 
-from .model import PSENet
+from .psenet import PSENet

@@ -12,4 +12,4 @@ __all__ = [
     "RetinexNet",
 ]
 
-from .model import RetinexNet
+from .retinexnet import RetinexNet

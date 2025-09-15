@@ -13,4 +13,4 @@ __all__ = [
     "DFINE",
 ]
 
-from .model import DFINE
+from .dfine import DFINE

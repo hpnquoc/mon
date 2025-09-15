@@ -12,4 +12,4 @@ __all__ = [
     "EnlightenOnnxModel",
 ]
 
-from .model import EnlightenOnnxModel
+from .enlightengan import EnlightenOnnxModel

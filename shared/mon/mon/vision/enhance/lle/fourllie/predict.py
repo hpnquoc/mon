@@ -16,10 +16,10 @@ import cv2
 import numpy as np
 import torch
 
+import fourllie
 import mon
 from mon import albumentations as A
-from mon.vision.enhance.lle import fourllie
-from mon.vision.enhance.lle.fourllie import option, tensor2img
+from .fourllie import option, tensor2img
 
 mon.dev()
 

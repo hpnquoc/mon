@@ -13,4 +13,4 @@ __all__ = [
     "LightenDiffusion",
 ]
 
-from .model import LightenDiffusion
+from .lightendiffusion import LightenDiffusion

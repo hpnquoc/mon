@@ -13,4 +13,4 @@ __all__ = [
     "PairLIE",
 ]
 
-from .model import PairLIE
+from .pairlie import PairLIE

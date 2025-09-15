@@ -12,4 +12,4 @@ __all__ = [
     "DCCNet",
 ]
 
-from .model import DCCNet
+from .dccnet import DCCNet

@@ -14,9 +14,9 @@ import copy
 import box
 import cv2
 
+import lime
 import mon
 from mon import albumentations as A
-from mon.vision.enhance.lle import lime
 
 mon.dev()
 

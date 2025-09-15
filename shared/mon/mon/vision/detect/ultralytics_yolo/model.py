@@ -52,7 +52,7 @@ from mon.core import MLType, ModelMixin, Path, Task
 from ultralytics import YOLO
 
 current_file = Path(__file__).absolute()
-current_dir  = current_file.parents[0]
+root_dir     = current_file.parents[0]
 
 
 # ----- YOLOv11 -----
@@ -67,7 +67,7 @@ class YOLOv11(YOLO, ModelMixin):
     name     : str          = "yolov11"
     tasks    : list[Task]   = [Task.DETECT]
     mltypes  : list[MLType] = [MLType.SUPERVISED]
-    model_dir: Path         = current_dir
+    model_dir: Path         = root_dir
     zoo      : dict         = box.Box()
     
     def __init__(self, weights: Any = "coco80", *args, **kwargs):
@@ -162,7 +162,7 @@ class YOLOv11_OBB(YOLO, ModelMixin):
     name     : str          = "yolov11_obb"
     tasks    : list[Task]   = [Task.OBB]
     mltypes  : list[MLType] = [MLType.SUPERVISED]
-    model_dir: Path         = current_dir
+    model_dir: Path         = root_dir
     zoo      : dict         = box.Box()
     
     def __init__(self, weights: Any = "coco80", *args, **kwargs):
@@ -247,7 +247,7 @@ class YOLOv11_SEG(YOLO, ModelMixin):
     name     : str          = "yolov11_seg"
     tasks    : list[Task]   = [Task.SEGMENT]
     mltypes  : list[MLType] = [MLType.SUPERVISED]
-    model_dir: Path         = current_dir
+    model_dir: Path         = root_dir
     zoo      : dict         = box.Box()
     
     def __init__(self, weights: Any = "coco80", *args, **kwargs):
@@ -332,7 +332,7 @@ class YOLOv11_CLS(YOLO, ModelMixin):
     name     : str          = "yolov11n_cls"
     tasks    : list[Task]   = [Task.CLASSIFY]
     mltypes  : list[MLType] = [MLType.SUPERVISED]
-    model_dir: Path         = current_dir
+    model_dir: Path         = root_dir
     zoo      : dict         = box.Box()
     
     def __init__(self, weights: Any = "imagenet", *args, **kwargs):
@@ -417,7 +417,7 @@ class YOLOv11_POSE(YOLO, ModelMixin):
     name     : str          = "yolov11n_pose"
     tasks    : list[Task]   = [Task.POSE]
     mltypes  : list[MLType] = [MLType.SUPERVISED]
-    model_dir: Path         = current_dir
+    model_dir: Path         = root_dir
     zoo      : dict         = box.Box()
     
     def __init__(self, weights: Any = "coco1", *args, **kwargs):
@@ -502,7 +502,7 @@ class YOLOv12(YOLO, ModelMixin):
     name     : str          = "yolov12"
     tasks    : list[Task]   = [Task.DETECT]
     mltypes  : list[MLType] = [MLType.SUPERVISED]
-    model_dir: Path         = current_dir
+    model_dir: Path         = root_dir
     zoo      : dict         = box.Box()
     
     def __init__(self, weights: Any = "coco80", *args, **kwargs):

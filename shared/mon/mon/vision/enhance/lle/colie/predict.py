@@ -16,9 +16,9 @@ import thop
 import torch
 from fvcore.nn import FlopCountAnalysis, parameter_count
 
+import colie
 import mon
 from mon import albumentations as A
-from mon.vision.enhance.lle import colie
 
 mon.dev()
 

@@ -19,8 +19,8 @@ import torch.utils
 from PIL import Image
 
 import mon
+import ruas
 from mon import albumentations as A
-from mon.vision.enhance.lle import ruas
 
 mon.dev()
 

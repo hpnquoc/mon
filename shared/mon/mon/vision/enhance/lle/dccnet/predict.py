@@ -14,9 +14,9 @@ import box
 import cv2
 import torch
 
+import dccnet
 import mon
 from mon import albumentations as A
-from mon.vision.enhance.lle import dccnet
 
 mon.dev()
 

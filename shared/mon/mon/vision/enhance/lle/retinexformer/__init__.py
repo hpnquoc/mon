@@ -13,7 +13,4 @@ __all__ = [
     "Retinexformer",
 ]
 
-from .model import Retinexformer
-
-from .src.basicsr.models import create_model
-from .src.basicsr.utils.options import parse
+from .retinexformer import Retinexformer

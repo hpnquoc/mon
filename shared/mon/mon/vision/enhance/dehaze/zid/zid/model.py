@@ -28,7 +28,7 @@ from .utils.image_io import *
 from .utils.imresize import np_imresize
 
 current_file = Path(__file__).absolute()
-root_dir     = current_file.parents[0]
+root_dir     = current_file.parents[1]
 DehazeResult = namedtuple("DehazeResult", ["learned", "t", "a"])
 
 

@@ -15,9 +15,9 @@ from pprint import pprint
 import box
 import torch
 
-import mon
 # noinspection PyUnusedImports
-from mon.vision.detect import deim
+import engine as deim
+import mon
 # sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 from .engine.core import YAMLConfig
 from .engine.misc import dist_utils

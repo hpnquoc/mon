@@ -13,4 +13,4 @@ __all__ = [
     "FourLLIE",
 ]
 
-from .model import FourLLIE, option, read_img, tensor2img
+from .fourllie import FourLLIE, option, read_img, tensor2img

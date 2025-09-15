@@ -17,10 +17,10 @@ import numpy as np
 import torch
 import yaml
 
+import lightendiffusion
 import mon
 from mon import albumentations as A
 from mon.core.nn import functional as F
-from mon.vision.enhance.lle import lightendiffusion
 
 mon.dev()
 

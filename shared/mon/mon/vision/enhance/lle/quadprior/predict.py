@@ -22,12 +22,8 @@ from pytorch_lightning import seed_everything
 
 import mon
 from mon.core import nn
-from mon.vision.enhance.lle.quadprior import (
-    create_model,
-    DPMSolverSampler,
-    HWC3,
-    load_state_dict,
-    resize_image,
+from .quadprior import (
+    create_model, DPMSolverSampler, HWC3, load_state_dict, resize_image,
 )
 
 mon.dev()

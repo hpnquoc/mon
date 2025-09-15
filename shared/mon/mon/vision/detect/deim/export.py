@@ -12,8 +12,8 @@ import box
 import tensorrt as trt
 import torch
 
+import engine as deim
 import mon
-from mon.vision.detect import deim
 
 mon.dev()
 

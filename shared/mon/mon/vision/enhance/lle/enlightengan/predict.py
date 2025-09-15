@@ -19,9 +19,9 @@ import cv2
 import onnx_tool
 import torch
 
+import enlightengan
 import mon
 from mon import albumentations as A
-from mon.vision.enhance.lle import enlightengan
 
 mon.dev()
 

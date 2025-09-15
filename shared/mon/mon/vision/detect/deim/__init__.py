@@ -12,4 +12,4 @@ __all__ = [
     "DEIM",
 ]
 
-from .model import DEIM
+from .engine import DEIM

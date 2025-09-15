@@ -13,7 +13,7 @@ import copy
 import box
 
 import mon
-from mon.vision.enhance.lle import retinexnet
+import retinexnet
 
 mon.dev()
 
