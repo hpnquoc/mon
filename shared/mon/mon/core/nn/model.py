@@ -43,6 +43,12 @@ class ModelMixin:
             num_classes: Number of classes for the model. Default: ``None``.
             overwrite: Overwrites existing weights if ``True``. Default: ``False``.
     
+        Returns:
+            A tuple of (weights, path, num_classes), where:
+            - weights: The parsed weights as a ``dict`` or ``None`` if not found.
+            - path: The path to the weights file or ``None`` if not applicable.
+            - num_classes: The number of classes for the model.
+        
         Raises:
             ValueError: If the given weights path is invalid.
         """

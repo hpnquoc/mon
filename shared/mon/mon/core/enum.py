@@ -495,6 +495,7 @@ class Task(Enum):
     DERAIN     = "derain"               # deraining
     DESNOW     = "desnow"               # desnowing
     DETECT     = "detect"               # object detection
+    EXPOSURE   = "exposure"             # exposure correction
     INPAINT    = "inpaint"              # inpainting
     LLE        = "lle"                  # low-light enhancement
     MEF        = "mef"                  # multi-exposure fusion

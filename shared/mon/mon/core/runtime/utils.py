@@ -16,6 +16,7 @@ _all__ = [
     "parse_model_fullname",
     "parse_output_dir",
     "parse_save_dir",
+    "parse_weights_dir",
     "parse_weights_file",
     "parse_weights_from_config",
     "print_run_summary",
@@ -363,6 +364,33 @@ def parse_model_fullname(name: str, data: str, suffix: str = None) -> str:
         if suffix_ not in fullname:
             fullname = f"{fullname}_{suffix_}"
     return fullname
+
+
+def parse_weights_dir(root: Path, weights: Path | Sequence[Path]) -> Path | Sequence[Path]:
+    """Parses directory containing weights from given components.
+    
+    Args:
+        root: Root directory (e.g., project root).
+        weights: Weights file(s) to parse (path or sequence of paths).
+    
+    Returns:
+        Parsed weights path(s) as a single path or a sequence of paths, or ``None`` if empty.
+    """
+    root    = Path(root)
+    weights = to_list(weights)
+    
+    for i, w in enumerate(weights):
+        if w is not None:
+            if (ROOT_DIR / w).is_dir():
+                weights[i] = ROOT_DIR / w
+            elif (root / w).is_dir():
+                weights[i] = root / w
+    
+    weights = [Path(w) for w in weights if w not in [None, "None", ""]]
+    
+    if len(weights) == 1:
+        return weights[0]
+    return weights or None
 
 
 def parse_weights_file(root: Path, weights: Path | Sequence[Path]) -> Path | Sequence[Path]:

@@ -6,8 +6,8 @@ from .base_model import BaseModel
 def find_model_using_name(model_name):
     model_filename = "nerco.models." + model_name + "_model"
     modellib = importlib.import_module(model_filename)
-    model = None
-    target_model_name = model_name.replace('_', '') + 'model'
+    model    = None
+    target_model_name = model_name.replace("_", "") + "model"
     for name, cls in modellib.__dict__.items():
         if name.lower() == target_model_name.lower() \
            and issubclass(cls, BaseModel):

@@ -1,24 +1,22 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Implements NeRCo model prediction pipeline for low-light image enhancement.
+"""Implements UEC model prediction pipeline for unsupervised exposure correction.
 
 References:
-    - Paper: "Implicit Neural Representation for Cooperative Low-light
-      Image Enhancement," ICCV 2023.
-    - Code: https://github.com/Ysz2022/NeRCo
+    - Paper: "Unsupervised Exposure Correction," ECCV 2024.
+    - Code: https://github.com/BeyondHeaven/uec_code
 """
 
 import copy
-import random
 
 import box
 import cv2
 import torch
-from PIL import Image
 
 import mon
-import nerco
+import uec
+from mon import albumentations as A
 
 mon.dev()
 
@@ -30,7 +28,7 @@ current_dir  = current_file.parents[0]
 @torch.no_grad()
 def predict(args: dict | box.Box) -> str:
     # Hard-code some parameters for test
-    cfgs                = nerco.TestOptions().parse()  # get test options
+    cfgs                = uec.TestOptions().parse()  # get test options
     cfgs.num_threads    = 0             # test code only supports num_threads = 0
     cfgs.batch_size     = 1             # test code only supports batch_size  = 1
     cfgs.serial_batches = True          # disable data shuffling; comment this line if results on randomly chosen images are needed.
@@ -53,12 +51,9 @@ def predict(args: dict | box.Box) -> str:
         mon.log(f"Pretrained: {pretrained}.")
     else:
         mon.log(f"Pretrained: {None}, training from scratch.")
-        
+    
     # Model
-    # model = create_model(cfgs)          # create a model given opt.model and other options
-    # model = nerco.NeRCo(cfgs)           # create a model given opt.model and other options
-    # model.setup(pretrained, cfgs)       # regular setup: load and print networks; create schedulers
-    model = nerco.NeRCo(cfgs, pretrained)
+    model = uec.UEC(cfgs, pretrained)
     model = model.to(device)
     if cfgs.eval:
         model.eval()
@@ -68,13 +63,20 @@ def predict(args: dict | box.Box) -> str:
         mon.nn.benchmark(model)
     
     # Data I/O
-    data_name, dataloader = mon.data.build_dataloader(args.data, args.root)
-    testB_dir   = current_dir / "nerco" / "dataset" / "testB"
-    testB_files = sorted([f for f in testB_dir.glob("*") if f.is_image_file()])
-    testB_size  = len(testB_files)
-    transform_A = nerco.get_transform(cfgs)
-    transform_B = nerco.get_transform(cfgs)
+    # imgsz     = args.imgsz if args.resize else (0, 0)
+    imgsz     = 256 if args.resize else (0, 0)
+    transform = A.Compose([
+        A.ResizeDivisibleBy(height=imgsz[0], width=imgsz[1], divisor=32),
+        A.Normalize(normalization="min_max"),
+        A.ToTensorV2(transpose_mask=True),
+    ])
+    data_name, dataloader = mon.data.build_dataloader(args.data, args.root, transform)
     
+    ref_image = current_dir / "uec" / "dataset" / "testB" / "a0001-jmac_DSC1459.jpg"
+    ref_image = mon.image.load_image(ref_image)
+    ref_image = transform(image=ref_image)["image"]
+    ref_image = ref_image.unsqueeze(0).to(device)
+
     # Predict
     timers = mon.TimeProfiler()
     timers.total.tick()
@@ -88,17 +90,12 @@ def predict(args: dict | box.Box) -> str:
             timers.preprocess.tick()
             meta   = datapoint["meta"][0]
             path   = mon.Path(meta["path"])
-            indexB = random.randint(0, testB_size - 1)
-            imageA = Image.open(path).convert("RGB")
-            imageB = Image.open(testB_files[indexB]).convert("RGB")
-            w0, h0 = imageA.size
-            imageA = transform_A(imageA).unsqueeze(0).to(device)
-            imageB = transform_B(imageB).unsqueeze(0).to(device)
+            h0, w0 = mon.image.imgsz(meta["orig_shape"])
+            image  = datapoint["image"]
+            image  = image.to(device)
             dp     = {
-                "A"      : imageA,
-                "B"      : imageB,
-                "A_paths": path,
-                "B_paths": testB_files[indexB]
+                "image_pair": [image, ref_image],
+                "image_path": path
             }
             timers.preprocess.tock()
             
@@ -111,8 +108,8 @@ def predict(args: dict | box.Box) -> str:
             # Postprocess
             timers.postprocess.tick()
             outputs  = model.get_current_visuals()
-            enhanced = outputs.get("fake_B")
-            enhanced = nerco.tensor2im(enhanced)
+            enhanced = outputs.get("fake_img")
+            enhanced = mon.image.to_array(enhanced)
             h1, w1   = mon.image.imgsz(enhanced)
             if (h1, w1) != (h0, w0):
                 enhanced = cv2.resize(enhanced, (w0, h0))

@@ -13,6 +13,9 @@ __all__ = [
     "NeRCo",
 ]
 
+import argparse
+from typing import Any
+
 import box
 
 from mon.constants import MODELS
@@ -39,3 +42,9 @@ class NeRCo(NeRComodel, ModelMixin):
     mltypes  : list[MLType] = [MLType.UNSUPERVISED]
     model_dir: Path         = root_dir
     zoo      : dict         = box.Box()
+    
+    def __init__(self, opt: argparse.Namespace, weights: Any = None):
+        super().__init__(opt)
+        # Load weights
+        _, path, _ = self.parse_weights(weights)
+        self.setup(path, opt)

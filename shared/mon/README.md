@@ -23,7 +23,8 @@
   |       |   |__ datasets    # Dataset package.
   |       |   |__ vision      # Computer vision package.
   |       |   |__ ...      
-  |       |__ pyproject.toml             
+  |       |__ pyproject.toml  # For both packaging and dependency management.    
+  |       |__ README.md
   |__ ...
   ```
 </details>
