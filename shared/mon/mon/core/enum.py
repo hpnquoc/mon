@@ -485,30 +485,34 @@ class TRTPrecision(Enum):
 # ----- Task -----
 class Task(Enum):
     """Task types."""
-
-    BGSUBTRACT = "bgsubtract"           # background subtraction
-    CLASSIFY   = "classify"             # classification
+    
+    # Enhancement
+    DARK       = "dark"                 # dark image/video enhancement
     DEBLUR     = "deblur"               # deblurring
     DEHAZE     = "dehaze"               # dehazing
     DENOISE    = "denoise"              # denoising
-    DEPTH      = "depth"                # depth estimation
     DERAIN     = "derain"               # deraining
     DESNOW     = "desnow"               # desnowing
-    DETECT     = "detect"               # object detection
     EXPOSURE   = "exposure"             # exposure correction
+    FLARE      = "flare"                # flare removal
     INPAINT    = "inpaint"              # inpainting
     LLE        = "lle"                  # low-light enhancement
     MEF        = "mef"                  # multi-exposure fusion
-    NIGHTTIME  = "nighttime"            # nighttime
+    REFLECT    = "reflection"           # reflection removal
+    RETOUCH    = "retouch"              # Retouching
+    SR         = "sr"                   # super-resolution
+    UNDERWATER = "underwater"           # underwater enhancement
+    
+    # High-Level Vision
+    BGSUBTRACT = "bgsubtract"           # background subtraction
+    CLASSIFY   = "classify"             # classification
+    DEPTH      = "depth"                # depth estimation
+    DETECT     = "detect"               # object detection
     OBB        = "obb"                  # oriented bounding box detection
     POSE       = "pose"                 # pose estimation
-    RETOUCH    = "retouch"              # Retouching
     RGB2TIR    = "rgb2tir"              # RGB-to-TIR translation
-    RR         = "rr"                   # reflection removal
     SEGMENT    = "segment"              # semantic segmentation
-    SR         = "sr"                   # super-resolution
     TRACK      = "track"                # object tracking
-    UE         = "ue"                   # underwater enhancement
     VIDEO      = "video"                # video processing
 
 

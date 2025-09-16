@@ -1,0 +1,70 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+"""Implements SICE datasets."""
+
+__all__ = [
+    "SICELLE",
+    "SICEME",
+]
+
+from mon.core import rich
+from mon.datasets.core import *
+
+
+@DATASETS.register(name="sicelle")
+class SICELLE(VisionDataset):
+    """SICE-LLE dataset."""
+    
+    root_name : str         = "sice"
+    tasks     : list[Task]  = [Task.LLE]
+    splits    : list[Split] = [Split.TRAIN, Split.TEST]
+    modalities: Modalities  = {
+        "image"    : Modality(name="image",      type="image", module=Image,           in_test=True, primary=True),
+        "depth"    : Modality(name=DepthName,    type="image", module=DefaultDepthMap, in_test=True),
+        "ref"      : Modality(name="ref",        type="image", module=Image,           in_test=True),
+        "ref_depth": Modality(name=RefDepthName, type="image", module=DefaultDepthMap, in_test=True),
+    }
+    classes   : Classes     = None
+    
+    def list_primary_data(self) -> list:
+        patterns = [self.root / "lle" / self.split_str / "image"]
+
+        images: list[Image] = []
+        with rich.create_progress_bar(disable=self.disable_pbar) as pbar:
+            for pattern in patterns:
+                paths = sorted(pattern.rglob("*"))
+                desc  = f"Listing {self.__class__.__name__} {self.split_str} image(s)"
+                for path in pbar.track(sequence=paths, description=desc):
+                    if path.is_image_file():
+                        images.append(Image(path=path, root=pattern))
+        
+        return images
+
+
+@DATASETS.register(name="siceme")
+class SICEME(VisionDataset):
+    """SICE-ME dataset."""
+    
+    root_name : str         = "sice"
+    tasks     : list[Task]  = [Task.LLE]
+    splits    : list[Split] = [Split.TRAIN]
+    modalities: Modalities  = {
+        "image": Modality(name="image",   type="image", module=Image,           in_test=True, primary=True),
+        "depth": Modality(name=DepthName, type="image", module=DefaultDepthMap, in_test=True),
+    }
+    classes   : Classes     = None
+    
+    def list_primary_data(self) -> list:
+        patterns = [self.root / "me" / self.split_str / "image"]
+        
+        images: list[Image] = []
+        with rich.create_progress_bar(disable=self.disable_pbar) as pbar:
+            for pattern in patterns:
+                paths = sorted(pattern.rglob("*"))
+                desc  = f"Listing {self.__class__.__name__} {self.split_str} image(s)"
+                for path in pbar.track(sequence=paths, description=desc):
+                    if path.is_image_file():
+                        images.append(Image(path=path, root=pattern))
+    
+        return images

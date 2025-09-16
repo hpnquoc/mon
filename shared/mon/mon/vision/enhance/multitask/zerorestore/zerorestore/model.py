@@ -162,7 +162,7 @@ class ZeroRestoreUE(ZeroRestore, ModelMixin):
     
     arch     : str          = "zerorestore"
     name     : str          = "zerorestore_uie"
-    tasks    : list[Task]   = [Task.UE]
+    tasks    : list[Task]   = [Task.UNDERWATER]
     mltypes  : list[MLType] = [MLType.ZERO_SHOT]
     model_dir: Path         = root_dir
     zoo      : dict         = box.Box()

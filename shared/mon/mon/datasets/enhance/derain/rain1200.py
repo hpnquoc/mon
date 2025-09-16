@@ -1,48 +1,42 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Implements MIPI 2024 Flare datasets.
-
-References:
-	- Data: https://mipi-challenge.org/MIPI2024/index.html
-"""
+"""Implements Rain1200 datasets."""
 
 __all__ = [
-	"MIPI2024Flare",
+    "Rain1200",
 ]
 
 from mon.core import rich
-from ..core import *
+from mon.datasets.core import *
 
 
-@DATASETS.register(name="mipi2024flare")
-class MIPI2024Flare(VisionDataset):
-    """MIPI 2024 Flare dataset."""
-    
-    root_name : str         = "mipi2024flare"
-    tasks     : list[Task]  = [Task.DARK]
+@DATASETS.register(name="rain1200")
+class Rain1200(VisionDataset):
+    """Rain1200 dataset."""
+
+    root_name : str         = "rain1200"
+    tasks     : list[Task]  = [Task.DERAIN]
     splits    : list[Split] = [Split.TRAIN, Split.VAL, Split.TEST]
     modalities: Modalities  = {
         "image": Modality(name="image", type="image", module=Image, in_test=True, primary=True),
-        "ref"  : Modality(name="ref",   type="image", module=Image, in_test=False),
+        "ref"  : Modality(name="ref",   type="image", module=Image, in_test=True),
     }
     classes   : Classes     = None
-
+    
     def list_primary_data(self) -> list:
-        """Lists ``datapoints`` with image annotations for split.
-
-        Raises:
-            ValueError: If ``split`` is invalid.
-        """
+        """Lists ``datapoints`` with image annotations for split."""
         if self.split in [Split.TRAIN]:
-            patterns = [self.root / "train" / "image"]
-        elif self.split in [Split.VAL]:
-            patterns = [self.root / "val"   / "image"]
-        elif self.split in [Split.TEST]:
-            patterns = [self.root / "test"  / "image"]
+            patterns = [
+                self.root / self.split_str / "light"  / "image",
+                self.root / self.split_str / "medium" / "image",
+                self.root / self.split_str / "heavy"  / "image",
+            ]
         else:
-            raise ValueError(f"[split] invalid: [{self.split}]")
-
+            patterns = [
+                self.root / self.split_str / "image",
+            ]
+        
         images: list[Image] = []
         with rich.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
@@ -51,5 +45,5 @@ class MIPI2024Flare(VisionDataset):
                 for path in pbar.track(sequence=paths, description=desc):
                     if path.is_image_file():
                         images.append(Image(path=path, root=pattern))
-
+      
         return images
