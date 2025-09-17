@@ -20,7 +20,7 @@ class WiderFace(VisionDataset):
     tasks     : list[Task]  = [Task.DETECT]
     splits    : list[Split] = [Split.TRAIN, Split.VAL, Split.TEST]
     modalities: Modalities  = {
-        "image": Modality(name="image", type="image", module=Image, in_test=True, primary=True),
+        "image": Modality(name="image", type="image", module=Image, train=True, test=True, primary=True),
     }
     classes   : Classes     = Classes([
         {"name": "face", "id": 0, "color": [ 81, 120, 228]},

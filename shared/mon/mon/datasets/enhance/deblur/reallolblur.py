@@ -19,7 +19,7 @@ class RealLOLBlur(VisionDataset):
     tasks     : list[Task]  = [Task.DEBLUR, Task.LLE]
     splits    : list[Split] = [Split.TEST]
     modalities: Modalities  = {
-        "image": Modality(name="image", type="image", module=Image, in_test=True, primary=True),
+        "image": Modality(name="image", type="image", module=Image, train=True, test=True, primary=True),
     }
     classes   : Classes     = None
     

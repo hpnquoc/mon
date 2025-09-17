@@ -235,7 +235,7 @@ def to_array(image: torch.Tensor) -> np.ndarray:
         Image as a ``numpy.ndarray`` of shape :math:`(H, W, C)` in :math:`[0, 255]`.
     
     Raises:
-        ValueError: If ``image`` dimensions are not 4.
+        ValueError: If ``image`` dimensions are not ``4``.
         
     Recommend order:
         image = (tensor.squeeze().detach().cpu().clamp(0, 1).permute(1, 2, 0).numpy() * 255).round().astype("uint8")

@@ -1,31 +1,33 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Implements DarkFace datasets."""
+"""Implements YDLD (YouTube Driving Light Detection) datasets."""
 
 __all__ = [
-    "DarkFace",
+    "YDLD",
 ]
 
 from mon.core import rich
 from mon.datasets.core import *
 
 
-@DATASETS.register(name="darkface")
-class DarkFace(VisionDataset):
-    """DarkFace dataset."""
+@DATASETS.register(name="ydld")
+class YDLD(VisionDataset):
+    """YDLD dataset."""
 
-    root_name : str         = "darkface"
-    tasks     : list[Task]  = [Task.DARK, Task.LLE, Task.DETECT]
-    splits    : list[Split] = [Split.TEST]
+    root_name : str         = "ydld"
+    tasks     : list[Task]  = [Task.NIGHTTIME, Task.LLE, Task.DETECT]
+    splits    : list[Split] = [Split.TRAIN, Split.TEST]
     modalities: Modalities  = {
-        "image": Modality(name="image",   type="image", module=Image,           in_test=True, primary=True),
-        "depth": Modality(name=DepthName, type="image", module=DefaultDepthMap, in_test=True),
+        "image": Modality(name="image",   type="image", module=Image,           train=True, test=True, primary=True),
+        # "depth": Modality(name=DepthName, type="image", module=DefaultDepthMap, train=True, test=True),
     }
     classes   : Classes     = Classes([
-        {"name": "face", "id": 0, "color": [ 81, 120, 228]},
+        {"name": "car_light",            "id": 0, "color": (255,   0,   0)},
+        {"name": "traffic_signal_light", "id": 1, "color": (0  , 128,   0)},
+        {"name": "street_light",         "id": 2, "color": (0  ,   0, 255)},
     ])
-
+    
     def list_primary_data(self) -> list:
         """Lists ``datapoints`` with image annotations for split."""
         patterns = [self.root / f"{self.split_str}" / "image"]

@@ -19,7 +19,7 @@ class LightEffect(VisionDataset):
     tasks     : list[Task]  = [Task.FLARE]
     splits    : list[Split] = [Split.TRAIN]
     modalities: Modalities  = {
-        "image": Modality(name="image", type="image", module=Image, in_test=True, primary=True),
+        "image": Modality(name="image", type="image", module=Image, train=True, test=True, primary=True),
     }
     classes   : Classes     = None
 

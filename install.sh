@@ -7,7 +7,7 @@ clear
 echo "${HOSTNAME}"
 
 # ----- Input -----
-declare -a options=("mon" "cuda" "docker" "tensorrt" "rlsync" "xanylabeling")
+declare -a options=("mon" "update" "cuda" "docker" "tensorrt" "rlsync" "xanylabeling")
 option="${1:-0}"
 
 echo -e "\nAvailable options:"
@@ -422,9 +422,7 @@ create_mon_env() {
 }
 
 install_mon_env() {
-    create_mon_env
-
-    echo -e "\nInstall 'mon' library"
+    echo -e "\nUpdate 'mon' library"
     eval "$(conda shell.bash hook)"
     conda activate mon
     rm -rf poetry.lock
@@ -482,6 +480,12 @@ case "${option}" in
     mon)
         echo -e "\nOption: mon"
         setup_system
+        update_conda
+        create_mon_env
+        install_mon_env
+        ;;
+    update)
+        echo -e "\nOption: update"
         update_conda
         install_mon_env
         ;;

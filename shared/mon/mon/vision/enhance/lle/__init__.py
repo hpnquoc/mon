@@ -3,6 +3,7 @@
 
 """Implements low-light image enhancement algorithms."""
 
+from .clode import *
 from .colie import *
 from .dccnet import *
 from .enlightengan import *

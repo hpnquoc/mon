@@ -487,7 +487,6 @@ class Task(Enum):
     """Task types."""
     
     # Enhancement
-    DARK       = "dark"                 # dark image/video enhancement
     DEBLUR     = "deblur"               # deblurring
     DEHAZE     = "dehaze"               # dehazing
     DENOISE    = "denoise"              # denoising
@@ -498,6 +497,7 @@ class Task(Enum):
     INPAINT    = "inpaint"              # inpainting
     LLE        = "lle"                  # low-light enhancement
     MEF        = "mef"                  # multi-exposure fusion
+    NIGHTTIME  = "nighttime"            # nighttime enhancement
     REFLECT    = "reflection"           # reflection removal
     RETOUCH    = "retouch"              # Retouching
     SR         = "sr"                   # super-resolution
@@ -575,10 +575,10 @@ class BBoxFormat(Enum):
 class DepthSource(Enum):
     """Depth data input sources."""
 
-    DAAC_ViTS = "daac_vits"             # Depth Anything at Any Condition with ViT-S encoder
-    DAv2_ViTB = "dav2_vitb"             # Depth Anything v2 with ViT-B encoder
-    DAv2_ViTL = "dav2_vitl"             # Depth Anything v2 with ViT-L encoder
-    DAv2_ViTS = "dav2_vits"             # Depth Anything v2 with ViT-S encoder
+    DAAC_ViTS = "depth_daac_vits"       # Depth Anything at Any Condition with ViT-S encoder
+    DAv2_ViTB = "depth_dav2_vitb"       # Depth Anything v2 with ViT-B encoder
+    DAv2_ViTL = "depth_dav2_vitl"       # Depth Anything v2 with ViT-L encoder
+    DAv2_ViTS = "depth_dav2_vits"       # Depth Anything v2 with ViT-S encoder
     DEPTH_PRO = "depth_pro"             # Depth Pro
     DEPTH     = "depth"
 

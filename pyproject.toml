@@ -28,7 +28,7 @@ maintainers     = [
 description     = "A monorepo centralizing multiple projects and sharing code."
 readme          = "README.md"
 license         = "MIT"
-license-files   = ["LICENSE.*"]
+license-files   = ["LICENSE"]
 keywords        = [
     "computer vision",
     "image processing",
@@ -84,10 +84,11 @@ include  = [
 exclude  = []
 
 [tool.poetry.dependencies]
-mon           = { path = "shared/mon"         , develop = true }
-snntorch      = { path = "shared/snntorch"    , develop = true }
-spikingjelly  = { path = "shared/spikingjelly", develop = true }
-ultralytics   = { path = "shared/ultralytics" , develop = true }
+mon             = { path = "shared/mon"         , develop = true }
+snntorch        = { path = "shared/snntorch"    , develop = true }
+spikingjelly    = { path = "shared/spikingjelly", develop = true }
+ultralytics     = { path = "shared/ultralytics" , develop = true }
+open-clip-torch = { path = "shared/open_clip"   , develop = true }
 
 [build-system]
 requires      = ["poetry-core>=2.0.0"]

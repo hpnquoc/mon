@@ -20,8 +20,8 @@ class RealBlurTeleJ(VisionDataset):
     tasks     : list[Task]  = [Task.DEBLUR]
     splits    : list[Split] = [Split.TEST]
     modalities: Modalities  = {
-        "image": Modality(name="image", type="image", module=Image, in_test=True, primary=True),
-        "ref"  : Modality(name="ref",   type="image", module=Image, in_test=False),
+        "image": Modality(name="image", type="image", module=Image, train=True, test=True, primary=True),
+        "ref"  : Modality(name="ref",   type="image", module=Image, train=True, test=False),
     }
     classes   : Classes     = None
 
@@ -49,8 +49,8 @@ class RealBlurTeleR(VisionDataset):
     tasks     : list[Task]  = [Task.DEBLUR]
     splits    : list[Split] = [Split.TEST]
     modalities: Modalities  = {
-        "image": Modality(name="image", type="image", module=Image, in_test=True, primary=True),
-        "ref"  : Modality(name="ref",   type="image", module=Image, in_test=False),
+        "image": Modality(name="image", type="image", module=Image, train=True, test=True, primary=True),
+        "ref"  : Modality(name="ref",   type="image", module=Image, train=True, test=False),
     }
     classes   : Classes     = None
 

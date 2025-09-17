@@ -20,11 +20,11 @@ class MIPI2024Flare(VisionDataset):
     """MIPI 2024 Flare dataset."""
     
     root_name : str         = "mipi2024flare"
-    tasks     : list[Task]  = [Task.DARK]
+    tasks     : list[Task]  = [Task.NIGHTTIME]
     splits    : list[Split] = [Split.TRAIN, Split.VAL, Split.TEST]
     modalities: Modalities  = {
-        "image": Modality(name="image", type="image", module=Image, in_test=True, primary=True),
-        "ref"  : Modality(name="ref",   type="image", module=Image, in_test=False),
+        "image": Modality(name="image", type="image", module=Image, train=True, test=True, primary=True),
+        "ref"  : Modality(name="ref",   type="image", module=Image, train=True, test=False),
     }
     classes   : Classes     = None
 

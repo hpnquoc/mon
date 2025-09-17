@@ -28,7 +28,7 @@ maintainers     = [
 description     = "Just a research package."
 readme          = "README.md"
 license         = "MIT"
-license-files   = ["LICENSE.*"]
+license-files   = ["LICENSE"]
 keywords        = [
     "computer vision",
     "image processing",
@@ -46,6 +46,8 @@ dependencies    = [
     "emoji",                            # Emoji for Python.
     "fjson",                            # Python JSON writer with formatted floats
     "loguru",                           # Python logging made (stupidly) simple.
+    "mypy",                             # Optional static typing for Python.
+    "omegaconf",                        # Flexible Python configuration system.
     "plum-dispatch",                    # Multiple dispatch in Python.
     "psutil",                           # Cross-platform lib for process and system monitoring in Python.
     "pytest",                           # Simple powerful testing with Python.
@@ -71,6 +73,7 @@ dependencies    = [
     "onnx",                             # Open Neural Network Exchange.
     "onnxruntime",                      # ONNX Runtime is a performance-focused scoring engine for Open Neural Network Exchange (ONNX) models.
     "openvino",                         # OpenVINO™ is a toolkit for optimizing and deploying AI inference.
+    "ptflops",                          # Flops counting tool for neural networks in pytorch framework.
     "scikit-learn",                     # A set of python modules for machine learning and data mining.
     "snntorch",
     "spikingjelly",
@@ -96,8 +99,10 @@ dependencies    = [
     "scikit-image",                     # Image processing in Python.
     "torchvision",                      # Image and video datasets and models for Torch deep learning.
     "ultralytics",
+    # VLM
+    "open-clip-torch",                  # OpenCLIP: Open and Reproducible CLIP Models.
     # Temporary Fix
-    "bitsandbytes==0.42.0"              # Fix for MacOS: 0.45.5 error
+    "bitsandbytes==0.42.0"              # Fix for macOS: 0.45.5 error
 ]
 # dynamic         = ["dependencies"]
 
@@ -129,9 +134,11 @@ include  = []
 exclude  = []
 
 [tool.poetry.dependencies]
-snntorch     = { path = "../snntorch"    , develop = true }
-spikingjelly = { path = "../spikingjelly", develop = true }
-ultralytics  = { path = "../ultralytics" , develop = true }
+snntorch        = { path = "../snntorch"    , develop = true }
+spikingjelly    = { path = "../spikingjelly", develop = true }
+ultralytics     = { path = "../ultralytics" , develop = true }
+open-clip-torch = { path = "../open_clip"   , develop = true }
+
 
 [build-system]
 requires      = ["poetry-core>=2.0.0"]

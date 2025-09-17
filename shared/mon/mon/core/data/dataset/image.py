@@ -35,7 +35,7 @@ class ImageLoader(VisionDataset):
     """
     
     modalities: Modalities  = {
-        "image": Modality(name="image", type="image", module=Image, in_test=True, primary=True),
+        "image": Modality(name="image", type="image", module=Image, train=True, test=True, primary=True),
     }
     
     def __init__(

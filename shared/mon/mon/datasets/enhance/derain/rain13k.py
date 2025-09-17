@@ -19,8 +19,8 @@ class Rain13K(VisionDataset):
     tasks     : list[Task]  = [Task.DERAIN]
     splits    : list[Split] = [Split.TRAIN]
     modalities: Modalities  = {
-        "image": Modality(name="image", type="image", module=Image, in_test=True, primary=True),
-        "ref"  : Modality(name="ref",   type="image", module=Image, in_test=False),
+        "image": Modality(name="image", type="image", module=Image, train=True, test=True, primary=True),
+        "ref"  : Modality(name="ref",   type="image", module=Image, train=True, test=False),
     }
     classes   : Classes     = None
     

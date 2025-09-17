@@ -41,7 +41,7 @@ class VideoLoader(VisionDataset, abc.ABC):
     
     tasks     : list[Task]  = [Task.VIDEO]
     modalities: Modalities  = {
-        "frame": Modality(name="image", type="image", module=Frame, in_test=True, primary=True),
+        "frame": Modality(name="image", type="image", module=Frame, train=True, test=True, primary=True),
     }
     
     def __init__(

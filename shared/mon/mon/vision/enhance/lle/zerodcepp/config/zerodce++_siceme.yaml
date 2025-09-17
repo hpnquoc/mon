@@ -78,7 +78,7 @@ train_dataloader:                                                               
 # Val
 val_dataloader:                                                                 # Val dataloader.
   dataset:
-    name      : "sice"                                                          # Data module name (e.g., cifar10).
+    name      : *data                                                           # Data module name (e.g., cifar10).
     root      : "data/sice"                                                     # Root directory of the dataset.
     split     : "test"                                                          # Dataset split (e.g., train, val, test).
     transform :

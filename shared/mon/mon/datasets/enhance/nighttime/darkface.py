@@ -1,33 +1,35 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Implements RealNightHaze datasets."""
+"""Implements DarkFace datasets."""
 
 __all__ = [
-    "RealNightHaze",
+    "DarkFace",
 ]
 
 from mon.core import rich
 from mon.datasets.core import *
 
 
-@DATASETS.register(name="realnighthaze")
-class RealNightHaze(VisionDataset):
-    """RealNightHaze dataset."""
+@DATASETS.register(name="darkface")
+class DarkFace(VisionDataset):
+    """DarkFace dataset."""
 
-    root_name : str         = "realnighthaze"
-    tasks     : list[Task]  = [Task.DARK, Task.LLE, Task.DEHAZE]
+    root_name : str         = "darkface"
+    tasks     : list[Task]  = [Task.NIGHTTIME, Task.LLE, Task.DETECT]
     splits    : list[Split] = [Split.TEST]
     modalities: Modalities  = {
-        "image": Modality(name="image",   type="image", module=Image,           in_test=True, primary=True),
-        "depth": Modality(name=DepthName, type="image", module=DefaultDepthMap, in_test=True),
+        "image": Modality(name="image",   type="image", module=Image,           train=True, test=True, primary=True),
+        "depth": Modality(name=DepthName, type="image", module=DefaultDepthMap, train=True, test=True),
     }
-    classes   : Classes     = None
-    
+    classes   : Classes     = Classes([
+        {"name": "face", "id": 0, "color": [ 81, 120, 228]},
+    ])
+
     def list_primary_data(self) -> list:
         """Lists ``datapoints`` with image annotations for split."""
-        patterns = [self.root / self.split_str / "image"]
-        
+        patterns = [self.root / f"{self.split_str}" / "image"]
+
         images: list[Image] = []
         with rich.create_progress_bar(disable=self.disable_pbar) as pbar:
             for pattern in patterns:
@@ -36,5 +38,5 @@ class RealNightHaze(VisionDataset):
                 for path in pbar.track(sequence=paths, description=desc):
                     if path.is_image_file():
                         images.append(Image(path=path, root=pattern))
-          
+
         return images

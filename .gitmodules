@@ -7,3 +7,6 @@
 [submodule "shared/ultralytics"]
 	path = shared/ultralytics
 	url  = https://github.com/phlong3105/ultralytics
+[submodule "shared/open_clip"]
+	path = shared/open_clip
+	url  = https://github.com/phlong3105/open_clip

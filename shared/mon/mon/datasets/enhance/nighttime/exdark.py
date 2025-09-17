@@ -20,11 +20,11 @@ class ExDark(VisionDataset):
     """ExDark dataset."""
     
     root_name : str         = "exdark"
-    tasks     : list[Task]  = [Task.DARK, Task.LLE, Task.DETECT]
+    tasks     : list[Task]  = [Task.NIGHTTIME, Task.LLE, Task.DETECT]
     splits    : list[Split] = [Split.TEST]
     modalities: Modalities  = {
-        "image": Modality(name="image",   type="image", module=Image,           in_test=True, primary=True),
-        "depth": Modality(name=DepthName, type="image", module=DefaultDepthMap, in_test=True),
+        "image": Modality(name="image",   type="image", module=Image,           train=True, test=True, primary=True),
+        "depth": Modality(name=DepthName, type="image", module=DefaultDepthMap, train=True, test=True),
     }
     classes   : Classes     = Classes([
         {"name": "Bicycle"  , "id":  1, "coco80_id":  2, "color": [138, 183,  33]},

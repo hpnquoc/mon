@@ -21,13 +21,12 @@ class LoLIStreet(VisionDataset):
     """LoLI-Street dataset."""
     
     root_name : str         = "lolistreet"
-    tasks     : list[Task]  = [Task.DARK, Task.LLE]
+    tasks     : list[Task]  = [Task.NIGHTTIME, Task.LLE]
     splits    : list[Split] = [Split.TRAIN, Split.VAL, Split.TEST]
     modalities: Modalities  = {
-        "image"    : Modality(name="image",      type="image", module=Image,           in_test=True, primary=True),
-        "depth"    : Modality(name=DepthName,    type="image", module=DefaultDepthMap, in_test=True),
-        "ref"      : Modality(name="ref",        type="image", module=Image,           in_test=False),
-        "ref_depth": Modality(name=RefDepthName, type="image", module=DefaultDepthMap, in_test=False),
+        "image": Modality(name="image",   type="image", module=Image,           train=True, test=True, primary=True),
+        "depth": Modality(name=DepthName, type="image", module=DefaultDepthMap, train=True, test=True),
+        "ref"  : Modality(name="ref",     type="image", module=Image,           train=True, test=False),
     }
     classes   : Classes     = Classes([
         {"id": 0 , "name": "person"        , "supercategory": "person",     "color": [ 81, 120, 228]},

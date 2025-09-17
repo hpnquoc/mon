@@ -3,7 +3,7 @@
 
 """Implements image/video enhancement datasets."""
 
-from .dark import *
+from .nighttime import *
 from .deblur import *
 from .dehaze import *
 from .derain import *

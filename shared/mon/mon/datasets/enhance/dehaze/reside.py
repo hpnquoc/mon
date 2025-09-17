@@ -26,8 +26,8 @@ class RESIDE_HSTSReal(VisionDataset):
     tasks     : list[Task]  = [Task.DEHAZE]
     splits    : list[Split] = [Split.TEST]
     modalities: Modalities  = {
-        "image": Modality(name="image",   type="image", module=Image,           in_test=True, primary=True),
-        "depth": Modality(name=DepthName, type="image", module=DefaultDepthMap, in_test=True),
+        "image": Modality(name="image",   type="image", module=Image,           train=True, test=True, primary=True),
+        "depth": Modality(name=DepthName, type="image", module=DefaultDepthMap, train=True, test=True),
     }
     classes   : Classes     = None
     
@@ -55,10 +55,9 @@ class RESIDE_HSTSSyn(VisionDataset):
     tasks     : list[Task]  = [Task.DEHAZE]
     splits    : list[Split] = [Split.TEST]
     modalities: Modalities  = {
-        "image"    : Modality(name="image",      type="image", module=Image,           in_test=True, primary=True),
-        "depth"    : Modality(name=DepthName,    type="image", module=DefaultDepthMap, in_test=True),
-        "ref"      : Modality(name="ref",        type="image", module=Image,           in_test=True),
-        "ref_depth": Modality(name=RefDepthName, type="image", module=DefaultDepthMap, in_test=True),
+        "image": Modality(name="image",   type="image", module=Image,           train=True, test=True, primary=True),
+        "depth": Modality(name=DepthName, type="image", module=DefaultDepthMap, train=True, test=True),
+        "ref"  : Modality(name="ref",     type="image", module=Image,           train=True, test=True),
     }
     classes   : Classes     = None
     
@@ -86,10 +85,9 @@ class RESIDE_ITS(VisionDataset):
     tasks     : list[Task]  = [Task.DEHAZE]
     splits    : list[Split] = [Split.TRAIN]
     modalities: Modalities  = {
-        "image"    : Modality(name="image",      type="image", module=Image,           in_test=True, primary=True),
-        "depth"    : Modality(name=DepthName,    type="image", module=DefaultDepthMap, in_test=True),
-        "ref"      : Modality(name="ref",        type="image", module=Image,           in_test=False),
-        "ref_depth": Modality(name=RefDepthName, type="image", module=DefaultDepthMap, in_test=False),
+        "image": Modality(name="image",   type="image", module=Image,           train=True, test=True, primary=True),
+        "depth": Modality(name=DepthName, type="image", module=DefaultDepthMap, train=True, test=True),
+        "ref"  : Modality(name="ref",     type="image", module=Image,           train=True, test=False),
     }
     classes   : Classes     = None
     
@@ -117,10 +115,9 @@ class RESIDE_OTS(VisionDataset):
     tasks     : list[Task]  = [Task.DEHAZE]
     splits    : list[Split] = [Split.TRAIN]
     modalities: Modalities  = {
-        "image"    : Modality(name="image",      type="image", module=Image,           in_test=True, primary=True),
-        "depth"    : Modality(name=DepthName,    type="image", module=DefaultDepthMap, in_test=True),
-        "ref"      : Modality(name="ref",        type="image", module=Image,           in_test=False),
-        "ref_depth": Modality(name=RefDepthName, type="image", module=DefaultDepthMap, in_test=False),
+        "image": Modality(name="image",   type="image", module=Image,           train=True, test=True, primary=True),
+        "depth": Modality(name=DepthName, type="image", module=DefaultDepthMap, train=True, test=True),
+        "ref"  : Modality(name="ref",     type="image", module=Image,           train=True, test=False),
     }
     classes   : Classes     = None
     
@@ -148,8 +145,8 @@ class RESIDE_RTTS(VisionDataset):
     tasks     : list[Task]  = [Task.DEHAZE, Task.DETECT]
     splits    : list[Split] = [Split.TEST]
     modalities: Modalities  = {
-        "image": Modality(name="image",   type="image", module=Image,           in_test=True, primary=True),
-        "depth": Modality(name=DepthName, type="image", module=DefaultDepthMap, in_test=True),
+        "image": Modality(name="image",   type="image", module=Image,           train=True, test=True, primary=True),
+        "depth": Modality(name=DepthName, type="image", module=DefaultDepthMap, train=True, test=True),
     }
     classes   : Classes     = None
     
@@ -177,10 +174,9 @@ class RESIDE_SOTSIndoor(VisionDataset):
     tasks     : list[Task]  = [Task.DEHAZE]
     splits    : list[Split] = [Split.TEST]
     modalities: Modalities  = {
-        "image"    : Modality(name="image",      type="image", module=Image,           in_test=True, primary=True),
-        "depth"    : Modality(name=DepthName,    type="image", module=DefaultDepthMap, in_test=True),
-        "ref"      : Modality(name="ref",        type="image", module=Image,           in_test=True),
-        "ref_depth": Modality(name=RefDepthName, type="image", module=DefaultDepthMap, in_test=True),
+        "image": Modality(name="image",   type="image", module=Image,           train=True, test=True, primary=True),
+        "depth": Modality(name=DepthName, type="image", module=DefaultDepthMap, train=True, test=True),
+        "ref"  : Modality(name="ref",     type="image", module=Image,           train=True, test=True),
     }
     classes   : Classes     = None
     
@@ -208,10 +204,9 @@ class RESIDE_SOTSOutdoor(VisionDataset):
     tasks     : list[Task]  = [Task.DEHAZE]
     splits    : list[Split] = [Split.TEST]
     modalities: Modalities  = {
-        "image"    : Modality(name="image",      type="image", module=Image,           in_test=True, primary=True),
-        "depth"    : Modality(name=DepthName,    type="image", module=DefaultDepthMap, in_test=True),
-        "ref"      : Modality(name="ref",        type="image", module=Image,           in_test=True),
-        "ref_depth": Modality(name=RefDepthName, type="image", module=DefaultDepthMap, in_test=True),
+        "image": Modality(name="image",   type="image", module=Image,           train=True, test=True, primary=True),
+        "depth": Modality(name=DepthName, type="image", module=DefaultDepthMap, train=True, test=True),
+        "ref"  : Modality(name="ref",     type="image", module=Image,           train=True, test=True),
     }
     classes   : Classes     = None
     
@@ -239,8 +234,8 @@ class RESIDE_URHI(VisionDataset):
     tasks     : list[Task]  = [Task.DEHAZE]
     splits    : list[Split] = [Split.TEST]
     modalities: Modalities  = {
-        "image": Modality(name="image",   type="image", module=Image,           in_test=True, primary=True),
-        "depth": Modality(name=DepthName, type="image", module=DefaultDepthMap, in_test=True),
+        "image": Modality(name="image",   type="image", module=Image,           train=True, test=True, primary=True),
+        "depth": Modality(name=DepthName, type="image", module=DefaultDepthMap, train=True, test=True),
     }
     classes   : Classes     = None
     

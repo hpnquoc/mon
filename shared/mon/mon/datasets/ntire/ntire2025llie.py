@@ -23,8 +23,8 @@ class NTIRE2025LLIE(VisionDataset):
     tasks     : list[Task]  = [Task.LLE]
     splits    : list[Split] = [Split.TRAIN, Split.VAL, Split.TEST]
     modalities: Modalities  = {
-        "image": Modality(name="image", type="image", module=Image, in_test=True, primary=True),
-        "ref"  : Modality(name="ref",   type="image", module=Image, in_test=False),
+        "image": Modality(name="image", type="image", module=Image, train=True, test=True, primary=True),
+        "ref"  : Modality(name="ref",   type="image", module=Image, train=True, test=False),
     }
     classes   : Classes     = None
 

@@ -33,7 +33,7 @@ class Image(BaseTensorOrArray):
             Default: ``cv2.IMREAD_COLOR``.
         cache: If ``True``, caches image in memory. Default: ``False``.
     """
-   
+    
     def __init__(
         self,
         data : Union[torch.Tensor, np.ndarray] = None,

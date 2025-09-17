@@ -21,12 +21,12 @@ class NightCity(VisionDataset):
     """NightCity dataset."""
     
     root_name : str         = "nightcity"
-    tasks     : list[Task]  = [Task.DARK, Task.LLE, Task.SEGMENT]
+    tasks     : list[Task]  = [Task.NIGHTTIME, Task.LLE, Task.SEGMENT]
     splits    : list[Split] = [Split.TRAIN, Split.VAL, Split.TEST]
     modalities: Modalities  = {
-        "image": Modality(name="image",    type="image", module=Image,           in_test=True, primary=True),
-        "depth": Modality(name=DepthName,  type="image", module=DefaultDepthMap, in_test=True),
-        "mask" : Modality(name="labelIds", type="image", module=SemanticMask,    in_test=False),
+        "image": Modality(name="image",    type="image", module=Image,           train=True, test=True, primary=True),
+        "depth": Modality(name=DepthName,  type="image", module=DefaultDepthMap, train=True, test=True),
+        "mask" : Modality(name="labelIds", type="image", module=SemanticMask,    train=True, test=False),
     }
     classes   : Classes     = Classes([
         {"name": "unlabeled"           , "id": 0 , "train_id": 255, "category": "void"        , "category_id": 0, "ignore_in_eval": True , "color": [0  , 0  ,   0]},

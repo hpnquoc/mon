@@ -20,7 +20,7 @@ class COCO80(VisionDataset):
     tasks     : list[Task]  = [Task.DETECT]
     splits    : list[Split] = [Split.TRAIN, Split.VAL, Split.TEST]
     modalities: Modalities  = {
-        "image": Modality(name="image", type="image", module=Image, in_test=True, primary=True),
+        "image": Modality(name="image", type="image", module=Image, train=True, test=True, primary=True),
     }
     classes   : Classes     = Classes([
         {"name": "background"    , "id":  0, "supercategory": "background", "color": (  0,   0,   0)},
@@ -129,7 +129,7 @@ class COCO91(VisionDataset):
     tasks     : list[Task]  = [Task.DETECT]
     splits    : list[Split] = [Split.TRAIN, Split.VAL, Split.TEST]
     modalities: Modalities  = {
-        "image": Modality(name="image", type="image", module=Image, in_test=True, primary=True),
+        "image": Modality(name="image", type="image", module=Image, train=True, test=True, primary=True),
     }
     classes   : Classes     = Classes([
         {"name": "background"    , "id":  0, "supercategory": "background", "color": [  0,   0,   0]},

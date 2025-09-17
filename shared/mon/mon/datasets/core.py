@@ -68,9 +68,7 @@ from mon.core.dtypes import (
 from mon.core.enum import DepthSource, InfraredSource, Split, Task
 
 # Constants for convenience
-DepthName          = f"image_{DEPTH_SOURCE.value}"
-RefDepthName       = f"ref_{DEPTH_SOURCE.value}"
-InfraredName       = f"image_{INFRARED_SOURCE.value}"
-
+DepthName          = f"{DEPTH_SOURCE.value}"
+InfraredName       = f"{INFRARED_SOURCE.value}"
 DefaultDepthMap    = partial(DepthMap,    source=DEPTH_SOURCE)
 DefaultInfraredMap = partial(InfraredMap, source=INFRARED_SOURCE)

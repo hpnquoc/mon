@@ -21,8 +21,8 @@ class Rain100(VisionDataset):
     tasks     : list[Task]  = [Task.DERAIN]
     splits    : list[Split] = [Split.TEST]
     modalities: Modalities  = {
-        "image": Modality(name="image", type="image", module=Image, in_test=True, primary=True),
-        "ref"  : Modality(name="ref",   type="image", module=Image, in_test=True),
+        "image": Modality(name="image", type="image", module=Image, train=True, test=True, primary=True),
+        "ref"  : Modality(name="ref",   type="image", module=Image, train=True, test=True),
     }
     classes   : Classes     = None
     
@@ -50,8 +50,8 @@ class Rain100H(VisionDataset):
     tasks     : list[Task]  = [Task.DERAIN]
     splits    : list[Split] = [Split.TRAIN, Split.TEST]
     modalities: Modalities  = {
-        "image": Modality(name="image", type="image", module=Image, in_test=True, primary=True),
-        "ref"  : Modality(name="ref",   type="image", module=Image, in_test=True),
+        "image": Modality(name="image", type="image", module=Image, train=True, test=True, primary=True),
+        "ref"  : Modality(name="ref",   type="image", module=Image, train=True, test=True),
     }
     classes   : Classes     = None
     
@@ -79,8 +79,8 @@ class Rain100L(VisionDataset):
     tasks     : list[Task]  = [Task.DERAIN]
     splits    : list[Split] = [Split.TRAIN, Split.TEST]
     modalities: Modalities  = {
-        "image": Modality(name="image", type="image", module=Image, in_test=True, primary=True),
-        "ref"  : Modality(name="ref",   type="image", module=Image, in_test=True),
+        "image": Modality(name="image", type="image", module=Image, train=True, test=True, primary=True),
+        "ref"  : Modality(name="ref",   type="image", module=Image, train=True, test=True),
     }
     classes   : Classes     = None
     

@@ -19,8 +19,8 @@ class FlareReal800(VisionDataset):
     tasks     : list[Task]  = [Task.FLARE]
     splits    : list[Split] = [Split.TRAIN, Split.VAL]
     modalities: Modalities  = {
-        "image": Modality(name="image", type="image", module=Image, in_test=True, primary=True),
-        "ref"  : Modality(name="ref",   type="image", module=Image, in_test=False),
+        "image": Modality(name="image", type="image", module=Image, train=True, test=True, primary=True),
+        "ref"  : Modality(name="ref",   type="image", module=Image, train=True, test=False),
     }
     classes   : Classes     = None
 

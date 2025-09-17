@@ -20,10 +20,9 @@ class UHD4K(VisionDataset):
     tasks     : list[Task]  = [Task.LLE]
     splits    : list[Split] = [Split.TRAIN, Split.TEST]
     modalities: Modalities  = {
-        "image"    : Modality(name="image",      type="image", module=Image,           in_test=True, primary=True),
-        "depth"    : Modality(name=DepthName,    type="image", module=DefaultDepthMap, in_test=True),
-        "ref"      : Modality(name="ref",        type="image", module=Image,           in_test=True),
-        "ref_depth": Modality(name=RefDepthName, type="image", module=DefaultDepthMap, in_test=True),
+        "image": Modality(name="image",   type="image", module=Image,           train=True, test=True, primary=True),
+        "depth": Modality(name=DepthName, type="image", module=DefaultDepthMap, train=True, test=True),
+        "ref"  : Modality(name="ref",     type="image", module=Image,           train=True, test=True),
     }
     classes   : Classes     = None
 
@@ -51,10 +50,9 @@ class UHD8K(VisionDataset):
     tasks     : list[Task]  = [Task.LLE]
     splits    : list[Split] = [Split.TRAIN, Split.TEST]
     modalities: Modalities  = {
-        "image"    : Modality(name="image",      type="image", module=Image,           in_test=True, primary=True),
-        "depth"    : Modality(name=DepthName,    type="image", module=DefaultDepthMap, in_test=True),
-        "ref"      : Modality(name="ref",        type="image", module=Image,           in_test=True),
-        "ref_depth": Modality(name=RefDepthName, type="image", module=DefaultDepthMap, in_test=True),
+        "image": Modality(name="image",   type="image", module=Image,           train=True, test=True, primary=True),
+        "depth": Modality(name=DepthName, type="image", module=DefaultDepthMap, train=True, test=True),
+        "ref"  : Modality(name="ref",     type="image", module=Image,           train=True, test=True),
     }
     classes   : Classes     = None
 

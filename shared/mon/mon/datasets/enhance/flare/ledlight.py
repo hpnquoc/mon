@@ -19,8 +19,8 @@ class LEDLight(VisionDataset):
     tasks     : list[Task]  = [Task.FLARE]
     splits    : list[Split] = [Split.TEST]
     modalities: Modalities  = {
-        "image": Modality(name="image", type="image", module=Image, in_test=True, primary=True),
-        "ref"  : Modality(name="ref",   type="image", module=Image, in_test=True),
+        "image": Modality(name="image", type="image", module=Image, train=True, test=True, primary=True),
+        "ref"  : Modality(name="ref",   type="image", module=Image, train=True, test=True),
     }
     classes   : Classes     = None
 

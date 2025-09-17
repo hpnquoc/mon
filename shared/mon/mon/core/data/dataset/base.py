@@ -28,9 +28,10 @@ Modality  = namedtuple("Modality", [
     "name",     # The containing directory name in file system.
     "type",     # Albumentations target type, e.g. "image", "mask", etc.
     "module",   # Dataclass module that performs I/O operations.
-    "in_test",  # If ``True``, this modality is included in test set.
+    "train",    # If ``True``, this modality is included in train/val set.
+    "test",     # If ``True``, this modality is included in test set.
     "primary"   # If ``True``, this is the primary modality.
-], defaults=[None, None, False, False])
+], defaults=[None, None, True, False, False])
 Modalities: TypeAlias = Dict[str, Modality]
 
 
@@ -191,8 +192,9 @@ class BaseDataset(dataset.Dataset, abc.ABC):
         # Initialize datapoints dictionary with modalities
         datapoints = {}
         for k, v in self.modalities.items():
-            if ((v.type is None or v.module is None) or
-                (v.in_test is False and self.split in [Split.TEST, Split.PREDICT])):
+            if ((v.type  is None  or  v.module is None) or
+                (v.train is False and self.split in [Split.TRAIN, Split.VAL]) or
+                (v.test  is False and self.split in [Split.TEST,  Split.PREDICT])):
                 continue
             datapoints[k] = []
         self.datapoints = datapoints
