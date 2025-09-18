@@ -1,16 +1,8 @@
 import warnings
-
 import torch
 import torch.nn as nn
-
-from .misc import (
-    _all_adjoint_callback_names,
-    _all_callback_names,
-    _check_inputs,
-    _flat_to_shape,
-    _mixed_norm,
-)
-from .odeint import odeint, SOLVERS
+from .odeint import SOLVERS, odeint
+from .misc import _check_inputs, _flat_to_shape, _mixed_norm, _all_callback_names, _all_adjoint_callback_names
 
 
 class OdeintAdjointMethod(torch.autograd.Function):
@@ -29,7 +21,6 @@ class OdeintAdjointMethod(torch.autograd.Function):
         ctx.event_mode = event_fn is not None
 
         with torch.no_grad():
-            
             ans = odeint(func, y0, t, rtol=rtol, atol=atol, method=method, options=options, event_fn=event_fn)
 
             if event_fn is None:

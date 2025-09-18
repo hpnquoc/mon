@@ -14,4 +14,5 @@ __all__ = [
 ]
 
 from .loss import *
+from .misc import *
 from .model import CLODE

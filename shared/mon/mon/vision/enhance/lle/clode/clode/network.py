@@ -2,8 +2,6 @@
 # -*- coding: utf-8 -*-
 
 __all__ = [
-    "EnhanceFunc",
-    "ODEBlock",
     "NODE",
 ]
 
@@ -11,19 +9,14 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from .torchdiffeq import odeint_adjoint
-from .. import loss as loss_func
+from mon.core.math import odeint_adjoint
+from . import loss as loss_func
 
 MAX_NUM_STEPS = 1000  # 30 # 50 # 100
 
 
 def normalize_minmax(x: torch.Tensor) -> torch.Tensor:
-    normalized = (x - x.min()) / (x.max() - x.min())
-    return normalized
-
-
-def norm(dim: int) -> nn.Module:
-    return nn.GroupNorm(min(32, dim), dim)
+    return (x - x.min()) / (x.max() - x.min())
 
 
 class Conv2dTime(nn.Conv2d):
@@ -31,8 +24,8 @@ class Conv2dTime(nn.Conv2d):
     def __init__(self, in_channels: int, *args, **kwargs):
         super().__init__(in_channels + 1, *args, **kwargs)
 
-    def forward(self, t, x: torch.Tensor) -> torch.Tensor:
-        t_img   = torch.ones_like(x[:, :1, :, :]) * t    # Shape (batch_size, 1, height, width)
+    def forward(self, t: torch.Tensor, x: torch.Tensor) -> torch.Tensor:
+        t_img   = torch.ones_like(x[:, :1, :, :]) * t     # Shape (batch_size, 1, height, width)
         t_and_x = torch.cat([t_img, x], 1)   # Shape (batch_size, channels + 1, height, width)
         return super(Conv2dTime, self).forward(t_and_x)
 
@@ -41,10 +34,10 @@ class network(nn.Module):
     
     def __init__(self, n_chan: int, chan_embed: int = 48):
         super().__init__()
-        self.act   = nn.LeakyReLU(negative_slope=0.2, inplace=True)
-        self.conv1 = nn.Conv2d(n_chan,     chan_embed, 3,padding=1)
-        self.conv2 = nn.Conv2d(chan_embed, chan_embed, 3, padding = 1)
+        self.conv1 = nn.Conv2d(n_chan,     chan_embed, 3, padding=1)
+        self.conv2 = nn.Conv2d(chan_embed, chan_embed, 3, padding=1)
         self.conv3 = nn.Conv2d(chan_embed, n_chan,     1)
+        self.act   = nn.LeakyReLU(negative_slope=0.2, inplace=True)
     
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         x = self.act(self.conv1(x))
@@ -57,38 +50,25 @@ class EnhanceFunc(nn.Module):
     
     def __init__(self, num_filters: int = 32):
         super().__init__()
-        self.nfe   = 0
-        self.num_filters = num_filters        
-        self.conv1 = Conv2dTime(num_filters, num_filters, kernel_size=3, padding=1, bias=False)
-        self.relu  = nn.ReLU(inplace=True)
+        self.nfe            = 0
+        self.pred_t         = []
+        self.last_curve_map = None
         
+        in_channels    = 6
+        out_channels   = 3
+        self.up_conv   = Conv2dTime(in_channels,     num_filters,     kernel_size=3, padding=1,      padding_mode="reflect")
+        self.conv_3_1  = Conv2dTime(num_filters,     num_filters,     kernel_size=3, padding=3 // 2, padding_mode="reflect")
+        self.conv_5_1  = Conv2dTime(num_filters,     num_filters,     kernel_size=5, padding=5 // 2, padding_mode="reflect")
+        self.conv_3_2  = Conv2dTime(num_filters * 2, num_filters * 2, kernel_size=3, padding=3 // 2, padding_mode="reflect")
+        self.conv_5_2  = Conv2dTime(num_filters * 2, num_filters * 2, kernel_size=5, padding=5 // 2, padding_mode="reflect")
+        self.confusion = Conv2dTime(num_filters * 4, num_filters,     kernel_size=1, padding=0,      padding_mode="reflect")
+        self.down_conv = Conv2dTime(num_filters,     out_channels,    kernel_size=3, padding=1,      padding_mode="reflect")
         self.norm32    = nn.GroupNorm(1, 32)
         self.norm64    = nn.GroupNorm(1, 64)
-        self.up_conv   = Conv2dTime(6, 32, kernel_size=3, stride=1, padding=1, padding_mode="reflect")
-        self.down_conv = Conv2dTime(32, 3, kernel_size=3, stride=1, padding=1, padding_mode="reflect")
-
-        self.conv_3_1  = Conv2dTime(self.num_filters,     self.num_filters,     kernel_size=3, padding=3//2, padding_mode="reflect")
-        self.conv_5_1  = Conv2dTime(self.num_filters,     self.num_filters,     kernel_size=5, padding=5//2, padding_mode="reflect")
-        self.conv_3_2  = Conv2dTime(self.num_filters * 2, self.num_filters * 2, kernel_size=3, padding=3//2, padding_mode="reflect")
-        self.conv_5_2  = Conv2dTime(self.num_filters * 2, self.num_filters * 2, kernel_size=5, padding=5//2, padding_mode="reflect")
-        self.confusion = Conv2dTime(self.num_filters * 4, self.num_filters,     kernel_size=1, padding=0, stride=1, padding_mode="reflect")
+        self.relu      = nn.ReLU(inplace=True)
         
-        in_channels  = 6
-        out_channels = 3
-        number_f     = 32
-        self.e_conv1 = Conv2dTime(in_channels,  number_f,     3, 1, 1, bias=True)
-        self.e_conv2 = Conv2dTime(number_f,     number_f,     3, 1, 1, bias=True)
-        self.e_conv3 = Conv2dTime(number_f,     number_f,     3, 1, 1, bias=True)
-        self.e_conv4 = Conv2dTime(number_f,     number_f,     3, 1, 1, bias=True)
-        self.e_conv5 = Conv2dTime(number_f * 2, number_f,     3, 1, 1, bias=True)
-        self.e_conv6 = Conv2dTime(number_f * 2, number_f,     3, 1, 1, bias=True)
-        self.e_conv7 = Conv2dTime(number_f * 2, out_channels, 3, 1, 1, bias=True)
-
-        self.denoise = network(3)
-        self.tv_loss = loss_func.L_TV()
-
-        self.last_curve_map = None
-        self.pred_t = []
+        self.denoise   = network(3)
+        self.tv_loss   = loss_func.L_tv()
                 
     def pair_downsampler(self, image: torch.Tensor) -> torch.Tensor:
         c       = image.shape[1]
@@ -108,10 +88,10 @@ class EnhanceFunc(nn.Module):
         noisy1, noisy2       = self.pair_downsampler(noisy_img)
         pred1                = noisy1 - self.denoise(noisy1)
         pred2                = noisy2 - self.denoise(noisy2)
-        loss_res             = 1/2 * (self.mse(noisy1, pred2) + self.mse(noisy2, pred1))
+        loss_res             = 0.5 * (self.mse(noisy1, pred2) + self.mse(noisy2, pred1))
         noisy_denoised       =  noisy_img - self.denoise(noisy_img)
         denoised1, denoised2 = self.pair_downsampler(noisy_denoised)
-        loss_cons            = 1/2 * (self.mse(pred1, denoised1) + self.mse(pred2, denoised2))
+        loss_cons            = 0.5 * (self.mse(pred1, denoised1) + self.mse(pred2, denoised2))
         loss                 = loss_res + loss_cons
         return loss
     
@@ -121,14 +101,14 @@ class EnhanceFunc(nn.Module):
         return noisy
 
     def forward(self, t: torch.Tensor, x: torch.Tensor) -> torch.Tensor:
-        self.nfe += 1
+        self.nfe  += 1
         
         _x         = x[:, :3 , :, :]
         _, c, h, w = _x.shape
  
-        noise_map = self.loss_func(_x)
-        p_x       = _x - self.denoise(_x)
-        _in       = torch.cat([p_x, 1 - p_x], 1)
+        noise_map  = self.loss_func(_x)
+        p_x        = _x - self.denoise(_x)
+        _in        = torch.cat([p_x, 1 - p_x], 1)
     
         input_1    = self.relu(self.norm32(self.up_conv(t, _in)))
         output_3_1 = self.relu(self.norm32(self.conv_3_1(t, input_1)))
@@ -138,34 +118,24 @@ class EnhanceFunc(nn.Module):
         output_5_2 = self.relu(self.norm64(self.conv_5_2(t, input_2)))
         input_3    = torch.cat([output_3_2, output_5_2], 1)
         output     = self.relu(self.norm32(self.confusion(t, input_3)))
-        
-        _A   = F.tanh(self.down_conv(t, output))
-        pred = _A * (torch.pow(_x, 2) - _x)
+        _A         = F.tanh(self.down_conv(t, output))
+        pred       = _A * (torch.pow(_x, 2) - _x)
         self.last_curve_map = _A
         
-        L_tv      = torch.ones_like(_A) * self.tv_loss(_A)
-        noise_map = torch.ones_like(_A) * noise_map
+        L_tv       = torch.ones_like(_A) * self.tv_loss(_A)
+        noise_map  = torch.ones_like(_A) * noise_map
         self.pred_t.append(t.item())
     
         return torch.cat([pred, L_tv, noise_map], 1)
 
  
 class ODEBlock(nn.Module):
-   
-    def __init__(
-        self,
-        odefunc,
-        is_conv: bool  = False,
-        tol    : float = 1e-3,
-        adjoint: bool  = False,
-        device : torch.device = torch.device("cpu"),
-    ):
+    
+    def __init__(self, odefunc, tol: float = 1e-3, adjoint: bool = False):
         super().__init__()
         self.odefunc = odefunc
-        self.is_conv = is_conv
         self.tol     = tol
         self.adjoint = adjoint
-        self.device  = device
 
     def forward(self, x: torch.Tensor, eval_times: torch.Tensor = None) -> torch.Tensor:
         if eval_times is None:
@@ -197,37 +167,31 @@ class NODE(nn.Module):
         time_dependent: bool  = True,
         tol           : float = 1e-5,
         adjoint       : bool  = True,
-        device        : torch.device = torch.device("cpu"),
     ):
         super().__init__()
         self.num_filters    = num_filters
         self.augment_dim    = augment_dim
         self.time_dependent = time_dependent
-        self.tol            = tol
-        self.device         = device
         
         self.odefunc  = EnhanceFunc(num_filters)
-        self.odeblock = ODEBlock(self.odefunc, is_conv=True, tol=tol, adjoint=adjoint, device=device)
-        self.idx      = 0
+        self.odeblock = ODEBlock(self.odefunc, tol=tol, adjoint=adjoint)
         
     def forward(self, x: torch.Tensor, eval_time: torch.Tensor = None, inference: bool = False):
-        _, c, h, w = x.shape
-        _input     = torch.cat([x, torch.zeros_like(x), torch.zeros_like(x)], 1)
-        preds      = self.odeblock(_input, eval_time)
-    
-        pred       = preds[-1]
-        curve_map  = self.odefunc.last_curve_map
+        _input    = torch.cat([x, torch.zeros_like(x), torch.zeros_like(x)], 1)
+        preds     = self.odeblock(_input, eval_time)
+        pred      = preds[-1]
+        curve_map = self.odefunc.last_curve_map
 
         if inference:
-            output = {
-                "output"   : torch.clamp(pred[:, :3, :, :]  - self.odefunc.denoise(pred[:, :3, :, :]), 0, 1),
+            return {
+                "output"   : torch.clamp(pred[:, 0:3, :, :]  - self.odefunc.denoise(pred[:, 0:3, :, :]), 0, 1),
                 "curve_map": normalize_minmax(curve_map),
-                "all"      : [torch.clamp(pred[:, :3, :, :] - self.odefunc.denoise(pred[:, :3, :, :]), 0, 1) for pred in preds]
+                "noise_map": normalize_minmax(pred[:, 6:9, :, :]),
+                "all"      : [torch.clamp(pred[:, 0:3, :, :] - self.odefunc.denoise(pred[:, 0:3, :, :]), 0, 1) for pred in preds]
             }
         else:
-            output = {
-                "output"   : pred[:,  :3, :, :],
+            return {
+                "output"   : pred[:, 0:3, :, :],
                 "curve_map": pred[:, 3:6, :, :],
                 "noise_map": pred[:, 6:9, :, :],
             }
-        return output

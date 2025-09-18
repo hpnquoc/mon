@@ -69,7 +69,7 @@ dependencies    = [
     "calflops",                         # A library for calculating the number of floating point operations (FLOPs) in a PyTorch model.
     "einops",                           # A new flavor of deep learning operations.
     "fvcore",                           # Collection of common code shared among different research projects in FAIR computer vision team.
-    "lightning>=2.5.2",                 # The Deep Learning framework to train, deploy, and ship AI products Lightning fast.
+    "lightning>=2.5.5",                 # The Deep Learning framework to train, deploy, and ship AI products Lightning fast.
     "onnx",                             # Open Neural Network Exchange.
     "onnxruntime",                      # ONNX Runtime is a performance-focused scoring engine for Open Neural Network Exchange (ONNX) models.
     "openvino",                         # OpenVINO™ is a toolkit for optimizing and deploying AI inference.
@@ -82,7 +82,7 @@ dependencies    = [
     "torch-fidelity",
     "torch>=2.8.0",                     # PyTorch is an optimized tensor library for deep learning using GPUs and CPUs.
     "torchfile",
-    "torchmetrics>=1.8.0",              # Collection of PyTorch native metrics for easy evaluating machine learning models.
+    "torchmetrics>=1.8.2",              # Collection of PyTorch native metrics for easy evaluating machine learning models.
     "transformers",                     # 🤗 Transformers: State-of-the-art Machine Learning for Pytorch, TensorFlow, and JAX.
     # Vision
     "Pillow",                           # Python Imaging Library (Fork).

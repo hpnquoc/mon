@@ -30,10 +30,8 @@ class AdaptiveStepsizeODESolver(metaclass=abc.ABCMeta):
         solution[0] = self.y0
         t = t.to(self.dtype)
         self._before_integrate(t)
-                
         for i in range(1, len(t)):
             solution[i] = self._advance(t[i])
-        
         return solution
 
 

@@ -47,7 +47,7 @@ def predict(args: dict | box.Box) -> str:
         raise ValueError(f"Invalid weights file: {pretrained}.")
     
     # Model
-    integration_time = torch.tensor([0, args.network.T]).float().to(device)
+    T     = torch.tensor([0, args.network.T]).float().to(device)
     model = clode.CLODE(weights=pretrained)
     model = model.to(device)
     model.eval()
@@ -85,7 +85,7 @@ def predict(args: dict | box.Box) -> str:
             
             # Infer
             timers.infer.tick()
-            outputs = model(image, integration_time, inference=True)
+            outputs = model(image, T, inference=True)
             timers.infer.tock()
 
             # Postprocess
@@ -95,6 +95,14 @@ def predict(args: dict | box.Box) -> str:
             h1, w1   = mon.image.imgsz(enhanced)
             if (h1, w1) != (h0, w0):
                 enhanced = cv2.resize(enhanced, (w0, h0))
+            if args.save_debug:
+                curve_map = outputs["curve_map"]
+                noise_map = outputs["noise_map"]
+                curve_map = mon.image.to_array(curve_map)
+                noise_map = mon.image.to_array(noise_map)
+                if (h1, w1) != (h0, w0):
+                    curve_map = cv2.resize(curve_map, (w0, h0))
+                    noise_map = cv2.resize(noise_map, (w0, h0))
             timers.postprocess.tock()
             
             # Save
@@ -102,6 +110,12 @@ def predict(args: dict | box.Box) -> str:
                 out_dir  = mon.rt.parse_output_dir(args.save_dir, data_name, mon.SAVE_IMAGE_DIR, path, args.keep_subdirs, args.save_nearby)
                 out_path = out_dir / f"{path.stem}{mon.SAVE_IMAGE_EXT}"
                 mon.image.save_image(enhanced, out_path)
+            if args.save_debug:
+                out_dir  = mon.rt.parse_output_dir(args.save_dir, data_name, mon.SAVE_DEBUG_DIR, path, args.keep_subdirs, args.save_nearby)
+                out_path = out_dir / f"{path.stem}_curve_map{mon.SAVE_IMAGE_EXT}"
+                mon.image.save_image(curve_map, out_path)
+                out_path = out_dir / f"{path.stem}_noise_map{mon.SAVE_IMAGE_EXT}"
+                mon.image.save_image(noise_map, out_path)
     timers.total.tock()
 
     # Finish

@@ -1,31 +1,48 @@
 import torch
 from torch.autograd.functional import vjp
-
-from .adaptive_heun import AdaptiveHeunSolver
-from .bosh3 import Bosh3Solver
 from .dopri5 import Dopri5Solver
-from .dopri8 import Dopri8Solver
+from .bosh3 import Bosh3Solver
+from .adaptive_heun import AdaptiveHeunSolver
 from .fehlberg2 import Fehlberg2
+from .fixed_grid import Euler, Midpoint, Heun2, Heun3, RK4
+from .fixed_grid_implicit import ImplicitEuler, ImplicitMidpoint, Trapezoid
+from .fixed_grid_implicit import GaussLegendre4, GaussLegendre6
+from .fixed_grid_implicit import RadauIIA3, RadauIIA5
+from .fixed_grid_implicit import SDIRK2, TRBDF2
 from .fixed_adams import AdamsBashforth, AdamsBashforthMoulton
-from .fixed_grid import Euler, Midpoint, RK4
-from .misc import _check_inputs, _flat_to_shape
+from .dopri8 import Dopri8Solver
+from .tsit5 import Tsit5Solver
 from .scipy_wrapper import ScipyWrapperODESolver
+from .misc import _check_inputs, _flat_to_shape
+from .interp import _interp_evaluate
 
 SOLVERS = {
-    "dopri8"                : Dopri8Solver,
-    "dopri5"                : Dopri5Solver,
-    "bosh3"                 : Bosh3Solver,
-    "fehlberg2"             : Fehlberg2,
-    "adaptive_heun"         : AdaptiveHeunSolver,
-    "euler"                 : Euler,
-    "midpoint"              : Midpoint,
-    "rk4"                   : RK4,
-    "explicit_adams"        : AdamsBashforth,
-    "implicit_adams"        : AdamsBashforthMoulton,
+    'dopri8': Dopri8Solver,
+    'dopri5': Dopri5Solver,
+    'tsit5': Tsit5Solver,
+    'bosh3': Bosh3Solver,
+    'fehlberg2': Fehlberg2,
+    'adaptive_heun': AdaptiveHeunSolver,
+    'euler': Euler,
+    'midpoint': Midpoint,
+    'heun2': Heun2,
+    'heun3': Heun3,
+    'rk4': RK4,
+    'explicit_adams': AdamsBashforth,
+    'implicit_adams': AdamsBashforthMoulton,
+    'implicit_euler': ImplicitEuler,
+    'implicit_midpoint': ImplicitMidpoint,
+    'trapezoid': Trapezoid,
+    'radauIIA3': RadauIIA3,
+    'gl4': GaussLegendre4,
+    'radauIIA5': RadauIIA5,
+    'gl6': GaussLegendre6,
+    'sdirk2': SDIRK2,
+    'trbdf2': TRBDF2,
     # Backward compatibility: use the same name as before
-    "fixed_adams"           : AdamsBashforthMoulton,
+    'fixed_adams': AdamsBashforthMoulton,
     # ~Backwards compatibility
-    "scipy_solver"          : ScipyWrapperODESolver,
+    'scipy_solver': ScipyWrapperODESolver,
 }
 
 
@@ -69,13 +86,13 @@ def odeint(func, y0, t, *, rtol=1e-7, atol=1e-9, method=None, options=None, even
     Raises:
         ValueError: if an invalid `method` is provided.
     """
+
     shapes, func, y0, t, rtol, atol, method, options, event_fn, t_is_reversed = _check_inputs(func, y0, t, rtol, atol, method, options, event_fn, SOLVERS)
 
     solver = SOLVERS[method](func=func, y0=y0, rtol=rtol, atol=atol, **options)
 
     if event_fn is None:
         solution = solver.integrate(t)
-        
     else:
         event_t, solution = solver.integrate_until_event(t[0], event_fn)
         event_t = event_t.to(t)
@@ -89,6 +106,55 @@ def odeint(func, y0, t, *, rtol=1e-7, atol=1e-9, method=None, options=None, even
         return solution
     else:
         return event_t, solution
+
+
+def odeint_dense(func, y0, t0, t1, *, rtol=1e-7, atol=1e-9, method=None, options=None):
+
+    assert torch.is_tensor(y0)  # TODO: handle tuple of tensors
+
+    t = torch.tensor([t0, t1]).to(t0)
+
+    shapes, func, y0, t, rtol, atol, method, options, _, _ = _check_inputs(func, y0, t, rtol, atol, method, options, None, SOLVERS)
+
+    assert method == "dopri5"
+
+    solver = Dopri5Solver(func=func, y0=y0, rtol=rtol, atol=atol, **options)    
+    
+    # The integration loop
+    solution = torch.empty(len(t), *solver.y0.shape, dtype=solver.y0.dtype, device=solver.y0.device)
+    solution[0] = solver.y0
+    t = t.to(solver.dtype)
+    solver._before_integrate(t)
+    t0 = solver.rk_state.t0
+
+    times = [t0]
+    interp_coeffs = []
+
+    for i in range(1, len(t)):
+        next_t = t[i]
+        while next_t > solver.rk_state.t1:
+            solver.rk_state = solver._adaptive_step(solver.rk_state)
+            t1 = solver.rk_state.t1
+
+            if t1 != t0:
+                # Step accepted.
+                t0 = t1
+                times.append(t1)
+                interp_coeffs.append(torch.stack(solver.rk_state.interp_coeff))
+
+        solution[i] = _interp_evaluate(solver.rk_state.interp_coeff, solver.rk_state.t0, solver.rk_state.t1, next_t)
+
+    times = torch.stack(times).reshape(-1).cpu()
+    interp_coeffs = torch.stack(interp_coeffs)
+
+    def dense_output_fn(t_eval):
+        idx = torch.searchsorted(times, t_eval, side="right")
+        t0 = times[idx - 1]
+        t1 = times[idx]
+        coef = [interp_coeffs[idx - 1][i] for i in range(interp_coeffs.shape[1])]
+        return _interp_evaluate(coef, t0, t1, t_eval)
+
+    return dense_output_fn
 
 
 def odeint_event(func, y0, t0, *, event_fn, reverse_time=False, odeint_interface=odeint, **kwargs):

@@ -52,7 +52,6 @@ def train(args: dict | box.Box) -> str:
     optimizer = mon.nn.Adam(model.parameters(), **args.optimizer)
     
     # Loss
-    
     L_tv    = zerodce.L_tv().to(device)
     L_spa   = zerodce.L_spa().to(device)
     L_col   = zerodce.L_col().to(device)
@@ -78,8 +77,8 @@ def train(args: dict | box.Box) -> str:
             total       = args.epochs,
             description = f"[bright_yellow]Training"
         ):
-            loss_li  = []
-            val_psnr = []
+            losses    = []
+            val_psnrs = []
             model.train()
             for j, datapoint in enumerate(train_dataloader):
                 image    = datapoint["image"]
@@ -98,8 +97,8 @@ def train(args: dict | box.Box) -> str:
                 loss.backward()
                 torch.nn.utils.clip_grad_norm_(model.parameters(), grad_clip_norm)
                 optimizer.step()
-                loss_li.append(loss.item())
-            mean_loss = sum(loss_li) / len(loss_li)
+                losses.append(loss.item())
+            mean_loss = sum(losses) / len(losses)
             
             # Validation
             model.eval()
@@ -113,8 +112,8 @@ def train(args: dict | box.Box) -> str:
                     enhanced = outputs[-1]
                     mse      = ((enhanced - ref) ** 2).mean((2, 3))
                     psnr     = (1 / mse).log10().mean() * 10
-                val_psnr.append(psnr.item())
-            mean_psnr = sum(val_psnr) / len(val_psnr)
+                val_psnrs.append(psnr.item())
+            mean_psnr = sum(val_psnrs) / len(val_psnrs)
             
             # Log
             if args.verbose:  # and ((i + 1) % display_iter) == 0:

@@ -42,10 +42,16 @@ network:                                                                        
   T: 3
 
 # Loss
-loss: ~                                                                         # Loss functions.
+loss:                                                                           # Loss functions.
+  L_tv_w    : 200
+  L_spa_w   : 1
+  L_col_w   : 20
+  L_exp_w   : 10
+  L_exp_mean: 0.6                                                               # Default is 0.6, but the author suggests 0.5 or 0.45
 
 # Optimizer
-optimizer: ~                                                                    # Optimizer.
+optimizer:                                                                      # Optimizer.
+  lr: 0.00001
 
 # ----- Data -----
 # Train
@@ -83,14 +89,15 @@ val_dataloader:                                                                 
       keypoint_params: ~
       seed           : ~
     verbose   : *verbose                                                        # Verbosity.
-  batch_size :  4                                                               # Batch size.
+  batch_size : 4                                                                # Batch size.
   shuffle    : False                                                            # If ``True``, shuffle the data.
   num_workers: 1                                                                # Number of workers for data loading.
   drop_last  : False                                                            # If ``True``, drop the last incomplete batch.
 
 # ----- Trainer -----
 # Trainer
-trainer: ~
+trainer:
+  grad_clip_norm : 0.1
 
 # ----- Deploy -----
 # Export

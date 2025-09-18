@@ -79,22 +79,7 @@ def _select_initial_step(func, t0, y0, order, rtol, atol, norm, f0=None):
 
 def _compute_error_ratio(error_estimate, rtol, atol, y0, y1, norm):
     error_tol = atol + rtol * torch.max(y0.abs(), y1.abs())
-    test = norm(error_estimate / error_tol).abs()
-    # return norm(error_estimate / error_tol).abs()
-   
-    # if len(y1.shape) == 4:
-    #     y1_image = y1[:, 3:, :, :]
-
-
-    #     import torchvision
-    #     torchvision.utils.save_image(y1_image, 'lol2.png')
-    #     if y1_image.mean() > 0.6:
-    #         return torch.tensor(0.01).cuda()
-    #     else:
-    #         return torch.tensor(100).cuda()
-    
-    # else:
-    return test
+    return norm(error_estimate / error_tol).abs()
 
 
 @torch.no_grad()

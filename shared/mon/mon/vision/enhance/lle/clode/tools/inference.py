@@ -1,8 +1,8 @@
 from ..clode.misc import *
-from ..clode.network.conv_node import NODE
+from ..clode.network import NODE
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-model  = NODE(32, augment_dim=0, time_dependent=True, adjoint=True, device=device)
+model  = NODE(32, augment_dim=0, time_dependent=True, adjoint=True)
 model.eval()
 model.to(device)
 model.load_state_dict(torch.load(f"pth/universal.pth"), strict=False)

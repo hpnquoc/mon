@@ -3,9 +3,9 @@
 
 __all__ = [
     "GANLoss",
-    "L_TV",
-    "L_color",
-    "L_color_rate",
+    "L_tv",
+    "L_col",
+    "L_col_rate",
     "L_exp",
     "L_exp_value",
     "L_spa",
@@ -29,7 +29,7 @@ from torchvision.models.vgg import vgg16
 # Original implementation by Li Chongyi
 # Modifications were made for specific use in this project.
 # ------------------------------------------------------------------------------
-class L_color(nn.Module):
+class L_col(nn.Module):
 
     def __init__(self):
         super().__init__()
@@ -44,7 +44,7 @@ class L_color(nn.Module):
         return k
 
 
-class L_color_rate(nn.Module):
+class L_col_rate(nn.Module):
 
     def __init__(self):
         super().__init__()
@@ -108,20 +108,6 @@ class L_spa(nn.Module):
         return E
 
 
-class L_exp_value(nn.Module):
-
-    def __init__(self, patch_size: int):
-        super().__init__()
-        self.pool = nn.AvgPool2d(patch_size)
-        # self.mean_val = mean_val
-    
-    def forward(self, x: torch.Tensor, mean_val: torch.Tensor):
-        x    = torch.mean(x, 1, keepdim=True)
-        mean = self.pool(x)
-        d    = torch.mean(torch.pow(mean - torch.FloatTensor([mean_val]).to(x.device), 2))
-        return d
-
-
 class L_exp(nn.Module):
     
     def __init__(self, patch_size: int = 16):
@@ -134,6 +120,20 @@ class L_exp(nn.Module):
         e_map = torch.mean(target, 1, keepdim=True)
         e_map = self.pool(e_map)
         d     = F.mse_loss(mean, e_map)
+        return d
+
+
+class L_exp_value(nn.Module):
+
+    def __init__(self, patch_size: int, mean_val: float = 0.6):
+        super().__init__()
+        self.pool     = nn.AvgPool2d(patch_size)
+        self.mean_val = mean_val
+    
+    def forward(self, x: torch.Tensor):
+        x    = torch.mean(x, 1, keepdim=True)
+        mean = self.pool(x)
+        d    = torch.mean(torch.pow(mean - torch.FloatTensor([self.mean_val]).to(x.device), 2))
         return d
 
 
@@ -178,7 +178,7 @@ class GANLoss(nn.Module):
         return loss
 
 
-class L_TV(nn.Module):
+class L_tv(nn.Module):
     
     def __init__(self, tvloss_weight: int = 1):
         super().__init__()

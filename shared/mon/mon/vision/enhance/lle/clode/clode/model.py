@@ -19,7 +19,7 @@ import box
 
 from mon.constants import MODELS, ROOT_DIR
 from mon.core import MLType, ModelMixin, Path, Task
-from .network.conv_node import NODE
+from .network import NODE
 
 current_file = Path(__file__).absolute()
 root_dir     = current_file.parents[1]
@@ -58,8 +58,7 @@ class CLODE(NODE, ModelMixin):
         },
     })
     
-    def __init__(
-        self, weights: Any = None, *args, **kwarg):
+    def __init__(self, weights: Any = None, *args, **kwarg):
         super().__init__(*args, **kwarg)
         # Load weights
         self.load_weights(weights, strict=False)
