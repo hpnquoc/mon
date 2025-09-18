@@ -114,7 +114,8 @@ def train(args: dict | box.Box) -> str:
                     eval_time = torch.tensor([0, 3]).float().to(device)
                     outputs   = model(image, eval_time, inference=True)
                     enhanced  = outputs["output"]
-                    psnr      = clode.calculate_psnr(enhanced, ref)
+                    mse       = ((enhanced - ref) ** 2).mean((2, 3))
+                    psnr      = (1 / mse).log10().mean() * 10
                 val_psnrs.append(psnr.item())
             mean_psnr = sum(val_psnrs) / len(val_psnrs)
             
