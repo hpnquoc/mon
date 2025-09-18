@@ -22,6 +22,10 @@ def normalize_minmax(x: torch.Tensor) -> torch.Tensor:
     return normalized
 
 
+def norm(dim: int) -> nn.Module:
+    return nn.GroupNorm(min(32, dim), dim)
+
+
 class Conv2dTime(nn.Conv2d):
     
     def __init__(self, in_channels: int, *args, **kwargs):
@@ -31,10 +35,6 @@ class Conv2dTime(nn.Conv2d):
         t_img   = torch.ones_like(x[:, :1, :, :]) * t    # Shape (batch_size, 1, height, width)
         t_and_x = torch.cat([t_img, x], 1)   # Shape (batch_size, channels + 1, height, width)
         return super(Conv2dTime, self).forward(t_and_x)
-
-
-def norm(dim: int) -> nn.Module:
-    return nn.GroupNorm(min(32, dim), dim)
 
 
 class network(nn.Module):
@@ -55,7 +55,7 @@ class network(nn.Module):
 
 class EnhanceFunc(nn.Module):
     
-    def __init__(self, num_filters: int):
+    def __init__(self, num_filters: int = 32):
         super().__init__()
         self.nfe   = 0
         self.num_filters = num_filters        
@@ -71,16 +71,18 @@ class EnhanceFunc(nn.Module):
         self.conv_5_1  = Conv2dTime(self.num_filters,     self.num_filters,     kernel_size=5, padding=5//2, padding_mode="reflect")
         self.conv_3_2  = Conv2dTime(self.num_filters * 2, self.num_filters * 2, kernel_size=3, padding=3//2, padding_mode="reflect")
         self.conv_5_2  = Conv2dTime(self.num_filters * 2, self.num_filters * 2, kernel_size=5, padding=5//2, padding_mode="reflect")
-        self.confusion = Conv2dTime(self.num_filters * 4, self.num_filters, 1, padding=0, stride=1, padding_mode="reflect")
+        self.confusion = Conv2dTime(self.num_filters * 4, self.num_filters,     kernel_size=1, padding=0, stride=1, padding_mode="reflect")
         
+        in_channels  = 6
+        out_channels = 3
         number_f     = 32
-        self.e_conv1 = Conv2dTime(6, number_f, 3, 1, 1, bias=True)
-        self.e_conv2 = Conv2dTime(number_f,     number_f, 3, 1, 1, bias=True)
-        self.e_conv3 = Conv2dTime(number_f,     number_f, 3, 1, 1, bias=True)
-        self.e_conv4 = Conv2dTime(number_f,     number_f, 3, 1, 1, bias=True)
-        self.e_conv5 = Conv2dTime(number_f * 2, number_f, 3, 1, 1, bias=True)
-        self.e_conv6 = Conv2dTime(number_f * 2, number_f, 3, 1, 1, bias=True)
-        self.e_conv7 = Conv2dTime(number_f * 2, 3,        3, 1, 1, bias=True)
+        self.e_conv1 = Conv2dTime(in_channels,  number_f,     3, 1, 1, bias=True)
+        self.e_conv2 = Conv2dTime(number_f,     number_f,     3, 1, 1, bias=True)
+        self.e_conv3 = Conv2dTime(number_f,     number_f,     3, 1, 1, bias=True)
+        self.e_conv4 = Conv2dTime(number_f,     number_f,     3, 1, 1, bias=True)
+        self.e_conv5 = Conv2dTime(number_f * 2, number_f,     3, 1, 1, bias=True)
+        self.e_conv6 = Conv2dTime(number_f * 2, number_f,     3, 1, 1, bias=True)
+        self.e_conv7 = Conv2dTime(number_f * 2, out_channels, 3, 1, 1, bias=True)
 
         self.denoise = network(3)
         self.tv_loss = loss_func.L_TV()
@@ -218,7 +220,7 @@ class NODE(nn.Module):
 
         if inference:
             output = {
-                "output"   : torch.clamp(pred[:, :3, :, :] - self.odefunc.denoise(pred[:, :3, :, :]), 0, 1),
+                "output"   : torch.clamp(pred[:, :3, :, :]  - self.odefunc.denoise(pred[:, :3, :, :]), 0, 1),
                 "curve_map": normalize_minmax(curve_map),
                 "all"      : [torch.clamp(pred[:, :3, :, :] - self.odefunc.denoise(pred[:, :3, :, :]), 0, 1) for pred in preds]
             }

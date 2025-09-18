@@ -4,12 +4,42 @@
 """Implements custom activation layers."""
 
 __all__ = [
+    "CELU",
+    "ELU",
+    "GELU",
+    "GLU",
+    "Hardshrink",
+    "Hardsigmoid",
+    "Hardswish",
+    "Hardtanh",
+    "LeakyReLU",
+    "LogSigmoid",
+    "LogSoftmax",
+    "Mish",
+    "MultiheadAttention",
+    "PReLU",
+    "RReLU",
+    "ReLU",
+    "ReLU6",
+    "SELU",
+    "SiLU",
+    "Sigmoid",
     "SimpleGate",
     "Sine",
+    "Softmax",
+    "Softmax2d",
+    "Softmin",
+    "Softplus",
+    "Softshrink",
+    "Softsign",
+    "Tanh",
+    "Tanhshrink",
+    "Threshold",
 ]
 
 import torch
 import torch.nn as nn
+from torch.nn.modules.activation import *
 
 
 class SimpleGate(nn.Module):

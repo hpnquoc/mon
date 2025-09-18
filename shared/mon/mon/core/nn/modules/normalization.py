@@ -6,11 +6,32 @@
 __all__ = [
     "AdaptiveBatchNorm2d",
     "AdaptiveInstanceNorm2d",
+    "BatchNorm1d",
+    "BatchNorm2d",
+    "BatchNorm3d",
+    "CrossMapLRN2d",
+    "GroupNorm",
     "HalfInstanceNorm2d",
+    "InstanceNorm1d",
+    "InstanceNorm2d",
+    "InstanceNorm3d",
+    "LayerNorm",
+    "LazyBatchNorm1d",
+    "LazyBatchNorm2d",
+    "LazyBatchNorm3d",
+    "LazyInstanceNorm1d",
+    "LazyInstanceNorm2d",
+    "LazyInstanceNorm3d",
+    "LocalResponseNorm",
+    "RMSNorm",
+    "SyncBatchNorm",
 ]
 
 import torch
 import torch.nn as nn
+from torch.nn.modules.batchnorm import *
+from torch.nn.modules.instancenorm import *
+from torch.nn.modules.normalization import *
 
 
 # ----- Batch Normalization -----

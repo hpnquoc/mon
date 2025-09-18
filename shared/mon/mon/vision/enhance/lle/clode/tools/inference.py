@@ -19,8 +19,7 @@ gt_path   = "/home/dgjung/dataset/LOLv1/eval15/target"
 lq_imgs, gt_imgs = get_filelist(file_path, gt_path)
 psnr_results, ssim_results = [], []
 
-with torch.no_grad():    
-
+with torch.no_grad():
     for idx, img in tqdm(enumerate(lq_imgs)):
         x    = img.cuda()
         out  = model(x, integration_time, inference=True)

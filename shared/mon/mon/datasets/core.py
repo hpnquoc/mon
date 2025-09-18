@@ -26,7 +26,6 @@ __all__ = [
     "Modalities",
     "Modality",
     "Probs",
-    "RefDepthName",
     "SemanticMask",
     "Split",
     "Task",

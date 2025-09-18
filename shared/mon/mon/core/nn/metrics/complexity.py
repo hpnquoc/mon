@@ -4,8 +4,8 @@
 """Implements efficiency score metrics."""
 
 __all__ = [
-    "compute_complexity",
     "benchmark",
+    "compute_complexity",
 ]
 
 import thop
