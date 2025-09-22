@@ -76,7 +76,7 @@ def predict(args: dict | box.Box) -> str:
     ref_image = mon.image.load_image(ref_image)
     ref_image = transform(image=ref_image)["image"]
     ref_image = ref_image.unsqueeze(0).to(device)
-
+    
     # Predict
     timers = mon.TimeProfiler()
     timers.total.tick()
@@ -104,7 +104,7 @@ def predict(args: dict | box.Box) -> str:
             model.set_input(dp)
             model.test()
             timers.infer.tock()
-
+            
             # Postprocess
             timers.postprocess.tick()
             outputs  = model.get_current_visuals()
@@ -113,6 +113,17 @@ def predict(args: dict | box.Box) -> str:
             h1, w1   = mon.image.imgsz(enhanced)
             if (h1, w1) != (h0, w0):
                 enhanced = cv2.resize(enhanced, (w0, h0))
+            if args.save_debug:
+                image = mon.image.to_array(image)
+                ref   = datapoint.get("ref", None)
+                ref   = mon.image.to_array(ref) if ref is not None else None
+                if (h1, w1) != (h0, w0):
+                    image = cv2.resize(image, (w0, h0))
+                    ref   = cv2.resize(ref,   (w0, h0)) if ref is not None else None
+                if ref is not None:
+                    debug_image = cv2.hconcat([image, enhanced, ref])
+                else:
+                    debug_image = cv2.hconcat([image, enhanced])
             timers.postprocess.tock()
             
             # Save
@@ -120,18 +131,12 @@ def predict(args: dict | box.Box) -> str:
                 out_dir  = mon.rt.parse_output_dir(args.save_dir, data_name, mon.SAVE_IMAGE_DIR, path, args.keep_subdirs, args.save_nearby)
                 out_path = out_dir / f"{path.stem}{mon.SAVE_IMAGE_EXT}"
                 mon.image.save_image(enhanced, out_path)
-            
-            '''
-            if save_debug:
-                if keep_subdirs:
-                    rel_path    = image_path.relative_path(data_name)
-                    output_path = save_dir / f"{rel_path.parent}_debug"
-                else:
-                    output_path = save_dir / f"{rel_path.parent}_debug"
-                output_path.mkdir(parents=True, exist_ok=True)
-                # torchvision.utils.save_image(g_a, str(output_path / f"{image_path.stem}_g_a.jpg"))
-                # torchvision.utils.save_image(pre, str(output_path / f"{image_path.stem}_pre.jpg"))
-            '''
+            # Save Debug
+            if args.save_debug:
+                debug_dir  = mon.rt.parse_output_dir(args.save_dir, data_name, mon.SAVE_DEBUG_DIR, path, args.keep_subdirs, args.save_nearby)
+                debug_path = debug_dir / f"{path.stem}{mon.SAVE_IMAGE_EXT}"
+                debug_path.parent.mkdir(parents=True, exist_ok=True)
+                mon.image.save_image(debug_image, debug_path)
     timers.total.tock()
 
     # Finish

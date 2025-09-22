@@ -262,7 +262,7 @@ class GCENet_PONO(nn.Module, ModelMixin):
         r  = self.ms(r, mean1, std1)
         r  = F.tanh(r)
         return r
-    
+
 
 @MODELS.register(name="gcenet_bam", arch="gcenet")
 class GCENet_BAM(nn.Module, ModelMixin):
@@ -336,7 +336,7 @@ class GCENet_BAM(nn.Module, ModelMixin):
         x6 = self.relu(self.e_conv6(torch.cat([x2, x5], 1)))
         r  =    F.tanh(self.e_conv7(torch.cat([x1, x6], 1)))
         return r
-    
+
 
 @MODELS.register(name="gcenet_pono_bam", arch="gcenet")
 class GCENet_PONO_BAM(nn.Module, ModelMixin):
@@ -426,7 +426,7 @@ class GCENet_PONO_BAM(nn.Module, ModelMixin):
         r  = self.ms(r, mean1, std1)
         r  = F.tanh(r)
         return r
-    
+
 
 @MODELS.register(name="gcenet_depth", arch="gcenet")
 class GCENet_Depth(nn.Module, ModelMixin):

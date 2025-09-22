@@ -39,7 +39,7 @@ cfg         : ~                                                                 
 # ----- Model -----
 # Network
 network:                                                                        # Network architecture.
-  T: 3
+  T: 2                                                                          # Default: 3.
 
 # Loss
 loss:                                                                           # Loss functions.

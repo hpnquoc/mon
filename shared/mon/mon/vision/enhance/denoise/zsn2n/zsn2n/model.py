@@ -80,7 +80,7 @@ class ZSN2N(nn.Module, ModelMixin):
             pred1                = noisy1 - self.model(noisy1)
             pred2                = noisy2 - self.model(noisy2)
             loss_res             = 0.5 * (mse(noisy1, pred2) + mse(noisy2, pred1))
-            noisy_denoised       = noisy - self.model(noisy)
+            noisy_denoised       = noisy  - self.model(noisy)
             denoised1, denoised2 = I.pair_downsample(noisy_denoised)
             loss_cons            = 0.5 * (mse(pred1, denoised1) + mse(pred2, denoised2))
             loss                 = loss_res + loss_cons

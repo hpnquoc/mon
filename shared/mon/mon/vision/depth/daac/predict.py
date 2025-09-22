@@ -70,7 +70,7 @@ def predict(args: dict | box.Box) -> str:
     # Data I/O
     imgsz     = args.imgsz if args.resize else (0, 0)
     transform = A.Compose([
-        A.ResizeDivisibleBy(height=imgsz[0], width=imgsz[1], divisor=32),
+        A.ResizeDivisibleBy(height=imgsz[0], width=imgsz[1], divisor=14),
         A.Normalize(normalization="min_max"),
         A.ToTensorV2(transpose_mask=True),
     ])
@@ -103,13 +103,14 @@ def predict(args: dict | box.Box) -> str:
             # Postprocess
             timers.postprocess.tick()
             outputs = outputs["out"].detach().cpu().squeeze().numpy()
-            h1, w1  = mon.image.imgsz(outputs)
-            if (h1, w1) != (h0, w0):
-                outputs = cv2.resize(outputs, (w0, h0))
             depth   = outputs
             depth   = ((depth - depth.min()) / (depth.max() - depth.min()) * 255.0).astype("uint8")
             depth   = np.repeat(depth[..., np.newaxis], 3, axis=-1)
             depth_c = (cmap(outputs)[:, :, :3] * 255).astype("uint8")
+            h1, w1  = mon.image.imgsz(depth)
+            if (h1, w1) != (h0, w0):
+                depth   = cv2.resize(depth,   (w0, h0))
+                depth_c = cv2.resize(depth_c, (w0, h0))
             timers.postprocess.tock()
             
             # Save

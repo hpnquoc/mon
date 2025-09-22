@@ -42,7 +42,7 @@ network:                                                                        
   encoder        : "vits"
   features       : 64
   out_channels   : [48, 96, 192, 384]
-  dino_pretrained: "zoo/vision/types/depth/daac/daac_vits/pretrained/dinov2_vits14_pretrain.pth"
+  dino_pretrained: "zoo/vision/depth/daac/daac_vits/pretrained/dinov2_vits14_pretrain.pth"
   version        : "v2"
   pred_only      : True
   format         : 2  # 0: grayscale, 1: color, 2: both

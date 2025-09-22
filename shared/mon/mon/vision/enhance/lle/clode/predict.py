@@ -13,6 +13,7 @@ import copy
 
 import box
 import cv2
+import matplotlib
 import torch
 
 import clode
@@ -66,6 +67,7 @@ def predict(args: dict | box.Box) -> str:
     data_name, dataloader = mon.data.build_dataloader(args.data, args.root, transform)
     
     # Predict
+    cmap   = matplotlib.colormaps.get_cmap("RdBu")
     timers = mon.TimeProfiler()
     timers.total.tick()
     with mon.create_progress_bar() as pbar:
@@ -98,11 +100,23 @@ def predict(args: dict | box.Box) -> str:
             if args.save_debug:
                 curve_map = outputs["curve_map"]
                 noise_map = outputs["noise_map"]
+                ref       = datapoint.get("ref", None)
+                image     = mon.image.to_array(image)
                 curve_map = mon.image.to_array(curve_map)
                 noise_map = mon.image.to_array(noise_map)
+                ref       = mon.image.to_array(ref) if ref is not None else None
+                # noise_map = noise_map.squeeze().detach().cpu().permute(1, 2, 0).numpy()
+                # noise_map = cv2.cvtColor(noise_map, cv2.COLOR_RGB2GRAY)
+                # noise_map = (cmap(noise_map)[:, :, :3] * 255).astype("uint8")
                 if (h1, w1) != (h0, w0):
+                    image     = cv2.resize(image,     (w0, h0))
                     curve_map = cv2.resize(curve_map, (w0, h0))
                     noise_map = cv2.resize(noise_map, (w0, h0))
+                    ref       = cv2.resize(ref,       (w0, h0)) if ref is not None else None
+                if ref is not None:
+                    debug_image = cv2.hconcat([image, enhanced, ref])
+                else:
+                    debug_image = cv2.hconcat([image, enhanced])
             timers.postprocess.tock()
             
             # Save
@@ -111,11 +125,13 @@ def predict(args: dict | box.Box) -> str:
                 out_path = out_dir / f"{path.stem}{mon.SAVE_IMAGE_EXT}"
                 mon.image.save_image(enhanced, out_path)
             if args.save_debug:
-                out_dir  = mon.rt.parse_output_dir(args.save_dir, data_name, mon.SAVE_DEBUG_DIR, path, args.keep_subdirs, args.save_nearby)
-                out_path = out_dir / f"{path.stem}_curve_map{mon.SAVE_IMAGE_EXT}"
-                mon.image.save_image(curve_map, out_path)
-                out_path = out_dir / f"{path.stem}_noise_map{mon.SAVE_IMAGE_EXT}"
-                mon.image.save_image(noise_map, out_path)
+                debug_dir  = mon.rt.parse_output_dir(args.save_dir, data_name, mon.SAVE_DEBUG_DIR, path, args.keep_subdirs, args.save_nearby)
+                debug_path = debug_dir / f"{path.stem}_curve_map{mon.SAVE_IMAGE_EXT}"
+                mon.image.save_image(curve_map, debug_path)
+                debug_path = debug_dir / f"{path.stem}_noise_map{mon.SAVE_IMAGE_EXT}"
+                mon.image.save_image(noise_map, debug_path)
+                debug_path = debug_dir / f"{path.stem}{mon.SAVE_IMAGE_EXT}"
+                mon.image.save_image(debug_image, debug_path)
     timers.total.tock()
 
     # Finish

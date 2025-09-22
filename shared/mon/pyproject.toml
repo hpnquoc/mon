@@ -44,14 +44,11 @@ requires-python = ">=3.12,<3.14"
 dependencies    = [
     # Python Functionality
     "emoji",                            # Emoji for Python.
-    "fjson",                            # Python JSON writer with formatted floats
     "loguru",                           # Python logging made (stupidly) simple.
     "mypy",                             # Optional static typing for Python.
     "omegaconf",                        # Flexible Python configuration system.
-    "plum-dispatch",                    # Multiple dispatch in Python.
     "psutil",                           # Cross-platform lib for process and system monitoring in Python.
     "pytest",                           # Simple powerful testing with Python.
-    "python-box",                       # Advanced Python dictionaries with dot notation access.
     "requests",                         # Requests is an elegant and simple HTTP library for Python, built with ♥.
     "rich",                             # Render rich text, tables, progress bars, syntax highlighting, markdown and more to the terminal.
     "tabulate",                         # Pretty-print tabular data in Python, a library and a command-line utility.
@@ -61,12 +58,15 @@ dependencies    = [
     # DSA
     "PyYAML",                           # YAML parser and emitter for Python.
     "filterpy",                         # Kalman filters and other optimal and non-optimal estimation filters in Python.
+    "fjson",                            # Python JSON writer with formatted floats
     "numpy",                            # The fundamental package for scientific computing with Python.
     "protobuf",                         # Protocol Buffers - Google's data interchange format.
+    "python-box",                       # Advanced Python dictionaries with dot notation access.
     "scipy",                            # Scientific Library for Python.
     "xmltodict",                        # Makes working with XML feel like you are working with JSON.
     # AI
     "calflops",                         # A library for calculating the number of floating point operations (FLOPs) in a PyTorch model.
+    "diffusers",                        # 🤗 Diffusers: State-of-the-art diffusion models for image, video, and audio generation in PyTorch.
     "einops",                           # A new flavor of deep learning operations.
     "fvcore",                           # Collection of common code shared among different research projects in FAIR computer vision team.
     "lightning>=2.5.5",                 # The Deep Learning framework to train, deploy, and ship AI products Lightning fast.
@@ -134,10 +134,10 @@ include  = []
 exclude  = []
 
 [tool.poetry.dependencies]
+open-clip-torch = { path = "../open_clip"   , develop = true }
 snntorch        = { path = "../snntorch"    , develop = true }
 spikingjelly    = { path = "../spikingjelly", develop = true }
 ultralytics     = { path = "../ultralytics" , develop = true }
-open-clip-torch = { path = "../open_clip"   , develop = true }
 
 
 [build-system]

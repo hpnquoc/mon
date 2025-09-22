@@ -39,7 +39,7 @@ cfg         : ~                                                                 
 # ----- Model -----
 # Network
 network:                                                                        # Network architecture.
-  T: 3
+  T: 2                                                                          # Default: 3.
 
 # Loss
 loss:                                                                           # Loss functions.
@@ -51,7 +51,7 @@ loss:                                                                           
 
 # Optimizer
 optimizer:                                                                      # Optimizer.
-  lr: 0.00001
+  lr: 0.00001                                                                   # Default is 0.00001
 
 # ----- Data -----
 # Train
