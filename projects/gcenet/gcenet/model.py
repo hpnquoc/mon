@@ -20,7 +20,7 @@ import torch
 from mon.constants import MODELS
 from mon.core import image as I, MLType, ModelMixin, nn, Path, Task
 from mon.core.nn import functional as F
-from .modules import *
+from .module import *
 
 current_file = Path(__file__).absolute()
 current_dir  = current_file.parents[0]
