@@ -13,7 +13,7 @@ class MyTestCase(unittest.TestCase):
         cfg = get_cfg()
         cfg.defrost()
         cfg.MODEL.BACKBONE.NAME = 'build_repvgg_backbone'
-        cfg.MODEL.BACKBONE.DEPTH = 'B1g2'
+        cfg.MODEL.BACKBONE.MONODEPTH = 'B1g2'
         cfg.MODEL.BACKBONE.PRETRAIN = False
         model = build_backbone(cfg)
         model.eval()

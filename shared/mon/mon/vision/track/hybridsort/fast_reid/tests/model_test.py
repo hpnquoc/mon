@@ -13,7 +13,7 @@ from torch import nn
 class MyTestCase(unittest.TestCase):
     def test_se_resnet101(self):
         cfg.MODEL.BACKBONE.NAME = 'resnet101'
-        cfg.MODEL.BACKBONE.DEPTH = 101
+        cfg.MODEL.BACKBONE.MONODEPTH = 101
         cfg.MODEL.BACKBONE.WITH_IBN = True
         cfg.MODEL.BACKBONE.WITH_SE = True
         cfg.MODEL.BACKBONE.PRETRAIN_PATH = '/export/home/lxy/.cache/torch/checkpoints/se_resnet101_ibn_a.pth.tar'

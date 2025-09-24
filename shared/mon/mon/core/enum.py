@@ -506,7 +506,7 @@ class Task(Enum):
     # High-Level Vision
     BGSUBTRACT = "bgsubtract"           # background subtraction
     CLASSIFY   = "classify"             # classification
-    DEPTH      = "depth"                # depth estimation
+    MONODEPTH  = "mono_depth"           # monocular depth estimation
     DETECT     = "detect"               # object detection
     OBB        = "obb"                  # oriented bounding box detection
     POSE       = "pose"                 # pose estimation
