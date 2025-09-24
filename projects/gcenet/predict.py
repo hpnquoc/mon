@@ -1,37 +1,23 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Implements GCE-Net model prediction pipeline for low-light image enhancement."""
+"""Implements GCENet model prediction pipeline for low-light image enhancement."""
 
 import copy
 
 import box
 import cv2
-import numpy as np
 import torch
 
+# noinspection PyUnusedImports
+import gcenet
 import mon
 from mon import albumentations as A
-import gcenet
 
 mon.dev()
 
 current_file = mon.Path(__file__).absolute()
-current_dir  = current_file.parents[0]
-
-
-# ----- Utils -----
-def mef(images: list[torch.Tensor]):
-    images    = [mon.image.to_array(img) for img in images]
-    align_mtb = cv2.createAlignMTB()
-    align_mtb.process(images, images)
-    merge_mertens = cv2.createMergeMertens()
-    merge_mertens.setContrastWeight(0.8)
-    merge_mertens.setSaturationWeight(0.8)
-    merge_mertens.setExposureWeight(0.5)
-    exposure_fusion = merge_mertens.process(images)
-    exposure_fusion = np.clip(exposure_fusion * 255, 0, 255).astype(np.uint8)
-    return exposure_fusion
+root_dir     = current_file.parents[0]
 
 
 # ----- Predict -----
@@ -57,11 +43,8 @@ def predict(args: dict | box.Box) -> str:
 
     # Model
     args.network |= {
-        "name"     : args.model,
-        # "iters"    : iters,
-        # "use_depth": True,
-        "inference": True,
-        "weights"  : pretrained,
+        "name"   : args.model,
+        "weights": pretrained,
     }
     model = mon.MODELS.build(**args.network)
     model = model.to(device)
@@ -96,42 +79,47 @@ def predict(args: dict | box.Box) -> str:
             h0, w0 = mon.image.imgsz(meta["orig_shape"])
             image  = datapoint["image"]
             image  = image.to(device)
-            depth  = datapoint.get("depth", None)
-            depth  = depth.to(device) if depth is not None else None
+            # depth  = datapoint.get("depth", None)
+            # depth  = depth.to(device) if depth is not None else None
             timers.preprocess.tock()
 
             # Infer
             timers.infer.tick()
-            outputs = model(image, depth)
+            outputs = model(image, inference=True)
             timers.infer.tock()
 
             # Postprocess
             timers.postprocess.tick()
-            image    = mon.image.to_array(image)
-            if args.model == "gcenet_mef":
-                # enhanced = mef([outputs[1], outputs[-1]])
-                enhanced = mef(outputs[1:])
-                # enhanced = outputs[-2]
-                # enhanced = mon.image.to_array(enhanced)
-            else:
-                enhanced = outputs[-1]
-                enhanced = mon.image.to_array(enhanced)
+            enhanced = outputs["output"]
+            enhanced = mon.image.to_array(enhanced) if isinstance(enhanced, torch.Tensor) else enhanced
             h1, w1   = mon.image.imgsz(enhanced)
             if (h1, w1) != (h0, w0):
-                image    = cv2.resize(image,    (w0, h0))
                 enhanced = cv2.resize(enhanced, (w0, h0))
+            if args.save_debug:
+                image     = mon.image.to_array(image)
+                curve_map = mon.image.to_array(outputs["curve_map"])
+                noise_map = mon.image.to_array(outputs["noise_map"])
+                alls      = [mon.image.to_array(img) for img in outputs["all"]]
+                if (h1, w1) != (h0, w0):
+                    image     = cv2.resize(image, (w0, h0))
+                    curve_map = cv2.resize(curve_map, (w0, h0))
+                    noise_map = cv2.resize(noise_map, (w0, h0))
+                    alls      = [cv2.resize(img, (w0, h0)) for img in alls]
+                debug_image = cv2.hconcat([image, enhanced, curve_map, noise_map])
             timers.postprocess.tock()
-
+            
             # Save
             if args.save_image:
                 out_dir  = mon.rt.parse_output_dir(args.save_dir, data_name, mon.SAVE_IMAGE_DIR, path, args.keep_subdirs, args.save_nearby)
                 out_path = out_dir / f"{path.stem}{mon.SAVE_IMAGE_EXT}"
                 mon.image.save_image(enhanced, out_path)
             if args.save_debug:
-                image    = cv2.hconcat([image, enhanced])
                 out_dir  = mon.rt.parse_output_dir(args.save_dir, data_name, mon.SAVE_DEBUG_DIR, path, args.keep_subdirs, args.save_nearby)
-                out_path = out_dir / f"{path.stem}{mon.SAVE_IMAGE_EXT}"
-                mon.image.save_image(image, out_path)
+                out_path = out_dir / f"{path.stem}_debug{mon.SAVE_IMAGE_EXT}"
+                mon.image.save_image(debug_image, out_path)
+                for j, img in enumerate(alls):
+                    out_path = out_dir / f"{path.stem}_{j}{mon.SAVE_IMAGE_EXT}"
+                    mon.image.save_image(img, out_path)
             
     timers.total.tock()
 
@@ -142,12 +130,12 @@ def predict(args: dict | box.Box) -> str:
 
 # ----- Main -----
 def main() -> str:
-    cli  = mon.rt.parse_cli_args(root=current_dir)
+    cli  = mon.rt.parse_cli_args(root=root_dir)
     data = mon.utils.to_list(cli.data)
     for d in data:
         cli_ = copy.deepcopy(cli)
         cli_.data = d
-        args = mon.rt.parse_predict_args(cli=cli_, root=current_dir)
+        args = mon.rt.parse_predict_args(cli=cli_, root=root_dir, model_root=root_dir)
         predict(args)
 
 

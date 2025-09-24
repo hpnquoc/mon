@@ -23,7 +23,7 @@ from mon import albumentations as A
 mon.dev()
 
 current_file = mon.Path(__file__).absolute()
-current_dir  = current_file.parents[0]
+root_dir     = current_file.parents[0]
 
 
 # ----- Utils -----
@@ -64,19 +64,6 @@ def benchmark(model: mon.nn.Module):
 
 # ----- Predict -----
 def predict(args: dict | box.Box) -> str:
-    mapping_func    = args.network.mapping_func
-    window_size     = args.network.window_size
-    hidden_dim      = args.network.hidden_dim
-    num_layers      = args.network.num_layers
-    add_layers      = args.network.add_layers
-    use_ff          = args.network.use_ff
-    nonlinear       = args.network.nonlinear
-    depth_threshold = args.network.depth_threshold
-    edge_threshold  = args.network.edge_threshold
-    use_denoise     = args.network.use_denoise
-    L               = args.network.L
-    iters           = args.epochs
-    
     # Start
     mon.rt.print_run_summary(args)
 
@@ -87,20 +74,10 @@ def predict(args: dict | box.Box) -> str:
     mon.set_random_seed(args.seed)
     
     # Model
-    model = zinf.ZINF(
-        mapping_func    = mapping_func,
-        window_size     = window_size,
-        hidden_dim      = hidden_dim,
-        num_layers      = num_layers,
-        add_layers      = add_layers,
-        use_ff          = use_ff,
-        nonlinear       = nonlinear,
-        depth_threshold = depth_threshold,
-        edge_threshold  = edge_threshold,
-        use_denoise     = use_denoise,
-        L               = L,
-        iters           = iters,
-    )
+    args.network |= {
+        "iters": args.epochs,
+    }
+    model = zinf.ZINF(**args.network)
     model = model.to(device)
     
     # Benchmark
@@ -151,11 +128,11 @@ def predict(args: dict | box.Box) -> str:
                 mon.image.save_image(enhanced, out_path)
             # Save Debug
             if args.save_debug:
-                debug_dir = mon.rt.parse_output_dir(args.save_dir, data_name, mon.SAVE_DEBUG_DIR, path, args.keep_subdirs, args.save_nearby)
+                out_dir = mon.rt.parse_output_dir(args.save_dir, data_name, mon.SAVE_DEBUG_DIR, path, args.keep_subdirs, args.save_nearby)
                 for k, v in outputs.items():
                     if mon.image.is_image(v):
-                        debug_path = debug_dir / f"{path.stem}_{k}{mon.SAVE_IMAGE_EXT}"
-                        mon.image.save_image(v, debug_path)
+                        out_path = out_dir / f"{path.stem}_{k}{mon.SAVE_IMAGE_EXT}"
+                        mon.image.save_image(v, out_path)
     timers.total.tock()
 
     # Finish
@@ -165,12 +142,12 @@ def predict(args: dict | box.Box) -> str:
 
 # ----- Main -----
 def main() -> str:
-    cli  = mon.rt.parse_cli_args(root=current_dir)
+    cli  = mon.rt.parse_cli_args(root=root_dir)
     data = mon.utils.to_list(cli.data)
     for d in data:
         cli_ = copy.deepcopy(cli)
         cli_.data = d
-        args = mon.rt.parse_predict_args(cli=cli_, root=current_dir)
+        args = mon.rt.parse_predict_args(cli=cli_, root=root_dir, model_root=root_dir)
         predict(args)
 
 

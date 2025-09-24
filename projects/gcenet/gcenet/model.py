@@ -1,14 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Implements GCE-Net model for low-light image enhancement."""
+"""Implements GCENet model for low-light image enhancement."""
 
 __all__ = [
-    "GCENet_BAM",
+    "GCENet",
     "GCENet_Baseline",
-    "GCENet_MEF",
-    "GCENet_PONO",
-    "GCENet_PONO_BAM",
     "reparameterize_model",
 ]
 
@@ -20,7 +17,8 @@ import torch
 from mon.constants import MODELS
 from mon.core import image as I, MLType, ModelMixin, nn, Path, Task
 from mon.core.nn import functional as F
-from .module import *
+from mon.vision.enhance.mef import mertens_cv2
+from .network import *
 
 current_file = Path(__file__).absolute()
 current_dir  = current_file.parents[0]
@@ -66,82 +64,7 @@ class GCENet_Baseline(nn.Module, ModelMixin):
         # Load weights
         self.load_weights(weights)
         
-    def forward(self, image: torch.Tensor, depth: torch.Tensor = None) -> tuple[torch.Tensor, ...]:
-        # Preprocess
-        if self.scale == 1:
-            x_lr = image
-        else:
-            x_lr = F.interpolate(image, scale_factor=1 / self.scale, mode="bilinear")
-        
-        # Forward
-        r_lr = self.learn_curve(x_lr)
-        if self.scale == 1:
-            r = r_lr
-        else:
-            r = self.upsample(r_lr)
-        
-        # Enhancement
-        rs = torch.split(r, 3, dim=1)
-        y  = image
-        for i in range(0, self.iters):
-            y = y + rs[i] * (torch.pow(y, 2) - y)
-        
-        return r, y
-    
-    def learn_curve(self, x: torch.Tensor) -> torch.Tensor:
-        x1 = self.relu(self.e_conv1(x))
-        x2 = self.relu(self.e_conv2(x1))
-        x3 = self.relu(self.e_conv3(x2))
-        x4 = self.relu(self.e_conv4(x3))
-        x5 = self.relu(self.e_conv5(torch.cat([x3, x4], 1)))
-        x6 = self.relu(self.e_conv6(torch.cat([x2, x5], 1)))
-        r  =    F.tanh(self.e_conv7(torch.cat([x1, x6], 1)))
-        return r
-
-
-# ----- Model -----
-
-
-# ----- Variant -----
-@MODELS.register(name="gcenet_mef", arch="gcenet")
-class GCENet_MEF(nn.Module, ModelMixin):
-    
-    arch     : str          = "gcenet"
-    name     : str          = "gcenet_mef"
-    tasks    : list[Task]   = [Task.LLE]
-    mltypes  : list[MLType] = [MLType.UNSUPERVISED]
-    model_dir: Path         = current_dir
-    zoo      : dict         = box.Box()
-    
-    def __init__(
-        self,
-        iters  : int  = 8,
-        scale  : int  = 1,
-        weights: Any  = None,
-        *args, **kwargs
-    ):
-        super().__init__()
-        self.iters    = iters
-        self.scale    = scale
-        in_channels   = 3
-        hidden_dim    = 32
-        hidden_dim_x2 = hidden_dim * 2
-        out_channels  = iters * 3
-        self.e_conv1  = nn.Conv2d(in_channels,   hidden_dim,   3, 1, 1, bias=True)
-        self.e_conv2  = nn.Conv2d(hidden_dim,    hidden_dim,   3, 1, 1, bias=True)
-        self.e_conv3  = nn.Conv2d(hidden_dim,    hidden_dim,   3, 1, 1, bias=True)
-        self.e_conv4  = nn.Conv2d(hidden_dim,    hidden_dim,   3, 1, 1, bias=True)
-        self.e_conv5  = nn.Conv2d(hidden_dim_x2, hidden_dim,   3, 1, 1, bias=True)
-        self.e_conv6  = nn.Conv2d(hidden_dim_x2, hidden_dim,   3, 1, 1, bias=True)
-        self.e_conv7  = nn.Conv2d(hidden_dim_x2, out_channels, 3, 1, 1, bias=True)
-        self.relu     = nn.ReLU(inplace=True)
-        self.upsample = nn.UpsamplingBilinear2d(scale_factor=self.scale)
-        self.apply(weights_init)
-        
-        # Load weights
-        self.load_weights(weights)
-        
-    def forward(self, image: torch.Tensor, depth: torch.Tensor = None) -> tuple[torch.Tensor, ...]:
+    def forward(self, image: torch.Tensor, inference: bool = False) -> tuple[torch.Tensor, ...]:
         # Preprocess
         if self.scale == 1:
             x_lr = image
@@ -176,7 +99,125 @@ class GCENet_MEF(nn.Module, ModelMixin):
         return r
 
 
-@MODELS.register(name="gcenet_pono", arch="gcenet")
+# ----- Main Model -----
+@MODELS.register(name="gcenet", arch="gcenet")
+class GCENet(nn.Module, ModelMixin):
+    
+    arch     : str          = "gcenet"
+    name     : str          = "gcenet"
+    tasks    : list[Task]   = [Task.LLE, Task.MEF]
+    mltypes  : list[MLType] = [MLType.UNSUPERVISED]
+    model_dir: Path         = current_dir
+    zoo      : dict         = box.Box()
+    
+    def __init__(self, iters: int = 8, scale: int = 1, weights: Any = None, *args, **kwargs):
+        super().__init__()
+        self.iters    = iters
+        self.scale    = scale
+        in_channels   = 6
+        hidden_dim    = 32
+        hidden_dim_x2 = hidden_dim * 2
+        out_channels  = 3
+        self.e_conv1  = nn.Conv2d(in_channels,   hidden_dim,   3, 1, 1, bias=True)
+        self.e_conv2  = nn.Conv2d(hidden_dim,    hidden_dim,   3, 1, 1, bias=True)
+        self.e_conv3  = nn.Conv2d(hidden_dim,    hidden_dim,   3, 1, 1, bias=True)
+        self.e_conv4  = nn.Conv2d(hidden_dim,    hidden_dim,   3, 1, 1, bias=True)
+        self.e_conv5  = nn.Conv2d(hidden_dim_x2, hidden_dim,   3, 1, 1, bias=True)
+        self.e_conv6  = nn.Conv2d(hidden_dim_x2, hidden_dim,   3, 1, 1, bias=True)
+        self.e_conv7  = nn.Conv2d(hidden_dim_x2, out_channels, 3, 1, 1, bias=True)
+        self.norm32   = nn.GroupNorm(1, hidden_dim)
+        self.relu     = nn.ReLU(inplace=True)
+        self.denoise  = DenoiseNet(in_channels=3)
+        self.upsample = nn.UpsamplingBilinear2d(scale_factor=self.scale)
+        self.apply(weights_init)
+        
+        # Load weights
+        self.load_weights(weights)
+        
+    def forward(self, image: torch.Tensor, inference: bool = False) -> tuple[torch.Tensor, ...]:
+        # Preprocess
+        # Pre-denoise & estimate noise level (copied from CLODE paper).
+        noise_map = self.loss_func(image)
+        denoised  = image - self.denoise(image)
+        
+        # Combine underexposed and overexposed parts as input (copied from CLODE paper).
+        x = torch.cat([denoised, 1 - denoised], 1)
+        if self.scale == 1:
+            x_lr = x
+        else:
+            x_lr = F.interpolate(x, scale_factor=1 / self.scale, mode="bilinear")
+        
+        # Forward
+        r_lr = self.learn_curve(x_lr)
+        if self.scale == 1:
+            r = r_lr
+        else:
+            r = self.upsample(r_lr)
+        
+        # Enhancement
+        y       = image
+        outputs = [y]
+        for i in range(0, self.iters):
+            y = y + r * (torch.pow(y, 2) - y)
+            outputs.append(y)
+        
+        noise_map = torch.ones_like(r) * noise_map
+        if inference:
+            fused = mertens_cv2(outputs, 0.8, 0.8, 0.5)
+            fused = I.to_tensor(fused, normalize=True).to(image.device)
+            return {
+                "curve_map": normalize_minmax(r),
+                "noise_map": self.denoise(fused),
+                "all"      : [o for o in outputs],  # [torch.clamp(o - self.denoise(o), 0, 1) for o in outputs],
+                "output"   : fused,  # torch.clamp(fused - self.denoise(fused), 0, 1),
+            }
+        else:
+            return {
+                "curve_map": r,
+                "noise_map": noise_map,
+                "all"      : outputs,
+                "output"   : outputs[-1],
+            }
+    
+    def learn_curve(self, x: torch.Tensor) -> torch.Tensor:
+        x1 = self.relu(self.norm32(self.e_conv1(x)))
+        x2 = self.relu(self.norm32(self.e_conv2(x1)))
+        x3 = self.relu(self.norm32(self.e_conv3(x2)))
+        x4 = self.relu(self.norm32(self.e_conv4(x3)))
+        x5 = self.relu(self.norm32(self.e_conv5(torch.cat([x3, x4], 1))))
+        x6 = self.relu(self.norm32(self.e_conv6(torch.cat([x2, x5], 1))))
+        r  =    F.tanh(self.e_conv7(torch.cat([x1, x6], 1)))
+        return r
+    
+    # ----- Utils -----
+    def pair_downsampler(self, image: torch.Tensor) -> torch.Tensor:
+        c       = image.shape[1]
+        filter1 = torch.FloatTensor([[[[0, 0.5], [0.5, 0]]]]).to(image.device)
+        filter1 = filter1.repeat(c, 1, 1, 1)
+        filter2 = torch.FloatTensor([[[[0.5, 0], [0, 0.5]]]]).to(image.device)
+        filter2 = filter2.repeat(c, 1, 1, 1)
+        output1 = F.conv2d(image, filter1, stride=2, groups=c)
+        output2 = F.conv2d(image, filter2, stride=2, groups=c)
+        return output1, output2
+
+    def mse(self, gt: torch.Tensor, pred: torch.Tensor) -> torch.Tensor:
+        loss = torch.nn.MSELoss()
+        return loss(gt, pred)
+    
+    def loss_func(self, noisy_img: torch.Tensor) -> torch.Tensor:
+        noisy1, noisy2       = self.pair_downsampler(noisy_img)
+        pred1                = noisy1 - self.denoise(noisy1)
+        pred2                = noisy2 - self.denoise(noisy2)
+        loss_res             = 0.5 * (self.mse(noisy1, pred2) + self.mse(noisy2, pred1))
+        noisy_denoised       = noisy_img - self.denoise(noisy_img)
+        denoised1, denoised2 = self.pair_downsampler(noisy_denoised)
+        loss_cons            = 0.5 * (self.mse(pred1, denoised1) + self.mse(pred2, denoised2))
+        loss                 = loss_res + loss_cons
+        return loss
+
+
+# ----- Variants -----
+#@MODELS.register(name="gcenet_pono", arch="gcenet")
 class GCENet_PONO(nn.Module, ModelMixin):
     """GCE-Net with Positional Normalization (PONO) and Moment Shortcut (MS)."""
     
@@ -264,7 +305,7 @@ class GCENet_PONO(nn.Module, ModelMixin):
         return r
 
 
-@MODELS.register(name="gcenet_bam", arch="gcenet")
+#@MODELS.register(name="gcenet_bam", arch="gcenet")
 class GCENet_BAM(nn.Module, ModelMixin):
     """Reimplement the Zero-DCE network as the baseline."""
     
@@ -338,7 +379,7 @@ class GCENet_BAM(nn.Module, ModelMixin):
         return r
 
 
-@MODELS.register(name="gcenet_pono_bam", arch="gcenet")
+#@MODELS.register(name="gcenet_pono_bam", arch="gcenet")
 class GCENet_PONO_BAM(nn.Module, ModelMixin):
     """GCE-Net with Positional Normalization (PONO) and Moment Shortcut (MS)."""
     
@@ -428,7 +469,7 @@ class GCENet_PONO_BAM(nn.Module, ModelMixin):
         return r
 
 
-@MODELS.register(name="gcenet_depth", arch="gcenet")
+#@MODELS.register(name="gcenet_depth", arch="gcenet")
 class GCENet_Depth(nn.Module, ModelMixin):
     """GCE-Net model for low-light image enhancement."""
     

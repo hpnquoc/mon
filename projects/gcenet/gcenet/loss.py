@@ -3,7 +3,9 @@
 
 __all__ = [
     "L_col",
+    "L_col_rate",
     "L_exp",
+    "L_exp_value",
     "L_per",
     "L_sa",
     "L_spa",
@@ -31,7 +33,22 @@ class L_col(nn.BaseLoss):
         k          = torch.pow(torch.pow(d_rg, 2) + torch.pow(d_rb, 2) + torch.pow(d_gb, 2), 0.5)
         return k
 
-			
+
+class L_col_rate(nn.Module):
+
+    def __init__(self):
+        super().__init__()
+
+    def forward(self, pre: torch.Tensor, cur: torch.Tensor) -> torch.Tensor:
+        mr_pre, mg_pre, mb_pre = torch.split(pre * 255, 1, dim=1)
+        mr_cur, mg_cur, mb_cur = torch.split(cur * 255, 1, dim=1)
+        Drg = torch.pow(mr_pre.int() // mg_pre.int() - mr_cur.int() // mg_cur.int(), 2).sum() / 255.0 ** 2
+        Drb = torch.pow(mr_pre.int() // mb_pre.int() - mr_cur.int() // mb_cur.int(), 2).sum() / 255.0 ** 2
+        Dgb = torch.pow(mg_pre.int() // mb_pre.int() - mg_cur.int() // mb_cur.int(), 2).sum() / 255.0 ** 2
+        k   = torch.pow(Drg + Drb + Dgb, 0.5)
+        return k
+
+
 class L_spa(nn.BaseLoss):
 
     def __init__(self):
@@ -86,7 +103,21 @@ class L_exp(nn.BaseLoss):
         d    = torch.mean(torch.pow(mean - torch.FloatTensor([self.mean_val]).to(x.device), 2))
         return d
       
-        
+
+class L_exp_value(nn.Module):
+
+    def __init__(self, patch_size: int, mean_val: float = 0.6):
+        super().__init__()
+        self.pool     = nn.AvgPool2d(patch_size)
+        self.mean_val = mean_val
+    
+    def forward(self, x: torch.Tensor):
+        x    = torch.mean(x, 1, keepdim=True)
+        mean = self.pool(x)
+        d    = torch.mean(torch.pow(mean - torch.FloatTensor([self.mean_val]).to(x.device), 2))
+        return d
+
+
 class L_tv(nn.BaseLoss):
     
     def __init__(self):

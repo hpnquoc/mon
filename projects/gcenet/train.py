@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Implements GCE-Net model training pipeline for low-light image enhancement."""
+"""Implements GCENet model training pipeline for low-light image enhancement."""
 
 import box
 import torch
@@ -12,17 +12,13 @@ import mon
 mon.dev()
 
 current_file = mon.Path(__file__).absolute()
-current_dir  = current_file.parents[0]
+root_dir     = current_file.parents[0]
 
 
 # ----- Train -----
-def weights_init(m):
-    classname = m.__class__.__name__
-    if classname.find("Conv") != -1:
-        m.weight.data.normal_(0.0, 0.02)
-    elif classname.find("BatchNorm") != -1:
-        m.weight.data.normal_(1.0, 0.02)
-        m.bias.data.fill_(0)
+def normalize_minmax(x: torch.Tensor, scale: float = 1) -> torch.Tensor:
+    x = x * scale
+    return (x - x.min()) / (x.max() - x.min())
 
 
 def train(args: dict | box.Box) -> str:
@@ -65,7 +61,7 @@ def train(args: dict | box.Box) -> str:
     L_tv    = gcenet.L_tv().to(device)
     L_spa   = gcenet.L_spa().to(device)
     L_col   = gcenet.L_col().to(device)
-    L_exp   = gcenet.L_exp(16, args.loss.L_exp_mean).to(device)
+    L_exp   = gcenet.L_exp_value(16, args.loss.L_exp_mean).to(device)
     L_tv_w  = args.loss.L_tv_w
     L_spa_w = args.loss.L_spa_w
     L_col_w = args.loss.L_col_w
@@ -91,20 +87,21 @@ def train(args: dict | box.Box) -> str:
             val_psnr = []
             model.train()
             for j, datapoint in enumerate(train_dataloader):
-                image    = datapoint["image"]
-                image    = image.to(device)
-                depth    = datapoint.get("depth", None)
-                depth    = depth.to(device) if depth is not None else None
-                outputs  = model(image, depth)
-                r        = outputs[0]
-                z        = outputs[1]
-                enhanced = outputs[-1]
+                image     = datapoint["image"]
+                image     = image.to(device)
+                # depth    = datapoint.get("depth", None)
+                # depth    = depth.to(device) if depth is not None else None
+                outputs   = model(image)
+                enhanced  = outputs["output"]
+                curve_map = outputs["curve_map"]
+                noise_map = outputs["noise_map"]
                 
-                l_tv  = L_tv_w  * L_tv(r)
-                l_spa = L_spa_w * torch.mean(L_spa(enhanced, image))
-                l_col = L_col_w * torch.mean(L_col(enhanced))
-                l_exp = L_exp_w * torch.mean(L_exp(enhanced))
-                loss  = l_tv + l_spa + l_col + l_exp
+                l_tv    = L_tv_w  * L_tv(curve_map)
+                l_spa   = L_spa_w * torch.mean(L_spa(enhanced, image))
+                l_col   = L_col_w * torch.mean(L_col(enhanced))
+                l_exp   = L_exp_w * torch.mean(L_exp(enhanced))
+                l_noise = torch.mean(noise_map)
+                loss    = l_tv + l_spa + l_col + l_exp + l_noise
                 
                 optimizer.zero_grad()
                 loss.backward()
@@ -115,25 +112,28 @@ def train(args: dict | box.Box) -> str:
             
             # Validation
             model.eval()
+            saved_outputs = None
             for j, datapoint in enumerate(val_dataloader):
                 with torch.no_grad():
                     image    = datapoint["image"]
                     image    = image.to(device)
-                    depth    = datapoint.get("depth", None)
-                    depth    = depth.to(device) if depth is not None else None
+                    # depth   = datapoint.get("depth", None)
+                    # depth   = depth.to(device) if depth is not None else None
                     ref      = datapoint["ref"]
                     ref      = ref.to(device)
-                    outputs  = model(image, depth)
-                    enhanced = outputs[-1]
+                    outputs  = model(image)
+                    enhanced = outputs["output"]
                     mse      = ((enhanced - ref) ** 2).mean((2, 3))
                     psnr     = (1 / mse).log10().mean() * 10
+                    if saved_outputs is None:
+                        saved_outputs = outputs
                 val_psnr.append(psnr.item())
             mean_psnr = sum(val_psnr) / len(val_psnr)
             
             # Log
             if args.verbose:
                 mon.log(f"Epoch: {(i + 1):03} | Train Loss: {mean_loss:08.6f} | Val PSNR: {mean_psnr:08.6f}")
-                
+            
             # Save
             torch.save(model.state_dict(), args.save_dir / "last.pt")
             if mean_loss < best_loss:
@@ -143,15 +143,26 @@ def train(args: dict | box.Box) -> str:
                 best_psnr = mean_psnr
                 torch.save(model.state_dict(), args.save_dir / "best_psnr.pt")
             
+            if args.save_debug and i % 10 == 0 and saved_outputs is not None:
+                enhanced  = saved_outputs["output"]
+                curve_map = normalize_minmax(saved_outputs["curve_map"])
+                noise_map = normalize_minmax(saved_outputs["noise_map"])
+                alls      = saved_outputs["all"]
+                mon.image.save_image(enhanced,  args.save_dir / "debug" / f"epoch_{i}" / f"enhanced{mon.SAVE_IMAGE_EXT}")
+                mon.image.save_image(curve_map, args.save_dir / "debug" / f"epoch_{i}" / f"curve_map{mon.SAVE_IMAGE_EXT}")
+                mon.image.save_image(noise_map, args.save_dir / "debug" / f"epoch_{i}" / f"noise_map{mon.SAVE_IMAGE_EXT}")
+                for k, img in enumerate(alls):
+                    mon.image.save_image(img, args.save_dir / "debug" / f"epoch_{i}" / f"all_{k}{mon.SAVE_IMAGE_EXT}")
+            
     # Save last model
-    if args.model == "gcenet_mobileone":
-        reparam_model = gcenet.reparameterize_model(model)
-        torch.save(reparam_model.state_dict(), args.save_dir / "last.pt")
+    # if args.model == "gcenet_mobileone":
+    #     reparam_model = gcenet.reparameterize_model(model)
+    #     torch.save(reparam_model.state_dict(), args.save_dir / "last.pt")
     
 
 # ----- Main -----
 def main() -> str:
-    args = mon.rt.parse_train_args(model_root=current_dir)
+    args = mon.rt.parse_train_args(root=root_dir, model_root=root_dir)
     train(args)
 
 

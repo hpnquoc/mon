@@ -22,7 +22,7 @@ from mon.constants import MODELS
 from mon.core import image as I, MLType, ModelMixin, nn, Path, Task
 from mon.core.nn import functional as F
 from .loss import Loss as LossFunc
-from .module import INF1_Patch, INF1_Spatial, INF2, INF4
+from .network import INF1_Patch, INF1_Spatial, INF2, INF4, DenoiseNet
 
 current_file = Path(__file__).absolute()
 root_dir     = current_file.parents[1]
@@ -97,7 +97,10 @@ class ZINF(nn.Module, ModelMixin):
             nonlinear        = nonlinear,
             reduce_channels  = False,
         )
-        self.state_dict = self.model.state_dict()
+        self.denoise = DenoiseNet(in_channels=3)
+        
+        self.inf_state_dict     = self.model.state_dict()
+        self.denoise_state_dict = self.denoise.state_dict()
         
         self.gf = I.FastGuidedFilter(kernel_size=7)
         self.bf = kornia.filters.BilateralBlur((denoise_ksize, denoise_ksize), 0.1, (1.5, 1.5))
@@ -132,7 +135,7 @@ class ZINF(nn.Module, ModelMixin):
         patch_e_ff  = self.ff_embedding(patch_e, self.B2)
         
         # Optimize
-        self.model.load_state_dict(self.state_dict)
+        self.model.load_state_dict(self.inf_state_dict)
         self.model.train()
         optimizer = nn.Adam(self.model.parameters(), lr=1e-5, betas=(0.9, 0.999), weight_decay=3e-4)
         loss_func = LossFunc(self.L).to(device)
@@ -243,3 +246,29 @@ class ZINF(nn.Module, ModelMixin):
         y_hr = self.gf(x_lr, y_lr, x_hr)
         y_hr = torch.clip(y_hr, 0.0, 1.0)
         return y_hr
+    
+    # ----- Utils: ZSN2N -----
+    def pair_downsampler(self, image: torch.Tensor) -> torch.Tensor:
+        c       = image.shape[1]
+        filter1 = torch.FloatTensor([[[[0, 0.5], [0.5, 0]]]]).to(image.device)
+        filter1 = filter1.repeat(c, 1, 1, 1)
+        filter2 = torch.FloatTensor([[[[0.5, 0], [0, 0.5]]]]).to(image.device)
+        filter2 = filter2.repeat(c, 1, 1, 1)
+        output1 = F.conv2d(image, filter1, stride=2, groups=c)
+        output2 = F.conv2d(image, filter2, stride=2, groups=c)
+        return output1, output2
+    
+    def mse(self, gt: torch.Tensor, pred: torch.Tensor) -> torch.Tensor:
+        loss = torch.nn.MSELoss()
+        return loss(gt, pred)
+    
+    def loss_func(self, noisy_img: torch.Tensor) -> torch.Tensor:
+        noisy1, noisy2       = self.pair_downsampler(noisy_img)
+        pred1                = noisy1 - self.denoise(noisy1)
+        pred2                = noisy2 - self.denoise(noisy2)
+        loss_res             = 0.5 * (self.mse(noisy1, pred2) + self.mse(noisy2, pred1))
+        noisy_denoised       = noisy_img - self.denoise(noisy_img)
+        denoised1, denoised2 = self.pair_downsampler(noisy_denoised)
+        loss_cons            = 0.5 * (self.mse(pred1, denoised1) + self.mse(pred2, denoised2))
+        loss                 = loss_res + loss_cons
+        return loss
