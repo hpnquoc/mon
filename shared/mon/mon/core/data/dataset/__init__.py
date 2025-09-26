@@ -5,6 +5,8 @@
 
 __all__ = [
     "BaseDataset",
+    "EvalDataset",
+    "ImageEvalDataset",
     "ImageLoader",
     "Modalities",
     "Modality",

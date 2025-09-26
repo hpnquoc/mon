@@ -12,42 +12,42 @@ archs=(
     "zinf"
 )
 models=(
-    #"*"                                 # * for all models
-    "zinf"
+    "*"                                 # * for all models
+    # "zinf"
 )
 datasets=(
     ### Unpaired
-    "dicm"
-    "lime"
-    "mef"
-    "npe"
-    "vv"
+    # "dicm"
+    # "lime"
+    # "mef"
+    # "npe"
+    # "vv"
     ### LOLs
-    "lolv1"
-    "lolv2real"
-    "lolv2syn"
+    # "lolv1"
+    # "lolv2real"
+    # "lolv2syn"
     ### LSRW
-    "lsrw"
+    # "lsrw"
     ### SICE
     "sice"
     ### FiveK
-    #"fiveka"
-    #"fivekb"
-    #"fivekc"
-    #"fivekd"
-    "fiveke"
+    # "fiveka"
+    # "fivekb"
+    # "fivekc"
+    # "fivekd"
+    # "fiveke"
     ### UHD
-    "uhdll"
+    # "uhdll"
     ### High-Level
-    "darkface"
-    "exdark"
-    "lolistreettest"
-    "lolistreetval"
-    "ydld"
+    # "darkface"
+    # "exdark"
+    # "lolistreettest"
+    # "lolistreetval"
+    # "ydld"
 )
 imgsz=512
-resize=$(echo "")
-#resize=$(echo "--resize")
+# resize=$(echo "")
+resize=$(echo "--resize")
 use_gt_mean=$(echo "")
 # use_gt_mean=$(echo "--use-gt-mean")
 metrics=(
@@ -75,7 +75,7 @@ declare -A input_subdirs=(
 declare -A target_subdirs=(
     ["lolv2real"]="lolv2/real/test/ref"
     ["lolv2syn"]="lolv2/syn/test/ref"
-    ["sice"]="sice/sice/test/ref"
+    ["sice"]="sice/sice_lr/test/ref"
     ["fiveka"]="fivek/test/ref_a"
     ["fivekb"]="fivek/test/ref_b"
     ["fivekc"]="fivek/test/ref_c"
@@ -99,7 +99,7 @@ for data in "${datasets[@]}"; do
     input_subdir="${input_subdirs[${data}]:-${data}/pred}"
     for arch in "${archs[@]}"; do
         for model in "${models[@]}"; do
-            mapfile -t -O "${#input_dirs[@]}" input_dirs < <(find "${project_dir}/run/predict" -type d -path "*/${arch}/${model}/${input_subdir}" 2>/dev/null | sort)
+            mapfile -t -O "${#input_dirs[@]}" input_dirs < <(find "${project_dir}/run/predict/${arch}" -type d -path "*/${model}/${input_subdir}" 2>/dev/null | sort)
         done
     done
     # unique_array "${input_dirs[@]}" input_dirs

@@ -5,6 +5,7 @@
 
 __all__ = [
     "BaseDataset",
+    "EvalDataset",
     "Modalities",
     "Modality",
 ]
@@ -233,7 +234,7 @@ class BaseDataset(dataset.Dataset, abc.ABC):
                 files.append(module(path=path, root=file.root))
                 
         return files
-        
+    
     def verify_data(self):
         """Verifies dataset integrity.
         
@@ -314,6 +315,157 @@ class BaseDataset(dataset.Dataset, abc.ABC):
         for k, v in zipped.items():
             if k not in self.modalities:  # i.e., metadata
                 continue
+            if v is None:
+                zipped[k] = None
+            elif isinstance(v[0], torch.Tensor):
+                zipped[k] = torch.stack(v, dim=0)
+            elif isinstance(v[0], np.ndarray):
+                zipped[k] = np.stack(v, axis=0)
+
+        return zipped
+
+
+class EvalDataset(dataset.Dataset, abc.ABC):
+    """Base class for all evaluation datasets.
+
+    Args:
+        input_dir: Absolute path to the input/predict data directory.
+        target_dir: Absolute path to the target data directory. Default: ``None``.
+        transform: Transformations for input/target. Default: ``None``.
+        verbose: If ``True``, enables verbose output. Default: ``False``.
+    """
+    
+    def __init__(
+        self,
+        input_dir : Path,
+        target_dir: Path = None,
+        transform : Any  = None,
+        verbose   : bool = True,
+        *args, **kwargs
+    ):
+        super().__init__(*args, **kwargs)
+        self.input_dir  = input_dir
+        self.target_dir = target_dir
+        self.transform  = None
+        self.verbose    = verbose
+        self.index      = 0  # Used with `__iter__` and `__next__`
+        self.datapoints = {}
+        # Order-specific, DO NOT CHANGE
+        self.init_transform(transform)
+        self.init_data()
+        
+    # ----- Magic Methods -----
+    def __del__(self):
+        """Closes the dataset."""
+        self.close()
+    
+    @abc.abstractmethod
+    def __getitem__(self, index: int) -> dict:
+        """Retrieves a datapoint and metadata at given ``index`` as a ``dict``."""
+        pass
+    
+    def __iter__(self):
+        """Initializes the dataset iterator."""
+        self.reset()
+        return self
+    
+    @abc.abstractmethod
+    def __len__(self) -> int:
+        """Retrieves the total number of datapoints."""
+        pass
+    
+    def __next__(self) -> dict:
+        """Retrieves the next datapoint and metadata as a ``dict``.
+
+        Raises:
+            StopIteration: If index exceeds the dataset length.
+        """
+        if self.index >= self.__len__():
+            raise StopIteration
+        result = self.__getitem__(self.index)
+        self.index += 1
+        return result
+    
+    # ----- Properties -----
+    @property
+    def has_target(self) -> bool:
+        return self.target_dir is not None and self.target_dir.is_dir()
+    
+    @property
+    def disable_pbar(self) -> bool:
+        """Returns ``True`` if progress bar disabled, ``False`` otherwise."""
+        return not self.verbose
+
+    # ----- Initialize -----
+    @abc.abstractmethod
+    def init_transform(self, transform: Any = None):
+        """Initializes transformation operations.
+
+        Args:
+            transform: Transformations to apply. Default: ``None``.
+        """
+        pass
+    
+    @abc.abstractmethod
+    def init_data(self):
+        """Initializes all datapoints in the dataset."""
+        pass
+    
+    @abc.abstractmethod
+    def reset(self):
+        """Resets the dataset."""
+        pass
+    
+    @abc.abstractmethod
+    def close(self):
+        """Closes and releases the dataset."""
+        pass
+    
+    # ----- Data Retrieval -----
+    @abc.abstractmethod
+    def get_datapoint(self, index: int) -> dict:
+        """Gets a datapoint at the specified ``index``.
+
+        Args:
+            index: Index of datapoint.
+
+        Returns:
+            A ``dict`` containing the datapoint.
+        """
+        pass
+    
+    @abc.abstractmethod
+    def get_meta(self, index: int) -> dict:
+        """Gets metadata at the specified ``index``.
+
+        Args:
+            index: Index of metadata.
+
+        Returns:
+            A ``dict`` containing the metadata.
+        """
+        pass
+    
+    def collate_fn(self, batch: list[dict]) -> dict:
+        """Collates a batch of input items for ``torch.utils.data.dataset.DataLoader``.
+        
+        By default, ``batch`` is a ``list`` of dicts, where each ``dict``
+        is a datapoint. We need to collate these into a single ``dict``
+        where each key corresponds to a modality and the values are stacked
+        tensors or arrays.
+
+        Args:
+            batch: List of dicts, each ``dict`` is a datapoint.
+
+        Returns:
+            Collated ``dict`` for ``torch.utils.data.dataset.DataLoader``.
+        """
+        zipped = {
+            k: list(v)
+            for k, v in zip(batch[0].keys(), zip(*[b.values() for b in batch]))
+        }
+
+        for k, v in zipped.items():
             if v is None:
                 zipped[k] = None
             elif isinstance(v[0], torch.Tensor):

@@ -19,12 +19,7 @@ import torch.nn as nn
 
 class ConvINRLayer(nn.Module):
     
-    def __init__(
-        self,
-        in_channels : int,
-        out_channels: int,
-        kernel_size : int = 3,
-    ):
+    def __init__(self, in_channels: int, out_channels: int, kernel_size: int = 3):
         super().__init__()
         self.conv = nn.Conv2d(in_channels, out_channels, kernel_size, padding=kernel_size // 2)
         self.bn   = nn.BatchNorm2d(out_channels)
@@ -38,11 +33,11 @@ class ConvINR(nn.Module):
     
     def __init__(
         self,
-        in_channels    : int,
-        out_channels   : int,
-        hidden_channels: int = 32,
-        hidden_layers  : int = 10,
-        kernel_size    : int = 3,
+        in_channels  : int,
+        out_channels : int,
+        hidden_dim   : int = 32,
+        hidden_layers: int = 10,
+        kernel_size  : int = 3,
     ):
         super().__init__()
         self.in_channels  = in_channels
@@ -50,12 +45,12 @@ class ConvINR(nn.Module):
         
         # First layer
         self.net = []
-        self.net.append(ConvINRLayer(in_channels, hidden_channels, kernel_size))
+        self.net.append(ConvINRLayer(in_channels, hidden_dim, kernel_size))
         # Hidden layers
         for i in range(hidden_layers):
-            self.net.append(ConvINRLayer(hidden_channels, hidden_channels, kernel_size))
+            self.net.append(ConvINRLayer(hidden_dim, hidden_dim, kernel_size))
         # Final layer
-        self.net.append(nn.Conv2d(hidden_channels, out_channels, kernel_size, padding=kernel_size // 2))
+        self.net.append(nn.Conv2d(hidden_dim, out_channels, kernel_size, padding=kernel_size // 2))
         
         self.net = nn.Sequential(*self.net)
         

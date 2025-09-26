@@ -40,87 +40,57 @@ def measure_metric_pyiqa(
     input_dir  = mon.Path(input_dir)
     target_dir = mon.Path(target_dir) if target_dir else input_dir.replace("image", "ref")
 
-    # List image files
-    image_files = list(input_dir.rglob("*"))
-    image_files = [f for f in image_files if f.is_image_file()]
-    image_files = sorted(image_files)
-    num_items   = 0
-    
     # Parse arguments
-    device      = device[0] if len(device) == 1 else device
-    device      = torch.device(("cpu" if not torch.cuda.is_available() else device))
-    metric      = list(_METRICS.names()) if ("all" in metric or "*" in metric) else metric
-    metric      = [m.lower() for m in metric]
-    values      = {m: []     for m in metric}
-    results     = {}
-    h, w        = mon.image.imgsz(imgsz)
+    device  = device[0] if len(device) == 1 else device
+    device  = torch.device(("cpu" if not torch.cuda.is_available() else device))
+    metric  = list(_METRICS.names()) if ("all" in metric or "*" in metric) else metric
+    metric  = [m.lower() for m in metric]
+    values  = {m: []     for m in metric}
+    results = {}
+    h, w    = mon.image.imgsz(imgsz)
     
     # Parse metrics
     metric_f = {}
     for i, m in enumerate(metric):
-        if m not in _METRICS:
-            continue
-        metric_f[m] = pyiqa.models.inference_model.InferenceModel(
-            metric_name = m,
-            as_loss     = False,
-            device      = device,
-        )
-    
-    # Prepare transform
-    base_transform = A.Compose([
+        if m in _METRICS:
+            metric_f[m] = pyiqa.create_metric(metric_name=m, as_loss=False, device=device)
+        
+    # Data I/O
+    transform = A.Compose([
         A.Normalize(mean=[0, 0, 0], std=[1, 1, 1], normalization="min_max"),
         A.ToTensorV2(transpose_mask=True),
     ])
+    if resize:
+        transform = A.Resize(height=h, width=w) + transform
+    dataloader = mon.data.DataLoader(
+        dataset = mon.data.ImageEvalDataset(
+            input_dir  = input_dir,
+            target_dir = target_dir,
+            transform  = transform,
+            verbose    = verbose,
+        ), batch_size = 1
+    )
     
     # Measuring
     description = f"[bright_yellow]Measuring {model} | {data} (GT Mean)" if use_gt_mean else f"[bright_yellow]Measuring {model} | {data}"
     with mon.create_progress_bar(transient=not verbose) as pbar:
-        for image_file in pbar.track(
-            sequence    = image_files,
-            total       = len(image_files),
+        for i, datapoint in pbar.track(
+            sequence    = enumerate(dataloader),
+            total       = len(dataloader),
             description = description
         ):
-            # Image
-            image  = mon.image.load_image(path=image_file)
-            h0, w0 = mon.image.imgsz(image)
-            h2, w2 = h, w
+            image  = datapoint["image"]
+            target = datapoint.get("target", None)
             
-            # Target
-            target      = None
-            target_file = None
-            need_resize = resize
-            for ext in mon.ImageExtension.values():
-                temp = target_dir / f"{image_file.stem}{ext}"
-                if temp.exists():
-                    target_file = temp
-            if target_file and target_file.exists():  # Has target file
-                target = mon.image.load_image(path=target_file)
-                h1, w1 = mon.image.imgsz(target)
-                if h1 != h0 or w1 != w0:  # Mismatch size between image and target
-                    h2, w2      = h1, w1
-                    need_resize = True
-            
-            # Transform
-            transform = base_transform
-            if need_resize:
-                transform = A.Resize(height=h2, width=w2) + transform
-            if target is not None:
-                transform.add_targets(additional_targets={"target": "image"})
-                augmented = transform(image=image, target=target)
-                image     = augmented["image"]
-                target    = augmented["target"]
-            else:
-                augmented = transform(image=image)
-                image     = augmented["image"]
+            if image.shape != target.shape:
+                image = image.permute(0, 1, 3, 2)
             
             # Move to device
-            image  =  image.unsqueeze(0).to(device=device)
-            target = target.unsqueeze(0).to(device=device) if target is not None else None
+            image  =  image.to(device=device)
+            target = target.to(device=device) if target is not None else None
             
             # Measure metric
             for m in metric:
-                if m not in _METRICS:
-                    continue
                 if target is None and _METRICS[m]["metric_mode"] == "FR":
                     continue
                 elif target is not None and _METRICS[m]["metric_mode"] == "FR":
@@ -128,11 +98,9 @@ def measure_metric_pyiqa(
                 else:
                     values[m].append(metric_f[m](image))
 
-            num_items += 1
-
     for m, v in values.items():
         if len(v) > 0:
-            results[m] = float(sum(v) / num_items)
+            results[m] = float(sum(v) / len(v))
         else:
             results[m] = None
     return results
@@ -152,21 +120,6 @@ def update_best_results(results: dict, new_values: dict) -> dict:
 
 
 # ----- Main -----
-# @click.command(name="metric", context_settings=dict(ignore_unknown_options=True, allow_extra_args=True))
-# @click.option("--input-dir",   type=click.mon.Path(exists=True),  default=None, help="Image directory.")
-# @click.option("--target-dir",  type=click.mon.Path(exists=False), default=None, help="Ground-truth directory.")
-# @click.option("--result-file", type=str,                      default=None, help="Result file.")
-# @click.option("--arch",        type=str,                      default=None, help="Model's architecture.")
-# @click.option("--model",       type=str,                      default=None, help="Model's fullname.")
-# @click.option("--data",        type=str,                      default=None, help="Source data.")
-# @click.option("--device",      type=str,                      default=None, help="Running devices.")
-# @click.option("--imgsz",       type=int,                      default=512)
-# @click.option("--resize",      is_flag=True)
-# @click.option("--metric",      type=str, multiple=True, help="Measuring metric.")
-# @click.option("--use-gt-mean", is_flag=True)
-# @click.option("--backend",     type=click.Choice(["pyiqa"], case_sensitive=False), default=["pyiqa"], multiple=True)
-# @click.option("--save-txt",    is_flag=True)
-# @click.option("--verbose",     is_flag=True)
 def main(
     input_dir  : mon.Path,
     target_dir : mon.Path,

@@ -14,6 +14,7 @@ from .fisheye import *
 from .pixel import *
 from .resize import *
 
+
 # ----- Extended Compose -----
 '''
 class Compose(A.Compose):

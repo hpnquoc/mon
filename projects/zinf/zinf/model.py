@@ -17,7 +17,7 @@ import box
 import torch
 
 from mon.constants import MODELS
-from mon.core import image as I, MLType, ModelMixin, nn, Path, Task, log
+from mon.core import image as I, MLType, ModelMixin, nn, Path, Task
 from . import loss as L
 from .inr import FINER, PE_FINER, PE_SIREN, SIREN
 from .utils import *
@@ -25,10 +25,10 @@ from .utils import *
 current_file = Path(__file__).absolute()
 root_dir     = current_file.parents[1]
 INRS         = {
-    "siren"   : SIREN,
     "finer"   : FINER,
-    "pe_siren": PE_SIREN,
     "pe_finer": PE_FINER,
+    "pe_siren": PE_SIREN,
+    "siren"   : SIREN,
 }
 
 
