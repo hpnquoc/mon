@@ -2,11 +2,11 @@
 # These settings can be overridden by the CLI.
 root        : ~                                                                 # Root directory of the current run.
 task        : &task "lle"                                                       # Task name (e.g., detect, segment, classify).
-mode        : &mode "train"                                                     # Mode name (e.g., train, val, test, predict, export).
+mode        : &mode "predict"                                                   # Mode name (e.g., train, val, test, predict, export).
 arch        : &arch "zinf"                                                      # Model architecture or family (e.g., resnet).
 model       : &model "zinf"                                                     # Model name (e.g., resnet50).
 data        : &data ~                                                           # Dataset name (e.g., cifar10) or directory (e.g., data/cifar10).
-fullname    : &fullname "zinf_view"                                             # Full name of the current run (e.g., resnet50_cifar10_01). If not set, it will be this file's name.
+fullname    : &fullname "zinf_siren"                                            # Full name of the current run (e.g., resnet50_cifar10_01). If not set, it will be this file's name.
 save_dir    : &save_dir ~                                                       # Saving directory. If not set, it will be `root/arch/model/data`.
 weights     : &weights ~                                                        # Path to the pretrained weights.
 device      : &device 0                                                         # Running device (i.e., cuda:0 | cuda:0,1,2,3 | cpu).
@@ -39,18 +39,13 @@ cfg         : ~                                                                 
 # ----- Model -----
 # Network
 network:                                                                        # Network architecture.
-  mapping_func   : "pbde"                                                       # One of: ["p", "b", "pb", "pbde"]. Default: "pbde".
-  window_size    : 13                                                           # Context window size. Default: ``13``.
+  window_size    : 7                                                            # Context window size. Default: ``9``.
   hidden_dim     : *imgsz                                                       # Input image size. Default: ``256``.
   num_layers     : 4                                                            # Total layer's depth. Default: ``4``.
   add_layers     : 2                                                            # Number of layers for output branch. Default: ``2``.
-  use_ff         : True                                                         # Use Fourier Feature embedding for the spatial branch. Default: ``True``.
-  nonlinear      : "finer"                                                      # Activation function. Default: ``"finer"``.
-  depth_threshold: 1.0                                                          # For adjusting the learned residual. Default: ``1.0``.
-  edge_threshold : 0.05                                                         # Edge threshold. Default: ``0.05``.
-  use_denoise    : True                                                         # Use denoising. Default: ``True``.
-  denoise_ksize  : 3                                                            # Denoising kernel size. Default: ``3``.
-  L              : 0.01
+  inr            : "siren"
+  use_depth      : False
+  L              : 0.3
   iters          : *epochs
 
 # Loss

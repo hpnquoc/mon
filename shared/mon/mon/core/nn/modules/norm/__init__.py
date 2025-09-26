@@ -3,7 +3,7 @@
 
 """Implements normalization layers."""
 
+from .batchnorm import *
+from .core import *
 from .instancenorm import *
-from .instancenorm import *
-from .normalization import *
 from .pono_ms import *

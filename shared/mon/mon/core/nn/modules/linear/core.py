@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Implements linear layers."""
+"""Implements core linear layers."""
 
 __all__ = [
     "Bilinear",

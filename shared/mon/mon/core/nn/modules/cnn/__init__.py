@@ -3,7 +3,9 @@
 
 """Implements convolution layers."""
 
-from .conv import *
+from .core import *
+from .depthaware import *
 from .dsconv import *
-from .ghostconv import *
+from .ghost import *
 from .mobileone import *
+from .zacn import *

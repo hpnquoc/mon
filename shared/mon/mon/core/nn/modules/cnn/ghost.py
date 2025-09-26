@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Implements Ghost Convolutional layers.
+"""Implements Ghost modules.
 
 References:
     - Paper-V1: "GhostNet: More Features from Cheap Operations," CVPR 2020.
