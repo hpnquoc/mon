@@ -1,9 +1,6 @@
 [submodule "shared/spikingjelly"]
 	path = shared/spikingjelly
 	url  = https://github.com/phlong3105/spikingjelly
-[submodule "shared/snntorch"]
-	path = shared/snntorch
-	url  = https://github.com/phlong3105/snntorch
 [submodule "shared/ultralytics"]
 	path = shared/ultralytics
 	url  = https://github.com/phlong3105/ultralytics

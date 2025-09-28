@@ -42,48 +42,46 @@ classifiers     = [
 ]
 requires-python = ">=3.12,<3.14"
 dependencies    = [
-    # Python Functionality
+    # Python
+    "PyYAML",                           # YAML parser and emitter for Python.
     "emoji",                            # Emoji for Python.
+    "fjson",                            # Python JSON writer with formatted floats
     "loguru",                           # Python logging made (stupidly) simple.
     "mypy",                             # Optional static typing for Python.
     "omegaconf",                        # Flexible Python configuration system.
     "psutil",                           # Cross-platform lib for process and system monitoring in Python.
     "pytest",                           # Simple powerful testing with Python.
+    "python-box",                       # Advanced Python dictionaries with dot notation access.
     "requests",                         # Requests is an elegant and simple HTTP library for Python, built with ♥.
     "rich",                             # Render rich text, tables, progress bars, syntax highlighting, markdown and more to the terminal.
     "tabulate",                         # Pretty-print tabular data in Python, a library and a command-line utility.
     "tqdm",                             # Fast, Extensible Progress Meter.
     "typing-extensions",                # Backported and Experimental Type Hints for Python 3.7+.
     "validators",                       # Python Data Validation for Humans.
-    # DSA
-    "PyYAML",                           # YAML parser and emitter for Python.
-    "filterpy",                         # Kalman filters and other optimal and non-optimal estimation filters in Python.
-    "fjson",                            # Python JSON writer with formatted floats
-    "numpy",                            # The fundamental package for scientific computing with Python.
-    "protobuf",                         # Protocol Buffers - Google's data interchange format.
-    "python-box",                       # Advanced Python dictionaries with dot notation access.
-    "scipy",                            # Scientific Library for Python.
     "xmltodict",                        # Makes working with XML feel like you are working with JSON.
-    # AI
+    # ML/DL
     "calflops",                         # A library for calculating the number of floating point operations (FLOPs) in a PyTorch model.
     "diffusers",                        # 🤗 Diffusers: State-of-the-art diffusion models for image, video, and audio generation in PyTorch.
     "einops",                           # A new flavor of deep learning operations.
-    "fvcore",                           # Collection of common code shared among different research projects in FAIR computer vision team.
+    "filterpy",                         # Kalman filters and other optimal and non-optimal estimation filters in Python.
     "lightning>=2.5.5",                 # The Deep Learning framework to train, deploy, and ship AI products Lightning fast.
+    "numpy==2.2.6",                     # The fundamental package for scientific computing with Python.
+    "protobuf",                         # Protocol Buffers - Google's data interchange format.
+    "scikit-image",                     # Image processing in Python.
+    "scikit-learn",                     # A set of python modules for machine learning and data mining.
+    "scipy",                            # Scientific Library for Python.
+    "spikingjelly",                     # SpikingJelly is an open-source deep learning framework for Spiking Neural Network (SNN) based on PyTorch.
+    "tensorboard",                      # TensorFlow's Visualization Toolkit.
+    "torch-fidelity",                   # High-fidelity performance metrics for generative models in PyTorch
+    "torch>=2.8.0",                     # PyTorch is an optimized tensor library for deep learning using GPUs and CPUs.
+    "torchmetrics>=1.8.2",              # Collection of PyTorch native metrics for easy evaluating machine learning models.
+    "torchvision",                      # Image and video datasets and models for Torch deep learning.
+    "transformers",                     # 🤗 Transformers: State-of-the-art Machine Learning for Pytorch, TensorFlow, and JAX.
+    "ultralytics-thop",                 # Profile PyTorch models for FLOPs and parameters, helping to evaluate computational efficiency and memory usage.
+    # ML/DL - Deployment
     "onnx",                             # Open Neural Network Exchange.
     "onnxruntime",                      # ONNX Runtime is a performance-focused scoring engine for Open Neural Network Exchange (ONNX) models.
     "openvino",                         # OpenVINO™ is a toolkit for optimizing and deploying AI inference.
-    "ptflops",                          # Flops counting tool for neural networks in pytorch framework.
-    "scikit-learn",                     # A set of python modules for machine learning and data mining.
-    "snntorch",
-    "spikingjelly",
-    "tensorboard",                      # TensorFlow's Visualization Toolkit.
-    "thop",                             # Count the MACs / FLOPs of your PyTorch model.
-    "torch-fidelity",
-    "torch>=2.8.0",                     # PyTorch is an optimized tensor library for deep learning using GPUs and CPUs.
-    "torchfile",
-    "torchmetrics>=1.8.2",              # Collection of PyTorch native metrics for easy evaluating machine learning models.
-    "transformers",                     # 🤗 Transformers: State-of-the-art Machine Learning for Pytorch, TensorFlow, and JAX.
     # Vision
     "Pillow",                           # Python Imaging Library (Fork).
     "albumentationsx",                  # Next-generation Albumentations.
@@ -96,9 +94,7 @@ dependencies    = [
     "pycocotools",                      # COCO dataset and evaluation metrics for object detection, instance segmentation, and person keypoint detection.
     "pyiqa",                            # PyTorch Toolbox for Image Quality Assessment.
     "rawpy",                            # rawpy is an easy-to-use Python wrapper for the LibRaw library. It also contains some extra functionality for finding and repairing hot/dead pixels.
-    "scikit-image",                     # Image processing in Python.
-    "torchvision",                      # Image and video datasets and models for Torch deep learning.
-    "ultralytics",
+    "ultralytics",                      # Ultralytics YOLO 🚀.
     # VLM
     "open-clip-torch",                  # OpenCLIP: Open and Reproducible CLIP Models.
     # Temporary Fix
@@ -135,10 +131,8 @@ exclude  = []
 
 [tool.poetry.dependencies]
 open-clip-torch = { path = "../open_clip"   , develop = true }
-snntorch        = { path = "../snntorch"    , develop = true }
 spikingjelly    = { path = "../spikingjelly", develop = true }
 ultralytics     = { path = "../ultralytics" , develop = true }
-
 
 [build-system]
 requires      = ["poetry-core>=2.0.0"]

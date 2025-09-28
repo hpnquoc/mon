@@ -113,7 +113,7 @@ def predict(args: argparse.Namespace):
     
     # Measure efficiency score
     if benchmark:
-        flops, params, avg_time = model.compute_complexity()
+        flops, params, avg_time = model.compute_model_stats()
         mon.log(f"FLOPs    : {flops:.4f}")
         mon.log(f"Params    : {params:.4f}")
         mon.log(f"Time   = {avg_time:.17f}")

@@ -13,44 +13,17 @@ import copy
 
 import box
 import cv2
-import torch
 import torch.utils
-from fvcore.nn import FlopCountAnalysis
 from torch.autograd import Variable
 
 import mon
 import sci
-from mon import albumentations as A, nn
+from mon import albumentations as A
 
 mon.dev()
 
 current_file = mon.Path(__file__).absolute()
 root_dir     = current_file.parents[0]
-
-
-# ----- Utils -----
-def compute_complexity(model: nn.Module, imgsz: int = 512, channels: int = 3) -> tuple[float, float]:
-    """Computes FLOPs and parameters for a model.
-
-    Args:
-        model: PyTorch model to profile.
-        imgsz: Input image size. Default: ``512``.
-        channels: Number of input channels. Default: ``3``.
-
-    Returns:
-        A tuple of :math:`(flops, params)`.
-    """
-    h, w   = mon.image.imgsz(imgsz)
-    input  = torch.rand(1, channels, h, w).to(mon.get_model_device(model))
-    flops  = FlopCountAnalysis(model, input).total()
-    params = sum(p.numel() for p in model.parameters())
-    return flops, params
-
-
-def benchmark(model: nn.Module):
-    flops, params = compute_complexity(model=model)
-    mon.log(f"Params    : {params:.4f}")
-    mon.log(f"FLOPs     : {flops:.4f}")
 
 
 # ----- Predict -----
@@ -81,7 +54,7 @@ def predict(args: dict | box.Box) -> str:
     
     # Benchmark
     if args.benchmark:
-        benchmark(model)
+        mon.nn.benchmark(model)
     
     # Data I/O
     imgsz     = args.imgsz if args.resize else (0, 0)

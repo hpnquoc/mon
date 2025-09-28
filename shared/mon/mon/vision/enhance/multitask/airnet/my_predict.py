@@ -54,7 +54,7 @@ def predict(args: argparse.Namespace):
     
     # Benchmark
     if benchmark:
-        flops, params, avg_time = mon.nn.compute_complexity(
+        params, macs, flops = mon.nn.compute_model_stats(
             model      = model,
             imgsz= imgsz,
             channels   = 3,

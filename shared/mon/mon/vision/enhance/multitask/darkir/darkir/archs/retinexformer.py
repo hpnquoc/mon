@@ -382,7 +382,6 @@ if __name__ == '__main__':
     model.to('cuda')
     macs, params = get_model_complexity_info(model, (3, 256, 256), print_per_layer_stat=False)
     print(macs, params)   
-#     from fvcore.nn import FlopCountAnalysis
 #     model = RetinexFormer(stage=1,n_feat=40,num_blocks=[1,2,2]).cuda()
 #     print(model)
 #     inputs = torch.randn((1, 3, 256, 256)).cuda()

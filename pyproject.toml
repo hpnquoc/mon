@@ -85,10 +85,9 @@ exclude  = []
 
 [tool.poetry.dependencies]
 mon             = { path = "shared/mon"         , develop = true }
-snntorch        = { path = "shared/snntorch"    , develop = true }
+open-clip-torch = { path = "shared/open_clip"   , develop = true }
 spikingjelly    = { path = "shared/spikingjelly", develop = true }
 ultralytics     = { path = "shared/ultralytics" , develop = true }
-open-clip-torch = { path = "shared/open_clip"   , develop = true }
 
 [build-system]
 requires      = ["poetry-core>=2.0.0"]

@@ -5,38 +5,46 @@
 
 __all__ = [
     "benchmark",
-    "compute_complexity",
+    "compute_model_stats",
 ]
+
+import copy
 
 import thop
 import torch
 import torch.nn as nn
-from fvcore.nn import FlopCountAnalysis, parameter_count
 
 from mon.core.console import log
 from mon.core.device import get_model_device
 from mon.core.dtypes import image as I
 
 
-def compute_complexity(model: nn.Module, imgsz: int = 512, channels: int = 3) -> tuple[float, float]:
-    """Computes FLOPs and parameters for a model.
-
+def compute_model_stats(
+    model   : nn.Module,
+    imgsz   : int = 512,
+    channels: int = 3
+) -> tuple[float, tuple, float]:
+    """Computes FLOPs and parameters for a model. Note: 1 MAC ≈ 2 FLOPs
+    
     Args:
         model: PyTorch model to profile.
         imgsz: Input image size. Default: ``512``.
         channels: Number of input channels. Default: ``3``.
-
+    
     Returns:
-        A tuple of :math:`(flops, params)`.
+        A tuple of :math:`(macs, flops, params)`.
     """
-    h, w   = I.imgsz(imgsz)
-    input  = torch.rand(1, channels, h, w).to(get_model_device(model))
-    flops, params = thop.profile(model, inputs=(input,), verbose=False)
-    flops  = FlopCountAnalysis(model, input).total() if flops == 0 else flops
-    params = model.params           if hasattr(model, "params") and params == 0 else params
-    params = parameter_count(model) if hasattr(model, "params") else params
-    params = sum(params.values())   if isinstance(params, dict) else params
-    return flops, params
+    h, w         = I.imgsz(imgsz)
+    device       = get_model_device(model)
+    input        = torch.randn(1, channels, h, w).to(device)
+    model_copy   = copy.deepcopy(model)
+    model_copy   = model_copy.to(device)
+    macs, params = thop.profile(model_copy, inputs=(input,), verbose=False)
+    flops        = 2 * macs  # FLOPs = 2 * MACs
+    # params       = sum(p.numel() for p in model_copy.parameters())
+    del model_copy
+    
+    return params, macs, flops
 
 
 def benchmark(model: nn.Module, imgsz: int = 512, channels: int = 3):
@@ -47,6 +55,7 @@ def benchmark(model: nn.Module, imgsz: int = 512, channels: int = 3):
         imgsz: Input image size. Default: ``512``.
         channels: Number of input channels. Default: ``3``.
     """
-    flops, params = compute_complexity(model=model, imgsz=imgsz, channels=channels)
+    params, macs, flops = compute_model_stats(model=model, imgsz=imgsz, channels=channels)
     log(f"Params    : {params:.4f}")
+    log(f"MACs      : {macs:.4f}")
     log(f"FLOPs     : {flops:.4f}")

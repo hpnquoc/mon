@@ -14,7 +14,6 @@ import copy
 import box
 import thop
 import torch
-from fvcore.nn import FlopCountAnalysis, parameter_count
 
 import colie
 import mon
@@ -27,7 +26,7 @@ root_dir     = current_file.parents[0]
 
 
 # ----- Utils -----
-def compute_complexity(model: mon.nn.Module, imgsz: int = 512) -> tuple[float, float]:
+def compute_model_stats(model: mon.nn.Module, imgsz: int = 512) -> tuple[float, float, float]:
     """Computes FLOPs and parameters for a model.
 
     Args:
@@ -37,21 +36,17 @@ def compute_complexity(model: mon.nn.Module, imgsz: int = 512) -> tuple[float, f
     Returns:
         A tuple of :math:`(flops, params)`.
     """
-    patches = torch.rand(imgsz, imgsz, 49).to(mon.get_model_device(model))
-    coords  = torch.rand(imgsz, imgsz,  2).to(mon.get_model_device(model))
-    
-    flops, params = thop.profile(model, inputs=(patches, coords,), verbose=False)
-    flops         = FlopCountAnalysis(model, input).total() if flops == 0 else flops
-    params        = model.params           if hasattr(model, "params") and params == 0 else params
-    params        = parameter_count(model) if hasattr(model, "params") else params
-    params        = sum(params.values())   if isinstance(params, dict) else params
-
-    return flops, params
+    patches      = torch.rand(imgsz, imgsz, 49).to(mon.get_model_device(model))
+    coords       = torch.rand(imgsz, imgsz,  2).to(mon.get_model_device(model))
+    macs, params = thop.profile(model, inputs=(patches, coords,), verbose=False)
+    flops        = 2 * macs
+    return params, macs, flops
 
 
 def benchmark(model: mon.nn.Module):
-    flops, params = compute_complexity(model=model)
+    params, macs, flops = compute_model_stats(model=model)
     mon.log(f"Params    : {params:.4f}")
+    mon.log(f"MACs      : {macs:.4f}")
     mon.log(f"FLOPs     : {flops:.4f}")
 
 
