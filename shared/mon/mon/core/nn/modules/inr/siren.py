@@ -9,13 +9,15 @@ References:
 """
 
 __all__ = [
-    "SineLayer",
+    "DepthAwareSineLayer",
     "SIREN",
+    "SineLayer",
 ]
 
 import numpy as np
 import torch
 import torch.nn as nn
+from mon.core.nn.modules.linear import DepthAwareLinear
 
 
 class SineLayer(nn.Module):
@@ -67,6 +69,69 @@ class SineLayer(nn.Module):
     def forward(self, input: torch.Tensor) -> torch.Tensor:
         return torch.sin(self.omega_0 * self.linear(input))
 
+
+class DepthAwareSineLayer(nn.Module):
+    r"""Applies an affine linear transformation with sine activation to the
+    incoming data: :math:`y = \sin(w_0 \cdot (xA^T + b))`, where :math:`w_0` is a
+    frequency factor and :math:`\sin` is the sine function.
+
+    Args:
+        in_features: Size of each input sample.
+        out_features: Size of each output sample.
+        bias: If set to ``False``, the layer will not learn an additive bias.
+            Default: ``True``.
+        is_first: First layer flag for weight initialization. Default: ``False``.
+        omega_0: Frequency scaling factor. Default: ``30.0``.
+        init_weights: Initializes weights if ``True``. Default: ``True``.
+        
+    References:
+        - Code: https://github.com/vishwa91/wire/blob/main/modules/siren.py
+    """
+
+    def __init__(
+        self,
+        in_features   : int,
+        out_features  : int,
+        depth_features: int,
+        kernel_size   : int   = 3,
+        alpha         : float = 8.3,
+        bias          : bool  = True,
+        is_first      : bool  = False,
+        omega_0       : float = 30.0,
+        init_weights  : bool  = True,
+    ):
+        super().__init__()
+        self.in_features = in_features
+        self.is_first    = is_first
+        self.omega_0     = omega_0
+        self.dalinear    = DepthAwareLinear(
+            in_features    = in_features,
+            out_features   = out_features,
+            depth_features = depth_features,
+            kernel_size    = kernel_size,
+            alpha          = alpha,
+            bias           = bias,
+        )
+        if init_weights:
+            self.init_weights()
+
+    def init_weights(self):
+        """Initializes linear layer weights based on the layer position in the network."""
+        with torch.no_grad():
+            if self.is_first:
+                self.dalinear.linear.weight.uniform_(
+                    -1 / self.in_features,
+                     1 / self.in_features
+                )
+            else:
+                self.dalinear.linear.weight.uniform_(
+                    -np.sqrt(6.0 / self.in_features) / self.omega_0,
+                     np.sqrt(6.0 / self.in_features) / self.omega_0
+                )
+
+    def forward(self, input: torch.Tensor, depth: torch.Tensor) -> torch.Tensor:
+        return torch.sin(self.omega_0 * self.dalinear(input, depth))
+    
 
 class SIREN(nn.Module):
     """Implements the SIREN MLP.

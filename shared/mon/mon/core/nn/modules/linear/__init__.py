@@ -4,3 +4,4 @@
 """Implements linear layers."""
 
 from .core import *
+from .depthlinear import *

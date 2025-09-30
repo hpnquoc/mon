@@ -5,6 +5,7 @@
 
 from .conv_inr import *
 from .core import *
+from .ffn import *
 from .finer import *
 from .gauss import *
 from .pe import *

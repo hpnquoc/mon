@@ -14,7 +14,6 @@ The categories align with common loss function roles in computer vision:
 __all__ = [
     "ColorConstancyLoss",
     "DepthAwareIlluminationLoss",
-    "EdgeAwareIlluminationLoss",
     "EdgeLoss",
     "ExposureControlLoss",
     "ExposureValueControlLoss",
@@ -26,13 +25,14 @@ __all__ = [
 from typing import Literal
 
 import torch
+import torch.nn as nn
 import torch.nn.functional as F
 
 from .base import BaseLoss
 from .core import CharbonnierLoss
 
 
-# ----- Color Loss -----
+# ----- Pixel-wise Loss -----
 class ColorConstancyLoss(BaseLoss):
     """Color Constancy Loss corrects potential color deviations in the enhanced image
     and builds relations among the three adjusted channels.
@@ -72,7 +72,11 @@ class ExposureControlLoss(BaseLoss):
 
     Args:
         patch_size: Kernel size for pooling layer. Default: ``16``.
-        mean_val: Well-exposedness level E. Default: ``0.6``.
+        mean_val: Well-exposedness level E; lower values produce, brighter
+            images. Default: ``0.6``.
+        required_grad: If ``True``, ``mean_val`` is learnable. Default: ``True``.
+        channel_mean: If ``True``, compute the mean across channels before
+            pooling. Default: ``True``.
         reduction: Reduction method: ``"none"``, ``"mean"``, or ``"sum"``.
             Default: ``"mean"``.
 
@@ -85,16 +89,18 @@ class ExposureControlLoss(BaseLoss):
         patch_size   : int   = 16,
         mean_val     : float = 0.6,
         required_grad: bool  = True,
+        channel_mean : bool  = True,
         reduction    : str   = "mean",
     ):
         super().__init__(reduction=reduction)
-        self.patch_size = patch_size
-        self.mean_val   = torch.nn.Parameter(torch.full([1], mean_val), requires_grad=required_grad)
-        self.pool       = torch.nn.AvgPool2d(self.patch_size)
+        self.channel_mean = channel_mean
+        self.mean_val     = nn.Parameter(torch.full([1], mean_val), requires_grad=required_grad)
+        self.pool         = nn.AvgPool2d(patch_size)
     
-    # noinspection PyMethodOverriding
     def forward(self, input: torch.Tensor) -> torch.Tensor:
-        x    = torch.mean(input, 1, keepdim=True)
+        x = input
+        if self.channel_mean:
+            x = torch.mean(input, 1, keepdim=True)
         mean = self.pool(x)
         loss = torch.pow(mean - self.mean_val, 2)
         loss = self.reduce(loss=loss)
@@ -108,6 +114,9 @@ class ExposureValueControlLoss(BaseLoss):
         patch_size: Kernel size for pooling layer. Default: ``16``.
         mean_val: Well-exposedness level E; lower values produce, brighter
             images. Default: ``0.6``.
+        required_grad: If ``True``, ``mean_val`` is learnable. Default: ``True``.
+        channel_mean: If ``True``, compute the mean across channels before
+            pooling. Default: ``True``.
         reduction: Reduction method: ``"none"``, ``"mean"``, or ``"sum"``.
             Default: ``"mean"``.
 
@@ -120,22 +129,52 @@ class ExposureValueControlLoss(BaseLoss):
         patch_size   : int   = 16,
         mean_val     : float = 0.6,
         required_grad: bool  = True,
+        channel_mean : bool  = True,
         reduction    : str   = "mean",
     ):
         super().__init__(reduction=reduction)
-        self.patch_size = patch_size
-        self.mean_val   = torch.nn.Parameter(torch.full([1], mean_val), requires_grad=required_grad)
-        self.pool       = torch.nn.AvgPool2d(self.patch_size)
+        self.channel_mean = channel_mean
+        self.mean_val     = nn.Parameter(torch.full([1], mean_val), requires_grad=required_grad)
+        self.pool         = nn.AvgPool2d(patch_size)
     
-    # noinspection PyMethodOverriding
     def forward(self, input: torch.Tensor) -> torch.Tensor:
-        x    = torch.mean(input, 1, keepdim=True)  # Channel-wise mean: [B, 1, H, W]
-        mean = self.pool(x) ** 0.5                 # Pooled mean:       [B, 1, H, W]
+        x = input
+        if self.channel_mean:
+            x = torch.mean(x, 1, keepdim=True)  # Channel-wise mean: [B, 1, H, W]
+        mean = self.pool(x) ** 0.5              # Pooled mean:       [B, 1, H, W]
         loss = torch.pow((mean - self.mean_val), 2)
         loss = torch.abs(torch.mean(loss))
         return loss
 
 
+class TotalVariationLoss(BaseLoss):
+    """Total Variation Loss on the Illumination (Illumination Smoothness Loss)
+    preserves monotonicity relations between neighboring pixels to avoid
+    aggressive and sharp changes.
+
+    Args:
+        reduction: Reduction method: ``"none"``, ``"mean"``, or ``"sum"``.
+            Default: ``"mean"``.
+
+    References:
+        - https://github.com/Li-Chongyi/Zero-DCE/blob/master/Zero-DCE_code/Myloss.py
+    """
+    
+    def __init__(self, reduction: str = "mean"):
+        super().__init__(reduction=reduction)
+    
+    def forward(self, input: torch.Tensor) -> torch.Tensor:
+        x = input
+        b, c, h, w = x.size()
+        count_h    = (x.size()[2]-1) * x.size()[3]
+        count_w    =  x.size()[2] * (x.size()[3] - 1)
+        h_tv       = torch.pow((x[:, :, 1:,  :] - x[:, :, :h - 1, :]), 2).sum()
+        w_tv       = torch.pow((x[:, :,  :, 1:] - x[:, :, :, :w - 1]), 2).sum()
+        loss       = 2 * (h_tv / count_h + w_tv / count_w) / b
+        return loss
+
+
+# ----- Geometry Loss -----
 class DepthAwareIlluminationLoss(BaseLoss):
     """Calculate the depth-weighted smoothness loss for 4D tensors.
 
@@ -170,79 +209,6 @@ class DepthAwareIlluminationLoss(BaseLoss):
         loss = loss_dx + loss_dy
         loss = self.reduce(loss=loss)
         return loss
-
-
-class EdgeAwareIlluminationLoss(BaseLoss):
-    """Edge-Aware Illumination Loss penalizes illumination changes along strong
-    edges.
-
-    Args:
-        beta: Weighting factor for edge influence. Default: ``1.0``.
-        reduction: Reduction method: ``"none"``, ``"mean"``, or ``"sum"``.
-            Default: ``"mean"``.
-    """
-    
-    def __init__(self, beta: float = 1.0, reduction: str = "mean"):
-        super().__init__(reduction=reduction)
-        self.beta = beta
-    
-    def forward(self, input: torch.Tensor, edge: torch.Tensor) -> torch.Tensor:
-        # Calculate gradients of illumination map (L) in x and y directions
-        L_dx = input[:, :, :, 1:] - input[:, :, :, :-1]
-        L_dy = input[:, :, 1:, :] - input[:, :, :-1, :]
-        
-        # Calculate gradients of edge map (E) in x and y directions
-        E_dx = edge[:, :, :, 1:] - edge[:, :, :, :-1]
-        E_dy = edge[:, :, 1:, :] - edge[:, :, :-1, :]
-        
-        # Apply edge weights to illumination gradients; areas with stronger edges have lower weight
-        # weight_dx = torch.exp(-torch.abs(E_dx))
-        # weight_dy = torch.exp(-torch.abs(E_dy))
-        weight_dx = 1 - self.beta * torch.abs(E_dx)
-        weight_dy = 1 - self.beta * torch.abs(E_dy)
-        
-        # Calculate edge-aware losses by penalizing illumination changes along strong edges
-        loss_dx = torch.mean(weight_dx * torch.abs(L_dx))
-        loss_dy = torch.mean(weight_dy * torch.abs(L_dy))
-        
-        # Sum the losses from both directions
-        loss = loss_dx + loss_dy
-        loss = self.reduce(loss=loss)
-        return loss
-
-
-class TotalVariationLoss(BaseLoss):
-    """Total Variation Loss on the Illumination (Illumination Smoothness Loss)
-    preserves monotonicity relations between neighboring pixels to avoid
-    aggressive and sharp changes.
-
-    Args:
-        reduction: Reduction method: ``"none"``, ``"mean"``, or ``"sum"``.
-            Default: ``"mean"``.
-
-    References:
-        - https://github.com/Li-Chongyi/Zero-DCE/blob/master/Zero-DCE_code/Myloss.py
-    """
-    
-    def __init__(self, reduction: str = "mean"):
-        super().__init__(reduction=reduction)
-    
-    # noinspection PyMethodOverriding
-    def forward(self, input : torch.Tensor) -> torch.Tensor:
-        x = input
-        b, _, h_x, w_x = x.size()
-        count_h = self._tensor_size(x[:, :, 1:, :])  # (x.size()[2]-1) * x.size()[3]
-        count_w = self._tensor_size(x[:, :, :, 1:])  # x.size()[2] * (x.size()[3] - 1)
-        h_tv    = torch.pow((x[:, :, 1:,  :] - x[:, :, :h_x - 1, :]), 2).sum()
-        w_tv    = torch.pow((x[:, :,  :, 1:] - x[:, :, :, :w_x - 1]), 2).sum()
-        loss    = 2 * (h_tv / count_h + w_tv / count_w) / b
-        loss    = self.reduce(loss=loss)
-        return loss
-        
-    @staticmethod
-    def _tensor_size(t: torch.Tensor) -> int:
-        """Computes the total number of elements in the tensor."""
-        return t.size()[1] * t.size()[2] * t.size()[3]
 
 
 # ----- Objective Loss -----
@@ -454,35 +420,35 @@ class SpatialConsistencyLoss(BaseLoss):
                 [0, 0, 0, 0,  0]
             ]).unsqueeze(0).unsqueeze(0)
             
-        self.weight_left  = torch.nn.Parameter(data=kernel_left,  requires_grad=False)
-        self.weight_right = torch.nn.Parameter(data=kernel_right, requires_grad=False)
-        self.weight_up    = torch.nn.Parameter(data=kernel_up,    requires_grad=False)
-        self.weight_down  = torch.nn.Parameter(data=kernel_down,  requires_grad=False)
+        self.weight_left  = nn.Parameter(data=kernel_left,  requires_grad=False)
+        self.weight_right = nn.Parameter(data=kernel_right, requires_grad=False)
+        self.weight_up    = nn.Parameter(data=kernel_up,    requires_grad=False)
+        self.weight_down  = nn.Parameter(data=kernel_down,  requires_grad=False)
         if self.num_regions in [8, 16]:
-            self.weight_upleft    = torch.nn.Parameter(data=kernel_upleft,    requires_grad=False)
-            self.weight_upright   = torch.nn.Parameter(data=kernel_upright,   requires_grad=False)
-            self.weight_downleft  = torch.nn.Parameter(data=kernel_downleft,  requires_grad=False)
-            self.weight_downright = torch.nn.Parameter(data=kernel_downright, requires_grad=False)
+            self.weight_upleft    = nn.Parameter(data=kernel_upleft,    requires_grad=False)
+            self.weight_upright   = nn.Parameter(data=kernel_upright,   requires_grad=False)
+            self.weight_downleft  = nn.Parameter(data=kernel_downleft,  requires_grad=False)
+            self.weight_downright = nn.Parameter(data=kernel_downright, requires_grad=False)
         if self.num_regions in [16, 24]:
-            self.weight_left2       = torch.nn.Parameter(data=kernel_left2,       requires_grad=False)
-            self.weight_right2      = torch.nn.Parameter(data=kernel_right2,      requires_grad=False)
-            self.weight_up2         = torch.nn.Parameter(data=kernel_up2,         requires_grad=False)
-            self.weight_down2       = torch.nn.Parameter(data=kernel_down2,       requires_grad=False)
-            self.weight_up2left2    = torch.nn.Parameter(data=kernel_up2left2,    requires_grad=False)
-            self.weight_up2right2   = torch.nn.Parameter(data=kernel_up2right2,   requires_grad=False)
-            self.weight_down2left2  = torch.nn.Parameter(data=kernel_down2left2,  requires_grad=False)
-            self.weight_down2right2 = torch.nn.Parameter(data=kernel_down2right2, requires_grad=False)
+            self.weight_left2       = nn.Parameter(data=kernel_left2,       requires_grad=False)
+            self.weight_right2      = nn.Parameter(data=kernel_right2,      requires_grad=False)
+            self.weight_up2         = nn.Parameter(data=kernel_up2,         requires_grad=False)
+            self.weight_down2       = nn.Parameter(data=kernel_down2,       requires_grad=False)
+            self.weight_up2left2    = nn.Parameter(data=kernel_up2left2,    requires_grad=False)
+            self.weight_up2right2   = nn.Parameter(data=kernel_up2right2,   requires_grad=False)
+            self.weight_down2left2  = nn.Parameter(data=kernel_down2left2,  requires_grad=False)
+            self.weight_down2right2 = nn.Parameter(data=kernel_down2right2, requires_grad=False)
         if self.num_regions in [24]:
-            self.weight_up2left1    = torch.nn.Parameter(data=kernel_up2left1,    requires_grad=False)
-            self.weight_up2right1   = torch.nn.Parameter(data=kernel_up2right1,   requires_grad=False)
-            self.weight_up1left2    = torch.nn.Parameter(data=kernel_up1left2,    requires_grad=False)
-            self.weight_up1right2   = torch.nn.Parameter(data=kernel_up1right2,   requires_grad=False)
-            self.weight_down2left1  = torch.nn.Parameter(data=kernel_down2left1,  requires_grad=False)
-            self.weight_down2right1 = torch.nn.Parameter(data=kernel_down2right1, requires_grad=False)
-            self.weight_down1left2  = torch.nn.Parameter(data=kernel_down1left2,  requires_grad=False)
-            self.weight_down1right2 = torch.nn.Parameter(data=kernel_down1right2, requires_grad=False)
+            self.weight_up2left1    = nn.Parameter(data=kernel_up2left1,    requires_grad=False)
+            self.weight_up2right1   = nn.Parameter(data=kernel_up2right1,   requires_grad=False)
+            self.weight_up1left2    = nn.Parameter(data=kernel_up1left2,    requires_grad=False)
+            self.weight_up1right2   = nn.Parameter(data=kernel_up1right2,   requires_grad=False)
+            self.weight_down2left1  = nn.Parameter(data=kernel_down2left1,  requires_grad=False)
+            self.weight_down2right1 = nn.Parameter(data=kernel_down2right1, requires_grad=False)
+            self.weight_down1left2  = nn.Parameter(data=kernel_down1left2,  requires_grad=False)
+            self.weight_down1right2 = nn.Parameter(data=kernel_down1right2, requires_grad=False)
         
-        self.pool = torch.nn.AvgPool2d(patch_size)  # Default 4
+        self.pool = nn.AvgPool2d(patch_size)  # Default 4
     
     def forward(self, input: torch.Tensor, target: torch.Tensor) -> torch.Tensor:
         # Ensure weights are on the same device as input

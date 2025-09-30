@@ -1,7 +1,7 @@
 import torch
 from torch.optim.lr_scheduler import CosineAnnealingLR
 from torch.nn.parallel import DistributedDataParallel as DDP
-from ptflops import get_model_complexity_info
+# from ptflops import get_model_complexity_info
 
 from .DarkIR import DarkIR   
 
@@ -27,7 +27,7 @@ def create_model(opt, rank, device, adapter=False, torchrun=False):
     if rank == 0:
         # print(f'Using {name} network')
         input_size   = (3, 512, 512)
-        macs, params = get_model_complexity_info(model, input_size, print_per_layer_stat = False)
+        # macs, params = get_model_complexity_info(model, input_size, print_per_layer_stat = False)
         # print(f'Computational complexity at {input_size}: {macs}')
         # print('Number of parameters: ', params)
     else:

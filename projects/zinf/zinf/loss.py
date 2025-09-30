@@ -2,8 +2,6 @@
 # -*- coding: utf-8 -*-
 
 __all__ = [
-    "L_exp",
-    "L_tv",
     "Loss",
 ]
 
@@ -12,6 +10,7 @@ from typing import Literal
 import torch
 
 from mon.core import log, nn
+from mon.core.nn import functional as F
 
 
 class Loss(nn.BaseLoss):
@@ -74,28 +73,36 @@ class Loss(nn.BaseLoss):
         return loss
 
 
-class L_exp(nn.Module):
-
-    def __init__(self, patch_size: int, mean_val: float):
-        super().__init__()
-        self.pool     = nn.AvgPool2d(patch_size)
-        self.mean_val = mean_val
-
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
-        mean = self.pool(x) ** 0.5
-        d    = torch.abs(torch.mean(torch.pow(mean - torch.FloatTensor([self.mean_val]).to(x.device), 2)))
-        return d
-
-
-class L_tv(nn.Module):
-
-    def __init__(self):
-        super().__init__()
-
-    def forward(self, x):
-        b, c, h, w = x.shape
-        count_h    = (x.size()[2] - 1) * x.size()[3]
-        count_w    = x.size()[2] * (x.size()[3] - 1)
-        h_tv       = torch.pow((x[:, :, 1:, :] - x[:, :, :h - 1, :]), 2).sum()
-        w_tv       = torch.pow((x[:, :, :, 1:] - x[:, :, :, :w - 1]), 2).sum()
-        return 2 * (h_tv / count_h + w_tv / count_w) / b
+class L_edge(nn.BaseLoss):
+    """Computes edge-aware loss to penalize blurring by ensuring enhanced
+    gradients are at least as strong as input.
+    """
+    
+    def __init__(self, reduction: str = "mean"):
+        super().__init__(reduction=reduction)
+    
+    def sobel_gradient(self, image: torch.Tensor) -> torch.Tensor:
+        """Computes Sobel gradient magnitude for the input image."""
+        # Assume image is (b, c, h, w) with c=1 for Value component
+        sobel_x = torch.tensor(
+            data=[[-1, 0, 1],
+                  [-2, 0, 2],
+                  [-1, 0, 1]],
+            dtype=image.dtype, device=image.device).unsqueeze(0).unsqueeze(0)
+        sobel_y = torch.tensor(
+            data=[[-1, -2, -1],
+                  [ 0,  0,  0],
+                  [ 1,  2,  1]],
+            dtype=image.dtype, device=image.device).unsqueeze(0).unsqueeze(0)
+        grad_x = F.conv2d(image, sobel_x, padding=1)
+        grad_y = F.conv2d(image, sobel_y, padding=1)
+        grad   = torch.sqrt(grad_x**2 + grad_y**2 + 1e-6)
+        return grad
+    
+    def forward(self, y: torch.Tensor, z: torch.Tensor) -> torch.Tensor:
+        sobel_y = self.sobel_gradient(y)
+        sobel_z = self.sobel_gradient(z)
+        # Penalize where enhanced has weaker edges
+        loss    = torch.max(torch.zeros_like(sobel_y), sobel_y - sobel_z)
+        loss    = self.reduce(loss)
+        return loss

@@ -18,7 +18,6 @@ import torch
 
 from mon.constants import MODELS
 from mon.core import image as I, MLType, ModelMixin, nn, Path, Task
-from . import loss as L
 from .inr import FINER, PE_FINER, PE_SIREN, SIREN
 from .utils import *
 
@@ -68,57 +67,90 @@ class ZINF(nn.Module, ModelMixin):
             add_layers = add_layers,
         )
         self.state_dict = self.model.state_dict()
-        
+    
     def forward(self, image: torch.Tensor, depth: torch.Tensor = None, save_debug: bool = False) -> torch.Tensor:
         window_size = self.window_size
         imgsz       = self.hidden_dim
         device      = image.device
-        
+       
         # Preprocess
         hvi         = I.RGBToHVI(requires_grad=False).to(device)
         image_hvi   = hvi.rgb_to_hvi(image)
         image_hv    = image_hvi[:, 0:2, :, :]
         image_i     = image_hvi[:, 2:3, :, :]
         image_i_lr  = interpolate_image(image_i, imgsz)
-        patches     = create_patches(image_i_lr, window_size)
-        coords      = create_coords(imgsz).to(device)
+        # coords      = create_coords(imgsz).to(device)
+        coords      = create_noisy_coords(imgsz).to(device)
         if self.use_depth:
-            depth_lr  = interpolate_image(depth, imgsz)       if depth is not None else None
-            patches_d = create_patches(depth_lr, window_size) if depth is not None else None
+            depth_lr  = interpolate_image(depth, imgsz)
+            patches_d = create_patches(depth_lr, window_size)
+            # patches  = create_depth_aware_patches(image_i_lr, depth_lr, window_size)
+            patches   = create_patches(image_i_lr, window_size)
         else:
             depth_lr  = None
             patches_d = None
+            patches   = create_patches(image_i_lr, window_size)
+        # print(f"image_i_lr: {image_i_lr.shape}, depth_lr: {depth_lr.shape}, coords: {coords.shape}, patches: {patches.shape}")
         
         # Optimize
         self.model.load_state_dict(self.state_dict)
         self.model.train()
-        optimizer = nn.Adam(self.model.parameters(), lr=1e-5, betas=(0.9, 0.999), weight_decay=3e-4)
-        L_exp     = L.L_exp(16, self.L).to(device)
-        L_tv      = L.L_tv().to(device)
-
-        image_i_fixed_lr = None
+        # optimizer = nn.Adam(self.model.parameters(), lr=1e-5, betas=(0.9, 0.999), weight_decay=3e-4)
+        optimizer = nn.LBFGS(self.model.parameters(), lr=1, max_iter=4, history_size=10, line_search_fn="strong_wolfe")
+        L_exp     = nn.ExposureControlLoss(16, self.L).to(device)
+        L_tv      = nn.TotalVariationLoss().to(device)
         for i in range(self.iters):
-            optimizer.zero_grad()
-            illu_res_lr      = self.model(patches, coords, patches_d)
-            illu_res_lr      = illu_res_lr.view(1, 1, imgsz, imgsz)
-            illu_lr          = illu_res_lr + image_i_lr
-            image_i_fixed_lr = image_i_lr / (illu_lr + 1e-4)
+            # optimizer.zero_grad()
+            # illu_res_lr      = self.model(patches, coords, patches_d)
+            # illu_res_lr      = illu_res_lr.view(1, 1, imgsz, imgsz)
+            # illu_lr          = illu_res_lr + image_i_lr
+            # image_i_fixed_lr = image_i_lr / (illu_lr + 1e-4)
+            # l_spa            = torch.mean(torch.abs(torch.pow(illu_lr - image_i_lr, 2)))
+            # l_tv             = L_tv(illu_lr)
+            # l_exp            = torch.mean(L_exp(illu_lr))
+            # l_sparsity       = torch.mean(image_i_fixed_lr)
+            # loss             = l_spa + 20 * l_tv + 8 * l_exp + 5 * l_sparsity
+            # loss.backward()
+            # optimizer.step()
             
-            l_spa      = torch.mean(torch.abs(torch.pow(illu_lr - image_i_lr, 2)))
-            l_tv       = L_tv(illu_lr)
-            l_exp      = torch.mean(L_exp(illu_lr))
-            l_sparsity = torch.mean(image_i_fixed_lr)
-            loss       = l_spa + 20 * l_tv + 8 * l_exp + 5 * l_sparsity
+            def closure():
+                optimizer.zero_grad()  # Zero the gradients
+                illu_res_lr      = self.model(patches, coords, patches_d)
+                illu_res_lr      = illu_res_lr.view(1, 1, imgsz, imgsz)
+                illu_lr          = illu_res_lr + image_i_lr
+                image_i_fixed_lr = image_i_lr / (illu_lr + 1e-4)
+                l_spa            = torch.mean(torch.abs(torch.pow(illu_lr - image_i_lr, 2)))
+                l_tv             = L_tv(illu_lr)
+                l_exp            = torch.mean(L_exp(illu_lr))
+                l_sparsity       = torch.mean(image_i_fixed_lr)
+                loss             = 1 * l_spa + 20 * l_tv + 8 * l_exp + 5 * l_sparsity
+                loss.backward()  # Compute gradients
+                return loss
             
-            loss.backward()
-            optimizer.step()
+            optimizer.step(closure)
         
-        # Postprocess
-        image_i_fixed   = filter_up(image_i_lr, image_i_fixed_lr, image_i)
-        image_hsv_fixed = torch.cat((image_hv, image_i_fixed), dim=1).to(device)
-        image_rgb_fixed = hvi.hvi_to_rgb(image_hsv_fixed)
-        enhanced        = image_rgb_fixed
+        # Infer
+        illu_res_lr      = self.model(patches, coords, patches_d)
+        illu_res_lr      = illu_res_lr.view(1, 1, imgsz, imgsz)
+        illu_lr          = illu_res_lr + image_i_lr
+        image_i_fixed_lr = image_i_lr / (illu_lr + 1e-4)
 
-        return {
-            "enhanced": enhanced,
-        }
+        # Postprocess
+        image_i_fixed    = filter_up(image_i_lr, image_i_fixed_lr, image_i)
+        image_hsv_fixed  = torch.cat((image_hv, image_i_fixed), dim=1).to(device)
+        image_rgb_fixed  = hvi.hvi_to_rgb(image_hsv_fixed)
+        enhanced         = image_rgb_fixed
+        
+        if save_debug:
+            return {
+                "image_i_lr"      : image_i_lr,
+                "depth_lr"        : depth_lr,
+                "illu_res_lr"     : illu_res_lr,
+                "illu_lr"         : illu_lr,
+                "image_i_fixed_lr": image_i_fixed_lr,
+                "enhanced"        : enhanced,
+            }
+        else:
+            return {
+                "enhanced": enhanced,
+            }

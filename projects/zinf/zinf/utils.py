@@ -3,6 +3,8 @@
 
 __all__ = [
     "create_coords",
+    "create_depth_aware_patches",
+    "create_noisy_coords",
     "create_patches",
     "ff_embedding",
     "filter_up",
@@ -29,7 +31,27 @@ def create_coords(size: int) -> torch.Tensor:
     return coords
 
 
-def create_patches(image: torch.Tensor, kernel_size: int = 1) -> torch.Tensor:
+def create_noisy_coords(size: int, sigma: float = 0.5) -> torch.Tensor:
+    """Creates a coordinates grid with Gaussian noise added.
+
+    Args:
+        size: The size of the coordinates grid.
+        sigma: Standard deviation of the Gaussian noise.
+    """
+    h, w   = size, size
+    coords = np.dstack(np.meshgrid(np.linspace(0, 1, h), np.linspace(0, 1, w)))
+    coords = torch.from_numpy(coords).float()
+
+    # Add Gaussian noise
+    noise        = torch.normal(mean=0.0, std=sigma, size=coords.shape).to(coords.device)
+    noisy_coords = coords + noise
+    # Clip to ensure coordinates stay within [0, 1]
+    noisy_coords = torch.clamp(noisy_coords, 0.0, 1.0)
+
+    return noisy_coords
+
+
+def create_patches(image: torch.Tensor, kernel_size: int = 7) -> torch.Tensor:
     """Creates a tensor where the channel contains patch information."""
     b, c, h, w = image.shape
     kernel     = torch.zeros((kernel_size ** 2, c, kernel_size, kernel_size)).to(image.device)
@@ -38,10 +60,45 @@ def create_patches(image: torch.Tensor, kernel_size: int = 1) -> torch.Tensor:
             # kernel[int(torch.sum(kernel).item()), 0, i, j] = 1
             kernel[i + j * kernel_size, 0, i, j] = 1
 
-    pad       = nn.ReflectionPad2d(kernel_size // 2)
-    im_padded = pad(image)
-    extracted = F.conv2d(im_padded, kernel, padding=0).squeeze(0)
-    return torch.movedim(extracted, 0, -1)
+    pad          = nn.ReflectionPad2d(kernel_size // 2)
+    image_padded = pad(image)
+    patches      = F.conv2d(image_padded, kernel, padding=0).squeeze(0)
+    return torch.movedim(patches, 0, -1)
+
+
+def create_depth_aware_patches(
+    image      : torch.Tensor,
+    depth      : torch.Tensor,
+    kernel_size: int   = 7,
+    alpha      : float = 0.1
+) -> torch.Tensor:
+    """Creates a tensor where the channel contains weighted patch information based on depth."""
+    b, c, h, w = image.shape
+    kernel = torch.zeros((kernel_size ** 2, c, kernel_size, kernel_size)).to(image.device)
+    for i in range(kernel_size):
+        for j in range(kernel_size):
+            kernel[i + j * kernel_size, 0, i, j] = 1
+
+    pad           = nn.ReflectionPad2d(kernel_size // 2)
+    image_padded  = pad(image)
+    image_patches = F.conv2d(image_padded, kernel, padding=0).squeeze(0)
+    depth_padded  = pad(depth)
+    depth_patches = F.conv2d(depth_padded, kernel, padding=0).squeeze(0)
+
+    # Compute center index in patch
+    center_idx   = (kernel_size ** 2) // 2
+    depth_center = depth_patches[center_idx, :, :].unsqueeze(0).repeat(kernel_size ** 2, 1, 1)
+    
+    # FD = exp(-alpha * |depth_center - depth_neighbor|)
+    depth_diff = torch.abs(depth_center - depth_patches)
+    fd         = torch.exp(-alpha * depth_diff)  # Shape for multiplication
+    
+    # Weight the image patches and normalize
+    patches     = image_patches * fd
+    weights_sum = fd.sum(dim=0, keepdim=True) + 1e-6  # Avoid division by zero
+    patches     = patches / weights_sum
+
+    return torch.movedim(patches, 0, -1)
 
 
 def interpolate_image(image: torch.Tensor, size: int) -> torch.Tensor:

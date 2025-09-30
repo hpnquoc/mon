@@ -9,6 +9,7 @@ source ./utils.sh
 # ----- Input -----
 archs=(
     #"*"                                 # For all architectures
+    "colie"
     "zinf"
 )
 models=(

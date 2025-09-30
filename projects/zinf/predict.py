@@ -26,7 +26,7 @@ root_dir     = current_file.parents[0]
 
 
 # ----- Utils -----
-def compute_model_stats(model: mon.nn.Module, imgsz: int = 512) -> tuple[float, float]:
+def compute_model_stats(model: mon.nn.Module, imgsz: int = 512) -> tuple[float, float, float]:
     """Computes FLOPs and parameters for a model.
 
     Args:
