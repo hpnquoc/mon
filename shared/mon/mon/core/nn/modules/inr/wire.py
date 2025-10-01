@@ -19,6 +19,7 @@ import torch
 import torch.nn as nn
 
 
+# ----- Layer -----
 class RealGaborLayer(nn.Module):
     r"""Applies an affine linear transformation with real Gabor activation to
     the incoming data: :math:`y = \cos(w_0 \cdot (xA^T + b)) \cdot
@@ -115,6 +116,7 @@ class ComplexGaborLayer(nn.Module):
         return torch.exp(1j * omega - scale.abs().square())
 
 
+# ----- MLP -----
 class WIRE(nn.Module):
     """Implements the WIRE MLP.
 

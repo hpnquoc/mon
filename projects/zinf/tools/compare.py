@@ -16,17 +16,15 @@ data_dir     = root_dir / "data"
 run_dir      = root_dir / "run"
 
 models = [
-    # "zinf_siren",
-    "zinf_finer",
-    "zinf_pe_siren",
-    # "zinf_pe_finer",
-    # "zinf_siren_d",
+    "zinf_siren",
+    "zinf_siren_asym",
+    "zinf_siren_sym",
 ]
 
 
 def compare(data: str) -> str:
-    colie_dir  = run_dir  / "predict" / "colie" / "colie" / data / "pred"
-    model_dirs = [run_dir / "predict" / "zinf"  / m / data / "pred" for m in models]
+    colie_dir  =  run_dir / "predict" / "colie" / "colie" / data / "pred"
+    model_dirs = [run_dir / "predict" / "zinf"  / m       / data / "pred" for m in models]
     
     colie_files = sorted(list(colie_dir.glob("*")))
     for colie_file in colie_files:

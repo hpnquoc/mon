@@ -4,12 +4,12 @@
 """Implements the Fourier Feature Network (FFN) MLP.
 
 References:
-    - Code: https://github.com/liuzhen0212/FINER/blob/main/models.py
+    - Code: https://xeonqq.github.io/machine%20learning/fourier-feature-siren/
 """
 
 __all__ = [
-    "FFEmbedding",
-    "FFEmbedding_MLP",
+    "FFEncoding",
+    "FFEncodingMLP",
 ]
 
 import numpy as np
@@ -17,7 +17,8 @@ import torch
 import torch.nn as nn
 
 
-class FFEmbedding(nn.Module):
+# ----- Layer -----
+class FFEncoding(nn.Module):
     
     def __init__(self, in_features: int, B: float = 20.0):
         super().__init__()
@@ -37,7 +38,8 @@ class FFEmbedding(nn.Module):
             return embedding
         
 
-class FFEmbedding_MLP(nn.Module):
+# ----- MLP -----
+class FFEncodingMLP(nn.Module):
     """Implements the Positional Encoding (PE) MLP.
 
     Args:
@@ -62,7 +64,7 @@ class FFEmbedding_MLP(nn.Module):
         bias         : bool  = True,
     ):
         super().__init__()
-        self.encoding = FFEmbedding(in_features=in_features, B=B)
+        self.encoding = FFEncoding(in_features=in_features, B=B)
         
         # First layer
         self.net = []

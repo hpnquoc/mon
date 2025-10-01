@@ -10,6 +10,7 @@ import torch
 import torch.nn as nn
 
 
+# ----- Layer -----
 class GaussLayer(nn.Module):
     r"""Applies an affine linear transformation with Gaussian activation to the
     incoming data: :math:`y = \exp(-(xA^T + b)^2)`, where :math:`\exp`
@@ -40,6 +41,7 @@ class GaussLayer(nn.Module):
         return torch.exp(-(self.scale * self.linear(input)) ** 2)
 
 
+# ----- MLP -----
 class GAUSS(nn.Module):
     """Implements the Gaussian MLP.
 

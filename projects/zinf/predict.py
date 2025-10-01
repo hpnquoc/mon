@@ -12,6 +12,8 @@ References:
 import copy
 
 import box
+import cv2
+import numpy as np
 import thop
 import torch
 
@@ -104,20 +106,24 @@ def predict(args: dict | box.Box) -> str:
             meta  = datapoint["meta"][0]
             path  = mon.Path(meta["path"])
             image = datapoint["image"]
-            depth = datapoint.get("depth", None)
             image = image.to(device)
-            depth = depth.to(device) if depth is not None else None
+            # depth = datapoint.get("depth", None)
+            # depth = depth.to(device) if depth is not None else None
             timers.preprocess.tock()
 
             # Optimize
             timers.infer.tick()
-            outputs = model(image, depth, save_debug=args.save_debug)
+            # outputs = model(image, depth, save_debug=args.save_debug)
+            outputs = model(image, save_debug=args.save_debug)
             timers.infer.tock()
-
+            
             # Postprocess
             timers.postprocess.tick()
             enhanced = outputs["enhanced"]
             enhanced = mon.image.to_array(enhanced)
+            if args.save_debug:
+                image       = mon.image.to_array(image)
+                debug_image = cv2.hconcat([image, enhanced])
             timers.postprocess.tock()
             
             # Save
@@ -127,8 +133,18 @@ def predict(args: dict | box.Box) -> str:
                 mon.image.save_image(enhanced, out_path)
             # Save Debug
             if args.save_debug:
-                out_dir = mon.rt.parse_output_dir(args.save_dir, data_name, mon.SAVE_DEBUG_DIR, path, args.keep_subdirs, args.save_nearby)
+                out_dir  = mon.rt.parse_output_dir(args.save_dir, data_name, mon.SAVE_DEBUG_DIR, path, args.keep_subdirs, args.save_nearby)
+                out_path = out_dir / f"{path.stem}_debug{mon.SAVE_IMAGE_EXT}"
+                mon.image.save_image(debug_image, out_path)
                 for k, v in outputs.items():
+                    # if k == "residual":
+                    #     v = v.squeeze(0).detach().cpu().clamp(0, 1).permute(1, 2, 0).numpy()
+                    #     v = np.clip(v * 255, 0, 255).astype("uint8")
+                    #     v = cv2.normalize(v, None, 0, 255, cv2.NORM_MINMAX)
+                    #     v = cv2.applyColorMap(v, cv2.COLORMAP_JET)
+                    #     v = cv2.cvtColor(v, cv2.COLOR_BGR2RGB)
+                    #     out_path = out_dir / f"{path.stem}_{k}{mon.SAVE_IMAGE_EXT}"
+                    #     mon.image.save_image(v, out_path)
                     if mon.image.is_image(v):
                         out_path = out_dir / f"{path.stem}_{k}{mon.SAVE_IMAGE_EXT}"
                         mon.image.save_image(v, out_path)

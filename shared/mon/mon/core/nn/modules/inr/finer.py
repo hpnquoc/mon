@@ -20,6 +20,7 @@ import torch
 import torch.nn as nn
 
 
+# ----- Layer -----
 class FINERLayer(nn.Module):
     r"""Applies an affine linear transformation with scaled sine activation to
     the incoming data: :math:`y = \sin(w_0 \cdot (xA^T + b) \cdot \text{scale})`,
@@ -91,7 +92,8 @@ class FINERLayer(nn.Module):
         scale  = self.scale(linear)
         return torch.sin(self.omega_0 * scale * linear)
         
-        
+       
+# ----- MLP -----
 class FINER(nn.Module):
     """Implements the FINER MLP.
 

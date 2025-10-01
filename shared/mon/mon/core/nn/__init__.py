@@ -17,6 +17,22 @@ __all__ = [
 # noinspection PyUnusedImports
 from torch.nn import *  # Export all modules from ``torch.nn``
 
+from mon.core.nn.modules import (
+    activation as activation,
+    attention as attention,
+    cnn as cnn,
+    container as container,
+    dropout as dropout,
+    fusion as fusion,
+    inr as inr,
+    linear as linear,
+    misc as misc,
+    norm as norm,
+    padding as padding,
+    pooling as pooling,
+    rnn as rnn,
+    transformer as transformer,
+)
 from .losses import *
 from .metrics import *
 from .model import *

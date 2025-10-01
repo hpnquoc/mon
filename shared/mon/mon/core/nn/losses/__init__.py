@@ -14,7 +14,6 @@ __all__ = [
     "CosineSimilarityLoss",
     "CrossEntropyLoss",
     "DepthAwareIlluminationLoss",
-    "EdgeAwareIlluminationLoss",
     "EdgeLoss",
     "ExposureControlLoss",
     "ExposureValueControlLoss",

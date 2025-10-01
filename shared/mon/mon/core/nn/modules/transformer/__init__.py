@@ -3,4 +3,18 @@
 
 """Implements transformer layers."""
 
-from .core import *
+__all__ = [
+    "Transformer",
+    "TransformerDecoder",
+    "TransformerDecoderLayer",
+    "TransformerEncoder",
+    "TransformerEncoderLayer",
+]
+
+from .core import (
+    Transformer,
+    TransformerDecoder,
+    TransformerDecoderLayer,
+    TransformerEncoder,
+    TransformerEncoderLayer,
+)

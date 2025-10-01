@@ -8,59 +8,68 @@ References:
 """
 
 __all__ = [
-    "PositionalEncoding",
-    "PE_MLP",
+    "PosEncodingNeRF",
+    "PosEncodingMLP",
 ]
 
+import math
+from typing import Any
+
+import numpy as np
 import torch
 import torch.nn as nn
 
 
-class PositionalEncoding(nn.Module):
-    r"""Implements the Positional Encoding (PE) as described in the NeRF paper.
-    Given an input :math:`x`, the encoding is defined as:
-    .. math::
-        \gamma(x) = \left( x, \sin(2^0 \pi x), \cos(2^0 \pi x), \ldots,
-        \sin(2^{L-1} \pi x), \cos(2^{L-1} \pi x) \right)
+# ----- Layer -----
+class PosEncodingNeRF(nn.Module):
+    """Module to add positional encoding as in NeRF [Mildenhall et al. 2020]."""
     
-    where :math:`L` is the number of frequency bands.
-    
-    Args:
-        in_features: Size of each input sample.
-        N_freqs: Number of frequency bands.
-        logscale: If ``True``, frequency bands are spaced logarithmically. Default: ``True``.
-        
-    References:
-        - Code: https://github.com/liuzhen0212/FINER/blob/main/models.py
-    """
-
     def __init__(
         self,
-        in_features: int,
-        N_freqs    : int,
-        logscale   : bool = True,
-        *args, **kwargs
+        in_features    : int,
+        sidelength     : int  = 256,
+        num_frequencies: int  = 10,
+        fn_samples     : Any  = None,
+        use_nyquist    : bool = True
     ):
         super().__init__()
-        self.in_features  = in_features
-        self.N_freqs      = N_freqs
-        self.funcs        = [torch.sin, torch.cos]
-        self.out_features = in_features * (len(self.funcs) * N_freqs + 1)
+        self.in_features = in_features
         
-        if logscale:
-            self.freq_bands = 2 ** torch.linspace(0, N_freqs - 1, N_freqs)
-        else:
-            self.freq_bands = torch.linspace(1, 2 ** (N_freqs - 1), N_freqs)
+        if self.in_features == 3:
+            self.num_frequencies = num_frequencies
+        elif self.in_features == 2:
+            assert sidelength is not None
+            if isinstance(sidelength, int):
+                sidelength = (sidelength, sidelength)
+            self.num_frequencies = 4
+            if use_nyquist:
+                self.num_frequencies = self.get_num_frequencies_nyquist(min(sidelength[0], sidelength[1]))
+        elif self.in_features == 1:
+            assert fn_samples is not None
+            self.num_frequencies = 4
+            if use_nyquist:
+                self.num_frequencies = self.get_num_frequencies_nyquist(fn_samples)
 
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
-        out = [x]
-        for freq in self.freq_bands:
-            for func in self.funcs:
-                out += [func(freq * x)]
-        return torch.cat(out, -1)
-    
+        self.out_features = in_features + 2 * in_features * self.num_frequencies
 
-class PE_MLP(nn.Module):
+    def get_num_frequencies_nyquist(self, samples: int) -> int:
+        nyquist_rate = 1 / (2 * (2 * 1 / samples))
+        return int(math.floor(math.log(nyquist_rate, 2)))
+
+    def forward(self, coords: torch.Tensor) -> torch.Tensor:
+        coords   = coords.view(coords.shape[0], -1, self.in_features)
+        encoding = coords
+        for i in range(self.num_frequencies):
+            for j in range(self.in_features):
+                c        = coords[..., j]
+                sin      = torch.unsqueeze(torch.sin((2 ** i) * np.pi * c), -1)
+                cos      = torch.unsqueeze(torch.cos((2 ** i) * np.pi * c), -1)
+                encoding = torch.cat((encoding, sin, cos), axis=-1)
+        return encoding.reshape(coords.shape[0], -1, self.out_features)
+
+
+# ----- MLP -----
+class PosEncodingMLP(nn.Module):
     """Implements the Positional Encoding (PE) MLP.
 
     Args:
@@ -78,15 +87,15 @@ class PE_MLP(nn.Module):
     
     def __init__(
         self,
-        in_features  : int,
-        out_features : int,
-        hidden_dim   : int,
-        hidden_layers: int,
-        N_freqs      : int  = 10,
-        bias         : bool = True,
+        in_features    : int,
+        out_features   : int,
+        hidden_dim     : int,
+        hidden_layers  : int,
+        num_frequencies: int  = 10,
+        bias           : bool = True,
     ):
         super().__init__()
-        self.encoding = PositionalEncoding(in_features=in_features, N_freqs=N_freqs)
+        self.encoding = PosEncodingNeRF(in_features=in_features, num_frequencies=num_frequencies)
         
         # First layer
         self.net = []

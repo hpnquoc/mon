@@ -17,6 +17,7 @@ import torch
 import torch.nn as nn
 
 
+# ----- Layer -----
 class ConvINRLayer(nn.Module):
     
     def __init__(self, in_channels: int, out_channels: int, kernel_size: int = 3):
@@ -29,6 +30,7 @@ class ConvINRLayer(nn.Module):
         return self.relu(self.bn(self.conv(input)))
 
 
+# ----- MLP -----
 class ConvINR(nn.Module):
     
     def __init__(
